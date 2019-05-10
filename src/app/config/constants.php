@@ -28,6 +28,8 @@ define('BLACKBOARD_NEWS_ENABLED', false);
 define('BLACKBOARD_NEWS_PATH_VIEWS', 'blackboard-news');
 define('BLACKBOARD_NEWS_PATH_STATICS', 'statics/blackboard-news');
 define('BLACKBOARD_NEWS_PATH_JS', BLACKBOARD_NEWS_PATH_STATICS . '/js');
+//Blog integrado
+define('PIECES_PHP_BLOG_ENABLED', true);
 //Ubicaciones
 define('LOCATIONS_PATH_JS', 'statics/js/locations');
 //Temporizadores

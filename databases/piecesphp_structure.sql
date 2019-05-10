@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 10-05-2019 a las 16:45:48
+-- Tiempo de generación: 10-05-2019 a las 18:41:56
 -- Versión del servidor: 5.7.26-0ubuntu0.16.04.1
 -- Versión de PHP: 7.1.29-1+ubuntu16.04.1+deb.sury.org+1
 
@@ -130,6 +130,25 @@ CREATE TABLE `messages_responses` (
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `attachment` text COLLATE utf8_bin,
   `readed` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pcsphp_articles`
+--
+
+DROP TABLE IF EXISTS `pcsphp_articles`;
+CREATE TABLE `pcsphp_articles` (
+  `id` int(11) NOT NULL,
+  `author` bigint(20) NOT NULL,
+  `title` varchar(255) COLLATE utf8_bin NOT NULL,
+  `content` longtext COLLATE utf8_bin NOT NULL,
+  `meta` longtext COLLATE utf8_bin,
+  `start_date` datetime DEFAULT NULL,
+  `end_date` datetime DEFAULT NULL,
+  `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -303,6 +322,13 @@ ALTER TABLE `messages_responses`
   ADD KEY `message_id` (`message_id`);
 
 --
+-- Indices de la tabla `pcsphp_articles`
+--
+ALTER TABLE `pcsphp_articles`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `author` (`author`);
+
+--
 -- Indices de la tabla `pcsphp_blackboard_news_messages`
 --
 ALTER TABLE `pcsphp_blackboard_news_messages`
@@ -393,6 +419,12 @@ ALTER TABLE `messages_responses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `pcsphp_articles`
+--
+ALTER TABLE `pcsphp_articles`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `pcsphp_blackboard_news_messages`
 --
 ALTER TABLE `pcsphp_blackboard_news_messages`
@@ -475,6 +507,12 @@ ALTER TABLE `messages`
 ALTER TABLE `messages_responses`
   ADD CONSTRAINT `messages_responses_ibfk_1` FOREIGN KEY (`message_from`) REFERENCES `pcsphp_users` (`id`),
   ADD CONSTRAINT `messages_responses_ibfk_2` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`);
+
+--
+-- Filtros para la tabla `pcsphp_articles`
+--
+ALTER TABLE `pcsphp_articles`
+  ADD CONSTRAINT `pcsphp_articles_ibfk_1` FOREIGN KEY (`author`) REFERENCES `pcsphp_users` (`id`);
 
 --
 -- Filtros para la tabla `pcsphp_blackboard_news_messages`

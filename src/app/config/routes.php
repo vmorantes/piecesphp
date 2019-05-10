@@ -55,6 +55,7 @@ use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Test;
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 
 $prefix_lang = get_config('prefix_lang');
 $slim_app = get_config('slim_app');
@@ -71,6 +72,7 @@ $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servid
 $timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
 $tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
 $locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
+$articles = new PiecesRouteGroup($prefix_lang . '/articles'); //Blog
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
 
@@ -94,6 +96,9 @@ MessagesController::routes($mensajeria);
 
 //Importadores
 ImporterController::routes($importadores);
+
+//Blog
+ArticleController::routes($articles);
 
 $zona_administrativa->register(
     [
