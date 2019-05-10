@@ -1,0 +1,144 @@
+$bg-color-form-container: white;
+$primary-color: rgb(10, 70, 94);
+$secondary-color: rgb(230, 49, 41);
+
+body,
+html {
+    min-height: 100%;
+    height: 100%;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.container {
+    width: 100%;
+    min-height: 100vh;
+    background-position: center;
+    background-size: cover;
+
+    .form-container {
+        position: relative;
+        padding-top: 10rem;
+        padding-bottom: 2rem;
+        padding-left: 4rem;
+        padding-right: 4rem;
+        width: 480px;
+        min-height: 100vh;
+        max-height: 100vh;
+        background-color: $bg-color-form-container;
+
+        .header {
+            font-weight: 500;
+            font-size: 2rem;
+            color: $primary-color;
+            text-align: center;
+            max-width: 100%;
+            line-height: 2.5rem;
+        }
+
+        .caption {
+            margin: 0 auto;
+            width: 300px;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .content {
+            max-width: 100%;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 50px;
+            left: 30px;
+            width: 100%;
+            word-break: break-all;
+
+            .developer {
+                color: black;
+                opacity: 0.6;
+                font-size: 0.84rem;
+            }
+        }
+
+        .ui.form {
+            .ui.button.blue {
+                background-color: $primary-color;
+                transition: background-color 0.5s ease;
+
+                &:hover {
+                    background-color: transparentize($primary-color, 0.2)
+                }
+            }
+        }
+    }
+
+    img {
+        max-width: 100%;
+    }
+}
+
+@media screen and (max-width:768px) {
+    .container {
+        .form-container {
+            padding-left: 2rem;
+            padding-right: 2rem;
+            background-color: rgba(255, 255, 255, 0.8);
+            width: 100%;
+            padding-top: 4rem;
+
+            .footer {
+                margin-right: -2rem;
+            }
+
+            .ui.form {
+                .field {
+                    input {
+                        border: 0.5px solid $primary-color;
+
+                        &::placeholder {
+                            color: $primary-color;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (min-width:426px) and (max-width:768px) {
+    .container {
+        .form-container {
+            .content {
+                max-width: 65%;
+                margin-left: 20%;
+            }
+        }
+    }
+}
+
+@media screen and (orientation:landscape) and (max-height:400px) {
+    .container {
+        .form-container {
+            padding-top: 0.2rem;
+            padding-bottom: 0.2rem;
+
+            .caption {
+                height: 120px;
+
+                img {
+                    max-height: 100%;
+                }
+            }
+
+            .footer {
+                position: relative;
+                bottom: initial;
+                left: initial;
+                padding: 2rem 0.2rem 0rem;
+            }
+        }
+    }
+}

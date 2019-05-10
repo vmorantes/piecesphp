@@ -1,0 +1,468 @@
+<?php
+
+/**
+ * AdminPanelController.php
+ */
+
+namespace App\Controller;
+
+use App\Controller\UsersController;
+use App\Model\AvatarModel;
+use App\Model\UsersModel;
+use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\DataStructures\StringArray;
+use PiecesPHP\Core\HTML\Attribute;
+use PiecesPHP\Core\HTML\Collections\AttributeArray;
+use PiecesPHP\Core\HTML\HtmlElement;
+use PiecesPHP\Core\HTML\Table;
+use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Route;
+use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
+use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use \Slim\Http\Request as Request;
+use \Slim\Http\Response as Response;
+use App\Model\TicketsLogModel;
+
+/**
+ * AdminPanelController.
+ *
+ * Controlador del panel administrativo
+ *
+ * @package     App\Controller
+ * @author      Vicsen Morantes <sir.vamb@gmail.com>
+ * @version     v.1.0
+ * @copyright   Copyright (c) 2018
+ */
+class AdminPanelController extends \PiecesPHP\Core\BaseController
+{
+
+	/**
+	 * $user
+	 *
+	 * Usuario logueado
+	 *
+	 * @var \stdClass
+	 */
+	protected $user = null;
+
+	/**
+	 * $modelUsers
+	 *
+	 * @var \PiecesPHP\Core\BaseModel
+	 */
+	protected $modelUsers;
+
+	/**
+	 * $mapperUsers
+	 *
+	 * @var UsersModel
+	 */
+	protected $mapperUsers;
+
+	/**
+	 * $controllerUsers
+	 *
+	 * @var UsersController
+	 */
+	protected $controllerUsers;
+
+	/**
+	 * __construct
+	 *
+	 * @return static
+	 */
+	public function __construct()
+	{
+		parent::__construct(false); //No cargar ningún modelo automáticamente
+		$this->init();
+	}
+
+	/**
+	 * index
+	 *
+	 * Vista principal
+	 *
+	 * @param Request $req
+	 * @param Response $res
+	 * @param array $args
+	 * @return void
+	 */
+	public function indexView(Request $req, Response $res, array $args)
+	{
+		if (BLACKBOARD_NEWS_ENABLED) {
+			add_global_asset(BLACKBOARD_NEWS_PATH_JS . '/main.js', 'js');
+			$this->render('panel/layout/header');
+			$this->render('panel/pages/main');
+			$this->render('panel/layout/footer');
+		} else {
+			$this->render('panel/layout/header');
+			$this->render('pages/sample');
+			$this->render('panel/layout/footer');
+		}
+
+		return $res;
+	}
+
+	/**
+	 * formUserView
+	 *
+	 * Vista de creación/edición de usuario
+	 *
+	 * @param Request $req
+	 * @param Response $res
+	 * @param array $args
+	 * @return void
+	 */
+	public function formUserView(Request $req, Response $res, array $args)
+	{
+		set_custom_assets([
+			base_url('statics/vendor/admin/usuarios/js/acciones.js'),
+			base_url('statics/vendor/avatars/js/canvg.min.js'),
+			base_url('statics/vendor/avatars/js/avatar.js'),
+			base_url('statics/vendor/admin/usuarios/js/main.js'),
+		], 'js');
+
+		set_custom_assets([
+			base_url('statics/vendor/avatars/css/style.css'),
+		], 'css');
+
+		$route = $req->getAttribute('route');
+
+		$name_route = $route->getName();
+
+		$is_creation_view = $name_route == 'form-usuarios';
+
+		if ($is_creation_view) { //Si es la vista de creación
+
+			return $this->controllerUsers->formUserView($req, $res, $args, $this->user, null, true);
+		} else if (isset($args['id'])) { //Si es la vista de edición
+
+			$this->modelUsers->resetAll();
+
+			$user = $this->modelUsers->select()->where(['id' => $args['id']])->row();
+
+			return $this->controllerUsers->formUserView($req, $res, $args, $this->user, $user);
+		} else { //Si es la vista de perfil
+			return $this->controllerUsers->formUserView($req, $res, $args, $this->user, $this->user);
+		}
+	}
+
+	/**
+	 * errorLog
+	 *
+	 * @param Request $req
+	 * @param Response $res
+	 * @param array $args
+	 * @return Response
+	 */
+	public function errorLog(Request $req, Response $res, array $args)
+	{
+		$file = LOG_ERRORS_PATH . '/error.log.json';
+		$log = file_exists($file) ? file_get_contents($file) : '';
+		$log = json_decode($log, true);
+		if (json_last_error() != \JSON_ERROR_NONE || !is_array($log)) {
+			$log = [];
+		}
+		return $res->withJson($log);
+	}
+
+	/**
+	 * listadoUsersView
+	 *
+	 * Vista del listado de todos los usuarios
+	 *
+	 * @param Request $req
+	 * @param Response $res
+	 * @param array $args
+	 * @return void
+	 */
+	public function listadoUsersView(Request $req, Response $res, array $args)
+	{
+		set_custom_assets([
+			base_url('statics/vendor/admin/usuarios/js/main.js'),
+		], 'js');
+
+		$data['tabla'] = $this->tablaUsuarios($this->user->type)->printTable(false);
+
+		$this->render('panel/layout/header');
+		$this->render('panel/pages/list-usuarios', $data);
+		$this->render('panel/layout/footer');
+
+		return $res;
+	}
+
+	/**
+	 * tablaUsuarios
+	 *
+	 * @param mixed $typeUser
+	 * @return Table
+	 */
+	protected function tablaUsuarios($typeUser)
+	{
+
+		$titulos = new StringArray([
+			'#',
+			__('general', 'name'),
+			__('general', 'lastname'),
+			__('general', 'email'),
+			__('general', 'username'),
+			__('general', 'status'),
+			__('general', 'type'),
+			__('general', 'actions'),
+		]);
+
+		$columns_admins = [
+			'id',
+			'firstname',
+			'first_lastname',
+			'email',
+			'username',
+			'status',
+			'type',
+		];
+
+		$this->modelUsers->resetAll();
+
+		$this->modelUsers
+			->select($columns_admins)
+			->where([
+				'id' => [
+					'!=' => $this->user->id,
+				],
+			])
+			->execute(true);
+
+		$usuarios = $this->modelUsers->result();
+
+		foreach ($usuarios as $index => $usuario) {
+
+			$button_editar = new HtmlElement('a', '<i class="icon edit"></i>' . __('general', 'edit'));
+			$button_editar->setAttribute('class', 'ui green button');
+
+			$ruta_edicion = get_route('form-editar-usuarios', ['id' => $usuario['id']]);
+
+			$button_editar->setAttribute('href', $ruta_edicion);
+			$usuarios[$index]['actions'] = $button_editar->render(false);
+
+			if ($usuario['status'] == UsersModel::STATUS_USER_ACTIVE) {
+
+				$usuarios[$index]['status'] = __('general', 'active');
+			} else {
+
+				$usuarios[$index]['status'] = __('general', 'inactive');
+			}
+
+			foreach (Roles::getRolesIdentifiers() as $name => $code) {
+				if ($usuario['type'] == $code) {
+					$usuarios[$index]['type'] = $name;
+					break;
+				}
+			}
+
+			$usuarios[$index]['id'] = $index + 1;
+		}
+
+		$attrs = new AttributeArray([
+			new Attribute('datatable-js'),
+			new Attribute('class', 'ui table celled striped users'),
+			new Attribute('style', 'width:100%;'),
+		]);
+
+		$table = new Table($titulos, $usuarios, $attrs);
+		$table->setWithTfoot(false);
+
+		return $table;
+	}
+
+	/**
+	 * sendTicket
+	 *
+	 * Enviar mensaje al soporte
+	 *
+	 * @param Request $req
+	 * @param Response $res
+	 * @param array $args
+	 * @return Response
+	 */
+	public function sendTicket(Request $req, Response $res, array $args)
+	{
+		$name = $req->getParsedBodyParam('name', null);
+		$email = $req->getParsedBodyParam('email', null);
+		$subject = $req->getParsedBodyParam('subject', null);
+		$comments = $req->getParsedBodyParam('comments', null);
+
+		$params_ok = !in_array(null, [
+			$subject,
+			$email,
+			$name,
+			$comments,
+		]);
+
+		$operation_name = 'Crear ticket de soporte';
+		$result = new ResultOperations([
+			new Operation($operation_name),
+		], $operation_name);
+
+		$message_create = 'Ticket de soporte creado.';
+		$message_unknow_error = 'Ha ocurrido un error inesperado.';
+		$message_unexpected_or_missing_params = 'Información faltante o inesperada.';
+
+		if ($params_ok) {
+
+			$osTicketApi = new OsTicketAPI();
+
+			$subject = "$subject " . get_title();
+
+			$success = $osTicketApi->createTicket($name, $email, $subject, $comments);
+			$result->setValue('osTicketApi', [
+				'url' => $osTicketApi->getHttpClient()->getRequestURI(),
+				'reponse' => $osTicketApi->getHttpClient()->getResponseHeaders(),
+			]);
+
+			$logRequest = new TicketsLogModel();
+			$logRequest->created = new \DateTime();
+			$logRequest->name = $name;
+			$logRequest->email = $email;
+			$logRequest->message = $comments;
+			$logRequest->information = [
+				'subject' => $subject,
+				'email_sended' => $success,
+				'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+			];
+			$logRequest->type = 'Ticket soporte dentro del panel administrativo (osTicket).';
+			$logRequest->save();
+
+			if ($success) {
+				$result->setValue('reload', true);
+				$result
+					->setMessage($message_create)
+					->operation($operation_name)
+					->setSuccess(true);
+			} else {
+				$result
+					->setMessage($message_unknow_error)
+					->operation($operation_name);
+			}
+		} else {
+			$result
+				->setMessage($message_unexpected_or_missing_params)
+				->operation($operation_name);
+		}
+
+		return $res->withJson($result);
+	}
+
+	/**
+	 * getRoutes
+	 *
+	 * @return Route[]
+	 */
+	public static function getRoutes()
+	{
+		$all_roles = array_keys(UsersModel::TYPES_USERS);
+
+		return [
+			//Crear ticket
+			new Route('/create[/]', AdminPanelController::class . ':sendTicket', 'tickets-create', 'POST', false, null, $all_roles),
+		];
+	}
+
+	/**
+	 * init
+	 *
+	 * @return void
+	 */
+	protected function init()
+	{
+		$api_url = get_config('osTicketAPI');
+		$api_key = get_config('osTicketAPIKey');
+
+		OsTicketAPI::setBaseURL($api_url);
+		OsTicketAPI::setBaseAPIKey($api_key);
+
+		$this->mapperUsers = new UsersModel();
+		$this->modelUsers = $this->mapperUsers->getModel();
+		$this->controllerUsers = new UsersController();
+
+		$variables_visibles_view = [];
+
+		if (SessionToken::isActiveSession()) {
+			$jwt = SessionToken::getSession();
+			$this->user = BaseToken::getData($jwt);
+			$this->user = $this->modelUsers->select()->where(['id' => $this->user->id])->row();
+			if ($this->user instanceof \stdClass) {
+				$variables_visibles_view['user'] = $this->user;
+				$this->user->avatar = AvatarModel::getAvatar($this->user->id);
+				$this->user->hasAvatar = !is_null($this->user->avatar);
+			}
+		}
+
+		$this->setVariables($variables_visibles_view);
+
+		/* JQuery */
+		import_jquery();
+		/* Semantic */
+		import_semantic();
+		/* DataTables */
+		import_datatables();
+		/* NProgress */
+		import_nprogress();
+		/* izitoast */
+		import_izitoast();
+		/* Librerías de la aplicación */
+		import_app_libraries([
+			'adminStyle',
+			'cropperAdapter',
+		]);
+
+		if (MESSAGES_ENABLED) {
+			if (get_current_url() != get_route('messages-inbox') && REFRESH_MESSAGES_STATUS) {
+				add_global_asset(MESSAGES_PATH_JS . '/unread.js', 'js');
+			}
+		}
+
+		if (get_config('locations-load-assets')) {
+			add_global_asset(LOCATIONS_PATH_JS . '/main.js', 'js');
+		}
+	}
+
+	/**
+	 * showPermissionsRoles
+	 *
+	 * @return void
+	 */
+	private function showPermissionsRoles()
+	{
+		$routes = get_routes();
+		$total_routes = count($routes);
+		$result = [];
+
+		foreach (UsersModel::TYPES_USERS as $code => $name) {
+			if (!isset($result[$name])) {
+				$result[$name] = [
+					'total_routes' => $total_routes,
+					'total_allowed' => 0,
+					'total_restricted' => 0,
+					'allowed' => [],
+					'restricted' => [],
+				];
+			}
+			foreach (get_routes() as $route_info) {
+				$route_name = $route_info['name'];
+				$allowed = Roles::hasPermissions($route_name, (int)$code);
+				if ($allowed) {
+					$result[$name]['allowed'][] = $route_name;
+				} else {
+					$result[$name]['restricted'][] = $route_name;
+				}
+			}
+			$result[$name]['total_allowed'] = count($result[$name]['allowed']);
+			$result[$name]['total_restricted'] = count($result[$name]['restricted']);
+		}
+		header('content-type:application/json');
+		echo json_encode($result);
+		die;
+	}
+}

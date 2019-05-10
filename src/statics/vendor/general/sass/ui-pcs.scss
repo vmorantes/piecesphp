@@ -1,0 +1,265 @@
+@import 'fonts';
+@import 'functions';
+@import 'components';
+
+* {
+    box-sizing: border-box;
+}
+
+//Generals
+html,
+body {
+    font-size: $html-font-size;
+    font-family: $font-family-first;
+    font-weight: 400;
+    width: auto;
+    height: auto;
+    min-width: 100vw;
+    min-height: 100%;
+    overflow-x: hidden;
+}
+
+.ui-pcs {
+    font-size: $html-font-size;
+    color: $color-fourth;
+}
+
+p,
+span,
+div,
+strong,
+small,
+ul,
+ol,
+li,
+dl,
+dd,
+a,
+mark,
+q,
+blockquote h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+
+    .ui-pcs &.text-reading,
+    &.text-reading.ui-pcs {
+        font-family: $font-family-second;
+        font-weight: 400;
+    }
+}
+
+//Link
+a {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        display: inline-block;
+        color: $color-fourth;
+        transition: 0.5s all ease;
+
+        &:hover,
+        &:active,
+        &:focus {
+            color: $color-first;
+            text-decoration: underline dotted;
+        }
+
+        &:visited {
+            color: black;
+        }
+    }
+}
+
+//Headers
+h1 {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        font-weight: bold;
+        font-size: $h1-font-size;
+        color: $text-header-1;
+        margin: $h1-margin;
+        text-transform: uppercase;
+    }
+}
+
+h2 {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        font-weight: bold;
+        font-size: $h2-font-size;
+        color: $text-header-2;
+        margin: $h2-margin;
+    }
+}
+
+h3 {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        font-weight: 400;
+        font-size: $h3-font-size;
+        color: $text-header-3;
+        margin: $h3-margin;
+    }
+}
+
+h4,
+h5,
+h6 {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        font-weight: 400;
+        font-size: $h4-font-size;
+        color: $text-header-3;
+        margin: $h4-margin;
+    }
+}
+
+//Paragraph
+p {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        font-family: $p-font-family;
+        text-align: left;
+        font-size: $p-font-size;
+        line-height: $p-line-heigth;
+        color: $color-fourth;
+        margin: $p-margin;
+        max-width: $p-max-width;
+    }
+}
+
+//List
+ul,
+ol {
+
+    .ui-pcs &.pcs-list,
+    &.list.ui-pcs {
+        font-family: $list-font-family;
+        text-align: left;
+        font-size: $list-font-size;
+        line-height: $list-line-heigth;
+        color: $color-fourth;
+        margin: $list-margin;
+        padding: $list-padding;
+        max-width: $list-max-width;
+
+        &:not(ol) {
+            list-style: none;
+
+            li {
+                position: relative;
+                padding: $list-item-padding;
+
+                &::before {
+                    display: block;
+                    position: absolute;
+                    content: ' ';
+                    top: .5rem;
+                    left: -2.5rem;
+                    width: 1rem;
+                    height: 1rem;
+                    border-radius: 100%;
+                    background-color: $color-first;
+                }
+            }
+        }
+
+        &:not(ul) {
+            list-style: none;
+            counter-reset: list;
+
+            li {
+                position: relative;
+                padding: $list-item-padding;
+
+                &::before {
+                    font-family: $font-family-first;
+                    counter-increment: list;
+                    display: block;
+                    position: absolute;
+                    content: counter(list) '.';
+                    font-weight: bold;
+                    top: 0rem;
+                    left: -2.5rem;
+                    width: 2rem;
+                    height: 2rem;
+                    font-size: 1.8rem;
+                    border-radius: 100%;
+                    line-height: 2rem;
+                    text-align: left;
+                    color: $color-first;
+                }
+            }
+        }
+    }
+}
+
+//Images
+img {
+    display: inline-block;
+    max-width: 100%;
+
+    &.block {
+        display: block;
+        margin: 0;
+    }
+}
+
+.image {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        max-width: $p-max-width;
+        text-align: left;
+
+        img {
+            max-width: 100%;
+        }
+    }
+}
+
+//Quotes
+q,
+blockquote,
+p.cita,
+p.quote {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        font-size: $quote-font-size;
+        line-height: $quote-line-height;
+        color: $text-quote;
+        text-align: center;
+        margin-top: $quote-margin-top;
+        $quote-padding: 3% 10% 0% 10%;
+        $quote-border-top: 1px solid $color-first;
+        $quote-border-bottom: 1px solid $color-first;
+    }
+}
+
+//Footer
+footer.ui-pcs {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        display: flex;
+        align-content: center;
+        padding: 10px 15px;
+        border-top: 1px rgba(0, 0, 0, 0.14) solid;
+
+        .logo-developed {
+            img {
+                max-height: 50px;
+                vertical-align: middle;
+            }
+        }
+    }
+}

@@ -1,0 +1,131 @@
+@import '../colors';
+@import '../sizes';
+//-------- Párrafos descriptivos
+.section-description {
+    &.ui-pcs,
+    .ui-pcs & {
+        max-width: 50rem;
+        text-align: left;
+    }
+}
+
+//-------- Vista de formulario de usuarios
+.user-form-component {
+    &.ui-pcs,
+    .ui-pcs & {
+        //Items de los tabs
+        .items-pointing {
+            .item {
+                color: $color-third;
+            }
+            .item.active {
+                &,
+                &:hover {
+                    padding: 0.7rem;
+                    color: $color-second !important;
+                    border-color: $color-second !important;
+                    border-bottom: 4px solid $color-second;
+                    font-size: 1.1rem;
+                }
+            }
+        } //Formulario de usuario
+        .form.users {
+            .field {
+                .ui.labeled {
+                    .ui.label {
+                        background-color: $color-first;
+                        font-size: 1.1rem;
+                        padding: 0.7rem;
+                        color: $color-first-over;
+                        width: 35%;
+                        align-items: center;
+                        display: flex;
+                        &.pass {
+                            background-color: $color-third;
+                        }
+                    }
+                }
+                input[type=text] {
+                    font-size: 1.1rem;
+                    border: 1px solid #ccc;
+                    font-weight: 700;
+                    color: $color-second;
+                }
+                input[type=email] {
+                    font-size: 1.1rem;
+                    border: 1px solid #ccc;
+                    color: $color-second;
+                    font-weight: 700;
+                }
+                select {
+                    border: 1px solid #ccc;
+                    color: $color-second;
+                    font-weight: 700;
+                }
+                input[type=password] {
+                    font-size: 1.1rem;
+                    border: 1px solid #ccc;
+                    color: $color-second;
+                    font-weight: 700;
+                }
+            }
+        }
+        @media (max-width: 460px) {
+            .form.users {
+                .field {
+                    .ui.labeled {
+                        .ui.label {
+                            font-size: 0.9rem;
+                            width: 40%;
+                        }
+                        input {
+                            width: 60%;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width:767px) {
+    .hidden-767 {
+        display: none !important;
+    }
+}
+
+//-------- Vista principal del panel administrativo
+.main-view-admin {
+    display: grid;
+    grid-template-columns: 50rem auto;
+    grid-column-gap: 1rem;
+    [blackboard-list] {
+        [content] {
+			max-width: 50rem;
+			>*{
+				padding: 1.5rem 2.5rem;
+			}
+        }
+    }
+    @media screen and (max-width:1200px) {
+        grid-template-columns: 70% auto;
+    }
+    @media screen and (max-width:700px) {
+        grid-template-columns: 100%;
+        justify-content: center;
+        [blackboard-list] {
+            [content] {
+                max-height: 500px;
+                overflow-y: auto;
+                padding: 1rem;
+            }
+        }
+    }
+}
+
+//-------- QuillJS
+[rich-editor-js] {
+    min-height: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+}

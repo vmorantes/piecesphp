@@ -1,0 +1,158 @@
+$color-principal: rgb(16, 146, 208);
+$color-first: rgb(150, 150, 150);
+$color2: rgb(40, 100, 133);
+$color3: #fff;
+$color4: #c0c1c2;
+$color5: rgb(32, 32, 32);
+.avatar-component {
+    position: relative;
+    display: grid;
+    grid-template-columns: 350px 300px;
+    justify-content: center;
+    row-gap: 1rem;
+    align-items: center;
+    align-content: center;
+    padding: 1rem 0rem;
+    .center {
+        text-align: center;
+    }
+    .frame {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        margin: 0;
+        box-shadow: 0 0 5px 0px $color-first;
+        [item] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            svg {
+                width: 100%;
+                height: 100%;
+            }
+        }
+        .caption {
+            position: absolute;
+            bottom: 0;
+            margin-bottom: -33px;
+            box-shadow: 0 0 5px 0 $color-first;
+            width: 100%;
+            text-align: center;
+            padding: 0.5rem;
+            color: $color2;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+    }
+    .controls-select {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        text-align: center;
+        [buttons-move] {
+            display: grid;
+            grid-template-columns: 40px auto 40px;
+            align-self: center;
+            height: 50px;
+            margin: 0.2rem 0rem;
+            >* {
+                height: 50px;
+            }
+            [label] {
+                text-align: center;
+                &[disabled] {
+                    opacity: 1;
+                }
+            }
+            button {
+                padding: 0;
+                text-align: center;
+                .icon {
+                    margin: 0;
+                }
+            }
+        }
+        [group-color] {
+            display: grid;
+            margin: 0rem 0.5rem 0.5rem 0.5rem;
+            grid-template-columns: auto auto;
+            column-gap: 0.5rem;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+            padding: 0.5rem;
+            border: 1px solid $color-principal;
+            border-radius: 6px;
+            [item-color] {
+                background-color: transparent;
+                width: 80px;
+                height: 30px;
+            }
+            .caption {
+                .icon {
+                    color: $color-principal;
+                }
+            }
+            [container-colors] {
+                >[item] {
+                    display: grid;
+                    grid-template-columns: auto auto;
+                    justify-content: center;
+                    align-content: center;
+                    align-items: center;
+                    column-gap: 0.5rem;
+                    padding: 0.2rem 0rem;
+                }
+                .ui.inline.dropdown {
+                    .menu {
+                        margin-top: 0.7rem;
+                        left: initial;
+                        right: 0;
+                    }
+                }
+            }
+        }
+        .inline.fields {
+            justify-content: center;
+        }
+        .field {
+            margin: 0;
+        }
+    }
+    @media screen and (max-width:900px) {
+        grid-template-columns: 300px auto;
+        .frame {
+            width: 250px;
+            height: 250px;
+            justify-self: center;
+        }
+    }
+    @media screen and (max-width:768px) {
+        grid-template-columns: 100%;
+        .frame {
+            width: 150px;
+            height: 150px;
+            .caption {
+                font-size: 1rem;
+            }
+        }
+        .controls-select {
+            margin: 1.5rem auto;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            max-height: 350px;
+            max-width: 300px;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+    }
+    @media screen and (min-width: 1200px) {
+        grid-template-columns: 350px auto;
+        .controls-select {
+            .field {
+                display: flex !important;
+            }
+        }
+    }
+}

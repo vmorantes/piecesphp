@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es" class="no-js">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>404 - Página no encontrada</title>
+	<link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
+    <link rel="stylesheet" href="statics/vendor/general/css/ui-pcs.css">
+    <style>
+    body {
+        --color-text: rgb(40, 100, 133);
+        --color-bg: #F1F2F2;
+        --color-link: rgb(0, 146, 208);
+        color: var(--color-text);
+        background-color: var(--color-bg);
+    }
+
+    .content-404 {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-width: 300px;
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .title-404 {
+        font-size: 32px;
+        text-transform: uppercase;
+        font-weight: 800;
+    }
+
+    .text-404 {
+        font-size: 20px;
+    }
+
+    .bt-404 {
+        width: 200px;
+        padding: 10px;
+        font-size: 18px;
+        font-weight: 800;
+        color: white;
+        background: var(--color-text);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .bt-404:hover {
+        background: var(--color-link);
+    }
+    </style>
+</head>
+
+<body>
+    <div class="content-404">
+        <img src="<?= base_url('statics/images/404-bg.svg'); ?>">
+        <p class="title-404">Algo está mal aquí</h1>
+            <p class="text-404">El enlace al que intenta ingresar ya no existe o fue cambiado.</p>
+            <a class="ui button bt-404" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>">Ir a
+                Inicio</a>
+    </div>
+</body>
+
+</html>

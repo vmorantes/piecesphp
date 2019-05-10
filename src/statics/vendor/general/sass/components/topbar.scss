@@ -1,0 +1,96 @@
+@import '../colors';
+@import '../sizes';
+.ui-pcs.topbar {
+    background-color: white;
+    display: grid;
+    grid-template-columns: 280px auto 210px;
+    margin-bottom: 0.3rem;
+    padding-top: 0px;
+    padding-right: 5px;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    box-shadow: 1px 1px 17px rgba(0, 0, 0, 0.5);
+    .title {
+        display: flex;
+        align-items: center;
+        >* {
+            margin: 0px 5px;
+        }
+        img {
+            max-height: 60px;
+        }
+        span {
+            display: inline-block;
+            font-weight: 500;
+        }
+    }
+    .menu {
+        position: relative;
+    }
+    .user-info {
+        position: relative;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        transition: box-shadow 0.5s linear;
+		z-index: 201;		
+		cursor: pointer;
+        &.active {
+            box-shadow: 3px 2px 9px rgba(0, 0, 0, 0.3);
+        }
+        >*:not(:last-child) {
+            margin: 0px 5px;
+        }
+        .text {
+            display: inline-block;
+        }
+        .avatar {
+            background-color: $color-first;
+            width: 50px;
+            height: 50px;
+            border-radius: 100%;
+            overflow: hidden;
+            img {
+                max-width: 100%;
+            }
+        }
+        .open-info {
+            cursor: pointer;
+        }
+        .info-menu {
+            display: none;
+            background-color: white;
+            box-shadow: 3px 2px 9px rgba(0, 0, 0, 0.3);
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 10;
+            width: -moz-max-content;
+            width: 100%;
+            min-width: 200px;
+            max-width: 600px;
+            padding: 0px 10px;
+            hr {
+                display: block;
+                margin: 5px 5px;
+                border-width: 0.4px;
+                border-color: transparentize($color-fourth, 0.5);
+            }
+            .item {
+                display: block;
+                padding: 5px 16px;
+                &.current {
+                    border-radius: 9px;
+                    background-color: $color-first;
+                    color: $color-first-over;
+                    font-size: 1.2rem;
+                }
+            }
+        }
+    }
+    @media screen and (max-width:680px) {
+        grid-template-columns: 100%;
+        justify-content: center;
+        
+    }
+}
