@@ -17,9 +17,7 @@ use \Slim\Http\Response as Response;
  * @category    Server
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info Funciona como módulo independiente
  */
 class ServerStatics
 {

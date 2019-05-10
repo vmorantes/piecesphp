@@ -13,11 +13,8 @@ use PiecesPHP\Core\Importer\Field;
  *
  * @package     PiecesPHP\Core\Importer\Collections
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2018
- * @use PiecesPHP\Core\DataStructures\ArrayOf
  */
-
 class FieldCollection extends ArrayOf
 {
     protected $schema = [];

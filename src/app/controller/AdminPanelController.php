@@ -32,7 +32,6 @@ use App\Model\TicketsLogModel;
  *
  * @package     App\Controller
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2018
  */
 class AdminPanelController extends \PiecesPHP\Core\BaseController

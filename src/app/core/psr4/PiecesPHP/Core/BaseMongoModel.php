@@ -12,12 +12,12 @@ use MongoDB\Client as MongoClient;
  * Constituye una abstracción de la interacción con base de datos.
  *
  * Los modelos que heredan de este deben tener el nombre NombreModel.
+ * 
+ * Nota: Necesita la librería de composer mongodb/mongodb
  *
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info Necesita la libreria de composer mongodb/mongodb
  */
 class BaseMongoModel
 {

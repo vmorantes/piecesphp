@@ -19,7 +19,6 @@ use \Slim\Http\Response as Response;
  *
  * @package     App\Locations\Controllers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2019
  */
 class Country extends AdminPanelController

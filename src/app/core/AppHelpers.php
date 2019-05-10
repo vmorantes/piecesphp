@@ -7,9 +7,7 @@
  * Grupo de funciones utilitarias de la aplicación.
  *
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info No funciona como módulo independiente
  */
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;

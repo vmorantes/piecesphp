@@ -13,9 +13,7 @@ namespace PiecesPHP\Core\Validation\Parameters;
  * @category    Validation
  * @package     PiecesPHP\Core\Validation\Parameters
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2019
- * @info Funciona como módulo independiente
  */
 class Parameter implements \JsonSerializable
 {

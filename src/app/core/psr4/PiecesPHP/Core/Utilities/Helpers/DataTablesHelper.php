@@ -19,7 +19,6 @@ use \Slim\Http\Request as Request;
  * @category    Helper
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2019
  */
 class DataTablesHelper

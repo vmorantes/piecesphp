@@ -16,7 +16,6 @@ use PiecesPHP\Core\BaseModel;
  *
  * @package     App\Locations\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2019
  * @property int $id
  * @property int|CountryMapper $country

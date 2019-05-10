@@ -13,7 +13,6 @@ use PiecesPHP\Core\BaseEntityMapper;
  *
  * @package     App\Model
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2019
  */
 

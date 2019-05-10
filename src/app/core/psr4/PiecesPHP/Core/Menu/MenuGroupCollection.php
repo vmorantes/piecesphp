@@ -11,13 +11,10 @@ use PiecesPHP\Core\HTML\HtmlElement;
 /**
  * MenuGroupCollection
  *
- * Funciona como módulo independiente
- * @category     HTML
+ * @category    HTML
  * @package     PiecesPHP\Core\Menu
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info Funciona como módulo independiente
  */
 class MenuGroupCollection
 {

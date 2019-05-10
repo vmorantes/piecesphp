@@ -12,10 +12,8 @@ use Spipu\Html2Pdf\Html2Pdf as PDF;
  *
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
  * @extends <a target='blank' href='https://github.com/spipu/html2pdf'>\Spipu\Html2Pdf\Html2Pdf</a>
- * @info Funciona como módulo independiente.
  */
 class PDFManager extends PDF
 {

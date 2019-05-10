@@ -14,11 +14,8 @@ use PHPMailer\PHPMailer\SMTP;
  *
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
  * @extends <a target='blank' href='https://github.com/PHPMailer/PHPMailer'>\PHPMailer\PHPMailer\PHPMailer</a>
- * @use \PHPMailer\PHPMailer\Exception
- * @info No funciona como módulo independiente, exclusivo de una aplicación PiecesPHP completa
  */
 class Mailer extends PHPMailer
 {

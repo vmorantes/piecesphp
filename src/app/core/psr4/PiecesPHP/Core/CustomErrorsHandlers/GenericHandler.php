@@ -11,9 +11,7 @@ namespace PiecesPHP\Core\CustomErrorsHandlers;
  * @category     ErrorsHandlers
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info No funciona como módulo independiente
  */
 class GenericHandler
 {

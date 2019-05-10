@@ -15,7 +15,6 @@ use PiecesPHP\Core\Http\HttpClient;
  *
  * @package     PiecesPHP\Core\Utilities\OsTicket
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2019
  */
 class OsTicketAPI

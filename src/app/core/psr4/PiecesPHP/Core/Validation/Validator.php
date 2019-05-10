@@ -10,14 +10,10 @@ use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 /**
  * Validator
  *
- * Funciona como módulo independiente
- * @TODO        En proceso
- * @category    HTML
+ * @category    Validation
  * @package     PiecesPHP\Core\Validation
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info Funciona como módulo independiente
  */
 class Validator
 {

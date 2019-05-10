@@ -15,7 +15,6 @@ use PiecesPHP\Core\Forms\FilesHandler;
  *
  * @package     App\Helpers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2019
  */
 class FileFormsManage

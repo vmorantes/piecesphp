@@ -12,7 +12,6 @@ namespace PiecesPHP\Core\Forms;
  *
  * @package     PiecesPHP\Core\Forms
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2019
  */
 class FileValidator

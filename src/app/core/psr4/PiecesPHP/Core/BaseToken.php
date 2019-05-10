@@ -8,13 +8,10 @@ namespace PiecesPHP\Core;
 /**
  * BaseToken - Implementación básica para generar tokens.
  *
- * Funciona como módulo independiente
  * @category Autenticación
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info Funciona como módulo independiente
  */
 class BaseToken
 {

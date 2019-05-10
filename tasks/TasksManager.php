@@ -14,7 +14,6 @@ use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
  *
  * @package     PiecesPHP\ComposerTasks
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2019
  */
 class TasksManager

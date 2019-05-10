@@ -11,7 +11,6 @@ namespace PiecesPHP\Core\Importer;
  *
  * @package     PiecesPHP\Core\Importer
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2018
  */
 class Response implements \JsonSerializable

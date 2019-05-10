@@ -12,11 +12,8 @@ use PiecesPHP\Core\Importer\Response;
  *
  * @package     PiecesPHP\Core\Importer\Collections
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2018
- * @use PiecesPHP\Core\DataStructures\ArrayOf
  */
-
 class ResponseCollection extends ArrayOf implements \JsonSerializable
 {
     protected $schema = [];

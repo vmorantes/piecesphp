@@ -10,10 +10,7 @@ namespace PiecesPHP\Core;
  *
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @use PiecesPHP\Core\BaseModel
- * @info Funciona como módulo independiente
  */
 class Config
 {

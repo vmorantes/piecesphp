@@ -12,7 +12,6 @@ use PiecesPHP\Core\Route;
  *
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
  */
 class RouteGroup

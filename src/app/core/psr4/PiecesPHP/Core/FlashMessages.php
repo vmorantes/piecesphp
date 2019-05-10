@@ -7,12 +7,9 @@ namespace PiecesPHP\Core;
 /**
  * FlashMessages - Mensajes entre sesiones.
  *
- * Funciona como módulo independiente
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info Funciona como módulo independiente
  */
 class FlashMessages
 {

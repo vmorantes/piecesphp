@@ -11,13 +11,10 @@ use PiecesPHP\Core\BaseToken;
  * SessionToken - Autenticación
  *
  * Manejar autenticaciones
- * @category Autenticación
+ * @category	Autenticación
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @use PiecesPHP\Core\BaseToken
- * @info Funciona como módulo independiente
  */
 class SessionToken
 {

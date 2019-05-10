@@ -13,9 +13,7 @@ namespace PiecesPHP\Core\Utilities\ReturnTypes;
  * @category    Utilidades
  * @package     PiecesPHP\Core\Utilities\ReturnTypes
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2018
- * @info Funciona como módulo independiente
  */
 class ResultOperations implements \JsonSerializable
 {

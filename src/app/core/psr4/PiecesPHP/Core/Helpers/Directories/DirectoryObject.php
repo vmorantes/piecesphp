@@ -10,7 +10,6 @@ namespace PiecesPHP\Core\Helpers\Directories;
  *
  * @package     PiecesPHP\Core\Helpers\Directories
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1
  * @copyright   Copyright (c) 2019
  */
 class DirectoryObject implements \JsonSerializable

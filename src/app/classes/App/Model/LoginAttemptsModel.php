@@ -15,7 +15,6 @@ use \Slim\Http\Request as Request;
  *
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @version     v.1.0
  * @copyright   Copyright (c) 2018
  */
 
