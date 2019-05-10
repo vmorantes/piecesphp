@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 23-04-2019 a las 14:02:40
--- Versión del servidor: 5.7.25-0ubuntu0.16.04.2
--- Versión de PHP: 7.1.28-1+ubuntu16.04.1+deb.sury.org+3
+-- Tiempo de generación: 10-05-2019 a las 16:45:48
+-- Versión del servidor: 5.7.26-0ubuntu0.16.04.1
+-- Versión de PHP: 7.1.29-1+ubuntu16.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -168,6 +168,23 @@ CREATE TABLE `pcsphp_recovery_password` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `pcsphp_tickets_log`
+--
+
+DROP TABLE IF EXISTS `pcsphp_tickets_log`;
+CREATE TABLE `pcsphp_tickets_log` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `email` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `message` text COLLATE utf8_bin,
+  `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `information` longtext COLLATE utf8_bin,
+  `created` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `pcsphp_tokens`
 --
 
@@ -299,6 +316,12 @@ ALTER TABLE `pcsphp_recovery_password`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indices de la tabla `pcsphp_tickets_log`
+--
+ALTER TABLE `pcsphp_tickets_log`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `pcsphp_tokens`
 --
 ALTER TABLE `pcsphp_tokens`
@@ -379,6 +402,12 @@ ALTER TABLE `pcsphp_blackboard_news_messages`
 -- AUTO_INCREMENT de la tabla `pcsphp_recovery_password`
 --
 ALTER TABLE `pcsphp_recovery_password`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pcsphp_tickets_log`
+--
+ALTER TABLE `pcsphp_tickets_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
