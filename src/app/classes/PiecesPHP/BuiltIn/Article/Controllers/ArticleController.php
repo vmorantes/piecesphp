@@ -158,7 +158,7 @@ class ArticleController extends AdminPanelController
 
 			$action = self::routeName('actions-edit');
 			$back_link = self::routeName('list');
-			$options_categories = array_to_html_options(CategoryMapper::all(), $element->category);
+			$options_categories = array_to_html_options(CategoryMapper::allForSelect(), $element->category->id);
 
 			$data = [];
 			$data['action'] = $action;
