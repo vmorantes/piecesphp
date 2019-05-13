@@ -1025,6 +1025,8 @@ function friendlyURL(str) {
 		".", 'º',
 	]
 
+	str = str.replace(/(\t|\r\n|\r|\n){1,}/gmi, '')
+	str = str.replace(/(\u00a0){1,}/gmi, ' ')
 	str = strReplace(dictionary, replace_dictionary, str)
 	str = strReplace(other_characters, '', str)
 	str = str.replace(/-{2,}/gmi, '')

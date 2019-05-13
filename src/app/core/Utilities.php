@@ -260,11 +260,34 @@ function friendly_url(string $string)
 		">", "<", ";", ",", ":",
 		".", 'º',
 	];
+
+	$string = preg_replace("/(\t|\r\n|\r|\n){1,}/", '', $string);
+	$string = preg_replace("/(\x{00A0}){1,}/u", ' ', $string);
 	$string = str_replace($diccionario, $diccionario_remplazo, $string);
 	$string = str_replace($otros_caracteres, '', $string);
 	$string = preg_replace("/-{2,}/", '-', $string);
 	$string = mb_strtolower($string);
 
+	return $string;
+}
+
+/**
+ * clean_string
+ * 
+ * Limpia un string con:
+ * 
+ * - /(\t|\r\n|\r|\n){1,}/ => ''
+ * - /(\x{00A0}){1,}/u => ''
+ * - /(\s){2,}/ => ' '
+ *
+ * @param string $string
+ * @return string
+ */
+function clean_string(string $string)
+{
+	$string = preg_replace("/(\t|\r\n|\r|\n){1,}/", '', $string);
+	$string = preg_replace("/(\x{00A0}){1,}/u", ' ', $string);
+	$string = preg_replace("/(\s){2,}/", ' ', $string);
 	return $string;
 }
 
