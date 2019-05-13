@@ -17,8 +17,9 @@
  */
 function get_current_url()
 {
-    $actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-    return $actual_link;
+	$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
+	$url = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	return $url;
 }
 
 /**
@@ -30,45 +31,45 @@ function get_current_url()
  */
 function get_request()
 {
-    $script_name = $_SERVER['SCRIPT_NAME'];
+	$script_name = $_SERVER['SCRIPT_NAME'];
 
-    $basename = basename($script_name);
+	$basename = basename($script_name);
 
-    $str_replace_1 = str_replace(
-        $basename,
-        "",
-        $script_name
-    );
+	$str_replace_1 = str_replace(
+		$basename,
+		"",
+		$script_name
+	);
 
-    $deletable_match = [
-        $_SERVER['HTTP_HOST'],
-        $_SERVER['HTTP_HOST'] . '/',
-        '/',
-    ];
+	$deletable_match = [
+		$_SERVER['HTTP_HOST'],
+		$_SERVER['HTTP_HOST'] . '/',
+		'/',
+	];
 
-    if (in_array($str_replace_1, $deletable_match)) {
-        $str_replace_1 = '';
-    }
+	if (in_array($str_replace_1, $deletable_match)) {
+		$str_replace_1 = '';
+	}
 
-    $requet_uri = $_SERVER['REQUEST_URI'];
+	$requet_uri = $_SERVER['REQUEST_URI'];
 
-    $str_replace_2 = str_replace(
-        $str_replace_1,
-        "",
-        $requet_uri
-    );
+	$str_replace_2 = str_replace(
+		$str_replace_1,
+		"",
+		$requet_uri
+	);
 
-    $request = substr($str_replace_2, 0);
+	$request = substr($str_replace_2, 0);
 
-    if (last_char($request) == '/') {
-        $request = remove_last_char($request);
-    }
+	if (last_char($request) == '/') {
+		$request = remove_last_char($request);
+	}
 
-    if (substr($request, 0, 1) == '/') {
-        $request = remove_first_char($request);
-    }
+	if (substr($request, 0, 1) == '/') {
+		$request = remove_first_char($request);
+	}
 
-    return $request;
+	return $request;
 }
 
 /**
@@ -82,21 +83,21 @@ function get_request()
  */
 function get_part_request($part = 1)
 {
-    $part = $part - 1;
-    $part_uri = explode("/", get_request());
-    if (count($part_uri) > 0) {
-        if (strlen($part_uri[count($part_uri) - 1]) == 0) {
-            unset($part_uri[count($part_uri) - 1]);
-        }
+	$part = $part - 1;
+	$part_uri = explode("/", get_request());
+	if (count($part_uri) > 0) {
+		if (strlen($part_uri[count($part_uri) - 1]) == 0) {
+			unset($part_uri[count($part_uri) - 1]);
+		}
 
-        if (count($part_uri) > 0) {
-            return array_key_exists($part, $part_uri) ? $part_uri[$part] : "";
-        } else {
-            return "";
-        }
-    } else {
-        return "";
-    }
+		if (count($part_uri) > 0) {
+			return array_key_exists($part, $part_uri) ? $part_uri[$part] : "";
+		} else {
+			return "";
+		}
+	} else {
+		return "";
+	}
 }
 
 /**
@@ -108,18 +109,18 @@ function get_part_request($part = 1)
  */
 function append_to_url(string $url, string $segment)
 {
-    $parts = parse_url($url);
-    $scheme = isset($parts['scheme']) ? $parts['scheme'] : '';
-    $host = isset($parts['host']) ? $parts['host'] : '';
-    $path = isset($parts['path']) ? $parts['path'] : '';
-    $url = "$host/$path/$segment";
-    $url = preg_replace('|\/{2,}|', '/', $url);
-    if (strlen($scheme) > 0) {
-        $url = "$scheme://$url";
-    } else {
-        $url = "$url";
-    }
-    return $url;
+	$parts = parse_url($url);
+	$scheme = isset($parts['scheme']) ? $parts['scheme'] : '';
+	$host = isset($parts['host']) ? $parts['host'] : '';
+	$path = isset($parts['path']) ? $parts['path'] : '';
+	$url = "$host/$path/$segment";
+	$url = preg_replace('|\/{2,}|', '/', $url);
+	if (strlen($scheme) > 0) {
+		$url = "$scheme://$url";
+	} else {
+		$url = "$url";
+	}
+	return $url;
 }
 
 /**
@@ -138,25 +139,25 @@ function append_to_url(string $url, string $segment)
  */
 function generate_pass(int $length = 5)
 {
-    //Se inicia una cadena vacía para la contraseña
-    $new_pass = "";
-    //Se definen caracteres a usar
-    $chars = "-_$*.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-    //Se obtiene la longitud de la cadena
-    $len_chars = strlen($chars);
-    //Se define una longitud para la contraseña
-    $len_pass = $length;
+	//Se inicia una cadena vacía para la contraseña
+	$new_pass = "";
+	//Se definen caracteres a usar
+	$chars = "-_$*.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+	//Se obtiene la longitud de la cadena
+	$len_chars = strlen($chars);
+	//Se define una longitud para la contraseña
+	$len_pass = $length;
 
-    for ($i = 1; $i <= $len_pass; $i++) {
-        $random_pos = rand(0, $len_chars - 1);
-        $random_char = substr($chars, $random_pos, 1);
-        $new_pass .= $random_char;
-    }
-    $new_pass_encrypt = password_hash($new_pass, PASSWORD_DEFAULT);
-    return [
-        'password' => $new_pass,
-        'encrypt' => $new_pass_encrypt,
-    ];
+	for ($i = 1; $i <= $len_pass; $i++) {
+		$random_pos = rand(0, $len_chars - 1);
+		$random_char = substr($chars, $random_pos, 1);
+		$new_pass .= $random_char;
+	}
+	$new_pass_encrypt = password_hash($new_pass, PASSWORD_DEFAULT);
+	return [
+		'password' => $new_pass,
+		'encrypt' => $new_pass_encrypt,
+	];
 }
 
 /**
@@ -167,26 +168,26 @@ function generate_pass(int $length = 5)
  */
 function generate_code(int $length = 6, bool $only_numeric = true)
 {
-    //Se inicia una cadena vacía para la contraseña
-    $new_pass = "";
-    //Se definen caracteres a usar
-    if ($only_numeric) {
-        $chars = "0123456789";
-    } else {
-        $chars = "-_$*.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
-    }
-    //Se obtiene la longitud de la cadena
-    $len_chars = strlen($chars);
-    //Se define una longitud para la contraseña
-    $len_pass = $length;
+	//Se inicia una cadena vacía para la contraseña
+	$new_pass = "";
+	//Se definen caracteres a usar
+	if ($only_numeric) {
+		$chars = "0123456789";
+	} else {
+		$chars = "-_$*.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+	}
+	//Se obtiene la longitud de la cadena
+	$len_chars = strlen($chars);
+	//Se define una longitud para la contraseña
+	$len_pass = $length;
 
-    for ($i = 1; $i <= $len_pass; $i++) {
-        $random_pos = rand(0, $len_chars - 1);
-        $random_char = substr($chars, $random_pos, 1);
-        $new_pass .= $random_char;
-    }
+	for ($i = 1; $i <= $len_pass; $i++) {
+		$random_pos = rand(0, $len_chars - 1);
+		$random_char = substr($chars, $random_pos, 1);
+		$new_pass .= $random_char;
+	}
 
-    return $new_pass;
+	return $new_pass;
 }
 
 /**
@@ -197,12 +198,12 @@ function generate_code(int $length = 6, bool $only_numeric = true)
  */
 function url_safe_base64_decode($input)
 {
-    $remainder = strlen($input) % 4;
-    if ($remainder) {
-        $padlen = 4 - $remainder;
-        $input .= str_repeat('=', $padlen);
-    }
-    return base64_decode(strtr($input, '-_', '+/'));
+	$remainder = strlen($input) % 4;
+	if ($remainder) {
+		$padlen = 4 - $remainder;
+		$input .= str_repeat('=', $padlen);
+	}
+	return base64_decode(strtr($input, '-_', '+/'));
 }
 
 /**
@@ -213,7 +214,7 @@ function url_safe_base64_decode($input)
  */
 function url_safe_base64_encode(string $input)
 {
-    return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
+	return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
 }
 
 /**
@@ -224,46 +225,47 @@ function url_safe_base64_encode(string $input)
  *      $string = 'El ñandú es un ave que no vuela.';
  *      $string = friendly_url($string);
  *      echo $string;
- *      //output: el-nandu-es-un-ave-que-no-vuela
+ *      //output: el-nnandu-es-un-ave-que-no-vuela
  * </pre>
  */
 function friendly_url(string $string)
 {
 
-    $string = trim($string);
-    $diccionario = [
-        'á', 'à', 'ä', 'â', 'ª', 'Á', 'À', 'Â', 'Ä', 'Ã',
-        'é', 'è', 'ë', 'ê', 'É', 'È', 'Ê', 'Ë',
-        'í', 'ì', 'ï', 'î', 'Í', 'Ì', 'Ï', 'Î',
-        'ó', 'ò', 'ö', 'ô', 'Ó', 'Ò', 'Ö', 'Ô',
-        'ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü',
-        'ñ', 'Ñ', 'ç', 'Ç',
-        ' ',
-    ];
-    $diccionario_remplazo = [
-        'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A',
-        'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E',
-        'i', 'i', 'i', 'i', 'I', 'I', 'I', 'I',
-        'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O',
-        'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U',
-        'n', 'N', 'c', 'C',
-        '-',
-    ];
-    $otros_caracteres = [
-        "\\", "¨", "º", "~", '±',
-        "#", "@", "|", "!", "\"",
-        "·", "$", "%", "&", "/",
-        "(", ")", "?", "'", "¡",
-        "¿", "[", "^", "`", "]",
-        "+", "}", "{", "¨", "´",
-        ">", "<", ";", ",", ":",
-        ".", 'º',
-    ];
-    $string = str_replace($diccionario, $diccionario_remplazo, $string);
-    $string = str_replace($otros_caracteres, '', $string);
-    $string = strtolower($string);
+	$string = trim($string);
+	$diccionario = [
+		'á', 'à', 'ä', 'â', 'ª', 'Á', 'À', 'Â', 'Ä', 'Ã',
+		'é', 'è', 'ë', 'ê', 'É', 'È', 'Ê', 'Ë',
+		'í', 'ì', 'ï', 'î', 'Í', 'Ì', 'Ï', 'Î',
+		'ó', 'ò', 'ö', 'ô', 'Ó', 'Ò', 'Ö', 'Ô',
+		'ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü',
+		'ñ', 'Ñ', 'ç', 'Ç',
+		'  ', ' ',
+	];
+	$diccionario_remplazo = [
+		'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A',
+		'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E',
+		'i', 'i', 'i', 'i', 'I', 'I', 'I', 'I',
+		'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O',
+		'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U',
+		'nn', 'NN', 'c', 'C',
+		' ', '-',
+	];
+	$otros_caracteres = [
+		"\\", "¨", "º", "~", '±',
+		"#", "@", "|", "!", "\"",
+		"·", "$", "%", "&", "/",
+		"(", ")", "?", "'", "¡",
+		"¿", "[", "^", "`", "]",
+		"+", "}", "{", "¨", "´",
+		">", "<", ";", ",", ":",
+		".", 'º',
+	];
+	$string = str_replace($diccionario, $diccionario_remplazo, $string);
+	$string = str_replace($otros_caracteres, '', $string);
+	$string = preg_replace("/-{2,}/", '-', $string);
+	$string = mb_strtolower($string);
 
-    return $string;
+	return $string;
 }
 
 /**
@@ -285,17 +287,17 @@ function friendly_url(string $string)
  */
 function require_keys(array $keys, array $array)
 {
-    $faltantes = [];
-    foreach ($keys as $key) {
-        if (!array_key_exists($key, $array)) {
-            $faltantes[] = $key;
-        }
-    }
-    if (count($faltantes) > 0) {
-        return $faltantes;
-    } else {
-        return true;
-    }
+	$faltantes = [];
+	foreach ($keys as $key) {
+		if (!array_key_exists($key, $array)) {
+			$faltantes[] = $key;
+		}
+	}
+	if (count($faltantes) > 0) {
+		return $faltantes;
+	} else {
+		return true;
+	}
 }
 
 /**
@@ -305,21 +307,21 @@ function require_keys(array $keys, array $array)
  */
 function get_youtube_id(string $url)
 {
-    if (strstr($url, 'youtu.be')) {
-        return str_ireplace(array('https://youtu.be/', 'http://youtu.be/'), '', $url);
-    }
+	if (strstr($url, 'youtu.be')) {
+		return str_ireplace(array('https://youtu.be/', 'http://youtu.be/'), '', $url);
+	}
 
-    $id = "";
+	$id = "";
 
-    $query_string = array();
+	$query_string = array();
 
-    parse_str(parse_url($url, PHP_URL_QUERY), $query_string);
+	parse_str(parse_url($url, PHP_URL_QUERY), $query_string);
 
-    if (array_key_exists("v", $query_string)) {
-        $id = $query_string["v"];
-    }
+	if (array_key_exists("v", $query_string)) {
+		$id = $query_string["v"];
+	}
 
-    return $id;
+	return $id;
 }
 
 /**
@@ -329,7 +331,7 @@ function get_youtube_id(string $url)
  */
 function is_local()
 {
-    return $_SERVER['HTTP_HOST'] == "localhost" ? true : false;
+	return $_SERVER['HTTP_HOST'] == "localhost" ? true : false;
 }
 
 /**
@@ -339,7 +341,7 @@ function is_local()
  */
 function last_char(string $string)
 {
-    return substr($string, strlen($string) - 1);
+	return substr($string, strlen($string) - 1);
 }
 
 /**
@@ -349,7 +351,7 @@ function last_char(string $string)
  */
 function last_char_pos(string $string)
 {
-    return strlen($string) - 1;
+	return strlen($string) - 1;
 }
 
 /**
@@ -359,7 +361,7 @@ function last_char_pos(string $string)
  */
 function remove_last_char(string $string)
 {
-    return substr($string, 0, (strlen($string) - 1));
+	return substr($string, 0, (strlen($string) - 1));
 }
 
 /**
@@ -371,11 +373,11 @@ function remove_last_char(string $string)
  */
 function remove_last_char_on($char, $string)
 {
-    $last_char = substr($string, strlen($string) - 1);
-    if ($last_char == $char) {
-        $string = substr($string, 0, (strlen($string) - 1));
-    }
-    return $string;
+	$last_char = substr($string, strlen($string) - 1);
+	if ($last_char == $char) {
+		$string = substr($string, 0, (strlen($string) - 1));
+	}
+	return $string;
 }
 
 /**
@@ -385,7 +387,7 @@ function remove_last_char_on($char, $string)
  */
 function remove_first_char(string $string)
 {
-    return substr($string, 1);
+	return substr($string, 1);
 }
 
 /**
@@ -397,8 +399,8 @@ function remove_first_char(string $string)
  */
 function remove_char(string $string, int $pos)
 {
-    $string[$pos] = '';
-    return $string;
+	$string[$pos] = '';
+	return $string;
 }
 
 /**
@@ -409,7 +411,7 @@ function remove_char(string $string, int $pos)
  */
 function replace_first_char(string $string, string $replace)
 {
-    return $replace . substr($string, 1);
+	return $replace . substr($string, 1);
 }
 
 /**
@@ -420,7 +422,7 @@ function replace_first_char(string $string, string $replace)
  */
 function replace_last_char(string $string, string $replace)
 {
-    return substr($string, 0, (strlen($string) - 1)) . $replace;
+	return substr($string, 0, (strlen($string) - 1)) . $replace;
 }
 
 /**
@@ -432,25 +434,24 @@ function replace_last_char(string $string, string $replace)
  */
 function string_compare(string $str1, $compare)
 {
-    if (is_string($compare)) {
-        $cmp = strcmp($str1, $compare);
-        return ($cmp === 0);
-    }
-    if (is_array($compare)) {
-        foreach ($compare as $string) {
-            $coincidencia = false;
-            if (is_string($string)) {
-                $cmp = strcmp($str1, $string);
-                if ($cmp === 0) {
-                    return true;
-                }
-
-            } else {
-                return false;
-            }
-        }
-        return false;
-    }
+	if (is_string($compare)) {
+		$cmp = strcmp($str1, $compare);
+		return ($cmp === 0);
+	}
+	if (is_array($compare)) {
+		foreach ($compare as $string) {
+			$coincidencia = false;
+			if (is_string($string)) {
+				$cmp = strcmp($str1, $string);
+				if ($cmp === 0) {
+					return true;
+				}
+			} else {
+				return false;
+			}
+		}
+		return false;
+	}
 }
 
 /**
@@ -460,12 +461,12 @@ function string_compare(string $str1, $compare)
  */
 function remove_emptys(array $array)
 {
-    foreach ($array as $key => $value) {
-        if (($value !== 0 && $value !== 0.0 && $value !== "0" && $value !== false && $value !== null && $value !== []) && empty($value)) {
-            unset($array[$key]);
-        }
-    }
-    return $array;
+	foreach ($array as $key => $value) {
+		if (($value !== 0 && $value !== 0.0 && $value !== "0" && $value !== false && $value !== null && $value !== []) && empty($value)) {
+			unset($array[$key]);
+		}
+	}
+	return $array;
 }
 
 /**
@@ -476,7 +477,7 @@ function remove_emptys(array $array)
  */
 function compare_array_length(array $array1, array $array2)
 {
-    return (count($array1) === count($array2));
+	return (count($array1) === count($array2));
 }
 
 /**
@@ -488,13 +489,13 @@ function compare_array_length(array $array1, array $array2)
  */
 function is_uploaded_all_files(array $data)
 {
-    foreach ($data as $key => $value) {
-        if (!is_uploaded_file($data[$key]['tmp_name'])) {
-            return false;
-            break;
-        }
-    }
-    return true;
+	foreach ($data as $key => $value) {
+		if (!is_uploaded_file($data[$key]['tmp_name'])) {
+			return false;
+			break;
+		}
+	}
+	return true;
 }
 
 /**
@@ -506,17 +507,17 @@ function is_uploaded_all_files(array $data)
  */
 function verify_expected_file(string $index_name)
 {
-    if (isset($_FILES[$index_name])) {
-        $file = $_FILES[$index_name];
-        if (is_uploaded_file($file['tmp_name'])) {
-            if ($file['error'] == \UPLOAD_ERR_OK) {
-                if ($file['size'] > 0) {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
+	if (isset($_FILES[$index_name])) {
+		$file = $_FILES[$index_name];
+		if (is_uploaded_file($file['tmp_name'])) {
+			if ($file['error'] == \UPLOAD_ERR_OK) {
+				if ($file['size'] > 0) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 /**
@@ -529,28 +530,28 @@ function verify_expected_file(string $index_name)
  */
 function make_directory(string $path, string $name = null)
 {
-    if (!is_null($name)) {
+	if (!is_null($name)) {
 
-        $bars = ['/', "\\"];
+		$bars = ['/', "\\"];
 
-        if (string_compare(last_char($name), $bars)) {
-            $name = remove_last_char($name);
-        }
+		if (string_compare(last_char($name), $bars)) {
+			$name = remove_last_char($name);
+		}
 
-        if (string_compare($name[0], $bars)) {
-            $name = remove_first_char($name);
-        }
+		if (string_compare($name[0], $bars)) {
+			$name = remove_first_char($name);
+		}
 
-        if (string_compare(last_char($path), $bars)) {
-            $path .= $name;
-        } else {
-            $path .= '/' . $name;
-        }
-    }
+		if (string_compare(last_char($path), $bars)) {
+			$path .= $name;
+		} else {
+			$path .= '/' . $name;
+		}
+	}
 
-    mkdir($path, 0777, true);
+	mkdir($path, 0777, true);
 
-    return file_exists($path);
+	return file_exists($path);
 }
 
 /**
@@ -561,25 +562,21 @@ function make_directory(string $path, string $name = null)
  */
 function remove_directory(string $path)
 {
-    if (file_exists($path)) {
+	if (file_exists($path)) {
 
-        foreach (glob(append_to_url($path, '*')) as $element) {
+		foreach (glob(append_to_url($path, '*')) as $element) {
 
-            if (is_dir($element)) {
+			if (is_dir($element)) {
 
-                remove_directory($element);
+				remove_directory($element);
+			} else {
 
-            } else {
+				unlink($element);
+			}
+		}
 
-                unlink($element);
-
-            }
-
-        }
-
-        rmdir($path);
-
-    }
+		rmdir($path);
+	}
 }
 
 /**
@@ -595,125 +592,120 @@ function remove_directory(string $path)
  */
 function directory_to_zip(string $root, string $output_directory = null, string $output_name = null, bool $self = false, array $exclude = [], string $parent = null, \ZipArchive &$zipInstance = null)
 {
-    $zip_path = '';
+	$zip_path = '';
 
-    if (file_exists($root) && is_dir($root)) {
+	if (file_exists($root) && is_dir($root)) {
 
-        $root = rtrim($root, \DIRECTORY_SEPARATOR);
-        $root_name = basename($root);
-        if ($parent == null) {
-            if ($self) {
-                $base = $root_name;
-            } else {
-                $base = '';
-            }
-        } else {
-            $base = $parent . \DIRECTORY_SEPARATOR . $root_name;
-        }
+		$root = rtrim($root, \DIRECTORY_SEPARATOR);
+		$root_name = basename($root);
+		if ($parent == null) {
+			if ($self) {
+				$base = $root_name;
+			} else {
+				$base = '';
+			}
+		} else {
+			$base = $parent . \DIRECTORY_SEPARATOR . $root_name;
+		}
 
-        $base = str_replace([
-            '//',
-            "\\\\",
-        ], [
-            '/',
-            "\\",
-        ], $base);
+		$base = str_replace([
+			'//',
+			"\\\\",
+		], [
+			'/',
+			"\\",
+		], $base);
 
-        $base = trim($base);
+		$base = trim($base);
 
-        if ($zipInstance === null) {
+		if ($zipInstance === null) {
 
-            $zip = new \ZipArchive();
+			$zip = new \ZipArchive();
 
-            $output_name = !is_null($output_name) ? trim(trim($output_name), \DIRECTORY_SEPARATOR) : '';
-            $output_directory = !is_null($output_directory) ? rtrim(trim($output_directory), \DIRECTORY_SEPARATOR) : '';
+			$output_name = !is_null($output_name) ? trim(trim($output_name), \DIRECTORY_SEPARATOR) : '';
+			$output_directory = !is_null($output_directory) ? rtrim(trim($output_directory), \DIRECTORY_SEPARATOR) : '';
 
-            if (is_null($output_name) || strlen($output_name) < 1) {
-                $output_name = uniqid() . '.zip';
-            }
+			if (is_null($output_name) || strlen($output_name) < 1) {
+				$output_name = uniqid() . '.zip';
+			}
 
-            if (is_null($output_directory) || strlen($output_directory) < 1) {
-                $output_directory = sys_get_temp_dir();
-            }
+			if (is_null($output_directory) || strlen($output_directory) < 1) {
+				$output_directory = sys_get_temp_dir();
+			}
 
-            $output_name = str_replace([
-                '//',
-                "\\\\",
-            ], [
-                '/',
-                "\\",
-            ], $output_name);
+			$output_name = str_replace([
+				'//',
+				"\\\\",
+			], [
+				'/',
+				"\\",
+			], $output_name);
 
-            $output_directory = rtrim($output_directory, \DIRECTORY_SEPARATOR);
-            $output_directory = str_replace([
-                '//',
-                "\\\\",
-            ], [
-                '/',
-                "\\",
-            ], $output_directory);
+			$output_directory = rtrim($output_directory, \DIRECTORY_SEPARATOR);
+			$output_directory = str_replace([
+				'//',
+				"\\\\",
+			], [
+				'/',
+				"\\",
+			], $output_directory);
 
-            $name_zip = $output_directory . \DIRECTORY_SEPARATOR . $output_name;
-            $zip->open($name_zip, \ZIPARCHIVE::CREATE);
+			$name_zip = $output_directory . \DIRECTORY_SEPARATOR . $output_name;
+			$zip->open($name_zip, \ZIPARCHIVE::CREATE);
 
-            $zip_path = $name_zip;
+			$zip_path = $name_zip;
+		} else {
 
-        } else {
+			$zip = $zipInstance;
+		}
 
-            $zip = $zipInstance;
+		if (strlen($base) > 0) {
+			$zip->addEmptyDir($base);
+		}
 
-        }
+		$handler = opendir($root);
 
-        if (strlen($base) > 0) {
-            $zip->addEmptyDir($base);
-        }
+		$ignore = ['.', '..'];
+		$file = readdir($handler);
 
-        $handler = opendir($root);
+		while ($file !== false) {
 
-        $ignore = ['.', '..'];
-        $file = readdir($handler);
+			if (!in_array($file, $ignore)) {
 
-        while ($file !== false) {
+				$path_file = $root . '/' . $file;
+				$skip = false;
 
-            if (!in_array($file, $ignore)) {
+				foreach ($exclude as $regexp) {
 
-                $path_file = $root . '/' . $file;
-                $skip = false;
+					$matchs = preg_match_all("|$regexp|", $file);
+					if ($matchs !== false && $matchs > 0) {
+						$skip = true;
+					}
+				}
 
-                foreach ($exclude as $regexp) {
+				if (!$skip) {
 
-                    $matchs = preg_match_all("|$regexp|", $file);
-                    if ($matchs !== false && $matchs > 0) {
-                        $skip = true;
-                    }
+					if (is_dir($path_file)) {
 
-                }
+						directory_to_zip($path_file, $output_directory, $output_name, true, $exclude, $base, $zip);
+					} else {
+						$filename = $base . '/' . $file;
+						$zip->addFile($path_file, $filename);
+					}
+				}
+			}
 
-                if (!$skip) {
+			$file = readdir($handler);
+		}
 
-                    if (is_dir($path_file)) {
+		closedir($handler);
 
-                        directory_to_zip($path_file, $output_directory, $output_name, true, $exclude, $base, $zip);
+		if ($zipInstance === null) {
+			$zip->close();
+		}
+	}
 
-                    } else {
-                        $filename = $base . '/' . $file;
-                        $zip->addFile($path_file, $filename);
-                    }
-
-                }
-            }
-
-            $file = readdir($handler);
-        }
-
-        closedir($handler);
-
-        if ($zipInstance === null) {
-            $zip->close();
-        }
-    }
-
-    return $zip_path;
+	return $zip_path;
 }
 
 /**
@@ -727,102 +719,94 @@ function directory_to_zip(string $root, string $output_directory = null, string 
 function directory_mapper(string $path, string $base_path = null, int $mode = null)
 {
 
-    if ($mode == 1) {
+	if ($mode == 1) {
 
-        $map = [
-            'content' => [
-                'directories' => [],
-                'files' => [],
-            ],
-        ];
+		$map = [
+			'content' => [
+				'directories' => [],
+				'files' => [],
+			],
+		];
+	} else {
 
-    } else {
+		$map = [
+			'type' => 'directory',
+			'path' => '',
+			'name' => '',
+			'content' => [],
+		];
+	}
 
-        $map = [
-            'type' => 'directory',
-            'path' => '',
-            'name' => '',
-            'content' => [],
-        ];
+	if (is_null($base_path)) {
+		$base_path = '';
+	} else {
+		$base_path = trim($base_path);
+	}
 
-    }
+	if (strlen($base_path) > 0 && file_exists($base_path)) {
+		$base_path = realpath($base_path);
+	}
 
-    if (is_null($base_path)) {
-        $base_path = '';
-    } else {
-        $base_path = trim($base_path);
-    }
+	if (file_exists($path) && is_dir($path)) {
 
-    if (strlen($base_path) > 0 && file_exists($base_path)) {
-        $base_path = realpath($base_path);
-    }
+		$map['path'] = str_replace($base_path, '', realpath($path));
+		$map['path'] = str_replace([
+			'//',
+			"\\\\",
+		], [
+			'/',
+			"\\",
+		], $map['path']);
+		$map['name'] = basename($path);
 
-    if (file_exists($path) && is_dir($path)) {
+		$handler = opendir($path);
+		$ignore = ['.', '..'];
+		$file = readdir($handler);
 
-        $map['path'] = str_replace($base_path, '', realpath($path));
-        $map['path'] = str_replace([
-            '//',
-            "\\\\",
-        ], [
-            '/',
-            "\\",
-        ], $map['path']);
-        $map['name'] = basename($path);
+		while ($file !== false) {
 
-        $handler = opendir($path);
-        $ignore = ['.', '..'];
-        $file = readdir($handler);
+			if (!in_array($file, $ignore)) {
 
-        while ($file !== false) {
+				$file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . $file;
+				$file_path = realpath($file_path);
 
-            if (!in_array($file, $ignore)) {
+				if (file_exists($file_path)) {
+					if (is_dir($file_path)) {
 
-                $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . $file;
-                $file_path = realpath($file_path);
+						if ($mode == 1) {
 
-                if (file_exists($file_path)) {
-                    if (is_dir($file_path)) {
+							$result = directory_mapper($file_path, $base_path, $mode);
+							$map['content']['directories'][] = $file_path;
+							$map['content']['directories'] = array_merge($map['content']['directories'], $result['content']['directories']);
+							$map['content']['files'] = array_merge($map['content']['files'], $result['content']['files']);
+						} else {
 
-                        if ($mode == 1) {
+							$map['content'][] = directory_mapper($file_path, $base_path);
+						}
+					} else {
 
-                            $result = directory_mapper($file_path, $base_path, $mode);
-                            $map['content']['directories'][] = $file_path;
-                            $map['content']['directories'] = array_merge($map['content']['directories'], $result['content']['directories']);
-                            $map['content']['files'] = array_merge($map['content']['files'], $result['content']['files']);
+						if ($mode == 1) {
 
-                        } else {
+							$map['content']['files'][] = str_replace($base_path, '', $file_path);
+						} else {
 
-                            $map['content'][] = directory_mapper($file_path, $base_path);
+							$map['content'][] = [
+								'type' => 'file',
+								'path' => str_replace($base_path, '', $file_path),
+								'name' => basename($file_path),
+							];
+						}
+					}
+				}
+			}
 
-                        }
+			$file = readdir($handler);
+		}
 
-                    } else {
+		closedir($handler);
+	}
 
-                        if ($mode == 1) {
-
-                            $map['content']['files'][] = str_replace($base_path, '', $file_path);
-
-                        } else {
-
-                            $map['content'][] = [
-                                'type' => 'file',
-                                'path' => str_replace($base_path, '', $file_path),
-                                'name' => basename($file_path),
-                            ];
-
-                        }
-                    }
-                }
-            }
-
-            $file = readdir($handler);
-        }
-
-        closedir($handler);
-    }
-
-    return $map;
-
+	return $map;
 }
 
 /**
@@ -834,59 +818,59 @@ function directory_mapper(string $path, string $base_path = null, int $mode = nu
  */
 function num_month_to_text(string $date)
 {
-    $date = date_format(date_create($date), 'd-m-Y');
+	$date = date_format(date_create($date), 'd-m-Y');
 
-    $date_array = explode('-', $date);
+	$date_array = explode('-', $date);
 
-    if ($date_array[1] == "01") {
-        $month = "Enero";
-    }
+	if ($date_array[1] == "01") {
+		$month = "Enero";
+	}
 
-    if ($date_array[1] == "02") {
-        $month = "Febrero";
-    }
+	if ($date_array[1] == "02") {
+		$month = "Febrero";
+	}
 
-    if ($date_array[1] == "03") {
-        $month = "Marzo";
-    }
+	if ($date_array[1] == "03") {
+		$month = "Marzo";
+	}
 
-    if ($date_array[1] == "04") {
-        $month = "Abril";
-    }
+	if ($date_array[1] == "04") {
+		$month = "Abril";
+	}
 
-    if ($date_array[1] == "05") {
-        $month = "Mayo";
-    }
+	if ($date_array[1] == "05") {
+		$month = "Mayo";
+	}
 
-    if ($date_array[1] == "06") {
-        $month = "Junio";
-    }
+	if ($date_array[1] == "06") {
+		$month = "Junio";
+	}
 
-    if ($date_array[1] == "07") {
-        $month = "Julio";
-    }
+	if ($date_array[1] == "07") {
+		$month = "Julio";
+	}
 
-    if ($date_array[1] == "08") {
-        $month = "Agosto";
-    }
+	if ($date_array[1] == "08") {
+		$month = "Agosto";
+	}
 
-    if ($date_array[1] == "09") {
-        $month = "Septiembre";
-    }
+	if ($date_array[1] == "09") {
+		$month = "Septiembre";
+	}
 
-    if ($date_array[1] == "10") {
-        $month = "Octubre";
-    }
+	if ($date_array[1] == "10") {
+		$month = "Octubre";
+	}
 
-    if ($date_array[1] == "11") {
-        $month = "Noviembre";
-    }
+	if ($date_array[1] == "11") {
+		$month = "Noviembre";
+	}
 
-    if ($date_array[1] == "12") {
-        $month = "Diciembre";
-    }
+	if ($date_array[1] == "12") {
+		$month = "Diciembre";
+	}
 
-    return $month;
+	return $month;
 }
 
 /**
@@ -908,94 +892,93 @@ function num_month_to_text(string $date)
 function seconds_to_duration(int $seconds_count, array $options = [])
 {
 
-    $default_options = [
-        'hour' => [
-            'value' => 'h',
-            'validate' => function ($e) {
-                return is_string($e);
-            },
-        ],
-        'hours' => [
-            'value' => 'hrs',
-            'validate' => function ($e) {
-                return is_string($e);
-            },
-        ],
-        'minute' => [
-            'value' => 'mn',
-            'validate' => function ($e) {
-                return is_string($e);
-            },
-        ],
-        'minutes' => [
-            'value' => 'mns',
-            'validate' => function ($e) {
-                return is_string($e);
-            },
-        ],
-        'second' => [
-            'value' => 'seg',
-            'validate' => function ($e) {
-                return is_string($e);
-            },
-        ],
-        'seconds' => [
-            'value' => 'segs',
-            'validate' => function ($e) {
-                return is_string($e);
-            },
-        ],
-    ];
+	$default_options = [
+		'hour' => [
+			'value' => 'h',
+			'validate' => function ($e) {
+				return is_string($e);
+			},
+		],
+		'hours' => [
+			'value' => 'hrs',
+			'validate' => function ($e) {
+				return is_string($e);
+			},
+		],
+		'minute' => [
+			'value' => 'mn',
+			'validate' => function ($e) {
+				return is_string($e);
+			},
+		],
+		'minutes' => [
+			'value' => 'mns',
+			'validate' => function ($e) {
+				return is_string($e);
+			},
+		],
+		'second' => [
+			'value' => 'seg',
+			'validate' => function ($e) {
+				return is_string($e);
+			},
+		],
+		'seconds' => [
+			'value' => 'segs',
+			'validate' => function ($e) {
+				return is_string($e);
+			},
+		],
+	];
 
-    foreach ($options as $key => $value) {
-        if (array_key_exists($key, $default_options)) {
-            $validation = $default_options[$key]['validate'];
+	foreach ($options as $key => $value) {
+		if (array_key_exists($key, $default_options)) {
+			$validation = $default_options[$key]['validate'];
 
-            if (is_callable($validation)) {
-                $valid = $validation($value);
-            } else {
-                $valid = (bool) $validation;
-            }
+			if (is_callable($validation)) {
+				$valid = $validation($value);
+			} else {
+				$valid = (bool)$validation;
+			}
 
-            if ($valid) {
-                $default_options[$key]['value'] = $value;
-            }
+			if ($valid) {
+				$default_options[$key]['value'] = $value;
+			}
+		}
+	}
 
-        }
-    }
+	$hour = $default_options['hour']['value'];
+	$hours = $default_options['hours']['value'];
+	$minute = $default_options['minute']['value'];
+	$minutes = $default_options['minutes']['value'];
+	$second = $default_options['second']['value'];
+	$seconds = $default_options['seconds']['value'];
 
-    $hour = $default_options['hour']['value'];
-    $hours = $default_options['hours']['value'];
-    $minute = $default_options['minute']['value'];
-    $minutes = $default_options['minutes']['value'];
-    $second = $default_options['second']['value'];
-    $seconds = $default_options['seconds']['value'];
+	$time = explode(':', gmdate("H:i:s", $seconds_count));
 
-    $time = explode(':', gmdate("H:i:s", $seconds_count));
+	$h = $time[0];
+	$m = $time[1];
+	$s = $time[2];
 
-    $h = $time[0];
-    $m = $time[1];
-    $s = $time[2];
+	if ($h == 0 || $h > 1) {
+		$h .= $hours;
+	} else {
+		$h .= $hour;
+	}
 
-    if ($h == 0 || $h > 1) {
-        $h .= $hours;
-    } else {
-        $h .= $hour;
-    }
+	if ($m == 0 || $m > 1) {
+		$m .= $minutes;
+	} else {
+		$m .= $minute;
+	}
 
-    if ($m == 0 || $m > 1) {
-        $m .= $minutes;
-    } else {
-        $m .= $minute;
-    }
+	if ($s == 0 || $s > 1) {
+		$s .= $seconds;
+	} else {
+		$s .= $second;
+	}
 
-    if ($s == 0 || $s > 1) {
-        $s .= $seconds;
-    } else {
-        $s .= $second;
-    }
+	$time = "$h $m $s";
 
-    $time = "$h $m $s";
-
-    return $time;
+	return $time;
 }

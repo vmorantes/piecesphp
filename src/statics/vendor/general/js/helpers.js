@@ -929,3 +929,106 @@ function simulateInputNumberFormat(input, options = {}) {
 		}
 	}
 }
+
+/**
+ * @function friendlyURL
+ * @param {string[]|string} search Elementos a buscar
+ * @param {strin[]|string} replace Elementos de reemplazo
+ * @param {string} subject Cadena de entrada
+ * @returns {string}
+ */
+function strReplace(search, replace, subject) {
+
+	if (typeof search == 'string') {
+		search = [search]
+	} else if (!Array.isArray(search)) {
+		return null
+	}
+
+	if (typeof replace != 'string' && !Array.isArray(replace)) {
+		return null
+	}
+
+	if (typeof subject != 'string') {
+		return null
+	}
+
+	let searchLength = search.length
+
+	for (let i = 0; i < searchLength; i++) {
+
+		let searchString = search[i]
+		let replaceString = ''
+
+		if (Array.isArray(replace)) {
+			if (typeof replace[i] == 'string') {
+				replaceString = replace[i]
+			}
+		} else {
+			replaceString = replace
+		}
+
+		let replacedString = subject
+
+		while (replacedString.indexOf(searchString) !== -1) {
+			replacedString = replacedString.replace(searchString, replaceString)
+		}
+
+		subject = replacedString
+
+	}
+
+	return subject
+}
+
+/**
+ * @function friendlyURL
+ * @param {string} str Cadena para formatear
+ * @returns {string} Cadena formateada
+ */
+function friendlyURL(str) {
+
+	if (typeof str != 'string') {
+		return null
+	}
+
+	str = str.trim()
+
+	let dictionary = [
+		'á', 'à', 'ä', 'â', 'ª', 'Á', 'À', 'Â', 'Ä', 'Ã',
+		'é', 'è', 'ë', 'ê', 'É', 'È', 'Ê', 'Ë',
+		'í', 'ì', 'ï', 'î', 'Í', 'Ì', 'Ï', 'Î',
+		'ó', 'ò', 'ö', 'ô', 'Ó', 'Ò', 'Ö', 'Ô',
+		'ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü',
+		'ñ', 'Ñ', 'ç', 'Ç',
+		'  ', ' ',
+	]
+
+	let replace_dictionary = [
+		'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A',
+		'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E',
+		'i', 'i', 'i', 'i', 'I', 'I', 'I', 'I',
+		'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O',
+		'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U',
+		'nn', 'NN', 'c', 'C',
+		' ', '-',
+	]
+
+	let other_characters = [
+		"\\", "¨", "º", "~", '±',
+		"#", "@", "|", "!", "\"",
+		"·", "$", "%", "&", "/",
+		"(", ")", "?", "'", "¡",
+		"¿", "[", "^", "`", "]",
+		"+", "}", "{", "¨", "´",
+		">", "<", ";", ",", ":",
+		".", 'º',
+	]
+
+	str = strReplace(dictionary, replace_dictionary, str)
+	str = strReplace(other_characters, '', str)
+	str = str.replace(/-{2,}/gmi, '')
+	str = str.toLowerCase()
+
+	return str
+}
