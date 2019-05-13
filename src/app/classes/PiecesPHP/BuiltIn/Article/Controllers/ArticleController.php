@@ -653,7 +653,7 @@ class ArticleController extends AdminPanelController
 	 * @param bool $silentOnNotExists
 	 * @return string
 	 */
-	protected static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+	public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
 	{
 		if (!is_null($name)) {
 			$name = trim($name);
