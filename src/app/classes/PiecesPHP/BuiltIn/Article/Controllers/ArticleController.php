@@ -640,19 +640,19 @@ class ArticleController extends AdminPanelController
 				'GET'
 			),
 			new Route(
-				"{$startRoute}datatables[/]",
+				"{$startRoute}/datatables[/]",
 				"{$handler}:{$uriPrefix}DataTables",
 				"{$namePrefix}-datatables",
 				'GET'
 			),
 			new Route(
-				"{$startRoute}list[/]",
+				"{$startRoute}/list[/]",
 				"{$handler}:list",
 				"{$namePrefix}-list",
 				'GET'
 			),
 			new Route(
-				"{$startRoute}forms/add[/]",
+				"{$startRoute}/forms/add[/]",
 				"{$handler}:addForm",
 				"{$namePrefix}-forms-add",
 				'GET',
@@ -661,7 +661,7 @@ class ArticleController extends AdminPanelController
 				$rolesAllowed
 			),
 			new Route(
-				"{$startRoute}action/add[/]",
+				"{$startRoute}/action/add[/]",
 				"{$handler}:action",
 				"{$namePrefix}-actions-add",
 				'POST',
@@ -670,7 +670,7 @@ class ArticleController extends AdminPanelController
 				$rolesAllowed
 			),
 			new Route(
-				"{$startRoute}forms/edit/{id}[/]",
+				"{$startRoute}/forms/edit/{id}[/]",
 				"{$handler}:editForm",
 				"{$namePrefix}-forms-edit",
 				'GET',
@@ -679,7 +679,7 @@ class ArticleController extends AdminPanelController
 				$rolesAllowed
 			),
 			new Route(
-				"{$startRoute}action/edit[/]",
+				"{$startRoute}/action/edit[/]",
 				"{$handler}:action",
 				"{$namePrefix}-actions-edit",
 				'POST',
@@ -691,7 +691,7 @@ class ArticleController extends AdminPanelController
 
 		if ($withQuillHandler) {
 			$routes[] = new Route(
-				"{$startRoute}quill-image-upload[/]",
+				"{$startRoute}/quill-image-upload[/]",
 				"{$handler}:quillImageHandler",
 				"{$namePrefix}-image-handler",
 				'POST'

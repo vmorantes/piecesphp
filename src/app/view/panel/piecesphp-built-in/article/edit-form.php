@@ -35,11 +35,13 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <div class="two fields">
             <div class="field" calendar-group-js='periodo' start>
                 <label>Iniciar</label>
-                <input type="text" name="start_date" autocomplete="off" value="<?= $element->start_date->format('d-m-Y h:i:s'); ?>">
+                <input type="text" name="start_date" autocomplete="off"
+                    value="<?= !is_null($element->start_date) ? $element->start_date->format('d-m-Y h:i:s') : ''; ?>">
             </div>
             <div class="field" calendar-group-js='periodo' end>
                 <label>Finalizar</label>
-                <input type="text" name="end_date" autocomplete="off" value="<?= $element->end_date->format('d-m-Y h:i:s'); ?>">
+                <input type="text" name="end_date" autocomplete="off"
+                    value="<?= !is_null($element->end_date) ? $element->end_date->format('d-m-Y h:i:s') : ''; ?>">
             </div>
         </div>
 
