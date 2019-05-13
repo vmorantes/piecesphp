@@ -18,6 +18,7 @@ use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper;
 use App\Model\UsersModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 
 /**
  * ArticleController.
@@ -587,6 +588,18 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
+	 * deleteOrphanFiles
+	 *
+	 * @return void
+	 */
+	protected function deleteOrphanFiles()
+	{
+		$temporary_directory = new DirectoryObject($this->uploadTmpDir);
+		$temporary_directory->process();
+		$temporary_directory->delete();
+	}
+
+	/**
 	 * routes
 	 *
 	 * @param RouteGroup $group
@@ -594,25 +607,38 @@ class ArticleController extends AdminPanelController
 	 */
 	public static function routes(RouteGroup $group)
 	{
-		$routes = [];
+		if (PIECES_PHP_BLOG_ENABLED) {
 
-		$groupSegmentURL = $group->getGroupSegment();
+			$from = \DateTime::createFromFormat('d-m-Y h:i:s A', date('d-m-Y') . ' 2:00:00 AM');
+			$to = \DateTime::createFromFormat('d-m-Y h:i:s A', date('d-m-Y') . ' 4:00:00 AM');
+			$now = new \DateTime();
+			$valid_interval = $now >= $from && $now <= $to;
 
-		$lastIsBar = last_char($groupSegmentURL) == '/';
-		$startRoute = $lastIsBar ? '' : '/';
+			if ($valid_interval) {
+				$instance = new static;
+				$instance->deleteOrphanFiles();
+			}
 
-		$permisos_estados_gestion = [
-			UsersModel::TYPE_USER_ROOT,
-			UsersModel::TYPE_USER_ADMIN,
-		];
+			$routes = [];
 
-		$group->active(PIECES_PHP_BLOG_ENABLED);
-		$group->register($routes);
+			$groupSegmentURL = $group->getGroupSegment();
 
-		//Rutas
-		$group->register(
-			self::genericManageRoutes($startRoute, self::$prefixParentEntity, self::class, self::$prefixEntity, $permisos_estados_gestion, true)
-		);
+			$lastIsBar = last_char($groupSegmentURL) == '/';
+			$startRoute = $lastIsBar ? '' : '/';
+
+			$permisos_estados_gestion = [
+				UsersModel::TYPE_USER_ROOT,
+				UsersModel::TYPE_USER_ADMIN,
+			];
+
+			$group->active(PIECES_PHP_BLOG_ENABLED);
+			$group->register($routes);
+
+			//Rutas
+			$group->register(
+				self::genericManageRoutes($startRoute, self::$prefixParentEntity, self::class, self::$prefixEntity, $permisos_estados_gestion, true)
+			);
+		}
 
 		return $group;
 	}
