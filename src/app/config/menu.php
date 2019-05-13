@@ -39,6 +39,13 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'href' => get_route('piecesphp-built-in-articles-list', [], true),
         ]),
         new MenuGroup([
+            'name' => 'Categorías',
+            'icon' => 'tags',
+            'visible' => Roles::hasPermissions('piecesphp-built-in-articles-categories-list', $current_type_user),
+            'asLink' => true,
+            'href' => get_route('piecesphp-built-in-articles-categories-list', [], true),
+        ]),
+        new MenuGroup([
             'name' => 'Ubicaciones',
             'icon' => 'marker',
             'visible' => Roles::hasPermissions('locations', $current_type_user),

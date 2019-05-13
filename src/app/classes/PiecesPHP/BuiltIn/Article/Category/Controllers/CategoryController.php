@@ -1,13 +1,12 @@
 <?php
 /**
- * ArticleController.php
+ * CategoryController.php
  */
 
-namespace PiecesPHP\BuiltIn\Article\Controllers;
+namespace PiecesPHP\BuiltIn\Article\Category\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
@@ -19,77 +18,60 @@ use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
-use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
 
 /**
- * ArticleController.
+ * CategoryController.
  *
- * @package     PiecesPHP\BuiltIn\Article\Controllers
+ * @package     PiecesPHP\BuiltIn\Article\Category\Controllers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */
-class ArticleController extends AdminPanelController
+class CategoryController extends AdminPanelController
 {
 
-	const UPLOAD_DIR = 'piecesphp/articles';
-	const UPLOAD_DIR_TMP = 'piecesphp/articles/tmp';
-	const FORMAT_DATETIME = 'd-m-Y h:i A';
-
+	/**
+	 * $prefixRootParentEntity
+	 *
+	 * @var string
+	 */
+	protected static $prefixRootParentEntity = 'piecesphp-built-in';
 	/**
 	 * $prefixParentEntity
 	 *
 	 * @var string
 	 */
-	protected static $prefixParentEntity = 'piecesphp-built-in';
+	protected static $prefixParentEntity = 'articles';
+	/**
+	 * $prefixSingularParentEntity
+	 *
+	 * @var string
+	 */
+	protected static $prefixSingularParentEntity = 'article';
 	/**
 	 * $prefixEntity
 	 *
 	 * @var string
 	 */
-	protected static $prefixEntity = 'articles';
+	protected static $prefixEntity = 'categories';
 	/**
 	 * $prefixSingularEntity
 	 *
 	 * @var string
 	 */
-	protected static $prefixSingularEntity = 'article';
+	protected static $prefixSingularEntity = 'category';
 	/**
 	 * $title
 	 *
 	 * @var string
 	 */
-	protected static $title = 'Artículo';
+	protected static $title = 'Categoría';
 	/**
 	 * $pluralTitle
 	 *
 	 * @var string
 	 */
-	protected static $pluralTitle = 'Artículos';
-
-	/**
-	 * $uploadDir
-	 *
-	 * @var string
-	 */
-	protected $uploadDir = '';
-	/**
-	 * $uploadDir
-	 *
-	 * @var string
-	 */
-	protected $uploadTmpDir = '';
-	/**
-	 * $uploadDirURL
-	 *
-	 * @var string
-	 */
-	protected $uploadDirURL = '';
-	/**
-	 * $uploadDirTmpURL
-	 *
-	 * @var string
-	 */
-	protected $uploadDirTmpURL = '';
+	protected static $pluralTitle = 'Categorías';
 
 	/**
 	 * __construct
@@ -100,13 +82,8 @@ class ArticleController extends AdminPanelController
 	{
 		parent::__construct(false); //No cargar ningún modelo automáticamente.
 
-		$this->model = (new ArticleMapper)->getModel();
+		$this->model = (new CategoryMapper)->getModel();
 		set_title(self::$title . ' - ' . get_title());
-
-		$this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
-		$this->uploadTmpDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR_TMP);
-		$this->uploadDirURL = append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR);
-		$this->uploadDirTmpURL = append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR_TMP);
 	}
 
 	/**
@@ -128,10 +105,8 @@ class ArticleController extends AdminPanelController
 		$data['back_link'] = $back_link;
 		$data['title'] = self::$title;
 
-		import_quilljs(['imageUpload', 'imageResize']);
-
 		$this->render('panel/layout/header');
-		$this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
+		$this->render('panel/' . self::$prefixRootParentEntity . '/' . self::$prefixSingularParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
 		$this->render('panel/layout/footer');
 	}
 
@@ -149,7 +124,7 @@ class ArticleController extends AdminPanelController
 		$id = $request->getAttribute('id', null);
 		$id = !is_null($id) && ctype_digit($id) ? (int)$id : null;
 
-		$element = new ArticleMapper($id);
+		$element = new CategoryMapper($id);
 
 		if (!is_null($element->id)) {
 
@@ -162,10 +137,8 @@ class ArticleController extends AdminPanelController
 			$data['back_link'] = $back_link;
 			$data['title'] = self::$title;
 
-			import_quilljs(['imageUpload', 'imageResize']);
-
 			$this->render('panel/layout/header');
-			$this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
+			$this->render('panel/' . self::$prefixRootParentEntity . '/' . self::$prefixSingularParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
 			$this->render('panel/layout/footer');
 		} else {
 			throw new NotFoundException($request, $response);
@@ -196,19 +169,19 @@ class ArticleController extends AdminPanelController
 		$data['title'] = self::$pluralTitle;
 
 		$this->render('panel/layout/header');
-		$this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
+		$this->render('panel/' . self::$prefixRootParentEntity . '/' . self::$prefixSingularParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
 		$this->render('panel/layout/footer');
 	}
 
 	/**
-	 * articles
+	 * categories
 	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @param array $args
 	 * @return Response
 	 */
-	public function articles(Request $request, Response $response, array $args)
+	public function categories(Request $request, Response $response, array $args)
 	{
 
 		if ($request->isXhr()) {
@@ -224,31 +197,27 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
-	 * articlesDataTables
+	 * categoriesDataTables
 	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @param array $args
 	 * @return Response
 	 */
-	public function articlesDataTables(Request $request, Response $response, array $args)
+	public function categoriesDataTables(Request $request, Response $response, array $args)
 	{
 
 		if ($request->isXhr()) {
 
 			$columns_order = [
 				'id',
-				'title',
-				'author',
-				'start_date',
-				'end_date',
-				'created',
-				'updated',
+				'name',
+				'friendly_url',
 			];
 
 			$result = DataTablesHelper::process([
 				'columns_order' => $columns_order,
-				'mapper' => new ArticleMapper(),
+				'mapper' => new CategoryMapper(),
 				'request' => $request,
 				'on_set_data' => function ($e) {
 
@@ -265,16 +234,12 @@ class ArticleController extends AdminPanelController
 						}
 					}
 
-					$mapper = new ArticleMapper($e->id);
+					$mapper = new CategoryMapper($e->id);
 
 					return [
 						$mapper->id,
-						strlen($mapper->title) > 50 ? substr($mapper->title, 0, 50) . '...' : $mapper->title,
-						$mapper->author->username,
-						!is_null($mapper->start_date) ? $mapper->start_date->format('d-m-Y h:i:s') : '-',
-						!is_null($mapper->end_date) ? $mapper->end_date->format('d-m-Y h:i:s') : '-',
-						$mapper->created->format('d-m-Y h:i:s'),
-						!is_null($mapper->updated) ? $mapper->updated->format('d-m-Y h:i:s') : 'Nunca',
+						strlen($mapper->name) > 50 ? substr($mapper->name, 0, 50) . '...' : $mapper->name,
+						strlen($mapper->description) > 50 ? substr($mapper->description, 0, 50) . '...' : $mapper->description,
 						(string)$buttonEdit,
 					];
 				},
@@ -300,22 +265,16 @@ class ArticleController extends AdminPanelController
 	{
 
 		$id = $request->getParsedBodyParam('id', -1);
-		$title = $request->getParsedBodyParam('title', null);
-		$content = $request->getParsedBodyParam('content', null);
-		$start_date = $request->getParsedBodyParam('start_date', '');
-		$end_date = $request->getParsedBodyParam('end_date', '');
-
-		$start_date = strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
-		$end_date = strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
+		$name = $request->getParsedBodyParam('name', null);
+		$description = $request->getParsedBodyParam('description', '');
 
 		$is_edit = $id !== -1;
 
 		$valid_params = !in_array(null, [
-			$title,
-			$content,
+			$name,
 		]);
 
-		$operation_name = $is_edit ? 'Modificar artículo' : 'Crear artículo';
+		$operation_name = $is_edit ? 'Modificar categoría' : 'Crear categoría';
 
 		$result = new ResultOperations([
 			new Operation($operation_name),
@@ -324,39 +283,36 @@ class ArticleController extends AdminPanelController
 		$result->setValue('redirect', false);
 
 		$error_parameters_message = 'Los parámetros recibidos son erróneos.';
-		$not_exists_message = 'El artículo que intenta modificar no existe';
-		$success_create_message = 'Artículo creado.';
+		$not_exists_message = 'La categoría que intenta modificar no existe';
+		$success_create_message = 'Categoría creada.';
 		$success_edit_message = 'Datos guardados.';
 		$unknow_error_message = 'Ha ocurrido un error desconocido.';
-		$is_duplicate_message = 'Ya existe un artículo con ese nombre.';
+		$is_duplicate_message = 'Ya existe una categoría con ese nombre.';
 
 		$redirect_url_on_create = self::routeName('list');
 
 		if ($valid_params) {
 
-			$title = trim($title);
-			$content = trim($content);
+			$name = clean_string($name);
+			$friendly_url = CategoryMapper::generateFriendlyURL($name, $id);
+			$description = clean_string($description);
 
-			$is_duplicate = ArticleMapper::isDuplicate($title, $id);
+			$is_duplicate = CategoryMapper::isDuplicate($name, $friendly_url, $id);
 
 			if (!$is_duplicate) {
 
 				if (!$is_edit) {
 
-					$mapper = new ArticleMapper();
+					$mapper = new CategoryMapper();
 
 					try {
 
-						$mapper->title = $title;
-						$mapper->content = $content;
-						$mapper->start_date = $start_date;
-						$mapper->end_date = $end_date;
+						$mapper->name = $name;
+						$mapper->friendly_url = $friendly_url;
+						$mapper->description = $description;
 						$saved = $mapper->save();
 
 						if ($saved) {
-
-							$mapper->id = $mapper->getLastInsertID();
-							$this->moveTemporaryImages($mapper);
 
 							$result->setMessage($success_create_message)
 								->operation($operation_name)
@@ -372,23 +328,19 @@ class ArticleController extends AdminPanelController
 					}
 				} else {
 
-					$mapper = new ArticleMapper((int)$id);
+					$mapper = new CategoryMapper((int)$id);
 					$exists = !is_null($mapper->id);
 
 					if ($exists) {
 
 						try {
 
-							$oldText = $mapper->content;
-							$mapper->title = $title;
-							$mapper->content = $content;
-							$mapper->start_date = $start_date;
-							$mapper->end_date = $end_date;
+							$mapper->name = $name;
+							$mapper->friendly_url = $friendly_url;
+							$mapper->description = $description;
 							$updated = $mapper->update();
 
 							if ($updated) {
-
-								$this->moveTemporaryImages($mapper, $oldText);
 
 								$result->setValue('reload', true);
 
@@ -417,141 +369,6 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
-	 * quillImageHandler
-	 *
-	 * @param Request $request
-	 * @param Response $response
-	 * @param array $args
-	 * @return Response
-	 */
-	public function quillImageHandler(Request $request, Response $response, array $args)
-	{
-		$files_uploaded = $request->getUploadedFiles();
-		$image = isset($files_uploaded['image']) ? $files_uploaded['image'] : null;
-
-		$result = new ResultOperations([
-			'uploadImage' => new Operation('uploadImage'),
-		]);
-
-		$result->setValue('path', null);
-
-		if (!is_null($image)) {
-
-			$images = is_array($image) ? $image : [$image];
-
-			foreach ($images as $image) {
-
-				if ($image->getError() === UPLOAD_ERR_OK) {
-
-					$filename = move_uploaded_file_to($this->uploadTmpDir, $image, uniqid());
-
-					$url = append_to_url($this->uploadDirTmpURL, $filename);
-
-					if (!is_null($filename)) {
-						$result
-							->operation('uploadImage')
-							->setMessage('Imagen subida')
-							->setSuccess(true);
-						$result->setValue('path', $url);
-					} else {
-						$result
-							->operation('uploadImage')
-							->setMessage('La imagen no pudo ser subida, intente después.');
-					}
-				}
-			}
-		} else {
-			$result
-				->operation('uploadImage')
-				->setMessage('No se ha subido ninguna imagen.');
-		}
-
-		return $response->withJson($result);
-	}
-
-	/**
-	 * moveTemporaryImages
-	 *
-	 * @param ArticleMapper $entity
-	 * @param string $oldText
-	 * @return void
-	 */
-	protected function moveTemporaryImages(ArticleMapper &$entity, string $oldText = null)
-	{
-		$imagesOnText = [];
-		$imagesOnOldText = [];
-		$currentImagesOnText = [];
-
-		$isEdit = !is_null($oldText) && strlen($oldText) > 0;
-		$id = $entity->id;
-
-		$regex = '/https?\:\/\/[^\",]+/i';
-
-		preg_match_all($regex, $entity->content, $imagesOnText);
-
-		$imagesOnText = $imagesOnText[0];
-
-		if (count($imagesOnText) > 0) {
-
-			foreach ($imagesOnText as $url) {
-
-				if (strpos($url, $this->uploadDirTmpURL) !== false) {
-
-					$filename = str_replace($this->uploadDirTmpURL, '', $url);
-
-					$oldPath = append_to_url($this->uploadTmpDir, "$filename");
-
-					$newFolder = append_to_url($this->uploadDir, "$id");
-
-					$newPath = append_to_url($newFolder, "$filename");
-
-					if (!file_exists($newFolder)) {
-						make_directory($newFolder);
-					}
-
-					if (file_exists($oldPath)) {
-						rename($oldPath, $newPath);
-					}
-
-					$_url = append_to_url($this->uploadDirURL, "$id/$filename");
-
-					$entity->content = str_replace($url, $_url, $entity->content);
-
-					$currentImagesOnText[] = $_url;
-				} elseif (strpos($url, $this->uploadDirURL) !== false) {
-
-					$currentImagesOnText[] = $url;
-				}
-			}
-		}
-
-		$updated = $entity->update();
-
-		if ($isEdit) {
-
-			preg_match_all($regex, $oldText, $imagesOnOldText);
-			$imagesOnOldText = $imagesOnOldText[0];
-
-			if ($updated && count($imagesOnOldText) > 0) {
-
-				foreach ($imagesOnOldText as $url) {
-
-					if (!in_array($url, $currentImagesOnText)) {
-
-						$filename = str_replace($this->uploadDirURL, '', $url);
-
-						$path = append_to_url($this->uploadDir, $filename);
-
-						if (file_exists($path)) {
-							unlink($path);
-						}
-					}
-				}
-			}
-		}
-	}
-
-	/**
 	 * routeName
 	 *
 	 * @param string $name
@@ -566,7 +383,7 @@ class ArticleController extends AdminPanelController
 			$name = strlen($name) > 0 ? "-{$name}" : '';
 		}
 
-		$name = !is_null($name) ? self::$prefixParentEntity . '-' . self::$prefixEntity . $name : self::$prefixParentEntity;
+		$name = !is_null($name) ? self::$prefixRootParentEntity . '-' . self::$prefixParentEntity . '-' . self::$prefixEntity . $name : self::$prefixRootParentEntity;
 
 		$allowed = false;
 		$current_user = get_config('current_user');
@@ -589,18 +406,6 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
-	 * deleteOrphanFiles
-	 *
-	 * @return void
-	 */
-	protected function deleteOrphanFiles()
-	{
-		$temporary_directory = new DirectoryObject($this->uploadTmpDir);
-		$temporary_directory->process();
-		$temporary_directory->delete();
-	}
-
-	/**
 	 * routes
 	 *
 	 * @param RouteGroup $group
@@ -609,16 +414,6 @@ class ArticleController extends AdminPanelController
 	public static function routes(RouteGroup $group)
 	{
 		if (PIECES_PHP_BLOG_ENABLED) {
-
-			$from = \DateTime::createFromFormat('d-m-Y h:i:s A', date('d-m-Y') . ' 2:00:00 AM');
-			$to = \DateTime::createFromFormat('d-m-Y h:i:s A', date('d-m-Y') . ' 4:00:00 AM');
-			$now = new \DateTime();
-			$valid_interval = $now >= $from && $now <= $to;
-
-			if ($valid_interval) {
-				$instance = new static;
-				$instance->deleteOrphanFiles();
-			}
 
 			$routes = [];
 
@@ -637,10 +432,8 @@ class ArticleController extends AdminPanelController
 
 			//Rutas
 			$group->register(
-				self::genericManageRoutes($startRoute, self::$prefixParentEntity, self::class, self::$prefixEntity, $permisos_estados_gestion, true)
+				self::genericManageRoutes($startRoute, self::$prefixRootParentEntity . '-' . self::$prefixParentEntity, self::class, self::$prefixEntity, $permisos_estados_gestion, true)
 			);
-
-			$group = CategoryController::routes($group);
 		}
 
 		return $group;
