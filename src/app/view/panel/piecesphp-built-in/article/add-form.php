@@ -16,6 +16,11 @@
             <label>Título</label>
             <input type="text" name="title" maxlength="255">
         </div>
+
+        <div class="field required">
+            <label>Categoría</label>
+            <select class='ui dropdown' name="category"><?= $options_categories; ?></select>
+        </div>
 		
         <div class="field required">
             <label>Descripción</label>

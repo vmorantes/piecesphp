@@ -26,6 +26,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         </div>
 
         <div class="field required">
+            <label>Categoría</label>
+            <select class='ui dropdown' name="category"><?= $options_categories; ?></select>
+        </div>
+
+        <div class="field required">
             <label>Descripción</label>
             <div image-process="<?= get_route('piecesphp-built-in-articles-image-handler')?>" image-name="image"
                 rich-editor-js editor-target="[name='content']"><?=$element->content;?></div>

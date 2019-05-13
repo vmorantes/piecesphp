@@ -22,6 +22,7 @@
                 <th>ID</th>
                 <th>Título</th>
                 <th>Autor</th>
+                <th>Categoría</th>
                 <th>Inicio</th>
                 <th>Fin</th>
                 <th>Creado</th>

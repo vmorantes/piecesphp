@@ -101,9 +101,113 @@ class CategoryMapper extends BaseEntityMapper
 	}
 
 	/**
+	 * getBy
+	 *
+	 * @param mixed $value
+	 * @param string $column
+	 * @param boolean $as_mapper
+	 * @return static|object|null
+	 */
+	public static function getBy($value, string $column = 'id', bool $as_mapper = false)
+	{
+		$model = self::model();
+
+		$where = [
+			$column => $value,
+		];
+
+		$model->select()->where($where);
+
+		$model->execute();
+
+		$result = $model->result();
+
+		$result = count($result) > 0 ? $result[0] : null;
+
+		if (!is_null($result) && $as_mapper) {
+			$result = new static($result->id);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * existsByID
+	 *
+	 * @param int $id
+	 * @return bool
+	 */
+	public static function existsByID(int $id)
+	{
+		$model = self::model();
+
+		$where = [
+			"id = $id",
+		];
+		$where = trim(implode(' ', $where));
+
+		$model->select()->where($where);
+
+		$model->execute();
+
+		$result = $model->result();
+
+		return count($result) > 0;
+	}
+
+	/**
+	 * existsByName
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public static function existsByName(string $name)
+	{
+		$model = self::model();
+
+		$where = [
+			"name = '$name'",
+		];
+		$where = trim(implode(' ', $where));
+
+		$model->select()->where($where);
+
+		$model->execute();
+
+		$result = $model->result();
+
+		return count($result) > 0;
+	}
+
+	/**
+	 * existsByFriendlyURL
+	 *
+	 * @param string $friendly_url
+	 * @return bool
+	 */
+	public static function existsByFriendlyURL(string $friendly_url)
+	{
+		$model = self::model();
+
+		$where = [
+			"friendly_url = '$friendly_url'",
+		];
+		$where = trim(implode(' ', $where));
+
+		$model->select()->where($where);
+
+		$model->execute();
+
+		$result = $model->result();
+
+		return count($result) > 0;
+	}
+
+	/**
 	 * isDuplicate
 	 *
 	 * @param string $name
+	 * @param string $friendly_url
 	 * @param int $ignore_id
 	 * @return bool
 	 */

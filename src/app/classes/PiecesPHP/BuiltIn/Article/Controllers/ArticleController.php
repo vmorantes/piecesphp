@@ -20,6 +20,7 @@ use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
 
 /**
  * ArticleController.
@@ -122,10 +123,12 @@ class ArticleController extends AdminPanelController
 
 		$action = self::routeName('actions-add');
 		$back_link = self::routeName('list');
+		$options_categories = array_to_html_options(CategoryMapper::allForSelect(), null);
 
 		$data = [];
 		$data['action'] = $action;
 		$data['back_link'] = $back_link;
+		$data['options_categories'] = $options_categories;
 		$data['title'] = self::$title;
 
 		import_quilljs(['imageUpload', 'imageResize']);
@@ -155,11 +158,13 @@ class ArticleController extends AdminPanelController
 
 			$action = self::routeName('actions-edit');
 			$back_link = self::routeName('list');
+			$options_categories = array_to_html_options(CategoryMapper::all(), $element->category);
 
 			$data = [];
 			$data['action'] = $action;
 			$data['element'] = $element;
 			$data['back_link'] = $back_link;
+			$data['options_categories'] = $options_categories;
 			$data['title'] = self::$title;
 
 			import_quilljs(['imageUpload', 'imageResize']);
@@ -224,6 +229,86 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
+	 * articlesByCategory
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 */
+	public function articlesByCategory(Request $request, Response $response, array $args)
+	{
+
+		if ($request->isXhr() ||  true) {
+
+			$type = $request->getQueryParam('type', 'friendly_url');
+			$category_value = $request->getAttribute('category', null);
+			$exists = false;
+			$category = null;
+
+			if ($type == 'friendly_url') {
+				$exists = CategoryMapper::existsByFriendlyURL((string)$category_value);
+			} elseif ($type == 'id') {
+				$category_value = !is_null($category_value) && ctype_digit($category_value) ? $category_value : -1;
+				$exists = CategoryMapper::existsByID((int)$category_value);
+			} elseif ($type == 'name') {
+				$exists = CategoryMapper::existsByName((string)$category_value);
+			}
+
+			if ($exists) {
+				$category = CategoryMapper::getBy($category_value, $type);
+			}
+
+			if ($category !== null) {
+				return $response->withJson(ArticleMapper::allByCategory((int)$category->id));
+			} else {
+				throw new NotFoundException($request, $response);
+			}
+		} else {
+			throw new NotFoundException($request, $response);
+		}
+	}
+
+	/**
+	 * single
+	 *
+	 * @param Request $request
+	 * @param Response $response
+	 * @param array $args
+	 * @return Response
+	 */
+	public function single(Request $request, Response $response, array $args)
+	{
+
+		if ($request->isXhr() ||  true) {
+
+			$type = $request->getQueryParam('type', 'friendly_url');
+			$article_value = $request->getAttribute('article', null);
+			$exists = false;
+			$article = null;
+
+			if ($type == 'friendly_url') {
+				$exists = ArticleMapper::existsByFriendlyURL($article_value);
+			} elseif ($type == 'id') {
+				$article_value = !is_null($article_value) && ctype_digit($article_value) ? $article_value : -1;
+				$exists = ArticleMapper::existsByID((int)$article_value);
+			}
+
+			if ($exists) {
+				$article = ArticleMapper::getBy($article_value, $type);
+			}
+
+			if ($article !== null) {
+				return $response->withJson($article);
+			} else {
+				throw new NotFoundException($request, $response);
+			}
+		} else {
+			throw new NotFoundException($request, $response);
+		}
+	}
+
+	/**
 	 * articlesDataTables
 	 *
 	 * @param Request $request
@@ -240,6 +325,7 @@ class ArticleController extends AdminPanelController
 				'id',
 				'title',
 				'author',
+				'category',
 				'start_date',
 				'end_date',
 				'created',
@@ -271,6 +357,7 @@ class ArticleController extends AdminPanelController
 						$mapper->id,
 						strlen($mapper->title) > 50 ? substr($mapper->title, 0, 50) . '...' : $mapper->title,
 						$mapper->author->username,
+						$mapper->category->name,
 						!is_null($mapper->start_date) ? $mapper->start_date->format('d-m-Y h:i:s') : '-',
 						!is_null($mapper->end_date) ? $mapper->end_date->format('d-m-Y h:i:s') : '-',
 						$mapper->created->format('d-m-Y h:i:s'),
@@ -301,6 +388,7 @@ class ArticleController extends AdminPanelController
 
 		$id = $request->getParsedBodyParam('id', -1);
 		$title = $request->getParsedBodyParam('title', null);
+		$category = $request->getParsedBodyParam('category', null);
 		$content = $request->getParsedBodyParam('content', null);
 		$start_date = $request->getParsedBodyParam('start_date', '');
 		$end_date = $request->getParsedBodyParam('end_date', '');
@@ -312,6 +400,7 @@ class ArticleController extends AdminPanelController
 
 		$valid_params = !in_array(null, [
 			$title,
+			$category,
 			$content,
 		]);
 
@@ -328,16 +417,17 @@ class ArticleController extends AdminPanelController
 		$success_create_message = 'Artículo creado.';
 		$success_edit_message = 'Datos guardados.';
 		$unknow_error_message = 'Ha ocurrido un error desconocido.';
-		$is_duplicate_message = 'Ya existe un artículo con ese nombre.';
+		$is_duplicate_message = 'Ya existe un artículo con ese nombre en la categoría seleccionada.';
 
 		$redirect_url_on_create = self::routeName('list');
 
 		if ($valid_params) {
 
-			$title = trim($title);
-			$content = trim($content);
+			$title = clean_string($title);
+			$friendly_url = ArticleMapper::generateFriendlyURL($title, $id);
+			$content = clean_string($content);
 
-			$is_duplicate = ArticleMapper::isDuplicate($title, $id);
+			$is_duplicate = ArticleMapper::isDuplicate($title, $friendly_url, (int)$category, $id);
 
 			if (!$is_duplicate) {
 
@@ -347,7 +437,9 @@ class ArticleController extends AdminPanelController
 
 					try {
 
+						$mapper->category = $category;
 						$mapper->title = $title;
+						$mapper->friendly_url = $friendly_url;
 						$mapper->content = $content;
 						$mapper->start_date = $start_date;
 						$mapper->end_date = $end_date;
@@ -380,7 +472,9 @@ class ArticleController extends AdminPanelController
 						try {
 
 							$oldText = $mapper->content;
+							$mapper->category = $category;
 							$mapper->title = $title;
+							$mapper->friendly_url = $friendly_url;
 							$mapper->content = $content;
 							$mapper->start_date = $start_date;
 							$mapper->end_date = $end_date;
@@ -635,11 +729,33 @@ class ArticleController extends AdminPanelController
 			$group->active(PIECES_PHP_BLOG_ENABLED);
 			$group->register($routes);
 
-			//Rutas
+			//Rutas básicas
 			$group->register(
 				self::genericManageRoutes($startRoute, self::$prefixParentEntity, self::class, self::$prefixEntity, $permisos_estados_gestion, true)
 			);
 
+			//Otras rutas
+			$namePrefix = self::$prefixParentEntity . '-' . self::$prefixEntity;
+			$startRoute .= self::$prefixEntity;
+			$group->register([
+				new Route(
+					"{$startRoute}/list/{category}",
+					self::class . ":articlesByCategory",
+					"{$namePrefix}-ajax-all-category",
+					'GET'
+				),
+			]);
+			$group->register([
+				new Route(
+					"{$startRoute}/single/{article}",
+					self::class . ":single",
+					"{$namePrefix}-ajax-single",
+					'GET'
+				),
+			]);
+
+
+			//Rutas categorías
 			$group = CategoryController::routes($group);
 		}
 
