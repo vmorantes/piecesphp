@@ -7,7 +7,6 @@ namespace PiecesPHP\BuiltIn\Article\Category\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -18,7 +17,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
-use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper as MainMapper;
 
 /**
  * CategoryController.
@@ -82,7 +81,7 @@ class CategoryController extends AdminPanelController
 	{
 		parent::__construct(false); //No cargar ningún modelo automáticamente.
 
-		$this->model = (new CategoryMapper)->getModel();
+		$this->model = (new MainMapper)->getModel();
 		set_title(self::$title . ' - ' . get_title());
 	}
 
@@ -124,7 +123,7 @@ class CategoryController extends AdminPanelController
 		$id = $request->getAttribute('id', null);
 		$id = !is_null($id) && ctype_digit($id) ? (int)$id : null;
 
-		$element = new CategoryMapper($id);
+		$element = new MainMapper($id);
 
 		if (!is_null($element->id)) {
 
@@ -174,14 +173,14 @@ class CategoryController extends AdminPanelController
 	}
 
 	/**
-	 * categories
+	 * all
 	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @param array $args
 	 * @return Response
 	 */
-	public function categories(Request $request, Response $response, array $args)
+	public function all(Request $request, Response $response, array $args)
 	{
 
 		if ($request->isXhr()) {
@@ -197,14 +196,14 @@ class CategoryController extends AdminPanelController
 	}
 
 	/**
-	 * categoriesDataTables
+	 * dataTables
 	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @param array $args
 	 * @return Response
 	 */
-	public function categoriesDataTables(Request $request, Response $response, array $args)
+	public function dataTables(Request $request, Response $response, array $args)
 	{
 
 		if ($request->isXhr()) {
@@ -217,7 +216,7 @@ class CategoryController extends AdminPanelController
 
 			$result = DataTablesHelper::process([
 				'columns_order' => $columns_order,
-				'mapper' => new CategoryMapper(),
+				'mapper' => new MainMapper(),
 				'request' => $request,
 				'on_set_data' => function ($e) {
 
@@ -234,7 +233,7 @@ class CategoryController extends AdminPanelController
 						}
 					}
 
-					$mapper = new CategoryMapper($e->id);
+					$mapper = new MainMapper($e->id);
 
 					return [
 						$mapper->id,
@@ -294,16 +293,16 @@ class CategoryController extends AdminPanelController
 		if ($valid_params) {
 
 			$name = clean_string($name);
-			$friendly_url = CategoryMapper::generateFriendlyURL($name, $id);
+			$friendly_url = MainMapper::generateFriendlyURL($name, $id);
 			$description = clean_string($description);
 
-			$is_duplicate = CategoryMapper::isDuplicate($name, $friendly_url, $id);
+			$is_duplicate = MainMapper::isDuplicate($name, $friendly_url, $id);
 
 			if (!$is_duplicate) {
 
 				if (!$is_edit) {
 
-					$mapper = new CategoryMapper();
+					$mapper = new MainMapper();
 
 					try {
 
@@ -328,7 +327,7 @@ class CategoryController extends AdminPanelController
 					}
 				} else {
 
-					$mapper = new CategoryMapper((int)$id);
+					$mapper = new MainMapper((int)$id);
 					$exists = !is_null($mapper->id);
 
 					if ($exists) {
@@ -457,13 +456,13 @@ class CategoryController extends AdminPanelController
 		$routes = [
 			new Route(
 				"{$startRoute}",
-				"{$handler}:{$uriPrefix}",
+				"{$handler}:all",
 				"{$namePrefix}-ajax-all",
 				'GET'
 			),
 			new Route(
 				"{$startRoute}/datatables[/]",
-				"{$handler}:{$uriPrefix}DataTables",
+				"{$handler}:dataTables",
 				"{$namePrefix}-datatables",
 				'GET'
 			),

@@ -7,7 +7,7 @@ namespace PiecesPHP\BuiltIn\Article\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper;
+use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper as MainMapper;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
@@ -101,7 +101,7 @@ class ArticleController extends AdminPanelController
 	{
 		parent::__construct(false); //No cargar ningún modelo automáticamente.
 
-		$this->model = (new ArticleMapper)->getModel();
+		$this->model = (new MainMapper)->getModel();
 		set_title(self::$title . ' - ' . get_title());
 
 		$this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
@@ -152,7 +152,7 @@ class ArticleController extends AdminPanelController
 		$id = $request->getAttribute('id', null);
 		$id = !is_null($id) && ctype_digit($id) ? (int)$id : null;
 
-		$element = new ArticleMapper($id);
+		$element = new MainMapper($id);
 
 		if (!is_null($element->id)) {
 
@@ -206,14 +206,14 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
-	 * articles
+	 * all
 	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @param array $args
 	 * @return Response
 	 */
-	public function articles(Request $request, Response $response, array $args)
+	public function all(Request $request, Response $response, array $args)
 	{
 
 		if ($request->isXhr()) {
@@ -229,17 +229,17 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
-	 * articlesByCategory
+	 * byCategory
 	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @param array $args
 	 * @return Response
 	 */
-	public function articlesByCategory(Request $request, Response $response, array $args)
+	public function byCategory(Request $request, Response $response, array $args)
 	{
 
-		if ($request->isXhr() ||  true) {
+		if ($request->isXhr()) {
 
 			$type = $request->getQueryParam('type', 'friendly_url');
 			$category_value = $request->getAttribute('category', null);
@@ -260,7 +260,7 @@ class ArticleController extends AdminPanelController
 			}
 
 			if ($category !== null) {
-				return $response->withJson(ArticleMapper::allByCategory((int)$category->id));
+				return $response->withJson(MainMapper::allByCategory((int)$category->id));
 			} else {
 				throw new NotFoundException($request, $response);
 			}
@@ -280,22 +280,22 @@ class ArticleController extends AdminPanelController
 	public function single(Request $request, Response $response, array $args)
 	{
 
-		if ($request->isXhr() ||  true) {
+		if ($request->isXhr()) {
 
 			$type = $request->getQueryParam('type', 'friendly_url');
-			$article_value = $request->getAttribute('article', null);
+			$search_value = $request->getAttribute('value', null);
 			$exists = false;
 			$article = null;
 
 			if ($type == 'friendly_url') {
-				$exists = ArticleMapper::existsByFriendlyURL($article_value);
+				$exists = MainMapper::existsByFriendlyURL($search_value);
 			} elseif ($type == 'id') {
-				$article_value = !is_null($article_value) && ctype_digit($article_value) ? $article_value : -1;
-				$exists = ArticleMapper::existsByID((int)$article_value);
+				$search_value = !is_null($search_value) && ctype_digit($search_value) ? $search_value : -1;
+				$exists = MainMapper::existsByID((int)$search_value);
 			}
 
 			if ($exists) {
-				$article = ArticleMapper::getBy($article_value, $type);
+				$article = MainMapper::getBy($search_value, $type);
 			}
 
 			if ($article !== null) {
@@ -309,14 +309,14 @@ class ArticleController extends AdminPanelController
 	}
 
 	/**
-	 * articlesDataTables
+	 * dataTables
 	 *
 	 * @param Request $request
 	 * @param Response $response
 	 * @param array $args
 	 * @return Response
 	 */
-	public function articlesDataTables(Request $request, Response $response, array $args)
+	public function dataTables(Request $request, Response $response, array $args)
 	{
 
 		if ($request->isXhr()) {
@@ -334,7 +334,7 @@ class ArticleController extends AdminPanelController
 
 			$result = DataTablesHelper::process([
 				'columns_order' => $columns_order,
-				'mapper' => new ArticleMapper(),
+				'mapper' => new MainMapper(),
 				'request' => $request,
 				'on_set_data' => function ($e) {
 
@@ -351,7 +351,7 @@ class ArticleController extends AdminPanelController
 						}
 					}
 
-					$mapper = new ArticleMapper($e->id);
+					$mapper = new MainMapper($e->id);
 
 					return [
 						$mapper->id,
@@ -424,16 +424,16 @@ class ArticleController extends AdminPanelController
 		if ($valid_params) {
 
 			$title = clean_string($title);
-			$friendly_url = ArticleMapper::generateFriendlyURL($title, $id);
+			$friendly_url = MainMapper::generateFriendlyURL($title, $id);
 			$content = clean_string($content);
 
-			$is_duplicate = ArticleMapper::isDuplicate($title, $friendly_url, (int)$category, $id);
+			$is_duplicate = MainMapper::isDuplicate($title, $friendly_url, (int)$category, $id);
 
 			if (!$is_duplicate) {
 
 				if (!$is_edit) {
 
-					$mapper = new ArticleMapper();
+					$mapper = new MainMapper();
 
 					try {
 
@@ -464,7 +464,7 @@ class ArticleController extends AdminPanelController
 					}
 				} else {
 
-					$mapper = new ArticleMapper((int)$id);
+					$mapper = new MainMapper((int)$id);
 					$exists = !is_null($mapper->id);
 
 					if ($exists) {
@@ -566,11 +566,11 @@ class ArticleController extends AdminPanelController
 	/**
 	 * moveTemporaryImages
 	 *
-	 * @param ArticleMapper $entity
+	 * @param MainMapper $entity
 	 * @param string $oldText
 	 * @return void
 	 */
-	protected function moveTemporaryImages(ArticleMapper &$entity, string $oldText = null)
+	protected function moveTemporaryImages(MainMapper &$entity, string $oldText = null)
 	{
 		$imagesOnText = [];
 		$imagesOnOldText = [];
@@ -740,14 +740,14 @@ class ArticleController extends AdminPanelController
 			$group->register([
 				new Route(
 					"{$startRoute}/list/{category}",
-					self::class . ":articlesByCategory",
+					self::class . ":byCategory",
 					"{$namePrefix}-ajax-all-category",
 					'GET'
 				),
 			]);
 			$group->register([
 				new Route(
-					"{$startRoute}/single/{article}",
+					"{$startRoute}/single/{value}",
 					self::class . ":single",
 					"{$namePrefix}-ajax-single",
 					'GET'
@@ -780,13 +780,13 @@ class ArticleController extends AdminPanelController
 		$routes = [
 			new Route(
 				"{$startRoute}",
-				"{$handler}:{$uriPrefix}",
+				"{$handler}:all",
 				"{$namePrefix}-ajax-all",
 				'GET'
 			),
 			new Route(
 				"{$startRoute}/datatables[/]",
-				"{$handler}:{$uriPrefix}DataTables",
+				"{$handler}:dataTables",
 				"{$namePrefix}-datatables",
 				'GET'
 			),
