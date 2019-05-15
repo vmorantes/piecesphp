@@ -80,7 +80,7 @@ AdminPanelController::routes($zona_administrativa);
 AdminPanelController::usersRoutes($sistema_usuarios);
 
 //Temporizador
-$timing->register(TimerController::routes());
+TimerController::routes($timing);
 
 //Informes de inicio de sesión
 LoginAttemptsController::routes($zona_administrativa);
