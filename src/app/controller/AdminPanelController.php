@@ -371,24 +371,60 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 
 		//Generales
 		$group->register([
-			new Route('[/]', self::class . ':indexView', 'admin', 'GET', true),
+			new Route(
+				'[/]',
+				self::class . ':indexView',
+				'admin',
+				'GET',
+				true
+			),
 		]);
 
 		//Usuarios
 		$group->register([
 			//Listado de usuarios
-			new Route("{$startRoute}/usuarios/list[/]", $classname . ':listadoUsersView', 'listado-usuarios', 'GET', true),
+			new Route(
+				"{$startRoute}/usuarios/list[/]",
+				$classname . ':listadoUsersView',
+				'listado-usuarios',
+				'GET',
+				true
+			),
 			//Vista de creación de usuario
-			new Route("{$startRoute}/usuarios/crear[/]", $classname . ':formUserView', 'form-usuarios', 'GET', true),
+			new Route(
+				"{$startRoute}/usuarios/crear[/]",
+				$classname . ':formUserView',
+				'form-usuarios',
+				'GET',
+				true
+			),
 			//Vista de edición de usuario
-			new Route("{$startRoute}/usuarios/editar/{id}[/]", $classname . ':formUserView', 'form-editar-usuarios', 'GET', true),
+			new Route(
+				"{$startRoute}/usuarios/editar/{id}[/]",
+				$classname . ':formUserView',
+				'form-editar-usuarios',
+				'GET',
+				true
+			),
 			//Vista de perfil de usuario
-			new Route("{$startRoute}/perfil[/]", $classname . ':formUserView', 'profile', 'GET', true),
+			new Route(
+				"{$startRoute}/perfil[/]",
+				$classname . ':formUserView',
+				'profile',
+				'GET',
+				true
+			),
 		]);
 
 		//Errores
 		$group->register([
-			new Route('/error-log[/]', $classname . ':errorLog', 'admin-error-log', 'GET', true),
+			new Route(
+				'/error-log[/]',
+				$classname . ':errorLog',
+				'admin-error-log',
+				'GET',
+				true
+			),
 		]);
 
 		//──── POST ─────────────────────────────────────────────────────────────────────────		
