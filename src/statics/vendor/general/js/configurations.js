@@ -529,6 +529,9 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	let onSetFormData = function (formData) {
 		return formData
 	}
+	let onSetForm = function (form) {
+		return form
+	}
 	let validate = function (form) {
 		return true
 	}
@@ -565,6 +568,9 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 		}
 		if (typeof options.onSetFormData == 'function') {
 			onSetFormData = options.onSetFormData
+		}
+		if (typeof options.onSetForm == 'function') {
+			onSetForm = options.onSetForm
 		}
 		if (typeof options.validate == 'function') {
 			validate = options.validate
@@ -641,145 +647,169 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 
 			let request = null
 
-			if (method == 'POST') {
-				request = postRequest(action, onSetFormData(formData))
-			} else {
-				request = getRequest(action, form)
-			}
-
 			showLoader()
 
-			request.done(function (response) {
+			if (method == 'POST') {
 
-				let responseStructure = {
-					success: {
-						optional: true,
-						validate: (val) => {
-							return typeof val == 'boolean'
-						},
-						parse: (val) => {
-							return val === true
-						},
-						default: false,
-					},
-					name: {
-						optional: true,
-						validate: (val) => {
-							return typeof val == 'string' && val.trim().length > 0
-						},
-						parse: (val) => {
-							return val.trim()
-						},
-						default: 'Acción',
-					},
-					message: {
-						optional: true,
-						validate: (val) => {
-							return typeof val == 'string' && val.trim().length > 0
-						},
-						parse: (val) => {
-							return val.trim()
-						},
-						default: '',
-					},
-					values: {
-						optional: true,
-						validate: (val) => {
-							return typeof val == 'object'
-						},
-						parse: (val) => {
-							return val
-						},
-						default: {},
-					},
-				}
+				let processFormData = onSetFormData(formData)
 
-				let responseIsObject = typeof response == 'object'
-
-				if (!responseIsObject) {
-					console.error(`La respuesta debe ser un objeto`)
-					return
-				}
-
-				for (let option in responseStructure) {
-					let config = responseStructure[option]
-					let optional = config.optional
-					let validate = config.validate
-					let parse = config.parse
-					let value = config.default
-					let optionExists = typeof response[option]
-					if (optionExists) {
-						let inputValue = response[option]
-						if (validate(inputValue)) {
-							value = parse(inputValue)
-						}
-						response[option] = value
-					} else if (optional) {
-						response[option] = value
-					} else {
-						console.error(`Falta la opción ${option} en el cuerpo de la respuesta.`)
-						return
-					}
-
-				}
-
-				if (response.success) {
-
-					successMessage(response.name, response.message)
-
-					let resposeValues = response.values
-
-					let hasReload = typeof resposeValues.reload != 'undefined' && resposeValues.reload == true
-					let hasRedirection = typeof resposeValues.redirect != 'undefined' && resposeValues.redirect == true
-					let validRedirection = typeof resposeValues.redirect_to == 'string' && resposeValues.redirect_to.trim().length > 0
-
-					if (hasRedirection && validRedirection) {
-
-						setTimeout(function (e) {
-
-							window.location = resposeValues.redirect_to
-
-						}, 1500)
-
-					} else if (hasReload) {
-
-						setTimeout(function (e) {
-
-							window.location.reload()
-
-						}, 1500)
-
-					} else {
-
-						form.find('button').attr('disabled', false)
-
-					}
-
+				if (typeof processFormData.then !== 'undefined') {
+					processFormData.then(function (formData) {
+						request = postRequest(action, formData)
+						handlerRequest(request)
+					})
 				} else {
-
-					errorMessage(response.name, response.message)
-					form.find('button').attr('disabled', false)
-
+					request = postRequest(action, processFormData)
+					handlerRequest(request)
 				}
 
-			})
-
-			request.fail(function (res) {
-
-				form.find('button').attr('disabled', false)
-				errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
-				console.error(res)
-
-			})
-
-			request.always(function (res) {
-				removeLoader()
-			})
+			} else {
+				let processForm = onSetForm(form)
+				if (typeof processForm.then !== 'undefined') {
+					processForm.then(function (form) {
+						request = getRequest(action, form)
+						handlerRequest(request)
+					})
+				} else {
+					request = getRequest(action, processForm)
+					handlerRequest(request)
+				}
+			}
 
 		} else {
 			console.error('No se ha definido ninguna acción')
 			errorMessage('Error', 'Ha ocurrido un error desconocido, intente más tarde.')
 		}
+	}
+
+	function handlerRequest(request) {
+
+		request.done(function (response) {
+
+			let responseStructure = {
+				success: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'boolean'
+					},
+					parse: (val) => {
+						return val === true
+					},
+					default: false,
+				},
+				name: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'string' && val.trim().length > 0
+					},
+					parse: (val) => {
+						return val.trim()
+					},
+					default: 'Acción',
+				},
+				message: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'string' && val.trim().length > 0
+					},
+					parse: (val) => {
+						return val.trim()
+					},
+					default: '',
+				},
+				values: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'object'
+					},
+					parse: (val) => {
+						return val
+					},
+					default: {},
+				},
+			}
+
+			let responseIsObject = typeof response == 'object'
+
+			if (!responseIsObject) {
+				console.error(`La respuesta debe ser un objeto`)
+				return
+			}
+
+			for (let option in responseStructure) {
+				let config = responseStructure[option]
+				let optional = config.optional
+				let validate = config.validate
+				let parse = config.parse
+				let value = config.default
+				let optionExists = typeof response[option]
+				if (optionExists) {
+					let inputValue = response[option]
+					if (validate(inputValue)) {
+						value = parse(inputValue)
+					}
+					response[option] = value
+				} else if (optional) {
+					response[option] = value
+				} else {
+					console.error(`Falta la opción ${option} en el cuerpo de la respuesta.`)
+					return
+				}
+
+			}
+
+			if (response.success) {
+
+				successMessage(response.name, response.message)
+
+				let resposeValues = response.values
+
+				let hasReload = typeof resposeValues.reload != 'undefined' && resposeValues.reload == true
+				let hasRedirection = typeof resposeValues.redirect != 'undefined' && resposeValues.redirect == true
+				let validRedirection = typeof resposeValues.redirect_to == 'string' && resposeValues.redirect_to.trim().length > 0
+
+				if (hasRedirection && validRedirection) {
+
+					setTimeout(function (e) {
+
+						window.location = resposeValues.redirect_to
+
+					}, 1500)
+
+				} else if (hasReload) {
+
+					setTimeout(function (e) {
+
+						window.location.reload()
+
+					}, 1500)
+
+				} else {
+
+					form.find('button').attr('disabled', false)
+
+				}
+
+			} else {
+
+				errorMessage(response.name, response.message)
+				form.find('button').attr('disabled', false)
+
+			}
+
+		})
+
+		request.fail(function (res) {
+
+			form.find('button').attr('disabled', false)
+			errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
+			console.error(res)
+
+		})
+
+		request.always(function (res) {
+			removeLoader()
+		})
 	}
 
 	function showLoader() {
