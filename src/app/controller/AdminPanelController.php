@@ -10,6 +10,7 @@ use App\Controller\UsersController;
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\HTML\Attribute;
 use PiecesPHP\Core\HTML\Collections\AttributeArray;
@@ -351,6 +352,192 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		}
 
 		return $res->withJson($result);
+	}
+
+	/**
+	 * routes
+	 *
+	 * @param RouteGroup $group
+	 * @return RouteGroup
+	 */
+	public static function routes(RouteGroup $group)
+	{
+		$groupSegmentURL = $group->getGroupSegment();
+		$lastIsBar = last_char($groupSegmentURL) == '/';
+		$startRoute = $lastIsBar ? '' : '/';
+		$classname = self::class;
+
+		//──── GET ─────────────────────────────────────────────────────────────────────────
+
+		//Generales
+		$group->register([
+			new Route('[/]', self::class . ':indexView', 'admin', 'GET', true),
+		]);
+
+		//Usuarios
+		$group->register([
+			//Listado de usuarios
+			new Route("{$startRoute}/usuarios/list[/]", $classname . ':listadoUsersView', 'listado-usuarios', 'GET', true),
+			//Vista de creación de usuario
+			new Route("{$startRoute}/usuarios/crear[/]", $classname . ':formUserView', 'form-usuarios', 'GET', true),
+			//Vista de edición de usuario
+			new Route("{$startRoute}/usuarios/editar/{id}[/]", $classname . ':formUserView', 'form-editar-usuarios', 'GET', true),
+			//Vista de perfil de usuario
+			new Route("{$startRoute}/perfil[/]", $classname . ':formUserView', 'profile', 'GET', true),
+		]);
+
+		//Errores
+		$group->register([
+			new Route('/error-log[/]', $classname . ':errorLog', 'admin-error-log', 'GET', true),
+		]);
+
+		//──── POST ─────────────────────────────────────────────────────────────────────────		
+
+		return $group;
+	}
+
+	/**
+	 * usersRoutes
+	 *
+	 * @param RouteGroup $group
+	 * @return RouteGroup
+	 */
+	public static function usersRoutes(RouteGroup $group)
+	{
+		$groupSegmentURL = $group->getGroupSegment();
+		$lastIsBar = last_char($groupSegmentURL) == '/';
+		$startRoute = $lastIsBar ? '' : '/';
+		$users = UsersController::class;
+		$recovery = RecoveryPasswordController::class;
+		$users_problems = UserProblemsController::class;
+
+		//──── GET ─────────────────────────────────────────────────────────────────────────
+
+		//Inicio, cierre, registro y edición
+		$group->register([
+			new Route(
+				"{$startRoute}login[/]",
+				$users . ':loginForm',
+				'login-form'
+			),
+			new Route(
+				"{$startRoute}logout[/]",
+				$users . ':logout',
+				'logout'
+			),
+		]);
+
+		//Problemas
+		$group->register([
+			new Route(
+				"{$startRoute}recovery[/]",
+				$recovery . ':recoveryPasswordForm',
+				'recovery-form'
+			),
+			new Route(
+				"{$startRoute}recovery/{url_token}[/]",
+				$recovery . ':newPasswordCreate',
+				'new-password-create'
+			),
+			new Route(
+				"{$startRoute}user-forget[/]",
+				$users_problems . ':userForgetForm',
+				'user-forget-form'
+			),
+			new Route(
+				"{$startRoute}user-blocked[/]",
+				$users_problems . ':userBlockedForm',
+				'user-blocked-form'
+			),
+			new Route(
+				"{$startRoute}user-not-exists[/]",
+				$users_problems . ':userNotExistsForm',
+				'user-not-exists-form'
+			),
+			new Route(
+				"{$startRoute}problems[/]",
+				$users_problems . ':userProblemsList',
+				'user-problems-list'
+			),
+		]);
+
+		//──── POST ─────────────────────────────────────────────────────────────────────────		
+
+		//Inicio, cierre, registro y edición
+		$group->register([
+			new Route(
+				"{$startRoute}login[/]",
+				$users . ':login',
+				'login-request',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}register[/]",
+				$users . ':register',
+				'register-request',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}edit[/]",
+				$users . ':edit',
+				'user-edit-request',
+				'POST'
+			),
+		]);
+
+		//Problemas
+		$group->register([
+			new Route(
+				"{$startRoute}recovery[/]",
+				$recovery . ':recoveryPasswordRequest',
+				'recovery-password-request',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}recovery-code[/]",
+				$recovery . ':recoveryPasswordRequestCode',
+				'recovery-password-request-code',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}create-password-code[/]",
+				$recovery . ':newPasswordCreateCode',
+				'new-password-create-code',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}user-forget-code[/]",
+				$users_problems . ':generateCode',
+				'user-forget-request-code',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}user-blocked-code[/]",
+				$users_problems . ':generateCode',
+				'user-blocked-request-code',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}get-username[/]",
+				$users_problems . ':resolveProblem',
+				'user-forget-get',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}unblock-user[/]",
+				$users_problems . ':resolveProblem',
+				'user-blocked-resolve',
+				'POST'
+			),
+			new Route(
+				"{$startRoute}user-not-exists[/]",
+				$users_problems . ':sendMailUserNotExists',
+				'user-not-exists-send',
+				'POST'
+			),
+		]);
+
+		return $group;
 	}
 
 	/**

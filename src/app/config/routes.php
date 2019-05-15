@@ -40,16 +40,13 @@
  * $grupo->register([$ruta, ...])
  *
  */
-use App\Controller\AdminPanelController as Panel;
+use App\Controller\AdminPanelController;
 use App\Controller\AvatarController;
 use App\Controller\BlackboardNewsController;
 use App\Controller\ImporterController;
 use App\Controller\LoginAttemptsController;
 use App\Controller\MessagesController;
-use App\Controller\RecoveryPasswordController;
 use App\Controller\TimerController;
-use App\Controller\UserProblemsController;
-use App\Controller\UsersController as UsersController;
 use App\Locations\Controllers\Locations;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
@@ -76,6 +73,12 @@ $articles = new PiecesRouteGroup($prefix_lang . '/articles'); //Blog
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
 
+//Rutas básicas de la zona administrativa
+AdminPanelController::routes($zona_administrativa);
+
+//Sistema de usuarios
+AdminPanelController::usersRoutes($sistema_usuarios);
+
 //Temporizador
 $timing->register(TimerController::routes());
 
@@ -89,7 +92,7 @@ Locations::routes($locations);
 BlackboardNewsController::routes($sistema_tablero_noticias);
 
 //Tickets
-$tickets->register(Panel::getRoutes());
+$tickets->register(AdminPanelController::getRoutes());
 
 //Mensajería
 MessagesController::routes($mensajeria);
@@ -100,66 +103,21 @@ ImporterController::routes($importadores);
 //Blog
 ArticleController::routes($articles);
 
-$zona_administrativa->register(
-    [
-        //──── GENERALES ─────────────────────────────────────────────────────────────────────────
-        //Vista principal de la zona administrativa
-        new PiecesRoute('[/]', Panel::class . ':indexView', 'admin', 'GET', true),
-        //──── USUARIOS ──────────────────────────────────────────────────────────────────────────
-        //Listado de usuarios
-        new PiecesRoute('/usuarios/list[/]', Panel::class . ':listadoUsersView', 'listado-usuarios', 'GET', true),
-        //Vista de creación de usuario
-        new PiecesRoute('/usuarios/crear[/]', Panel::class . ':formUserView', 'form-usuarios', 'GET', true),
-        //Vista de edición de usuario
-        new PiecesRoute('/usuarios/editar/{id}[/]', Panel::class . ':formUserView', 'form-editar-usuarios', 'GET', true),
-        //Vista de perfil de usuario
-        new PiecesRoute('/perfil[/]', Panel::class . ':formUserView', 'profile', 'GET', true),
-        //──── ERRORES ────────────────────────────────────────────────────────────────────────
-        //Log
-        new PiecesRoute('/error-log[/]', Panel::class . ':errorLog', 'admin-error-log', 'GET', true),
-    ]
-);
-
-$sistema_usuarios->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('login[/]', UsersController::class . ':loginForm', 'login-form'),
-        new PiecesRoute('logout[/]', UsersController::class . ':logout', 'logout'),
-        new PiecesRoute('recovery[/]', RecoveryPasswordController::class . ':recoveryPasswordForm', 'recovery-form'),
-        new PiecesRoute('recovery/{url_token}[/]', RecoveryPasswordController::class . ':newPasswordCreate', 'new-password-create'),
-        new PiecesRoute('user-forget[/]', UserProblemsController::class . ':userForgetForm', 'user-forget-form'),
-        new PiecesRoute('user-blocked[/]', UserProblemsController::class . ':userBlockedForm', 'user-blocked-form'),
-        new PiecesRoute('user-not-exists[/]', UserProblemsController::class . ':userNotExistsForm', 'user-not-exists-form'),
-        new PiecesRoute('problems[/]', UserProblemsController::class . ':userProblemsList', 'user-problems-list'),
-        //──── POST ──────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('login[/]', UsersController::class . ':login', 'login-request', 'POST'),
-        new PiecesRoute('register[/]', UsersController::class . ':register', 'register-request', 'POST'),
-        new PiecesRoute('edit[/]', UsersController::class . ':edit', 'user-edit-request', 'POST'),
-        new PiecesRoute('recovery[/]', RecoveryPasswordController::class . ':recoveryPasswordRequest', 'recovery-password-request', 'POST'),
-        new PiecesRoute('recovery-code[/]', RecoveryPasswordController::class . ':recoveryPasswordRequestCode', 'recovery-password-request-code', 'POST'),
-        new PiecesRoute('create-password-code[/]', RecoveryPasswordController::class . ':newPasswordCreateCode', 'new-password-create-code', 'POST'),
-        new PiecesRoute('user-forget-code[/]', UserProblemsController::class . ':generateCode', 'user-forget-request-code', 'POST'),
-        new PiecesRoute('user-blocked-code[/]', UserProblemsController::class . ':generateCode', 'user-blocked-request-code', 'POST'),
-        new PiecesRoute('get-username[/]', UserProblemsController::class . ':resolveProblem', 'user-forget-get', 'POST'),
-        new PiecesRoute('unblock-user[/]', UserProblemsController::class . ':resolveProblem', 'user-blocked-resolve', 'POST'),
-        new PiecesRoute('user-not-exists[/]', UserProblemsController::class . ':sendMailUserNotExists', 'user-not-exists-send', 'POST'),
-    ]
-);
 
 $sistema_avatares->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
-        //──── POST ──────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
-    ]
+	[
+		//──── GET ───────────────────────────────────────────────────────────────────────────────
+		new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
+		//──── POST ──────────────────────────────────────────────────────────────────────────────
+		new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
+	]
 );
 
 $servidor_estaticos->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('[{params:.*}]', ServerStatics::class . ':serve', 'statics-files'),
-    ]
+	[
+		//──── GET ───────────────────────────────────────────────────────────────────────────────
+		new PiecesRoute('[{params:.*}]', ServerStatics::class . ':serve', 'statics-files'),
+	]
 );
 
 //──── RUTAS OPCIONALES ──────────────────────────────────────────────────────────────────
@@ -167,20 +125,20 @@ $servidor_estaticos->register(
 $generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
 $generacion_imagenes->active(true); //Grupo activo/inactivo
 $generacion_imagenes->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
-    ]
+	[
+		//──── GET ───────────────────────────────────────────────────────────────────────────────
+		new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
+	]
 );
 
 $tests = new PiecesRouteGroup($prefix_lang . '/overview'); //Muestra de algunas funciones
 $tests->active(true); //Grupo activo/inactivo
 $tests->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('[/]', Test::class . ':index', 'home-test'),
-        new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
-        new PiecesRoute('/overview-1[/]', Test::class . ':overviewFront', 'front-test'),
-        new PiecesRoute('/overview-2[/]', Test::class . ':overviewBack', 'back-test'),
-    ]
+	[
+		//──── GET ───────────────────────────────────────────────────────────────────────────────
+		new PiecesRoute('[/]', Test::class . ':index', 'home-test'),
+		new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
+		new PiecesRoute('/overview-1[/]', Test::class . ':overviewFront', 'front-test'),
+		new PiecesRoute('/overview-2[/]', Test::class . ':overviewBack', 'back-test'),
+	]
 );
