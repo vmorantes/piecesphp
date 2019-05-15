@@ -49,8 +49,5 @@
 
 <script>
 window.onload = () => {
-
-    let sublinesDropdown = $(`.ui.dropdown.multiple`).dropdown()
-
 }
 </script>

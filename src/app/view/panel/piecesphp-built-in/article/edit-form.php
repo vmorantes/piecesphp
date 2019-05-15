@@ -59,8 +59,5 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 <script>
 window.onload = () => {
-
-    let sublinesDropdown = $(`.ui.dropdown.multiple`).dropdown()
-
 }
 </script>
