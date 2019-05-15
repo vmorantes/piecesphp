@@ -180,16 +180,18 @@ class GenericHandler
 		$fileLogJSON = json_encode($fileLogJSON, \JSON_PRETTY_PRINT);
 
 		file_put_contents($this->fileLocation, $fileLogJSON);
+		chmod($this->fileLocation, 0777);
 
 		if ($backupOld) {
-			file_put_contents(
-				str_replace(
-					'{{DATE}}',
-					$this->date->format('d-m-Y h-i-s.u'),
-					$this->oldFileLocation
-				),
-				json_encode($oldFileLogJSON)
+			$file_old_output = str_replace(
+				'{{DATE}}',
+				$this->date->format('d-m-Y h-i-s.u'),
+				$this->oldFileLocation
 			);
+			$fp = fopen($file_old_output, 'w+');
+			fwrite($fp, json_encode($oldFileLogJSON));
+			fclose($fp);
+			chmod($file_old_output, 0777);
 		}
 	}
 }
