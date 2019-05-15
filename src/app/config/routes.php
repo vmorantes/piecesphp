@@ -59,43 +59,43 @@ $slim_app = get_config('slim_app');
 PiecesRouteGroup::setRouter($slim_app);
 
 //──── GRUPOS DE RUTAS ───────────────────────────────────────────────────────────────────
-$mensajeria = new PiecesRouteGroup($prefix_lang . '/messages'); //Mensajería
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
-$importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadores
-$sistema_tablero_noticias = new PiecesRouteGroup($prefix_lang . '/blackboard-news/'); //Servido personalizado de archivos estáticos
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
+$tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
+$timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
+$mensajeria = new PiecesRouteGroup($prefix_lang . '/messages'); //Mensajería
+$locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
+$sistema_tablero_noticias = new PiecesRouteGroup($prefix_lang . '/blackboard-news/'); //Servido personalizado de archivos estáticos
+$importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadores
+$articles = new PiecesRouteGroup($prefix_lang . '/articles'); //Blog
 $sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios
 $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
-$timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
-$tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
-$locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
-$articles = new PiecesRouteGroup($prefix_lang . '/articles'); //Blog
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
 
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
 
+//Informes de inicio de sesión
+LoginAttemptsController::routes($zona_administrativa);
+
 //Sistema de usuarios
 AdminPanelController::usersRoutes($sistema_usuarios);
+
+//Tickets
+AdminPanelController::ticketsRoutes($tickets);
 
 //Temporizador
 TimerController::routes($timing);
 
-//Informes de inicio de sesión
-LoginAttemptsController::routes($zona_administrativa);
+//Mensajería
+MessagesController::routes($mensajeria);
 
 //Ubicaciones
 Locations::routes($locations);
 
 //Tablero de noticias
 BlackboardNewsController::routes($sistema_tablero_noticias);
-
-//Tickets
-$tickets->register(AdminPanelController::getRoutes());
-
-//Mensajería
-MessagesController::routes($mensajeria);
 
 //Importadores
 ImporterController::routes($importadores);

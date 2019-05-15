@@ -577,18 +577,36 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 	}
 
 	/**
-	 * getRoutes
+	 * ticketsRoutes
 	 *
-	 * @return Route[]
+	 * @param RouteGroup $group
+	 * @return RouteGroup
 	 */
-	public static function getRoutes()
+	public static function ticketsRoutes(RouteGroup $group)
 	{
+		$groupSegmentURL = $group->getGroupSegment();
+		$lastIsBar = last_char($groupSegmentURL) == '/';
+		$startRoute = $lastIsBar ? '' : '/';
+		$classname = self::class;
 		$all_roles = array_keys(UsersModel::TYPES_USERS);
 
-		return [
-			//Crear ticket
-			new Route('/create[/]', AdminPanelController::class . ':sendTicket', 'tickets-create', 'POST', false, null, $all_roles),
-		];
+		//──── GET ─────────────────────────────────────────────────────────────────────────
+
+		//──── POST ─────────────────────────────────────────────────────────────────────────	
+
+		$group->register([
+			new Route(
+				"{$startRoute}/create[/]",
+				$classname . ':sendTicket',
+				'tickets-create',
+				'POST',
+				false,
+				null,
+				$all_roles
+			),
+		]);
+
+		return $group;
 	}
 
 	/**
