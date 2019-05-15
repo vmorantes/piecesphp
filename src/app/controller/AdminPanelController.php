@@ -55,13 +55,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 	protected $modelUsers;
 
 	/**
-	 * $mapperUsers
-	 *
-	 * @var UsersModel
-	 */
-	protected $mapperUsers;
-
-	/**
 	 * $controllerUsers
 	 *
 	 * @var UsersController
@@ -622,24 +615,19 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		OsTicketAPI::setBaseURL($api_url);
 		OsTicketAPI::setBaseAPIKey($api_key);
 
-		$this->mapperUsers = new UsersModel();
-		$this->modelUsers = $this->mapperUsers->getModel();
 		$this->controllerUsers = new UsersController();
 
-		$variables_visibles_view = [];
+		$view_data = [];
 
-		if (SessionToken::isActiveSession()) {
-			$jwt = SessionToken::getSession();
-			$this->user = BaseToken::getData($jwt);
-			$this->user = $this->modelUsers->select()->where(['id' => $this->user->id])->row();
-			if ($this->user instanceof \stdClass) {
-				$variables_visibles_view['user'] = $this->user;
-				$this->user->avatar = AvatarModel::getAvatar($this->user->id);
-				$this->user->hasAvatar = !is_null($this->user->avatar);
-			}
+		$this->user = get_config('current_user');
+
+		if ($this->user instanceof \stdClass) {
+			$view_data['user'] = $this->user;
+			$this->user->avatar = AvatarModel::getAvatar($this->user->id);
+			$this->user->hasAvatar = !is_null($this->user->avatar);
 		}
 
-		$this->setVariables($variables_visibles_view);
+		$this->setVariables($view_data);
 
 		/* JQuery */
 		import_jquery();
