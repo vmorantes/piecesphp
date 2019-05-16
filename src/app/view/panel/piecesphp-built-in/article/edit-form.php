@@ -32,7 +32,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="field required">
             <label>Descripción</label>
-            <div image-process="<?= get_route('piecesphp-built-in-articles-image-handler')?>" image-name="image"
+            <div image-process="<?= $quill_proccesor_link; ?>" image-name="image"
                 rich-editor-js editor-target="[name='content']"><?=$element->content;?></div>
             <textarea name="content" required><?=$element->content;?></textarea>
         </div>

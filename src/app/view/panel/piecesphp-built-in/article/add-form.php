@@ -24,7 +24,7 @@
 		
         <div class="field required">
             <label>Descripción</label>
-            <div image-process="<?= get_route('piecesphp-built-in-articles-image-handler')?>" image-name="image" rich-editor-js
+            <div image-process="<?= $quill_proccesor_link; ?>" image-name="image" rich-editor-js
                 editor-target="[name='content']"></div>
             <textarea name="content" required></textarea>
         </div>

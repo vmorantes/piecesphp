@@ -123,12 +123,14 @@ class ArticleController extends AdminPanelController
 
 		$action = self::routeName('actions-add');
 		$back_link = self::routeName('list');
+		$quill_proccesor_link = self::routeName('image-handler');
 		$options_categories = array_to_html_options(CategoryMapper::allForSelect(), null);
 
 		$data = [];
 		$data['action'] = $action;
 		$data['back_link'] = $back_link;
 		$data['options_categories'] = $options_categories;
+		$data['quill_proccesor_link'] = $quill_proccesor_link;
 		$data['title'] = self::$title;
 
 		import_quilljs(['imageUpload', 'imageResize']);
@@ -158,6 +160,7 @@ class ArticleController extends AdminPanelController
 
 			$action = self::routeName('actions-edit');
 			$back_link = self::routeName('list');
+			$quill_proccesor_link = self::routeName('image-handler');
 			$options_categories = array_to_html_options(CategoryMapper::allForSelect(), $element->category->id);
 
 			$data = [];
@@ -165,6 +168,7 @@ class ArticleController extends AdminPanelController
 			$data['element'] = $element;
 			$data['back_link'] = $back_link;
 			$data['options_categories'] = $options_categories;
+			$data['quill_proccesor_link'] = $quill_proccesor_link;
 			$data['title'] = self::$title;
 
 			import_quilljs(['imageUpload', 'imageResize']);
