@@ -14,7 +14,7 @@
 
         <div class="field required">
             <label>Nombre</label>
-            <input type="text" name="name" maxlength="255">
+            <input required type="text" name="name" maxlength="255">
         </div>
 
         <div class="field required">

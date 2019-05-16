@@ -14,16 +14,16 @@
 
         <div class="field required">
             <label>Título</label>
-            <input type="text" name="title" maxlength="255">
+            <input required type="text" name="title" maxlength="255">
         </div>
 
         <div class="field required">
             <label>Categoría</label>
-            <select class='ui dropdown' name="category"><?= $options_categories; ?></select>
+            <select required class='ui dropdown' name="category"><?= $options_categories; ?></select>
         </div>
 		
         <div class="field required">
-            <label>Descripción</label>
+            <label>Contenido</label>
             <div image-process="<?= $quill_proccesor_link; ?>" image-name="image" rich-editor-js
                 editor-target="[name='content']"></div>
             <textarea name="content" required></textarea>

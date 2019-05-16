@@ -22,7 +22,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="field required">
             <label>Nombre</label>
-            <input type="text" name="name" required maxlength="255" value="<?= $element->name; ?>">
+            <input required type="text" name="name" required maxlength="255" value="<?= $element->name; ?>">
 		</div>
 		
         <div class="field">
