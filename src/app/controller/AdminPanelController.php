@@ -616,6 +616,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		OsTicketAPI::setBaseAPIKey($api_key);
 
 		$this->controllerUsers = new UsersController();
+		$this->modelUsers = (new UsersModel)->getModel();
 
 		$view_data = [];
 
