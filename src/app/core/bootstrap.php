@@ -46,15 +46,15 @@ use PiecesPHP\Core\ServerStatics;
 
 if (!defined('BASEPATH')) {
     /**
-     * @ignore Constante que indica que la aplicación inició
+     * @var string La ruta base de toda la aplicación
      */
-    define('BASEPATH', true);
+    define('BASEPATH', realpath(__DIR__ . '/../../'));
 }
 if (!defined('APP_VERSION')) {
     /**
-     * @ignore Constante que indica que la versión de la aplicación
+     * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '2.2.0');
+    define('APP_VERSION', '2.6.4.2');
 }
 
 require $directories['utilities'];

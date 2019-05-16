@@ -30,9 +30,6 @@ class Config
     /** @var string $app_title URL de la aplicación es el HOST concatenado al $app_base*/
     protected $app_url = null;
 
-    /** @var string $addons Clases adicionales */
-    protected $addons = []; //TODO
-
     /**
      * @var array $app_db Configuración de la base de datos
      * <pre>

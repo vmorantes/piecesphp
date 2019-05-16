@@ -50,7 +50,7 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'icon' => 'marker',
             'visible' => Roles::hasPermissions('locations', $current_type_user),
             'asLink' => true,
-            'href' => get_route('locations'),
+            'href' => get_route('locations', [], true),
         ]),
         new MenuGroup([
             'name' => 'Noticias',

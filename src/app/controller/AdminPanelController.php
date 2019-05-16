@@ -651,7 +651,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 			}
 		}
 
-		if (get_config('locations-load-assets')) {
+		if (LOCATIONS_ENABLED) {
 			add_global_asset(LOCATIONS_PATH_JS . '/main.js', 'js');
 		}
 	}

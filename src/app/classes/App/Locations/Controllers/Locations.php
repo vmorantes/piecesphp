@@ -64,6 +64,8 @@ class Locations extends AdminPanelController
      */
     public static function routes(RouteGroup $group)
     {
+		$group->active(LOCATIONS_ENABLED);
+
         $routes = [];
 
         $groupSegmentURL = $group->getGroupSegment();
