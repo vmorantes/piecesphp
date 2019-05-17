@@ -43,19 +43,11 @@ $config['roles']['active'] = true;
 $permisosGenerales = [
     //Generales
     'admin', //Vista principal de la zona administrativa
-    //Mensajería
-    'messages-inbox', //Vista de los mensajes
-    'messages-send-message', //Enviar mensaje
-    'messages-send-response', //Enviar respuesta
-    'messages-mark-read', //Marcar como leído
-    'messages-threads-status', //Actualizar status del hilo
     //Usuarios
     'profile',
     //Avatar
     'avatars', //Traer todos los elementos de los avatares
     'push-avatars', //Crear avatar
-	//Tablero de noticias
-	'blackboard-news-get', //Obtiene las noticias
 ];
 
 $permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
@@ -63,18 +55,6 @@ $permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
     'listado-usuarios', //Listado de los usuarios
 	"form-usuarios", //Formulario de creación de usuarios
 	"form-editar-usuarios", //Formulario de edición de usuarios
-    //Importador
-    'importer-form', //Formulario de importación de usuarios
-    'importer-action', //Ejectutar importación
-    'importer-template', //Generar plantilla
-	//Tablero de noticias
-	'blackboard-news-list', //Listado de noticias
-    'blackboard-news-create-form', //Formulario de noticia
-	'blackboard-news-edit-form', //Edición de noticia
-    'blackboard-news-create', //Crear noticia
-	'blackboard-news-edit', //Editar noticia
-	'blackboard-news-delete', //Eliminar noticia
-    'blackboard-image-handler', //Subir imagen con QuillJS
 ]));
 
 $permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdministrativos,[

@@ -6,6 +6,7 @@
 
 namespace App\Controller;
 
+use App\Model\UsersModel;
 use Importers\ImporterUsers;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PiecesPHP\Core\DataStructures\StringArray;
@@ -292,6 +293,11 @@ class ImporterController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = ImporterController::class;
         $routes = [];
+        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $edition_permissions = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
+        ];
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
         //Importación de usuarios
@@ -300,21 +306,27 @@ class ImporterController extends AdminPanelController
             $classname . ':importForm',
             'importer-form',
             'GET',
-            true
+            true,
+            null,
+            $edition_permissions
         );
         $routes[] = new Route(
             "{$startRoute}importer/{type}/do[/]",
             $classname . ':import',
             'importer-action',
             'POST',
-            true
+            true,
+            null,
+            $edition_permissions
         );
         $routes[] = new Route(
             "{$startRoute}importer/{type}/template[/]",
             $classname . ':templates',
             'importer-template',
             'GET',
-            true
+            true,
+            null,
+            $edition_permissions
         );
 
         $group->active(IMPORTS_MODULE_ENABLED);

@@ -384,6 +384,7 @@ class MessagesController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = MessagesController::class;
         $routes = [];
+        $all_roles = array_keys(UsersModel::TYPES_USERS);
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
         $routes[] = new Route(
@@ -391,7 +392,9 @@ class MessagesController extends AdminPanelController
             $classname . ':inbox',
             'messages-inbox',
             'GET',
-            true
+            true,
+            null,
+            $all_roles
         );
 
         //──── POST ─────────────────────────────────────────────────────────────────────────
@@ -400,21 +403,26 @@ class MessagesController extends AdminPanelController
             $classname . ':sendMessage',
             'messages-send-message',
             'POST',
-            true
+            true,
+            null,
+            $all_roles
         );
         $routes[] = new Route(
             "{$startRoute}send/response[/]",
             $classname . ':sendResponse',
             'messages-send-response',
             'POST',
-            true
+            true,
+            null,
+            $all_roles
         );
         $routes[] = new Route(
             "{$startRoute}mark-as-read/{type}/{id}[/]",
             $classname . ':markAsRead', 'messages-mark-read',
             'POST',
             true,
-            null
+            null,
+            $all_roles
         );
         $routes[] = new Route(
             "{$startRoute}thread-status[/]",
@@ -422,7 +430,8 @@ class MessagesController extends AdminPanelController
             'messages-threads-status',
             'POST',
             true,
-            null
+            null,
+            $all_roles
         );
 
         $group->active(MESSAGES_ENABLED);

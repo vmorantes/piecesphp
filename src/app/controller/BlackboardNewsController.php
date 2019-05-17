@@ -557,6 +557,11 @@ class BlackboardNewsController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = BlackboardNewsController::class;
         $routes = [];
+        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $edition_permissions = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
+        ];
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
         $routes[] = new Route(
@@ -564,28 +569,36 @@ class BlackboardNewsController extends AdminPanelController
             $classname . ':writeForm',
             'blackboard-news-create-form',
             'GET',
-            true
+            true,
+            null,
+            $edition_permissions
         );
         $routes[] = new Route(
             "{$startRoute}edit/{id}[/]",
             $classname . ':editForm',
             'blackboard-news-edit-form',
             'GET',
-            true
+            true,
+            null,
+            $edition_permissions
         );
         $routes[] = new Route(
             "{$startRoute}news[/]",
             $classname . ':getNews',
             'blackboard-news-get',
             'GET',
-            true
+            true,
+            null,
+            $all_roles
         );
         $routes[] = new Route(
             "{$startRoute}list[/]",
             $classname . ':listView',
             'blackboard-news-list',
             'GET',
-            true
+            true,
+            null,
+            $edition_permissions
         );
 
         //──── POST ─────────────────────────────────────────────────────────────────────────
@@ -594,28 +607,36 @@ class BlackboardNewsController extends AdminPanelController
             $classname . ':registerNew',
             'blackboard-news-create',
             'POST',
-            true
+            true,
+            null,
+            $edition_permissions
         );
         $routes[] = new Route(
             "{$startRoute}edit[/]",
             $classname . ':editNew',
             'blackboard-news-edit',
             'POST',
-            true
+            true,
+            null,
+            $edition_permissions
         );
         $routes[] = new Route(
             "{$startRoute}delete/{id}[/]",
             $classname . ':deleteNew',
             'blackboard-news-delete',
             'POST',
-            true
+            true,
+            null,
+            $edition_permissions
         );
         $routes[] = new Route(
             "{$startRoute}image-handler[/]",
             $classname . ':imageHandler',
             'blackboard-image-handler',
             'POST',
-            true
+            true,
+            null,
+            $edition_permissions
         );
 
         $group->active(BLACKBOARD_NEWS_ENABLED);
