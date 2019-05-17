@@ -41,7 +41,7 @@
 	"autoload": {
 		"psr-4": {
 			"PiecesPHP\\ComposerTasks\\": "../tasks",
-			"PiecesPHP\\Core\\": "../src/app/core/psr4/PiecesPHP/Core"
+			"PiecesPHP\\Core\\": "./app/core/psr4/PiecesPHP/Core"
 		}
 	},
 	"scripts": {
