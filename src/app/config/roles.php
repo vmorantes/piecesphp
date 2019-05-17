@@ -53,13 +53,13 @@ $permisosGenerales = [
 $permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
     //Usuarios
     'listado-usuarios', //Listado de los usuarios
-	"form-usuarios", //Formulario de creación de usuarios
-	"form-editar-usuarios", //Formulario de edición de usuarios
+    "form-usuarios", //Formulario de creación de usuarios
+    "form-editar-usuarios", //Formulario de edición de usuarios
 ]));
 
-$permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdministrativos,[
-	//Gestión de errores
-	"admin-error-log",
+$permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdministrativos, [
+    //Gestión de errores
+    "admin-error-log",
 ]));
 
 $config['roles']['types'] = [

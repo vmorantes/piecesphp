@@ -48,11 +48,11 @@ use App\Controller\LoginAttemptsController;
 use App\Controller\MessagesController;
 use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Test;
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 
 $prefix_lang = get_config('prefix_lang');
 $slim_app = get_config('slim_app');
@@ -103,21 +103,20 @@ ImporterController::routes($importadores);
 //Blog
 ArticleController::routes($articles);
 
-
 $sistema_avatares->register(
-	[
-		//──── GET ───────────────────────────────────────────────────────────────────────────────
-		new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
-		//──── POST ──────────────────────────────────────────────────────────────────────────────
-		new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
-	]
+    [
+        //──── GET ───────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
+        //──── POST ──────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
+    ]
 );
 
 $servidor_estaticos->register(
-	[
-		//──── GET ───────────────────────────────────────────────────────────────────────────────
-		new PiecesRoute('[{params:.*}]', ServerStatics::class . ':serve', 'statics-files'),
-	]
+    [
+        //──── GET ───────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('[{params:.*}]', ServerStatics::class . ':serve', 'statics-files'),
+    ]
 );
 
 //──── RUTAS OPCIONALES ──────────────────────────────────────────────────────────────────
@@ -125,20 +124,20 @@ $servidor_estaticos->register(
 $generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
 $generacion_imagenes->active(true); //Grupo activo/inactivo
 $generacion_imagenes->register(
-	[
-		//──── GET ───────────────────────────────────────────────────────────────────────────────
-		new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
-	]
+    [
+        //──── GET ───────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
+    ]
 );
 
 $tests = new PiecesRouteGroup($prefix_lang . '/overview'); //Muestra de algunas funciones
 $tests->active(true); //Grupo activo/inactivo
 $tests->register(
-	[
-		//──── GET ───────────────────────────────────────────────────────────────────────────────
-		new PiecesRoute('[/]', Test::class . ':index', 'home-test'),
-		new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
-		new PiecesRoute('/overview-1[/]', Test::class . ':overviewFront', 'front-test'),
-		new PiecesRoute('/overview-2[/]', Test::class . ':overviewBack', 'back-test'),
-	]
+    [
+        //──── GET ───────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('[/]', Test::class . ':index', 'home-test'),
+        new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
+        new PiecesRoute('/overview-1[/]', Test::class . ':overviewFront', 'front-test'),
+        new PiecesRoute('/overview-2[/]', Test::class . ':overviewBack', 'back-test'),
+    ]
 );

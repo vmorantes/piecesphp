@@ -82,7 +82,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
     $relative_url = $login_redirect !== false ? (isset($login_redirect['relative']) ? $login_redirect['relative'] : true) : true;
     $relative_url = !is_bool($relative_url) ? true : $relative_url;
     $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
-    if (strlen($admin_url) > 0 && $relative_url) {
+    if ($relative_url) {
         $admin_url = baseurl($admin_url);
     }
 
