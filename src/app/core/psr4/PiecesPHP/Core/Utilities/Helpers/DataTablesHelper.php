@@ -107,6 +107,16 @@ class DataTablesHelper
          * @var bool
          */
         $ignore_table_in_order = false;
+        /**
+         * $ignore_fields_in_where
+         * @var array
+         */
+        $ignore_fields_in_where = [];
+        /**
+         * $ignore_table_on_fields_in_where
+         * @var array
+         */
+        $ignore_table_on_fields_in_where = [];
 
         $parameters_expected = new Parameters([
             new Parameter('request', null, function ($value) {
@@ -145,6 +155,38 @@ class DataTablesHelper
             new Parameter('ignore_table_in_order', false, function ($value) {
                 return is_bool($value);
             }, true),
+            new Parameter(
+                'ignore_fields_in_where',
+                [],
+                function ($value) {
+                    return is_array($value);
+                },
+                true,
+                function ($value) {
+                    foreach ($value as $i => $v) {
+                        if (!is_string($v) || !ctype_digit((string) $i)) {
+                            unset($value[$i]);
+                        }
+                    }
+                    return $value;
+                }
+            ),
+            new Parameter(
+                'ignore_table_on_fields_in_where',
+                [],
+                function ($value) {
+                    return is_array($value);
+                },
+                true,
+                function ($value) {
+                    foreach ($value as $i => $v) {
+                        if (!is_string($v) || !ctype_digit((string) $i)) {
+                            unset($value[$i]);
+                        }
+                    }
+                    return $value;
+                }
+            ),
         ]);
         $parameters_expected->setInputValues($options);
         extract($parameters_expected->getValues());
@@ -162,7 +204,18 @@ class DataTablesHelper
         $tableName = $mapper->getModel()->getTable();
 
         $page = self::generatePage((int) $start, (int) $length);
-        $where = self::generateWhere($columns_order, $columns, $search, $tableName); //Criterios
+        $where = self::generateWhere(
+            array_filter(
+                $columns_order,
+                function ($v) use ($ignore_fields_in_where) {
+                    return !in_array($v, $ignore_fields_in_where);
+                }
+            ),
+            $columns,
+            $search,
+            $tableName,
+            $ignore_table_on_fields_in_where
+        ); //Criterios
         $where_string = trim($where_string);
         if (strlen($where_string) > 0) {
             if (strlen($where) > 0) {
@@ -414,9 +467,10 @@ class DataTablesHelper
      * @param array $columns
      * @param mixed $search
      * @param string $table
+     * @param string[] $ignore_table_on_fields
      * @return string
      */
-    protected static function generateWhere(array $columns_order, array $columns, $search, string $table = ''): string
+    protected static function generateWhere(array $columns_order, array $columns, $search, string $table = '', array $ignore_table_on_fields = []): string
     {
         $where = [];
 
@@ -451,7 +505,11 @@ class DataTablesHelper
                                 continue;
                             }
 
-                            $where[] = '(' . $table . "$name COLLATE UTF8_GENERAL_CI LIKE '%$search_value%'" . ')';
+                            if (in_array($name, $ignore_table_on_fields)) {
+                                $where[] = '(' . "$name COLLATE UTF8_GENERAL_CI LIKE '%$search_value%'" . ')';
+                            } else {
+                                $where[] = '(' . $table . "$name COLLATE UTF8_GENERAL_CI LIKE '%$search_value%'" . ')';
+                            }
                         }
                     }
                 }
