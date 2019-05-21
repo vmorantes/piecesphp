@@ -98,10 +98,15 @@ class DataTablesHelper
 		 */
 		$custom_order = [];
 		/**
-		 * $group_by
+		 * $group_string
 		 * @var string
 		 */
 		$group_string = '';
+		/**
+		 * $ignore_table_in_order
+		 * @var bool
+		 */
+		$ignore_table_in_order = false;
 
 		$parameters_expected = new Parameters([
 			new Parameter('request', null, function ($value) {
@@ -137,6 +142,9 @@ class DataTablesHelper
 			new Parameter('group_string', null, function ($value) {
 				return is_string($value);
 			}, true),
+			new Parameter('ignore_table_in_order', false, function ($value) {
+				return is_bool($value);
+			}, true),
 		]);
 		$parameters_expected->setInputValues($options);
 		extract($parameters_expected->getValues());
@@ -163,7 +171,12 @@ class DataTablesHelper
 				$where = "($where_string)";
 			}
 		}
-		$order_by = self::generateOrderBy($columns_order, $order, $custom_order, $tableName); //Ordenación
+		$order_by = self::generateOrderBy(
+			$columns_order,
+			$order,
+			$custom_order,
+			$ignore_table_in_order ? '' : $tableName
+		); //Ordenación
 
 		//Definir los valores de paginación
 		$result->setValue('draw', $draw);
@@ -361,8 +374,9 @@ class DataTablesHelper
 		//Consulta para contar los registros que corresponden a los criterios sin tomar en cuenta la paginación
 		$filterCount = clone $model;
 		$tableName = $filterCount->getTable();
+		$primary_key = $mapper->getPrimaryKey();
 
-		$filterCount->select("COUNT($tableName.id) AS totalFiltered");
+		$filterCount->select("COUNT({$tableName}.{$primary_key}) AS totalFiltered");
 		if (strlen($where) > 0) {
 			$filterCount->where($where);
 		}
@@ -382,7 +396,7 @@ class DataTablesHelper
 		$totalCount = clone $model;
 		$tableName = $totalCount->getTable();
 
-		$totalCount->select("COUNT($tableName.id) AS total");
+		$totalCount->select("COUNT({$tableName}.{$primary_key}) AS total");
 		$totalCount->execute();
 
 		$totalCount = $totalCount->result();
