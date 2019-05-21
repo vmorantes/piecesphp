@@ -538,7 +538,7 @@ class DataTablesHelper
      * @param int $length
      * @return int
      */
-    protected static function  generatePage(int $start, int $length): int
+    protected static function generatePage(int $start, int $length): int
     {
         //Calcular página actual
         $page = $start;
