@@ -47,6 +47,8 @@ class DataTablesHelper
     public static function process(array $options)
     {
 
+        //──── INICIO ────────────────────────────────────────────────────────────────────────────
+        //Variables de configuración
         /**
          * $request
          * @var \Slim\Http\Request
@@ -117,7 +119,10 @@ class DataTablesHelper
          * @var array
          */
         $ignore_table_on_fields_in_where = [];
+        //──── FIN ───────────────────────────────────────────────────────────────────────────────
 
+        //──── INICIO ────────────────────────────────────────────────────────────────────────────
+        //Analizar parámetros entrantes
         $parameters_expected = new Parameters([
             new Parameter('request', null, function ($value) {
                 return $value instanceof Request;
@@ -190,20 +195,51 @@ class DataTablesHelper
         ]);
         $parameters_expected->setInputValues($options);
         extract($parameters_expected->getValues());
+        //──── FIN ───────────────────────────────────────────────────────────────────────────────
 
+        //Objecto de resultado
         $result = new ResultOperations();
 
-        //Parámetros recibidos
+        //Parámetros recibidos desde datatables
+
+        /**
+         * @var int $draw
+         */
         $draw = (int) $request->getQueryParam('draw', null);
+        /**
+         * @var int $start
+         */
         $start = $request->getQueryParam('start', 0);
+        /**
+         * @var int $length
+         */
         $length = $request->getQueryParam('length', 10);
+        /**
+         * @var array $search
+         */
         $search = $request->getQueryParam('search', null);
+        /**
+         * @var array $order
+         */
         $order = $request->getQueryParam('order', null);
+        /**
+         * @var array $columns
+         */
         $columns = $request->getQueryParam('columns', null);
 
+        /**
+         * @var string $tableName
+         */
         $tableName = $mapper->getModel()->getTable();
 
+        /**
+         * @var int $page
+         */
         $page = self::generatePage((int) $start, (int) $length);
+
+        /**
+         * @var string $where Criterios del input de búque de datatables
+         */
         $where = self::generateWhere(
             array_filter(
                 $columns_order,
@@ -215,7 +251,9 @@ class DataTablesHelper
             $search,
             $tableName,
             $ignore_table_on_fields_in_where
-        ); //Criterios
+        );
+
+        //Mezclar búsqueda de datatables con los criterios por defecto
         $where_string = trim($where_string);
         if (strlen($where_string) > 0) {
             if (strlen($where) > 0) {
@@ -224,36 +262,54 @@ class DataTablesHelper
                 $where = "($where_string)";
             }
         }
+        //=============================================================
+
+        //Mezclar ordenamiento de datatables con los criterios por defecto
         $order_by = self::generateOrderBy(
             $columns_order,
             $order,
             $custom_order,
             $ignore_table_in_order ? '' : $tableName
-        ); //Ordenación
+        );
+        //=============================================================
 
         //Definir los valores de paginación
         $result->setValue('draw', $draw);
         $result->setValue('start', $start);
         $result->setValue('length', $length);
         $result->setValue('page', $page);
+        //=============================================================
 
         //──── Ejecutar consultas ────────────────────────────────────────────────────────────────
 
-        //Modelo
+        /**
+         * @var \PiecesPHP\Core\BaseModel $model Modelo base de la tabla
+         */
         $model = $mapper->getModel();
+
+        //Ejecutar callable $on_set_model sobre el modelo
         if (!is_null($on_set_model)) {
 
+            //Se espera que se devuelva un objeto de la clase \PiecesPHP\Core\BaseModel o que la herede
             $set_model_value = ($on_set_model)($model);
 
             if (is_subclass_of($set_model_value, '\PiecesPHP\Core\BaseModel')) {
                 $model = $set_model_value;
             }
         }
+        //=============================================================
 
-        //Consultar los datos que se mostrarán
+        /*
+         * Configuración de la consulta principal
+         */
+
+        /**
+         * @var \PiecesPHP\Core\BaseModel $limit
+         * Clon del modelo para los resultados sobre los que se aplicarán los filtros
+         */
         $limit = clone $model;
-        $tableName = $limit->getTable();
 
+        //Definir los campos seleccionados en la consulta
         if ($select_fields !== null) {
             $limit->select($select_fields);
         } else {
@@ -261,29 +317,58 @@ class DataTablesHelper
             $limit->select($select_fields);
         }
 
+        /* Aplicar las diferentes cláusulas SQL y otras configuraciones*/
+
+        //WHERE
         if (strlen($where) > 0) {
             $limit->where($where);
         }
 
+        //ORDER BY
         if (strlen($order_by) > 0) {
             $limit->orderBy($order_by);
         }
 
+        //GROUP BY
         if (!is_null($group_string) && strlen($group_string) > 0) {
             $limit->groupBy($group_string);
         }
+
+        //Ejecutar callable $config_result_model sobre el modelo
         if (is_callable($config_result_model)) {
+
+            //Se espera que se devuelva un objeto de la clase \PiecesPHP\Core\BaseModel o que la herede
             $config_result_model_return = ($config_result_model)($select_fields, $order_by, $where, $limit);
+
             if (is_subclass_of($config_result_model_return, '\PiecesPHP\Core\BaseModel')) {
                 $limit = $config_result_model_return;
             }
-        }
 
+        }
+        //=============================================================
+
+        /*
+         * Ejecutar consulta principal y configuraciones sobre el resultado
+         */
+
+        //Ejecutar consulta
         $limit->execute(false, (int) $page, $length);
+        $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $limit->getLastSQLExecuted()));
+
+        /**
+         * @var array $limitResult Resultado de la consulta principal
+         */
         $limitResult = $limit->result();
+
+        /**
+         * @var array $data Array con los elementos resultantes
+         */
         $data = [];
+
+        //Iterar sobre la consulta para aplicar configuraciones
         foreach ($limitResult as $element) {
 
+            //Verificar si cada elemento sera instanciado con su mapeador
             if ($as_mapper) {
                 $class_mapper = get_class($mapper);
                 $primary_key = $mapper->getPrimaryKey();
@@ -291,19 +376,28 @@ class DataTablesHelper
             }
 
             if (!is_null($on_set_data)) {
+                //Aplicar callable $on_set_data para procesar las filas
 
+                //Espera un array que corresponde a una fila en datatables
                 $data_process = ($on_set_data)($element);
 
+                //Si no es un array se ignora el resultado (lo que perjudica las cuentas de los resultados)
                 if (!is_array($data_process)) {
                     continue;
                 }
 
                 $data[] = $data_process;
-            } else {
 
+            } else {
+                //Procesamiento de filas integrado
+
+                /**
+                 * @var string[] $poperties Las propiedades (columnas) del modelo
+                 */
                 $properties = [];
 
                 if (!$as_mapper) {
+                    //Si no fue instanciado con el mapeador
 
                     $is_object = is_object($element);
                     $is_array = is_array($element);
@@ -314,11 +408,16 @@ class DataTablesHelper
                         foreach ($element as $name => $property) {
 
                             $properties[] = $is_object ? $element->$name : $element[$name];
+
                         }
+
                     }
+
                 } else {
+                    //Si fue instanciado con el mapeador
 
                     $fields = $mapper->getFields();
+
                     $element = (object) $element->humanReadable();
 
                     foreach ($fields as $name => $field) {
@@ -340,10 +439,12 @@ class DataTablesHelper
                                 } else {
                                     $value = null;
                                 }
+
                             } else {
 
                                 $value = $element->$name->$reference_field;
                             }
+
                         } else {
 
                             $value = $element->$name;
@@ -357,7 +458,7 @@ class DataTablesHelper
             }
         }
 
-        //Ordenamiento de resultados procesado
+        //Ordenamiento de los resultados procesados con $on_set_data
         if (!is_null($on_set_data)) {
 
             $order_information = [];
@@ -421,39 +522,60 @@ class DataTablesHelper
             }
         }
 
+        //Agregar al resultado los elementos procesados
         $result->setValue('data', $data);
+        //Agregar al resultado los elementos crudos
         $result->setValue('rawData', $limitResult);
+        //=============================================================
 
-        //Consulta para contar los registros que corresponden a los criterios sin tomar en cuenta la paginación
+        //Realizar consulta para configurar los datos necesarios para la paginación
+
+        /**
+         * @var \PiecesPHP\Core\BaseModel $filterCount
+         * Clon del modelo para la paginación
+         */
         $filterCount = clone $model;
-        $tableName = $filterCount->getTable();
+
         $primary_key = $mapper->getPrimaryKey();
 
         $filterCount->select("COUNT({$tableName}.{$primary_key}) AS totalFiltered");
+
+        //WHERE
         if (strlen($where) > 0) {
             $filterCount->where($where);
         }
 
         if (!is_null($group_string) && strlen($group_string) > 0) {
+            //Con GROUP BY
             $filterCount->groupBy($group_string);
             $filterCount->execute();
+            $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCount->getLastSQLExecuted()));
             $filterCount = $filterCount->result();
             $result->setValue('recordsFiltered', count($filterCount) > 0 ? count($filterCount) : 0);
+
         } else {
+            //Sin GROUP BY
             $filterCount->execute();
+            $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCount->getLastSQLExecuted()));
             $filterCount = $filterCount->result();
             $result->setValue('recordsFiltered', count($filterCount) > 0 ? $filterCount[0]->totalFiltered : 0);
+
         }
 
-        //Consulta para el total de registros en la abe de datos
+        /**
+         * @var \PiecesPHP\Core\BaseModel $totalCount
+         * Clon del modelo para el conteo del total de elementos en la base de datos
+         */
         $totalCount = clone $model;
-        $tableName = $totalCount->getTable();
 
         $totalCount->select("COUNT({$tableName}.{$primary_key}) AS total");
         $totalCount->execute();
 
+        $result->setValue('SQL_TOTAL_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $totalCount->getLastSQLExecuted()));
         $totalCount = $totalCount->result();
+
         $result->setValue('recordsTotal', count($totalCount) > 0 ? $totalCount[0]->total : 0);
+        //=============================================================
 
         return $result;
     }
