@@ -505,11 +505,39 @@ class DataTablesHelper
                                 continue;
                             }
 
-                            if (in_array($name, $ignore_table_on_fields)) {
-                                $where[] = '(' . "$name COLLATE UTF8_GENERAL_CI LIKE '%$search_value%'" . ')';
-                            } else {
-                                $where[] = '(' . $table . "$name COLLATE UTF8_GENERAL_CI LIKE '%$search_value%'" . ')';
+                            if (is_string($search_value)) {
+                                $search_value = mb_strtoupper($search_value);
                             }
+
+                            $_where_string = '(UPPER({FIELD_NAME}) LIKE \'%{SEARCH_VALUE}%\')';
+
+                            if (in_array($name, $ignore_table_on_fields)) {
+                                $_where_string = str_replace(
+                                    [
+                                        '{FIELD_NAME}',
+                                        '{SEARCH_VALUE}',
+                                    ],
+                                    [
+                                        $name,
+                                        $search_value,
+                                    ],
+                                    $_where_string
+                                );
+                            } else {
+                                $_where_string = str_replace(
+                                    [
+                                        '{FIELD_NAME}',
+                                        '{SEARCH_VALUE}',
+                                    ],
+                                    [
+                                        $table . $name,
+                                        $search_value,
+                                    ],
+                                    $_where_string
+                                );
+                            }
+
+                            $where[] = $_where_string;
                         }
                     }
                 }
