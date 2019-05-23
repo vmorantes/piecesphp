@@ -365,7 +365,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		//Generales
 		$group->register([
 			new Route(
-				'[/]',
+				$lastIsBar ? '' : '[/]',
 				self::class . ':indexView',
 				'admin',
 				'GET',
@@ -377,7 +377,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		$group->register([
 			//Listado de usuarios
 			new Route(
-				"{$startRoute}/usuarios/list[/]",
+				"{$startRoute}usuarios/list[/]",
 				$classname . ':listadoUsersView',
 				'listado-usuarios',
 				'GET',
@@ -385,7 +385,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 			),
 			//Vista de creación de usuario
 			new Route(
-				"{$startRoute}/usuarios/crear[/]",
+				"{$startRoute}usuarios/crear[/]",
 				$classname . ':formUserView',
 				'form-usuarios',
 				'GET',
@@ -393,7 +393,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 			),
 			//Vista de edición de usuario
 			new Route(
-				"{$startRoute}/usuarios/editar/{id}[/]",
+				"{$startRoute}usuarios/editar/{id}[/]",
 				$classname . ':formUserView',
 				'form-editar-usuarios',
 				'GET',
@@ -401,7 +401,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 			),
 			//Vista de perfil de usuario
 			new Route(
-				"{$startRoute}/perfil[/]",
+				"{$startRoute}perfil[/]",
 				$classname . ':formUserView',
 				'profile',
 				'GET',
@@ -412,7 +412,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		//Errores
 		$group->register([
 			new Route(
-				'/error-log[/]',
+				'{$startRoute}error-log[/]',
 				$classname . ':errorLog',
 				'admin-error-log',
 				'GET',
@@ -589,7 +589,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 
 		$group->register([
 			new Route(
-				"{$startRoute}/create[/]",
+				"{$startRoute}create[/]",
 				$classname . ':sendTicket',
 				'tickets-create',
 				'POST',
