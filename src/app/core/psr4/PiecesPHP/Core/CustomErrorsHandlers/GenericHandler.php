@@ -180,7 +180,7 @@ class GenericHandler
 		$fileLogJSON = json_encode($fileLogJSON, \JSON_PRETTY_PRINT);
 
 		file_put_contents($this->fileLocation, $fileLogJSON);
-		chmod($this->fileLocation, 0777);
+		@chmod($this->fileLocation, 0777);
 
 		if ($backupOld) {
 			$file_old_output = str_replace(
@@ -191,7 +191,7 @@ class GenericHandler
 			$fp = fopen($file_old_output, 'w+');
 			fwrite($fp, json_encode($oldFileLogJSON));
 			fclose($fp);
-			chmod($file_old_output, 0777);
+			@chmod($file_old_output, 0777);
 		}
 	}
 }
