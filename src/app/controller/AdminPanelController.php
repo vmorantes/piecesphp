@@ -412,7 +412,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		//Errores
 		$group->register([
 			new Route(
-				'{$startRoute}error-log[/]',
+				"{$startRoute}error-log[/]",
 				$classname . ':errorLog',
 				'admin-error-log',
 				'GET',
