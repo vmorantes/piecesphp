@@ -5,6 +5,9 @@
  */
 namespace PiecesPHP\Core\Validation\Parameters;
 
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
+
 /**
  * Parameter
  *
@@ -89,8 +92,8 @@ class Parameter implements \JsonSerializable
      *
      * @param mixed $value
      * @return bool
-     * @throws \Exception en caso de que el resultado de parse no sea válido
-     * @throws \TypeError en caso de que el valor no sea válido
+     * @throws ParsedValueException en caso de que el resultado de parse no sea válido
+     * @throws InvalidParameterValueException en caso de que el valor no sea válido
      */
     public function validate($value)
     {
@@ -149,7 +152,7 @@ class Parameter implements \JsonSerializable
      * getValue
      *
      * @return mixed
-     * @throws \TypeError en caso de que el valor que está almacenado no sea válido
+     * @throws InvalidParameterValueException en caso de que el valor que está almacenado no sea válido
      */
     public function getValue()
     {
@@ -246,7 +249,7 @@ class Parameter implements \JsonSerializable
      *
      * @param mixed $value
      * @return mixed
-     * @throws \Exception en caso de que el resultado no sea válido
+     * @throws ParsedValueException en caso de que el resultado no sea válido
      */
     protected function parse($value)
     {
@@ -257,7 +260,7 @@ class Parameter implements \JsonSerializable
             if ($this->isValid($parsed_value)) {
                 return $parsed_value;
             } else {
-                throw new \Exception('El valor devuleto por parse() no es válido.');
+                throw new ParsedValueException('El valor devuleto por parse() no es válido.');
             }
 
         }
@@ -270,11 +273,11 @@ class Parameter implements \JsonSerializable
      *
      * @param string $typeReceived
      * @return void
-     * @throws \TypeError
+     * @throws InvalidParameterValueException
      */
     protected function onError(string $typeReceived)
     {
-        throw new \TypeError("El parámetro {$this->name} ha recibido un tipo no permitido ($typeReceived)");
+        throw new InvalidParameterValueException("El parámetro {$this->name} ha recibido un tipo no permitido ($typeReceived)");
     }
 
     /**

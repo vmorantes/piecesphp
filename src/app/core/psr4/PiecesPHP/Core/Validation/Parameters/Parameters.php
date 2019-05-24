@@ -5,6 +5,11 @@
  */
 namespace PiecesPHP\Core\Validation\Parameters;
 
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParamaterNotExistsException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
+
 /**
  * Parameters
  *
@@ -49,12 +54,40 @@ class Parameters implements \JsonSerializable
         $this->setParameters($parameters);
     }
 
+    /**
+     * setInputValues
+     *
+     * @param array $inputValues Array con clave=>valor que correponde al nombre del parámetro y al valor
+     * @return static
+     */
+    public function setInputValues(array $inputValues)
+    {
+        foreach ($inputValues as $name => $value) {
+
+            if (is_string($name)) {
+                $this->inputValues[$name] = $value;
+            }
+        }
+    }
+
+    /**
+     * addParamater
+     *
+     * @param Parameter $parameter
+     * @return static
+     */
     public function addParamater(Parameter $parameter)
     {
         $this->parameters[$parameter->getName()] = $parameter;
         return $this;
     }
 
+    /**
+     * addParameters
+     *
+     * @param Parameter[] $parameters
+     * @return static
+     */
     public function addParameters(array $parameters)
     {
         foreach ($parameters as $parameter) {
@@ -63,6 +96,12 @@ class Parameters implements \JsonSerializable
         return $this;
     }
 
+    /**
+     * setParameters
+     *
+     * @param Parameter[] $parameters
+     * @return static
+     */
     public function setParameters(array $parameters)
     {
         $this->parameters = [];
@@ -71,12 +110,82 @@ class Parameters implements \JsonSerializable
     }
 
     /**
+     * getParameter
+     *
+     * @param string $name
+     * @return Parameter
+     * @throws ParamaterNotExistsException
+     */
+    public function getParameter(string $name)
+    {
+        if (array_key_exists($name, $this->parameters)) {
+            return $this->parameters[$name];
+        } else {
+            throw new ParamaterNotExistsException("El parámetro $name no existe.");
+        }
+    }
+
+    /**
+     * getParameters
+     *
+     * @return Parameter[]
+     */
+    public function getParameters()
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * getValue
+     *
+     * @param string $name
+     * @return mixed
+     * @throws ParsedValueException en caso de que el resultado de parse no sea válido
+     * @throws InvalidParameterValueException en caso de que el valor no sea válido
+     * @throws ParamaterNotExistsException
+     */
+    public function getValue(string $name)
+    {
+        $parameter = $this->getParameter($name);
+        $value = null;
+
+        if ($parameter->validate($parameter->getValue())) {
+            $value = $parameter->getValue();
+        }
+
+        return $value;
+    }
+
+    /**
+     * getValues
+     *
+     * @return array
+     * @throws MissingRequiredParamaterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
+     * @throws ParsedValueException en caso de que el resultado de parse no sea válido
+     * @throws InvalidParameterValueException en caso de que el valor no sea válido
+     */
+    public function getValues()
+    {
+        $values = [];
+
+        if ($this->validate()) {
+
+            foreach ($this->parameters as $name => $parameter) {
+                $values[$name] = $parameter->getValue();
+            }
+
+        }
+
+        return $values;
+    }
+
+    /**
      * validate
      *
      * @return bool
-     * @throws \Exception En caso de que falte algún parámetro obligatorio en la lista de parámetros
-     * @throws \Exception en caso de que el resultado de parse no sea válido
-     * @throws \TypeError en caso de que el valor no sea válido
+     * @throws MissingRequiredParamaterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
+     * @throws ParsedValueException en caso de que el resultado de parse no sea válido
+     * @throws InvalidParameterValueException en caso de que el valor no sea válido
      */
     public function validate()
     {
@@ -99,7 +208,7 @@ class Parameters implements \JsonSerializable
         }
 
         if (count($parameters_errors) > 0) {
-            throw new \Exception("Los parámetros " . implode(',', $parameters_errors) . "son obligatorios");
+            throw new MissingRequiredParamaterException("Los parámetros " . implode(',', $parameters_errors) . "son obligatorios");
         }
 
         foreach ($to_validate as $name => $value) {
@@ -107,42 +216,6 @@ class Parameters implements \JsonSerializable
         }
 
         return true;
-    }
-
-    /**
-     * getValues
-     *
-     * @return array
-     */
-    public function getValues()
-    {
-        $values = [];
-
-        if ($this->validate()) {
-
-            foreach ($this->parameters as $name => $parameter) {
-                $values[$name] = $parameter->getValue();
-            }
-
-        }
-
-        return $values;
-    }
-
-    /**
-     * setInputValues
-     *
-     * @param array $inputValues Array con clave=>valor que correponde al nombre del parámetro y al valor
-     * @return static
-     */
-    public function setInputValues(array $inputValues)
-    {
-        foreach ($inputValues as $name => $value) {
-
-            if (is_string($name)) {
-                $this->inputValues[$name] = $value;
-            }
-        }
     }
 
     /**
