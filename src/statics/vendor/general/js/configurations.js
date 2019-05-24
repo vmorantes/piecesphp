@@ -201,6 +201,10 @@ if (typeof $ !== 'undefined') {
 	})
 }
 
+/**
+ * configCalendars
+ * @returns {void}
+ */
 function configCalendars() {
 	let calendarios = $('[calendar-js]')
 	let calendariosGrupos = $('[calendar-group-js]').toArray()
@@ -252,6 +256,10 @@ function configCalendars() {
 	}
 }
 
+/**
+ * configMessagesValidationsSemanticForm
+ * @returns {void}
+ */
 function configMessagesValidationsSemanticForm() {
 	if (
 		$ !== undefined &&
@@ -266,6 +274,10 @@ function configMessagesValidationsSemanticForm() {
 	}
 }
 
+/**
+ * configDataTables
+ * @returns {void}
+ */
 function configDataTables() {
 	let tablas = $('[datatable-js]')
 
@@ -278,6 +290,10 @@ function configDataTables() {
 	}
 }
 
+/**
+ * configRichEditor
+ * @returns {void}
+ */
 function configRichEditor() {
 
 	try {
@@ -422,6 +438,14 @@ function configRichEditor() {
 	}
 }
 
+/**
+ * dataTableServerProccesing
+ * @param {String} table 
+ * @param {String} ajaxURL 
+ * @param {Number} perPage 
+ * @param {Object} options 
+ * @returns {$}
+ */
 function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 
 	perPage = typeof perPage == 'number' ? parseInt(perPage) : 10
@@ -518,7 +542,34 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 	}
 }
 
+/**
+ * genericFormHandler
+ * 
+ * Manejador genérico de formularios
+ * 
+ * @param {String} selector 
+ * @param {genericFormHandler.Options} options
+ * @returns {void} 
+ */
 function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options = {}) {
+
+	/**
+	 * @typedef genericFormHandler.Options
+	 * @property {genericFormHandler.Options.ConfirmationOption} [confirmation]
+	 * @property {Function} [onSetFormData]
+	 * @property {Function} [onSetForm]
+	 * @property {Function} [validate]
+	 */
+	/**
+	 * @typedef genericFormHandler.Options.ConfirmationOption
+	 * @property {String} selector Selector ddel elemento
+	 * @property {String} [title] Título
+	 * @property {String} [message]	Mensaje de advertencia
+	 * @property {String} [positive] Texto afirmativo
+	 * @property {String} [negative] Texto negativo
+	 * @property {Function} [condition]
+	 */
+	let ignore;
 
 	selector = typeof selector == 'string' && selector.trim().length > 0 ? selector.trim() : `form[pcs-generic-handler-js]`
 
