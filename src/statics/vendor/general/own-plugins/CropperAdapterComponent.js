@@ -110,23 +110,62 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 	}
 
 	/**
+	 * @param {Number} [quality=0.7]
+	 * @param {Number} [outputWidth=null]
 	 * @returns {String} base64
 	 */
-	this.crop = () => {
-		return cropper.getCroppedCanvas({
-			width:
-				adapterOptions.outputWidth > adapterOptions.minWidth ?
-					adapterOptions.minWidth :
-					adapterOptions.outputWidth,
+	this.crop = (quality = 0.7, outputWidth = null) => {
+
+		if (!(typeof quality == 'number')) {
+			quality = 0.7
+		}
+
+		if (!(typeof outputWidth == 'number')) {
+			if (adapterOptions.outputWidth > adapterOptions.minWidth) {
+				outputWidth = adapterOptions.minWidth
+			} else {
+				outputWidth = adapterOptions.outputWidth
+			}
+		}
+
+		let cropperCanvas = cropper.getCroppedCanvas({
+			width: outputWidth,
 			fillColor: fillColor,
-		}).toDataURL(outputFormat)
+		})
+
+		let formatsWithQuality = [
+			'image/jpeg',
+			'image/jpg',
+			'image/webp',
+		]
+
+		if (formatsWithQuality.indexOf(outputFormat) !== -1) {
+			return cropperCanvas.toDataURL(outputFormat, quality)
+		} else {
+			return cropperCanvas.toDataURL(outputFormat)
+		}
 	}
 
 	/**
+	 * @param {Number} [quality=0.7]
+	 * @param {Number} [outputWidth=null]
+	 * @param {String} [extension=null]
 	 * @returns {File}
 	 */
-	this.getFile = (name = 'image') => {
-		return (new UtilPieces()).file.dataURLToFile(this.crop(), `${name}.${outputFormat.replace('image/', '')}`)
+	this.getFile = (name = 'image', quality = 0.7, outputWidth = null, extension = null) => {
+
+		extension = typeof extension == 'string' ? extension : outputFormat.replace('image/', '')
+
+		let util = new UtilPieces()
+		let utilFiles = util.file
+		let file = utilFiles.dataURLToFile(
+			this.crop(
+				quality,
+				outputWidth
+			),
+			`${name}.${extension}`
+		)
+		return file
 	}
 
 	/**
@@ -161,7 +200,7 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 					img.onload = function () {
 
 						let inputWidth = img.width
-						
+
 						if (inputWidth < adapterOptions.minWidth) {
 							errorMessage('Error', `El ancho mínimo de la imagen debe ser: ${adapterOptions.minWidth}px`)
 							return
