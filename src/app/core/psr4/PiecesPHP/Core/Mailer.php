@@ -58,19 +58,33 @@ class Mailer extends PHPMailer
         if (!isset($mail_config['port'])) {
             $mail_config['port'] = '465';
         }
+        if (!isset($mail_config['auto_tls'])) {
+            $mail_config['auto_tls'] = true;
+        }
 
         $this->SMTPDebug = $mail_config['smtp_debug'];
+        $this->Host = $mail_config['host'];
+        $this->Port = $mail_config['port'];
+        $this->SMTPAutoTLS = $mail_config['auto_tls'];
+
+        if ($mail_config['protocol'] !== false) {
+            $this->SMTPSecure = $mail_config['protocol'];
+        }
+
+        if (is_array($mail_config['smpt_options']) && count($mail_config['smpt_options']) > 0) {
+            $this->SMTPOptions = $mail_config['smpt_options'];
+        }
+
+        if ($mail_config['auth'] === true) {
+            $this->SMTPAuth = $mail_config['auth'];
+            $this->Username = $mail_config['user'];
+            $this->Password = $mail_config['password'];
+        }
 
         if ($mail_config['is_smtp'] === true) {
+
             $this->isSMTP();
-            $this->Host = $mail_config['host'];
-            if ($mail_config['auth'] === true) {
-                $this->SMTPAuth = $mail_config['auth'];
-                $this->Username = $mail_config['user'];
-                $this->Password = $mail_config['password'];
-            }
-            $this->SMTPSecure = $mail_config['protocol'];
-            $this->Port = $mail_config['port'];
+
         }
     }
 

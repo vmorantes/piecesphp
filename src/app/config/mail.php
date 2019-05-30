@@ -27,6 +27,8 @@
 
 //──── Mailing ───────────────────────────────────────────────────────────────────────────
 $config['mail']['smtp_debug'] = 0;
+$config['mail']['auto_tls'] = true;
+$config['mail']['smpt_options'] = [];
 $config['mail']['is_smtp'] = true;
 $config['mail']['protocol'] = 'ssl';
 $config['mail']['host'] = 'smtp.zoho.com';
