@@ -111,7 +111,7 @@ class GenericHandler
 				$aDate = \DateTime::createFromFormat('d-m-Y', $a);
 				$bDate = \DateTime::createFromFormat('d-m-Y', $b);
 				$result = 0;
-				$asc = true;
+				$asc = false;
 
 				if ($aDate == $bDate) {
 					$result = 0;
@@ -133,7 +133,7 @@ class GenericHandler
 					$aDate = \DateTime::createFromFormat('d-m-Y H:i:s.u', "01-01-1999 $a");
 					$bDate = \DateTime::createFromFormat('d-m-Y H:i:s.u', "01-01-1999 $b");
 					$result = 0;
-					$asc = true;
+					$asc = false;
 
 					if ($aDate == $bDate) {
 						$result = 0;

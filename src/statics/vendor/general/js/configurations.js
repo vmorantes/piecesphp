@@ -911,3 +911,65 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	}
 
 }
+
+/**
+ * showGenericLoader
+ * 
+ * Muestra un modal de carga en el body
+ * 
+ * @returns {void} 
+ */
+function showGenericLoader() {
+	
+	window.uiPcsActivityGenericLoader = $(
+		`
+			<div class="ui-pcs-activity-loader">
+				<div loader></div>
+			</div>
+		`
+	)
+	window.uiPcsActivityGenericLoader.css({
+		"position": `fixed`,
+		"z-index": `1000`,
+		"top": `0px`,
+		"left": `0px`,
+		"display": `block`,
+		"width": `100%`,
+		"height": `100%`,
+		"background-color": `rgba(255, 255, 255, 0.4)`,
+	})
+	window.uiPcsActivityGenericLoader.find('[loader]').css({
+		"position": `fixed`,
+		"top": `50%`,
+		"left": `50%`,
+		"transform": `translate(-50%,-50%)`,
+		"display": `block`,
+		"width": `300px`,
+		"max-width": `100%`,
+		"height": `100px`,
+	})
+
+	$(document.body).append(window.uiPcsActivityGenericLoader)
+
+	NProgress.configure({
+		parent: `.ui-pcs-activity-loader [loader]`
+	})
+
+	NProgress.start()
+}
+
+/**
+ * removeGenericLoader
+ * 
+ * Oculta un modal de carga en el body
+ * 
+ * @returns {void} 
+ */
+function removeGenericLoader() {
+	setTimeout(function () {
+		NProgress.done()
+		if (window.uiPcsActivityGenericLoader instanceof $) {
+			window.uiPcsActivityGenericLoader.remove()
+		}
+	}, 500)
+}
