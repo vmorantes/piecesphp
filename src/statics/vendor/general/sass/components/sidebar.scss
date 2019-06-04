@@ -1,8 +1,10 @@
 @import '../colors';
 @import '../sizes';
+
 .ui-pcs.sidebar-toggle {
     display: none;
     font-family: $font-family-first;
+
     @media (max-width: 800px) {
         display: block;
         position: fixed;
@@ -13,13 +15,16 @@
         color: $color-first;
         cursor: pointer;
         transition: 0.5s ease color, 1s ease top, 1s ease left;
+
         &:hover {
             color: transparentize($color-first, 0.5);
         }
+
         &.active {
             color: white;
             z-index: 400;
         }
+
         &.active {
             top: 15px;
         }
@@ -32,21 +37,25 @@
     margin: 0px 0px;
     padding: 0px 0px 160px 0px;
     border-right: 1px rgba(0, 0, 0, 0.14) solid;
-    box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 5px 0px 10px rgba(0, 0, 0, 0.2);
+    background-color: $bg-color-sidebar;
+
     .title {
         font-family: $font-family-first;
         padding: 20px 0px;
-        background-color: $color-first;
         color: white;
         text-align: center;
         font-size: 1.2rem;
+
         .image {
             padding-bottom: 1rem;
             text-align: center;
+
             img {
                 width: 10rem;
             }
         }
+
         .text {
             text-transform: uppercase;
             font-weight: 700;
@@ -55,6 +64,7 @@
             margin: 0 auto;
         }
     }
+
     .user-info {
         font-family: $font-family-first;
         $avatar-size: 5rem;
@@ -64,43 +74,50 @@
         align-items: center;
         align-content: center;
         padding: 3rem 1rem;
+
         .text {
             padding: 0.5rem;
             padding-bottom: 0;
+
             .main {
                 font-size: 1.4rem;
-                color: $color-second;
+                color: $color-sidebar-user-info-main;
                 font-weight: 500;
             }
+
             .second {
                 font-size: 0.9rem;
-                color: $color-third;
+                color: $color-sidebar-user-info-second;
             }
         }
+
         .avatar {
             margin: 0 auto;
             width: $avatar-size;
             height: $avatar-size;
             background-color: $color-first;
             border-radius: 100%;
-            border: 1px solid $color-first;
+
             img {
                 max-width: 100%;
                 border-radius: 100%;
             }
         }
     }
+
     .links {
         font-family: $font-family-first;
+
         >.group {
             font-family: $font-family-first;
             margin: 0px;
             padding: 0px;
             list-style: none;
             transition: 0.8s height ease;
+
             .title-group {
                 display: grid;
-                grid-template-columns: 3.8rem auto;
+                grid-template-columns: 2.0rem auto;
                 align-items: center;
                 margin-top: 0;
                 margin-bottom: 0;
@@ -110,88 +127,113 @@
                 transition: 0.8s color ease;
                 text-decoration: none;
                 cursor: pointer;
-                color: $color-third;
+                color: $color-sidebar;
                 text-decoration: none;
+
                 &.current {
                     &.as-link {
                         cursor: default;
                         font-weight: 600;
                     }
                 }
+
                 &:hover {
-                    color: $color-second;
+                    color: transparentize($color-sidebar, 0.6);
+
                     a {
-                        color: $color-second !important;
+                        color: transparentize($color-sidebar, 0.6) !important;
                     }
                 }
+
                 i {
-                    font-size: 1.4rem;
-                    margin-right: 1.3rem;
+                    font-size: 1.1rem;
+                    margin-right: 1.0rem;
                     position: relative;
                     top: 2px;
                 }
+
                 >span,
                 >a span {
                     display: inline-block;
                     width: 11rem;
                     padding: 0px 5px;
-                    font-size: 1.3rem;
+                    font-size: 1.1rem;
                 }
+
                 a:active {
                     font-weight: 900;
                 }
+
                 a:hover {
                     text-decoration: none;
                 }
+
                 a:visited {
                     color: $color-fourth;
                     font-weight: 900;
                 }
             }
+
             .items {
                 display: none;
                 font-size: 1rem;
                 line-height: 2rem;
+
                 >li {
                     padding: 0px;
                     padding-left: 5.5rem;
                 }
+
                 li {
                     .title-submenu {
                         display: block;
                         padding: 5px 0px;
                         font-weight: 500;
                     }
+
                     ul {
                         margin: 0px;
                         padding: 0px;
                         padding-left: 2em;
                         list-style: none;
+
                         ul {
                             padding-left: 1.7em;
+
                             ul {
                                 padding-left: 1.4em;
+
                                 ul {
                                     padding-left: 1.1em;
+
                                     ul {
                                         padding-left: 0.8em;
+
                                         ul {
                                             padding-left: 0.5em;
+
                                             ul {
                                                 padding-left: 0.2em;
+
                                                 ul {
                                                     padding-left: 0em;
                                                     margin-left: -0.2em;
+
                                                     ul {
                                                         margin-left: -0.5em;
+
                                                         ul {
                                                             margin-left: -0.8em;
+
                                                             ul {
                                                                 margin-left: -1.1em;
+
                                                                 ul {
                                                                     margin-left: -1.4em;
+
                                                                     ul {
                                                                         margin-left: -1.7em;
+
                                                                         ul {
                                                                             margin-left: -2em;
                                                                         }
@@ -210,34 +252,43 @@
                     }
                 }
             }
+
             &.active,
             &[current] {
                 .title-group {
-                    background-color: $color-first;
-                    color: $color-first-over;
+                    background-color: rgb(117, 117, 117);
+                    color: $color-sidebar;
                 }
             }
         }
     }
+
     .logo-developed {
         position: absolute;
         bottom: 3px;
         left: 50%;
         transform: translateX(-50%);
+        text-align: center;
+        color: $color-sidebar-logo-developed;
+
         img {
-            max-width: 150px;
+            max-width: 100px;
         }
     }
+
     @media (max-width: 800px) {
         @keyframes crecer {
             0% {
                 height: 0%;
             }
+
             100% {
                 height: 100%;
             }
         }
+
         display: none;
+
         &.overlay {
             animation: crecer 0.5s ease;
             display: block;
@@ -248,9 +299,10 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: white;
+            background-color: $bg-color-sidebar;
             z-index: 300;
             padding-bottom: 10px;
+
             .logo-developed {
                 position: static;
                 bottom: initial;

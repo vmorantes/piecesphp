@@ -3,16 +3,7 @@
     <i class="icon bars"></i>
 </div>
 <aside class="ui-pcs sidebar">
-
-    <div class="title">
-        <div class="image">
-            <a href="">
-                <img src="<?=get_config('logo-sidebar-top');?>" alt="logotipo" class="logo">
-            </a>
-        </div>
-        <div class="text"><?= get_config('title') ?></div>
-    </div>
-
+	
     <div class="user-info">
         <div class="avatar">
             <?php if($user->hasAvatar): ?>

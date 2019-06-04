@@ -9,7 +9,12 @@
 
     >.content {
         padding: 2rem 3rem 8rem 5rem;
-        word-break: break-all;
+		word-break: break-all;
+		table{
+			&,& *{
+				word-break: initial !important;
+			}
+		}
     }
 
     @media (max-width: 800px) {
