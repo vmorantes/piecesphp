@@ -906,7 +906,7 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
 		$route = get_config('slim_app')->getContainer()->get('router')->pathFor($name, $params);
 
 		$app_base = appbase();
-		$app_base_position = strpos($route, $app_base);
+		$app_base_position = strlen($app_base) > 0 ? strpos($route, $app_base) : false;
 		$app_base_length = strlen($app_base);
 
 		if ($app_base_position !== false) {
