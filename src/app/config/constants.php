@@ -28,7 +28,7 @@ define('MESSAGES_PATH_JS', MESSAGES_PATH_STATICS . '/js');
 define('REFRESH_MESSAGES_STATUS', true);
 
 //Tablero de noticias
-define('BLACKBOARD_NEWS_ENABLED', false);
+define('BLACKBOARD_NEWS_ENABLED', true);
 define('BLACKBOARD_NEWS_PATH_VIEWS', 'blackboard-news');
 define('BLACKBOARD_NEWS_PATH_STATICS', 'statics/blackboard-news');
 define('BLACKBOARD_NEWS_PATH_JS', BLACKBOARD_NEWS_PATH_STATICS . '/js');

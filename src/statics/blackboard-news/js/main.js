@@ -448,13 +448,16 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 			}
 
 			thead.html('')
-			thead.append('<tr></tr>')
-				.append(`<th>Nombre</th>`)
-				.append(`<th>Inicio</th>`)
-				.append(`<th>Fin</th>`)
-				.append(`<th>Creado</th>`)
-				.append(`<th>Dirigido a</th>`)
-				.append(`<th>Acciones</th>`)
+			thead.append(
+				$('<tr></tr>')
+					.append(`<th>Nombre</th>`)
+					.append(`<th>Inicio</th>`)
+					.append(`<th>Fin</th>`)
+					.append(`<th>Creado</th>`)
+					.append(`<th>Dirigido a</th>`)
+					.append(`<th>Acciones</th>`)
+			)
+
 
 			if (items.length == 0) {
 				tbody.append('<tr empty><td><strong>No hay noticias</strong></td></tr>')

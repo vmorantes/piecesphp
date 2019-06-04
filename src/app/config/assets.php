@@ -22,14 +22,6 @@ $assets['semantic']['js'] = [
     'statics/plugins/semantic/semantic.min.js',
 ];
 $assets['semantic']['plugins'] = [
-    'calendar' => [
-        'css' => [
-            'statics/plugins/semantic-calendar/calendar.min.css',
-        ],
-        'js' => [
-            'statics/plugins/semantic-calendar/calendar.min.js',
-        ],
-    ],
 ];
 
 /**
