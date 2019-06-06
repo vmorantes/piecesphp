@@ -99,9 +99,9 @@ class Parameter implements \JsonSerializable
     {
         $success = true;
 
-        if ($this->isValid($value)) {
+        if ($value != $this->getDefaultValue() && $this->isValid($value)) {
 
-            $this->value = $this->parse($value);
+            $this->value = $value;
 
         } else {
 
@@ -151,13 +151,15 @@ class Parameter implements \JsonSerializable
     /**
      * getValue
      *
+     * @param bool $raw
      * @return mixed
      * @throws InvalidParameterValueException en caso de que el valor que está almacenado no sea válido
      */
-    public function getValue()
+    public function getValue(bool $raw = false)
     {
         if ($this->validate($this->value)) {
-            return $this->value;
+            $parsed = $raw ? $this->value : $this->parse($this->value);
+            return $parsed;
         }
     }
 
@@ -236,12 +238,16 @@ class Parameter implements \JsonSerializable
      */
     protected function isValid($value)
     {
-
+        $valid = true;
         if (is_callable($this->validate)) {
-            return ($this->validate)($value) === true;
+            $valid = ($this->validate)($value) === true;
         }
 
-        return true;
+        if ($this->isOptional()) {
+            $valid = $valid || $value == $this->getDefaultValue();
+        }
+
+        return $valid;
     }
 
     /**
@@ -254,13 +260,12 @@ class Parameter implements \JsonSerializable
     protected function parse($value)
     {
 
-        if (is_callable($this->parse)) {
+        if (is_callable($this->parse) && $value != $this->getDefaultValue()) {
             $parsed_value = ($this->parse)($value);
-
             if ($this->isValid($parsed_value)) {
                 return $parsed_value;
             } else {
-                throw new ParsedValueException('El valor devuleto por parse() no es válido.');
+                throw new ParsedValueException("El valor del parámetro $this->name devuelto por parse() no es válido.");
             }
 
         }

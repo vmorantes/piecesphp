@@ -149,7 +149,7 @@ class Parameters implements \JsonSerializable
         $parameter = $this->getParameter($name);
         $value = null;
 
-        if ($parameter->validate($parameter->getValue())) {
+        if ($parameter->validate($parameter->getValue(true))) {
             $value = $parameter->getValue();
         }
 
