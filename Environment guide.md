@@ -16,7 +16,7 @@ curl -O http://vestacp.com/pub/vst-install.sh
 
 - Instalar VestaCP:
 
-bash vst-install.sh --nginx yes --apache yes --phpfpm no --named yes --remi yes --vsftpd yes --proftpd no --iptables yes --fail2ban yes --quota no --exim yes --dovecot yes --spamassassin yes --clamav yes --softaculous yes --mysql yes --postgresql no --hostname {{DOMINIO}} --email {{EMAIL}} --password {{CONTRASEÑA}}
+bash vst-install.sh --nginx yes --apache yes --phpfpm no --named yes --remi yes --vsftpd yes --proftpd no --iptables yes --fail2ban yes --quota no --exim yes --dovecot no --spamassassin no --clamav no --softaculous no --mysql yes --postgresql no --hostname {{DOMINIO}} --email {{EMAIL}} --password {{CONTRASEÑA}}
 
 ###Nota:
 - Algunas veces phpMyAdmin muestra varios errores por lo que es recomendable ejecutar la siguiente instrucción
@@ -49,19 +49,8 @@ update-alternatives --config php
 - Notas: 
     - La extensión mcrypt debe instalarse como extensión PECL luego de php 7.1.*
     - Al finalizar se debe reiniciar apache
-sudo apt install php7.1-pdo
-sudo apt install php7.1-xml
-sudo apt install php7.1-ctype
-sudo apt install php7.1-mbstring
-sudo apt install php7.1-fileinfo
-sudo apt install php7.1-gd
-sudo apt install php7.1-mcrypt
-sudo apt install php7.1-mysqli
-sudo apt install php7.1-sqlite3
-sudo apt install php7.1-zip
-sudo apt install php7.1-xsl
-sudo apt install php7.1-xmlwriter
-sudo apt install php7.1-xmlreader
+
+sudo apt install php7.1-pdo php7.1-xml php7.1-ctype php7.1-mbstring php7.1-fileinfo php7.1-gd php7.1-mcrypt php7.1-mysqli php7.1-sqlite3 php7.1-zip php7.1-xsl php7.1-xmlwriter php7.1-xmlreader
 
 #### Extensiones sugeridas:
 sudo apt install php7.1-mongodb
@@ -83,13 +72,14 @@ sudo apt-get update
     - Notas:
         - Por prevención se intenta remover mysql también.
         - MariaDB preguntará si se borrarán o no las bases de datos (seleccione que no se borren preferiblemente).
-sudo apt-get remove --purge mysql*
-sudo apt-get remove --purge mariadb*
-sudo apt-get --purge remove mariadb-server
+
+sudo apt-get remove --purge mysql* mariadb*
+
 - Instalar MariaDB:
 sudo apt-get install mariadb-server mariadb-client
 
 - Caso de error 1524 (HY000): Plugin 'unix_socket' is not loaded:
+
 sudo su
 /etc/init.d/mysql stop
 mysqld_safe --skip-grant-tables &
