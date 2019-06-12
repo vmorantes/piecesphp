@@ -25,6 +25,7 @@ class ImporterUsers extends Importer
 {
     public function __construct(array $data)
     {
+        $id = new Field('id', 'ID', null, true);
         $username = new Field('username', 'Usuario', '', false);
         $password = new Field('password', 'Contraseña', '', false);
         $firstname = new Field('firstname', 'Primer nombre', '', false);
@@ -45,6 +46,7 @@ class ImporterUsers extends Importer
         });
 
         $fields = new FieldCollection([
+            $id,
             $username,
             $password,
             $firstname,
@@ -57,24 +59,31 @@ class ImporterUsers extends Importer
 
         $schema = new Schema($fields, 'pcsphp_users', function (Schema $instance) {
 
+            $id = $instance->getFieldByName('id')->getValue();
             $username = $instance->getFieldByName('username')->getValue();
             $email = $instance->getFieldByName('email')->getValue();
 
+            $duplicatedID = is_object((new UsersModel())->getByID($id));
             $duplicatedUsername = UsersModel::isDuplicateUsername($username);
             $duplicatedEmail = UsersModel::isDuplicateEmail($email);
 
-            if ($duplicatedUsername && $duplicatedEmail) {
+            $messageDuplicated = [];
 
-                throw new \Exception('El email y el usuario están ya existen.');
+            if ($duplicatedID) {
+                $messageDuplicated[] = "El ID '$id' ya existe.";
+            }
 
-            } else if ($duplicatedUsername) {
+            if ($duplicatedUsername) {
+                $messageDuplicated[] = "El usuario '$username' ya existe.";
+            }
 
-                throw new \Exception('El usuario ya existe.');
+            if ($duplicatedEmail) {
+                $messageDuplicated[] = "El email '$email' ya existe.";
+            }
 
-            } else if ($duplicatedEmail) {
-
-                throw new \Exception('El email ya existe.');
-
+            if (count($messageDuplicated) > 0) {
+                $messageDuplicated = implode('<br>', $messageDuplicated);
+                throw new \Exception($messageDuplicated);
             }
 
         });
