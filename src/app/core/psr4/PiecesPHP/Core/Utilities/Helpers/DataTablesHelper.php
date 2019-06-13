@@ -28,6 +28,19 @@ class DataTablesHelper
     const ONLY_ORDER = self::class . '::ONLY_ORDER';
 
     /**
+     * $tableOnOrder
+     *
+     * @var bool
+     */
+    private static $tableOnOrder = true;
+    /**
+     * $tableOnSearch
+     *
+     * @var bool
+     */
+    private static $tableOnSearch = true;
+
+    /**
      * process
      *
      * @param array $options
@@ -35,6 +48,7 @@ class DataTablesHelper
      * @var $options[mapper] \PiecesPHP\Core\Database\EntityMapper, required
      * @var $options[columns_order] array, required
      * @var $options[where_string] string
+     * @var $options[having_string] string
      * @var $options[on_set_data] callable Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
      * @var $options[as_mapper] bool
      * @var $options[on_set_model] callable
@@ -69,6 +83,11 @@ class DataTablesHelper
          * @var string
          */
         $where_string = null;
+        /**
+         * $having_string
+         * @var string
+         */
+        $having_string = null;
         /**
          * $on_set_data
          * @var callable
@@ -134,6 +153,9 @@ class DataTablesHelper
                 return is_array($value);
             }),
             new Parameter('where_string', null, function ($value) {
+                return is_string($value);
+            }, true),
+            new Parameter('having_string', null, function ($value) {
                 return is_string($value);
             }, true),
             new Parameter('on_set_data', null, function ($value) {
@@ -238,9 +260,14 @@ class DataTablesHelper
         $page = self::generatePage((int) $start, (int) $length);
 
         /**
-         * @var string $where Criterios del input de búque de datatables
+         * @var string $where Criterios de filtro
          */
-        $where = self::generateWhere(
+        $where = '';
+
+        /**
+         * @var string $having Criterios del input de búsqueda de datatables
+         */
+        $having = self::generateHaving(
             array_filter(
                 $columns_order,
                 function ($v) use ($ignore_fields_in_where) {
@@ -251,9 +278,19 @@ class DataTablesHelper
             $search,
             $tableName,
             $ignore_table_on_fields_in_where
-        );
+		);
 
-        //Mezclar búsqueda de datatables con los criterios por defecto
+        //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
+        $having_string = trim($having_string);
+        if (strlen($having_string) > 0) {
+            if (strlen($having) > 0) {
+                $having = "($having_string) AND $having";
+            } else {
+                $having = "($having_string)";
+            }
+        }
+
+        //Mezclar búsqueda de datatables con los criterios por defecto (inútil, ahora la búsqueda es por HAVING)
         $where_string = trim($where_string);
         if (strlen($where_string) > 0) {
             if (strlen($where) > 0) {
@@ -262,6 +299,7 @@ class DataTablesHelper
                 $where = "($where_string)";
             }
         }
+
         //=============================================================
 
         //Mezclar ordenamiento de datatables con los criterios por defecto
@@ -324,6 +362,11 @@ class DataTablesHelper
             $limit->where($where);
         }
 
+        //HAVING
+        if (strlen($having) > 0) {
+            $limit->having($having);
+        }
+
         //ORDER BY
         if (strlen($order_by) > 0) {
             $limit->orderBy($order_by);
@@ -351,8 +394,8 @@ class DataTablesHelper
          * Ejecutar consulta principal y configuraciones sobre el resultado
          */
 
-        //Ejecutar consulta
-        $limit->execute(false, (int) $page, $length);
+		//Ejecutar consulta
+		$limit->execute(false, (int) $page, $length);
         $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $limit->getLastSQLExecuted()));
 
         /**
@@ -538,29 +581,42 @@ class DataTablesHelper
 
         $primary_key = $mapper->getPrimaryKey();
 
-        $filterCount->select("COUNT({$tableName}.{$primary_key}) AS totalFiltered");
+        //Definir los campos seleccionados en la consulta
+        if ($select_fields !== null) {
+            $filterCount->select($select_fields);
+        } else {
+            $select_fields = "$tableName.*";
+            $filterCount->select($select_fields);
+        }
 
         //WHERE
         if (strlen($where) > 0) {
             $filterCount->where($where);
         }
 
+        //HAVING
+        if (strlen($having) > 0) {
+            $filterCount->having($having);
+        }
+
         if (!is_null($group_string) && strlen($group_string) > 0) {
+
             //Con GROUP BY
             $filterCount->groupBy($group_string);
             $filterCount->execute();
             $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCount->getLastSQLExecuted()));
             $filterCount = $filterCount->result();
-            $result->setValue('recordsFiltered', count($filterCount) > 0 ? count($filterCount) : 0);
+            $result->setValue('recordsFiltered', count($filterCount));
 
         } else {
+
             //Sin GROUP BY
             $filterCount->execute();
             $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCount->getLastSQLExecuted()));
             $filterCount = $filterCount->result();
-            $result->setValue('recordsFiltered', count($filterCount) > 0 ? $filterCount[0]->totalFiltered : 0);
-
-        }
+			$result->setValue('recordsFiltered', count($filterCount));
+			
+		}
 
         /**
          * @var \PiecesPHP\Core\BaseModel $totalCount
@@ -581,9 +637,9 @@ class DataTablesHelper
     }
 
     /**
-     * generateWhere
+     * generateHaving
      *
-     * Devuelve un array con la estructura de un WHERE para un EntityMapper
+     * Devuelve un array con la estructura de un HAVING para un EntityMapper
      *
      * @param array $columns_order
      * @param array $columns
@@ -592,9 +648,9 @@ class DataTablesHelper
      * @param string[] $ignore_table_on_fields
      * @return string
      */
-    protected static function generateWhere(array $columns_order, array $columns, $search, string $table = '', array $ignore_table_on_fields = []): string
+    protected static function generateHaving(array $columns_order, array $columns, $search, string $table = '', array $ignore_table_on_fields = []): string
     {
-        $where = [];
+        $having = [];
 
         //Verificar criterios de búsqueda
         $search_value = is_array($search) && isset($search['value']) ? trim($search['value']) : '';
@@ -631,10 +687,10 @@ class DataTablesHelper
                                 $search_value = mb_strtoupper($search_value);
                             }
 
-                            $_where_string = '(UPPER({FIELD_NAME}) LIKE \'%{SEARCH_VALUE}%\')';
+                            $_having_string = '(UPPER({FIELD_NAME}) LIKE \'%{SEARCH_VALUE}%\')';
 
-                            if (in_array($name, $ignore_table_on_fields)) {
-                                $_where_string = str_replace(
+                            if (in_array($name, $ignore_table_on_fields) || !self::$tableOnSearch) {
+                                $_having_string = str_replace(
                                     [
                                         '{FIELD_NAME}',
                                         '{SEARCH_VALUE}',
@@ -643,10 +699,10 @@ class DataTablesHelper
                                         $name,
                                         $search_value,
                                     ],
-                                    $_where_string
+                                    $_having_string
                                 );
                             } else {
-                                $_where_string = str_replace(
+                                $_having_string = str_replace(
                                     [
                                         '{FIELD_NAME}',
                                         '{SEARCH_VALUE}',
@@ -655,20 +711,21 @@ class DataTablesHelper
                                         $table . $name,
                                         $search_value,
                                     ],
-                                    $_where_string
+                                    $_having_string
                                 );
                             }
 
-                            $where[] = $_where_string;
+                            $having[] = $_having_string;
                         }
                     }
                 }
             }
         }
 
-        $where = trim(implode(' OR ', $where));
-        $where = strlen($where) > 0 ? "($where)" : '';
-        return $where;
+        $having = trim(implode(' OR ', $having));
+        $having = strlen($having) > 0 ? "($having)" : '';
+
+        return $having;
     }
 
     /**
@@ -687,6 +744,10 @@ class DataTablesHelper
         $order_by = [];
 
         $table = strlen(trim($table)) > 0 ? "$table." : '';
+
+        if (!self::$tableOnOrder) {
+            $table = '';
+        }
 
         //Verificar criterios de ordenación
         if (is_array($order)) {
@@ -738,6 +799,28 @@ class DataTablesHelper
     }
 
     /**
+     * setTablePrefixOnOrder
+     *
+     * @param bool $value
+     * @return void
+     */
+	public static function setTablePrefixOnOrder(bool $value)
+    {
+        self::$tableOnOrder = $value;
+    }
+
+    /**
+     * setTablePrefixOnSearch
+     *
+     * @param bool $value
+     * @return void
+     */
+	public static function setTablePrefixOnSearch(bool $value)
+    {
+        self::$tableOnSearch = $value;
+    }
+
+    /**
      * generatePage
      *
      * Devuelve un string con la estructura de un orderBy para un EntityMapper
@@ -746,7 +829,7 @@ class DataTablesHelper
      * @param int $length
      * @return int
      */
-    protected static function generatePage(int $start, int $length): int
+	protected static function generatePage(int $start, int $length): int
     {
         //Calcular página actual
         $page = $start;
