@@ -4,8 +4,6 @@ src/statics/css/*
 src/statics/vendor/general/css/*
 src/statics/vendor/users/css/*
 src/statics/vendor/avatars/css/*
-src/app/logs/*.log*
-src/app/logs/olds/*.log*
 **/node_modules/*
 **/composer.lock
 **/package-lock*
