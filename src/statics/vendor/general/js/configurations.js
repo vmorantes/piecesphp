@@ -919,16 +919,24 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
  * 
  * @returns {void} 
  */
-function showGenericLoader() {
-	
-	window.uiPcsActivityGenericLoader = $(
-		`
-			<div class="ui-pcs-activity-loader">
-				<div loader></div>
-			</div>
-		`
-	)
-	window.uiPcsActivityGenericLoader.css({
+function showGenericLoader(name = 'DEFAULT') {
+
+	if (typeof window.uiPcsActivityGenericLoader != 'object') {
+		window.uiPcsActivityGenericLoader = {}
+	}
+
+	window.uiPcsActivityGenericLoader[name] = {
+		html: $(
+			`
+				<div class="ui-pcs-activity-loader">
+					<div loader></div>
+				</div>
+			`
+		),
+		progress: Object.assign(NProgress, {}),
+	}
+
+	window.uiPcsActivityGenericLoader[name].html.css({
 		"position": `fixed`,
 		"z-index": `1000`,
 		"top": `0px`,
@@ -938,7 +946,7 @@ function showGenericLoader() {
 		"height": `100%`,
 		"background-color": `rgba(255, 255, 255, 0.4)`,
 	})
-	window.uiPcsActivityGenericLoader.find('[loader]').css({
+	window.uiPcsActivityGenericLoader[name].html.find('[loader]').css({
 		"position": `fixed`,
 		"top": `50%`,
 		"left": `50%`,
@@ -949,13 +957,14 @@ function showGenericLoader() {
 		"height": `100px`,
 	})
 
-	$(document.body).append(window.uiPcsActivityGenericLoader)
+	$(document.body).append(window.uiPcsActivityGenericLoader[name].html)
 
-	NProgress.configure({
+	window.uiPcsActivityGenericLoader[name].progress.configure({
 		parent: `.ui-pcs-activity-loader [loader]`
 	})
 
-	NProgress.start()
+	window.uiPcsActivityGenericLoader[name].progress.start()
+
 }
 
 /**
@@ -965,11 +974,17 @@ function showGenericLoader() {
  * 
  * @returns {void} 
  */
-function removeGenericLoader() {
-	setTimeout(function () {
-		NProgress.done()
-		if (window.uiPcsActivityGenericLoader instanceof $) {
-			window.uiPcsActivityGenericLoader.remove()
+function removeGenericLoader(name = 'DEFAULT') {
+
+	if (typeof window.uiPcsActivityGenericLoader == 'object') {
+		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
+			setTimeout(function () {
+				window.uiPcsActivityGenericLoader[name].progress.done()
+				if (window.uiPcsActivityGenericLoader[name].html instanceof $) {
+					window.uiPcsActivityGenericLoader[name].html.remove()
+				}
+			}, 500)
 		}
-	}, 500)
+	}
+
 }
