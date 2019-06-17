@@ -109,3 +109,21 @@ php -r "if (hash_file('sha384', 'composer-setup.php') === '48e3236262b34d30969dc
 php composer-setup.php
 php -r "unlink('composer-setup.php');"
 mv composer.phar /usr/local/bin/composer
+
+
+##Proteger phpmyadmin
+
+- Permitir el uso de .htaccess:
+nano /etc/apache2/conf.d/phpmyadmin.conf
+AllowOverride All
+- Crear .htpasswd:
+cd /etc/phpmyadmin/
+echo "admin:\$apr1\$F7IUvByI\$Eg4uhukF6sog9gCmpz8wh0" > .htpasswd
+- Crear .htaccess:
+cd /usr/share/phpmyadmin
+echo "AuthType Basic" > .htaccess
+echo "AuthName \"My Protected Area\"" >> .htaccess
+echo "AuthUserFile /etc/phpmyadmin/.htpasswd" >> .htaccess
+echo "Require valid-user" >> .htaccess
+- Reiniciar apache2
+service apache2 restart
