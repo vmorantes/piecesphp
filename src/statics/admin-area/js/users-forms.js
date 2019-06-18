@@ -4,7 +4,6 @@ $(document).ready(function (e) {
 
 	usuariosConfigs.configCrearForm('.ui.form.users.crear')
 	usuariosConfigs.configEditarForm('.ui.form.users.editar')
-	usuariosConfigs.configTable('.ui.table.users')
 
 	$('.menu .item').tab()
 
@@ -295,28 +294,6 @@ function UsuariosConfigs() {
 		})
 
 		this.formEdit = form
-	}
-
-	this.configTable = (selector) => {
-
-		let tabla = $(selector)
-
-		if (tabla.length == 0) return
-
-		let configDataTable = globales.configDataTables
-
-		configDataTable.columnDefs = [
-			{
-				targets: 7,
-				orderable: false,
-			}
-		]
-
-		tabla.dataTable().fnDestroy()
-
-		tabla = tabla.DataTable(configDataTable)
-
-		this.table = tabla
 	}
 
 	return this
