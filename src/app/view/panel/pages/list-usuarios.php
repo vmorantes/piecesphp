@@ -1,7 +1,31 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); ?>
-<h3><?= __('general', 'users'); ?></h3>
-<div>
-	<a href="<?= get_route('form-usuarios'); ?>" class="ui mini green button">Crear</a>
-</div>
-<br><br>
-<?= $tabla; ?>
+<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+
+<h3 class="ui dividing header">
+    <?=__('general', 'users');?>
+</h3>
+
+<table process="<?=$process_table;?>" class="ui table stripped celled inverted grey users"
+    style="max-width:100%;width:100%;">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Nombres</th>
+            <th>Apellidos</th>
+            <th>Correo electrónico</th>
+            <th>Usuario</th>
+            <th>Activo/Inactivo</th>
+            <th>Tipo</th>
+            <th order='false'>Acciones</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+
+<script>
+window.onload = function(e) {
+    let table = $(`[process]`)
+    let processURL = table.attr('process')
+    dataTableServerProccesing(table, processURL, 25)
+}
+</script>
