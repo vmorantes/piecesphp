@@ -137,7 +137,6 @@ $tests->register(
         //──── GET ───────────────────────────────────────────────────────────────────────────────
         new PiecesRoute('[/]', Test::class . ':index', 'home-test'),
         new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
-        new PiecesRoute('/overview-1[/]', Test::class . ':overviewFront', 'front-test'),
         new PiecesRoute('/overview-2[/]', Test::class . ':overviewBack', 'back-test'),
     ]
 );

@@ -65,11 +65,11 @@ class RecoveryPasswordController extends UsersController
 		]);
 
 		set_custom_assets([
-			base_url('statics/vendor/users/css/problems-form.css'),
+			base_url('statics/login-and-recovery/css/problems-form.css'),
 		], 'css');
 
 		set_custom_assets([
-			baseurl('statics/vendor/users/js/recovery-password.js'),
+			baseurl('statics/login-and-recovery/js/recovery-password.js'),
 		], 'js');
 
 		$this->render('usuarios/problems/password');

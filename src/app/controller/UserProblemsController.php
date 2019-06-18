@@ -65,7 +65,7 @@ class UserProblemsController extends UsersController
 		]);
 
 		set_custom_assets([
-			base_url('statics/vendor/users/css/problems.css'),
+			base_url('statics/login-and-recovery/css/problems.css'),
 		], 'css');
 		$this->render('usuarios/problems/problems-list');
 
@@ -96,11 +96,11 @@ class UserProblemsController extends UsersController
 		]);
 
 		set_custom_assets([
-			base_url('statics/vendor/users/css/problems-form.css'),
+			base_url('statics/login-and-recovery/css/problems-form.css'),
 		], 'css');
 
 		set_custom_assets([
-			baseurl('statics/vendor/users/js/user-forget.js'),
+			baseurl('statics/login-and-recovery/js/user-forget.js'),
 		], 'js');
 
 		$this->render('usuarios/problems/user_forget');
@@ -132,11 +132,11 @@ class UserProblemsController extends UsersController
 		]);
 
 		set_custom_assets([
-			base_url('statics/vendor/users/css/problems-form.css'),
+			base_url('statics/login-and-recovery/css/problems-form.css'),
 		], 'css');
 
 		set_custom_assets([
-			baseurl('statics/vendor/users/js/user-blocked.js'),
+			baseurl('statics/login-and-recovery/js/user-blocked.js'),
 		], 'js');
 
 		$this->render('usuarios/problems/user_blocked');
@@ -168,11 +168,11 @@ class UserProblemsController extends UsersController
 		]);
 
 		set_custom_assets([
-			base_url('statics/vendor/users/css/problems-form.css'),
+			base_url('statics/login-and-recovery/css/problems-form.css'),
 		], 'css');
 
 		set_custom_assets([
-			baseurl('statics/vendor/users/js/user-not-exists.js'),
+			baseurl('statics/login-and-recovery/js/user-not-exists.js'),
 		], 'js');
 
 		$this->render('usuarios/problems/user_not_exists');

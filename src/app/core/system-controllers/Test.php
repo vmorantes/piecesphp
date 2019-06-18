@@ -67,7 +67,7 @@ class Test extends BaseController
             imagefill($imagen, 0, 0, $color_gris);
 
             $texto = $ancho . "x" . $alto;
-            $font = realpath(get_config('statics_path') . "/vendor/test/font/Oswald-ExtraLight.ttf");
+            $font = realpath(__DIR__ . "/../system-views/Oswald-ExtraLight.ttf");
 
             $font_size = imagesx($imagen) * 0.05;
             $x = imagesx($imagen) / 2.6;
@@ -156,18 +156,6 @@ class Test extends BaseController
 
         return $response->write($response_html);
 
-    }
-    /** @ignore */
-    public function overviewFront(Request $request, Response $response, array $args)
-    {
-        set_custom_assets([
-            'statics/vendor/test/js/main.js',
-        ], 'js');
-        $this->render('layout/header');
-        $this->render('pages/test/overview');
-        $this->render('layout/footer');
-
-        return $response;
     }
 
 }

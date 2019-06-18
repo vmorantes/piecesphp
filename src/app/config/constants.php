@@ -23,14 +23,14 @@ define('IMPORTS_MODULE_ENABLED', false);
 //Mensajería
 define('MESSAGES_ENABLED', false);
 define('MESSAGES_PATH_VIEWS', 'messages');
-define('MESSAGES_PATH_STATICS', 'statics/messages');
+define('MESSAGES_PATH_STATICS', 'statics/features/messages');
 define('MESSAGES_PATH_JS', MESSAGES_PATH_STATICS . '/js');
-define('REFRESH_MESSAGES_STATUS', true);
+define('REFRESH_MESSAGES_STATUS', false);
 
 //Tablero de noticias
-define('BLACKBOARD_NEWS_ENABLED', true);
+define('BLACKBOARD_NEWS_ENABLED', false);
 define('BLACKBOARD_NEWS_PATH_VIEWS', 'blackboard-news');
-define('BLACKBOARD_NEWS_PATH_STATICS', 'statics/blackboard-news');
+define('BLACKBOARD_NEWS_PATH_STATICS', 'statics/features/blackboard-news');
 define('BLACKBOARD_NEWS_PATH_JS', BLACKBOARD_NEWS_PATH_STATICS . '/js');
 
 //Blog integrado
@@ -38,7 +38,10 @@ define('PIECES_PHP_BLOG_ENABLED', false);
 
 //Ubicaciones
 define('LOCATIONS_ENABLED', false);
-define('LOCATIONS_PATH_JS', 'statics/js/locations');
+define('LOCATIONS_PATH_JS', 'statics/features/locations/js');
 
 //Temporizadores
 define('ACTIVE_TIMER', false);
+
+//Otras
+define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
