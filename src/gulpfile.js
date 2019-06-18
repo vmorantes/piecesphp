@@ -10,34 +10,34 @@ var sass = require("gulp-sass")
 //Archivos que se observar
 var watchingPiecesPHPSassFiles = {
 	general: [
-		'./statics/vendor/general/sass/**/*.scss',
-		'./statics/vendor/general/sass/components/**/*.scss',
+		'./statics/core/sass/**/*.scss',
+		'./statics/core/sass/components/**/*.scss',
 	],
 	users: [
-		'./statics/vendor/users/sass/**/*.scss',
+		'./statics/login-and-recovery/sass/**/*.scss',
 	],
 	avatars: [
-		'./statics/vendor/avatars/sass/**/*.scss',
+		'./statics/features/avatars/sass/**/*.scss',
 	],
 }
 
 //Archivos que se compilan
 var compilePiecesPHPSassFiles = {
 	general: [
-		'./statics/vendor/general/sass/ui-pcs.scss',
+		'./statics/core/sass/ui-pcs.scss',
 	],
 	users: [
-		'./statics/vendor/users/sass/**/*.scss',
+		'./statics/login-and-recovery/sass/**/*.scss',
 	],
 	avatars: [
-		'./statics/vendor/avatars/sass/**/*.scss',
+		'./statics/features/avatars/sass/**/*.scss',
 	],
 }
 
 var destsPiecesPHP = {
-	users: './statics/vendor/users/css',
-	general: './statics/vendor/general/css',
-	avatars: './statics/vendor/avatars/css',
+	users: './statics/login-and-recovery/css',
+	general: './statics/core/css',
+	avatars: './statics/features/avatars/css',
 }
 //---------Funciones de compilación
 

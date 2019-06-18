@@ -1,9 +1,9 @@
 src/vendor/*
 src/statics/uploads/*
 src/statics/css/*
-src/statics/vendor/general/css/*
-src/statics/vendor/users/css/*
-src/statics/vendor/avatars/css/*
+src/statics/core/css/*
+src/statics/login-and-recovery/css/*
+src/statics/features/avatars/css/*
 **/node_modules/*
 **/composer.lock
 **/package-lock*

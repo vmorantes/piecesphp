@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>404 - Página no encontrada</title>
+	<title>404 - Página no encontrada</title>
+	<base href="<?= base_url(); ?>">
 	<link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
-    <link rel="stylesheet" href="statics/vendor/general/css/ui-pcs.css">
+    <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
     <style>
     body {
         --color-text: rgb(40, 100, 133);

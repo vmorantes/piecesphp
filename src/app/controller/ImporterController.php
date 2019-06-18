@@ -63,7 +63,7 @@ class ImporterController extends AdminPanelController
 
             set_custom_assets(
                 [
-                    baseurl('statics/vendor/admin/importador/js/main.js'),
+                    base_url(ADMIN_AREA_PATH_JS . '/importer-form.js'),
                 ]
                 , 'js'
             );

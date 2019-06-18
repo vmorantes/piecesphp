@@ -111,14 +111,13 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 	public function formUserView(Request $req, Response $res, array $args)
 	{
 		set_custom_assets([
-			base_url('statics/vendor/admin/usuarios/js/acciones.js'),
-			base_url('statics/vendor/avatars/js/canvg.min.js'),
-			base_url('statics/vendor/avatars/js/avatar.js'),
-			base_url('statics/vendor/admin/usuarios/js/main.js'),
+			base_url('statics/features/avatars/js/canvg.min.js'),
+			base_url('statics/features/avatars/js/avatar.js'),
+			base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
 		], 'js');
 
 		set_custom_assets([
-			base_url('statics/vendor/avatars/css/style.css'),
+			base_url('statics/features/avatars/css/style.css'),
 		], 'css');
 
 		$route = $req->getAttribute('route');
@@ -174,7 +173,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 	public function listadoUsersView(Request $req, Response $res, array $args)
 	{
 		set_custom_assets([
-			base_url('statics/vendor/admin/usuarios/js/main.js'),
+			base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
 		], 'js');
 
 		$data['tabla'] = $this->tablaUsuarios($this->user->type)->printTable(false);
@@ -653,7 +652,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 		}
 
 		if (LOCATIONS_ENABLED) {
-			add_global_asset(LOCATIONS_PATH_JS . '/main.js', 'js');
+			add_global_asset(LOCATIONS_PATH_JS . '/locations-config.js', 'js');
 		}
 	}
 

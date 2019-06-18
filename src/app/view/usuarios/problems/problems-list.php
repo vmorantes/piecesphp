@@ -19,7 +19,7 @@
 			<div class="topbar">
 				<div class="brand">
 					<div class="icon">
-						<img src="<?=baseurl('statics/vendor/users/icons/burbuja-pregunta.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/icons/burbuja-pregunta.svg');?>">
 					</div>
 					<div class="text">
 						<div class="title">¿Problemas para ingresar?</div>
@@ -28,7 +28,7 @@
 				</div>
 				<div class="back">
 					<a href="<?=get_route('login-form')?>">
-						<img src="<?=baseurl('statics/vendor/users/icons/flecha.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/icons/flecha.svg');?>">
 					</a>
 				</div>
 			</div>
@@ -39,7 +39,7 @@
 					<a href="<?=get_route('user-forget-form')?>"></a>
 
 					<div class="icon">
-						<img src="<?=baseurl('statics/vendor/users/images/problems/problemas-usuario.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/images/problems/problemas-usuario.svg');?>">
 					</div>
 					<div class="text">
 						<div class="title">No recuerdo mi usuario</div>
@@ -52,7 +52,7 @@
 					<a href="<?=get_route('recovery-form')?>"></a>
 
 					<div class="icon">
-						<img src="<?=baseurl('statics/vendor/users/images/problems/problemas-contrasena.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/images/problems/problemas-contrasena.svg');?>">
 					</div>
 					<div class="text">
 						<div class="title">Problemas con la contraseña</div>
@@ -65,7 +65,7 @@
 					<a href="<?=get_route('user-blocked-form')?>"></a>
 
 					<div class="icon">
-						<img src="<?=baseurl('statics/vendor/users/images/problems/usuario-bloqueado.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/images/problems/usuario-bloqueado.svg');?>">
 					</div>
 					<div class="text">
 						<div class="title">Usuario bloqueado</div>
@@ -78,7 +78,7 @@
 					<a href="<?=get_route('user-not-exists-form')?>"></a>
 
 					<div class="icon">
-						<img src="<?=baseurl('statics/vendor/users/images/problems/usuario-no-existe.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/images/problems/usuario-no-existe.svg');?>">
 					</div>
 					<div class="text">
 						<div class="title">Otro inconveniente</div>

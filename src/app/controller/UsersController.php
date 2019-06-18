@@ -127,11 +127,11 @@ class UsersController extends \PiecesPHP\Core\BaseController
         ]);
 
         set_custom_assets([
-            baseurl('statics/vendor/users/css/login.css'),
+            baseurl('statics/login-and-recovery/css/login.css'),
         ], 'css');
 
         set_custom_assets([
-            baseurl('statics/vendor/users/js/login.js'),
+            baseurl('statics/login-and-recovery/js/login.js'),
         ], 'js');
 
         $this->render('usuarios/login');

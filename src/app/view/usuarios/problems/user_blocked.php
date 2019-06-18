@@ -17,7 +17,7 @@
 			<div class="topbar">
 				<div class="brand">
 					<div class="icon">
-						<img src="<?=baseurl('statics/vendor/users/icons/burbuja-pregunta.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/icons/burbuja-pregunta.svg');?>">
 					</div>
 					<div class="text">
 						<div class="title">¿Problemas para ingresar?</div>
@@ -26,7 +26,7 @@
 				</div>
 				<div class="back">
 					<a href="<?=get_route('user-problems-list')?>">
-						<img src="<?=baseurl('statics/vendor/users/icons/flecha.svg');?>">
+						<img src="<?=baseurl('statics/login-and-recovery/icons/flecha.svg');?>">
 					</a>
 				</div>
 			</div>

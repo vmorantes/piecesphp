@@ -5,8 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>403 - Acceso denegado</title>
+	<base href="<?= base_url(); ?>">
 	<link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
-    <link rel="stylesheet" href="statics/vendor/general/css/ui-pcs.css">
+    <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
     <style>
     body {
 

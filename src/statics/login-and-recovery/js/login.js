@@ -9,7 +9,7 @@ function changeImageLogin(nombreImagen = 'bg', totalImagesLogin = 5) {
 
 	let bgElement = $('[bg-js]')
 	let randomImageLogin = Math.floor((Math.random() * totalImagesLogin) + 1)
-	let url = 'statics/vendor/users/images/login'
+	let url = 'statics/login-and-recovery/images/login'
 	let imageName = `${nombreImagen}${randomImageLogin}.jpg`
 	let urlImage = `${url}/${imageName}`
 

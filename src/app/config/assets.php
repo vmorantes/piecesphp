@@ -191,26 +191,26 @@ $assets['jquery']['plugins'] = [];
 
 $assets['app_libraries']['css'] = [];
 $assets['app_libraries']['js'] = [
-    'statics/vendor/general/js/util-pieces.js',
-    'statics/vendor/general/js/helpers.js',
-    'statics/vendor/general/js/internacionalizacion.js',
-    'statics/vendor/general/js/configurations.js',
-    'statics/vendor/admin/js/main.js',
+    'statics/core/js/util-pieces.js',
+    'statics/core/js/helpers.js',
+    'statics/core/js/internacionalizacion.js',
+    'statics/core/js/configurations.js',
+    base_url(ADMIN_AREA_PATH_JS . '/main.js'),
 ];
 $assets['app_libraries']['plugins'] = [
     'adminStyle' => [
         'css' => [
-            'statics/vendor/general/css/ui-pcs.css',
+            'statics/core/css/ui-pcs.css',
         ],
     ],
     'formJsonSchema' => [
         'js' => [
-            'statics/vendor/general/own-plugins/FormJsonSchema.js',
+            'statics/core/own-plugins/FormJsonSchema.js',
         ],
     ],
     'cropperAdapter' => [
         'js' => [
-            'statics/vendor/general/own-plugins/CropperAdapterComponent.js',
+            'statics/core/own-plugins/CropperAdapterComponent.js',
         ],
     ],
 ];
