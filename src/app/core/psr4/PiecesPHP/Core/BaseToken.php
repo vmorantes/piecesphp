@@ -22,11 +22,11 @@ class BaseToken
      * @param string $key La llave
      * @param int $time Fecha de creación en segundos
      * @param int $expire Fecha de expiración en segundos
-     * @param mixed $aud El aud del JWT
+     * @param bool $aud
      * @return string
      * Devuele un string codificado.
      */
-    public static function setToken($data, string $key = null, int $time = null, int $expire = null, $aud = false)
+    public static function setToken($data, string $key = null, int $time = null, int $expire = null, bool $aud = false)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 

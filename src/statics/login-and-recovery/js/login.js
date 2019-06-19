@@ -25,21 +25,42 @@ function configLoginForm() {
 
 	let form = $('[login-form-js]')
 
+	window.pcsphp.authenticator.verify(() => window.location.reload())
+
 	form.on('submit', function (e) {
 
 		e.preventDefault()
 
-		let login = postRequest('users/login', new FormData(form[0]))
+		let login = window.pcsphp.authenticator.authenticateWithUsernamePassword(
+			form.find("[name='username']").val(),
+			form.find("[name='password']").val()
+		)
 
-		login.done(function (res) {
-			if (res.auth === true) {
-				window.location.reload()
+		let lastURL = form.attr('last-uri')
+
+		login.then(function (res) {
+
+			let auth = res.auth
+			let message = res.message
+			let isAuth = res.isAuth
+
+			if (auth === true || isAuth === true) {
+
+				if (typeof lastURL == 'string' && lastURL.trim().length > 0) {
+
+					window.location.href = lastURL
+
+				} else {
+
+					window.location.reload()
+
+				}
+
 			} else {
-				errorMessage(_i18n('titles', 'error'), res.message)
+				errorMessage(_i18n('titles', 'error'), message)
 			}
-		})
 
-		login.fail(function (jqXHR) {
+		}).catch(function (jqXHR) {
 			console.error(jqXHR)
 			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
 		})

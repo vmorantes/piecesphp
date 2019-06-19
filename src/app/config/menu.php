@@ -15,7 +15,7 @@ use PiecesPHP\Core\Menu\MenuItemCollection;
 use PiecesPHP\Core\Roles;
 
 $role = Roles::getCurrentRole();
-$current_type_user = $role['code'];
+$current_type_user = !is_null($role) ? $role['code'] : null;
 
 $config['menus']['header_dropdown'] = new MenuItemCollection([
     'items' => [
@@ -117,8 +117,10 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'name' => __('general', 'logout'),
             'icon' => 'share',
             'visible' => true,
-            'asLink' => true,
-            'href' => get_route('logout'),
+            'asLink' => false,
+			'attributes' => [
+				'pcsphp-users-logout' => '',
+			],
         ]),
     ],
 ]);

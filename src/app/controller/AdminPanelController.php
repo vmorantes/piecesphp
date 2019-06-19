@@ -424,11 +424,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 $users . ':loginForm',
                 'login-form'
             ),
-            new Route(
-                "{$startRoute}logout[/]",
-                $users . ':logout',
-                'logout'
-            ),
         ]);
 
         //Problemas
@@ -473,6 +468,12 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 "{$startRoute}login[/]",
                 $users . ':login',
                 'login-request',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}verify[/]",
+                $users . ':verifySession',
+                'verify-login-request',
                 'POST'
             ),
             new Route(

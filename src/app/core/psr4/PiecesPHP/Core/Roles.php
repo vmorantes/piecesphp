@@ -40,6 +40,12 @@ class Roles
      * @var array
      */
     protected static $currentRole = null;
+    /**
+     * $silentMode
+     *
+     * @var array
+     */
+    protected static $silentMode = false;
 
     /**
      * setCurrentRole
@@ -214,6 +220,18 @@ class Roles
     }
 
     /**
+     * getSilentMode
+     *
+     * Si es true no lanzará RoleNotExistsException en hasPermissions
+     *
+     * @return bool
+     */
+    public static function getSilentMode()
+    {
+        return self::$silentMode;
+    }
+
+    /**
      * addPermission
      *
      * @param string $name_route
@@ -271,6 +289,19 @@ class Roles
     }
 
     /**
+     * setSilentMode
+     *
+     * Si es true no lanzará RoleNotExistsException en hasPermissions
+     *
+     * @param bool $mode
+     * @return void
+     */
+    public static function setSilentMode(bool $mode)
+    {
+        self::$silentMode = $mode;
+    }
+
+    /**
      * hasPermissions
      *
      * Verifica los permisos de un rol
@@ -278,11 +309,12 @@ class Roles
      * @param \Slim\Http\Request|string $request_route La ruta solicita. Puede ser un objeto Request de slim o el
      * nombre de la ruta como string
      * @param mixed $id_role El code o name del rol a examinar
+     * @param bool $silent_mode Si lanza RoleNotExistsException o no
      * @return bool true si tiene permisos, false si no
      * @throws TypeError Además de las razones comunes, puede lanzar esta exepción si $request_route no es \Slim\Http\Request|string
      * @throws RoleNotExistsException Si el role no existe
      */
-    public static function hasPermissions($request_route, $id_role): bool
+    public static function hasPermissions($request_route, $id_role, bool $silent_mode = false): bool
     {
 
         $role_exists = false;
@@ -397,7 +429,11 @@ class Roles
         if ($role_exists) {
             return $allowed;
         } else {
-            throw new RoleNotExistsException();
+            if ($silent_mode || self::getSilentMode()) {
+                return false;
+            } else {
+                throw new RoleNotExistsException();
+            }
         }
 
     }
