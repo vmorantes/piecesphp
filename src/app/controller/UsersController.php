@@ -10,10 +10,15 @@ use App\Model\AvatarModel;
 use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
-use PiecesPHP\Core\HTML\Form;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
+use PiecesPHP\Core\Validation\Parameters\Parameter;
+use PiecesPHP\Core\Validation\Parameters\Parameters;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -224,41 +229,60 @@ class UsersController extends \PiecesPHP\Core\BaseController
      */
     public function login(Request $request, Response $response, array $args)
     {
-        //Parámetros POST
-        $params = $request->getParsedBody();
 
-        //Cuerpo de la respuesta
-        $json_response = [
+        $usernameParameter = new Parameter(
+            'username',
+            null,
+            function ($value) {
+                return is_string($value);
+            },
+            false,
+            function ($value) {
+                return trim(strtolower($value));
+            }
+        );
+
+        $passwordParameter = new Parameter(
+            'password',
+            null,
+            function ($value) {
+                return is_string($value);
+            }
+        );
+
+        $expectedParameters = new Parameters([
+            $usernameParameter,
+            $passwordParameter,
+        ]);
+
+        $inputData = $request->getParsedBody();
+        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+        $resultOperation = new ResultOperations([], 'Incio de sesión', '');
+        $resultOperation->setSingleOperation(true);
+        $resultOperation->setValues([
             'auth' => false,
-            'is_auth' => false,
+            'isAuth' => false,
             'token' => '',
             'error' => self::NO_ERROR,
             'message' => '',
-        ];
+            'extras' => [],
+        ]);
+
         //Se verifica si ya existe una sesión activa
+        $JWT = SessionToken::getJWTReceived();
 
-        if (!SessionToken::isActiveSession()) {
+        if (!SessionToken::isActiveSession($JWT)) {
 
-            //Conjunto posible de datos para autenticación
-            $cantidad_parametros = count($params) == 2;
+            try {
 
-            $requerido_1 = [
-                'username',
-                'password',
-            ];
-
-            //Verificar que el grupo de datos para autenticación sea válido
-            $parametros_ok = (require_keys($requerido_1, $params) === true);
-
-            //Si los parámetros son válidos en nombre y en cantidad se inicia verificación de autenticación
-            if ($parametros_ok && $cantidad_parametros) {
+                $expectedParameters->validate();
 
                 //Se selecciona un elemento que concuerde con el usuario
+                $username = $usernameParameter->getValue();
+                $password = $passwordParameter->getValue();
 
-                $username = strtolower($params['username']);
-                $password = $params['password'];
-
-                $usuario = $this->mapper->getWhere([
+                $user = $this->model->select()->where([
                     'username' => [
                         '=' => $username,
                         'and_or' => 'OR',
@@ -266,50 +290,60 @@ class UsersController extends \PiecesPHP\Core\BaseController
                     'email' => [
                         '=' => $username,
                     ],
-                ]);
+                ])->row();
 
                 //Verificación de existencia
-                if ($usuario !== -1) {
+                if ($user instanceof \stdClass) {
 
-                    $usuario->status = (int) $usuario->status;
+                    $user->status = (int) $user->status;
 
                     //Verificar status
-                    if ($usuario->status !== UsersModel::STATUS_USER_INACTIVE) {
+                    if ($user->status !== UsersModel::STATUS_USER_INACTIVE) {
 
-                        if (password_verify($password, $usuario->password)) {
+                        if (password_verify($password, $user->password)) {
 
-                            $json_response['auth'] = true;
+                            $resultOperation->setValue('auth', true);
 
-                            //Se crea la sesión con el uso de un token y de COOKIES
-                            $json_response['token'] = SessionToken::initSession($usuario);
+                            //Se genera un token de sesión
+                            $resultOperation->setValue('token', SessionToken::generateToken([
+                                'id' => $user->id,
+                                'type' => $user->type,
+                            ]));
 
-                            $this->mapper->resetAttempts($usuario->id);
-                            LoginAttemptsModel::addLogin((int) $usuario->id, $usuario->username, true);
+                            $this->mapper->resetAttempts($user->id);
+
+                            LoginAttemptsModel::addLogin(
+                                (int) $user->id,
+                                $user->username,
+                                true
+                            );
 
                         } else {
 
-                            $json_response['error'] = self::INCORRECT_PASSWORD;
-                            $json_response['message'] = $this->getMessage(self::INCORRECT_PASSWORD);
+                            $resultOperation->setValue('error', self::INCORRECT_PASSWORD);
+                            $resultOperation->setValue('message', $this->getMessage(self::INCORRECT_PASSWORD));
+                            LoginAttemptsModel::addLogin(
+                                (int) $user->id,
+                                $user->username,
+                                false,
+                                $resultOperation->getMessage()
+                            );
 
-                            LoginAttemptsModel::addLogin((int) $usuario->id, $usuario->username, false, $json_response['message']);
+                            if ($user->failed_attempts >= self::MAX_ATTEMPTS) {
 
-                            if ($usuario->failed_attempts >= self::MAX_ATTEMPTS) {
-
-                                $this->mapper->changeStatus(UsersModel::STATUS_USER_INACTIVE, $usuario->id);
-
-                                $json_response['error'] = self::BLOCKED_FOR_ATTEMPTS;
-                                $json_response['message'] = vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$usuario->username]);
+                                $this->mapper->changeStatus(UsersModel::STATUS_USER_INACTIVE, $user->id);
+                                $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
+                                $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
 
                             } else {
 
-                                $attempts = $this->mapper->updateAttempts($usuario->id);
+                                $attempts = $this->mapper->updateAttempts($user->id);
 
                                 if ($attempts >= self::MAX_ATTEMPTS) {
 
-                                    $this->mapper->changeStatus(UsersModel::STATUS_USER_INACTIVE, $usuario->id);
-
-                                    $json_response['error'] = self::BLOCKED_FOR_ATTEMPTS;
-                                    $json_response['message'] = vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$usuario->username]);
+                                    $this->mapper->changeStatus(UsersModel::STATUS_USER_INACTIVE, $user->id);
+                                    $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
+                                    $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
 
                                 }
                             }
@@ -318,49 +352,81 @@ class UsersController extends \PiecesPHP\Core\BaseController
 
                     } else {
 
-                        $json_response['error'] = self::BLOCKED_FOR_ATTEMPTS;
-                        $json_response['message'] = vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$usuario->username]);
-                        LoginAttemptsModel::addLogin(null, $username, false, $json_response['message']);
+                        $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
+                        $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
+                        LoginAttemptsModel::addLogin(
+                            null,
+                            $username,
+                            false,
+                            $resultOperation->getMessage()
+                        );
 
                     }
+
                 } else {
-                    $json_response['error'] = self::USER_NO_EXISTS;
-                    $json_response['message'] = $this->getMessage(self::USER_NO_EXISTS);
-                    $json_response['message'] = vsprintf($this->getMessage(self::USER_NO_EXISTS), [$username]);
-                    LoginAttemptsModel::addLogin(null, $username, false, $json_response['message']);
+
+                    $resultOperation->setValue('error', self::USER_NO_EXISTS);
+                    $resultOperation->setValue('message', vsprintf($this->getMessage(self::USER_NO_EXISTS), [$username]));
+                    LoginAttemptsModel::addLogin(
+                        null,
+                        $username,
+                        false,
+                        $resultOperation->getMessage()
+                    );
+
                 }
 
-            } else {
-                $json_response['error'] = self::MISSING_OR_UNEXPECTED_PARAMS;
-                $json_response['message'] = $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS);
+            } catch (MissingRequiredParamaterException $e) {
+
+                $resultOperation->setValue('error', self::MISSING_OR_UNEXPECTED_PARAMS);
+                $resultOperation->setValue('message', $e->getMessage());
+
+            } catch (ParsedValueException $e) {
+
+                $resultOperation->setValue('error', 'ERROR');
+                $resultOperation->setValue('message', 'Ha ocurrido un error desconocido con los valores ingresados.');
+                $resultOperation->setValue('extras', [
+                    'exception' => $e->getMessage(),
+                ]);
+
+            } catch (InvalidParameterValueException $e) {
+
+                $resultOperation->setValue('error', 'ERROR');
+                $resultOperation->setValue('message', $e->getMessage());
+
             }
+
         } else {
-            $json_response['auth'] = false;
-            $json_response['is_auth'] = true;
-            $json_response['token'] = SessionToken::getSession();
-            $json_response['error'] = self::ACTIVE_SESSION;
-            $json_response['message'] = $this->getMessage(self::ACTIVE_SESSION);
+            $resultOperation->setValue('auth', false);
+            $resultOperation->setValue('isAuth', true);
+            $resultOperation->setValue('error', self::ACTIVE_SESSION);
+            $resultOperation->setValue('message', $this->getMessage(self::ACTIVE_SESSION));
         }
 
-        return $response->withJson($json_response);
+        return $response->withJson($resultOperation->getValues());
     }
 
     /**
-     * Cierra la sesión.
-     * No espera parámetros.
-     * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
-     * @return void
+     * verifySession
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
      */
-    public function logout(Request $request, Response $response, array $args)
+    public function verifySession(Request $request, Response $response, array $args)
     {
-        $logout = SessionToken::finishSession();
-        if ($request->isXhr()) {
-            return $response->withJson(['logout' => $logout]);
-        } else {
-            return $response->withRedirect(get_route('login-form'));
-        }
+        $resultOperation = new ResultOperations([], 'Varificar sesión', '');
+        $resultOperation->setSingleOperation(true);
+        $resultOperation->setValues([
+            'auth' => false,
+            'isAuth' => false,
+        ]);
+
+        //Se verifica si ya existe una sesión activa
+        $JWT = SessionToken::getJWTReceived();
+        $resultOperation->setValue('isAuth', SessionToken::isActiveSession($JWT));
+        return $response->withJson($resultOperation->getValues());
     }
 
     /**

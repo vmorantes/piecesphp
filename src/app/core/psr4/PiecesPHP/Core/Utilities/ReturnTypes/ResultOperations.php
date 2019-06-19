@@ -47,15 +47,28 @@ class ResultOperations implements \JsonSerializable
      * @var array
      */
     protected $values = [];
+    /**
+     * $successOnSingleOperation
+     *
+     * @var bool
+     */
+    protected $successOnSingleOperation = false;
+    /**
+     * $singleOperation
+     *
+     * @var bool
+     */
+    protected $singleOperation = false;
 
     /**
      * __construct
      *
      * @param Operation[] $operations
+     * @param string $name
      * @param string $message
      * @return static
      */
-    public function __construct(array $operations = [], string $name = '', string $message = '')
+    public function __construct(array $operations = [], string $name = '', string $message = '', bool $singleOperation = false)
     {
         array_map(function ($el) use ($operations) {
             if (!$el instanceof Operation) {
@@ -67,6 +80,12 @@ class ResultOperations implements \JsonSerializable
         $this->name = strlen(trim($name)) > 0 ? $name : time();
         $this->message = $message;
 
+        if (count($this->operations) > 0) {
+            $singleOperation = false;
+        }
+
+        $this->singleOperation = $singleOperation;
+
     }
 
     /**
@@ -77,21 +96,29 @@ class ResultOperations implements \JsonSerializable
      */
     public function success(bool $onlyMinimumRequired = false): bool
     {
-        $success = true;
-        foreach ($this->operations as $operation) {
-            if ($onlyMinimumRequired) {
-                if ($operation->getRequired() && !$operation->getSuccess()) {
-                    $success = false;
-                    break;
-                }
-            } else {
-                if (!$operation->getSuccess()) {
-                    $success = false;
-                    break;
+        if ($this->singleOperation) {
+
+            return $this->successOnSingleOperation;
+
+        } else {
+
+            $success = true;
+            foreach ($this->operations as $operation) {
+                if ($onlyMinimumRequired) {
+                    if ($operation->getRequired() && !$operation->getSuccess()) {
+                        $success = false;
+                        break;
+                    }
+                } else {
+                    if (!$operation->getSuccess()) {
+                        $success = false;
+                        break;
+                    }
                 }
             }
+            return $success;
+
         }
-        return $success;
     }
 
     /**
@@ -127,6 +154,30 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
+     * setSuccessOnSingleOperation
+     *
+     * @param bool $success
+     * @return static
+     */
+    public function setSuccessOnSingleOperation(bool $success)
+    {
+        $this->successOnSingleOperation = $success;
+        return $this;
+    }
+
+    /**
+     * setSingleOperation
+     *
+     * @param string $name
+     * @return static
+     */
+    public function setSingleOperation(bool $singleOperation)
+    {
+        $this->singleOperation = $singleOperation;
+        return $this;
+    }
+
+    /**
      * setName
      *
      * @param string $name
@@ -158,6 +209,7 @@ class ResultOperations implements \JsonSerializable
      */
     public function addOperation(Operation &$operation)
     {
+        $this->singleOperation = false;
         $name = $operation->getName();
         $this->operations[$name] = $operation;
         return $this;
@@ -171,10 +223,16 @@ class ResultOperations implements \JsonSerializable
      */
     public function operation(string $name)
     {
-        if (isset($this->operations[$name])) {
-            return $this->operations[$name];
-        } else {
+        if ($this->singleOperation) {
+
             return null;
+
+        } else {
+            if (isset($this->operations[$name])) {
+                return $this->operations[$name];
+            } else {
+                return null;
+            }
         }
     }
 
@@ -245,6 +303,36 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
+     * getSingleOperation
+     *
+     * @return bool
+     */
+    public function getSingleOperation()
+    {
+        return $this->singleOperation;
+    }
+
+    /**
+     * getName
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * getMessage
+     *
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->message;
+    }
+
+    /**
      * getValue
      *
      * @param string $name
@@ -274,6 +362,18 @@ class ResultOperations implements \JsonSerializable
      */
     public function result(array $operations, string $message = '')
     {
+        return self::resultInstance($operations, $message);
+    }
+
+    /**
+     * resultInstance
+     *
+     * @param array $operations
+     * @param string $message
+     * @return static
+     */
+    public static function resultInstance(array $operations, string $message = '')
+    {
         return (new static($operations, $message));
     }
 
@@ -292,6 +392,7 @@ class ResultOperations implements \JsonSerializable
             'successOperations' => $this->successOperations(),
             'fails' => $this->fails(),
             'operations' => $this->operations,
+            'singleOperation' => $this->singleOperation,
             'extras' => $this->extras,
             'values' => $this->values,
         ];

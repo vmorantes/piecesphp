@@ -20,6 +20,14 @@ set_config(
     new \Slim\Container($container_configurations)
 );
 
+if (get_config('control_access_login') === true) {
+    add_global_assets([
+        base_url('statics/core/system.users.jquery.js'),
+        base_url('statics/core/PiecesPHPSystemUserHelper.js'),
+        base_url('statics/core/main_system_user.js'),
+    ], 'js');
+}
+
 $app = new \Slim\App(get_config('slim_container'));
 
 //Acciones antes de mostrar una ruta
@@ -31,12 +39,16 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         throw new \Slim\Exception\NotFoundException($request, $response);
     }
 
+    $JWT = SessionToken::getJWTReceived();
     $name_route = $route->getName(); //Nombre de la ruta
     $methods = $route->getMethods(); //Métodos que acepta la ruta solicitada
     $arguments = $route->getArguments(); //Argumentos pasados en la url
 
     //Control de acceso por login
     $control_access_login = get_config('control_access_login');
+
+    //Verifica validez del JWT
+    $isActiveSession = SessionToken::isActiveSession($JWT);
 
     //Verifica si el control automático de acceso por login está activado
     if ($control_access_login) {
@@ -47,7 +59,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         if ($info_route['require_login']) {
 
             //Acciones en caso de no estar logueado
-            if (!SessionToken::isActiveSession()) {
+            if (!$isActiveSession) {
 
                 if ($name_route != 'login-form') {
 
@@ -75,82 +87,81 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
             }
 
         }
-    }
 
-    //Redirección al area administrativa desde formulario de logueo en caso de haber una session
-    $login_redirect = get_config('admin_url');
-    $relative_url = $login_redirect !== false ? (isset($login_redirect['relative']) ? $login_redirect['relative'] : true) : true;
-    $relative_url = !is_bool($relative_url) ? true : $relative_url;
-    $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
-    if ($relative_url) {
-        $admin_url = baseurl($admin_url);
-    }
-
-    //Verifica si el control automático de acceso por login está activado
-    if ($control_access_login) {
+        //Redirección al area administrativa desde formulario de logueo en caso de haber una session
+        $login_redirect = get_config('admin_url');
+        $relative_url = $login_redirect !== false ? (isset($login_redirect['relative']) ? $login_redirect['relative'] : true) : true;
+        $relative_url = !is_bool($relative_url) ? true : $relative_url;
+        $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
+        if ($relative_url) {
+            $admin_url = baseurl($admin_url);
+        }
 
         //Verifica que esté logueado
-        if (SessionToken::isActiveSession()) {
+        if ($isActiveSession) {
 
             if ($name_route == 'login-form') {
                 return $response->withRedirect($admin_url);
             }
 
         }
-    }
 
-    //Control de permisos por roles
-    $roles_control = get_config('roles');
-    $active_roles_control = isset($roles_control['active']) ? $roles_control['active'] : false;
-    $user = null;
-    $current_role = null;
-    $has_permissions = null;
+        //Control de permisos por roles
+        $roles_control = get_config('roles');
+        $active_roles_control = isset($roles_control['active']) ? $roles_control['active'] : false;
+        $user = null;
+        $current_role = null;
+        $has_permissions = null;
 
-    //Verifica si hay una sesion activa
-    if (SessionToken::isActiveSession()) {
+        //Verifica si hay una sesion activa
+        if ($isActiveSession) {
 
-        $jwt = SessionToken::getSession(); //JWT de la sesion
-        $user = BaseToken::getData($jwt); //Información del usuario
-        $user = $user instanceof \stdClass ? (new \App\Model\UsersModel())->getModel()->select()->where(['id' => $user->id])->row() : $user;
+            $user = BaseToken::getData($JWT); //Información del usuario
+            $user = $user instanceof \stdClass ? (new \App\Model\UsersModel())->getModel()->select()->where(['id' => $user->id])->row() : $user;
 
-        if ($user instanceof \stdClass) {
-            set_config('current_user', $user);
-            Roles::setCurrentRole($user->type); //Se establece el rol
-            $current_role = Roles::getCurrentRole(); //Se obtiene el rol
-        }
-
-        //Definición de menús
-        require_once basepath("app/config/menu.php");
-        if (isset($config['menus']) && is_array($config['menus'])) {
-            set_config('menus', $config['menus']);
-        }
-
-    }
-
-    //Verifica si está activada la comprobación automática de roles
-    if ($current_role !== null && $active_roles_control === true) {
-
-        $has_permissions = Roles::hasPermissions($name_route, $current_role['name']);
-
-    }
-
-    //Acciones en caso de no tener permisos
-    if ($has_permissions !== null && !$has_permissions && $info_route['require_login']) {
-        return (function ($request, $response) {
-
-            $response = $response->withStatus(403);
-
-            if (!$request->isXhr()) {
-                $controller = new PiecesPHP\Core\BaseController(false);
-                $controller->render('pages/403');
-            } else {
-                $response = $response->withJson("403 Forbidden");
+            if ($user instanceof \stdClass) {
+                set_config('current_user', $user);
+                Roles::setCurrentRole($user->type); //Se establece el rol
+                $current_role = Roles::getCurrentRole(); //Se obtiene el rol
             }
 
-            return $response;
+        }
 
-        })($request, $response);
+        //Verifica si está activada la comprobación automática de roles
+        if ($current_role !== null && $active_roles_control === true) {
+
+            $has_permissions = Roles::hasPermissions($name_route, $current_role['name']);
+
+        }
+
+        //Acciones en caso de no tener permisos
+        if ($has_permissions !== null && !$has_permissions && $info_route['require_login']) {
+            return (function ($request, $response) {
+
+                $response = $response->withStatus(403);
+
+                if (!$request->isXhr()) {
+                    $controller = new PiecesPHP\Core\BaseController(false);
+                    $controller->render('pages/403');
+                } else {
+                    $response = $response->withJson("403 Forbidden");
+                }
+
+                return $response;
+
+            })($request, $response);
+        }
+
     }
+
+    //Definición de menús
+    $silentModeRolesSetted = Roles::getSilentMode();
+    Roles::setSilentMode(true);
+    require_once basepath("app/config/menu.php");
+    if (isset($config['menus']) && is_array($config['menus'])) {
+        set_config('menus', $config['menus']);
+    }
+    Roles::setSilentMode($silentModeRolesSetted);
 
     return $next($request, $response);
 });
