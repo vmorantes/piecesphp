@@ -176,18 +176,6 @@ class RouteGroup
     }
 
     /**
-     * setInstanceRouter
-     *
-     * @param \Slim\App $router
-     * @return static
-     */
-    public function setInstanceRouter(\Slim\App $router)
-    {
-        $this->instanceRouter = $router;
-        return $this;
-    }
-
-    /**
      * setRouter
      *
      * @param \Slim\App $router
