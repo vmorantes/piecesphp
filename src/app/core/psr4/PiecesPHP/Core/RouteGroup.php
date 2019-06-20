@@ -22,7 +22,7 @@ class RouteGroup
      *
      * @var \Slim\App
      */
-    public static $router = null;
+    protected static $router = null;
     /**
      * $routeGroup
      *
@@ -64,11 +64,37 @@ class RouteGroup
      * __construct
      *
      * @param string $routeGroup
+     * @param \Slim\App $router
+     * @param bool $useClassRouter
      * @return static
      */
-    public function __construct(string $routeGroup)
+    public function __construct(string $routeGroup, \Slim\App $router = null, bool $useClassRouter = true)
     {
+        $routerDefined = false;
+
         $this->routeGroup = $routeGroup;
+        $this->instanceRouter = $router;
+
+        if ($useClassRouter) {
+
+            if (self::$router instanceof \Slim\App) {
+                $this->instanceRouter = self::$router;
+                $routerDefined = true;
+            }
+
+        } else {
+
+            if ($router instanceof \Slim\App) {
+                $this->instanceRouter = $router;
+                $routerDefined = true;
+            }
+
+        }
+
+        if (!$routerDefined) {
+            throw new Exception("No hay ningún enrutador definido para el grupo {$this->routeGroup}.");
+        }
+
     }
 
     /**
@@ -78,28 +104,25 @@ class RouteGroup
      * @param \Slim\App $router
      * @return static
      */
-    public function register($routes, \Slim\App $router = null)
+    public function register($routes)
     {
 
-        if ($router === null) {
-            $this->instanceRouter = static::$router;
-        } elseif ($this->instanceRouter === null) {
-            $this->instanceRouter = $router;
-        }
-
         $router = $this->instanceRouter;
+
         $routes = !is_array($routes) ? [$routes] : $routes;
 
         if ($this->active) {
 
-            $this->lastRouteGroupInstance = $router->group($this->routeGroup, function () use ($routes) {
+            $set_routes_callable = function () use ($routes) {
                 foreach ($routes as $route) {
                     if ($route instanceof Route) {
                         $route->register($this);
                         $routes[] = $route;
                     }
                 }
-            });
+            };
+
+            $this->lastRouteGroupInstance = $router->group($this->routeGroup, $set_routes_callable);
 
             if ($this->generalMiddleware !== null) {
                 $this->lastRouteGroupInstance->add($this->generalMiddleware);
@@ -118,7 +141,11 @@ class RouteGroup
      */
     public function addMiddleware($callable)
     {
-        $this->lastRouteGroupInstance->add($callable);
+        if ($this->active) {
+            if ($this->lastRouteGroupInstance !== null) {
+                $this->lastRouteGroupInstance->add($callable);
+            }
+        }
         return $this;
     }
 
