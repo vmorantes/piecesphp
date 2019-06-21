@@ -24,7 +24,7 @@ class BaseEntityMapper extends EntityMapper
     /**
      * __construct
      *
-     * @param int $value_compare
+     * @param mixed $value_compare (Debe ser de tipo escalar)
      * @param string $field_compare
      * @param array $options Las opciones de configuración
      * Opciones aceptadas:
@@ -39,7 +39,7 @@ class BaseEntityMapper extends EntityMapper
      * Nota: esto sobreescribe a las opciones pasadas por la función estática setOptions
      * @return static
      */
-    public function __construct(int $value_compare = null, string $field_compare = 'primary_key', $options = null, bool $auto_config = true, string $db_group = 'default')
+    public function __construct($value_compare = null, string $field_compare = 'primary_key', $options = null, bool $auto_config = true, string $db_group = 'default')
     {
         if ($auto_config === true) {
 
