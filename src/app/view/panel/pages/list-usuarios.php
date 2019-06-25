@@ -1,8 +1,21 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
-<h3 class="ui dividing header">
-    <?=__('general', 'users');?>
-</h3>
+<div style="max-width:850px;">
+
+    <h3 class="ui dividing header">
+        <?=__('general', 'users');?>
+    </h3>
+
+    <div class="ui buttons">
+        <?php if(\PiecesPHP\Core\Roles::hasPermissions('form-usuarios', (int)get_config('current_user')->type, true)):?>
+        <a href="<?= get_route('form-usuarios'); ?>" class="ui button green">Agregar</a>
+        <?php endif;?>
+    </div>
+	<br>
+	<br>
+	<br>
+</div>
+
 
 <table process="<?=$process_table;?>" class="ui table stripped celled inverted grey users"
     style="max-width:100%;width:100%;">
