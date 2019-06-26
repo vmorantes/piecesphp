@@ -36,6 +36,7 @@
  */
 
 use App\Model\UsersModel;
+use PiecesPHP\Core\SessionToken;
 
 //──── Roles y usuarios ──────────────────────────────────────────────────────────────────
 $config['roles']['active'] = true;
@@ -86,3 +87,6 @@ $config['roles']['types'] = [
 $config['control_access_login'] = true;
 $config['admin_url']['relative'] = true;
 $config['admin_url']['url'] = 'admin';
+
+//Definir fecha mínima del token de inicio de sesión
+SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '26-06-1999 05:43:59 PM'));

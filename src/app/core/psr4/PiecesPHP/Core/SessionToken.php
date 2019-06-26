@@ -20,6 +20,15 @@ class SessionToken
 {
     const TOKEN_NAME = 'JWTAuth';
 
+    const DEFAULT_MINIMUM_DATE_CREATED = '1990-01-01';
+
+    /**
+     * $minimumDateCreated
+     *
+     * @var \DateTime
+     */
+    private static $minimumDateCreated = null;
+
     /**
      * @param mixed $data Información que se almacenará en el token
      * @param string $key Llave
@@ -45,17 +54,34 @@ class SessionToken
      * isActiveSession
      *
      * @param string $token
-     * @param mixed string
+     * @param string $key
      * @return bool
      */
     public static function isActiveSession(string $token, string $key = null)
     {
         $logged = BaseToken::check($token, $key);
 
+        if (self::$minimumDateCreated === null) {
+            self::$minimumDateCreated = new \DateTime(self::DEFAULT_MINIMUM_DATE_CREATED);
+        }
+
         if ($logged !== true) {
+
             return false;
+
         } else if ($logged === true) {
-            return true;
+
+            $dateCreatedToken = BaseToken::getCreated($token, $key);
+            $dateCreatedToken = new \DateTime(date('Y-m-d H:i:s', $dateCreatedToken));
+
+            if ($dateCreatedToken >= self::$minimumDateCreated) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } else {
+            return false;
         }
 
     }
@@ -83,6 +109,17 @@ class SessionToken
         }
 
         return $JWT;
+    }
+
+    /**
+     * setMinimumDateCreated
+     *
+     * @param \DateTime $minimumDateCreated
+     * @return void
+     */
+    public static function setMinimumDateCreated(\DateTime $minimumDateCreated)
+    {
+        self::$minimumDateCreated = $minimumDateCreated;
     }
 
     //---- Preservación de compatibilidad

@@ -38,6 +38,8 @@ class BaseToken
             $expire = $time + self::$expire_time;
         }
 
+        $data = BaseHashEncryption::encrypt(json_encode($data), $key);
+
         if ($aud) {
             $token = array(
                 'iat' => $time,
@@ -170,6 +172,9 @@ class BaseToken
                 self::$encrypt,
                 $ignore_expired
             )->data;
+
+            $data = BaseHashEncryption::decrypt($data, $key);
+            $data = json_decode($data);
 
         } else {
             if ($expired === true) {
