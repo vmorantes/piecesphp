@@ -17,14 +17,20 @@ namespace PiecesPHP\Core\Forms;
 class FileValidator
 {
     const TYPE_ALL_IMAGES = 'image/*';
+
     const TYPE_JPG = 'jpg';
     const TYPE_JPEG = 'jpeg';
     const TYPE_GIF = 'gif';
     const TYPE_PNG = 'png';
+
     const TYPE_XLSX = 'xlsx';
     const TYPE_XLS = 'xls';
     const TYPE_CSV = 'csv';
     const TYPE_PDF = 'pdf';
+
+    const TYPE_MP3 = 'mp3';
+
+    const TYPE_MP4 = 'mp4';
 
     const MIME_TYPES = [
         self::TYPE_ALL_IMAGES => [
@@ -75,10 +81,19 @@ class FileValidator
         self::TYPE_PDF => [
             'application/pdf',
             'application/x-pdf',
-            'plication/acrobat',
+            'application/acrobat',
             'applications/vnd.pdf',
             'text/pdf',
             'text/x-pdf',
+        ],
+        self::TYPE_MP3 => [
+            'audio/mpeg3',
+            'audio/x-mpeg-3',
+            'audio/mp3',
+            'audio/mpeg',
+        ],
+        self::TYPE_MP4 => [
+            'video/mp4',
         ],
     ];
     const EXTENSIONS = [
@@ -116,6 +131,12 @@ class FileValidator
         ],
         self::TYPE_PDF => [
             'pdf',
+        ],
+        self::TYPE_MP3 => [
+            'mp3',
+        ],
+        self::TYPE_MP4 => [
+            'mp4',
         ],
     ];
     /**
@@ -197,27 +218,34 @@ class FileValidator
 
         $this->message = '';
 
+        $mimes = [];
+        $extensions = [];
+
         foreach ($this->getAcceptedTypes() as $type) {
 
-            $mimes = isset(self::MIME_TYPES[$type]) ? self::MIME_TYPES[$type] : [];
-            $extensions = isset(self::EXTENSIONS[$type]) ? self::EXTENSIONS[$type] : [];
+            if (isset(self::MIME_TYPES[$type])) {
+                $mimes = array_merge($mimes, self::MIME_TYPES[$type]);
+            }
 
-            $valid_mime_type = in_array($mime_type, $mimes);
-            $valid_extension = in_array($extension, $extensions);
-            $valid_size = $filesize <= $this->maxFileSizeMB;
-            $valid = $valid_mime_type && $valid_extension && $valid_size;
+            if (isset(self::EXTENSIONS[$type])) {
+                $extensions = array_merge($extensions, self::EXTENSIONS[$type]);
+            }
 
-            if (!$valid) {
+        }
 
-                if (!$valid_mime_type || !$valid_extension) {
-                    $this->message .= "Tipo de archivo inválido.\r\n";
-                }
+        $valid_mime_type = in_array($mime_type, $mimes);
+        $valid_extension = in_array($extension, $extensions);
+        $valid_size = $filesize <= $this->maxFileSizeMB;
+        $valid = $valid_mime_type && $valid_extension && $valid_size;
 
-                if (!$valid_size) {
-                    $this->message .= "El tamaño máximo permitido {$this->maxFileSizeMB}MB.\r\n";
-                }
+        if (!$valid) {
 
-                break;
+            if (!$valid_mime_type || !$valid_extension) {
+                $this->message .= "Tipo de archivo inválido.\r\n";
+            }
+
+            if (!$valid_size) {
+                $this->message .= "El tamaño máximo permitido {$this->maxFileSizeMB}MB.\r\n";
             }
 
         }
