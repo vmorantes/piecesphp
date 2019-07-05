@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <base href="<?=baseurl();?>">
     <title><?=get_title();?></title>
-	<link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
+    <link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
     <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
 </head>
 
@@ -17,6 +17,31 @@
     <section class="container" bg-js>
 
         <article class="form-container">
+
+            <div class="problems-message-container">
+
+                <div class="content">
+
+                    <div class="title">
+                        <span class="text"></span> <span class="mark"></span>
+                    </div>
+
+                    <p class="message"></p>
+
+                    <span class="ui button green retry">
+                        Intentar nuevamente
+                    </span>
+
+                    <p class="message-bottom"></p>
+
+                    <a href="<?=get_route('user-problems-list')?>" class="ui button red labeled icon problem">
+                        <i class="question circle outline icon"></i>
+                        ¿Problemas para ingresar?
+                    </a>
+
+                </div>
+
+            </div>
 
             <div class="caption">
                 <img src="<?=get_config('logo-login');?>">
@@ -44,7 +69,7 @@
                         <button type="submit" class="ui blue fluid button">Ingresar</button>
                     </div>
 
-                    <div class="field">
+                    <div class="field problems-button">
                         <a href="<?=get_route('user-problems-list')?>" class="ui button red labeled icon">
                             <i class="question circle outline icon"></i>
                             ¿Problemas para ingresar?

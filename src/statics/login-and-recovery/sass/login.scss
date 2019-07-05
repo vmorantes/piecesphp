@@ -20,7 +20,7 @@ html {
 
     .form-container {
         position: relative;
-        padding-top: 10rem;
+        padding-top: 4rem;
         padding-bottom: 2rem;
         padding-left: 4rem;
         padding-right: 4rem;
@@ -28,6 +28,7 @@ html {
         min-height: 100vh;
         max-height: 100vh;
         background-color: $bg-color-form-container;
+        box-shadow: 2px 0px 12px rgba(0, 0, 0, 0.4);
 
         .header {
             font-weight: 500;
@@ -52,9 +53,14 @@ html {
         .footer {
             position: absolute;
             bottom: 50px;
-            left: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding-top: 5rem;
+            padding-left: 4rem;
+            padding-right: 4rem;
             width: 100%;
             word-break: break-all;
+            text-align: center;
 
             .developer {
                 color: black;
@@ -72,11 +78,74 @@ html {
                     background-color: transparentize($primary-color, 0.2)
                 }
             }
+
+            .problems-button {
+                margin-top: 4rem;
+                text-align: center;
+            }
         }
+
+        .problems-message-container {
+            display: none;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+
+            .content {
+                max-width: 360px;
+                margin: 0 auto;
+                padding: 3rem 2rem;
+                text-align: center;
+                color: white;
+                font-size: 1.1rem;
+
+                .title {
+                    padding: 1.5rem 0rem;
+                    font-size: 1.2rem;
+                    text-transform: uppercase;
+
+                    .text {}
+
+                    .mark {
+                        display: block;
+                        color: red;
+                    }
+                }
+
+                .message {
+                    line-height: 1.8rem;
+                }
+
+                .ui.button.problem {
+                    font-size: 0.8rem;
+                }
+            }
+        }
+
     }
 
     img {
         max-width: 100%;
+    }
+}
+
+@media screen and (max-width:900px) {
+    .container {
+        .form-container {
+
+            .footer {
+                position: relative;
+                bottom: initial;
+                left: initial;
+                text-align: center;
+                transform: initial;
+            }
+
+        }
     }
 }
 
@@ -87,11 +156,6 @@ html {
             padding-right: 2rem;
             background-color: rgba(255, 255, 255, 0.8);
             width: 100%;
-            padding-top: 4rem;
-
-            .footer {
-                margin-right: -2rem;
-            }
 
             .ui.form {
                 .field {

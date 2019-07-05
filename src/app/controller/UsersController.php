@@ -71,6 +71,7 @@ class UsersController extends \PiecesPHP\Core\BaseController
 
     //Constantes de errores
     const NO_ERROR = 'NO_ERROR';
+    const GENERIC_ERROR = 'GENERIC_ERROR';
     const DUPLICATE_USER = 'DUPLICATE_USER';
     const DUPLICATE_EMAIL = 'DUPLICATE_EMAIL';
     const INCORRECT_PASSWORD = 'INCORRECT_PASSWORD';
@@ -265,6 +266,7 @@ class UsersController extends \PiecesPHP\Core\BaseController
             'isAuth' => false,
             'token' => '',
             'error' => self::NO_ERROR,
+            'user' => '',
             'message' => '',
             'extras' => [],
         ]);
@@ -291,6 +293,7 @@ class UsersController extends \PiecesPHP\Core\BaseController
                         '=' => $username,
                     ],
                 ])->row();
+				$resultOperation->setValue('user', $username);
 
                 //Verificación de existencia
                 if ($user instanceof \stdClass) {
@@ -383,7 +386,7 @@ class UsersController extends \PiecesPHP\Core\BaseController
 
             } catch (ParsedValueException $e) {
 
-                $resultOperation->setValue('error', 'ERROR');
+                $resultOperation->setValue('error', self::GENERIC_ERROR);
                 $resultOperation->setValue('message', 'Ha ocurrido un error desconocido con los valores ingresados.');
                 $resultOperation->setValue('extras', [
                     'exception' => $e->getMessage(),
@@ -391,7 +394,7 @@ class UsersController extends \PiecesPHP\Core\BaseController
 
             } catch (InvalidParameterValueException $e) {
 
-                $resultOperation->setValue('error', 'ERROR');
+                $resultOperation->setValue('error', self::GENERIC_ERROR);
                 $resultOperation->setValue('message', $e->getMessage());
 
             }

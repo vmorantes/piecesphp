@@ -51,7 +51,7 @@ $config['osTicketAPIKey'] = 'E41DCA99FDBE099ECC0EC48E34F41136';
 //======Información complementaria para mostrar en la aplicación========
 
 //Desarrollador
-$config['developer'] = 'Vicsen Morantes - sir.vamb@gmail.com';
+$config['developer'] = 'Lorem ipsum';
 //Favicon
 $config['favicon'] = append_to_url($config['base_url'], 'statics/images/favicon.ico');
 //Logo general
