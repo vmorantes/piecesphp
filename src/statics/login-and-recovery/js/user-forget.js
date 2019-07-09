@@ -2,30 +2,34 @@
 
 $(document).ready(function (e) {
 
+	let delayHide = 500
+	let delayShow = 500
+
 	let queryURL = window.location.search
 	let paramsURL = new URLSearchParams(queryURL)
 
-	let recoveryContainer = $('[recovery]')
-	let codeContainer = $('[code]')
-	let hasCode = $('[has-code]')
-	let repeat = $('[repeat]')
-	let messageBox = $('[message] .ui.message.username')
-	let messageBoxContent = messageBox.find('.content')
+	let container = $('.form-container')
+
+	let recoveryContainer = container.find('[recovery]')
+	let codeContainer = container.find('[code]')
+	let errorContainer = container.find('[error]')
+	let finishContainer = container.find('[finish]')
+	let hasCode = container.find('[has-code]')
+	let repeat = container.find('[repeat]')
+	let messageBox = container.find('[message]')
+
+	let headerMain = $('.container .header.one')
+	let headerCode = $('.container .header.two')
+	let headerWrongMail = $('.container .header.three')
+	let headerWrongCode = $('.container .header.four')
+	let headerFinish = $('.container .header.five')
 
 	let recoveryForm = recoveryContainer.find('form')
 	let codeForm = codeContainer.find('form')
 
-	messageBox.parent().hide()
 	codeContainer.hide()
-
-	if (paramsURL.has('code')) {
-		let code = paramsURL.get('code').trim()
-		if (code.length > 0) {
-			recoveryContainer.hide(400)
-			codeContainer.show(500)
-			codeForm.find("[name='code']").val(code)
-		}
-	}
+	errorContainer.hide()
+	finishContainer.hide()
 
 	recoveryForm.on('submit', function (e) {
 
@@ -33,7 +37,7 @@ $(document).ready(function (e) {
 
 		let formData = new FormData(recoveryForm[0])
 
-		formData.set('type','TYPE_USER_FORGET')
+		formData.set('type', 'TYPE_USER_FORGET')
 
 		let recovery = postRequest('users/user-forget-code', formData)
 
@@ -43,19 +47,31 @@ $(document).ready(function (e) {
 
 			if (res.send_mail === true) {
 
-				recoveryContainer.hide(400)
-				codeContainer.show(500)
+				recoveryContainer.hide(delayHide)
+				codeContainer.show(delayShow)
+				headerMain.hide(delayHide)
+				headerCode.show(delayShow)
 
-				successMessage(_i18n('titles', 'success'), res.message, () => {
+				messageBox.html(`Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>ayuda@tejidodigital.com</strong>.`)
 
-					recoveryForm[0].reset()
-
-				})
+				recoveryForm[0].reset()
 
 			} else {
 
-				errorMessage(_i18n('titles', 'error'), res.message)
+				if (res.error == 'USER_NO_EXISTS') {
 
+					headerMain.hide(delayHide)
+					headerWrongMail.show(delayShow)
+					recoveryContainer.hide(delayHide)
+					errorContainer.show(delayShow)
+
+					messageBox.html(`El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.`)
+					recoveryForm[0].reset()
+
+				} else {
+					messageBox.html(res.message)
+				}
+				
 			}
 
 		})
@@ -63,7 +79,7 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 
 		})
 
@@ -76,14 +92,13 @@ $(document).ready(function (e) {
 		return false
 	})
 
-
 	codeForm.on('submit', function (e) {
 
 		e.preventDefault()
 
 		let formData = new FormData(codeForm[0])
 
-		formData.set('type','TYPE_USER_FORGET')
+		formData.set('type', 'TYPE_USER_FORGET')
 
 		let recovery = postRequest('users/get-username', formData)
 
@@ -93,21 +108,31 @@ $(document).ready(function (e) {
 
 			if (res.success === true) {
 
-				codeContainer.hide(400)
-				recoveryContainer.show(500)
-				messageBox.parent().show(500)				
+				finishContainer.show(delayShow)
+				codeContainer.hide(delayHide)
+				headerCode.hide(delayHide)
+				headerFinish.show(delayShow)
 
-				messageBoxContent.html(`<h3>${res.message}</h3>`)
+				messageBox.html(`<h1>${res.message}</h1>`)
 
 				codeForm[0].reset()
-				
-				/* successMessage(_i18n('titles', 'success'), '', () => {
-					codeForm[0].reset()
-				}) */
 
 			} else {
 
-				errorMessage(_i18n('titles', 'error'), res.message)
+				if (res.error == 'EXPIRED_OR_NOT_EXIST_CODE') {
+
+					headerCode.hide(delayHide)
+					headerWrongCode.show(delayShow)
+					codeContainer.hide(delayHide)
+					errorContainer.show(delayShow)
+
+					messageBox.html(`El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.`)
+
+					recoveryForm[0].reset()
+
+				}else{
+					messageBox.html(res.message)
+				}
 
 			}
 
@@ -116,7 +141,7 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 
 		})
 
@@ -131,16 +156,33 @@ $(document).ready(function (e) {
 
 	hasCode.on('click', function (e) {
 		e.preventDefault()
-		recoveryContainer.hide(400)
-		codeContainer.show(500)
+		recoveryContainer.hide(delayHide)
+		codeContainer.show(delayShow)
+		headerMain.hide(delayHide)
+		headerCode.show(delayShow)
 		return false
 	})
 
 	repeat.on('click', function (e) {
 		e.preventDefault()
-		codeContainer.hide(400)
-		recoveryContainer.show(500)
+		recoveryContainer.show(delayShow)
+		codeContainer.hide(delayHide)
+		headerMain.show(delayShow)
+		headerCode.hide(delayHide)		
+		headerWrongMail.hide(delayHide)
+		headerWrongCode.hide(delayHide)
+		errorContainer.hide(delayHide)
+		finish.hide(delayHide)
+		messageBox.html('')
 		return false
-	})
+	})	
+
+	if (paramsURL.has('code')) {
+		let code = paramsURL.get('code').trim()
+		if (code.length > 0) {
+			codeForm.find("[name='code']").val(code)
+			hasCode.click()
+		}
+	}
 
 })
