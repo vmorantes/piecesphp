@@ -511,6 +511,12 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'POST'
             ),
             new Route(
+                "{$startRoute}verify-create-password-code[/]",
+                $recovery . ':verifyCode',
+                'new-password-verify-code',
+                'POST'
+            ),
+            new Route(
                 "{$startRoute}user-forget-code[/]",
                 $users_problems . ':generateCode',
                 'user-forget-request-code',
