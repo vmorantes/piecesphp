@@ -2,96 +2,96 @@
 <!DOCTYPE html>
 <html lang="<?=get_config('app_lang');?>">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <base href="<?=baseurl();?>">
-        <title><?=get_title();?></title>
-		<link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
-        <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
-	</head>
-	
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <base href="<?=baseurl();?>">
+    <title><?=get_title();?></title>
+    <link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
+    <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
+</head>
 
-		<section class="container">
+<body>
 
-			<div class="topbar">
-				<div class="brand">
-					<div class="icon">
-						<img src="<?=baseurl('statics/login-and-recovery/icons/burbuja-pregunta.svg');?>">
-					</div>
-					<div class="text">
-						<div class="title">¿Problemas para ingresar?</div>
-						<div class="subtitle">Seleccione el problema con el que necesita ayuda:</div>
-					</div>
-				</div>
-				<div class="back">
-					<a href="<?=get_route('login-form')?>">
-						<img src="<?=baseurl('statics/login-and-recovery/icons/flecha.svg');?>">
-					</a>
-				</div>
-			</div>
+    <section class="container">
 
-			<div class="list">
+        <div class="topbar">
+            <div class="text">
+                Solución a <br> problemas de <br> ingreso
+            </div>
+            <div class="back">
+                <a href="<?=get_route('login-form')?>">
+                    Volver al login
+                </a>
+            </div>
+        </div>
 
-				<div class="item">
-					<a href="<?=get_route('user-forget-form')?>"></a>
+        <div class="header">
+            <div class="content">
+                <div class="image">
+                    <img src="<?= base_url('statics/login-and-recovery/images/problems/notebook.png'); ?>">
+                </div>
+                <div class="text">Paso 1</div>
+            </div>
+        </div>
 
-					<div class="icon">
-						<img src="<?=baseurl('statics/login-and-recovery/images/problems/problemas-usuario.svg');?>">
-					</div>
-					<div class="text">
-						<div class="title">No recuerdo mi usuario</div>
-						<div class="description">Si no estás seguro o no recuerdas cuál fue el usuario asignado.</div>
-					</div>
+        <div class="options">
 
-				</div>
+            <div class="option">
+                <div class="content">
+                    <a href="<?= get_route("user-forget-form"); ?>" class="link"></a>
+                    <div class="title">No recuerdo mi usuario</div>
+                    <div class="subtitle">No recuerda cuál fue el usuario asignado</div>
+                </div>
+            </div>
 
-				<div class="item">
-					<a href="<?=get_route('recovery-form')?>"></a>
+            <div class="option">
+                <div class="content">
+                    <a href="<?= get_route("recovery-form"); ?>" class="link"></a>
+                    <div class="title">No recuerdo mi contraseña</div>
+                    <div class="subtitle">No recuerda la contraseña asignada</div>
+                </div>
+            </div>
 
-					<div class="icon">
-						<img src="<?=baseurl('statics/login-and-recovery/images/problems/problemas-contrasena.svg');?>">
-					</div>
-					<div class="text">
-						<div class="title">Problemas con la contraseña</div>
-						<div class="description">No recuerdas la contraseña o crees que alguien la cambio.</div>
-					</div>
+            <div class="option">
+                <div class="content">
+                    <a href="<?= get_route("user-blocked-form"); ?>" class="link"></a>
+                    <div class="title">Mi usuario está bloqueado</div>
+                    <div class="subtitle">Intenta ingresar y aparece el mensaje informando el bloqueo</div>
+                </div>
+            </div>
 
-				</div>
+            <div class="option">
+                <div class="content">
+                    <a href="<?= get_route("user-not-exists-form"); ?>" class="link"></a>
+                    <div class="title">No recuerdo mi usuario ni mi contraseña</div>
+                    <div class="subtitle">No recuerda cuáles fueron sus usuario y contraseña asignados</div>
+                </div>
+            </div>
 
-				<div class="item">
-					<a href="<?=get_route('user-blocked-form')?>"></a>
+            <div class="option">
+                <div class="content">
+                    <a href="<?= get_route("user-not-exists-form"); ?>" class="link"></a>
+                    <div class="title">No tengo una cuenta</div>
+                    <div class="subtitle">No se encuentra inscrito o tiene problemas al crear el usuario</div>
+                </div>
+            </div>
 
-					<div class="icon">
-						<img src="<?=baseurl('statics/login-and-recovery/images/problems/usuario-bloqueado.svg');?>">
-					</div>
-					<div class="text">
-						<div class="title">Usuario bloqueado</div>
-						<div class="description">Al intentar iniciar sesión el sistema me informa que el usuario está bloqueado.</div>
-					</div>
+            <div class="option">
+                <div class="content">
+                    <a href="<?= get_route("user-not-exists-form"); ?>" class="link"></a>
+                    <div class="title">No funciona el login</div>
+                    <div class="subtitle">Intenta ingresar, pero luego de digitar la información no pasa nada</div>
+                </div>
+            </div>
 
-				</div>
+        </div>
 
-				<div class="item">
-					<a href="<?=get_route('user-not-exists-form')?>"></a>
+    </section>
 
-					<div class="icon">
-						<img src="<?=baseurl('statics/login-and-recovery/images/problems/usuario-no-existe.svg');?>">
-					</div>
-					<div class="text">
-						<div class="title">Otro inconveniente</div>
-						<div class="description">Si tienes otro tipo de problema con tu cuenta.</div>
-					</div>
+    <?php load_js(['base_url' => "", 'custom_url' => ""]) ?>
 
-				</div>
+</body>
 
-			</div>
-
-		</section>
-
-		<?php load_js(['base_url' => "", 'custom_url' => ""]) ?>
-		
-    </body>
 </html>
