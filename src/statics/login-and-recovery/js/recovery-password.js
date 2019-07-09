@@ -2,29 +2,38 @@
 
 $(document).ready(function (e) {
 
-	let lastEmail = ''
-	let recentSended = false
+	let delayHide = 500
+	let delayShow = 500
+
 	let queryURL = window.location.search
 	let paramsURL = new URLSearchParams(queryURL)
 
-	let recoveryContainer = $('[recovery]')
-	let codeContainer = $('[code]')
-	let hasCode = $('[has-code]')
-	let repeat = $('[repeat]')
+	let container = $('.form-container')
+
+	let recoveryContainer = container.find('[recovery]')
+	let codeContainer = container.find('[code]')
+	let changePasswordContainer = container.find('[change-password]')
+	let errorContainer = container.find('[error]')
+	let finishContainer = container.find('[finish]')
+	let hasCode = container.find('[has-code]')
+	let repeat = container.find('[repeat]')
+	let messageBox = container.find('[message]')
+
+	let headerMain = $('.container .header.one')
+	let headerCode = $('.container .header.two')
+	let headerChangePassword = $('.container .header.two-two')
+	let headerWrongMail = $('.container .header.three')
+	let headerWrongCode = $('.container .header.four')
+	let headerFinish = $('.container .header.five')
 
 	let recoveryForm = recoveryContainer.find('form')
 	let codeForm = codeContainer.find('form')
+	let changePasswordForm = changePasswordContainer.find('form')
 
 	codeContainer.hide()
-
-	if (paramsURL.has('code')) {
-		let code = paramsURL.get('code').trim()
-		if (code.length > 0) {
-			recoveryContainer.hide(400)
-			codeContainer.show(500)
-			codeForm.find("[name='code']").val(code)
-		}
-	}
+	changePasswordContainer.hide()
+	errorContainer.hide()
+	finishContainer.hide()
 
 	recoveryForm.on('submit', function (e) {
 
@@ -38,19 +47,34 @@ $(document).ready(function (e) {
 
 			if (res.send_mail === true) {
 
-				recoveryContainer.hide(400)
-				codeContainer.show(500)
+				recoveryContainer.hide(delayHide)
+				codeContainer.show(delayShow)
 
-				successMessage(_i18n('titles', 'success'), res.message, () => {
+				headerMain.hide(delayHide)
+				headerCode.show(delayShow)
 
-					recoveryForm[0].reset()
+				messageBox.html(`Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>ayuda@tejidodigital.com</strong>.`)
 
-				})
+				recoveryForm[0].reset()
 
 			} else {
 
-				errorMessage(_i18n('titles', 'error'), res.message)
+				if (res.error == 'USER_NO_EXISTS') {
 
+					headerMain.hide(delayHide)
+					headerWrongMail.show(delayShow)
+
+					recoveryContainer.hide(delayHide)
+					errorContainer.show(delayShow)
+
+					messageBox.html(`El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.`)
+
+					recoveryForm[0].reset()
+
+				} else {
+					messageBox.html(res.message)
+				}
+				
 			}
 
 		})
@@ -58,7 +82,7 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 
 		})
 
@@ -71,38 +95,44 @@ $(document).ready(function (e) {
 		return false
 	})
 
-
 	codeForm.on('submit', function (e) {
 
 		e.preventDefault()
 
-		let recovery = postRequest('users/create-password-code', new FormData(codeForm[0]))
+		let recovery = postRequest('users/verify-create-password-code', new FormData(codeForm[0]))
 
 		codeForm.find('.field').addClass('disabled')
 
-		recovery.done(function (res) {
+		recovery.done(function (res) {		
 
 			if (res.success === true) {
 
-				codeContainer.hide(400)
-				recoveryContainer.show(500)
+				headerCode.hide(delayHide)
+				codeContainer.hide(delayHide)
 
-				successMessage(_i18n('titles', 'success'), res.message, () => {
+				headerChangePassword.show(delayShow)
+				changePasswordContainer.show(delayShow)
 
-					codeForm[0].reset()
-
-					codeForm.find("[type='password']").parent().removeClass('error')
-
-				})
+				messageBox.html(``)
+				changePasswordForm.find("[name='code']").val(codeForm.find("[name='code']").val())
+				codeForm[0].reset()
 
 			} else {
 
-				errorMessage(_i18n('titles', 'error'), res.message)
+				if (res.error == 'EXPIRED_OR_NOT_EXIST_CODE') {
 
-				if (res.error == 'NOT_MATCH_PASSWORDS') {
-					codeForm.find("[type='password']").parent().addClass('error')
-				} else {
-					codeForm.find("[type='password']").parent().removeClass('error')
+					headerCode.hide(delayHide)
+					codeContainer.hide(delayHide)
+
+					headerWrongCode.show(delayShow)
+					errorContainer.show(delayShow)
+
+					messageBox.html(`El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.`)
+
+					recoveryForm[0].reset()
+
+				}else{
+					messageBox.html(res.message)
 				}
 
 			}
@@ -112,7 +142,7 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 
 		})
 
@@ -125,18 +155,100 @@ $(document).ready(function (e) {
 		return false
 	})
 
+	changePasswordForm.on('submit', function (e) {
+
+		e.preventDefault()
+
+		let recovery = postRequest('users/create-password-code', new FormData(changePasswordForm[0]))
+
+		codeForm.find('.field').addClass('disabled')
+
+		recovery.done(function (res) {		
+
+			if (res.success === true) {
+				
+				headerChangePassword.hide(delayHide)
+				changePasswordContainer.hide(delayHide)
+
+				headerFinish.show(delayShow)
+				finishContainer.show(delayShow)
+
+				messageBox.html(`<h1>Ingrese con su usuario y la nueva contraseña</h1>`)
+
+				changePasswordForm[0].reset()
+
+			} else {
+
+				if (res.error == 'NOT_MATCH_PASSWORDS') {
+
+					messageBox.html(`Las contraseñas no coinciden`)
+					codeForm.find("[type='password']").parent().addClass('error')
+
+				} else {
+
+					codeForm.find("[type='password']").parent().removeClass('error')
+					messageBox.html(res.message)
+
+				}
+
+			}
+
+		})
+
+		recovery.fail(function (jqXHR) {
+
+			console.error(jqXHR)
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
+
+		})
+
+		recovery.always(function () {
+
+			changePasswordForm.find('.field').removeClass('disabled')
+
+		})
+
+		return false
+	})
+
 	hasCode.on('click', function (e) {
 		e.preventDefault()
-		recoveryContainer.hide(400)
-		codeContainer.show(500)
+
+		headerMain.hide(delayHide)
+		recoveryContainer.hide(delayHide)
+
+		headerCode.show(delayShow)
+		codeContainer.show(delayShow)
+
 		return false
 	})
 
 	repeat.on('click', function (e) {
 		e.preventDefault()
-		codeContainer.hide(400)
-		recoveryContainer.show(500)
-		return false
-	})
+		recoveryContainer.show(delayShow)
+		headerMain.show(delayShow)
+		
+		headerCode.hide(delayHide)		
+		codeContainer.hide(delayHide)
 
+		headerChangePassword.hide(delayHide)
+		changePasswordContainer.hide(delayHide)
+
+		headerWrongMail.hide(delayHide)
+		headerWrongCode.hide(delayHide)
+
+		errorContainer.hide(delayHide)
+		finish.hide(delayHide)
+		
+		messageBox.html('')
+		return false
+	})	
+
+	if (paramsURL.has('code')) {
+		let code = paramsURL.get('code').trim()
+		if (code.length > 0) {			
+			codeForm.find("[name='code']").val(code)
+			hasCode.click()
+		}
+	}
 })
