@@ -2,27 +2,34 @@
 
 $(document).ready(function (e) {
 
+	let delayHide = 500
+	let delayShow = 500
+
 	let queryURL = window.location.search
 	let paramsURL = new URLSearchParams(queryURL)
 
-	let recoveryContainer = $('[recovery]')
-	let codeContainer = $('[code]')
-	let hasCode = $('[has-code]')
-	let repeat = $('[repeat]')
+	let container = $('.form-container')
+
+	let recoveryContainer = container.find('[recovery]')
+	let codeContainer = container.find('[code]')
+	let errorContainer = container.find('[error]')
+	let finishContainer = container.find('[finish]')
+	let hasCode = container.find('[has-code]')
+	let repeat = container.find('[repeat]')
+	let messageBox = container.find('[message]')
+
+	let headerMain = $('.container .header.one')
+	let headerCode = $('.container .header.two')
+	let headerWrongMail = $('.container .header.three')
+	let headerWrongCode = $('.container .header.four')
+	let headerFinish = $('.container .header.five')
 
 	let recoveryForm = recoveryContainer.find('form')
 	let codeForm = codeContainer.find('form')
 
 	codeContainer.hide()
-
-	if (paramsURL.has('code')) {
-		let code = paramsURL.get('code').trim()
-		if (code.length > 0) {
-			recoveryContainer.hide(400)
-			codeContainer.show(500)
-			codeForm.find("[name='code']").val(code)
-		}
-	}
+	errorContainer.hide()
+	finishContainer.hide()
 
 	recoveryForm.on('submit', function (e) {
 
@@ -30,7 +37,7 @@ $(document).ready(function (e) {
 
 		let formData = new FormData(recoveryForm[0])
 
-		formData.set('type','TYPE_USER_BLOCKED')
+		formData.set('type', 'TYPE_USER_BLOCKED')
 
 		let recovery = postRequest('users/user-blocked-code', formData)
 
@@ -40,18 +47,32 @@ $(document).ready(function (e) {
 
 			if (res.send_mail === true) {
 
-				recoveryContainer.hide(400)
-				codeContainer.show(500)
+				headerMain.hide(delayHide)
+				recoveryContainer.hide(delayHide)
 
-				successMessage(_i18n('titles', 'success'), res.message, () => {
+				headerCode.show(delayShow)
+				codeContainer.show(delayShow)
 
-					recoveryForm[0].reset()
+				messageBox.html(`Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>ayuda@tejidodigital.com</strong>.`)
 
-				})
+				recoveryForm[0].reset()
 
 			} else {
 
-				errorMessage(_i18n('titles', 'error'), res.message)
+				if (res.error == 'USER_NO_EXISTS') {
+
+					headerMain.hide(delayHide)
+					recoveryContainer.hide(delayHide)
+
+					headerWrongMail.show(delayShow)
+					errorContainer.show(delayShow)
+
+					messageBox.html(`El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.`)
+					recoveryForm[0].reset()
+
+				} else {
+					messageBox.html(res.message)
+				}
 
 			}
 
@@ -60,7 +81,7 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 
 		})
 
@@ -80,7 +101,7 @@ $(document).ready(function (e) {
 
 		let formData = new FormData(codeForm[0])
 
-		formData.set('type','TYPE_USER_BLOCKED')
+		formData.set('type', 'TYPE_USER_BLOCKED')
 
 		let recovery = postRequest('users/unblock-user', formData)
 
@@ -90,16 +111,33 @@ $(document).ready(function (e) {
 
 			if (res.success === true) {
 
-				codeContainer.hide(400)
-				recoveryContainer.show(500)		
-				
-				successMessage(_i18n('titles', 'success'), res.message, () => {
-					codeForm[0].reset()
-				})
+				headerCode.hide(delayHide)
+				codeContainer.hide(delayHide)
+
+				headerFinish.show(delayShow)
+				finishContainer.show(delayShow)
+
+				messageBox.html(`<h1>${res.message}</h1>`)
+
+				codeForm[0].reset()
 
 			} else {
 
-				errorMessage(_i18n('titles', 'error'), res.message)
+				if (res.error == 'EXPIRED_OR_NOT_EXIST_CODE') {
+
+					headerCode.hide(delayHide)
+					codeContainer.hide(delayHide)
+
+					headerWrongCode.show(delayShow)
+					errorContainer.show(delayShow)
+
+					messageBox.html(`El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.`)
+
+					recoveryForm[0].reset()
+
+				} else {
+					messageBox.html(res.message)
+				}
 
 			}
 
@@ -108,7 +146,7 @@ $(document).ready(function (e) {
 		recovery.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 
 		})
 
@@ -123,16 +161,33 @@ $(document).ready(function (e) {
 
 	hasCode.on('click', function (e) {
 		e.preventDefault()
-		recoveryContainer.hide(400)
-		codeContainer.show(500)
+		headerMain.hide(delayHide)
+		recoveryContainer.hide(delayHide)
+		headerCode.show(delayShow)
+		codeContainer.show(delayShow)
 		return false
 	})
 
 	repeat.on('click', function (e) {
 		e.preventDefault()
-		codeContainer.hide(400)
-		recoveryContainer.show(500)
+		headerMain.show(delayShow)
+		recoveryContainer.show(delayShow)
+		headerCode.hide(delayHide)
+		codeContainer.hide(delayHide)
+		headerWrongMail.hide(delayHide)
+		headerWrongCode.hide(delayHide)
+		errorContainer.hide(delayHide)
+		finish.hide(delayHide)
+		messageBox.html('')
 		return false
 	})
+
+	if (paramsURL.has('code')) {
+		let code = paramsURL.get('code').trim()
+		if (code.length > 0) {
+			codeForm.find("[name='code']").val(code)
+			hasCode.click()
+		}
+	}
 
 })
