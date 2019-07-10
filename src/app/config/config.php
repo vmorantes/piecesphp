@@ -46,7 +46,7 @@ $config['statics_path'] = __DIR__ . '/../../statics';
 
 //Configuración tickets de osTicket
 $config['osTicketAPI'] = 'http://ayuda.tejidodigital.com';
-$config['osTicketAPIKey'] = 'E41DCA99FDBE099ECC0EC48E34F41136';
+$config['osTicketAPIKey'] = '93F0F2E3DCD3B79A686A3157620CFF24';
 
 //======Información complementaria para mostrar en la aplicación========
 
