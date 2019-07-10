@@ -145,7 +145,7 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * userNotExistsForm
+     * otherProblemsForm
      *
      * No espera parámetros.
      *
@@ -154,7 +154,7 @@ class UserProblemsController extends UsersController
      * @param array $args Argumentos pasados por GET
      * @return void
      */
-    public function userNotExistsForm(Request $request, Response $response, array $args)
+    public function otherProblemsForm(Request $request, Response $response, array $args)
     {
         /* JQuery */
         import_jquery();
@@ -172,10 +172,10 @@ class UserProblemsController extends UsersController
         ], 'css');
 
         set_custom_assets([
-            baseurl('statics/login-and-recovery/js/user-not-exists.js'),
+            baseurl('statics/login-and-recovery/js/other-problems.js'),
         ], 'js');
 
-        $this->render('usuarios/problems/user_not_exists');
+        $this->render('usuarios/problems/other-problems');
 
         return $response;
     }
@@ -405,7 +405,7 @@ class UserProblemsController extends UsersController
      * @param array $args Argumentos pasados por GET
      * @return void
      */
-    public function sendMailUserNotExists(Request $request, Response $response, array $args)
+    public function sendMailOtherProblems(Request $request, Response $response, array $args)
     {
 
         //Parámetros
@@ -442,7 +442,7 @@ class UserProblemsController extends UsersController
              * @var bool $result['success']
              * @var OsTicketAPI $result['instance']
              */
-            $result = $this->sendMessageUserNotExists($email, $name, $message, $extra);
+            $result = $this->sendMessageOtherProblems($email, $name, $message, $extra);
 
             /**
              * @var bool $success
@@ -527,7 +527,7 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * sendMessageUserNotExists
+     * sendMessageOtherProblems
      *
      * Envía un mensaje
      *
@@ -537,11 +537,11 @@ class UserProblemsController extends UsersController
      * @param array $extra
      * @return array
      */
-    private function sendMessageUserNotExists(string $email, string $name, string $message, array $extra = null)
+    private function sendMessageOtherProblems(string $email, string $name, string $message, array $extra = null)
     {
         $subject = 'Ticket genérico - ' . get_title();
 
-        $message = $this->render('usuarios/mail/user_not_exists', [
+        $message = $this->render('usuarios/mail/other-problems', [
             'subject' => $subject,
             'mail' => $email,
             'name' => $name,
