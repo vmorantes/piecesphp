@@ -148,8 +148,7 @@
                                 soporte</a>
                         </div>
                         <div class="field">
-                            <a href="<?= get_route('user-not-exists-form'); ?>" class="ui button green" repeat>Nuevo
-                                correo</a>
+                            <a href="#" class="ui button green" repeat>Nuevo correo</a>
                         </div>
                     </div>
                 </form>
