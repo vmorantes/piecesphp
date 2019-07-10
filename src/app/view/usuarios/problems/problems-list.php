@@ -64,7 +64,7 @@
 
             <div class="option">
                 <div class="content">
-                    <a href="<?= get_route("user-not-exists-form"); ?>" class="link"></a>
+                    <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
                     <div class="title">No recuerdo mi usuario ni mi contraseña</div>
                     <div class="subtitle">No recuerda cuáles fueron sus usuario y contraseña asignados</div>
                 </div>
@@ -72,7 +72,7 @@
 
             <div class="option">
                 <div class="content">
-                    <a href="<?= get_route("user-not-exists-form"); ?>" class="link"></a>
+                    <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
                     <div class="title">No tengo una cuenta</div>
                     <div class="subtitle">No se encuentra inscrito o tiene problemas al crear el usuario</div>
                 </div>
@@ -80,7 +80,7 @@
 
             <div class="option">
                 <div class="content">
-                    <a href="<?= get_route("user-not-exists-form"); ?>" class="link"></a>
+                    <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
                     <div class="title">No funciona el login</div>
                     <div class="subtitle">Intenta ingresar, pero luego de digitar la información no pasa nada</div>
                 </div>

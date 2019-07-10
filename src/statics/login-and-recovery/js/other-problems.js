@@ -23,7 +23,7 @@ $(document).ready(function (e) {
 
 		let formData = new FormData(form[0])
 
-		let request = postRequest('users/user-not-exists', formData)
+		let request = postRequest('users/other-problems', formData)
 
 		form.find('.field').addClass('disabled')
 

@@ -117,7 +117,7 @@
                 <form class="ui form">
                     <div class="two fields">
                         <div class="field">
-                            <a href="<?= get_route('user-not-exists-form'); ?>" class="ui button green">Solicitud de
+                            <a href="<?= get_route('other-problems-form'); ?>" class="ui button green">Solicitud de
                                 soporte</a>
                         </div>
                         <div class="field">

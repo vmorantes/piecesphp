@@ -449,9 +449,9 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'user-blocked-form'
             ),
             new Route(
-                "{$startRoute}user-not-exists[/]",
-                $users_problems . ':userNotExistsForm',
-                'user-not-exists-form'
+                "{$startRoute}other-problems[/]",
+                $users_problems . ':otherProblemsForm',
+                'other-problems-form'
             ),
             new Route(
                 "{$startRoute}problems[/]",
@@ -541,9 +541,9 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'POST'
             ),
             new Route(
-                "{$startRoute}user-not-exists[/]",
-                $users_problems . ':sendMailUserNotExists',
-                'user-not-exists-send',
+                "{$startRoute}other-problems[/]",
+                $users_problems . ':sendMailOtherProblems',
+                'other-problems-send',
                 'POST'
             ),
         ]);
