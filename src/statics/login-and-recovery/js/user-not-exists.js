@@ -2,8 +2,20 @@
 
 $(document).ready(function (e) {
 
-	let containerForm = $('[claim]')
+	let delayHide = 500
+	let delayShow = 500
+
+	let container = $('.form-container')
+
+	let containerForm = container.find('[claim]')
+	let finishContainer = container.find('[finish]')
+	let messageBox = container.find('[message]')
 	let form = containerForm.find('form')
+
+	let headerMain = $('.container .header.one')
+	let headerFinish = $('.container .header.two')
+
+	finishContainer.hide()
 
 	form.on('submit', function (e) {
 
@@ -19,15 +31,19 @@ $(document).ready(function (e) {
 
 			if (res.send_mail === true) {
 
-				successMessage(_i18n('titles', 'success'), res.message, () => {
+				headerMain.hide(delayHide)
+				containerForm.hide(delayHide)
 
-					form[0].reset()
+				headerFinish.show(delayShow)
+				finishContainer.show(delayShow)
 
-				})
+				messageBox.html(`Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>ayuda@tejidodigital.com</strong>.`)
+
+				form[0].reset()
 
 			} else {
 
-				errorMessage(_i18n('titles', 'error'), res.message)
+				messageBox.html(res.message)
 
 			}
 
@@ -36,7 +52,7 @@ $(document).ready(function (e) {
 		request.fail(function (jqXHR) {
 
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			messageBox.html(_i18n('errors', 'unexpected_error_try_later'))
 
 		})
 
