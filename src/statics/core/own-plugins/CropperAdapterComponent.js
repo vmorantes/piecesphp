@@ -128,10 +128,15 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 			}
 		}
 
-		let cropperCanvas = cropper.getCroppedCanvas({
-			width: outputWidth,
+		let optionsCroppedCanvas = {
 			fillColor: fillColor,
-		})
+		}
+
+		if (outerWidth !== -1) {
+			optionsCroppedCanvas.width = outputWidth
+		}
+
+		let cropperCanvas = cropper.getCroppedCanvas(optionsCroppedCanvas)
 
 		let formatsWithQuality = [
 			'image/jpeg',
