@@ -342,7 +342,6 @@ class RecoveryPasswordController extends UsersController
         if ($request->isXhr()) {
             return $response->withJson($json_response);
         } else {
-            set_flash_message('session_errors', ['Su contraseña ha sido restablecida, revise su correo electrónico.']);
             return $response->withRedirect(get_route('login-form'));
         }
     }
