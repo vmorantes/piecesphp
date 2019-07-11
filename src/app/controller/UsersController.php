@@ -98,7 +98,6 @@ class UsersController extends \PiecesPHP\Core\BaseController
         $flash = get_flash_messages();
 
         $this->setVariables([
-            'session_errors' => isset($flash['session_errors']) ? $flash['session_errors'] : [],
             'requested_uri' => isset($flash['requested_uri']) ? $flash['requested_uri'] : '',
         ]);
 
@@ -293,7 +292,7 @@ class UsersController extends \PiecesPHP\Core\BaseController
                         '=' => $username,
                     ],
                 ])->row();
-				$resultOperation->setValue('user', $username);
+                $resultOperation->setValue('user', $username);
 
                 //Verificación de existencia
                 if ($user instanceof \stdClass) {

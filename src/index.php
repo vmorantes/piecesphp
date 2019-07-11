@@ -78,7 +78,6 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
                         }
 
                     } else {
-                        set_flash_message('session_errors', [__('errors', 'not_login'), __('general', 'should_be_logged')]);
                         set_flash_message('requested_uri', get_current_url());
                         return $response->withRedirect(get_route('login-form'));
                     }

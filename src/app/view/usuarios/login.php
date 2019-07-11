@@ -49,12 +49,6 @@
 
             <div class="content">
 
-                <?php if(isset($session_errors) && count($session_errors)>0): ?>
-                <ul class="ui error message">
-                    <?= isset($session_errors) && count($session_errors)>0 ? '<li>'.implode('<li>',$session_errors).'</li>': '';?>
-                </ul>
-                <?php endif; ?>
-
                 <form login-form-js last-uri='<?= $requested_uri; ?>' class="ui form">
 
                     <div class="field">
