@@ -21,12 +21,7 @@ use PiecesPHP\Core\Roles;
  */
 function get_config(string $name)
 {
-	$config = $GLOBALS['config_pcs_php'];
-	if (isset($config[$name]) && $config[$name] !== null) {
-		return $config[$name];
-	} else {
-		return false;
-	}
+    return Config::get_config($name);
 }
 
 /**
@@ -38,7 +33,7 @@ function get_config(string $name)
  */
 function set_config(string $name, $value)
 {
-	$GLOBALS['config_pcs_php'][$name] = $value;
+    Config::set_config($name, $value);
 }
 
 /**
@@ -48,7 +43,7 @@ function set_config(string $name, $value)
  */
 function get_title()
 {
-	return get_config('title_app');
+    return get_config('title_app');
 }
 
 /**
@@ -59,7 +54,7 @@ function get_title()
  */
 function set_title(string $title)
 {
-	return set_config('title_app', $title);
+    return set_config('title_app', $title);
 }
 
 /**
@@ -70,19 +65,19 @@ function set_title(string $title)
  */
 function baseurl(string $resource = "")
 {
-	$app_url = Config::app_url();
+    $app_url = Config::app_url();
 
-	if (strlen($resource > 0) && $resource[0] == "/") {
-		$resource = remove_first_char($resource);
-	}
+    if (strlen($resource > 0) && $resource[0] == "/") {
+        $resource = remove_first_char($resource);
+    }
 
-	if (last_char($app_url) == "/") {
-		$app_url = remove_last_char($app_url);
-	}
+    if (last_char($app_url) == "/") {
+        $app_url = remove_last_char($app_url);
+    }
 
-	$url = $app_url . '/' . $resource;
+    $url = $app_url . '/' . $resource;
 
-	return $url;
+    return $url;
 }
 
 /**
@@ -93,7 +88,7 @@ function baseurl(string $resource = "")
  */
 function base_url(string $resource = "")
 {
-	return baseurl($resource);
+    return baseurl($resource);
 }
 
 /**
@@ -107,24 +102,24 @@ function base_url(string $resource = "")
 function get_lang_url($current_lang = 'es', $target_lang = 'en')
 {
 
-	$default_lang = get_config('default_lang');
+    $default_lang = get_config('default_lang');
 
-	if ($target_lang == $default_lang) {
-		$target_lang = '';
-	} else {
-		$target_lang .= '/';
-	}
+    if ($target_lang == $default_lang) {
+        $target_lang = '';
+    } else {
+        $target_lang .= '/';
+    }
 
-	$base_url = baseurl($current_lang . '/');
-	$current_url = get_current_url();
-	$current_segment = str_replace($base_url, '', $current_url);
-	$current_segment = str_replace(remove_last_char($base_url), '', $current_url);
-	$current_segment = str_replace(baseurl(), '', $current_segment);
-	$lang_url = baseurl($target_lang . $current_segment);
-	$path = parse_url($lang_url, PHP_URL_PATH);
-	$path_clean = str_replace('//', '/', $path);
-	$lang_url = str_replace($path, $path_clean, $lang_url);
-	return $lang_url;
+    $base_url = baseurl($current_lang . '/');
+    $current_url = get_current_url();
+    $current_segment = str_replace($base_url, '', $current_url);
+    $current_segment = str_replace(remove_last_char($base_url), '', $current_url);
+    $current_segment = str_replace(baseurl(), '', $current_segment);
+    $lang_url = baseurl($target_lang . $current_segment);
+    $path = parse_url($lang_url, PHP_URL_PATH);
+    $path_clean = str_replace('//', '/', $path);
+    $lang_url = str_replace($path, $path_clean, $lang_url);
+    return $lang_url;
 }
 
 /**
@@ -135,15 +130,15 @@ function get_lang_url($current_lang = 'es', $target_lang = 'en')
  */
 function basepath(string $resource = "")
 {
-	$path = Config::app_path() . "/" . $resource;
+    $path = Config::app_path() . "/" . $resource;
 
-	$path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
+    $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
-	if (file_exists($path)) {
-		return realpath($path);
-	} else {
-		return $path;
-	}
+    if (file_exists($path)) {
+        return realpath($path);
+    } else {
+        return $path;
+    }
 }
 
 /**
@@ -154,15 +149,15 @@ function basepath(string $resource = "")
  */
 function app_basepath($resource = "")
 {
-	$path = Config::app_path() . "/app/" . $resource;
+    $path = Config::app_path() . "/app/" . $resource;
 
-	$path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
+    $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
-	if (file_exists($path)) {
-		return realpath($path);
-	} else {
-		return $path;
-	}
+    if (file_exists($path)) {
+        return realpath($path);
+    } else {
+        return $path;
+    }
 }
 
 /**
@@ -172,7 +167,7 @@ function app_basepath($resource = "")
  */
 function appbase()
 {
-	return Config::app_base();
+    return Config::app_base();
 }
 
 /**
@@ -190,54 +185,54 @@ function appbase()
  */
 function __(string $type, string $message = '', bool $echo = false)
 {
-	$diccionario = [];
-	$default_file = app_basepath("lang/default.php");
-	if (file_exists($default_file)) {
-		$default_file = include $default_file;
-		foreach ($default_file as $group_name => $messages) {
-			if (!isset($diccionario[$group_name])) {
-				$diccionario[$group_name] = $messages;
-			} else {
-				$diccionario[$group_name] = array_merge($diccionario[$group_name], $messages);
-			}
-		}
-	}
-	$lang = Config::get_lang();
-	$existFile = file_exists(app_basepath("lang/" . $lang . ".php"));
-	$msg = $message;
+    $diccionario = [];
+    $default_file = app_basepath("lang/default.php");
+    if (file_exists($default_file)) {
+        $default_file = include $default_file;
+        foreach ($default_file as $group_name => $messages) {
+            if (!isset($diccionario[$group_name])) {
+                $diccionario[$group_name] = $messages;
+            } else {
+                $diccionario[$group_name] = array_merge($diccionario[$group_name], $messages);
+            }
+        }
+    }
+    $lang = Config::get_lang();
+    $existFile = file_exists(app_basepath("lang/" . $lang . ".php"));
+    $msg = $message;
 
-	if ($existFile) {
+    if ($existFile) {
 
-		$lang_file = include app_basepath("lang/" . $lang . ".php");
+        $lang_file = include app_basepath("lang/" . $lang . ".php");
 
-		foreach ($lang_file as $group_name => $messages) {
-			if (!isset($diccionario[$group_name])) {
-				$diccionario[$group_name] = $messages;
-			} else {
-				$diccionario[$group_name] = array_merge($diccionario[$group_name], $messages);
-			}
-		}
-	}
+        foreach ($lang_file as $group_name => $messages) {
+            if (!isset($diccionario[$group_name])) {
+                $diccionario[$group_name] = $messages;
+            } else {
+                $diccionario[$group_name] = array_merge($diccionario[$group_name], $messages);
+            }
+        }
+    }
 
-	if (array_key_exists($type, $diccionario)) {
+    if (array_key_exists($type, $diccionario)) {
 
-		if ($message === '') {
-			return $diccionario[$type];
-		}
+        if ($message === '') {
+            return $diccionario[$type];
+        }
 
-		if (array_key_exists($message, $diccionario[$type])) {
+        if (array_key_exists($message, $diccionario[$type])) {
 
-			$msg = $diccionario[$type][$message];
-		}
-	}
+            $msg = $diccionario[$type][$message];
+        }
+    }
 
-	if ($echo) {
+    if ($echo) {
 
-		echo $msg;
-	} else {
+        echo $msg;
+    } else {
 
-		return $msg;
-	}
+        return $msg;
+    }
 }
 
 /**
@@ -258,158 +253,158 @@ function __(string $type, string $message = '', bool $echo = false)
  */
 function lang(string $type, string $message = '', string $lang, bool $echo = false)
 {
-	$diccionario = [];
-	$existFile = file_exists(app_basepath("lang/" . $lang . ".php"));
-	$msg = null;
+    $diccionario = [];
+    $existFile = file_exists(app_basepath("lang/" . $lang . ".php"));
+    $msg = null;
 
-	if ($existFile) {
+    if ($existFile) {
 
-		$lang_file = include app_basepath("lang/" . $lang . ".php");
+        $lang_file = include app_basepath("lang/" . $lang . ".php");
 
-		$diccionario = array_merge($diccionario, $lang_file);
-	}
+        $diccionario = array_merge($diccionario, $lang_file);
+    }
 
-	if (array_key_exists($type, $diccionario)) {
+    if (array_key_exists($type, $diccionario)) {
 
-		if ($message === '') {
-			return $diccionario[$type];
-		}
+        if ($message === '') {
+            return $diccionario[$type];
+        }
 
-		if (array_key_exists($message, $diccionario[$type])) {
+        if (array_key_exists($message, $diccionario[$type])) {
 
-			$msg = $diccionario[$type][$message];
-		}
-	}
+            $msg = $diccionario[$type][$message];
+        }
+    }
 
-	if ($msg == null) {
-		$msg = __($type, $message);
-	}
+    if ($msg == null) {
+        $msg = __($type, $message);
+    }
 
-	if ($echo) {
+    if ($echo) {
 
-		echo $msg;
-	} else {
+        echo $msg;
+    } else {
 
-		return $msg;
-	}
+        return $msg;
+    }
 }
 
 /** @var @ignore array ['js'=>array(),'css'=>array()] Array asociativo con las rutas de los js y css globales*/
 set_config('global_assets', [
-	'js' => [],
-	'css' => [],
+    'js' => [],
+    'css' => [],
 ]);
 /** @var @ignore array ['js'=>array(),'css'=>array()] Array asociativo con las rutas de los js y css específicos de cada vista.*/
 set_config('custom_assets', [
-	'js' => [],
-	'css' => [],
+    'js' => [],
+    'css' => [],
 ]);
 
 /** @ignore */
 function load_js($config = array())
 {
-	$global_assets = get_config('global_assets');
-	$custom_assets = get_config('custom_assets');
+    $global_assets = get_config('global_assets');
+    $custom_assets = get_config('custom_assets');
 
-	ksort($global_assets['js']);
-	foreach ($global_assets['js'] as $script) {
-		$base_url = array_key_exists("base_url", $config) ? $config['base_url'] : "";
-		$ruta = $base_url . $script;
-		echo "<script src='$ruta'></script>" . "\r\n";
-	}
+    ksort($global_assets['js']);
+    foreach ($global_assets['js'] as $script) {
+        $base_url = array_key_exists("base_url", $config) ? $config['base_url'] : "";
+        $ruta = $base_url . $script;
+        echo "<script src='$ruta'></script>" . "\r\n";
+    }
 
-	ksort($custom_assets['js']);
-	foreach ($custom_assets['js'] as $script) {
+    ksort($custom_assets['js']);
+    foreach ($custom_assets['js'] as $script) {
 
-		$base_url = array_key_exists("custom_url", $config) ?
-			$config['custom_url'] : (array_key_exists("base_url", $config) ?
-				$config['base_url'] : "");
+        $base_url = array_key_exists("custom_url", $config) ?
+        $config['custom_url'] : (array_key_exists("base_url", $config) ?
+            $config['base_url'] : "");
 
-		$ruta = $base_url . $script;
-		echo "<script src='$ruta'></script>" . "\r\n";
-	}
+        $ruta = $base_url . $script;
+        echo "<script src='$ruta'></script>" . "\r\n";
+    }
 }
 
 /** @ignore */
 function load_css($config = array())
 {
-	$global_assets = get_config('global_assets');
-	$custom_assets = get_config('custom_assets');
+    $global_assets = get_config('global_assets');
+    $custom_assets = get_config('custom_assets');
 
-	ksort($global_assets['css']);
-	foreach ($global_assets['css'] as $stylesheet) {
+    ksort($global_assets['css']);
+    foreach ($global_assets['css'] as $stylesheet) {
 
-		$rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
-		$base_url = array_key_exists("base_url", $config) ? $config['base_url'] : '';
-		$path = $base_url . $stylesheet;
-		$tag = "<link rel='$rel' href='$path'>";
+        $rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
+        $base_url = array_key_exists("base_url", $config) ? $config['base_url'] : '';
+        $path = $base_url . $stylesheet;
+        $tag = "<link rel='$rel' href='$path'>";
 
-		echo $tag . "\r\n";
-	}
+        echo $tag . "\r\n";
+    }
 
-	ksort($custom_assets['css']);
-	foreach ($custom_assets['css'] as $stylesheet) {
+    ksort($custom_assets['css']);
+    foreach ($custom_assets['css'] as $stylesheet) {
 
-		$rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
-		if (array_key_exists("custom_url", $config)) {
-			$base_url = $config['custom_url'];
-		} else if (array_key_exists("base_url", $config)) {
-			$base_url = $config['base_url'];
-		} else {
-			$base_url = '';
-		}
-		$path = $base_url . $stylesheet;
-		$tag = "<link rel='$rel' href='$path'>";
+        $rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
+        if (array_key_exists("custom_url", $config)) {
+            $base_url = $config['custom_url'];
+        } else if (array_key_exists("base_url", $config)) {
+            $base_url = $config['base_url'];
+        } else {
+            $base_url = '';
+        }
+        $path = $base_url . $stylesheet;
+        $tag = "<link rel='$rel' href='$path'>";
 
-		echo $tag . "\r\n";
-	}
+        echo $tag . "\r\n";
+    }
 }
 
 /** @ignore */
 function add_global_asset($custom_assets, $type)
 {
-	$global_assets = get_config('global_assets');
-	if ($type == "js") {
-		$global_assets['js'][count($global_assets['js'])] = $custom_assets;
-		set_config('global_assets', $global_assets);
-	} else if ($type == "css") {
-		$global_assets['css'][count($global_assets['css'])] = $custom_assets;
-		set_config('global_assets', $global_assets);
-	}
+    $global_assets = get_config('global_assets');
+    if ($type == "js") {
+        $global_assets['js'][count($global_assets['js'])] = $custom_assets;
+        set_config('global_assets', $global_assets);
+    } else if ($type == "css") {
+        $global_assets['css'][count($global_assets['css'])] = $custom_assets;
+        set_config('global_assets', $global_assets);
+    }
 }
 
 /** @ignore */
 function add_global_assets($custom_assets, $type)
 {
-	foreach ($custom_assets as $asset) {
-		add_global_asset($asset, $type);
-	}
+    foreach ($custom_assets as $asset) {
+        add_global_asset($asset, $type);
+    }
 }
 
 /** @ignore */
 function set_custom_assets($custom_assets, $type)
 {
-	$_custom_assets = get_config('custom_assets');
-	if ($type == "js") {
-		$_custom_assets['js'] = $custom_assets;
-		set_config('custom_assets', $_custom_assets);
-	} else if ($type == "css") {
-		$_custom_assets['css'] = $custom_assets;
-		set_config('custom_assets', $_custom_assets);
-	}
+    $_custom_assets = get_config('custom_assets');
+    if ($type == "js") {
+        $_custom_assets['js'] = $custom_assets;
+        set_config('custom_assets', $_custom_assets);
+    } else if ($type == "css") {
+        $_custom_assets['css'] = $custom_assets;
+        set_config('custom_assets', $_custom_assets);
+    }
 }
 
 /** @ignore */
 function set_global_assets($assets, $type)
 {
-	$global_assets = get_config('global_assets');
-	if ($type == "js") {
-		$global_assets['js'] = $assets;
-		set_config('global_assets', $global_assets);
-	} else if ($type == "css") {
-		$global_assets['css'] = $assets;
-		set_config('global_assets', $global_assets);
-	}
+    $global_assets = get_config('global_assets');
+    if ($type == "js") {
+        $global_assets['js'] = $assets;
+        set_config('global_assets', $global_assets);
+    } else if ($type == "css") {
+        $global_assets['css'] = $assets;
+        set_config('global_assets', $global_assets);
+    }
 }
 /**
  * Registra como assets globales la librería y los plugins definidos por parámetro
@@ -421,92 +416,92 @@ function set_global_assets($assets, $type)
  */
 function import_front_library(string $name = '', array $plugins = ['calendar'], bool $all = false)
 {
-	$library_name = $name;
+    $library_name = $name;
 
-	$assets = get_config('default_assets');
-	$library_exists = isset($assets[$library_name]);
+    $assets = get_config('default_assets');
+    $library_exists = isset($assets[$library_name]);
 
-	if ($library_exists) {
-		$library = $assets[$library_name];
-		$library_plugins = isset($library['plugins']) ? $library['plugins'] : [];
+    if ($library_exists) {
+        $library = $assets[$library_name];
+        $library_plugins = isset($library['plugins']) ? $library['plugins'] : [];
 
-		$imported = get_config('imported_assets');
-		$is_imported = isset($imported[$library_name]);
+        $imported = get_config('imported_assets');
+        $is_imported = isset($imported[$library_name]);
 
-		if (!$is_imported) {
-			$has_js = array_key_exists('js', $library);
-			$has_css = array_key_exists('css', $library);
-			$was_imported = false;
+        if (!$is_imported) {
+            $has_js = array_key_exists('js', $library);
+            $has_css = array_key_exists('css', $library);
+            $was_imported = false;
 
-			if ($has_js) {
-				$js = $library['js'];
+            if ($has_js) {
+                $js = $library['js'];
 
-				if (is_array($js)) {
-					add_global_assets($js, 'js');
-					$was_imported = true;
-				}
-			}
-			if ($has_css) {
-				$css = $library['css'];
+                if (is_array($js)) {
+                    add_global_assets($js, 'js');
+                    $was_imported = true;
+                }
+            }
+            if ($has_css) {
+                $css = $library['css'];
 
-				if (is_array($css)) {
-					add_global_assets($css, 'css');
-					$was_imported = true;
-				}
-			}
-			if ($was_imported) {
-				$imported[$library_name] = [];
-				set_config('imported_assets', $imported);
-			}
-		}
+                if (is_array($css)) {
+                    add_global_assets($css, 'css');
+                    $was_imported = true;
+                }
+            }
+            if ($was_imported) {
+                $imported[$library_name] = [];
+                set_config('imported_assets', $imported);
+            }
+        }
 
-		if ($all) {
-			$plugins = [];
-			foreach ($library_plugins as $name => $item) {
-				$plugins[] = $name;
-			}
-		}
+        if ($all) {
+            $plugins = [];
+            foreach ($library_plugins as $name => $item) {
+                $plugins[] = $name;
+            }
+        }
 
-		foreach ($plugins as $plugin) {
-			if (is_string($plugin)) {
+        foreach ($plugins as $plugin) {
+            if (is_string($plugin)) {
 
-				$plugin_is_imported = isset($imported[$library_name][$plugin]);
+                $plugin_is_imported = isset($imported[$library_name][$plugin]);
 
-				if (!$plugin_is_imported) {
-					if (array_key_exists($plugin, $library_plugins)) {
+                if (!$plugin_is_imported) {
+                    if (array_key_exists($plugin, $library_plugins)) {
 
-						$_plugin = $library_plugins[$plugin];
-						$plugin_has_js = array_key_exists('js', $_plugin);
-						$plugin_has_css = array_key_exists('css', $_plugin);
-						$plugin_was_imported = false;
+                        $_plugin = $library_plugins[$plugin];
+                        $plugin_has_js = array_key_exists('js', $_plugin);
+                        $plugin_has_css = array_key_exists('css', $_plugin);
+                        $plugin_was_imported = false;
 
-						if ($plugin_has_js) {
-							$_plugin_js = $_plugin['js'];
+                        if ($plugin_has_js) {
+                            $_plugin_js = $_plugin['js'];
 
-							if (is_array($_plugin_js)) {
-								add_global_assets($_plugin_js, 'js');
-								$plugin_was_imported = true;
-							}
-						}
+                            if (is_array($_plugin_js)) {
+                                add_global_assets($_plugin_js, 'js');
+                                $plugin_was_imported = true;
+                            }
+                        }
 
-						if ($plugin_has_css) {
-							$_plugin_css = $_plugin['css'];
+                        if ($plugin_has_css) {
+                            $_plugin_css = $_plugin['css'];
 
-							if (is_array($_plugin_css)) {
-								add_global_assets($_plugin_css, 'css');
-								$plugin_was_imported = true;
-							}
-						}
+                            if (is_array($_plugin_css)) {
+                                add_global_assets($_plugin_css, 'css');
+                                $plugin_was_imported = true;
+                            }
+                        }
 
-						if ($plugin_was_imported) {
-							$imported[$library_name][] = $plugin;
-							set_config('imported_assets', $imported);
-						}
-					}
-				}
-			}
-		}
-	}
+                        if ($plugin_was_imported) {
+                            $imported[$library_name][] = $plugin;
+                            set_config('imported_assets', $imported);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -518,7 +513,7 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
  */
 function import_jquery(array $plugins = [], bool $all = false)
 {
-	import_front_library('jquery', $plugins, $all);
+    import_front_library('jquery', $plugins, $all);
 }
 
 /**
@@ -530,7 +525,7 @@ function import_jquery(array $plugins = [], bool $all = false)
  */
 function import_semantic(array $plugins = ['calendar'], bool $all = false)
 {
-	import_front_library('semantic', $plugins, $all);
+    import_front_library('semantic', $plugins, $all);
 }
 
 /**
@@ -542,7 +537,7 @@ function import_semantic(array $plugins = ['calendar'], bool $all = false)
  */
 function import_datatables(array $plugins = ['rowReorder', 'colReorder', 'responsive'], bool $all = false)
 {
-	import_front_library('datatables', $plugins, $all);
+    import_front_library('datatables', $plugins, $all);
 }
 
 /**
@@ -554,7 +549,7 @@ function import_datatables(array $plugins = ['rowReorder', 'colReorder', 'respon
  */
 function import_nprogress(array $plugins = [], bool $all = false)
 {
-	import_front_library('nprogress', $plugins, $all);
+    import_front_library('nprogress', $plugins, $all);
 }
 /**
  * Registra alertifyjs como assets globales y los plugins definidos por parámetro
@@ -565,7 +560,7 @@ function import_nprogress(array $plugins = [], bool $all = false)
  */
 function import_alertifyjs(array $plugins = [], bool $all = false)
 {
-	import_front_library('alertifyjs', $plugins, $all);
+    import_front_library('alertifyjs', $plugins, $all);
 }
 /**
  * Registra sweetalert2 como assets globales y los plugins definidos por parámetro
@@ -576,7 +571,7 @@ function import_alertifyjs(array $plugins = [], bool $all = false)
  */
 function import_swal2(array $plugins = [], bool $all = false)
 {
-	import_front_library('sweetalert2', $plugins, $all);
+    import_front_library('sweetalert2', $plugins, $all);
 }
 /**
  * Registra izitoast como assets globales y los plugins definidos por parámetro
@@ -587,7 +582,7 @@ function import_swal2(array $plugins = [], bool $all = false)
  */
 function import_izitoast(array $plugins = [], bool $all = false)
 {
-	import_front_library('izitoast', $plugins, $all);
+    import_front_library('izitoast', $plugins, $all);
 }
 
 /**
@@ -599,7 +594,7 @@ function import_izitoast(array $plugins = [], bool $all = false)
  */
 function import_cropper(array $plugins = [], bool $all = false)
 {
-	import_front_library('cropper', $plugins, $all);
+    import_front_library('cropper', $plugins, $all);
 }
 
 /**
@@ -611,7 +606,7 @@ function import_cropper(array $plugins = [], bool $all = false)
  */
 function import_jquerymask(array $plugins = [], bool $all = false)
 {
-	import_front_library('jquerymask', $plugins, $all);
+    import_front_library('jquerymask', $plugins, $all);
 }
 
 /**
@@ -623,7 +618,7 @@ function import_jquerymask(array $plugins = [], bool $all = false)
  */
 function import_quilljs(array $plugins = [], bool $all = false)
 {
-	import_front_library('quilljs', $plugins, $all);
+    import_front_library('quilljs', $plugins, $all);
 }
 
 /**
@@ -635,7 +630,7 @@ function import_quilljs(array $plugins = [], bool $all = false)
  */
 function import_isotope(array $plugins = [], bool $all = false)
 {
-	import_front_library('isotope', $plugins, $all);
+    import_front_library('isotope', $plugins, $all);
 }
 
 /**
@@ -647,7 +642,7 @@ function import_isotope(array $plugins = [], bool $all = false)
  */
 function import_handlebars(array $plugins = [], bool $all = false)
 {
-	import_front_library('handlebars', $plugins, $all);
+    import_front_library('handlebars', $plugins, $all);
 }
 
 /**
@@ -659,7 +654,7 @@ function import_handlebars(array $plugins = [], bool $all = false)
  */
 function import_app_libraries(array $plugins = [], bool $all = false)
 {
-	import_front_library('app_libraries', $plugins, $all);
+    import_front_library('app_libraries', $plugins, $all);
 }
 
 /**
@@ -682,70 +677,70 @@ function import_app_libraries(array $plugins = [], bool $all = false)
  */
 function register_routes($routes, &$router)
 {
-	$_routes = get_config('_routes_');
+    $_routes = get_config('_routes_');
 
-	if (count($routes) < 1) {
-		return;
-	}
+    if (count($routes) < 1) {
+        return;
+    }
 
-	if ($_routes === false) {
-		set_config('_routes_', []);
-		$_routes = [];
-	}
+    if ($_routes === false) {
+        set_config('_routes_', []);
+        $_routes = [];
+    }
 
-	$routes = is_array($routes) ? $routes : [$routes];
+    $routes = is_array($routes) ? $routes : [$routes];
 
-	foreach ($routes as $route) {
+    foreach ($routes as $route) {
 
-		$ruta = $route['route'];
-		$metodo = strtolower($route['method']);
-		$nombre = isset($route['name']) ? $route['name'] : uniqid();
-		$route_alias = isset($route['route_alias']) ? (is_string($route['route_alias']) ? $route['route_alias'] : null) : null;
-		$controller = $route['controller'];
-		$require_login = isset($route['require_login']) ? $route['require_login'] : false;
-		$require_login = $require_login === true ? true : false;
-		$roles_allowed = isset($route['roles_allowed']) ? $route['roles_allowed'] : [];
-		$roles_allowed = is_array($roles_allowed) ? $roles_allowed : [$roles_allowed];
-		$parameters = isset($route['parameters']) ? $route['parameters'] : [];
-		$parameters = is_array($parameters) ? $parameters : [$parameters];
+        $ruta = $route['route'];
+        $metodo = strtolower($route['method']);
+        $nombre = isset($route['name']) ? $route['name'] : uniqid();
+        $route_alias = isset($route['route_alias']) ? (is_string($route['route_alias']) ? $route['route_alias'] : null) : null;
+        $controller = $route['controller'];
+        $require_login = isset($route['require_login']) ? $route['require_login'] : false;
+        $require_login = $require_login === true ? true : false;
+        $roles_allowed = isset($route['roles_allowed']) ? $route['roles_allowed'] : [];
+        $roles_allowed = is_array($roles_allowed) ? $roles_allowed : [$roles_allowed];
+        $parameters = isset($route['parameters']) ? $route['parameters'] : [];
+        $parameters = is_array($parameters) ? $parameters : [$parameters];
 
-		if (array_key_exists($nombre, $_routes)) {
-			throw new RouteDuplicateNameException();
-		}
+        if (array_key_exists($nombre, $_routes)) {
+            throw new RouteDuplicateNameException();
+        }
 
-		if (is_string($nombre) && $nombre !== null && $nombre !== '') {
-			$router->$metodo($ruta, $controller)->setName($nombre);
-			if ($route_alias !== null) {
-				$router->$metodo($route_alias, $controller);
-			}
-		} else {
-			$router->$metodo($ruta, $controller);
-			if ($route_alias !== null) {
-				$router->$metodo($route_alias, $controller);
-			}
-		}
+        if (is_string($nombre) && $nombre !== null && $nombre !== '') {
+            $router->$metodo($ruta, $controller)->setName($nombre);
+            if ($route_alias !== null) {
+                $router->$metodo($route_alias, $controller);
+            }
+        } else {
+            $router->$metodo($ruta, $controller);
+            if ($route_alias !== null) {
+                $router->$metodo($route_alias, $controller);
+            }
+        }
 
-		$metodo = strtoupper($metodo);
+        $metodo = strtoupper($metodo);
 
-		if (is_string($nombre) && $nombre !== null && $nombre !== '') {
+        if (is_string($nombre) && $nombre !== null && $nombre !== '') {
 
-			$_routes[$nombre]['route'] = $ruta;
-			$_routes[$nombre]['name'] = $nombre;
-			$_routes[$nombre]['controller'] = $controller;
-			$_routes[$nombre]['method'] = $metodo;
-			$_routes[$nombre]['require_login'] = $require_login;
-			$_routes[$nombre]['roles_allowed'] = $roles_allowed;
-			$_routes[$nombre]['parameters'] = $parameters;
+            $_routes[$nombre]['route'] = $ruta;
+            $_routes[$nombre]['name'] = $nombre;
+            $_routes[$nombre]['controller'] = $controller;
+            $_routes[$nombre]['method'] = $metodo;
+            $_routes[$nombre]['require_login'] = $require_login;
+            $_routes[$nombre]['roles_allowed'] = $roles_allowed;
+            $_routes[$nombre]['parameters'] = $parameters;
 
-			if ($route_alias !== null) {
-				$_routes[$nombre]['route_alias'] = $route_alias;
-			}
-			foreach ($roles_allowed as $role) {
-				Roles::addPermission($nombre, $role);
-			}
-			set_config('_routes_', $_routes);
-		}
-	}
+            if ($route_alias !== null) {
+                $_routes[$nombre]['route_alias'] = $route_alias;
+            }
+            foreach ($roles_allowed as $role) {
+                Roles::addPermission($nombre, $role);
+            }
+            set_config('_routes_', $_routes);
+        }
+    }
 }
 
 /**
@@ -755,7 +750,7 @@ function register_routes($routes, &$router)
  */
 function get_routes()
 {
-	return get_config('_routes_');
+    return get_config('_routes_');
 }
 
 /**
@@ -771,81 +766,81 @@ function get_routes()
 function get_routes_by_controller(string $name_controller = '', string $method = null, array $params = null)
 {
 
-	$routes = get_config('_routes_');
-	$controller_routes = [];
+    $routes = get_config('_routes_');
+    $controller_routes = [];
 
-	foreach ($routes as $route) {
-		$controller = explode(':', $route['controller'])[0];
-		$method_controller = explode(':', $route['controller'])[1];
-		if ($controller == $name_controller) {
-			if (is_string($method) && $method_controller == $method) {
+    foreach ($routes as $route) {
+        $controller = explode(':', $route['controller'])[0];
+        $method_controller = explode(':', $route['controller'])[1];
+        if ($controller == $name_controller) {
+            if (is_string($method) && $method_controller == $method) {
 
-				$tmp = $route;
-				$has_params = preg_match('/\{.*\}/', $tmp['route']);
+                $tmp = $route;
+                $has_params = preg_match('/\{.*\}/', $tmp['route']);
 
-				if ($has_params === 1) {
-					if (is_array($params)) {
+                if ($has_params === 1) {
+                    if (is_array($params)) {
 
-						$route_with_params_values = $tmp['route'];
+                        $route_with_params_values = $tmp['route'];
 
-						foreach ($params as $key => $value) {
-							$route_with_params_values = str_replace("{" . $key . "}", $value, $route_with_params_values);
-						}
+                        foreach ($params as $key => $value) {
+                            $route_with_params_values = str_replace("{" . $key . "}", $value, $route_with_params_values);
+                        }
 
-						$has_params = preg_match('/\{.*\}/', $route_with_params_values);
+                        $has_params = preg_match('/\{.*\}/', $route_with_params_values);
 
-						if ($has_params) {
-							$tmp['url'] = null;
-							$tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
-						} else {
-							$tmp['url'] = get_route($route['name'], $params);
-						}
-					} else {
-						$tmp['url'] = null;
-						$tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
-					}
-				} else {
+                        if ($has_params) {
+                            $tmp['url'] = null;
+                            $tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
+                        } else {
+                            $tmp['url'] = get_route($route['name'], $params);
+                        }
+                    } else {
+                        $tmp['url'] = null;
+                        $tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
+                    }
+                } else {
 
-					$tmp['url'] = get_route($route['name']);
-				}
+                    $tmp['url'] = get_route($route['name']);
+                }
 
-				$controller_routes = $tmp;
-			} else if (!is_string($method)) {
+                $controller_routes = $tmp;
+            } else if (!is_string($method)) {
 
-				$tmp = $route;
-				$has_params = preg_match('/\{.*\}/', $tmp['route']);
+                $tmp = $route;
+                $has_params = preg_match('/\{.*\}/', $tmp['route']);
 
-				if ($has_params === 1) {
-					if (is_array($params)) {
+                if ($has_params === 1) {
+                    if (is_array($params)) {
 
-						$route_with_params_values = $tmp['route'];
+                        $route_with_params_values = $tmp['route'];
 
-						foreach ($params as $key => $value) {
-							$route_with_params_values = str_replace("{" . $key . "}", $value, $route_with_params_values);
-						}
+                        foreach ($params as $key => $value) {
+                            $route_with_params_values = str_replace("{" . $key . "}", $value, $route_with_params_values);
+                        }
 
-						$has_params = preg_match('/\{.*\}/', $route_with_params_values);
+                        $has_params = preg_match('/\{.*\}/', $route_with_params_values);
 
-						if ($has_params) {
-							$tmp['url'] = null;
-							$tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
-						} else {
-							$tmp['url'] = get_route($route['name'], $params);
-						}
-					} else {
-						$tmp['url'] = null;
-						$tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
-					}
-				} else {
+                        if ($has_params) {
+                            $tmp['url'] = null;
+                            $tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
+                        } else {
+                            $tmp['url'] = get_route($route['name'], $params);
+                        }
+                    } else {
+                        $tmp['url'] = null;
+                        $tmp['nota'] = 'Esta ruta requiere parámetros para mostrar la URL correctamente.';
+                    }
+                } else {
 
-					$tmp['url'] = get_route($route['name']);
-				}
+                    $tmp['url'] = get_route($route['name']);
+                }
 
-				$controller_routes[] = $tmp;
-			}
-		}
-	}
-	return $controller_routes;
+                $controller_routes[] = $tmp;
+            }
+        }
+    }
+    return $controller_routes;
 }
 
 /**
@@ -859,8 +854,8 @@ function get_routes_by_controller(string $name_controller = '', string $method =
  */
 function get_route_by_controller(string $name_controller, string $method_controller, array $params = null, string $method_request = 'GET')
 {
-	$route = get_routes_by_controller($name_controller, $method_controller, $params);
-	return (is_array($route) && count($route) > 0) ? $route['url'] : null;
+    $route = get_routes_by_controller($name_controller, $method_controller, $params);
+    return (is_array($route) && count($route) > 0) ? $route['url'] : null;
 }
 
 /**
@@ -871,9 +866,9 @@ function get_route_by_controller(string $name_controller, string $method_control
  */
 function get_route_info(string $name)
 {
-	$routes = get_routes();
-	$route_info = isset($routes[$name]) ? $routes[$name] : null;
-	return $route_info;
+    $routes = get_routes();
+    $route_info = isset($routes[$name]) ? $routes[$name] : null;
+    return $route_info;
 }
 
 /**
@@ -886,47 +881,47 @@ function get_route_info(string $name)
  */
 function get_route(string $name, array $params = [], bool $silentOnNotExists = false)
 {
-	$exists = isset(get_routes()[$name]);
-	if ($exists || !$silentOnNotExists) {
+    $exists = isset(get_routes()[$name]);
+    if ($exists || !$silentOnNotExists) {
 
-		if ($exists) {
+        if ($exists) {
 
-			$route_info = get_routes()[$name];
-			$parameters = $route_info['parameters'];
+            $route_info = get_routes()[$name];
+            $parameters = $route_info['parameters'];
 
-			foreach ($parameters as $param_name => $value) {
-				if (!array_key_exists($param_name, $params) && !is_null($value)) {
-					$params[$param_name] = $value;
-				} elseif (array_key_exists($param_name, $params) && is_null($params[$param_name])) {
-					unset($params[$param_name]);
-				}
-			}
-		}
+            foreach ($parameters as $param_name => $value) {
+                if (!array_key_exists($param_name, $params) && !is_null($value)) {
+                    $params[$param_name] = $value;
+                } elseif (array_key_exists($param_name, $params) && is_null($params[$param_name])) {
+                    unset($params[$param_name]);
+                }
+            }
+        }
 
-		$route = get_config('slim_app')->getContainer()->get('router')->pathFor($name, $params);
+        $route = get_config('slim_app')->getContainer()->get('router')->pathFor($name, $params);
 
-		$app_base = appbase();
-		$app_base_position = strlen($app_base) > 0 ? strpos($route, $app_base) : false;
-		$app_base_length = strlen($app_base);
+        $app_base = appbase();
+        $app_base_position = strlen($app_base) > 0 ? strpos($route, $app_base) : false;
+        $app_base_length = strlen($app_base);
 
-		if ($app_base_position !== false) {
-			$route = substr($route, $app_base_position + $app_base_length);
-		}
+        if ($app_base_position !== false) {
+            $route = substr($route, $app_base_position + $app_base_length);
+        }
 
-		$route = baseurl($route);
-		$base_len = strlen(baseurl());
-		$route = substr($route, $base_len);
+        $route = baseurl($route);
+        $base_len = strlen(baseurl());
+        $route = substr($route, $base_len);
 
-		if (is_string($route) && strlen($route) > 0 && $route[0] == '/') {
-			$route = remove_first_char($route);
-		}
+        if (is_string($route) && strlen($route) > 0 && $route[0] == '/') {
+            $route = remove_first_char($route);
+        }
 
-		$route = baseurl($route);
+        $route = baseurl($route);
 
-		return $route;
-	} else {
-		return null;
-	}
+        return $route;
+    } else {
+        return null;
+    }
 }
 
 /**
@@ -938,7 +933,7 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
  */
 function set_flash_message(string $name, $value)
 {
-	\PiecesPHP\Core\FlashMessages::addMessage($name, $value);
+    \PiecesPHP\Core\FlashMessages::addMessage($name, $value);
 }
 
 /**
@@ -950,7 +945,7 @@ function set_flash_message(string $name, $value)
  */
 function get_flash_messages()
 {
-	return \PiecesPHP\Core\FlashMessages::getMessages();
+    return \PiecesPHP\Core\FlashMessages::getMessages();
 }
 
 //──── HELPERS PARA FORMULARIOS HTML ─────────────────────────────────────────────────────
@@ -965,9 +960,9 @@ function get_flash_messages()
  */
 function form_label(string $text, string $for = null, array $classes = [])
 {
-	$label = \PiecesPHP\Core\HTML\Form::label($text, $for);
-	$label->setAttribute('class', $classes);
-	return (string)$label;
+    $label = \PiecesPHP\Core\HTML\Form::label($text, $for);
+    $label->setAttribute('class', $classes);
+    return (string) $label;
 }
 
 /**
@@ -984,14 +979,14 @@ function form_label(string $text, string $for = null, array $classes = [])
  */
 function form_input(string $name, $value = '', bool $required = false, string $placeholder = null, string $type = 'text', array $classes = [], $attributes = null)
 {
-	$value = ((string)$value);
-	$input = new \PiecesPHP\Core\HTML\Input($name, $value, $type, $placeholder, $attributes);
-	$input->setAttribute('class', $classes);
+    $value = ((string) $value);
+    $input = new \PiecesPHP\Core\HTML\Input($name, $value, $type, $placeholder, $attributes);
+    $input->setAttribute('class', $classes);
 
-	if ($required) {
-		$input->setAttribute('required', '');
-	}
-	return (string)$input;
+    if ($required) {
+        $input->setAttribute('required', '');
+    }
+    return (string) $input;
 }
 
 /**
@@ -1006,15 +1001,15 @@ function form_input(string $name, $value = '', bool $required = false, string $p
  */
 function form_select(string $name, array $values, bool $required = false, $selectedDefaultValue = null, $attributes = null)
 {
-	$selectedDefaultValue = is_null($selectedDefaultValue) ? __('general', 'select_element') : $selectedDefaultValue;
+    $selectedDefaultValue = is_null($selectedDefaultValue) ? __('general', 'select_element') : $selectedDefaultValue;
 
-	$select = new \PiecesPHP\Core\HTML\Select($name, $selectedDefaultValue, __('general', 'select_element'), '', $attributes);
+    $select = new \PiecesPHP\Core\HTML\Select($name, $selectedDefaultValue, __('general', 'select_element'), '', $attributes);
 
-	if ($required) {
-		$select->setAttribute('required', '');
-	}
-	$select->setOptions($values);
-	return (string)$select;
+    if ($required) {
+        $select->setAttribute('required', '');
+    }
+    $select->setOptions($values);
+    return (string) $select;
 }
 
 /**
@@ -1030,50 +1025,50 @@ function form_select(string $name, array $values, bool $required = false, $selec
  * @return string
  */
 function form_radio(
-	string $name,
-	array $values = [],
-	$selected_value = null,
-	bool $required = false,
-	string $wrapper = null,
-	array $classes = [],
-	$attributes = null
+    string $name,
+    array $values = [],
+    $selected_value = null,
+    bool $required = false,
+    string $wrapper = null,
+    array $classes = [],
+    $attributes = null
 ) {
 
-	$inputs = [];
-	$type = 'radio';
-	$has_selected = false;
+    $inputs = [];
+    $type = 'radio';
+    $has_selected = false;
 
-	if (empty($selected_value) && $selected_value !== 0) {
-		$selected_value = null;
-	}
+    if (empty($selected_value) && $selected_value !== 0) {
+        $selected_value = null;
+    }
 
-	$values = array_flip($values);
+    $values = array_flip($values);
 
-	foreach ($values as $key => $value) {
-		$val = ((string)$value);
-		$input = new \PiecesPHP\Core\HTML\Input($name, $key, $type, null, $attributes);
-		$input->setAttribute('class', $classes);
-		if (!is_null($selected_value) && $selected_value == $key && !$has_selected) {
-			$input->setAttribute('checked', '');
-			$has_selected = true;
-		}
+    foreach ($values as $key => $value) {
+        $val = ((string) $value);
+        $input = new \PiecesPHP\Core\HTML\Input($name, $key, $type, null, $attributes);
+        $input->setAttribute('class', $classes);
+        if (!is_null($selected_value) && $selected_value == $key && !$has_selected) {
+            $input->setAttribute('checked', '');
+            $has_selected = true;
+        }
 
-		if ($required) {
-			$input->setAttribute('required', '');
-		}
-		$input = (string)$input;
-		$inputs[] = "<label>$val</label>$input";
-	}
+        if ($required) {
+            $input->setAttribute('required', '');
+        }
+        $input = (string) $input;
+        $inputs[] = "<label>$val</label>$input";
+    }
 
-	if (!is_null($wrapper)) {
-		foreach ($inputs as $pos => $input) {
-			$inputs[$pos] = str_replace('{element}', $input, $wrapper);
-		}
-	}
+    if (!is_null($wrapper)) {
+        foreach ($inputs as $pos => $input) {
+            $inputs[$pos] = str_replace('{element}', $input, $wrapper);
+        }
+    }
 
-	$input = trim(implode('', $inputs));
+    $input = trim(implode('', $inputs));
 
-	return $input;
+    return $input;
 }
 
 /**
@@ -1089,54 +1084,54 @@ function form_radio(
  * @return string
  */
 function form_checkbox(
-	string $name,
-	array $values = [],
-	$selected_value = null,
-	bool $required = false,
-	string $wrapper = null,
-	array $classes = [],
-	$attributes = null
+    string $name,
+    array $values = [],
+    $selected_value = null,
+    bool $required = false,
+    string $wrapper = null,
+    array $classes = [],
+    $attributes = null
 ) {
 
-	$inputs = [];
-	$type = 'checkbox';
-	$has_selected = false;
+    $inputs = [];
+    $type = 'checkbox';
+    $has_selected = false;
 
-	if (empty($selected_value) && $selected_value !== 0) {
-		$selected_value = null;
-	}
+    if (empty($selected_value) && $selected_value !== 0) {
+        $selected_value = null;
+    }
 
-	$values = array_flip($values);
+    $values = array_flip($values);
 
-	foreach ($values as $key => $value) {
+    foreach ($values as $key => $value) {
 
-		$val = ((string)$value);
+        $val = ((string) $value);
 
-		$input = new \PiecesPHP\Core\HTML\Input($name, $key, $type, null, $attributes);
+        $input = new \PiecesPHP\Core\HTML\Input($name, $key, $type, null, $attributes);
 
-		$input->setAttribute('class', $classes);
+        $input->setAttribute('class', $classes);
 
-		if (!is_null($selected_value) && $selected_value == $key && !$has_selected) {
-			$input->setAttribute('checked', '');
-		}
+        if (!is_null($selected_value) && $selected_value == $key && !$has_selected) {
+            $input->setAttribute('checked', '');
+        }
 
-		if ($required) {
-			$input->setAttribute('required', '');
-		}
+        if ($required) {
+            $input->setAttribute('required', '');
+        }
 
-		$input = (string)$input;
-		$inputs[] = "<label>$val</label>$input";
-	}
+        $input = (string) $input;
+        $inputs[] = "<label>$val</label>$input";
+    }
 
-	if (!is_null($wrapper)) {
-		foreach ($inputs as $pos => $input) {
-			$inputs[$pos] = str_replace('{element}', $input, $wrapper);
-		}
-	}
+    if (!is_null($wrapper)) {
+        foreach ($inputs as $pos => $input) {
+            $inputs[$pos] = str_replace('{element}', $input, $wrapper);
+        }
+    }
 
-	$input = trim(implode('', $inputs));
+    $input = trim(implode('', $inputs));
 
-	return $input;
+    return $input;
 }
 
 /**
@@ -1148,9 +1143,9 @@ function form_checkbox(
  */
 function form_submit(string $text, $classes = [])
 {
-	$button = new \PiecesPHP\Core\HTML\Button($text, 'submit');
-	$button->setAttribute('class', $classes);
-	return (string)$button;
+    $button = new \PiecesPHP\Core\HTML\Button($text, 'submit');
+    $button->setAttribute('class', $classes);
+    return (string) $button;
 }
 
 /**
@@ -1163,28 +1158,28 @@ function form_submit(string $text, $classes = [])
  */
 function move_uploaded_file_to($directory, \Slim\Http\UploadedFile $uploadedFile, string $basename = null, string $extension = null)
 {
-	try {
+    try {
 
-		if (!file_exists($directory)) {
-			make_directory($directory);
-		}
+        if (!file_exists($directory)) {
+            make_directory($directory);
+        }
 
-		if (is_null($extension)) {
-			$extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-		}
+        if (is_null($extension)) {
+            $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+        }
 
-		if (is_null($basename)) {
-			$basename = bin2hex(random_bytes(8)); // see http://php.net/manual/en/function.random-bytes.php
-		}
+        if (is_null($basename)) {
+            $basename = bin2hex(random_bytes(8)); // see http://php.net/manual/en/function.random-bytes.php
+        }
 
-		$filename = sprintf('%s.%0.8s', $basename, $extension);
+        $filename = sprintf('%s.%0.8s', $basename, $extension);
 
-		$uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
+        $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
 
-		return $filename;
-	} catch (\Exception $e) {
-		$handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
-		$handler->logging();
-		return false;
-	}
+        return $filename;
+    } catch (\Exception $e) {
+        $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
+        $handler->logging();
+        return false;
+    }
 }

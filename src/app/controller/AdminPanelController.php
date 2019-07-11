@@ -11,7 +11,6 @@ use App\Model\AvatarModel;
 use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\HTML\HtmlElement;
-use PiecesPHP\Core\HTML\Table;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;

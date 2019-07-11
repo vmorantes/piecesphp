@@ -18,16 +18,16 @@ class Config
     /** @var string $app_title Título de la aplicación */
     protected $app_title = null;
 
-    /** @var string $app_path Ruta raíz de la aplicación (ruta de directorio)*/
+    /** @var string $app_path Ruta raíz de la aplicación (ruta de directorio) */
     protected $app_path = null;
 
-    /** @var string $app_base Ruta relativa de la aplicación es como $app_path, pero sin el DocumentRoot*/
+    /** @var string $app_base Ruta relativa de la aplicación es como $app_path, pero sin el DocumentRoot */
     protected $app_base = null;
 
     /** @var string $app_protocol Protocolo de la aplicación http/https */
     protected $app_protocol = null;
 
-    /** @var string $app_title URL de la aplicación es el HOST concatenado al $app_base*/
+    /** @var string $app_title URL de la aplicación es el HOST concatenado al $app_base */
     protected $app_url = null;
 
     /**
@@ -66,6 +66,9 @@ class Config
     /** @var Config $instance Instancia */
     protected static $instance = null;
 
+    /** @var array $configurations Configuraciones */
+    protected static $configurations = [];
+
     /**
      * Constructor
      */
@@ -81,7 +84,7 @@ class Config
      *
      * @return void
      */
-    private function initAppConfigs()
+    public function initAppConfigs()
     {
         $this->initTitleAppConfig();
         $this->initAppPathConfig();
@@ -411,6 +414,33 @@ class Config
     }
 
     /**
+     * set_config
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public static function set_config(string $name, $value)
+    {
+        self::$configurations[$name] = $value;
+    }
+
+    /**
+     * get_config
+     *
+     * @param string $name
+     * @return mixed|boolean Devuelve el valor o false si no existe o es null
+     */
+    public static function get_config(string $name)
+    {
+        if (isset(self::$configurations[$name]) && self::$configurations[$name] !== null) {
+            return self::$configurations[$name];
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Establece el lenguaje de la aplicación
      * @param string $lang Lo ideal es que sea el nombre del archivo correspondiente en app/lang
      * @return void
@@ -455,6 +485,7 @@ class Config
     {
         return self::$app_lang;
     }
+
     /**
      * Devuelve la ruta de directorio de la aplicación
      * @return string
@@ -464,6 +495,7 @@ class Config
         $instance = self::get_instance();
         return realpath($instance->app_path);
     }
+
     /**
      * Devuelve la ruta relativa del directorio de la aplicación
      * @return string
@@ -474,6 +506,7 @@ class Config
         return $instance->app_base;
 
     }
+
     /**
      * Devuelve la url base de la aplicación
      * @return string
@@ -484,6 +517,7 @@ class Config
         return $instance->app_url;
 
     }
+
     /**
      * Devuelve la configuración de la base de datos de la aplicación
      * @param string $key Nombre de la configuración deseada
@@ -541,4 +575,5 @@ class Config
 
         return self::$instance;
     }
+
 }

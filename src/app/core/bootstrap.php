@@ -60,16 +60,24 @@ if (!defined('APP_VERSION')) {
 require $directories['utilities'];
 
 require $directories['config'];
+require $directories['config_class'];
 require $directories['database'];
 require $directories['mail'];
 require $directories['cookies'];
 require $directories['roles'];
+
 if (!isset($config) || !is_array($config)) {
     $config_pcs_php = [];
 } else {
     $config_pcs_php = $config;
 }
-require $directories['config_class'];
+
+if (is_array($config_pcs_php)) {
+    foreach ($config_pcs_php as $name => $value) {
+        Config::set_config($name, $value);
+    }
+}
+
 require $directories['app_helpers'];
 require $directories['config_lang'];
 
