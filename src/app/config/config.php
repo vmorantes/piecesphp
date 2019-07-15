@@ -30,10 +30,8 @@ date_default_timezone_set('America/Bogota');
 
 $config['default_lang'] = "es";
 $config['app_lang'] = "es";
-$config['title_app'] = "Nombre Plataforma";
-$config['title'] = $config['title_app'];
 $config['base_url'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-$config['base_url'] = "http://" . $_SERVER['HTTP_HOST'] . "/" . substr($config['base_url'], 1);
+$config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . "/" . substr($config['base_url'], 1);
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 
@@ -43,10 +41,6 @@ $config['app_key'] = 'secret';
 $config['statics_path'] = __DIR__ . '/../../statics';
 
 //──── Extras ────────────────────────────────────────────────────────────────────────────
-
-//Configuración tickets de osTicket
-$config['osTicketAPI'] = 'http://ayuda.tejidodigital.com';
-$config['osTicketAPIKey'] = '93F0F2E3DCD3B79A686A3157620CFF24';
 
 //======Información complementaria para mostrar en la aplicación========
 

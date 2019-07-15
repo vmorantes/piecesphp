@@ -208,7 +208,7 @@ class Parameters implements \JsonSerializable
         }
 
         if (count($parameters_errors) > 0) {
-            throw new MissingRequiredParamaterException("Los parámetros " . implode(',', $parameters_errors) . "son obligatorios");
+            throw new MissingRequiredParamaterException("Los parámetros " . implode(', ', $parameters_errors) . " son obligatorios");
         }
 
         foreach ($to_validate as $name => $value) {
