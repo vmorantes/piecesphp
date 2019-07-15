@@ -54,7 +54,7 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '2.8.3');
+    define('APP_VERSION', '2.8.4');
 }
 
 require $directories['utilities'];

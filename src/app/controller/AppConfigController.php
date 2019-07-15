@@ -14,6 +14,8 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\Core\Validation\Parameters\Parameter;
+use PiecesPHP\Core\Validation\Parameters\Parameters;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -42,6 +44,25 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * configurationsView
+     *
+     * Vista de configuraciones
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function configurationsView(Request $req, Response $res, array $args)
+    {
+        $this->render('panel/layout/header');
+        $this->render('panel/pages/app_configurations/configurations');
+        $this->render('panel/layout/footer');
+
+        return $res;
+    }
+
+    /**
      * customizationView
      *
      * Vista de personalización
@@ -58,6 +79,186 @@ class AppConfigController extends AdminPanelController
         $this->render('panel/layout/footer');
 
         return $res;
+    }
+
+    /**
+     * actionGeneric
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function actionGeneric(Request $req, Response $res, array $args)
+    {
+        $operation_name = 'Configuración';
+
+        $result = new ResultOperations([
+            new Operation($operation_name),
+        ], $operation_name);
+
+        $message_create = 'Guardado.';
+        $message_unknow_error = 'Ha ocurrido un error inesperado.';
+
+        $parametersExcepted = new Parameters([
+            new Parameter(
+                'name',
+                null,
+                function ($value) {
+                    return is_string($value);
+                }
+            ),
+            new Parameter(
+                'value',
+                null,
+                function ($value) {
+                    return is_string($value) || is_array($value) || is_object($value);
+                }
+            ),
+        ]);
+
+        $parametersExcepted->setInputValues($req->getParsedBody());
+
+        try {
+
+            $parametersExcepted->validate();
+
+            $name = $parametersExcepted->getValue('name');
+            $value = $parametersExcepted->getValue('value');
+
+            $option = new AppConfigModel($name);
+
+            $option->value = $value;
+
+            if (!is_null($option->id)) {
+
+                $success = $option->update();
+
+            } else {
+
+                $option->name = $name;
+                $success = $option->save();
+
+            }
+
+            if ($success) {
+
+                $result
+                    ->setMessage($message_create)
+                    ->operation($operation_name)
+                    ->setSuccess(true);
+
+            } else {
+
+                $result
+                    ->setMessage($message_unknow_error)
+                    ->operation($operation_name);
+
+            }
+
+        } catch (\PDOException $e) {
+
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
+        } catch (\Exception $e) {
+
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
+        }
+
+        return $res->withJson($result);
+    }
+
+    /**
+     * actionOsTicket
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function actionOsTicket(Request $req, Response $res, array $args)
+    {
+        $operation_name = 'Configuración OsTicket';
+
+        $result = new ResultOperations([
+            new Operation($operation_name),
+        ], $operation_name);
+
+        $message_create = 'Guardado.';
+        $message_unknow_error = 'Ha ocurrido un error inesperado.';
+
+        $parametersExcepted = new Parameters([
+            new Parameter(
+                'url',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return rtrim($value, '/');
+                }
+            ),
+            new Parameter(
+                'key',
+                null,
+                function ($value) {
+                    return is_string($value);
+                }
+            ),
+        ]);
+
+        $parametersExcepted->setInputValues($req->getParsedBody());
+
+        try {
+
+            $parametersExcepted->validate();
+
+            $url = new AppConfigModel('osTicketAPI');
+            $key = new AppConfigModel('osTicketAPIKey');
+
+            $url->value = $parametersExcepted->getValue('url');
+            $key->value = $parametersExcepted->getValue('key');
+
+            $successUrl = $url->update();
+            $successKey = $key->update();
+            $success = $successUrl || $successKey;
+
+            if ($success) {
+
+                $result
+                    ->setMessage($message_create)
+                    ->operation($operation_name)
+                    ->setSuccess(true);
+
+            } else {
+
+                $result
+                    ->setMessage($message_unknow_error)
+                    ->operation($operation_name);
+
+            }
+
+        } catch (\PDOException $e) {
+
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
+        } catch (\Exception $e) {
+
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
+        }
+
+        return $res->withJson($result);
     }
 
     /**
@@ -207,11 +408,12 @@ class AppConfigController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = self::class;
 
-        //──── GET ─────────────────────────────────────────────────────────────────────────
+        $group->active(APP_CONFIGURATION_MODULE);
 
         //Perzonalizaciones
         $group->register([
 
+            //──── GET ─────────────────────────────────────────────────────────────────────────
             //Vista de personalización de imágenes
             new Route(
                 "{$startRoute}images[/]",
@@ -225,11 +427,52 @@ class AppConfigController extends AdminPanelController
                     UsersModel::TYPE_USER_ADMIN,
                 ]
             ),
+            //Vista de configuración general
+            new Route(
+                "{$startRoute}generals[/]",
+                $classname . ':configurationsView',
+                'configurations-generals',
+                'GET',
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
+                    UsersModel::TYPE_USER_ADMIN,
+                ]
+            ),
+
+            //──── POST ────────────────────────────────────────────────────────────────────────
             //Manejadores de imágenes
             new Route(
                 "{$startRoute}images/add/images[/]",
                 $classname . ':actionImages',
-                'configurations-customization-images',
+                'configurations-customization-images-action',
+                'POST',
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
+                    UsersModel::TYPE_USER_ADMIN,
+                ]
+            ),
+            //OsTicket
+            new Route(
+                "{$startRoute}images/config/osticket[/]",
+                $classname . ':actionOsTicket',
+                'configurations-generals-osticket-action',
+                'POST',
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
+                    UsersModel::TYPE_USER_ADMIN,
+                ]
+            ),
+            //General
+            new Route(
+                "{$startRoute}images/config/generic[/]",
+                $classname . ':actionGeneric',
+                'configurations-generals-generic-action',
                 'POST',
                 true,
                 null,
@@ -240,7 +483,6 @@ class AppConfigController extends AdminPanelController
             ),
 
         ]);
-        $group->active(APP_CONFIGURATION_MODULE);
 
         //──── POST ─────────────────────────────────────────────────────────────────────────
 
