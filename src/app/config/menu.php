@@ -92,7 +92,7 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
         ]),
         new MenuGroup([
             'name' => 'Opciones de usuario',
-            'icon' => 'cog',
+            'icon' => 'user cog',
             'visible' => true,
             'asLink' => true,
             'href' => get_route('profile'),
@@ -100,9 +100,16 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
         new MenuGroup([
             'name' => 'Personalización',
             'icon' => 'pencil alternate',
-            'visible' => true,
+            'visible' => Roles::hasPermissions('configurations-customization', $current_type_user),
             'asLink' => true,
-            'href' => get_route('configurations-customization'),
+            'href' => get_route('configurations-customization', [], true),
+        ]),
+        new MenuGroup([
+            'name' => 'Configuraciones',
+            'icon' => 'cogs',
+            'visible' => Roles::hasPermissions('configurations-generals', $current_type_user),
+            'asLink' => true,
+            'href' => get_route('configurations-generals', [], true),
         ]),
         new MenuGroup([
             'name' => 'Log de errores',

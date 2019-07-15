@@ -30,7 +30,10 @@ if (get_config('control_access_login') === true) {
 }
 
 if (APP_CONFIGURATION_MODULE) {
-    AppConfigModel::initializateConfigurations([
+    $default_configurations_values = [
+        'title_app' => 'Nombre Plataforma',
+        'osTicketAPI' => 'http://ayuda.tejidodigital.com',
+        'osTicketAPIKey' => '93F0F2E3DCD3B79A686A3157620CFF24',
         'favicon' => 'statics/images/favicon.png',
         'logo' => 'statics/images/logo.png',
         'logo-login' => 'statics/images/logo-login.png',
@@ -44,7 +47,9 @@ if (APP_CONFIGURATION_MODULE) {
             'statics/login-and-recovery/images/login/bg4.jpg',
             'statics/login-and-recovery/images/login/bg5.jpg',
         ],
-    ]);
+    ];
+    ksort($default_configurations_values);
+    AppConfigModel::initializateConfigurations($default_configurations_values);
 }
 
 $app = new \Slim\App(get_config('slim_container'));

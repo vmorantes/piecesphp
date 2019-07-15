@@ -15,7 +15,7 @@ use App\Model\AppConfigModel;
 
         <br><br><br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images');?>" method="POST"
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
             class="ui form">
 
             <div class="ui header small">Ícono de favoritos (favicon)</div>
@@ -37,7 +37,7 @@ use App\Model\AppConfigModel;
 
         <br><br><br><br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images');?>" method="POST"
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
             class="ui form">
 
             <div class="ui header small">Logo</div>
@@ -59,7 +59,7 @@ use App\Model\AppConfigModel;
 
         <br><br><br><br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images');?>" method="POST"
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
             class="ui form">
 
             <div class="ui header small">Logo del login</div>
@@ -81,7 +81,7 @@ use App\Model\AppConfigModel;
 
         <br><br><br><br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images');?>" method="POST"
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
             class="ui form">
 
             <div class="ui header small">Logo de la parte superior de la barra lateral</div>
@@ -103,7 +103,7 @@ use App\Model\AppConfigModel;
 
         <br><br><br><br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images');?>" method="POST"
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
             class="ui form">
 
             <div class="ui header small">Logo de la parte inferior de la barra lateral</div>
@@ -125,7 +125,7 @@ use App\Model\AppConfigModel;
 
         <br><br><br><br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images');?>" method="POST"
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
             class="ui form">
 
             <div class="ui header small">Logo en plantillas de correo electrónico</div>
@@ -155,7 +155,7 @@ use App\Model\AppConfigModel;
 
         <?php foreach (get_config('backgrounds') as $index => $background): ?>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images');?>" method="POST"
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
             class="ui form">
 
             <div class="image-preview background">
