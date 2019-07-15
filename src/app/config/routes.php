@@ -41,6 +41,7 @@
  *
  */
 use App\Controller\AdminPanelController;
+use App\Controller\AppConfigController;
 use App\Controller\AvatarController;
 use App\Controller\BlackboardNewsController;
 use App\Controller\ImporterController;
@@ -60,6 +61,7 @@ PiecesRouteGroup::setRouter($slim_app);
 
 //──── GRUPOS DE RUTAS ───────────────────────────────────────────────────────────────────
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
+$configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Zona administrativa
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
 $tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
 $timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
@@ -75,6 +77,9 @@ $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servid
 
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
+
+//Personalización de configuraciones
+AppConfigController::routes($configurations);
 
 //Informes de inicio de sesión
 LoginAttemptsController::routes($zona_administrativa);

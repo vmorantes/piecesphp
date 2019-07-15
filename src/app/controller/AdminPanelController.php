@@ -68,7 +68,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * index
+     * indexView
      *
      * Vista principal
      *

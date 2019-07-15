@@ -263,3 +263,11 @@ footer.ui-pcs {
         }
     }
 }
+
+.container-medium {
+
+    .ui-pcs &,
+    &.ui-pcs {
+        max-width: 1200px;
+    }
+}

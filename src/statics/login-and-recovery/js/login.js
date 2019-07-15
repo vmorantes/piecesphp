@@ -1,17 +1,15 @@
 /**
- * Selecciona una imagen de entre varias al con el mismo nombre al azar (diferenciadas 
- * por un número al final) para usarla como fondo.
- * 
- * @param {string} nombreImagen Primera parte del nombre de la imagen
- * @param {number} totalImagesLogin Cantidad de imágenes
+ * Selecciona una imagen de entre varias al azar
  */
-function changeImageLogin(nombreImagen = 'bg', totalImagesLogin = 5) {
+function changeImageLogin() {
 
 	let bgElement = $('[bg-js]')
-	let randomImageLogin = Math.floor((Math.random() * totalImagesLogin) + 1)
-	let url = 'statics/login-and-recovery/images/login'
-	let imageName = `${nombreImagen}${randomImageLogin}.jpg`
-	let urlImage = `${url}/${imageName}`
+	let backgrounds = atob(bgElement.attr('bg-js'))
+	backgrounds = JSON.parse(backgrounds)
+
+	let randomImageLoginIndex = randomNumber(backgrounds.length > 0 ? backgrounds.length - 1 : backgrounds.length)
+
+	let urlImage = backgrounds[randomImageLoginIndex]
 
 	let bgHandler = function (e) {
 
@@ -34,6 +32,15 @@ function changeImageLogin(nombreImagen = 'bg', totalImagesLogin = 5) {
 	bgHandler()
 
 	$(window).resize(bgHandler)
+
+	function randomNumber(max = 5){
+		let number = Math.random() * max
+		number = Math.round(number)
+		if(number > max){
+			number--
+		}
+		return number
+	}
 }
 
 /**

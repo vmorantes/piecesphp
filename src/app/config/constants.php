@@ -14,6 +14,9 @@
 define('LOG_ERRORS_PATH', app_basepath('logs'));
 define('LOG_ERRORS_BACKUP_PATH', app_basepath('logs/olds'));
 
+//Configuraciones
+define('APP_CONFIGURATION_MODULE', true);
+
 //Zona administrativa
 define('ADMIN_PATH_VIEWS', 'panel');
 

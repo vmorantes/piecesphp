@@ -98,6 +98,13 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'href' => get_route('profile'),
         ]),
         new MenuGroup([
+            'name' => 'Personalización',
+            'icon' => 'pencil alternate',
+            'visible' => true,
+            'asLink' => true,
+            'href' => get_route('configurations-customization'),
+        ]),
+        new MenuGroup([
             'name' => 'Log de errores',
             'icon' => 'file alternate outline',
             'visible' => Roles::hasPermissions('admin-error-log', $current_type_user),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Model\AppConfigModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
@@ -26,6 +27,24 @@ if (get_config('control_access_login') === true) {
         base_url('statics/core/PiecesPHPSystemUserHelper.js'),
         base_url('statics/core/main_system_user.js'),
     ], 'js');
+}
+
+if (APP_CONFIGURATION_MODULE) {
+    AppConfigModel::initializateConfigurations([
+        'favicon' => 'statics/images/favicon.png',
+        'logo' => 'statics/images/logo.png',
+        'logo-login' => 'statics/images/logo-login.png',
+        'logo-sidebar-top' => 'statics/images/logo-sidebar-top.png',
+        'logo-sidebar-bottom' => 'statics/images/logo-sidebar-bottom.png',
+        'logo-mailing' => 'statics/images/logo-mailing.png',
+        'backgrounds' => [
+            'statics/login-and-recovery/images/login/bg1.jpg',
+            'statics/login-and-recovery/images/login/bg2.jpg',
+            'statics/login-and-recovery/images/login/bg3.jpg',
+            'statics/login-and-recovery/images/login/bg4.jpg',
+            'statics/login-and-recovery/images/login/bg5.jpg',
+        ],
+    ]);
 }
 
 $app = new \Slim\App(get_config('slim_container'));
@@ -161,6 +180,15 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         set_config('menus', $config['menus']);
     }
     Roles::setSilentMode($silentModeRolesSetted);
+
+    if (APP_CONFIGURATION_MODULE) {
+        //Configuraciones de la aplicación tomadas desde la base de datos
+        $configurations = AppConfigModel::getConfigurations();
+
+        foreach ($configurations as $name => $value) {
+            set_config($name, $value);
+        }
+    }
 
     return $next($request, $response);
 });
