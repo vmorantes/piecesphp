@@ -163,22 +163,74 @@ class FileUpload
         foreach ($files as $file) {
 
             $tmp = $file['tmp_name'];
+            $error = $file['error'];
 
-            if (is_uploaded_file($tmp)) {
+            if ($error == \UPLOAD_ERR_OK) {
 
-                if (!$this->validator->validate($tmp, $file['name'])) {
-                    $this->errorMessages[] = $this->validator->getMessage();
-                    $valid = false;
-                }
+                if (is_uploaded_file($tmp)) {
 
-            } else {
+                    if (!$this->validator->validate($tmp, $file['name'])) {
+                        $this->errorMessages[] = $this->validator->getMessage();
+                        $valid = false;
+                    }
 
-                if ($tmp != self::NOT_UPLOAD_FAKE_TMP_NAME) {
-                    throw new \Exception("Los archivos deben ser subidos mediante POST.");
                 } else {
-                    $this->errorMessages[] = 'No se ha subido ningún archivo.';
-                    $valid = false;
+
+                    if ($tmp != self::NOT_UPLOAD_FAKE_TMP_NAME) {
+                        throw new \Exception("Los archivos deben ser subidos mediante POST.");
+                    } else {
+                        $this->errorMessages[] = 'No se ha subido ningún archivo.';
+                        $valid = false;
+                    }
+
                 }
+
+            } elseif ($error == \UPLOAD_ERR_INI_SIZE) {
+
+                $max_upload = min(ini_get('post_max_size'), ini_get('upload_max_filesize'));
+                $max_upload = str_replace('M', 'MB', $max_upload);
+
+                $this->errorMessages[] = 'El archivo excede el peso máximo permitido por el servidor. (' . "$max_upload" . ')';
+                $valid = false;
+
+            } elseif ($error == \UPLOAD_ERR_FORM_SIZE) {
+
+                $message_error_size = 'El archivo excede el peso máximo permitido.';
+
+                if (isset($_POST['MAX_FILE_SIZE']) && ctype_digit($_POST['MAX_FILE_SIZE'])) {
+                    $max_upload = $_POST['MAX_FILE_SIZE'] / 1000 / 1000;
+                    $max_upload = (int) floor($max_upload);
+                    $message_error_size .= " ({$max_upload}MB)";
+                }
+
+                $this->errorMessages[] = $message_error_size;
+
+                $valid = false;
+
+            } elseif ($error == \UPLOAD_ERR_PARTIAL) {
+
+                $this->errorMessages[] = 'El archivo no se subió completamente.';
+                $valid = false;
+
+            } elseif ($error == \UPLOAD_ERR_NO_FILE) {
+
+                $this->errorMessages[] = 'No ha subido ningún archivo.';
+                $valid = false;
+
+            } elseif ($error == \UPLOAD_ERR_NO_TMP_DIR) {
+
+                $this->errorMessages[] = 'No se ha subido el archivo. Problema con el directorio temporal.';
+                $valid = false;
+
+            } elseif ($error == \UPLOAD_ERR_CANT_WRITE) {
+
+                $this->errorMessages[] = 'No se ha subido ningún archivo. Problema al escribir en disco.';
+                $valid = false;
+
+            } elseif ($error == \UPLOAD_ERR_EXTENSION) {
+
+                $this->errorMessages[] = 'No se ha subido ningún archivo. Problema con alguna extensión.';
+                $valid = false;
 
             }
 

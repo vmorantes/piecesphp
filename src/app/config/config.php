@@ -52,15 +52,3 @@ $config['osTicketAPIKey'] = '93F0F2E3DCD3B79A686A3157620CFF24';
 
 //Desarrollador
 $config['developer'] = 'Lorem ipsum';
-//Favicon
-$config['favicon'] = append_to_url($config['base_url'], 'statics/images/favicon.ico');
-//Logo general
-$config['logo'] = append_to_url($config['base_url'], 'statics/images/logo.png');
-//Logo en la vista del login
-$config['logo-login'] = append_to_url($config['base_url'], 'statics/images/logo-login.png');
-//Logo en la barra lateral de la zona administrativa (arriba)
-$config['logo-sidebar-top'] = append_to_url($config['base_url'], 'statics/images/logo-sidebar-top.png');
-//Logo en la barra lateral de la zona administrativa (abajo)
-$config['logo-sidebar-bottom'] = append_to_url($config['base_url'], 'statics/images/logo-sidebar-bottom.png');
-//Logo en la plantilla por defecto de emails
-$config['logo-mailing'] = append_to_url($config['base_url'], 'statics/images/logo-mailing.png');

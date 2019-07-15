@@ -14,7 +14,7 @@
 
 <body>
 
-    <section class="container" bg-js>
+    <section class="container" bg-js="<?= base64_encode(json_encode(get_config('backgrounds'))); ?>">
 
         <article class="form-container">
 
