@@ -9,6 +9,7 @@
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
+use App\Model\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
@@ -922,6 +923,59 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
     } else {
         return null;
     }
+}
+
+/**
+ * @param string $name
+ * @param bool $silentOnNotExists
+ * @return string|null
+ */
+function get_route_sample(string $name, bool $silentOnNotExists = false)
+{
+    $information = get_route_info($name);
+    $parameters = $information['parameters'];
+    foreach ($parameters as $name => $value) {
+        $parameters[$name] = "{" . $name . "}";
+    }
+    return get_route($information['name'], $parameters, $silentOnNotExists);
+}
+
+/**
+ * @param string $name
+ * @param string $type
+ * @return array
+ */
+function get_route_roles_allowed(string $name, string $type = 'code')
+{
+    $information = get_route_info($name);
+    $roles_permissions = Roles::getRoles();
+    $roles = UsersModel::TYPES_USERS;
+
+    $roles_allowed = array_map(function ($e) use ($roles, $type) {
+        if ($type == 'name') {
+            return $roles[$e];
+        } elseif ($type == 'code') {
+            return $e;
+        }
+    }, $information['roles_allowed']);
+
+    foreach ($roles_permissions as $data) {
+        $name = $data['name'];
+        $code = $data['code'];
+        $all = $data['all'];
+        $allowed_routes = $data['allowed_routes'];
+        if ($all || in_array($information['name'], $allowed_routes)) {
+            if (!in_array($name, $roles_allowed)) {
+                if ($type == 'name') {
+                    $roles_allowed[] = $name;
+                } elseif ($type == 'code') {
+                    $roles_allowed[] = $code;
+                }
+            }
+        }
+    }
+
+    return $roles_allowed;
 }
 
 /**

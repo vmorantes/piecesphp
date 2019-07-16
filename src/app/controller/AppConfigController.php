@@ -51,6 +51,27 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * routesView
+     *
+     * Vista de configuraciones de las rutas y los permisos
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function routesView(Request $req, Response $res, array $args)
+    {
+        $this->render('panel/layout/header');
+        $this->render('panel/pages/app_configurations/routes', [
+            'routes' => get_routes(),
+        ]);
+        $this->render('panel/layout/footer');
+
+        return $res;
+    }
+
+    /**
      * configurationsView
      *
      * Vista de configuraciones
@@ -611,6 +632,18 @@ class AppConfigController extends AdminPanelController
                 [
                     UsersModel::TYPE_USER_ROOT,
                     UsersModel::TYPE_USER_ADMIN,
+                ]
+            ),
+            //Vista de configuración de rutas y permisos
+            new Route(
+                "{$startRoute}routes[/]",
+                $classname . ':routesView',
+                'configurations-routes',
+                'GET',
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
                 ]
             ),
 
