@@ -702,7 +702,7 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 
 			if (method == 'POST') {
 
-				let processFormData = onSetFormData(formData)
+				let processFormData = onSetFormData(formData, form)
 
 				if (typeof processFormData.then !== 'undefined') {
 					processFormData.then(function (formData) {
