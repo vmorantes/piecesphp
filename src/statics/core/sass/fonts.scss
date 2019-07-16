@@ -1,19 +1,19 @@
-@import url('https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i,900');
-@import url('https://fonts.googleapis.com/css?family=Merriweather:300,300i,400,400i,700,700i');
-$font-family-first: 'Lato',
-'Helvetica Neue',
-Arial,
-Helvetica,
-sans-serif;
-$font-family-second: 'Merriweather',
-serif;
-//Headers
-$h1-font-family:$font-family-first;
-$h2-font-family:$font-family-first;
-$h3-font-family:$font-family-first;
-$h4-font-family:$font-family-first;
-//Paragraph
-$p-font-family:$font-family-second;
-$list-font-family:$font-family-second;
-//Quote
-$q-font-family:$font-family-second;
+ @import '../../fonts/lato/lato.css';
+ @import '../../fonts/merriweather/merriweather.css';
+ $font-family-first: 'Lato',
+ 'Helvetica Neue',
+ Arial,
+ Helvetica,
+ sans-serif;
+ $font-family-second: 'Merriweather',
+ serif;
+ //Headers
+ $h1-font-family:$font-family-first;
+ $h2-font-family:$font-family-first;
+ $h3-font-family:$font-family-first;
+ $h4-font-family:$font-family-first;
+ //Paragraph
+ $p-font-family:$font-family-second;
+ $list-font-family:$font-family-second;
+ //Quote
+ $q-font-family:$font-family-second;
