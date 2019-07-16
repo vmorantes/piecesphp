@@ -47,6 +47,15 @@ if (APP_CONFIGURATION_MODULE) {
             'statics/login-and-recovery/images/login/bg4.jpg',
             'statics/login-and-recovery/images/login/bg5.jpg',
         ],
+        'mail' => [
+            'auto_tls' => true,
+            'protocol' => 'ssl',
+            'host' => 'smtp.zoho.com',
+            'auth' => true,
+            'user' => 'ayuda@tejidodigital.com',
+            'password' => 'TDsas&3379',
+            'port' => 465,
+        ],
     ];
     ksort($default_configurations_values);
     AppConfigModel::initializateConfigurations($default_configurations_values);

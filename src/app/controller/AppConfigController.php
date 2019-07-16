@@ -28,6 +28,13 @@ use \Slim\Http\Response as Response;
  */
 class AppConfigController extends AdminPanelController
 {
+    const PARSE_TYPE_STRING = 'string';
+    const PARSE_TYPE_BOOL = 'bool';
+    const PARSE_TYPE_INT = 'int';
+    const PARSE_TYPE_FLOAT = 'float';
+    const PARSE_TYPE_DOUBLE = 'double';
+    const PARSE_TYPE_JSON_ENCODE = 'json_encode';
+    const PARSE_TYPE_JSON_DECODE = 'json_decode';
 
     /**
      * $mapper
@@ -115,6 +122,30 @@ class AppConfigController extends AdminPanelController
                     return is_string($value) || is_array($value) || is_object($value);
                 }
             ),
+            new Parameter(
+                'parse',
+                null,
+                function ($value) {
+
+                    if (is_array($value)) {
+
+                        $valid = true;
+
+                        array_map(function ($v) use (&$valid) {
+                            if (!is_string($v)) {
+                                $valid = false;
+                            }
+                        }, $value);
+
+                        return $valid;
+
+                    } else {
+                        return is_string($value);
+                    }
+
+                },
+                true
+            ),
         ]);
 
         $parametersExcepted->setInputValues($req->getParsedBody());
@@ -125,8 +156,11 @@ class AppConfigController extends AdminPanelController
 
             $name = $parametersExcepted->getValue('name');
             $value = $parametersExcepted->getValue('value');
+            $parse = $parametersExcepted->getValue('parse');
 
             $option = new AppConfigModel($name);
+
+            $value = self::processGenericInputValues($value, $parse);
 
             $option->value = $value;
 
@@ -393,6 +427,145 @@ class AppConfigController extends AdminPanelController
         }
 
         return $res->withJson($result);
+    }
+
+    /**
+     * processGenericInputValues
+     *
+     * @param mixed $input
+     * @param string|array $parse
+     * @return mixed
+     */
+    private static function processGenericInputValues($input, $parse = null)
+    {
+
+        if (is_array($input)) {
+
+            $parseIsArray = is_array($parse);
+
+            foreach ($input as $index => $value) {
+
+                if ($parseIsArray) {
+
+                    if (!is_array($value)) {
+
+                        if (array_key_exists($index, $parse)) {
+
+                            $parseType = $parse[$index];
+
+                            if (is_string($parseType)) {
+                                $input[$index] = self::parseTo($value, $parseType);
+                            }
+
+                        }
+
+                    } else {
+
+                        if (array_key_exists($index, $parse)) {
+                            $input[$index] = self::processGenericInputValues($value, $parse[$index]);
+                        }
+                    }
+                }
+
+            }
+
+        } else {
+            $parseType = is_string($parse) ? $parse : '';
+            $input = self::parseTo($input, $parse);
+        }
+
+        return $input;
+
+    }
+
+    /**
+     * parseTo
+     *
+     * @param mixed $value
+     * @param string $to
+     * @return mixed
+     */
+    public static function parseTo($value, string $to = null)
+    {
+        $to = is_null($to) ? self::PARSE_TYPE_STRING : $to;
+
+        switch ($to) {
+
+            case self::PARSE_TYPE_STRING:
+
+                if (is_scalar($value)) {
+                    return (string) $value;
+                }
+                return $value;
+
+                break;
+
+            case self::PARSE_TYPE_BOOL:
+
+                if (is_scalar($value)) {
+                    $toFalse = [0, '0', 'off', 'no', 'false', null, 'null'];
+                    $toTrue = [1, '1', 'on', 'yes', 'si', 'sí', 'true'];
+                    if (is_string($value)) {
+                        $value = strtolower($value);
+                    }
+                    foreach ($toTrue as $i) {
+                        if ($i === $value) {
+                            return true;
+                        }
+                    }
+                    foreach ($toFalse as $i) {
+                        if ($i === $value) {
+                            return false;
+                        }
+                    }
+                }
+                return $value;
+
+                break;
+
+            case self::PARSE_TYPE_INT:
+
+                if (is_scalar($value) && is_numeric($value)) {
+                    return (int) $value;
+                }
+                return $value;
+
+                break;
+
+            case self::PARSE_TYPE_FLOAT:
+            case self::PARSE_TYPE_DOUBLE:
+
+                if (is_scalar($value) && is_numeric($value)) {
+                    return (double) $value;
+                }
+                return $value;
+
+                break;
+
+            case self::PARSE_TYPE_JSON_ENCODE:
+                $parsedValue = json_encode($value);
+                if (json_last_error() == \JSON_ERROR_NONE) {
+                    return $parsedValue;
+                } else {
+                    return $value;
+                }
+                break;
+
+            case self::PARSE_TYPE_JSON_DECODE:
+                $parsedValue = json_decode($value);
+                if (json_last_error() == \JSON_ERROR_NONE) {
+                    return $parsedValue;
+                } else {
+                    return $value;
+                }
+                break;
+
+            default:
+
+                return $value;
+
+                break;
+        }
     }
 
     /**
