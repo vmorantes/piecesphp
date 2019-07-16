@@ -128,6 +128,13 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             ],
         ]),
         new MenuGroup([
+            'name' => 'Rutas y permisos',
+            'icon' => 'shield alternate',
+            'visible' => Roles::hasPermissions('configurations-routes', $current_type_user),
+            'asLink' => true,
+            'href' => get_route('configurations-routes', [], true),
+        ]),
+        new MenuGroup([
             'name' => __('general', 'logout'),
             'icon' => 'share',
             'visible' => true,
