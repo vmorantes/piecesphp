@@ -35,6 +35,8 @@ class AppConfigController extends AdminPanelController
     const PARSE_TYPE_DOUBLE = 'double';
     const PARSE_TYPE_JSON_ENCODE = 'json_encode';
     const PARSE_TYPE_JSON_DECODE = 'json_decode';
+    const PARSE_TYPE_UPPERCASE = 'uppercase';
+    const PARSE_TYPE_LOWERCASE = 'lowercase';
 
     /**
      * $mapper
@@ -167,6 +169,17 @@ class AppConfigController extends AdminPanelController
                 },
                 true
             ),
+            new Parameter(
+                'merge',
+                false,
+                function ($value) {
+                    return is_string($value) || is_bool($value);
+                },
+                true,
+                function ($value) {
+                    return self::parseTo($value, self::PARSE_TYPE_BOOL) === true;
+                }
+            ),
         ]);
 
         $parametersExcepted->setInputValues($req->getParsedBody());
@@ -178,14 +191,29 @@ class AppConfigController extends AdminPanelController
             $name = $parametersExcepted->getValue('name');
             $value = $parametersExcepted->getValue('value');
             $parse = $parametersExcepted->getValue('parse');
+            $merge = $parametersExcepted->getValue('merge');
 
             $option = new AppConfigModel($name);
+            $optionExists = !is_null($option->id);
+
+            if ($optionExists && $merge) {
+
+                $oldValue = $option->value;
+                if (
+                    (is_array($oldValue) || $oldValue instanceof \stdClass)
+                    &&
+                    (is_array($value) || $value instanceof \stdClass)
+                ) {
+                    $value = self::recursiveMergeArray($oldValue, $value);
+                }
+
+            }
 
             $value = self::processGenericInputValues($value, $parse);
 
             $option->value = $value;
 
-            if (!is_null($option->id)) {
+            if ($optionExists) {
 
                 $success = $option->update();
 
@@ -460,39 +488,48 @@ class AppConfigController extends AdminPanelController
     private static function processGenericInputValues($input, $parse = null)
     {
 
-        if (is_array($input)) {
+        if (is_array($input) || $input instanceof \stdClass) {
 
             $parseIsArray = is_array($parse);
+            $inputIsArray = is_array($input);
 
             foreach ($input as $index => $value) {
 
                 if ($parseIsArray) {
 
+                    $parseType = null;
+
+                    if (array_key_exists($index, $parse)) {
+                        $parseType = $parse[$index];
+                    }
+
                     if (!is_array($value)) {
 
-                        if (array_key_exists($index, $parse)) {
+                        if (is_string($parseType)) {
 
-                            $parseType = $parse[$index];
-
-                            if (is_string($parseType)) {
+                            if ($inputIsArray) {
                                 $input[$index] = self::parseTo($value, $parseType);
+                            } else {
+                                $input->$index = self::parseTo($value, $parseType);
                             }
 
                         }
 
                     } else {
 
-                        if (array_key_exists($index, $parse)) {
-                            $input[$index] = self::processGenericInputValues($value, $parse[$index]);
-                        }
+                        $input[$index] = self::processGenericInputValues($value, $parseType);
+
                     }
+
                 }
 
             }
 
-        } else {
+        } elseif (is_scalar($input)) {
+
             $parseType = is_string($parse) ? $parse : '';
-            $input = self::parseTo($input, $parse);
+            $input = self::parseTo($input, $parseType);
+
         }
 
         return $input;
@@ -581,12 +618,104 @@ class AppConfigController extends AdminPanelController
                 }
                 break;
 
+            case self::PARSE_TYPE_UPPERCASE:
+                if (is_string($value)) {
+                    return mb_strtoupper($value);
+                } else {
+                    return $value;
+                }
+                break;
+
+            case self::PARSE_TYPE_LOWERCASE:
+                if (is_string($value)) {
+                    return mb_strtolower($value);
+                } else {
+                    return $value;
+                }
+                break;
+
             default:
 
                 return $value;
 
                 break;
         }
+    }
+
+    /**
+     * recursiveMergeArray
+     *
+     * @param array|\stdClass $one
+     * @param array|\stdClass $two
+     * @return array
+     */
+    public static function recursiveMergeArray($one, $two)
+    {
+        if (!is_array($one) && !($one instanceof \stdClass)) {
+            throw new \TypeError('$one debe ser un array o una instancia de \stdClass');
+        }
+        if (!is_array($two) && !($two instanceof \stdClass)) {
+            throw new \TypeError('$two debe ser un array o una instancia de \stdClass');
+        }
+
+        $oneIsArray = is_array($one);
+        $twoIsArray = is_array($two);
+
+        $oneKeys = $oneIsArray ? array_keys($one) : array_keys(get_object_vars($one));
+        $twoKeys = $twoIsArray ? array_keys($two) : array_keys(get_object_vars($two));
+
+        $keys = array_unique(array_merge($oneKeys, $twoKeys));
+
+        foreach ($keys as $key) {
+
+            $oneHasKey = $oneIsArray ? array_key_exists($key, $one) : isset($two->$one);
+            $twoHasKey = $twoIsArray ? array_key_exists($key, $two) : isset($two->$key);
+
+            if ($twoHasKey) {
+
+                $twoValue = $twoIsArray ? $two[$key] : $two->$key;
+
+                if ($oneHasKey) {
+
+                    $oneValue = $one[$key];
+
+                    if (is_scalar($oneValue)) {
+
+                        if ($oneIsArray) {
+                            $one[$key] = $twoValue;
+                        } else {
+                            $one->$key = $twoValue;
+                        }
+
+                    } else {
+
+                        if ($oneIsArray) {
+                            $one[$key] = self::recursiveMergeArray($oneValue, $twoValue);
+                        } else {
+                            $one->$key = self::recursiveMergeArray($oneValue, $twoValue);
+                        }
+
+                    }
+
+                } else {
+
+                    if ($oneIsArray) {
+
+                        $one[$key] = $twoValue;
+
+                    } else {
+
+                        $one->$key = $twoValue;
+
+                    }
+
+                }
+            }
+
+        }
+
+        return $one;
+
     }
 
     /**
