@@ -18,13 +18,18 @@ $(document).ready(function (e) {
 
 	mapBoxAdapter
 		.setKey('pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q')
-		.configurateWhitForm(controlsMapBox, {
-			defaultLongitude: -74.8065913846496,
-			defaultLatitude: 11.0021516003209,
-		})
+		.configurateWhitForm(
+			controlsMapBox,
+			{
+				defaultLongitude: -74.8065913846496,
+				defaultLatitude: 11.0021516003209,
+			},
+			{
+				zoom: 14,
+			}
+		)
 
 })
-
 
 function Locations() {
 
@@ -324,6 +329,7 @@ function MapBoxAdapter() {
 	 * @typedef {Object} ConfigurationMapBox
 	 * @property {boolean} withMarker 
 	 * @property {boolean} withGeolocator 
+	 * @property {Number} [zoom=7] 
 	 */
 	let ignore;
 
@@ -388,11 +394,12 @@ function MapBoxAdapter() {
 				let options = {
 					withMarker: true,
 					withGeolocator: true,
+					zoom: 7,
 				}
 
 				let defaultLongitude = typeof configurations.defaultLongitude != 'undefined' ? configurations.defaultLongitude : null
 				let defaultLatitude = typeof configurations.defaultLatitude != 'undefined' ? configurations.defaultLatitude : null
-				let idContainer = typeof configurations.idContainer != 'undefined' ? configurations.idContainer : 'map'
+				let idContainer = typeof configurations.idMapContainer != 'undefined' ? configurations.idMapContainer : 'map'
 
 				let container = $('#' + idContainer)
 
@@ -423,7 +430,7 @@ function MapBoxAdapter() {
 					let latitude = defaultLatitude === null ? 4.6854957 : defaultLatitude
 
 					let style = instanceStyle
-					let zoom = 7
+					let zoom = options.zoom
 
 					let map = new mapboxgl.Map({
 						container: idContainer,
@@ -498,7 +505,7 @@ function MapBoxAdapter() {
 
 							return geocodes;
 						},
-						zoom: 14,
+						zoom: zoom,
 						placeholder: "Ej.: El Prado, Barranquilla, Colombia"
 					}
 
