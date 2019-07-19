@@ -278,7 +278,7 @@ class DataTablesHelper
             $search,
             $tableName,
             $ignore_table_on_fields_in_where
-		);
+        );
 
         //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
         $having_string = trim($having_string);
@@ -394,8 +394,8 @@ class DataTablesHelper
          * Ejecutar consulta principal y configuraciones sobre el resultado
          */
 
-		//Ejecutar consulta
-		$limit->execute(false, (int) $page, $length);
+        //Ejecutar consulta
+        $limit->execute(false, (int) $page, $length);
         $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $limit->getLastSQLExecuted()));
 
         /**
@@ -614,9 +614,9 @@ class DataTablesHelper
             $filterCount->execute();
             $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCount->getLastSQLExecuted()));
             $filterCount = $filterCount->result();
-			$result->setValue('recordsFiltered', count($filterCount));
-			
-		}
+            $result->setValue('recordsFiltered', count($filterCount));
+
+        }
 
         /**
          * @var \PiecesPHP\Core\BaseModel $totalCount
@@ -666,7 +666,23 @@ class DataTablesHelper
 
                 if (!is_null($column)) {
 
-                    $searchable = isset($column['searchable']) && $column['searchable'];
+                    $searchable = true;
+
+                    if (isset($column['searchable'])) {
+
+                        $searchable_value = $column['searchable'];
+
+                        if ($searchable_value == 'true' || $searchable_value == '1' || $searchable_value == 'yes' || $searchable_value == 'on') {
+                            $searchable_value = true;
+                        }
+
+                        if ($searchable_value == 'false' || $searchable_value == '0' || $searchable_value == 'no' || $searchable_value == 'off') {
+                            $searchable_value = false;
+						}
+						
+						$searchable = $searchable_value === true;
+
+                    }
 
                     if ($searchable) {
 
@@ -804,7 +820,7 @@ class DataTablesHelper
      * @param bool $value
      * @return void
      */
-	public static function setTablePrefixOnOrder(bool $value)
+    public static function setTablePrefixOnOrder(bool $value)
     {
         self::$tableOnOrder = $value;
     }
@@ -815,7 +831,7 @@ class DataTablesHelper
      * @param bool $value
      * @return void
      */
-	public static function setTablePrefixOnSearch(bool $value)
+    public static function setTablePrefixOnSearch(bool $value)
     {
         self::$tableOnSearch = $value;
     }
@@ -829,7 +845,7 @@ class DataTablesHelper
      * @param int $length
      * @return int
      */
-	protected static function generatePage(int $start, int $length): int
+    protected static function generatePage(int $start, int $length): int
     {
         //Calcular página actual
         $page = $start;
