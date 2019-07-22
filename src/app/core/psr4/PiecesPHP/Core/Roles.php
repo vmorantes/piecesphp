@@ -204,9 +204,9 @@ class Roles
      *
      * Devuelve el role que coincida o null si no existe
      *
-     * @return array
+     * @return array|null
      */
-    public static function getRole($name_or_code): array
+    public static function getRole($name_or_code)
     {
         $roles = self::getRoles();
 
