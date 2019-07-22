@@ -214,5 +214,8 @@ set_config('slim_app', $app);
 //Definición de rutas
 require_once basepath("app/config/routes.php");
 
+//Configuraciones finales
+require_once basepath("app/config/final-configurations.php");
+
 /** Activar enrutador */
 get_config('slim_app')->run();
