@@ -559,6 +559,9 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	 * @property {Function} [onSetFormData]
 	 * @property {Function} [onSetForm]
 	 * @property {Function} [validate]
+	 * @property {Function} [onSuccess]
+	 * @property {Function} [onError]
+	 * @property {Boolean} [toast]
 	 */
 	/**
 	 * @typedef genericFormHandler.Options.ConfirmationOption
@@ -586,6 +589,11 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	let validate = function (form) {
 		return true
 	}
+	let onSuccess = function () {
+	}
+	let onError = function () {
+	}
+	let toast = true
 
 	if (typeof options == 'object') {
 		if (typeof options.confirmation == 'object') {
@@ -625,6 +633,15 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 		}
 		if (typeof options.validate == 'function') {
 			validate = options.validate
+		}
+		if (typeof options.onSuccess == 'function') {
+			onSuccess = options.onSuccess
+		}
+		if (typeof options.onError == 'function') {
+			onError = options.onError
+		}
+		if (typeof options.toast == 'boolean') {
+			toast = options.toast
 		}
 	}
 
@@ -707,11 +724,11 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 				if (typeof processFormData.then !== 'undefined') {
 					processFormData.then(function (formData) {
 						request = postRequest(action, formData)
-						handlerRequest(request)
+						handlerRequest(request, form, formData)
 					})
 				} else {
 					request = postRequest(action, processFormData)
-					handlerRequest(request)
+					handlerRequest(request, form, formData)
 				}
 
 			} else {
@@ -719,21 +736,26 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 				if (typeof processForm.then !== 'undefined') {
 					processForm.then(function (form) {
 						request = getRequest(action, form)
-						handlerRequest(request)
+						handlerRequest(request, form, formData)
 					})
 				} else {
 					request = getRequest(action, processForm)
-					handlerRequest(request)
+					handlerRequest(request, form, formData)
 				}
 			}
 
 		} else {
+
 			console.error('No se ha definido ninguna acción')
-			errorMessage('Error', 'Ha ocurrido un error desconocido, intente más tarde.')
+
+			if (toast) {
+				errorMessage('Error', 'Ha ocurrido un error desconocido, intente más tarde.')
+			}
+
 		}
 	}
 
-	function handlerRequest(request) {
+	function handlerRequest(request, formProcess, formData) {
 
 		request.done(function (response) {
 
@@ -811,7 +833,9 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 
 			if (response.success) {
 
-				successMessage(response.name, response.message)
+				if (toast) {
+					successMessage(response.name, response.message)
+				}
 
 				let resposeValues = response.values
 
@@ -841,20 +865,33 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 
 				}
 
+				onSuccess(formProcess, formData, response)
+
 			} else {
 
-				errorMessage(response.name, response.message)
+				if (toast) {
+					errorMessage(response.name, response.message)
+				}
+
 				form.find('button').attr('disabled', false)
+
+				onError(formProcess, formData, response)
 
 			}
 
 		})
 
-		request.fail(function (res) {
+		request.fail(function (error) {
 
 			form.find('button').attr('disabled', false)
-			errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
-			console.error(res)
+
+			if (toast) {
+				errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
+			}
+
+			onError(formProcess, formData, response)
+
+			console.error(error)
 
 		})
 
