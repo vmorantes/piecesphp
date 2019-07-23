@@ -10,11 +10,9 @@ use App\Controller\UsersController;
 use App\Model\AvatarModel;
 use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
-use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
@@ -48,13 +46,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      * @var \PiecesPHP\Core\BaseModel
      */
     protected $modelUsers;
-
-    /**
-     * $controllerUsers
-     *
-     * @var UsersController
-     */
-    protected $controllerUsers;
 
     /**
      * __construct
@@ -94,52 +85,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * formUserView
-     *
-     * Vista de creación/edición de usuario
-     *
-     * @param Request $req
-     * @param Response $res
-     * @param array $args
-     * @return void
-     */
-    public function formUserView(Request $req, Response $res, array $args)
-    {
-        set_custom_assets([
-            base_url('statics/features/avatars/js/canvg.min.js'),
-            base_url('statics/features/avatars/js/avatar.js'),
-            base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
-        ], 'js');
-
-        set_custom_assets([
-            base_url('statics/features/avatars/css/style.css'),
-        ], 'css');
-
-        $route = $req->getAttribute('route');
-
-        $name_route = $route->getName();
-
-        $is_creation_view = $name_route == 'form-usuarios';
-
-        if ($is_creation_view) {
-            //Si es la vista de creación
-
-            return $this->controllerUsers->formUserView($req, $res, $args, $this->user, null, true);
-        } else if (isset($args['id'])) {
-            //Si es la vista de edición
-
-            $this->modelUsers->resetAll();
-
-            $user = $this->modelUsers->select()->where(['id' => $args['id']])->row();
-
-            return $this->controllerUsers->formUserView($req, $res, $args, $this->user, $user);
-        } else {
-            //Si es la vista de perfil
-            return $this->controllerUsers->formUserView($req, $res, $args, $this->user, $this->user);
-        }
-    }
-
-    /**
      * errorLog
      *
      * @param Request $req
@@ -156,83 +101,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
             $log = [];
         }
         return $res->withJson($log);
-    }
-
-    /**
-     * usersList
-     *
-     * Vista del listado de todos los usuarios
-     *
-     * @param Request $req
-     * @param Response $res
-     * @param array $args
-     * @return Response
-     */
-    public function usersList(Request $req, Response $res, array $args)
-    {
-        set_custom_assets([
-            base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
-        ], 'js');
-
-        $this->render('panel/layout/header');
-        $this->render('panel/pages/list-usuarios', [
-            'process_table' => get_route('admin-datatables-users'),
-        ]);
-        $this->render('panel/layout/footer');
-
-        return $res;
-    }
-
-    /**
-     * dataTablesRequestUsers
-     *
-     * @param Request $req
-     * @param Response $res
-     * @param array $args
-     * @return Response
-     */
-    public function dataTablesRequestUsers(Request $req, Response $res, array $args)
-    {
-
-        $where = "id != {$this->user->id}";
-
-        $on_set_data = function ($element) {
-
-            $edit_button = new HtmlElement('a', '<i class="icon edit"></i>' . 'Editar');
-            $edit_button->setAttribute('class', 'ui green button');
-            $edit_button->setAttribute('href', get_route('form-editar-usuarios', ['id' => $element->id]));
-
-            return [
-                $element->id,
-                $element->firstname . ' ' . $element->secondname,
-                $element->first_lastname . ' ' . $element->second_lastname,
-                $element->email,
-                $element->username,
-                $element->status == UsersModel::STATUS_USER_ACTIVE ? 'Sí' : 'No',
-                UsersModel::TYPES_USERS[$element->type],
-                '' . $edit_button,
-            ];
-        };
-
-        $columns = [
-            'id',
-            ['firstname', 'secondname'],
-            ['first_lastname', 'second_lastname'],
-            'email',
-            'username',
-            'status',
-            'type',
-        ];
-
-        $options = [
-            'request' => $req,
-            'mapper' => new UsersModel(),
-            'columns_order' => $columns,
-            'on_set_data' => $on_set_data,
-            'where_string' => $where,
-        ];
-
-        return $res->withJson(DataTablesHelper::process($options)->getValues());
     }
 
     /**
@@ -339,50 +207,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
             ),
         ]);
 
-        //Usuarios
-        $group->register([
-            //Listado de usuarios
-            new Route(
-                "{$startRoute}usuarios/list[/]",
-                $classname . ':usersList',
-                'listado-usuarios',
-                'GET',
-                true
-            ),
-            //Vista de creación de usuario
-            new Route(
-                "{$startRoute}usuarios/crear[/]",
-                $classname . ':formUserView',
-                'form-usuarios',
-                'GET',
-                true
-            ),
-            //Vista de edición de usuario
-            new Route(
-                "{$startRoute}usuarios/editar/{id}[/]",
-                $classname . ':formUserView',
-                'form-editar-usuarios',
-                'GET',
-                true
-            ),
-            //Vista de perfil de usuario
-            new Route(
-                "{$startRoute}perfil[/]",
-                $classname . ':formUserView',
-                'profile',
-                'GET',
-                true
-            ),
-
-            //Datatables
-            new Route(
-                "{$startRoute}usuarios/datatbles[/]",
-                $classname . ':dataTablesRequestUsers',
-                'admin-datatables-users',
-                'GET'
-            ),
-        ]);
-
         //Errores
         $group->register([
             new Route(
@@ -407,147 +231,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      */
     public static function usersRoutes(RouteGroup $group)
     {
-        $groupSegmentURL = $group->getGroupSegment();
-        $lastIsBar = last_char($groupSegmentURL) == '/';
-        $startRoute = $lastIsBar ? '' : '/';
-        $users = UsersController::class;
-        $recovery = RecoveryPasswordController::class;
-        $users_problems = UserProblemsController::class;
-
-        //──── GET ─────────────────────────────────────────────────────────────────────────
-
-        //Inicio, cierre, registro y edición
-        $group->register([
-            new Route(
-                "{$startRoute}login[/]",
-                $users . ':loginForm',
-                'login-form'
-            ),
-        ]);
-
-        //Problemas
-        $group->register([
-            new Route(
-                "{$startRoute}recovery[/]",
-                $recovery . ':recoveryPasswordForm',
-                'recovery-form'
-            ),
-            new Route(
-                "{$startRoute}recovery/{url_token}[/]",
-                $recovery . ':newPasswordCreate',
-                'new-password-create'
-            ),
-            new Route(
-                "{$startRoute}user-forget[/]",
-                $users_problems . ':userForgetForm',
-                'user-forget-form'
-            ),
-            new Route(
-                "{$startRoute}user-blocked[/]",
-                $users_problems . ':userBlockedForm',
-                'user-blocked-form'
-            ),
-            new Route(
-                "{$startRoute}other-problems[/]",
-                $users_problems . ':otherProblemsForm',
-                'other-problems-form'
-            ),
-            new Route(
-                "{$startRoute}problems[/]",
-                $users_problems . ':userProblemsList',
-                'user-problems-list'
-            ),
-        ]);
-
-        //──── POST ─────────────────────────────────────────────────────────────────────────
-
-        //Inicio, cierre, registro y edición
-        $group->register([
-            new Route(
-                "{$startRoute}login[/]",
-                $users . ':login',
-                'login-request',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}verify[/]",
-                $users . ':verifySession',
-                'verify-login-request',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}register[/]",
-                $users . ':register',
-                'register-request',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}edit[/]",
-                $users . ':edit',
-                'user-edit-request',
-                'POST'
-            ),
-        ]);
-
-        //Problemas
-        $group->register([
-            new Route(
-                "{$startRoute}recovery[/]",
-                $recovery . ':recoveryPasswordRequest',
-                'recovery-password-request',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}recovery-code[/]",
-                $recovery . ':recoveryPasswordRequestCode',
-                'recovery-password-request-code',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}create-password-code[/]",
-                $recovery . ':newPasswordCreateCode',
-                'new-password-create-code',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}verify-create-password-code[/]",
-                $recovery . ':verifyCode',
-                'new-password-verify-code',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}user-forget-code[/]",
-                $users_problems . ':generateCode',
-                'user-forget-request-code',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}user-blocked-code[/]",
-                $users_problems . ':generateCode',
-                'user-blocked-request-code',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}get-username[/]",
-                $users_problems . ':resolveProblem',
-                'user-forget-get',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}unblock-user[/]",
-                $users_problems . ':resolveProblem',
-                'user-blocked-resolve',
-                'POST'
-            ),
-            new Route(
-                "{$startRoute}other-problems[/]",
-                $users_problems . ':sendMailOtherProblems',
-                'other-problems-send',
-                'POST'
-            ),
-        ]);
-
-        return $group;
+        return UsersController::routes($group);
     }
 
     /**
@@ -595,9 +279,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 
         OsTicketAPI::setBaseURL($api_url);
         OsTicketAPI::setBaseAPIKey($api_key);
-
-        $this->controllerUsers = new UsersController();
-        $this->modelUsers = (new UsersModel)->getModel();
 
         $view_data = [];
 

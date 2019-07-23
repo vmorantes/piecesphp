@@ -10,9 +10,13 @@ use App\Model\AvatarModel;
 use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Route;
+use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
@@ -31,7 +35,7 @@ use \Slim\Http\Response as Response;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
-class UsersController extends \PiecesPHP\Core\BaseController
+class UsersController extends AdminPanelController
 {
     /**
      * $token_controller
@@ -69,6 +73,15 @@ class UsersController extends \PiecesPHP\Core\BaseController
      */
     public $url_recovery = 'users/recovery/';
 
+    /**
+     * $requested_uri
+     *
+     * URL para recuperación de contraseña
+     *
+     * @var string
+     */
+    public $requested_uri = '';
+
     //Constantes de errores
     const NO_ERROR = 'NO_ERROR';
     const GENERIC_ERROR = 'GENERIC_ERROR';
@@ -92,16 +105,93 @@ class UsersController extends \PiecesPHP\Core\BaseController
     {
         parent::__construct();
 
-        $this->mapper = $this->model;
+        $this->mapper = new UsersModel();
         $this->model = $this->mapper->getModel();
 
         $flash = get_flash_messages();
 
-        $this->setVariables([
-            'requested_uri' => isset($flash['requested_uri']) ? $flash['requested_uri'] : '',
-        ]);
+        $global_variables = $this->getGlobalVariables();
+        $global_variables['requested_uri'] = isset($flash['requested_uri']) ? $flash['requested_uri'] : '';
+        $this->setVariables($global_variables);
 
         $this->token_controller = new TokenController();
+    }
+
+    /**
+     * usersList
+     *
+     * Vista del listado de todos los usuarios
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function usersList(Request $req, Response $res, array $args)
+    {
+        set_custom_assets([
+            base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
+        ], 'js');
+
+        $this->render('panel/layout/header');
+        $this->render('panel/pages/list-usuarios', [
+            'process_table' => get_route('users-datatables'),
+        ]);
+        $this->render('panel/layout/footer');
+
+        return $res;
+    }
+
+    /**
+     * dataTablesRequestUsers
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function dataTablesRequestUsers(Request $req, Response $res, array $args)
+    {
+
+        $where = "id != {$this->user->id}";
+
+        $on_set_data = function ($element) {
+
+            $edit_button = new HtmlElement('a', '<i class="icon edit"></i>' . 'Editar');
+            $edit_button->setAttribute('class', 'ui green button');
+            $edit_button->setAttribute('href', get_route('users-form-edit', ['id' => $element->id]));
+
+            return [
+                $element->id,
+                $element->firstname . ' ' . $element->secondname,
+                $element->first_lastname . ' ' . $element->second_lastname,
+                $element->email,
+                $element->username,
+                $element->status == UsersModel::STATUS_USER_ACTIVE ? 'Sí' : 'No',
+                UsersModel::TYPES_USERS[$element->type],
+                '' . $edit_button,
+            ];
+        };
+
+        $columns = [
+            'id',
+            ['firstname', 'secondname'],
+            ['first_lastname', 'second_lastname'],
+            'email',
+            'username',
+            'status',
+            'type',
+        ];
+
+        $options = [
+            'request' => $req,
+            'mapper' => new UsersModel(),
+            'columns_order' => $columns,
+            'on_set_data' => $on_set_data,
+            'where_string' => $where,
+        ];
+
+        return $res->withJson(DataTablesHelper::process($options)->getValues());
     }
 
     /**
@@ -149,6 +239,53 @@ class UsersController extends \PiecesPHP\Core\BaseController
      *
      * Vista de creación/edición de usuario
      *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function formUserView(Request $req, Response $res, array $args)
+    {
+        set_custom_assets([
+            base_url('statics/features/avatars/js/canvg.min.js'),
+            base_url('statics/features/avatars/js/avatar.js'),
+            base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
+        ], 'js');
+
+        set_custom_assets([
+            base_url('statics/features/avatars/css/style.css'),
+        ], 'css');
+
+        $route = $req->getAttribute('route');
+
+        $name_route = $route->getName();
+
+        $is_creation_view = $name_route == 'users-form-create';
+
+        if ($is_creation_view) {
+            //Si es la vista de creación
+
+            return $this->form($req, $res, $args, $this->user, null, true);
+
+        } else if (isset($args['id'])) {
+            //Si es la vista de edición
+
+            $this->model->resetAll();
+
+            $user = $this->model->select()->where(['id' => $args['id']])->row();
+
+            return $this->form($req, $res, $args, $this->user, $user);
+        } else {
+            //Si es la vista de perfil
+            return $this->form($req, $res, $args, $this->user, $this->user);
+        }
+    }
+
+    /**
+     * form
+     *
+     * Vista de creación/edición de usuario
+     *
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -157,7 +294,7 @@ class UsersController extends \PiecesPHP\Core\BaseController
      * @param bool $create
      * @return void
      */
-    public function formUserView(Request $request, Response $response, array $args, \stdClass $user_login, \stdClass $edit_user = null, bool $create = false)
+    public function form(Request $request, Response $response, array $args, \stdClass $user_login, \stdClass $edit_user = null, bool $create = false)
     {
         $is_same = $user_login == $edit_user;
 
@@ -756,5 +893,200 @@ class UsersController extends \PiecesPHP\Core\BaseController
     public function getMessage($message)
     {
         return __('users', $message);
+    }
+
+    /**
+     * routes
+     *
+     * @param RouteGroup $group
+     * @return RouteGroup
+     */
+    public static function routes(RouteGroup $group)
+    {
+        $groupSegmentURL = $group->getGroupSegment();
+        $lastIsBar = last_char($groupSegmentURL) == '/';
+        $startRoute = $lastIsBar ? '' : '/';
+        $users = self::class;
+        $recovery = RecoveryPasswordController::class;
+        $users_problems = UserProblemsController::class;
+
+        //──── GET ─────────────────────────────────────────────────────────────────────────
+
+        //Usuarios
+        $group->register([
+            //Listado de usuarios
+            new Route(
+                "{$startRoute}usuarios/list[/]",
+                $users . ':usersList',
+                'users-list',
+                'GET',
+                true
+            ),
+            //Vista de creación de usuario
+            new Route(
+                "{$startRoute}usuarios/crear[/]",
+                $users . ':formUserView',
+                'users-form-create',
+                'GET',
+                true
+            ),
+            //Vista de edición de usuario
+            new Route(
+                "{$startRoute}usuarios/editar/{id}[/]",
+                $users . ':formUserView',
+                'users-form-edit',
+                'GET',
+                true
+            ),
+            //Vista de perfil de usuario
+            new Route(
+                "{$startRoute}perfil[/]",
+                $users . ':formUserView',
+                'users-form-profile',
+                'GET',
+                true
+            ),
+
+            //Datatables
+            new Route(
+                "{$startRoute}usuarios/datatbles[/]",
+                $users . ':dataTablesRequestUsers',
+                'users-datatables',
+                'GET'
+            ),
+        ]);
+
+        //Inicio, cierre, registro y edición
+        $group->register([
+            new Route(
+                "{$startRoute}login[/]",
+                $users . ':loginForm',
+                'users-form-login'
+            ),
+        ]);
+
+        //Problemas
+        $group->register([
+            new Route(
+                "{$startRoute}recovery[/]",
+                $recovery . ':recoveryPasswordForm',
+                'recovery-form'
+            ),
+            new Route(
+                "{$startRoute}recovery/{url_token}[/]",
+                $recovery . ':newPasswordCreate',
+                'new-password-create'
+            ),
+            new Route(
+                "{$startRoute}user-forget[/]",
+                $users_problems . ':userForgetForm',
+                'user-forget-form'
+            ),
+            new Route(
+                "{$startRoute}user-blocked[/]",
+                $users_problems . ':userBlockedForm',
+                'user-blocked-form'
+            ),
+            new Route(
+                "{$startRoute}other-problems[/]",
+                $users_problems . ':otherProblemsForm',
+                'other-problems-form'
+            ),
+            new Route(
+                "{$startRoute}problems[/]",
+                $users_problems . ':userProblemsList',
+                'user-problems-list'
+            ),
+        ]);
+
+        //──── POST ─────────────────────────────────────────────────────────────────────────
+
+        //Inicio, cierre, registro y edición
+        $group->register([
+            new Route(
+                "{$startRoute}login[/]",
+                $users . ':login',
+                'login-request',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}verify[/]",
+                $users . ':verifySession',
+                'verify-login-request',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}register[/]",
+                $users . ':register',
+                'register-request',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}edit[/]",
+                $users . ':edit',
+                'user-edit-request',
+                'POST'
+            ),
+        ]);
+
+        //Problemas
+        $group->register([
+            new Route(
+                "{$startRoute}recovery[/]",
+                $recovery . ':recoveryPasswordRequest',
+                'recovery-password-request',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}recovery-code[/]",
+                $recovery . ':recoveryPasswordRequestCode',
+                'recovery-password-request-code',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}create-password-code[/]",
+                $recovery . ':newPasswordCreateCode',
+                'new-password-create-code',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}verify-create-password-code[/]",
+                $recovery . ':verifyCode',
+                'new-password-verify-code',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}user-forget-code[/]",
+                $users_problems . ':generateCode',
+                'user-forget-request-code',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}user-blocked-code[/]",
+                $users_problems . ':generateCode',
+                'user-blocked-request-code',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}get-username[/]",
+                $users_problems . ':resolveProblem',
+                'user-forget-get',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}unblock-user[/]",
+                $users_problems . ':resolveProblem',
+                'user-blocked-resolve',
+                'POST'
+            ),
+            new Route(
+                "{$startRoute}other-problems[/]",
+                $users_problems . ':sendMailOtherProblems',
+                'other-problems-send',
+                'POST'
+            ),
+        ]);
+
+        return $group;
     }
 }
