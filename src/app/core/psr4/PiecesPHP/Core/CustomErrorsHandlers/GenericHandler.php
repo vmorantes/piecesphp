@@ -149,6 +149,7 @@ class GenericHandler
 						return 0;
 					}
 				});
+				$fileLogJSON[$time] = $value;
 			}
 
 			if ($fileLogSizeMB > $this->maxSizeMB) {
