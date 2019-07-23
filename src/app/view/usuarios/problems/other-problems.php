@@ -81,7 +81,7 @@
 
                 <form class="ui form">
                     <div class="field">
-                        <a href="<?= get_route('login-form'); ?>" class="ui button green fuid">Ingresar</a>
+                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid">Ingresar</a>
                     </div>
                 </form>
 

@@ -94,11 +94,11 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
             //Acciones en caso de no estar logueado
             if (!$isActiveSession) {
 
-                if ($name_route != 'login-form') {
+                if ($name_route != 'users-form-login') {
 
                     if ($request->isXhr()) {
 
-                        $url_login = remove_last_char_on('/', get_route('login-form'));
+                        $url_login = remove_last_char_on('/', get_route('users-form-login'));
                         $referer = $request->getHeader('HTTP_REFERER');
                         $referer = isset($referer[0]) ? $referer[0] : '';
                         $referer = remove_last_char_on('/', $referer);
@@ -112,7 +112,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
 
                     } else {
                         set_flash_message('requested_uri', get_current_url());
-                        return $response->withRedirect(get_route('login-form'));
+                        return $response->withRedirect(get_route('users-form-login'));
                     }
 
                 }
@@ -132,7 +132,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         //Verifica que esté logueado
         if ($isActiveSession) {
 
-            if ($name_route == 'login-form') {
+            if ($name_route == 'users-form-login') {
                 return $response->withRedirect($admin_url);
             }
 
@@ -201,7 +201,14 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
 
         foreach ($configurations as $name => $value) {
             set_config($name, $value);
-        }
+		}
+		
+		$mail_config = get_config('mail');
+		if(!is_scalar($mail_config)){
+			$mail_config = json_encode($mail_config);
+			$mail_config = json_decode($mail_config, true);
+			set_config('mail', $mail_config);
+		}
     }
 
     return $next($request, $response);

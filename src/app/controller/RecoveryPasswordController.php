@@ -342,7 +342,7 @@ class RecoveryPasswordController extends UsersController
         if ($request->isXhr()) {
             return $response->withJson($json_response);
         } else {
-            return $response->withRedirect(get_route('login-form'));
+            return $response->withRedirect(get_route('users-form-login'));
         }
     }
 

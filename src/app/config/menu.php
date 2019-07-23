@@ -62,9 +62,9 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
         new MenuGroup([
             'name' => 'Gestionar usuarios',
             'icon' => 'user',
-            'visible' => Roles::hasPermissions('listado-usuarios', $current_type_user),
+            'visible' => Roles::hasPermissions('users-list', $current_type_user),
             'asLink' => true,
-            'href' => get_route('listado-usuarios'),
+            'href' => get_route('users-list'),
         ]),
         new MenuGroup([
             'name' => 'Informes de ingreso',
@@ -95,7 +95,7 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'icon' => 'user cog',
             'visible' => true,
             'asLink' => true,
-            'href' => get_route('profile'),
+            'href' => get_route('users-form-profile'),
         ]),
         new MenuGroup([
             'name' => 'Personalización',

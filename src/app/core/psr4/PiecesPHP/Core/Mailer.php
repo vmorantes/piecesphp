@@ -34,6 +34,10 @@ class Mailer extends PHPMailer
 
         $mail_config = get_config('mail');
 
+        if ($mail_config instanceof \stdClass) {
+            $mail_config = (array) $mail_config;
+        }
+
         if (!isset($mail_config['smtp_debug'])) {
             $mail_config['smtp_debug'] = SMTP::DEBUG_OFF;
         }
@@ -60,6 +64,9 @@ class Mailer extends PHPMailer
         }
         if (!isset($mail_config['auto_tls'])) {
             $mail_config['auto_tls'] = true;
+        }
+        if (!isset($mail_config['smpt_options'])) {
+            $mail_config['smpt_options'] = [];
         }
 
         $this->SMTPDebug = $mail_config['smtp_debug'];

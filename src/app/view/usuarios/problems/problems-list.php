@@ -21,7 +21,7 @@
                 Solución a <br> problemas de <br> ingreso
             </div>
             <div class="back">
-                <a href="<?=get_route('login-form')?>">
+                <a href="<?=get_route('users-form-login')?>">
                     Volver al login
                 </a>
             </div>

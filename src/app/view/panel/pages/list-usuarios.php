@@ -7,8 +7,8 @@
     </h3>
 
     <div class="ui buttons">
-        <?php if(\PiecesPHP\Core\Roles::hasPermissions('form-usuarios', (int)get_config('current_user')->type, true)):?>
-        <a href="<?= get_route('form-usuarios'); ?>" class="ui button green">Agregar</a>
+        <?php if(\PiecesPHP\Core\Roles::hasPermissions('users-form-create', (int)get_config('current_user')->type, true)):?>
+        <a href="<?= get_route('users-form-create'); ?>" class="ui button green">Agregar</a>
         <?php endif;?>
     </div>
 	<br>

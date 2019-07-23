@@ -45,7 +45,7 @@ $permisosGenerales = [
     //Generales
     'admin', //Vista principal de la zona administrativa
     //Usuarios
-    'profile',
+    'users-form-profile',
     //Avatar
     'avatars', //Traer todos los elementos de los avatares
     'push-avatars', //Crear avatar
@@ -53,9 +53,9 @@ $permisosGenerales = [
 
 $permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
     //Usuarios
-    'listado-usuarios', //Listado de los usuarios
-    "form-usuarios", //Formulario de creación de usuarios
-    "form-editar-usuarios", //Formulario de edición de usuarios
+    "users-list", //Listado de los usuarios
+    "users-form-create", //Formulario de creación de usuarios
+    "users-form-edit", //Formulario de edición de usuarios
 ]));
 
 $permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdministrativos, [
