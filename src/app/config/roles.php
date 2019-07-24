@@ -54,6 +54,7 @@ $permisosGenerales = [
 $permisosAdministrativos = array_unique(array_merge($permisosGenerales, [
     //Usuarios
     "users-list", //Listado de los usuarios
+    "users-selection-create", //Selección de tipo de usuario para creación
     "users-form-create", //Formulario de creación de usuarios
     "users-form-edit", //Formulario de edición de usuarios
 ]));
