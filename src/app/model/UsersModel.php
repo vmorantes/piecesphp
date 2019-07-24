@@ -15,6 +15,20 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
+ * @property int $id
+ * @property string $password
+ * @property string $username
+ * @property string $firstname
+ * @property string $secondname
+ * @property string $first_lastname
+ * @property string $second_lastname
+ * @property string $email
+ * @property string|array|\stdClass $meta
+ * @property int $type
+ * @property int $status
+ * @property int $failed_attempts
+ * @property string|\DateTime $created_at
+ * @property string|\DateTime $modified_at
  */
 class UsersModel extends BaseEntityMapper
 {
@@ -26,8 +40,8 @@ class UsersModel extends BaseEntityMapper
     //Constantes de tipos de usuario
     const TYPE_USER_ROOT = 0;
     const TYPE_USER_ADMIN = 1;
-	const TYPE_USER_GENERAL = 2;
-	
+    const TYPE_USER_GENERAL = 2;
+
     const TYPES_USERS = [
         self::TYPE_USER_ROOT => 'Usuario principal',
         self::TYPE_USER_ADMIN => 'Usuario administrador',
@@ -240,13 +254,13 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changefirst_lastname
+     * changeFirstLastname
      *
      * @param mixed $fristLastname
      * @param mixed $id
      * @return bool
      */
-    public function changefirst_lastname($fristLastname, $id)
+    public function changeFirstLastname($fristLastname, $id)
     {
         $this->updateModifiedAt($id);
         $model = $this->getModel();
@@ -257,13 +271,13 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changesecond_lastname
+     * changeSecondLastname
      *
-     * @param mixed $lastname
+     * @param mixed $second_lastname
      * @param mixed $id
      * @return bool
      */
-    public function changesecond_lastname($second_lastname, $id)
+    public function changeSecondLastname($second_lastname, $id)
     {
         $this->updateModifiedAt($id);
         $model = $this->getModel();
@@ -409,9 +423,10 @@ class UsersModel extends BaseEntityMapper
      * isDuplicateEmail
      *
      * @param string $email
+     * @param int $id
      * @return bool
      */
-    public static function isDuplicateEmail(string $email)
+    public static function isDuplicateEmail(string $email, int $id = -1)
     {
         $model = (new static())->getModel();
         $model->resetAll();
@@ -419,6 +434,9 @@ class UsersModel extends BaseEntityMapper
         $model->select()->where([
             'email' => [
                 '=' => $email,
+            ],
+            'id' => [
+                '!=' => $id,
             ],
         ])->execute();
 
@@ -429,9 +447,10 @@ class UsersModel extends BaseEntityMapper
      * isDuplicateUsername
      *
      * @param string $username
+     * @param int $id
      * @return bool
      */
-    public static function isDuplicateUsername(string $username)
+    public static function isDuplicateUsername(string $username, int $id = -1)
     {
         $model = (new static())->getModel();
         $model->resetAll();
@@ -440,7 +459,12 @@ class UsersModel extends BaseEntityMapper
             'username' => [
                 '=' => $username,
             ],
-        ])->execute();
+            'id' => [
+                '!=' => $id,
+            ],
+		]);
+
+		$model->execute();
 
         return count($model->result()) > 0;
     }

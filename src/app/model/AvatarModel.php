@@ -29,7 +29,7 @@ class AvatarModel
     /**
      * @var string
      */
-    const EXTENSION_AVATAR = 'png';
+    const EXTENSION_AVATAR = 'jpg';
 
     /**
      * getAvatar
@@ -97,7 +97,8 @@ class AvatarModel
      */
     public static function getUserAvatarName(int $id)
     {
-        return self::getFolderUser($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
+        $filename = self::getFolderUser($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
+		return $filename;
     }
 
     /**
@@ -108,7 +109,8 @@ class AvatarModel
      */
     public static function getUserAvatarNameURL(int $id)
     {
-        return self::getFolderUserURL($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
+		$route = self::getFolderUserURL($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
+		return $route;
     }
 
     /**
@@ -119,6 +121,8 @@ class AvatarModel
      */
     public static function hasUserAvatar(int $id)
     {
-        return file_exists(self::getUserAvatarName($id));
+		$filename = self::getUserAvatarName($id);
+		$exists = file_exists($filename);
+		return $exists;
     }
 }

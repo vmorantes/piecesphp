@@ -11,18 +11,19 @@ use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\HTML\HtmlElement;
-use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -37,6 +38,21 @@ use \Slim\Http\Response as Response;
  */
 class UsersController extends AdminPanelController
 {
+
+    /**
+     * $password
+     *
+     * @var string
+     */
+    private $password = "NDG3iIk43xMlo5OKpCZ6Buyu0pC99v9qef9du5tncHoCbgZnHY";
+
+    /**
+     * $ofuscate
+     *
+     * @var string
+     */
+    private $ofuscate = "NDG3iIk43xMlo5OKpCZ6Buyu0pC99v9qef9du5tncHoCbgZnHY";
+
     /**
      * $token_controller
      *
@@ -235,16 +251,49 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * formUserView
+     * selectionTypeToCreate
      *
-     * Vista de creación/edición de usuario
+     * Vista de selección de tipo de usuario para crear
      *
      * @param Request $req
      * @param Response $res
      * @param array $args
      * @return void
      */
-    public function formUserView(Request $req, Response $res, array $args)
+    public function selectionTypeToCreate(Request $req, Response $res, array $args)
+    {
+        $types = UsersModel::TYPES_USERS;
+
+        foreach ($types as $key => $display) {
+
+            $type_encrypt = strrev($this->ofuscate) . ":$key:" . $this->ofuscate;
+            $type_encrypt = BaseHashEncryption::encrypt($type_encrypt, $this->password);
+
+            $types[$key] = [
+                'link' => get_route('users-form-create', ['type' => $type_encrypt]),
+                'text' => $display,
+            ];
+
+        }
+
+        $this->render('panel/layout/header');
+        $this->render('usuarios/select-type-user', [
+            'types' => $types,
+        ]);
+        $this->render('panel/layout/footer');
+    }
+
+    /**
+     * formCreateByType
+     *
+     * Vista de creación de usuario por tipo
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function formCreateByType(Request $req, Response $res, array $args)
     {
         set_custom_assets([
             base_url('statics/features/avatars/js/canvg.min.js'),
@@ -256,102 +305,195 @@ class UsersController extends AdminPanelController
             base_url('statics/features/avatars/css/style.css'),
         ], 'css');
 
-        $route = $req->getAttribute('route');
+        $type = $req->getAttribute('type', null);
+        $type = BaseHashEncryption::decrypt($type, $this->password);
+        $type = str_replace([
+            strrev($this->ofuscate) . ':',
+            ':' . $this->ofuscate,
+        ], '', $type);
 
-        $name_route = $route->getName();
+        if (isset(UsersModel::TYPES_USERS[$type])) {
 
-        $is_creation_view = $name_route == 'users-form-create';
+            $status_options = [
+                __('general', 'active') => UsersModel::STATUS_USER_ACTIVE,
+                __('general', 'inactive') => UsersModel::STATUS_USER_INACTIVE,
+            ];
 
-        if ($is_creation_view) {
-            //Si es la vista de creación
+            $data_form = [];
+            $data_form['status_options'] = $status_options;
 
-            return $this->form($req, $res, $args, $this->user, null, true);
+            $form = '';
 
-        } else if (isset($args['id'])) {
-            //Si es la vista de edición
+            if ($type == UsersModel::TYPE_USER_ROOT) {
 
-            $this->model->resetAll();
+                $form = $this->render('usuarios/form-by-type/create/root/form', $data_form, false);
 
-            $user = $this->model->select()->where(['id' => $args['id']])->row();
+            } elseif ($type == UsersModel::TYPE_USER_ADMIN) {
 
-            return $this->form($req, $res, $args, $this->user, $user);
+                $form = $this->render('usuarios/form-by-type/create/admin/form', $data_form, false);
+
+            } elseif ($type == UsersModel::TYPE_USER_GENERAL) {
+
+                $form = $this->render('usuarios/form-by-type/create/general/form', $data_form, false);
+
+            }
+
+            $data = [];
+            $data['form'] = $form;
+            $data['create'] = true;
+
+            $this->render('panel/layout/header');
+            $this->render('usuarios/form', $data);
+            $this->render('panel/layout/footer');
+
         } else {
-            //Si es la vista de perfil
-            return $this->form($req, $res, $args, $this->user, $this->user);
+            throw new NotFoundException($req, $res);
         }
     }
 
     /**
-     * form
+     * formEditByType
      *
-     * Vista de creación/edición de usuario
+     * Vista de edición de usuario por tipo
      *
-     * @param Request $request
-     * @param Response $response
+     * @param Request $req
+     * @param Response $res
      * @param array $args
-     * @param stdClass $user_login
-     * @param stdClass $edit_user
-     * @param bool $create
-     * @return void
+     * @return Response
      */
-    public function form(Request $request, Response $response, array $args, \stdClass $user_login, \stdClass $edit_user = null, bool $create = false)
+    public function formEditByType(Request $req, Response $res, array $args)
     {
-        $is_same = $user_login == $edit_user;
+        set_custom_assets([
+            base_url('statics/features/avatars/js/canvg.min.js'),
+            base_url('statics/features/avatars/js/avatar.js'),
+            base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
+        ], 'js');
 
-        if (!$create) {
-            $edit_user->avatar = AvatarModel::getAvatar($edit_user->id);
-            $edit_user->hasAvatar = !is_null($edit_user->avatar);
-        }
+        set_custom_assets([
+            base_url('statics/features/avatars/css/style.css'),
+        ], 'css');
 
-        $data['create'] = $create;
-        $data['user'] = $user_login;
-        $data['edit_user'] = $edit_user;
-        $data['is_same'] = $is_same;
+        $id = $req->getAttribute('id', null);
+        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
 
-        $type_disabled = $edit_user !== null && ($is_same || $user_login->type == UsersModel::TYPE_USER_GENERAL);
-        $type_disabled = $type_disabled ? 'disabled' : '';
-        $type_options = Roles::getRolesIdentifiers();
+        $user = new UsersModel($id);
 
-        $status_disabled = $is_same;
-        $status_disabled = $status_disabled ? 'disabled' : '';
-        $status_options = [
-            __('general', 'active') => UsersModel::STATUS_USER_ACTIVE,
-            __('general', 'inactive') => UsersModel::STATUS_USER_INACTIVE,
-        ];
+        if (!is_null($user->id)) {
 
-        $data['type_disabled'] = $type_disabled;
-        $data['type_options'] = $type_options;
-        $data['status_disabled'] = $status_disabled;
-        $data['status_options'] = $status_options;
+            $is_same = $user->id == $this->user->id;
 
-        $this->setVariables($data);
+            if (!$is_same) {
 
-        $form = '';
+                $type = $user->type;
 
-        if ($is_same) {
+                $status_options = [
+                    __('general', 'active') => UsersModel::STATUS_USER_ACTIVE,
+                    __('general', 'inactive') => UsersModel::STATUS_USER_INACTIVE,
+                ];
 
-            set_title('Perfil de usuario - ' . get_title());
-            $form = $this->render('usuarios/inc/profile-form', [], false);
+                $data_form = [];
+                $data_form['status_options'] = $status_options;
+                $data_form['edit_user'] = $user;
 
-        } elseif ($create) {
+                $form = '';
 
-            set_title('Creación de usuario - ' . get_title());
-            $form = $this->render('usuarios/inc/create-form', [], false);
+                if ($type == UsersModel::TYPE_USER_ROOT) {
+
+                    $form = $this->render('usuarios/form-by-type/edit/root/form', $data_form, false);
+
+                } elseif ($type == UsersModel::TYPE_USER_ADMIN) {
+
+                    $form = $this->render('usuarios/form-by-type/edit/admin/form', $data_form, false);
+
+                } elseif ($type == UsersModel::TYPE_USER_GENERAL) {
+
+                    $form = $this->render('usuarios/form-by-type/edit/general/form', $data_form, false);
+
+                }
+
+                $data = [];
+                $data['form'] = $form;
+                $data['edit_user'] = $user;
+                $data['avatar'] = AvatarModel::getAvatar($user->id);
+                $data['hasAvatar'] = !is_null($data['avatar']);
+                $data['create'] = false;
+
+                $this->render('panel/layout/header');
+                $this->render('usuarios/form', $data);
+                $this->render('panel/layout/footer');
+
+            } else {
+
+                throw new NotFoundException($req, $res);
+
+            }
 
         } else {
-
-            set_title('Edición de usuario - ' . get_title());
-            $form = $this->render('usuarios/inc/edit-form', [], false);
-
+            throw new NotFoundException($req, $res);
         }
+    }
 
-        $this->render('panel/layout/header');
-        $this->render('usuarios/form', [
-            'form' => $form,
-        ]);
-        $this->render('panel/layout/footer');
+    /**
+     * formProfileByType
+     *
+     * Vista de perfil de usuario por tipo
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function formProfileByType(Request $req, Response $res, array $args)
+    {
+        set_custom_assets([
+            base_url('statics/features/avatars/js/canvg.min.js'),
+            base_url('statics/features/avatars/js/avatar.js'),
+            base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
+        ], 'js');
 
-        return $response;
+        set_custom_assets([
+            base_url('statics/features/avatars/css/style.css'),
+        ], 'css');
+
+        $user = new UsersModel($this->user->id);
+
+        if (!is_null($user->id)) {
+
+            $type = $user->type;
+
+            $data_form = [];
+            $data_form['edit_user'] = $user;
+
+            $form = '';
+
+            if ($type == UsersModel::TYPE_USER_ROOT) {
+
+                $form = $this->render('usuarios/form-by-type/profile/root/form', $data_form, false);
+
+            } elseif ($type == UsersModel::TYPE_USER_ADMIN) {
+
+                $form = $this->render('usuarios/form-by-type/profile/admin/form', $data_form, false);
+
+            } elseif ($type == UsersModel::TYPE_USER_GENERAL) {
+
+                $form = $this->render('usuarios/form-by-type/profile/general/form', $data_form, false);
+
+            }
+
+            $data = [];
+            $data['form'] = $form;
+            $data['edit_user'] = $user;
+            $data['avatar'] = AvatarModel::getAvatar($user->id);
+            $data['hasAvatar'] = !is_null($data['avatar']);
+            $data['create'] = false;
+
+            $this->render('panel/layout/header');
+            $this->render('usuarios/form', $data);
+            $this->render('panel/layout/footer');
+
+        } else {
+            throw new NotFoundException($req, $res);
+        }
     }
 
     /**
@@ -569,295 +711,503 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * Registra un usuario nuevo.
-     *
-     * Este método espera recibir por POST:  [id, username, password, firstname, lastname, email, type, status]
-     *
+     * Registra un usuario nuevo
      *
      * @param Request $request Petición
      * @param Request $response Respuesta
      * @param array $args Argumentos pasados por GET
-     * @return void
+     * @return Response
      */
     public function register(Request $request, Response $response, array $args)
     {
-        $requerido = [
-            'username',
-            'password',
-            'firstname',
-            'secondname',
-            'first_lastname',
-            'second_lastname',
-            'email',
-            'type',
-            'status',
-        ];
 
-        $params = $request->getParsedBody();
+        $operation_name = 'Creación de usuario';
 
-        $json_response = [
-            'success' => false,
-            'duplicate' => false,
-            'errors' => null,
-            'data' => null,
-        ];
+        $result = new ResultOperations([
+            new Operation($operation_name),
+        ], $operation_name);
 
-        $params_ok = require_keys($requerido, $params) === true && count($params) == count($requerido);
+        $parametersExcepted = new Parameters([
+            new Parameter(
+                'username',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return strtolower($value);
+                }
+            ),
+            new Parameter(
+                'email',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return strtolower($value);
+                }
+            ),
+            new Parameter(
+                'password',
+                null,
+                function ($value) {
+                    return is_string($value);
+                }
+            ),
+            new Parameter(
+                'password2',
+                null,
+                function ($value) {
+                    return is_string($value);
+                }
+            ),
+            new Parameter(
+                'firstname',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'secondname',
+                '',
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'first_lastname',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'second_lastname',
+                '',
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'type',
+                null,
+                function ($value) {
+                    return is_string($value) && ctype_digit($value);
+                }
+            ),
+            new Parameter(
+                'status',
+                null,
+                function ($value) {
+                    return is_string($value) && ctype_digit($value);
+                }
+            ),
+        ]);
 
-        if ($params_ok) {
+        $parametersExcepted->setInputValues($request->getParsedBody());
 
-            $username = strtolower($request->getParsedBodyParam('username'));
-            $email = strtolower($request->getParsedBodyParam('email'));
+        $message_create = 'Usuario creado.';
+        $message_duplicate_email = 'Ya existe un usuario con ese email.';
+        $message_duplicate_user = 'Ya existe un usuario con ese nombre de usuario.';
+        $message_duplicate_all = 'Ya existe un usuario con ese email y nombre de usuario.';
+        $message_password_unmatch = 'Las contraseñas no coinciden.';
+        $message_unknow_error = 'Ha ocurrido un error inesperado.';
 
-            $password = $request->getParsedBodyParam('password');
+        try {
 
-            $firstname = ucwords($request->getParsedBodyParam('firstname'));
-            $secondname = ucwords($request->getParsedBodyParam('secondname', ''));
-            $first_lastname = ucwords($request->getParsedBodyParam('first_lastname'));
-            $second_lastname = ucwords($request->getParsedBodyParam('second_lastname', ''));
+            $parametersExcepted->validate();
 
-            $type = $request->getParsedBodyParam('type');
-            $status = $request->getParsedBodyParam('status');
+            $username = $parametersExcepted->getValue('username');
+            $email = $parametersExcepted->getValue('email');
+            $password = $parametersExcepted->getValue('password');
+            $password2 = $parametersExcepted->getValue('password2');
+            $firstname = $parametersExcepted->getValue('firstname');
+            $secondname = $parametersExcepted->getValue('secondname');
+            $first_lastname = $parametersExcepted->getValue('first_lastname');
+            $second_lastname = $parametersExcepted->getValue('second_lastname');
+            $type = $parametersExcepted->getValue('type');
+            $status = $parametersExcepted->getValue('status');
 
-            $duplicado = $this->isDuplicate($username, $email);
+            $username_duplicate = UsersModel::isDuplicateUsername($username);
+            $email_duplicate = UsersModel::isDuplicateEmail($email);
 
-            if ($duplicado['duplicate']) {
+            $password_match = $password == $password2;
 
-                $json_response['duplicate'] = $duplicado['duplicate'];
-                $json_response['errors'] = $duplicado['errors'];
+            if (!$username_duplicate && !$email_duplicate && $password_match) {
+
+                $userMapper = new UsersModel();
+
+                $userMapper->username = $username;
+                $userMapper->email = $email;
+                $userMapper->password = password_hash($password, \PASSWORD_DEFAULT);
+                $userMapper->firstname = $firstname;
+                $userMapper->secondname = $secondname;
+                $userMapper->first_lastname = $first_lastname;
+                $userMapper->second_lastname = $second_lastname;
+                $userMapper->type = $type;
+                $userMapper->status = $status;
+                $userMapper->failed_attempts = 0;
+                $userMapper->created_at = new \DateTime();
+                $userMapper->modified_at = $userMapper->created_at;
+
+                $success = $userMapper->save();
+
+                if ($success) {
+
+                    $result->setValue('reload', true);
+
+                    $result
+                        ->setMessage($message_create)
+                        ->operation($operation_name)
+                        ->setSuccess(true);
+
+                } else {
+
+                    $result
+                        ->setMessage($message_unknow_error)
+                        ->operation($operation_name);
+
+                }
 
             } else {
 
-                $data['username'] = $username;
-                $data['password'] = password_hash($password, PASSWORD_DEFAULT);
-                $data['firstname'] = $firstname;
-                $data['secondname'] = $secondname;
-                $data['first_lastname'] = $first_lastname;
-                $data['second_lastname'] = $second_lastname;
-                $data['email'] = $email;
-                $data['type'] = $type;
-                $data['status'] = $status;
-                $this->model->insert($data);
-                $json_response['success'] = $this->model->execute();
+                if (!$password_match) {
+
+                    $result
+                        ->setMessage($message_password_unmatch)
+                        ->operation($operation_name);
+
+                } elseif ($username_duplicate && $email_duplicate) {
+
+                    $result
+                        ->setMessage($message_duplicate_all)
+                        ->operation($operation_name);
+
+                } elseif ($username_duplicate) {
+
+                    $result
+                        ->setMessage($message_duplicate_user)
+                        ->operation($operation_name);
+
+                } elseif ($email_duplicate) {
+
+                    $result
+                        ->setMessage($message_duplicate_email)
+                        ->operation($operation_name);
+
+                }
 
             }
 
-            $response = $response->withJson($json_response);
+        } catch (\PDOException $e) {
 
-        } else {
-            $json_response['errors'] = [
-                [
-                    'code' => self::MISSING_OR_UNEXPECTED_PARAMS,
-                    'message' => $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS),
-                ],
-            ];
-            $json_response['data'] = $params;
-            $response = $response->withJson($json_response);
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
+        } catch (\Exception $e) {
+
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
         }
 
-        return $response;
+        return $response->withJson($result);
+
     }
 
     /**
-     * Edita un usuario.
-     *
-     * Este método espera recibir por POST:
-     *
-     * [id, username, password, firstname, lastname, email, type, status]
-     *
-     * o
-     *
-     * [id, username, firstname, lastname, email, type, status]
-     *
+     * Edita un usuario
      *
      * @param Request $request Petición
      * @param Request $response Respuesta
      * @param array $args Argumentos pasados por GET
-     * @return void
+     * @return Response
      */
     public function edit(Request $request, Response $response, array $args)
     {
-        $requerido_perfil = [
-            'id',
-            'username',
-            'current-password',
-            'password',
-            'firstname',
-            'secondname',
-            'first_lastname',
-            'second_lastname',
-            'email',
-            'type',
-            'status',
-        ];
 
-        $requerido_perfil_edicion = [
-            'id',
-            'username',
-            'password',
-            'firstname',
-            'secondname',
-            'first_lastname',
-            'second_lastname',
-            'email',
-            'type',
-            'status',
-        ];
+        $operation_name = 'Edición de usuario';
 
-        $requerido_edicion_alt = [
-            'id',
-            'username',
-            'firstname',
-            'secondname',
-            'first_lastname',
-            'second_lastname',
-            'email',
-            'type',
-            'status',
-        ];
+        $result = new ResultOperations([
+            new Operation($operation_name),
+        ], $operation_name);
 
-        $params = $request->getParsedBody();
+        $parametersExcepted = new Parameters([
+            new Parameter(
+                'id',
+                null,
+                function ($value) {
+                    return ctype_digit($value);
+                }
+            ),
+            new Parameter(
+                'username',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return strtolower($value);
+                }
+            ),
+            new Parameter(
+                'email',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return strtolower($value);
+                }
+            ),
+            new Parameter(
+                'is_profile',
+                false,
+                function ($value) {
+                    return is_string($value) || is_bool($value);
+                },
+                true,
+                function ($value) {
+                    return is_string($value) ? $value == 'yes' : $value === true;
+                }
+            ),
+            new Parameter(
+                'current-password',
+                null,
+                function ($value) {
+                    return is_string($value) || is_null($value);
+                },
+                true
+            ),
+            new Parameter(
+                'password',
+                null,
+                function ($value) {
+                    return is_string($value) || is_null($value);
+                },
+                true
+            ),
+            new Parameter(
+                'password2',
+                null,
+                function ($value) {
+                    return is_string($value) || is_null($value);
+                },
+                true
+            ),
+            new Parameter(
+                'firstname',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'secondname',
+                '',
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'first_lastname',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'second_lastname',
+                '',
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return ucwords($value);
+                }
+            ),
+            new Parameter(
+                'status',
+                null,
+                function ($value) {
+                    return is_string($value) && ctype_digit($value);
+                }
+            ),
+        ]);
 
-        $json_response = [
-            'success' => false,
-            'duplicate' => false,
-            'errors' => null,
-            'data' => null,
-        ];
+        $parametersExcepted->setInputValues($request->getParsedBody());
 
-        $params_ok = require_keys($requerido_perfil, $params) === true && count($params) == count($requerido_perfil);
-        $params_ok = $params_ok || require_keys($requerido_perfil_edicion, $params) === true && count($params) == count($requerido_perfil_edicion);
-        $params_ok = $params_ok || require_keys($requerido_edicion_alt, $params) === true && count($params) == count($requerido_edicion_alt);
+        $message_edit = 'Usuario editado.';
+        $message_duplicate_email = 'Ya existe un usuario con ese email.';
+        $message_duplicate_user = 'Ya existe un usuario con ese nombre de usuario.';
+        $message_duplicate_all = 'Ya existe un usuario con ese email y nombre de usuario.';
+        $message_password_unmatch = 'Las contraseñas no coinciden.';
+        $message_password_wrong = 'La contraseña es errónea.';
+        $message_unknow_error = 'Ha ocurrido un error inesperado.';
 
-        if ($params_ok) {
+        try {
 
-            $id = strtolower($request->getParsedBodyParam('id'));
+            $parametersExcepted->validate();
 
-            $username = strtolower($request->getParsedBodyParam('username'));
-            $email = strtolower($request->getParsedBodyParam('email'));
+            $id = $parametersExcepted->getValue('id');
+            $username = $parametersExcepted->getValue('username');
+            $email = $parametersExcepted->getValue('email');
+            $isProfile = $parametersExcepted->getValue('is_profile');
+            $currentPassword = $parametersExcepted->getValue('current-password');
+            $password = $parametersExcepted->getValue('password');
+            $password2 = $parametersExcepted->getValue('password2');
+            $firstname = $parametersExcepted->getValue('firstname');
+            $secondname = $parametersExcepted->getValue('secondname');
+            $first_lastname = $parametersExcepted->getValue('first_lastname');
+            $second_lastname = $parametersExcepted->getValue('second_lastname');
+            $status = $parametersExcepted->getValue('status');
 
-            $password = $request->getParsedBodyParam('password');
-            $currentPassword = $request->getParsedBodyParam('current-password');
+            $username_duplicate = UsersModel::isDuplicateUsername($username, $id);
+            $email_duplicate = UsersModel::isDuplicateEmail($email, $id);
 
-            $firstname = ucwords($request->getParsedBodyParam('firstname'));
-            $secondname = ucwords($request->getParsedBodyParam('secondname', ''));
-            $first_lastname = ucwords($request->getParsedBodyParam('first_lastname'));
-            $second_lastname = ucwords($request->getParsedBodyParam('second_lastname', ''));
+            $change_password = !is_null($password);
+            $password_match = $change_password ? $password == $password2 : true;
+            $password_ok = true;
 
-            $type = $request->getParsedBodyParam('type');
-            $status = $request->getParsedBodyParam('status');
+            $userMapper = new UsersModel($id);
 
-            $duplicado = $this->isDuplicate($username, $email, (int) $id);
+            if ($userMapper->id !== null) {
 
-            if ($duplicado['duplicate']) {
+                if ($isProfile && $change_password) {
+                    $password_ok = password_verify($currentPassword, $userMapper->password);
+                }
 
-                $json_response['duplicate'] = $duplicado['duplicate'];
-                $json_response['errors'] = $duplicado['errors'];
+                if (!$username_duplicate && !$email_duplicate && $password_match && $password_ok) {
 
-            } else {
+                    $userMapper->username = $username;
+                    $userMapper->email = $email;
+                    $userMapper->firstname = $firstname;
+                    $userMapper->secondname = $secondname;
+                    $userMapper->first_lastname = $first_lastname;
+                    $userMapper->second_lastname = $second_lastname;
+                    $userMapper->status = $status;
+                    $userMapper->modified_at = new \DateTime();
 
-                $data['username'] = $username;
-                $data['firstname'] = $firstname;
-                $data['secondname'] = $secondname;
-                $data['first_lastname'] = $first_lastname;
-                $data['second_lastname'] = $second_lastname;
-                $data['email'] = $email;
-                $data['type'] = $type;
-                $data['status'] = $status;
+                    if ($change_password) {
+                        $userMapper->password = password_hash($password, \PASSWORD_DEFAULT);
+                    }
 
-                if (is_null($password)) {
+                    $success = $userMapper->update();
 
-                    $this->model->update($data)->where(['id' => $id]);
-                    $json_response['success'] = $this->model->execute();
+                    if ($success) {
+
+                        $result->setValue('reload', true);
+
+                        $result
+                            ->setMessage($message_edit)
+                            ->operation($operation_name)
+                            ->setSuccess(true);
+
+                    } else {
+
+                        $result
+                            ->setMessage($message_unknow_error)
+                            ->operation($operation_name);
+
+                    }
 
                 } else {
 
-                    $userEditing = new UsersModel((int) $id);
-                    $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+                    if (!$password_ok) {
 
-                    if (password_verify($currentPassword, $userEditing->password) || is_null($currentPassword)) {
-                        $this->model->update($data)->where(['id' => $id]);
-                        $json_response['success'] = $this->model->execute();
-                    } else {
-                        $json_response['errors'] = [
-                            [
-                                'code' => self::INCORRECT_PASSWORD,
-                                'message' => $this->getMessage(self::INCORRECT_PASSWORD),
-                            ],
-                        ];
+                        $result
+                            ->setMessage($message_password_wrong)
+                            ->operation($operation_name);
+
+                    } elseif (!$password_match) {
+
+                        $result
+                            ->setMessage($message_password_unmatch)
+                            ->operation($operation_name);
+
+                    } elseif ($username_duplicate && $email_duplicate) {
+
+                        $result
+                            ->setMessage($message_duplicate_all)
+                            ->operation($operation_name);
+
+                    } elseif ($username_duplicate) {
+
+                        $result
+                            ->setMessage($message_duplicate_user)
+                            ->operation($operation_name);
+
+                    } elseif ($email_duplicate) {
+
+                        $result
+                            ->setMessage($message_duplicate_email)
+                            ->operation($operation_name);
+
                     }
 
                 }
 
+            } else {
+
+                $result
+                    ->setMessage('No existe el usuario que intenta modificar.')
+                    ->operation($operation_name);
+
             }
 
-            $response = $response->withJson($json_response);
+        } catch (\PDOException $e) {
 
-        } else {
-            $json_response['errors'] = [
-                [
-                    'code' => self::MISSING_OR_UNEXPECTED_PARAMS,
-                    'message' => $this->getMessage(self::MISSING_OR_UNEXPECTED_PARAMS),
-                ],
-            ];
-            $json_response['data'] = $params;
-            $response = $response->withJson($json_response);
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
+        } catch (\Exception $e) {
+
+            $result
+                ->setMessage($e->getMessage())
+                ->operation($operation_name);
+
         }
 
-        return $response;
-    }
+        return $response->withJson($result);
 
-    /**
-     * Comprueba que el usuario no esté duplicado.
-     *
-     * @param string $user Usuario
-     * @param string $email Email
-     * @param int $exclude_id ID
-     * @return array Array asociativo con la estructura ['duplicate'=>boolean,'errors'=>array()|null]
-     */
-    private function isDuplicate(string $user, string $email, int $exclude_id = null)
-    {
-        $query = $this->model->select();
-        if (!is_null($exclude_id)) {
-            $query->where("id != $exclude_id");
-        }
-        $query->execute();
-        $usuarios = $this->model->result();
-
-        $contador = 0;
-        $duplicado = false;
-        $errors = [];
-
-        if ($this->model->rowCount() > 0) {
-            foreach ($usuarios as $usuario) {
-                if ($usuario->username == $user) {
-                    $tmp = [];
-                    $tmp['code'] = self::DUPLICATE_USER;
-                    $tmp['message'] = vsprintf($this->getMessage(self::DUPLICATE_USER), [$user]);
-                    $errors[] = $tmp;
-                    $duplicado = true;
-                }
-                if ($usuario->email == $email) {
-                    $tmp = [];
-                    $tmp['code'] = self::DUPLICATE_EMAIL;
-                    $tmp['message'] = vsprintf($this->getMessage(self::DUPLICATE_EMAIL), [$email]);
-                    $errors[] = $tmp;
-                    $duplicado = true;
-                }
-                if ($duplicado) {
-                    break;
-                }
-            }
-            return [
-                "duplicate" => $duplicado,
-                'errors' => $errors,
-            ];
-        } else {
-            return [
-                "duplicate" => $duplicado,
-                'errors' => null,
-            ];
-        }
     }
 
     /**
@@ -916,32 +1266,40 @@ class UsersController extends AdminPanelController
         $group->register([
             //Listado de usuarios
             new Route(
-                "{$startRoute}usuarios/list[/]",
+                "{$startRoute}list[/]",
                 $users . ':usersList',
                 'users-list',
                 'GET',
                 true
             ),
-            //Vista de creación de usuario
+            //Vista de selección de tipo para creación
             new Route(
-                "{$startRoute}usuarios/crear[/]",
-                $users . ':formUserView',
+                "{$startRoute}select-type/add[/]",
+                $users . ':selectionTypeToCreate',
+                'users-selection-create',
+                'GET',
+                true
+            ),
+            //Vista de formulario para creación por tipo
+            new Route(
+                "{$startRoute}add/type/{type}[/]",
+                $users . ':formCreateByType',
                 'users-form-create',
                 'GET',
                 true
             ),
-            //Vista de edición de usuario
+            //Vista de formulario para edición por tipo
             new Route(
-                "{$startRoute}usuarios/editar/{id}[/]",
-                $users . ':formUserView',
+                "{$startRoute}edit/{id}[/]",
+                $users . ':formEditByType',
                 'users-form-edit',
                 'GET',
                 true
             ),
             //Vista de perfil de usuario
             new Route(
-                "{$startRoute}perfil[/]",
-                $users . ':formUserView',
+                "{$startRoute}profile[/]",
+                $users . ':formProfileByType',
                 'users-form-profile',
                 'GET',
                 true
@@ -949,7 +1307,7 @@ class UsersController extends AdminPanelController
 
             //Datatables
             new Route(
-                "{$startRoute}usuarios/datatbles[/]",
+                "{$startRoute}datatables[/]",
                 $users . ':dataTablesRequestUsers',
                 'users-datatables',
                 'GET'

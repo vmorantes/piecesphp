@@ -14,10 +14,10 @@
 	
     <?php if (!$create): ?>
     <div class="ui bottom attached tab" data-tab="avatar-container">
-        <?php if ($edit_user->hasAvatar): ?>
+        <?php if ($hasAvatar): ?>
         <div>
             <h2>Avatar actual</h2>
-            <img class="ui middle aligned small circular image" src="<?=$edit_user->avatar;?>">
+            <img class="ui middle aligned small circular image" src="<?=$avatar;?>">
             <button change-avatar class="ui mini button green">
             <i class="edit icon"></i>
             Cambiar
@@ -32,7 +32,7 @@
         <?php endif;?>
         <div>
             <h3>Seleccionar avatar</h3>
-            <div <?=$edit_user->hasAvatar ? 'hide' : '';?> class="avatar-component" user="<?=$edit_user->id;?>"
+            <div <?=$hasAvatar ? 'hide' : '';?> class="avatar-component" user="<?=$edit_user->id;?>"
                 resources-route="<?=get_route('avatars');?>" save-route="<?=get_route('push-avatars');?>">
                 <div class="frame">
             		<div style="position:absolute;top:0;left:0;width:100%;height: 100%;z-index: 10;"></div>
