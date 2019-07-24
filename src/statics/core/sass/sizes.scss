@@ -1,30 +1,31 @@
 //General
 $html-font-size: 14px;
 //Header
-$h1-font-size:3rem;
-$h2-font-size:2.8rem;
-$h3-font-size:2.2rem;
-$h4-font-size:2rem;
-$h1-margin:0 0 2rem 0;
-$h2-margin:$h1-margin;
-$h3-margin:$h1-margin;
-$h4-margin:$h1-margin;
+$h1-font-size:2.3rem;
+$h2-font-size:2rem;
+$h3-font-size:1.6rem;
+$h4-font-size:1.3rem;
+$h1-margin: 0 0 1.5rem 0;
+$h2-margin: 0 0 1rem 0;
+$h3-margin: 0 0 1rem 0;
+$h4-margin: 0 0 1rem 0;
 //Paragraph
-$p-font-size:1.2rem;
-$p-line-heigth:2.2rem;
+$p-font-size:1.15rem;
+$p-line-heigth:1.8rem;
 $p-margin:0.5rem 0 0.5rem 0;
 $p-max-width: 58rem;
 //List
-$list-font-size:1.2rem;
-$list-line-heigth:2rem;
+$list-font-size:1.15rem;
+$list-line-heigth:1.8rem;
 $list-margin:1.5rem 0 1rem 0;
 $list-padding:0 0 0 4rem;
 $list-max-width: 54rem;
 $list-item-padding:0 0 0 0;
 //Quotes
-$quote-font-size:1.2rem;
-$quote-line-height:2.5rem;
+$quote-font-size:1.15rem;
+$quote-line-height:1.8rem;
 $quote-margin-top:1.5rem;
 $quote-padding: 3% 10% 0% 10%;
+$quote-max-width: 54rem;
 $quote-border-top: 1px solid $color-first;
 $quote-border-bottom: 1px solid $color-first;

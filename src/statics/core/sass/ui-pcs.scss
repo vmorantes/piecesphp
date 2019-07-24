@@ -78,7 +78,7 @@ h1 {
 
     .ui-pcs &,
     &.ui-pcs {
-        font-weight: bold;
+        font-weight: 700;
         font-size: $h1-font-size;
         color: $text-header-1;
         margin: $h1-margin;
@@ -90,7 +90,7 @@ h2 {
 
     .ui-pcs &,
     &.ui-pcs {
-        font-weight: bold;
+        font-weight: 700;
         font-size: $h2-font-size;
         color: $text-header-2;
         margin: $h2-margin;
@@ -114,7 +114,7 @@ h6 {
 
     .ui-pcs &,
     &.ui-pcs {
-        font-weight: 400;
+        font-weight: 700;
         font-size: $h4-font-size;
         color: $text-header-3;
         margin: $h4-margin;
@@ -238,7 +238,8 @@ p.quote {
         line-height: $quote-line-height;
         color: $text-quote;
         text-align: center;
-        margin-top: $quote-margin-top;
+		margin-top: $quote-margin-top;
+		max-width: $quote-max-width;
         $quote-padding: 3% 10% 0% 10%;
         $quote-border-top: 1px solid $color-first;
         $quote-border-bottom: 1px solid $color-first;
