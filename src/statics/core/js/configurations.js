@@ -889,7 +889,7 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 				errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
 			}
 
-			onError(formProcess, formData, response)
+			onError(formProcess, formData, error)
 
 			console.error(error)
 
