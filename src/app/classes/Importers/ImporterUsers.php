@@ -25,7 +25,7 @@ class ImporterUsers extends Importer
 {
     public function __construct(array $data)
     {
-        $id = new Field('id', 'ID', null, true);
+        $id = new Field('id', 'ID', null, true, '', false);
         $username = new Field('username', 'Usuario', '', false);
         $password = new Field('password', 'Contraseña', '', false);
         $firstname = new Field('firstname', 'Primer nombre', '', false);
@@ -90,7 +90,7 @@ class ImporterUsers extends Importer
 
         $schema->setTemplateWithHumanReadable(true);
 
-        parent::__construct($schema, $data, 'Importador de usuarios');
+        parent::__construct($schema, $data, 'Agregar de usuarios');
 
     }
 

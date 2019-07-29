@@ -24,6 +24,12 @@ class Importer
      */
     protected $schema;
     /**
+     * $update
+     *
+     * @var bool
+     */
+    protected $update = false;
+    /**
      * $data
      *
      * @var array
@@ -53,6 +59,12 @@ class Importer
      * @var string
      */
     protected $title = 'Importador';
+    /**
+     * $description
+     *
+     * @var string
+     */
+    protected $description = '';
 
     /**
      * __construct
@@ -81,7 +93,8 @@ class Importer
     {
         foreach ($this->data as $index => $data) {
 
-            foreach ($data as $name => $value) { //Convertir claves en mayúsculas
+            foreach ($data as $name => $value) {
+                //Convertir claves en mayúsculas
                 if (is_string($name)) {
                     unset($data[$name]);
                     $name = trim(mb_strtoupper($name));
@@ -143,29 +156,48 @@ class Importer
                 }
             }
 
-            if ($response->getSuccess()) { //Si fue exitosa la validación del campo
+            if ($response->getSuccess()) {
+                //Si fue exitosa la validación del campo
 
                 //Insertar registro en la base de datos
                 try {
 
-                    $inserted = $this->schema->insert(); //Insertar
+                    $success = false;
+
+                    if ($this->update) {
+                        $success = $this->schema->update(); //Actualizar
+                    } else {
+                        $success = $this->schema->insert(); //Insertar
+                    }
 
                     $row = $response->getPosition(); //Posición de la fila en los datos
 
-                    if ($inserted) { //Si se insertó
+                    if ($success) {
+                        //Si se insertó
 
                         //Aumentar el conteo de registros insertados y agregar mensaje de operación exitosa
                         $this->totalImported += 1;
-                        $response->appendMessage("Registro de la fila $row insertado.");
 
-                    } else { //Si no se insertó
+                        if ($this->update) {
+                            $response->appendMessage("Registro de la fila $row actualizado.");
+                        } else {
+                            $response->appendMessage("Registro de la fila $row insertado.");
+                        }
+
+                    } else {
+                        //Si no se insertó
 
                         //Agregar mensaje de la operación errónea
-                        $response->appendMessage("El registro de la fila $row no ha podido ser insertado debido a un error desconocido.");
+                        if ($this->update) {
+                            $response->appendMessage("El registro de la fila $row no ha podido ser actualizado debido a un error desconocido.");
+                        } else {
+                            $response->appendMessage("El registro de la fila $row no ha podido ser insertado debido a un error desconocido.");
+                        }
 
                     }
 
-                } catch (\Exception $e) { //Si no se insertó
+                } catch (\Exception $e) {
+                    //Si no se insertó
 
                     //Agregar estado y mensaje de la operación errónea
                     $response->setSuccess(false);
@@ -180,7 +212,8 @@ class Importer
                 //Agregar respuesta al listado
                 $this->responses->append($response);
 
-            } else { //Si no fue exitosa la validación del campo
+            } else {
+                //Si no fue exitosa la validación del campo
 
                 //Agregar respuesta al listado
                 $this->responses->append($response);
@@ -264,6 +297,30 @@ class Importer
     }
 
     /**
+     * setUpdate
+     *
+     * @param bool $yes
+     * @return static
+     */
+    public function setUpdate(bool $yes)
+    {
+        $this->update = $yes;
+        return $this;
+    }
+
+    /**
+     * setDescription
+     *
+     * @param string $description
+     * @return static
+     */
+    public function setDescription(string $description)
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
      * setTitle
      *
      * @param string $title
@@ -283,6 +340,16 @@ class Importer
     public function getTitle()
     {
         return $this->title;
+    }
+
+    /**
+     * getDescription
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**

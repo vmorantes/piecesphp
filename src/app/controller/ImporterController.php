@@ -35,11 +35,40 @@ class ImporterController extends AdminPanelController
      */
     protected $importers = null;
 
+    /**
+     * $views
+     *
+     * @var array
+     */
+    protected $views = [];
+
+    /**
+     * $texts
+     *
+     * @var array
+     */
+    protected $texts = [];
+
+    /**
+     * $defaultView
+     *
+     * @var string
+     */
+    protected $defaultView = 'panel/pages/importador/generic';
+
     public function __construct()
     {
         $this->importers = new StringArray([
             'users' => ImporterUsers::class,
         ]);
+
+        $this->views = [
+            'users' => 'panel/pages/importador/generic',
+        ];
+
+        $this->texts = [
+            'users' => 'Con este importador podrá realizar la carga masiva de usuarios; debe tener presente que para realizar la carga el archivo de Excel debe contener una información mínima, la cual será verificada registro por registro y en caso de no cumplir uno de los parámetros obligatorios el usuario no será creado en sistema.',
+        ];
 
         parent::__construct();
 
@@ -69,11 +98,21 @@ class ImporterController extends AdminPanelController
             );
 
             $data = [];
+
             $data['title'] = $this->getImporter($type, [])->getTitle();
+
+            $data['text'] = $this->getImporter($type, [])->getDescription();
+
+            if (strlen($data['text']) == 0) {
+                $data['text'] = $this->getText($type);
+            }
+
             $data['action'] = get_route('importer-action', ['type' => $type]);
+
             $data['template'] = get_route('importer-template', ['type' => $type]);
+
             $this->render('panel/layout/header');
-            $this->render('panel/pages/importador/generic', $data);
+            $this->render($this->getView($type), $data);
             $this->render('panel/layout/footer');
 
             return $res;
@@ -185,6 +224,40 @@ class ImporterController extends AdminPanelController
             $importer = new $importName($data);
         }
         return $importer;
+    }
+
+    /**
+     * getView
+     *
+     * @param string $type
+     * @return string
+     */
+    public function getView(string $type)
+    {
+        $view = $this->defaultView;
+
+        if (array_key_exists($type, $this->views)) {
+            $view = $this->views[$type];
+        }
+
+        return $view;
+    }
+
+    /**
+     * getText
+     *
+     * @param string $type
+     * @return string
+     */
+    public function getText(string $type)
+    {
+        $text = '';
+
+        if (array_key_exists($type, $this->texts)) {
+            $text = $this->texts[$type];
+        }
+
+        return $text;
     }
 
     /**

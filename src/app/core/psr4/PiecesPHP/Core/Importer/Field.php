@@ -336,7 +336,7 @@ class Field
     {
         $names = [];
         foreach ($this->metaPropertiesAllowed as $property) {
-            $names = $property->getName();
+            $names[] = $property->getName();
         }
         return $names;
     }
