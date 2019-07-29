@@ -21,7 +21,7 @@
                             <i class="check icon"></i>
                             <span class="number success">0</span>
                         </div>
-                        <div class="label">Registrados</div>
+                        <div class="label">Exitosos</div>
                     </div>
                     <div class="statistic">
                         <div class="value">
