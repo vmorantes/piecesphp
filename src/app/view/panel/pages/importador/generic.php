@@ -1,9 +1,7 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 <div class="ui header large"><?=$title;?></div>
 <div class="ui divider"></div>
-<p class="section-description">
-    Con este importador podrá realizar la carga masiva de usuarios; debe tener presente que para realizar la carga el archivo de Excel debe contener una información mínima, la cual será verificada registro por registro y en caso de no cumplir uno de los parámetros obligatorios el usuario no será creado en sistema.
-</p>
+<p class="section-description"><?= $text; ?></p>
 <div class="ui placeholder segment">
     <div class="ui two column very relaxed stackable grid">
         <div class="column">

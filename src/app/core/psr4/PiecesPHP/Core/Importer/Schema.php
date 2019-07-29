@@ -33,11 +33,41 @@ class Schema
      */
     protected $insertMethod = null;
     /**
+     * $updateMethod
+     *
+     * @var callable
+     */
+    protected $updateMethod = null;
+    /**
+     * $beforeExecuteUpdate
+     *
+     * @var callable
+     */
+    protected $beforeExecuteUpdate = null;
+    /**
      * $table
      *
      * @var string
      */
     protected $table = '';
+    /**
+     * $primaryKey
+     *
+     * @var string
+     */
+    protected $primaryKey = 'id';
+    /**
+     * $primaryKeyIsSubField
+     *
+     * @var bool
+     */
+    protected $primaryKeyIsSubField = false;
+    /**
+     * $parentFieldPrimaryKey
+     *
+     * @var string
+     */
+    protected $parentFieldPrimaryKey = '';
     /**
      * $fields
      *
@@ -55,13 +85,13 @@ class Schema
      *
      * @var string[]
      */
-	protected $requiredFields = [];
-	/**
-	 * $templateWithHumanReadable
-	 *
-	 * @var boolean
-	 */
-	protected $templateWithHumanReadable = false;
+    protected $requiredFields = [];
+    /**
+     * $templateWithHumanReadable
+     *
+     * @var boolean
+     */
+    protected $templateWithHumanReadable = false;
     /**
      * $model
      *
@@ -84,8 +114,8 @@ class Schema
         $this->fields = $fields;
         $this->fieldsNames = $fields->getNames();
         $this->table = $table;
-		$this->before = $before;
-		$this->templateWithHumanReadable = $templateWithHumanReadable;
+        $this->before = $before;
+        $this->templateWithHumanReadable = $templateWithHumanReadable;
 
         $this->model = new BaseModel();
         $this->model->setTable($this->table);
@@ -117,7 +147,14 @@ class Schema
             $fields = $this->fields;
 
             foreach ($fields as $field) {
+
+                /**
+                 * @var \PiecesPHP\Core\Importer\Field $field
+                 */
+                $field;
+
                 $data[$field->getName()] = $field->getValue();
+
             }
 
             $this->model->insert($data);
@@ -130,6 +167,81 @@ class Schema
     }
 
     /**
+     * update
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function update(): bool
+    {
+        $this->runBefore();
+
+        if (is_callable($this->updateMethod)) {
+            return ($this->updateMethod)($this);
+        } else {
+
+            $data = [];
+            $fields = $this->fields;
+
+            foreach ($fields as $field) {
+
+                /**
+                 * @var \PiecesPHP\Core\Importer\Field $field
+                 */
+                $field;
+
+                $data[$field->getName()] = $field->getValue();
+
+            }
+
+            $primaryKeyValue = $this->getPrimaryKeyValue();
+            $where = [];
+
+            if ($this->primaryKeyIsSubField) {
+
+                $where = [
+                    "JSON_EXTRACT({$this->parentFieldPrimaryKey}, '$.{$this->primaryKey}')" => $primaryKeyValue,
+                ];
+
+            } else {
+
+                $where = [
+                    $this->primaryKey => $primaryKeyValue,
+                ];
+
+            }
+
+            $this->model->update($data)->where($where);
+
+            /**
+             * @var BaseModel $model
+             */
+            $model;
+
+            if (is_callable($this->beforeExecuteUpdate)) {
+                $model = ($this->beforeExecuteUpdate)($this->model, $where);
+            } else {
+                $model = $this->model;
+                $model->where($where);
+            }
+
+            $updated = $model->execute();
+
+            return $updated;
+
+        }
+
+    }
+
+    public function setPrimaryKey(string $name, bool $isSubField = false, string $parentField = '')
+    {
+        $this->primaryKey = $name;
+        $this->primaryKeyIsSubField = $isSubField;
+        $this->parentFieldPrimaryKey = $parentField;
+        return $this;
+    }
+
+    /**
      * setAlternativeInsert
      *
      * @param callable $insertMethod
@@ -138,6 +250,17 @@ class Schema
     public function setAlternativeInsert(callable $insertMethod)
     {
         $this->insertMethod = $insertMethod;
+    }
+
+    /**
+     * setAlternativeUpdate
+     *
+     * @param callable $updateMethod
+     * @return void
+     */
+    public function setAlternativeUpdate(callable $updateMethod)
+    {
+        $this->updateMethod = $updateMethod;
     }
 
     /**
@@ -182,18 +305,58 @@ class Schema
         if ($position !== null) {
             $this->fields->offsetSet($position, $field);
         }
-	}
-	
-	/**
-	 * setTemplateWithHumanReadable
-	 *
-	 * @param bool $set
-	 * @return static
-	 */
-	public function setTemplateWithHumanReadable(bool $set){
-		$this->templateWithHumanReadable = $set;
-		return $this;
-	}
+    }
+
+    /**
+     * setTemplateWithHumanReadable
+     *
+     * @param bool $set
+     * @return static
+     */
+    public function setTemplateWithHumanReadable(bool $set)
+    {
+        $this->templateWithHumanReadable = $set;
+        return $this;
+    }
+
+    /**
+     * getPrimaryKey
+     *
+     * @return string
+     */
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
+
+    /**
+     * getPrimaryKeyValue
+     *
+     * @return string|null
+     */
+    public function getPrimaryKeyValue()
+    {
+
+        if (!$this->primaryKeyIsSubField) {
+
+            return $this->fields->getByName($this->primaryKey)->getValue();
+
+        } else {
+
+            $parentField = $this->fields->getByName($this->parentFieldPrimaryKey);
+            $metaPropertiesName = $parentField->getMetaPropertiesNames();
+
+            $existsMetaProperty = in_array($this->primaryKey, $metaPropertiesName);
+
+            if ($existsMetaProperty) {
+                return $parentField->getMetaPropertyByName($this->primaryKey)->getValue();
+            } else {
+                return null;
+            }
+
+        }
+
+    }
 
     /**
      * getFieldByName
@@ -269,16 +432,17 @@ class Schema
             }
         }
         return $subFields;
-	}
-	
-	/**
-	 * getTemplateWithHumanReadable
-	 *
-	 * @return bool
-	 */
-	public function getTemplateWithHumanReadable(){
-		return $this->templateWithHumanReadable;
-	}
+    }
+
+    /**
+     * getTemplateWithHumanReadable
+     *
+     * @return bool
+     */
+    public function getTemplateWithHumanReadable()
+    {
+        return $this->templateWithHumanReadable;
+    }
 
     /**
      * hasSubFields
@@ -293,6 +457,18 @@ class Schema
             }
         }
         return false;
+    }
+
+    /**
+     * setBeforeExecuteUpdate
+     *
+     * @param callable $callable
+     * @return static
+     */
+    public function setBeforeExecuteUpdate(callable $callable)
+    {
+        $this->beforeExecuteUpdate = $callable;
+        return $this;
     }
 
     /**
@@ -334,12 +510,12 @@ class Schema
 
         foreach ($this->getSubFieldsNames() as $subFields) {
             foreach ($subFields as $subField) {
-				if ($subField->getShowInTemplate()) {
-					$name = $subField->getName();
-					if (!array_key_exists($name, $columns)) {
-						$columns[$name] = $subField;
-					}
-				}
+                if ($subField->getShowInTemplate()) {
+                    $name = $subField->getName();
+                    if (!array_key_exists($name, $columns)) {
+                        $columns[$name] = $subField;
+                    }
+                }
             }
         }
 
@@ -350,12 +526,12 @@ class Schema
         $columnIndex = 1;
         foreach ($columns as $name => $field) {
 
-			$displayName = $name;
-			if($this->getTemplateWithHumanReadable()){
-				$displayName = $field->getHumanReadable();
-			}
-			$value = $field->getSampleValue();
-			
+            $displayName = $name;
+            if ($this->getTemplateWithHumanReadable()) {
+                $displayName = $field->getHumanReadable();
+            }
+            $value = $field->getSampleValue();
+
             $spreadSheet->setActiveSheetIndex(0)
                 ->setCellValueByColumnAndRow($columnIndex, 1, $displayName)
                 ->setCellValueByColumnAndRow($columnIndex, 2, $value);
