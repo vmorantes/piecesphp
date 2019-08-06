@@ -44,6 +44,7 @@ use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
 use App\Controller\AvatarController;
 use App\Controller\BlackboardNewsController;
+use App\Controller\GenericTokenController;
 use App\Controller\ImporterController;
 use App\Controller\LoginAttemptsController;
 use App\Controller\MessagesController;
@@ -72,6 +73,7 @@ $importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadore
 $articles = new PiecesRouteGroup($prefix_lang . '/articles'); //Blog
 $sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios
 $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
+$token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Servido personalizado de archivos estáticos
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
 
@@ -107,6 +109,9 @@ ImporterController::routes($importadores);
 
 //Blog
 ArticleController::routes($articles);
+
+//Manejador de tokens
+GenericTokenController::routes($token_handler);
 
 $sistema_avatares->register(
     [

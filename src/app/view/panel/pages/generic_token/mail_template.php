@@ -453,23 +453,6 @@
                                             <!--<![endif]-->
 
 
-                                            <div class="">
-                                                <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-                                                <div
-                                                    style="color:#0D0D0D;font-family:'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;line-height:120%; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
-                                                    <div
-                                                        style="font-size:12px;line-height:14px;color:#0D0D0D;font-family:'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;text-align:left;">
-                                                        <p
-                                                            style="margin: 0;font-size: 14px;line-height: 17px;text-align: center">
-                                                            <span style="font-size: 28px; line-height: 33px;"><strong><span
-                                                                        style="line-height: 33px; font-size: 28px;"><?= $code; ?></span></strong></span>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <!--[if mso]></td></tr></table><![endif]-->
-                                            </div>
-
-
                                             <div align="center" class="img-container center  autowidth  "
                                                 style="padding-right: 0px;  padding-left: 0px;">
                                                 <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr style="line-height:0px;line-height:0px;"><td style="padding-right: 0px; padding-left: 0px;" align="center"><![endif]-->
@@ -481,7 +464,7 @@
                                                 <!--[if mso]></td></tr></table><![endif]-->
                                             </div>
 
-
+                                            <?php if($with_link): ?>
 
                                             <div class="">
                                                 <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
@@ -503,7 +486,7 @@
 
                                             <div align="center" class="button-container center "
                                                 style="padding-right: 10px; padding-left: 10px; padding-top:25px; padding-bottom:10px;">
-                                                <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top:25px; padding-bottom:10px;" align="center"><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<?= $url; ?>" style="height:46pt; v-text-anchor:middle; width:141pt;" arcsize="7%" strokecolor="#189B18" fillcolor="#189B18"><w:anchorlock/><v:textbox inset="0,0,0,0"><center style="color:#ffffff; font-family:'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif; font-size:16px;"><![endif]-->
+
                                                 <a href="<?= $url; ?>" target="_blank"
                                                     style="display: block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #ffffff; background-color: #189B18; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; max-width: 188px; width: 158px;width: auto; border-top: 0px solid transparent; border-right: 0px solid transparent; border-bottom: 0px solid transparent; border-left: 0px solid transparent; padding-top: 15px; padding-right: 15px; padding-bottom: 15px; padding-left: 15px; font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;mso-border-alt: none">
                                                     <span
@@ -512,8 +495,7 @@
                                                 <!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]-->
                                             </div>
 
-
-
+                                            <?php endif;?>
 
                                             <table border="0" cellpadding="0" cellspacing="0" width="100%"
                                                 class="divider "
