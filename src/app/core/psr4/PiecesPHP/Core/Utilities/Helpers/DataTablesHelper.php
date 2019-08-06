@@ -672,11 +672,11 @@ class DataTablesHelper
 
                         $searchable_value = $column['searchable'];
 
-                        if ($searchable_value == 'true' || $searchable_value == '1' || $searchable_value == 'yes' || $searchable_value == 'on') {
+                        if ($searchable_value === 'true' || $searchable_value === '1' || $searchable_value === 'yes' || $searchable_value === 'on') {
                             $searchable_value = true;
                         }
 
-                        if ($searchable_value == 'false' || $searchable_value == '0' || $searchable_value == 'no' || $searchable_value == 'off') {
+                        if ($searchable_value === 'false' || $searchable_value === '0' || $searchable_value === 'no' || $searchable_value === 'off') {
                             $searchable_value = false;
 						}
 						
