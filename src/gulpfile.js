@@ -94,7 +94,7 @@ var watchingSassFiles = [
 ]
 var compileSassFiles = [
 	'./statics/sass/**/*.scss',
-	'!./statics/sass/import/*.scss',
+	'!./statics/sass/import/**/*.scss',
 ]
 var dest = './statics/css'
 

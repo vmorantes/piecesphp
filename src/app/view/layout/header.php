@@ -11,3 +11,4 @@
     <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
 </head>
 <body>
+<div class="global-layout">

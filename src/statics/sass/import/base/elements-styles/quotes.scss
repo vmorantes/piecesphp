@@ -1,0 +1,19 @@
+//Quotes
+q,
+blockquote,
+p.cita,
+p.quote {
+
+    .global-layout &,
+    &.global-layout {
+        font-size: $quote-font-size;
+        line-height: $quote-line-height;
+        color: $text-quote;
+        text-align: center;
+		margin-top: $quote-margin-top;
+		max-width: $quote-max-width;
+        $quote-padding: 3% 10% 0% 10%;
+        $quote-border-top: 1px solid $color-first;
+        $quote-border-bottom: 1px solid $color-first;
+    }
+}

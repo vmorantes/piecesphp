@@ -1,0 +1,16 @@
+
+
+//Paragraph
+p {
+
+    .global-layout &,
+    &.global-layout {
+        font-family: $p-font-family;
+        text-align: left;
+        font-size: $p-font-size;
+        line-height: $p-line-heigth;
+        color: $color-fourth;
+        margin: $p-margin;
+        max-width: $p-max-width;
+    }
+}

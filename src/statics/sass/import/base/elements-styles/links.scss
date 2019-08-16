@@ -1,0 +1,21 @@
+//Link
+a {
+
+    .global-layout &,
+    &.global-layout {
+        display: inline-block;
+        color: $color-fourth;
+        transition: 0.5s all ease;
+
+        &:hover,
+        &:active,
+        &:focus {
+            color: $color-first;
+            text-decoration: underline dotted;
+        }
+
+        &:visited {
+            color: black;
+        }
+    }
+}

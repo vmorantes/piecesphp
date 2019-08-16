@@ -48,6 +48,7 @@ use App\Controller\GenericTokenController;
 use App\Controller\ImporterController;
 use App\Controller\LoginAttemptsController;
 use App\Controller\MessagesController;
+use App\Controller\PublicAreaController;
 use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
@@ -61,6 +62,7 @@ $slim_app = get_config('slim_app');
 PiecesRouteGroup::setRouter($slim_app);
 
 //──── GRUPOS DE RUTAS ───────────────────────────────────────────────────────────────────
+$zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
 $configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Zona administrativa
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
@@ -76,6 +78,9 @@ $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servid
 $token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Servido personalizado de archivos estáticos
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
+
+//Rutas básicas de la zona pública
+PublicAreaController::routes($zona_publica);
 
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
