@@ -1,0 +1,49 @@
+
+
+//Headers
+h1 {
+
+    .global-layout &,
+    &.global-layout {
+        font-weight: 700;
+        font-size: $h1-font-size;
+        color: $text-header-1;
+        margin: $h1-margin;
+        text-transform: uppercase;
+    }
+}
+
+h2 {
+
+    .global-layout &,
+    &.global-layout {
+        font-weight: 700;
+        font-size: $h2-font-size;
+        color: $text-header-2;
+        margin: $h2-margin;
+    }
+}
+
+h3 {
+
+    .global-layout &,
+    &.global-layout {
+        font-weight: 400;
+        font-size: $h3-font-size;
+        color: $text-header-3;
+        margin: $h3-margin;
+    }
+}
+
+h4,
+h5,
+h6 {
+
+    .global-layout &,
+    &.global-layout {
+        font-weight: 700;
+        font-size: $h4-font-size;
+        color: $text-header-3;
+        margin: $h4-margin;
+    }
+}

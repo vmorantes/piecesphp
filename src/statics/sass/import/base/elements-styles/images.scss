@@ -1,0 +1,24 @@
+
+//Images
+img {
+    display: inline-block;
+    max-width: 100%;
+
+    &.block {
+        display: block;
+        margin: 0;
+    }
+}
+
+.image {
+
+    .global-layout &,
+    &.global-layout {
+        max-width: $p-max-width;
+        text-align: left;
+
+        img {
+            max-width: 100%;
+        }
+    }
+}
