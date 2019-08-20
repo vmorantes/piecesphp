@@ -222,11 +222,26 @@ class ArticleController extends AdminPanelController
 
         if ($request->isXhr()) {
 
+            $allDate = $request->getQueryParam('all_date', null);
+
             $query = $this->model->select();
+
+            if ($allDate !== 'yes') {
+                $query
+                    ->where([
+                        'start_date' => [
+                            '<=' => date('Y-m-d H:i:s'),
+                        ],
+                        'end_date' => [
+                            '>' => date('Y-m-d H:i:s'),
+                        ],
+                    ]);
+            }
 
             $query->execute();
 
             return $response->withJson($query->result());
+
         } else {
             throw new NotFoundException($request, $response);
         }
