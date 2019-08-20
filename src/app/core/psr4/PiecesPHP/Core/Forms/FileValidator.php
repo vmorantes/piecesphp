@@ -22,6 +22,7 @@ class FileValidator
     const TYPE_JPEG = 'jpeg';
     const TYPE_GIF = 'gif';
     const TYPE_PNG = 'png';
+    const TYPE_SVG = 'svg';
 
     const TYPE_XLSX = 'xlsx';
     const TYPE_XLS = 'xls';
@@ -41,6 +42,7 @@ class FileValidator
             'image/svg+xml',
             'image/tiff',
             'image/webp',
+            'image/png',
         ],
         self::TYPE_JPG => [
             'image/jpg',
@@ -55,6 +57,9 @@ class FileValidator
         ],
         self::TYPE_PNG => [
             'image/png',
+        ],
+        self::TYPE_SVG => [
+            'image/svg+xml',
         ],
         self::TYPE_XLSX => [
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -105,6 +110,7 @@ class FileValidator
             'svg',
             'tiff',
             'webp',
+            'png',
         ],
         self::TYPE_JPG => [
             'jpg',
@@ -119,6 +125,9 @@ class FileValidator
         ],
         self::TYPE_PNG => [
             'png',
+        ],
+        self::TYPE_SVG => [
+            'svg',
         ],
         self::TYPE_XLSX => [
             'xlxs',
