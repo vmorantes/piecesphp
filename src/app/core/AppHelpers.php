@@ -362,14 +362,37 @@ function load_css($config = array())
 }
 
 /** @ignore */
-function add_global_asset($custom_assets, $type)
+function has_global_asset(string $asset, string $type)
+{
+
+    $global_assets = get_config('global_assets');
+    $assets = [];
+    $index_asset = false;
+
+    if ($type == 'js') {
+        $assets = $global_assets[$type];
+    } else if ($type == 'css') {
+        $assets = $global_assets[$type];
+    }
+
+    if ($type == 'js' || $type == 'css') {
+
+        $index_asset = array_search($asset, $assets);
+
+    }
+
+    return $index_asset;
+}
+
+/** @ignore */
+function add_global_asset($asset, $type)
 {
     $global_assets = get_config('global_assets');
     if ($type == "js") {
-        $global_assets['js'][count($global_assets['js'])] = $custom_assets;
+        $global_assets['js'][count($global_assets['js'])] = $asset;
         set_config('global_assets', $global_assets);
     } else if ($type == "css") {
-        $global_assets['css'][count($global_assets['css'])] = $custom_assets;
+        $global_assets['css'][count($global_assets['css'])] = $asset;
         set_config('global_assets', $global_assets);
     }
 }
@@ -380,6 +403,22 @@ function add_global_assets($custom_assets, $type)
     foreach ($custom_assets as $asset) {
         add_global_asset($asset, $type);
     }
+}
+
+/** @ignore */
+function remove_global_asset(string $asset, string $type)
+{
+
+    $global_assets = get_config('global_assets');
+    $index_asset = has_global_asset($asset, $type);
+
+    if ($index_asset !== false) {
+        unset($global_assets[$type][$index_asset]);
+    }
+
+    set_config('global_assets', $global_assets);
+
+    return $index_asset;
 }
 
 /** @ignore */
