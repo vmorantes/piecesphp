@@ -65,8 +65,8 @@ class Mailer extends PHPMailer
         if (!isset($mail_config['auto_tls'])) {
             $mail_config['auto_tls'] = true;
         }
-        if (!isset($mail_config['smpt_options'])) {
-            $mail_config['smpt_options'] = [];
+        if (!isset($mail_config['smtp_options'])) {
+            $mail_config['smtp_options'] = [];
         }
 
         $this->SMTPDebug = $mail_config['smtp_debug'];
@@ -78,8 +78,8 @@ class Mailer extends PHPMailer
             $this->SMTPSecure = $mail_config['protocol'];
         }
 
-        if (is_array($mail_config['smpt_options']) && count($mail_config['smpt_options']) > 0) {
-            $this->SMTPOptions = $mail_config['smpt_options'];
+        if (is_array($mail_config['smtp_options']) && count($mail_config['smtp_options']) > 0) {
+            $this->SMTPOptions = $mail_config['smtp_options'];
         }
 
         if ($mail_config['auth'] === true) {
