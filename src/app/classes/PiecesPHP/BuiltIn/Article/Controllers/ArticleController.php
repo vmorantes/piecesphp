@@ -106,8 +106,8 @@ class ArticleController extends AdminPanelController
 
         $this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
         $this->uploadTmpDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR_TMP);
-        $this->uploadDirURL = append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR);
-        $this->uploadDirTmpURL = append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR_TMP);
+        $this->uploadDirURL = str_replace(base_url(), '', append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR));
+        $this->uploadDirTmpURL = str_replace(base_url(), '', append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR_TMP));
     }
 
     /**
@@ -223,24 +223,65 @@ class ArticleController extends AdminPanelController
         if ($request->isXhr()) {
 
             $allDate = $request->getQueryParam('all_date', null);
+            $paginate = $request->getQueryParam('paginate', null);
 
-            $query = $this->model->select();
+            $page = $request->getQueryParam('page', 1);
+            $perPage = $request->getQueryParam('per_page', 5);
+
+            $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
+            $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
+
+            $query = $this->model->select()->orderBy('start_date DESC');
+
+            $now = date('Y-m-d H:i:s');
+            $where_date_values = [
+                'start_date' => [
+                    '<=' => $now,
+                ],
+                'end_date' => [
+                    '>' => $now,
+                ],
+            ];
 
             if ($allDate !== 'yes') {
-                $query
-                    ->where([
-                        'start_date' => [
-                            '<=' => date('Y-m-d H:i:s'),
-                        ],
-                        'end_date' => [
-                            '>' => date('Y-m-d H:i:s'),
-                        ],
-                    ]);
+                $query->where($where_date_values);
             }
 
-            $query->execute();
+            if ($paginate === 'yes') {
 
-            return $response->withJson($query->result());
+                $query->execute(false, $page, $perPage);
+                $data = $query->result();
+
+                $query->resetAll();
+
+                $query->select('COUNT(id) AS total');
+                if ($allDate !== 'yes') {
+                    $query->where($where_date_values);
+                }
+                $query->execute();
+                $total = $query->result();
+                $total = count($total) > 0 ? (int) $total[0]->total : 0;
+                $pages = ceil($total / $perPage);
+
+                $data = array_map(function ($e) {
+                    return new MainMapper($e->id);
+                }, $data);
+
+                return $response->withJson([
+                    'page' => $page,
+                    'perPage' => $perPage,
+                    'pages' => $pages,
+                    'total' => $total,
+                    'data' => $data,
+                ]);
+
+            } else {
+
+                $query->execute();
+
+                return $response->withJson($query->result());
+
+            }
 
         } else {
             throw new NotFoundException($request, $response);
