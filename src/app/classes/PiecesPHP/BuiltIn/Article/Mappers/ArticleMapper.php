@@ -140,14 +140,14 @@ class ArticleMapper extends BaseEntityMapper
         if ($onlyDateRange) {
 
             $now = date('Y-m-d H:i:s');
-            $model->where([
-                'start_date' => [
-                    '<=' => $now,
-                ],
-                'end_date' => [
-                    '>' => $now,
-                ],
-            ]);
+
+            $where = [
+                "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                "(end_date > '{$now}' OR end_date IS NULL)",
+            ];
+            $where = implode(' ', $where);
+
+            $model->where($where);
 
         }
 
@@ -206,19 +206,18 @@ class ArticleMapper extends BaseEntityMapper
         if ($onlyDateRange) {
 
             $now = date('Y-m-d H:i:s');
-            $where['start_date'] = [
-                '<=' => $now,
+
+            $where = [
+                "category = '{$category}' AND",
+                "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                "(end_date > '{$now}' OR end_date IS NULL)",
             ];
-            $where['end_date'] = [
-                '>' => $now,
-            ];
+            $where = implode(' ', $where);
 
         }
 
         if (!is_null($excludeID)) {
-            $where['id'] = [
-                '!=' => $excludeID,
-            ];
+            $where .= " AND id != {$excludeID}";
         }
 
         $model->select()->where($where);
@@ -255,12 +254,13 @@ class ArticleMapper extends BaseEntityMapper
         if ($onlyDateRange) {
 
             $now = date('Y-m-d H:i:s');
-            $where['start_date'] = [
-                '<=' => $now,
+
+            $where = [
+                "friendly_url = '{$friendly_url}' AND",
+                "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                "(end_date > '{$now}' OR end_date IS NULL)",
             ];
-            $where['end_date'] = [
-                '>' => $now,
-            ];
+            $where = implode(' ', $where);
 
         }
 
@@ -302,12 +302,16 @@ class ArticleMapper extends BaseEntityMapper
         if ($onlyDateRange) {
 
             $now = date('Y-m-d H:i:s');
-            $where['start_date'] = [
-                '<=' => $now,
+
+            $value = is_string($value) ? "'{$value}'" : $value;
+
+            $where = [
+                "{$column} = {$value} AND",
+                "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                "(end_date > '{$now}' OR end_date IS NULL)",
             ];
-            $where['end_date'] = [
-                '>' => $now,
-            ];
+
+            $where = implode(' ', $where);
 
         }
 

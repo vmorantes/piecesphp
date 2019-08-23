@@ -231,17 +231,15 @@ class ArticleController extends AdminPanelController
             $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
             $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
 
-            $query = $this->model->select()->orderBy('start_date DESC');
+            $query = $this->model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
 
             $now = date('Y-m-d H:i:s');
+
             $where_date_values = [
-                'start_date' => [
-                    '<=' => $now,
-                ],
-                'end_date' => [
-                    '>' => $now,
-                ],
+                "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                "(end_date > '{$now}' OR end_date IS NULL)",
             ];
+            $where_date_values = implode(' ', $where_date_values);
 
             if ($allDate !== 'yes') {
                 $query->where($where_date_values);
@@ -249,6 +247,9 @@ class ArticleController extends AdminPanelController
 
             if ($paginate === 'yes') {
 
+                $response_data = [];
+
+                $response_data['sql'] = $query->getCompiledSQL();
                 $query->execute(false, $page, $perPage);
                 $data = $query->result();
 
@@ -267,13 +268,13 @@ class ArticleController extends AdminPanelController
                     return new MainMapper($e->id);
                 }, $data);
 
-                return $response->withJson([
-                    'page' => $page,
-                    'perPage' => $perPage,
-                    'pages' => $pages,
-                    'total' => $total,
-                    'data' => $data,
-                ]);
+                $response_data['page'] = $page;
+                $response_data['perPage'] = $perPage;
+                $response_data['pages'] = $pages;
+                $response_data['total'] = $total;
+                $response_data['data'] = $data;
+
+                return $response->withJson($response_data);
 
             } else {
 
