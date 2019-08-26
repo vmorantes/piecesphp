@@ -145,6 +145,28 @@ use App\Model\AppConfigModel;
 
         </form>
 
+        <br><br><br><br><br>
+
+        <form pcs-generic-handler-js action="<?=get_route('configurations-customization-images-action');?>" method="POST"
+            class="ui form">
+
+            <div class="ui header small">Imagen de Open Graph</div>
+
+            <div class="image-preview logo">
+                <img src="<?=AppConfigModel::getConfigValue('open_graph_image');?>">
+            </div>
+
+            <div class="field">
+                <label>Cambiar</label>
+                <input type="file" name="open_graph_image" accept="image/jpeg" required>
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green">Guardar</button>
+            </div>
+
+        </form>
+
         <br><br><br><br>
 
     </div>

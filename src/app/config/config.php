@@ -12,8 +12,8 @@ defined('BASEPATH') or die();
  * $config['default_lang']: Lenguaje por defecto de la aplicación
  * $config['app_lang']: Lenguaje actual de la aplicación
  *
- * $config['title_app']: Título de la aplicación
- * $config['title']: Título de la aplicación no afectado por set_title() ni get_title
+ * $config['title_app']: Título de la aplicación en general
+ * $config['title']: Título de la sección actual (set_title() y get_title())
  *
  * $config['base_url']: URL base de la aplicación
  *
