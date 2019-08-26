@@ -600,7 +600,7 @@ class ArticleController extends AdminPanelController
 
                     $filename = move_uploaded_file_to($this->uploadTmpDir, $image, uniqid());
 
-                    $url = append_to_url($this->uploadDirTmpURL, $filename);
+                    $url = append_to_url(base_url($this->uploadDirTmpURL), $filename);
 
                     if (!is_null($filename)) {
                         $result
@@ -652,7 +652,7 @@ class ArticleController extends AdminPanelController
 
                 if (strpos($url, $this->uploadDirTmpURL) !== false) {
 
-                    $filename = str_replace($this->uploadDirTmpURL, '', $url);
+                    $filename = basename($url);
 
                     $oldPath = append_to_url($this->uploadTmpDir, "$filename");
 
@@ -669,13 +669,14 @@ class ArticleController extends AdminPanelController
                     }
 
                     $_url = append_to_url($this->uploadDirURL, "$id/$filename");
+                    $_url = trim($_url, '/');
 
                     $entity->content = str_replace($url, $_url, $entity->content);
 
                     $currentImagesOnText[] = $_url;
                 } elseif (strpos($url, $this->uploadDirURL) !== false) {
 
-                    $currentImagesOnText[] = $url;
+                    $currentImagesOnText[] = trim($url, '/');
                 }
             }
         }
