@@ -1,7 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use App\Model\AppConfigModel;
 use App\Controller\AppConfigController;
+use App\Model\AppConfigModel;
 
 ?>
 
@@ -20,10 +20,80 @@ use App\Controller\AppConfigController;
             class="ui form">
 
             <div class="field">
-                <label>Nombre del sitio</label>
+                <label>Título del sitio</label>
                 <input type="text" name="value" value="<?=AppConfigModel::getConfigValue('title_app');?>"
                     placeholder="Nombre" required>
                 <input type="hidden" name="name" value="title_app" required="required">
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green">Guardar</button>
+            </div>
+
+        </form>
+
+        <br><br>
+
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
+            class="ui form">
+
+            <div class="field">
+                <label>Propietario</label>
+                <input type="text" name="value" value="<?=AppConfigModel::getConfigValue('owner');?>"
+                    placeholder="Propietario" required>
+                <input type="hidden" name="name" value="owner" required="required">
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green">Guardar</button>
+            </div>
+
+        </form>
+
+        <br><br>
+
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
+            class="ui form">
+
+            <div class="field">
+                <label>Descripción</label>
+                <textarea name="value" placeholder="Descripción"
+                    required><?=AppConfigModel::getConfigValue('description');?></textarea>
+                <input type="hidden" name="name" value="description" required="required">
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green">Guardar</button>
+            </div>
+
+        </form>
+
+        <br><br>
+
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
+            class="ui form">
+
+            <div class="field">
+                <label>Palabras clave</label>
+                <?php $keywords = AppConfigModel::getConfigValue('keywords'); ?>
+                <select name="value[]" multiple class="ui dropdown multiple search selection additions" required>
+
+					<?php if (is_array($keywords) && count($keywords) > 0): ?>
+					
+					<?php foreach ($keywords as $key => $value): ?>
+					
+					<option selected value="<?=$value;?>"><?=$value;?></option>
+					
+					<?php endforeach;?>
+					
+					<?php else: ?>
+					
+					<option value="">Agregue alguna palabra clave</option>
+
+					<?php endif;?>
+					
+                </select>
+                <input type="hidden" name="name" value="keywords" required="required">
             </div>
 
             <div class="field">
@@ -40,9 +110,9 @@ use App\Controller\AppConfigController;
             class="ui form">
 
             <input type="hidden" name="name" value="mail" required>
-            <input type="hidden" name="parse[auto_tls]" value="<?= AppConfigController::PARSE_TYPE_BOOL; ?>" required>
-            <input type="hidden" name="parse[auth]" value="<?= AppConfigController::PARSE_TYPE_BOOL; ?>" required>
-            <input type="hidden" name="parse[port]" value="<?= AppConfigController::PARSE_TYPE_INT; ?>" required>
+            <input type="hidden" name="parse[auto_tls]" value="<?=AppConfigController::PARSE_TYPE_BOOL;?>" required>
+            <input type="hidden" name="parse[auth]" value="<?=AppConfigController::PARSE_TYPE_BOOL;?>" required>
+            <input type="hidden" name="parse[port]" value="<?=AppConfigController::PARSE_TYPE_INT;?>" required>
 
             <div class="fields">
 
@@ -57,7 +127,7 @@ use App\Controller\AppConfigController;
                 <div class="field">
                     <div class="ui toggle checkbox">
                         <input type="checkbox" name="value[auth]"
-                            <?=AppConfigModel::getConfigValue('mail')->auth == true? 'checked' : '';?>>
+                            <?=AppConfigModel::getConfigValue('mail')->auth == true ? 'checked' : '';?>>
                         <label>Autenticar</label>
                     </div>
                 </div>
@@ -151,6 +221,10 @@ window.addEventListener('load', function(e) {
     //Inicializaciones generales
     $('.ui.top.menu .item').tab()
     $('.ui.checkbox').checkbox()
+    $('.ui.dropdown.additions')
+        .dropdown({
+            allowAdditions: true
+        })
 
     //Eventos
 

@@ -411,6 +411,11 @@ class AppConfigController extends AdminPanelController
                 'extension' => 'jpg',
                 'folder' => basepath('statics/login-and-recovery/images/login'),
             ],
+            'open_graph_image' => [
+                'name' => 'open_graph',
+                'extension' => 'jpg',
+                'folder' => basepath('statics/images'),
+            ],
         ];
 
         $name_image_form = '';

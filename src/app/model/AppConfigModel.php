@@ -136,7 +136,7 @@ class AppConfigModel extends BaseEntityMapper
      * getConfigValue
      *
      * @param string $name
-     * @return string
+     * @return mixed
      */
     public static function getConfigValue(string $name)
     {

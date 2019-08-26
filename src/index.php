@@ -56,6 +56,14 @@ if (APP_CONFIGURATION_MODULE) {
             'password' => 'TDsas&3379',
             'port' => 465,
         ],
+        'owner' => 'Sample Inc.',
+        'description' => 'Descripción de la página.',
+        'keywords' => [
+            'A',
+            'B',
+            'C D',
+        ],
+        'open_graph_image' => 'statics/images/open_graph.jpg',
     ];
     ksort($default_configurations_values);
     AppConfigModel::initializateConfigurations($default_configurations_values);
@@ -201,14 +209,18 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
 
         foreach ($configurations as $name => $value) {
             set_config($name, $value);
-		}
-		
-		$mail_config = get_config('mail');
-		if(!is_scalar($mail_config)){
-			$mail_config = json_encode($mail_config);
-			$mail_config = json_decode($mail_config, true);
-			set_config('mail', $mail_config);
-		}
+        }
+
+        $mail_config = get_config('mail');
+        if (!is_scalar($mail_config)) {
+            $mail_config = json_encode($mail_config);
+            $mail_config = json_decode($mail_config, true);
+            set_config('mail', $mail_config);
+        }
+
+        if (strlen(get_title()) == 0) {
+            set_title(AppConfigModel::getConfigValue('title_app'));
+        }
     }
 
     return $next($request, $response);

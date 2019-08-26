@@ -16,7 +16,7 @@ use \Slim\Http\Request as Request;
  *
  * Clase de ayuda para procesamiento de consultas de DataTablesJS del lado del servidor
  *
- * @category    Helper
+ * @category    Helpers
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019

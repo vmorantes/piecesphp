@@ -38,24 +38,38 @@ function set_config(string $name, $value)
 }
 
 /**
- * Obtiene el valor de $config['title_app]
+ * Obtiene el valor de $config['title]
+ *
+ * @param bool $appendTitleApp
+ * @param string $separator
  *
  * @return string
  */
-function get_title()
+function get_title(bool $appendTitleApp = false, string $separator = ' - ')
 {
-    return get_config('title_app');
+    $title = get_config('title');
+    $title_app = get_config('title_app');
+
+    if ($title !== false) {
+        if ($appendTitleApp && $title_app != $title) {
+            return $title_app . $separator . get_config('title');
+        } else {
+            return get_config('title');
+        }
+    } else {
+        return '';
+    }
 }
 
 /**
- * Establece el valor de $config['title_app]
+ * Establece el valor de $config['title]
  *
  * @param string $title
- * @return void
+ * @return bool
  */
 function set_title(string $title)
 {
-    return set_config('title_app', $title);
+    return set_config('title', $title);
 }
 
 /**
