@@ -22,8 +22,14 @@ class PiecesPHPSystemUserHelper {
 		formData.set('password', password)
 
 		return new Promise((resolve, reject) => {
+
+			let urlRequest = instance.urlAuthenticate + `?`
+			urlRequest += `vp-w=${screen.width}&`
+			urlRequest += `vp-h=${screen.height}&`
+			urlRequest += `user-agent=${btoa(navigator.userAgent)}`
+			
 			instance
-				.post(instance.urlAuthenticate, formData, {})
+				.post(urlRequest, formData, {})
 				.done(function (res) {
 					if (res.auth) {
 						instance.setJWT(res.token)

@@ -5,6 +5,9 @@
 namespace App\Model;
 
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\Enums\CodeStringExceptionsEnum;
+use PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use \Slim\Http\Request as Request;
 
@@ -68,19 +71,38 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public function __construct(int $value = null, string $field_compare = 'id')
     {
+        $model = new BaseModel();
+        $model->setTable($this->table);
+        $pStmt = $model->prepare("SHOW COLUMNS FROM {$this->table} WHERE Field LIKE 'extra_data'");
+        $pStmt->execute();
+        $result = $pStmt->fetchAll();
+        $exist_field = count($result) > 0;
+        if ($exist_field) {
+            $this->fields['extra_data'] = [
+                'type' => 'json',
+                'default' => [],
+                'null' => true,
+            ];
+        }
         parent::__construct($value, $field_compare);
+        if ($exist_field) {
+            if ($this->extra_data === '') {
+                $this->extra_data = [];
+            }
+        }
     }
 
     /**
      * addLogin
      *
-     * @param mixed int
+     * @param int $user_id
      * @param string $username
      * @param bool $success
-     * @param mixed string
+     * @param string $message
+     * @param array $extraData
      * @return void
      */
-    public static function addLogin(int $user_id = null, string $username, bool $success, string $message = '')
+    public static function addLogin(int $user_id = null, string $username, bool $success, string $message = '', array $extraData = [])
     {
         $mapper = new static();
         $mapper->user_id = $user_id;
@@ -88,6 +110,13 @@ class LoginAttemptsModel extends BaseEntityMapper
         $mapper->success = $success ? self::SUCCESS_ATTEMPT : self::FAIL_ATTEMPT;
         $mapper->message = $message;
         $mapper->ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+        try {
+            $mapper->extra_data = $extraData;
+        } catch (DatabaseClassesExceptions $e) {
+            if ($e->getCodeString() != CodeStringExceptionsEnum::UndefinedProperty) {
+                throw $e;
+            }
+        }
         $mapper->save();
     }
 
