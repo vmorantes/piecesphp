@@ -529,6 +529,17 @@ class UsersController extends AdminPanelController
             }
         );
 
+        $resolutionWidth = $request->getQueryParam('vp-w', null);
+        $resolutionHeight = $request->getQueryParam('vp-h', null);
+        $userAgent = $request->getQueryParam('user-agent', null);
+        $extraDataLog = [
+            'dimensions' => [
+                'w' => !is_null($resolutionWidth) ? (int) $resolutionWidth : null,
+                'h' => !is_null($resolutionHeight) ? (int) $resolutionHeight : null,
+            ],
+            'userAgent' => !is_null($userAgent) ? base64_decode($userAgent) : (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null),
+        ];
+
         $expectedParameters = new Parameters([
             $usernameParameter,
             $passwordParameter,
@@ -596,7 +607,9 @@ class UsersController extends AdminPanelController
                             LoginAttemptsModel::addLogin(
                                 (int) $user->id,
                                 $user->username,
-                                true
+                                true,
+                                '',
+                                $extraDataLog
                             );
 
                         } else {
@@ -607,7 +620,8 @@ class UsersController extends AdminPanelController
                                 (int) $user->id,
                                 $user->username,
                                 false,
-                                $resultOperation->getMessage()
+                                $resultOperation->getMessage(),
+                                $extraDataLog
                             );
 
                             if ($user->failed_attempts >= self::MAX_ATTEMPTS) {
@@ -639,7 +653,8 @@ class UsersController extends AdminPanelController
                             null,
                             $username,
                             false,
-                            $resultOperation->getMessage()
+                            $resultOperation->getMessage(),
+                            $extraDataLog
                         );
 
                     }
@@ -652,7 +667,8 @@ class UsersController extends AdminPanelController
                         null,
                         $username,
                         false,
-                        $resultOperation->getMessage()
+                        $resultOperation->getMessage(),
+                        $extraDataLog
                     );
 
                 }
