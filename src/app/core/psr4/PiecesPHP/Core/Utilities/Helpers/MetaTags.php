@@ -209,10 +209,17 @@ class MetaTags
      * setDescription
      *
      * @param string $value
+     * @param int $maxLength
+     * @param int $fromIndex
      * @return void
      */
-    public static function setDescription(string $value)
+    public static function setDescription(string $value, int $maxLength = 150, int $fromIndex = 0)
     {
+        $value = strip_tags($value);
+        $value = trim($value);
+        $valueLength = strlen($value);
+        $fromIndex = $fromIndex >= $valueLength ? 0 : $fromIndex;
+        $value = $valueLength > $maxLength ? substr($value, $fromIndex, $maxLength) . '...' : $value;
         self::$description = $value;
     }
 
@@ -289,7 +296,7 @@ class MetaTags
      */
     public static function getMetaTagsGeneric()
     {
-		self::initialValues();
+        self::initialValues();
         $html = [];
         $ogProperties = [
             [
@@ -330,7 +337,7 @@ class MetaTags
      */
     public static function getMetaTagsOpenGraph()
     {
-		self::initialValues();
+        self::initialValues();
         $html = [];
         $ogProperties = [
             [
