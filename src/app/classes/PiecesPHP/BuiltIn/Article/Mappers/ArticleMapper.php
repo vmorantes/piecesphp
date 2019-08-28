@@ -439,11 +439,12 @@ class ArticleMapper extends BaseEntityMapper
      *
      * @param string $friendly_url
      * @param int $ignore_id
+     * @param int $maxWords
      * @return string
      */
-    public static function generateFriendlyURL(string $name, int $ignore_id)
+    public static function generateFriendlyURL(string $name, int $ignore_id, int $maxWords = null)
     {
-        $friendly_url = friendly_url($name);
+        $friendly_url = friendly_url($name, $maxWords);
         $count_friendly_url = self::friendlyURLCount($friendly_url, $ignore_id);
 
         if ($count_friendly_url > 0) {

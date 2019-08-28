@@ -984,9 +984,10 @@ function strReplace(search, replace, subject) {
 /**
  * @function friendlyURL
  * @param {string} str Cadena para formatear
+ * @param {number} maxWords Cantidad máxima de palabras
  * @returns {string} Cadena formateada
  */
-function friendlyURL(str) {
+function friendlyURL(str, maxWords) {
 
 	if (typeof str != 'string') {
 		return null
@@ -1031,6 +1032,24 @@ function friendlyURL(str) {
 	str = strReplace(other_characters, '', str)
 	str = str.replace(/-{2,}/gmi, '')
 	str = str.toLowerCase()
+
+	if (typeof maxWords == 'number') {
+
+		maxWords = parseInt(maxWords)
+
+		let words = str.split('-')
+
+		let wordsLimitied = []
+		let countWords = words.length
+
+		for (let $i = 0; $i < maxWords && $i < countWords; $i++) {
+			let word = words[$i]
+			wordsLimitied.push(word)
+		}
+
+		str = wordsLimitied.join('-')
+
+	}
 
 	return str
 }
