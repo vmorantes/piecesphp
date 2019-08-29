@@ -4,6 +4,7 @@ class PiecesPHPSystemUserHelper {
 
 		this.triggerLogout = null
 		this.$ = window.PiecesPHPSystemUserHelperJQuery //jQuery JavaScript Library v3.4.1
+		this.extraData = null
 
 		if (typeof urlAuthenticate == 'string') {
 			this.urlAuthenticate = urlAuthenticate
@@ -27,11 +28,12 @@ class PiecesPHPSystemUserHelper {
 			urlRequest += `vp-w=${screen.width}&`
 			urlRequest += `vp-h=${screen.height}&`
 			urlRequest += `user-agent=${btoa(navigator.userAgent)}`
-			
+
 			instance
 				.post(urlRequest, formData, {})
 				.done(function (res) {
 					if (res.auth) {
+						instance.extraData = typeof res.extraData == 'object' ? res.extraData : null
 						instance.setJWT(res.token)
 					}
 					resolve(res)
@@ -53,6 +55,7 @@ class PiecesPHPSystemUserHelper {
 				.done(function (res) {
 					if (res.isAuth == true) {
 
+						instance.extraData = instance.getExtraData()
 						instance.setJWT(instance.getJWT())
 
 						if (typeof onSuccess == 'function') {
@@ -77,6 +80,7 @@ class PiecesPHPSystemUserHelper {
 		}
 		document.cookie = `JWTAuth=${encodeURI(JWT)};path=/`;
 		localStorage.setItem('JWTAuth', encodeURI(JWT))
+		localStorage.setItem('JWTAuthExtraData', this.extraData !== null ? JSON.stringify(this.extraData) : null)
 	}
 
 	getJWT() {
@@ -85,6 +89,12 @@ class PiecesPHPSystemUserHelper {
 			JWT = ''
 		}
 		return JWT
+	}
+
+	getExtraData() {
+		let extraData = localStorage.getItem('JWTAuthExtraData')
+		extraData = extraData !== null ? JSON.parse(extraData) : null
+		return extraData
 	}
 
 	setTriggerLogout(selector) {
@@ -110,6 +120,7 @@ class PiecesPHPSystemUserHelper {
 		if (JWT.length > 0) {
 			document.cookie = `JWTAuth=;expires=${now};path=/`;
 			localStorage.removeItem('JWTAuth')
+			localStorage.removeItem('JWTAuthExtraData')
 			window.location.reload()
 		}
 	}
