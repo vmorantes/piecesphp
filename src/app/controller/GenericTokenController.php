@@ -45,7 +45,7 @@ class GenericTokenController extends AdminPanelController
     /**
      * $tokenString
      *
-     * @var array
+     * @var string
      */
     protected $tokenString = '';
 
@@ -140,8 +140,6 @@ class GenericTokenController extends AdminPanelController
                     return $this->$method($req, $res, $args);
 
                 } else {
-
-                    $tokenController->deleteToken($this->tokenString);
 
                     if ($is_post) {
 
