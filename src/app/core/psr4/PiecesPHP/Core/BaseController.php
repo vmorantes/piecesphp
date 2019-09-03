@@ -62,9 +62,9 @@ class BaseController
                 }
 
             } else if (class_exists($class_model_system) && $system_models === true) {
-                $this->model = new $class_model_system(null, null, null, null, null, null, null, $group_database_model);
+                $this->model = new $class_model_system(null, null, null, null, null, true, null, $group_database_model);
             } else if (class_exists('\\PiecesPHP\\Core\\BaseModel')) {
-                $this->model = new BaseModel(null, null, null, null, null, null, null, $group_database_model);
+                $this->model = new BaseModel(null, null, null, null, null, true, null, $group_database_model);
             }
         }
 
@@ -167,7 +167,7 @@ class BaseController
      */
     public static function setViewDir(string $dir)
     {
-        $last_char = substr($dir, strlen($dir) - 1);
+        $last_char = mb_substr($dir, strlen($dir) - 1);
         $is_bar = ($last_char == '/' || $last_char == '\\');
         self::$view_folder = $is_bar ? $dir : $dir . '/';
     }

@@ -299,7 +299,7 @@ class DirectoryObject implements \JsonSerializable
 
 			$result['folders'][] = [
 				'path' => $this->path,
-				'from' => substr(sprintf('%o', fileperms($this->path)), -4),
+				'from' => mb_substr(sprintf('%o', fileperms($this->path)), -4),
 				'to' => '0' . decoct($mode),
 			];
 
@@ -315,7 +315,7 @@ class DirectoryObject implements \JsonSerializable
 						if (file_exists($filepath)) {
 							$result['files'][] = [
 								'path' => $filepath,
-								'from' => substr(sprintf('%o', fileperms($filepath)), -4),
+								'from' => mb_substr(sprintf('%o', fileperms($filepath)), -4),
 								'to' => '0' . decoct($mode),
 							];
 							chmod($filepath, $mode);

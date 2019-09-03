@@ -237,8 +237,8 @@ class CategoryController extends AdminPanelController
 
                     return [
                         $mapper->id,
-                        strlen($mapper->name) > 50 ? substr($mapper->name, 0, 50) . '...' : $mapper->name,
-                        strlen($mapper->description) > 50 ? substr($mapper->description, 0, 50) . '...' : $mapper->description,
+                        strlen($mapper->name) > 50 ? trim(mb_substr($mapper->name, 0, 50)) . '...' : $mapper->name,
+                        strlen($mapper->description) > 50 ? trim(mb_substr($mapper->description, 0, 50)) . '...' : $mapper->description,
                         (string) $buttonEdit,
                     ];
                 },

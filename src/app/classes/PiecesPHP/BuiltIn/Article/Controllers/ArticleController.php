@@ -416,7 +416,7 @@ class ArticleController extends AdminPanelController
 
                     return [
                         $mapper->id,
-                        strlen($mapper->title) > 50 ? substr($mapper->title, 0, 50) . '...' : $mapper->title,
+                        strlen($mapper->title) > 50 ? trim(mb_substr($mapper->title, 0, 50)) . '...' : $mapper->title,
                         $mapper->author->username,
                         $mapper->category->name,
                         !is_null($mapper->start_date) ? $mapper->start_date->format('d-m-Y h:i:s') : '-',

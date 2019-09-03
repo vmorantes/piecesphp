@@ -559,7 +559,7 @@ class Config
     private static function get_app_base()
     {
         $app_base = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-        $app_base = substr($app_base, 1);
+        $app_base = mb_substr($app_base, 1);
         return $app_base;
     }
 
