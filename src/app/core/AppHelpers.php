@@ -959,12 +959,12 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
         $app_base_length = strlen($app_base);
 
         if ($app_base_position !== false) {
-            $route = substr($route, $app_base_position + $app_base_length);
+            $route = mb_substr($route, $app_base_position + $app_base_length);
         }
 
         $route = baseurl($route);
         $base_len = strlen(baseurl());
-        $route = substr($route, $base_len);
+        $route = mb_substr($route, $base_len);
 
         if (is_string($route) && strlen($route) > 0 && $route[0] == '/') {
             $route = remove_first_char($route);

@@ -107,7 +107,7 @@ class FilesIgnore
 
         $include_regexprs = array_map(function ($regexpr) use ($include_string_control) {
             $pos_regexpr = strpos($regexpr, $include_string_control) + strlen($include_string_control);
-            return substr($regexpr, $pos_regexpr);
+            return mb_substr($regexpr, $pos_regexpr);
         }, $include_regexprs);
 
         foreach ($normal_regexprs as $index => $value) {

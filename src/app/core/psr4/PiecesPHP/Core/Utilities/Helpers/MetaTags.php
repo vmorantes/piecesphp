@@ -219,7 +219,7 @@ class MetaTags
         $value = trim($value);
         $valueLength = strlen($value);
         $fromIndex = $fromIndex >= $valueLength ? 0 : $fromIndex;
-        $value = $valueLength > $maxLength ? substr($value, $fromIndex, $maxLength) . '...' : $value;
+        $value = $valueLength > $maxLength ? trim(mb_substr($value, $fromIndex, $maxLength)) . '...' : $value;
         self::$description = $value;
     }
 

@@ -32,7 +32,7 @@ class StringManipulate
 
         for ($i = 1; $i <= $len_pass; $i++) {
             $random_pos = rand(0, $len_chars - 1);
-            $random_char = substr($chars, $random_pos, 1);
+            $random_char = mb_substr($chars, $random_pos, 1);
             $new_pass .= $random_char;
         }
         $new_pass_encrypt = password_hash($new_pass, PASSWORD_DEFAULT);

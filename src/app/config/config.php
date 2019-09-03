@@ -31,7 +31,7 @@ date_default_timezone_set('America/Bogota');
 $config['default_lang'] = "es";
 $config['app_lang'] = "es";
 $config['base_url'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-$config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . "/" . substr($config['base_url'], 1);
+$config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . "/" . mb_substr($config['base_url'], 1);
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 

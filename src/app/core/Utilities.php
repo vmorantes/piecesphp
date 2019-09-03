@@ -59,13 +59,13 @@ function get_request()
         $requet_uri
     );
 
-    $request = substr($str_replace_2, 0);
+    $request = mb_substr($str_replace_2, 0);
 
     if (last_char($request) == '/') {
         $request = remove_last_char($request);
     }
 
-    if (substr($request, 0, 1) == '/') {
+    if (mb_substr($request, 0, 1) == '/') {
         $request = remove_first_char($request);
     }
 
@@ -150,7 +150,7 @@ function generate_pass(int $length = 5)
 
     for ($i = 1; $i <= $len_pass; $i++) {
         $random_pos = rand(0, $len_chars - 1);
-        $random_char = substr($chars, $random_pos, 1);
+        $random_char = mb_substr($chars, $random_pos, 1);
         $new_pass .= $random_char;
     }
     $new_pass_encrypt = password_hash($new_pass, PASSWORD_DEFAULT);
@@ -183,7 +183,7 @@ function generate_code(int $length = 6, bool $only_numeric = true)
 
     for ($i = 1; $i <= $len_pass; $i++) {
         $random_pos = rand(0, $len_chars - 1);
-        $random_char = substr($chars, $random_pos, 1);
+        $random_char = mb_substr($chars, $random_pos, 1);
         $new_pass .= $random_char;
     }
 
@@ -381,7 +381,7 @@ function is_local()
  */
 function last_char(string $string)
 {
-    return substr($string, strlen($string) - 1);
+    return mb_substr($string, strlen($string) - 1);
 }
 
 /**
@@ -401,7 +401,7 @@ function last_char_pos(string $string)
  */
 function remove_last_char(string $string)
 {
-    return substr($string, 0, (strlen($string) - 1));
+    return mb_substr($string, 0, (strlen($string) - 1));
 }
 
 /**
@@ -413,9 +413,9 @@ function remove_last_char(string $string)
  */
 function remove_last_char_on($char, $string)
 {
-    $last_char = substr($string, strlen($string) - 1);
+    $last_char = mb_substr($string, strlen($string) - 1);
     if ($last_char == $char) {
-        $string = substr($string, 0, (strlen($string) - 1));
+        $string = mb_substr($string, 0, (strlen($string) - 1));
     }
     return $string;
 }
@@ -427,7 +427,7 @@ function remove_last_char_on($char, $string)
  */
 function remove_first_char(string $string)
 {
-    return substr($string, 1);
+    return mb_substr($string, 1);
 }
 
 /**
@@ -451,7 +451,7 @@ function remove_char(string $string, int $pos)
  */
 function replace_first_char(string $string, string $replace)
 {
-    return $replace . substr($string, 1);
+    return $replace . mb_substr($string, 1);
 }
 
 /**
@@ -462,7 +462,7 @@ function replace_first_char(string $string, string $replace)
  */
 function replace_last_char(string $string, string $replace)
 {
-    return substr($string, 0, (strlen($string) - 1)) . $replace;
+    return mb_substr($string, 0, (strlen($string) - 1)) . $replace;
 }
 
 /**
