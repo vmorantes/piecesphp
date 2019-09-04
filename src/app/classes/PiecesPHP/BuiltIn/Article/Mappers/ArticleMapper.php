@@ -136,6 +136,51 @@ class ArticleMapper extends BaseEntityMapper
         $model = self::model();
 
         $model->select();
+        $model->orderBy('id DESC');
+
+        if ($onlyDateRange) {
+
+            $now = date('Y-m-d H:i:s');
+
+            $where = [
+                "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                "(end_date > '{$now}' OR end_date IS NULL)",
+            ];
+            $where = implode(' ', $where);
+
+            $model->where($where);
+
+        }
+
+        $model->execute(false, $page, $perPage);
+
+        $result = $model->result();
+
+        if ($as_mapper) {
+            $result = array_map(function ($e) {
+                return new static($e->id);
+            }, $result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * allByDateOrder
+     *
+     * @param bool $as_mapper
+     * @param bool $onlyDateRange
+     * @param int $page
+     * @param int $perPage
+     *
+     * @return static[]|array
+     */
+    public static function allByDateOrder(bool $as_mapper = false, bool $onlyDateRange = true, int $page = null, $perPage = null)
+    {
+        $model = self::model();
+
+        $model->select();
+        $model->orderBy('start_date DESC, end_date DESC, created DESC');
 
         if ($onlyDateRange) {
 
