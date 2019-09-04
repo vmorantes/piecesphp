@@ -297,70 +297,83 @@ function configDataTables() {
 function configRichEditor() {
 
 	try {
+
+		let blockA = [
+			'bold',
+			'italic',
+			'underline',
+			'strike'
+		]
+
+		let blockB = [
+			{
+				'list': 'ordered'
+			},
+			{
+				'list': 'bullet'
+			},
+			'blockquote'
+		]
+
+		let blockC = [
+			{
+				'header': [
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					false
+				]
+			}
+		]
+
+		let blockD = [
+			{
+				'script': 'sub'
+			},
+			{
+				'script': 'super'
+			}
+		]
+
+		let blockE = [
+			{
+				'color': []
+			}, {
+				'background': []
+			}
+		]
+
+		let blockF = [
+			{
+				'font': []
+			}
+		]
+
+		let blockG = [
+			{
+				'align': []
+			}
+		]
+
+		let blockH = [
+			'image',
+			'clean',
+			'show-source',
+		]
+
 		let toolbarOptions = [
-			[
-				'bold',
-				'italic',
-				'underline',
-				'strike'
-			],
-			[
-				{
-					'list': 'ordered'
-				},
-				{
-					'list': 'bullet'
-				},
-				'blockquote'
-			],
-
-			[
-				{
-					'header': [
-						1,
-						2,
-						3,
-						4,
-						5,
-						6,
-						false
-					]
-				}
-			],
-
-			[
-				{
-					'script': 'sub'
-				},
-				{
-					'script': 'super'
-				}
-			],
-
-
-			[
-				{
-					'color': []
-				}, {
-					'background': []
-				}
-			],
-			[
-				{
-					'font': []
-				}
-			],
-			[
-				{
-					'align': []
-				}
-			],
-			[
-				'image',
-				'clean',
-				'show-source',
-			],
-		];
+			blockA,
+			blockB,
+			blockC,
+			blockD,
+			blockE,
+			blockF,
+			blockG,
+			blockH,
+		]
 
 		let elementRichEditor = $('[rich-editor-js]')
 		let urlProcessImage = elementRichEditor.attr('image-process')
