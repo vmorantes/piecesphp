@@ -746,9 +746,17 @@ function register_routes($routes, &$router)
 
     foreach ($routes as $route) {
 
-        $ruta = $route['route'];
-        $metodo = strtolower($route['method']);
-        $nombre = isset($route['name']) ? $route['name'] : uniqid();
+        $route_segment = $route['route'];
+
+        $methods = explode('|', $route['method']);
+
+        if (count($methods) > 0) {
+            foreach ($methods as $key => $method) {
+                $methods[$key] = strtolower($method);
+            }
+        }
+
+        $name = isset($route['name']) ? $route['name'] : uniqid();
         $route_alias = isset($route['route_alias']) ? (is_string($route['route_alias']) ? $route['route_alias'] : null) : null;
         $controller = $route['controller'];
         $require_login = isset($route['require_login']) ? $route['require_login'] : false;
@@ -758,41 +766,46 @@ function register_routes($routes, &$router)
         $parameters = isset($route['parameters']) ? $route['parameters'] : [];
         $parameters = is_array($parameters) ? $parameters : [$parameters];
 
-        if (array_key_exists($nombre, $_routes)) {
+        if (array_key_exists($name, $_routes)) {
             throw new RouteDuplicateNameException();
         }
 
-        if (is_string($nombre) && $nombre !== null && $nombre !== '') {
-            $router->$metodo($ruta, $controller)->setName($nombre);
-            if ($route_alias !== null) {
-                $router->$metodo($route_alias, $controller);
+        foreach ($methods as $key => $method) {
+
+            if (is_string($name) && $name !== null && $name !== '') {
+                $router->$method($route_segment, $controller)->setName($name);
+            } else {
+                $router->$method($route_segment, $controller);
             }
-        } else {
-            $router->$metodo($ruta, $controller);
+
             if ($route_alias !== null) {
-                $router->$metodo($route_alias, $controller);
+                $router->$method($route_alias, $controller);
             }
+
+            $methods[$key] = strtoupper($method);
+
         }
 
-        $metodo = strtoupper($metodo);
+        if (is_string($name) && $name !== null && $name !== '') {
 
-        if (is_string($nombre) && $nombre !== null && $nombre !== '') {
-
-            $_routes[$nombre]['route'] = $ruta;
-            $_routes[$nombre]['name'] = $nombre;
-            $_routes[$nombre]['controller'] = $controller;
-            $_routes[$nombre]['method'] = $metodo;
-            $_routes[$nombre]['require_login'] = $require_login;
-            $_routes[$nombre]['roles_allowed'] = $roles_allowed;
-            $_routes[$nombre]['parameters'] = $parameters;
+            $_routes[$name]['route'] = $route_segment;
+            $_routes[$name]['name'] = $name;
+            $_routes[$name]['controller'] = $controller;
+            $_routes[$name]['method'] = implode('|', $methods);
+            $_routes[$name]['require_login'] = $require_login;
+            $_routes[$name]['roles_allowed'] = $roles_allowed;
+            $_routes[$name]['parameters'] = $parameters;
 
             if ($route_alias !== null) {
-                $_routes[$nombre]['route_alias'] = $route_alias;
+                $_routes[$name]['route_alias'] = $route_alias;
             }
+
             foreach ($roles_allowed as $role) {
-                Roles::addPermission($nombre, $role);
+                Roles::addPermission($name, $role);
             }
+
             set_config('_routes_', $_routes);
+
         }
     }
 }
