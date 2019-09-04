@@ -165,7 +165,13 @@ class FileValidator
      *
      * @var int
      */
-    protected $maxFileSizeMB = 0;
+	protected $maxFileSizeMB = 0;
+	/**
+	 * $ignoreMimeType
+	 *
+	 * @var bool
+	 */
+	public static $ignoreMimeType = false;
 
     /**
      * __construct
@@ -242,7 +248,7 @@ class FileValidator
 
         }
 
-        $valid_mime_type = in_array($mime_type, $mimes);
+        $valid_mime_type = in_array($mime_type, $mimes) || self::$ignoreMimeType === true;
         $valid_extension = in_array($extension, $extensions);
         $valid_size = $filesize <= $this->maxFileSizeMB;
         $valid = $valid_mime_type && $valid_extension && $valid_size;
