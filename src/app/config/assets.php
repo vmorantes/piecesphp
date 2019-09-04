@@ -134,6 +134,7 @@ $assets['quilljs']['plugins'] = [
     'imageUpload' => [
         'js' => [
             'statics/plugins/quilljs/plugins/image-upload.min.js',
+            'statics/plugins/tidy-html5/tidy.js',
         ],
     ],
     'imageResize' => [

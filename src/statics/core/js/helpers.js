@@ -675,8 +675,30 @@ function quillsHandlers() {
 				modalEditorExists = true
 
 				let html = editor.children[0].innerHTML
-				let forFormating = $("<div></div>").html(html)
-				textarea.val(formatHTML(forFormating[0], 0, true))
+				let forFormating = $("<div></div>").html(html).get(0)
+
+				let formatOptions = {
+					"indent": "auto",
+					"indent-spaces": 4,
+					"wrap": 80,
+					"markup": true,
+					"output-xml": false,
+					"numeric-entities": true,
+					"quote-marks": true,
+					"quote-nbsp": false,
+					"show-body-only": true,
+					"quote-ampersand": false,
+					"break-before-br": true,
+					"uppercase-tags": false,
+					"uppercase-attributes": false,
+					"drop-font-tags": true,
+					"tidy-mark": false
+				}
+
+				let formatedHTML = tidy_html5(forFormating.innerHTML, formatOptions)
+
+				textarea.val(formatedHTML)
+
 				modalEditor.show(500)
 			}
 
