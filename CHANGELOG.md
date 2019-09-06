@@ -1,74 +1,70 @@
-* 707c775  (HEAD -> master, origin/master, origin/HEAD) Remove ingrated support locations 73 seconds ago <Vicsen Morantes>| 
-| M	databases/piecesphp_data.sql
-| M	databases/piecesphp_structure.sql
-| M	src/app/config/routes.php
-| M	src/app/core/AppHelpers.php
+# Abreviaturas
+- MV = Movido a (plural MVMV)
+- RN = Renombrado a
+- P = Property (plural PP)
+- M = Method (plural MM)
+- F = Function (plural FF)
+- D = Borrado (plural DD)
+- A = Agregado (plural AA)
+- U = Ruta (plural UU)
 
-* 01429a6  - 29 minutes ago <Vicsen Morantes>| 
-| M	tasks/TasksManager.php
+# v. 2.9
 
-* d3f7586  - 32 minutes ago <Vicsen Morantes>| 
-| M	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/DirectoryObject.php
+## Generales
+- src/composer.json
+	- **D** Tarea "git-log" de scripts
+- **D** Plugin isotope
+- **D** Plugin alertify
+- **D** Plugin handlebars
 
-* fb18d45  - 46 minutes ago <Vicsen Morantes>| 
-| M	tasks/TasksManager.php
+## PHP
+- src/app/controller/PublicAreaController.php
+	- **A** *P*: private static $automaticImports
+	- **D** izitoast
+	- Importaciones opcionales con respecto a $automaticImports
 
-* 6f2c70c  add parameter chmod 48 minutes ago <Vicsen Morantes>| 
-| M	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/DirectoryObject.php
+- src/app/core/system-controllers/Test.php
+	- **D** *MM* index y overviewBack
 
-* a9dd4c1  New task 57 minutes ago <Vicsen Morantes>| 
-| M	tasks/TasksManager.php
+- src/app/config/routes.php
+	- **D** *U* overview-2 de Test
 
-* 8ac2f7d  Add chmod 57 minutes ago <Vicsen Morantes>| 
-| M	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/DirectoryObject.php
+- **D** src/app/core/system-views/layout
+- **D** src/app/core/system-views/layout/header.php
+- **D** src/app/core/system-views/layout/footer.php
+- **D** src/app/core/system-views/pages
+- **D** src/app/core/system-views/pages/test
+- **D** src/app/core/system-views/pages/test/overview.php
 
-* 92f57e4  Ignorar archivos que no coinciden 2 hours ago <Vicsen Morantes>| 
-| M	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/FilesIgnore.php
+## JS
 
-* d45cf4c  Fix login 3 hours ago <Vicsen Morantes>| 
-| M	src/app/view/usuarios/login.php
-| M	src/statics/vendor/users/sass/login.scss
+- src/statics/core/js/helpers.js
+	- **D** *F* templateResolver
+	- **D** *F* filterSorterResolver
+	- **D** *F* formatHTML
+	- **D** *F* quillsHandlers (**MV** configurations.js dentro de configRichEditor)
+	- **D** *F* simulateInputNumberFormat
+	- **D** *F* pcsFormatNumberString
+	- **D** *F* cropperToDataURL
+	- **D** *F* pcsTopBar
+	- **D** *F* pcsSideBar (**MV** configurations.js como pcsAdminSideBar)
 
-* 078849b  - 25 hours ago <Vicsen Morantes>| 
-| M	src/statics/vendor/general/sass/components/container-aside.scss
-| M	src/statics/vendor/general/sass/ui-pcs.scss
+- src/statics/core/js/configurations.js
+	- **A** *F* _i18n
+	- **A** *F* pcsAdminSideBar
+	- **A** *F* quillsHandlers dentro de configRichEditor
+	- **D** *F* dataTableServerProccesing (**MV** helpers.js)
+	- **D** *F* genericFormHandler (**MV** helpers.js)
+	- **D** *F* showGenericLoader (**MV** helpers.js)
+	- **D** *F* removeGenericLoader (**MV** helpers.js)
 
-* 788bd76  Fix 3 days ago <Vicsen Morantes>| 
-| M	src/statics/vendor/general/js/configurations.js
+- **D** src/statics/core/js/internacionalizacion.js
 
-* eb77257  update changelog 6 days ago <Vicsen Morantes>| 
-| M	CHANGELOG.md
+- src/statics/core/main_system_user.js **MV** src/statics/core/js/user-system/main_system_user.js
+- src/statics/core/PiecesPHPSystemUserHelper.js **MV** src/statics/core/js/user-system/PiecesPHPSystemUserHelper.js
+- src/statics/core/sustem.users.jquery.js **MV** src/statics/core/js/user-system/sustem.users.jquery.js
 
-* bfc77a4  Fix tasks 6 days ago <Vicsen Morantes>| 
-| M	tasks/TasksManager.php
 
-* 8649388  Fix 6 days ago <Vicsen Morantes>| 
-| M	.vscode/settings.json
-| M	src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
-| M	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/DirectoryObject.php
-| M	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/FilesIgnore.php
 
-* fd39f74  Manejador de tareas en composer 6 days ago <Vicsen Morantes>| 
-| M	.gitignore
-| M	src/composer.json
-| A	tasks/TasksManager.php
 
-* c28d000  Liempieza de código en desuso 6 days ago <Vicsen Morantes>| 
-| M	src/gulpfile.js
-| M	src/package.json
 
-* 95bf55b  Clases para manipular directorios 6 days ago <Vicsen Morantes>| 
-| A	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/DirectoryObject.php
-| A	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/FileObject.php
-| A	src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/FilesIgnore.php
-
-* bc36f99  - 10 days ago <Vicsen Morantes>| 
-| M	src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
-| M	src/app/core/psr4/PiecesPHP/Core/Forms/FileValidator.php
-| M	src/app/core/psr4/PiecesPHP/Core/Forms/FilesHandler.php
-
-* 644b862  Helpers de subida de ficheros 10 days ago <Vicsen Morantes>  
-  A	src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
-  A	src/app/core/psr4/PiecesPHP/Core/Forms/FileValidator.php
-  A	src/app/core/psr4/PiecesPHP/Core/Forms/FilesHandler.php
-  A	src/app/core/psr4/PiecesPHP/Core/Helpers/FileFormsManage.php

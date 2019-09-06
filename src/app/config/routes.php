@@ -150,8 +150,6 @@ $tests->active(true); //Grupo activo/inactivo
 $tests->register(
     [
         //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('[/]', Test::class . ':index', 'home-test'),
         new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
-        new PiecesRoute('/overview-2[/]', Test::class . ':overviewBack', 'back-test'),
     ]
 );

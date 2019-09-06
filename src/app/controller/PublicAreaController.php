@@ -42,6 +42,13 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     private static $startSegmentRoutes = '';
 
     /**
+     * $automaticImports
+     *
+     * @var bool
+     */
+    private static $automaticImports = true;
+
+    /**
      * $user
      *
      * Usuario logueado
@@ -58,8 +65,23 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     public function __construct()
     {
         parent::__construct(false); //No cargar ningún modelo automáticamente
+
         $this->init();
-        add_global_asset(base_url('statics/css/global.css'), 'css');
+
+        if (self::$automaticImports === true) {
+
+            /* JQuery */
+            import_jquery();
+            /* Semantic */
+            import_semantic();
+            /* NProgress */
+            import_nprogress();
+            /* Librerías de la aplicación */
+			import_app_libraries();
+			
+			add_global_asset(base_url('statics/css/global.css'), 'css');
+			
+        }
     }
 
     /**
@@ -179,17 +201,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         }
 
         $this->setVariables($view_data);
-
-        /* JQuery */
-        import_jquery();
-        /* Semantic */
-        import_semantic();
-        /* NProgress */
-        import_nprogress();
-        /* izitoast */
-        import_izitoast();
-        /* Librerías de la aplicación */
-        import_app_libraries();
 
     }
 }

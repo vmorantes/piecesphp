@@ -1,6 +1,6 @@
 /**
  * @method successMessage
- * @description Mensaje modal con tipo success (SweetAlert2)
+ * @description Mensaje modal con tipo success (iziToast|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
@@ -8,43 +8,60 @@
 function successMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
 	message = message !== undefined ? message : ''
-	iziToast.success({
-		title: title,
-		message: message,
-		position: 'topCenter',
-		onClosed: () => {
-			if (typeof onClose == 'function') {
-				onClose()
-			}
-		},
-	});
+
+	if(typeof iziToast !== 'undefined'){
+		iziToast.success({
+			title: title,
+			message: message,
+			position: 'topCenter',
+			onClosed: () => {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+		})
+	}else{
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
+	}
+
 }
 
 /**
  * @method warningMessage
- * @description Mensaje modal con tipo warning (SweetAlert2)
+ * @description Mensaje modal con tipo warning (iziToast|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  */
 function warningMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
-	message = message !== undefined ? message : ''
-	iziToast.warning({
-		title: title,
-		message: message,
-		position: 'topCenter',
-		onClosed: () => {
-			if (typeof onClose == 'function') {
-				onClose()
-			}
-		},
-	});
+	message = message !== undefined ? message : ''	
+
+	if(typeof iziToast !== 'undefined'){
+		iziToast.warning({
+			title: title,
+			message: message,
+			position: 'topCenter',
+			onClosed: () => {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+		})
+	}else{
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
+	}
 }
 
 /**
  * @method infoMessage
- * @description Mensaje modal con tipo info (SweetAlert2)
+ * @description Mensaje modal con tipo info (iziToast|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
@@ -52,21 +69,29 @@ function warningMessage(title, message, onClose = null) {
 function infoMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
 	message = message !== undefined ? message : ''
-	iziToast.info({
-		title: title,
-		message: message,
-		position: 'topCenter',
-		onClosed: () => {
-			if (typeof onClose == 'function') {
-				onClose()
-			}
-		},
-	});
+
+	if(typeof iziToast !== 'undefined'){
+		iziToast.info({
+			title: title,
+			message: message,
+			position: 'topCenter',
+			onClosed: () => {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+		})
+	}else{
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
+	}
 }
 
 /**
  * @method errorMessage
- * @description Mensaje modal con tipo error (SweetAlert2)
+ * @description Mensaje modal con tipo error (iziToast|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
@@ -74,31 +99,23 @@ function infoMessage(title, message, onClose = null) {
 function errorMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
 	message = message !== undefined ? message : ''
-	iziToast.error({
-		title: title,
-		message: message,
-		position: 'topCenter',
-		onClosed: () => {
-			if (typeof onClose == 'function') {
-				onClose()
-			}
-		},
-	});
-}
 
-/**
- * @method cropperToDataURL
- * @description Obtiene el string DataURL de la imagen de un objeto cropper
- * @param {Cropper} cropper Objeto Cropper
- * @param {Object} config Configuraciones
- * @param {Boolean} isJPG Convertir en JPEG
- * @return {String} DataURL del Cropper
- */
-function cropperToDataURL(cropper, config = {}, isJPG = true) {
-	if (isJPG === true) {
-		return cropper.getCroppedCanvas(config).toDataURL("image/jpeg")
-	} else {
-		return cropper.getCroppedCanvas(config).toDataURL()
+	if(typeof iziToast !== 'undefined'){
+		iziToast.error({
+			title: title,
+			message: message,
+			position: 'topCenter',
+			onClosed: () => {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+		})
+	}else{
+		window.alert(`${title}:\r\n${message}`)
+		if (typeof onClose == 'function') {
+			onClose()
+		}
 	}
 }
 
@@ -166,99 +183,6 @@ function setCountdown(dateLimit, time = 1000) {
 }
 
 /**
- * pcsSideBar
- * 
- * Configura la barra lateral de PiecesPHP
- * 
- * @param {HTMLElement|JQuery|string} selector Selector o elemento de la barra
- * @returns {void}
- */
-function pcsSideBar(selector) {
-	let menu = $(selector)
-	if (menu.length > 0) {
-		let groups = menu.find('.group')
-		if (groups.length > 0) {
-
-			let titlesGroups = groups.find('.title-group')
-			if (titlesGroups.length > 0) {
-				titlesGroups.click(function (e) {
-
-					let ancester = $(this).parent()
-					let items = ancester.find('.items')
-
-					if (items.length > 0) {
-						if (ancester.hasClass('active')) {
-							ancester.removeClass('active')
-							items.hide(500)
-						} else {
-							ancester.addClass('active')
-							items.show(500)
-						}
-					}
-
-					let ancesterOthers = titlesGroups.parent().not(ancester)
-					let itemsOthers = ancesterOthers.find('.items')
-					ancesterOthers.removeClass('active')
-					itemsOthers.hide(500)
-				})
-			}
-
-		}
-
-		let toggle = $('.ui-pcs.sidebar-toggle')
-		if (toggle.length > 0) {
-			toggle.click(function (e) {
-				if (menu.is(':visible')) {
-					menu.fadeOut(500, function () {
-						menu.attr('style', '')
-						$(menu).removeClass('overlay')
-					})
-					$(this).removeClass('active')
-				} else {
-					$(menu).addClass('overlay')
-					$(this).addClass('active')
-				}
-
-			})
-		}
-	}
-}
-
-/**
- * pcsTopBar
- * 
- * Configura la barra superior de PiecesPHP
- * 
- * @param {HTMLElement|JQuery|string} selector Selector o elemento de la barra
- * @returns {void}
- */
-function pcsTopBar(selector) {
-	let topbar = $(selector)
-	if (topbar.length > 0) {
-		let arrow = topbar.find('.user-info')
-		let menu = topbar.find('.user-info .info-menu')
-		if (arrow.length > 0 && menu.length > 0) {
-			arrow.click(function (e) {
-				e.stopPropagation()
-				if (menu.is(':visible')) {
-					menu.hide(500)
-					menu.parent().removeClass('active')
-				} else {
-					menu.show(500)
-					menu.parent().addClass('active')
-				}
-			})
-			$('body').click(function (e) {
-				if (menu.is(':visible')) {
-					menu.hide(500)
-					menu.parent().removeClass('active')
-				}
-			})
-		}
-	}
-}
-
-/**
  * postRequest
  * 
  * Realiza una petición AJAX POST (JQuery.ajax) y devuelve el objeto jqXHR
@@ -313,269 +237,6 @@ function getRequest(url, form) {
 		})
 	}
 
-}
-
-/**
- * templateResolver
- * 
- * Compila y genera las plantillas handlebars indicadas, luego las introduce en el
- * objetivo relacionado por medio del identificador de la plantilla
- * requiere handlebars.js y jquery
- * 
- * Notas: 
- * - El contenedor de la plantilla debe tener la plantilla dentro de las etiqueta template-structure.
- * - Los datos que se usarán en la plantilla deben estar situados en el contenedor dentro de las etiquetas data y deben ser
- * una cadena que sea válida para JSON.parse
- * 
- * Ejemplo:
- * ```html
-<pcs-template style="display:none;" template-id='1'>
-    <data>
-        {"types":{"KEY_NAME":"Valor del texto"}}
-    </data>
-    <template-structure>
-        <form method="POST" class="ui form importador" enctype="multipart/form-data">
-            <div class="field required">
-                <select required name="type" class="ui dropdown search">
-                    <option value="">Seleccione el tipo de documento</option>
-                    {{#each types}}
-                    <option value="{{@key}}">{{this}}</option>
-                    {{/each}}
-                </select>
-            </div>
-            <div class="field">
-                <label>Subir archivo excel</label>
-                <input type="file" name="archivo">
-            </div>
-            <div class="field">
-                <button type="submit" class="ui button green button-other">Subir</button>
-            </div>
-        </form>
-    </template-structure>
-</pcs-template>```
- * 
- * @param {string} templateContainerSelector El selector del elemento que contiene la plantilla, por defecto pcs-template
- * @param {string} templateIDAttr El atributo que contiene el identificador de la plantilla, por defecto template-id
- * @param {string} templateTargetAttr El atributo que contiene el identificador de la plantilla en el objetivo de la plantilla, por defecto pcs-template-target
- * @returns {void}
- */
-function templateResolver(templateContainerSelector = 'pcs-template', templateIDAttr = 'template-id', templateTargetAttr = 'pcs-template-target', allDataSelector = null) {
-
-	let modelTemplates = $(templateContainerSelector)
-	let dataTemplates = null
-
-	if (allDataSelector !== null) {
-		let _tmp = $(allDataSelector)
-		if (_tmp.length > 0) {
-			_tmp.hide()
-			dataTemplates = JSON.parse(_tmp.text())
-		}
-	}
-
-	if (modelTemplates.length > 0) {
-
-		let modelTemplatesArray = modelTemplates.toArray()
-
-		modelTemplates.hide()
-
-		for (let modelTemplate of modelTemplatesArray) {
-
-			modelTemplate = $(modelTemplate)
-
-			let id = modelTemplate.attr(templateIDAttr)
-			let target = $(`[${templateTargetAttr}='${id}']`)
-
-			let structure = modelTemplate.find('template-structure').html()
-			let textData = modelTemplate.find('data').text()
-			let data = dataTemplates !== null ? dataTemplates : JSON.parse(textData)
-
-			let handleBarsTemplate = Handlebars.compile(structure)
-			let result = handleBarsTemplate(data)
-
-			target.html(result)
-
-		}
-	}
-}
-
-/**
- * filterSorterResolver
- * 
- * @param {string} containerSelector El selector del elemento que contiene los botones de ordenamiento y filtrado
- * @returns {void}
- */
-function filterSorterResolver(containerSelector = 'pcs-sorter-filter') {
-
-	let pluginSign = containerSelector
-
-	let containerSelectorAttr = pluginSign
-	let containerIDSelectorAttr = `${pluginSign}-id`
-	let targetSelectorAttr = `${pluginSign}-target`
-	let sortDataSelectorAttr = `sort-by`
-	let filterDataSelectorAttr = `filter-by`
-	let elementsSelectorAttr = pluginSign + '-element'
-
-	let containersButtons = $(`[${containerSelectorAttr}]`)
-	let containersButtonsArray = containersButtons.toArray()
-
-	let statusSorting = {}
-	let statusFiltering = {}
-
-	for (let containersButton of containersButtonsArray) {
-
-		containersButton = $(containersButton)
-		let id = containersButton.attr(containerIDSelectorAttr)
-		let target = $(`[${targetSelectorAttr}='${id}']`)
-
-		let triggersSort = containersButton.find(`[${sortDataSelectorAttr}]`)
-		let triggersFilter = containersButton.find(`[${filterDataSelectorAttr}]`)
-
-		triggersSort.css({
-			cursor: 'pointer'
-		})
-
-		let elementsSelector = `[${elementsSelectorAttr}]`
-		let elements = target.find(elementsSelector).toArray()
-		let sortTypes = []
-		let sortData = {}
-
-		let sorterDefaultSign = pluginSign + '-data-sort-'
-
-
-		for (let element of elements) {
-			let attrs = element.attributes
-			for (let attr of attrs) {
-				let name = attr.name
-				if (name.indexOf(sorterDefaultSign) !== -1) {
-					let nameCritery = name.replace(sorterDefaultSign, '')
-					if (sortTypes.indexOf(nameCritery) === -1) {
-						sortTypes.push(nameCritery)
-					}
-				}
-			}
-		}
-
-		for (let sortType of sortTypes) {
-			sortData[sortType] = `[${sorterDefaultSign}${sortType}]`
-		}
-
-		let dataContainer = target.isotope({
-			itemSelector: elementsSelector,
-			layoutMode: 'fitRows',
-			getSortData: sortData
-		})
-
-
-		triggersSort.on('click', function () {
-
-			triggersSort.removeClass('active')
-			$(this).addClass('active')
-
-			let sortAscending = true
-
-			let sortBy = $(this).attr(sortDataSelectorAttr)
-
-			if (typeof statusFiltering[sortBy] == 'undefined') {
-				statusFiltering[sortBy] = sortAscending
-			} else {
-				if (statusFiltering[sortBy]) {
-					sortAscending = false
-				} else {
-					sortAscending = true
-				}
-
-				statusFiltering[sortBy] = sortAscending
-			}
-
-			dataContainer.isotope('updateSortData').isotope()
-			dataContainer.isotope({
-				sortBy: sortBy,
-				transitionDuration: 0,
-				sortAscending: sortAscending
-			})
-		})
-
-		triggersFilter.on('click', function () {
-
-			triggersFilter.removeClass('active')
-			$(this).addClass('active')
-
-			let filterBy = $(this).attr(filterDataSelectorAttr)
-
-			dataContainer.isotope('updateSortData').isotope()
-			dataContainer.isotope({
-				filter: filterBy,
-				transitionDuration: 0,
-			})
-		})
-
-	}
-}
-
-/**
- * Formatea un elemento html y devuelve el elemento formateado como
- * una cadena
- * 
- * @param {HTMLElement} element 
- * @param {Number} level 
- * @param {Boolean} returnInner 
- * @param {Boolean} debug 
- * @returns {string|null}
- */
-function formatHTML(element, level = 0, returnInner = false, debug = false) {
-
-	if (!element instanceof HTMLElement) {
-		return null
-	}
-
-	level = typeof level == 'number' ? parseInt(level) : 0
-	returnInner = typeof returnInner == 'boolean' ? returnInner : false
-	debug = typeof debug == 'boolean' ? debug : false
-
-	let tabsRoot = ""
-
-	for (let i = 0; i < level; i++) {
-		tabsRoot += "\t"
-	}
-
-	tabsRoot = debug ? level : tabsRoot
-
-	let root = tabsRoot + element.outerHTML.replace(element.innerHTML, `{{CONTENT}}`)
-
-	let inner = ''
-
-	let childs = element.children
-
-	if (!returnInner) {
-		level++
-	}
-
-	let tabsInner = ""
-	for (let i = 0; i < level; i++) {
-		tabsInner += "\t"
-	}
-	tabsInner = debug ? level : tabsInner
-
-	for (let child of childs) {
-
-		let subChilds = child.children
-		let numChilds = subChilds.length
-		let hasChilds = numChilds > 0
-
-		if (!hasChilds) {
-			inner += `\n${tabsInner}${child.outerHTML}`
-		} else {
-			inner += `\n${tabsInner}` + formatHTML(child, level)
-		}
-	}
-
-	if (returnInner) {
-		root = inner.trim()
-	} else {
-		root = root.replace('{{CONTENT}}', inner + `\n${tabsRoot}`).trim()
-	}
-
-	return root
 }
 
 /**
@@ -648,312 +309,8 @@ function formatNumberString(input, thousandsSeparator = '.', decimalsSeparator =
 	}
 }
 
-
 /**
- * Configura handlers personalizados a QuillJS
- */
-function quillsHandlers() {
-	this.showSource = function (quill, elementRichEditor) {
-
-		elementRichEditor = $(elementRichEditor)
-
-		let editor = elementRichEditor[0]
-
-		let customButton = document.querySelector('.ql-show-source')
-
-		customButton.innerHTML = `<i class="code icon"></i>`
-
-		let modalEditor = null
-		let textarea = null
-		let modalEditorExists = false
-
-		customButton.addEventListener('click', function () {
-
-			if (!modalEditorExists) {
-				modalEditor = getEditorHTML()
-				textarea = modalEditor.find('textarea')
-				modalEditorExists = true
-
-				let html = editor.children[0].innerHTML
-				let forFormating = $("<div></div>").html(html).get(0)
-
-				let formatOptions = {
-					"indent": "auto",
-					"indent-spaces": 4,
-					"wrap": 80,
-					"markup": true,
-					"output-xml": false,
-					"numeric-entities": true,
-					"quote-marks": true,
-					"quote-nbsp": false,
-					"show-body-only": true,
-					"quote-ampersand": false,
-					"break-before-br": true,
-					"uppercase-tags": false,
-					"uppercase-attributes": false,
-					"drop-font-tags": true,
-					"tidy-mark": false
-				}
-
-				let formatedHTML = tidy_html5(forFormating.innerHTML, formatOptions)
-
-				textarea.val(formatedHTML)
-
-				modalEditor.show(500)
-			}
-
-		})
-
-		function getEditorHTML() {
-
-			let modalEditor = document.createElement('div')
-			let textarea = document.createElement('textarea')
-			let buttonFinish = document.createElement('button')
-
-			let css1 = `
-			display:none;
-			width: 100%;
-			height: 100%;
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			background-color: rgba(0, 0, 0, 0.5);
-			text-align: center;
-			padding: 3rem;
-			max-height: 100%;
-			overflow: auto;
-			`
-			let css2 = `    
-			display: block;
-			width: 90%;
-			padding: 20px;
-			line-height: 24px;
-			background: rgb(29, 29, 29);
-			color: rgb(255, 168, 40);
-			font-family: consola;
-			font-size: 22px;
-			min-height: 500px;
-			height: 80%;
-			resize: none;
-			margin: 0 auto;
-			max-width: 1000px;
-			`
-
-			modalEditor.style.cssText = css1
-			textarea.style.cssText = css2
-
-			modalEditor = $(modalEditor)
-			textarea = $(textarea)
-			buttonFinish = $(buttonFinish)
-
-			buttonFinish.addClass('ui button green')
-			buttonFinish.html('Terminar edición')
-
-			modalEditor.append("<h1 style='color:white;'>Editor de código</h1>")
-			modalEditor.append(textarea)
-			modalEditor.append("<br><br>")
-			modalEditor.append(buttonFinish)
-			$('body').append(modalEditor)
-
-			buttonFinish.on('click', function () {
-				let html = textarea.val()
-				quill.pasteHTML(html)
-
-				modalEditor.hide(500, () => {
-					modalEditor.remove()
-					modalEditorExists = false
-				})
-			})
-
-			return modalEditor
-		}
-
-	}
-	return this
-}
-
-/**
- * pcsFormatNumberString
- * 
- * @param {string|number} input 
- * @param {Object} options 
- * @param {string} options.thousands 
- * @param {string} options.decimals 
- * @param {boolean} options.inverse 
- * @returns {number|string}
- */
-function pcsFormatNumberString(input, options = {}) {
-
-	let thousandsSeparator = typeof options.thousands == 'string' ? options.thousands : '.'
-	let decimalsSeparator = typeof options.decimals == 'string' ? options.decimals : ','
-	let inverse = typeof options.inverse == 'boolean' ? options.inverse : false
-
-	if (typeof input == 'number') {
-		input = input.toString().replace('.', decimalsSeparator)
-	}
-
-	let decimalSeparatorExists = false
-	input = input.split('')
-
-	for (let i = 0; i < input.length; i++) {
-
-		let char = input[i]
-		let allowed = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-
-		if (allowed.indexOf(char) == -1 && char != decimalsSeparator) {
-
-			input[i] = ''
-
-		} else if (char == decimalsSeparator) {
-
-			if (decimalSeparatorExists) {
-
-				input[i] = ''
-
-			} else {
-
-				decimalSeparatorExists = true
-
-			}
-
-		}
-	}
-
-	input = input.join('')
-
-	input = parseFloat(input.toString().replace(decimalsSeparator, '.'))
-		.toString()
-		.replace('.', decimalsSeparator)
-
-	if (!inverse) {
-
-		input = input.split(decimalsSeparator)
-
-		let number = String(input[0]).replace(/(.)(?=(\d{3})+$)/g, '$1' + thousandsSeparator)
-		let decimals = input.length > 1 ? `${decimalsSeparator}${input[1]}` : ''
-
-		return `${number}${decimals}`
-
-	} else {
-
-		input = input.replace(decimalsSeparator, '.')
-
-		return parseFloat(input)
-	}
-}
-
-/**
- * simulateInputNumberFormat
- * 
- * @param {HTMLInputElement|$|string} input 
- * @param {Object} options 
- * @param {string} options.thousands 
- * @param {string} options.decimals 
- * @param {number} options.step 
- * @returns {number|string}
- */
-function simulateInputNumberFormat(input, options = {}) {
-
-	if (input instanceof HTMLInputElement) {
-		input = $(input)
-	} else if (typeof input == 'string') {
-		input = $(input)
-	}
-
-	if (input instanceof $ && input.length > 0) {
-
-		let thousands = typeof options.thousands == 'string' ? options.thousands : '.'
-		let decimals = typeof options.decimals == 'string' ? options.decimals : ','
-		let step = typeof options.step == 'number' ? options.step : 1
-		let thousandInPattern = thousands == '.' ? "\\." : thousands
-		let decimalInPattern = decimals == '.' ? "\\." : decimals
-		let pattern = `^[0-9]{1,3}(${thousandInPattern}[0-9]{3})*(\\${decimalInPattern}{1}|\\${decimalInPattern}[0-9]+)*$`
-
-		input.on('keyup', function (e) {
-
-			let value = $(e.target).val()
-			let valueLen = value.length
-			let key = e.key
-
-			if (valueLen > 0) {
-
-				value = value.trim()
-				let caretPosition = lastPositionCaret
-				let currentCaretPosition = input[0].selectionStart
-				let caretPreDecimal = false
-
-
-				value = pcsFormatNumberString(value, {
-					thousands: thousands,
-					decimals: decimals,
-					inverse: false
-				})
-
-				let regexp = new RegExp(pattern, 'gmi')
-
-				if (key == decimals) {
-					value = `${value}${decimals}`
-				}
-
-				if (regexp.test(value)) {
-					$(e.target).val(value)
-				} else {
-					$(e.target).val("0")
-				}
-
-			}
-
-		})
-
-		input.on('keydown', function (e) {
-
-			lastPositionCaret = e.target.selectionStart
-
-			let key = e.key
-			let value = $(e.target).val()
-			value = value == 'NaN' ? 0 : value
-
-			if (key == 'ArrowUp' || key == 'ArrowDown') {
-				if (value.trim().length > 0) {
-					value = pcsFormatNumberString(value, {
-						thousands: thousands,
-						decimals: decimals,
-						inverse: true
-					})
-					value = key == 'ArrowUp' ? value + step : value - step
-					value = pcsFormatNumberString(value, {
-						thousands: thousands,
-						decimals: decimals,
-						inverse: false
-					})
-					$(e.target).val(value)
-				}
-			}
-
-		})
-
-	}
-
-	function setCaretPosition(ctrl, pos) {
-		// Modern browsers
-		if (ctrl.setSelectionRange) {
-			ctrl.focus();
-			ctrl.setSelectionRange(pos, pos);
-
-			// IE8 and below
-		} else if (ctrl.createTextRange) {
-			var range = ctrl.createTextRange();
-			range.collapse(true);
-			range.moveEnd('character', pos);
-			range.moveStart('character', pos);
-			range.select();
-		}
-	}
-}
-
-/**
- * @function friendlyURL
+ * @function strReplace
  * @param {string[]|string} search Elementos a buscar
  * @param {strin[]|string} replace Elementos de reemplazo
  * @param {string} subject Cadena de entrada
@@ -1074,4 +431,595 @@ function friendlyURL(str, maxWords) {
 	}
 
 	return str
+}
+
+
+
+/**
+ * dataTableServerProccesing
+ * @description Requiere datatables y jquery
+ * @param {String} table 
+ * @param {String} ajaxURL 
+ * @param {Number} perPage 
+ * @param {Object} options 
+ * @returns {$}
+ */
+function dataTableServerProccesing(table, ajaxURL, perPage, options) {
+
+	perPage = typeof perPage == 'number' ? parseInt(perPage) : 10
+	perPage = perPage < 1 ? 10 : perPage
+	ajaxURL = typeof ajaxURL == 'string' && ajaxURL.length > 0 ? ajaxURL : null
+	options = typeof options == 'object' ? options : {}
+
+	if (table instanceof HTMLElement) {
+		table = $(table)
+	}
+
+	let columnsDefinitions = []
+	let thElements = table.find('thead th').toArray()
+
+	for (let index in thElements) {
+
+		let e = thElements[index]
+
+		let columnDefinition = {
+			targets: parseInt(index),
+			title: e.innerHTML,
+			name: e.innerHTML,
+			searchable: true,
+			orderable: true,
+		}
+
+		let searchable = e.getAttribute('search')
+		let orderable = e.getAttribute('order')
+		let name = e.getAttribute('name')
+
+		if (searchable != null) {
+			columnDefinition.searchable = searchable == 'true'
+		}
+		if (orderable != null) {
+			columnDefinition.orderable = orderable == 'true'
+		}
+		if (name != null) {
+			columnDefinition.name = name
+		}
+
+		columnsDefinitions.push(columnDefinition)
+	}
+
+	if (typeof options.columnDefs != 'undefined' && Array.isArray(options.columnDefs)) {
+
+		for (let index in options.columnDefs) {
+
+			let definition = options.columnDefs[index]
+			let targets = []
+
+			if (typeof definition.targets != 'undefined') {
+
+				targets = Array.isArray(definition.targets) ? definition.targets : [definition.targets]
+
+				for (let target of targets) {
+					if (typeof columnsDefinitions[target] != 'undefined') {
+						for (let optionDef in definition) {
+							if (optionDef != 'targets') {
+								columnsDefinitions[target][optionDef] = definition[optionDef]
+							}
+						}
+					}
+				}
+
+			}
+
+		}
+	}
+
+	options.columnDefs = columnsDefinitions
+
+	let is_valid = table instanceof $ || table instanceof HTMLElement
+	is_valid = is_valid && ajaxURL != null
+
+	if (is_valid) {
+
+		let configDataTable = Object.assign({}, pcsphpGlobals.configDataTables)
+
+		for (let option in options) {
+			configDataTable[option] = options[option]
+		}
+
+		configDataTable.processing = true
+		configDataTable.serverSide = true
+		configDataTable.ajax = ajaxURL
+		configDataTable.pageLength = perPage
+
+		table.DataTable(configDataTable)
+
+		return table
+
+	} else {
+		throw new Error('Los parámetros son inválidos')
+	}
+}
+
+/**
+ * genericFormHandler
+ * 
+ * Manejador genérico de formularios, requiere jquery
+ * 
+ * @param {String} selector 
+ * @param {genericFormHandler.Options} options
+ * @returns {void} 
+ */
+function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options = {}) {
+
+	/**
+	 * @typedef genericFormHandler.Options
+	 * @property {genericFormHandler.Options.ConfirmationOption} [confirmation]
+	 * @property {Function} [onSetFormData]
+	 * @property {Function} [onSetForm]
+	 * @property {Function} [validate]
+	 * @property {Function} [onSuccess]
+	 * @property {Function} [onError]
+	 * @property {Boolean} [toast]
+	 */
+	/**
+	 * @typedef genericFormHandler.Options.ConfirmationOption
+	 * @property {String} selector Selector ddel elemento
+	 * @property {String} [title] Título
+	 * @property {String} [message]	Mensaje de advertencia
+	 * @property {String} [positive] Texto afirmativo
+	 * @property {String} [negative] Texto negativo
+	 * @property {Function} [condition]
+	 */
+	let ignore;
+
+	selector = typeof selector == 'string' && selector.trim().length > 0 ? selector.trim() : `form[pcs-generic-handler-js]`
+
+	let form = $(`${selector}`)
+
+	let hasConfirmation = false
+	let buttonConfirmation = null
+	let onSetFormData = function (formData) {
+		return formData
+	}
+	let onSetForm = function (form) {
+		return form
+	}
+	let validate = function (form) {
+		return true
+	}
+	let onSuccess = function () {
+	}
+	let onError = function () {
+	}
+	let toast = true
+
+	if (typeof options == 'object') {
+		if (typeof options.confirmation == 'object') {
+
+			let confirmationOptions = options.confirmation
+
+			if (typeof confirmationOptions.selector == 'string') {
+				buttonConfirmation = $(confirmationOptions.selector)
+				hasConfirmation = buttonConfirmation.length > 0
+			}
+			if (typeof confirmationOptions.title != 'string') {
+				options.confirmation.title = 'Confirmación'
+			}
+			if (typeof confirmationOptions.message != 'string') {
+				options.confirmation.message = '¿Está seguro de realizar esta acción?'
+			}
+			if (typeof confirmationOptions.positive != 'string') {
+				options.confirmation.positive = 'Sí'
+			}
+			if (typeof confirmationOptions.negative != 'string') {
+				options.confirmation.negative = 'No'
+			}
+			if (typeof confirmationOptions.condition != 'function') {
+				options.confirmation.condition = () => true
+			}
+
+			if (hasConfirmation) {
+				hasConfirmation = options.confirmation.condition(buttonConfirmation) === true
+			}
+
+		}
+		if (typeof options.onSetFormData == 'function') {
+			onSetFormData = options.onSetFormData
+		}
+		if (typeof options.onSetForm == 'function') {
+			onSetForm = options.onSetForm
+		}
+		if (typeof options.validate == 'function') {
+			validate = options.validate
+		}
+		if (typeof options.onSuccess == 'function') {
+			onSuccess = options.onSuccess
+		}
+		if (typeof options.onError == 'function') {
+			onError = options.onError
+		}
+		if (typeof options.toast == 'boolean') {
+			toast = options.toast
+		}
+	}
+
+	if (form.length > 0) {
+
+		form.submit(function (e) {
+
+			e.preventDefault()
+
+			let thisForm = $(e.target)
+
+			if (validate(form)) {
+				if (!hasConfirmation) {
+
+					submit(thisForm)
+
+				} else {
+
+					iziToast.question({
+						timeout: 20000,
+						close: false,
+						overlay: true,
+						displayMode: 'once',
+						id: 'question',
+						zindex: 999,
+						title: options.confirmation.title,
+						message: options.confirmation.message,
+						position: 'center',
+						buttons: [
+							[
+								`<button><b>${options.confirmation.positive}</b></button>`,
+								(instance, toast) => {
+									submit(thisForm)
+									instance.hide({
+										transitionOut: 'fadeOut'
+									}, toast, 'button')
+								},
+								true
+							],
+							[
+								`<button>${options.confirmation.negative}</button>`,
+								(instance, toast) => {
+									instance.hide({
+										transitionOut: 'fadeOut'
+									}, toast, 'button')
+								}
+							],
+						]
+					})
+
+				}
+			}
+
+			return false
+
+		})
+	}
+
+	function submit(form) {
+
+		let formData = new FormData(form[0])
+		form.find('button[submit]').attr('disabled', true)
+
+		let action = form.attr('action')
+		let method = form.attr('method')
+		let validAction = typeof action == 'string' && action.trim().length > 0
+		let validMethod = typeof method == 'string' && method.trim().length > 0
+		method = validMethod ? method.trim().toUpperCase() : 'POST'
+
+		if (validAction) {
+
+			let request = null
+
+			showLoader()
+
+			if (method == 'POST') {
+
+				let processFormData = onSetFormData(formData, form)
+
+				if (typeof processFormData.then !== 'undefined') {
+					processFormData.then(function (formData) {
+						request = postRequest(action, formData)
+						handlerRequest(request, form, formData)
+					})
+				} else {
+					request = postRequest(action, processFormData)
+					handlerRequest(request, form, formData)
+				}
+
+			} else {
+				let processForm = onSetForm(form)
+				if (typeof processForm.then !== 'undefined') {
+					processForm.then(function (form) {
+						request = getRequest(action, form)
+						handlerRequest(request, form, formData)
+					})
+				} else {
+					request = getRequest(action, processForm)
+					handlerRequest(request, form, formData)
+				}
+			}
+
+		} else {
+
+			console.error('No se ha definido ninguna acción')
+
+			if (toast) {
+				errorMessage('Error', 'Ha ocurrido un error desconocido, intente más tarde.')
+			}
+
+		}
+	}
+
+	function handlerRequest(request, formProcess, formData) {
+
+		request.done(function (response) {
+
+			let responseStructure = {
+				success: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'boolean'
+					},
+					parse: (val) => {
+						return val === true
+					},
+					default: false,
+				},
+				name: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'string' && val.trim().length > 0
+					},
+					parse: (val) => {
+						return val.trim()
+					},
+					default: 'Acción',
+				},
+				message: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'string' && val.trim().length > 0
+					},
+					parse: (val) => {
+						return val.trim()
+					},
+					default: '',
+				},
+				values: {
+					optional: true,
+					validate: (val) => {
+						return typeof val == 'object'
+					},
+					parse: (val) => {
+						return val
+					},
+					default: {},
+				},
+			}
+
+			let responseIsObject = typeof response == 'object'
+
+			if (!responseIsObject) {
+				console.error(`La respuesta debe ser un objeto`)
+				return
+			}
+
+			for (let option in responseStructure) {
+				let config = responseStructure[option]
+				let optional = config.optional
+				let validate = config.validate
+				let parse = config.parse
+				let value = config.default
+				let optionExists = typeof response[option]
+				if (optionExists) {
+					let inputValue = response[option]
+					if (validate(inputValue)) {
+						value = parse(inputValue)
+					}
+					response[option] = value
+				} else if (optional) {
+					response[option] = value
+				} else {
+					console.error(`Falta la opción ${option} en el cuerpo de la respuesta.`)
+					return
+				}
+
+			}
+
+			if (response.success) {
+
+				if (toast) {
+					successMessage(response.name, response.message)
+				}
+
+				let resposeValues = response.values
+
+				let hasReload = typeof resposeValues.reload != 'undefined' && resposeValues.reload == true
+				let hasRedirection = typeof resposeValues.redirect != 'undefined' && resposeValues.redirect == true
+				let validRedirection = typeof resposeValues.redirect_to == 'string' && resposeValues.redirect_to.trim().length > 0
+
+				if (hasRedirection && validRedirection) {
+
+					setTimeout(function (e) {
+
+						window.location = resposeValues.redirect_to
+
+					}, 1500)
+
+				} else if (hasReload) {
+
+					setTimeout(function (e) {
+
+						window.location.reload()
+
+					}, 1500)
+
+				} else {
+
+					form.find('button').attr('disabled', false)
+
+				}
+
+				onSuccess(formProcess, formData, response)
+
+			} else {
+
+				if (toast) {
+					errorMessage(response.name, response.message)
+				}
+
+				form.find('button').attr('disabled', false)
+
+				onError(formProcess, formData, response)
+
+			}
+
+		})
+
+		request.fail(function (error) {
+
+			form.find('button').attr('disabled', false)
+
+			if (toast) {
+				errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
+			}
+
+			onError(formProcess, formData, error)
+
+			console.error(error)
+
+		})
+
+		request.always(function (res) {
+			removeLoader()
+		})
+	}
+
+	function showLoader() {
+		loader = $(
+			`
+				<div class="ui-pcs-activity-loader">
+					<div loader></div>
+				</div>
+			`
+		)
+		loader.css({
+			"position": `fixed`,
+			"z-index": `1000`,
+			"top": `0px`,
+			"left": `0px`,
+			"display": `block`,
+			"width": `100%`,
+			"height": `100%`,
+			"background-color": `rgba(255, 255, 255, 0.4)`,
+		})
+		loader.find('[loader]').css({
+			"position": `fixed`,
+			"top": `50%`,
+			"left": `50%`,
+			"transform": `translate(-50%,-50%)`,
+			"display": `block`,
+			"width": `300px`,
+			"max-width": `100%`,
+			"height": `100px`,
+		})
+
+		$(document.body).append(loader)
+
+		NProgress.configure({
+			parent: `.ui-pcs-activity-loader [loader]`
+		})
+
+		NProgress.start()
+	}
+
+	function removeLoader() {
+		setTimeout(function () {
+			NProgress.done()
+			if (loader instanceof $) {
+				loader.remove()
+			}
+		}, 500)
+	}
+
+}
+
+/**
+ * showGenericLoader
+ * 
+ * Muestra un modal de carga en el body
+ * 
+ * @returns {void} 
+ */
+function showGenericLoader(name = 'DEFAULT') {
+
+	if (typeof window.uiPcsActivityGenericLoader != 'object') {
+		window.uiPcsActivityGenericLoader = {}
+	}
+
+	window.uiPcsActivityGenericLoader[name] = {
+		html: $(
+			`
+				<div class="ui-pcs-activity-loader">
+					<div loader></div>
+				</div>
+			`
+		),
+		progress: Object.assign(NProgress, {}),
+	}
+
+	window.uiPcsActivityGenericLoader[name].html.css({
+		"position": `fixed`,
+		"z-index": `1000`,
+		"top": `0px`,
+		"left": `0px`,
+		"display": `block`,
+		"width": `100%`,
+		"height": `100%`,
+		"background-color": `rgba(255, 255, 255, 0.4)`,
+	})
+	window.uiPcsActivityGenericLoader[name].html.find('[loader]').css({
+		"position": `fixed`,
+		"top": `50%`,
+		"left": `50%`,
+		"transform": `translate(-50%,-50%)`,
+		"display": `block`,
+		"width": `300px`,
+		"max-width": `100%`,
+		"height": `100px`,
+	})
+
+	$(document.body).append(window.uiPcsActivityGenericLoader[name].html)
+
+	window.uiPcsActivityGenericLoader[name].progress.configure({
+		parent: `.ui-pcs-activity-loader [loader]`
+	})
+
+	window.uiPcsActivityGenericLoader[name].progress.start()
+
+}
+
+/**
+ * removeGenericLoader
+ * 
+ * Oculta un modal de carga en el body
+ * 
+ * @returns {void} 
+ */
+function removeGenericLoader(name = 'DEFAULT') {
+
+	if (typeof window.uiPcsActivityGenericLoader == 'object') {
+		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
+			setTimeout(function () {
+				window.uiPcsActivityGenericLoader[name].progress.done()
+				if (window.uiPcsActivityGenericLoader[name].html instanceof $) {
+					window.uiPcsActivityGenericLoader[name].html.remove()
+				}
+			}, 500)
+		}
+	}
+
 }

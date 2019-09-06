@@ -606,17 +606,6 @@ function import_nprogress(array $plugins = [], bool $all = false)
     import_front_library('nprogress', $plugins, $all);
 }
 /**
- * Registra alertifyjs como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_alertifyjs(array $plugins = [], bool $all = false)
-{
-    import_front_library('alertifyjs', $plugins, $all);
-}
-/**
  * Registra sweetalert2 como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
@@ -673,30 +662,6 @@ function import_jquerymask(array $plugins = [], bool $all = false)
 function import_quilljs(array $plugins = [], bool $all = false)
 {
     import_front_library('quilljs', $plugins, $all);
-}
-
-/**
- * Registra isotope como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_isotope(array $plugins = [], bool $all = false)
-{
-    import_front_library('isotope', $plugins, $all);
-}
-
-/**
- * Registra handlebars como assets globales y los plugins definidos por parámetro
- *
- * @param array $plugins
- * @param bool $all
- * @return void
- */
-function import_handlebars(array $plugins = [], bool $all = false)
-{
-    import_front_library('handlebars', $plugins, $all);
 }
 
 /**

@@ -228,8 +228,6 @@ class UsersController extends AdminPanelController
         import_semantic();
         /* NProgress */
         import_nprogress();
-        /* AlertifyJS */
-        import_alertifyjs();
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
