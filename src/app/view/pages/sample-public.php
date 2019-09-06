@@ -1,60 +1,60 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
-<br>
-<br>
-<br>
-<br>
+BR<br>
+BR<br>
+BR<br>
+BR<br>
 
 <div class="elements-container centered fit">
 
     <h3>Colores</h3>
 
-    <br>
+    BR<br>
 
     <div class="elements-container small centered" style="display:flex; flex-wrap: wrap;">
         <div style="padding:5px;background-color:rgb(2, 61, 86);width: 150px;height: 150px;color:white;">
             <strong>Primero</strong>
-            <br>
+            BR<br>
             <strong>rgb(2, 61, 86)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(40, 100, 133);width: 150px;height: 150px;color:white;">
             <strong>Segundo</strong>
-            <br>
+            BR<br>
             <strong>rgb(40, 100, 133)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(150, 150, 150);width: 150px;height: 150px;color:white;">
             <strong>Tercero</strong>
-            <br>
+            BR<br>
             <strong>rgb(150, 150, 150)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(70, 70, 70);width: 150px;height: 150px;color:white;">
             <strong>Cuarto</strong>
-            <br>
+            BR<br>
             <strong>rgb(70, 70, 70)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(30, 30, 30);width: 150px;height: 150px;color:white;">
             <strong>Quinto</strong>
-            <br>
+            BR<br>
             <strong>rgb(30, 30, 30)</strong>
         </div>
         <div style="padding:5px;background-color:white;width: 150px;height: 150px;color:black;">
             <strong>Color para sobrponer sobre el Primero</strong>
-            <br>
+            BR<br>
             <strong>white</strong>
         </div>
         <div style="padding:5px;background-color:#1e1e1e;width: 150px;height: 150px;color:white;">
             <strong>H1</strong>
-            <br>
+            BR<br>
             <strong>#1e1e1e</strong>
         </div>
         <div style="padding:5px;background-color:#286485;width: 150px;height: 150px;color:white;">
             <strong>H2</strong>
-            <br>
+            BR<br>
             <strong>#286485</strong>
         </div>
         <div style="padding:5px;background-color:#464646;width: 150px;height: 150px;color:white;">
             <strong>H3...H6</strong>
-            <br>
+            BR<br>
             <strong>#464646</strong>
         </div>
     </div>
@@ -176,27 +176,82 @@
         libero aliquid. Quo impedit itaque totam nobis facilis voluptatem architecto porro aliquam non fugiat. Quidem,
         soluta voluptate.</blockquote>
 
+    <hr>
+
+	<img class='block block-centered' src="img-gen/200/100" title="Imagen suelta con clase .block.block-centered">
+	
+	BR<br>
+	
+    <div class="text-align-l">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
+    </div>
+	
     <div class="text-align-c">
-        <button class="ui button green" onClick="successMessage('Título', 'Mensaje', e => console.log('successMessage'))">
-			successMessage (iziToast o alert si no está importado)
-		</button>
-		<br>		
-		<br>		
-        <button class="ui button yellow" onClick="warningMessage('Título', 'Mensaje', e => console.log('warningMessage'))">
-			warningMessage (iziToast o alert si no está importado)
-		</button>
-		<br>	
-		<br>	
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+    </div>
+
+    <div class="text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+	</div>	
+	
+    <div class="text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+    </div>
+	
+    <div class="text-align-j">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
+    </div>
+	
+    <div class="text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
+	</div>	
+
+    <div class="text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+        <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
+	</div>	
+
+    <hr>
+
+    <div class="text-align-c">
+        <button class="ui button green"
+            onClick="successMessage('Título', 'Mensaje', e => console.log('successMessage'))">
+            successMessage (iziToast o alert si no está importado)
+        </button>
+        <button class="ui button yellow"
+            onClick="warningMessage('Título', 'Mensaje', e => console.log('warningMessage'))">
+            warningMessage (iziToast o alert si no está importado)
+        </button>
+        BR<br>
+        BR<br>
         <button class="ui button blue" onClick="infoMessage('Título', 'Mensaje', e => console.log('infoMessage'))">
-			infoMessage (iziToast o alert si no está importado)
-		</button>
-		<br>	
-		<br>	
+            infoMessage (iziToast o alert si no está importado)
+        </button>
         <button class="ui button red" onClick="errorMessage('Título', 'Mensaje', e => console.log('successMessage'))">
-			errorMessage (iziToast o alert si no está importado)
-		</button>
-		<br>		
-		<br>
+            errorMessage (iziToast o alert si no está importado)
+        </button>
+        BR<br>
+        BR<br>
     </div>
 
 </div>
