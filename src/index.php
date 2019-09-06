@@ -23,9 +23,9 @@ set_config(
 
 if (get_config('control_access_login') === true) {
     add_global_assets([
-        base_url('statics/core/system.users.jquery.js'),
-        base_url('statics/core/PiecesPHPSystemUserHelper.js'),
-        base_url('statics/core/main_system_user.js'),
+        base_url('statics/core/js/user-system/system.users.jquery.js'),
+        base_url('statics/core/js/user-system/PiecesPHPSystemUserHelper.js'),
+        base_url('statics/core/js/user-system/main_system_user.js'),
     ], 'js');
 }
 

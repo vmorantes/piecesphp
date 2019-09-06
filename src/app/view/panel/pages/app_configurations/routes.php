@@ -44,7 +44,7 @@ window.addEventListener('load', function(e) {
         drawCallback: function(settings) {
             console.log('Draw occurred at: ' + new Date().getTime());
         }
-    }, globales.configDataTables)
+    }, pcsphpGlobals.configDataTables)
     let table = $('.ui.table.roles').DataTable(config)
 })
 </script>

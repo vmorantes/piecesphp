@@ -78,19 +78,6 @@ $assets['nprogress']['js'] = [
 $assets['nprogress']['plugins'] = [];
 
 /**
- * AlertifyJS
- * https://alertifyjs.com/
- */
-$assets['alertifyjs']['css'] = [
-    'statics/plugins/alertifyjs/css/alertify.min.css',
-    'statics/plugins/alertifyjs/css/themes/semantic.min.css',
-];
-$assets['alertifyjs']['js'] = [
-    'statics/plugins/alertifyjs/alertify.min.js',
-];
-$assets['alertifyjs']['plugins'] = [];
-
-/**
  * CropperJS
  * https://github.com/fengyuanchen/cropperjs
  */
@@ -126,6 +113,7 @@ $assets['jquerymask']['plugins'] = [];
  */
 $assets['quilljs']['js'] = [
     'statics/plugins/quilljs/quill.min.js',
+    'statics/plugins/tidy-html5/tidy.js',
 ];
 $assets['quilljs']['css'] = [
     'statics/plugins/quilljs/quill.snow.css',
@@ -134,7 +122,6 @@ $assets['quilljs']['plugins'] = [
     'imageUpload' => [
         'js' => [
             'statics/plugins/quilljs/plugins/image-upload.min.js',
-            'statics/plugins/tidy-html5/tidy.js',
         ],
     ],
     'imageResize' => [
@@ -143,24 +130,6 @@ $assets['quilljs']['plugins'] = [
         ],
     ],
 ];
-
-/**
- * Isotope PACKAGED v3.0.6
- * https://isotope.metafizzy.co
- */
-$assets['isotope']['js'] = [
-    'statics/plugins/isotope/isotope.pkgd.3.0.6.js',
-];
-$assets['isotope']['plugins'] = [];
-
-/**
- * handlebars v4.0.12
- * https://handlebarsjs.com
- */
-$assets['handlebars']['js'] = [
-    'statics/plugins/handlebars/handlebars.js',
-];
-$assets['handlebars']['plugins'] = [];
 
 /**
  * iziToast v1.4
@@ -189,12 +158,10 @@ $assets['jquery']['plugins'] = [];
  * Configuraciones de los plugins anteriores tales como:
  * Traducción de mensajes, configuración de valores por defecto, etc...
  */
-
 $assets['app_libraries']['css'] = [];
 $assets['app_libraries']['js'] = [
     'statics/core/js/util-pieces.js',
     'statics/core/js/helpers.js',
-    'statics/core/js/internacionalizacion.js',
     'statics/core/js/configurations.js',
     base_url(ADMIN_AREA_PATH_JS . '/main.js'),
 ];

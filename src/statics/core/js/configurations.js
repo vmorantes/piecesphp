@@ -2,7 +2,7 @@
  * Datos accesibles globalmente
  * @namespace
  */
-var globales = {}
+var pcsphpGlobals = {}
 
 /**
  * Lenguaje
@@ -10,7 +10,7 @@ var globales = {}
  * @property lang
  * @type {Object}
  */
-globales.lang = (function () {
+pcsphpGlobals.lang = (function () {
 	let langHTML = document.querySelector('html').getAttribute('lang')
 
 	let lang = 'es'
@@ -29,7 +29,7 @@ globales.lang = (function () {
  * @type {Object}
  */
 
-globales.messages = {
+pcsphpGlobals.messages = {
 	es: {
 		titles: {
 			error: 'Error',
@@ -125,7 +125,7 @@ globales.messages = {
 	},
 }
 
-globales.messages.en = globales.messages.es
+pcsphpGlobals.messages.en = pcsphpGlobals.messages.es
 
 /**
  * Configuración de los calendarios
@@ -133,7 +133,7 @@ globales.messages.en = globales.messages.es
  * @property configCalendar
  * @type {Object}
  */
-globales.configCalendar = {
+pcsphpGlobals.configCalendar = {
 	type: 'date',
 	formatter: {
 		date: function (date, settings) {
@@ -159,7 +159,7 @@ globales.configCalendar = {
  * @property configCalendar
  * @type {Object}
  */
-globales.configDataTables = {
+pcsphpGlobals.configDataTables = {
 	"searching": true,
 	"pageLength": 10,
 	"responsive": true,
@@ -177,7 +177,7 @@ globales.configDataTables = {
  * @property configCropper
  * @type {Object}
  */
-globales.configCropper = {
+pcsphpGlobals.configCropper = {
 	aspectRatio: 4 / 3,
 	background: true,
 	checkCrossOrigin: false,
@@ -193,8 +193,7 @@ if (typeof $ !== 'undefined') {
 		configCalendars()
 		configMessagesValidationsSemanticForm()
 		configDataTables()
-		pcsSideBar('.ui-pcs.sidebar')
-		pcsTopBar('.ui-pcs.topbar')
+		pcsAdminSideBar('.ui-pcs.sidebar')
 		configRichEditor()
 		genericFormHandler()
 
@@ -213,7 +212,7 @@ function configCalendars() {
 
 		let grupos = []
 
-		calendarios.calendar(globales.configCalendar)
+		calendarios.calendar(pcsphpGlobals.configCalendar)
 
 		for (let calendarioGrupo of calendariosGrupos) {
 
@@ -236,8 +235,8 @@ function configCalendars() {
 			endType = typeof endType == 'string' && endType.trim().length > 0 ? endType.trim() : 'datetime'
 			endType = endType == 'datetime' || endType == 'date' ? endType : 'datetime'
 
-			let optStart = Object.assign({}, globales.configCalendar)
-			let optEnd = Object.assign({}, globales.configCalendar)
+			let optStart = Object.assign({}, pcsphpGlobals.configCalendar)
+			let optEnd = Object.assign({}, pcsphpGlobals.configCalendar)
 
 			optStart.type = startType
 			optEnd.type = endType
@@ -269,8 +268,8 @@ function configMessagesValidationsSemanticForm() {
 		$.fn.form.settings.prompt !== undefined &&
 		$.fn.form.settings.text !== undefined
 	) {
-		$.fn.form.settings.prompt = globales.messages.es.semantic_form.prompt
-		$.fn.form.settings.text = globales.messages.es.semantic_form.text
+		$.fn.form.settings.prompt = pcsphpGlobals.messages.es.semantic_form.prompt
+		$.fn.form.settings.text = pcsphpGlobals.messages.es.semantic_form.text
 	}
 }
 
@@ -282,7 +281,7 @@ function configDataTables() {
 	let tablas = $('[datatable-js]')
 
 	try {
-		tablas.DataTable(globales.configDataTables)
+		tablas.DataTable(pcsphpGlobals.configDataTables)
 	} catch (error) {
 		if (tablas.DataTable !== undefined) {
 			console.error(error)
@@ -449,592 +448,225 @@ function configRichEditor() {
 
 	} catch (error) {
 	}
+
+	/**
+	 * Configura handlers personalizados a QuillJS
+	 */
+	function quillsHandlers() {
+		this.showSource = function (quill, elementRichEditor) {
+
+			elementRichEditor = $(elementRichEditor)
+
+			let editor = elementRichEditor[0]
+
+			let customButton = document.querySelector('.ql-show-source')
+
+			customButton.innerHTML = `<i class="code icon"></i>`
+
+			let modalEditor = null
+			let textarea = null
+			let modalEditorExists = false
+
+			customButton.addEventListener('click', function () {
+
+				if (!modalEditorExists) {
+					modalEditor = getEditorHTML()
+					textarea = modalEditor.find('textarea')
+					modalEditorExists = true
+
+					let html = editor.children[0].innerHTML
+					let forFormating = $("<div></div>").html(html).get(0)
+
+					let formatOptions = {
+						"indent": "auto",
+						"indent-spaces": 4,
+						"wrap": 80,
+						"markup": true,
+						"output-xml": false,
+						"numeric-entities": true,
+						"quote-marks": true,
+						"quote-nbsp": false,
+						"show-body-only": true,
+						"quote-ampersand": false,
+						"break-before-br": true,
+						"uppercase-tags": false,
+						"uppercase-attributes": false,
+						"drop-font-tags": true,
+						"tidy-mark": false
+					}
+
+					let formatedHTML = tidy_html5(forFormating.innerHTML, formatOptions)
+
+					textarea.val(formatedHTML)
+
+					modalEditor.show(500)
+				}
+
+			})
+
+			function getEditorHTML() {
+
+				let modalEditor = document.createElement('div')
+				let textarea = document.createElement('textarea')
+				let buttonFinish = document.createElement('button')
+
+				let css1 = `
+			display:none;
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: rgba(0, 0, 0, 0.5);
+			text-align: center;
+			padding: 3rem;
+			max-height: 100%;
+			overflow: auto;
+			`
+				let css2 = `    
+			display: block;
+			width: 90%;
+			padding: 20px;
+			line-height: 24px;
+			background: rgb(29, 29, 29);
+			color: rgb(255, 168, 40);
+			font-family: consola;
+			font-size: 22px;
+			min-height: 500px;
+			height: 80%;
+			resize: none;
+			margin: 0 auto;
+			max-width: 1000px;
+			`
+
+				modalEditor.style.cssText = css1
+				textarea.style.cssText = css2
+
+				modalEditor = $(modalEditor)
+				textarea = $(textarea)
+				buttonFinish = $(buttonFinish)
+
+				buttonFinish.addClass('ui button green')
+				buttonFinish.html('Terminar edición')
+
+				modalEditor.append("<h1 style='color:white;'>Editor de código</h1>")
+				modalEditor.append(textarea)
+				modalEditor.append("<br><br>")
+				modalEditor.append(buttonFinish)
+				$('body').append(modalEditor)
+
+				buttonFinish.on('click', function () {
+					let html = textarea.val()
+					quill.pasteHTML(html)
+
+					modalEditor.hide(500, () => {
+						modalEditor.remove()
+						modalEditorExists = false
+					})
+				})
+
+				return modalEditor
+			}
+
+		}
+		return this
+	}
+
 }
 
 /**
- * dataTableServerProccesing
- * @param {String} table 
- * @param {String} ajaxURL 
- * @param {Number} perPage 
- * @param {Object} options 
- * @returns {$}
+ * pcsAdminSideBar
+ * 
+ * Configura la barra lateral de PiecesPHP
+ * 
+ * @param {HTMLElement|JQuery|string} selector Selector o elemento de la barra
+ * @returns {void}
  */
-function dataTableServerProccesing(table, ajaxURL, perPage, options) {
+function pcsAdminSideBar(selector) {
+	let menu = $(selector)
+	if (menu.length > 0) {
+		let groups = menu.find('.group')
+		if (groups.length > 0) {
 
-	perPage = typeof perPage == 'number' ? parseInt(perPage) : 10
-	perPage = perPage < 1 ? 10 : perPage
-	ajaxURL = typeof ajaxURL == 'string' && ajaxURL.length > 0 ? ajaxURL : null
-	options = typeof options == 'object' ? options : {}
+			let titlesGroups = groups.find('.title-group')
+			if (titlesGroups.length > 0) {
+				titlesGroups.click(function (e) {
 
-	if (table instanceof HTMLElement) {
-		table = $(table)
-	}
+					let ancester = $(this).parent()
+					let items = ancester.find('.items')
 
-	let columnsDefinitions = []
-	let thElements = table.find('thead th').toArray()
-
-	for (let index in thElements) {
-
-		let e = thElements[index]
-
-		let columnDefinition = {
-			targets: parseInt(index),
-			title: e.innerHTML,
-			name: e.innerHTML,
-			searchable: true,
-			orderable: true,
-		}
-
-		let searchable = e.getAttribute('search')
-		let orderable = e.getAttribute('order')
-		let name = e.getAttribute('name')
-
-		if (searchable != null) {
-			columnDefinition.searchable = searchable == 'true'
-		}
-		if (orderable != null) {
-			columnDefinition.orderable = orderable == 'true'
-		}
-		if (name != null) {
-			columnDefinition.name = name
-		}
-
-		columnsDefinitions.push(columnDefinition)
-	}
-
-	if (typeof options.columnDefs != 'undefined' && Array.isArray(options.columnDefs)) {
-
-		for (let index in options.columnDefs) {
-
-			let definition = options.columnDefs[index]
-			let targets = []
-
-			if (typeof definition.targets != 'undefined') {
-
-				targets = Array.isArray(definition.targets) ? definition.targets : [definition.targets]
-
-				for (let target of targets) {
-					if (typeof columnsDefinitions[target] != 'undefined') {
-						for (let optionDef in definition) {
-							if (optionDef != 'targets') {
-								columnsDefinitions[target][optionDef] = definition[optionDef]
-							}
+					if (items.length > 0) {
+						if (ancester.hasClass('active')) {
+							ancester.removeClass('active')
+							items.hide(500)
+						} else {
+							ancester.addClass('active')
+							items.show(500)
 						}
 					}
-				}
 
+					let ancesterOthers = titlesGroups.parent().not(ancester)
+					let itemsOthers = ancesterOthers.find('.items')
+					ancesterOthers.removeClass('active')
+					itemsOthers.hide(500)
+				})
 			}
 
 		}
+
+		let toggle = $('.ui-pcs.sidebar-toggle')
+		if (toggle.length > 0) {
+			toggle.click(function (e) {
+				if (menu.is(':visible')) {
+					menu.fadeOut(500, function () {
+						menu.attr('style', '')
+						$(menu).removeClass('overlay')
+					})
+					$(this).removeClass('active')
+				} else {
+					$(menu).addClass('overlay')
+					$(this).addClass('active')
+				}
+
+			})
+		}
 	}
+}
 
-	options.columnDefs = columnsDefinitions
+/**
+ * Internacionalización de mensajes
+ * 
+ * @param {string} type Tipo de mensaje
+ * @param {*} message Mensaje
+ */
+function _i18n(type, message) {
 
-	let is_valid = table instanceof $ || table instanceof HTMLElement
-	is_valid = is_valid && ajaxURL != null
+	let messages = pcsphpGlobals.messages
+	let lang = pcsphpGlobals.lang
 
-	if (is_valid) {
+	let exists = false
 
-		let configDataTable = Object.assign({}, globales.configDataTables)
+	let existsLang = messages[lang] !== undefined
 
-		for (let option in options) {
-			configDataTable[option] = options[option]
+	if (existsLang) {
+
+		let existsType = messages[lang][type] !== undefined
+
+		if (existsType) {
+			let existsMessage = messages[lang][type][message] !== undefined
+
+			if (existsMessage) {
+				exists = true
+			}
+
 		}
 
-		configDataTable.processing = true
-		configDataTable.serverSide = true
-		configDataTable.ajax = ajaxURL
-		configDataTable.pageLength = perPage
+	}
 
-		table.DataTable(configDataTable)
-
-		return table
-
+	if (exists) {
+		return messages[lang][type][message]
 	} else {
-		throw new Error('Los parámetros son inválidos')
+		return message
 	}
-}
-
-/**
- * genericFormHandler
- * 
- * Manejador genérico de formularios
- * 
- * @param {String} selector 
- * @param {genericFormHandler.Options} options
- * @returns {void} 
- */
-function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options = {}) {
-
-	/**
-	 * @typedef genericFormHandler.Options
-	 * @property {genericFormHandler.Options.ConfirmationOption} [confirmation]
-	 * @property {Function} [onSetFormData]
-	 * @property {Function} [onSetForm]
-	 * @property {Function} [validate]
-	 * @property {Function} [onSuccess]
-	 * @property {Function} [onError]
-	 * @property {Boolean} [toast]
-	 */
-	/**
-	 * @typedef genericFormHandler.Options.ConfirmationOption
-	 * @property {String} selector Selector ddel elemento
-	 * @property {String} [title] Título
-	 * @property {String} [message]	Mensaje de advertencia
-	 * @property {String} [positive] Texto afirmativo
-	 * @property {String} [negative] Texto negativo
-	 * @property {Function} [condition]
-	 */
-	let ignore;
-
-	selector = typeof selector == 'string' && selector.trim().length > 0 ? selector.trim() : `form[pcs-generic-handler-js]`
-
-	let form = $(`${selector}`)
-
-	let hasConfirmation = false
-	let buttonConfirmation = null
-	let onSetFormData = function (formData) {
-		return formData
-	}
-	let onSetForm = function (form) {
-		return form
-	}
-	let validate = function (form) {
-		return true
-	}
-	let onSuccess = function () {
-	}
-	let onError = function () {
-	}
-	let toast = true
-
-	if (typeof options == 'object') {
-		if (typeof options.confirmation == 'object') {
-
-			let confirmationOptions = options.confirmation
-
-			if (typeof confirmationOptions.selector == 'string') {
-				buttonConfirmation = $(confirmationOptions.selector)
-				hasConfirmation = buttonConfirmation.length > 0
-			}
-			if (typeof confirmationOptions.title != 'string') {
-				options.confirmation.title = 'Confirmación'
-			}
-			if (typeof confirmationOptions.message != 'string') {
-				options.confirmation.message = '¿Está seguro de realizar esta acción?'
-			}
-			if (typeof confirmationOptions.positive != 'string') {
-				options.confirmation.positive = 'Sí'
-			}
-			if (typeof confirmationOptions.negative != 'string') {
-				options.confirmation.negative = 'No'
-			}
-			if (typeof confirmationOptions.condition != 'function') {
-				options.confirmation.condition = () => true
-			}
-
-			if (hasConfirmation) {
-				hasConfirmation = options.confirmation.condition(buttonConfirmation) === true
-			}
-
-		}
-		if (typeof options.onSetFormData == 'function') {
-			onSetFormData = options.onSetFormData
-		}
-		if (typeof options.onSetForm == 'function') {
-			onSetForm = options.onSetForm
-		}
-		if (typeof options.validate == 'function') {
-			validate = options.validate
-		}
-		if (typeof options.onSuccess == 'function') {
-			onSuccess = options.onSuccess
-		}
-		if (typeof options.onError == 'function') {
-			onError = options.onError
-		}
-		if (typeof options.toast == 'boolean') {
-			toast = options.toast
-		}
-	}
-
-	if (form.length > 0) {
-
-		form.submit(function (e) {
-
-			e.preventDefault()
-
-			let thisForm = $(e.target)
-
-			if (validate(form)) {
-				if (!hasConfirmation) {
-
-					submit(thisForm)
-
-				} else {
-
-					iziToast.question({
-						timeout: 20000,
-						close: false,
-						overlay: true,
-						displayMode: 'once',
-						id: 'question',
-						zindex: 999,
-						title: options.confirmation.title,
-						message: options.confirmation.message,
-						position: 'center',
-						buttons: [
-							[
-								`<button><b>${options.confirmation.positive}</b></button>`,
-								(instance, toast) => {
-									submit(thisForm)
-									instance.hide({
-										transitionOut: 'fadeOut'
-									}, toast, 'button')
-								},
-								true
-							],
-							[
-								`<button>${options.confirmation.negative}</button>`,
-								(instance, toast) => {
-									instance.hide({
-										transitionOut: 'fadeOut'
-									}, toast, 'button')
-								}
-							],
-						]
-					})
-
-				}
-			}
-
-			return false
-
-		})
-	}
-
-	function submit(form) {
-
-		let formData = new FormData(form[0])
-		form.find('button[submit]').attr('disabled', true)
-
-		let action = form.attr('action')
-		let method = form.attr('method')
-		let validAction = typeof action == 'string' && action.trim().length > 0
-		let validMethod = typeof method == 'string' && method.trim().length > 0
-		method = validMethod ? method.trim().toUpperCase() : 'POST'
-
-		if (validAction) {
-
-			let request = null
-
-			showLoader()
-
-			if (method == 'POST') {
-
-				let processFormData = onSetFormData(formData, form)
-
-				if (typeof processFormData.then !== 'undefined') {
-					processFormData.then(function (formData) {
-						request = postRequest(action, formData)
-						handlerRequest(request, form, formData)
-					})
-				} else {
-					request = postRequest(action, processFormData)
-					handlerRequest(request, form, formData)
-				}
-
-			} else {
-				let processForm = onSetForm(form)
-				if (typeof processForm.then !== 'undefined') {
-					processForm.then(function (form) {
-						request = getRequest(action, form)
-						handlerRequest(request, form, formData)
-					})
-				} else {
-					request = getRequest(action, processForm)
-					handlerRequest(request, form, formData)
-				}
-			}
-
-		} else {
-
-			console.error('No se ha definido ninguna acción')
-
-			if (toast) {
-				errorMessage('Error', 'Ha ocurrido un error desconocido, intente más tarde.')
-			}
-
-		}
-	}
-
-	function handlerRequest(request, formProcess, formData) {
-
-		request.done(function (response) {
-
-			let responseStructure = {
-				success: {
-					optional: true,
-					validate: (val) => {
-						return typeof val == 'boolean'
-					},
-					parse: (val) => {
-						return val === true
-					},
-					default: false,
-				},
-				name: {
-					optional: true,
-					validate: (val) => {
-						return typeof val == 'string' && val.trim().length > 0
-					},
-					parse: (val) => {
-						return val.trim()
-					},
-					default: 'Acción',
-				},
-				message: {
-					optional: true,
-					validate: (val) => {
-						return typeof val == 'string' && val.trim().length > 0
-					},
-					parse: (val) => {
-						return val.trim()
-					},
-					default: '',
-				},
-				values: {
-					optional: true,
-					validate: (val) => {
-						return typeof val == 'object'
-					},
-					parse: (val) => {
-						return val
-					},
-					default: {},
-				},
-			}
-
-			let responseIsObject = typeof response == 'object'
-
-			if (!responseIsObject) {
-				console.error(`La respuesta debe ser un objeto`)
-				return
-			}
-
-			for (let option in responseStructure) {
-				let config = responseStructure[option]
-				let optional = config.optional
-				let validate = config.validate
-				let parse = config.parse
-				let value = config.default
-				let optionExists = typeof response[option]
-				if (optionExists) {
-					let inputValue = response[option]
-					if (validate(inputValue)) {
-						value = parse(inputValue)
-					}
-					response[option] = value
-				} else if (optional) {
-					response[option] = value
-				} else {
-					console.error(`Falta la opción ${option} en el cuerpo de la respuesta.`)
-					return
-				}
-
-			}
-
-			if (response.success) {
-
-				if (toast) {
-					successMessage(response.name, response.message)
-				}
-
-				let resposeValues = response.values
-
-				let hasReload = typeof resposeValues.reload != 'undefined' && resposeValues.reload == true
-				let hasRedirection = typeof resposeValues.redirect != 'undefined' && resposeValues.redirect == true
-				let validRedirection = typeof resposeValues.redirect_to == 'string' && resposeValues.redirect_to.trim().length > 0
-
-				if (hasRedirection && validRedirection) {
-
-					setTimeout(function (e) {
-
-						window.location = resposeValues.redirect_to
-
-					}, 1500)
-
-				} else if (hasReload) {
-
-					setTimeout(function (e) {
-
-						window.location.reload()
-
-					}, 1500)
-
-				} else {
-
-					form.find('button').attr('disabled', false)
-
-				}
-
-				onSuccess(formProcess, formData, response)
-
-			} else {
-
-				if (toast) {
-					errorMessage(response.name, response.message)
-				}
-
-				form.find('button').attr('disabled', false)
-
-				onError(formProcess, formData, response)
-
-			}
-
-		})
-
-		request.fail(function (error) {
-
-			form.find('button').attr('disabled', false)
-
-			if (toast) {
-				errorMessage('Error', 'Ha ocurrido un error al conectar con el servidor, intente más tarde.')
-			}
-
-			onError(formProcess, formData, error)
-
-			console.error(error)
-
-		})
-
-		request.always(function (res) {
-			removeLoader()
-		})
-	}
-
-	function showLoader() {
-		loader = $(
-			`
-				<div class="ui-pcs-activity-loader">
-					<div loader></div>
-				</div>
-			`
-		)
-		loader.css({
-			"position": `fixed`,
-			"z-index": `1000`,
-			"top": `0px`,
-			"left": `0px`,
-			"display": `block`,
-			"width": `100%`,
-			"height": `100%`,
-			"background-color": `rgba(255, 255, 255, 0.4)`,
-		})
-		loader.find('[loader]').css({
-			"position": `fixed`,
-			"top": `50%`,
-			"left": `50%`,
-			"transform": `translate(-50%,-50%)`,
-			"display": `block`,
-			"width": `300px`,
-			"max-width": `100%`,
-			"height": `100px`,
-		})
-
-		$(document.body).append(loader)
-
-		NProgress.configure({
-			parent: `.ui-pcs-activity-loader [loader]`
-		})
-
-		NProgress.start()
-	}
-
-	function removeLoader() {
-		setTimeout(function () {
-			NProgress.done()
-			if (loader instanceof $) {
-				loader.remove()
-			}
-		}, 500)
-	}
-
-}
-
-/**
- * showGenericLoader
- * 
- * Muestra un modal de carga en el body
- * 
- * @returns {void} 
- */
-function showGenericLoader(name = 'DEFAULT') {
-
-	if (typeof window.uiPcsActivityGenericLoader != 'object') {
-		window.uiPcsActivityGenericLoader = {}
-	}
-
-	window.uiPcsActivityGenericLoader[name] = {
-		html: $(
-			`
-				<div class="ui-pcs-activity-loader">
-					<div loader></div>
-				</div>
-			`
-		),
-		progress: Object.assign(NProgress, {}),
-	}
-
-	window.uiPcsActivityGenericLoader[name].html.css({
-		"position": `fixed`,
-		"z-index": `1000`,
-		"top": `0px`,
-		"left": `0px`,
-		"display": `block`,
-		"width": `100%`,
-		"height": `100%`,
-		"background-color": `rgba(255, 255, 255, 0.4)`,
-	})
-	window.uiPcsActivityGenericLoader[name].html.find('[loader]').css({
-		"position": `fixed`,
-		"top": `50%`,
-		"left": `50%`,
-		"transform": `translate(-50%,-50%)`,
-		"display": `block`,
-		"width": `300px`,
-		"max-width": `100%`,
-		"height": `100px`,
-	})
-
-	$(document.body).append(window.uiPcsActivityGenericLoader[name].html)
-
-	window.uiPcsActivityGenericLoader[name].progress.configure({
-		parent: `.ui-pcs-activity-loader [loader]`
-	})
-
-	window.uiPcsActivityGenericLoader[name].progress.start()
-
-}
-
-/**
- * removeGenericLoader
- * 
- * Oculta un modal de carga en el body
- * 
- * @returns {void} 
- */
-function removeGenericLoader(name = 'DEFAULT') {
-
-	if (typeof window.uiPcsActivityGenericLoader == 'object') {
-		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
-			setTimeout(function () {
-				window.uiPcsActivityGenericLoader[name].progress.done()
-				if (window.uiPcsActivityGenericLoader[name].html instanceof $) {
-					window.uiPcsActivityGenericLoader[name].html.remove()
-				}
-			}, 500)
-		}
-	}
-
 }
