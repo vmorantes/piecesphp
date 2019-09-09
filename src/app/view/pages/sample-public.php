@@ -1,11 +1,25 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
+<?php import_quilljs([], true);?>
+<?php load_css();?>
+
 BR<br>
 BR<br>
 BR<br>
 BR<br>
 
 <div class="elements-container centered fit">
+
+    <h3>QuillJS</h3>
+
+    <div class="text-align-c">
+        <div quill-adapter-component>
+		</div>		
+		<textarea target></textarea>
+    </div>
+
+    <br>
+    <br>
 
     <h3>Colores</h3>
 
@@ -178,17 +192,17 @@ BR<br>
 
     <hr>
 
-	<img class='block block-centered' src="img-gen/200/100" title="Imagen suelta con clase .block.block-centered">
-	
-	BR<br>
-	
+    <img class='block block-centered' src="img-gen/200/100" title="Imagen suelta con clase .block.block-centered">
+
+    BR<br>
+
     <div class="text-align-l">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
     </div>
-	
+
     <div class="text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
@@ -201,35 +215,35 @@ BR<br>
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
-	</div>	
-	
+    </div>
+
     <div class="text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
     </div>
-	
+
     <div class="text-align-j">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-j">
     </div>
-	
+
     <div class="text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-c">
-	</div>	
+    </div>
 
     <div class="text-align-r">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-r">
-	</div>	
+    </div>
 
     <hr>
 
@@ -256,5 +270,8 @@ BR<br>
 
 </div>
 
-
-<script></script>
+<script>
+window.addEventListener('load', (e) => {
+    let quillAdapter = new QuillAdapterComponent()
+})
+</script>

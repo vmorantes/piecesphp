@@ -659,7 +659,7 @@ function import_jquerymask(array $plugins = [], bool $all = false)
  * @param bool $all
  * @return void
  */
-function import_quilljs(array $plugins = [], bool $all = false)
+function import_quilljs(array $plugins = [], bool $all = true)
 {
     import_front_library('quilljs', $plugins, $all);
 }

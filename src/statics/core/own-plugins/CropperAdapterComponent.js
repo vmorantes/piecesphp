@@ -132,7 +132,7 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 			fillColor: fillColor,
 		}
 
-		if (outerWidth !== -1) {
+		if (outputWidth !== -1) {
 			optionsCroppedCanvas.width = outputWidth
 		}
 
