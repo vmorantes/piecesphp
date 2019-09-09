@@ -113,20 +113,20 @@ $assets['jquerymask']['plugins'] = [];
  */
 $assets['quilljs']['js'] = [
     'statics/plugins/quilljs/quill.min.js',
-    'statics/plugins/tidy-html5/tidy.js',
 ];
 $assets['quilljs']['css'] = [
     'statics/plugins/quilljs/quill.snow.css',
 ];
 $assets['quilljs']['plugins'] = [
-    'imageUpload' => [
-        'js' => [
-            'statics/plugins/quilljs/plugins/image-upload.min.js',
-        ],
-    ],
     'imageResize' => [
         'js' => [
             'statics/plugins/quilljs/plugins/image-resize.min.js',
+        ],
+    ],
+    'adapter' => [
+        'js' => [
+			'statics/plugins/tidy-html5/tidy.js',
+            'statics/core/own-plugins/QuillAdapterComponent.js',
         ],
     ],
 ];

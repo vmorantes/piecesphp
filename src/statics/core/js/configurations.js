@@ -194,8 +194,13 @@ if (typeof $ !== 'undefined') {
 		configMessagesValidationsSemanticForm()
 		configDataTables()
 		pcsAdminSideBar('.ui-pcs.sidebar')
-		configRichEditor()
 		genericFormHandler()
+
+	})
+	
+	$(window).on('load', function (e) {
+		
+		configRichEditor()
 
 	})
 }
@@ -296,283 +301,32 @@ function configDataTables() {
 function configRichEditor() {
 
 	try {
+		if(typeof QuillAdapterComponent == 'function'){
 
-		let blockA = [
-			'bold',
-			'italic',
-			'underline',
-			'strike'
-		]
+			let elementRichEditorSelector = '[rich-editor-js]'
+			let elementRichEditor = $(elementRichEditorSelector)
 
-		let blockB = [
-			{
-				'list': 'ordered'
-			},
-			{
-				'list': 'bullet'
-			},
-			'blockquote'
-		]
+			if(elementRichEditor.length > 0){
 
-		let blockC = [
-			{
-				'header': [
-					1,
-					2,
-					3,
-					4,
-					5,
-					6,
-					false
-				]
-			}
-		]
-
-		let blockD = [
-			{
-				'script': 'sub'
-			},
-			{
-				'script': 'super'
-			}
-		]
-
-		let blockE = [
-			{
-				'color': []
-			}, {
-				'background': []
-			}
-		]
-
-		let blockF = [
-			{
-				'font': []
-			}
-		]
-
-		let blockG = [
-			{
-				'align': []
-			}
-		]
-
-		let blockH = [
-			'image',
-			'clean',
-			'show-source',
-		]
-
-		let toolbarOptions = [
-			blockA,
-			blockB,
-			blockC,
-			blockD,
-			blockE,
-			blockF,
-			blockG,
-			blockH,
-		]
-
-		let elementRichEditor = $('[rich-editor-js]')
-		let urlProcessImage = elementRichEditor.attr('image-process')
-		let nameOnRequest = elementRichEditor.attr('image-name')
-		let target = elementRichEditor.attr('editor-target')
-		let quillHandlers = quillsHandlers()
-
-		if (typeof urlProcessImage == 'string' && urlProcessImage.trim().length > 0) {
-			urlProcessImage = urlProcessImage.trim()
-		} else {
-			urlProcessImage = ''
-		}
-		if (typeof nameOnRequest == 'string' && nameOnRequest.trim().length > 0) {
-			nameOnRequest = nameOnRequest.trim()
-		} else {
-			nameOnRequest = 'image-quill'
-		}
-		if (typeof target == 'string' && target.trim().length > 0) {
-			target = target.trim()
-		} else {
-			return null
-		}
-
-		let targetElement = $(target)
-
-		if (targetElement.length < 1) {
-			return null
-		}
-
-		targetElement.css({
-			height: '0px',
-			minHeight: '0px',
-			maxHeight: '0px',
-			outline: 'none',
-			cursor: 'default',
-			width: '0px',
-			opacity: '0',
-		})
-
-		let quill = new Quill(elementRichEditor.get(0), {
-			theme: 'snow',
-			modules: {
-				toolbar: toolbarOptions,
-				imageUpload: {
-					url: urlProcessImage,
-					method: 'POST',
-					name: nameOnRequest,
-					callbackOK: (serverResponse, next) => {
-						if (serverResponse.success) {
-							next(serverResponse.values.path)
-						}
-					},
-					// personalize failed callback
-					callbackKO: serverError => {
-						console.log(serverError);
-					}
-				},
-				imageResize: {}
-			}
-		})
-
-		quill.on('editor-change', (delta, oldDelta, source) => {
-			let html = elementRichEditor.get(0).children[0].innerHTML
-			if (quill.getText().trim().length > 0) {
-				targetElement.val(html)
-			} else {
-				targetElement.val('')
-			}
-		})
-
-		let toolbarModule = quill.getModule('toolbar')
-		toolbarModule.addHandler('show-source', quillHandlers.showSource(quill, elementRichEditor))
-
-	} catch (error) {
-	}
-
-	/**
-	 * Configura handlers personalizados a QuillJS
-	 */
-	function quillsHandlers() {
-		this.showSource = function (quill, elementRichEditor) {
-
-			elementRichEditor = $(elementRichEditor)
-
-			let editor = elementRichEditor[0]
-
-			let customButton = document.querySelector('.ql-show-source')
-
-			customButton.innerHTML = `<i class="code icon"></i>`
-
-			let modalEditor = null
-			let textarea = null
-			let modalEditorExists = false
-
-			customButton.addEventListener('click', function () {
-
-				if (!modalEditorExists) {
-					modalEditor = getEditorHTML()
-					textarea = modalEditor.find('textarea')
-					modalEditorExists = true
-
-					let html = editor.children[0].innerHTML
-					let forFormating = $("<div></div>").html(html).get(0)
-
-					let formatOptions = {
-						"indent": "auto",
-						"indent-spaces": 4,
-						"wrap": 80,
-						"markup": true,
-						"output-xml": false,
-						"numeric-entities": true,
-						"quote-marks": true,
-						"quote-nbsp": false,
-						"show-body-only": true,
-						"quote-ampersand": false,
-						"break-before-br": true,
-						"uppercase-tags": false,
-						"uppercase-attributes": false,
-						"drop-font-tags": true,
-						"tidy-mark": false
-					}
-
-					let formatedHTML = tidy_html5(forFormating.innerHTML, formatOptions)
-
-					textarea.val(formatedHTML)
-
-					modalEditor.show(500)
-				}
-
-			})
-
-			function getEditorHTML() {
-
-				let modalEditor = document.createElement('div')
-				let textarea = document.createElement('textarea')
-				let buttonFinish = document.createElement('button')
-
-				let css1 = `
-			display:none;
-			width: 100%;
-			height: 100%;
-			position: fixed;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-			background-color: rgba(0, 0, 0, 0.5);
-			text-align: center;
-			padding: 3rem;
-			max-height: 100%;
-			overflow: auto;
-			`
-				let css2 = `    
-			display: block;
-			width: 90%;
-			padding: 20px;
-			line-height: 24px;
-			background: rgb(29, 29, 29);
-			color: rgb(255, 168, 40);
-			font-family: consola;
-			font-size: 22px;
-			min-height: 500px;
-			height: 80%;
-			resize: none;
-			margin: 0 auto;
-			max-width: 1000px;
-			`
-
-				modalEditor.style.cssText = css1
-				textarea.style.cssText = css2
-
-				modalEditor = $(modalEditor)
-				textarea = $(textarea)
-				buttonFinish = $(buttonFinish)
-
-				buttonFinish.addClass('ui button green')
-				buttonFinish.html('Terminar edición')
-
-				modalEditor.append("<h1 style='color:white;'>Editor de código</h1>")
-				modalEditor.append(textarea)
-				modalEditor.append("<br><br>")
-				modalEditor.append(buttonFinish)
-				$('body').append(modalEditor)
-
-				buttonFinish.on('click', function () {
-					let html = textarea.val()
-					quill.pasteHTML(html)
-
-					modalEditor.hide(500, () => {
-						modalEditor.remove()
-						modalEditorExists = false
-					})
+				new QuillAdapterComponent({
+					containerSelector: elementRichEditorSelector,
+					textareaTargetSelector: elementRichEditor.attr('editor-target'),
+					urlProcessImage: elementRichEditor.attr('image-process'),
+					nameOnRequest: elementRichEditor.attr('image-name'),
 				})
 
-				return modalEditor
 			}
 
 		}
-		return this
-	}
 
+	} catch (error) {
+		console.log(error)
+		if(error.name == 'ReferenceError'){
+			console.log("QuillAdapterComponent no está definido.")
+		}else{
+			console.log(error)
+		}
+	}
 }
 
 /**
