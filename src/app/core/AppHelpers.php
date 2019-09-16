@@ -57,7 +57,17 @@ function get_title(bool $appendTitleApp = false, string $separator = ' - ')
             return get_config('title');
         }
     } else {
-        return '';
+
+        if ($title_app !== false) {		
+				
+			return $title_app;
+			
+		} else {
+
+			return 'Web';
+
+		}
+
     }
 }
 
