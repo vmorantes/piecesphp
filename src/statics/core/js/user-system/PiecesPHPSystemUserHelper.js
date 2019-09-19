@@ -204,7 +204,7 @@ class PiecesPHPSystemUserHelper {
 
 		let mapHeaders = new Map()
 
-		if (typeof headers == 'object' && headers.length > 0) {
+		if (typeof headers == 'object') {
 
 			for (let name in headers) {
 
@@ -231,7 +231,7 @@ class PiecesPHPSystemUserHelper {
 					}
 
 				} else if (typeof value == 'string') {
-					valueString = JSON.stringify(value)
+					valueString = value
 				}
 
 				mapHeaders.set(name, valueString)
@@ -241,6 +241,7 @@ class PiecesPHPSystemUserHelper {
 		}
 
 		mapHeaders.set('JWTAUTH', this.getJWT())
+		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
 
 		return mapHeaders
 
