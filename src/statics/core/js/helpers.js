@@ -192,19 +192,92 @@ function setCountdown(dateLimit, time = 1000) {
  * always(data|jqXHR, textStatus, jqXHR|errorThrown)
  * 
  * @param {string} url URL que se consultará
- * @param {FormData} formData Información enviada
+ * @param {FormData|Object} [data] Información enviada
+ * @param {Object} [headers] Cabeceras
  * @returns {jqXHR}
  */
-function postRequest(url, formData) {
-	return $.ajax({
+function postRequest(url, data, headers = {}) {
+
+	let options = {
 		url: url,
 		method: 'POST',
-		processData: false,
-		enctype: "multipart/form-data",
-		contentType: false,
-		cache: false,
-		data: formData
-	})
+	}
+
+	if (data instanceof FormData) {
+
+		options.processData = false
+		options.enctype = "multipart/form-data"
+		options.contentType = false
+		options.cache = false
+		options.data = data
+
+	} else if (typeof data == 'object') {
+
+		options.data = data
+
+	}
+
+	let parsedHeaders = parseHeaders(headers)
+
+	if (parsedHeaders.size > 0) {
+
+		options.beforeSend = function (request) {
+
+			for (let key of parsedHeaders.keys()) {
+				let value = parsedHeaders.get(key)
+				request.setRequestHeader(key, value)
+			}
+
+		}
+
+	}
+
+	function parseHeaders(headers = {}) {
+
+		let mapHeaders = new Map()
+
+		if (typeof headers == 'object') {
+
+			for (let name in headers) {
+
+				let value = headers[name]
+				let valueString = ''
+
+				if (Array.isArray(value)) {
+
+					let length = value.length
+					let lastIndexValue = 0
+
+					if (length == 1) {
+						lastIndexValue = 0
+					} else if (length > 1) {
+						lastIndexValue = length - 1
+					}
+
+					for (let i = 0; i < length; i++) {
+						if (i == lastIndexValue) {
+							valueString += value[i]
+						} else {
+							valueString += value[i] + "\r\n"
+						}
+					}
+
+				} else if (typeof value == 'string') {
+					valueString = value
+				}
+
+				mapHeaders.set(name, valueString)
+
+			}
+
+		}
+
+		return mapHeaders
+
+	}
+
+	return this.$.ajax(options)
+
 }
 
 /**
@@ -216,26 +289,93 @@ function postRequest(url, formData) {
  * fail(jqXHR, textStatus, errorThrown) y
  * always(data|jqXHR, textStatus, jqXHR|errorThrown)
  * 
- * @param {string} url URL que se consultará
- * @param {string|HTMLElement|JQuery} form Formulario
+ * @param {String} url URL que se consultará
+ * @param {String|HTMLElement|JQuery} [data] Formulario
+ * @param {Object} [headers] Cabeceras
  * @returns {jqXHR}
  */
-function getRequest(url, form) {
+function getRequest(url, data, headers = {}) {
 
-	if (form !== undefined) {
-		return $.ajax({
-			url: url,
-			method: 'GET',
-			enctype: "application/x-www-form-urlencoded",
-			data: $(form).serialize()
-		})
-	} else {
-		return $.ajax({
-			url: url,
-			method: 'GET',
-			enctype: "application/x-www-form-urlencoded"
-		})
+	let options = {
+		url: url,
+		method: 'GET',
+		enctype: "application/x-www-form-urlencoded",
 	}
+
+	if (data instanceof HTMLFormElement) {
+
+		options.data = $(data).serialize()
+
+	} else if (data instanceof $) {
+
+		options.data = data.serialize()
+
+	} else if (typeof data == 'string') {
+
+		options.data = data
+
+	}
+
+	let parsedHeaders = parseHeaders(headers)
+
+	if (parsedHeaders.size > 0) {
+
+		options.beforeSend = function (request) {
+
+			for (let key of parsedHeaders.keys()) {
+				let value = parsedHeaders.get(key)
+				request.setRequestHeader(key, value)
+			}
+
+		}
+
+	}
+
+	function parseHeaders(headers = {}) {
+
+		let mapHeaders = new Map()
+
+		if (typeof headers == 'object') {
+
+			for (let name in headers) {
+
+				let value = headers[name]
+				let valueString = ''
+
+				if (Array.isArray(value)) {
+
+					let length = value.length
+					let lastIndexValue = 0
+
+					if (length == 1) {
+						lastIndexValue = 0
+					} else if (length > 1) {
+						lastIndexValue = length - 1
+					}
+
+					for (let i = 0; i < length; i++) {
+						if (i == lastIndexValue) {
+							valueString += value[i]
+						} else {
+							valueString += value[i] + "\r\n"
+						}
+					}
+
+				} else if (typeof value == 'string') {
+					valueString = value
+				}
+
+				mapHeaders.set(name, valueString)
+
+			}
+
+		}
+
+		return mapHeaders
+
+	}
+
+	return this.$.ajax(options)
 
 }
 
