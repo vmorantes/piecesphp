@@ -177,7 +177,7 @@ $(document).ready(function (e) {
 		headerWrongMail.hide(delayHide)
 		headerWrongCode.hide(delayHide)
 		errorContainer.hide(delayHide)
-		finish.hide(delayHide)
+		finishContainer.hide(delayHide)
 		messageBox.html('')
 		return false
 	})

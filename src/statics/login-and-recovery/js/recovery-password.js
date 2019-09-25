@@ -238,7 +238,7 @@ $(document).ready(function (e) {
 		headerWrongCode.hide(delayHide)
 
 		errorContainer.hide(delayHide)
-		finish.hide(delayHide)
+		finishContainer.hide(delayHide)
 		
 		messageBox.html('')
 		return false
