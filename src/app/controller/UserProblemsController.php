@@ -60,9 +60,7 @@ class UserProblemsController extends UsersController
         /* Semantic */
         import_semantic();
         /* Librerías de la aplicación */
-        import_app_libraries([
-            'urls',
-        ]);
+        import_app_libraries();
 
         set_custom_assets([
             base_url('statics/login-and-recovery/css/problems.css'),
@@ -91,9 +89,7 @@ class UserProblemsController extends UsersController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries([
-            'urls',
-        ]);
+        import_app_libraries();
 
         set_custom_assets([
             base_url('statics/login-and-recovery/css/problems-form.css'),
@@ -127,9 +123,7 @@ class UserProblemsController extends UsersController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries([
-            'urls',
-        ]);
+        import_app_libraries();
 
         set_custom_assets([
             base_url('statics/login-and-recovery/css/problems-form.css'),
@@ -163,9 +157,7 @@ class UserProblemsController extends UsersController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries([
-            'urls',
-        ]);
+        import_app_libraries();
 
         set_custom_assets([
             base_url('statics/login-and-recovery/css/problems-form.css'),
