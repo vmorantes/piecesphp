@@ -122,6 +122,16 @@ pcsphpGlobals.messages = {
 				}
 			}
 		},
+		date: {
+			days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+			daysLetter: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+			months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+			monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+			today: 'Hoy',
+			now: 'Ahora',
+			am: 'AM',
+			pm: 'PM'
+		},
 	},
 }
 
@@ -197,9 +207,9 @@ if (typeof $ !== 'undefined') {
 		genericFormHandler()
 
 	})
-	
+
 	$(window).on('load', function (e) {
-		
+
 		configRichEditor()
 
 	})
@@ -301,12 +311,12 @@ function configDataTables() {
 function configRichEditor() {
 
 	try {
-		if(typeof QuillAdapterComponent == 'function'){
+		if (typeof QuillAdapterComponent == 'function') {
 
 			let elementRichEditorSelector = '[rich-editor-js]'
 			let elementRichEditor = $(elementRichEditorSelector)
 
-			if(elementRichEditor.length > 0){
+			if (elementRichEditor.length > 0) {
 
 				new QuillAdapterComponent({
 					containerSelector: elementRichEditorSelector,
@@ -321,9 +331,9 @@ function configRichEditor() {
 
 	} catch (error) {
 		console.log(error)
-		if(error.name == 'ReferenceError'){
+		if (error.name == 'ReferenceError') {
 			console.log("QuillAdapterComponent no está definido.")
-		}else{
+		} else {
 			console.log(error)
 		}
 	}
