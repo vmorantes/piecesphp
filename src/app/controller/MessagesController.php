@@ -77,6 +77,8 @@ class MessagesController extends AdminPanelController
             $pages = 1;
             $total = 0;
 
+            $queryMessages = null;
+
             if (ctype_digit($user_id)) {
 
                 $user = new UsersModel($user_id);
@@ -84,10 +86,20 @@ class MessagesController extends AdminPanelController
 
                 $where = self::getWhereByUserType($user);
 
-                $queryBuilder
-                    ->select()
-                    ->where($where)
-                    ->orderBy("readed ASC, date DESC");
+                $unreadValue = MessagesModel::UNREAD;
+
+                $subQuery = "(SELECT MAX(messages_responses.date) FROM messages_responses WHERE messages_responses.message_id = messages.id AND readed = {$unreadValue} AND messages_responses.message_from != {$user->id})";
+
+                $queryBuilder->select([
+                    'id',
+                    'message_from',
+                    'message_to',
+                    'date',
+                    'subject',
+                    'message',
+                    'attachment',
+                    'readed',
+                ])->where($where)->orderBy("{$subQuery} DESC, readed ASC, date DESC");
 
                 $queryMessages = clone $queryBuilder;
                 $queryTotalMessages = clone $queryBuilder->select("COUNT(id) AS total");
@@ -112,6 +124,7 @@ class MessagesController extends AdminPanelController
                 'messages' => $messages,
                 'pages' => $pages,
                 'total' => $total,
+                'queryMessages' => !is_null($queryMessages) ? $queryMessages->getLastSQLExecuted() : '',
             ]);
 
         } else {
@@ -130,10 +143,15 @@ class MessagesController extends AdminPanelController
 
             $result = $query->result();
 
+            $data = [];
+            $data['destinatarios'] = $result;
+
             $this->render(ADMIN_PATH_VIEWS . '/layout/header');
-            $this->render(MESSAGES_PATH_VIEWS . '/inbox', ['destinatarios' => $result]);
+            $this->render(MESSAGES_PATH_VIEWS . '/inbox', $data);
             $this->render(ADMIN_PATH_VIEWS . '/layout/footer');
+
             return $response;
+
         }
     }
 
