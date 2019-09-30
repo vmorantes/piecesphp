@@ -645,7 +645,7 @@ function import_izitoast(array $plugins = [], bool $all = false)
  * @param bool $all
  * @return void
  */
-function import_cropper(array $plugins = [], bool $all = false)
+function import_cropper(array $plugins = [], bool $all = true)
 {
     import_front_library('cropper', $plugins, $all);
 }

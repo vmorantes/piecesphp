@@ -305,8 +305,9 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         /* Librerías de la aplicación */
         import_app_libraries([
             'adminStyle',
-            'cropperAdapter',
-        ]);
+		]);
+
+		base_url(ADMIN_AREA_PATH_JS . '/main.js');
 
         if (MESSAGES_ENABLED) {
             if (get_current_url() != get_route('messages-inbox') && REFRESH_MESSAGES_STATUS) {

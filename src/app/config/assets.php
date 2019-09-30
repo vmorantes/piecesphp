@@ -87,7 +87,13 @@ $assets['cropper']['css'] = [
 $assets['cropper']['js'] = [
     'statics/plugins/cropper/cropper.min.js',
 ];
-$assets['cropper']['plugins'] = [];
+$assets['cropper']['plugins'] = [
+    'cropperAdapter' => [
+        'js' => [
+            'statics/core/own-plugins/CropperAdapterComponent.js',
+        ],
+    ],
+];
 
 /**
  * SweetAlert2
@@ -125,7 +131,7 @@ $assets['quilljs']['plugins'] = [
     ],
     'adapter' => [
         'js' => [
-			'statics/plugins/tidy-html5/tidy.js',
+            'statics/plugins/tidy-html5/tidy.js',
             'statics/core/own-plugins/QuillAdapterComponent.js',
         ],
     ],
@@ -163,7 +169,6 @@ $assets['app_libraries']['js'] = [
     'statics/core/js/util-pieces.js',
     'statics/core/js/helpers.js',
     'statics/core/js/configurations.js',
-    base_url(ADMIN_AREA_PATH_JS . '/main.js'),
 ];
 $assets['app_libraries']['plugins'] = [
     'adminStyle' => [
@@ -174,11 +179,6 @@ $assets['app_libraries']['plugins'] = [
     'formJsonSchema' => [
         'js' => [
             'statics/core/own-plugins/FormJsonSchema.js',
-        ],
-    ],
-    'cropperAdapter' => [
-        'js' => [
-            'statics/core/own-plugins/CropperAdapterComponent.js',
         ],
     ],
 ];

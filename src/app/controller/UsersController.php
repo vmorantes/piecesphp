@@ -231,9 +231,7 @@ class UsersController extends AdminPanelController
         /* izitoast */
         import_izitoast();
         /* Librerías de la aplicación */
-        import_app_libraries([
-            'urls',
-        ]);
+        import_app_libraries();
 
         set_custom_assets([
             baseurl('statics/login-and-recovery/css/login.css'),
