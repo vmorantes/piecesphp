@@ -3,13 +3,13 @@
 <?php import_quilljs([], true);?>
 <?php load_css();?>
 
-BR<br>
-BR<br>
-BR<br>
-BR<br>
+<br>
+<br>
+<br>
+<br>
 
 <div class="elements-container centered fit">
-
+	
     <h3>QuillJS</h3>
 
     <div class="text-align-c">
@@ -23,52 +23,52 @@ BR<br>
 
     <h3>Colores</h3>
 
-    BR<br>
+    <br>
 
     <div class="elements-container small centered" style="display:flex; flex-wrap: wrap;">
         <div style="padding:5px;background-color:rgb(2, 61, 86);width: 150px;height: 150px;color:white;">
             <strong>Primero</strong>
-            BR<br>
+            <br>
             <strong>rgb(2, 61, 86)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(40, 100, 133);width: 150px;height: 150px;color:white;">
             <strong>Segundo</strong>
-            BR<br>
+            <br>
             <strong>rgb(40, 100, 133)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(150, 150, 150);width: 150px;height: 150px;color:white;">
             <strong>Tercero</strong>
-            BR<br>
+            <br>
             <strong>rgb(150, 150, 150)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(70, 70, 70);width: 150px;height: 150px;color:white;">
             <strong>Cuarto</strong>
-            BR<br>
+            <br>
             <strong>rgb(70, 70, 70)</strong>
         </div>
         <div style="padding:5px;background-color:rgb(30, 30, 30);width: 150px;height: 150px;color:white;">
             <strong>Quinto</strong>
-            BR<br>
+            <br>
             <strong>rgb(30, 30, 30)</strong>
         </div>
         <div style="padding:5px;background-color:white;width: 150px;height: 150px;color:black;">
             <strong>Color para sobrponer sobre el Primero</strong>
-            BR<br>
+            <br>
             <strong>white</strong>
         </div>
         <div style="padding:5px;background-color:#1e1e1e;width: 150px;height: 150px;color:white;">
             <strong>H1</strong>
-            BR<br>
+            <br>
             <strong>#1e1e1e</strong>
         </div>
         <div style="padding:5px;background-color:#286485;width: 150px;height: 150px;color:white;">
             <strong>H2</strong>
-            BR<br>
+            <br>
             <strong>#286485</strong>
         </div>
         <div style="padding:5px;background-color:#464646;width: 150px;height: 150px;color:white;">
             <strong>H3...H6</strong>
-            BR<br>
+            <br>
             <strong>#464646</strong>
         </div>
     </div>
@@ -194,7 +194,7 @@ BR<br>
 
     <img class='block block-centered' src="img-gen/200/100" title="Imagen suelta con clase .block.block-centered">
 
-    BR<br>
+    <br>
 
     <div class="text-align-l">
         <img src="img-gen/100/100" title="Imagen dentro de un div con clase .text-align-l">
@@ -256,16 +256,16 @@ BR<br>
             onClick="warningMessage('Título', 'Mensaje', e => console.log('warningMessage'))">
             warningMessage (iziToast o alert si no está importado)
         </button>
-        BR<br>
-        BR<br>
+        <br>
+        <br>
         <button class="ui button blue" onClick="infoMessage('Título', 'Mensaje', e => console.log('infoMessage'))">
             infoMessage (iziToast o alert si no está importado)
         </button>
         <button class="ui button red" onClick="errorMessage('Título', 'Mensaje', e => console.log('successMessage'))">
             errorMessage (iziToast o alert si no está importado)
         </button>
-        BR<br>
-        BR<br>
+        <br>
+        <br>
     </div>
 
 </div>
