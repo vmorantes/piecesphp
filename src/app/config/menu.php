@@ -34,16 +34,16 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
         new MenuGroup([
             'name' => 'Artículos',
             'icon' => 'newspaper',
-            'visible' => Roles::hasPermissions('piecesphp-built-in-articles-list', $current_type_user),
+            'visible' => Roles::hasPermissions('built-in-articles-list', $current_type_user),
             'asLink' => true,
-            'href' => get_route('piecesphp-built-in-articles-list', [], true),
+            'href' => get_route('built-in-articles-list', [], true),
         ]),
         new MenuGroup([
             'name' => 'Categorías',
             'icon' => 'tags',
-            'visible' => Roles::hasPermissions('piecesphp-built-in-articles-categories-list', $current_type_user),
+            'visible' => Roles::hasPermissions('built-in-articles-categories-list', $current_type_user),
             'asLink' => true,
-            'href' => get_route('piecesphp-built-in-articles-categories-list', [], true),
+            'href' => get_route('built-in-articles-categories-list', [], true),
         ]),
         new MenuGroup([
             'name' => 'Ubicaciones',

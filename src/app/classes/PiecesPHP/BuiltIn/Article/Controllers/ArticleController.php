@@ -43,7 +43,7 @@ class ArticleController extends AdminPanelController
      *
      * @var string
      */
-    protected static $prefixParentEntity = 'piecesphp-built-in';
+    protected static $prefixParentEntity = 'built-in';
     /**
      * $prefixEntity
      *

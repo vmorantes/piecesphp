@@ -34,7 +34,7 @@ class CategoryController extends AdminPanelController
      *
      * @var string
      */
-    protected static $prefixRootParentEntity = 'piecesphp-built-in';
+    protected static $prefixRootParentEntity = 'built-in';
     /**
      * $prefixParentEntity
      *
