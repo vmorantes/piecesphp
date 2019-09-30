@@ -67,26 +67,27 @@
 
     .user-info {
         font-family: $font-family-first;
-        $avatar-size: 5rem;
+        $avatar-size: 50px;
         display: grid;
         grid-template-columns: $avatar-size auto;
         justify-content: left;
         align-items: center;
         align-content: center;
-        padding: 3rem 1rem;
+        padding: 2rem 1rem;
 
         .text {
             padding: 0.5rem;
             padding-bottom: 0;
 
             .main {
-                font-size: 1.4rem;
+                font-size: 15.4px;
+                line-height: 17px;
                 color: $color-sidebar-user-info-main;
                 font-weight: 500;
             }
 
             .second {
-                font-size: 0.9rem;
+                font-size: 0.8rem;
                 color: $color-sidebar-user-info-second;
             }
         }
@@ -97,6 +98,7 @@
             height: $avatar-size;
             background-color: $color-first;
             border-radius: 100%;
+            border: 1px solid $color-first;
 
             img {
                 max-width: 100%;
@@ -117,7 +119,7 @@
 
             .title-group {
                 display: grid;
-                grid-template-columns: 2.0rem auto;
+                grid-template-columns: 3.8rem auto;
                 align-items: center;
                 margin-top: 0;
                 margin-bottom: 0;
@@ -146,8 +148,8 @@
                 }
 
                 i {
-                    font-size: 1.1rem;
-                    margin-right: 1.0rem;
+                    font-size: 1.4rem;
+                    margin-right: 1.3rem;
                     position: relative;
                     top: 2px;
                 }
@@ -157,7 +159,7 @@
                     display: inline-block;
                     width: 11rem;
                     padding: 0px 5px;
-                    font-size: 1.1rem;
+                    font-size: 1.3rem;
                 }
 
                 a:active {
@@ -272,7 +274,7 @@
         color: $color-sidebar-logo-developed;
 
         img {
-            max-width: 100px;
+            max-width: 150px;
         }
     }
 

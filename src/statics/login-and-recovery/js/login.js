@@ -50,7 +50,7 @@ function configLoginForm() {
 
 	let form = $('[login-form-js]')
 
-	window.pcsphp.authenticator.verify(() => window.location.reload())
+	pcsphp.authenticator.verify(() => window.location.reload())
 
 	let problemsContainer = $('.problems-message-container')
 	let problemsContent = problemsContainer.find('.content')
@@ -69,7 +69,7 @@ function configLoginForm() {
 
 		e.preventDefault()
 
-		let login = window.pcsphp.authenticator.authenticateWithUsernamePassword(
+		let login = pcsphp.authenticator.authenticateWithUsernamePassword(
 			form.find("[name='username']").val(),
 			form.find("[name='password']").val()
 		)

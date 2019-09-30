@@ -1,125 +1,400 @@
-function MessagesComponent(page, perPage) {
+/**
+ * @function MessagesComponent
+ * @param {Number} [page=1]
+ * @param {Number} [perPage=10]
+ * @param {Configuration} configuration
+ */
+function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
-	this.page = 1;
-	this.perPage = 3;
-	this.route = '';
-	this.userID = null;
-	this.messagesComponent = null;
-	this.templatesComponent = null;
-	this.inbox = null;
-	this.pagination = null;
-	this.externalEditor = null;
-	this.externalEditorURL = '';
-	this.externalEditorMethod = 'GET';
+	/**
+	 * @typedef Configuration
+	 * @property {$|HTMLElement|String} [container=[messenger-component-container]]
+	 * @property {Number} [fromID]
+	 * @property {Number} [defaultToID]
+	 * @property {String} sessionToken
+	 * @property {String} loadMessagesRoute
+	 * @property {String} sendMessageRoute
+	 * @property {String} sendResponseRoute
+	 * @property {String} [sendFormSelector=[send-message-form]]
+	 * @property {String} [notificationElementSelector]
+	 * @property {String} [loadMoreButtonSelector=[message-component-load-more]]
+	 * @property {String} [closeButtonSelector=[message-component-close-conversation]]
+	 * @property {MessagePreviewTemplate} messagePreviewTemplate
+	 * @property {MessageTemplate} messageTemplate
+	 * @property {SubMessageTemplate} subMessageTemplate
+	 * @property {ResponseFormTemplate} responseFormTemplate
+	 * @property {Function} [onToggle]
+	 * @property {Function} [onWindowResize]
+	 * @property {Boolean} [closeOnOutsideClick=true]
+	 */
+	configuration
+	/**
+	 * @typedef MessagePreviewTemplate
+	 * @property {$|HTMLElement|String} template HTML de la plantilla
+	 * @property {String} [avatarSelector=[avatar]] Selector del la etiqueta img del avatar dentro de la plantilla
+	 * @property {String} [dateSelector=[date]] Selector del contenedor de la fecha dentro de la plantilla
+	 * @property {String} [nameSelector=[name]] Selector del contenedor del nombre dentro de la plantilla
+	 * @property {String} [subjectSelector=[subject]] Selector del contenedor del asunto dentro de la plantilla
+	 * @property {String} [userTypeSelector=[user-type]] Selector del contenedor del tipo de usuario dentro de la plantilla
+	 */
+	let messagePreviewTemplate = {
+		template: '',
+		avatarSelector: '[avatar]',
+		dateSelector: '[date]',
+		nameSelector: '[name]',
+		subjectSelector: '[subject]',
+		userTypeSelector: '[user-type]',
+	}
+	/**
+	 * @typedef MessageTemplate
+	 * @property {$|HTMLElement|String} template HTML de la plantilla
+	 * @property {String} [avatarSelector=[avatar]] Selector del la etiqueta img del avatar dentro de la plantilla
+	 * @property {String} [dateSelector=[date]] Selector del contenedor de la fecha dentro de la plantilla
+	 * @property {String} [nameSelector=[name]] Selector del contenedor del nombre dentro de la plantilla
+	 * @property {String} [subjectSelector=[subject]] Selector del contenedor del asunto dentro de la plantilla
+	 * @property {String} [textSelector=[text]] Selector del contenedor del mensaje dentro de la plantilla
+	 * @property {String} [conversationSelector=[conversation]] Selector del contenedor de los submensajes dentro de la plantilla
+	 */
+	let messageTemplate = {
+		template: '',
+		avatarSelector: '[avatar]',
+		dateSelector: '[date]',
+		nameSelector: '[name]',
+		subjectSelector: '[subject]',
+		textSelector: '[text]',
+		conversationSelector: '[conversation]',
+	}
+	/**
+	 * @typedef SubMessageTemplate
+	 * @property {$|HTMLElement|String} template HTML de la plantilla
+	 * @property {String} [avatarSelector=[avatar]] Selector del la etiqueta img del avatar dentro de la plantilla
+	 * @property {String} [textSelector=[text]] Selector del contenedor del mensaje
+	 */
+	let subMessageTemplate = {
+		template: '',
+		avatarSelector: '[avatar]',
+		textSelector: '[text]',
+	}
+	/**
+	 * @typedef ResponseFormTemplate
+	 * @property {$|HTMLElement|String} template HTML de la plantilla
+	 */
+	let responseFormTemplate = {
+		template: '',
+	}
 
-	let readAttribute = 'read';
-	let unreadAttribute = 'unread';
+	/**
+	 * @property {String} sessionToken
+	 */
+	let sessionToken
 
-	let lastOpened = null;
-	let reopenForReply = false;
-	let reloadInterval = null;
-	let _this = this;
-	let _pages = 1;
+	/**
+	 * @property {$|HTMLElement|String|null} container
+	 */
+	let container = '[messenger-component-container]'
+	/**
+	 * @property {$} previewsContainerElement
+	 */
+	let previewsContainerElement
+	/**
+	 * @property {$} conversationsContainerElement
+	 */
+	let conversationsContainerElement
+	/**
+	 * @property {String} loadMoreButtonSelector
+	 */
+	let loadMoreButtonSelector = '[message-component-load-more]'
+	/**
+	 * @property {String} closeButtonSelector
+	 */
+	let closeButtonSelector = '[message-component-close-conversation]'
+	/**
+	 * @property {$} loadMoreButton
+	 */
+	let loadMoreButton
+	/**
+	 * @property {$} closeButton
+	 */
+	let closeButton
+	/**
+	 * @property {String} notificationElementSelector
+	 */
+	let notificationElementSelector = '[message-component-notification]'
+	/**
+	 * @property {$} notificationElement
+	 */
+	let notificationElement
+	/**
+	 * @property {String} sendFormSelector
+	 */
+	let sendFormSelector = '[send-message-form]'
+	/**
+	 * @property {$} sendForm
+	 */
+	let sendForm
+	/**
+	 * @property {MessagesComponent} instance
+	 */
+	let instance = this
+	/**
+	 * @property {String} loadMessagesRoute
+	 */
+	let loadMessagesRoute = ''
+	/**
+	 * @property {String} sendMessageRoute
+	 */
+	let sendMessageRoute
+	/**
+	 * @property {String} sendResponseRoute
+	 */
+	let sendResponseRoute = ''
+	/**
+	 * @property {Number} currentPage
+	 */
+	let currentPage = 1
+	/**
+	 * @property {Number} currentPerPage
+	 */
+	let currentPerPage = 10
+	/**
+	 * @property {Number} paginationStep
+	 */
+	let paginationStep = currentPerPage > 1 ? currentPerPage : 2
+	/**
+	 * @property {Number} totalPages
+	 */
+	let totalPages = 0
+	/**
+	 * @property {Number} totalConversations
+	 */
+	let totalConversations = 0
+	/**
+	 * @property {Array} conversations
+	 */
+	let conversations = []
 
-	let selectorsMessagesTemplate = {
-		selector: '[message]',
-		preview: {
-			selector: '>[preview]',
-			subject: {
-				selector: '>[subject]',
-			},
-			date: {
-				selector: '>[date]',
-			},
-		},
-		content: {
-			selector: '>[content]',
-			messageDetail: {
-				selector: '>[message-detail]',
-				author: {
-					selector: '>[author]',
-				},
-				subject: {
-					selector: '>[subject]',
-				},
-				date: {
-					selector: '>[date]',
-				},
-				text: {
-					selector: '>[text]',
-				},
-			},
-			dialog: {
-				selector: '>[dialog]',
-			},
-			replyForm: {
-				selector: '>[reply]',
-			},
-		},
-	};
+	/**
+	 * @property {Boolean} isOpened
+	 */
+	let isOpened = false
+	/**
+	 * @property {Number} reloadInterval
+	 */
+	let reloadInterval = -1
+	/**
+	 * @property {Number} lastConversationOpen
+	 */
+	let lastConversationOpen = -1
+	/**
+	 * @property {String} unreadAttributte
+	 */
+	let unreadAttribute = 'unread'
+	/**
+	 * @property {String} readAttribute
+	 */
+	let readAttribute = 'read'
+	/**
+	 * @property {String} closedAttribute
+	 */
+	let closedAttribute = 'closed'
+	/**
+	 * @property {String} openedAttribute
+	 */
+	let openedAttribute = 'opened'
+	/**
+	 * @property {String} markReadRouteAttribute
+	 */
+	let markReadRouteAttribute = 'mark-read-route'
 
-	let selectorsSubMessagesTemplate = {
-		selector: '[sub-message]',
-		data: {
-			selector: '>[data]',
-			avatar: {
-				selector: '>[avatar]',
-			},
-			author: {
-				selector: '>[author]',
-			},
-			date: {
-				selector: '>[date]',
-			},
-		},
-		text: {
-			selector: '>[text]',
-		},
-	};
+	/**
+	 * @property {Number} fromID
+	 */
+	let fromID = -1
+	/**
+	 * @property {Number} defaultToID
+	 */
+	let defaultToID = -1
 
-	let selectorContentInbox = '>[content]';
+	init(page, perPage, configuration)
 
-	let selectorsMessageComponent = {
-		selector: '[messages-component-container]',
-		sendForm: {
-			selector: '>[send-form]',
-			toggleForm: {
-				selector: '>[toggle-form]',
-			},
-			messagesComponentExternalEditor: {
-				selector: '>[messages-component-external-editor]',
-			},
-		},
-		messagesComponent: {
-			selector: '>[messages-component]',
-			inbox: {
-				selector: '>[inbox]',
-				content: {
-					selector: selectorContentInbox,
-					messages: (function (element, subElement) {
-						element.content.dialog.subMessages = subElement;
-						return element;
-					})(selectorsMessagesTemplate, selectorsSubMessagesTemplate),
+	/**
+	 * @function init
+	 * @param {Number} page
+	 * @param {Number} perPage
+	 * @param {Configuration} configuration
+	 */
+	function init(page, perPage, configuration = {}) {
+
+		//Asignación de variables
+		if (typeof configuration.sendMessageRoute == 'string') {
+			sendMessageRoute = configuration.sendMessageRoute
+		}
+		if (typeof configuration.loadMessagesRoute == 'string') {
+			loadMessagesRoute = configuration.loadMessagesRoute
+		}
+		if (typeof configuration.sendResponseRoute == 'string') {
+			sendResponseRoute = configuration.sendResponseRoute
+		}
+		if (typeof page == 'number') {
+			currentPage = page
+		}
+		if (typeof perPage == 'number') {
+			currentPerPage = perPage
+			paginationStep = currentPerPage > 1 ? currentPerPage : 2
+		}
+		if (typeof configuration.messagePreviewTemplate == 'object' || typeof configuration.messagePreviewTemplate == 'string') {
+			messagePreviewTemplate = processByDefaultValues(messagePreviewTemplate, configuration.messagePreviewTemplate)
+		}
+		if (typeof configuration.messageTemplate == 'object' || typeof configuration.messageTemplate == 'string') {
+			messageTemplate = processByDefaultValues(messageTemplate, configuration.messageTemplate)
+		}
+		if (typeof configuration.subMessageTemplate == 'object' || typeof configuration.subMessageTemplate == 'string') {
+			subMessageTemplate = processByDefaultValues(subMessageTemplate, configuration.subMessageTemplate)
+		}
+		if (typeof configuration.responseFormTemplate == 'object' || typeof configuration.responseFormTemplate == 'string') {
+			responseFormTemplate = processByDefaultValues(responseFormTemplate, configuration.responseFormTemplate)
+		}
+		if (typeof configuration.container == 'object' || typeof configuration.container == 'string') {
+			container = configuration.container
+		}
+		if (typeof configuration.sendFormSelector == 'string') {
+			sendFormSelector = configuration.sendFormSelector
+		}
+		if (typeof configuration.notificationElementSelector == 'string') {
+			notificationElementSelector = configuration.notificationElementSelector
+		}
+		if (typeof configuration.loadMoreButtonSelector == 'string') {
+			loadMoreButtonSelector = configuration.loadMoreButtonSelector
+		}
+		if (typeof configuration.closeButtonSelector == 'string') {
+			closeButtonSelector = configuration.closeButtonSelector
+		}
+		if (typeof configuration.fromID == 'number') {
+			fromID = configuration.fromID
+		}
+		if (typeof configuration.defaultToID == 'number') {
+			defaultToID = configuration.defaultToID
+		}
+		if (typeof configuration.sessionToken == 'string') {
+			sessionToken = configuration.sessionToken
+		}
+		if (typeof configuration.onToggle != 'function') {
+			configuration.onToggle = () => { }
+		}
+		if (typeof configuration.onWindowResize != 'function') {
+			configuration.onWindowResize = () => { }
+		}
+		if (typeof configuration.closeOnOutsideClick != 'boolean') {
+			configuration.closeOnOutsideClick = true
+		}
+
+		//Configuraciones iniciales
+		container = processToHTML(container)
+		notificationElement = $(notificationElementSelector)
+		loadMoreButton = $(loadMoreButtonSelector)
+
+		loadMoreButton.click(function (e) {
+			e.preventDefault()
+			e.stopPropagation()
+			paginate(false)
+		})
+
+		//Formulario de envío
+		sendForm = $(sendFormSelector)
+
+		let from = sendForm.find(`[name="from"]`)
+		let to = sendForm.find(`[name="to"]`)
+		let subject = sendForm.find(`[name="subject"]`)
+		let message = sendForm.find(`[name="message"]`)
+		let submitButton = sendForm.find(`[type="submit"]`)
+
+		from.val(fromID)
+		if (to.length > 0 && to.val().trim().length == 0) {
+			to.val(defaultToID)
+		}
+
+		sendForm.attr('method', 'POST')
+		sendForm.attr('action', sendMessageRoute)
+
+		sendForm.submit(function (e) {
+
+			e.preventDefault()
+
+			let actionURL = new URL($(e.target).attr('action'))
+
+			let request = postRequest(actionURL, new FormData(sendForm.get(0)), {
+				'JWTAuth': sessionToken,
+			})
+
+			disabledAttrAdOrRemove([
+				from,
+				to,
+				subject,
+				message,
+				submitButton,
+			], false)
+
+			request.done(function (response) {
+
+				if (typeof response.success !== 'undefined' && response.success === true) {
+
+					successMessage('¡Listo!', response.message)
+					message.val('')
+					instance.loadMessages()
+
+				} else {
+
+					errorMessage('Error', response.message)
+
 				}
-			},
-			pagination: {
-				selector: '>[pagination]',
-			},
-		},
-		messagesTemplatesComponent: {
-			ignore: true,
-			selector: '[messages-component-templates]',
-			messages: selectorsMessagesTemplate,
-			subMessages: selectorsSubMessagesTemplate,
-		},
-	};
 
-	__constructor(page, perPage);
+			}).fail(function (error) {
 
+				console.error(error)
+				errorMessage('Error', 'Ha ocurrido un error desconocido.')
 
+			}).always(function () {
+
+				disabledAttrAdOrRemove([
+					from,
+					to,
+					subject,
+					message,
+					submitButton,
+				], true)
+
+			})
+
+		})
+
+		//Eventos generales
+		window.addEventListener('click', function (e) {
+
+			if (configuration.closeOnOutsideClick) {
+
+				toggleConversation(lastConversationOpen)
+
+			}
+
+		})
+
+		window.addEventListener('resize', function (e) {
+			configuration.onWindowResize(previewsContainerElement, conversationsContainerElement, lastConversationOpen, e)
+		})
+
+	}
+
+	/**
+	 * @method loadMessages
+	 * @param {Object} options
+	 * @param {Function} options.onDone
+	 * @param {Function} options.onRequest
+	 * @param {Function} options.onPreRequest
+	 * @param {Number} options.timeReload
+	 */
 	this.loadMessages = (options) => {
 
-		options = typeof options == 'object' ? options : {};
+		options = typeof options == 'object' ? options : {}
 
 		let allowedOptions = {
 			'onDone': {
@@ -138,347 +413,524 @@ function MessagesComponent(page, perPage) {
 				validate: (value) => value == null || !isNaN(value),
 				default: 5000,
 			},
-		};
-
-		for (let option in allowedOptions) {
-			let defaultOption = allowedOptions[option];
-			if (!defaultOption.validate(options[option])) {
-				options[option] = defaultOption.default;
-			}
 		}
 
-		let onDone = options.onDone;
-		let onRequest = options.onRequest;
-		let onPreRequest = options.onPreRequest;
-		let timeReload = options.timeReload;
+		options = processByStructure(allowedOptions, options)
 
-		let form = $(document.createElement('form'));
-		let page = `<input name="page" value="${this.page}"/>`;
-		let perPage = `<input name="per_page" value="${this.perPage}"/>`;
-		form.append(page).append(perPage);
+		let onDone = options.onDone
+		let onRequest = options.onRequest
+		let onPreRequest = options.onPreRequest
+		let timeReload = options.timeReload
 
-		onPreRequest(form);
+		let form = $(document.createElement('form'))
 
-		let requestMessages = getRequest(this.route, form);
+		onPreRequest(form)
 
-		onRequest(requestMessages);
+		let urlRequest = new URL(loadMessagesRoute)
+		urlRequest.searchParams.set('page', currentPage)
+		urlRequest.searchParams.set('per_page', currentPerPage)
+
+		let requestMessages = getRequest(urlRequest, form, {
+			'JWTAuth': sessionToken,
+		})
+
+		onRequest(requestMessages)
 
 		requestMessages.done((res) => {
 
-			onDone(res);
+			onDone(res)
 
-			_pages = Number.isInteger(res.pages) ? res.pages : _pages;
-
-			let contentInbox = _this.inbox.find(selectorContentInbox);
-			let elements = contentInbox.find('*').toArray();
-
-			for (let element of elements) {
-				$(element).off();
-				$(element).remove();
+			//Limpiar contenedores
+			if (previewsContainerElement instanceof $) {
+				previewsContainerElement.html('')
 			}
 
-			if (res.total > 0) {
-				configPagination();
-				messagesElements(res.messages);
-			} else {
-				let noHayH3 = $("<h3>No hay mensajes.</h3>");
-				noHayH3.css({
-					padding: '1rem',
-				});
-				contentInbox.html(noHayH3);
+			if (conversationsContainerElement instanceof $) {
+				conversationsContainerElement.html('')
 			}
 
-			reopenForReply = false;
-		});
+			totalPages = Number.isInteger(res.pages) ? res.pages : totalPages
+			totalConversations = Number.isInteger(res.total) ? res.total : totalConversations
+			conversations = []
+
+			paginate(true)
+
+			if (Array.isArray(res.messages)) {
+
+				for (let conversation of res.messages) {
+
+					let mainMessage = conversation.message
+					let responsesThread = conversation.responses
+					let isMine = false
+
+					if (mainMessage.message_from.id == fromID) {
+						isMine = true
+					}
+
+					for (let index in responsesThread) {
+
+						let message = responsesThread[index]
+						if (message.message_from.id == fromID) {
+							responsesThread[index].isMine = true
+						}
+
+					}
+
+					mainMessage.isMine = isMine
+
+					conversations.push({
+						isMine: isMine,
+						message: mainMessage,
+						thread: responsesThread,
+					})
+
+				}
+
+			}
+
+			for (let conversation of conversations) {
+				addConversationHTML(conversation, container)
+			}
+
+			//Cambiar estado a cerrado
+			isOpened = false
+
+			if (lastConversationOpen !== -1) {
+				toggleConversation(lastConversationOpen)
+			}
+
+			if (conversations.length > 0) {
+
+				let hasUnreadMessages = previewsContainerElement.find(`[${unreadAttribute}]`).length > 0 || conversationsContainerElement.find(`[${unreadAttribute}]`).length > 0
+
+				if (hasUnreadMessages) {
+					notificationElement.attr('has-unread', '')
+				}
+
+			}
+
+		})
 
 		if (reloadInterval != null) {
-			clearInterval(reloadInterval);
+			clearInterval(reloadInterval)
 		}
 
 		if (timeReload != null && typeof timeReload == 'number') {
+
 			reloadInterval = setInterval(function () {
 
-				let messagesContentElements = _this.inbox
-					.find(selectorsMessageComponent.messagesComponent.inbox.content.messages.selector)
-					.find(selectorsMessageComponent.messagesComponent.inbox.content.messages.content.selector);
-				let hasOpened = messagesContentElements
-					.is(':visible');
-
-				if (!hasOpened) {
-					_this.loadMessages(options);
+				if (!isOpened) {
+					instance.loadMessages(options)
 				}
 
-			}, timeReload);
+			}, timeReload)
+
 		}
 
-	};
-
-	this.setPage = (page) => {
-		this.page = Number.isInteger(page) ? page : this.page;
-		this.loadMessages();
-	}
-
-	this.setPerPage = (page) => {
-		this.perPage = Number.isInteger(perPage) ? perPage : this.perPage;
-		this.loadMessages();
 	}
 
 	/**
-	 * Constructor de uso interno
-	 * @param {number} page 
-	 * @param {number} perPage 
+	 * @method getPreviewsContainer
+	 * @returns {$}
 	 */
-	function __constructor(page, perPage) {
+	this.getPreviewsContainer = () => {
 
-		_this.page = Number.isInteger(page) ? page : _this.page;
-		_this.perPage = Number.isInteger(perPage) ? perPage : _this.perPage;
+		return previewsContainerElement
 
-		let componentContainer = $(selectorsMessageComponent.selector);
-
-		let toggleForm = componentContainer
-			.find(selectorsMessageComponent.sendForm.selector)
-			.find(selectorsMessageComponent.sendForm.toggleForm.selector);
-
-		_this.messagesComponent = componentContainer.find(selectorsMessageComponent.messagesComponent.selector);
-		_this.templatesComponent = $(document.createElement('div'));
-
-		let basicExists = _this.messagesComponent.length > 0 && $(selectorsMessageComponent.messagesTemplatesComponent.selector).length > 0;
-
-		if (basicExists) {
-
-			let templatesElement = $(selectorsMessageComponent.messagesTemplatesComponent.selector);
-
-			_this.route = _this.messagesComponent.attr('route');
-			_this.userID = _this.messagesComponent.attr('user');
-
-			templatesElement.hide()
-			_this.templatesComponent.html(templatesElement.html())
-			templatesElement.remove()
-
-			_this.inbox = _this.messagesComponent.find('[inbox]')
-			_this.pagination = _this.messagesComponent.find('[pagination]')
-
-			configExternalEditor();
-
-			toggleForm.on('click', () => {
-				_this.externalEditor.fadeIn(500);
-			});
-		}
 	}
 
 	/**
-	 * Configura lo relativo al editor externo
+	 * @method getLoadMoreButton
+	 * @returns {$}
 	 */
-	function configExternalEditor() {
+	this.getLoadMoreButton = () => {
 
-		let element = $('[messages-component-external-editor]');
+		return loadMoreButton
 
-		_this.externalEditor = element;
-		_this.externalEditorURL = element.attr('action');
-		_this.externalEditorMethod = element.attr('method');
+	}
 
-		_this.externalEditor.submit(function (e) {
-			e.preventDefault();
+	/**
+	 * @method conversationIsOpened
+	 * @param {Number} conversationID
+	 * @returns {Boolean}
+	 */
+	this.conversationIsOpened = (conversationID) => {
 
-			let sendRequest = null;
-			let formData = new FormData(_this.externalEditor[0])
+		let result = false
 
-			if (_this.externalEditorMethod.toUpperCase() == 'POST') {
-				sendRequest = postRequest(_this.externalEditorURL, formData);
+		if (typeof conversationID == 'number') {
+
+			let conversationElement = conversationsContainerElement.find(`[conversation-id="${conversationID}"]`)
+			let previewElement = previewsContainerElement.find(`[conversation-id="${conversationID}"]`)
+
+			if (conversationElement.length > 0 && previewElement.length > 0) {
+
+				if (hasAttr(previewElement, openedAttribute)) {
+
+					result = true
+
+				}
+
+			}
+		}
+
+		return result
+
+	}
+
+
+	/**
+	 * @function addMessageHTML
+	 * @param {Object} conversation 
+	 * @param {$} container 
+	 */
+	function addConversationHTML(conversation, container) {
+
+		let html = createConversationHTML(conversation)
+
+		previewsContainerElement = container.find('[previews]')
+		conversationsContainerElement = container.find('[conversations]')
+
+		previewsContainerElement.off('click')
+		conversationsContainerElement.off('click')
+
+		previewsContainerElement.on('click', function (e) {
+			e.stopPropagation()
+		})
+		conversationsContainerElement.on('click', function (e) {
+			e.stopPropagation()
+		})
+
+		previewsContainerElement.append(html.previews)
+		conversationsContainerElement.append(html.conversations)
+
+	}
+
+	/**
+	 * @function createConversationHTML
+	 * @param {Object} conversation
+	 * @param {Object} conversation.message
+	 * @param {Object[]} conversation.thread
+	 * @returns {{previews:$,conversations:$}}
+	 */
+	function createConversationHTML(conversation) {
+
+		let isMine = conversation.message
+		let message = conversation.message
+		let thread = conversation.thread
+
+		let messagePreviewElement = createMessagePreviewElement(message, isMine)
+		let messageMainElement = createMessageElement(message, thread, isMine)
+
+		if (messageMainElement.find(`[${unreadAttribute}]`).not(`[is-mine]`).length == 0) {
+			messagePreviewElement.removeAttr(`${unreadAttribute}`).attr(`${readAttribute}`, '')
+		}
+
+		return {
+			previews: messagePreviewElement,
+			conversations: messageMainElement,
+		}
+
+		/**
+		 * @function createMessagePreviewHTML
+		 * @param {Object} message
+		 * @param {Boolean} isMine
+		 * @returns {$}
+		 */
+		function createMessagePreviewElement(message, isMine) {
+
+			let element = $(processToHTML(messagePreviewTemplate.template).get(0).outerHTML)
+
+			let avatarElement = element.find(messagePreviewTemplate.avatarSelector)
+			let dateElement = element.find(messagePreviewTemplate.dateSelector)
+			let nameElement = element.find(messagePreviewTemplate.nameSelector)
+			let subjectElement = element.find(messagePreviewTemplate.subjectSelector)
+			let userTypeElement = element.find(messagePreviewTemplate.userTypeSelector)
+
+			//Verificar si fue leído
+			if (message.readed && (message.main_readed || message.isMine)) {
+				element.attr(readAttribute, '')
 			} else {
-				sendRequest = getRequest(_this.externalEditorURL, formData);
+				element.attr(unreadAttribute, '')
 			}
 
-			sendRequest.done((res) => {
-				if (res.success) {
-					successMessage('Éxito', res.message);
-					_this.externalEditor[0].reset();
-					_this.externalEditor.find('.dropdown').dropdown('clear');
-					_this.externalEditor.hide(500);
-					_this.loadMessages();
-				} else {
-					errorMessage('Error', res.message);
+			//ID del mensaje principal
+			element.attr('conversation-id', message.id)
+			if (isMine) {
+				element.attr('is-mine', '')
+			}
+
+			//Rellenar datos
+			let fullname = [
+				typeof message.message_from.firstname == 'string' ? message.message_from.firstname.trim() : '',
+				typeof message.message_from.secondname == 'string' ? message.message_from.secondname.trim() : '',
+				typeof message.message_from.first_lastname == 'string' ? message.message_from.first_lastname.trim() : '',
+				typeof message.message_from.second_lastname == 'string' ? message.message_from.second_lastname.trim() : '',
+			]
+
+			avatarElement.attr('src', message.avatar)
+			dateElement.html(message.date)
+			nameElement.html(fullname.join(' '))
+			subjectElement.html(message.subject)
+			userTypeElement.html(message.rol)
+
+			//Evento para mostrar la conversación
+			element.css('cursor', 'pointer')
+			element.click(function (e) {
+
+				e.preventDefault()
+				e.stopPropagation()
+
+				let conversationID = element.attr('conversation-id')
+
+				toggleConversation(conversationID)
+
+			})
+
+			return element
+
+		}
+
+		/**
+		 * @function createMessageElement
+		 * @param {Object} message
+		 * @param {Object[]} [thread]
+		 * @param {Boolean} isMine
+		 * @returns {$}
+		 */
+		function createMessageElement(message, thread = null, isMine) {
+
+			let element = $(processToHTML(messageTemplate.template).get(0).outerHTML)
+
+			let avatarElement = element.find(messageTemplate.avatarSelector)
+			let dateElement = element.find(messageTemplate.dateSelector)
+			let nameElement = element.find(messageTemplate.nameSelector)
+			let subjectElement = element.find(messageTemplate.subjectSelector)
+			let textElement = element.find(messageTemplate.textSelector)
+			let conversationContainerElement = element.find(messageTemplate.conversationSelector)
+
+			//Verificar si fue leído
+			if (message.readed || isMine) {
+				element.attr(readAttribute, '')
+			} else {
+				element.attr(unreadAttribute, '')
+			}
+			if (isMine) {
+				element.attr('is-mine', '')
+			}
+
+			//Ruta de marcar como leído
+			element.attr(markReadRouteAttribute, message.mark_as_read_url)
+			//ID del usuario al que se responderá
+			element.attr('to', message.message_from.id)
+			//ID del mensaje principal
+			element.attr('conversation-id', message.id)
+
+			//Rellenar datos
+			let fullname = [
+				typeof message.message_from.firstname == 'string' ? message.message_from.firstname.trim() : '',
+				typeof message.message_from.secondname == 'string' ? message.message_from.secondname.trim() : '',
+				typeof message.message_from.first_lastname == 'string' ? message.message_from.first_lastname.trim() : '',
+				typeof message.message_from.second_lastname == 'string' ? message.message_from.second_lastname.trim() : '',
+			]
+
+			avatarElement.attr('src', message.avatar)
+			dateElement.html(message.date)
+			nameElement.html(fullname.join(' '))
+			subjectElement.html(message.subject)
+			textElement.html(message.message)
+
+			if (Array.isArray(thread)) {
+				for (let subMessage of thread) {
+					conversationContainerElement.append(createSubMessageElement(subMessage, subMessage.isMine))
 				}
-			});
+			}
 
-			sendRequest.fail((res) => {
-				errorMessage('Error', 'Ha ocurrido un error desconocido.');
-				console.log(res);
-			});
+			conversationContainerElement.append(createResponseFormElement(message.id))
 
-			return false;
-		});
+			//Ocultar elemento
+			element.hide()
 
-		return _this;
-	}
+			return element
 
-	function configPagination() {
-		let page = _this.page;
-		let pages = _pages;
+		}
 
-		if (pages > 1) {
-			_this.pagination.html('');
-			for (let i = 1; i <= pages; i++) {
-				let item = $(document.createElement('a'));
-				if (i == page) {
-					item.addClass('active item');
-				} else {
-					item.addClass('item');
-				}
-				item.html(i);
-				item.on('click', function () {
-					let number = parseInt($(this).html())
-					_this.setPage(number);
+		/**
+		 * @function createSubMessageElement
+		 * @param {Object} message 
+		 * @param {Boolean} message 
+		 * @returns {$} 
+		 */
+		function createSubMessageElement(message, isMine) {
+
+			let element = $(processToHTML(subMessageTemplate.template).get(0).outerHTML)
+
+			let avatarElement = element.find(subMessageTemplate.avatarSelector)
+			let textElement = element.find(subMessageTemplate.textSelector)
+
+			//Verificar si fue leído
+			if (message.readed || isMine) {
+				element.attr(readAttribute, '')
+			} else {
+				element.attr(unreadAttribute, '')
+			}
+			if (isMine) {
+				element.attr('is-mine', '')
+			}
+
+			//Ruta de marcar como leído
+			element.attr(markReadRouteAttribute, message.mark_as_read_url)
+			element.attr('to', message.message_from.id)
+
+			avatarElement.attr('src', message.avatar)
+			textElement.html(message.message)
+
+			//Ocultar elemento
+			element.hide()
+
+			return element
+
+		}
+
+		/**
+		 * @function createResponseFormElement
+		 * @param {Number} conversationID 
+		 * @returns {$} 
+		 */
+		function createResponseFormElement(conversationID) {
+
+			let element = $(processToHTML(responseFormTemplate.template).get(0).outerHTML)
+			let message = element.find(`[name='message']`)
+			let idMessage = element.find(`[name='message_id']`)
+			let idFrom = element.find(`[name='message_from']`)
+			let submitButton = element.find(`[type='submit']`)
+
+			element.attr('method', 'POST')
+			element.attr('action', sendResponseRoute)
+
+			idFrom.val(fromID)
+			idMessage.val(conversationID)
+
+			element.submit(function (e) {
+
+				e.preventDefault()
+
+				let actionURL = new URL($(e.target).attr('action'))
+
+				let request = postRequest(actionURL, new FormData(element.get(0)), {
+					'JWTAuth': sessionToken,
 				})
-				_this.pagination.append(item);
-				_this.pagination.attr('class', 'ui pagination menu');
-			}
-		} else {
-			_this.pagination.attr('class', '');
-			_this.pagination.html('');
+
+				disabledAttrAdOrRemove([
+					message,
+					idMessage,
+					idFrom,
+					submitButton,
+				], false)
+
+				request.done(function (response) {
+
+					if (typeof response.success !== 'undefined' && response.success === true) {
+
+						successMessage('¡Listo!', response.message)
+						instance.loadMessages()
+						message.val('')
+
+					} else {
+
+						errorMessage('Error', response.message)
+
+					}
+
+				}).fail(function (error) {
+
+					console.error(error)
+					errorMessage('Error', 'Ha ocurrido un error desconocido.')
+
+				}).always(function () {
+
+					disabledAttrAdOrRemove([
+						message,
+						idMessage,
+						idFrom,
+						submitButton,
+					], true)
+
+				})
+
+			})
+
+			return element
+
 		}
+
 	}
 
-	function messagesElements(messages) {
+	/**
+	 * @function toggleConversation
+	 * @param {Number} [id] 
+	 * @returns {Promise}
+	 */
+	function toggleConversation(id) {
 
-		let messageTemplate = _this.templatesComponent.find(selectorsMessagesTemplate.selector);
-		let messageResponseTemplate = _this.templatesComponent.find(selectorsSubMessagesTemplate.selector);
-		let contentInbox = _this.inbox.find(selectorContentInbox);
+		return new Promise(function (resolve, reject) {
 
-		contentInbox.html('');
+			id = parseInt(id)
 
-		for (let messageContent of messages) {
-
-			let message = messageContent.message;
-			let responses = messageContent.responses;
-
-			let messageReaded = message.readed;
-			let messageMainReaded = message.main_readed;
-
-			let templateMessage = $(messageTemplate[0].outerHTML);
-			let templateMessageInnerHTML = templateMessage.html();
-
-			let is_same = message.message_from.id == _this.userID;
-			let hasResponsesNotMine = (function (responses) {
-				let has = false;
-				for (let response of responses) {
-					if (response.message_from.id != _this.userID && !response.readed) {
-						has = true;
-						break;
-					}
-				}
-				return has;
-			})(responses);
-
-			if (!is_same) {
-
-				if (messageMainReaded) {
-					if (messageReaded) {
-						templateMessage.attr(readAttribute, '');
-					} else if (hasResponsesNotMine) {
-						templateMessage.attr(unreadAttribute, message.mark_as_read_url);
-					} else {
-						templateMessage.attr(readAttribute, '');
-					}
-				} else {
-					templateMessage.attr(unreadAttribute, message.mark_as_read_url);
-				}
-			} else {
-				if (!messageReaded) {
-					if (!hasResponsesNotMine) {
-						templateMessage.attr(readAttribute, '');
-					} else {
-						templateMessage.attr(unreadAttribute, message.mark_as_read_url);
-					}
-				} else {
-					templateMessage.attr(readAttribute, '');
-				}
+			if (!Number.isInteger(id)) {
+				id = lastConversationOpen
 			}
 
-			let replaceValuesMessage = {
-				avatar: message.avatar != null ? `<img src="${message.avatar}"/>` : '',
-				message_id: message.id,
-				message_from: _this.userID,
-				message_from_name: is_same ? 'Yo' : message.message_from.username,
-				date: message.date,
-				subject: message.subject,
-				message: message.message,
-				messages: '',
-			};
+			let conversationElement = conversationsContainerElement.find(`[conversation-id="${id}"]`)
+			let previewElement = previewsContainerElement.find(`[conversation-id="${id}"]`)
 
-			for (let response of responses) {
+			if (conversationElement.length > 0 && previewElement.length > 0) {
 
-				let responseReaded = response.readed;
+				let promise = Promise.resolve()
 
-				let templateSubMessage = $(messageResponseTemplate[0].outerHTML);
-				let templateSubMessageInnerHTML = templateSubMessage.html();
-
-				let is_same = response.message_from.id == _this.userID;
-
-				if (responseReaded || is_same) {
-					templateSubMessage.attr(readAttribute, '');
-				} else {
-					templateSubMessage.attr(unreadAttribute, response.mark_as_read_url);
+				if (lastConversationOpen != -1 && lastConversationOpen != id) {
+					promise = toggleConversation(lastConversationOpen)
 				}
 
-				let replaceValuesMessageResponse = {
-					avatar: response.avatar != null ? `<img src="${response.avatar}"/>` : '',
-					message_from_name: is_same ? 'Yo' : response.message_from.username,
-					date: response.date,
-					message: response.message,
-				};
+				promise.then(function () {
 
-				for (let name in replaceValuesMessageResponse) {
-					let value = replaceValuesMessageResponse[name];
-					templateSubMessageInnerHTML = templateSubMessageInnerHTML.replace(`{{${name}}}`, value);
-				}
+					//Evento de botón general de cierre
+					closeButton = $(closeButtonSelector)
+					closeButton.off('click')
+					closeButton.on('click', function (e) {
+						toggleConversation(lastConversationOpen)
+					})
 
-				templateSubMessage.html(templateSubMessageInnerHTML.trim());
+					if (!isOpened) {
 
-				replaceValuesMessage.messages += templateSubMessage[0].outerHTML;
+						lastConversationOpen = id
+						isOpened = true
 
-			}
+						let subMessages = conversationElement.find(messageTemplate.conversationSelector).find('>*')
 
-			for (let name in replaceValuesMessage) {
-				let value = replaceValuesMessage[name];
-				let regex = new RegExp(`{{${name}}}`, 'gi');
-				templateMessageInnerHTML = templateMessageInnerHTML.replace(regex, value);
-			}
+						previewElement.attr(openedAttribute, '')
+						previewElement.removeAttr(closedAttribute, '')
+						conversationElement.show()
+						subMessages.show()
 
-			templateMessage.html(templateMessageInnerHTML.trim());
+						let unreadSubMessages = subMessages.filter(`[${unreadAttribute}]`).toArray()
 
-			templateMessage.find('[avatar]').popup();
+						unreadSubMessages.unshift(conversationElement.get(0))
 
-			let triggerOpenContent = templateMessage.find(selectorsMessagesTemplate.preview.selector);
-			triggerOpenContent.css({
-				cursor: 'pointer',
-			});
+						let firstUnread = $(unreadSubMessages).filter(`[${unreadAttribute}]`).filter(':first')
+						let urlFirst = firstUnread.attr(markReadRouteAttribute)
 
-			let contentMessages = templateMessage.find(selectorsMessagesTemplate.content.selector);
-			contentMessages.hide();
+						for (let messageElement of unreadSubMessages) {
 
-			let markRead = function (e) {
+							let toMarkElement = $(messageElement)
+							let urlMarkReaded = toMarkElement.attr(markReadRouteAttribute)
+							let isMine = hasAttr(toMarkElement, 'is-mine')
 
-				let artificialTriggered = typeof e == 'object' && typeof e.type == 'string' && e.type == 'markRread';
+							if (!isMine && urlMarkReaded.trim().length > 0) {
 
-				if (hasAttr(templateMessage, unreadAttribute)) {
-
-					if (templateMessage.attr(unreadAttribute).trim().length > 0) {
-
-						let toMark = templateMessage.find(`[${unreadAttribute}]`).toArray();
-
-						toMark.unshift(templateMessage[0]);
-
-						let firstUnread = templateMessage.find(`[${unreadAttribute}]:first`);
-						let urlFirst = firstUnread.attr(unreadAttribute);
-
-						for (let msg of toMark) {
-
-							let toMarkElement = $(msg);
-							let urlMarkReaded = toMarkElement.attr(unreadAttribute);
-							if (urlMarkReaded.trim().length > 0) {
-
-								let markReadedRequest = postRequest(urlMarkReaded);
+								let markReadedRequest = postRequest(urlMarkReaded, null, {
+									'JWTAuth': sessionToken,
+								})
 
 								markReadedRequest.done(function (res) {
 
@@ -486,164 +938,395 @@ function MessagesComponent(page, perPage) {
 
 										if (urlFirst == urlMarkReaded) {
 
-											if (firstUnread.length > 0 && !artificialTriggered) {
+											if (firstUnread.length > 0) {
 
 												$([document.documentElement, document.body]).animate({
 													scrollTop: firstUnread.offset().top
 												}, 500, () => {
 
-													toMarkElement.removeAttr(unreadAttribute);
+													setTimeout(function () {
+														toMarkElement.removeAttr(unreadAttribute)
+													}, 500)
 
-												});
+												})
 
 											} else {
 
-												toMarkElement.removeAttr(unreadAttribute);
+												toMarkElement.removeAttr(unreadAttribute)
 
 											}
 
 										} else {
 
-											toMarkElement.removeAttr(unreadAttribute);
+											toMarkElement.removeAttr(unreadAttribute)
 
 										}
 
 									} else {
 
-										console.warn(res.message);
+										console.warn(res.message)
 
 									}
 
-								});
+								})
 
 							}
 
 						}
 
-					}
-				}
+						previewElement.removeAttr(unreadAttribute)
+						conversationElement.removeAttr(unreadAttribute)
 
-			};
-			contentMessages.on('markRread', markRead);
+						configuration.onToggle(previewElement, conversationElement, id)
+						resolve(previewElement, conversationElement, id)
 
-			triggerOpenContent.on('click', () => {
-
-				let othersMessages = contentInbox
-					.find(selectorsMessageComponent.messagesComponent.inbox.content.messages.selector).not(templateMessage);
-				let othersPreview = othersMessages.find(selectorsMessagesTemplate.preview.selector);
-				let othersContentsMessages = othersMessages.find(selectorsMessagesTemplate.content.selector);
-
-				othersContentsMessages.hide();
-				othersPreview.removeClass('active');
-
-				if (contentMessages.is(':visible')) {
-					contentMessages.hide(500);
-					triggerOpenContent.removeClass('active');
-				} else {
-					contentMessages.fadeIn(500, markRead);
-					triggerOpenContent.addClass('active');
-					lastOpened = message.id;
-				}
-
-			});
-
-			if (lastOpened == message.id && reopenForReply) {
-				contentMessages.show();
-				reopenForReply = false;
-				triggerOpenContent.addClass('active');
-				contentMessages.trigger('markRread');
-			}
-
-			let replyForm = contentMessages.find(selectorsMessagesTemplate.content.replyForm.selector);
-			replyURL = replyForm.attr('action');
-			replyMethod = replyForm.attr('method');
-
-			replyForm.on('submit', function (e) {
-				e.preventDefault();
-
-				let sendResponseRequest = null;
-				let formData = new FormData(replyForm[0])
-
-				if (replyMethod.toUpperCase() == 'POST') {
-					sendResponseRequest = postRequest(replyURL, formData);
-				} else {
-					sendResponseRequest = getRequest(replyURL, formData);
-				}
-
-				sendResponseRequest.done((res) => {
-					if (res.success) {
-						replyForm.find("[name='message']").val('');
-						reopenForReply = true;
-						_this.loadMessages();
 					} else {
-						errorMessage('Error', res.message);
-					}
-				});
 
-				sendResponseRequest.fail((res) => {
-					errorMessage('Error', 'Ha ocurrido un error desconocido.');
-					console.log(res);
-				});
+						if (lastConversationOpen != -1) {
 
-				return false;
-			});
+							lastConversationOpen = -1
+							isOpened = false
 
-			contentInbox.append(templateMessage);
-		}
-	}
+							let subMessages = conversationElement.find(messageTemplate.conversationSelector).find('>*')
 
-	function hasAttr(element, attr) {
-		let has = false;
-		if (element instanceof $ && typeof attr == 'string') {
-			attr = element.attr(attr);
-			has = typeof attr != undefined && attr != null;
-		}
-		return has;
-	}
+							subMessages.hide()
+							conversationElement.hide()
+							previewElement.attr(closedAttribute, '')
+							previewElement.removeAttr(openedAttribute, '')
 
-	function toScss(object) {
+							configuration.onToggle(previewElement, conversationElement, id)
+							resolve(previewElement, conversationElement, id)
 
-		if (typeof object.ignore == 'boolean' && object.ignore) {
-			return '';
-		}
-
-		let ignore = typeof object.ignore == 'boolean' && object.ignore;
-		let scss = '';
-		let selector = object.selector;
-		let rule = `${selector}{*ELEMENTS*}`;
-
-		for (let name in object) {
-
-			let element = object[name];
-			let subSelector = element.selector;
-			let subIgnore = typeof element.ignore == 'boolean' && element.ignore;
-
-			if (ignore || subIgnore) {
-				continue;
-			}
-
-			if (typeof subSelector != 'undefined') {
-
-				let subRule = `${subSelector}{*ELEMENTS*}`;
-				let content = '';
-
-				if (typeof element == 'object') {
-					for (let subName in element) {
-						let ignoreNames = ['selector', 'ignore'];
-						if (ignoreNames.indexOf(subName) == -1 && element.hasOwnProperty(subName)) {
-							let subElement = element[subName];
-							content += toScss(subElement);
 						}
 
-					}
-				}
 
-				subRule = subRule.replace('*ELEMENTS*', content);
-				scss += subRule;
+					}
+
+				})
+
+			} else {
+				lastConversationOpen = -1
+				configuration.onToggle(null, null, id)
+				resolve(null, null, id)
+			}
+
+		})
+
+	}
+
+	/**
+	 * @function paginate
+	 * @param {Boolean} verify
+	 */
+	function paginate(verify) {
+
+		if (totalConversations > currentPerPage) {
+
+			if (!verify) {
+				currentPerPage += paginationStep
+				instance.loadMessages()
 			}
 
 		}
-		return rule.replace('*ELEMENTS*', scss);
+
+		if (totalConversations <= currentPerPage) {
+			loadMoreButton.remove()
+		}
+
 	}
-	return this;
+
+	/**
+	 * @function processByStructure
+	 * @param {Object} structure 
+	 * @param {Object} data 
+	 * @returns {Object}
+	 */
+	function processByStructure(structure, data) {
+
+		for (let option in structure) {
+			let defaultOption = structure[option]
+			if (!defaultOption.validate(data[option])) {
+				data[option] = defaultOption.default
+			}
+		}
+
+		return data
+
+	}
+
+	/**
+	 * @function processByStructure
+	 * @param {Object} defaultValues 
+	 * @param {Object} data 
+	 * @returns {Object}
+	 */
+	function processByDefaultValues(defaultValues, data) {
+
+		for (let option in defaultValues) {
+			let defaultOption = defaultValues[option]
+			if (typeof data[option] == 'undefined') {
+				data[option] = defaultOption
+			}
+		}
+
+		return data
+
+	}
+
+	/**
+	 * @function proccessToHTML
+	 * @param {$|HTMLElement|String} value 
+	 * @returns {$|null}
+	 */
+	function processToHTML(value) {
+
+		if (typeof value == 'string' || value instanceof HTMLElement) {
+
+			value = $(value)
+
+			if (value.length < 1) {
+				value = null
+			}
+
+		} else if (!(value instanceof $)) {
+			value = null
+		}
+
+		return value
+
+	}
+
+	/**
+	 * @function hasAttr
+	 * @param {$} element 
+	 * @param {String} attr 
+	 */
+	function hasAttr(element, attr) {
+		let has = false
+		if (element instanceof $ && typeof attr == 'string') {
+			attr = element.attr(attr)
+			has = typeof attr != undefined && attr != null
+		}
+		return has
+	}
+
+	/**
+	 * @function disabledAttrAdOrRemove
+	 * @param {$|Array} elements 
+	 * @param {Boolean} enable 
+	 */
+	function disabledAttrAdOrRemove(elements, enable) {
+
+		elements = Array.isArray(elements) ? elements : []
+		enable = typeof enable == 'boolean' ? enable : true
+
+		for (let i = 0; i < elements.length; i++) {
+
+			let element = elements[i] instanceof HTMLElement ? $(elements[i]) : elements[i]
+
+			if (element instanceof $) {
+				element.attr('disabled', enable ? false : true)
+			}
+
+		}
+
+	}
+
+	/**
+	 * postRequest
+	 * 
+	 * Realiza una petición AJAX POST (JQuery.ajax) y devuelve el objeto jqXHR
+	 * que es un objeto Deferred, por lo que tiene los métodos:
+	 * done(data, textStatus, jqXHR),
+	 * fail(jqXHR, textStatus, errorThrown) y
+	 * always(data|jqXHR, textStatus, jqXHR|errorThrown)
+	 * 
+	 * @param {string} url URL que se consultará
+	 * @param {FormData|Object} [data] Información enviada
+	 * @param {Object} [headers] Cabeceras
+	 * @returns {jqXHR}
+	 */
+	function postRequest(url, data, headers = {}) {
+
+		let options = {
+			url: url,
+			method: 'POST',
+		}
+
+		if (data instanceof FormData) {
+
+			options.processData = false
+			options.enctype = "multipart/form-data"
+			options.contentType = false
+			options.cache = false
+			options.data = data
+
+		} else if (typeof data == 'object') {
+
+			options.data = data
+
+		}
+
+		let parsedHeaders = parseHeaders(headers)
+
+		if (parsedHeaders.size > 0) {
+
+			options.beforeSend = function (request) {
+
+				for (let key of parsedHeaders.keys()) {
+					let value = parsedHeaders.get(key)
+					request.setRequestHeader(key, value)
+				}
+
+			}
+
+		}
+
+		function parseHeaders(headers = {}) {
+
+			let mapHeaders = new Map()
+
+			if (typeof headers == 'object') {
+
+				for (let name in headers) {
+
+					let value = headers[name]
+					let valueString = ''
+
+					if (Array.isArray(value)) {
+
+						let length = value.length
+						let lastIndexValue = 0
+
+						if (length == 1) {
+							lastIndexValue = 0
+						} else if (length > 1) {
+							lastIndexValue = length - 1
+						}
+
+						for (let i = 0; i < length; i++) {
+							if (i == lastIndexValue) {
+								valueString += value[i]
+							} else {
+								valueString += value[i] + "\r\n"
+							}
+						}
+
+					} else if (typeof value == 'string') {
+						valueString = value
+					}
+
+					mapHeaders.set(name, valueString)
+
+				}
+
+			}
+
+			return mapHeaders
+
+		}
+
+		return this.$.ajax(options)
+
+	}
+
+	/**
+	 * getRequest
+	 * 
+	 * Realiza una petición AJAX GET (JQuery.ajax) y devuelve el objeto jqXHR
+	 * que es un objeto Deferred, por lo que tiene los métodos:
+	 * done(data, textStatus, jqXHR),
+	 * fail(jqXHR, textStatus, errorThrown) y
+	 * always(data|jqXHR, textStatus, jqXHR|errorThrown)
+	 * 
+	 * @param {String} url URL que se consultará
+	 * @param {String|HTMLElement|JQuery} [data] Formulario
+	 * @param {Object} [headers] Cabeceras
+	 * @returns {jqXHR}
+	 */
+	function getRequest(url, data, headers = {}) {
+
+		let options = {
+			url: url,
+			method: 'GET',
+			enctype: "application/x-www-form-urlencoded",
+		}
+
+		if (data instanceof HTMLFormElement) {
+
+			options.data = $(data).serialize()
+
+		} else if (data instanceof $) {
+
+			options.data = data.serialize()
+
+		} else if (typeof data == 'string') {
+
+			options.data = data
+
+		}
+
+		let parsedHeaders = parseHeaders(headers)
+
+		if (parsedHeaders.size > 0) {
+
+			options.beforeSend = function (request) {
+
+				for (let key of parsedHeaders.keys()) {
+					let value = parsedHeaders.get(key)
+					request.setRequestHeader(key, value)
+				}
+
+			}
+
+		}
+
+		function parseHeaders(headers = {}) {
+
+			let mapHeaders = new Map()
+
+			if (typeof headers == 'object') {
+
+				for (let name in headers) {
+
+					let value = headers[name]
+					let valueString = ''
+
+					if (Array.isArray(value)) {
+
+						let length = value.length
+						let lastIndexValue = 0
+
+						if (length == 1) {
+							lastIndexValue = 0
+						} else if (length > 1) {
+							lastIndexValue = length - 1
+						}
+
+						for (let i = 0; i < length; i++) {
+							if (i == lastIndexValue) {
+								valueString += value[i]
+							} else {
+								valueString += value[i] + "\r\n"
+							}
+						}
+
+					} else if (typeof value == 'string') {
+						valueString = value
+					}
+
+					mapHeaders.set(name, valueString)
+
+				}
+
+			}
+
+			return mapHeaders
+
+		}
+
+		return this.$.ajax(options)
+
+	}
+
 }
