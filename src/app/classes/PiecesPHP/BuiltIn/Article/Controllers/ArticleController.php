@@ -10,6 +10,8 @@ use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper as MainMapper;
+use PiecesPHP\Core\Forms\FileUpload;
+use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
@@ -32,8 +34,8 @@ use \Slim\Http\Response as Response;
 class ArticleController extends AdminPanelController
 {
 
-    const UPLOAD_DIR = 'piecesphp/articles';
-    const UPLOAD_DIR_TMP = 'piecesphp/articles/tmp';
+    const UPLOAD_DIR = 'general/articles';
+    const UPLOAD_DIR_TMP = 'general/articles/tmp';
     const FORMAT_DATETIME = 'd-m-Y h:i A';
 
     /**
@@ -102,7 +104,7 @@ class ArticleController extends AdminPanelController
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
         $this->model = (new MainMapper)->getModel();
-        set_title(self::$title . ' - ' . get_title());
+        set_title(self::$title);
 
         $this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
         $this->uploadTmpDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR_TMP);
@@ -133,7 +135,8 @@ class ArticleController extends AdminPanelController
         $data['quill_proccesor_link'] = $quill_proccesor_link;
         $data['title'] = self::$title;
 
-        import_quilljs(['imageUpload', 'imageResize']);
+        import_quilljs(['imageResize']);
+        import_cropper();
 
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
@@ -171,7 +174,8 @@ class ArticleController extends AdminPanelController
             $data['quill_proccesor_link'] = $quill_proccesor_link;
             $data['title'] = self::$title;
 
-            import_quilljs(['imageUpload', 'imageResize']);
+            import_quilljs(['imageResize']);
+            import_cropper();
 
             $this->render('panel/layout/header');
             $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
@@ -191,9 +195,9 @@ class ArticleController extends AdminPanelController
      */
     public function listView(Request $request, Response $response, array $args)
     {
+        set_title(self::$pluralTitle);
 
         $process_table = self::routeName('datatables');
-        //$back_link = self::routeName();
         $back_link = get_route('admin');
         $add_link = self::routeName('forms-add');
 
@@ -498,12 +502,20 @@ class ArticleController extends AdminPanelController
 
                     try {
 
+                        $imageMain = self::handlerUploadImage('image-main');
+                        $imageThumb = self::handlerUploadImage('image-thumb');
+
                         $mapper->category = $category;
                         $mapper->title = $title;
                         $mapper->friendly_url = $friendly_url;
                         $mapper->content = $content;
                         $mapper->start_date = $start_date;
                         $mapper->end_date = $end_date;
+                        $mapper->meta = [
+                            "imageMain" => $imageMain,
+                            "imageThumb" => $imageThumb,
+                            "visits" => 0,
+                        ];
                         $saved = $mapper->save();
 
                         if ($saved) {
@@ -532,6 +544,9 @@ class ArticleController extends AdminPanelController
 
                         try {
 
+                            $imageMain = self::handlerUploadImage('image-main', $mapper->meta->imageMain);
+                            $imageThumb = self::handlerUploadImage('image-thumb', $mapper->meta->imageThumb);
+
                             $oldText = $mapper->content;
                             $mapper->category = $category;
                             $mapper->title = $title;
@@ -539,6 +554,11 @@ class ArticleController extends AdminPanelController
                             $mapper->content = $content;
                             $mapper->start_date = $start_date;
                             $mapper->end_date = $end_date;
+                            $mapper->meta = [
+                                "imageMain" => strlen($imageMain) > 0 ? $imageMain : $mapper->meta->imageMain,
+                                "imageThumb" => strlen($imageThumb) > 0 ? $imageThumb : $mapper->meta->imageThumb,
+                                "visits" => $mapper->meta->visits,
+                            ];
                             $updated = $mapper->update();
 
                             if ($updated) {
@@ -569,6 +589,64 @@ class ArticleController extends AdminPanelController
         }
 
         return $response->withJson($result);
+    }
+
+    /**
+     * handlerUploadImage
+     *
+     * @param string $nameOnFiles
+     * @param string $currentRoute
+     * @return string
+     */
+    protected static function handlerUploadImage(string $nameOnFiles, string $currentRoute = null)
+    {
+        $handler = new FileUpload($nameOnFiles, [
+            FileValidator::TYPE_ALL_IMAGES,
+        ]);
+        $valid = false;
+        $name = uniqid();
+        $url = '';
+
+        if ($handler->hasInput()) {
+
+            try {
+
+                $valid = $handler->validate();
+
+                if (!is_null($currentRoute)) {
+                    $name = pathinfo($currentRoute, \PATHINFO_FILENAME);
+                }
+
+                if ($valid) {
+
+                    $locations = $handler->moveTo((new static )->uploadDir, $name, null, false, true);
+
+                    if (count($locations) > 0) {
+
+                        $url = $locations[0];
+
+                        foreach ($locations as $file) {
+                            if ($url != $file) {
+                                if (is_string($file) && file_exists($file)) {
+                                    unlink($file);
+                                }
+                            }
+                        }
+
+                        $url = trim(append_to_url((new static )->uploadDirURL, basename($url)), '/');
+                    }
+
+                } else {
+                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
+                }
+
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
+            }
+
+        }
+
+        return $url;
     }
 
     /**

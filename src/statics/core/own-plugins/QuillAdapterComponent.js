@@ -11,7 +11,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 	/**
 	 * @typedef QuillAdapterOptions
 	 * @property {String} [containerSelector=[quill-adapter-component]]
-	 * @property {String} [textareaTargetSelector=[quill-adapter-component] textarea[target]]
+	 * @property {String} [textareaTargetSelector=[quill-adapter-component] + textarea[target]]
 	 * @property {String} [urlProcessImage]
 	 * @property {String} [nameOnRequest]
 	 */
@@ -165,7 +165,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 				width: '0px',
 				opacity: '0',
 			})
-			
+
 			if (component.length !== 1 || textareaTarget.length < 1) {
 				throw new Error('Falta(n) el componente o el textarea en el DOM.')
 			} else {
@@ -669,6 +669,19 @@ QuillAdapterComponent.AttributtorsConfig = function () {
 					return true
 
 				}
+
+			}
+
+			remove(node) {	
+
+				if (node instanceof HTMLElement) {
+
+					node.style.textAlign = ''
+
+					return true
+
+				}
+
 			}
 		}
 
