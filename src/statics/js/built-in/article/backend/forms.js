@@ -17,7 +17,7 @@ window.addEventListener('load', () => {
 	let imagenMain = new CropperAdapterComponent({
 		minWidth: 800,
 		containerSelector: '[cropper-image-main]',
-		onInitiealize: (cropper, canvas) => {
+		onInitialize: (cropper, canvas) => {
 			imagenMainReady = true
 			ready()
 		},
@@ -30,7 +30,7 @@ window.addEventListener('load', () => {
 	let imageThumb = new CropperAdapterComponent({
 		minWidth: 400,
 		containerSelector: '[cropper-image-thumb]',
-		onInitiealize: (cropper, canvas) => {
+		onInitialize: (cropper, canvas) => {
 			imageThumbReady = true
 			ready()
 		},
@@ -44,7 +44,7 @@ window.addEventListener('load', () => {
 		minWidth: 120,
 		outputWidth: 1200,
 		containerSelector: '[cropper-image-og]',
-		onInitiealize: (cropper, canvas) => {
+		onInitialize: (cropper, canvas) => {
 			imageOpenGraphReady = true
 			ready()
 		},
