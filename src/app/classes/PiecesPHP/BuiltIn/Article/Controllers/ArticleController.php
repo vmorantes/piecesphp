@@ -123,6 +123,10 @@ class ArticleController extends AdminPanelController
     public function addForm(Request $request, Response $response, array $args)
     {
 
+        set_custom_assets([
+            'statics/js/built-in/article/backend/forms.js',
+        ], 'js');
+
         $action = self::routeName('actions-add');
         $back_link = self::routeName('list');
         $quill_proccesor_link = self::routeName('image-handler');
@@ -153,6 +157,10 @@ class ArticleController extends AdminPanelController
      */
     public function editForm(Request $request, Response $response, array $args)
     {
+
+        set_custom_assets([
+            'statics/js/built-in/article/backend/forms.js',
+        ], 'js');
 
         $id = $request->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
@@ -397,9 +405,9 @@ class ArticleController extends AdminPanelController
                 'created',
                 'updated',
                 'visits',
-			];
+            ];
 
-			$select_fields = [
+            $select_fields = [
                 "id",
                 "title",
                 "author",
@@ -409,10 +417,10 @@ class ArticleController extends AdminPanelController
                 "created",
                 "updated",
                 "CONVERT(JSON_EXTRACT(meta, '$.visits'), SIGNED) AS visits",
-			];
+            ];
 
-			DataTablesHelper::setTablePrefixOnOrder(false);
-			DataTablesHelper::setTablePrefixOnSearch(false);
+            DataTablesHelper::setTablePrefixOnOrder(false);
+            DataTablesHelper::setTablePrefixOnSearch(false);
 
             $result = DataTablesHelper::process([
                 'select_fields' => $select_fields,
