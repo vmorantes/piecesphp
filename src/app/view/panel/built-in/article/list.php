@@ -27,6 +27,7 @@
                 <th>Fin</th>
                 <th>Creado</th>
                 <th>Editado</th>
+                <th>Visitas</th>
                 <th order='false'>Acciones</th>
             </tr>
         </thead>

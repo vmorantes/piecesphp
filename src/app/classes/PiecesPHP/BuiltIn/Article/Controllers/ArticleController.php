@@ -396,9 +396,26 @@ class ArticleController extends AdminPanelController
                 'end_date',
                 'created',
                 'updated',
-            ];
+                'visits',
+			];
+
+			$select_fields = [
+                "id",
+                "title",
+                "author",
+                "category",
+                "start_date",
+                "end_date",
+                "created",
+                "updated",
+                "CONVERT(JSON_EXTRACT(meta, '$.visits'), SIGNED) AS visits",
+			];
+
+			DataTablesHelper::setTablePrefixOnOrder(false);
+			DataTablesHelper::setTablePrefixOnSearch(false);
 
             $result = DataTablesHelper::process([
+                'select_fields' => $select_fields,
                 'columns_order' => $columns_order,
                 'mapper' => new MainMapper(),
                 'request' => $request,
@@ -428,6 +445,7 @@ class ArticleController extends AdminPanelController
                         !is_null($mapper->end_date) ? $mapper->end_date->format('d-m-Y h:i:s') : '-',
                         $mapper->created->format('d-m-Y h:i:s'),
                         !is_null($mapper->updated) ? $mapper->updated->format('d-m-Y h:i:s') : 'Nunca',
+                        $e->visits,
                         (string) $buttonEdit,
                     ];
                 },

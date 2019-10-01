@@ -108,6 +108,8 @@ class ArticleControllerPublic extends BaseController
         $article = ArticleMapper::getByFriendlyURL($friendly_name, true);
 
         if ($article !== null) {
+			
+			$article->addVisit();
 
             set_title($article->title);
 
@@ -127,7 +129,7 @@ class ArticleControllerPublic extends BaseController
                 'relateds' => $relateds,
             ]);
 
-            $this->render('layout/footer');
+			$this->render('layout/footer');
 
         } else {
             throw new NotFoundException($req, $res);
