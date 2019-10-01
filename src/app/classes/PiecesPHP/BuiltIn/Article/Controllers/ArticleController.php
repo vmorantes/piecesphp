@@ -269,7 +269,8 @@ class ArticleController extends AdminPanelController
                 $pages = ceil($total / $perPage);
 
                 $data = array_map(function ($e) {
-                    return new MainMapper($e->id);
+                    $eMapper = new MainMapper($e->id);
+                    return $eMapper->getBasicData();
                 }, $data);
 
                 $response_data['page'] = $page;
