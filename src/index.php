@@ -35,6 +35,7 @@ if (APP_CONFIGURATION_MODULE) {
         'osTicketAPI' => 'http://ayuda.tejidodigital.com',
         'osTicketAPIKey' => '93F0F2E3DCD3B79A686A3157620CFF24',
         'favicon' => 'statics/images/favicon.png',
+        'favicon-back' => 'statics/images/favicon-back.png',
         'logo' => 'statics/images/logo.png',
         'logo-login' => 'statics/images/logo-login.png',
         'logo-sidebar-top' => 'statics/images/logo-sidebar-top.png',
