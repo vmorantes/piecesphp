@@ -14,7 +14,6 @@ function BuiltInArticle(options) {
 	/**
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL
-	 * @property {String} singleURL Intenta remplazar {{friendly_name}}
 	 * @property {Function} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
 	 * @property {Number} [page=1]
 	 * @property {Number} [perPage=5]
@@ -47,10 +46,6 @@ function BuiltInArticle(options) {
 	 * @property {String|URL} requestURL
 	 */
 	let requestURL = ''
-	/**
-	 * @property {String} singleURL
-	 */
-	let singleURL = ''
 
 	/**
 	 * @property {Function} onDraw
@@ -132,10 +127,6 @@ function BuiltInArticle(options) {
 			requestURL = options.requestURL
 		}
 
-		if (typeof options.singleURL == 'string') {
-			singleURL = options.singleURL
-		}
-
 		if (typeof options.onDraw == 'function') {
 			onDraw = options.onDraw
 		} else {
@@ -162,7 +153,8 @@ function BuiltInArticle(options) {
 
 		let itemHTML = $(document.createElement('div'))
 
-		let date = data.start_date !== null ? data.start_date.date : data.created.date
+		let date = data.preferDate.date
+
 		date = instance.processDate(new Date(date))
 
 		itemHTML.append(`<div>Título: ${data.title}</div>`)
@@ -175,7 +167,7 @@ function BuiltInArticle(options) {
 		itemHTML.append(`<div>Año: ${date.year}</div>`)
 		itemHTML.append(`<div>Autor: ${data.author.username}</div>`)
 		itemHTML.append(`<div>Visitas: ${data.meta.visits}</div>`)
-		itemHTML.append(`<div><a href="${singleURL.replace('{{friendly_name}}', data.friendly_url)}">URL</a></div>`)
+		itemHTML.append(`<div><a href="${data.link}">URL</a></div>`)
 
 		return $(itemHTML)
 

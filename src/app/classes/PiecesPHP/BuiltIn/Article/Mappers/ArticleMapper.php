@@ -7,6 +7,7 @@ namespace PiecesPHP\BuiltIn\Article\Mappers;
 
 use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\Core\BaseEntityMapper;
 
 /**
@@ -30,6 +31,13 @@ use PiecesPHP\Core\BaseEntityMapper;
 class ArticleMapper extends BaseEntityMapper
 {
     const TABLE = 'pcsphp_articles';
+
+    const TYPE_PREFER_DATE_DATETIME = '{DATETIME}';
+    const TYPE_PREFER_DATE_DAY_NUMBER = '{DAY_NUMBER}';
+    const TYPE_PREFER_DATE_DAY_NAME = '{DAY_NAME}';
+    const TYPE_PREFER_DATE_MONTH_NUMBER = '{MONTH_NUMBER}';
+    const TYPE_PREFER_DATE_MONTH_NAME = '{MONTH_NAME}';
+    const TYPE_PREFER_DATE_YEAR = '{YEAR}';
 
     /**
      * @var string $table
@@ -98,6 +106,100 @@ class ArticleMapper extends BaseEntityMapper
     public function __construct(int $value = null, string $field_compare = 'primary_key')
     {
         parent::__construct($value, $field_compare);
+    }
+
+    /**
+     * getBasicData
+     *
+     * @return \stdClass
+     */
+    public function getBasicData()
+    {
+        $data = (object) $this->humanReadable();
+        $data->preferDate = $this->getPreferDate(self::TYPE_PREFER_DATE_DATETIME);
+        $data->author = $this->author->getPublicData();
+        $data->meta = $this->meta;
+        $data->category = $this->category->humanReadable();
+        $data->created = $this->created;
+        $data->start_date = $this->start_date;
+        $data->end_date = $this->end_date;
+        $data->link = $this->getSingleURL();
+        return $data;
+    }
+
+    /**
+     * getSingleURL
+     *
+     * @return string
+     */
+    public function getSingleURL()
+    {
+        return ArticleControllerPublic::routeName('single', ['friendly_name' => $this->friendly_url]);
+    }
+
+    /**
+     * getPreferDate
+     *
+     * @param string $formatOutput
+     * @return \DateTime|string|int
+     */
+    public function getPreferDate(string $formatOutput = 'DATETIME')
+    {
+        $date = !is_null($this->start_date) ? $this->start_date : $this->created;
+        $value = $date;
+
+        switch ($formatOutput) {
+            case self::TYPE_PREFER_DATE_DAY_NUMBER:
+                $value = $date->format('d');
+                break;
+            case self::TYPE_PREFER_DATE_DAY_NAME:
+                $value = __('day', $date->format('w'));
+                break;
+            case self::TYPE_PREFER_DATE_MONTH_NUMBER:
+                $value = $date->format('m');
+                break;
+            case self::TYPE_PREFER_DATE_MONTH_NAME:
+                $value = __('month', (string) ($date->format('n') - 1));
+                break;
+            case self::TYPE_PREFER_DATE_YEAR:
+                $value = $date->format('Y');
+                break;
+            case self::TYPE_PREFER_DATE_DATETIME:
+            default:
+                $value = $date;
+                break;
+        }
+
+        return $value;
+    }
+
+    /**
+     * formatPreferDate
+     *
+     * @param string $format
+     * @return string
+     */
+    public function formatPreferDate(string $format = '{DAY_NAME}, {DAY_NUMBER} de {MONTH_NAME}, {YEAR}')
+    {
+
+        $pattern = [
+            self::TYPE_PREFER_DATE_DAY_NUMBER,
+            self::TYPE_PREFER_DATE_DAY_NAME,
+            self::TYPE_PREFER_DATE_MONTH_NUMBER,
+            self::TYPE_PREFER_DATE_MONTH_NAME,
+            self::TYPE_PREFER_DATE_YEAR,
+        ];
+        $replace = [
+            $this->getPreferDate(self::TYPE_PREFER_DATE_DAY_NUMBER),
+            $this->getPreferDate(self::TYPE_PREFER_DATE_DAY_NAME),
+            $this->getPreferDate(self::TYPE_PREFER_DATE_MONTH_NUMBER),
+            $this->getPreferDate(self::TYPE_PREFER_DATE_MONTH_NAME),
+            $this->getPreferDate(self::TYPE_PREFER_DATE_YEAR),
+        ];
+
+        $formated = str_replace($pattern, $replace, $format);
+
+        return $formated;
     }
 
     /**

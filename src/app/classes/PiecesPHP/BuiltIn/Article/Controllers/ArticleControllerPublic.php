@@ -94,7 +94,6 @@ class ArticleControllerPublic extends BaseController
 
         $this->render(self::VIEWS_FOLDER . '/list', [
             'ajaxURL' => ArticleController::routeName('ajax-all'),
-            'singleURL' => self::routeName('single', ['friendly_name' => '{{friendly_name}}']),
         ]);
 
         $this->render('layout/footer');
@@ -111,25 +110,23 @@ class ArticleControllerPublic extends BaseController
         if ($article !== null) {
 
             set_title($article->title);
+
             MetaTags::setDescription($article->content);
             MetaTags::setImage(base_url($article->meta->imageMain));
 
-            $reference_date = !is_null($article->start_date) ? $article->start_date : $article->created;
-            $day_created = $reference_date->format('d');
-            $month_created = num_month_to_text($reference_date->format('d-m-Y'));
-            $year_created = $reference_date->format('Y');
-
-            $date_created = "{$day_created} de {$month_created}, {$year_created}";
+            $date = $article->formatPreferDate("{DAY_NUMBER} de {MONTH_NAME}, {YEAR}");
 
             $relateds = ArticleMapper::allByCategory($article->category->id, true, $article->id, true, 1, 3);
 
             $this->render('layout/header');
             $this->render('layout/menu');
+
             $this->render(self::VIEWS_FOLDER . '/single', [
                 'article' => $article,
-                'date_created' => $date_created,
+                'date' => $date,
                 'relateds' => $relateds,
             ]);
+
             $this->render('layout/footer');
 
         } else {

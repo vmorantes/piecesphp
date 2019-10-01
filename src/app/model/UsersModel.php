@@ -113,6 +113,22 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
+     * getPublicData
+     *
+     * @return array
+     */
+    public function getPublicData()
+    {
+		$data = $this->humanReadable();
+		unset($data['password']);
+		unset($data['modified_at']);
+		unset($data['created_at']);
+		unset($data['failed_attempts']);
+		unset($data['status']);
+		return $data;
+    }
+
+    /**
      * getWhere
      *
      * @param mixed $where

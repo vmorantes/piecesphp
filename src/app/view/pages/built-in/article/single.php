@@ -4,44 +4,46 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 
 
-
-<div><?=$date_created;?></div>
-<div><?=$article->title;?></div>
-<div><?=$article->category->name;?></div>
-<div>Imagen grande: <img src="<?=$article->meta->imageMain;?>" style="max-width: 500px;"></div>
-<div style="max-width:600px;"><?=$article->content;?></div>
+<section class="elements-container centered small">
+    <h1><?=$article->title;?></h1>
+    <h2><?=$article->category->name;?></h2>
+    <p><?=$article->author->username;?></p>
+    <p><?=$date;?></p>
+    <div class="image">
+        <img src="<?=$article->meta->imageMain;?>">
+    </div>
+    <h3>Contenido</h3>
+    <div class="text-aling-j"><?=$article->content;?></div>
+</section>
 
 <?php if (count($relateds) > 0): ?>
 
-
 <h3>Noticias relacionadas</h3>
 
-<div class="items" items-js>
+<section>
 
     <?php foreach ($relateds as $related): ?>
 
-    <div>
-        Miniatura: <img src="<?=$related->meta->imageThumb;?>">
-    </div>
+    <article>
 
-    <span>
-        <?=$related->category->name;?>
-        |
-        <?php if (!is_null($related->start_date)): ?>
-        <?=num_month_to_text($related->start_date->format('d-m-Y'));?>
-        <?=$related->start_date->format('d') . ' del ' . $related->start_date->format('Y');?>
-        <?php else: ?>
-        <?=num_month_to_text($related->created->format('d-m-Y'));?>
-        <?=$related->created->format('d') . ' del ' . $related->created->format('Y');?>
-        <?php endif;?>
-    </span>
+        <div>
+            <img src="<?=$related->meta->imageThumb;?>">
+        </div>
 
-    <div><?=$related->title;?></div>
-    <a href="<?=ArticleControllerPublic::routeName('single', ['friendly_name' => $related->friendly_url]);?>">
-        URL
-    </a>
+        <div>
+            <?=$related->category->name . ' | ' . $related->formatPreferDate("{MONTH_NAME} {DAY_NUMBER} del {YEAR}");?>
+        </div>
+
+        <div><?=$related->title;?></div>
+
+        <div>
+            <a href="<?= $related->getSingleURL(); ?>">URL</a>
+        </div>
+
+    </article>
+
     <?php endforeach;?>
 
-</div>
+</section>
 
 <?php endif;?>
