@@ -361,6 +361,11 @@ class AppConfigController extends AdminPanelController
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
             ],
+            'favicon-back' => [
+                'name' => 'favicon-back',
+                'extension' => 'png',
+                'folder' => basepath('statics/images'),
+            ],
             'logo' => [
                 'name' => 'logo',
                 'extension' => 'png',
