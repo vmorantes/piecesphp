@@ -97,6 +97,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     public function indexView(Request $req, Response $res, array $args)
     {
 
+		import_quilljs();
+		
         $this->render('layout/header');
         $this->render('pages/sample-public');
         $this->render('layout/footer');
