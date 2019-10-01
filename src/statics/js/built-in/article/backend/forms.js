@@ -11,6 +11,7 @@ window.addEventListener('load', () => {
 	let isEdit = false
 	let imagenMainReady = false
 	let imageThumbReady = false
+	let imageOpenGraphReady = false
 	let imagesTabHided = false
 
 	let imagenMain = new CropperAdapterComponent({
@@ -18,9 +19,9 @@ window.addEventListener('load', () => {
 		containerSelector: '[cropper-image-main]',
 		onInitiealize: (cropper, canvas) => {
 			imagenMainReady = true
-			ready(canvas)
+			ready()
 		},
-		cropperOptions:{
+		cropperOptions: {
 			aspectRatio: 4 / 3,
 			minCropBoxWidth: 800,
 		},
@@ -31,11 +32,24 @@ window.addEventListener('load', () => {
 		containerSelector: '[cropper-image-thumb]',
 		onInitiealize: (cropper, canvas) => {
 			imageThumbReady = true
-			ready(canvas)
+			ready()
 		},
-		cropperOptions:{
+		cropperOptions: {
 			aspectRatio: 4 / 3,
 			minCropBoxWidth: 400,
+		},
+	})
+
+	let imageOpenGraph = new CropperAdapterComponent({
+		minWidth: 120,
+		outputWidth: 1200,
+		containerSelector: '[cropper-image-og]',
+		onInitiealize: (cropper, canvas) => {
+			imageOpenGraphReady = true
+			ready()
+		},
+		cropperOptions: {
+			aspectRatio: 2 / 1,
 		},
 	})
 
@@ -49,11 +63,17 @@ window.addEventListener('load', () => {
 				}
 				if (imageThumb.wasChanged()) {
 					formData.set('image-thumb', imageThumb.getFile())
+				}				
+				if (imageOpenGraph.wasChanged()) {
+					formData.set('image-og', imageOpenGraph.getFile())
 				}
 
 			} else {
 				formData.set('image-main', imagenMain.getFile())
-				formData.set('image-thumb', imageThumb.getFile())
+				formData.set('image-thumb', imageThumb.getFile())		
+				if (imageOpenGraph.wasChanged()) {
+					formData.set('image-og', imageOpenGraph.getFile())
+				}
 			}
 
 			return formData
@@ -85,12 +105,11 @@ window.addEventListener('load', () => {
 
     /**
      * @function hideImagesTab
-     * @param {HTMLElement} canvas
      */
-	function ready(canvas) {
-		if (imagenMainReady && imageThumbReady && !imagesTabHided) {
-			let tabParent = $(canvas).parents('.ui.bottom.attached.tab')
-			tabParent.removeClass('active')
+	function ready() {
+		if (imagenMainReady && imageThumbReady && imageOpenGraphReady && !imagesTabHided) {
+			let tabs = form.find(".ui.tab[data-tab='images'], .ui.tab[data-tab='seo']")
+			tabs.removeClass('active')
 			removeGenericLoader(loaderName)
 			form.find(`[type="submit"][disabled]`).attr('disabled', false)
 		}

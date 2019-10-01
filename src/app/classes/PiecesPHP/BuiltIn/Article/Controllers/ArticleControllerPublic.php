@@ -108,13 +108,19 @@ class ArticleControllerPublic extends BaseController
         $article = ArticleMapper::getByFriendlyURL($friendly_name, true);
 
         if ($article !== null) {
-			
-			$article->addVisit();
+
+            $article->addVisit();
 
             set_title($article->title);
 
-            MetaTags::setDescription($article->content);
-            MetaTags::setImage(base_url($article->meta->imageMain));
+            $seoDescription = isset($article->meta->seoDescription) ? $article->meta->seoDescription : '';
+            $seoDescription = strlen($seoDescription) > 0 ? $seoDescription : $article->content;
+
+            $imageOpenGraph = isset($article->meta->imageOpenGraph) ? $article->meta->imageOpenGraph : '';
+            $imageOpenGraph = strlen($imageOpenGraph) > 0 ? baseurl($imageOpenGraph) : base_url($article->meta->imageMain);
+
+            MetaTags::setDescription($seoDescription);
+            MetaTags::setImage($imageOpenGraph);
 
             $date = $article->formatPreferDate("{DAY_NUMBER} de {MONTH_NAME}, {YEAR}");
 
@@ -129,7 +135,7 @@ class ArticleControllerPublic extends BaseController
                 'relateds' => $relateds,
             ]);
 
-			$this->render('layout/footer');
+            $this->render('layout/footer');
 
         } else {
             throw new NotFoundException($req, $res);

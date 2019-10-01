@@ -484,6 +484,7 @@ class ArticleController extends AdminPanelController
         $content = $request->getParsedBodyParam('content', null);
         $start_date = $request->getParsedBodyParam('start_date', '');
         $end_date = $request->getParsedBodyParam('end_date', '');
+        $seoDescription = $request->getParsedBodyParam('seo_description', '');
 
         $start_date = strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
         $end_date = strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
@@ -518,6 +519,7 @@ class ArticleController extends AdminPanelController
             $title = clean_string($title);
             $friendly_url = MainMapper::generateFriendlyURL($title, $id);
             $content = clean_string($content);
+            $seoDescription = clean_string($seoDescription);
 
             $is_duplicate = MainMapper::isDuplicate($title, $friendly_url, (int) $category, $id);
 
@@ -531,6 +533,7 @@ class ArticleController extends AdminPanelController
 
                         $imageMain = self::handlerUploadImage('image-main');
                         $imageThumb = self::handlerUploadImage('image-thumb');
+                        $imageOpenGraph = self::handlerUploadImage('image-og');
 
                         $mapper->category = $category;
                         $mapper->title = $title;
@@ -541,6 +544,8 @@ class ArticleController extends AdminPanelController
                         $mapper->meta = [
                             "imageMain" => $imageMain,
                             "imageThumb" => $imageThumb,
+                            "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : '',
+                            "seoDescription" => $seoDescription,
                             "visits" => 0,
                         ];
                         $saved = $mapper->save();
@@ -571,8 +576,13 @@ class ArticleController extends AdminPanelController
 
                         try {
 
+                            $currentImageOpenGraph = isset($mapper->meta->imageOpenGraph) ? $mapper->meta->imageOpenGraph : null;
+                            $currentImageOpenGraph = is_string($currentImageOpenGraph) && strlen($currentImageOpenGraph) > 0 ? $currentImageOpenGraph : null;
+                            $currentSeoDescription = isset($mapper->meta->seoDescription) ? $mapper->meta->seoDescription : '';
+
                             $imageMain = self::handlerUploadImage('image-main', $mapper->meta->imageMain);
                             $imageThumb = self::handlerUploadImage('image-thumb', $mapper->meta->imageThumb);
+                            $imageOpenGraph = self::handlerUploadImage('image-og', $currentImageOpenGraph);
 
                             $oldText = $mapper->content;
                             $mapper->category = $category;
@@ -584,6 +594,8 @@ class ArticleController extends AdminPanelController
                             $mapper->meta = [
                                 "imageMain" => strlen($imageMain) > 0 ? $imageMain : $mapper->meta->imageMain,
                                 "imageThumb" => strlen($imageThumb) > 0 ? $imageThumb : $mapper->meta->imageThumb,
+                                "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $currentImageOpenGraph,
+                                "seoDescription" => strlen($seoDescription) > 0 ? $seoDescription : $currentSeoDescription,
                                 "visits" => $mapper->meta->visits,
                             ];
                             $updated = $mapper->update();
