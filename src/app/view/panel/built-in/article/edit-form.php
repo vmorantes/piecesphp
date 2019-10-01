@@ -22,12 +22,13 @@ $element;
         </div>
 
         <div class="ui top attached tabular menu">
-            <div class="item active" data-tab="A">Contenido</div>
-            <div class="item" data-tab="B">Imágenes</div>
-            <div class="item" data-tab="C">Detalles</div>
+            <div class="item active" data-tab="content">Contenido</div>
+            <div class="item" data-tab="images">Imágenes</div>
+            <div class="item" data-tab="details">Detalles</div>
+            <div class="item" data-tab="seo">SEO</div>
         </div>
 
-        <div class="ui bottom attached tab segment active" data-tab='A'>
+        <div class="ui bottom attached tab segment active" data-tab='content'>
 
             <div class="field required">
                 <label>Título</label>
@@ -42,7 +43,7 @@ $element;
 
         </div>
 
-        <div class="ui bottom attached tab segment active" data-tab='B'>
+        <div class="ui bottom attached tab segment active" data-tab='images'>
 
             <div class="field" cropper-image-main>
                 <label>Imagen principal ( mínimo de 800x600[px] )</label>
@@ -66,7 +67,7 @@ $element;
 
         </div>
 
-        <div class="ui bottom attached tab segment" data-tab='C'>
+        <div class="ui bottom attached tab segment" data-tab='details'>
 
             <div class="field required">
                 <label>Categoría</label>
@@ -84,6 +85,25 @@ $element;
                     <input type="text" name="end_date" autocomplete="off"
                         value="<?=!is_null($element->end_date) ? $element->end_date->format('Y-m-d H:i') : '';?>">
                 </div>
+            </div>
+
+        </div>
+
+        <div class="ui bottom attached tab segment active" data-tab='seo'>
+
+            <div class="field" cropper-image-og>
+                <label>Imagen</label>
+                <input type="file" name="image-og" accept="image/*">
+                <canvas data-image='<?= isset($element->meta->imageOpenGraph) && !is_null($element->meta->imageOpenGraph) ? $element->meta->imageOpenGraph : ''; ?>'></canvas>
+                <br>
+                <button class="ui button orange inverted" cut>Vista previa</button>
+                <br>
+                <div preview></div>
+            </div>
+
+            <div class="field">
+                <label>Descripción</label>
+                <textarea name="seo_description"><?= isset($element->meta->seoDescription) ? $element->meta->seoDescription : ''; ?></textarea>
             </div>
 
         </div>
