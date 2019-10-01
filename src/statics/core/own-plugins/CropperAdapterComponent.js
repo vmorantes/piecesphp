@@ -28,7 +28,7 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 	 * @property {Number} [outputWidth=400]
 	 * @property {String} [containerSelector=[cropper-adapter-component]]
 	 * @property {Function} [onReadyCropper]
-	 * @property {Function} [onInitiealize]
+	 * @property {Function} [onInitialize]
 	 * @property {CropperOptions} [cropperOptions]
 	 */
 	let defaultAdapterOptions = {
@@ -38,7 +38,7 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 		outputWidth: 400,
 		containerSelector: '[cropper-adapter-component]',
 		onReadyCropper: (cropper, canvas) => { },
-		onInitiealize: (cropper, canvas) => { },
+		onInitialize: (cropper, canvas) => { },
 		cropperOptions: null,
 	}
 
@@ -143,7 +143,7 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 					adapterOptions.onReadyCropper(cropper, canvas)
 
 					if (!initialized) {
-						adapterOptions.onInitiealize(cropper, canvas)
+						adapterOptions.onInitialize(cropper, canvas)
 					}
 
 				}
