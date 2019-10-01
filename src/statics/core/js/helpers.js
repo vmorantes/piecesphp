@@ -687,7 +687,7 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
  * 
  * @param {String} selector 
  * @param {genericFormHandler.Options} options
- * @returns {void} 
+ * @returns {$} 
  */
 function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options = {}) {
 
@@ -699,6 +699,7 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	 * @property {Function} [validate]
 	 * @property {Function} [onSuccess]
 	 * @property {Function} [onError]
+	 * @property {Function} [onInvalidEvent]
 	 * @property {Boolean} [toast]
 	 */
 	/**
@@ -730,6 +731,8 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	let onSuccess = function () {
 	}
 	let onError = function () {
+	}
+	let onInvalidEvent = function (event) {
 	}
 	let toast = true
 
@@ -778,12 +781,18 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 		if (typeof options.onError == 'function') {
 			onError = options.onError
 		}
+		if (typeof options.onInvalidEvent == 'function') {
+			onInvalidEvent = options.onInvalidEvent
+		}
 		if (typeof options.toast == 'boolean') {
 			toast = options.toast
 		}
 	}
 
 	if (form.length > 0) {
+
+		form.off('invalid')
+		form.find('input,textarea,select').on('invalid', onInvalidEvent)
 
 		form.submit(function (e) {
 
@@ -1085,6 +1094,8 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 		}, 500)
 	}
 
+	return form
+	
 }
 
 /**
