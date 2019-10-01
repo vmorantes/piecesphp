@@ -78,22 +78,40 @@ use App\Model\AppConfigModel;
                 <?php $keywords = AppConfigModel::getConfigValue('keywords'); ?>
                 <select name="value[]" multiple class="ui dropdown multiple search selection additions" required>
 
-					<?php if (is_array($keywords) && count($keywords) > 0): ?>
-					
-					<?php foreach ($keywords as $key => $value): ?>
-					
-					<option selected value="<?=$value;?>"><?=$value;?></option>
-					
-					<?php endforeach;?>
-					
-					<?php else: ?>
-					
-					<option value="">Agregue alguna palabra clave</option>
+                    <?php if (is_array($keywords) && count($keywords) > 0): ?>
 
-					<?php endif;?>
-					
+                    <?php foreach ($keywords as $key => $value): ?>
+
+                    <option selected value="<?=$value;?>"><?=$value;?></option>
+
+                    <?php endforeach;?>
+
+                    <?php else: ?>
+
+                    <option value="">Agregue alguna palabra clave</option>
+
+                    <?php endif;?>
+
                 </select>
                 <input type="hidden" name="name" value="keywords" required="required">
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green">Guardar</button>
+            </div>
+
+        </form>
+
+        <br><br>
+
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
+            class="ui form">
+
+            <div class="field">
+                <label>Scripts adicionales</label>
+                <textarea name="value"
+                    placeholder="<script src='ejemplo.js'></script>"><?=AppConfigModel::getConfigValue('extra_scripts');?></textarea>
+                <input type="hidden" name="name" value="extra_scripts">
             </div>
 
             <div class="field">
