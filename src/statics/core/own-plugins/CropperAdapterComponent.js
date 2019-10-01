@@ -1,20 +1,12 @@
 
 /**
  * @function CropperAdapterComponent
- * 
+ *  
  * @param {AdapterOptions} adapterOptions 
  * @param {CropperOptions} cropperOptions 
  */
 function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 
-	/**
-	 * @typedef AdapterOptions
-	 * @property {String} [output=image/jpeg]
-	 * @property {String} [fillColor=white]
-	 * @property {Number} [minWidth=400]
-	 * @property {Number} [outputWidth=400]
-	 * @property {String} [containerSelector=[cropper-adapter-component]]
-	 */
 	/**
 	 * @typedef CropperOptions
 	 * @property {Number} [aspectRatio=4/4] Proporciones de la imagen
@@ -22,91 +14,289 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 	 * @property {Boolean} [checkCrossOrigin=false]
 	 * @property {Boolean} [center=true]
 	 */
-	let ignore;
+	let defaultCropperOptions = {
+		aspectRatio: 4 / 4,
+		responsive: true,
+		checkCrossOrigin: false,
+		center: true,
+	}
+	/**
+	 * @typedef AdapterOptions
+	 * @property {String} [output=image/jpeg]
+	 * @property {String} [fillColor=white]
+	 * @property {Number} [minWidth=400]
+	 * @property {Number} [outputWidth=400]
+	 * @property {String} [containerSelector=[cropper-adapter-component]]
+	 * @property {Function} [onReadyCropper]
+	 * @property {Function} [onInitiealize]
+	 * @property {CropperOptions} [cropperOptions]
+	 */
+	let defaultAdapterOptions = {
+		output: 'image/jpeg',
+		fillColor: 'white',
+		minWidth: 400,
+		outputWidth: 400,
+		containerSelector: '[cropper-adapter-component]',
+		onReadyCropper: (cropper, canvas) => { },
+		onInitiealize: (cropper, canvas) => { },
+		cropperOptions: null,
+	}
 
 	/**
 	 * @property {CropperAdapterComponent} instance
 	 */
 	let instance = this;
 
-	cropperOptions.aspectRatio =
-		typeof cropperOptions.aspectRatio == 'number' ?
-			cropperOptions.aspectRatio :
-			4 / 4
-
-	cropperOptions.responsive =
-		typeof cropperOptions.responsive == 'boolean' ?
-			cropperOptions.responsive :
-			true
-
-	cropperOptions.checkCrossOrigin =
-		typeof cropperOptions.checkCrossOrigin == 'boolean' ?
-			cropperOptions.checkCrossOrigin :
-			true
-
-	cropperOptions.center =
-		typeof cropperOptions.center == 'boolean' ?
-			cropperOptions.center :
-			true
-
-	adapterOptions.output =
-		typeof adapterOptions.output == 'string' ?
-			adapterOptions.output :
-			'image/jpeg'
-
-	adapterOptions.fillColor =
-		typeof adapterOptions.fillColor == 'string' ?
-			adapterOptions.fillColor :
-			'white'
-
-	adapterOptions.minWidth =
-		typeof adapterOptions.minWidth == 'number' ?
-			adapterOptions.minWidth :
-			400
-
-	adapterOptions.outputWidth =
-		typeof adapterOptions.outputWidth == 'number' ?
-			adapterOptions.outputWidth :
-			adapterOptions.minWidth
-
-
-
-	adapterOptions.containerSelector =
-		typeof adapterOptions.containerSelector == 'string' ?
-			adapterOptions.containerSelector :
-			'[cropper-adapter-component]'
-
-	let container = $(adapterOptions.containerSelector)
-
-	let inputFile = container.find('input[type="file"]')
-	let canvas = container.find('canvas')
-	let canvasImage = canvas.attr('data-image')
-	let preview = container.find('[preview]')
-	let cutTrigger = container.find('[cut]')
-
-	let outputFormat = adapterOptions.output
-	let fillColor = adapterOptions.fillColor
-
+	/**
+	 * @property {Boolean} initialized
+	 */
+	let initialized = false
+	/**
+	 * @property {$} container
+	 */
+	let container
+	/**
+	 * @property {$} inputFile
+	 */
+	let inputFile
+	/**
+	 * @property {$} canvas
+	 */
+	let canvas
+	/**
+	 * @property {$} canvasImage
+	 */
+	let canvasImage
+	/**
+	 * @property {$} preview
+	 */
+	let preview
+	/**
+	 * @property {$} cutTrigger
+	 */
+	let cutTrigger
+	/**
+	 * @property {String} hasImage
+	 */
+	let outputFormat
+	/**
+	 * @property {String} hasImage
+	 */
+	let fillColor
+	/**
+	 * @property {Boolean} hasImage
+	 */
 	let hasImage = false
+	/**
+	 * @property {Boolean} wasChanged
+	 */
 	let wasChanged = false
+	/**
+	 * @property {HTMLCanvasElement} canvasTarget
+	 */
+	let canvasTarget
+	/**
+	 * @property {Cropper} cropper
+	 */
+	let cropper
 
-	if (container.length < 1 || canvas.length < 1) {
-		return
+	init(adapterOptions, cropperOptions)
+
+	/**
+	 * @function init
+	 * @param {AdapterOptions} adapterOptions 
+	 * @param {CropperOptions} cropperOptions 
+	 */
+	function init(adapterOptions = {}, cropperOptions = {}) {
+
+		configOptions(adapterOptions, cropperOptions)
+
+		container = $(adapterOptions.containerSelector)
+
+		inputFile = container.find('input[type="file"]')
+		canvas = container.find('canvas')
+		canvasImage = canvas.attr('data-image')
+		preview = container.find('[preview]')
+		cutTrigger = container.find('[cut]')
+
+		outputFormat = adapterOptions.output
+		fillColor = adapterOptions.fillColor
+
+		hasImage = false
+		wasChanged = false
+
+		if (!(container.length < 1 || canvas.length < 1)) {
+
+			canvas.css('width', '100%')
+			canvas.css('max-width', `${adapterOptions.minWidth}px`)
+			canvas.css('min-width', `300px`)
+
+			canvasTarget = canvas.get(0)
+			cropper = new Cropper(canvasTarget, cropperOptions)
+
+			canvasTarget.addEventListener('ready', function (e) {
+
+				let isCropperEvent = this.cropper === cropper
+
+				if (isCropperEvent) {
+
+					adapterOptions.onReadyCropper(cropper, canvas)
+
+					if (!initialized) {
+						adapterOptions.onInitiealize(cropper, canvas)
+					}
+
+				}
+
+				initialized = true
+
+			})
+
+			if (canvasImage != null) {
+				cropper.replace(canvasImage)
+				hasImage = true
+			}
+
+			if (!hasImage) {
+				cutTrigger.addClass('disabled')
+			}
+
+			inputFile.on('change', function () {
+
+				let files = this.files
+
+				if (files.length > 0) {
+
+					let file = files[0]
+					let tipo = file.type
+
+					if (tipo.match(/^image\//)) {
+
+						let reader = new FileReader()
+
+						reader.readAsDataURL(file)
+
+						reader.onload = function (e) {
+
+							let img = new Image()
+
+							let dataURIImg = e.target.result
+							img.src = dataURIImg
+
+							img.onload = function () {
+
+								let inputWidth = img.width
+
+								if (inputWidth < adapterOptions.minWidth) {
+									errorMessage('Error', `El ancho mínimo de la imagen debe ser: ${adapterOptions.minWidth}px`)
+									return
+								}
+
+								cropper.replace(dataURIImg)
+								hasImage = true
+								wasChanged = true
+								cutTrigger.removeClass('disabled')
+
+							}
+
+						}
+
+					} else {
+
+						errorMessage('Error', 'Seleccione una imagen, por favor.')
+
+					}
+
+				} else {
+
+					errorMessage('Error', 'No hay imágenes seleccionadas.')
+
+				}
+
+			})
+
+			cutTrigger.click(function (e) {
+
+				e.preventDefault()
+
+				if (!hasImage) return
+
+				let cutImage = new Image()
+				cutImage.id = 'image'
+				cutImage.src = instance.crop()
+				wasChanged = true
+
+				cutImage.onload = () => {
+					let title = document.createElement('strong')
+					title.innerHTML = 'Vista previa:<br>'
+					preview.html('')
+					preview.append(title)
+					preview.append(cutImage)
+					preview.css('text-align', 'center')
+					preview.css('margin', '4px auto')
+					preview.css('max-width', '300px')
+					preview.find('img').css('max-width', '100%')
+				}
+
+				return false
+
+			})
+
+		} else {
+			alert('Error al configurar CropperAdapterComponent, no está el canvas o el componente.')
+		}
+
+	}
+	/**
+	 * @function init
+	 * @param {AdapterOptions} adapterOptions 
+	 * @param {CropperOptions} cropperOptions 
+	 */
+	function configOptions(adapterOptions = {}, cropperOptions = {}) {
+
+		//Verificar si adapterOptions.cropperOptions tiene valores, por compatibilidad se usaran los de cropperOptions en caso contrario
+		if (adapterOptions.cropperOptions !== null && typeof adapterOptions.cropperOptions == 'object') {
+
+			//Configuraciones de cropperOptions 
+			cropperOptions = processByDefaultValues(defaultCropperOptions, adapterOptions.cropperOptions)
+
+			//Configuraciones de adapterOptions 
+			adapterOptions = processByDefaultValues(defaultAdapterOptions, adapterOptions)
+
+		} else {
+
+			//Configuraciones de cropperOptions 
+			cropperOptions = processByDefaultValues(defaultCropperOptions, cropperOptions)
+
+			//Configuraciones de adapterOptions 
+			adapterOptions = processByDefaultValues(defaultAdapterOptions, adapterOptions)
+
+		}
+
+
 	}
 
-	canvas.css('width', '100%')
-	canvas.css('max-width', `${adapterOptions.minWidth}px`)
-	canvas.css('min-width', `300px`)
+	/**
+	 * @function processByStructure
+	 * @param {Object} defaultValues 
+	 * @param {Object} data 
+	 * @returns {Object}
+	 */
+	function processByDefaultValues(defaultValues, data) {
 
-	let cropper = new Cropper(canvas.get(0), cropperOptions)
+		for (let option in defaultValues) {
+			let defaultOption = defaultValues[option]
+			if (typeof data[option] == 'undefined') {
+				data[option] = defaultOption
+			} else {
+				if (typeof data[option] != typeof defaultOption) {
+					data[option] = defaultOption
+				}
+			}
+		}
 
-	if (canvasImage != null) {
-		cropper.replace(canvasImage)
-		hasImage = true
-	}
+		return data
 
-	if (!hasImage) {
-		cutTrigger.addClass('disabled')
 	}
 
 	/**
@@ -180,85 +370,6 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 		return wasChanged
 	}
 
-	inputFile.on('change', function () {
-
-		let files = this.files
-
-		if (files.length > 0) {
-
-			let file = files[0]
-			let tipo = file.type
-
-			if (tipo.match(/^image\//)) {
-
-				let reader = new FileReader()
-
-				reader.readAsDataURL(file)
-
-				reader.onload = function (e) {
-
-					let img = new Image()
-
-					let dataURIImg = e.target.result
-					img.src = dataURIImg
-
-					img.onload = function () {
-
-						let inputWidth = img.width
-
-						if (inputWidth < adapterOptions.minWidth) {
-							errorMessage('Error', `El ancho mínimo de la imagen debe ser: ${adapterOptions.minWidth}px`)
-							return
-						}
-
-						cropper.replace(dataURIImg)
-						hasImage = true
-						wasChanged = true
-						cutTrigger.removeClass('disabled')
-
-					}
-
-				}
-
-			} else {
-
-				errorMessage('Error', 'Seleccione una imagen, por favor.')
-
-			}
-
-		} else {
-
-			errorMessage('Error', 'No hay imágenes seleccionadas.')
-
-		}
-
-	})
-
-	cutTrigger.click(function (e) {
-
-		e.preventDefault()
-
-		if (!hasImage) return
-
-		let cutImage = new Image()
-		cutImage.id = 'image'
-		cutImage.src = instance.crop()
-		wasChanged = true
-
-		cutImage.onload = () => {
-			let title = document.createElement('strong')
-			title.innerHTML = 'Vista previa:<br>'
-			preview.html('')
-			preview.append(title)
-			preview.append(cutImage)
-			preview.css('text-align', 'center')
-			preview.css('margin', '4px auto')
-			preview.css('max-width', '300px')
-			preview.find('img').css('max-width', '100%')
-		}
-
-		return false
-
-	})
+	return this
 
 }
