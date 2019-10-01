@@ -311,11 +311,7 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 		}
 
 		if (!(typeof outputWidth == 'number')) {
-			if (adapterOptions.outputWidth > adapterOptions.minWidth) {
-				outputWidth = adapterOptions.minWidth
-			} else {
-				outputWidth = adapterOptions.outputWidth
-			}
+			outputWidth = adapterOptions.outputWidth
 		}
 
 		let optionsCroppedCanvas = {
