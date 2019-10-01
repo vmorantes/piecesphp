@@ -203,6 +203,20 @@ class ArticleMapper extends BaseEntityMapper
     }
 
     /**
+     * addVisit
+     *
+     * @return static
+     */
+    public function addVisit()
+    {
+        $meta = $this->meta;
+		$meta->visits += 1;
+		$this->meta = $meta;
+        $this->update();
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public function save()
