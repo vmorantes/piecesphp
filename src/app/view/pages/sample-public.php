@@ -1,8 +1,5 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
-<?php import_quilljs([], true);?>
-<?php load_css();?>
-
 <br>
 <br>
 <br>
