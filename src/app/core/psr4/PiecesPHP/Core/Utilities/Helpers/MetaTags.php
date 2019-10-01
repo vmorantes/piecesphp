@@ -11,7 +11,7 @@ namespace PiecesPHP\Core\Utilities\Helpers;
  * Clase para generar algunos meta tags
  *
  * @category    Helpers
- * @package     PiecesPHP\Core
+ * @package     PiecesPHP\Core\Utilities\Helpers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */
@@ -78,7 +78,12 @@ class MetaTags
      * @var string
      */
     protected static $url = null;
-
+    /**
+     * initialValues
+     *
+     * @return void
+     */
+	
     private static function initialValues()
     {
 

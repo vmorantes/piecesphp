@@ -140,10 +140,11 @@ class AppConfigController extends AdminPanelController
             ),
             new Parameter(
                 'value',
-                null,
+                '',
                 function ($value) {
                     return is_string($value) || is_array($value) || is_object($value);
-                }
+				},
+				true
             ),
             new Parameter(
                 'parse',
@@ -191,7 +192,7 @@ class AppConfigController extends AdminPanelController
             $name = $parametersExcepted->getValue('name');
             $value = $parametersExcepted->getValue('value');
             $parse = $parametersExcepted->getValue('parse');
-            $merge = $parametersExcepted->getValue('merge');
+			$merge = $parametersExcepted->getValue('merge');
 
             $option = new AppConfigModel($name);
             $optionExists = !is_null($option->id);
