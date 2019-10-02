@@ -108,29 +108,85 @@ function CropperAdapterComponent(configurations = {}) {
 	 */
 	let cropper
 
-	init(configurations)
+	prepare(configurations)
 
 	/**
-	 * @function init
+	 * @method crop
+	 * @param {Number} [quality=0.7]
+	 * @param {Number} [outputWidth=null]
+	 * @returns {String} base64
+	 */
+	this.crop = (quality = 0.7, outputWidth = null) => {
+
+		if (!(typeof quality == 'number')) {
+			quality = 0.7
+		}
+
+		if (!(typeof outputWidth == 'number')) {
+			outputWidth = adapterOptions.outputWidth
+		}
+
+		let optionsCroppedCanvas = {
+			fillColor: fillColor,
+		}
+
+		if (outputWidth !== -1) {
+			optionsCroppedCanvas.width = outputWidth
+		}
+
+		let cropperCanvas = cropper.getCroppedCanvas(optionsCroppedCanvas)
+
+		let formatsWithQuality = [
+			'image/jpeg',
+			'image/jpg',
+			'image/webp',
+		]
+
+		if (formatsWithQuality.indexOf(outputFormat) !== -1) {
+			return cropperCanvas.toDataURL(outputFormat, quality)
+		} else {
+			return cropperCanvas.toDataURL(outputFormat)
+		}
+	}
+
+	/**
+	 * @method getFile
+	 * @param {Number} [quality=0.7]
+	 * @param {Number} [outputWidth=null]
+	 * @param {String} [extension=null]
+	 * @returns {File}
+	 */
+	this.getFile = (name = 'image', quality = 0.7, outputWidth = null, extension = null) => {
+
+		extension = typeof extension == 'string' ? extension : outputFormat.replace('image/', '')
+
+		let util = new UtilPieces()
+		let utilFiles = util.file
+		let file = utilFiles.dataURLToFile(
+			this.crop(
+				quality,
+				outputWidth
+			),
+			`${name}.${extension}`
+		)
+		return file
+	}
+
+	/**
+	 * @method wasChanged
+	 * @returns {Boolean}
+	 */
+	this.wasChanged = () => {
+		return wasChanged
+	}
+	
+	/**
+	 * @function prepare
 	 * @param {AdapterOptions} configurations 
 	 */
-	function init(configurations = {}) {
+	function prepare(configurations = {}) {
 
 		configOptions(configurations)
-
-		container = $(adapterOptions.containerSelector)
-
-		inputFile = container.find('input[type="file"]')
-		canvas = container.find('canvas')
-		canvasImage = canvas.attr('data-image')
-		preview = container.find('[preview]')
-		cutTrigger = container.find('[cut]')
-
-		outputFormat = adapterOptions.output
-		fillColor = adapterOptions.fillColor
-
-		hasImage = false
-		wasChanged = false
 
 		if (!(container.length < 1 || canvas.length < 1)) {
 
@@ -267,6 +323,19 @@ function CropperAdapterComponent(configurations = {}) {
 		//Configuraciones de adapterOptions 
 		adapterOptions = processByDefaultValues(defaultAdapterOptions, configurations)
 
+
+		//Establecer valores
+		container = $(adapterOptions.containerSelector)
+
+		inputFile = container.find('input[type="file"]')
+		canvas = container.find('canvas')
+		canvasImage = canvas.attr('data-image')		
+		preview = container.find('[preview]')
+		cutTrigger = container.find('[cut]')
+
+		outputFormat = adapterOptions.output
+		fillColor = adapterOptions.fillColor
+
 	}
 
 	/**
@@ -290,76 +359,6 @@ function CropperAdapterComponent(configurations = {}) {
 
 		return data
 
-	}
-
-	/**
-	 * @method crop
-	 * @param {Number} [quality=0.7]
-	 * @param {Number} [outputWidth=null]
-	 * @returns {String} base64
-	 */
-	this.crop = (quality = 0.7, outputWidth = null) => {
-
-		if (!(typeof quality == 'number')) {
-			quality = 0.7
-		}
-
-		if (!(typeof outputWidth == 'number')) {
-			outputWidth = adapterOptions.outputWidth
-		}
-
-		let optionsCroppedCanvas = {
-			fillColor: fillColor,
-		}
-
-		if (outputWidth !== -1) {
-			optionsCroppedCanvas.width = outputWidth
-		}
-
-		let cropperCanvas = cropper.getCroppedCanvas(optionsCroppedCanvas)
-
-		let formatsWithQuality = [
-			'image/jpeg',
-			'image/jpg',
-			'image/webp',
-		]
-
-		if (formatsWithQuality.indexOf(outputFormat) !== -1) {
-			return cropperCanvas.toDataURL(outputFormat, quality)
-		} else {
-			return cropperCanvas.toDataURL(outputFormat)
-		}
-	}
-
-	/**
-	 * @method getFile
-	 * @param {Number} [quality=0.7]
-	 * @param {Number} [outputWidth=null]
-	 * @param {String} [extension=null]
-	 * @returns {File}
-	 */
-	this.getFile = (name = 'image', quality = 0.7, outputWidth = null, extension = null) => {
-
-		extension = typeof extension == 'string' ? extension : outputFormat.replace('image/', '')
-
-		let util = new UtilPieces()
-		let utilFiles = util.file
-		let file = utilFiles.dataURLToFile(
-			this.crop(
-				quality,
-				outputWidth
-			),
-			`${name}.${extension}`
-		)
-		return file
-	}
-
-	/**
-	 * @method wasChanged
-	 * @returns {Boolean}
-	 */
-	this.wasChanged = () => {
-		return wasChanged
 	}
 
 	return this
