@@ -19,7 +19,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 	//──── Variables ─────────────────────────────────────────────────────────────────────────
 	/**
-	 * @property {CropperAdapterComponent} instance
+	 * @property {QuillAdapterComponent} instance
 	 */
 	let instance = this;
 
