@@ -84,11 +84,11 @@ function CropperAdapterComponent(configurations = {}) {
 	 */
 	let cutTrigger
 	/**
-	 * @property {String} hasImage
+	 * @property {String} outputFormat
 	 */
 	let outputFormat
 	/**
-	 * @property {String} hasImage
+	 * @property {String} fillColor
 	 */
 	let fillColor
 	/**
@@ -254,8 +254,9 @@ function CropperAdapterComponent(configurations = {}) {
 		}
 
 	}
+
 	/**
-	 * @function init
+	 * @function configOptions
 	 * @param {AdapterOptions} configurations 
 	 */
 	function configOptions(configurations = {}) {
@@ -292,6 +293,7 @@ function CropperAdapterComponent(configurations = {}) {
 	}
 
 	/**
+	 * @method crop
 	 * @param {Number} [quality=0.7]
 	 * @param {Number} [outputWidth=null]
 	 * @returns {String} base64
@@ -330,6 +332,7 @@ function CropperAdapterComponent(configurations = {}) {
 	}
 
 	/**
+	 * @method getFile
 	 * @param {Number} [quality=0.7]
 	 * @param {Number} [outputWidth=null]
 	 * @param {String} [extension=null]
@@ -352,6 +355,7 @@ function CropperAdapterComponent(configurations = {}) {
 	}
 
 	/**
+	 * @method wasChanged
 	 * @returns {Boolean}
 	 */
 	this.wasChanged = () => {
