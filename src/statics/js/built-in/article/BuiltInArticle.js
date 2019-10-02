@@ -14,7 +14,7 @@ function BuiltInArticle(options) {
 	/**
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL
-	 * @property {Function} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
+	 * @property {function(Object):HTMLElement|$} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
 	 * @property {Number} [page=1]
 	 * @property {Number} [perPage=5]
 	 * @property {String} [containerSelector=[built-in-articles-items-js]]
@@ -48,7 +48,7 @@ function BuiltInArticle(options) {
 	let requestURL = ''
 
 	/**
-	 * @property {Function} onDraw
+	 * @property {function(Object):HTMLElement|$}  onDraw
 	 */
 	let onDraw
 	/**
