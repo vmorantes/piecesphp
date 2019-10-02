@@ -7,10 +7,15 @@ function CropperAdapterComponent(configurations = {}) {
 
 	/**
 	 * @typedef CropperOptions
-	 * @property {Number} [aspectRatio=4/4] Proporciones de la imagen
-	 * @property {Boolean} [responsive=true]
-	 * @property {Boolean} [checkCrossOrigin=false]
-	 * @property {Boolean} [center=true]
+	 * @property {Number} [aspectRatio=4/4] Define the fixed aspect ratio of the crop box
+	 * @property {Boolean} [responsive=true] Re-render the cropper when resizing the window
+	 * @property {Boolean} [checkCrossOrigin=false] Check if the current image is a cross-origin image
+	 * @property {Boolean} [center=true] Show the center indicator above the crop box
+	 * @property {Number} [viewMode=3] Define the view mode of the cropper
+	 * @property {Number} [autoCropArea=1] A number between 0 and 1. Define the automatic cropping area size (percentage)
+	 * @property {Boolean} [zoomOnTouch=false] Enable to zoom the image by dragging touch
+	 * @property {Boolean} [zoomOnWheel=false] Enable to zoom the image by wheeling mouse
+	 * @property {Boolean} [toggleDragModeOnDblclick=false] Enable to toggle drag mode between "crop" and "move" when clicking twice on the cropper
 	 */
 	/**
 	 * @typedef AdapterOptions
@@ -30,6 +35,11 @@ function CropperAdapterComponent(configurations = {}) {
 		responsive: true,
 		checkCrossOrigin: false,
 		center: true,
+		viewMode: 3,
+		autoCropArea: 1,
+		zoomOnTouch: false,
+		zoomOnWheel: false,
+		toggleDragModeOnDblclick: false,
 	}
 	/** @type {AdapterOptions} Configuración por defecto de la clase */
 	let defaultAdapterOptions = {
@@ -41,7 +51,7 @@ function CropperAdapterComponent(configurations = {}) {
 		onReadyCropper: (cropper, canvas) => { },
 		onInitialize: (cropper, canvas) => { },
 		cropperOptions: null,
-	}	
+	}
 	/** @type {CropperAdapterComponent} Instancia */ let instance = this
 	/** @type {AdapterOptions} Configuraciones de la clase */ let adapterOptions
 	/** @type {CropperOptions} Configuraciones de cropper */ let cropperOptions
@@ -57,7 +67,7 @@ function CropperAdapterComponent(configurations = {}) {
 	/** @type {$} Imagen por defecto */ let canvasImage
 	/** @type {$} Contenedor de la vista previa al disparar el corte */ let preview
 	/** @type {$} Disparador de evento de corte */ let cutTrigger
-	
+
 	prepare(configurations)
 
 	/**
