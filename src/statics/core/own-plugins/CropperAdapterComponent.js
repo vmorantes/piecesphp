@@ -15,10 +15,10 @@ function CropperAdapterComponent(configurations = {}) {
 	 */
 	/**
 	 * @typedef AdapterOptions
-	 * @property {String} [output=image/jpeg]
-	 * @property {String} [outputFillColor=white]
-	 * @property {Number} [minWidth=400]
-	 * @property {Number} [outputWidth=400]
+	 * @property {String} [outputFormat=image/jpeg] Formato de la imagen al exportar
+	 * @property {String} [outputFillColor=white] Color de relleno de la imagen al exportar
+	 * @property {Number} [outputWidth=400] Ancho de exportación
+	 * @property {Number} [minWidth=400] Ancho mínimo de la imagen entrante
 	 * @property {String} [containerSelector=[cropper-adapter-component]]
 	 * @property {function(Cropper, HTMLCanvasElement)} [onReadyCropper]
 	 * @property {function(Cropper, HTMLCanvasElement)} [onInitialize]
@@ -34,55 +34,56 @@ function CropperAdapterComponent(configurations = {}) {
 	}
 	/** @type {AdapterOptions} Configuración por defecto de la clase */
 	let defaultAdapterOptions = {
-		output: 'image/jpeg',
+		outputFormat: 'image/jpeg',
 		outputFillColor: 'white',
-		minWidth: 400,
 		outputWidth: 400,
+		minWidth: 400,
 		containerSelector: '[cropper-adapter-component]',
 		onReadyCropper: (cropper, canvas) => { },
 		onInitialize: (cropper, canvas) => { },
 		cropperOptions: null,
-	}
+	}	
 	/** @type {CropperAdapterComponent} Instancia */ let instance = this
-	/** @type {AdapterOptions} Configuraciones de la clase*/ let adapterOptions
-	/** @type {CropperOptions} Configuraciones de cropper*/ let cropperOptions
-	/** @type {Boolean} Verifica si ya ha sido inicializado copper por primera vez*/ let initialized = false
-	/** @type {$} Contenedor del componente*/ let container
-	/** @type {$} Input file*/ let inputFile
-	/** @type {$} Canvas*/ let canvas
-	/** @type {$} Imagen por defecto*/ let canvasImage
-	/** @type {$} Contenedor de la vista previa al disparar el corte*/ let preview
-	/** @type {$} Disparador de evento de corte*/ let cutTrigger
-	/** @type {String} Formato de la imagen al exportar*/ let outputFormat
-	/** @type {String} Color de relleno de la imagen al exportar*/ let outputFillColor
-	/** @type {Boolean} Verifica si tiene una imagen*/ let hasImage = false
-	/** @type {Boolean} Verifica si la imagen cambió*/ let wasChanged = false
-	/** @type {Cropper} Instancia de cropper*/ let cropper
+	/** @type {AdapterOptions} Configuraciones de la clase */ let adapterOptions
+	/** @type {CropperOptions} Configuraciones de cropper */ let cropperOptions
+	/** @type {Cropper} Instancia de cropper */ let cropper
 
+	/** @type {Boolean} Verifica si ya ha sido inicializado copper por primera vez */ let initialized = false
+	/** @type {Boolean} Verifica si tiene una imagen */ let hasImage = false
+	/** @type {Boolean} Verifica si la imagen cambió */ let wasChanged = false
+
+	/** @type {$} Contenedor del componente */ let container
+	/** @type {$} Input file */ let inputFile
+	/** @type {$} Canvas */ let canvas
+	/** @type {$} Imagen por defecto */ let canvasImage
+	/** @type {$} Contenedor de la vista previa al disparar el corte */ let preview
+	/** @type {$} Disparador de evento de corte */ let cutTrigger
+	
 	prepare(configurations)
 
 	/**
 	 * @method crop
-	 * @param {Number} [quality=0.7]
-	 * @param {Number} [outputWidth=null]
+	 * @param {Number} [quality=0.7] Calidad de exportación
+	 * @param {Number} [oWidth=null] Ancho de exportación
 	 * @returns {String} base64
 	 */
-	this.crop = (quality = 0.7, outputWidth = null) => {
+	this.crop = (quality = 0.7, oWidth = null) => {
 
 		if (!(typeof quality == 'number')) {
 			quality = 0.7
 		}
 
-		if (!(typeof outputWidth == 'number')) {
-			outputWidth = adapterOptions.outputWidth
+		if (!(typeof oWidth == 'number')) {
+			oWidth = adapterOptions.outputWidth
 		}
 
 		let optionsCroppedCanvas = {
-			fillColor: outputFillColor,
+			fillColor: adapterOptions.outputFillColor,
 		}
 
-		if (outputWidth !== -1) {
-			optionsCroppedCanvas.width = outputWidth
+		if (oWidth !== -1) {
+			optionsCroppedCanvas.width = oWidth
+			optionsCroppedCanvas.minWidth = oWidth
 		}
 
 		let cropperCanvas = cropper.getCroppedCanvas(optionsCroppedCanvas)
@@ -93,30 +94,31 @@ function CropperAdapterComponent(configurations = {}) {
 			'image/webp',
 		]
 
-		if (formatsWithQuality.indexOf(outputFormat) !== -1) {
-			return cropperCanvas.toDataURL(outputFormat, quality)
+		if (formatsWithQuality.indexOf(adapterOptions.outputFormat) !== -1) {
+			return cropperCanvas.toDataURL(adapterOptions.outputFormat, quality)
 		} else {
-			return cropperCanvas.toDataURL(outputFormat)
+			return cropperCanvas.toDataURL(adapterOptions.outputFormat)
 		}
 	}
 
 	/**
 	 * @method getFile
-	 * @param {Number} [quality=0.7]
-	 * @param {Number} [outputWidth=null]
-	 * @param {String} [extension=null]
+	 * @param {String} [name=image] Nombre del archivo
+	 * @param {Number} [quality=0.7] Calidad de exportación
+	 * @param {Number} [oWidth=null] Ancho de exportación
+	 * @param {String} [extension=null] Extensión del archivo
 	 * @returns {File}
 	 */
-	this.getFile = (name = 'image', quality = 0.7, outputWidth = null, extension = null) => {
+	this.getFile = (name = 'image', quality = 0.7, oWidth = null, extension = null) => {
 
-		extension = typeof extension == 'string' ? extension : outputFormat.replace('image/', '')
+		extension = typeof extension == 'string' ? extension : adapterOptions.outputFormat.replace('image/', '')
 
 		let util = new UtilPieces()
 		let utilFiles = util.file
 		let file = utilFiles.dataURLToFile(
 			this.crop(
 				quality,
-				outputWidth
+				oWidth
 			),
 			`${name}.${extension}`
 		)
@@ -283,9 +285,6 @@ function CropperAdapterComponent(configurations = {}) {
 		canvasImage = canvas.attr('data-image')
 		preview = container.find('[preview]')
 		cutTrigger = container.find('[cut]')
-
-		outputFormat = adapterOptions.output
-		outputFillColor = adapterOptions.outputFillColor
 
 	}
 
