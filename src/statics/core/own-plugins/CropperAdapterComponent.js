@@ -2,10 +2,9 @@
 /**
  * @function CropperAdapterComponent
  *  
- * @param {AdapterOptions} adapterOptions 
- * @param {CropperOptions} cropperOptions 
+ * @param {AdapterOptions} configurations  
  */
-function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
+function CropperAdapterComponent(configurations = {}) {
 
 	/**
 	 * @typedef CropperOptions
@@ -45,7 +44,16 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 	/**
 	 * @property {CropperAdapterComponent} instance
 	 */
-	let instance = this;
+	let instance = this
+
+	/**
+	 * @property {AdapterOptions} adapterOptions
+	 */
+	let adapterOptions
+	/**
+	 * @property {CropperOptions} cropperOptions
+	 */
+	let cropperOptions
 
 	/**
 	 * @property {Boolean} initialized
@@ -100,16 +108,15 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 	 */
 	let cropper
 
-	init(adapterOptions, cropperOptions)
+	init(configurations)
 
 	/**
 	 * @function init
-	 * @param {AdapterOptions} adapterOptions 
-	 * @param {CropperOptions} cropperOptions 
+	 * @param {AdapterOptions} configurations 
 	 */
-	function init(adapterOptions = {}, cropperOptions = {}) {
+	function init(configurations = {}) {
 
-		configOptions(adapterOptions, cropperOptions)
+		configOptions(configurations)
 
 		container = $(adapterOptions.containerSelector)
 
@@ -249,30 +256,15 @@ function CropperAdapterComponent(adapterOptions = {}, cropperOptions = {}) {
 	}
 	/**
 	 * @function init
-	 * @param {AdapterOptions} adapterOptions 
-	 * @param {CropperOptions} cropperOptions 
+	 * @param {AdapterOptions} configurations 
 	 */
-	function configOptions(adapterOptions = {}, cropperOptions = {}) {
+	function configOptions(configurations = {}) {
 
-		//Verificar si adapterOptions.cropperOptions tiene valores, por compatibilidad se usaran los de cropperOptions en caso contrario
-		if (adapterOptions.cropperOptions !== null && typeof adapterOptions.cropperOptions == 'object') {
+		//Configuraciones de cropperOptions 
+		cropperOptions = processByDefaultValues(defaultCropperOptions, configurations.cropperOptions)
 
-			//Configuraciones de cropperOptions 
-			cropperOptions = processByDefaultValues(defaultCropperOptions, adapterOptions.cropperOptions)
-
-			//Configuraciones de adapterOptions 
-			adapterOptions = processByDefaultValues(defaultAdapterOptions, adapterOptions)
-
-		} else {
-
-			//Configuraciones de cropperOptions 
-			cropperOptions = processByDefaultValues(defaultCropperOptions, cropperOptions)
-
-			//Configuraciones de adapterOptions 
-			adapterOptions = processByDefaultValues(defaultAdapterOptions, adapterOptions)
-
-		}
-
+		//Configuraciones de adapterOptions 
+		adapterOptions = processByDefaultValues(defaultAdapterOptions, configurations)
 
 	}
 
