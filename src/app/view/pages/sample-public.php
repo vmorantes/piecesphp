@@ -6,13 +6,13 @@
 <br>
 
 <div class="elements-container centered fit">
-	
+
     <h3>QuillJS</h3>
 
     <div class="text-align-c">
         <div quill-adapter-component>
-		</div>		
-		<textarea target></textarea>
+        </div>
+        <textarea target></textarea>
     </div>
 
     <br>
@@ -266,9 +266,3 @@
     </div>
 
 </div>
-
-<script>
-window.addEventListener('load', (e) => {
-    let quillAdapter = new QuillAdapterComponent()
-})
-</script>

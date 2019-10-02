@@ -77,10 +77,10 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             /* NProgress */
             import_nprogress();
             /* Librerías de la aplicación */
-			import_app_libraries();
-			
-			add_global_asset(base_url('statics/css/global.css'), 'css');
-			
+            import_app_libraries();
+
+            add_global_asset(base_url('statics/css/global.css'), 'css');
+
         }
     }
 
@@ -97,8 +97,12 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     public function indexView(Request $req, Response $res, array $args)
     {
 
-		import_quilljs();
-		
+        import_quilljs();
+
+        set_custom_assets([
+            'statics/js/main.js',
+        ], 'js');
+
         $this->render('layout/header');
         $this->render('pages/sample-public');
         $this->render('layout/footer');
