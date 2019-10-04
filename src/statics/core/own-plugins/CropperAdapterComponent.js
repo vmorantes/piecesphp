@@ -940,7 +940,7 @@ function CropperAdapterComponent(configurations = {}) {
 	 * @function restoreCropperData
 	 */
 	function restoreCropperData() {
-
+		
 		if (typeof cropperData !== 'undefined') {
 			cropper.setData(cropperData)
 		}
@@ -1290,6 +1290,11 @@ function CropperAdapterComponent(configurations = {}) {
 		enableElement(saveButton)
 
 		limitCropBox()
+	
+		if(lastSavedImage instanceof Image){
+			cropper.replace(lastSavedImage.src)
+		}
+	
 	}
 
 	/**
