@@ -35,7 +35,10 @@
 
     <div class="ui form cropper-adapter without-image">
 
-        <input type="file" name="NAME_IMAGE" accept="image/*">
+        <div class="field">
+            <label>Imagen</label>
+            <input type="file" accept="image/*">
+        </div>
 
         <div class="preview" w="1920">
             <img src="img-gen/1920/1080">
@@ -302,7 +305,10 @@
 
     <div class="ui form cropper-adapter with-image">
 
-        <input type="file" name="NAME_IMAGE" accept="image/*">
+        <div class="field">
+            <label>Imagen</label>
+            <input type="file" accept="image/*">
+        </div>
 
         <div class="preview" w="1920">
             <img src="img-gen/1920/1080">
