@@ -206,6 +206,35 @@ if (typeof $ !== 'undefined') {
 		pcsAdminSideBar('.ui-pcs.sidebar')
 		genericFormHandler()
 
+		let toggleDevCSSMode = $('[toggle-dev-css-mode]')
+		let toggleDevCSSModeIsActive = typeof toggleDevCSSMode.attr('active') == 'string'
+		
+		toggleDevCSSMode.click(function(e){
+
+			let that = $(e.currentTarget)
+			let selector = that.attr('toggle-dev-css-mode')
+
+			if(typeof selector == 'string' && selector.trim().length > 0){
+
+				let classToAdd = 'dev-css-mode'
+				let element = $(selector)
+
+				if(element.hasClass(classToAdd)){
+					element.removeClass(classToAdd)
+					that.find(`[type="checkbox"]`).attr('checked', false)
+				}else{
+					element.addClass(classToAdd)
+					that.find(`[type="checkbox"]`).attr('checked', true)
+				}
+				
+			}
+
+		})
+
+		if(toggleDevCSSModeIsActive){
+			toggleDevCSSMode.click()
+		}
+
 	})
 
 	$(window).on('load', function (e) {

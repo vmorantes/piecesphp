@@ -98,6 +98,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     {
 
         import_quilljs();
+        import_cropper();
 
         set_custom_assets([
             'statics/js/main.js',

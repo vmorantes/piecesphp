@@ -9,6 +9,9 @@ var sass = require("gulp-sass")
 
 //Archivos que se observar
 var watchingPiecesPHPSassFiles = {
+	ownPlugins: [
+		'./statics/core/own-plugins/sass/**/*.scss',
+	],
 	general: [
 		'./statics/core/sass/**/*.scss',
 		'./statics/core/sass/components/**/*.scss',
@@ -23,6 +26,9 @@ var watchingPiecesPHPSassFiles = {
 
 //Archivos que se compilan
 var compilePiecesPHPSassFiles = {
+	ownPlugins: [
+		'./statics/core/own-plugins/sass/**/*.scss',
+	],
 	general: [
 		'./statics/core/sass/ui-pcs.scss',
 	],
@@ -36,10 +42,20 @@ var compilePiecesPHPSassFiles = {
 
 var destsPiecesPHP = {
 	users: './statics/login-and-recovery/css',
+	ownPlugins: './statics/core/own-plugins/css',
 	general: './statics/core/css',
 	avatars: './statics/features/avatars/css',
 }
 //---------Funciones de compilación
+
+//Compilación plugins propios
+function sassCompileOwnPlugins() {
+	return gulp.src(compilePiecesPHPSassFiles.ownPlugins)
+		.pipe(sourcemaps.init())
+		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(sourcemaps.write('./'))
+		.pipe(gulp.dest(destsPiecesPHP.ownPlugins))
+}
 
 //Compilación generales
 function sassCompileGeneral() {
@@ -69,12 +85,14 @@ function sassCompileAvatars() {
 }
 
 //Tareas de compilación
+gulp.task("sass-compile-own-plugins", sassCompileOwnPlugins)
 gulp.task("sass-compile-general", sassCompileGeneral)
 gulp.task("sass-compile-users", sassCompileUsers)
 gulp.task("sass-compile-avatars", sassCompileAvatars)
 
 //Tareas de observación
 gulp.task("sass-vendor:watch", () => {
+	gulp.watch(watchingPiecesPHPSassFiles.ownPlugins, ["sass-compile-own-plugins"])
 	gulp.watch(watchingPiecesPHPSassFiles.general, ["sass-compile-general"])
 	gulp.watch(watchingPiecesPHPSassFiles.users, ["sass-compile-users"])
 	gulp.watch(watchingPiecesPHPSassFiles.avatars, ["sass-compile-avatars"])

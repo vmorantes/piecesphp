@@ -1,11 +1,561 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
 <br>
-<br>
-<br>
-<br>
 
 <div class="elements-container centered fit">
+
+    <div style="position:fixed; top:10px; left: 10px; opacity:0.1; transition:0.5s ease all;"
+        onMouseOver="this.style.opacity=1;" onMouseOut="this.style.opacity=0.1;">
+        <strong>Pueba CSS:</strong>
+        <br>
+        <div class="ui fitted toggle checkbox" toggle-dev-css-mode='body'>
+            <input type="checkbox">
+            <label></label>
+        </div>
+    </div>
+
+    <br>
+    <br>
+    <br>
+
+    <h3>CropperJS</h3>
+
+    <h4>Sin imagen inicial</h4>
+
+    <p><strong>Resultado de los botones en la consola</strong></p>
+
+    <div>
+        <div class="ui button green cropper-test-1 change">wasChanged()</div>
+        <div class="ui button green cropper-test-1 init">initWithImage()</div>
+        <div class="ui button green cropper-test-1 image">hasImage()</div>
+        <div class="ui button green cropper-test-1 file">getFile()</div>
+        <div class="ui button green cropper-test-1 title">getTitle()</div>
+        <div class="ui button green cropper-test-1 crop">crop()</div>
+    </div>
+
+    <div class="ui form cropper-adapter without-image">
+
+        <input type="file" name="NAME_IMAGE" accept="image/*">
+
+        <div class="preview" w="1920">
+            <img src="img-gen/1920/1080">
+            <button class="ui button blue" type="button" start></button>
+        </div>
+
+        <div class="workspace">
+
+            <div class="steps">
+
+                <div class="step add">
+
+                    <div class="ui header medium centered">Agregar imagen</div>
+
+                    <div class="placeholder">
+
+                        <div class="content">
+                            <div>
+                                <i class="upload icon"></i>
+                                <button class="ui button blue" type="button" load-image>Seleccionar imagen</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="step edit">
+
+                    <div class="field required">
+                        <label>Título de la imagen</label>
+                        <input type="text" cropper-title-export>
+                    </div>
+
+                    <div class="field">
+                        <canvas data-image=''></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="controls">
+
+                <p class="note">
+                    <em>
+                        <small>
+                            <span show-crop-dimensions></span>
+                        </small>
+                    </em>
+                    <br>
+                    <strong>
+                        <small>
+                            La imagen se guardará con las dimensiones: <span show-output></span>
+                        </small>
+                    </strong>
+                    <br>
+                    <strong>
+                        <small>
+                            El ancho mínimo es <span min-w-output></span>
+                        </small>
+                    </strong>
+                </p>
+
+                <div class="options">
+
+                    <div class="option" data-option="rotate">
+
+                        <div class="icon">
+                            <i class="sync alternate icon"></i>
+                        </div>
+                        <div class="text">Girar</div>
+
+                    </div>
+
+                    <div class="option" data-option="flip">
+
+                        <div class="icon">
+                            <i class="exchange alternate icon"></i>
+                        </div>
+                        <div class="text">Voltear</div>
+
+                    </div>
+
+                    <div class="option" data-option="adjust">
+
+                        <div class="icon">
+                            <i class="expand icon"></i>
+                        </div>
+                        <div class="text">Ajustar</div>
+
+                    </div>
+
+                    <div class="option" load-image>
+
+                        <div class="icon">
+                            <i class="image outline icon"></i>
+                        </div>
+                        <div class="text">Cambiar</div>
+
+                    </div>
+
+                </div>
+
+                <div class="sub-options" data-name="rotate">
+
+                    <div class="option" back-options>
+
+                        <div class="icon">
+                            <i class="arrow left icon"></i>
+                        </div>
+                        <div class="text">Atrás</div>
+
+                    </div>
+
+                    <div class="option" action-rotate-left>
+
+                        <div class="icon">
+                            <i class="undo icon"></i>
+                        </div>
+                        <div class="text">Izquierda</div>
+
+                    </div>
+
+                    <div class="option" action-rotate-right>
+
+                        <div class="icon">
+                            <i class="redo icon"></i>
+                        </div>
+                        <div class="text">Derecha</div>
+
+                    </div>
+
+                </div>
+
+                <div class="sub-options" data-name="flip">
+
+                    <div class="option" back-options>
+
+                        <div class="icon">
+                            <i class="arrow left icon"></i>
+                        </div>
+                        <div class="text">Atrás</div>
+
+                    </div>
+
+                    <div class="option" action-flip-horizontal>
+
+                        <div class="icon">
+                            <i class="arrows alternate horizontal icon"></i>
+                        </div>
+                        <div class="text">Horizontal</div>
+
+                    </div>
+
+                    <div class="option" action-flip-vertical>
+
+                        <div class="icon">
+                            <i class="arrows alternate vertical icon"></i>
+                        </div>
+                        <div class="text">Vertical</div>
+
+                    </div>
+
+                </div>
+
+                <div class="sub-options" data-name="adjust">
+
+                    <div class="option" back-options>
+
+                        <div class="icon">
+                            <i class="arrow left icon"></i>
+                        </div>
+                        <div class="text">Atrás</div>
+
+                    </div>
+
+                    <div class="option" action-move-up>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle up outline icon"></i>
+                        </div>
+                        <div class="text">Arriba</div>
+
+                    </div>
+
+                    <div class="option" action-move-down>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle down outline icon"></i>
+                        </div>
+                        <div class="text">Abajo</div>
+
+                    </div>
+
+                    <div class="option" action-move-left>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle left outline icon"></i>
+                        </div>
+                        <div class="text">Izquierda</div>
+
+                    </div>
+
+                    <div class="option" action-move-right>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle right outline icon"></i>
+                        </div>
+                        <div class="text">Derecha</div>
+
+                    </div>
+
+                    <div class="option" action-zoom-out>
+
+                        <div class="icon">
+                            <i class="search minus icon"></i>
+                        </div>
+                        <div class="text">Alejar</div>
+
+                    </div>
+
+                    <div class="option" action-zoom-in>
+
+                        <div class="icon">
+                            <i class="search plus icon"></i>
+                        </div>
+                        <div class="text">Acercar</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="main-buttons">
+
+                <div class="element">
+                    <button class="ui button red" type="button" cancel>Cancelar</button>
+                </div>
+
+                <div class="element">
+                    <button class="ui button green" type="button" save>Guardar imagen</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <h4>Con imagen inicial</h4>
+
+    <p><strong>Resultado de los botones en la consola</strong></p>
+
+    <div>
+        <div class="ui button green cropper-test-2 change">wasChanged()</div>
+        <div class="ui button green cropper-test-2 init">initWithImage()</div>
+        <div class="ui button green cropper-test-2 image">hasImage()</div>
+        <div class="ui button green cropper-test-2 file">getFile()</div>
+        <div class="ui button green cropper-test-2 title">getTitle()</div>
+        <div class="ui button green cropper-test-2 crop">crop()</div>
+    </div>
+
+    <div class="ui form cropper-adapter with-image">
+
+        <input type="file" name="NAME_IMAGE" accept="image/*">
+
+        <div class="preview" w="1920">
+            <img src="img-gen/1920/1080">
+            <button class="ui button blue" type="button" start></button>
+        </div>
+
+        <div class="workspace">
+
+            <div class="steps">
+
+                <div class="step add">
+
+                    <div class="ui header medium centered">Agregar imagen</div>
+
+                    <div class="placeholder">
+
+                        <div class="content">
+                            <div>
+                                <i class="upload icon"></i>
+                                <button class="ui button blue" type="button" load-image>Seleccionar imagen</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="step edit">
+
+                    <div class="field required">
+                        <label>Título de la imagen</label>
+                        <input type="text" cropper-title-export>
+                    </div>
+
+                    <div class="field">
+                        <canvas data-image="img-gen/1920/1080"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="controls">
+
+                <p class="note">
+                    <em>
+                        <small>
+                            <span show-crop-dimensions></span>
+                        </small>
+                    </em>
+                    <br>
+                    <strong>
+                        <small>
+                            La imagen se guardará con las dimensiones: <span show-output></span>
+                        </small>
+                    </strong>
+                    <br>
+                    <strong>
+                        <small>
+                            El ancho mínimo es <span min-w-output></span>
+                        </small>
+                    </strong>
+                </p>
+
+                <div class="options">
+
+                    <div class="option" data-option="rotate">
+
+                        <div class="icon">
+                            <i class="sync alternate icon"></i>
+                        </div>
+                        <div class="text">Girar</div>
+
+                    </div>
+
+                    <div class="option" data-option="flip">
+
+                        <div class="icon">
+                            <i class="exchange alternate icon"></i>
+                        </div>
+                        <div class="text">Voltear</div>
+
+                    </div>
+
+                    <div class="option" data-option="adjust">
+
+                        <div class="icon">
+                            <i class="expand icon"></i>
+                        </div>
+                        <div class="text">Ajustar</div>
+
+                    </div>
+
+                    <div class="option" load-image>
+
+                        <div class="icon">
+                            <i class="image outline icon"></i>
+                        </div>
+                        <div class="text">Cambiar</div>
+
+                    </div>
+
+                </div>
+
+                <div class="sub-options" data-name="rotate">
+
+                    <div class="option" back-options>
+
+                        <div class="icon">
+                            <i class="arrow left icon"></i>
+                        </div>
+                        <div class="text">Atrás</div>
+
+                    </div>
+
+                    <div class="option" action-rotate-left>
+
+                        <div class="icon">
+                            <i class="undo icon"></i>
+                        </div>
+                        <div class="text">Izquierda</div>
+
+                    </div>
+
+                    <div class="option" action-rotate-right>
+
+                        <div class="icon">
+                            <i class="redo icon"></i>
+                        </div>
+                        <div class="text">Derecha</div>
+
+                    </div>
+
+                </div>
+
+                <div class="sub-options" data-name="flip">
+
+                    <div class="option" back-options>
+
+                        <div class="icon">
+                            <i class="arrow left icon"></i>
+                        </div>
+                        <div class="text">Atrás</div>
+
+                    </div>
+
+                    <div class="option" action-flip-horizontal>
+
+                        <div class="icon">
+                            <i class="arrows alternate horizontal icon"></i>
+                        </div>
+                        <div class="text">Horizontal</div>
+
+                    </div>
+
+                    <div class="option" action-flip-vertical>
+
+                        <div class="icon">
+                            <i class="arrows alternate vertical icon"></i>
+                        </div>
+                        <div class="text">Vertical</div>
+
+                    </div>
+
+                </div>
+
+                <div class="sub-options" data-name="adjust">
+
+                    <div class="option" back-options>
+
+                        <div class="icon">
+                            <i class="arrow left icon"></i>
+                        </div>
+                        <div class="text">Atrás</div>
+
+                    </div>
+
+                    <div class="option" action-move-up>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle up outline icon"></i>
+                        </div>
+                        <div class="text">Arriba</div>
+
+                    </div>
+
+                    <div class="option" action-move-down>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle down outline icon"></i>
+                        </div>
+                        <div class="text">Abajo</div>
+
+                    </div>
+
+                    <div class="option" action-move-left>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle left outline icon"></i>
+                        </div>
+                        <div class="text">Izquierda</div>
+
+                    </div>
+
+                    <div class="option" action-move-right>
+
+                        <div class="icon">
+                            <i class="arrow alternate circle right outline icon"></i>
+                        </div>
+                        <div class="text">Derecha</div>
+
+                    </div>
+
+                    <div class="option" action-zoom-out>
+
+                        <div class="icon">
+                            <i class="search minus icon"></i>
+                        </div>
+                        <div class="text">Alejar</div>
+
+                    </div>
+
+                    <div class="option" action-zoom-in>
+
+                        <div class="icon">
+                            <i class="search plus icon"></i>
+                        </div>
+                        <div class="text">Acercar</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="main-buttons">
+
+                <div class="element">
+                    <button class="ui button red" type="button" cancel>Cancelar</button>
+                </div>
+
+                <div class="element">
+                    <button class="ui button green" type="button" save>Guardar imagen</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <br><br>
 
     <h3>QuillJS</h3>
 

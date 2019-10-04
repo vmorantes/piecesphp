@@ -89,6 +89,9 @@ $assets['cropper']['js'] = [
 ];
 $assets['cropper']['plugins'] = [
     'cropperAdapter' => [
+        'css' => [
+            'statics/core/own-plugins/css/cropper-adapter.css',
+        ],
         'js' => [
             'statics/core/own-plugins/CropperAdapterComponent.js',
         ],
