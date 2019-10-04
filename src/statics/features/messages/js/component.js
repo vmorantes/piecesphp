@@ -205,6 +205,10 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 	 * @property {String} markReadRouteAttribute
 	 */
 	let markReadRouteAttribute = 'mark-read-route'
+	/**
+	 * @property {Boolean} hideComponent
+	 */
+	let hideComponents = false
 
 	/**
 	 * @property {Number} fromID
@@ -509,6 +513,8 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
 			}
 
+			instance.updateVisibility()
+
 		})
 
 		if (reloadInterval != null) {
@@ -578,6 +584,36 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
 	}
 
+	/**
+	 * @method isHiddenComponents
+	 * @returns {Boolean}
+	 */
+	this.isHiddenComponents = () => {
+		return hideComponents
+	}
+
+	/**
+	 * @method setHiddenComponents
+	 * @param {Boolean} hidden
+	 * @returns {void}
+	 */
+	this.setHiddenComponents = (hidden) => {
+		hideComponents = hidden === true
+	}
+
+	/**
+	 * @method updateVisibility
+	 * @returns {void}
+	 */
+	this.updateVisibility = () => {
+		if (hideComponents) {
+			conversationsContainerElement.hide()
+			previewsContainerElement.hide()
+		} else {
+			conversationsContainerElement.show()
+			previewsContainerElement.show()
+		}
+	}
 
 	/**
 	 * @function addMessageHTML
