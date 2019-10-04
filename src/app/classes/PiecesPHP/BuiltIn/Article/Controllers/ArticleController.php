@@ -520,6 +520,7 @@ class ArticleController extends AdminPanelController
             $friendly_url = MainMapper::generateFriendlyURL($title, $id);
             $content = clean_string($content);
             $seoDescription = clean_string($seoDescription);
+            $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
 
             $is_duplicate = MainMapper::isDuplicate($title, $friendly_url, (int) $category, $id);
 
@@ -531,9 +532,9 @@ class ArticleController extends AdminPanelController
 
                     try {
 
-                        $imageMain = self::handlerUploadImage('image-main');
-                        $imageThumb = self::handlerUploadImage('image-thumb');
-                        $imageOpenGraph = self::handlerUploadImage('image-og');
+                        $imageMain = self::handlerUploadImage('image-main', $folder);
+                        $imageThumb = self::handlerUploadImage('image-thumb', $folder);
+                        $imageOpenGraph = self::handlerUploadImage('image-og', $folder);
 
                         $mapper->category = $category;
                         $mapper->title = $title;
@@ -546,6 +547,7 @@ class ArticleController extends AdminPanelController
                             "imageThumb" => $imageThumb,
                             "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : '',
                             "seoDescription" => $seoDescription,
+                            "folder" => $folder,
                             "visits" => 0,
                         ];
                         $saved = $mapper->save();
@@ -566,6 +568,12 @@ class ArticleController extends AdminPanelController
                         }
                     } catch (\Exception $e) {
                         $result->setMessage($e->getMessage());
+                        $result->setValue('Exception', [
+                            'message' => $e->getMessage(),
+                            'code' => $e->getCode(),
+                            'line' => $e->getLine(),
+                            'file' => $e->getFile(),
+                        ]);
                     }
                 } else {
 
@@ -579,10 +587,11 @@ class ArticleController extends AdminPanelController
                             $currentImageOpenGraph = isset($mapper->meta->imageOpenGraph) ? $mapper->meta->imageOpenGraph : null;
                             $currentImageOpenGraph = is_string($currentImageOpenGraph) && strlen($currentImageOpenGraph) > 0 ? $currentImageOpenGraph : null;
                             $currentSeoDescription = isset($mapper->meta->seoDescription) ? $mapper->meta->seoDescription : '';
+                            $folder = isset($mapper->meta->folder) ? $mapper->meta->folder : $folder;
 
-                            $imageMain = self::handlerUploadImage('image-main', $mapper->meta->imageMain);
-                            $imageThumb = self::handlerUploadImage('image-thumb', $mapper->meta->imageThumb);
-                            $imageOpenGraph = self::handlerUploadImage('image-og', $currentImageOpenGraph);
+                            $imageMain = self::handlerUploadImage('image-main', $folder, $mapper->meta->imageMain);
+                            $imageThumb = self::handlerUploadImage('image-thumb', $folder, $mapper->meta->imageThumb);
+                            $imageOpenGraph = self::handlerUploadImage('image-og', $folder, $currentImageOpenGraph);
 
                             $oldText = $mapper->content;
                             $mapper->category = $category;
@@ -596,6 +605,7 @@ class ArticleController extends AdminPanelController
                                 "imageThumb" => strlen($imageThumb) > 0 ? $imageThumb : $mapper->meta->imageThumb,
                                 "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $currentImageOpenGraph,
                                 "seoDescription" => strlen($seoDescription) > 0 ? $seoDescription : $currentSeoDescription,
+                                "folder" => $folder,
                                 "visits" => $mapper->meta->visits,
                             ];
                             $updated = $mapper->update();
@@ -614,6 +624,12 @@ class ArticleController extends AdminPanelController
                             }
                         } catch (\Exception $e) {
                             $result->setMessage($e->getMessage());
+                            $result->setValue('Exception', [
+                                'message' => $e->getMessage(),
+                                'code' => $e->getCode(),
+                                'line' => $e->getLine(),
+                                'file' => $e->getFile(),
+                            ]);
                         }
                     } else {
                         $result->setMessage($not_exists_message);
@@ -634,17 +650,21 @@ class ArticleController extends AdminPanelController
      * handlerUploadImage
      *
      * @param string $nameOnFiles
+     * @param string $folder
      * @param string $currentRoute
+     * @param bool $setNameByInput
      * @return string
      */
-    protected static function handlerUploadImage(string $nameOnFiles, string $currentRoute = null)
+    protected static function handlerUploadImage(string $nameOnFiles, string $folder, string $currentRoute = null, bool $setNameByInput = true)
     {
         $handler = new FileUpload($nameOnFiles, [
             FileValidator::TYPE_ALL_IMAGES,
         ]);
         $valid = false;
-        $name = uniqid();
-        $url = '';
+        $relativeURL = '';
+
+        $name = 'file_' . uniqid();
+        $oldFile = null;
 
         if ($handler->hasInput()) {
 
@@ -652,18 +672,45 @@ class ArticleController extends AdminPanelController
 
                 $valid = $handler->validate();
 
-                if (!is_null($currentRoute)) {
-                    $name = pathinfo($currentRoute, \PATHINFO_FILENAME);
+                $uploadDirPath = (new static )->uploadDir;
+                $uploadDirRelativeURL = (new static )->uploadDirURL;
+
+                if ($setNameByInput && $valid) {
+
+                    $name = $_FILES[$nameOnFiles]['name'];
+                    $lastPointIndex = strrpos($name, '.');
+
+                    if ($lastPointIndex !== false) {
+                        $name = substr($name, 0, $lastPointIndex);
+                    }
+
                 }
+
+                if (!is_null($currentRoute)) {
+                    //Si ya existe
+                    $oldFile = append_to_url(basepath(), $currentRoute);
+                    $oldFile = file_exists($oldFile) ? $oldFile : null;
+                }
+
+                $uploadDirPath = append_to_url($uploadDirPath, $folder);
+                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
 
                 if ($valid) {
 
-                    $locations = $handler->moveTo((new static )->uploadDir, $name, null, false, true);
+                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
 
                     if (count($locations) > 0) {
 
                         $url = $locations[0];
+                        $nameCurrent = basename($url);
+                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
 
+                        //Eliminar archivo anterior
+                        if (!is_null($oldFile)) {
+                            unlink($oldFile);
+                        }
+
+                        //Se elimina cualquier otro archivo
                         foreach ($locations as $file) {
                             if ($url != $file) {
                                 if (is_string($file) && file_exists($file)) {
@@ -672,7 +719,6 @@ class ArticleController extends AdminPanelController
                             }
                         }
 
-                        $url = trim(append_to_url((new static )->uploadDirURL, basename($url)), '/');
                     }
 
                 } else {
@@ -685,7 +731,7 @@ class ArticleController extends AdminPanelController
 
         }
 
-        return $url;
+        return $relativeURL;
     }
 
     /**

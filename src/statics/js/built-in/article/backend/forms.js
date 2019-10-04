@@ -1,53 +1,33 @@
 window.addEventListener('load', () => {
 
-	let loaderName = 'Formularios de creación/edición de artículos'
-
-	showGenericLoader(loaderName)
-
 	$('.ui.top.attached.tabular.menu .item').tab({
 		context: 'parent'
 	})
 
 	let isEdit = false
-	let imagenMainReady = false
-	let imageThumbReady = false
-	let imageOpenGraphReady = false
-	let imagesTabHided = false
 
 	let imagenMain = new CropperAdapterComponent({
-		minWidth: 800,
 		containerSelector: '[cropper-image-main]',
-		onInitialize: (cropper, canvas) => {
-			imagenMainReady = true
-			ready()
-		},
+		minWidth: 800,
+		outputWidth: 800,
 		cropperOptions: {
 			aspectRatio: 4 / 3,
-			minCropBoxWidth: 800,
 		},
 	})
 
 	let imageThumb = new CropperAdapterComponent({
-		minWidth: 400,
 		containerSelector: '[cropper-image-thumb]',
-		onInitialize: (cropper, canvas) => {
-			imageThumbReady = true
-			ready()
-		},
+		minWidth: 400,
+		outputWidth: 400,
 		cropperOptions: {
 			aspectRatio: 4 / 3,
-			minCropBoxWidth: 400,
 		},
 	})
 
 	let imageOpenGraph = new CropperAdapterComponent({
-		minWidth: 120,
-		outputWidth: 1200,
 		containerSelector: '[cropper-image-og]',
-		onInitialize: (cropper, canvas) => {
-			imageOpenGraphReady = true
-			ready()
-		},
+		minWidth: 800,
+		outputWidth: 1200,
 		cropperOptions: {
 			aspectRatio: 2 / 1,
 		},
@@ -58,19 +38,15 @@ window.addEventListener('load', () => {
 
 			if (isEdit) {
 
-				if (imagenMain.wasChanged()) {
-					formData.set('image-main', imagenMain.getFile())
-				}
-				if (imageThumb.wasChanged()) {
-					formData.set('image-thumb', imageThumb.getFile())
-				}				
+				formData.set('image-main', imagenMain.getFile(null, null, null, null, true))
+				formData.set('image-thumb', imageThumb.getFile(null, null, null, null, true))
 				if (imageOpenGraph.wasChanged()) {
-					formData.set('image-og', imageOpenGraph.getFile())
+					formData.set('image-og', imageOpenGraph.getFile(null, null, null, null, true))
 				}
 
 			} else {
 				formData.set('image-main', imagenMain.getFile())
-				formData.set('image-thumb', imageThumb.getFile())		
+				formData.set('image-thumb', imageThumb.getFile())
 				if (imageOpenGraph.wasChanged()) {
 					formData.set('image-og', imageOpenGraph.getFile())
 				}
@@ -102,17 +78,5 @@ window.addEventListener('load', () => {
 		urlProcessImage: form.attr('quill'),
 		nameOnRequest: 'image',
 	})
-
-    /**
-     * @function hideImagesTab
-     */
-	function ready() {
-		if (imagenMainReady && imageThumbReady && imageOpenGraphReady && !imagesTabHided) {
-			let tabs = form.find(".ui.tab[data-tab='images'], .ui.tab[data-tab='seo']")
-			tabs.removeClass('active')
-			removeGenericLoader(loaderName)
-			form.find(`[type="submit"][disabled]`).attr('disabled', false)
-		}
-	}
 
 })

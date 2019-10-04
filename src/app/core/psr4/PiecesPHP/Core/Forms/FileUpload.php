@@ -91,23 +91,62 @@ class FileUpload
 
         if ($this->multiple) {
 
-            $files = $files[$name];
-            $values_files_is_array = is_array($files['name']);
-            $count_files = count($files['name']);
-            $properties = array_keys($files);
+            if (isset($files[$name])) {
 
-            if ($values_files_is_array) {
+                $files = $files[$name];
+                $values_files_is_array = is_array($files['name']);
+                $count_files = count($files['name']);
+                $properties = array_keys($files);
 
-                for ($i = 0; $i < $count_files; $i++) {
+                if ($values_files_is_array) {
 
-                    $file = [];
+                    for ($i = 0; $i < $count_files; $i++) {
 
-                    foreach ($properties as $property) {
-                        $file[$property] = $files[$property][$i];
+                        $file = [];
+
+                        foreach ($properties as $property) {
+                            $file[$property] = $files[$property][$i];
+                        }
+
+                        if (!isset($file) || $file['error'] == \UPLOAD_ERR_NO_FILE) {
+                            $file = [
+                                'name' => self::NOT_UPLOAD_FAKE_NAME,
+                                'type' => self::NOT_UPLOAD_FAKE_TYPE,
+                                'size' => self::NOT_UPLOAD_FAKE_SIZE,
+                                'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
+                                'error' => self::NOT_UPLOAD_FAKE_ERROR,
+                            ];
+                        }
+
+                        $this->fileInformation[] = $file;
                     }
 
-                    if (!isset($file) || $file['error'] == \UPLOAD_ERR_NO_FILE) {
-                        $file = [
+                } else {
+                    throw new \Exception("El archivo $name debe ser un archivo de subida múltiple.");
+                }
+
+            } else {
+
+                $this->fileInformation[] = [
+                    'name' => self::NOT_UPLOAD_FAKE_NAME,
+                    'type' => self::NOT_UPLOAD_FAKE_TYPE,
+                    'size' => self::NOT_UPLOAD_FAKE_SIZE,
+                    'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
+                    'error' => self::NOT_UPLOAD_FAKE_ERROR,
+                ];
+
+            }
+
+        } else {
+
+            if (isset($files[$name])) {
+
+                $is_multiple_value = is_array($files[$name]['name']);
+
+                if (!$is_multiple_value) {
+
+                    if (!isset($files[$name]) || $files[$name]['error'] == \UPLOAD_ERR_NO_FILE) {
+                        $files[$name] = [
                             'name' => self::NOT_UPLOAD_FAKE_NAME,
                             'type' => self::NOT_UPLOAD_FAKE_TYPE,
                             'size' => self::NOT_UPLOAD_FAKE_SIZE,
@@ -116,32 +155,22 @@ class FileUpload
                         ];
                     }
 
-                    $this->fileInformation[] = $file;
+                    $this->fileInformation = $files[$name];
+
+                } else {
+                    throw new \Exception("No se aceptan subidas múltiples en $name.");
                 }
 
             } else {
-                throw new \Exception("El archivo $name debe ser un archivo de subida múltiple.");
-            }
 
-        } else {
+                $this->fileInformation = [
+                    'name' => self::NOT_UPLOAD_FAKE_NAME,
+                    'type' => self::NOT_UPLOAD_FAKE_TYPE,
+                    'size' => self::NOT_UPLOAD_FAKE_SIZE,
+                    'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
+                    'error' => self::NOT_UPLOAD_FAKE_ERROR,
+                ];
 
-            $is_multiple_value = is_array($files[$name]['name']);
-
-            if (!$is_multiple_value) {
-
-                if (!isset($files[$name]) || $files[$name]['error'] == \UPLOAD_ERR_NO_FILE) {
-                    $files[$name] = [
-                        'name' => self::NOT_UPLOAD_FAKE_NAME,
-                        'type' => self::NOT_UPLOAD_FAKE_TYPE,
-                        'size' => self::NOT_UPLOAD_FAKE_SIZE,
-                        'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
-                        'error' => self::NOT_UPLOAD_FAKE_ERROR,
-                    ];
-                }
-
-                $this->fileInformation = $files[$name];
-            } else {
-                throw new \Exception("No se aceptan subidas múltiples en $name.");
             }
 
         }
