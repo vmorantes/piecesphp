@@ -387,17 +387,7 @@ function CropperAdapterComponent(configurations = {}) {
 					initialized = true
 				}
 
-				if (!adapterOptions.allowResizeCrop) {
-					cropper.setCropBoxData({
-						top: 0,
-						left: 0,
-						width: adapterOptions.outputWidth,
-						height: instance.getHeightByAspectRatioFromWidth(
-							adapterOptions.outputWidth,
-							adapterOptions.cropperOptions.aspectRatio
-						),
-					})
-				}
+				limitCropBox()
 
 			}
 
@@ -434,17 +424,7 @@ function CropperAdapterComponent(configurations = {}) {
 
 			if (isCropperEvent) {
 
-				if (!adapterOptions.allowResizeCrop) {
-					cropper.setCropBoxData({
-						top: 0,
-						left: 0,
-						width: adapterOptions.outputWidth,
-						height: instance.getHeightByAspectRatioFromWidth(
-							adapterOptions.outputWidth,
-							adapterOptions.cropperOptions.aspectRatio
-						),
-					})
-				}
+				limitCropBox()
 
 			}
 
@@ -456,17 +436,7 @@ function CropperAdapterComponent(configurations = {}) {
 
 			if (isCropperEvent) {
 
-				if (!adapterOptions.allowResizeCrop) {
-					cropper.setCropBoxData({
-						top: 0,
-						left: 0,
-						width: adapterOptions.outputWidth,
-						height: instance.getHeightByAspectRatioFromWidth(
-							adapterOptions.outputWidth,
-							adapterOptions.cropperOptions.aspectRatio
-						),
-					})
-				}
+				limitCropBox(true)
 
 			}
 
@@ -836,6 +806,47 @@ function CropperAdapterComponent(configurations = {}) {
 	}
 
 	/**
+	 * @function limitCropBox
+	 * @param {Boolean} isMove
+	 */
+	function limitCropBox(isMove = false) {
+
+		isMove = isMove === true
+
+		if (!adapterOptions.allowResizeCrop && initialized) {
+
+			let outputWidth = adapterOptions.outputWidth
+			let aspectRatio = adapterOptions.cropperOptions.aspectRatio
+
+			let containerData = cropper.getContainerData()
+			let containerWidth = containerData.width
+			let cropWidth = outputWidth >= containerWidth ? outputWidth : containerWidth
+
+			let calculatedHeight = instance.getHeightByAspectRatioFromWidth(cropWidth, aspectRatio)
+
+			if(isMove){
+				
+				cropper.setCropBoxData({
+					width: cropWidth,
+					height: calculatedHeight,
+				})
+
+			}else{
+				
+				cropper.setCropBoxData({
+					top: 0,
+					left: 0,
+					width: cropWidth,
+					height: calculatedHeight,
+				})
+
+			}
+
+		}
+
+	}
+
+	/**
 	 * @function updateCropperData
 	 */
 	function updateCropperData() {
@@ -1193,6 +1204,8 @@ function CropperAdapterComponent(configurations = {}) {
 		activateElement(options)
 		activateElement(mainButtons)
 		enableElement(saveButton)
+
+		limitCropBox()
 	}
 
 	/**
