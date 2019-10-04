@@ -18,7 +18,7 @@ $element;
 
         <div class="ui buttons">
             <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
-            <button type="submit" disabled="true" class="ui button green">Guardar</button>
+            <button type="submit" class="ui button green">Guardar</button>
         </div>
 
         <div class="ui top attached tabular menu">
@@ -43,26 +43,118 @@ $element;
 
         </div>
 
-        <div class="ui bottom attached tab segment active" data-tab='images'>
+        <div class="ui bottom attached tab segment" data-tab='images'>
 
-            <div class="field" cropper-image-main>
-                <label>Imagen principal ( mínimo de 800x600[px] )</label>
-                <input type="file" name="image-main" accept="image/*">
-                <canvas data-image='<?=$element->meta->imageMain;?>'></canvas>
-                <br>
-                <button class="ui button orange inverted" cut>Vista previa</button>
-                <br>
-                <div preview></div>
+            <div class="ui form cropper-adapter" cropper-image-main>
+
+                <div class="field">
+                    <label>Imagen principal</label>
+                    <input type="file" accept="image/*">
+                </div>
+
+                <div class="preview" w="800">
+                    <img src="img-gen/800/600">
+                    <button class="ui button blue" type="button" start></button>
+                </div>
+
+                <div class="workspace">
+
+                    <div class="steps">
+
+                        <div class="step add">
+
+                            <div class="ui header medium centered">Agregar imagen</div>
+
+                            <div class="placeholder">
+
+                                <div class="content">
+                                    <div>
+                                        <i class="upload icon"></i>
+                                        <button class="ui button blue" type="button" load-image>Seleccionar
+                                            imagen</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="step edit">
+
+                            <div class="field required">
+                                <label>Título de la imagen</label>
+                                <input type="text" cropper-title-export>
+                            </div>
+
+                            <div class="field">
+                                <canvas data-image='<?=$element->meta->imageMain;?>'></canvas>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <?php $this->_render('panel/built-in/utilities/cropper/controls.php'); ?>
+                    <?php $this->_render('panel/built-in/utilities/cropper/main-buttons.html'); ?>
+
+                </div>
+
             </div>
 
-            <div class="field" cropper-image-thumb>
-                <label>Imagen miniatura ( mínimo de 400x300[px] )</label>
-                <input type="file" name="image-thumb" accept="image/*">
-                <canvas data-image='<?=$element->meta->imageThumb;?>'></canvas>
-                <br>
-                <button class="ui button orange inverted" cut>Vista previa</button>
-                <br>
-                <div preview></div>
+            <div class="ui form cropper-adapter" cropper-image-thumb>
+
+                <div class="field">
+                    <label>Imagen miniatura</label>
+                    <input type="file" accept="image/*">
+                </div>
+
+                <div class="preview" w="400">
+                    <img src="img-gen/400/300">
+                    <button class="ui button blue" type="button" start></button>
+                </div>
+
+                <div class="workspace">
+
+                    <div class="steps">
+
+                        <div class="step add">
+
+                            <div class="ui header medium centered">Agregar imagen</div>
+
+                            <div class="placeholder">
+
+                                <div class="content">
+                                    <div>
+                                        <i class="upload icon"></i>
+                                        <button class="ui button blue" type="button" load-image>Seleccionar
+                                            imagen</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="step edit">
+
+                            <div class="field required">
+                                <label>Título de la imagen</label>
+                                <input type="text" cropper-title-export>
+                            </div>
+
+                            <div class="field">
+                                <canvas data-image='<?=$element->meta->imageThumb;?>'></canvas>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <?php $this->_render('panel/built-in/utilities/cropper/controls.php'); ?>
+                    <?php $this->_render('panel/built-in/utilities/cropper/main-buttons.html'); ?>
+
+                </div>
+
             </div>
 
         </div>
@@ -89,21 +181,69 @@ $element;
 
         </div>
 
-        <div class="ui bottom attached tab segment active" data-tab='seo'>
+        <div class="ui bottom attached tab segment" data-tab='seo'>
 
-            <div class="field" cropper-image-og>
-                <label>Imagen</label>
-                <input type="file" name="image-og" accept="image/*">
-                <canvas data-image='<?= isset($element->meta->imageOpenGraph) && !is_null($element->meta->imageOpenGraph) ? $element->meta->imageOpenGraph : ''; ?>'></canvas>
-                <br>
-                <button class="ui button orange inverted" cut>Vista previa</button>
-                <br>
-                <div preview></div>
+            <div class="ui form cropper-adapter" cropper-image-og>
+
+                <div class="field">
+                    <label>Imagen</label>
+                    <input type="file" accept="image/*">
+                </div>
+
+                <div class="preview" w="1200">
+                    <img src="img-gen/1200/600">
+                    <button class="ui button blue" type="button" start></button>
+                </div>
+
+                <div class="workspace">
+
+                    <div class="steps">
+
+                        <div class="step add">
+
+                            <div class="ui header medium centered">Agregar imagen</div>
+
+                            <div class="placeholder">
+
+                                <div class="content">
+                                    <div>
+                                        <i class="upload icon"></i>
+                                        <button class="ui button blue" type="button" load-image>Seleccionar
+                                            imagen</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="step edit">
+
+                            <div class="field required">
+                                <label>Título de la imagen</label>
+                                <input type="text" cropper-title-export>
+                            </div>
+
+                            <div class="field">
+                                <canvas
+                                    data-image='<?= isset($element->meta->imageOpenGraph) && !is_null($element->meta->imageOpenGraph) ? $element->meta->imageOpenGraph : ''; ?>'></canvas>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <?php $this->_render('panel/built-in/utilities/cropper/controls.php'); ?>
+                    <?php $this->_render('panel/built-in/utilities/cropper/main-buttons.html'); ?>
+
+                </div>
+
             </div>
 
             <div class="field">
                 <label>Descripción</label>
-                <textarea name="seo_description"><?= isset($element->meta->seoDescription) ? $element->meta->seoDescription : ''; ?></textarea>
+                <textarea
+                    name="seo_description"><?= isset($element->meta->seoDescription) ? $element->meta->seoDescription : ''; ?></textarea>
             </div>
 
         </div>

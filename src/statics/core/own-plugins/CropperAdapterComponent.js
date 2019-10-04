@@ -136,9 +136,10 @@ function CropperAdapterComponent(configurations = {}) {
 	 * @method crop
 	 * @param {Number} [quality=0.7] Calidad de exportación
 	 * @param {Number} [oWidth=null] Ancho de exportación
+	 * @param {Boolean} [last=false] Para devolver la última imagen guardada
 	 * @returns {String|null} base64
 	 */
-	this.crop = (quality = 0.7, oWidth = null) => {
+	this.crop = (quality = 0.7, oWidth = null, last = false) => {
 
 		let b64 = null
 
@@ -175,7 +176,7 @@ function CropperAdapterComponent(configurations = {}) {
 				b64 = cropperCanvas.toDataURL(adapterOptions.outputFormat)
 			}
 
-			if (isOnEdit) {
+			if (isOnEdit || last) {
 				b64 = typeof lastImageBase64 == 'string' && lastImageBase64.length > 0 ? lastImageBase64 : null
 			}
 
@@ -191,9 +192,10 @@ function CropperAdapterComponent(configurations = {}) {
 	 * @param {Number} [quality=0.7] Calidad de exportación
 	 * @param {Number} [oWidth=null] Ancho de exportación
 	 * @param {String} [extension=null] Extensión del archivo
+	 * @param {Boolean} [last=false] Para devolver la última imagen guardada
 	 * @returns {File|null}
 	 */
-	this.getFile = (name = '', quality = 0.7, oWidth = null, extension = null) => {
+	this.getFile = (name = '', quality = 0.7, oWidth = null, extension = null, last = false) => {
 
 		let file = null
 
@@ -211,7 +213,8 @@ function CropperAdapterComponent(configurations = {}) {
 			let utilFiles = util.file
 			let b64 = this.crop(
 				quality,
-				oWidth
+				oWidth,
+				last
 			)
 
 			if (typeof b64 == 'string') {
@@ -337,11 +340,11 @@ function CropperAdapterComponent(configurations = {}) {
 
 						let baseURL = $('base').attr('href')
 
-						if(typeof baseURL != 'string' || baseURL.trim().length < 1){
+						if (typeof baseURL != 'string' || baseURL.trim().length < 1) {
 							baseURL = window.location.origin
 						}
 
-						if(baseURL[baseURL.length - 1] != '/'){
+						if (baseURL[baseURL.length - 1] != '/') {
 							baseURL += '/'
 						}
 
@@ -354,16 +357,16 @@ function CropperAdapterComponent(configurations = {}) {
 					}
 				}
 
-				if(imageURL !== null){
+				if (imageURL !== null) {
 					let imageURLParts = imageURL.href.split('/')
-					if(imageURLParts.length > 0){
-						let nameResource = imageURLParts[imageURLParts.length-1]
+					if (imageURLParts.length > 0) {
+						let nameResource = imageURLParts[imageURLParts.length - 1]
 						let indexPoint = nameResource.lastIndexOf('.')
 						let nameWithoutExtension = nameResource
-						if(indexPoint !== -1){
+						if (indexPoint !== -1) {
 							nameWithoutExtension = nameResource.substring(0, indexPoint)
 						}
-						if(nameWithoutExtension.length > 0){
+						if (nameWithoutExtension.length > 0) {
 							presetTitle = nameWithoutExtension
 						}
 					}
@@ -413,9 +416,9 @@ function CropperAdapterComponent(configurations = {}) {
 				lastTitleSave = instance.getTitle()
 			}
 
-			if(typeof presetTitle == 'string' && presetTitle.trim().length > 0){
+			if (typeof presetTitle == 'string' && presetTitle.trim().length > 0) {
 				titleInput.val(presetTitle)
-			}else{
+			} else {
 				titleInput.val(title)
 			}
 
@@ -940,7 +943,7 @@ function CropperAdapterComponent(configurations = {}) {
 	 * @function restoreCropperData
 	 */
 	function restoreCropperData() {
-		
+
 		if (typeof cropperData !== 'undefined') {
 			cropper.setData(cropperData)
 		}
@@ -1290,11 +1293,11 @@ function CropperAdapterComponent(configurations = {}) {
 		enableElement(saveButton)
 
 		limitCropBox()
-	
-		if(lastSavedImage instanceof Image){
+
+		if (lastSavedImage instanceof Image && initialized) {
 			cropper.replace(lastSavedImage.src)
 		}
-	
+
 	}
 
 	/**
