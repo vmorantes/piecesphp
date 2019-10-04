@@ -87,6 +87,7 @@ function CropperAdapterComponent(configurations = {}) {
 	/** @type {String} Imagen por defecto */ let canvasImage
 	/** @type {HTMLImageElement} La última imagen guardada o cargada al inicio si no se ha guardado ninguna */ let lastSavedImage
 	/** @type {String} El base64 de la última imagen guardada */ let lastImageBase64
+	/** @type {String} El último título guardada */ let lastTitleSave
 
 	//──── Inputs ────────────────────────────────────────────────────────────────────────────	
 	/** @type {$} Input file */ let fileInput
@@ -232,7 +233,7 @@ function CropperAdapterComponent(configurations = {}) {
 	this.getTitle = () => {
 		let string = titleInput.length > 0 ? friendlyURL(titleInput.val().trim()) : title
 		string = string.length > 0 ? string : title
-		return string
+		return isOnEdit ? lastTitleSave : string
 	}
 
 	/**
@@ -367,6 +368,7 @@ function CropperAdapterComponent(configurations = {}) {
 			if (initWithImage) {
 				cropper.replace(canvasImage)
 				lastImageBase64 = instance.crop()
+				lastTitleSave = instance.getTitle()
 			}
 
 			if (initWithImage) {
@@ -454,6 +456,11 @@ function CropperAdapterComponent(configurations = {}) {
 
 			}
 
+		})
+
+		//Evento al escribir un título
+		titleInput.on('input', function(e){
+			isOnEdit = true
 		})
 
 		//Evento al cargar una imagen
@@ -555,6 +562,7 @@ function CropperAdapterComponent(configurations = {}) {
 						}
 
 						lastImageBase64 = instance.crop()
+						lastTitleSave = instance.getTitle()
 						updateCropperData()
 						toPreview()
 
