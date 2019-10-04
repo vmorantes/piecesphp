@@ -85,6 +85,7 @@ function CropperAdapterComponent(configurations = {}) {
 	/** @type {$} Canvas */ let canvas
 	/** @type {$} Contenedor de la vista previa al disparar el corte */ let previewContainer
 	/** @type {String} Imagen por defecto */ let canvasImage
+	/** @type {String} Título por asignado */ let presetTitle
 	/** @type {HTMLImageElement} La última imagen guardada o cargada al inicio si no se ha guardado ninguna */ let lastSavedImage
 	/** @type {String} El base64 de la última imagen guardada */ let lastImageBase64
 	/** @type {String} El último título guardada */ let lastTitleSave
@@ -174,7 +175,7 @@ function CropperAdapterComponent(configurations = {}) {
 				b64 = cropperCanvas.toDataURL(adapterOptions.outputFormat)
 			}
 
-			if(isOnEdit){
+			if (isOnEdit) {
 				b64 = typeof lastImageBase64 == 'string' && lastImageBase64.length > 0 ? lastImageBase64 : null
 			}
 
@@ -327,6 +328,47 @@ function CropperAdapterComponent(configurations = {}) {
 				lastSavedImage = new Image()
 				lastSavedImage.src = canvasImage
 
+				let imageURL = null
+
+				try {
+					imageURL = new URL(canvasImage)
+				} catch (e) {
+					try {
+
+						let baseURL = $('base').attr('href')
+
+						if(typeof baseURL != 'string' || baseURL.trim().length < 1){
+							baseURL = window.location.origin
+						}
+
+						if(baseURL[baseURL.length - 1] != '/'){
+							baseURL += '/'
+						}
+
+						imageURL = new URL(canvasImage, baseURL)
+
+					} catch (e) {
+						console.warn('No se instanciar una url con la ruta de la imagen por defecto.')
+						console.warn(`La ruta probada es: ${canvasImage}`)
+						console.warn(e.message)
+					}
+				}
+
+				if(imageURL !== null){
+					let imageURLParts = imageURL.href.split('/')
+					if(imageURLParts.length > 0){
+						let nameResource = imageURLParts[imageURLParts.length-1]
+						let indexPoint = nameResource.lastIndexOf('.')
+						let nameWithoutExtension = nameResource
+						if(indexPoint !== -1){
+							nameWithoutExtension = nameResource.substring(0, indexPoint)
+						}
+						if(nameWithoutExtension.length > 0){
+							presetTitle = nameWithoutExtension
+						}
+					}
+				}
+
 			} else {
 				startButton.html(addImageText)
 			}
@@ -369,6 +411,12 @@ function CropperAdapterComponent(configurations = {}) {
 				cropper.replace(canvasImage)
 				lastImageBase64 = instance.crop()
 				lastTitleSave = instance.getTitle()
+			}
+
+			if(typeof presetTitle == 'string' && presetTitle.trim().length > 0){
+				titleInput.val(presetTitle)
+			}else{
+				titleInput.val(title)
 			}
 
 			if (initWithImage) {
@@ -459,7 +507,7 @@ function CropperAdapterComponent(configurations = {}) {
 		})
 
 		//Evento al escribir un título
-		titleInput.on('input', function(e){
+		titleInput.on('input', function (e) {
 			isOnEdit = true
 		})
 
@@ -532,7 +580,7 @@ function CropperAdapterComponent(configurations = {}) {
 				let that = $(e.currentTarget)
 
 				if ((initWithImage || hasImage) && !isDisable(that)) {
-					
+
 					wasChanged = true
 					isOnEdit = false
 					wasSaved = true
