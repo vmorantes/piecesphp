@@ -2,6 +2,7 @@ src/vendor/*
 src/statics/uploads/*
 src/statics/css/*
 src/statics/core/css/*
+src/statics/core/own-plugins/css/*
 src/statics/login-and-recovery/css/*
 src/statics/features/avatars/css/*
 **/node_modules/*

@@ -573,8 +573,6 @@ function friendlyURL(str, maxWords) {
 	return str
 }
 
-
-
 /**
  * dataTableServerProccesing
  * @description Requiere datatables y jquery

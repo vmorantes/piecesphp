@@ -16,6 +16,7 @@ function CropperAdapterComponent(configurations = {}) {
 	 * @property {Boolean} [zoomOnTouch=false] Enable to zoom the image by dragging touch
 	 * @property {Boolean} [zoomOnWheel=false] Enable to zoom the image by wheeling mouse
 	 * @property {Boolean} [toggleDragModeOnDblclick=false] Enable to toggle drag mode between "crop" and "move" when clicking twice on the cropper
+	 * @property {Boolean} [cropBoxResizable=false] Enable to resize the crop box by dragging
 	 */
 	/**
 	 * @typedef AdapterOptions
@@ -24,11 +25,16 @@ function CropperAdapterComponent(configurations = {}) {
 	 * @property {Number} [outputWidth=400] Ancho de exportación
 	 * @property {Number} [minWidth=400] Ancho mínimo de la imagen entrante
 	 * @property {String} [containerSelector=[cropper-adapter-component]]
-	 * @property {function(Cropper, HTMLCanvasElement)} [onReadyCropper]
-	 * @property {function(Cropper, HTMLCanvasElement)} [onInitialize]
+	 * @property {function(Cropper, HTMLCanvasElement)} [onReadyCropper] Se ejecuta la cada vez que se configura el canvas de cropper
+	 * @property {function(Cropper, HTMLCanvasElement)} [onInitialize] Se ejecuta la primera vez que se configura el canvas de cropper
+	 * @property {function(Event)} [onCrop] Se ejecuta la primera vez que se configura el canvas de cropper
+	 * @property {Number} [pxOnMove=10] Pixeles de desplazamiento al moverse
+	 * @property {Number} [zoomRatio=0.1] Proporción de aumento/reducción en zoom
+	 * @property {Boolean} [allowResizeCrop=false]
 	 * @property {CropperOptions} [cropperOptions]
 	 */
 
+	//──── Valores de configuración ──────────────────────────────────────────────────────────
 	/** @type {CropperOptions} Configuración por defecto de cropper */
 	let defaultCropperOptions = {
 		aspectRatio: 4 / 4,
@@ -40,6 +46,7 @@ function CropperAdapterComponent(configurations = {}) {
 		zoomOnTouch: false,
 		zoomOnWheel: false,
 		toggleDragModeOnDblclick: false,
+		cropBoxResizable: false,
 	}
 	/** @type {AdapterOptions} Configuración por defecto de la clase */
 	let defaultAdapterOptions = {
@@ -50,23 +57,74 @@ function CropperAdapterComponent(configurations = {}) {
 		containerSelector: '[cropper-adapter-component]',
 		onReadyCropper: (cropper, canvas) => { },
 		onInitialize: (cropper, canvas) => { },
+		onCrop: (event) => { },
+		pxOnMove: 10,
+		zoomRatio: 0.1,
+		allowResizeCrop: false,
 		cropperOptions: null,
 	}
+
+	//──── Objetos ───────────────────────────────────────────────────────────────────────────
 	/** @type {CropperAdapterComponent} Instancia */ let instance = this
 	/** @type {AdapterOptions} Configuraciones de la clase */ let adapterOptions
 	/** @type {CropperOptions} Configuraciones de cropper */ let cropperOptions
 	/** @type {Cropper} Instancia de cropper */ let cropper
 
+	//──── Verificadores ─────────────────────────────────────────────────────────────────────
 	/** @type {Boolean} Verifica si ya ha sido inicializado copper por primera vez */ let initialized = false
+	/** @type {Boolean} Verifica si tiene una imagen desde el inicio */ let initWithImage = false
 	/** @type {Boolean} Verifica si tiene una imagen */ let hasImage = false
 	/** @type {Boolean} Verifica si la imagen cambió */ let wasChanged = false
+	/** @type {Boolean} Verifica si está en proceso de edición */ let isOnEdit = false
+	/** @type {Boolean} Verifica si ha sido recortado una vez */ let wasSaved = false
+	/** @type {Boolean} Verifica si hay una imagen en el canvas sin guardar */ let unSaveImage = false
 
+	//──── Contenedores, canvas e imagen ─────────────────────────────────────────────────────
 	/** @type {$} Contenedor del componente */ let container
-	/** @type {$} Input file */ let inputFile
 	/** @type {$} Canvas */ let canvas
-	/** @type {$} Imagen por defecto */ let canvasImage
-	/** @type {$} Contenedor de la vista previa al disparar el corte */ let preview
-	/** @type {$} Disparador de evento de corte */ let cutTrigger
+	/** @type {$} Contenedor de la vista previa al disparar el corte */ let previewContainer
+	/** @type {String} Imagen por defecto */ let canvasImage
+	/** @type {HTMLImageElement} La última imagen guardada o cargada al inicio si no se ha guardado ninguna */ let lastSavedImage
+
+	//──── Inputs ────────────────────────────────────────────────────────────────────────────	
+	/** @type {$} Input file */ let fileInput
+	/** @type {$} Input para el título */ let titleInput
+
+	//──── Botones de acción ─────────────────────────────────────────────────────────────────
+	/** @type {$} Disparador de carga de imagen */ let loadImageButton
+	/** @type {$} Disparador de rotación a la izquierda */ let actionRotateLeft
+	/** @type {$} Disparador de rotación a la izquierda */ let actionRotateRight
+	/** @type {$} Disparador de volteado horizontal */ let actionFlipHorizontal
+	/** @type {$} Disparador de volteado vertical */ let actionFlipVertical
+	/** @type {$} Disparador de movimiento hacia arriba */ let actionMoveUp
+	/** @type {$} Disparador de movimiento hacia abajo */ let actionMoveDown
+	/** @type {$} Disparador de movimiento hacia la izquierda */ let actionMoveLeft
+	/** @type {$} Disparador de movimiento hacia la derecha */ let actionMoveRight
+	/** @type {$} Disparador de reducción */ let actionZoomOut
+	/** @type {$} Disparador de aumento */ let actionZoomIn
+
+	//──── Textos ────────────────────────────────────────────────────────────────────────────
+	/** @type {String} Texto agregar imagen */ let addImageText = 'Agregar imagen'
+	/** @type {String} Texto cambiar imagen */ let changeImageText = 'Cambiar imagen'
+	/** @type {String} Texto título por defecto */ let title = 'imagen'
+
+	//──── Elementos de interfaz ─────────────────────────────────────────────────────────────
+	/** @type {$} Disparador de inicio de la interfaz */ let startButton
+	/** @type {$} Pasos de la interfaz */ let steps
+	/** @type {$} Paso de adición */ let addStep
+	/** @type {$} Paso de edición */ let editStep
+	/** @type {$} Controles */ let controls
+	/** @type {$} Opciones principales */ let options
+	/** @type {$} Sub opciones */ let subOptions
+	/** @type {$} Botones pricipales de guardar (cortar) y cancelar */ let mainButtons
+	/** @type {$} Botón de guardar (cortar) */ let saveButton
+	/** @type {$} Botón de recortar */ let cancelButton
+	/** @type {$} Botón para regresar a las opciones principales */ let backOptionsbutton
+
+	//──── Estado previo del cropper ─────────────────────────────────────────────────────────
+	/** @type {Object} */ let cropperData
+	/** @type {Object} */ let cropperCanvasData
+	/** @type {Object} */ let cropperCropBoxData
 
 	prepare(configurations)
 
@@ -74,64 +132,94 @@ function CropperAdapterComponent(configurations = {}) {
 	 * @method crop
 	 * @param {Number} [quality=0.7] Calidad de exportación
 	 * @param {Number} [oWidth=null] Ancho de exportación
-	 * @returns {String} base64
+	 * @returns {String|null} base64
 	 */
 	this.crop = (quality = 0.7, oWidth = null) => {
 
-		if (!(typeof quality == 'number')) {
-			quality = 0.7
+		if (initialized) {
+
+			if (!(typeof quality == 'number')) {
+				quality = 0.7
+			}
+
+			if (!(typeof oWidth == 'number')) {
+				oWidth = adapterOptions.outputWidth
+			}
+
+			let optionsCroppedCanvas = {
+				fillColor: adapterOptions.outputFillColor,
+			}
+
+			if (oWidth !== -1) {
+				optionsCroppedCanvas.width = oWidth
+				optionsCroppedCanvas.minWidth = oWidth
+			}
+
+			let cropperCanvas = cropper.getCroppedCanvas(optionsCroppedCanvas)
+
+			let formatsWithQuality = [
+				'image/jpeg',
+				'image/jpg',
+				'image/webp',
+			]
+
+			if (formatsWithQuality.indexOf(adapterOptions.outputFormat) !== -1) {
+				return cropperCanvas.toDataURL(adapterOptions.outputFormat, quality)
+			} else {
+				return cropperCanvas.toDataURL(adapterOptions.outputFormat)
+			}
+
 		}
 
-		if (!(typeof oWidth == 'number')) {
-			oWidth = adapterOptions.outputWidth
-		}
+		return null
 
-		let optionsCroppedCanvas = {
-			fillColor: adapterOptions.outputFillColor,
-		}
-
-		if (oWidth !== -1) {
-			optionsCroppedCanvas.width = oWidth
-			optionsCroppedCanvas.minWidth = oWidth
-		}
-
-		let cropperCanvas = cropper.getCroppedCanvas(optionsCroppedCanvas)
-
-		let formatsWithQuality = [
-			'image/jpeg',
-			'image/jpg',
-			'image/webp',
-		]
-
-		if (formatsWithQuality.indexOf(adapterOptions.outputFormat) !== -1) {
-			return cropperCanvas.toDataURL(adapterOptions.outputFormat, quality)
-		} else {
-			return cropperCanvas.toDataURL(adapterOptions.outputFormat)
-		}
 	}
 
 	/**
 	 * @method getFile
-	 * @param {String} [name=image] Nombre del archivo
+	 * @param {String} [name=imagen] Nombre del archivo
 	 * @param {Number} [quality=0.7] Calidad de exportación
 	 * @param {Number} [oWidth=null] Ancho de exportación
 	 * @param {String} [extension=null] Extensión del archivo
-	 * @returns {File}
+	 * @returns {File|null}
 	 */
-	this.getFile = (name = 'image', quality = 0.7, oWidth = null, extension = null) => {
+	this.getFile = (name = '', quality = 0.7, oWidth = null, extension = null) => {
 
-		extension = typeof extension == 'string' ? extension : adapterOptions.outputFormat.replace('image/', '')
+		let file = null
 
-		let util = new UtilPieces()
-		let utilFiles = util.file
-		let file = utilFiles.dataURLToFile(
-			this.crop(
-				quality,
-				oWidth
-			),
-			`${name}.${extension}`
-		)
+		if (initialized) {
+
+			extension = typeof extension == 'string' ? extension : adapterOptions.outputFormat.replace('image/', '')
+
+			if (typeof name == 'string' && name.trim().length > 0) {
+				name = name.trim()
+			} else {
+				name = this.getTitle()
+			}
+
+			let util = new UtilPieces()
+			let utilFiles = util.file
+			file = utilFiles.dataURLToFile(
+				this.crop(
+					quality,
+					oWidth
+				),
+				`${name}.${extension}`
+			)
+
+		}
+
 		return file
+	}
+
+	/**
+	 * @method getTile
+	 * @returns {String}
+	 */
+	this.getTitle = () => {
+		let string = titleInput.length > 0 ? friendlyURL(titleInput.val().trim()) : title
+		string = string.length > 0 ? string : title
+		return string
 	}
 
 	/**
@@ -143,132 +231,636 @@ function CropperAdapterComponent(configurations = {}) {
 	}
 
 	/**
+	 * @method initWithImage
+	 * @returns {Boolean}
+	 */
+	this.initWithImage = () => {
+		return initWithImage
+	}
+
+	/**
+	 * @method hasImage
+	 * @returns {Boolean}
+	 */
+	this.hasImage = () => {
+		return hasImage
+	}
+
+	/**
+	 * @method getHeightByAspectRatioFromWidth
+	 * @param {Number} width
+	 * @param {Number} aspectRatio
+	 * @returns {Number|null}
+	 */
+	this.getHeightByAspectRatioFromWidth = (width, aspectRatio) => {
+
+		if (!isNaN(width) && !isNaN(aspectRatio)) {
+
+			return width / (aspectRatio)
+
+		}
+
+		return null
+
+	}
+
+	/**
+	 * @method getWidthByAspectRatioFromHeight
+	 * @param {Number} height
+	 * @param {Number} aspectRatio
+	 * @returns {Number|null}
+	 */
+	this.getWidthByAspectRatioFromHeight = (height, aspectRatio) => {
+
+		if (!isNaN(height) && !isNaN(aspectRatio)) {
+
+			return height * (aspectRatio)
+
+		}
+
+		return null
+
+	}
+
+	/**
 	 * @function prepare
 	 * @param {AdapterOptions} configurations 
 	 */
 	function prepare(configurations = {}) {
 
-		configOptions(configurations)
+		try {
 
-		if (!(container.length < 1 || canvas.length < 1)) {
+			configOptions(configurations)
 
-			canvas.css('width', '100%')
-			canvas.css('max-width', `${adapterOptions.minWidth}px`)
-			canvas.css('min-width', `300px`)
+			if (typeof canvasImage == 'string' && canvasImage.trim().length > 0) {
+				initWithImage = true
+			}
 
-			let canvasTarget = canvas.get(0)
-			cropper = new Cropper(canvasTarget, cropperOptions)
+			if (initWithImage) {
 
-			canvasTarget.addEventListener('ready', function (e) {
+				startButton.html(changeImageText)
 
-				let isCropperEvent = this.cropper === cropper
+				let imageElement = previewContainer.find('img')
 
-				if (isCropperEvent) {
-
-					adapterOptions.onReadyCropper(cropper, canvas)
-
-					if (!initialized) {
-						adapterOptions.onInitialize(cropper, canvas)
-					}
-
+				if (imageElement.length > 0) {
+					imageElement.attr('src', canvasImage)
+				} else {
+					imageElement = new Image()
+					imageElement.src = canvasImage
+					previewContainer.append(imageElement)
 				}
 
-				initialized = true
+				lastSavedImage = new Image()
+				lastSavedImage.src = canvasImage
 
-			})
+			} else {
+				startButton.html(addImageText)
+			}
 
-			if (canvasImage != null) {
+			let height = (adapterOptions.outputWidth / (adapterOptions.cropperOptions.aspectRatio))
+			let sizeOutputString = `${adapterOptions.outputWidth}x${height}(px)`
+			let wMinString = `${adapterOptions.minWidth}(px)`
+			$(`[show-output]`).html(sizeOutputString)
+			$(`[min-w-output]`).html(wMinString)
+
+		} catch (error) {
+			errorMessage('Error', 'Ha ocurrido un error al configurar CropperAdapterComponent')
+			console.error(error)
+		}
+
+	}
+
+	/**
+	 * @function initialize
+	 */
+	function initialize(e) {
+
+		if (typeof e.preventDefault == 'function') {
+			e.preventDefault()
+		}
+
+		if (initWithImage || hasImage) {
+			toEditStep()
+			configCanvasDimensions()
+		} else {
+			toAddStep()
+		}
+
+		if (!initialized) {
+
+			cropper = new Cropper(canvas.get(0), cropperOptions)
+
+			//Verificar si tiene alguna imagen predeterminada
+			if (initWithImage) {
 				cropper.replace(canvasImage)
-				hasImage = true
 			}
 
-			if (!hasImage) {
-				cutTrigger.addClass('disabled')
+			if (initWithImage) {
+				enableElement(saveButton)
+				startButton.html(changeImageText)
 			}
 
-			inputFile.on('change', function () {
+			configEvents()
 
-				let files = this.files
+		} else { }
 
-				if (files.length > 0) {
+	}
 
-					let file = files[0]
-					let tipo = file.type
+	/**
+	 * @function configTriggers
+	 */
+	function configEvents() {
 
-					if (tipo.match(/^image\//)) {
+		//Evento al terminar la carga de una imagen
+		canvas.get(0).addEventListener('ready', function (e) {
 
-						let reader = new FileReader()
+			let isCropperEvent = this.cropper === cropper
 
-						reader.readAsDataURL(file)
+			if (isCropperEvent) {
 
-						reader.onload = function (e) {
+				adapterOptions.onReadyCropper(cropper, canvas)
+				canvas.parent().removeAttr('style')
 
-							let img = new Image()
+				if (!initialized) {
+					adapterOptions.onInitialize(cropper, canvas)
+					updateCropperData()
+					initialized = true
+				}
 
-							let dataURIImg = e.target.result
-							img.src = dataURIImg
+				if (!adapterOptions.allowResizeCrop) {
+					cropper.setCropBoxData({
+						top: 0,
+						left: 0,
+						width: adapterOptions.outputWidth,
+						height: instance.getHeightByAspectRatioFromWidth(
+							adapterOptions.outputWidth,
+							adapterOptions.cropperOptions.aspectRatio
+						),
+					})
+				}
 
-							img.onload = function () {
+			}
 
-								let inputWidth = img.width
+		})
 
-								if (inputWidth < adapterOptions.minWidth) {
-									errorMessage('Error', `El ancho mínimo de la imagen debe ser: ${adapterOptions.minWidth}px`)
-									return
-								}
+		//Evento de corte
 
-								cropper.replace(dataURIImg)
-								hasImage = true
-								wasChanged = true
-								cutTrigger.removeClass('disabled')
+		canvas.get(0).addEventListener('crop', function (e) {
 
+			let isCropperEvent = this.cropper === cropper
+
+			if (isCropperEvent) {
+
+				adapterOptions.onCrop(e)
+
+				let detail = e.detail
+
+				let realHeight = detail.height.toFixed(0)
+				let realWidth = detail.width.toFixed(0)
+
+				if (isOnEdit) {
+					$(`[show-crop-dimensions]`).html(`Tamaño real de la máscara de corte ${realWidth}x${realHeight}(px)`)
+				} else {
+					$(`[show-crop-dimensions]`).html(``)
+				}
+
+			}
+
+		})
+
+		canvas.get(0).addEventListener('cropend', function (e) {
+
+			let isCropperEvent = this.cropper === cropper
+
+			if (isCropperEvent) {
+
+				if (!adapterOptions.allowResizeCrop) {
+					cropper.setCropBoxData({
+						top: 0,
+						left: 0,
+						width: adapterOptions.outputWidth,
+						height: instance.getHeightByAspectRatioFromWidth(
+							adapterOptions.outputWidth,
+							adapterOptions.cropperOptions.aspectRatio
+						),
+					})
+				}
+
+			}
+
+		})
+
+		canvas.get(0).addEventListener('cropmove', function (e) {
+
+			let isCropperEvent = this.cropper === cropper
+
+			if (isCropperEvent) {
+
+				if (!adapterOptions.allowResizeCrop) {
+					cropper.setCropBoxData({
+						top: 0,
+						left: 0,
+						width: adapterOptions.outputWidth,
+						height: instance.getHeightByAspectRatioFromWidth(
+							adapterOptions.outputWidth,
+							adapterOptions.cropperOptions.aspectRatio
+						),
+					})
+				}
+
+			}
+
+		})
+
+		//Evento al cargar una imagen
+		fileInput.on('change', function () {
+
+			let files = this.files
+
+			if (files.length > 0) {
+
+				let file = files[0]
+				let tipo = file.type
+
+				if (tipo.match(/^image\//)) {
+
+					let reader = new FileReader()
+					reader.readAsDataURL(file)
+					reader.onload = function (e) {
+
+						let img = new Image()
+
+						let dataURIImg = e.target.result
+						img.src = dataURIImg
+
+						img.onload = function () {
+
+							let inputWidth = img.width
+
+							if (inputWidth < adapterOptions.minWidth) {
+								errorMessage('Error', `El ancho mínimo de la imagen debe ser: ${adapterOptions.minWidth}px`)
+								return
 							}
 
+							toEditStep()
+							configCanvasDimensions()
+
+							cropper.replace(dataURIImg)
+							hasImage = true
+							wasChanged = true
+							isOnEdit = true
+							unSaveImage = true
+							enableElement(saveButton)
+
 						}
-
-					} else {
-
-						errorMessage('Error', 'Seleccione una imagen, por favor.')
 
 					}
 
 				} else {
 
-					errorMessage('Error', 'No hay imágenes seleccionadas.')
+					errorMessage('Error', 'Seleccione una imagen, por favor.')
 
 				}
 
-			})
+			} else {
 
-			cutTrigger.click(function (e) {
+				errorMessage('Error', 'No hay imágenes seleccionadas.')
+
+			}
+
+		})
+
+		//Evento al aplicar el recorte
+		if (saveButton instanceof $) {
+
+			saveButton.click(function (e) {
 
 				e.preventDefault()
 
-				if (!hasImage) return
+				let that = $(e.currentTarget)
 
-				let cutImage = new Image()
-				cutImage.id = 'image'
-				cutImage.src = instance.crop()
-				wasChanged = true
+				if ((initWithImage || hasImage) && !isDisable(that)) {
 
-				cutImage.onload = () => {
-					let title = document.createElement('strong')
-					title.innerHTML = 'Vista previa:<br>'
-					preview.html('')
-					preview.append(title)
-					preview.append(cutImage)
-					preview.css('text-align', 'center')
-					preview.css('margin', '4px auto')
-					preview.css('max-width', '300px')
-					preview.find('img').css('max-width', '100%')
+					let cutImage = new Image()
+					cutImage.id = 'image'
+					cutImage.src = instance.crop()
+					wasChanged = true
+					isOnEdit = false
+					wasSaved = true
+					unSaveImage = false
+
+					cutImage.onload = () => {
+
+						let imageElement = previewContainer.find('img')
+
+						if (imageElement.length > 0) {
+							imageElement.attr('src', cutImage.src)
+						} else {
+							previewContainer.append(cutImage)
+						}
+
+						lastSavedImage = new Image()
+						lastSavedImage.src = cutImage.src
+
+						updateCropperData()
+						toPreview()
+
+					}
+
 				}
 
 				return false
 
 			})
 
-		} else {
-			alert('Error al configurar CropperAdapterComponent, no está el canvas o el componente.')
+		}
+
+		//Evento al revertir cualquier cambio hecho
+		if (cancelButton instanceof $) {
+
+			cancelButton.click(function (e) {
+
+				e.preventDefault()
+
+				let that = $(e.currentTarget)
+
+				if (!isDisable(that)) {
+
+					if (isOnEdit) {
+
+						if (wasSaved) {
+
+							if (unSaveImage) {
+
+								cropper.destroy()
+								cropper = new Cropper(canvas.get(0), cropperOptions)
+								cropper.replace(lastSavedImage.src)
+								unSaveImage = false
+								wasChanged = false
+
+							} else {
+
+								restoreCropperData()
+
+							}
+
+						} else {
+
+							if (initWithImage) {
+
+								cropper.replace(canvasImage)
+								wasChanged = false
+
+							} else {
+
+								cropper.destroy()
+								cropper = new Cropper(canvas.get(0), cropperOptions)
+								hasImage = false
+								wasChanged = false
+
+							}
+
+						}
+
+						isOnEdit = false
+						toPreview()
+
+					} else {
+
+						toPreview()
+
+					}
+
+				}
+
+				return false
+
+			})
+
+		}
+
+		//Evento para lanzar la carga de imagen
+		if (loadImageButton instanceof $) {
+
+			loadImageButton.click(e => {
+
+				e.preventDefault()
+				e.stopPropagation()
+
+				let that = e.currentTarget
+
+				if (!isDisable(that)) {
+					fileInput.click()
+				}
+
+			})
+
+		}
+
+		//Evento de los controles
+		if (options instanceof $) {
+
+			let option = options.find('.option[data-option]')
+
+			option.click(function (e) {
+
+				e.preventDefault()
+				e.stopPropagation()
+
+				let that = $(e.currentTarget)
+
+				if (!isDisable(that)) {
+					let name = that.attr('data-option')
+					activateSubOptions(name)
+				}
+
+			})
+
+		}
+
+		//Evento para volver a las opciones
+		if (backOptionsbutton instanceof $) {
+
+			backOptionsbutton.click(e => {
+
+				e.preventDefault()
+				e.stopPropagation()
+
+				let that = e.currentTarget
+
+				if (!isDisable(that)) {
+					deactivateSubOptions()
+				}
+
+			})
+
+		}
+
+		//Eventos de acciones de Cropper
+		actionRotateLeft.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.rotate(-90)
+				isOnEdit = true
+			}
+
+		})
+
+		actionRotateRight.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.rotate(90)
+				isOnEdit = true
+			}
+
+		})
+
+		actionFlipHorizontal.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+
+				isOnEdit = true
+				let data = cropper.getData()
+
+				if (data.scaleX < 0) {
+					cropper.scaleX(1)
+				} else {
+					cropper.scaleX(-1)
+				}
+
+			}
+
+		})
+
+		actionFlipVertical.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+
+				isOnEdit = true
+				let data = cropper.getData()
+
+				if (data.scaleY < 0) {
+					cropper.scaleY(1)
+				} else {
+					cropper.scaleY(-1)
+				}
+
+			}
+
+		})
+
+		actionMoveUp.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.move(0, adapterOptions.pxOnMove * -1)
+				isOnEdit = true
+			}
+
+		})
+
+		actionMoveDown.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.move(0, adapterOptions.pxOnMove)
+				isOnEdit = true
+			}
+
+		})
+
+		actionMoveLeft.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.move(adapterOptions.pxOnMove * -1, 0)
+				isOnEdit = true
+			}
+
+		})
+
+		actionMoveRight.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.move(adapterOptions.pxOnMove, 0)
+				isOnEdit = true
+			}
+
+		})
+
+		actionZoomOut.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.zoom(adapterOptions.zoomRatio * -1)
+				isOnEdit = true
+			}
+
+		})
+
+		actionZoomIn.click(e => {
+
+			e.preventDefault()
+			e.stopPropagation()
+
+			if (initialized) {
+				cropper.zoom(adapterOptions.zoomRatio)
+				isOnEdit = true
+			}
+
+		})
+
+	}
+
+	/**
+	 * @function updateCropperData
+	 */
+	function updateCropperData() {
+		if (!isOnEdit) {
+			cropperData = cropper.getData()
+			cropperCanvasData = cropper.getCanvasData()
+			cropperCropBoxData = cropper.getCropBoxData()
+		}
+	}
+
+	/**
+	 * @function restoreCropperData
+	 */
+	function restoreCropperData() {
+
+		if (typeof cropperData !== 'undefined') {
+			cropper.setData(cropperData)
+		}
+
+		if (typeof cropperCanvasData !== 'undefined') {
+			cropper.setCanvasData(cropperCanvasData)
+		}
+
+		if (typeof cropperCropBoxData !== 'undefined') {
+			cropper.setCropBoxData(cropperCropBoxData)
 		}
 
 	}
@@ -284,16 +876,537 @@ function CropperAdapterComponent(configurations = {}) {
 
 		//Configuraciones de adapterOptions 
 		adapterOptions = processByDefaultValues(defaultAdapterOptions, configurations)
+		//Ajustes en algunos valores
+		if (adapterOptions.pxOnMove < 0) {
+			adapterOptions.pxOnMove *= -1
+		}
+		if (adapterOptions.zoomRatio < 0) {
+			adapterOptions.zoomRatio *= -1
+		}
 
 
 		//Establecer valores
-		container = $(adapterOptions.containerSelector)
+		let containerSelector = adapterOptions.containerSelector
+		container = document.querySelector(containerSelector)
 
-		inputFile = container.find('input[type="file"]')
-		canvas = container.find('canvas')
-		canvasImage = canvas.attr('data-image')
-		preview = container.find('[preview]')
-		cutTrigger = container.find('[cut]')
+		if (container instanceof HTMLElement) {
+
+			//──── Asignación de valores y estados iniciales ─────────────────────────────────────────
+
+			fileInput = document.querySelector(`${containerSelector} input[type="file"]`)
+
+			if (fileInput instanceof HTMLElement) {
+				fileInput = $(fileInput)
+			} else {
+				throw new Error(`No se ha encontrado ningún input de tipo file.`)
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			canvas = document.querySelector(`${containerSelector} canvas`)
+
+			if (canvas instanceof HTMLElement) {
+				canvas = $(canvas)
+				canvasImage = canvas.attr('data-image')
+			} else {
+				throw new Error(`No se ha encontrado ningún canvas.`)
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			previewContainer = document.querySelector(`${containerSelector} > .preview`)
+
+			if (previewContainer instanceof HTMLElement) {
+				previewContainer = $(previewContainer)
+
+				let w = parseInt(previewContainer.attr('w'))
+				let h = parseInt(previewContainer.attr('h'))
+
+				if (!isNaN(w) && !isNaN(h)) {
+					previewContainer.css('width', `${w}px`)
+					previewContainer.css('height', `${h}px`)
+				}
+
+				activateElement(previewContainer)
+			} else {
+				console.warn('No hay ningún contenedor de vista previa.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			loadImageButton = document.querySelectorAll(`${containerSelector} [load-image]`)
+
+			if (loadImageButton.length > 0) {
+				loadImageButton = $(loadImageButton)
+			} else {
+				console.warn('No hay ningún botón de carga de imagen.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			startButton = document.querySelector(`${containerSelector} [start]`)
+
+			if (startButton instanceof HTMLElement) {
+				startButton = $(startButton)
+				startButton.click(initialize)
+			} else {
+				console.warn('No hay ningún botón de inicio.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			steps = document.querySelector(`${containerSelector} > .workspace > .steps`)
+
+			if (steps instanceof HTMLElement) {
+
+				steps = $(steps)
+				addStep = steps.find('>.step.add')
+				editStep = steps.find('>.step.edit')
+				deactivateElement(addStep)
+				deactivateElement(editStep)
+
+				if (addStep.length < 1) {
+					console.warn('No está el paso add.')
+				}
+				if (editStep.length < 1) {
+					console.warn('No está el paso edit.')
+				}
+
+			} else {
+				console.warn('No hay pasos.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			controls = document.querySelector(`${containerSelector} > .workspace > .controls`)
+
+			if (controls instanceof HTMLElement) {
+
+				controls = $(controls)
+				options = controls.find('>.options')
+				subOptions = controls.find('>.sub-options')
+
+				deactivateElement(controls)
+				deactivateElement(options)
+				deactivateElement(subOptions)
+
+				if (options.length < 1) {
+					console.warn('No hay opciones.')
+				}
+				if (subOptions.length < 1) {
+					console.warn('No hay subopciones')
+				}
+
+			} else {
+				console.warn('No hay controles.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			backOptionsbutton = document.querySelectorAll(`${containerSelector} [back-options]`)
+
+			if (backOptionsbutton.length > 0) {
+				backOptionsbutton = $(backOptionsbutton)
+			} else {
+				console.warn('No hay ningún botón para volver a las opciones.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionRotateLeft = document.querySelectorAll(`${containerSelector} [action-rotate-left]`)
+
+			if (actionRotateLeft.length > 0) {
+				actionRotateLeft = $(actionRotateLeft)
+			} else {
+				console.warn('No hay ningún botón para rotar a la izquierda.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionRotateRight = document.querySelectorAll(`${containerSelector} [action-rotate-right]`)
+
+			if (actionRotateRight.length > 0) {
+				actionRotateRight = $(actionRotateRight)
+			} else {
+				console.warn('No hay ningún botón para rotar a la derecha.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionFlipHorizontal = document.querySelectorAll(`${containerSelector} [action-flip-horizontal]`)
+
+			if (actionFlipHorizontal.length > 0) {
+				actionFlipHorizontal = $(actionFlipHorizontal)
+			} else {
+				console.warn('No hay ningún botón para voltear horizontalmente.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionFlipVertical = document.querySelectorAll(`${containerSelector} [action-flip-vertical]`)
+
+			if (actionFlipVertical.length > 0) {
+				actionFlipVertical = $(actionFlipVertical)
+			} else {
+				console.warn('No hay ningún botón para voltear verticalmente.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionMoveUp = document.querySelectorAll(`${containerSelector} [action-move-up]`)
+
+			if (actionMoveUp.length > 0) {
+				actionMoveUp = $(actionMoveUp)
+			} else {
+				console.warn('No hay ningún botón para mover hacia arriba.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionMoveDown = document.querySelectorAll(`${containerSelector} [action-move-down]`)
+
+			if (actionMoveDown.length > 0) {
+				actionMoveDown = $(actionMoveDown)
+			} else {
+				console.warn('No hay ningún botón para mover hacia abajo.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionMoveLeft = document.querySelectorAll(`${containerSelector} [action-move-left]`)
+
+			if (actionMoveLeft.length > 0) {
+				actionMoveLeft = $(actionMoveLeft)
+			} else {
+				console.warn('No hay ningún botón para mover hacia la izquierda.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionMoveRight = document.querySelectorAll(`${containerSelector} [action-move-right]`)
+
+			if (actionMoveRight.length > 0) {
+				actionMoveRight = $(actionMoveRight)
+			} else {
+				console.warn('No hay ningún botón para mover hacia la derecha.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionZoomOut = document.querySelectorAll(`${containerSelector} [action-zoom-out]`)
+
+			if (actionZoomOut.length > 0) {
+				actionZoomOut = $(actionZoomOut)
+			} else {
+				console.warn('No hay ningún botón para reducir.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			actionZoomIn = document.querySelectorAll(`${containerSelector} [action-zoom-in]`)
+
+			if (actionZoomIn.length > 0) {
+				actionZoomIn = $(actionZoomIn)
+			} else {
+				console.warn('No hay ningún botón para aumentar.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			saveButton = document.querySelectorAll(`${containerSelector} [save]`)
+
+			if (saveButton.length > 0) {
+				saveButton = $(saveButton)
+				disableElement(saveButton)
+			} else {
+				console.warn('No hay ningún botón de guardado (cortado).')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			cancelButton = document.querySelectorAll(`${containerSelector} [cancel]`)
+
+			if (cancelButton.length > 0) {
+				cancelButton = $(cancelButton)
+			} else {
+				console.warn('No hay ningún botón de cancelar.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			mainButtons = document.querySelector(`${containerSelector} .main-buttons`)
+
+			if (mainButtons instanceof HTMLElement) {
+				mainButtons = $(mainButtons)
+				deactivateElement(mainButtons)
+			} else {
+				console.warn('No hay ningún contenedor de los botones de guardado (cortado) y cancelar.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+			titleInput = document.querySelector(`${containerSelector} input[cropper-title-export]`)
+
+			if (titleInput instanceof HTMLElement) {
+				titleInput = $(titleInput)
+			} else {
+				console.warn('No hay ningún input para extraer el título.')
+			}
+
+			//──────────────────────────────────────────────────────────────────────────────────
+
+
+		} else {
+			throw new Error(`No existe ningún elemento con el selector ${containerSelector}.`)
+		}
+
+
+	}
+
+	/**
+	 * @function toAddStep
+	 */
+	function toAddStep() {
+		activateElement(addStep)
+		deactivateElement(previewContainer)
+		deactivateElement(editStep)
+		disableActions()
+		disableOptions()
+
+		activateElement(controls)
+		activateElement(options)
+		activateElement(mainButtons)
+		disableElement(saveButton)
+	}
+
+	/**
+	 * @function toEditStep
+	 */
+	function toEditStep() {
+		activateElement(editStep)
+		deactivateElement(previewContainer)
+		deactivateElement(addStep)
+		enableActions()
+		enableOptions()
+
+		activateElement(controls)
+		activateElement(options)
+		activateElement(mainButtons)
+		enableElement(saveButton)
+	}
+
+	/**
+	 * @function toPreview
+	 */
+	function toPreview() {
+
+		activateElement(previewContainer)
+		deactivateElement(addStep)
+		deactivateElement(editStep)
+
+		deactivateElement(controls)
+		deactivateElement(options)
+		deactivateElement(subOptions)
+		deactivateElement(mainButtons)
+
+		$([document.documentElement, document.body]).animate({
+			scrollTop: previewContainer.offset().top
+		}, 500)
+	}
+
+	/**
+	 * @function disableElement
+	 * @param {$|HTMLElement} element 
+	 */
+	function disableElement(element) {
+		if (element instanceof HTMLElement) {
+			element = $(element)
+		}
+		if (element instanceof $) {
+			element.attr('disabled', 'disabled')
+			element.addClass('disabled')
+		}
+	}
+
+	/**
+	 * @function enableElement
+	 * @param {$|HTMLElement} element 
+	 */
+	function enableElement(element) {
+		if (element instanceof HTMLElement) {
+			element = $(element)
+		}
+		if (element instanceof $) {
+			element.removeAttr('disabled')
+			element.removeClass('disabled')
+		}
+	}
+
+	/**
+	 * @function isDisable
+	 * @param {$|HTMLElement} element 
+	 * @returns {Boolean}
+	 */
+	function isDisable(element) {
+
+		let disabled = true
+
+		if (element instanceof HTMLElement) {
+			element = $(element)
+		}
+		if (element instanceof $) {
+			disabled = element.hasClass('disabled') || element.attr('disabled') == 'disabled'
+		}
+
+		return disabled
+	}
+
+	/**
+	 * @function deactiveElement
+	 * @param {$|HTMLElement} element 
+	 */
+	function deactivateElement(element) {
+		if (element instanceof HTMLElement) {
+			element = $(element)
+		}
+		if (element instanceof $) {
+			element.removeClass('active')
+		}
+	}
+
+	/**
+	 * @function activeElement
+	 * @param {$|HTMLElement} element 
+	 */
+	function activateElement(element) {
+		if (element instanceof HTMLElement) {
+			element = $(element)
+		}
+		if (element instanceof $) {
+			element.addClass('active')
+		}
+	}
+
+	/**
+	 * @function activateSubOptions
+	 * @param {String} name 
+	 */
+	function activateSubOptions(name) {
+		deactivateElement(options)
+		activateElement(subOptions.filter(`[data-name="${name}"]`))
+	}
+
+	/**
+	 * @function deactivateSubOptions
+	 */
+	function deactivateSubOptions() {
+		deactivateElement(subOptions)
+		activateElement(options)
+	}
+
+	/**
+	 * @function enableOptions
+	 * @param {String} name 
+	 */
+	function enableOptions() {
+		enableElement(options.find('.option'))
+	}
+
+	/**
+	 * @function disableOptions
+	 */
+	function disableOptions() {
+		disableElement(options.find('.option'))
+	}
+
+	/**
+	 * @function enableActions
+	 * @param {String} name 
+	 */
+	function enableActions() {
+		enableElement(actionRotateLeft)
+		enableElement(actionRotateRight)
+		enableElement(actionFlipHorizontal)
+		enableElement(actionFlipVertical)
+		enableElement(actionMoveUp)
+		enableElement(actionMoveDown)
+		enableElement(actionMoveLeft)
+		enableElement(actionMoveRight)
+		enableElement(actionZoomOut)
+		enableElement(actionZoomIn)
+	}
+
+	/**
+	 * @function disableActions
+	 */
+	function disableActions() {
+		disableElement(actionRotateLeft)
+		disableElement(actionRotateRight)
+		disableElement(actionFlipHorizontal)
+		disableElement(actionFlipVertical)
+		disableElement(actionMoveUp)
+		disableElement(actionMoveDown)
+		disableElement(actionMoveLeft)
+		disableElement(actionMoveRight)
+		disableElement(actionZoomOut)
+		disableElement(actionZoomIn)
+	}
+
+	/**
+	 * @function isActive
+	 * @param {$|HTMLElement} element 
+	 * @returns {Boolean}
+	 */
+	function isActive(element) {
+
+		let active = false
+
+		if (element instanceof HTMLElement) {
+			element = $(element)
+		}
+		if (element instanceof $) {
+			active = element.hasClass('active')
+		}
+
+		return active
+	}
+
+	/**
+	 * @function configCanvasDimensions
+	 */
+	function configCanvasDimensions() {
+
+		canvas.removeAttr('style')
+
+		let windowWidth = window.outerWidth
+		let windowHeight = window.innerHeight * 0.75
+		let aspectRatio = adapterOptions.cropperOptions.aspectRatio
+
+		canvas.css('width', `${windowWidth}px`)
+		canvas.css('max-width', `100%`)
+
+		let parentWidth = canvas.parent().width()
+		let canvasWidth = canvas.width()
+		let reCalculateWidth = canvasWidth < parentWidth ? canvasWidth : parentWidth
+
+		let height = (reCalculateWidth / (aspectRatio))
+
+		if (height > windowHeight) {
+
+			reCalculateWidth = ((aspectRatio) * windowHeight)
+			height = (reCalculateWidth / (aspectRatio))
+
+		}
+
+		if (!isNaN(height)) {
+
+			canvas.css('width', `${reCalculateWidth}px`)
+			canvas.css('height', `${height}px`)
+			if (reCalculateWidth < parentWidth) {
+				canvas.parent().css('width', `${reCalculateWidth}px`)
+			}
+
+		}
 
 	}
 
@@ -318,6 +1431,130 @@ function CropperAdapterComponent(configurations = {}) {
 
 		return data
 
+	}
+
+	/**
+	 * @function strReplace
+	 * @param {string[]|string} search Elementos a buscar
+	 * @param {strin[]|string} replace Elementos de reemplazo
+	 * @param {string} subject Cadena de entrada
+	 * @returns {string}
+	 */
+	function strReplace(search, replace, subject) {
+
+		if (typeof search == 'string') {
+			search = [search]
+		} else if (!Array.isArray(search)) {
+			return null
+		}
+
+		if (typeof replace != 'string' && !Array.isArray(replace)) {
+			return null
+		}
+
+		if (typeof subject != 'string') {
+			return null
+		}
+
+		let searchLength = search.length
+
+		for (let i = 0; i < searchLength; i++) {
+
+			let searchString = search[i]
+			let replaceString = ''
+
+			if (Array.isArray(replace)) {
+				if (typeof replace[i] == 'string') {
+					replaceString = replace[i]
+				}
+			} else {
+				replaceString = replace
+			}
+
+			let replacedString = subject
+
+			while (replacedString.indexOf(searchString) !== -1) {
+				replacedString = replacedString.replace(searchString, replaceString)
+			}
+
+			subject = replacedString
+
+		}
+
+		return subject
+	}
+
+	/**
+	 * @function friendlyURL
+	 * @param {string} str Cadena para formatear
+	 * @param {number} maxWords Cantidad máxima de palabras
+	 * @returns {string} Cadena formateada
+	 */
+	function friendlyURL(str, maxWords) {
+
+		if (typeof str != 'string') {
+			return null
+		}
+
+		str = str.trim()
+
+		let dictionary = [
+			'á', 'à', 'ä', 'â', 'ª', 'Á', 'À', 'Â', 'Ä', 'Ã',
+			'é', 'è', 'ë', 'ê', 'É', 'È', 'Ê', 'Ë',
+			'í', 'ì', 'ï', 'î', 'Í', 'Ì', 'Ï', 'Î',
+			'ó', 'ò', 'ö', 'ô', 'Ó', 'Ò', 'Ö', 'Ô',
+			'ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü',
+			'ñ', 'Ñ', 'ç', 'Ç',
+			'  ', ' ',
+		]
+
+		let replace_dictionary = [
+			'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A',
+			'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E',
+			'i', 'i', 'i', 'i', 'I', 'I', 'I', 'I',
+			'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O',
+			'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U',
+			'nn', 'NN', 'c', 'C',
+			' ', '-',
+		]
+
+		let other_characters = [
+			"\\", "¨", "º", "~", '±',
+			"#", "@", "|", "!", "\"",
+			"·", "$", "%", "&", "/",
+			"(", ")", "?", "'", "¡",
+			"¿", "[", "^", "`", "]",
+			"+", "}", "{", "¨", "´",
+			">", "<", ";", ",", ":",
+			".", 'º',
+		]
+
+		str = str.replace(/(\t|\r\n|\r|\n){1,}/gmi, '')
+		str = str.replace(/(\u00a0){1,}/gmi, ' ')
+		str = strReplace(dictionary, replace_dictionary, str)
+		str = strReplace(other_characters, '', str)
+		str = str.replace(/-{2,}/gmi, '')
+		str = str.toLowerCase()
+
+		if (typeof maxWords == 'number') {
+
+			maxWords = parseInt(maxWords)
+
+			let words = str.split('-')
+
+			let wordsLimitied = []
+			let countWords = words.length
+
+			for (let $i = 0; $i < maxWords && $i < countWords; $i++) {
+				let word = words[$i]
+				wordsLimitied.push(word)
+			}
+
+			str = wordsLimitied.join('-')
+
+		}
+
+		return str
 	}
 
 	return this

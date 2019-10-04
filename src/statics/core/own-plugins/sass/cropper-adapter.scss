@@ -1,0 +1,165 @@
+$gray: #646464;
+$gray-transparent: #CCCCCC;
+
+.cropper-adapter {
+
+    font-size: 16px;
+
+    &,
+    .ui.header,
+    .field label {
+        color: $gray;
+    }
+
+    input[type=file] {
+        display: none;
+    }
+
+    >.preview {
+
+        display: none;
+        position: relative;
+        margin: 0 auto;
+        width: 95%;
+        min-width: 300px;
+        max-width: 800px;
+        text-align: center;
+
+        &.active {
+            display: block;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        .button {
+            position: absolute;
+            top: 75%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    >.workspace>.steps {
+
+        >.step {
+
+            display: none;
+            margin: 0 auto;
+            padding: 2em 1em 0em 1em;
+            width: 95%;
+            min-width: 300px;
+            max-width: 800px;
+
+            &.active {
+                display: block;
+            }
+
+            &.add {
+                >.placeholder {
+                    border: 1px $gray-transparent solid;
+                    border-radius: 20px;
+                    padding: 5em 3em;
+
+                    >.content {
+                        display: grid;
+                        justify-content: center;
+                        align-content: center;
+                        align-items: center;
+
+                        i.icon {
+                            display: block;
+                            margin: 0 0 40px 0;
+                            font-size: 10em;
+                            line-height: 100%;
+                            text-align: center;
+                            color: $gray-transparent;
+                        }
+                    }
+                }
+            }
+
+            &.edit {
+                canvas + * {
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+            }
+        }
+    }
+
+    >.workspace>.controls {
+        display: none;
+
+        &.active {
+            display: block;
+        }
+
+        .note {
+			margin: 0em auto;
+			padding: 0rem;
+			text-align: center;
+			line-height: 100%;
+        }
+
+        >.options,
+        >.sub-options {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            width: max-content;
+            max-width: 100%;
+            margin: 1em auto 0em auto;
+            padding: 0em 2em 1em 2em;
+
+            &.active {
+                display: flex;
+            }
+
+            >.option {
+                margin: 0 1em;
+                min-width: 60px;
+                text-align: center;
+                cursor: pointer;
+
+                >.icon {
+                    display: block;
+                    padding-bottom: 0.5em;
+
+                    i.icon {
+                        margin: 0;
+                        font-size: 2em;
+                        line-height: 100%;
+                        text-align: center;
+                    }
+                }
+
+                >.text {
+                    display: block;
+                }
+
+                &.disabled {
+                    opacity: 0.3;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+
+    >.workspace>.main-buttons {
+        display: none;
+        grid-template-columns: auto auto;
+        justify-content: center;
+        align-content: center;
+        align-items: center;
+
+        &.active {
+            display: grid;
+        }
+
+        >.element {
+            padding: 0em 1em;
+        }
+    }
+}
