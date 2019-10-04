@@ -86,6 +86,7 @@ function CropperAdapterComponent(configurations = {}) {
 	/** @type {$} Contenedor de la vista previa al disparar el corte */ let previewContainer
 	/** @type {String} Imagen por defecto */ let canvasImage
 	/** @type {HTMLImageElement} La última imagen guardada o cargada al inicio si no se ha guardado ninguna */ let lastSavedImage
+	/** @type {String} El base64 de la última imagen guardada */ let lastImageBase64
 
 	//──── Inputs ────────────────────────────────────────────────────────────────────────────	
 	/** @type {$} Input file */ let fileInput
@@ -172,6 +173,10 @@ function CropperAdapterComponent(configurations = {}) {
 				b64 = cropperCanvas.toDataURL(adapterOptions.outputFormat)
 			}
 
+			if(isOnEdit){
+				b64 = typeof lastImageBase64 == 'string' && lastImageBase64.length > 0 ? lastImageBase64 : null
+			}
+
 		}
 
 		return b64
@@ -202,13 +207,18 @@ function CropperAdapterComponent(configurations = {}) {
 
 			let util = new UtilPieces()
 			let utilFiles = util.file
-			file = utilFiles.dataURLToFile(
-				this.crop(
-					quality,
-					oWidth
-				),
-				`${name}.${extension}`
+			let b64 = this.crop(
+				quality,
+				oWidth
 			)
+
+			if (typeof b64 == 'string') {
+				file = utilFiles.dataURLToFile(
+					b64,
+					`${name}.${extension}`
+				)
+
+			}
 
 		}
 
@@ -356,6 +366,7 @@ function CropperAdapterComponent(configurations = {}) {
 			//Verificar si tiene alguna imagen predeterminada
 			if (initWithImage) {
 				cropper.replace(canvasImage)
+				lastImageBase64 = instance.crop()
 			}
 
 			if (initWithImage) {
@@ -514,14 +525,15 @@ function CropperAdapterComponent(configurations = {}) {
 				let that = $(e.currentTarget)
 
 				if ((initWithImage || hasImage) && !isDisable(that)) {
-
-					let cutImage = new Image()
-					cutImage.id = 'image'
-					cutImage.src = instance.crop()
+					
 					wasChanged = true
 					isOnEdit = false
 					wasSaved = true
 					unSaveImage = false
+
+					let cutImage = new Image()
+					cutImage.id = 'image'
+					cutImage.src = instance.crop()
 
 					cutImage.onload = () => {
 
@@ -537,11 +549,12 @@ function CropperAdapterComponent(configurations = {}) {
 						lastSavedImage.src = cutImage.src
 
 						startButton.html(changeImageText)
-						
-						if(fileInputIsRequired){
+
+						if (fileInputIsRequired) {
 							fileInput.removeAttr('required')
 						}
 
+						lastImageBase64 = instance.crop()
 						updateCropperData()
 						toPreview()
 
@@ -919,7 +932,7 @@ function CropperAdapterComponent(configurations = {}) {
 			fileInput = document.querySelector(`${containerSelector} input[type="file"]`)
 
 			if (fileInput instanceof HTMLElement) {
-				
+
 				fileInputIsRequired = fileInput.required
 				fileInput = $(fileInput)
 
