@@ -136,6 +136,8 @@ function CropperAdapterComponent(configurations = {}) {
 	 */
 	this.crop = (quality = 0.7, oWidth = null) => {
 
+		let b64 = null
+
 		if (initialized) {
 
 			if (!(typeof quality == 'number')) {
@@ -164,14 +166,14 @@ function CropperAdapterComponent(configurations = {}) {
 			]
 
 			if (formatsWithQuality.indexOf(adapterOptions.outputFormat) !== -1) {
-				return cropperCanvas.toDataURL(adapterOptions.outputFormat, quality)
+				b64 = cropperCanvas.toDataURL(adapterOptions.outputFormat, quality)
 			} else {
-				return cropperCanvas.toDataURL(adapterOptions.outputFormat)
+				b64 = cropperCanvas.toDataURL(adapterOptions.outputFormat)
 			}
 
 		}
 
-		return null
+		return b64
 
 	}
 
@@ -824,15 +826,15 @@ function CropperAdapterComponent(configurations = {}) {
 
 			let calculatedHeight = instance.getHeightByAspectRatioFromWidth(cropWidth, aspectRatio)
 
-			if(isMove){
-				
+			if (isMove) {
+
 				cropper.setCropBoxData({
 					width: cropWidth,
 					height: calculatedHeight,
 				})
 
-			}else{
-				
+			} else {
+
 				cropper.setCropBoxData({
 					top: 0,
 					left: 0,
