@@ -78,6 +78,7 @@ function CropperAdapterComponent(configurations = {}) {
 	/** @type {Boolean} Verifica si está en proceso de edición */ let isOnEdit = false
 	/** @type {Boolean} Verifica si ha sido recortado una vez */ let wasSaved = false
 	/** @type {Boolean} Verifica si hay una imagen en el canvas sin guardar */ let unSaveImage = false
+	/** @type {Boolean} Verifica si el input es requerido */ let fileInputIsRequired = false
 
 	//──── Contenedores, canvas e imagen ─────────────────────────────────────────────────────
 	/** @type {$} Contenedor del componente */ let container
@@ -483,6 +484,7 @@ function CropperAdapterComponent(configurations = {}) {
 							isOnEdit = true
 							unSaveImage = true
 							enableElement(saveButton)
+							fileInput.val('')
 
 						}
 
@@ -533,6 +535,12 @@ function CropperAdapterComponent(configurations = {}) {
 
 						lastSavedImage = new Image()
 						lastSavedImage.src = cutImage.src
+
+						startButton.html(changeImageText)
+						
+						if(fileInputIsRequired){
+							fileInput.removeAttr('required')
+						}
 
 						updateCropperData()
 						toPreview()
@@ -904,12 +912,17 @@ function CropperAdapterComponent(configurations = {}) {
 
 		if (container instanceof HTMLElement) {
 
+			container = $(container)
+
 			//──── Asignación de valores y estados iniciales ─────────────────────────────────────────
 
 			fileInput = document.querySelector(`${containerSelector} input[type="file"]`)
 
 			if (fileInput instanceof HTMLElement) {
+				
+				fileInputIsRequired = fileInput.required
 				fileInput = $(fileInput)
+
 			} else {
 				throw new Error(`No se ha encontrado ningún input de tipo file.`)
 			}
