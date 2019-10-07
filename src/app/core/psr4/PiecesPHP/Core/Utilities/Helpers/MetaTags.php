@@ -61,6 +61,12 @@ class MetaTags
      */
     protected static $url = null;
     /**
+     * $themeColor
+     *
+     * @var string
+     */
+    protected static $themeColor = null;
+    /**
      * $locale
      *
      * @var string
@@ -163,6 +169,20 @@ class MetaTags
             self::$url = get_current_url();
         }
 
+        if (is_null(self::$themeColor)) {
+
+            $themeColor = get_config('meta_theme_color');
+            $themeColor = $themeColor !== false ? $themeColor : '';
+            $themeColor = is_string($themeColor) && strlen(trim($themeColor)) > 0 ? trim($themeColor) : null;
+
+            if ($themeColor !== null) {
+                self::$themeColor = $themeColor;
+            } else {
+                self::$themeColor = null;
+            }
+
+        }
+
         if (is_null(self::$locale)) {
             self::$locale = 'es_CO';
         }
@@ -262,6 +282,17 @@ class MetaTags
     }
 
     /**
+     * setThemeColor
+     *
+     * @param string $value
+     * @return void
+     */
+    public static function setThemeColor(string $value)
+    {
+        self::$themeColor = $value;
+    }
+
+    /**
      * setLocale
      *
      * @param string $value
@@ -316,6 +347,10 @@ class MetaTags
                 'property' => 'keywords',
                 'content' => self::$keywords,
             ],
+            [
+                'property' => 'theme-color',
+                'content' => self::$themeColor,
+            ],
         ];
 
         $html[] = "<!-- Meta tags basic -->\r\n";
@@ -325,7 +360,9 @@ class MetaTags
         foreach ($ogProperties as $tag) {
             $name = $tag['property'];
             $content = $tag['content'];
-            $html[] = "<meta name='{$name}' content='{$content}' />";
+            if (!is_null($content)) {
+                $html[] = "<meta name='{$name}' content='{$content}' />";
+            }
         }
 
         $html[] = '<!-- Close Meta tags basic -->';
