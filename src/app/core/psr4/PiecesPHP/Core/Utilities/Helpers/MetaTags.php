@@ -49,6 +49,18 @@ class MetaTags
      */
     protected static $keywords = null;
     /**
+     * $image
+     *
+     * @var string
+     */
+    protected static $image = null;
+    /**
+     * $url
+     *
+     * @var string
+     */
+    protected static $url = null;
+    /**
      * $locale
      *
      * @var string
@@ -66,24 +78,12 @@ class MetaTags
      * @var string
      */
     protected static $type = null;
-    /**
-     * $image
-     *
-     * @var string
-     */
-    protected static $image = null;
-    /**
-     * $url
-     *
-     * @var string
-     */
-    protected static $url = null;
+
     /**
      * initialValues
      *
      * @return void
      */
-	
     private static function initialValues()
     {
 
@@ -240,6 +240,28 @@ class MetaTags
     }
 
     /**
+     * setImage
+     *
+     * @param string $value
+     * @return void
+     */
+    public static function setImage(string $value)
+    {
+        self::$image = $value;
+    }
+
+    /**
+     * setURL
+     *
+     * @param string $value
+     * @return void
+     */
+    public static function setURL(string $value)
+    {
+        self::$url = $value;
+    }
+
+    /**
      * setLocale
      *
      * @param string $value
@@ -270,28 +292,6 @@ class MetaTags
     public static function setType(string $value)
     {
         self::$type = $value;
-    }
-
-    /**
-     * setImage
-     *
-     * @param string $value
-     * @return void
-     */
-    public static function setImage(string $value)
-    {
-        self::$image = $value;
-    }
-
-    /**
-     * setURL
-     *
-     * @param string $value
-     * @return void
-     */
-    public static function setURL(string $value)
-    {
-        self::$url = $value;
     }
 
     /**
