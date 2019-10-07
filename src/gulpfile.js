@@ -100,6 +100,7 @@ gulp.task("sass-vendor:watch", () => {
 
 //Tarea inicial
 gulp.task("sass-vendor:init", () => {
+	sassCompileOwnPlugins()
 	sassCompileGeneral()
 	sassCompileUsers()
 	sassCompileAvatars()
