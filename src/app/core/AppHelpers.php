@@ -687,6 +687,18 @@ function import_app_libraries(array $plugins = [], bool $all = false)
 }
 
 /**
+ * Registra spectrum como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_spectrum(array $plugins = [], bool $all = true)
+{
+    import_front_library('spectrum', $plugins, $all);
+}
+
+/**
  * Registra una ruta o un conjunto de rutas
  *
  * register_routes([

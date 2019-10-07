@@ -203,35 +203,36 @@ if (typeof $ !== 'undefined') {
 		configCalendars()
 		configMessagesValidationsSemanticForm()
 		configDataTables()
+		configColorPickers()
 		pcsAdminSideBar('.ui-pcs.sidebar')
 		genericFormHandler()
 
 		let toggleDevCSSMode = $('[toggle-dev-css-mode]')
 		let toggleDevCSSModeIsActive = typeof toggleDevCSSMode.attr('active') == 'string'
-		
-		toggleDevCSSMode.click(function(e){
+
+		toggleDevCSSMode.click(function (e) {
 
 			let that = $(e.currentTarget)
 			let selector = that.attr('toggle-dev-css-mode')
 
-			if(typeof selector == 'string' && selector.trim().length > 0){
+			if (typeof selector == 'string' && selector.trim().length > 0) {
 
 				let classToAdd = 'dev-css-mode'
 				let element = $(selector)
 
-				if(element.hasClass(classToAdd)){
+				if (element.hasClass(classToAdd)) {
 					element.removeClass(classToAdd)
 					that.find(`[type="checkbox"]`).attr('checked', false)
-				}else{
+				} else {
 					element.addClass(classToAdd)
 					that.find(`[type="checkbox"]`).attr('checked', true)
 				}
-				
+
 			}
 
 		})
 
-		if(toggleDevCSSModeIsActive){
+		if (toggleDevCSSModeIsActive) {
 			toggleDevCSSMode.click()
 		}
 
@@ -364,6 +365,57 @@ function configRichEditor() {
 			console.log("QuillAdapterComponent no está definido.")
 		} else {
 			console.log(error)
+		}
+	}
+}
+
+/**
+ * configColorPickers
+ * @returns {void}
+ */
+function configColorPickers() {
+
+	let selector = 'input[color-picker-js]'
+	let colorPickers = $(selector)
+
+	try {
+
+		colorPickers.spectrum({
+			color: null,
+			preferredFormat: 'hex',
+			showInput: true,
+			showInitial: true,
+			showAlpha: false,
+			clickoutFiresChange: false,
+			allowEmpty: true,
+			flat: false,
+			disabled: false,
+			showButtons: true,
+			chooseText: 'Aceptar',
+			cancelText: 'Cancelar',
+			showPalette: false,
+			showSelectionPalette: false,
+			togglePaletteOnly: true,
+			togglePaletteMoreText: '+',
+			togglePaletteLessText: '−',
+			palette: [
+				"red",
+				"green",
+				"blue",
+				"purple",
+				"yellow",
+				"brown",
+				"white",
+				"gray",
+				"black",
+				"pink",
+				"coral",
+			],
+		})
+
+	} catch (error) {
+		if (colorPickers.spectrum !== undefined) {
+			console.error(error)
 		}
 	}
 }

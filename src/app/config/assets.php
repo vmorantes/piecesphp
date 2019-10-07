@@ -153,6 +153,18 @@ $assets['izitoast']['css'] = [
 $assets['izitoast']['plugins'] = [];
 
 /**
+ * Spectrum Colorpicker v1.8.0
+ * https://github.com/bgrins/spectrum
+ */
+$assets['spectrum']['js'] = [
+    'statics/plugins/spectrum/spectrum.js',
+];
+$assets['spectrum']['css'] = [
+    'statics/plugins/spectrum/spectrum.css',
+];
+$assets['spectrum']['plugins'] = [];
+
+/**
  * JQuery
  * https://igorescobar.github.io/jQuery-Mask-Plugin/docs.html
  */
