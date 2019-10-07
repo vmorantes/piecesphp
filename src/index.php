@@ -64,6 +64,7 @@ if (APP_CONFIGURATION_MODULE) {
             'B',
             'C D',
         ],
+        'meta_theme_color' => '#2692D0',
         'open_graph_image' => 'statics/images/open_graph.jpg',
     ];
     ksort($default_configurations_values);

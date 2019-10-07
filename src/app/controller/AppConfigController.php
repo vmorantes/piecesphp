@@ -85,6 +85,7 @@ class AppConfigController extends AdminPanelController
      */
     public function configurationsView(Request $req, Response $res, array $args)
     {
+        import_spectrum();
         $this->render('panel/layout/header');
         $this->render('panel/pages/app_configurations/configurations');
         $this->render('panel/layout/footer');
@@ -143,8 +144,8 @@ class AppConfigController extends AdminPanelController
                 '',
                 function ($value) {
                     return is_string($value) || is_array($value) || is_object($value);
-				},
-				true
+                },
+                true
             ),
             new Parameter(
                 'parse',
@@ -192,7 +193,7 @@ class AppConfigController extends AdminPanelController
             $name = $parametersExcepted->getValue('name');
             $value = $parametersExcepted->getValue('value');
             $parse = $parametersExcepted->getValue('parse');
-			$merge = $parametersExcepted->getValue('merge');
+            $merge = $parametersExcepted->getValue('merge');
 
             $option = new AppConfigModel($name);
             $optionExists = !is_null($option->id);
