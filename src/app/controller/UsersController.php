@@ -169,7 +169,18 @@ class UsersController extends AdminPanelController
     public function dataTablesRequestUsers(Request $req, Response $res, array $args)
     {
 
-        $where = "id != {$this->user->id}";
+        $currentUser = new UsersModel($this->user->id);
+        $disallowedTypes = $currentUser->getHigherPriorityTypes();
+
+        $where = [
+            "id != {$this->user->id}",
+        ];
+
+        if (is_array($disallowedTypes) && count($disallowedTypes) > 0) {
+            $where[] = " AND type != " . implode(' AND type != ', $disallowedTypes);
+        }
+
+        $where = trim(implode(' ', $where));
 
         $on_set_data = function ($element) {
 
@@ -259,16 +270,27 @@ class UsersController extends AdminPanelController
     public function selectionTypeToCreate(Request $req, Response $res, array $args)
     {
         $types = UsersModel::TYPES_USERS;
+        $currentUser = new UsersModel($this->user->id);
 
         foreach ($types as $key => $display) {
 
             $type_encrypt = strrev($this->ofuscate) . ":$key:" . $this->ofuscate;
             $type_encrypt = BaseHashEncryption::encrypt($type_encrypt, $this->password);
 
-            $types[$key] = [
-                'link' => get_route('users-form-create', ['type' => $type_encrypt]),
-                'text' => $display,
-            ];
+            $hasAuthority = $currentUser->hasAuthorityOver($key);
+
+            if ($hasAuthority) {
+
+                $types[$key] = [
+                    'link' => get_route('users-form-create', ['type' => $type_encrypt]),
+                    'text' => $display,
+                ];
+
+            } else {
+
+                unset($types[$key]);
+
+            }
 
         }
 
@@ -307,6 +329,17 @@ class UsersController extends AdminPanelController
             strrev($this->ofuscate) . ':',
             ':' . $this->ofuscate,
         ], '', $type);
+
+        $currentUser = new UsersModel($this->user->id);
+        $hasAuthority = $currentUser->hasAuthorityOver($type);
+
+        if (!$hasAuthority) {
+            $controller = new \PiecesPHP\Core\BaseController(false);
+            $controller->render('pages/403', [
+                'url' => get_route('users-selection-create'),
+            ]);
+            return $res->withStatus(403);
+        }
 
         if (isset(UsersModel::TYPES_USERS[$type])) {
 
@@ -374,7 +407,18 @@ class UsersController extends AdminPanelController
 
         $user = new UsersModel($id);
 
+        $currentUser = new UsersModel($this->user->id);
+        $hasAuthority = $currentUser->hasAuthorityOver($user->type);
+
         if (!is_null($user->id)) {
+
+            if (!$hasAuthority) {
+                $controller = new \PiecesPHP\Core\BaseController(false);
+                $controller->render('pages/403', [
+                    'url' => get_route('users-list'),
+                ]);
+                return $res->withStatus(403);
+            }
 
             $is_same = $user->id == $this->user->id;
 
