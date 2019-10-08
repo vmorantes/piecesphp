@@ -297,6 +297,9 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 		notificationElement = $(notificationElementSelector)
 		loadMoreButton = $(loadMoreButtonSelector)
 
+		previewsContainerElement = container.find('[previews]')
+		conversationsContainerElement = container.find('[conversations]')
+
 		loadMoreButton.click(function (e) {
 			e.preventDefault()
 			e.stopPropagation()
@@ -623,9 +626,6 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 	function addConversationHTML(conversation, container) {
 
 		let html = createConversationHTML(conversation)
-
-		previewsContainerElement = container.find('[previews]')
-		conversationsContainerElement = container.find('[conversations]')
 
 		previewsContainerElement.off('click')
 		conversationsContainerElement.off('click')
