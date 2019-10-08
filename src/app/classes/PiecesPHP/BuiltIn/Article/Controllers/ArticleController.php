@@ -707,7 +707,11 @@ class ArticleController extends AdminPanelController
 
                         //Eliminar archivo anterior
                         if (!is_null($oldFile)) {
-                            unlink($oldFile);
+
+                            if (basename($oldFile) != $nameCurrent) {
+                                unlink($oldFile);
+                            }
+
                         }
 
                         //Se elimina cualquier otro archivo
