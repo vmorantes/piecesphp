@@ -48,6 +48,12 @@ class UsersModel extends BaseEntityMapper
         self::TYPE_USER_GENERAL => 'Usuario general',
     ];
 
+    const TYPES_USER_PRIORITY = [
+        self::TYPE_USER_ROOT => 3,
+        self::TYPE_USER_ADMIN => 2,
+        self::TYPE_USER_GENERAL => 1,
+    ];
+
     protected $table = 'pcsphp_users';
 
     protected $fields = [
@@ -113,19 +119,68 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
+     * hasAuthorityOver
+     *
+     * @param int $type
+     * @return bool
+     */
+    public function hasAuthorityOver(int $type)
+    {
+        $typesOver = $this->getHigherPriorityTypes();
+        $hasAuthority = !in_array((int) $type, $typesOver);
+        return $hasAuthority;
+    }
+
+    /**
+     * getHigherPriorityTypes
+     *
+     * @return array
+     */
+    public function getHigherPriorityTypes()
+    {
+        $allTypes = [];
+
+        array_map(function ($type) use (&$allTypes) {
+            $allTypes[] = $type;
+        }, array_flip(self::TYPES_USERS));
+
+        if ($this->id !== null) {
+
+            $types = [];
+
+            $prioritiesByType = self::TYPES_USER_PRIORITY;
+            $typesByPriorities = array_flip(self::TYPES_USER_PRIORITY);
+            $currentPriority = self::TYPES_USER_PRIORITY[$this->type];
+
+            $higherPrioritiesThanCurrentOne = array_filter($prioritiesByType, function ($priority) use ($currentPriority) {
+                return $priority > $currentPriority;
+            });
+
+            foreach ($higherPrioritiesThanCurrentOne as $priority) {
+                $types[] = $typesByPriorities[$priority];
+            }
+
+            return $types;
+
+        }
+
+        return $allTypes;
+    }
+
+    /**
      * getPublicData
      *
      * @return array
      */
     public function getPublicData()
     {
-		$data = $this->humanReadable();
-		unset($data['password']);
-		unset($data['modified_at']);
-		unset($data['created_at']);
-		unset($data['failed_attempts']);
-		unset($data['status']);
-		return $data;
+        $data = $this->humanReadable();
+        unset($data['password']);
+        unset($data['modified_at']);
+        unset($data['created_at']);
+        unset($data['failed_attempts']);
+        unset($data['status']);
+        return $data;
     }
 
     /**
@@ -478,9 +533,9 @@ class UsersModel extends BaseEntityMapper
             'id' => [
                 '!=' => $id,
             ],
-		]);
+        ]);
 
-		$model->execute();
+        $model->execute();
 
         return count($model->result()) > 0;
     }
