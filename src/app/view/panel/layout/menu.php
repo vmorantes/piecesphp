@@ -25,7 +25,7 @@
     </article>
 
     <div class="logo-developed">
-    	<small>Desarrollado por:</small>
+    	<small>Desarrollado por <?= get_config('developer'); ?> para:</small>
         <img src="<?=get_config('logo-sidebar-bottom');?>">
     </div>
 </aside> <!-- .ui-pcs.sidebar -->
