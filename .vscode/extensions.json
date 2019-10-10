@@ -1,0 +1,28 @@
+{
+    "recommendations": [
+        "piotrpalarz.vscode-gitignore-generator",
+        "mrmlnc.vscode-apache",
+        "michelemelluso.code-beautifier",
+        "wwm.better-align",
+        "editorconfig.editorconfig",
+        "nepaul.editorconfiggenerator",
+        "rifi2k.format-html-in-php",
+        "pomber.git-file-history",
+        "codezombiech.gitignore",
+        "makogan.hermes-comments",
+        "zignd.html-css-class-completion",
+        "jakebathman.mysql-syntax",
+        "christian-kohler.path-intellisense",
+        "vincentkos.php-docblock-generator",
+        "neilbrayfield.php-docblocker",
+        "bmewburn.vscode-intelephense-client",
+        "kokororin.vscode-phpfmt",
+        "searking.preview-vscode",
+        "mechatroner.rainbow-csv",
+        "robinbentley.sass-indented",
+        "mrmlnc.vscode-scss",
+        "ms-ceintl.vscode-language-pack-es",
+        "fabiospampinato.vscode-todo-plus",
+        "xshrim.txt-syntax"
+    ]
+}
