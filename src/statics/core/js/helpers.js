@@ -272,6 +272,8 @@ function postRequest(url, data, headers = {}) {
 
 		}
 
+		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
+
 		return mapHeaders
 
 	}
@@ -370,6 +372,8 @@ function getRequest(url, data, headers = {}) {
 			}
 
 		}
+
+		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
 
 		return mapHeaders
 
