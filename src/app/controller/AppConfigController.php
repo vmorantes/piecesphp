@@ -357,89 +357,105 @@ class AppConfigController extends AdminPanelController
     public function actionImages(Request $req, Response $res, array $args)
     {
 
-        $valid_images_names = [
+        $allowedImages = [
             'favicon' => [
                 'name' => 'favicon',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/images/favicon.png',
             ],
             'favicon-back' => [
                 'name' => 'favicon-back',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/images/favicon-back.png',
             ],
             'logo' => [
                 'name' => 'logo',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/images/logo.png',
             ],
             'logo-login' => [
                 'name' => 'logo-login',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/images/logo-login.png',
             ],
             'logo-sidebar-top' => [
                 'name' => 'logo-sidebar-top',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/images/logo-sidebar-top.png',
             ],
             'logo-sidebar-bottom' => [
                 'name' => 'logo-sidebar-bottom',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/images/logo-sidebar-bottom.png',
             ],
             'logo-mailing' => [
                 'name' => 'logo-mailing',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/images/logo-mailing.png',
             ],
             'background-1' => [
                 'name' => 'bg1',
                 'extension' => 'jpg',
                 'folder' => basepath('statics/login-and-recovery/images/login'),
+                'dafault' => 'statics/login-and-recovery/images/login/bg1.jpg',
             ],
             'background-2' => [
                 'name' => 'bg2',
                 'extension' => 'jpg',
                 'folder' => basepath('statics/login-and-recovery/images/login'),
+                'dafault' => 'statics/login-and-recovery/images/login/bg2.jpg',
             ],
             'background-3' => [
                 'name' => 'bg3',
                 'extension' => 'jpg',
                 'folder' => basepath('statics/login-and-recovery/images/login'),
+                'dafault' => 'statics/login-and-recovery/images/login/bg3.jpg',
             ],
             'background-4' => [
                 'name' => 'bg4',
                 'extension' => 'jpg',
                 'folder' => basepath('statics/login-and-recovery/images/login'),
+                'dafault' => 'statics/login-and-recovery/images/login/bg4.jpg',
             ],
             'background-5' => [
                 'name' => 'bg5',
                 'extension' => 'jpg',
                 'folder' => basepath('statics/login-and-recovery/images/login'),
+                'dafault' => 'statics/login-and-recovery/images/login/bg5.jpg',
             ],
             'open_graph_image' => [
                 'name' => 'open_graph',
                 'extension' => 'jpg',
                 'folder' => basepath('statics/images'),
+                'dafault' => 'statics/login-and-recovery/images/login/bg6.jpg',
             ],
         ];
 
-        $name_image_form = '';
-        $name_image = '';
+        $nameCurrentAllowedImage = '';
+        $nameImage = '';
         $extension = '';
         $folder = '';
-        $params_ok = false;
+        $validParamenters = false;
 
-        foreach ($valid_images_names as $valid_image_name => $config) {
-            $params_ok = isset($_FILES[$valid_image_name]);
-            if ($params_ok) {
-                $name_image_form = $valid_image_name;
-                $name_image = $config['name'];
+        foreach ($allowedImages as $imageName => $config) {
+
+            $validParamenters = isset($_FILES[$imageName]) && $_FILES[$imageName]['error'] == \UPLOAD_ERR_OK;
+
+            if ($validParamenters) {
+                $nameCurrentAllowedImage = $imageName;
+                $nameImage = $config['name'];
                 $extension = $config['extension'];
                 $folder = $config['folder'];
                 break;
             }
+
         }
 
         $operation_name = 'Guardar imagen';
@@ -451,17 +467,26 @@ class AppConfigController extends AdminPanelController
         $message_unknow_error = 'Ha ocurrido un error inesperado.';
         $message_unexpected_or_missing_params = 'Información faltante o inesperada.';
 
-        if ($params_ok) {
+        if ($validParamenters) {
 
-            $fileHandler = new FileUpload($name_image_form, [
+            $fileHandler = new FileUpload($nameCurrentAllowedImage, [
                 $extension == 'png' ? FileValidator::TYPE_PNG : FileValidator::TYPE_JPG,
             ], 5);
 
             if ($fileHandler->validate()) {
 
-                $route = $fileHandler->moveTo($folder, $name_image, $extension);
+                $route = $fileHandler->moveTo($folder, $nameImage, $extension);
 
                 if (count($route) > 0) {
+
+                    $configElement = new AppConfigModel($nameCurrentAllowedImage);
+
+                    if ($configElement->id === null) {
+                        $configElement->name = $nameCurrentAllowedImage;
+                        $configElement->value = $allowedImages[$nameCurrentAllowedImage]['dafault'];
+                        $configElement->save();
+                    }
+
                     $result->setValue('reload', true);
                     $result
                         ->setMessage($message_create)
