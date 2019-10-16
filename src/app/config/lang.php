@@ -16,4 +16,8 @@ set_config('lang_by_url', true);
  * con el nombre de su archivo correspondiente en app/lang/ sin la extensión '.php'
  * ya que es implícita.
  */
-set_config('allowed_langs', ['es', 'en']);
+set_config('allowed_langs', [
+    'es',
+    'en',
+    'fr',
+]);
