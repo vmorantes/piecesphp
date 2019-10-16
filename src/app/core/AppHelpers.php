@@ -58,15 +58,15 @@ function get_title(bool $appendTitleApp = false, string $separator = ' - ')
         }
     } else {
 
-        if ($title_app !== false) {		
-				
-			return $title_app;
-			
-		} else {
+        if ($title_app !== false) {
 
-			return 'Web';
+            return $title_app;
 
-		}
+        } else {
+
+            return 'Web';
+
+        }
 
     }
 }
@@ -758,19 +758,17 @@ function register_routes($routes, &$router)
         }
 
         foreach ($methods as $key => $method) {
-
-            if (is_string($name) && $name !== null && $name !== '') {
-                $router->$method($route_segment, $controller)->setName($name);
-            } else {
-                $router->$method($route_segment, $controller);
-            }
-
-            if ($route_alias !== null) {
-                $router->$method($route_alias, $controller);
-            }
-
             $methods[$key] = strtoupper($method);
+        }
 
+        if (is_string($name) && $name !== null && $name !== '') {
+            $router->map($methods, $route_segment, $controller)->setName($name);
+        } else {
+            $router->map($methods, $route_segment, $controller);
+        }
+
+        if ($route_alias !== null) {
+            $router->map($methods, $route_alias, $controller);
         }
 
         if (is_string($name) && $name !== null && $name !== '') {
