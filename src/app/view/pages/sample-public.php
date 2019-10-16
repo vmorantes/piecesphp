@@ -1,6 +1,7 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
 <br><br>
+<br><br>
 
 <div style="position:fixed; top:10px; left: 10px; opacity:0.1; transition:0.5s ease all;"
     onMouseOver="this.style.opacity=1;" onMouseOut="this.style.opacity=0.1;">
@@ -13,10 +14,38 @@
 </div>
 
 <div class="ui tabular menu">
+    <div style="cursor:pointer;" class="item" data-tab="Exif">Exif</div>
     <div style="cursor:pointer;" class="item" data-tab="CropperJS">CropperJS</div>
     <div style="cursor:pointer;" class="item" data-tab="QuillJS">QuillJS</div>
     <div style="cursor:pointer;" class="item" data-tab="Styles">Styles</div>
     <div style="cursor:pointer;" class="item" data-tab="Messages">Messages</div>
+</div>
+
+<div class="ui tab" data-tab="Exif">
+
+    <div class="elements-container centered fit">
+
+        <form action="<?= explode('?', get_current_url())[0]; ?>" method="POST" enctype="multipart/form-data" class="ui form">
+
+            <div class="field required">
+                <label>Sube una foto</label>
+                <input type="file" name="exif-image">
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green">Subir</button>
+            </div>
+
+        </form>
+
+        <hr>
+
+        <h1>Resultado:</h1>
+
+        <div><?= $exifResult; ?></div>
+
+    </div>
+
 </div>
 
 <div class="ui tab" data-tab="CropperJS">

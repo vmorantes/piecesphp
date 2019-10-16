@@ -8,9 +8,12 @@ namespace App\Controller;
 
 use App\Model\AvatarModel;
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\Forms\FileUpload;
+use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Utilities\ExifHelper;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
@@ -97,18 +100,160 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     public function indexView(Request $req, Response $res, array $args)
     {
 
+        $exifResult = '';
+
+        try {
+
+            $exifImage = new FileUpload('exif-image', [
+                FileValidator::TYPE_JPEG,
+            ]);
+
+            if ($exifImage->hasInput()) {
+
+                if ($exifImage->validate()) {
+
+                    $fileData = $exifImage->getFileInformation();
+                    $exifHelper = new ExifHelper($fileData['tmp_name']);
+
+                    //Fechas
+                    $originalDate = $exifHelper->getOriginalDate();
+                    $digitizedDate = $exifHelper->getDigitizedDate();
+                    $uploadDate = $exifHelper->getFileDate();
+
+                    $originalDate = !is_null($originalDate) ? $originalDate->format('d-m-Y h:i:s A') : 'Sin información';
+                    $digitizedDate = !is_null($digitizedDate) ? $digitizedDate->format('d-m-Y h:i:s A') : 'Sin información';
+                    $uploadDate = !is_null($uploadDate) ? $uploadDate->format('d-m-Y h:i:s A') : 'Sin información';
+
+                    //Coordenadas
+
+                    $baseLongitude = $exifHelper->getGPSDataToNumber(ExifHelper::GPS_TYPE_LONGITUDE);
+                    $baseLatitude = $exifHelper->getGPSDataToNumber(ExifHelper::GPS_TYPE_LATITUDE);
+
+                    $referenceSignLongitude = $exifHelper->getGPSSign(ExifHelper::GPS_TYPE_LONGITUDE);
+                    $referenceSignLatitude = $exifHelper->getGPSSign(ExifHelper::GPS_TYPE_LATITUDE);
+
+                    $longitude = $exifHelper->getGPSLongitude();
+                    $latitude = $exifHelper->getGPSLatitude();
+
+                    $baseLongitude = !is_null($baseLongitude) ? $baseLongitude : 'Sin información';
+                    $baseLatitude = !is_null($baseLatitude) ? $baseLatitude : 'Sin información';
+
+                    $referenceSignLongitude =
+
+                    is_int($referenceSignLongitude) ?
+                    (
+                        $referenceSignLongitude > 0 ?
+                        '+' :
+                        '-'
+                    ) :
+                    'Sin información';
+
+                    $referenceSignLatitude =
+
+                    is_int($referenceSignLatitude) ?
+                    (
+                        $referenceSignLatitude > 0 ?
+                        '+' :
+                        '-'
+                    ) :
+                    'Sin información';
+
+                    $longitude = !is_null($longitude) ? $longitude : 'Sin información';
+                    $latitude = !is_null($latitude) ? $latitude : 'Sin información';
+
+                    $exifResult = [
+                        'Información procesada' => [
+                            'Fechas' => [
+                                'Captura' => $originalDate,
+                                'Digitalización' => $digitizedDate,
+                                'Subida del archivo' => $uploadDate,
+                            ],
+                            'GPS' => [
+                                'Signos de referencia' => [
+                                    'Longitud' => $referenceSignLongitude,
+                                    'Latitud' => $referenceSignLatitude,
+                                ],
+                                'Coordenadas' => [
+                                    'lng' => $longitude,
+                                    'lat' => $latitude,
+                                ],
+                                'Coordenadas sin signos' => [
+                                    'lng' => $baseLongitude,
+                                    'lat' => $baseLatitude,
+                                ],
+                            ],
+                        ],
+                        'Datos completos' => $exifHelper->getExifData(),
+                    ];
+
+                } else {
+
+                    $exifResult = $exifImage->getErrorMessages();
+
+                }
+
+            }
+
+        } catch (\Exception $e) {
+            $exifResult = [
+                'exceptionMessage' => $e->getMessage(),
+                'exceptionFile' => $e->getFile(),
+                'exceptionLine' => $e->getLine(),
+            ];
+        }
+
+        $exifResult = self::arrayToHTMLList($exifResult);
+
         import_quilljs();
-        import_cropper();
+		import_cropper();
+		import_izitoast();
 
         set_custom_assets([
             'statics/js/main.js',
         ], 'js');
 
         $this->render('layout/header');
-        $this->render('pages/sample-public');
+        $this->render('pages/sample-public', [
+            'exifResult' => $exifResult,
+        ]);
         $this->render('layout/footer');
 
         return $res;
+    }
+
+    /**
+     * arrayToHTMLList
+     *
+     * @param mixed $array
+     * @return string
+     */
+    protected static function arrayToHTMLList($array)
+    {
+
+        if (is_array($array)) {
+
+            foreach ($array as $key => $value) {
+
+                $title = ctype_digit($key) || is_int($key) ? 'Índice ' . $key : $key;
+
+                if (is_array($value)) {
+                    $array[$key] = "<div class='item'><strong>$title:</strong><br/>" . self::arrayToHTMLList($value) . "</div>";
+                } else {
+                    $array[$key] = "<div class='item'><strong>$title:</strong> $value</div>";
+                }
+
+            }
+
+            $array = implode(' ', $array);
+
+        } else {
+
+            $array = '';
+
+        }
+
+        return "<div class='ui celled list'>$array</div>";
+
     }
 
     /**
@@ -174,7 +319,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 "{$startRoute}[/]",
                 self::class . ":indexView",
                 "{$namePrefix}-index",
-                'GET'
+                'POST|GET'
             ),
         ]);
 

@@ -43,7 +43,7 @@ window.addEventListener('load', (e) => {
 	//Tabs
 	let tabsItemMenu = $('.tabular.menu .item')
 	let tabs = $(`[data-tab]`)
-	let activeTab = 'CropperJS'
+	let activeTab = 'Exif'
 
 	tabsItemMenu.tab()
 	tabsItemMenu.filter(`[data-tab="${activeTab}"]`).addClass('active')
