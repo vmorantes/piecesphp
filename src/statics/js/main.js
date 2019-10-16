@@ -40,6 +40,13 @@ window.addEventListener('load', (e) => {
 	$('.cropper-test-2.title').click(e => console.log(cropperAdapterWithImage.getTitle()))
 	$('.cropper-test-2.crop').click(e => console.log(cropperAdapterWithImage.crop()))
 
+	//Tabs
+	let tabsItemMenu = $('.tabular.menu .item')
+	let tabs = $(`[data-tab]`)
+	let activeTab = 'CropperJS'
 
+	tabsItemMenu.tab()
+	tabsItemMenu.filter(`[data-tab="${activeTab}"]`).addClass('active')
+	tabs.filter(`[data-tab="${activeTab}"]`).addClass('active')
 
 })
