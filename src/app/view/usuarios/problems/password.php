@@ -19,11 +19,11 @@
 
         <div class="topbar">
             <div class="text">
-                Recuperación de <br> contraseña
+                <?= __('usersProblems', 'Recuperación de <br> contraseña'); ?>
             </div>
             <div class="back">
                 <a href="<?=get_route('user-problems-list')?>">
-                    Volver atrás
+                    <?= __('usersProblems', 'Volver atrás'); ?>
                 </a>
             </div>
         </div>
@@ -33,7 +33,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/password-block.png'); ?>">
                 </div>
-                <div class="text">Paso 2</div>
+                <div class="text"><?= __('usersProblems', 'Paso'); ?> 2</div>
             </div>
         </div>
 
@@ -42,7 +42,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/code-mail.png'); ?>">
                 </div>
-                <div class="text">Paso 3</div>
+                <div class="text"><?= __('usersProblems', 'Paso'); ?> 3</div>
             </div>
         </div>
 
@@ -51,7 +51,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/password-block.png'); ?>">
                 </div>
-                <div class="text">Paso 4</div>
+                <div class="text"><?= __('usersProblems', 'Paso'); ?> 4</div>
             </div>
         </div>
 
@@ -60,7 +60,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/wrong-mail.png'); ?>">
                 </div>
-                <div class="text">Correo no registrado</div>
+                <div class="text"><?= __('usersProblems', 'Correo no registrado'); ?></div>
             </div>
         </div>
 
@@ -69,7 +69,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/wrong-code.png'); ?>">
                 </div>
-                <div class="text">Código incorrecto</div>
+                <div class="text"><?= __('usersProblems', 'Código incorrecto'); ?></div>
             </div>
         </div>
 
@@ -78,7 +78,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/password-unblock.png'); ?>">
                 </div>
-                <div class="text">Su contraseña ha sido cambiada</div>
+                <div class="text"><?= __('usersProblems', 'Su contraseña ha sido cambiada'); ?></div>
             </div>
         </div>
 
@@ -90,14 +90,14 @@
 
                 <form class="ui form">
                     <div class="field required">
-                        <input type="email" name="username" placeholder="Digite su correo electrónico">
+                        <input type="email" name="username" placeholder="<?= __('usersProblems', 'Digite su correo electrónico'); ?>">
                     </div>
                     <div class="field">
-                        <button type="submit" class="ui button green fluid">Siguiente</button>
+                        <button type="submit" class="ui button green fluid"><?= __('usersProblems', 'Siguiente'); ?></button>
                     </div>
                     <p>
                         <strong>
-                            <a href="#" class="ui mini button blue" has-code>Ya tengo un código</a>
+                            <a href="#" class="ui mini button blue" has-code><?= __('usersProblems', 'Ya tengo un código'); ?></a>
                         </strong>
                     </p>
                 </form>
@@ -111,11 +111,11 @@
                         <input required type="text" name="code" placeholder="######">
                     </div>
                     <div class="field">
-                        <button type="submit" class="ui button green fluid">Siguiente</button>
+                        <button type="submit" class="ui button green fluid"><?= __('usersProblems', 'Siguiente'); ?></button>
                     </div>
                     <p>
                         <strong>
-                            <a href="#" class="ui mini button blue" repeat>Introducir un email diferente</a>
+                            <a href="#" class="ui mini button blue" repeat><?= __('usersProblems', 'Introducir un email diferente'); ?></a>
                         </strong>
                     </p>
                 </form>
@@ -127,13 +127,13 @@
                 <form class="ui form">
                     <input required type="hidden" name="code">
                     <div class="field required">
-                        <input required type="password" name="password" placeholder="Ingrese su nueva contraseña">
+                        <input required type="password" name="password" placeholder="<?= __('usersProblems', 'Ingrese su nueva contraseña'); ?>">
                     </div>
                     <div class="field required">
-                        <input required type="password" name="repassword" placeholder="Confirme su nueva contraseña">
+                        <input required type="password" name="repassword" placeholder="<?= __('usersProblems', 'Confirme su nueva contraseña'); ?>">
                     </div>
                     <div class="field">
-                        <button type="submit" class="ui button green fluid">Restablecer contraseña</button>
+                        <button type="submit" class="ui button green fluid"><?= __('usersProblems', 'Restablecer contraseña'); ?></button>
                     </div>
                 </form>
 
@@ -144,11 +144,10 @@
                 <form class="ui form">
                     <div class="two fields">
                         <div class="field">
-                            <a href="<?= get_route('other-problems-form'); ?>" class="ui button green">Solicitud de
-                                soporte</a>
+                            <a href="<?= get_route('other-problems-form'); ?>" class="ui button green"><?= __('usersProblems', 'Solicitud de soporte'); ?></a>
                         </div>
                         <div class="field">
-                            <a href="#" class="ui button green" repeat>Nuevo correo</a>
+                            <a href="#" class="ui button green" repeat><?= __('usersProblems', 'Nuevo correo'); ?></a>
                         </div>
                     </div>
                 </form>
@@ -159,7 +158,7 @@
 
                 <form class="ui form">
                     <div class="field">
-                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid">Ingresar</a>
+                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid"><?= __('usersProblems', 'Ingresar'); ?></a>
                     </div>
                 </form>
 

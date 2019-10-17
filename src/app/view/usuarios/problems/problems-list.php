@@ -18,11 +18,11 @@
 
         <div class="topbar">
             <div class="text">
-                Solución a <br> problemas de <br> ingreso
+                <?= __('usersProblems', 'Solución a <br> problemas de <br> ingreso'); ?>
             </div>
             <div class="back">
                 <a href="<?=get_route('users-form-login')?>">
-                    Volver al login
+                    <?= __('usersProblems', 'Volver al login'); ?>
                 </a>
             </div>
         </div>
@@ -32,7 +32,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/notebook.png'); ?>">
                 </div>
-                <div class="text">Paso 1</div>
+                <div class="text"><?= __('usersProblems', 'Paso'); ?> 1</div>
             </div>
         </div>
 
@@ -41,48 +41,48 @@
             <div class="option">
                 <div class="content">
                     <a href="<?= get_route("user-forget-form"); ?>" class="link"></a>
-                    <div class="title">No recuerdo mi usuario</div>
-                    <div class="subtitle">No recuerda cuál fue el usuario asignado</div>
+                    <div class="title"><?= __('usersProblems', 'No recuerdo mi usuario'); ?></div>
+                    <div class="subtitle"><?= __('usersProblems', 'No recuerda cuál fue el usuario asignado'); ?></div>
                 </div>
             </div>
 
             <div class="option">
                 <div class="content">
                     <a href="<?= get_route("recovery-form"); ?>" class="link"></a>
-                    <div class="title">No recuerdo mi contraseña</div>
-                    <div class="subtitle">No recuerda la contraseña asignada</div>
+                    <div class="title"><?= __('usersProblems', 'No recuerdo mi contraseña'); ?></div>
+                    <div class="subtitle"><?= __('usersProblems', 'No recuerda la contraseña asignada'); ?></div>
                 </div>
             </div>
 
             <div class="option">
                 <div class="content">
                     <a href="<?= get_route("user-blocked-form"); ?>" class="link"></a>
-                    <div class="title">Mi usuario está bloqueado</div>
-                    <div class="subtitle">Intenta ingresar y aparece el mensaje informando el bloqueo</div>
+                    <div class="title"><?= __('usersProblems', 'Mi usuario está bloqueado'); ?></div>
+                    <div class="subtitle"><?= __('usersProblems', 'Intenta ingresar y aparece el mensaje informando el bloqueo'); ?></div>
                 </div>
             </div>
 
             <div class="option">
                 <div class="content">
                     <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
-                    <div class="title">No recuerdo mi usuario ni mi contraseña</div>
-                    <div class="subtitle">No recuerda cuáles fueron sus usuario y contraseña asignados</div>
+                    <div class="title"><?= __('usersProblems', 'No recuerdo mi usuario ni mi contraseña'); ?></div>
+                    <div class="subtitle"><?= __('usersProblems', 'No recuerda cuáles fueron sus usuario y contraseña asignados'); ?></div>
                 </div>
             </div>
 
             <div class="option">
                 <div class="content">
                     <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
-                    <div class="title">No tengo una cuenta</div>
-                    <div class="subtitle">No se encuentra inscrito o tiene problemas al crear el usuario</div>
+                    <div class="title"><?= __('usersProblems', 'No tengo una cuenta'); ?></div>
+                    <div class="subtitle"><?= __('usersProblems', 'No se encuentra inscrito o tiene problemas al crear el usuario'); ?></div>
                 </div>
             </div>
 
             <div class="option">
                 <div class="content">
                     <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
-                    <div class="title">No funciona el login</div>
-                    <div class="subtitle">Intenta ingresar, pero luego de digitar la información no pasa nada</div>
+                    <div class="title"><?= __('usersProblems', 'No funciona el login'); ?></div>
+                    <div class="subtitle"><?= __('usersProblems', 'Intenta ingresar, pero luego de digitar la información no pasa nada'); ?></div>
                 </div>
             </div>
 

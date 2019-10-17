@@ -13,7 +13,7 @@
                 </div>
             </div>
             <div class="extra content">
-                <a href="<?= $type['link'];?>" class="ui blue button">Agregar</a>
+                <a href="<?= $type['link'];?>" class="ui blue button"><?= __('usersModule', 'Agregar'); ?></a>
             </div>
         </div>
         <?php endforeach;?>
