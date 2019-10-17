@@ -103,7 +103,20 @@ $lang = [
         'Rutas y permisos'    => 'Rutas y permisos',
         'Mensajes'            => 'Mensajes',
         'Cerrar sesión'       => 'Cerrar sesión',
-    ],
+	],
+	'news' => [
+		'Crear noticia'                           => 'Crear noticia',
+		'Editar noticia'                          => 'Editar noticia',
+		'Tipo de perfil para el que será visible' => 'Tipo de perfil para el que será visible',
+		'Elija una opción'                        => 'Elija una opción',
+		'Título'                                  => 'Título',
+		'Mensaje'                                 => 'Mensaje',
+		'Fecha de inicio'                         => 'Fecha de inicio',
+		'Fecha final'                             => 'Fecha final',
+		'Guardar'                                 => 'Guardar',
+		'Noticias'                                => 'Noticias',
+		'Nueva noticia'                           => 'Nueva noticia',
+	],
 ];
 
 return $lang;
