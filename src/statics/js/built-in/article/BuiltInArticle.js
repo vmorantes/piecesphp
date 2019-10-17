@@ -90,7 +90,7 @@ function BuiltInArticle(options) {
 		} catch (error) {
 
 			console.error(error)
-			errorMessage('Error', 'Ha ocurrido un error al cargar los artículos.')
+			errorMessage(_i18n('articles', 'Error'), _i18n('articles', 'Ha ocurrido un error al cargar los artículos.'))
 
 		}
 
@@ -157,17 +157,17 @@ function BuiltInArticle(options) {
 
 		date = instance.processDate(new Date(date))
 
-		itemHTML.append(`<div>Título: ${data.title}</div>`)
-		itemHTML.append(`<div>Miniatura: <img src="${data.meta.imageThumb}" style="max-width: 500px;"/></div>`)
-		itemHTML.append(`<div>Categoría: ${data.category.name}</div>`)
-		itemHTML.append(`<div>Mes (número): ${date.month}</div>`)
-		itemHTML.append(`<div>Mes (texto): ${date.monthName}</div>`)
-		itemHTML.append(`<div>Día (número): ${date.day}</div>`)
-		itemHTML.append(`<div>Día (texto): ${date.dayName}</div>`)
-		itemHTML.append(`<div>Año: ${date.year}</div>`)
-		itemHTML.append(`<div>Autor: ${data.author.username}</div>`)
-		itemHTML.append(`<div>Visitas: ${data.meta.visits}</div>`)
-		itemHTML.append(`<div><a href="${data.link}">URL</a></div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Título')}: ${data.title}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Miniatura')}: <img src="${data.meta.imageThumb}" style="max-width: 500px;"/></div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Categoría')}: ${data.category.name}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Mes (número)')}: ${date.month}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Mes (texto)')}: ${date.monthName}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Día (número)')}: ${date.day}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Día (texto)')}: ${date.dayName}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Año')}: ${date.year}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Autor')}: ${data.author.username}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Visitas')}: ${data.meta.visits}</div>`)
+		itemHTML.append(`<div><a href="${data.link}">${_i18n('articles', 'URL')}</a></div>`)
 
 		return $(itemHTML)
 
@@ -224,7 +224,7 @@ function BuiltInArticle(options) {
 
 			}).fail(function (erro) {
 
-				errorMessage('Error', 'Ha ocurrido un error al cargar los artículos.')
+				errorMessage(_i18n('articles', 'Error'), _i18n('articles', 'Ha ocurrido un error al cargar los artículos.'))
 				console.log(error)
 
 			}).always(function () {
@@ -252,30 +252,9 @@ function BuiltInArticle(options) {
 
 		date = date instanceof Date ? date : new Date()
 
-		let months = [
-			'Enero',
-			'Febrero',
-			'Marzo',
-			'Abril',
-			'Mayo',
-			'Junio',
-			'Julio',
-			'Agosto',
-			'Septiembre',
-			'Octubre',
-			'Noviembre',
-			'Diciembre',
-		]
+		let months = _i18n('date', 'months')
 
-		let days = [
-			'Domingo',
-			'Lunes',
-			'Martes',
-			'Miércoles',
-			'Jueves',
-			'Viernes',
-			'Sábado',
-		]
+		let days = _i18n('date', 'days')
 
 		let day = date.getDate()
 		let weekDay = days[date.getDay()]

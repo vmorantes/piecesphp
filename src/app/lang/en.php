@@ -129,6 +129,12 @@ $lang = [
 		'Seleccionar destinatario' => 'Select recipient',
 		'Cerrar'                   => 'Close',
 	],
+	'articles' => [
+		'Cargar más'            => 'Load more',
+		'Contenido'             => 'Content',
+		'Noticias relacionadas' => 'Related news',
+		'URL'                   => 'URL',
+	],
 ];
 
 return $lang;

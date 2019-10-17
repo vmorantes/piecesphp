@@ -207,6 +207,21 @@ pcsphpGlobals.messages = {
 			am: 'AM',
 			pm: 'PM',
 		},
+		articles: {
+			"Título": "Título",
+			"Miniatura": "Miniatura",
+			"Categoría": "Categoría",
+			"Mes (número)": "Mes (número)",
+			"Mes (texto)": "Mes (texto)",
+			"Día (número)": "Día (número)",
+			"Día (texto)": "Día (texto)",
+			"Año": "Año",
+			"Autor": "Autor",
+			"Visitas": "Visitas",
+			"URL": "URL",
+			"Ha ocurrido un error al cargar los artículos.": "Ha ocurrido un error al cargar los artículos.",
+			"Error": "Error",
+		},
 	},
 }
 
@@ -387,6 +402,21 @@ pcsphpGlobals.messages.en = {
 		now: 'Now',
 		am: 'AM',
 		pm: 'PM',
+	},
+	articles: {
+		"Título": "Title",
+		"Miniatura": "Miniature",
+		"Categoría": "Category",
+		"Mes (número)": "Month (number)",
+		"Mes (texto)": "Month (text)",
+		"Día (número)": "Day (number)",
+		"Día (texto)": "Day (text)",
+		"Año": "Year",
+		"Autor": "Author",
+		"Visitas": "Visits",
+		"URL": "URL",
+		"Ha ocurrido un error al cargar los artículos.": "An error occurred while loading the items.",
+		"Error": "Error",
 	},
 }
 
