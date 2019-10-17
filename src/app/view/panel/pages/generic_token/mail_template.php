@@ -572,8 +572,7 @@
                                                         <p
                                                             style="margin: 0;font-size: 12px;line-height: 14px;text-align: center">
                                                             <span
-                                                                style="font-size: 12px; line-height: 14px;">Desarrollado
-                                                                por</span></p>
+                                                                style="font-size: 12px; line-height: 14px;"><?= __('general', 'Desarrollado por'); ?></span></p>
                                                         <p
                                                             style="margin: 0;font-size: 12px;line-height: 14px;text-align: center">
                                                             <strong><span

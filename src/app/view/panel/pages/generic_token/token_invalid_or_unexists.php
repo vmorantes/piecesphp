@@ -16,8 +16,8 @@
 
 <div class="ui raised very padded text container segment">
 
-    <h1 class="ui header">Información.</h1>
+    <h1 class="ui header"><?= __('genericTokenModule', 'Información.'); ?></h1>
 
-    <p>El recurso al que intenta acceder ha expirado o ya ha sido utilizado.</p>
+    <p><?= __('genericTokenModule', 'El recurso al que intenta acceder ha expirado o ya ha sido utilizado.'); ?></p>
 
 </div>

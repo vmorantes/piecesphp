@@ -298,7 +298,29 @@ $lang = [
         'Método'                    => 'Método',
         'Roles con acceso'          => 'Roles con acceso',
         'No requiere autenticación' => 'No requiere autenticación',
-    ],
+	],
+	'genericTokenModule' => [
+		'Comentarios'                                                           => 'Comentarios',
+		'Correo electrónico'                                                    => 'Correo electrónico',
+		'Asunto'                                                                => 'Asunto',
+		'Comentario'                                                            => 'Comentario',
+		'Requerir respuesta'                                                    => 'Requerir respuesta',
+		'Enviar'                                                                => 'Enviar',
+		'Información.'                                                          => 'Información.',
+		'El recurso al que intenta acceder ha expirado o ya ha sido utilizado.' => 'El recurso al que intenta acceder ha expirado o ya ha sido utilizado.',
+	],
+	'importerModule' => [
+		'Resultado de la importación' => 'Resultado de la importación',
+		'Total'                       => 'Total',
+		'Exitosos'                    => 'Exitosos',
+		'Errores'                     => 'Errores',
+		'Ver detalle'                 => 'Ver detalle',
+		'Detalles de la importación'  => 'Detalles de la importación',
+		'Subir archivo excel'         => 'Subir archivo excel',
+		'Subir'                       => 'Subir',
+		'Descargar'                   => 'Descargar',
+		'Plantilla'                   => 'Plantilla',
+	],
 ];
 
 return $lang;
