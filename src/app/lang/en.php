@@ -5,11 +5,11 @@ namespace App\LangMessages;
 //Hereda los mensajes que estan en lang/default.php
 $lang = [
     'lang' => [
-        'es'       => 'Español',
+        'es'       => 'Spanish',
         'es-short' => 'ES',
-        'en'       => 'Inglés',
+        'en'       => 'English',
         'en-short' => 'EN',
-        'fr'       => 'Francés',
+        'fr'       => 'French',
         'fr-short' => 'FR',
     ],
     'day' => [
@@ -105,6 +105,19 @@ $lang = [
         'Mensajes'            => 'Messages',
         'Cerrar sesión'       => 'Logout',
     ],
+	'news' => [
+		'Crear noticia'                           => 'Create news',
+		'Editar noticia'                          => 'Edit news',
+		'Tipo de perfil para el que será visible' => 'Type of profile for which it will be visible',
+		'Elija una opción'                        => 'Choose an option',
+		'Título'                                  => 'Title',
+		'Mensaje'                                 => 'Message',
+		'Fecha de inicio'                         => 'Start date',
+		'Fecha final'                             => 'Final date',
+		'Guardar'                                 => 'Save',
+		'Noticias'                                => 'News',
+		'Nueva noticia'                           => 'New news',
+	],
 ];
 
 return $lang;

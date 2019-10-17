@@ -1,9 +1,9 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
 <h3 class="ui dividing header">
-    Noticias
+    <?= __('news', 'Noticias'); ?>
 </h3>
-<a href="<?=get_route('blackboard-news-create-form');?>" class="ui mini button green">Nueva noticia</a>
+<a href="<?=get_route('blackboard-news-create-form');?>" class="ui mini button green"><?= __('news', 'Nueva noticia'); ?></a>
 <br>
 <br>
 <div table blackboard-list='<?=get_route('blackboard-news-get');?>'>
