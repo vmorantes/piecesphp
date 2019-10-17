@@ -3,7 +3,7 @@
     <i class="icon bars"></i>
 </div>
 <aside class="ui-pcs sidebar">
-	
+
     <div class="user-info">
         <div class="avatar">
             <?php if($user->hasAvatar): ?>
@@ -25,7 +25,7 @@
     </article>
 
     <div class="logo-developed">
-    	<small>Desarrollado por <?= get_config('developer'); ?> para:</small>
+        <small><?= __('general', 'Desarrollado por'); ?> <?= get_config('developer'); ?> <?= __('general', 'para'); ?>:</small>
         <img src="<?=get_config('logo-sidebar-bottom');?>">
     </div>
 </aside> <!-- .ui-pcs.sidebar -->
