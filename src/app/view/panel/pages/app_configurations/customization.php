@@ -7,16 +7,16 @@ use App\Model\AppConfigModel;
 <div class="container-medium">
 
     <div class="ui top attached tabular menu main">
-        <a class="item active" data-tab="images">Imágenes</a>
-        <a class="item" data-tab="bg">Fondos del login</a>
+        <a class="item active" data-tab="images"><?= __('customizationAdminZone', 'Imágenes'); ?></a>
+        <a class="item" data-tab="bg"><?= __('customizationAdminZone', 'Fondos del login'); ?></a>
     </div>
 
     <div class="ui bottom attached tab segment active" data-tab="images">
 
         <div class="ui top attached tabular menu second">
-            <a class="item active" data-tab="favicon">Íconos de favoritos (favicon)</a>
-            <a class="item" data-tab="logos">Logos</a>
-            <a class="item" data-tab="og">Open Graph</a>
+            <a class="item active" data-tab="favicon"><?= __('customizationAdminZone', 'Íconos de favoritos (favicon)'); ?></a>
+            <a class="item" data-tab="logos"><?= __('customizationAdminZone', 'Logos'); ?></a>
+            <a class="item" data-tab="og"><?= __('customizationAdminZone', 'Open Graph'); ?></a>
         </div>
 
         <div class="ui bottom attached tab segment active" data-tab="favicon">
@@ -26,19 +26,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">Zona pública</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'Zona pública'); ?></div>
 
                 <div class="image-preview favicon">
                     <img src="<?=AppConfigModel::getConfigValue('favicon');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="favicon" accept="image/png" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -48,19 +48,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">Zona administrativa</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'Zona administrativa'); ?></div>
 
                 <div class="image-preview favicon">
                     <img src="<?=AppConfigModel::getConfigValue('favicon-back');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="favicon-back" accept="image/png" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -76,19 +76,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">General</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'General'); ?></div>
 
                 <div class="image-preview logo">
                     <img src="<?=AppConfigModel::getConfigValue('logo');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="logo" accept="image/png" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -98,19 +98,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">Login</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'Login'); ?></div>
 
                 <div class="image-preview logo">
                     <img src="<?=AppConfigModel::getConfigValue('logo-login');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="logo-login" accept="image/png" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -120,19 +120,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">Superior de la barra lateral</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'Superior de la barra lateral'); ?></div>
 
                 <div class="image-preview logo">
                     <img src="<?=AppConfigModel::getConfigValue('logo-sidebar-top');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="logo-sidebar-top" accept="image/png" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -142,19 +142,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">Inferior de la barra lateral</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'Inferior de la barra lateral'); ?></div>
 
                 <div class="image-preview logo">
                     <img src="<?=AppConfigModel::getConfigValue('logo-sidebar-bottom');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="logo-sidebar-bottom" accept="image/png" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -164,19 +164,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">Plantillas de correo electrónico</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'Plantillas de correo electrónico'); ?></div>
 
                 <div class="image-preview logo">
                     <img src="<?=AppConfigModel::getConfigValue('logo-mailing');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="logo-mailing" accept="image/png" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -192,19 +192,19 @@ use App\Model\AppConfigModel;
             <form action="<?=get_route('configurations-customization-images-action');?>" pcs-generic-handler-js
                 method="POST" class="ui form">
 
-                <div class="ui header small">Imagen general</div>
+                <div class="ui header small"><?= __('customizationAdminZone', 'Imagen general'); ?></div>
 
                 <div class="image-preview logo">
                     <img src="<?=AppConfigModel::getConfigValue('open_graph_image');?>">
                 </div>
 
                 <div class="field">
-                    <label>Cambiar</label>
+                    <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                     <input type="file" name="open_graph_image" accept="image/jpeg" required>
                 </div>
 
                 <div class="field">
-                    <button type="submit" class="ui button green">Guardar</button>
+                    <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
                 </div>
 
             </form>
@@ -229,12 +229,12 @@ use App\Model\AppConfigModel;
             </div>
 
             <div class="field">
-                <label>Cambiar</label>
+                <label><?= __('customizationAdminZone', 'Cambiar'); ?></label>
                 <input type="file" name="<?= "background-" . ($index + 1);?>" accept="image/jpeg" required>
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green">Guardar</button>
+                <button type="submit" class="ui button green"><?= __('customizationAdminZone', 'Guardar'); ?></button>
             </div>
 
         </form>

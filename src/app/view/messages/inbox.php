@@ -175,7 +175,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <input type="hidden" name="message_from">
         <div class="field">
             <div class="field required">
-                <textarea name="message" placeholder="Escriba su respuesta"></textarea>
+                <textarea name="message" placeholder="<?= __('messenger', 'Escriba su respuesta'); ?>"></textarea>
             </div>
             <div class="field">
                 <button class="ui blue button" type="submit"><?= __('messenger', 'Enviar'); ?>
