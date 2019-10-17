@@ -128,6 +128,12 @@ $lang = [
 		'Seleccionar destinatario' => 'Seleccionar destinatario',
 		'Cerrar'                   => 'Cerrar',
 	],
+	'articles' => [
+		'Cargar más'            => 'Cargar más',
+		'Contenido'             => 'Contenido',
+		'Noticias relacionadas' => 'Noticias relacionadas',
+		'URL'                   => 'URL',
+	],
 ];
 
 return $lang;
