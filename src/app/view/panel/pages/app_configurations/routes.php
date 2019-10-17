@@ -3,7 +3,7 @@
 <div class="container-medium">
 
     <div class="ui top attached tabular menu">
-        <a class="item active" data-tab="general">Rutas y permisos</a>
+        <a class="item active" data-tab="general"><?= __('routesViewAdminZone', 'Rutas y permisos'); ?></a>
     </div>
 
     <div class="ui bottom attached tab segment active" data-tab="general">
@@ -11,12 +11,12 @@
         <table class="ui table stripped celled roles" style="max-width:100%;">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Definición</th>
-                    <th>Ruta</th>
-                    <th>Clase</th>
-                    <th>Método</th>
-                    <th>Roles con acceso</th>
+                    <th><?= __('routesViewAdminZone', 'Nombre'); ?></th>
+                    <th><?= __('routesViewAdminZone', 'Definición'); ?></th>
+                    <th><?= __('routesViewAdminZone', 'Ruta'); ?></th>
+                    <th><?= __('routesViewAdminZone', 'Clase'); ?></th>
+                    <th><?= __('routesViewAdminZone', 'Método'); ?></th>
+                    <th><?= __('routesViewAdminZone', 'Roles con acceso'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -27,7 +27,7 @@
                     <td><?=str_replace(baseurl(), '', get_route_sample($information['name']));?></td>
                     <td><?=explode(':', $information['controller'])[0];?></td>
                     <td><?=explode(':', $information['controller'])[1];?></td>
-                    <td><?=$information['require_login'] ? '- ' . implode('<br>- ', get_route_roles_allowed($name, 'name')) : 'No requiere autenticación';?>
+                    <td><?=$information['require_login'] ? '- ' . implode('<br>- ', get_route_roles_allowed($name, 'name')) : __('routesViewAdminZone', 'No requiere autenticación');?>
                     </td>
                 </tr>
                 <?php endforeach;?>
