@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="no-js">
+<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>" class="no-js">
 
 <head>
     <meta charset="UTF-8" />
