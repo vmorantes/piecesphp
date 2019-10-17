@@ -1,6 +1,6 @@
 <?php
 $this->render('usuarios/mail/template_base_problem', [
-    'text' => __('general', 'new_password_is'),
+    'text' => __('mailTemplates', 'Su nueva contraseña es') . ': ',
     'url' => $url,
-    'text_button' => __('general', 'loging'),
+    'text_button' => __('mailTemplates', 'Iniciar sesión.'),
 ]);
