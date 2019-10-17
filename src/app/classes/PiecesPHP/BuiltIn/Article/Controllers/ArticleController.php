@@ -1026,7 +1026,7 @@ class ArticleController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $all_roles
+                $rolesAllowed
             ),
             new Route(
                 "{$startRoute}/forms/add[/]",
