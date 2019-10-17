@@ -15,22 +15,22 @@
 <body>
 
     <div class="ui modal" support-js>
-        <div class="header"><?= __('support_form_admin', 'Soporte ténico'); ?></div>
+        <div class="header"><?= __('supportFormAdminZone', 'Soporte ténico'); ?></div>
         <div class="content">
             <form action="<?=get_route('tickets-create');?>" class="ui form">
                 <input type="hidden" name="name"
                     value="<?=get_config('current_user')->firstname . ' ' . get_config('current_user')->first_lastname;?>">
                 <input type="hidden" name="email" value="<?=get_config('current_user')->email;?>">
                 <div class="field">
-                    <label><?= __('support_form_admin', 'Asunto'); ?></label>
+                    <label><?= __('supportFormAdminZone', 'Asunto'); ?></label>
                     <input type="text" name="subject">
                 </div>
                 <div class="field">
-                    <label><?= __('support_form_admin', 'Mensaje'); ?></label>
+                    <label><?= __('supportFormAdminZone', 'Mensaje'); ?></label>
                     <textarea name="comments"></textarea>
                 </div>
                 <div class="field">
-                    <button type="submit" class="ui green button"><?= __('support_form_admin', 'Enviar'); ?></button>
+                    <button type="submit" class="ui green button"><?= __('supportFormAdminZone', 'Enviar'); ?></button>
                 </div>
             </form>
         </div>

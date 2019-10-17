@@ -2,7 +2,7 @@
 
 <div style="max-width:850px;">
 
-    <h3><?= __('location-backend', 'Editar'); ?> <?= $title; ?></h3>
+    <h3><?= __('locationBackend', 'Editar'); ?> <?= $title; ?></h3>
 
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
@@ -15,25 +15,25 @@
         <input type="hidden" name="id" value="<?= $element->id; ?>">
 
         <div class="field required">
-            <label><?= __('location-backend', 'País'); ?></label>
+            <label><?= __('locationBackend', 'País'); ?></label>
             <select required name="country"
                 locations-component-auto-filled-country="<?= $element->country->id; ?>"></select>
         </div>
 
         <div class="field required">
-            <label><?= __('location-backend', 'Nombre'); ?></label>
+            <label><?= __('locationBackend', 'Nombre'); ?></label>
             <input type="text" name="name" maxlength="255" value="<?= $element->name; ?>">
         </div>
 
         <div class="field required">
-            <label><?= __('location-backend', 'Activo/Inactivo'); ?></label>
+            <label><?= __('locationBackend', 'Activo/Inactivo'); ?></label>
             <select required name="active">
                 <?= $status_options; ?>
             </select>
         </div>
 
         <div class="field">
-            <button type="submit" class="ui button green"><?= __('location-backend', 'Guardar'); ?></button>
+            <button type="submit" class="ui button green"><?= __('locationBackend', 'Guardar'); ?></button>
         </div>
 
     </form>
