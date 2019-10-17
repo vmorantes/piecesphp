@@ -20,11 +20,11 @@
 
         <div class="topbar">
             <div class="text">
-                Creación de <br> solicitud de <br> soporte
+                <?= __('usersProblems', 'Creación de <br> solicitud de <br> soporte'); ?>
             </div>
             <div class="back">
                 <a href="<?=get_route('user-problems-list')?>">
-                    Volver atrás
+                    <?= __('usersProblems', 'Volver atrás'); ?>
                 </a>
             </div>
         </div>
@@ -34,7 +34,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/support-1.png'); ?>">
                 </div>
-                <div class="text">Solicitud de soporte</div>
+                <div class="text"><?= __('usersProblems', 'Solicitud de soporte'); ?></div>
             </div>
         </div>
 
@@ -43,7 +43,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/support-2.png'); ?>">
                 </div>
-                <div class="text">Su solicitud de soporte <br> ha sido creada</div>
+                <div class="text"><?= __('usersProblems', 'Su solicitud de soporte <br> ha sido creada'); ?></div>
             </div>
         </div>
 
@@ -55,23 +55,23 @@
 
                 <form class="ui form" style="max-width: 450px; margin:0 auto;">
                     <div class="field required">
-                        <input required type="text" name="name" placeholder="Nombres">
+                        <input required type="text" name="name" placeholder="<?= __('usersProblems', 'Nombres'); ?>">
                     </div>
                     <div class="field required">
-                        <input required type="text" name="lastname" placeholder="Apellidos">
+                        <input required type="text" name="lastname" placeholder="<?= __('usersProblems', 'Apellidos'); ?>">
                     </div>
                     <!-- <div class="field required">
                         <input required type="hidden" name="extra[0][display]" value="Otra cosa">
                         <input required type="text" name="extra[0][text]" placeholder="Otra cosa">
                     </div> -->
                     <div class="field required">
-                        <input required type="email" name="email" placeholder="Correo electrónico">
+                        <input required type="email" name="email" placeholder="<?= __('usersProblems', 'Correo electrónico'); ?>">
                     </div>
                     <div class="field required">
-                        <textarea required name="message" placeholder="Problema presentado"></textarea>
+                        <textarea required name="message" placeholder="<?= __('usersProblems', 'Problema presentado'); ?>"></textarea>
                     </div>
                     <div class="field">
-                        <button type="submit" class="ui button green fluid">Enviar</button>
+                        <button type="submit" class="ui button green fluid"><?= __('usersProblems', 'Enviar'); ?></button>
                     </div>
                 </form>
 
@@ -81,7 +81,7 @@
 
                 <form class="ui form">
                     <div class="field">
-                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid">Ingresar</a>
+                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid"><?= __('usersProblems', 'Ingresar'); ?></a>
                     </div>
                 </form>
 

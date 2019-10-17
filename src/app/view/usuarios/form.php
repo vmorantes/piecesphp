@@ -2,9 +2,9 @@
 <div class="user-form-component">
 
     <div class="ui pointing secondary menu items-pointing">
-        <a class="item active" data-tab="form-container">Datos de usuario</a>
+        <a class="item active" data-tab="form-container"><?= __('usersModule', 'Datos de usuario'); ?></a>
         <?php if (!$create): ?>
-        <a class="item" data-tab="avatar-container">Avatar</a>
+        <a class="item" data-tab="avatar-container"><?= __('usersModule', 'Avatar'); ?></a>
         <?php endif;?>
 	</div>
 	
@@ -16,17 +16,17 @@
     <div class="ui bottom attached tab" data-tab="avatar-container">
         <?php if ($hasAvatar): ?>
         <div>
-            <h2>Avatar actual</h2>
+            <h2><?= __('usersModule', 'Avatar actual'); ?></h2>
             <img class="ui middle aligned small circular image" src="<?=$avatar;?>">
             <button change-avatar class="ui mini button green">
             <i class="edit icon"></i>
-            Cambiar
+            <?= __('usersModule', 'Cambiar'); ?>
             </button>
         </div>
         <?php else: ?>
         <div class="ui message warning">
             <div class="header">
-                Aún no has seleccionado un avatar.
+                <?= __('usersModule', 'Aún no has seleccionado un avatar.'); ?>
             </div>
         </div>
         <?php endif;?>
@@ -54,62 +54,62 @@
                     <div class="field">
                         <div buttons-move='cabello'>
                             <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                            <input label="Cabello">
+                            <input label="<?= __('usersModule', 'Cabello'); ?>">
                             <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                         </div>
                         <div group-color='cabello'>
-                            <div class="caption"><i class="tint icon large"></i>Color</div>
+                            <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
                             <div container-colors></div>
                         </div>
                     </div>
                     <div class="field">
                         <div buttons-move='ojo'>
                             <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                            <input label="Ojos">
+                            <input label="<?= __('usersModule', 'Ojos'); ?>">
                             <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                         </div>
                         <div group-color='ojo'>
-                            <div class="caption"><i class="tint icon large"></i>Color</div>
+                            <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
                             <div container-colors></div>
                         </div>
                     </div>
                     <div class="field">
                         <div buttons-move='nariz'>
                             <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                            <input label="Nariz">
+                            <input label="<?= __('usersModule', 'Nariz'); ?>">
                             <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                         </div>
                         <div group-color='nariz'>
-                            <div class="caption"><i class="tint icon large"></i>Color</div>
+                            <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
                             <div container-colors></div>
                         </div>
                     </div>
                     <div class="field">
                         <div buttons-move='boca'>
                             <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                            <input label="Boca">
+                            <input label="<?= __('usersModule', 'Boca'); ?>">
                             <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                         </div>
                         <div group-color='boca'>
-                            <div class="caption"><i class="tint icon large"></i>Color</div>
+                            <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
                             <div container-colors></div>
                         </div>
                     </div>
                     <div class="field">
                         <div buttons-move='silueta'>
                             <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                            <input label="Cuerpo">
+                            <input label="<?= __('usersModule', 'Cuerpo'); ?>">
                             <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                         </div>
                         <div group-color='silueta'>
-                            <div class="caption"><i class="tint icon large"></i>Color</div>
+                            <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
                             <div container-colors></div>
                         </div>
                     </div>
                     <div class="field">
                         <div buttons-move='ropa'>
                             <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                            <input label="Ropa">
+                            <input label="<?= __('usersModule', 'Ropa'); ?>">
                             <button next class="ui-pcs arrow right icon button"><i class="arrow right icon large"></i></button>
                         </div>
                     </div>
@@ -117,7 +117,7 @@
                 <div class="center">
                     <div class="ui button green" save-button>
                         <i class="save icon"></i>
-                        Guardar
+                        <?= __('usersModule', 'Guardar'); ?>
                     </div>
                 </div>
             </div>
