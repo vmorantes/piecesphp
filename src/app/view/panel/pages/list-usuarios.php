@@ -3,12 +3,12 @@
 <div style="max-width:850px;">
 
     <h3 class="ui dividing header">
-        <?=__('general', 'users');?>
+        <?=__('usersModule', 'Usuarios');?>
     </h3>
 
     <div class="ui buttons">
         <?php if(\PiecesPHP\Core\Roles::hasPermissions('users-selection-create', (int)get_config('current_user')->type, true)):?>
-        <a href="<?= get_route('users-selection-create'); ?>" class="ui button green">Agregar</a>
+        <a href="<?= get_route('users-selection-create'); ?>" class="ui button green"><?= __('usersModule', 'Agregar'); ?></a>
         <?php endif;?>
     </div>
 	<br>
@@ -21,14 +21,14 @@
     style="max-width:100%;width:100%;">
     <thead>
         <tr>
-            <th>#</th>
-            <th>Nombres</th>
-            <th>Apellidos</th>
-            <th>Correo electrónico</th>
-            <th>Usuario</th>
-            <th>Activo/Inactivo</th>
-            <th>Tipo</th>
-            <th order='false'>Acciones</th>
+            <th><?= __('usersModule', '#'); ?></th>
+            <th><?= __('usersModule', 'Nombres'); ?></th>
+            <th><?= __('usersModule', 'Apellidos'); ?></th>
+            <th><?= __('usersModule', 'Correo electrónico'); ?></th>
+            <th><?= __('usersModule', 'Usuario'); ?></th>
+            <th><?= __('usersModule', 'Activo/Inactivo'); ?></th>
+            <th><?= __('usersModule', 'Tipo'); ?></th>
+            <th order='false'><?= __('usersModule', 'Acciones'); ?></th>
         </tr>
     </thead>
     <tbody></tbody>

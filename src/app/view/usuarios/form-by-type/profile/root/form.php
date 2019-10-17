@@ -1,7 +1,7 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
 
-<h3><?=__('general', 'profile');?>: <?="$edit_user->firstname $edit_user->first_lastname";?></h3>
+<h3><?=__('usersModule', 'profile');?>: <?="$edit_user->firstname $edit_user->first_lastname";?></h3>
 
 <form class="ui form users profile root" action="<?= get_route('user-edit-request'); ?>">
 
@@ -16,7 +16,7 @@
             <div class="column">
 
                 <div class="field">
-                    <input required type="text" name="firstname" placeholder="<?=__('general', 'firstname');?>"
+                    <input required type="text" name="firstname" placeholder="<?=__('usersModule', 'firstname');?>"
                         value="<?=$edit_user->firstname;?>">
                 </div>
 
@@ -25,7 +25,7 @@
             <div class="column">
 
                 <div class="field">
-                    <input type="text" name="secondname" placeholder="<?=__('general', 'secondname');?>"
+                    <input type="text" name="secondname" placeholder="<?=__('usersModule', 'secondname');?>"
                         value="<?=$edit_user->secondname;?>">
                 </div>
 
@@ -39,7 +39,7 @@
 
                 <div class="field">
                     <input required type="text" name="first_lastname"
-                        placeholder="<?=__('general', 'first-lastname');?>" value="<?=$edit_user->first_lastname;?>">
+                        placeholder="<?=__('usersModule', 'first-lastname');?>" value="<?=$edit_user->first_lastname;?>">
                 </div>
 
             </div>
@@ -47,7 +47,7 @@
             <div class="column">
 
                 <div class="field">
-                    <input type="text" name="second_lastname" placeholder="<?=__('general', 'second-lastname');?>"
+                    <input type="text" name="second_lastname" placeholder="<?=__('usersModule', 'second-lastname');?>"
                         value="<?=$edit_user->second_lastname;?>">
                 </div>
 
@@ -64,7 +64,7 @@
         <div class="ui labeled input">
             <div class="ui label">
                 <i class="icon user outline large"></i>
-                <?=__('general', 'user');?>
+                <?=__('usersModule', 'user');?>
             </div>
             <input required type="text" name="username" value="<?= $edit_user->username;?>">
         </div>
@@ -77,7 +77,7 @@
 
             <div class="ui label">
                 <i class="icon mail outline large"></i>
-                <?=__('general', 'email-standard');?>
+                <?=__('usersModule', 'email-standard');?>
             </div>
 
             <input required type="email" name="email" value="<?=$edit_user->email;?>">
@@ -92,7 +92,7 @@
 
             <div class="ui label pass">
                 <i class="icon key  large"></i>
-                <?=__('general', 'current-password');?>
+                <?=__('usersModule', 'current-password');?>
             </div>
             <input type="password" name="current-password" value="">
 
@@ -106,7 +106,7 @@
 
             <div class="ui label">
                 <i class="icon key  large"></i>
-                <?=__('general', 'password_restored');?>
+                <?=__('usersModule', 'password_restored');?>
             </div>
             <input type="password" name="password" value="">
 
@@ -119,7 +119,7 @@
         <div class="ui labeled input">
             <div class="ui label">
                 <i class="icon key  large"></i>
-                <?=__('general', 'confirm-password');?>
+                <?=__('usersModule', 'confirm-password');?>
             </div>
             <input type="password" name="password2" value="">
         </div>
@@ -130,7 +130,7 @@
 
         <button type="submit" class="ui button green">
             <i class="save icon"></i>
-            <?=__('general', 'save');?>
+            <?=__('usersModule', 'save');?>
         </button>
 
     </div>
