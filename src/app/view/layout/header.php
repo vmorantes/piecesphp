@@ -1,6 +1,6 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 <!DOCTYPE html>
-<html lang="<?= get_config('app_lang'); ?>">
+<html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>">
 
 <head>
     <meta charset="UTF-8">

@@ -4,12 +4,7 @@
  */
 var pcsphpGlobals = {}
 
-/**
- * Lenguaje
- * 
- * @property lang
- * @type {Object}
- */
+//──── Lenguaje ──────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.lang = (function () {
 	let langHTML = document.querySelector('html').getAttribute('lang')
 
@@ -21,13 +16,17 @@ pcsphpGlobals.lang = (function () {
 
 	return lang
 })()
+pcsphpGlobals.defaultLang = (function () {
+	let defaultLangHTML = document.querySelector('html').getAttribute('dlang')
 
-/**
- * Mensajes
- * 
- * @property messages
- * @type {Object}
- */
+	let lang = 'es'
+
+	if (defaultLangHTML != null && defaultLangHTML.length > 0) {
+		lang = defaultLangHTML
+	}
+
+	return lang
+})()
 
 pcsphpGlobals.messages = {
 	es: {
@@ -53,9 +52,43 @@ pcsphpGlobals.messages = {
 			password_should_be_string: 'La contraseña debe ser un string.',
 		},
 		semantic_calendar: {
-			days: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
-			months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-			monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+			days: [
+				'D',
+				'L',
+				'M',
+				'M',
+				'J',
+				'V',
+				'S',
+			],
+			months: [
+				'Enero',
+				'Febrero',
+				'Marzo',
+				'Abril',
+				'Mayo',
+				'Junio',
+				'Julio',
+				'Agosto',
+				'Septiembre',
+				'Octubre',
+				'Noviembre',
+				'Diciembre',
+			],
+			monthsShort: [
+				'Ene',
+				'Feb',
+				'Mar',
+				'Abr',
+				'May',
+				'Jun',
+				'Jul',
+				'Ago',
+				'Sep',
+				'Oct',
+				'Nov',
+				'Dic',
+			],
 			today: 'Hoy',
 			now: 'Ahora',
 			am: 'AM',
@@ -123,19 +156,245 @@ pcsphpGlobals.messages = {
 			}
 		},
 		date: {
-			days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-			daysLetter: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
-			months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-			monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+			days: [
+				'Domingo',
+				'Lunes',
+				'Martes',
+				'Miércoles',
+				'Jueves',
+				'Viernes',
+				'Sábado',
+			],
+			daysLetter: [
+				'D',
+				'L',
+				'M',
+				'M',
+				'J',
+				'V',
+				'S',
+			],
+			months: [
+				'Enero',
+				'Febrero',
+				'Marzo',
+				'Abril',
+				'Mayo',
+				'Junio',
+				'Julio',
+				'Agosto',
+				'Septiembre',
+				'Octubre',
+				'Noviembre',
+				'Diciembre',
+			],
+			monthsShort: [
+				'Ene',
+				'Feb',
+				'Mar',
+				'Abr',
+				'May',
+				'Jun',
+				'Jul',
+				'Ago',
+				'Sep',
+				'Oct',
+				'Nov',
+				'Dic',
+			],
 			today: 'Hoy',
 			now: 'Ahora',
 			am: 'AM',
-			pm: 'PM'
+			pm: 'PM',
 		},
 	},
 }
 
-pcsphpGlobals.messages.en = pcsphpGlobals.messages.es
+pcsphpGlobals.messages.en = {
+	titles: {
+		error: 'Error',
+		success: 'Success',
+		created: 'Created',
+		edited: 'Edited',
+	},
+	errors: {
+		pass_not_match: 'Error: passwords must match.',
+		unexpected_error: 'An unexpected error has occurred.',
+		unexpected_error_try_later: 'An unexpected error has occurred, try again later.',
+		name_is_required: 'The name is required.',
+		name_should_be_string: 'The name must be a string.',
+		lastname_is_required: 'The last name is required.',
+		lastname_should_be_string: 'The last name must be a string.',
+		email_is_required: 'The email is required.',
+		email_should_be_string: 'The email must be a string.',
+		user_is_required: 'The username is required.',
+		user_should_be_string: 'The username must be a string.',
+		password_is_required: 'The password is required.',
+		password_should_be_string: 'The password must be a string.',
+	},
+	semantic_calendar: {
+		days: [
+			'S',
+			'M',
+			'T',
+			'W',
+			'T',
+			'F',
+			'S',
+		],
+		months: [
+			'January',
+			'February',
+			'March',
+			'April',
+			'May',
+			'June',
+			'July',
+			'August',
+			'September',
+			'October',
+			'November',
+			'December',
+		],
+		monthsShort: [
+			'Jan',
+			'Feb',
+			'Mar',
+			'Apr',
+			'May',
+			'Jun',
+			'Jul',
+			'Aug',
+			'Sep',
+			'Oct',
+			'Nov',
+			'Dec',
+		],
+		today: 'Today',
+		now: 'Now',
+		am: 'AM',
+		pm: 'PM',
+	},
+	semantic_form: {
+		text: {
+			unspecifiedRule: 'Please enter a valid value',
+			unspecifiedField: 'This field',
+		},
+		prompt: {
+			empty: `{name} must have a value`,
+			checked: `{name} must be marked`,
+			email: `{name} must be a valid email`,
+			url: `{name} must be a valid url`,
+			regExp: `{name} does not have the correct format`,
+			integer: `{name} must be an integer`,
+			decimal: `{name} must be a decimal number`,
+			number: `{name} must be a number`,
+			is: `{name} must be '{ruleValue}'`,
+			isExactly: `{name} must be exactly '{ruleValue}'`,
+			not: `{name} Cannot be '{ruleValue}'`,
+			notExactly: `{name} It can't be exactly '{ruleValue}'`,
+			contain: `{name} Cannot contain '{ruleValue}'`,
+			containExactly: `{name} Cannot contain exactly '{ruleValue}'`,
+			doesntContain: `{name} must contain '{ruleValue}'`,
+			doesntContainExactly: `{name} must contain exactly '{ruleValue}'`,
+			minLength: `{name} must contain at least {ruleValue} characters`,
+			length: `{name} must contain at least {ruleValue} characters`,
+			exactLength: `{name} must contain exactly {ruleValue} characters`,
+			maxLength: `{name} cannot contain more than {ruleValue} characters`,
+			match: `{name} must match the {ruleValue} field`,
+			different: `{name} must have a different value than the {ruleValue} field`,
+			creditCard: `{name} must be a valid credit card number`,
+			minCount: `{name} You must have at least {ruleValue} choices`,
+			exactCount: `{name} You must have exactly {ruleValue} choices`,
+			maxCount: `{name} You must have {ruleValue} or less choose`,
+		}
+	},
+	datatables: {
+		lang: {
+			"decimal": "",
+			"emptyTable": "No information available",
+			"info": "Viewing from _START_ to _END_ of _TOTAL_ elements",
+			"infoEmpty": "Displaying 0 to 0 of 0 items",
+			"infoFiltered": "(filtered from _MAX_ elements)",
+			"infoPostFix": "",
+			"thousands": ".",
+			"lengthMenu": "See _MENU_ elements",
+			"loadingRecords": "Loading...",
+			"processing": "Processing ...",
+			"search": "",
+			"searchPlaceholder": "Look for...",
+			"zeroRecords": "No matches found",
+			"paginate": {
+				"first": "First",
+				"last": "Latest",
+				"next": "Next",
+				"previous": "Previous",
+			},
+			"aria": {
+				"sortAscending": ": activate ascending column sorting",
+				"sortDescending": ": activate descending column ordering"
+			}
+		}
+	},
+	date: {
+		days: [
+			'Sunday',
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday',
+		],
+		daysLetter: [
+			'S',
+			'M',
+			'T',
+			'W',
+			'T',
+			'F',
+			'S',
+		],
+		months: [
+			'January',
+			'February',
+			'March',
+			'April',
+			'May',
+			'June',
+			'July',
+			'August',
+			'September',
+			'October',
+			'November',
+			'December',
+		],
+		monthsShort: [
+			'Jan',
+			'Feb',
+			'Mar',
+			'Apr',
+			'May',
+			'Jun',
+			'Jul',
+			'Aug',
+			'Sep',
+			'Oct',
+			'Nov',
+			'Dec',
+		],
+		today: 'Today',
+		now: 'Now',
+		am: 'AM',
+		pm: 'PM',
+	},
+}
+
+if(typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined'){
+	pcsphpGlobals.messages[pcsphpGlobals.lang] = pcsphpGlobals.messages[pcsphpGlobals.defaultLang]
+}
+
+//────────────────────────────────────────────────────────────────────────────────────────
 
 /**
  * Configuración de los calendarios
