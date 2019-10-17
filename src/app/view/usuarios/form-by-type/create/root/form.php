@@ -14,7 +14,7 @@ use App\Model\UsersModel;
             <div class="column">
 
                 <div class="field">
-                    <input required type="text" name="firstname" placeholder="<?=__('general', 'firstname');?>">
+                    <input required type="text" name="firstname" placeholder="<?=__('usersModule', 'firstname');?>">
                 </div>
 
             </div>
@@ -22,7 +22,7 @@ use App\Model\UsersModel;
             <div class="column">
 
                 <div class="field">
-                    <input type="text" name="secondname" placeholder="<?=__('general', 'secondname');?>">
+                    <input type="text" name="secondname" placeholder="<?=__('usersModule', 'secondname');?>">
                 </div>
 
             </div>
@@ -35,7 +35,7 @@ use App\Model\UsersModel;
 
                 <div class="field">
                     <input required type="text" name="first_lastname"
-                        placeholder="<?=__('general', 'first-lastname');?>">
+                        placeholder="<?=__('usersModule', 'first-lastname');?>">
                 </div>
 
             </div>
@@ -43,7 +43,7 @@ use App\Model\UsersModel;
             <div class="column">
 
                 <div class="field">
-                    <input type="text" name="second_lastname" placeholder="<?=__('general', 'second-lastname');?>">
+                    <input type="text" name="second_lastname" placeholder="<?=__('usersModule', 'second-lastname');?>">
                 </div>
 
             </div>
@@ -59,7 +59,7 @@ use App\Model\UsersModel;
         <div class="ui labeled input">
             <div class="ui label">
                 <i class="icon user outline large"></i>
-                <?=__('general', 'user');?>
+                <?=__('usersModule', 'user');?>
             </div>
             <input required type="text" name="username">
         </div>
@@ -72,7 +72,7 @@ use App\Model\UsersModel;
 
             <div class="ui label">
                 <i class="icon mail outline large"></i>
-                <?=__('general', 'email-standard');?>
+                <?=__('usersModule', 'email-standard');?>
             </div>
 
             <input required type="email" name="email">
@@ -87,7 +87,7 @@ use App\Model\UsersModel;
 
             <div class="ui label">
                 <i class="icon key  large"></i>
-                <?=__('general', 'password');?>
+                <?=__('usersModule', 'password');?>
             </div>
             <input type="password" name="password" value="">
 
@@ -100,7 +100,7 @@ use App\Model\UsersModel;
         <div class="ui labeled input">
             <div class="ui label">
                 <i class="icon key  large"></i>
-                <?=__('general', 'confirm-password');?>
+                <?=__('usersModule', 'confirm-password');?>
             </div>
             <input type="password" name="password2" value="">
         </div>
@@ -111,7 +111,7 @@ use App\Model\UsersModel;
 
         <select class="ui dropdown" required name="status">
 
-            <option value=""><?=__('general', 'status');?></option>
+            <option value=""><?=__('usersModule', 'status');?></option>
             <?php foreach ($status_options as $name => $value): ?>
             <option value="<?=$value;?>"><?=$name;?></option>
             <?php endforeach;?>
@@ -124,7 +124,7 @@ use App\Model\UsersModel;
 
         <button type="submit" class="ui button green">
             <i class="save icon"></i>
-            <?=__('general', 'save');?>
+            <?=__('usersModule', 'save');?>
         </button>
 
     </div>
