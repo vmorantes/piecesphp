@@ -316,7 +316,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         //Generales
         $group->register([
             new Route(
-                "{$startRoute}[/]",
+                $lastIsBar ? "" : "[/]",
                 self::class . ":indexView",
                 "{$namePrefix}-index",
                 'POST|GET'
