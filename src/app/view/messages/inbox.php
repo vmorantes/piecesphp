@@ -18,7 +18,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <i class="plus icon"></i>
                         </div>
                         <div class="text">
-                            Enviar nuevo mensaje
+                            <?= __('messenger', 'Enviar nuevo mensaje'); ?>
                         </div>
                     </div>
 
@@ -26,22 +26,22 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                         <form messages-component-external-editor action="<?=get_route('messages-send-message');?>"
                             method="POST" class="ui form">
-                            <p><strong>Redactar mensaje</strong></p>
+                            <p><strong><?= __('messenger', 'Redactar mensaje'); ?></strong></p>
 
                             <input type="hidden" name="from" value="<?=$this->user->id;?>">
 
                             <div class="field required">
-                                <label>Asunto</label>
+                                <label><?= __('messenger', 'Asunto'); ?></label>
                                 <input type="text" name="subject" required>
                             </div>
 
                             <div class="field required">
-                                <label>Mensaje</label>
+                                <label><?= __('messenger', 'Mensaje'); ?></label>
                                 <input type="text" name="message" required>
                             </div>
 
                             <div class="field">
-                                <button type="submit" class="ui button green">Enviar</button>
+                                <button type="submit" class="ui button green"><?= __('messenger', 'Enviar'); ?></button>
                             </div>
 
                         </form>
@@ -57,7 +57,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <i class="plus icon"></i>
                         </div>
                         <div class="text">
-                            Enviar nuevo mensaje
+                            <?= __('messenger', 'Enviar nuevo mensaje'); ?>
                         </div>
                     </div>
 
@@ -65,14 +65,14 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                         <form messages-component-external-editor action="<?=get_route('messages-send-message');?>"
                             method="POST" class="ui form">
-                            <p><strong>Redactar mensaje</strong></p>
+                            <p><strong><?= __('messenger', 'Redactar mensaje'); ?></strong></p>
 
 							<input type="hidden" name="from" value="<?=$this->user->id;?>">
 							
                             <div class="field required">
-                                <label>Para</label>
+                                <label><?= __('messenger', 'Para'); ?></label>
                                 <select name="to" class="ui dropdown search">
-                                    <option value="">Seleccionar destinatario</option>
+                                    <option value=""><?= __('messenger', 'Seleccionar destinatario'); ?></option>
                                     <?php foreach ($destinatarios as $destinatario): ?>
                                     <option value="<?=$destinatario->id;?>">
                                         <?="$destinatario->firstname $destinatario->first_lastname";?>
@@ -82,17 +82,17 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             </div>
 
                             <div class="field required">
-                                <label>Asunto</label>
+                                <label><?= __('messenger', 'Asunto'); ?></label>
                                 <input type="text" name="subject" required>
                             </div>
 
                             <div class="field required">
-                                <label>Mensaje</label>
+                                <label><?= __('messenger', 'Mensaje'); ?></label>
                                 <textarea name="message" cols="30" rows="10" required></textarea>
                             </div>
 
                             <div class="field">
-                                <button type="submit" class="ui button green">Enviar</button>
+                                <button type="submit" class="ui button green"><?= __('messenger', 'Enviar'); ?></button>
                             </div>
 
                         </form>
@@ -107,7 +107,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div previews>
                 </div>
 
-                <button message-component-load-more>Cargar más</button>
+                <button message-component-load-more><?= __('messenger', 'Cargar más'); ?></button>
 
             </div>
 
@@ -140,7 +140,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="details-container">
             <div class="top-bar">
-                <button message-component-close-conversation class="ui mini button red">Cerrar</button>
+                <button message-component-close-conversation class="ui mini button red"><?= __('messenger', 'Cerrar'); ?></button>
             </div>
             <div emisor-details-container>
                 <div>
@@ -178,7 +178,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <textarea name="message" placeholder="Escriba su respuesta"></textarea>
             </div>
             <div class="field">
-                <button class="ui blue button" type="submit">Enviar
+                <button class="ui blue button" type="submit"><?= __('messenger', 'Enviar'); ?>
             </div>
         </div>
     </form>

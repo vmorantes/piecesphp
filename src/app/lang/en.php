@@ -118,6 +118,17 @@ $lang = [
 		'Noticias'                                => 'News',
 		'Nueva noticia'                           => 'New news',
 	],
+	'messenger' => [
+		'Enviar nuevo mensaje'     => 'Send new message',
+		'Redactar mensaje'         => 'Compose message',
+		'Asunto'                   => 'Affair',
+		'Mensaje'                  => 'Message',
+		'Enviar'                   => 'Send',
+		'Para'                     => 'For',
+		'Cargar más'               => 'Load more',
+		'Seleccionar destinatario' => 'Select recipient',
+		'Cerrar'                   => 'Close',
+	],
 ];
 
 return $lang;
