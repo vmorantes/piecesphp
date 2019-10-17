@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>404 - Página no encontrada</title>
+	<title><?= __('page404', '404 - Página no encontrada'); ?></title>
 	<base href="<?= base_url(); ?>">
 	<link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
     <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
@@ -57,10 +57,9 @@
 <body>
     <div class="content-404">
         <img src="<?= base_url('statics/images/404-bg.svg'); ?>">
-        <p class="title-404">Algo está mal aquí</h1>
-            <p class="text-404">El enlace al que intenta ingresar ya no existe o fue cambiado.</p>
-            <a class="ui button bt-404" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>">Ir a
-                Inicio</a>
+        <p class="title-404"><?= __('page404', 'Algo está mal aquí'); ?></h1>
+            <p class="text-404"><?= __('page404', 'El enlace al que intenta ingresar ya no existe o fue cambiado.'); ?></p>
+            <a class="ui button bt-404" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
     </div>
 </body>
 
