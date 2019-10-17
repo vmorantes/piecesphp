@@ -4,9 +4,9 @@
 
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
-        <?php if($has_permissions_add): ?>
-        <a href="<?=$add_link;?>" class="ui button green">Agregar</a>
-        <?php endif; ?>
+        <?php if ($has_permissions_add): ?>
+        <a href="<?=$add_link;?>" class="ui button green"><?= __('articles', 'Agregar'); ?></a>
+        <?php endif;?>
     </div>
 
 </div>
@@ -19,16 +19,16 @@
     <table process="<?=$process_table;?>" style='width:100%;' class="ui table striped celled grey inverted">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Autor</th>
-                <th>Categoría</th>
-                <th>Inicio</th>
-                <th>Fin</th>
-                <th>Creado</th>
-                <th>Editado</th>
-                <th>Visitas</th>
-                <th order='false'>Acciones</th>
+                <th><?=__('articles', 'list-ID');?></th>
+                <th><?=__('articles', 'list-Título');?></th>
+                <th><?=__('articles', 'list-Autor');?></th>
+                <th><?=__('articles', 'list-Categoría');?></th>
+                <th><?=__('articles', 'list-Inicio');?></th>
+                <th><?=__('articles', 'list-Fin');?></th>
+                <th><?=__('articles', 'list-Creado');?></th>
+                <th><?=__('articles', 'list-Editado');?></th>
+                <th><?=__('articles', 'list-Visitas');?></th>
+                <th order='false'><?=__('articles', 'list-Acciones');?></th>
             </tr>
         </thead>
     </table>
