@@ -134,6 +134,18 @@ $lang = [
 		'Noticias relacionadas' => 'Noticias relacionadas',
 		'URL'                   => 'URL',
 	],
+	'page404' => [
+		'404 - Página no encontrada'                                     => '404 - Página no encontrada',
+		'Algo está mal aquí'                                             => 'Algo está mal aquí',
+		'El enlace al que intenta ingresar ya no existe o fue cambiado.' => 'El enlace al que intenta ingresar ya no existe o fue cambiado.',
+		'Ir a Inicio'                                                    => 'Ir a Inicio',
+	],
+	'page403' => [
+		'403 - Acceso denegado'                                                => '403 - Acceso denegado',
+		'Algo está mal aquí'                                                   => 'Algo está mal aquí',
+		'El enlace al que intenta ingresar no está disponible para su acceso.' => 'El enlace al que intenta ingresar no está disponible para su acceso.',
+		'Ir a Inicio'                                                          => 'Ir a Inicio',
+	],
 ];
 
 return $lang;
