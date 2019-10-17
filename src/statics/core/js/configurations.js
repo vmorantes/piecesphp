@@ -390,7 +390,7 @@ pcsphpGlobals.messages.en = {
 	},
 }
 
-if(typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined'){
+if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined') {
 	pcsphpGlobals.messages[pcsphpGlobals.lang] = pcsphpGlobals.messages[pcsphpGlobals.defaultLang]
 }
 
@@ -747,21 +747,31 @@ function pcsAdminSideBar(selector) {
 function _i18n(type, message) {
 
 	let messages = pcsphpGlobals.messages
-	let lang = pcsphpGlobals.lang
+	let langs = [
+		pcsphpGlobals.lang,
+		pcsphpGlobals.defaultLang,
+	]
+	let lang = ''
 
 	let exists = false
 
-	let existsLang = messages[lang] !== undefined
+	for (let langToCheck of langs) {
 
-	if (existsLang) {
+		lang = langToCheck
+		let existsLang = messages[lang] !== undefined
 
-		let existsType = messages[lang][type] !== undefined
+		if (existsLang) {
 
-		if (existsType) {
-			let existsMessage = messages[lang][type][message] !== undefined
+			let existsType = messages[lang][type] !== undefined
 
-			if (existsMessage) {
-				exists = true
+			if (existsType) {
+				let existsMessage = messages[lang][type][message] !== undefined
+
+				if (existsMessage) {
+					exists = true
+					break
+				}
+
 			}
 
 		}
