@@ -7,7 +7,7 @@
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
         <?php if($has_add_link_permissions):?>
-        <a href="<?=$add_link;?>" class="ui button green">Agregar</a>
+        <a href="<?=$add_link;?>" class="ui button green"><?= __('location-backend', 'Agregar'); ?></a>
         <?php endif;?>
     </div>
 
@@ -21,11 +21,11 @@
     <table process="<?=$process_table;?>" style='width:100%;' class="ui table striped celled grey inverted">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Departamento</th>
-                <th>Activo/Inactivo</th>
-                <th order='false'>Acciones</th>
+                <th><?= __('location-backend', 'ID'); ?></th>
+                <th><?= __('location-backend', 'Nombre'); ?></th>
+                <th><?= __('location-backend', 'Departamento'); ?></th>
+                <th><?= __('location-backend', 'Activo/Inactivo'); ?></th>
+                <th order='false'><?= __('location-backend', 'Acciones'); ?></th>
             </tr>
         </thead>
     </table>

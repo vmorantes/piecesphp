@@ -75,7 +75,7 @@
             </div>
 
             <div class="footer">
-                <div class="developer"><?= __('general','developed_by') . ' ' . get_config('developer');?></div>
+                <div class="developer"><?= __('general','Desarrollado por') . ' ' . get_config('developer');?></div>
             </div>
 
         </article>
