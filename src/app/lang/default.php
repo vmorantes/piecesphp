@@ -87,7 +87,7 @@ $lang = [
         'RESTRICTED_AREA'              => 'Intenta acceder a un área restringida. Para la que no tiene permisos.',
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',
     ],
-    'sidebar_admin' => [
+    'sidebarAdminZone' => [
         'Inicio'              => 'Inicio',
         'Artículos'           => 'Artículos',
         'Categorías'          => 'Categorías',
@@ -105,7 +105,7 @@ $lang = [
         'Mensajes'            => 'Mensajes',
         'Cerrar sesión'       => 'Cerrar sesión',
 	],
-	'support_form_admin'=>[
+	'supportFormAdminZone'=>[
 		'Soporte ténico' => 'Soporte ténico',
 		'Asunto'         => 'Asunto',
 		'Mensaje'        => 'Mensaje',
@@ -195,7 +195,7 @@ $lang = [
 		'list-Visitas'          => 'Visitas',
 		'list-Acciones'         => 'Acciones',
 	],
-	'articles-category' => [
+	'articlesCategory' => [
 		'Agregar'          => 'Agregar',
 		'Editar'           => 'Editar',
 		'Nombre'           => 'Nombre',
@@ -207,7 +207,7 @@ $lang = [
 		'list-Descripción' => 'Descripción',
 		'list-Acciones'    => 'Acciones',
 	],
-	'location-backend' => [
+	'locationBackend' => [
 		'Agregar'                                                   => 'Agregar',
 		'Editar'                                                    => 'Editar',
 		'País'                                                      => 'País',

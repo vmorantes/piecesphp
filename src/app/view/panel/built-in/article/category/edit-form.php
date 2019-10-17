@@ -8,7 +8,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 <div style="max-width:850px;">
 
-    <h3><?= __('articles-category', 'Editar'); ?> <?= $title; ?></h3>
+    <h3><?= __('articlesCategory', 'Editar'); ?> <?= $title; ?></h3>
 
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
@@ -21,17 +21,17 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 		<input type="hidden" name="id" value="<?= $element->id; ?>">
 
         <div class="field required">
-            <label><?= __('articles-category', 'Nombre'); ?></label>
+            <label><?= __('articlesCategory', 'Nombre'); ?></label>
             <input required type="text" name="name" required maxlength="255" value="<?= $element->name; ?>">
 		</div>
 		
         <div class="field">
-            <label><?= __('articles-category', 'Descripción'); ?></label>
+            <label><?= __('articlesCategory', 'Descripción'); ?></label>
             <input type="text" name="description" value="<?= $element->description; ?>">
         </div>
 
         <div class="field">
-            <button type="submit" class="ui button green"><?= __('articles-category', 'Guardar'); ?></button>
+            <button type="submit" class="ui button green"><?= __('articlesCategory', 'Guardar'); ?></button>
         </div>
 
     </form>

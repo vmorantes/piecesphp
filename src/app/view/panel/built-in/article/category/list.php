@@ -5,7 +5,7 @@
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
         <?php if($has_permissions_add): ?>
-        <a href="<?=$add_link;?>" class="ui button green"><?= __('articles-category', 'list-Agregar')?></a>
+        <a href="<?=$add_link;?>" class="ui button green"><?= __('articlesCategory', 'list-Agregar')?></a>
         <?php endif; ?>
     </div>
 
@@ -19,10 +19,10 @@
     <table process="<?=$process_table;?>" style='width:100%;' class="ui table striped celled grey inverted">
         <thead>
             <tr>
-                <th><?= __('articles-category', 'list-ID')?></th>
-                <th><?= __('articles-category', 'list-Nombre')?></th>
-                <th><?= __('articles', 'list-Descripción')?></th>
-                <th order='false'><?= __('articles-category', 'list-Acciones')?></th>
+                <th><?= __('articlesCategory', 'list-ID')?></th>
+                <th><?= __('articlesCategory', 'list-Nombre')?></th>
+                <th><?= __('articlesCategory', 'list-Descripción')?></th>
+                <th order='false'><?= __('articlesCategory', 'list-Acciones')?></th>
             </tr>
         </thead>
     </table>

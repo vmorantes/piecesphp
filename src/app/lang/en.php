@@ -88,7 +88,7 @@ $lang = [
         'RESTRICTED_AREA'              => 'Try to access a restricted area. For which you do not have permissions.',
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Missing or unexpected parameters.',
     ],
-    'sidebar_admin' => [
+    'sidebarAdminZone' => [
         'Inicio'              => 'Home',
         'Artículos'           => 'Articles',
         'Categorías'          => 'Categories',
@@ -106,7 +106,7 @@ $lang = [
         'Mensajes'            => 'Messages',
         'Cerrar sesión'       => 'Logout',
     ],
-	'support_form_admin'=>[
+	'supportFormAdminZone'=>[
 		'Soporte ténico' => 'Technical support',
 		'Asunto'         => 'Subject',
 		'Mensaje'        => 'Message',
@@ -196,7 +196,7 @@ $lang = [
         'list-Visitas'          => 'Visits',
         'list-Acciones'         => 'Actions',
     ],
-    'articles-category' => [
+    'articlesCategory' => [
         'Agregar'          => 'Add',
         'Editar'           => 'Edit',
         'Nombre'           => 'Name',
@@ -208,7 +208,7 @@ $lang = [
         'list-Descripción' => 'Description',
         'list-Acciones'    => 'Actions',
     ],
-	'location-backend' => [
+	'locationBackend' => [
 		'Agregar'                                                   => 'Add',
 		'Editar'                                                    => 'Edit',
 		'País'                                                      => 'Country',

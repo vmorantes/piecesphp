@@ -4,8 +4,8 @@ use PiecesPHP\Core\Roles;
 $type_user = (int) get_config('current_user')->type;
 $elements = [
     [
-        'title' => __('location-backend', 'Departamentos'),
-        'description' => __('location-backend', 'Listado de los departamentos'),
+        'title' => __('locationBackend', 'Departamentos'),
+        'description' => __('locationBackend', 'Listado de los departamentos'),
 		'image'=> base_url('statics/images/cards/states.jpg'),
         'route_list' => 'locations-states-list',
         'route_add' => 'locations-states-forms-add',
@@ -17,8 +17,8 @@ $elements = [
         },
     ],
     [
-        'title' => __('location-backend', 'Ciudades'),
-        'description' => __('location-backend', 'Listado de las ciudades'),
+        'title' => __('locationBackend', 'Ciudades'),
+        'description' => __('locationBackend', 'Listado de las ciudades'),
 		'image'=> base_url('statics/images/cards/cities.jpg'),
         'route_list' => 'locations-cities-list',
         'route_add' => 'locations-cities-forms-add',
@@ -30,8 +30,8 @@ $elements = [
         },
     ],
     [
-        'title' => __('location-backend', 'Localidades'),
-        'description' => __('location-backend', 'Listado de las localidades'),
+        'title' => __('locationBackend', 'Localidades'),
+        'description' => __('locationBackend', 'Listado de las localidades'),
 		'image'=> base_url('statics/images/cards/points.jpg'),
         'route_list' => 'locations-points-list',
         'route_add' => 'locations-points-forms-add',
@@ -71,10 +71,10 @@ $elements = array_map(function ($e) {
             <div class="extra content">
                 <div class="ui two buttons">
                     <?php if (($element->has_list_permission)($element)): ?>
-                    <a href="<?=get_route($element->route_list);?>" class="ui blue button"><?= __('location-backend', 'Ver'); ?></a>
+                    <a href="<?=get_route($element->route_list);?>" class="ui blue button"><?= __('locationBackend', 'Ver'); ?></a>
                     <?php endif;?>
                     <?php if (($element->has_add_permission)($element)): ?>
-                    <a href="<?=get_route($element->route_add);?>" class="ui green button"><?= __('location-backend', 'Agregar'); ?></a>
+                    <a href="<?=get_route($element->route_add);?>" class="ui green button"><?= __('locationBackend', 'Agregar'); ?></a>
                     <?php endif;?>
                 </div>
             </div>
