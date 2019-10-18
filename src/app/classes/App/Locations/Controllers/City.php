@@ -67,9 +67,13 @@ class City extends AdminPanelController
      */
     public function __construct()
     {
+
+        self::$title = __('locationBackend', self::$title);
+        self::$pluralTitle = __('locationBackend', self::$pluralTitle);
+
         parent::__construct(false); //No cargar ningún modelo automáticamente.
         $this->model = (new CityMapper())->getModel();
-        set_title(self::$pluralTitle . ' - ' . get_title());
+        set_title(self::$pluralTitle);
     }
 
     /**
@@ -84,7 +88,8 @@ class City extends AdminPanelController
     {
 
         $action = self::routeName('actions-add');
-        $status_options = array_to_html_options(CityMapper::STATUS, CityMapper::ACTIVE);
+        $status_options = array_map(function ($i) {return __('locationBackend', $i);}, CityMapper::STATUS);
+        $status_options = array_to_html_options($status_options, CityMapper::ACTIVE);
         $back_link = self::routeName('list');
 
         $data = [];
@@ -117,7 +122,8 @@ class City extends AdminPanelController
         if (!is_null($element->id)) {
 
             $action = self::routeName('actions-edit');
-            $status_options = array_to_html_options(CityMapper::STATUS, $element->active);
+            $status_options = array_map(function ($i) {return __('locationBackend', $i);}, CityMapper::STATUS);
+            $status_options = array_to_html_options($status_options, $element->active);
             $back_link = self::routeName('list');
 
             $data = [];
@@ -240,7 +246,7 @@ class City extends AdminPanelController
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
-                    $buttonEdit = new HtmlElement('a', 'Editar');
+                    $buttonEdit = new HtmlElement('a', __('locationBackend', 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                         'id' => $e->id,
@@ -249,7 +255,7 @@ class City extends AdminPanelController
                     if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
                         $href = $buttonEdit->getAttributes(false)->offsetGet('href');
                         if (strlen(trim($href->getValue())) < 1) {
-                            $buttonEdit = 'Sin acciones';
+                            $buttonEdit = __('locationBackend', 'Sin acciones');
                         }
                     }
 
@@ -259,7 +265,7 @@ class City extends AdminPanelController
                         $e->id,
                         $e->name,
                         $e_mapper->state->name,
-                        CityMapper::STATUS[$e->active],
+                        __('locationBackend', CityMapper::STATUS[$e->active]),
                         (string) $buttonEdit,
                     ];
 
@@ -299,7 +305,7 @@ class City extends AdminPanelController
             $active,
         ]);
 
-        $operation_name = $is_edit ? 'Modificar ciudad' : 'Crear ciudad';
+        $operation_name = $is_edit ? __('locationBackend', 'Modificar ciudad') : __('locationBackend', 'Crear ciudad');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -307,12 +313,12 @@ class City extends AdminPanelController
 
         $result->setValue('redirect', false);
 
-        $error_parameters_message = 'Los parámetros recibidos son erróneos.';
-        $not_exists_message = 'La ciudad que intenta modificar no existe';
-        $success_create_message = 'Ciudad creada.';
-        $success_edit_message = 'Datos guardados.';
-        $unknow_error_message = 'Ha ocurrido un error desconocido.';
-        $is_duplicate_message = 'Ya existe una ciudad con ese nombre.';
+        $error_parameters_message = __('locationBackend', 'Los parámetros recibidos son erróneos.');
+        $not_exists_message = __('locationBackend', 'La ciudad que intenta modificar no existe');
+        $success_create_message = __('locationBackend', 'Ciudad creada.');
+        $success_edit_message = __('locationBackend', 'Datos guardados.');
+        $unknow_error_message = __('locationBackend', 'Ha ocurrido un error desconocido.');
+        $is_duplicate_message = __('locationBackend', 'Ya existe una ciudad con ese nombre.');
 
         $redirect_url_on_create = self::routeName('list');
 

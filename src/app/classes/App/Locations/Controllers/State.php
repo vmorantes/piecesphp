@@ -67,6 +67,10 @@ class State extends AdminPanelController
      */
     public function __construct()
     {
+
+        self::$title = __('locationBackend', self::$title);
+        self::$pluralTitle = __('locationBackend', self::$pluralTitle);
+
         parent::__construct(false); //No cargar ningún modelo automáticamente.
         $this->model = (new StateMapper())->getModel();
         set_title(self::$pluralTitle . ' - ' . get_title());
@@ -84,7 +88,8 @@ class State extends AdminPanelController
     {
 
         $action = self::routeName('actions-add');
-        $status_options = array_to_html_options(StateMapper::STATUS, StateMapper::ACTIVE);
+        $status_options = array_map(function ($i) {return __('locationBackend', $i);}, StateMapper::STATUS);
+        $status_options = array_to_html_options($status_options, StateMapper::ACTIVE);
         $back_link = self::routeName('list');
 
         $data = [];
@@ -117,7 +122,8 @@ class State extends AdminPanelController
         if (!is_null($element->id)) {
 
             $action = self::routeName('actions-edit');
-            $status_options = array_to_html_options(StateMapper::STATUS, $element->active);
+            $status_options = array_map(function ($i) {return __('locationBackend', $i);}, StateMapper::STATUS);
+            $status_options = array_to_html_options($status_options, $element->active);
             $back_link = self::routeName('list');
 
             $data = [];
@@ -239,7 +245,7 @@ class State extends AdminPanelController
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
-                    $buttonEdit = new HtmlElement('a', 'Editar');
+                    $buttonEdit = new HtmlElement('a', __('locationBackend', 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                         'id' => $e->id,
@@ -248,14 +254,14 @@ class State extends AdminPanelController
                     if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
                         $href = $buttonEdit->getAttributes(false)->offsetGet('href');
                         if (strlen(trim($href->getValue())) < 1) {
-                            $buttonEdit = 'Sin acciones';
+                            $buttonEdit = __('locationBackend', 'Sin acciones');
                         }
                     }
 
                     return [
                         $e->id,
                         $e->name,
-                        StateMapper::STATUS[$e->active],
+                        __('locationBackend', StateMapper::STATUS[$e->active]),
                         (string) $buttonEdit,
                     ];
 
@@ -295,7 +301,7 @@ class State extends AdminPanelController
             $active,
         ]);
 
-        $operation_name = $is_edit ? 'Modificar departamento' : 'Crear departamento';
+        $operation_name = $is_edit ? __('locationBackend', 'Modificar departamento') : __('locationBackend', 'Crear departamento');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -303,12 +309,12 @@ class State extends AdminPanelController
 
         $result->setValue('redirect', false);
 
-        $error_parameters_message = 'Los parámetros recibidos son erróneos.';
-        $not_exists_message = 'El departamento que intenta modificar no existe';
-        $success_create_message = 'Departamento creado.';
-        $success_edit_message = 'Datos guardados.';
-        $unknow_error_message = 'Ha ocurrido un error desconocido.';
-        $is_duplicate_message = 'Ya existe un departamento con ese nombre.';
+        $error_parameters_message = __('locationBackend', 'Los parámetros recibidos son erróneos.');
+        $not_exists_message = __('locationBackend', 'El departamento que intenta modificar no existe');
+        $success_create_message = __('locationBackend', 'Departamento creado.');
+        $success_edit_message = __('locationBackend', 'Datos guardados.');
+        $unknow_error_message = __('locationBackend', 'Ha ocurrido un error desconocido.');
+        $is_duplicate_message = __('locationBackend', 'Ya existe un departamento con ese nombre.');
 
         $redirect_url_on_create = self::routeName('list');
 

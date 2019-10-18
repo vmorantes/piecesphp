@@ -145,8 +145,9 @@ class PointMapper extends BaseEntityMapper
      * @param string $defaultValue
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = 'Localidades', string $defaultValue = '')
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
+		$defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __('locationBackend', 'Localidades');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
