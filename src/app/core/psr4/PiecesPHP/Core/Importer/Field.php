@@ -188,7 +188,12 @@ class Field
                 if ($this->validate($value)) {
                     $this->value = $this->parse($value);
                 } else {
-                    throw new \Exception("El valor ingresado en $this->name/$this->humanReadableName no es válido.");
+                    throw new \Exception(
+						sprintf(
+							__('importerModule', 'El valor ingresado en %s no es válido.'),
+							"$this->name/$this->humanReadableName"
+						)
+					);
                 }
             }
         }

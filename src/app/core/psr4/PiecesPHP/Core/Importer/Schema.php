@@ -521,7 +521,7 @@ class Schema
 
         $spreadSheet = new Spreadsheet();
         $spreadSheet->getProperties()
-            ->setCreator('Plantilla');
+            ->setCreator(__('importerModule', 'Plantilla'));
 
         $columnIndex = 1;
         foreach ($columns as $name => $field) {

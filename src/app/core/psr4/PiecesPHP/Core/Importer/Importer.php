@@ -76,12 +76,14 @@ class Importer
      */
     public function __construct(Schema $schema, array $data, string $title = null)
     {
+		$this->$title = __('importerModule', $this->title);
         $this->schema = $schema;
         $this->data = $data;
         $this->responses = new ResponseCollection();
         if (!is_null($title)) {
             $this->title = $title;
-        }
+		}
+		set_title($this->title);
     }
 
     /**
@@ -179,9 +181,9 @@ class Importer
                         $this->totalImported += 1;
 
                         if ($this->update) {
-                            $response->appendMessage("Registro de la fila $row actualizado.");
+                            $response->appendMessage(sprintf(__('importerModule', 'Registro de la fila %s actualizado.'), $row));
                         } else {
-                            $response->appendMessage("Registro de la fila $row insertado.");
+                            $response->appendMessage(sprintf(__('importerModule', 'Registro de la fila %s insertado.'), $row));
                         }
 
                     } else {
@@ -189,9 +191,19 @@ class Importer
 
                         //Agregar mensaje de la operación errónea
                         if ($this->update) {
-                            $response->appendMessage("El registro de la fila $row no ha podido ser actualizado debido a un error desconocido.");
+                            $response->appendMessage(
+								sprintf(
+									__('importerModule', 'El registro de la fila %s no ha podido ser actualizado debido a un error desconocido.'),
+									$row
+								)
+							);
                         } else {
-                            $response->appendMessage("El registro de la fila $row no ha podido ser insertado debido a un error desconocido.");
+                            $response->appendMessage(
+								sprintf(
+									__('importerModule', 'El registro de la fila %s no ha podido ser insertado debido a un error desconocido.'),
+									$row
+								)
+							);
                         }
 
                     }
@@ -272,7 +284,12 @@ class Importer
         //Agregar error en caso de no tener valor siendo obligatorio
         if (!$field->isOptional() && !$hasInput) {
             $response->setSuccess(false);
-            $response->appendMessage("Error: el campo $name/$humanName es obligatorio.");
+            $response->appendMessage(
+				sprintf(
+					__('importerModule', 'Error: el campo %s es obligatorio.'),
+					"$name/$humanName"
+				)
+			);
         }
 
         //Aplicar valor por defecto

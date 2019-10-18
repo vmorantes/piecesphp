@@ -25,15 +25,15 @@ class ImporterUsers extends Importer
 {
     public function __construct(array $data)
     {
-        $id = new Field('id', 'ID', null, true, '', false);
-        $username = new Field('username', 'Usuario', '', false);
-        $password = new Field('password', 'Contraseña', '', false);
-        $firstname = new Field('firstname', 'Primer nombre', '', false);
-        $secondname = new Field('secondname', 'Segundo nombre', '', true);
-        $first_lastname = new Field('first_lastname', 'Primer apellido', '', false);
-        $second_lastname = new Field('second_lastname', 'Segundo apellido', '', true);
-        $email = new Field('email', 'Email', '', false);
-        $type = new Field('type', 'Tipo', UsersModel::TYPE_USER_GENERAL, true, '', false);
+        $id              = new Field('id', __('importerModule', 'ID'), null, true, '', false);
+        $username        = new Field('username', __('importerModule', 'Usuario'), '', false);
+        $password        = new Field('password', __('importerModule', 'Contraseña'), '', false);
+        $firstname       = new Field('firstname', __('importerModule', 'Primer nombre'), '', false);
+        $secondname      = new Field('secondname', __('importerModule', 'Segundo nombre'), '', true);
+        $first_lastname  = new Field('first_lastname', __('importerModule', 'Primer apellido'), '', false);
+        $second_lastname = new Field('second_lastname', __('importerModule', 'Segundo apellido'), '', true);
+        $email           = new Field('email', __('importerModule', 'Email'), '', false);
+        $type            = new Field('type', __('importerModule', 'Tipo'), UsersModel::TYPE_USER_GENERAL, true, '', false);
 
         $email->setValidator(function ($value) {
             return Validator::isEmail($value);
@@ -70,15 +70,30 @@ class ImporterUsers extends Importer
             $messageDuplicated = [];
 
             if ($duplicatedID) {
-                $messageDuplicated[] = "El ID '$id' ya existe.";
+                $messageDuplicated[] = vsprintf(
+                    __('importerModule', "El ID '%s' ya existe."),
+                    [
+                        $id,
+                    ]
+                );
             }
 
             if ($duplicatedUsername) {
-                $messageDuplicated[] = "El usuario '$username' ya existe.";
+                $messageDuplicated[] = vsprintf(
+                    __('importerModule', "El usuario '%s' ya existe."),
+                    [
+                        $username,
+                    ]
+                );
             }
 
             if ($duplicatedEmail) {
-                $messageDuplicated[] = "El email '$email' ya existe.";
+                $messageDuplicated[] = vsprintf(
+                    __('importerModule', "El email '%s' ya existe."),
+                    [
+                        $email,
+                    ]
+                );
             }
 
             if (count($messageDuplicated) > 0) {
@@ -90,7 +105,7 @@ class ImporterUsers extends Importer
 
         $schema->setTemplateWithHumanReadable(true);
 
-        parent::__construct($schema, $data, 'Agregar de usuarios');
+        parent::__construct($schema, $data, __('importerModule', 'Agregar de usuarios'));
 
     }
 
