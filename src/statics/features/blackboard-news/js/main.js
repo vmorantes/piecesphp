@@ -81,14 +81,14 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 
 						} else {
 
-							errorMessage('Error', res.message)
+							errorMessage(_i18n('news', 'Error'), res.message)
 
 						}
 					})
 
 					req.fail((res) => {
 
-						errorMessage('Error', 'Ha ocurrido un error desconocido.')
+						errorMessage(_i18n('news', 'Error'), _i18n('news', 'Ha ocurrido un error desconocido.'))
 						console.log(res)
 
 					})
@@ -322,7 +322,7 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 						let buttonMore = $(document.createElement('button'))
 						buttonMore.attr(loadMoreButtonAttr, '')
 						buttonMore.addClass('ui mini button green')
-						buttonMore.html('Cargar más.')
+						buttonMore.html(_i18n('news', 'Cargar más.'))
 
 						divButton.append(buttonMore)
 						divButton.on('click', function (e) {
@@ -411,7 +411,7 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 
 		if (options.type == 'normal') {
 			if (items.length == 0) {
-				options.container.append('<h6><small>No hay noticias</small></h6>')
+				options.container.append('<h6><small>'+_i18n('news', 'No hay noticias')+'</small></h6>')
 			}
 			for (let item of items) {
 
@@ -450,17 +450,17 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 			thead.html('')
 			thead.append(
 				$('<tr></tr>')
-					.append(`<th>Nombre</th>`)
-					.append(`<th>Inicio</th>`)
-					.append(`<th>Fin</th>`)
-					.append(`<th>Creado</th>`)
-					.append(`<th>Dirigido a</th>`)
-					.append(`<th>Acciones</th>`)
+					.append(`<th>${_i18n('news', 'Nombre')}</th>`)
+					.append(`<th>${_i18n('news', 'Inicio')}</th>`)
+					.append(`<th>${_i18n('news', 'Fin')}</th>`)
+					.append(`<th>${_i18n('news', 'Creado')}</th>`)
+					.append(`<th>${_i18n('news', 'Dirigido a')}</th>`)
+					.append(`<th>${_i18n('news', 'Acciones')}</th>`)
 			)
 
 
 			if (items.length == 0) {
-				tbody.append('<tr empty><td><strong>No hay noticias</strong></td></tr>')
+				tbody.append('<tr empty><td><strong>'+_i18n('news', 'No hay noticias')+'</strong></td></tr>')
 			} else {
 				tbody.find('[empty]').remove()
 			}
@@ -486,12 +486,12 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 				tr.append(
 					$(`<td></td>`)
 						.append(
-							$('<a>Editar</a>')
+							$('<a>'+_i18n('news', 'Editar')+'</a>')
 								.attr('href', editHref)
 								.addClass('ui mini button green')
 						)
 						.append(
-							$('<a>Eliminar</a>')
+							$('<a>'+_i18n('news', 'Eliminar')+'</a>')
 								.attr('href', deleteHref)
 								.addClass('ui mini button red')
 								.on('click', function (e) {
@@ -507,11 +507,11 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 										displayMode: 'once',
 										id: 'question',
 										zindex: 999,
-										title: 'Confirmación',
-										message: '¿Quiere eliminar la noticia?',
+										title: _i18n('news', 'Confirmación'),
+										message: _i18n('news', '¿Quiere eliminar la noticia?'),
 										position: 'center',
 										buttons: [
-											['<button><b>Sí</b></button>', function (instance, toast) {
+											['<button><b>'+_i18n('news', 'Sí')+'</b></button>', function (instance, toast) {
 
 												instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
 												postRequest(url).done((res) => {
@@ -521,12 +521,12 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 														errorMessage(res.name, res.message)
 													}
 												}).fail((res) => {
-													errorMessage('Error', 'Ha ocurrido un error desconocido.')
+													errorMessage(_i18n('news', 'Error'), _i18n('news', 'Ha ocurrido un error desconocido.'))
 													console.log(res)
 												})
 
 											}, true],
-											['<button>No</button>', function (instance, toast) {
+											['<button>'+_i18n('news', 'No')+'</button>', function (instance, toast) {
 												instance.hide({ transitionOut: 'fadeOut' }, toast, 'button')
 											}],
 										]
