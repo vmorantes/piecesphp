@@ -195,7 +195,7 @@ class UsersController extends AdminPanelController
                 $element->email,
                 $element->username,
                 $element->status == UsersModel::STATUS_USER_ACTIVE ? __('usersModule', 'Sí') : __('usersModule', 'No'),
-                UsersModel::TYPES_USERS[$element->type],
+                UsersModel::getTypesUser()[$element->type],
                 '' . $edit_button,
             ];
         };
@@ -269,7 +269,7 @@ class UsersController extends AdminPanelController
      */
     public function selectionTypeToCreate(Request $req, Response $res, array $args)
     {
-        $types = UsersModel::TYPES_USERS;
+        $types = UsersModel::getTypesUser();
         $currentUser = new UsersModel($this->user->id);
 
         foreach ($types as $key => $display) {
@@ -341,7 +341,7 @@ class UsersController extends AdminPanelController
             return $res->withStatus(403);
         }
 
-        if (isset(UsersModel::TYPES_USERS[$type])) {
+        if (isset(UsersModel::getTypesUser()[$type])) {
 
             $status_options = [
                 __('usersModule', 'active') => UsersModel::STATUS_USER_ACTIVE,

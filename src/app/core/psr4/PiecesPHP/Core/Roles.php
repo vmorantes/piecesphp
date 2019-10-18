@@ -167,6 +167,7 @@ class Roles
     /**
      * getRolesIdentifiers
      *
+	 * @param bool $i18n
      * Devuelve los roles registrados de la forma:
      *
      * [
@@ -176,12 +177,12 @@ class Roles
      *
      * @return array
      */
-    public static function getRolesIdentifiers(): array
+    public static function getRolesIdentifiers(bool $i18n = false): array
     {
         $roles = [];
 
         foreach (self::$roles as $role) {
-            $roles[$role['name']] = $role['code'];
+            $roles[($i18n ? __('usersModule', $role['name']) : $role['name'])] = $role['code'];
         }
 
         return $roles;

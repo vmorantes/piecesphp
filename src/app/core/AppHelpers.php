@@ -1000,7 +1000,7 @@ function get_route_roles_allowed(string $name, string $type = 'code')
 {
     $information = get_route_info($name);
     $roles_permissions = Roles::getRoles();
-    $roles = UsersModel::TYPES_USERS;
+    $roles = UsersModel::getTypesUser();
 
     $roles_allowed = array_map(function ($e) use ($roles, $type) {
         if ($type == 'name') {

@@ -105,7 +105,7 @@ class BlackboardNewsController extends AdminPanelController
     public function writeForm(Request $request, Response $response, array $args)
     {
 
-        $types = Roles::getRolesIdentifiers();
+        $types = Roles::getRolesIdentifiers(true);
 
         import_quilljs(['imageUpload', 'imageResize']);
 
@@ -131,7 +131,7 @@ class BlackboardNewsController extends AdminPanelController
 
         $id = isset($args['id']) ? $args['id'] : null;
         $id = ctype_digit($id) ? (int) $id : null;
-        $types = Roles::getRolesIdentifiers();
+        $types = Roles::getRolesIdentifiers(true);
         $new = new BlackboardNewsModel($id);
 
         if (!is_null($new->id)) {
@@ -467,7 +467,7 @@ class BlackboardNewsController extends AdminPanelController
             ];
             $element->type = [
                 'code' => $element->type,
-                'label' => UsersModel::TYPES_USERS[$element->type],
+                'label' => UsersModel::getTypesUser()[$element->type],
             ];
 
             if (!is_null($element->start_date) && !is_null($element->end_date)) {

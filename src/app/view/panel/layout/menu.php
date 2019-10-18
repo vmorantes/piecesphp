@@ -1,4 +1,7 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+use App\Model\UsersModel;
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+?>
 <div class="ui-pcs sidebar-toggle ">
     <i class="icon bars"></i>
 </div>
@@ -15,7 +18,7 @@
                 <?= $user->firstname . '<br>' . $user->first_lastname; ?>
             </div>
             <div class="second">
-                <?= isset(\App\Model\UsersModel::TYPES_USERS[$user->type]) ? \App\Model\UsersModel::TYPES_USERS[$user->type] : '';?>
+                <?= isset(UsersModel::getTypesUser()[$user->type]) ? UsersModel::getTypesUser()[$user->type] : '';?>
             </div>
         </div>
     </div>

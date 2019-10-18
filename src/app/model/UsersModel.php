@@ -463,7 +463,26 @@ class UsersModel extends BaseEntityMapper
         return $model->update([
             'failed_attempts' => 0,
         ])->where(['id' => $id])->execute();
-    }
+	}
+	
+	/**
+	 * getTypesUser
+	 *
+	 * @return array
+	 */
+	public static function getTypesUser(){
+
+		$types = [];
+
+		foreach(self::TYPES_USERS as $key => $value){
+
+			$types[$key] = __('usersModule', $value);
+
+		}
+
+		return $types;
+
+	}
 
     /**
      * isDuplicate
