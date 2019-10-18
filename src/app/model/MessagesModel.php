@@ -317,33 +317,6 @@ class MessagesModel extends BaseEntityMapper
 
         }
 
-        /*  usort($elements, function ($a, $b) {
-
-        if (isset($a['mark_as_read_url'])) {
-        $messageA = $a;
-        $messageB = $b;
-        } else {
-        $messageA = $a['message'];
-        $messageB = $b['message'];
-        }
-
-        $dateA = $messageA['datetime'];
-        $dateB = $messageB['datetime'];
-        $readedA = $messageA['readed'];
-        $readedB = $messageB['readed'];
-
-        $bothReaded = $readedA && $readedB;
-        $bothUnreaded = !$readedA && !$readedB;
-        $compartionDate = $dateA > $dateB ? -1 : ($dateA == $dateB ? 0 : 1);
-
-        if ($bothReaded || $bothUnreaded) {
-        return $compartionDate;
-        } else {
-        return $readedA ? 1 : -1;
-        }
-
-        }); */
-
         return $elements;
     }
 
