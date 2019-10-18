@@ -436,9 +436,9 @@ $lang = [
         'Usuario editado.'                                             => 'User edited.',
         'La contraseña es errónea.'                                    => 'The password is wrong.',
         'No existe el usuario que intenta modificar.'                  => 'There is no user trying to modify.',
-		'Usuario principal' => 'Main user',
-		'Usuario administrador' => 'Administator',
-		'Usuario general' => 'General user',
+        'Usuario principal'                                            => 'Main user',
+        'Usuario administrador'                                        => 'Administator',
+        'Usuario general'                                              => 'General user',
     ],
     'loginReport' => [
         'Registro de ingresos'           => 'Income Record',
