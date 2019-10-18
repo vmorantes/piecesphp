@@ -31,7 +31,7 @@
         </div>
         <?php endif;?>
         <div>
-            <h3>Seleccionar avatar</h3>
+            <h3><?= __('usersModule', 'Seleccionar avatar'); ?></h3>
             <div <?=$hasAvatar ? 'hide' : '';?> class="avatar-component" user="<?=$edit_user->id;?>"
                 resources-route="<?=get_route('avatars');?>" save-route="<?=get_route('push-avatars');?>">
                 <div class="frame">

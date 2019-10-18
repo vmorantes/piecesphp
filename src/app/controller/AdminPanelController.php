@@ -127,14 +127,14 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
             $comments,
         ]);
 
-        $operation_name = 'Crear ticket de soporte';
+        $operation_name = __('adminZone', 'Crear ticket de soporte');
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = 'Ticket de soporte creado.';
-        $message_unknow_error = 'Ha ocurrido un error inesperado.';
-        $message_unexpected_or_missing_params = 'Información faltante o inesperada.';
+        $message_create = __('adminZone', 'Ticket de soporte creado.');
+        $message_unknow_error = __('adminZone', 'Ha ocurrido un error inesperado.');
+        $message_unexpected_or_missing_params = __('adminZone', 'Información faltante o inesperada.');
 
         if ($params_ok) {
 
@@ -158,7 +158,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            $logRequest->type = 'Ticket soporte dentro del panel administrativo (osTicket).';
+            $logRequest->type = __('adminZone', 'Ticket soporte dentro del panel administrativo (osTicket).');
             $logRequest->save();
 
             if ($success) {
@@ -305,9 +305,9 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         /* Librerías de la aplicación */
         import_app_libraries([
             'adminStyle',
-		]);
+        ]);
 
-		add_global_asset(base_url(ADMIN_AREA_PATH_JS . '/main.js'), 'js');
+        add_global_asset(base_url(ADMIN_AREA_PATH_JS . '/main.js'), 'js');
 
         if (MESSAGES_ENABLED) {
             if (get_current_url() != get_route('messages-inbox') && REFRESH_MESSAGES_STATUS) {

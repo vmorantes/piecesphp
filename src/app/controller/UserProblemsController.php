@@ -240,7 +240,7 @@ class UserProblemsController extends UsersController
 
                     //Envío de correo de recuperación
                     $json_response['send_mail'] = $this->sendCode($problems->code, $usuario, $type);
-                    $json_response['message'] = 'Se ha enviado un mensaje al correo proporcionado.';
+                    $json_response['message'] = __('usersProblems', 'Se ha enviado un mensaje al correo proporcionado.');
 
                     $logRequest = new TicketsLogModel();
                     $logRequest->created = $problems->created;
@@ -251,9 +251,9 @@ class UserProblemsController extends UsersController
                         'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
                     ];
                     if ($type == self::TYPE_USER_FORGET) {
-                        $logRequest->type = 'Solicitud por nombre de usuario olvidado.';
+                        $logRequest->type = __('usersProblems', 'Solicitud por nombre de usuario olvidado.');
                     } elseif ($type == self::TYPE_USER_BLOCKED) {
-                        $logRequest->type = 'Solicitud de desbloqueo de usuario.';
+                        $logRequest->type = __('usersProblems', 'Solicitud de desbloqueo de usuario.');
                     }
                     $logRequest->save();
                 } else {
@@ -334,7 +334,7 @@ class UserProblemsController extends UsersController
 
                             $json_response['success'] = true;
                             $json_response['username'] = $user->username;
-                            $json_response['message'] = 'Su nombre de usuario es: ' . $user->username;
+                            $json_response['message'] = __('usersProblems', 'Su nombre de usuario es') . ': ' . $user->username;
 
                             $problems->getModel()->delete("id = '$problems->id'")->execute();
                         } elseif ($problems->type == self::TYPE_USER_BLOCKED && $type == self::TYPE_USER_BLOCKED) {
@@ -349,15 +349,15 @@ class UserProblemsController extends UsersController
                                 if ($unblocked) {
                                     $json_response['success'] = true;
                                     $json_response['username'] = $user->username;
-                                    $json_response['message'] = 'Su usuario ha sido desbloqueado.';
+                                    $json_response['message'] = __('usersProblems', 'Su usuario ha sido desbloqueado.');
                                 } else {
-                                    $json_response['message'] = 'No se ha podido procesar la información, intente más tarde.';
+                                    $json_response['message'] = __('usersProblems', 'No se ha podido procesar la información, intente más tarde.');
                                 }
                             } else {
                                 if ($is_block) {
-                                    $json_response['message'] = 'El usuario no ha podido desbloquearse, contacte con el soporte.';
+                                    $json_response['message'] = __('usersProblems', 'El usuario no ha podido desbloquearse, contacte con el soporte.');
                                 } else {
-                                    $json_response['message'] = 'El usuario no está bloqueado.';
+                                    $json_response['message'] = __('usersProblems', 'El usuario no está bloqueado.');
                                 }
                             }
 
@@ -457,13 +457,13 @@ class UserProblemsController extends UsersController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            $logRequest->type = 'Otros inconvenientes (osTicket).';
+            $logRequest->type = __('usersProblems', 'Otros inconvenientes (osTicket).');
             $logRequest->save();
 
             if ($success) {
-                $json_response['message'] = 'Se ha enviado un mensaje al correo proporcionado.';
+                $json_response['message'] = __('usersProblems', 'Se ha enviado un mensaje al correo proporcionado.');
             } else {
-                $json_response['message'] = 'No se ha podido enviar el mensaje, intente más tarde.';
+                $json_response['message'] = __('usersProblems', 'No se ha podido enviar el mensaje, intente más tarde.');
                 $json_response['extra'] = $instance->getHttpClient()->getResponseHeaders();
             }
         } else {
@@ -495,7 +495,7 @@ class UserProblemsController extends UsersController
 
         $to_name = $usuario->username;
 
-        $subject = __('general', 'verification_code');
+        $subject = __('usersProblems', 'Código de verificación');
 
         if ($type == self::TYPE_USER_FORGET) {
             $url = get_route('user-forget-form') . '?code=' . $code;
@@ -531,7 +531,7 @@ class UserProblemsController extends UsersController
      */
     private function sendMessageOtherProblems(string $email, string $name, string $message, array $extra = null)
     {
-        $subject = 'Ticket genérico - ' . get_title();
+        $subject = __('usersProblems', 'Ticket genérico') . ' - ' . get_title();
 
         $message = $this->render('usuarios/mail/other-problems', [
             'subject' => $subject,

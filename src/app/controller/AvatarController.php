@@ -60,12 +60,12 @@ class AvatarController extends BaseController
 
             if ($uploaded) {
                 $json_response['success'] = $uploaded;
-                $json_response['message'] = 'Ha ocurrido un error desconocido, intente más tarde.';
+                $json_response['message'] = __('avatarModule', 'Ha ocurrido un error desconocido, intente más tarde.');
             }
 
         } else {
             $json_response['error'] = 'MISSING_OR_UNEXPECTED_PARAMS';
-            $json_response['message'] = __('errors', 'MISSING_OR_UNEXPECTED_PARAMS');
+            $json_response['message'] = __('avatarModule', 'MISSING_OR_UNEXPECTED_PARAMS');
         }
 
         return $response->withJson($json_response);
