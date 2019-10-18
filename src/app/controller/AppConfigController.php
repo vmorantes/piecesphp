@@ -122,14 +122,14 @@ class AppConfigController extends AdminPanelController
      */
     public function actionGeneric(Request $req, Response $res, array $args)
     {
-        $operation_name = 'Configuración';
+        $operation_name = __('appConfig', 'Configuración');
 
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = 'Guardado.';
-        $message_unknow_error = 'Ha ocurrido un error inesperado.';
+        $message_create = __('appConfig', 'Guardado.');
+        $message_unknow_error = __('appConfig', 'Ha ocurrido un error inesperado.');
 
         $parametersExcepted = new Parameters([
             new Parameter(
@@ -268,14 +268,14 @@ class AppConfigController extends AdminPanelController
      */
     public function actionOsTicket(Request $req, Response $res, array $args)
     {
-        $operation_name = 'Configuración OsTicket';
+        $operation_name = __('appConfig', 'Configuración OsTicket');
 
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = 'Guardado.';
-        $message_unknow_error = 'Ha ocurrido un error inesperado.';
+        $message_create = __('appConfig', 'Guardado.');
+        $message_unknow_error = __('appConfig', 'Ha ocurrido un error inesperado.');
 
         $parametersExcepted = new Parameters([
             new Parameter(
@@ -458,14 +458,14 @@ class AppConfigController extends AdminPanelController
 
         }
 
-        $operation_name = 'Guardar imagen';
+        $operation_name = __('appConfig', 'Guardar imagen');
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = 'Imagen guardada.';
-        $message_unknow_error = 'Ha ocurrido un error inesperado.';
-        $message_unexpected_or_missing_params = 'Información faltante o inesperada.';
+        $message_create = __('appConfig', 'Imagen guardada.');
+        $message_unknow_error = __('appConfig', 'Ha ocurrido un error inesperado.');
+        $message_unexpected_or_missing_params = __('appConfig', 'Información faltante o inesperada.');
 
         if ($validParamenters) {
 

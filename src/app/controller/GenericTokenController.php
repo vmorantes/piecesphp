@@ -144,12 +144,12 @@ class GenericTokenController extends AdminPanelController
                     if ($is_post) {
 
                         $result = new ResultOperations([
-                            new Operation('Mensaje'),
-                        ], 'Mensaje');
+                            new Operation(__('genericTokenModule', 'Mensaje')),
+                        ], __('genericTokenModule', 'Mensaje'));
                         $result->setValue('reload', true);
                         $result
-                            ->setMessage('El recurso no existe o el enlace ha expirado')
-                            ->operation('Mensaje')
+                            ->setMessage(__('genericTokenModule', 'El recurso no existe o el enlace ha expirado'))
+                            ->operation(__('genericTokenModule', 'Mensaje'))
                             ->setSuccess(false);
 
                     } else {
@@ -202,14 +202,14 @@ class GenericTokenController extends AdminPanelController
 
         } elseif ($method == 'POST') {
 
-            $operation_name = 'Enviar comentario';
+            $operation_name = __('genericTokenModule', 'Enviar comentario');
 
             $result = new ResultOperations([
                 new Operation($operation_name),
             ], $operation_name);
 
-            $message_sended = 'Enviado.';
-            $message_unknow_error = 'Ha ocurrido un error inesperado.';
+            $message_sended = __('genericTokenModule', 'Enviado.');
+            $message_unknow_error = __('genericTokenModule', 'Ha ocurrido un error inesperado.');
 
             $email = new Parameter('email', null);
 
@@ -292,11 +292,11 @@ class GenericTokenController extends AdminPanelController
                 if ($resquired_response) {
 
                     $data['with_link'] = true;
-                    $data['note'] = utf8_decode('El enlace tendrá validez de una hora.');
+                    $data['note'] = utf8_decode(__('genericTokenModule', 'El enlace tendrá validez de una hora.'));
                     $data['url'] = self::createTokenURL('HANDLER', [
                         //INFORMACIÓN
                     ], 60);
-                    $data['text_button'] = 'Responder';
+                    $data['text_button'] = __('genericTokenModule', 'Responder');
 
                 }
 

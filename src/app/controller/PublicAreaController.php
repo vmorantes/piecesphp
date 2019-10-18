@@ -120,9 +120,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                     $digitizedDate = $exifHelper->getDigitizedDate();
                     $uploadDate = $exifHelper->getFileDate();
 
-                    $originalDate = !is_null($originalDate) ? $originalDate->format('d-m-Y h:i:s A') : 'Sin información';
-                    $digitizedDate = !is_null($digitizedDate) ? $digitizedDate->format('d-m-Y h:i:s A') : 'Sin información';
-                    $uploadDate = !is_null($uploadDate) ? $uploadDate->format('d-m-Y h:i:s A') : 'Sin información';
+                    $originalDate = !is_null($originalDate) ? $originalDate->format('d-m-Y h:i:s A') : __('publicAreaController', 'Sin información');
+                    $digitizedDate = !is_null($digitizedDate) ? $digitizedDate->format('d-m-Y h:i:s A') : __('publicAreaController', 'Sin información');
+                    $uploadDate = !is_null($uploadDate) ? $uploadDate->format('d-m-Y h:i:s A') : __('publicAreaController', 'Sin información');
 
                     //Coordenadas
 
@@ -135,8 +135,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                     $longitude = $exifHelper->getGPSLongitude();
                     $latitude = $exifHelper->getGPSLatitude();
 
-                    $baseLongitude = !is_null($baseLongitude) ? $baseLongitude : 'Sin información';
-                    $baseLatitude = !is_null($baseLatitude) ? $baseLatitude : 'Sin información';
+                    $baseLongitude = !is_null($baseLongitude) ? $baseLongitude : __('publicAreaController', 'Sin información');
+                    $baseLatitude = !is_null($baseLatitude) ? $baseLatitude : __('publicAreaController', 'Sin información');
 
                     $referenceSignLongitude =
 
@@ -146,7 +146,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                         '+' :
                         '-'
                     ) :
-                    'Sin información';
+                    __('publicAreaController', 'Sin información');
 
                     $referenceSignLatitude =
 
@@ -156,30 +156,30 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                         '+' :
                         '-'
                     ) :
-                    'Sin información';
+                    __('publicAreaController', 'Sin información');
 
-                    $longitude = !is_null($longitude) ? $longitude : 'Sin información';
-                    $latitude = !is_null($latitude) ? $latitude : 'Sin información';
+                    $longitude = !is_null($longitude) ? $longitude : __('publicAreaController', 'Sin información');
+                    $latitude = !is_null($latitude) ? $latitude : __('publicAreaController', 'Sin información');
 
                     $exifResult = [
-                        'Información procesada' => [
-                            'Fechas' => [
-                                'Captura' => $originalDate,
-                                'Digitalización' => $digitizedDate,
-                                'Subida del archivo' => $uploadDate,
+                        __('publicAreaController', 'Información procesada') => [
+                            __('publicAreaController', 'Fechas') => [
+                                __('publicAreaController', 'Captura') => $originalDate,
+                                __('publicAreaController', 'Digitalización') => $digitizedDate,
+                                __('publicAreaController', 'Subida del archivo') => $uploadDate,
                             ],
-                            'GPS' => [
-                                'Signos de referencia' => [
-                                    'Longitud' => $referenceSignLongitude,
-                                    'Latitud' => $referenceSignLatitude,
+                            __('publicAreaController', 'GPS') => [
+                                __('publicAreaController', 'Signos de referencia') => [
+                                    __('publicAreaController', 'Longitud') => $referenceSignLongitude,
+                                    __('publicAreaController', 'Latitud') => $referenceSignLatitude,
                                 ],
-                                'Coordenadas' => [
-                                    'lng' => $longitude,
-                                    'lat' => $latitude,
+                                __('publicAreaController', 'Coordenadas') => [
+                                    __('publicAreaController', 'lng') => $longitude,
+                                    __('publicAreaController', 'lat') => $latitude,
                                 ],
-                                'Coordenadas sin signos' => [
-                                    'lng' => $baseLongitude,
-                                    'lat' => $baseLatitude,
+                                __('publicAreaController', 'Coordenadas sin signos') => [
+                                    __('publicAreaController', 'lng') => $baseLongitude,
+                                    __('publicAreaController', 'lat') => $baseLatitude,
                                 ],
                             ],
                         ],

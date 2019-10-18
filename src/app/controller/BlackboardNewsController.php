@@ -168,7 +168,7 @@ class BlackboardNewsController extends AdminPanelController
 
         $result = new ResultOperations([
             'deleteNew' => new Operation('deleteNew'),
-        ], 'Eliminación de noticia');
+        ], __('news', 'Eliminación de noticia'));
 
         if (!is_null($new->id)) {
 
@@ -182,12 +182,12 @@ class BlackboardNewsController extends AdminPanelController
             }
 
             $result
-                ->setMessage($deleted ? 'La noticia ha sido eliminada.' : 'La noticia no pudo ser eliminada, intente luego.')
+                ->setMessage($deleted ? __('news', 'La noticia ha sido eliminada.') : __('news', 'La noticia no pudo ser eliminada, intente luego.'))
                 ->operation('deleteNew')
                 ->setSuccess($deleted);
 
         } else {
-            $result->setMessage('La noticia no existe');
+            $result->setMessage(__('news', 'La noticia no existe'));
         }
         return $response->withJson($result);
     }
@@ -243,13 +243,13 @@ class BlackboardNewsController extends AdminPanelController
 
             $result
                 ->setValue('redirect', $redirect)
-                ->setMessage($saved ? 'La noticia ha sido creada' : 'No se ha podido crear la noticia, intente más tarde.')
+                ->setMessage($saved ? __('news', 'La noticia ha sido creada') : __('news', 'No se ha podido crear la noticia, intente más tarde.'))
                 ->operation('registerNew')
                 ->setSuccess($saved);
 
         } else {
             $result
-                ->setMessage('Los parámetros recibidos no son correctos')
+                ->setMessage(__('news', 'Los parámetros recibidos no son correctos'))
                 ->operation('registerNew');
         }
 
@@ -307,13 +307,13 @@ class BlackboardNewsController extends AdminPanelController
             }
 
             $result
-                ->setMessage($updated ? 'La noticia ha sido actualizada' : 'No se ha podido actualizar la noticia, intente más tarde.')
+                ->setMessage($updated ? __('news', 'La noticia ha sido actualizada') : __('news', 'No se ha podido actualizar la noticia, intente más tarde.'))
                 ->operation('editNew')
                 ->setSuccess($updated);
 
         } else {
             $result
-                ->setMessage('Los parámetros recibidos no son correctos')
+                ->setMessage(__('news', 'Los parámetros recibidos no son correctos'))
                 ->operation('editNew');
         }
 
@@ -480,7 +480,7 @@ class BlackboardNewsController extends AdminPanelController
         }
 
         return $response->withJson(
-            (new ResultOperations([], 'Noticias', 'Paginado de noticias'))
+            (new ResultOperations([], 'Noticias', __('news', 'Paginado de noticias')))
                 ->setValue('news', $filtered)
                 ->setValue('page', $page)
                 ->setValue('perPage', $perPage)
@@ -523,13 +523,13 @@ class BlackboardNewsController extends AdminPanelController
                     if (!is_null($filename)) {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage('Imagen subida')
+                            ->setMessage(__('news', 'Imagen subida'))
                             ->setSuccess(true);
                         $result->setValue('path', $url);
                     } else {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage('La imagen no pudo ser subida, intente después.');
+                            ->setMessage(__('news', 'La imagen no pudo ser subida, intente después.'));
                     }
 
                 }
@@ -538,7 +538,7 @@ class BlackboardNewsController extends AdminPanelController
         } else {
             $result
                 ->operation('uploadImage')
-                ->setMessage('No se ha subido ninguna imagen.');
+                ->setMessage(__('news', 'No se ha subido ninguna imagen.'));
         }
 
         return $response->withJson($result);

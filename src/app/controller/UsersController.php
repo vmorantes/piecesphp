@@ -184,7 +184,7 @@ class UsersController extends AdminPanelController
 
         $on_set_data = function ($element) {
 
-            $edit_button = new HtmlElement('a', '<i class="icon edit"></i>' . 'Editar');
+            $edit_button = new HtmlElement('a', '<i class="icon edit"></i>' . __('usersModule', 'Editar'));
             $edit_button->setAttribute('class', 'ui green button');
             $edit_button->setAttribute('href', get_route('users-form-edit', ['id' => $element->id]));
 
@@ -194,7 +194,7 @@ class UsersController extends AdminPanelController
                 $element->first_lastname . ' ' . $element->second_lastname,
                 $element->email,
                 $element->username,
-                $element->status == UsersModel::STATUS_USER_ACTIVE ? 'Sí' : 'No',
+                $element->status == UsersModel::STATUS_USER_ACTIVE ? __('usersModule', 'Sí') : __('usersModule', 'No'),
                 UsersModel::TYPES_USERS[$element->type],
                 '' . $edit_button,
             ];
@@ -344,8 +344,8 @@ class UsersController extends AdminPanelController
         if (isset(UsersModel::TYPES_USERS[$type])) {
 
             $status_options = [
-                __('general', 'active') => UsersModel::STATUS_USER_ACTIVE,
-                __('general', 'inactive') => UsersModel::STATUS_USER_INACTIVE,
+                __('usersModule', 'active') => UsersModel::STATUS_USER_ACTIVE,
+                __('usersModule', 'inactive') => UsersModel::STATUS_USER_INACTIVE,
             ];
 
             $data_form = [];
@@ -427,8 +427,8 @@ class UsersController extends AdminPanelController
                 $type = $user->type;
 
                 $status_options = [
-                    __('general', 'active') => UsersModel::STATUS_USER_ACTIVE,
-                    __('general', 'inactive') => UsersModel::STATUS_USER_INACTIVE,
+                    __('usersModule', 'active') => UsersModel::STATUS_USER_ACTIVE,
+                    __('usersModule', 'inactive') => UsersModel::STATUS_USER_INACTIVE,
                 ];
 
                 $data_form = [];
@@ -721,7 +721,7 @@ class UsersController extends AdminPanelController
             } catch (ParsedValueException $e) {
 
                 $resultOperation->setValue('error', self::GENERIC_ERROR);
-                $resultOperation->setValue('message', 'Ha ocurrido un error desconocido con los valores ingresados.');
+                $resultOperation->setValue('message', __('usersModule', 'Ha ocurrido un error desconocido con los valores ingresados.'));
                 $resultOperation->setValue('extras', [
                     'exception' => $e->getMessage(),
                 ]);
@@ -753,7 +753,7 @@ class UsersController extends AdminPanelController
      */
     public function verifySession(Request $request, Response $response, array $args)
     {
-        $resultOperation = new ResultOperations([], 'Varificar sesión', '');
+        $resultOperation = new ResultOperations([], __('usersModule', 'Verificar sesión'), '');
         $resultOperation->setSingleOperation(true);
         $resultOperation->setValues([
             'auth' => false,
@@ -777,7 +777,7 @@ class UsersController extends AdminPanelController
     public function register(Request $request, Response $response, array $args)
     {
 
-        $operation_name = 'Creación de usuario';
+        $operation_name = __('usersModule', 'Creación de usuario');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -882,12 +882,12 @@ class UsersController extends AdminPanelController
 
         $parametersExcepted->setInputValues($request->getParsedBody());
 
-        $message_create = 'Usuario creado.';
-        $message_duplicate_email = 'Ya existe un usuario con ese email.';
-        $message_duplicate_user = 'Ya existe un usuario con ese nombre de usuario.';
-        $message_duplicate_all = 'Ya existe un usuario con ese email y nombre de usuario.';
-        $message_password_unmatch = 'Las contraseñas no coinciden.';
-        $message_unknow_error = 'Ha ocurrido un error inesperado.';
+        $message_create = __('usersModule', 'Usuario creado.');
+        $message_duplicate_email = __('usersModule', 'Ya existe un usuario con ese email.');
+        $message_duplicate_user = __('usersModule', 'Ya existe un usuario con ese nombre de usuario.');
+        $message_duplicate_all = __('usersModule', 'Ya existe un usuario con ese email y nombre de usuario.');
+        $message_password_unmatch = __('usersModule', 'Las contraseñas no coinciden.');
+        $message_unknow_error = __('usersModule', 'Ha ocurrido un error inesperado.');
 
         try {
 
@@ -1004,7 +1004,7 @@ class UsersController extends AdminPanelController
     public function edit(Request $request, Response $response, array $args)
     {
 
-        $operation_name = 'Edición de usuario';
+        $operation_name = __('usersModule', 'Edición de usuario');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -1130,13 +1130,13 @@ class UsersController extends AdminPanelController
 
         $parametersExcepted->setInputValues($request->getParsedBody());
 
-        $message_edit = 'Usuario editado.';
-        $message_duplicate_email = 'Ya existe un usuario con ese email.';
-        $message_duplicate_user = 'Ya existe un usuario con ese nombre de usuario.';
-        $message_duplicate_all = 'Ya existe un usuario con ese email y nombre de usuario.';
-        $message_password_unmatch = 'Las contraseñas no coinciden.';
-        $message_password_wrong = 'La contraseña es errónea.';
-        $message_unknow_error = 'Ha ocurrido un error inesperado.';
+        $message_edit = __('usersModule', 'Usuario editado.');
+        $message_duplicate_email = __('usersModule', 'Ya existe un usuario con ese email.');
+        $message_duplicate_user = __('usersModule', 'Ya existe un usuario con ese nombre de usuario.');
+        $message_duplicate_all = __('usersModule', 'Ya existe un usuario con ese email y nombre de usuario.');
+        $message_password_unmatch = __('usersModule', 'Las contraseñas no coinciden.');
+        $message_password_wrong = __('usersModule', 'La contraseña es errónea.');
+        $message_unknow_error = __('usersModule', 'Ha ocurrido un error inesperado.');
 
         try {
 
@@ -1243,7 +1243,7 @@ class UsersController extends AdminPanelController
             } else {
 
                 $result
-                    ->setMessage('No existe el usuario que intenta modificar.')
+                    ->setMessage(__('usersModule', 'No existe el usuario que intenta modificar.'))
                     ->operation($operation_name);
 
             }

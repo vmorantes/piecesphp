@@ -146,7 +146,7 @@ class RecoveryPasswordController extends UsersController
 
                 //Envío de correo de recuperación
                 $json_response['send_mail'] = $this->mailRecoveryPassword($toke_url, $usuario);
-                $json_response['message'] = 'Se ha enviado un mensaje al correo proporcionado.';
+                $json_response['message'] = __('revoveryPasswordModule', 'Se ha enviado un mensaje al correo proporcionado.');
             } else {
 
                 $json_response['error'] = self::USER_NO_EXISTS;
@@ -223,7 +223,7 @@ class RecoveryPasswordController extends UsersController
 
                 //Envío de correo de recuperación
                 $json_response['send_mail'] = $this->mailRecoveryPasswordCode($recoveryPassword->code, $usuario);
-                $json_response['message'] = 'Se ha enviado un mensaje al correo proporcionado.';
+                $json_response['message'] = __('revoveryPasswordModule', 'Se ha enviado un mensaje al correo proporcionado.');
 
                 $logRequest = new TicketsLogModel();
                 $logRequest->created = $recoveryPassword->created;
@@ -233,7 +233,7 @@ class RecoveryPasswordController extends UsersController
                     'email_sended' => $json_response['send_mail'],
                     'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
                 ];
-                $logRequest->type = 'Solicitud de restablecimiento de contraseña.';
+                $logRequest->type = __('revoveryPasswordModule', 'Solicitud de restablecimiento de contraseña.');
                 $logRequest->save();
             } else {
 
@@ -331,7 +331,7 @@ class RecoveryPasswordController extends UsersController
 
                 return $response->withStatus(404)
                     ->withHeader('Content-Type', 'text/html')
-                    ->write("<h1>El recurso solicitado no existe.</h1>");
+                    ->write("<h1>" . __('revoveryPasswordModule', 'El recurso solicitado no existe.') . "</h1>");
             }
         } else {
             $json_response['error'] = self::MISSING_OR_UNEXPECTED_PARAMS;
@@ -411,7 +411,7 @@ class RecoveryPasswordController extends UsersController
                             //Verificar si la contraseña fue actualizada
                             if ($updated) {
                                 $json_response['success'] = true;
-                                $json_response['message'] = 'Contraseña cambiada.';
+                                $json_response['message'] = __('revoveryPasswordModule', 'Contraseña cambiada.');
                                 $recoveryPassword->getModel()->delete("id = '$recoveryPassword->id'")->execute();
                             }
                         } else {
@@ -511,7 +511,7 @@ class RecoveryPasswordController extends UsersController
 
         $to_name = $usuario->username;
 
-        $subject = __('general', 'password_recovery');
+        $subject = __('revoveryPasswordModule', 'Recuperación de contraseña');
 
         $message = $this->render('usuarios/mail/recovery_password', ['url' => $url], false);
 
@@ -540,7 +540,7 @@ class RecoveryPasswordController extends UsersController
 
         $to_name = $usuario->username;
 
-        $subject = __('general', 'password_recovery');
+        $subject = __('revoveryPasswordModule', 'Recuperación de contraseña');
 
         $message = $this->render('usuarios/mail/recovery_password_code', [
             'code' => $code,
@@ -572,7 +572,7 @@ class RecoveryPasswordController extends UsersController
 
         $to_name = $usuario->username;
 
-        $subject = __('general', 'password_restored');
+        $subject = __('revoveryPasswordModule', 'Contraseña nueva');
 
         $message = $this->render('usuarios/mail/restored_password', ['password' => $password], false);
 
