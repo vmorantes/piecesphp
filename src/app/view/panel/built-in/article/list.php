@@ -5,7 +5,7 @@
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
         <?php if ($has_permissions_add): ?>
-        <a href="<?=$add_link;?>" class="ui button green"><?= __('articles', 'Agregar'); ?></a>
+        <a href="<?=$add_link;?>" class="ui button green"><?= __('articlesBackend', 'Agregar'); ?></a>
         <?php endif;?>
     </div>
 
@@ -19,16 +19,16 @@
     <table process="<?=$process_table;?>" style='width:100%;' class="ui table striped celled grey inverted">
         <thead>
             <tr>
-                <th><?=__('articles', 'list-ID');?></th>
-                <th><?=__('articles', 'list-Título');?></th>
-                <th><?=__('articles', 'list-Autor');?></th>
-                <th><?=__('articles', 'list-Categoría');?></th>
-                <th><?=__('articles', 'list-Inicio');?></th>
-                <th><?=__('articles', 'list-Fin');?></th>
-                <th><?=__('articles', 'list-Creado');?></th>
-                <th><?=__('articles', 'list-Editado');?></th>
-                <th><?=__('articles', 'list-Visitas');?></th>
-                <th order='false'><?=__('articles', 'list-Acciones');?></th>
+                <th><?=__('articlesBackend', 'ID');?></th>
+                <th><?=__('articlesBackend', 'Título');?></th>
+                <th><?=__('articlesBackend', 'Autor');?></th>
+                <th><?=__('articlesBackend', 'Categoría');?></th>
+                <th><?=__('articlesBackend', 'Inicio');?></th>
+                <th><?=__('articlesBackend', 'Fin');?></th>
+                <th><?=__('articlesBackend', 'Creado');?></th>
+                <th><?=__('articlesBackend', 'Editado');?></th>
+                <th><?=__('articlesBackend', 'Visitas');?></th>
+                <th order='false'><?=__('articlesBackend', 'Acciones');?></th>
             </tr>
         </thead>
     </table>

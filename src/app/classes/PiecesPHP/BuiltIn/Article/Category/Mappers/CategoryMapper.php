@@ -87,8 +87,9 @@ class CategoryMapper extends BaseEntityMapper
      * @param string $defaultValue
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = 'Categorías', string $defaultValue = '')
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
+        $defaultLabel = is_string($defaultLabel) && strlen($defaultLabel) > 0 ? $defaultLabel : __('articlesBackend', 'Categorías');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

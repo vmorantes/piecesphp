@@ -2,4 +2,4 @@
 
 
 <div built-in-articles-items-js built-in-articles-url="<?= $ajaxURL; ?>"></div>
-<button type="button" built-in-articles-load-more-js><?= __('articles', 'Cargar más'); ?></button>
+<button type="button" built-in-articles-load-more-js><?= __('articlesFrontEnd', 'Cargar más'); ?></button>

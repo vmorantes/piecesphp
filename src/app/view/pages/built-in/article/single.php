@@ -16,13 +16,13 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <div class="image">
         <img src="<?=$article->meta->imageMain;?>">
     </div>
-    <h3><?= __('articles', 'Contenido'); ?></h3>
+    <h3><?= __('articlesFrontEnd', 'Contenido'); ?></h3>
     <div class="text-aling-j"><?=$article->content;?></div>
 </section>
 
 <?php if (count($relateds) > 0): ?>
 
-<h3><?= __('articles', 'Noticias relacionadas'); ?></h3>
+<h3><?= __('articlesFrontEnd', 'Noticias relacionadas'); ?></h3>
 
 <section>
 
@@ -41,7 +41,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <div><?=$related->title;?></div>
 
         <div>
-            <a href="<?= $related->getSingleURL(); ?>"><?= __('articles', 'URL'); ?></a>
+            <a href="<?= $related->getSingleURL(); ?>"><?= __('articlesFrontEnd', 'URL'); ?></a>
         </div>
 
     </article>
