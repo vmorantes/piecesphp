@@ -333,8 +333,10 @@ class ArticleMapper extends BaseEntityMapper
      * @param bool $onlyDateRange
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = 'Artículos', string $defaultValue = '', bool $onlyDateRange = true)
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', bool $onlyDateRange = true)
     {
+
+		$defaultLabel = is_string($defaultLabel) && strlen($defaultLabel) > 0 ? $defaultLabel : __('articlesBackend', 'Artículos');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

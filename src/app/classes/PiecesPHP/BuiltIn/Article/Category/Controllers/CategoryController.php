@@ -79,10 +79,12 @@ class CategoryController extends AdminPanelController
      */
     public function __construct()
     {
+        self::$title = __('articlesBackend', self::$title);
+        self::$pluralTitle = __('articlesBackend', self::$pluralTitle);
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
         $this->model = (new MainMapper)->getModel();
-        set_title(self::$title . ' - ' . get_title());
+        set_title(self::$title);
     }
 
     /**
@@ -220,7 +222,7 @@ class CategoryController extends AdminPanelController
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
-                    $buttonEdit = new HtmlElement('a', 'Editar');
+                    $buttonEdit = new HtmlElement('a', __('articlesBackend', 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                         'id' => $e->id,
@@ -273,7 +275,7 @@ class CategoryController extends AdminPanelController
             $name,
         ]);
 
-        $operation_name = $is_edit ? 'Modificar categoría' : 'Crear categoría';
+        $operation_name = $is_edit ? __('articlesBackend', 'Modificar categoría') : __('articlesBackend', 'Crear categoría');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -281,12 +283,12 @@ class CategoryController extends AdminPanelController
 
         $result->setValue('redirect', false);
 
-        $error_parameters_message = 'Los parámetros recibidos son erróneos.';
-        $not_exists_message = 'La categoría que intenta modificar no existe';
-        $success_create_message = 'Categoría creada.';
-        $success_edit_message = 'Datos guardados.';
-        $unknow_error_message = 'Ha ocurrido un error desconocido.';
-        $is_duplicate_message = 'Ya existe una categoría con ese nombre.';
+        $error_parameters_message = __('articlesBackend', 'Los parámetros recibidos son erróneos.');
+        $not_exists_message = __('articlesBackend', 'La categoría que intenta modificar no existe');
+        $success_create_message = __('articlesBackend', 'Categoría creada.');
+        $success_edit_message = __('articlesBackend', 'Datos guardados.');
+        $unknow_error_message = __('articlesBackend', 'Ha ocurrido un error desconocido.');
+        $is_duplicate_message = __('articlesBackend', 'Ya existe una categoría con ese nombre.');
 
         $redirect_url_on_create = self::routeName('list');
 
