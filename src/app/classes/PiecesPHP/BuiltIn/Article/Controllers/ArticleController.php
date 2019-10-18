@@ -101,6 +101,10 @@ class ArticleController extends AdminPanelController
      */
     public function __construct()
     {
+
+		self::$title = __('articlesBackend', self::$title);
+		self::$pluralTitle = __('articlesBackend', self::$pluralTitle);
+
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
         $this->model = (new MainMapper)->getModel();
@@ -429,7 +433,7 @@ class ArticleController extends AdminPanelController
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
-                    $buttonEdit = new HtmlElement('a', 'Editar');
+                    $buttonEdit = new HtmlElement('a', __('articlesBackend', 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                         'id' => $e->id,
@@ -449,10 +453,10 @@ class ArticleController extends AdminPanelController
                         strlen($mapper->title) > 50 ? trim(mb_substr($mapper->title, 0, 50)) . '...' : $mapper->title,
                         $mapper->author->username,
                         $mapper->category->name,
-                        !is_null($mapper->start_date) ? $mapper->start_date->format('d-m-Y h:i:s') : '-',
-                        !is_null($mapper->end_date) ? $mapper->end_date->format('d-m-Y h:i:s') : '-',
-                        $mapper->created->format('d-m-Y h:i:s'),
-                        !is_null($mapper->updated) ? $mapper->updated->format('d-m-Y h:i:s') : 'Nunca',
+                        !is_null($mapper->start_date) ? $mapper->start_date->format(__('formatsDate', 'd-m-Y h:i:s A')) : '-',
+                        !is_null($mapper->end_date) ? $mapper->end_date->format(__('formatsDate', 'd-m-Y h:i:s A')) : '-',
+                        $mapper->created->format(__('formatsDate', 'd-m-Y h:i:s A')),
+                        !is_null($mapper->updated) ? $mapper->updated->format(__('formatsDate', 'd-m-Y h:i:s A')) : __('articlesBackend', 'Nunca'),
                         $e->visits,
                         (string) $buttonEdit,
                     ];
@@ -497,7 +501,7 @@ class ArticleController extends AdminPanelController
             $content,
         ]);
 
-        $operation_name = $is_edit ? 'Modificar artículo' : 'Crear artículo';
+        $operation_name = $is_edit ? __('articlesBackend', 'Modificar artículo') : __('articlesBackend', 'Crear artículo');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -505,12 +509,12 @@ class ArticleController extends AdminPanelController
 
         $result->setValue('redirect', false);
 
-        $error_parameters_message = 'Los parámetros recibidos son erróneos.';
-        $not_exists_message = 'El artículo que intenta modificar no existe';
-        $success_create_message = 'Artículo creado.';
-        $success_edit_message = 'Datos guardados.';
-        $unknow_error_message = 'Ha ocurrido un error desconocido.';
-        $is_duplicate_message = 'Ya existe un artículo con ese nombre en la categoría seleccionada.';
+        $error_parameters_message = __('articlesBackend', 'Los parámetros recibidos son erróneos.');
+        $not_exists_message       = __('articlesBackend', 'El artículo que intenta modificar no existe');
+        $success_create_message   = __('articlesBackend', 'Artículo creado.');
+        $success_edit_message     = __('articlesBackend', 'Datos guardados.');
+        $unknow_error_message     = __('articlesBackend', 'Ha ocurrido un error desconocido.');
+        $is_duplicate_message     = __('articlesBackend', 'Ya existe un artículo con ese nombre en la categoría seleccionada.');
 
         $redirect_url_on_create = self::routeName('list');
 
@@ -772,20 +776,20 @@ class ArticleController extends AdminPanelController
                     if (!is_null($filename)) {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage('Imagen subida')
+                            ->setMessage(__('articlesBackend', 'Imagen subida'))
                             ->setSuccess(true);
                         $result->setValue('path', $url);
                     } else {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage('La imagen no pudo ser subida, intente después.');
+                            ->setMessage(__('articlesBackend', 'La imagen no pudo ser subida, intente después.'));
                     }
                 }
             }
         } else {
             $result
                 ->operation('uploadImage')
-                ->setMessage('No se ha subido ninguna imagen.');
+                ->setMessage(__('articlesBackend', 'No se ha subido ninguna imagen.'));
         }
 
         return $response->withJson($result);
