@@ -436,9 +436,8 @@ pcsphpGlobals.configCalendar = {
 	type: 'date',
 	formatter: {
 		date: function (date, settings) {
-			if (!date) return ''
-			let util = new UtilPieces()
-			return util.date.formatDate(date, 'd-m-y')
+			if (!(date instanceof Date)) return ''
+			return formatDate(date, 'd-m-Y')
 		}
 	},
 	text: {
