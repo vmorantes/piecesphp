@@ -73,7 +73,7 @@ class Point extends AdminPanelController
 
         parent::__construct(false); //No cargar ningún modelo automáticamente.
         $this->model = (new PointMapper())->getModel();
-        set_title(self::$pluralTitle . ' - ' . get_title());
+        set_title(self::$pluralTitle);
     }
 
     /**

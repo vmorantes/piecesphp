@@ -67,7 +67,7 @@ class ImporterController extends AdminPanelController
         ];
 
         $this->texts = [
-            'users' => 'Con este importador podrá realizar la carga masiva de usuarios; debe tener presente que para realizar la carga el archivo de Excel debe contener una información mínima, la cual será verificada registro por registro y en caso de no cumplir uno de los parámetros obligatorios el usuario no será creado en sistema.',
+            'users' => __('importerModule', 'TEXTO_IMPORTACION_USUARIOS'),
         ];
 
         parent::__construct();
@@ -158,15 +158,15 @@ class ImporterController extends AdminPanelController
                     $json_response['success'] = true;
 
                 } else {
-                    $json_response['message'] = 'El importador no es válido.';
+                    $json_response['message'] = __('importerModule', 'El importador no es válido.');
                 }
 
             } else {
-                $json_response['message'] = 'No existe el importador solicitado.';
+                $json_response['message'] = __('importerModule', 'No existe el importador solicitado.');
             }
 
         } else {
-            $json_response['message'] = 'Ha ocurrido un error.';
+            $json_response['message'] = __('importerModule', 'Ha ocurrido un error.');
         }
 
         return $res->withJson($json_response);
@@ -192,7 +192,7 @@ class ImporterController extends AdminPanelController
                 $importer = $this->getImporter($type, []);
                 $schema = $importer->getSchema();
                 $template = $schema->template();
-                $name = 'plantilla';
+                $name = __('importerModule', 'plantilla');
 
                 $template->save('php://output');
 
