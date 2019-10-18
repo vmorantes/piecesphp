@@ -363,7 +363,7 @@ class MessagesModel extends BaseEntityMapper
                 if ($field == 'message_from') {
                     $avatar = AvatarModel::getAvatar($value_field->id);
 					$message['avatar'] = !is_null($avatar) ? $avatar : baseurl('statics/images/default-avatar.png');
-					$message['rol'] = UsersModel::TYPES_USERS[$value_field->type];
+					$message['rol'] = UsersModel::getTypesUser()[$value_field->type];
                 }
 
                 if (is_subclass_of($value_field, BaseEntityMapper::class)) {
