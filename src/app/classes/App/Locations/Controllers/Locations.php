@@ -45,6 +45,8 @@ class Locations extends AdminPanelController
      */
     public function __construct()
     {
+		self::$title = __('locationBackend', self::$title);
+		
         parent::__construct(false); //No cargar ningún modelo automáticamente.
         set_title(self::$title . ' - ' . get_title());
     }
