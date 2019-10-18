@@ -9,7 +9,7 @@ function successMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
 	message = message !== undefined ? message : ''
 
-	if(typeof iziToast !== 'undefined'){
+	if (typeof iziToast !== 'undefined') {
 		iziToast.success({
 			title: title,
 			message: message,
@@ -20,7 +20,7 @@ function successMessage(title, message, onClose = null) {
 				}
 			},
 		})
-	}else{
+	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
 			onClose()
@@ -38,9 +38,9 @@ function successMessage(title, message, onClose = null) {
  */
 function warningMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
-	message = message !== undefined ? message : ''	
+	message = message !== undefined ? message : ''
 
-	if(typeof iziToast !== 'undefined'){
+	if (typeof iziToast !== 'undefined') {
 		iziToast.warning({
 			title: title,
 			message: message,
@@ -51,7 +51,7 @@ function warningMessage(title, message, onClose = null) {
 				}
 			},
 		})
-	}else{
+	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
 			onClose()
@@ -70,7 +70,7 @@ function infoMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
 	message = message !== undefined ? message : ''
 
-	if(typeof iziToast !== 'undefined'){
+	if (typeof iziToast !== 'undefined') {
 		iziToast.info({
 			title: title,
 			message: message,
@@ -81,7 +81,7 @@ function infoMessage(title, message, onClose = null) {
 				}
 			},
 		})
-	}else{
+	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
 			onClose()
@@ -100,7 +100,7 @@ function errorMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
 	message = message !== undefined ? message : ''
 
-	if(typeof iziToast !== 'undefined'){
+	if (typeof iziToast !== 'undefined') {
 		iziToast.error({
 			title: title,
 			message: message,
@@ -111,7 +111,7 @@ function errorMessage(title, message, onClose = null) {
 				}
 			},
 		})
-	}else{
+	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
 			onClose()
@@ -1097,7 +1097,7 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	}
 
 	return form
-	
+
 }
 
 /**
@@ -1175,4 +1175,98 @@ function removeGenericLoader(name = 'DEFAULT') {
 		}
 	}
 
+}
+
+/**
+ * @function formatDate
+ *
+ * Formatea una fecha.
+ *
+ * @param {Date} date Fecha
+ * @param {string} format Formato de la fecha
+ * - d	Día del mes, 2 dígitos con ceros iniciales	01 a 31
+ * - Y	Una representación numérica completa de un año, 4 dígitos	Ejemplos: 1999 o 2003
+ * - m	Representación numérica de un mes, con ceros iniciales	01 hasta 12
+ * - g	Formato de 12 horas de una hora sin ceros iniciales	1 hasta 12
+ * - G	Formato de 24 horas de una hora sin ceros iniciales	0 hasta 23
+ * - h	Formato de 12 horas de una hora con ceros iniciales	01 hasta 12
+ * - H	Formato de 24 horas de una hora con ceros iniciales	00 hasta 23
+ * - A	Ante meridiem y Post meridiem en mayúsculas	AM o PM
+ * - i	Minutos con ceros iniciales	00 hasta 59
+ * - s	Segundos con ceros iniciales	00 hasta 59
+ * @returns {string}
+ */
+function formatDate(date, format) {
+
+	format = typeof format == 'string' && format.length > 0 ? format : 'd-m-Y'
+	if (!(date instanceof Date)) {
+		date = new Date()
+		console.warn('Fecha actual asignada en formatDate')
+	}
+
+	let d = date.getDate()
+	d = d < 10 ? `0${d}` : d
+
+	let m = date.getMonth() + 1
+	m = m < 10 ? `0${m}` : m
+
+	let Y = date.getFullYear().toString()
+
+	let hours = {
+		0: 12,
+		1: 1,
+		2: 2,
+		3: 3,
+		4: 4,
+		5: 5,
+		6: 6,
+		7: 7,
+		8: 8,
+		9: 9,
+		10: 10,
+		11: 11,
+		12: 12,
+		13: 1,
+		14: 2,
+		15: 3,
+		16: 4,
+		17: 5,
+		18: 6,
+		19: 7,
+		20: 8,
+		21: 9,
+		22: 10,
+		23: 11,
+	}
+	let hour = date.getHours()
+	let g = hours[hour]
+	let G = hour
+	let h = g < 10 ? `0${g}` : g
+	let H = G < 10 ? `0${G}` : G
+	let A = hour > 12 ? 'PM' : 'AM'
+
+	let i = parseInt(date.getMinutes())
+	i = i < 10 ? `0${i}` : i
+	let s = parseInt(date.getSeconds())
+	s = s < 10 ? `0${s}` : s
+
+	let replacesPattern = {
+		'Y': Y,
+		'm': m,
+		'd': d,
+		'A': A,
+		'g': g,
+		'G': G,
+		'h': h,
+		'H': H,
+		'i': i,
+		's': s,
+	}
+
+	for (let pattern in replacesPattern) {
+		let value = replacesPattern[pattern]
+		format = format.replace(pattern, value)
+	}
+
+	return format
 }
