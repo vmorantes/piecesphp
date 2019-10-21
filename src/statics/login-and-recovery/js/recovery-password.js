@@ -26,6 +26,8 @@ $(document).ready(function (e) {
 	let headerWrongCode = $('.container .header.four')
 	let headerFinish = $('.container .header.five')
 
+	let lang = pcsphpGlobals.lang == pcsphpGlobals.defaultLang ? '' : pcsphpGlobals.lang + '/'
+
 	let recoveryForm = recoveryContainer.find('form')
 	let codeForm = codeContainer.find('form')
 	let changePasswordForm = changePasswordContainer.find('form')
@@ -39,7 +41,7 @@ $(document).ready(function (e) {
 
 		e.preventDefault()
 
-		let recovery = postRequest('users/recovery-code', new FormData(recoveryForm[0]))
+		let recovery = postRequest(lang + 'users/recovery-code', new FormData(recoveryForm[0]))
 
 		recoveryForm.find('.field').addClass('disabled')
 
@@ -106,7 +108,7 @@ $(document).ready(function (e) {
 
 		e.preventDefault()
 
-		let recovery = postRequest('users/verify-create-password-code', new FormData(codeForm[0]))
+		let recovery = postRequest(lang + 'users/verify-create-password-code', new FormData(codeForm[0]))
 
 		codeForm.find('.field').addClass('disabled')
 
@@ -166,7 +168,7 @@ $(document).ready(function (e) {
 
 		e.preventDefault()
 
-		let recovery = postRequest('users/create-password-code', new FormData(changePasswordForm[0]))
+		let recovery = postRequest(lang + 'users/create-password-code', new FormData(changePasswordForm[0]))
 
 		codeForm.find('.field').addClass('disabled')
 

@@ -27,6 +27,8 @@ $(document).ready(function (e) {
 	let recoveryForm = recoveryContainer.find('form')
 	let codeForm = codeContainer.find('form')
 
+	let lang = pcsphpGlobals.lang == pcsphpGlobals.defaultLang ? '' : pcsphpGlobals.lang + '/'
+
 	codeContainer.hide()
 	errorContainer.hide()
 	finishContainer.hide()
@@ -39,7 +41,7 @@ $(document).ready(function (e) {
 
 		formData.set('type', 'TYPE_USER_FORGET')
 
-		let recovery = postRequest('users/user-forget-code', formData)
+		let recovery = postRequest(lang + 'users/user-forget-code', formData)
 
 		recoveryForm.find('.field').addClass('disabled')
 
@@ -107,7 +109,7 @@ $(document).ready(function (e) {
 
 		formData.set('type', 'TYPE_USER_FORGET')
 
-		let recovery = postRequest('users/get-username', formData)
+		let recovery = postRequest(lang + 'users/get-username', formData)
 
 		codeForm.find('.field').addClass('disabled')
 
