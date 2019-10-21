@@ -52,7 +52,14 @@ $(document).ready(function (e) {
 				headerMain.hide(delayHide)
 				headerCode.show(delayShow)
 
-				messageBox.html(`Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>ayuda@tejidodigital.com</strong>.`)
+				messageBox.html(
+					formatStr(
+						_i18n('userProblems', 'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'),
+						[
+							'ayuda@tejidodigital.com',
+						]
+					)
+				)
 
 				recoveryForm[0].reset()
 
@@ -65,7 +72,7 @@ $(document).ready(function (e) {
 					recoveryContainer.hide(delayHide)
 					errorContainer.show(delayShow)
 
-					messageBox.html(`El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.`)
+					messageBox.html(_i18n('userProblems', 'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.'))
 					recoveryForm[0].reset()
 
 				} else {
@@ -126,7 +133,7 @@ $(document).ready(function (e) {
 					codeContainer.hide(delayHide)
 					errorContainer.show(delayShow)
 
-					messageBox.html(`El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.`)
+					messageBox.html(_i18n('userProblems', 'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.'))
 
 					recoveryForm[0].reset()
 

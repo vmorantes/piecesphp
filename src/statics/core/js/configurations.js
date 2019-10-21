@@ -290,6 +290,14 @@ pcsphpGlobals.messages.es = {
 		'USUARIO_INEXISTENTE'                                                            : '<span class="text">El usuario</span> <span class="mark">%r</span> <span class="text">no existe</span>',
 		'ERROR_AL_INGRESAR'                                                              : 'Error al ingresar',
 	},
+	userProblems:{
+		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.',
+		'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'                                                : 'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.',
+		'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.'                                        : 'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.',
+		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.'                                                               : 'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.',
+		'Ingrese con su usuario y la nueva contraseña'                                                                                                                                                                      : 'Ingrese con su usuario y la nueva contraseña',
+		'Las contraseñas no coinciden'                                                                                                                                                                                      : 'Las contraseñas no coinciden',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -551,6 +559,14 @@ pcsphpGlobals.messages.en = {
 		'USUARIO_BLOQUEADO'                                                              : '<span class="text">User</span> <span class="mark">blocked</span>',
 		'USUARIO_INEXISTENTE'                                                            : '<span class="text">The user</span> <span class="mark">%r</span> <span class="text">does not exist</span>',
 		'ERROR_AL_INGRESAR'                                                              : 'Login failed',
+	},
+	userProblems:{
+		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'It will be solved very soon, please check your mail in the next few hours. <br> The email may be in "Spam", please check the spam folder. The sender of the email is <strong>%r</strong>.',
+		'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'                                                : 'Enter the code sent to your email, the email may be in "Spam", please check the spam folder. The sender of the email is <strong>%r</strong>.',
+		'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.'                                        : 'The email entered is not associated with any user, please enter another email account or you can create a support request to associate that email with your account.',
+		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.'                                                               : 'The code entered is wrong, please re-enter the code, request a new one or create a support request to report the error.',
+		'Ingrese con su usuario y la nueva contraseña'                                                                                                                                                                      : 'Login with your username and the new password',
+		'Las contraseñas no coinciden'                                                                                                                                                                                      : 'Passwords do not match',
 	},
 }
 
