@@ -345,20 +345,20 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
 				if (typeof response.success !== 'undefined' && response.success === true) {
 
-					successMessage('¡Listo!', response.message)
+					successMessage(_i18n('messenger', '¡Listo!'), response.message)
 					message.val('')
 					instance.loadMessages()
 
 				} else {
 
-					errorMessage('Error', response.message)
+					errorMessage(_i18n('messenger', 'Error'), response.message)
 
 				}
 
 			}).fail(function (error) {
 
 				console.error(error)
-				errorMessage('Error', 'Ha ocurrido un error desconocido.')
+				errorMessage(_i18n('messenger', 'Error'), _i18n('messenger', 'Ha ocurrido un error desconocido.'))
 
 			}).always(function () {
 
@@ -868,20 +868,20 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
 					if (typeof response.success !== 'undefined' && response.success === true) {
 
-						successMessage('¡Listo!', response.message)
+						successMessage(_i18n('messenger', '¡Listo!'), response.message)
 						instance.loadMessages()
 						message.val('')
 
 					} else {
 
-						errorMessage('Error', response.message)
+						errorMessage(_i18n('messenger', 'Error'), response.message)
 
 					}
 
 				}).fail(function (error) {
 
 					console.error(error)
-					errorMessage('Error', 'Ha ocurrido un error desconocido.')
+					errorMessage(_i18n('messenger', 'Error'), _i18n('messenger', 'Ha ocurrido un error desconocido.'))
 
 				}).always(function () {
 
