@@ -379,8 +379,8 @@ function CropperAdapterComponent(configurations = {}) {
 			let height = (adapterOptions.outputWidth / (adapterOptions.cropperOptions.aspectRatio))
 			let sizeOutputString = `${adapterOptions.outputWidth}x${height}(px)`
 			let wMinString = `${adapterOptions.minWidth}(px)`
-			$(`[show-output]`).html(sizeOutputString)
-			$(`[min-w-output]`).html(wMinString)
+			container.find(`[show-output]`).html(sizeOutputString)
+			container.find(`[min-w-output]`).html(wMinString)
 
 		} catch (error) {
 			errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'Ha ocurrido un error al configurar CropperAdapterComponent'))
@@ -602,9 +602,8 @@ function CropperAdapterComponent(configurations = {}) {
 
 					let cutImage = new Image()
 					cutImage.id = 'image'
-					cutImage.src = instance.crop()
 
-					cutImage.onload = () => {
+					cutImage.addEventListener('load', () => {
 
 						let imageElement = previewContainer.find('img')
 
@@ -628,7 +627,9 @@ function CropperAdapterComponent(configurations = {}) {
 						updateCropperData()
 						toPreview()
 
-					}
+					})
+					
+					cutImage.src = instance.crop()
 
 				}
 
