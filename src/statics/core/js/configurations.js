@@ -273,6 +273,11 @@ pcsphpGlobals.messages.es = {
 		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.',
 		'La ubicación "%r" no se encontró en el mapa.'                                  : 'La ubicación "%r" no se encontró en el mapa.',
 	},
+	messenger: {
+		'Error'                            : 'Error',
+		'Ha ocurrido un error desconocido.': 'Ha ocurrido un error desconocido.',
+		'¡Listo!'                          : '¡Listo!',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -517,6 +522,11 @@ pcsphpGlobals.messages.en = {
 		'Información'                                                                   : 'Information',
 		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'The location "%r" was not found on the map, an approximate position will be used.',
 		'La ubicación "%r" no se encontró en el mapa.'                                  : 'The location "%r" was not found on the map.',
+	},
+	messenger: {
+		'Error'                            : 'Error',
+		'Ha ocurrido un error desconocido.': 'An unknown error has occurred.',
+		'¡Listo!'                          : 'Ready!',
 	},
 }
 
