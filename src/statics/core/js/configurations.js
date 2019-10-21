@@ -254,6 +254,16 @@ pcsphpGlobals.messages.es = {
 		'No se ha encontrado ningún input de tipo file.'            : 'No se ha encontrado ningún input de tipo file.',
 		'No se ha encontrado ningún canvas.'                        : 'No se ha encontrado ningún canvas.',
 	},
+	quill: {
+		'Falta(n) el componente o el textarea en el DOM.'          : 'Falta(n) el componente o el textarea en el DOM.',
+		'Error en QuillAdapterComponent'                           : 'Error en QuillAdapterComponent',
+		'Ha ocurrido un error al instanciar.'                      : 'Ha ocurrido un error al instanciar.',
+		'Ha ocurrido un error al instanciar QuillAdapterComponent.': 'Ha ocurrido un error al instanciar QuillAdapterComponent.',
+		'El componente "%r" ya está en uso.'                       : 'El componente "%r" ya está en uso.',
+		'Error'                                                    : 'Error',
+		'Ha ocurrido un error al carga la imagen.'                 : 'Ha ocurrido un error al carga la imagen.',
+		'Ha ocurrido un error al cargar la imagen.'                : 'Ha ocurrido un error al cargar la imagen.',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -479,6 +489,16 @@ pcsphpGlobals.messages.en = {
 		'No hay imágenes seleccionadas.'                            : 'There are no images selected.',
 		'No se ha encontrado ningún input de tipo file.'            : 'No file type input was found.',
 		'No se ha encontrado ningún canvas.'                        : 'No canvas found.',
+	},
+	quill: {
+		'Falta(n) el componente o el textarea en el DOM.'          : 'The component or textarea is missing in the DOM.',
+		'Error en QuillAdapterComponent'                           : 'Error in QuillAdapterComponent',
+		'Ha ocurrido un error al instanciar.'                      : 'An error occurred while instantiating.',
+		'Ha ocurrido un error al instanciar QuillAdapterComponent.': 'An error occurred while instantiating QuillAdapterComponent.',
+		'El componente "%r" ya está en uso.'                       : 'The component "%r" is already in use.',
+		'Error'                                                    : 'Error',
+		'Ha ocurrido un error al carga la imagen.'                 : 'An error has occurred while loading the image.',
+		'Ha ocurrido un error al cargar la imagen.'                : 'An error occurred while loading the image.',
 	},
 }
 
