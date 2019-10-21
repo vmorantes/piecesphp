@@ -134,19 +134,19 @@ function CropperAdapterComponent(configurations = {}) {
 
 	/**
 	 * @method crop
-	 * @param {Number} [quality=0.7] Calidad de exportación
+	 * @param {Number} [quality=1] Calidad de exportación
 	 * @param {Number} [oWidth=null] Ancho de exportación
 	 * @param {Boolean} [last=false] Para devolver la última imagen guardada
 	 * @returns {String|null} base64
 	 */
-	this.crop = (quality = 0.7, oWidth = null, last = false) => {
+	this.crop = (quality = 1, oWidth = null, last = false) => {
 
 		let b64 = null
 
 		if (initialized) {
 
 			if (!(typeof quality == 'number')) {
-				quality = 0.7
+				quality = 1
 			}
 
 			if (!(typeof oWidth == 'number')) {
