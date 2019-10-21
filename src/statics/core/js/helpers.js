@@ -1270,3 +1270,38 @@ function formatDate(date, format) {
 
 	return format
 }
+
+/**
+ * 
+ * @param {String} str Remplaza %r por los valores pasados
+ * @param {Array<String>} values 
+ */
+function formatStr(str, values) {
+
+	if (Array.isArray(values)) {
+
+		if (typeof str == 'string') {
+
+			for (let value of values) {
+
+				let indexReplaceElement = str.indexOf('%r')
+
+				if (indexReplaceElement != -1) {
+
+					str = str.replace('%r', value)
+
+				} else {
+
+					break
+
+				}
+
+			}
+
+		}
+
+	}
+
+	return typeof str == 'string' ? str : ''
+
+}
