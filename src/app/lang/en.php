@@ -6,11 +6,13 @@ namespace App\LangMessages;
 $lang = [
     'lang' => [
         'es'       => 'Spanish',
-        'es-short' => 'ES',
         'en'       => 'English',
-        'en-short' => 'EN',
         'fr'       => 'French',
-        'fr-short' => 'FR',
+    ],
+    'langShort' => [
+        'es' => 'ES',
+        'en' => 'EN',
+        'fr' => 'FR',
     ],
     'formatsDate' => [
         'd-m-Y h:i:s'   => 'Y-m-d h:i:s',
