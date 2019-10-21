@@ -108,9 +108,9 @@ function CropperAdapterComponent(configurations = {}) {
 	/** @type {$} Disparador de aumento */ let actionZoomIn
 
 	//──── Textos ────────────────────────────────────────────────────────────────────────────
-	/** @type {String} Texto agregar imagen */ let addImageText = 'Agregar imagen'
-	/** @type {String} Texto cambiar imagen */ let changeImageText = 'Cambiar imagen'
-	/** @type {String} Texto título por defecto */ let title = 'imagen'
+	/** @type {String} Texto agregar imagen */ let addImageText = _i18n('cropper', 'Agregar imagen')
+	/** @type {String} Texto cambiar imagen */ let changeImageText = _i18n('cropper', 'Cambiar imagen')
+	/** @type {String} Texto título por defecto */ let title = _i18n('cropper', 'imagen')
 
 	//──── Elementos de interfaz ─────────────────────────────────────────────────────────────
 	/** @type {$} Disparador de inicio de la interfaz */ let startButton
@@ -383,7 +383,7 @@ function CropperAdapterComponent(configurations = {}) {
 			$(`[min-w-output]`).html(wMinString)
 
 		} catch (error) {
-			errorMessage('Error', 'Ha ocurrido un error al configurar CropperAdapterComponent')
+			errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'Ha ocurrido un error al configurar CropperAdapterComponent'))
 			console.error(error)
 		}
 
@@ -476,7 +476,13 @@ function CropperAdapterComponent(configurations = {}) {
 				let realWidth = detail.width.toFixed(0)
 
 				if (isOnEdit) {
-					$(`[show-crop-dimensions]`).html(`Tamaño real de la máscara de corte ${realWidth}x${realHeight}(px)`)
+					$(`[show-crop-dimensions]`).html(formatStr(
+						_i18n('cropper', `Tamaño real de la máscara de corte %rx%r(px)`),
+						[
+							realWidth,
+							realHeight,
+						],
+					))
 				} else {
 					$(`[show-crop-dimensions]`).html(``)
 				}
@@ -540,7 +546,12 @@ function CropperAdapterComponent(configurations = {}) {
 							let inputWidth = img.width
 
 							if (inputWidth < adapterOptions.minWidth) {
-								errorMessage('Error', `El ancho mínimo de la imagen debe ser: ${adapterOptions.minWidth}px`)
+								errorMessage(_i18n('cropper', 'Error'), formatStr(
+									_i18n('cropper', `El ancho mínimo de la imagen debe ser: %rpx`),
+									[
+										adapterOptions.minWidth,
+									]
+								))
 								return
 							}
 
@@ -561,13 +572,13 @@ function CropperAdapterComponent(configurations = {}) {
 
 				} else {
 
-					errorMessage('Error', 'Seleccione una imagen, por favor.')
+					errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'Seleccione una imagen, por favor.'))
 
 				}
 
 			} else {
 
-				errorMessage('Error', 'No hay imágenes seleccionadas.')
+				errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'No hay imágenes seleccionadas.'))
 
 			}
 
@@ -996,7 +1007,7 @@ function CropperAdapterComponent(configurations = {}) {
 				fileInput = $(fileInput)
 
 			} else {
-				throw new Error(`No se ha encontrado ningún input de tipo file.`)
+				throw new Error(_i18n('cropper', 'No se ha encontrado ningún input de tipo file.'))
 			}
 
 			//──────────────────────────────────────────────────────────────────────────────────
@@ -1007,7 +1018,7 @@ function CropperAdapterComponent(configurations = {}) {
 				canvas = $(canvas)
 				canvasImage = canvas.attr('data-image')
 			} else {
-				throw new Error(`No se ha encontrado ningún canvas.`)
+				throw new Error(_i18n('cropper', 'No se ha encontrado ningún canvas.'))
 			}
 
 			//──────────────────────────────────────────────────────────────────────────────────
@@ -1255,7 +1266,7 @@ function CropperAdapterComponent(configurations = {}) {
 
 
 		} else {
-			throw new Error(`No existe ningún elemento con el selector ${containerSelector}.`)
+			throw new Error(formatStr(_i18n('cropper', 'No existe ningún elemento con el selector %r.', [containerSelector])))
 		}
 
 
