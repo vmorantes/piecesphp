@@ -187,20 +187,21 @@ function convert_lang_url($url, $current_lang = 'es', $target_lang = 'en')
  * @param bool $short_lang Define si el índice de cada URL es el lenguaje corto o largo ej. ES o Español
  * @return string[]
  */
-function get_current_langs_urls(string $url = null, bool $short_lang = false){
-	
-	$url = !is_null($url) ? $url : get_current_url();
-	$urls = [];
-	$langs = get_config('allowed_langs');
+function get_current_langs_urls(string $url = null, bool $short_lang = false)
+{
 
-	foreach($langs as $lang){
+    $url = !is_null($url) ? $url : get_current_url();
+    $urls = [];
+    $langs = get_config('allowed_langs');
 
-		$urls[__($short_lang ? 'langShort' :'lang', $lang)] = convert_lang_url($url, get_config('app_lang'), $lang);
+    foreach ($langs as $lang) {
 
-	}
-	
-	return $urls;
-	
+        $urls[__($short_lang ? 'langShort' : 'lang', $lang)] = convert_lang_url($url, get_config('app_lang'), $lang);
+
+    }
+
+    return $urls;
+
 }
 
 /**
