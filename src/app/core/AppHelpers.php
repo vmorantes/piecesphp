@@ -117,7 +117,7 @@ function base_url(string $resource = "")
 }
 
 /**
- * Obtiene la url basado en el idioma acutual
+ * Obtiene la url basado en el idioma actual
  * Nota: Solo si lang_by_url es true
  *
  * @param string $current_lang
@@ -141,6 +141,37 @@ function get_lang_url($current_lang = 'es', $target_lang = 'en')
     $current_segment = str_replace(remove_last_char($base_url), '', $current_url);
     $current_segment = str_replace(baseurl(), '', $current_segment);
     $lang_url = baseurl($target_lang . $current_segment);
+    $path = parse_url($lang_url, PHP_URL_PATH);
+    $path_clean = str_replace('//', '/', $path);
+    $lang_url = str_replace($path, $path_clean, $lang_url);
+    return $lang_url;
+}
+
+/**
+ * Convierte la url basado en el idioma actual en su par de otro idioma
+ * Nota: Solo si lang_by_url es true
+ *
+ * @param string $url
+ * @param string $current_lang
+ * @param string $target_lang
+ * @return string
+ */
+function convert_lang_url($url, $current_lang = 'es', $target_lang = 'en')
+{
+
+    $default_lang = get_config('default_lang');
+
+    if ($target_lang == $default_lang) {
+        $target_lang = '';
+    } else {
+        $target_lang .= '/';
+    }
+
+    $base_url = baseurl($current_lang . '/');
+    $segment = str_replace($base_url, '', $url);
+    $segment = str_replace(remove_last_char($base_url), '', $url);
+    $segment = str_replace(baseurl(), '', $segment);
+    $lang_url = baseurl($target_lang . $segment);
     $path = parse_url($lang_url, PHP_URL_PATH);
     $path_clean = str_replace('//', '/', $path);
     $lang_url = str_replace($path, $path_clean, $lang_url);
