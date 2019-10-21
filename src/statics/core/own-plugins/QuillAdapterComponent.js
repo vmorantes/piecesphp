@@ -1,4 +1,3 @@
-
 /**
  * @function QuillAdapterComponent
  * 
@@ -167,12 +166,17 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 			})
 
 			if (component.length !== 1 || textareaTarget.length < 1) {
-				throw new Error('Falta(n) el componente o el textarea en el DOM.')
+				throw new Error(_i18n('quill', 'Falta(n) el componente o el textarea en el DOM.'))
 			} else {
 				if (QuillAdapterComponent.componentsSelectors.indexOf(containerSelector) === -1) {
 					QuillAdapterComponent.componentsSelectors.push(containerSelector)
 				} else {
-					throw new Error('El componente "' + containerSelector + '" ya está en uso.')
+					throw new Error(formatStr(
+						_i18n('quill', 'El componente "%r" ya está en uso.'),
+						[
+							containerSelector,
+						]
+					))
 				}
 			}
 
@@ -182,9 +186,9 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 			if (silentError !== true) {
 				if (typeof errorMessage == 'function') {
-					errorMessage('Error en QuillAdapterComponent', 'Ha ocurrido un error al instanciar.')
+					errorMessage(_i18n('quill', 'Error en QuillAdapterComponent'), _i18n('quill', 'Ha ocurrido un error al instanciar.'))
 				} else {
-					alert('Ha ocurrido un error al instanciar QuillAdapterComponent.')
+					alert(_i18n('quill', 'Ha ocurrido un error al instanciar QuillAdapterComponent.'))
 				}
 			}
 
@@ -297,10 +301,10 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 			if (typeof errorMessage == 'function') {
 
-				errorMessage('Error', 'Ha ocurrido un error al carga la imagen.')
+				errorMessage(_i18n('quill', 'Error'), _i18n('quill', 'Ha ocurrido un error al carga la imagen.'))
 			} else {
 
-				alert('Ha ocurrido un error al cargar la imagen.')
+				alert(_i18n('quill', 'Ha ocurrido un error al cargar la imagen.'))
 
 			}
 
