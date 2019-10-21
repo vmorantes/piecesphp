@@ -137,7 +137,9 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
         if ($relative_url) {
             $admin_url = baseurl($admin_url);
-        }
+		}
+		
+		$admin_url = convert_lang_url($admin_url, get_config('default_lang'), get_config('app_lang'));
 
         //Verifica que esté logueado
         if ($isActiveSession) {
