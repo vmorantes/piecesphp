@@ -264,6 +264,15 @@ pcsphpGlobals.messages.es = {
 		'Ha ocurrido un error al carga la imagen.'                 : 'Ha ocurrido un error al carga la imagen.',
 		'Ha ocurrido un error al cargar la imagen.'                : 'Ha ocurrido un error al cargar la imagen.',
 	},
+	location:{
+		'Seleccione una opción'                                                         : 'Seleccione una opción',
+		'Atención'                                                                      : 'Atención',
+		'No hay departamentos registrados.'                                             : 'No hay departamentos registrados.',
+		'No hay ciudades registradas en %r.'                                            : 'No hay ciudades registradas en %r.',
+		'Información'                                                                   : 'Información',
+		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.',
+		'La ubicación "%r" no se encontró en el mapa.'                                  : 'La ubicación "%r" no se encontró en el mapa.',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -499,6 +508,15 @@ pcsphpGlobals.messages.en = {
 		'Error'                                                    : 'Error',
 		'Ha ocurrido un error al carga la imagen.'                 : 'An error has occurred while loading the image.',
 		'Ha ocurrido un error al cargar la imagen.'                : 'An error occurred while loading the image.',
+	},
+	location:{
+		'Seleccione una opción'                                                         : 'Select an option',
+		'Atención'                                                                      : 'Attention',
+		'No hay departamentos registrados.'                                             : 'There are no registered departments.',
+		'No hay ciudades registradas en %r.'                                            : 'There are no cities registered in %r.',
+		'Información'                                                                   : 'Information',
+		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'The location "%r" was not found on the map, an approximate position will be used.',
+		'La ubicación "%r" no se encontró en el mapa.'                                  : 'The location "%r" was not found on the map.',
 	},
 }
 

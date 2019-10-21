@@ -71,7 +71,7 @@ function Locations() {
 			if (firstOption.length > 0) {
 				firstOption = firstOption.get(0).outerHTML
 			} else if (countries.length > 1) {
-				firstOption = `<option value="">Seleccione una opción</option>`
+				firstOption = `<option value="">${_i18n('location', 'Seleccione una opción')}</option>`
 			} else {
 				firstOption = null
 			}
@@ -99,7 +99,7 @@ function Locations() {
 
 			if (selectedValue.length > 0) {
 				if (!instance.fillSelectWithStates(selectedValue)) {
-					infoMessage('Atención', `No hay departamentos registrados.`)
+					infoMessage(_i18n('location', 'Atención'), _i18n('location', 'No hay departamentos registrados.'))
 				}
 			}
 
@@ -107,7 +107,7 @@ function Locations() {
 				let value = $(e.target).val()
 				if (value.trim().length > 0) {
 					if (!instance.fillSelectWithStates(value)) {
-						infoMessage('Atención', `No hay departamentos registrados.`)
+						infoMessage(_i18n('location', 'Atención'), _i18n('location', 'No hay departamentos registrados.'))
 					}
 				}
 			})
@@ -144,7 +144,7 @@ function Locations() {
 			if (firstOption.length > 0) {
 				firstOption = firstOption.get(0).outerHTML
 			} else if (states.length > 1) {
-				firstOption = `<option value="">Seleccione una opción</option>`
+				firstOption = `<option value="">${_i18n('location', 'Seleccione una opción')}</option>`
 			} else {
 				firstOption = null
 			}
@@ -172,15 +172,29 @@ function Locations() {
 
 			if (selectedValue.length > 0) {
 				if (!instance.fillSelectWithCities(selectedValue)) {
-					infoMessage('Atención', `No hay ciudades registradas en ${selectedOption.html()}.`)
+					infoMessage(_i18n('location', 'Atención'), formatStr(
+						_i18n('location', `No hay ciudades registradas en %r.`),
+						[
+							selectedOption.html()
+						]
+					))
 				}
 			}
 
 			statesSelect.change(function (e) {
-				let value = $(e.target).val()
+
+				let that = $(e.currentTarget)
+				let value = that.val()
+				let selectedOption = that.find('option').filter(':selected')
+				
 				if (value.trim().length > 0) {
 					if (!instance.fillSelectWithCities(value)) {
-						infoMessage('Atención', `No hay ciudades registradas en ${selectedOption.html()}.`)
+						infoMessage(_i18n('location', 'Atención'), formatStr(
+							_i18n('location', `No hay ciudades registradas en %r.`),
+							[
+								selectedOption.html()
+							]
+						))
 					}
 				}
 			})
@@ -217,7 +231,7 @@ function Locations() {
 			if (firstOption.length > 0) {
 				firstOption = firstOption.get(0).outerHTML
 			} else if (cities.length > 1) {
-				firstOption = `<option value="">Seleccione una opción</option>`
+				firstOption = `<option value="">${_i18n('location', 'Seleccione una opción')}</option>`
 			} else {
 				firstOption = null
 			}
@@ -289,7 +303,7 @@ function Locations() {
 		let cities = []
 		$.ajax({
 			async: false,
-			url: `${citiesURL}?states=${state}`,
+			url: `${citiesURL}?state=${state}`,
 			dataType: 'json',
 		}).done(function (res) {
 			cities = res
@@ -752,9 +766,19 @@ function MapBoxAdapter() {
 					if (!wasFound) {
 
 						if (findForCity || findForState) {
-							infoMessage('Información', `La ubicación "${query}" no se encontró en el mapa, se usará una posición aproximada.`)
+							infoMessage(_i18n('location', 'Información'), formatStr(
+								_i18n('location', `La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.`),
+								[
+									query,
+								]
+							))
 						} else {
-							infoMessage('Información', `La ubicación "${query}" no se encontró en el mapa.`)
+							infoMessage(_i18n('location', 'Información'), formatStr(
+								_i18n('location', `La ubicación "%r" no se encontró en el mapa.`),
+								[
+									query,
+								]
+							))
 						}
 
 						query = []
