@@ -37,7 +37,14 @@ $(document).ready(function (e) {
 				headerFinish.show(delayShow)
 				finishContainer.show(delayShow)
 
-				messageBox.html(`Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>ayuda@tejidodigital.com</strong>.`)
+				messageBox.html(
+					formatStr(
+						_i18n('userProblems', 'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'),
+						[
+							'ayuda@tejidodigital.com',
+						]
+					)
+				)
 
 				form[0].reset()
 

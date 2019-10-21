@@ -53,7 +53,14 @@ $(document).ready(function (e) {
 				headerMain.hide(delayHide)
 				headerCode.show(delayShow)
 
-				messageBox.html(`Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>ayuda@tejidodigital.com</strong>.`)
+				messageBox.html(
+					formatStr(
+						_i18n('userProblems', 'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'),
+						[
+							'ayuda@tejidodigital.com',
+						]
+					)
+				)
 
 				recoveryForm[0].reset()
 
@@ -67,14 +74,14 @@ $(document).ready(function (e) {
 					recoveryContainer.hide(delayHide)
 					errorContainer.show(delayShow)
 
-					messageBox.html(`El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.`)
+					messageBox.html(_i18n('userProblems', 'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.'))
 
 					recoveryForm[0].reset()
 
 				} else {
 					messageBox.html(res.message)
 				}
-				
+
 			}
 
 		})
@@ -103,7 +110,7 @@ $(document).ready(function (e) {
 
 		codeForm.find('.field').addClass('disabled')
 
-		recovery.done(function (res) {		
+		recovery.done(function (res) {
 
 			if (res.success === true) {
 
@@ -127,11 +134,11 @@ $(document).ready(function (e) {
 					headerWrongCode.show(delayShow)
 					errorContainer.show(delayShow)
 
-					messageBox.html(`El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.`)
+					messageBox.html(_i18n('userProblems', 'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.'))
 
 					recoveryForm[0].reset()
 
-				}else{
+				} else {
 					messageBox.html(res.message)
 				}
 
@@ -163,17 +170,17 @@ $(document).ready(function (e) {
 
 		codeForm.find('.field').addClass('disabled')
 
-		recovery.done(function (res) {		
+		recovery.done(function (res) {
 
 			if (res.success === true) {
-				
+
 				headerChangePassword.hide(delayHide)
 				changePasswordContainer.hide(delayHide)
 
 				headerFinish.show(delayShow)
 				finishContainer.show(delayShow)
 
-				messageBox.html(`<h1>Ingrese con su usuario y la nueva contraseña</h1>`)
+				messageBox.html(`<h1>${_i18n('userProblems', 'Ingrese con su usuario y la nueva contraseña')}</h1>`)
 
 				changePasswordForm[0].reset()
 
@@ -181,7 +188,7 @@ $(document).ready(function (e) {
 
 				if (res.error == 'NOT_MATCH_PASSWORDS') {
 
-					messageBox.html(`Las contraseñas no coinciden`)
+					messageBox.html(_i18n('userProblems', 'Las contraseñas no coinciden'))
 					codeForm.find("[type='password']").parent().addClass('error')
 
 				} else {
@@ -227,8 +234,8 @@ $(document).ready(function (e) {
 		e.preventDefault()
 		recoveryContainer.show(delayShow)
 		headerMain.show(delayShow)
-		
-		headerCode.hide(delayHide)		
+
+		headerCode.hide(delayHide)
 		codeContainer.hide(delayHide)
 
 		headerChangePassword.hide(delayHide)
@@ -239,14 +246,14 @@ $(document).ready(function (e) {
 
 		errorContainer.hide(delayHide)
 		finishContainer.hide(delayHide)
-		
+
 		messageBox.html('')
 		return false
-	})	
+	})
 
 	if (paramsURL.has('code')) {
 		let code = paramsURL.get('code').trim()
-		if (code.length > 0) {			
+		if (code.length > 0) {
 			codeForm.find("[name='code']").val(code)
 			hasCode.click()
 		}
