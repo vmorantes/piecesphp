@@ -278,6 +278,18 @@ pcsphpGlobals.messages.es = {
 		'Ha ocurrido un error desconocido.': 'Ha ocurrido un error desconocido.',
 		'¡Listo!'                          : '¡Listo!',
 	},
+	loginForm: {
+		'Error'                                                                          : 'Error',
+		'Ha ocurrido un error inesperado, intente más tarde.'                            : 'Ha ocurrido un error inesperado, intente más tarde.',
+		'Si continua con problemas para ingresar, por favor utilice la ayuda.'           : 'Si continua con problemas para ingresar, por favor utilice la ayuda.',
+		'Por favor, verifique los datos de ingreso y vuelva a intentar.'                 : 'Por favor, verifique los datos de ingreso y vuelva a intentar.',
+		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.'            : 'Por favor, ingrese al siguiente enlace para desbloquear su usuario.',
+		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.',
+		'CONTRASEÑA_INVÁLIDA'                                                            : '<span class="text">Contraseña</span> <span class="mark">inválida</span>',
+		'USUARIO_BLOQUEADO'                                                              : '<span class="text">Usuario</span> <span class="mark">bloqueado</span>',
+		'USUARIO_INEXISTENTE'                                                            : '<span class="text">El usuario</span> <span class="mark">%r</span> <span class="text">no existe</span>',
+		'ERROR_AL_INGRESAR'                                                              : 'Error al ingresar',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -527,6 +539,18 @@ pcsphpGlobals.messages.en = {
 		'Error'                            : 'Error',
 		'Ha ocurrido un error desconocido.': 'An unknown error has occurred.',
 		'¡Listo!'                          : 'Ready!',
+	},
+	loginForm: {
+		'Error'                                                                          : 'Error',
+		'Ha ocurrido un error inesperado, intente más tarde.'                            : 'An unexpected error has occurred, try again later.',
+		'Si continua con problemas para ingresar, por favor utilice la ayuda.'           : 'If you continue to have problems entering, please use the help.',
+		'Por favor, verifique los datos de ingreso y vuelva a intentar.'                 : 'Please verify the login details and try again.',
+		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.'            : 'Please enter the following link to unlock your user.',
+		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'An error has occurred at the time of entry, please try again.',
+		'CONTRASEÑA_INVÁLIDA'                                                            : '<span class="mark">Invalid</span> <span class="text">password</span>',
+		'USUARIO_BLOQUEADO'                                                              : '<span class="text">User</span> <span class="mark">blocked</span>',
+		'USUARIO_INEXISTENTE'                                                            : '<span class="text">The user</span> <span class="mark">%r</span> <span class="text">does not exist</span>',
+		'ERROR_AL_INGRESAR'                                                              : 'Login failed',
 	},
 }
 
