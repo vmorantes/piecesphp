@@ -102,34 +102,31 @@ function configLoginForm() {
 
 		}).catch(function (jqXHR) {
 			console.error(jqXHR)
-			errorMessage(_i18n('titles', 'error'), _i18n('errors', 'unexpected_error_try_later'))
+			errorMessage(_i18n('loginForm', 'Error'), _i18n('loginForm', 'Ha ocurrido un error inesperado, intente más tarde.'))
 		})
 
 		return false
 	})
 
-	function setMessageError(error, data) {
+	function setMessageError(error, data) {		
 
-		problemsTitle
-			.parent()
-			.html(`<span class="text"></span> <span class="mark"></span>`)
+		let problemsTitleContainer = problemsTitle.parent()
+		problemsTitleContainer.html(`<span class="text"></span> <span class="mark"></span>`)
 
 		problemsTitle = problemsContent.find('.title .text')
 		problemsTitleMark = problemsContent.find('.title .mark')
 
-		problemsMessageBottom.html('Si continua con problemas para ingresar, por favor utilice la ayuda.')
+		problemsMessageBottom.html(_i18n('loginForm', 'Si continua con problemas para ingresar, por favor utilice la ayuda.'))
 
 		if ('INCORRECT_PASSWORD' == error) {
 
-			problemsTitle.html('Contraseña')
-			problemsTitleMark.html('inválida')
-			problemsMessage.html('Por favor, verifique los datos de ingreso y vuelva a intentar.')
+			problemsTitleContainer.html(_i18n('loginForm', 'CONTRASEÑA_INVÁLIDA'))
+			problemsMessage.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
 
 		} else if ('BLOCKED_FOR_ATTEMPTS' == error) {
 
-			problemsTitle.html('Usuario')
-			problemsTitleMark.html('bloqueado')
-			problemsMessage.html('Por favor, ingrese al siguiente enlace para desbloquear su usuario.')
+			problemsTitleContainer.html(_i18n('loginForm', 'USUARIO_BLOQUEADO'))
+			problemsMessage.html(_i18n('loginForm', 'Por favor, ingrese al siguiente enlace para desbloquear su usuario.'))
 			problemsRetryButton.hide()
 			problemsMessageBottom.hide()
 
@@ -137,9 +134,16 @@ function configLoginForm() {
 
 			problemsTitle
 				.parent()
-				.html(`<span class="text">El usuario</span> <span class="mark">${data.user}</span> <span class="text">no existe</span>`)
-			problemsMessage.html('Por favor, verifique los datos de ingreso y vuelva a intentar.')
-
+				.html(
+					formatStr(
+						_i18n('loginForm', 'USUARIO_INEXISTENTE'),
+						[
+							data.user,
+						]
+					)
+				)
+			problemsMessage.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
+			
 			problemsTitle = problemsContent.find('.title .text')
 			problemsTitleMark = problemsContent.find('.title .mark')
 
@@ -151,9 +155,8 @@ function configLoginForm() {
 
 		} else if ('GENERIC_ERROR' == error) {
 
-			problemsTitle.html('Error')
-			problemsTitleMark.html('al ingresar')
-			problemsMessage.html('Se ha presentado un error al momento de ingresar, por favor intente nuevamente.')
+			problemsTitleContainer.html(_i18n('loginForm', 'ERROR_AL_INGRESAR'))
+			problemsMessage.html(_i18n('loginForm', 'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.'))
 
 		} else {
 
