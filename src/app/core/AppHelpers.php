@@ -179,6 +179,31 @@ function convert_lang_url($url, $current_lang = 'es', $target_lang = 'en')
 }
 
 /**
+ * Devuelve un array con las urls de idiomas posibles de la URL pasado por parámetros o
+ * la actual en caso de no proporcionarla
+ * Nota: Solo si lang_by_url es true
+ *
+ * @param string $url
+ * @param bool $short_lang Define si el índice de cada URL es el lenguaje corto o largo ej. ES o Español
+ * @return string[]
+ */
+function get_current_langs_urls(string $url = null, bool $short_lang = false){
+	
+	$url = !is_null($url) ? $url : get_current_url();
+	$urls = [];
+	$langs = get_config('allowed_langs');
+
+	foreach($langs as $lang){
+
+		$urls[__($short_lang ? 'langShort' :'lang', $lang)] = convert_lang_url($url, get_config('app_lang'), $lang);
+
+	}
+	
+	return $urls;
+	
+}
+
+/**
  * Obtiene PiecesPHP\Core\Config::app_path() y lo une a "/".$resource
  *
  * @param string $resource
