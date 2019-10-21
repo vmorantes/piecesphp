@@ -241,6 +241,19 @@ pcsphpGlobals.messages.es = {
 		'Sí'                               : 'Sí',
 		'No'                               : 'No',
 	},
+	cropper:{
+		'Agregar imagen'                                            : 'Agregar imagen',
+		'Cambiar imagen'                                            : 'Cambiar imagen',
+		'imagen'                                                    : 'imagen',
+		'Error'                                                     : 'Error',
+		'Ha ocurrido un error al configurar CropperAdapterComponent': 'Ha ocurrido un error al configurar CropperAdapterComponent',
+		'Tamaño real de la máscara de corte %rx%r(px)'              : 'Tamaño real de la máscara de corte %rx%r(px)',
+		'El ancho mínimo de la imagen debe ser: %rpx'               : 'El ancho mínimo de la imagen debe ser: %rpx',
+		'Seleccione una imagen, por favor.'                         : 'Seleccione una imagen, por favor.',
+		'No hay imágenes seleccionadas.'                            : 'No hay imágenes seleccionadas.',
+		'No se ha encontrado ningún input de tipo file.'            : 'No se ha encontrado ningún input de tipo file.',
+		'No se ha encontrado ningún canvas.'                        : 'No se ha encontrado ningún canvas.',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -453,6 +466,19 @@ pcsphpGlobals.messages.en = {
 		'¿Quiere eliminar la noticia?'     : 'Do you want to delete the news?',
 		'Sí'                               : 'Yes',
 		'No'                               : 'No',
+	},
+	cropper:{
+		'Agregar imagen'                                            : 'Add image',
+		'Cambiar imagen'                                            : 'Change image',
+		'imagen'                                                    : 'image',
+		'Error'                                                     : 'Error',
+		'Ha ocurrido un error al configurar CropperAdapterComponent': 'An error occurred configuring CropperAdapterComponent',
+		'Tamaño real de la máscara de corte %rx%r(px)'              : 'Actual size of cutting mask %rx%r(px)',
+		'El ancho mínimo de la imagen debe ser: %rpx'               : 'The minimum width of the image must be: %rpx',
+		'Seleccione una imagen, por favor.'                         : 'Select an image, please.',
+		'No hay imágenes seleccionadas.'                            : 'There are no images selected.',
+		'No se ha encontrado ningún input de tipo file.'            : 'No file type input was found.',
+		'No se ha encontrado ningún canvas.'                        : 'No canvas found.',
 	},
 }
 
