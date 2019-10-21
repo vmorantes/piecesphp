@@ -27,6 +27,8 @@ $(document).ready(function (e) {
 	let recoveryForm = recoveryContainer.find('form')
 	let codeForm = codeContainer.find('form')
 
+	let lang = pcsphpGlobals.lang == pcsphpGlobals.defaultLang ? '' : pcsphpGlobals.lang + '/'
+
 	codeContainer.hide()
 	errorContainer.hide()
 	finishContainer.hide()
@@ -39,7 +41,7 @@ $(document).ready(function (e) {
 
 		formData.set('type', 'TYPE_USER_BLOCKED')
 
-		let recovery = postRequest('users/user-blocked-code', formData)
+		let recovery = postRequest(lang + 'users/user-blocked-code', formData)
 
 		recoveryForm.find('.field').addClass('disabled')
 
@@ -109,7 +111,7 @@ $(document).ready(function (e) {
 
 		formData.set('type', 'TYPE_USER_BLOCKED')
 
-		let recovery = postRequest('users/unblock-user', formData)
+		let recovery = postRequest(lang + 'users/unblock-user', formData)
 
 		codeForm.find('.field').addClass('disabled')
 

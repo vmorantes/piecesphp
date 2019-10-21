@@ -15,6 +15,8 @@ $(document).ready(function (e) {
 	let headerMain = $('.container .header.one')
 	let headerFinish = $('.container .header.two')
 
+	let lang = pcsphpGlobals.lang == pcsphpGlobals.defaultLang ? '' : pcsphpGlobals.lang + '/'
+
 	finishContainer.hide()
 
 	form.on('submit', function (e) {
@@ -23,7 +25,7 @@ $(document).ready(function (e) {
 
 		let formData = new FormData(form[0])
 
-		let request = postRequest('users/other-problems', formData)
+		let request = postRequest(lang + 'users/other-problems', formData)
 
 		form.find('.field').addClass('disabled')
 
