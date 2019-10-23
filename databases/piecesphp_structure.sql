@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 27-08-2019 a las 16:41:28
+-- Tiempo de generación: 23-10-2019 a las 15:38:05
 -- Versión del servidor: 5.7.27-0ubuntu0.16.04.1
--- Versión de PHP: 7.1.31-1+ubuntu16.04.1+deb.sury.org+1
+-- Versión de PHP: 7.1.32-1+ubuntu16.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -175,7 +175,20 @@ CREATE TABLE `pcsphp_articles` (
 
 DROP TABLE IF EXISTS `pcsphp_articles_categories`;
 CREATE TABLE `pcsphp_articles_categories` (
+  `id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pcsphp_articles_categories_content`
+--
+
+DROP TABLE IF EXISTS `pcsphp_articles_categories_content`;
+CREATE TABLE `pcsphp_articles_categories_content` (
   `id` int(11) NOT NULL,
+  `content_of` int(11) NOT NULL,
+  `lang` varchar(255) COLLATE utf8_bin NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `friendly_url` text COLLATE utf8_bin NOT NULL
@@ -373,6 +386,13 @@ ALTER TABLE `pcsphp_articles_categories`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indices de la tabla `pcsphp_articles_categories_content`
+--
+ALTER TABLE `pcsphp_articles_categories_content`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `content_of` (`content_of`);
+
+--
 -- Indices de la tabla `pcsphp_blackboard_news_messages`
 --
 ALTER TABLE `pcsphp_blackboard_news_messages`
@@ -481,6 +501,12 @@ ALTER TABLE `pcsphp_articles_categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `pcsphp_articles_categories_content`
+--
+ALTER TABLE `pcsphp_articles_categories_content`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `pcsphp_blackboard_news_messages`
 --
 ALTER TABLE `pcsphp_blackboard_news_messages`
@@ -570,6 +596,12 @@ ALTER TABLE `messages_responses`
 ALTER TABLE `pcsphp_articles`
   ADD CONSTRAINT `pcsphp_articles_ibfk_1` FOREIGN KEY (`author`) REFERENCES `pcsphp_users` (`id`),
   ADD CONSTRAINT `pcsphp_articles_ibfk_2` FOREIGN KEY (`category`) REFERENCES `pcsphp_articles_categories` (`id`);
+
+--
+-- Filtros para la tabla `pcsphp_articles_categories_content`
+--
+ALTER TABLE `pcsphp_articles_categories_content`
+  ADD CONSTRAINT `pcsphp_articles_categories_content_ibfk_1` FOREIGN KEY (`content_of`) REFERENCES `pcsphp_articles_categories` (`id`);
 
 --
 -- Filtros para la tabla `pcsphp_blackboard_news_messages`
