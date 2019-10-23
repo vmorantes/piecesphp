@@ -305,6 +305,8 @@ class Config
 			}
 
 		});
+
+		set_config('allowed_langs', self::$app_allowed_langs);
 		
     }
 
