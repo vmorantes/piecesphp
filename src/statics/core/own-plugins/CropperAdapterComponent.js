@@ -110,7 +110,7 @@ function CropperAdapterComponent(configurations = {}) {
 	//──── Textos ────────────────────────────────────────────────────────────────────────────
 	/** @type {String} Texto agregar imagen */ let addImageText = _i18n('cropper', 'Agregar imagen')
 	/** @type {String} Texto cambiar imagen */ let changeImageText = _i18n('cropper', 'Cambiar imagen')
-	/** @type {String} Texto título por defecto */ let title = _i18n('cropper', 'imagen')
+	/** @type {String} Texto título por defecto */ let title = _i18n('cropper', 'imagen') + '_' + (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase()
 
 	//──── Elementos de interfaz ─────────────────────────────────────────────────────────────
 	/** @type {$} Disparador de inicio de la interfaz */ let startButton
