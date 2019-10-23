@@ -7,13 +7,13 @@ namespace PiecesPHP\BuiltIn\Article\Category\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper as MainMapper;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
 use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
-use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
@@ -83,7 +83,7 @@ class CategoryController extends AdminPanelController
         self::$pluralTitle = __('articlesBackend', self::$pluralTitle);
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
-        $this->model = (new MainMapper)->getModel();
+        $this->model = (new CategoryContentMapper())->getModel();
         set_title(self::$title);
     }
 
@@ -97,6 +97,10 @@ class CategoryController extends AdminPanelController
      */
     public function addForm(Request $request, Response $response, array $args)
     {
+
+        set_custom_assets([
+            'statics/js/built-in/article/category/backend/forms.js',
+        ], 'js');
 
         $action = self::routeName('actions-add');
         $back_link = self::routeName('list');
@@ -122,10 +126,14 @@ class CategoryController extends AdminPanelController
     public function editForm(Request $request, Response $response, array $args)
     {
 
+        set_custom_assets([
+            'statics/js/built-in/article/category/backend/forms.js',
+        ], 'js');
+
         $id = $request->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
 
-        $element = new MainMapper($id);
+        $element = new CategoryMapper($id);
 
         if (!is_null($element->id)) {
 
@@ -158,7 +166,6 @@ class CategoryController extends AdminPanelController
     {
 
         $process_table = self::routeName('datatables');
-        //$back_link = self::routeName();
         $back_link = get_route('admin');
         $add_link = self::routeName('forms-add');
 
@@ -187,11 +194,28 @@ class CategoryController extends AdminPanelController
 
         if ($request->isXhr()) {
 
+            $allowedLangs = get_config('allowed_langs');
+            $preferedsIDs = CategoryContentMapper::getPreferedsIDs();
+
+            $onlyLang = $request->getQueryParam('lang', null);
+            $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+            $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : null;
+
             $query = $this->model->select();
+
+            if (!is_null($onlyLang)) {
+                $query->where(['lang' => $onlyLang]);
+            } else {
+                $where = "id = '" . implode("' OR id = '", $preferedsIDs) . "'";
+                $query->where($where);
+            }
 
             $query->execute();
 
-            return $response->withJson($query->result());
+            $result = $query->result();
+
+            return $response->withJson($result);
+
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -213,19 +237,24 @@ class CategoryController extends AdminPanelController
             $columns_order = [
                 'id',
                 'name',
-                'friendly_url',
+                'description',
             ];
 
+            $ids = CategoryContentMapper::getPreferedsIDs();
+
+            $where_string = count($ids) > 0 ? "id = '" . implode("' OR id = '", $ids) . "'" : null;
+
             $result = DataTablesHelper::process([
+                'where_string' => $where_string,
                 'columns_order' => $columns_order,
-                'mapper' => new MainMapper(),
+                'mapper' => new CategoryContentMapper(),
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
                     $buttonEdit = new HtmlElement('a', __('articlesBackend', 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
-                        'id' => $e->id,
+                        'id' => $e->content_of,
                     ]));
 
                     if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
@@ -235,7 +264,7 @@ class CategoryController extends AdminPanelController
                         }
                     }
 
-                    $mapper = new MainMapper($e->id);
+                    $mapper = new CategoryContentMapper($e->id);
 
                     return [
                         $mapper->id,
@@ -264,109 +293,358 @@ class CategoryController extends AdminPanelController
      */
     public function action(Request $request, Response $response, array $args)
     {
-
         $id = $request->getParsedBodyParam('id', -1);
-        $name = $request->getParsedBodyParam('name', null);
-        $description = $request->getParsedBodyParam('description', '');
+        $properties = $request->getParsedBodyParam('properties', []);
+        $properties = is_array($properties) ? $properties : [];
+        $isEdit = $id !== -1;
 
-        $is_edit = $id !== -1;
-
-        $valid_params = !in_array(null, [
-            $name,
-        ]);
-
-        $operation_name = $is_edit ? __('articlesBackend', 'Modificar categoría') : __('articlesBackend', 'Crear categoría');
-
-        $result = new ResultOperations([
-            new Operation($operation_name),
-        ], $operation_name);
-
-        $result->setValue('redirect', false);
-
-        $error_parameters_message = __('articlesBackend', 'Los parámetros recibidos son erróneos.');
-        $not_exists_message = __('articlesBackend', 'La categoría que intenta modificar no existe');
-        $success_create_message = __('articlesBackend', 'Categoría creada.');
-        $success_edit_message = __('articlesBackend', 'Datos guardados.');
-        $unknow_error_message = __('articlesBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message = __('articlesBackend', 'Ya existe una categoría con ese nombre.');
-
-        $redirect_url_on_create = self::routeName('list');
-
-        if ($valid_params) {
-
-            $name = clean_string($name);
-            $friendly_url = MainMapper::generateFriendlyURL($name, $id);
-            $description = clean_string($description);
-
-            $is_duplicate = MainMapper::isDuplicate($name, $friendly_url, $id);
-
-            if (!$is_duplicate) {
-
-                if (!$is_edit) {
-
-                    $mapper = new MainMapper();
-
-                    try {
-
-                        $mapper->name = $name;
-                        $mapper->friendly_url = $friendly_url;
-                        $mapper->description = $description;
-                        $saved = $mapper->save();
-
-                        if ($saved) {
-
-                            $result->setMessage($success_create_message)
-                                ->operation($operation_name)
-                                ->setSuccess(true);
-
-                            $result->setValue('redirect', true);
-                            $result->setValue('redirect_to', $redirect_url_on_create);
-                        } else {
-                            $result->setMessage($unknow_error_message);
-                        }
-                    } catch (\Exception $e) {
-                        $result->setMessage($e->getMessage());
-                    }
-                } else {
-
-                    $mapper = new MainMapper((int) $id);
-                    $exists = !is_null($mapper->id);
-
-                    if ($exists) {
-
-                        try {
-
-                            $mapper->name = $name;
-                            $mapper->friendly_url = $friendly_url;
-                            $mapper->description = $description;
-                            $updated = $mapper->update();
-
-                            if ($updated) {
-
-                                $result->setValue('reload', true);
-
-                                $result->setMessage($success_edit_message)
-                                    ->operation($operation_name)
-                                    ->setSuccess(true);
-                            } else {
-                                $result->setMessage($unknow_error_message);
-                            }
-                        } catch (\Exception $e) {
-                            $result->setMessage($e->getMessage());
-                        }
-                    } else {
-                        $result->setMessage($not_exists_message);
-                    }
-                }
-            } else {
-
-                $result->setMessage($is_duplicate_message);
-            }
+        if (!$isEdit) {
+            $result = $this->addAction($properties);
         } else {
-            $result->setMessage($error_parameters_message);
+            $result = $this->editAction($id, $properties);
         }
 
         return $response->withJson($result);
+    }
+
+    /**
+     * addAction
+     *
+     * Creación
+     *
+     * @param array $properties
+     * @return ResultOperations
+     */
+    protected function addAction(array $properties)
+    {
+
+        //Configuraciones iniciales de la respuesta
+        $result = new ResultOperations([], __('articlesBackend', 'Crear categoría'), '', true);
+        $result->setValue('redirect', false);
+
+        //URLs para redirección
+        $urlRedirect = self::routeName('list');
+        $urlEdit = '';
+
+        //Mensajes
+        $createdWithErrorsMessage = __('articlesBackend', 'Se ha creado la categoría, excepto: %s');
+        $multipleErrorsMessages = __('articlesBackend', 'Errores: %s');
+        $noInformationMessage = __('articlesBackend', 'No se ha recibido información.');
+        $unknowErrorMessage = __('articlesBackend', 'Ha ocurrido un error desconocido.');
+        $isDuplicateMessage = __('articlesBackend', 'Ya existe una categoría con ese nombre.');
+        $successCreatedMessage = __('articlesBackend', 'Categoría creada.');
+
+        try {
+
+            $hasInformation = false; //Verifica si fue recibida información
+            $allOK = true; //Si todos los idiomas fueron agregados
+            $oneOK = false; //Si al menos un idioma fue agregado
+            $errors = []; //Errores
+            $createdNewCategory = false; //Verifica si se creó la nueva categoría
+
+            $mainCategory = new CategoryMapper();
+            $createdNewCategory = $mainCategory->save();
+            $mainCategoryID = $mainCategory->getLastInsertID();
+
+            $urlEdit = self::routeName('forms-edit', ['id' => $mainCategoryID]);
+
+            if ($createdNewCategory) {
+
+                foreach ($properties as $lang => $structure) {
+
+                    //Validación de entrada
+                    $name = isset($structure['name']) ? $structure['name'] : null;
+                    $description = isset($structure['description']) ? $structure['description'] : null;
+
+                    //Limpieza de entrada
+                    $name = is_string($name) ? clean_string($name) : '';
+                    $description = is_string($description) ? clean_string($description) : '';
+
+                    //Validación final de entrada
+                    $validations = strlen($name) > 0;
+
+                    if ($validations) {
+
+                        $hasInformation = true;
+						$friendly_url = CategoryContentMapper::generateFriendlyURL($name, -1);
+                        $isDuplicate = CategoryContentMapper::isDuplicate(
+                            $name,
+                            $friendly_url,
+                            -1,
+                            -1
+						);
+						
+                        if (!$isDuplicate) {
+
+                            $newLangCategory = new CategoryContentMapper();
+                            $newLangCategory->content_of = $mainCategoryID;
+                            $newLangCategory->name = $name;
+                            $newLangCategory->friendly_url = $friendly_url;
+                            $newLangCategory->description = $description;
+                            $newLangCategory->lang = $lang;
+
+                            $saved = $newLangCategory->save();
+                            $result->setSuccessOnSingleOperation($saved);
+
+                            if (!$saved) {
+                                $allOK = false;
+                                $errors[] = $name;
+                            } else {
+                                $oneOK = true;
+							}
+
+                        } else {
+
+                            $allOK = false;
+                            $errors[] = __('lang', $lang) . ' - ' . $name . ' - ' . $isDuplicateMessage;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            //Configuraciones finales de la respuesta
+            if ($createdNewCategory) {
+
+                if ($hasInformation) {
+
+                    if ($allOK) {
+
+                        $result->setMessage($successCreatedMessage);
+
+                    } else {
+
+                        $urlRedirect = $urlEdit;
+
+                        $result->setSuccessOnSingleOperation(false);
+
+                        if ($oneOK) {
+                            $result->setMessage(sprintf($createdWithErrorsMessage, implode(', ', $errors)));
+                        } else {
+                            $result->setMessage(sprintf($multipleErrorsMessages, implode('<br>', $errors)));
+                        }
+
+                    }
+
+                    if ($oneOK) {
+
+                        $result->setSuccessOnSingleOperation(true);
+                        $result->setValue('redirect', true);
+                        $result->setValue('redirect_to', $urlRedirect);
+
+                    } else {
+
+                        if ($createdNewCategory) {
+
+                            $mainCategory->getModel()->delete([
+                                'id' => $mainCategoryID,
+                            ])->execute();
+
+                        }
+
+                    }
+
+                } else {
+
+                    $result->setMessage(sprintf($noInformationMessage, __('lang', $lang)));
+
+                }
+
+            } else {
+                $result->setMessage($unknowErrorMessage);
+            }
+
+        } catch (\PDOException $e) {
+
+            $result->setMessage($unknowErrorMessage);
+            $result->setValues([
+                'exception' => [
+                    'exception' => get_class($e),
+                    'code' => $e->getCode(),
+                    'message' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => basename($e->getFile()),
+                    'trace' => $e->getTrace(),
+                ],
+            ]);
+
+        }
+
+        return $result;
+
+    }
+
+    /**
+     * editAction
+     *
+     * Edición
+     *
+     * @param int $categoryID
+     * @param array $properties
+     * @return ResultOperations
+     */
+    protected function editAction(int $categoryID, array $properties)
+    {
+
+        //Configuraciones iniciales de la respuesta
+        $result = new ResultOperations([], __('articlesBackend', 'Modificar categoría'), '', true);
+        $result->setValue('reload', false);
+
+        //Mensajes
+        $editedWithErrorsMessage = __('articlesBackend', 'Se ha guardado la categoría, excepto: %s');
+        $multipleErrorsMessages = __('articlesBackend', 'Errores: %s');
+        $noInformationMessage = __('articlesBackend', 'No se ha recibido información.');
+        $unknowErrorMessage = __('articlesBackend', 'Ha ocurrido un error desconocido.');
+        $isDuplicateMessage = __('articlesBackend', 'Ya existe una categoría con ese nombre.');
+        $successEditMessage = __('articlesBackend', 'Datos guardados.');
+        $notExistsMessage = __('articlesBackend', 'La categoría que intenta modificar no existe');
+
+        try {
+
+            $hasInformation = false; //Verifica si fue recibida información
+            $allOK = true; //Si todos los idiomas fueron agregados
+            $oneOK = false; //Si al menos un idioma fue agregado
+            $errors = []; //Errores
+
+            $mainCategory = new CategoryMapper($categoryID);
+
+            if (!is_null($mainCategory->id)) {
+
+                foreach ($properties as $lang => $structure) {
+
+                    //Validación de entrada
+                    $idLang = isset($structure['id']) ? (int) $structure['id'] : -1;
+                    $name = isset($structure['name']) ? $structure['name'] : null;
+                    $description = isset($structure['description']) ? $structure['description'] : null;
+
+                    //Limpieza de entrada
+                    $name = is_string($name) ? clean_string($name) : '';
+                    $description = is_string($description) ? clean_string($description) : '';
+
+                    //Validación final de entrada
+                    $validations = strlen($name) > 0;
+
+                    if ($validations) {
+
+                        //Duplicidad y control de errores
+                        $hasInformation = true;
+                        $friendly_url = CategoryContentMapper::generateFriendlyURL($name, $idLang);
+                        $isDuplicate = CategoryContentMapper::isDuplicate(
+                            $name,
+                            $friendly_url,
+                            $categoryID,
+                            $idLang
+                        );
+
+                        if (!$isDuplicate) {
+
+                            if ($idLang != -1) {
+                                $langCategory = new CategoryContentMapper($idLang);
+                            }
+
+                            if ($langCategory->id == null) {
+                                $langCategory = $mainCategory->getContentByLang($lang);
+                            }
+
+                            $langCategory = !is_null($langCategory) ? $langCategory : new CategoryContentMapper();
+                            $langCategory->content_of = $mainCategory->id;
+                            $langCategory->name = $name;
+                            $langCategory->friendly_url = $friendly_url;
+                            $langCategory->description = $description;
+                            $langCategory->lang = $lang;
+
+                            if ($langCategory->id !== null) {
+                                $saved = $langCategory->update();
+                            } else {
+                                $saved = $langCategory->save();
+                            }
+
+                            $result->setSuccessOnSingleOperation($saved);
+
+                            if (!$saved) {
+                                $allOK = false;
+                                $errors[] = $name;
+                            } else {
+                                $oneOK = true;
+                            }
+
+                        } else {
+
+                            $allOK = false;
+                            $errors[] = __('lang', $lang) . ' - ' . $name . ' - ' . $isDuplicateMessage;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            //Configuraciones finales de la respuesta
+            if (!is_null($mainCategory->id)) {
+
+                if ($hasInformation) {
+
+                    if ($allOK) {
+
+                        $result->setMessage($successEditMessage);
+
+                    } else {
+
+                        $result->setSuccessOnSingleOperation(false);
+
+                        if ($oneOK) {
+
+                            $result->setMessage(sprintf($editedWithErrorsMessage, implode(', ', $errors)));
+
+                        } else {
+
+                            $result->setMessage(sprintf($multipleErrorsMessages, implode('<br>', $errors)));
+
+                        }
+
+                    }
+
+                    if ($oneOK) {
+
+                        $result->setSuccessOnSingleOperation(true);
+                        $result->setValue('reload', true);
+
+                    }
+
+                } else {
+
+                    $result->setMessage(sprintf($noInformationMessage, __('lang', $lang)));
+
+                }
+
+            } else {
+
+                $result->setMessage($notExistsMessage);
+
+            }
+
+        } catch (\PDOException $e) {
+
+            $result->setMessage($unknowErrorMessage);
+            $result->setValues([
+                'exception' => [
+                    'exception' => get_class($e),
+                    'code' => $e->getCode(),
+                    'message' => $e->getMessage(),
+                    'line' => $e->getLine(),
+                    'file' => basename($e->getFile()),
+                    'trace' => $e->getTrace(),
+                ],
+            ]);
+
+        }
+
+        return $result;
     }
 
     /**

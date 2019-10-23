@@ -5,9 +5,9 @@ namespace App\LangMessages;
 //Hereda los mensajes que estan en lang/default.php
 $lang = [
     'lang' => [
-        'es'       => 'Spanish',
-        'en'       => 'English',
-        'fr'       => 'French',
+        'es' => 'Spanish',
+        'en' => 'English',
+        'fr' => 'French',
     ],
     'langShort' => [
         'es' => 'ES',
@@ -251,13 +251,16 @@ $lang = [
 		'Nunca'                                                              => 'Never',
 		'Modificar artículo'                                                 => 'Edit article',
 		'Crear artículo'                                                     => 'Create article',
-		'Los parámetros recibidos son erróneos.'                             => 'The parameters received are wrong.',
 		'El artículo que intenta modificar no existe'                        => 'The article you are trying to modify does not exist',
 		'Artículo creado.'                                                   => 'Article created',
 		'Ya existe un artículo con ese nombre en la categoría seleccionada.' => 'An article with that name already exists in the selected category.',
 		'Imagen subida'                                                      => 'Image uploaded',
 		'La imagen no pudo ser subida, intente después.'                     => 'The image could not be uploaded, try later.',
 		'No se ha subido ninguna imagen.'                                    => 'No image has been uploaded.',
+		'No se ha recibido información.'                                     => 'No information received.',
+		'Se ha creado la categoría, excepto: %s'                             => 'The category has been created, except: %s',
+		'Errores: %s'                                                        => '<br>Errors: <br><br> %s',
+		'Se ha guardado la categoría, excepto: %s'                           => 'The category has been saved, except: %s',
 	],
     'articlesFrontEnd' => [
         'Cargar más'            => 'Load more',

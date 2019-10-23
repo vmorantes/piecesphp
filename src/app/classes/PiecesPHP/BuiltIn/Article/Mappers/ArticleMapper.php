@@ -6,6 +6,7 @@
 namespace PiecesPHP\BuiltIn\Article\Mappers;
 
 use App\Model\UsersModel;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\Core\BaseEntityMapper;
@@ -62,7 +63,7 @@ class ArticleMapper extends BaseEntityMapper
             'reference_table' => CategoryMapper::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
-            'human_readable_reference_field' => 'name',
+            'human_readable_reference_field' => 'id',
             'mapper' => CategoryMapper::class,
         ],
         'title' => [
@@ -119,7 +120,7 @@ class ArticleMapper extends BaseEntityMapper
         $data->preferDate = $this->getPreferDate(self::TYPE_PREFER_DATE_DATETIME);
         $data->author = $this->author->getPublicData();
         $data->meta = $this->meta;
-        $data->category = $this->category->humanReadable();
+        $data->category = CategoryContentMapper::getByPreferedsIDsAndContenOf($this->category->id)->humanReadable();
         $data->created = $this->created;
         $data->start_date = $this->start_date;
         $data->end_date = $this->end_date;
@@ -210,8 +211,8 @@ class ArticleMapper extends BaseEntityMapper
     public function addVisit()
     {
         $meta = $this->meta;
-		$meta->visits += 1;
-		$this->meta = $meta;
+        $meta->visits += 1;
+        $this->meta = $meta;
         $this->update();
         return $this;
     }
@@ -336,7 +337,7 @@ class ArticleMapper extends BaseEntityMapper
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', bool $onlyDateRange = true)
     {
 
-		$defaultLabel = is_string($defaultLabel) && strlen($defaultLabel) > 0 ? $defaultLabel : __('articlesBackend', 'Artículos');
+        $defaultLabel = is_string($defaultLabel) && strlen($defaultLabel) > 0 ? $defaultLabel : __('articlesBackend', 'Artículos');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -607,14 +608,18 @@ class ArticleMapper extends BaseEntityMapper
      */
     public static function generateFriendlyURL(string $name, int $ignore_id, int $maxWords = null)
     {
-        $friendly_url = friendly_url($name, $maxWords);
-        $count_friendly_url = self::friendlyURLCount($friendly_url, $ignore_id);
+        $baseFriendlyURL = friendly_url($name);
+        $friendlyURL = $baseFriendlyURL;
+        $countFriendlyURL = self::friendlyURLCount($baseFriendlyURL, $ignore_id);
+        $num = 1;
 
-        if ($count_friendly_url > 0) {
-            $friendly_url = $friendly_url . '-' . $count_friendly_url;
+        while ($countFriendlyURL > 0) {
+            $friendlyURL = $baseFriendlyURL . '-' . $num;
+            $countFriendlyURL = self::friendlyURLCount($friendlyURL, $ignore_id);
+            $num++;
         }
 
-        return $friendly_url;
+        return $friendlyURL;
     }
 
     /**

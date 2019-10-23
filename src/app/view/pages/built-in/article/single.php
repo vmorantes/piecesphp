@@ -10,7 +10,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 <section class="elements-container centered small">
     <h1><?=$article->title;?></h1>
-    <h2><?=$article->category->name;?></h2>
+    <h2><?=$article->category->getName();?></h2>
     <p><?=$article->author->username;?></p>
     <p><?=$date;?></p>
     <div class="image">
