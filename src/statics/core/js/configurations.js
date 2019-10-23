@@ -31,6 +31,16 @@ pcsphpGlobals.defaultLang = (function () {
 pcsphpGlobals.messages = {}
 
 pcsphpGlobals.messages.es = {
+	lang: {
+		'es': 'Español',
+		'en': 'Inglés',
+		'fr': 'Francés',
+	},
+	langShort: {
+		'es': 'ES',
+		'en': 'EN',
+		'fr': 'FR',
+	},
 	titles: {
 		error: 'Error',
 		success: 'Exito',
@@ -301,6 +311,16 @@ pcsphpGlobals.messages.es = {
 }
 
 pcsphpGlobals.messages.en = {
+	lang: {
+		'es': 'Spanish',
+		'en': 'English',
+		'fr': 'French',
+	},
+	langShort: {
+		'es': 'ES',
+		'en': 'EN',
+		'fr': 'FR',
+	},
 	titles: {
 		error: 'Error',
 		success: 'Success',

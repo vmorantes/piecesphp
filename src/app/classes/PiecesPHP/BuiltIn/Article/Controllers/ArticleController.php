@@ -8,8 +8,9 @@ namespace PiecesPHP\BuiltIn\Article\Controllers;
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
-use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper as MainMapper;
+use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
@@ -102,12 +103,12 @@ class ArticleController extends AdminPanelController
     public function __construct()
     {
 
-		self::$title = __('articlesBackend', self::$title);
-		self::$pluralTitle = __('articlesBackend', self::$pluralTitle);
+        self::$title = __('articlesBackend', self::$title);
+        self::$pluralTitle = __('articlesBackend', self::$pluralTitle);
 
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
-        $this->model = (new MainMapper)->getModel();
+        $this->model = (new ArticleMapper)->getModel();
         set_title(self::$title);
 
         $this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
@@ -134,7 +135,7 @@ class ArticleController extends AdminPanelController
         $action = self::routeName('actions-add');
         $back_link = self::routeName('list');
         $quill_proccesor_link = self::routeName('image-handler');
-        $options_categories = array_to_html_options(CategoryMapper::allForSelect(), null);
+        $options_categories = array_to_html_options(CategoryContentMapper::allForSelect(), null);
 
         $data = [];
         $data['action'] = $action;
@@ -169,14 +170,14 @@ class ArticleController extends AdminPanelController
         $id = $request->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
 
-        $element = new MainMapper($id);
+        $element = new ArticleMapper($id);
 
         if (!is_null($element->id)) {
 
             $action = self::routeName('actions-edit');
             $back_link = self::routeName('list');
             $quill_proccesor_link = self::routeName('image-handler');
-            $options_categories = array_to_html_options(CategoryMapper::allForSelect(), $element->category->id);
+            $options_categories = array_to_html_options(CategoryContentMapper::allForSelect(), $element->category->id);
 
             $data = [];
             $data['action'] = $action;
@@ -281,7 +282,7 @@ class ArticleController extends AdminPanelController
                 $pages = ceil($total / $perPage);
 
                 $data = array_map(function ($e) {
-                    $eMapper = new MainMapper($e->id);
+                    $eMapper = new ArticleMapper($e->id);
                     return $eMapper->getBasicData();
                 }, $data);
 
@@ -325,26 +326,41 @@ class ArticleController extends AdminPanelController
             $category = null;
 
             if ($type == 'friendly_url') {
-                $exists = CategoryMapper::existsByFriendlyURL((string) $category_value);
-            } elseif ($type == 'id') {
+
+                $exists = CategoryContentMapper::existsByFriendlyURL((string) $category_value);
+
+            } elseif ($type == 'id' || $type == 'content_of') {
+
                 $category_value = !is_null($category_value) && ctype_digit($category_value) ? $category_value : -1;
                 $exists = CategoryMapper::existsByID((int) $category_value);
+                $type = 'content_of';
+
             } elseif ($type == 'name') {
-                $exists = CategoryMapper::existsByName((string) $category_value);
+
+                $exists = CategoryContentMapper::existsByName((string) $category_value);
+
             }
 
             if ($exists) {
-                $category = CategoryMapper::getBy($category_value, $type);
+                $category = CategoryContentMapper::getBy($category_value, $type);
             }
 
             if ($category !== null) {
-                return $response->withJson(MainMapper::allByCategory((int) $category->id));
+
+                return $response->withJson(ArticleMapper::allByCategory((int) $category->id));
+
             } else {
+
                 throw new NotFoundException($request, $response);
+
             }
+
         } else {
+
             throw new NotFoundException($request, $response);
+
         }
+
     }
 
     /**
@@ -366,14 +382,14 @@ class ArticleController extends AdminPanelController
             $article = null;
 
             if ($type == 'friendly_url') {
-                $exists = MainMapper::existsByFriendlyURL($search_value);
+                $exists = ArticleMapper::existsByFriendlyURL($search_value);
             } elseif ($type == 'id') {
                 $search_value = !is_null($search_value) && ctype_digit($search_value) ? $search_value : -1;
-                $exists = MainMapper::existsByID((int) $search_value);
+                $exists = ArticleMapper::existsByID((int) $search_value);
             }
 
             if ($exists) {
-                $article = MainMapper::getBy($search_value, $type);
+                $article = ArticleMapper::getBy($search_value, $type);
             }
 
             if ($article !== null) {
@@ -429,7 +445,7 @@ class ArticleController extends AdminPanelController
             $result = DataTablesHelper::process([
                 'select_fields' => $select_fields,
                 'columns_order' => $columns_order,
-                'mapper' => new MainMapper(),
+                'mapper' => new ArticleMapper(),
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
@@ -446,13 +462,13 @@ class ArticleController extends AdminPanelController
                         }
                     }
 
-                    $mapper = new MainMapper($e->id);
+                    $mapper = new ArticleMapper($e->id);
 
                     return [
                         $mapper->id,
                         strlen($mapper->title) > 50 ? trim(mb_substr($mapper->title, 0, 50)) . '...' : $mapper->title,
                         $mapper->author->username,
-                        $mapper->category->name,
+                        $mapper->category->getName(),
                         !is_null($mapper->start_date) ? $mapper->start_date->format(__('formatsDate', 'd-m-Y h:i:s A')) : '-',
                         !is_null($mapper->end_date) ? $mapper->end_date->format(__('formatsDate', 'd-m-Y h:i:s A')) : '-',
                         $mapper->created->format(__('formatsDate', 'd-m-Y h:i:s A')),
@@ -510,29 +526,29 @@ class ArticleController extends AdminPanelController
         $result->setValue('redirect', false);
 
         $error_parameters_message = __('articlesBackend', 'Los parámetros recibidos son erróneos.');
-        $not_exists_message       = __('articlesBackend', 'El artículo que intenta modificar no existe');
-        $success_create_message   = __('articlesBackend', 'Artículo creado.');
-        $success_edit_message     = __('articlesBackend', 'Datos guardados.');
-        $unknow_error_message     = __('articlesBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message     = __('articlesBackend', 'Ya existe un artículo con ese nombre en la categoría seleccionada.');
+        $not_exists_message = __('articlesBackend', 'El artículo que intenta modificar no existe');
+        $success_create_message = __('articlesBackend', 'Artículo creado.');
+        $success_edit_message = __('articlesBackend', 'Datos guardados.');
+        $unknow_error_message = __('articlesBackend', 'Ha ocurrido un error desconocido.');
+        $is_duplicate_message = __('articlesBackend', 'Ya existe un artículo con ese nombre en la categoría seleccionada.');
 
         $redirect_url_on_create = self::routeName('list');
 
         if ($valid_params) {
 
             $title = clean_string($title);
-            $friendly_url = MainMapper::generateFriendlyURL($title, $id);
+            $friendly_url = ArticleMapper::generateFriendlyURL($title, $id);
             $content = clean_string($content);
             $seoDescription = clean_string($seoDescription);
             $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
 
-            $is_duplicate = MainMapper::isDuplicate($title, $friendly_url, (int) $category, $id);
+            $is_duplicate = ArticleMapper::isDuplicate($title, $friendly_url, (int) $category, $id);
 
             if (!$is_duplicate) {
 
                 if (!$is_edit) {
 
-                    $mapper = new MainMapper();
+                    $mapper = new ArticleMapper();
 
                     try {
 
@@ -581,7 +597,7 @@ class ArticleController extends AdminPanelController
                     }
                 } else {
 
-                    $mapper = new MainMapper((int) $id);
+                    $mapper = new ArticleMapper((int) $id);
                     $exists = !is_null($mapper->id);
 
                     if ($exists) {
@@ -798,11 +814,11 @@ class ArticleController extends AdminPanelController
     /**
      * moveTemporaryImages
      *
-     * @param MainMapper $entity
+     * @param ArticleMapper $entity
      * @param string $oldText
      * @return void
      */
-    protected function moveTemporaryImages(MainMapper &$entity, string $oldText = null)
+    protected function moveTemporaryImages(ArticleMapper &$entity, string $oldText = null)
     {
         $imagesOnText = [];
         $imagesOnOldText = [];

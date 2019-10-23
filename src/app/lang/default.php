@@ -4,9 +4,9 @@ namespace App\LangMessages;
 
 $lang = [
     'lang' => [
-        'es'       => 'Español',
-        'en'       => 'Inglés',
-        'fr'       => 'Francés',
+        'es' => 'Español',
+        'en' => 'Inglés',
+        'fr' => 'Francés',
     ],
     'langShort' => [
         'es' => 'ES',
@@ -250,13 +250,16 @@ $lang = [
         'Nunca'                                                              => 'Nunca',
         'Modificar artículo'                                                 => 'Modificar artículo',
         'Crear artículo'                                                     => 'Crear artículo',
-        'Los parámetros recibidos son erróneos.'                             => 'Los parámetros recibidos son erróneos.',
         'El artículo que intenta modificar no existe'                        => 'El artículo que intenta modificar no existe',
         'Artículo creado.'                                                   => 'Artículo creado.',
         'Ya existe un artículo con ese nombre en la categoría seleccionada.' => 'Ya existe un artículo con ese nombre en la categoría seleccionada.',
         'Imagen subida'                                                      => 'Imagen subida',
         'La imagen no pudo ser subida, intente después.'                     => 'La imagen no pudo ser subida, intente después.',
         'No se ha subido ninguna imagen.'                                    => 'No se ha subido ninguna imagen.',
+        'No se ha recibido información.'                                     => 'No se ha recibido información.',
+        'Se ha creado la categoría, excepto: %s'                             => 'Se ha creado la categoría, excepto: %s',
+        'Errores: %s'                                                        => '<br>Errores: <br><br> %s',
+        'Se ha guardado la categoría, excepto: %s'                           => 'Se ha guardado la categoría, excepto: %s',
     ],
     'articlesFrontEnd' => [
         'Cargar más'            => 'Cargar más',
