@@ -88,6 +88,38 @@ class ArticleContentMapper extends BaseEntityMapper
     }
 
     /**
+     * getBy
+     *
+     * @param mixed $value
+     * @param string $column
+     * @param boolean $as_mapper
+     * @param bool $onlyDateRange
+     * @return static|object|null
+     */
+    public static function getBy($value, string $column = 'id', bool $as_mapper = false)
+    {
+        $model = self::model();
+
+        $where = [
+            $column => $value,
+        ];
+
+        $model->select()->where($where);
+
+        $model->execute();
+
+        $result = $model->result();
+
+        $result = count($result) > 0 ? $result[0] : null;
+
+        if (!is_null($result) && $as_mapper) {
+            $result = new static($result->sub_id);
+        }
+
+        return $result;
+    }
+
+    /**
      * model
      *
      * @return \PiecesPHP\Core\BaseModel
