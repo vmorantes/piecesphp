@@ -3,8 +3,7 @@
 <br><br>
 <br><br>
 
-<div style="position:fixed; top:10px; left: 10px; opacity:0.1; transition:0.5s ease all;"
-    onMouseOver="this.style.opacity=1;" onMouseOut="this.style.opacity=0.1;">
+<div style="position:fixed; top:10px; left: 10px; opacity:0.1; transition:0.5s ease all;" onMouseOver="this.style.opacity=1;" onMouseOut="this.style.opacity=0.1;">
     <strong>Pueba CSS:</strong>
     <br>
     <div class="ui fitted toggle checkbox" toggle-dev-css-mode='body'>
@@ -19,6 +18,7 @@
     <div style="cursor:pointer;" class="item" data-tab="QuillJS">QuillJS</div>
     <div style="cursor:pointer;" class="item" data-tab="Styles">Styles</div>
     <div style="cursor:pointer;" class="item" data-tab="Messages">Messages</div>
+    <div style="cursor:pointer;" class="item" data-tab="Blog">Blog</div>
 </div>
 
 <div class="ui tab" data-tab="Exif">
@@ -874,12 +874,10 @@
     <div class="elements-container centered fit">
 
         <div class="text-align-c">
-            <button class="ui button green"
-                onClick="successMessage('Título', 'Mensaje', e => console.log('successMessage'))">
+            <button class="ui button green" onClick="successMessage('Título', 'Mensaje', e => console.log('successMessage'))">
                 successMessage (iziToast o alert si no está importado)
             </button>
-            <button class="ui button yellow"
-                onClick="warningMessage('Título', 'Mensaje', e => console.log('warningMessage'))">
+            <button class="ui button yellow" onClick="warningMessage('Título', 'Mensaje', e => console.log('warningMessage'))">
                 warningMessage (iziToast o alert si no está importado)
             </button>
             <br>
@@ -887,13 +885,35 @@
             <button class="ui button blue" onClick="infoMessage('Título', 'Mensaje', e => console.log('infoMessage'))">
                 infoMessage (iziToast o alert si no está importado)
             </button>
-            <button class="ui button red"
-                onClick="errorMessage('Título', 'Mensaje', e => console.log('successMessage'))">
+            <button class="ui button red" onClick="errorMessage('Título', 'Mensaje', e => console.log('successMessage'))">
                 errorMessage (iziToast o alert si no está importado)
             </button>
             <br>
             <br>
         </div>
+
+    </div>
+
+</div>
+
+<div class="ui tab" data-tab="Blog">
+
+    <div class="elements-container centered fit">
+
+        <h3>Blog</h3>
+
+        <ul>
+            <li>
+                <a href="<?= \PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic::routeName('list')?>">
+                    Artículos
+                </a>
+            </li>
+            <li>
+                <a href="<?= \PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic::routeName('list-categories')?>">
+                    Categorías
+                </a>
+            </li>
+        </ul>
 
     </div>
 
