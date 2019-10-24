@@ -563,15 +563,15 @@ class ArticleViewMapper extends BaseEntityMapper
     /**
      * getByPreferedSubID
      *
-     * @param int $content_of
+     * @param int $id
      * @param bool $asMapper
-     * @return static|null
+     * @return ArticleContentMapper|null
      */
-    public static function getByPreferedSubID(int $content_of, bool $asMapper = true)
+    public static function getByPreferedSubID(int $id, bool $asMapper = true)
     {
         $model = self::model();
 
-        $where = "(sub_id = '" . implode("' OR sub_id = '", self::getPreferedsSubIDs()) . "') AND content_of = $content_of";
+        $where = "(sub_id = '" . implode("' OR sub_id = '", self::getPreferedsSubIDs()) . "') AND id = $id";
 
         $model->select()->where($where);
 
@@ -579,7 +579,7 @@ class ArticleViewMapper extends BaseEntityMapper
 
         $result = $model->result();
 
-        return count($result) > 0 ? ($asMapper ? new static($result[0]->sub_id) : $result[0]) : null;
+        return count($result) > 0 ? ($asMapper ? new ArticleContentMapper($result[0]->sub_id) : ArticleContentMapper::getBy('id', $result[0]->sub_id)) : null;
     }
 
     /**
