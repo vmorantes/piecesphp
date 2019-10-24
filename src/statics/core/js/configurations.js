@@ -232,6 +232,9 @@ pcsphpGlobals.messages.es = {
 		"URL": "URL",
 		"Ha ocurrido un error al cargar los artículos.": "Ha ocurrido un error al cargar los artículos.",
 		"Error": "Error",
+		"Ha ocurrido un error al cargar las categorías.": "Ha ocurrido un error al cargar las categorías.",
+		"Nombre": "Nombre",
+		"Descripción": "Descripción",
 	},
 	news: {
 		'Error': 'Error',
@@ -512,6 +515,9 @@ pcsphpGlobals.messages.en = {
 		"URL": "URL",
 		"Ha ocurrido un error al cargar los artículos.": "An error occurred while loading the items.",
 		"Error": "Error",
+		"Ha ocurrido un error al cargar las categorías.": "An error occurred while loading the categories.",
+		"Nombre": "Name",
+		"Descripción": "Description",
 	},
 	news: {
 		'Error': 'Error',

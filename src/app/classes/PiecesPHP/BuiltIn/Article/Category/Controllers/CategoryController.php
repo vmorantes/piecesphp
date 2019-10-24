@@ -9,6 +9,7 @@ use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -194,31 +195,76 @@ class CategoryController extends AdminPanelController
 
         if ($request->isXhr()) {
 
-            $allowedLangs = get_config('allowed_langs');
-            $preferedsIDs = CategoryContentMapper::getPreferedsIDs();
-
+            //Opciones recibidas
+            $paginate = $request->getQueryParam('paginate', null);
+            $page = $request->getQueryParam('page', 1);
+            $perPage = $request->getQueryParam('per_page', 5);
             $onlyLang = $request->getQueryParam('lang', null);
+
+            //Tratamiento de las opciones
+            $allowedLangs = get_config('allowed_langs');
+
             $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
-            $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : null;
+            $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
 
-            $query = $this->model->select();
+            $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
+            $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
 
-            if (!is_null($onlyLang)) {
-                $query->where(['lang' => $onlyLang]);
-            } else {
-                $where = "id = '" . implode("' OR id = '", $preferedsIDs) . "'";
+            //Prepación de la consulta
+            $model = CategoryContentMapper::model();
+            $query = $model->select();
+
+            $where = [
+                "lang = '$onlyLang'",
+            ];
+
+            $where = implode(' ', $where);
+
+            $query->where($where);
+
+            if ($paginate === 'yes') {
+
+                $response_data = [];
+
+                $response_data['sql'] = $query->getCompiledSQL();
+                $query->execute(false, $page, $perPage);
+
+                $data = $query->result();
+
+                $query->resetAll();
+
+                $query->select('COUNT(id) AS total');
                 $query->where($where);
+                $query->execute();
+                $total = $query->result();
+                $total = count($total) > 0 ? (int) $total[0]->total : 0;
+                $pages = ceil($total / $perPage);
+
+                $data = array_map(function ($e) {
+                    $e->link = ArticleControllerPublic::routeName('list-by-category', ['category' => $e->friendly_url]);
+                    return $e;
+                }, $data);
+
+                $response_data['page'] = $page;
+                $response_data['perPage'] = $perPage;
+                $response_data['pages'] = $pages;
+                $response_data['total'] = $total;
+                $response_data['data'] = $data;
+
+                return $response->withJson($response_data);
+
+            } else {
+
+                $query->execute();
+
+                return $response->withJson($query->result());
+
             }
-
-            $query->execute();
-
-            $result = $query->result();
-
-            return $response->withJson($result);
 
         } else {
             throw new NotFoundException($request, $response);
         }
+
     }
 
     /**
@@ -238,7 +284,7 @@ class CategoryController extends AdminPanelController
                 'content_of',
                 'name',
                 'description',
-			];
+            ];
 
             $ids = CategoryContentMapper::getPreferedsIDs();
 
@@ -366,14 +412,14 @@ class CategoryController extends AdminPanelController
                     if ($validations) {
 
                         $hasInformation = true;
-						$friendly_url = CategoryContentMapper::generateFriendlyURL($name, -1);
+                        $friendly_url = CategoryContentMapper::generateFriendlyURL($name, -1);
                         $isDuplicate = CategoryContentMapper::isDuplicate(
                             $name,
                             $friendly_url,
                             -1,
                             -1
-						);
-						
+                        );
+
                         if (!$isDuplicate) {
 
                             $newLangCategory = new CategoryContentMapper();
@@ -391,7 +437,7 @@ class CategoryController extends AdminPanelController
                                 $errors[] = $name;
                             } else {
                                 $oneOK = true;
-							}
+                            }
 
                         } else {
 
