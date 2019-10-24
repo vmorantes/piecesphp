@@ -1,12 +1,11 @@
 <?php
 /**
- * @var \PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper $article
+ * @var \PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper $article
  */
 $article;
 
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
-
 
 <section class="elements-container centered small">
     <h1><?=$article->title;?></h1>
@@ -14,7 +13,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <p><?=$article->author->username;?></p>
     <p><?=$date;?></p>
     <div class="image">
-        <img src="<?=$article->meta->imageMain;?>">
+        <img src="<?=$article->images->imageMain;?>">
     </div>
     <h3><?= __('articlesFrontEnd', 'Contenido'); ?></h3>
     <div class="text-aling-j"><?=$article->content;?></div>
@@ -31,11 +30,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <article>
 
         <div>
-            <img src="<?=$related->meta->imageThumb;?>">
+            <img src="<?=$related->images->imageThumb;?>">
         </div>
 
         <div>
-            <?=$related->category->name . ' | ' . $related->formatPreferDate("{MONTH_NAME} {DAY_NUMBER} del {YEAR}");?>
+            <?=$related->category->getName() . ' | ' . $related->formatPreferDate("{MONTH_NAME} {DAY_NUMBER} del {YEAR}");?>
         </div>
 
         <div><?=$related->title;?></div>

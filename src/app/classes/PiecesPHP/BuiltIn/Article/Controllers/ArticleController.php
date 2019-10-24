@@ -10,7 +10,9 @@ use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
+use PiecesPHP\BuiltIn\Article\Mappers\ArticleContentMapper;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper;
+use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
@@ -108,7 +110,7 @@ class ArticleController extends AdminPanelController
 
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
-        $this->model = (new ArticleMapper)->getModel();
+        $this->model = (new ArticleViewMapper())->getModel();
         set_title(self::$title);
 
         $this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
@@ -128,6 +130,12 @@ class ArticleController extends AdminPanelController
     public function addForm(Request $request, Response $response, array $args)
     {
 
+        $lang = $request->getAttribute('lang', get_config('app_lang'));
+
+        if (!in_array($lang, get_config('allowed_langs'))) {
+            throw new NotFoundException($request, $response);
+        }
+
         set_custom_assets([
             'statics/js/built-in/article/backend/forms.js',
         ], 'js');
@@ -142,6 +150,7 @@ class ArticleController extends AdminPanelController
         $data['back_link'] = $back_link;
         $data['options_categories'] = $options_categories;
         $data['quill_proccesor_link'] = $quill_proccesor_link;
+        $data['lang'] = $lang;
         $data['title'] = self::$title;
 
         import_quilljs(['imageResize']);
@@ -162,17 +171,33 @@ class ArticleController extends AdminPanelController
      */
     public function editForm(Request $request, Response $response, array $args)
     {
-
         set_custom_assets([
             'statics/js/built-in/article/backend/forms.js',
         ], 'js');
 
+        $lang = $request->getAttribute('lang', null);
         $id = $request->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
 
+        $langExists = $lang !== null ? in_array($lang, get_config('allowed_langs')) : true;
+
         $element = new ArticleMapper($id);
 
-        if (!is_null($element->id)) {
+        if (!is_null($element->id) && $langExists) {
+
+            if (!is_null($lang)) {
+
+                $subElement = ArticleViewMapper::getContentByLang($element->id, $lang, true);
+
+                if (is_null($subElement)) {
+                    $subElement = new ArticleContentMapper();
+                    $subElement->lang = $lang;
+                }
+
+            } else {
+                $subElement = ArticleViewMapper::getContentByLang($element->id, get_config('app_lang'), true);
+                $subElement = !is_null($subElement) ? $subElement : ArticleViewMapper::getByPreferedSubID($element->id);
+            }
 
             $action = self::routeName('actions-edit');
             $back_link = self::routeName('list');
@@ -182,6 +207,7 @@ class ArticleController extends AdminPanelController
             $data = [];
             $data['action'] = $action;
             $data['element'] = $element;
+            $data['subElement'] = $subElement;
             $data['back_link'] = $back_link;
             $data['options_categories'] = $options_categories;
             $data['quill_proccesor_link'] = $quill_proccesor_link;
@@ -239,27 +265,38 @@ class ArticleController extends AdminPanelController
 
         if ($request->isXhr()) {
 
+            //Opciones recibidas
             $allDate = $request->getQueryParam('all_date', null);
             $paginate = $request->getQueryParam('paginate', null);
-
             $page = $request->getQueryParam('page', 1);
             $perPage = $request->getQueryParam('per_page', 5);
+            $onlyLang = $request->getQueryParam('lang', null);
+
+            //Tratamiento de las opciones
+            $allowedLangs = get_config('allowed_langs');
+
+            $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+            $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
 
             $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
             $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
 
-            $query = $this->model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
+            //Prepación de la consulta
+            $model = ArticleViewMapper::model();
+            $query = $model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
 
             $now = date('Y-m-d H:i:s');
 
-            $where_date_values = [
+            $where = [
                 "(start_date <= '{$now}' OR start_date IS NULL) AND",
                 "(end_date > '{$now}' OR end_date IS NULL)",
+                "AND lang = '$onlyLang'",
             ];
-            $where_date_values = implode(' ', $where_date_values);
+
+            $where = implode(' ', $where);
 
             if ($allDate !== 'yes') {
-                $query->where($where_date_values);
+                $query->where($where);
             }
 
             if ($paginate === 'yes') {
@@ -268,21 +305,24 @@ class ArticleController extends AdminPanelController
 
                 $response_data['sql'] = $query->getCompiledSQL();
                 $query->execute(false, $page, $perPage);
+
                 $data = $query->result();
 
                 $query->resetAll();
 
                 $query->select('COUNT(id) AS total');
+
                 if ($allDate !== 'yes') {
-                    $query->where($where_date_values);
+                    $query->where($where);
                 }
+
                 $query->execute();
                 $total = $query->result();
                 $total = count($total) > 0 ? (int) $total[0]->total : 0;
                 $pages = ceil($total / $perPage);
 
                 $data = array_map(function ($e) {
-                    $eMapper = new ArticleMapper($e->id);
+                    $eMapper = new ArticleViewMapper($e->sub_id);
                     return $eMapper->getBasicData();
                 }, $data);
 
@@ -320,10 +360,26 @@ class ArticleController extends AdminPanelController
 
         if ($request->isXhr()) {
 
+            //Opciones recibidas
             $type = $request->getQueryParam('type', 'friendly_url');
             $category_value = $request->getAttribute('category', null);
+            $allDate = $request->getQueryParam('all_date', null);
+            $paginate = $request->getQueryParam('paginate', null);
+            $page = $request->getQueryParam('page', 1);
+            $perPage = $request->getQueryParam('per_page', 5);
+            $onlyLang = $request->getQueryParam('lang', null);
+
             $exists = false;
             $category = null;
+
+            //Tratamiento de las opciones
+            $allowedLangs = get_config('allowed_langs');
+
+            $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+            $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
+
+            $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
+            $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
 
             if ($type == 'friendly_url') {
 
@@ -347,7 +403,67 @@ class ArticleController extends AdminPanelController
 
             if ($category !== null) {
 
-                return $response->withJson(ArticleMapper::allByCategory((int) $category->id));
+                //Prepación de la consulta
+                $model = ArticleViewMapper::model();
+                $query = $model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
+
+                $now = date('Y-m-d H:i:s');
+
+                $where = [
+                    "category = '{$category->content_of}'",
+                    "AND lang = '$onlyLang'",
+                ];
+
+                if ($allDate !== 'yes') {
+                    $where[] = "AND (start_date <= '{$now}' OR start_date IS NULL)";
+                    $where[] = "AND (end_date > '{$now}' OR end_date IS NULL)";
+                }
+
+                $where = implode(' ', $where);
+                $query->where($where);
+
+                if ($paginate === 'yes') {
+
+                    $response_data = [];
+
+                    $response_data['sql'] = $query->getCompiledSQL();
+                    $query->execute(false, $page, $perPage);
+
+                    $data = $query->result();
+
+                    $query->resetAll();
+
+                    $query->select('COUNT(id) AS total');
+
+                    if ($allDate !== 'yes') {
+                        $query->where($where);
+                    }
+
+                    $query->execute();
+                    $total = $query->result();
+                    $total = count($total) > 0 ? (int) $total[0]->total : 0;
+                    $pages = ceil($total / $perPage);
+
+                    $data = array_map(function ($e) {
+                        $eMapper = new ArticleViewMapper($e->sub_id);
+                        return $eMapper->getBasicData();
+                    }, $data);
+
+                    $response_data['page'] = $page;
+                    $response_data['perPage'] = $perPage;
+                    $response_data['pages'] = $pages;
+                    $response_data['total'] = $total;
+                    $response_data['data'] = $data;
+
+                    return $response->withJson($response_data);
+
+                } else {
+
+                    $query->execute();
+
+                    return $response->withJson($query->result());
+
+                }
 
             } else {
 
@@ -356,9 +472,7 @@ class ArticleController extends AdminPanelController
             }
 
         } else {
-
             throw new NotFoundException($request, $response);
-
         }
 
     }
@@ -382,14 +496,14 @@ class ArticleController extends AdminPanelController
             $article = null;
 
             if ($type == 'friendly_url') {
-                $exists = ArticleMapper::existsByFriendlyURL($search_value);
+                $exists = ArticleViewMapper::existsByFriendlyURL($search_value);
             } elseif ($type == 'id') {
                 $search_value = !is_null($search_value) && ctype_digit($search_value) ? $search_value : -1;
-                $exists = ArticleMapper::existsByID((int) $search_value);
+                $exists = ArticleViewMapper::existsByID((int) $search_value);
             }
 
             if ($exists) {
-                $article = ArticleMapper::getBy($search_value, $type);
+                $article = ArticleViewMapper::getBy($search_value, $type);
             }
 
             if ($article !== null) {
@@ -427,30 +541,22 @@ class ArticleController extends AdminPanelController
                 'visits',
             ];
 
-            $select_fields = [
-                "id",
-                "title",
-                "author",
-                "category",
-                "start_date",
-                "end_date",
-                "created",
-                "updated",
-                "CONVERT(JSON_EXTRACT(meta, '$.visits'), SIGNED) AS visits",
-            ];
+            $ids = ArticleViewMapper::getPreferedsSubIDs();
+            $where_string = count($ids) > 0 ? "sub_id = '" . implode("' OR sub_id = '", $ids) . "'" : '';
 
             DataTablesHelper::setTablePrefixOnOrder(false);
             DataTablesHelper::setTablePrefixOnSearch(false);
 
             $result = DataTablesHelper::process([
-                'select_fields' => $select_fields,
+                'where_string' => $where_string,
                 'columns_order' => $columns_order,
-                'mapper' => new ArticleMapper(),
+                'mapper' => new ArticleViewMapper(),
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
                     $buttonEdit = new HtmlElement('a', __('articlesBackend', 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
+
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                         'id' => $e->id,
                     ]));
@@ -462,7 +568,7 @@ class ArticleController extends AdminPanelController
                         }
                     }
 
-                    $mapper = new ArticleMapper($e->id);
+                    $mapper = new ArticleViewMapper($e->sub_id);
 
                     return [
                         $mapper->id,
@@ -473,7 +579,7 @@ class ArticleController extends AdminPanelController
                         !is_null($mapper->end_date) ? $mapper->end_date->format(__('formatsDate', 'd-m-Y h:i:s A')) : '-',
                         $mapper->created->format(__('formatsDate', 'd-m-Y h:i:s A')),
                         !is_null($mapper->updated) ? $mapper->updated->format(__('formatsDate', 'd-m-Y h:i:s A')) : __('articlesBackend', 'Nunca'),
-                        $e->visits,
+                        $mapper->visits,
                         (string) $buttonEdit,
                     ];
                 },
@@ -498,7 +604,9 @@ class ArticleController extends AdminPanelController
     public function action(Request $request, Response $response, array $args)
     {
 
-        $id = $request->getParsedBodyParam('id', -1);
+        $contentOf = $request->getParsedBodyParam('content_of', -1);
+        $subID = $request->getParsedBodyParam('id', -1);
+        $lang = $request->getParsedBodyParam('lang', get_config('app_lang'));
         $title = $request->getParsedBodyParam('title', null);
         $category = $request->getParsedBodyParam('category', null);
         $content = $request->getParsedBodyParam('content', null);
@@ -509,7 +617,7 @@ class ArticleController extends AdminPanelController
         $start_date = strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
         $end_date = strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
 
-        $is_edit = $id !== -1;
+        $isEdit = $contentOf !== -1;
 
         $valid_params = !in_array(null, [
             $title,
@@ -517,131 +625,106 @@ class ArticleController extends AdminPanelController
             $content,
         ]);
 
-        $operation_name = $is_edit ? __('articlesBackend', 'Modificar artículo') : __('articlesBackend', 'Crear artículo');
+        $operationName = $isEdit ? __('articlesBackend', 'Modificar artículo') : __('articlesBackend', 'Crear artículo');
 
         $result = new ResultOperations([
-            new Operation($operation_name),
-        ], $operation_name);
+            new Operation($operationName),
+        ], $operationName);
 
         $result->setValue('redirect', false);
 
-        $error_parameters_message = __('articlesBackend', 'Los parámetros recibidos son erróneos.');
-        $not_exists_message = __('articlesBackend', 'El artículo que intenta modificar no existe');
-        $success_create_message = __('articlesBackend', 'Artículo creado.');
-        $success_edit_message = __('articlesBackend', 'Datos guardados.');
-        $unknow_error_message = __('articlesBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message = __('articlesBackend', 'Ya existe un artículo con ese nombre en la categoría seleccionada.');
-
-        $redirect_url_on_create = self::routeName('list');
+        $errorParametersMessage = __('articlesBackend', 'Los parámetros recibidos son erróneos.');
+        $notExistsMessage = __('articlesBackend', 'El artículo que intenta modificar no existe');
+        $successCreatedMessage = __('articlesBackend', 'Artículo creado.');
+        $successEditMessage = __('articlesBackend', 'Datos guardados.');
+        $unknowErrorMessage = __('articlesBackend', 'Ha ocurrido un error desconocido.');
+        $isDuplicateMessage = __('articlesBackend', 'Ya existe un artículo con ese nombre en la categoría seleccionada.');
+        $unexistsLangMessages = __('articlesBackend', 'El idioma que intenta usar no existe.');
 
         if ($valid_params) {
 
             $title = clean_string($title);
-            $friendly_url = ArticleMapper::generateFriendlyURL($title, $id);
+            $friendly_url = ArticleViewMapper::generateFriendlyURL($title, $subID);
             $content = clean_string($content);
             $seoDescription = clean_string($seoDescription);
             $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
 
-            $is_duplicate = ArticleMapper::isDuplicate($title, $friendly_url, (int) $category, $id);
+            $isDuplicate = ArticleViewMapper::isDuplicate(
+                $title,
+                $friendly_url,
+                (int) $category,
+                $contentOf,
+                $subID
+            );
 
-            if (!$is_duplicate) {
+            if (in_array($lang, get_config('allowed_langs'))) {
 
-                if (!$is_edit) {
+                if (!$isDuplicate) {
 
-                    $mapper = new ArticleMapper();
+                    if (!$isEdit) {
 
-                    try {
-
-                        $imageMain = self::handlerUploadImage('image-main', $folder);
-                        $imageThumb = self::handlerUploadImage('image-thumb', $folder);
-                        $imageOpenGraph = self::handlerUploadImage('image-og', $folder);
-
-                        $mapper->category = $category;
-                        $mapper->title = $title;
-                        $mapper->friendly_url = $friendly_url;
-                        $mapper->content = $content;
-                        $mapper->start_date = $start_date;
-                        $mapper->end_date = $end_date;
-                        $mapper->meta = [
-                            "imageMain" => $imageMain,
-                            "imageThumb" => $imageThumb,
-                            "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : '',
-                            "seoDescription" => $seoDescription,
-                            "folder" => $folder,
-                            "visits" => 0,
-                        ];
-                        $saved = $mapper->save();
-
-                        if ($saved) {
-
-                            $mapper->id = $mapper->getLastInsertID();
-                            $this->moveTemporaryImages($mapper);
-
-                            $result->setMessage($success_create_message)
-                                ->operation($operation_name)
-                                ->setSuccess(true);
-
-                            $result->setValue('redirect', true);
-                            $result->setValue('redirect_to', $redirect_url_on_create);
-                        } else {
-                            $result->setMessage($unknow_error_message);
-                        }
-                    } catch (\Exception $e) {
-                        $result->setMessage($e->getMessage());
-                        $result->setValue('Exception', [
-                            'message' => $e->getMessage(),
-                            'code' => $e->getCode(),
-                            'line' => $e->getLine(),
-                            'file' => $e->getFile(),
-                        ]);
-                    }
-                } else {
-
-                    $mapper = new ArticleMapper((int) $id);
-                    $exists = !is_null($mapper->id);
-
-                    if ($exists) {
+                        $mainMapper = new ArticleMapper();
+                        $subMapper = new ArticleContentMapper();
 
                         try {
 
-                            $currentImageOpenGraph = isset($mapper->meta->imageOpenGraph) ? $mapper->meta->imageOpenGraph : null;
-                            $currentImageOpenGraph = is_string($currentImageOpenGraph) && strlen($currentImageOpenGraph) > 0 ? $currentImageOpenGraph : null;
-                            $currentSeoDescription = isset($mapper->meta->seoDescription) ? $mapper->meta->seoDescription : '';
-                            $folder = isset($mapper->meta->folder) ? $mapper->meta->folder : $folder;
+                            //Configuraciones del artículo en general
+                            $mainMapper->category = $category;
+                            $mainMapper->start_date = $start_date;
+                            $mainMapper->end_date = $end_date;
+                            $mainMapper->folder = $folder;
+                            $mainMapper->visits = 0;
 
-                            $imageMain = self::handlerUploadImage('image-main', $folder, $mapper->meta->imageMain);
-                            $imageThumb = self::handlerUploadImage('image-thumb', $folder, $mapper->meta->imageThumb);
-                            $imageOpenGraph = self::handlerUploadImage('image-og', $folder, $currentImageOpenGraph);
-
-                            $oldText = $mapper->content;
-                            $mapper->category = $category;
-                            $mapper->title = $title;
-                            $mapper->friendly_url = $friendly_url;
-                            $mapper->content = $content;
-                            $mapper->start_date = $start_date;
-                            $mapper->end_date = $end_date;
-                            $mapper->meta = [
-                                "imageMain" => strlen($imageMain) > 0 ? $imageMain : $mapper->meta->imageMain,
-                                "imageThumb" => strlen($imageThumb) > 0 ? $imageThumb : $mapper->meta->imageThumb,
-                                "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $currentImageOpenGraph,
-                                "seoDescription" => strlen($seoDescription) > 0 ? $seoDescription : $currentSeoDescription,
-                                "folder" => $folder,
-                                "visits" => $mapper->meta->visits,
+                            //Imágenes
+                            $imageMain = self::handlerUploadImage('image-main', $folder);
+                            $imageThumb = self::handlerUploadImage('image-thumb', $folder);
+                            $imageOpenGraph = self::handlerUploadImage('image-og', $folder);
+                            $mainMapper->images = [
+                                "imageMain" => $imageMain,
+                                "imageThumb" => $imageThumb,
+                                "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : '',
                             ];
-                            $updated = $mapper->update();
 
-                            if ($updated) {
+                            $articleSaved = $mainMapper->save();
+                            $articleInsertedID = $mainMapper->getLastInsertID();
 
-                                $this->moveTemporaryImages($mapper, $oldText);
+                            if ($articleSaved) {
 
-                                $result->setValue('reload', true);
+                                //Configuraciones del artículo en el idioma específico
+                                $subMapper->content_of = $articleInsertedID;
+                                $subMapper->lang = $lang;
+                                $subMapper->title = $title;
+                                $subMapper->friendly_url = $friendly_url;
+                                $subMapper->content = $content;
+                                $subMapper->seo_description = $seoDescription;
 
-                                $result->setMessage($success_edit_message)
-                                    ->operation($operation_name)
-                                    ->setSuccess(true);
+                                $subMapperSaved = $subMapper->save();
+
+                                $subMapper->id = $subMapper->getLastInsertID();
+
+                                if ($subMapperSaved) {
+
+                                    $this->moveTemporaryImages($subMapper);
+
+                                    $result->setMessage($successCreatedMessage)
+                                        ->operation($operationName)
+                                        ->setSuccess(true);
+
+                                    $result->setValue('redirect', true);
+                                    $result->setValue('redirect_to', self::routeName('forms-edit', ['id' => $articleInsertedID]));
+
+                                } else {
+
+                                    $result->setMessage($unknowErrorMessage);
+
+                                }
+
                             } else {
-                                $result->setMessage($unknow_error_message);
+
+                                $result->setMessage($unknowErrorMessage);
+
                             }
+
                         } catch (\Exception $e) {
                             $result->setMessage($e->getMessage());
                             $result->setValue('Exception', [
@@ -651,16 +734,120 @@ class ArticleController extends AdminPanelController
                                 'file' => $e->getFile(),
                             ]);
                         }
-                    } else {
-                        $result->setMessage($not_exists_message);
-                    }
-                }
-            } else {
 
-                $result->setMessage($is_duplicate_message);
+                    } else {
+
+                        $mainMapper = new ArticleMapper((int) $contentOf);
+                        $subMapper = new ArticleContentMapper((int) $subID);
+
+                        $exists = $subID == -1 ? !is_null($mainMapper->id) : !is_null($mainMapper->id) && !is_null($subMapper->id);
+
+                        if ($exists) {
+
+                            try {
+
+                                //Configuraciones del artículo en general
+                                $mainMapper->category = $category;
+                                $mainMapper->start_date = $start_date;
+                                $mainMapper->end_date = $end_date;
+
+                                //Imágenes
+                                $imageMain = self::handlerUploadImage(
+                                    'image-main',
+                                    $mainMapper->folder,
+                                    $mainMapper->images->imageMain
+                                );
+                                $imageThumb = self::handlerUploadImage(
+                                    'image-thumb',
+                                    $mainMapper->folder,
+                                    $mainMapper->images->imageThumb
+                                );
+                                $imageOpenGraph = self::handlerUploadImage(
+                                    'image-og',
+                                    $mainMapper->folder,
+                                    $mainMapper->images->imageOpenGraph
+                                );
+                                $mainMapper->images = [
+                                    "imageMain" => strlen($imageMain) > 0 ? $imageMain : $mainMapper->images->imageMain,
+                                    "imageThumb" => strlen($imageThumb) > 0 ? $imageThumb : $mainMapper->images->imageThumb,
+                                    "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $mainMapper->images->imageOpenGraph,
+                                ];
+
+                                $articleUpdated = $mainMapper->update();
+
+                                if ($articleUpdated) {
+
+                                    //Configuraciones del artículo en el idioma específico
+                                    $subMapper->lang = $lang;
+                                    $subMapper->title = $title;
+                                    $subMapper->friendly_url = $friendly_url;
+                                    $subMapper->seo_description = $seoDescription;
+
+                                    $successAction = false;
+                                    $oldText = null;
+
+                                    if ($subMapper->id !== null) {
+
+                                        $oldText = $subMapper->content;
+                                        $subMapper->content = $content;
+                                        $successAction = $subMapper->update();
+
+                                    } else {
+
+                                        $subMapper->content = $content;
+                                        $subMapper->content_of = $mainMapper->id;
+                                        $successAction = $subMapper->save();
+                                        $subMapper->id = $subMapper->getLastInsertID();
+
+                                    }
+
+                                    if ($successAction) {
+
+                                        $this->moveTemporaryImages($subMapper, $oldText);
+
+                                        $result->setValue('reload', true);
+
+                                        $result->setMessage($successEditMessage)
+                                            ->operation($operationName)
+                                            ->setSuccess(true);
+
+                                    } else {
+
+                                        $result->setMessage($unknowErrorMessage);
+
+                                    }
+
+                                } else {
+
+                                    $result->setMessage($unknowErrorMessage);
+
+                                }
+
+                            } catch (\Exception $e) {
+                                $result->setMessage($e->getMessage());
+                                $result->setValue('Exception', [
+                                    'message' => $e->getMessage(),
+                                    'code' => $e->getCode(),
+                                    'line' => $e->getLine(),
+                                    'file' => $e->getFile(),
+                                ]);
+                            }
+                        } else {
+                            $result->setMessage($notExistsMessage);
+                        }
+                    }
+
+                } else {
+
+                    $result->setMessage($isDuplicateMessage);
+                }
+
+            } else {
+                $result->setMessage($unexistsLangMessages);
             }
+
         } else {
-            $result->setMessage($error_parameters_message);
+            $result->setMessage($errorParametersMessage);
         }
 
         return $response->withJson($result);
@@ -814,11 +1001,11 @@ class ArticleController extends AdminPanelController
     /**
      * moveTemporaryImages
      *
-     * @param ArticleMapper $entity
+     * @param ArticleContentMapper $entity
      * @param string $oldText
      * @return void
      */
-    protected function moveTemporaryImages(ArticleMapper &$entity, string $oldText = null)
+    protected function moveTemporaryImages(ArticleContentMapper &$entity, string $oldText = null)
     {
         $imagesOnText = [];
         $imagesOnOldText = [];
@@ -1058,6 +1245,15 @@ class ArticleController extends AdminPanelController
                 $rolesAllowed
             ),
             new Route(
+                "{$startRoute}/forms/add/{lang}[/]",
+                "{$handler}:addForm",
+                "{$namePrefix}-forms-add-lang",
+                'GET',
+                true,
+                null,
+                $rolesAllowed
+            ),
+            new Route(
                 "{$startRoute}/action/add[/]",
                 "{$handler}:action",
                 "{$namePrefix}-actions-add",
@@ -1070,6 +1266,15 @@ class ArticleController extends AdminPanelController
                 "{$startRoute}/forms/edit/{id}[/]",
                 "{$handler}:editForm",
                 "{$namePrefix}-forms-edit",
+                'GET',
+                true,
+                null,
+                $rolesAllowed
+            ),
+            new Route(
+                "{$startRoute}/forms/edit/{id}/{lang}[/]",
+                "{$handler}:editForm",
+                "{$namePrefix}-forms-edit-lang",
                 'GET',
                 true,
                 null,

@@ -1,17 +1,49 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
+
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+$currentLang = $lang;
+$allowedLangs = get_config('allowed_langs');
+$allowedLangsWithoutCurrent = array_filter($allowedLangs, function($e) use($currentLang){ 
+	return $e != $currentLang;
+});
+$allowedLangsWithoutCurrent = array_map(function($lang){ 
+	$link = ArticleController::routeName('forms-add-lang', ['lang' => $lang]);
+	return  "<small><a href='$link'>".__('lang', $lang)."</a></small>";
+}, $allowedLangsWithoutCurrent);
+?>
 
 <div style="max-width:850px;">
 
     <h3><?= __('articlesBackend', 'Agregar'); ?> <?=$title;?></h3>
 
-    <br><br>
+    <br>
 
     <form pcsphp-articles method='POST' action="<?=$action;?>" class="ui form" quill="<?=$quill_proccesor_link;?>">
 
+        <input type="hidden" name="lang" value="<?= $currentLang; ?>">
+
         <div class="ui buttons">
+
             <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
             <button type="submit" class="ui button green"><?= __('articlesBackend', 'Guardar'); ?></button>
+
         </div>
+
+        <br><br>
+
+        <?php if(count($allowedLangsWithoutCurrent) > 0): ?>
+
+        <div>
+
+            <small><?= __('articlesBackend', 'Cambiar idioma del artículo a'); ?>: </small>
+
+            <?= implode(', ', $allowedLangsWithoutCurrent); ?>
+
+        </div>
+
+        <?php endif;?>
 
         <div class="ui top attached tabular menu">
             <div class="item active" data-tab="content"><?= __('articlesBackend', 'Contenido'); ?></div>

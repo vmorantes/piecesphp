@@ -7,8 +7,9 @@
 namespace PiecesPHP\BuiltIn\Article\Controllers;
 
 use App\Model\AvatarModel;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
-use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper;
+use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Roles;
@@ -83,6 +84,16 @@ class ArticleControllerPublic extends BaseController
 
     public function listView(Request $req, Response $res, array $params)
     {
+
+        $category = $req->getAttribute('category', null);
+        $byCategory = false;
+
+        if ($category !== null) {
+            $byCategory = true;
+            $category = is_string($category) && strlen($category) > 0 ? mb_strtolower($category) : null;
+            $category = !is_null($category) && CategoryContentMapper::existsByFriendlyURL($category) ? $category : null;
+        }
+
         set_custom_assets([
             base_url(self::JS_FOLDER . '/list.js'),
         ], 'js');
@@ -92,9 +103,23 @@ class ArticleControllerPublic extends BaseController
         $this->render('layout/header');
         $this->render('layout/menu');
 
-        $this->render(self::VIEWS_FOLDER . '/list', [
-            'ajaxURL' => ArticleController::routeName('ajax-all'),
-        ]);
+        if ($byCategory) {
+
+            if ($category !== null) {
+
+                $this->render(self::VIEWS_FOLDER . '/list', [
+                    'ajaxURL' => ArticleController::routeName('ajax-all-category', ['category' => $category]),
+                ]);
+
+            } else {
+                throw new NotFoundException($req, $res);
+            }
+
+        } else {
+            $this->render(self::VIEWS_FOLDER . '/list', [
+                'ajaxURL' => ArticleController::routeName('ajax-all'),
+            ]);
+        }
 
         $this->render('layout/footer');
 
@@ -105,7 +130,7 @@ class ArticleControllerPublic extends BaseController
     {
         $friendly_name = $req->getAttribute('friendly_name');
 
-        $article = ArticleMapper::getByFriendlyURL($friendly_name, true);
+        $article = ArticleViewMapper::getByFriendlyURL($friendly_name, true);
 
         if ($article !== null) {
 
@@ -113,18 +138,18 @@ class ArticleControllerPublic extends BaseController
 
             set_title($article->title);
 
-            $seoDescription = isset($article->meta->seoDescription) ? $article->meta->seoDescription : '';
+            $seoDescription = isset($article->seoDescription) ? $article->seoDescription : '';
             $seoDescription = strlen($seoDescription) > 0 ? $seoDescription : $article->content;
 
-            $imageOpenGraph = isset($article->meta->imageOpenGraph) ? $article->meta->imageOpenGraph : '';
-            $imageOpenGraph = strlen($imageOpenGraph) > 0 ? baseurl($imageOpenGraph) : base_url($article->meta->imageMain);
+            $imageOpenGraph = isset($article->images->imageOpenGraph) ? $article->images->imageOpenGraph : '';
+            $imageOpenGraph = strlen($imageOpenGraph) > 0 ? baseurl($imageOpenGraph) : base_url($article->images->imageMain);
 
             MetaTags::setDescription($seoDescription);
             MetaTags::setImage($imageOpenGraph);
 
             $date = $article->formatPreferDate("{DAY_NUMBER} de {MONTH_NAME}, {YEAR}");
 
-            $relateds = ArticleMapper::allByCategory($article->category->id, true, $article->id, true, 1, 3);
+            $relateds = ArticleViewMapper::allByCategory($article->category->id, $article->lang, true, $article->id, true, 1, 3);
 
             $this->render('layout/header');
             $this->render('layout/menu');
@@ -208,6 +233,12 @@ class ArticleControllerPublic extends BaseController
                 "{$startRoute}[/]",
                 self::class . ":listView",
                 "{$namePrefix}-list",
+                'GET'
+            ),
+            new Route(
+                "{$startRoute}/by-category/{category}[/]",
+                self::class . ":listView",
+                "{$namePrefix}-list-by-category",
                 'GET'
             ),
             new Route(
