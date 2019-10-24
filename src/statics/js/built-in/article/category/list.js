@@ -11,6 +11,9 @@ window.addEventListener('load', function () {
 		onDraw: (item) => {//Debe devolver un HTMLElement o un $|JQuery
 			console.log(item)
 		},
+		onEmpty: (container) => {
+			container.html(`<h2>${_i18n('articles', 'No hay categorías.')}</h2>`)
+		},
 	})
 
 	categoryManager.loadItems()

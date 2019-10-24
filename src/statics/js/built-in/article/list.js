@@ -13,6 +13,9 @@ window.addEventListener('load', function () {
 			console.log(item.preferDate.date)
 			console.log(articleManager.processDate(item.preferDate.date))
 		},
+		onEmpty: (container) => {
+			container.html(`<h2>${_i18n('articles', 'No hay artículos.')}</h2>`)
+		},
 	})
 
 	articleManager.loadItems()

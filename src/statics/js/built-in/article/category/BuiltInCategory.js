@@ -7,6 +7,7 @@ function BuiltInCategory(options) {
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL
 	 * @property {function(Object):HTMLElement|$} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
+	 * @property {function(Object)} onEmpty Recibe el contenedor asignado
 	 * @property {Number} [page=1]
 	 * @property {Number} [perPage=5]
 	 * @property {String} [containerSelector=[built-in-categories-items-js]]
@@ -43,6 +44,10 @@ function BuiltInCategory(options) {
 	 * @property {function(Object):HTMLElement|$}  onDraw
 	 */
 	let onDraw
+	/**
+	 * @property {function(Object)}  onEmpty
+	 */
+	let onEmpty
 	/**
 	 * @property {$} container
 	 */
@@ -125,6 +130,13 @@ function BuiltInCategory(options) {
 			onDraw = createItem
 		}
 
+		if (typeof options.onDraw == 'function') {
+			onEmpty = options.onEmpty
+		} else {
+			onEmpty = function () {
+			}
+		}
+
 		//Asignación de valores
 
 		if (typeof requestURL == 'string') {
@@ -182,6 +194,10 @@ function BuiltInCategory(options) {
 
 				if (currentPage == totalPages || totalRecords == 0) {
 					loadMoreTrigger.remove()
+				}
+
+				if (totalRecords == 0) {
+					onEmpty(container)
 				}
 
 				for (let element of data) {
