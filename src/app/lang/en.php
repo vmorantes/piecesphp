@@ -265,10 +265,12 @@ $lang = [
 		'El idioma que intenta usar no existe.'                              => 'The language you are trying to use does not exist.',
 	],
     'articlesFrontEnd' => [
-        'Cargar más'            => 'Load more',
-        'Contenido'             => 'Content',
-        'Noticias relacionadas' => 'Related news',
-        'URL'                   => 'URL',
+        'Cargar más'               => 'Load more',
+        'Contenido'                => 'Content',
+        'Noticias relacionadas'    => 'Related news',
+        'URL'                      => 'URL',
+        'Listado de publicaciones' => 'List of publications',
+        'Listado de categorías'    => 'List of categories',
     ],
     'page404' => [
         '404 - Página no encontrada'                                     => '404 - Page not found',

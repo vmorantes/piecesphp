@@ -7,6 +7,7 @@
 namespace PiecesPHP\BuiltIn\Article\Controllers;
 
 use App\Model\AvatarModel;
+use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
@@ -81,6 +82,7 @@ class ArticleControllerPublic extends BaseController
 
         add_global_asset(base_url('statics/css/global.css'), 'css');
         add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');
+        add_global_asset(base_url(self::JS_FOLDER . '/category/BuiltInCategory.js'), 'js');
 
     }
 
@@ -108,7 +110,7 @@ class ArticleControllerPublic extends BaseController
             base_url(self::JS_FOLDER . '/list.js'),
         ], 'js');
 
-        set_title("Listado");
+        set_title(__('articlesFrontEnd', 'Listado de publicaciones'));
 
         if ($byCategory) {
 
@@ -138,6 +140,35 @@ class ArticleControllerPublic extends BaseController
 
             $this->render('layout/footer');
         }
+
+        return $res;
+    }
+
+    /**
+     * listCategoriesView
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $params
+     * @return Response
+     */
+    public function listCategoriesView(Request $req, Response $res, array $params)
+    {
+
+        set_custom_assets([
+            base_url(self::JS_FOLDER . '/category/list.js'),
+        ], 'js');
+
+        set_title(__('articlesFrontEnd', 'Listado de categorías'));
+
+        $this->render('layout/header');
+        $this->render('layout/menu');
+
+        $this->render(self::VIEWS_FOLDER . '/category/list', [
+            'ajaxURL' => CategoryController::routeName('ajax-all'),
+        ]);
+
+        $this->render('layout/footer');
 
         return $res;
     }
@@ -263,13 +294,19 @@ class ArticleControllerPublic extends BaseController
                 'GET'
             ),
             new Route(
+                "{$startRoute}/categories[/]",
+                self::class . ":listCategoriesView",
+                "{$namePrefix}-list-categories",
+                'GET'
+            ),
+            new Route(
                 "{$startRoute}/by-category/{category}[/]",
                 self::class . ":listView",
                 "{$namePrefix}-list-by-category",
                 'GET'
             ),
             new Route(
-                "{$startRoute}/{friendly_name}[/]",
+                "{$startRoute}/read/{friendly_name}[/]",
                 self::class . ":single",
                 "{$namePrefix}-single",
                 'GET'
