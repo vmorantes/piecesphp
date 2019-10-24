@@ -114,7 +114,7 @@ BlackboardNewsController::routes($sistema_tablero_noticias);
 ImporterController::routes($importadores);
 
 //Blog
-ArticleController::routes($articles);
+ArticleController::routes($zona_administrativa);
 ArticleControllerPublic::routes($articles);
 
 //Manejador de tokens

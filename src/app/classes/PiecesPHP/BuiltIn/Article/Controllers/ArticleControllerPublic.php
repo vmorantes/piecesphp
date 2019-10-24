@@ -80,8 +80,8 @@ class ArticleControllerPublic extends BaseController
         import_app_libraries();
 
         add_global_asset(base_url('statics/css/global.css'), 'css');
-		add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');
-		
+        add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');
+
     }
 
     /**
@@ -110,28 +110,34 @@ class ArticleControllerPublic extends BaseController
 
         set_title("Listado");
 
-        $this->render('layout/header');
-        $this->render('layout/menu');
-
         if ($byCategory) {
 
             if ($category !== null) {
 
+                $this->render('layout/header');
+                $this->render('layout/menu');
+
                 $this->render(self::VIEWS_FOLDER . '/list', [
                     'ajaxURL' => ArticleController::routeName('ajax-all-category', ['category' => $category]),
                 ]);
+
+                $this->render('layout/footer');
 
             } else {
                 throw new NotFoundException($req, $res);
             }
 
         } else {
+
+            $this->render('layout/header');
+            $this->render('layout/menu');
+
             $this->render(self::VIEWS_FOLDER . '/list', [
                 'ajaxURL' => ArticleController::routeName('ajax-all'),
             ]);
-        }
 
-        $this->render('layout/footer');
+            $this->render('layout/footer');
+        }
 
         return $res;
     }
@@ -149,7 +155,7 @@ class ArticleControllerPublic extends BaseController
         $friendly_name = $req->getAttribute('friendly_name');
 
         $article = ArticleViewMapper::getByFriendlyURL($friendly_name, true);
-        $article = $article->lang == get_config('app_lang') ? $article : null;
+        $article = $article !== null && $article->lang == get_config('app_lang') ? $article : null;
 
         if ($article !== null) {
 
