@@ -3,14 +3,16 @@
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-$currentLang = $lang;
+$currentLang = is_string($lang) ? $lang : get_config('app_lang');
 $allowedLangs = get_config('allowed_langs');
 $allowedLangsWithoutCurrent = array_filter($allowedLangs, function($e) use($currentLang){ 
 	return $e != $currentLang;
 });
 $allowedLangsWithoutCurrent = array_map(function($lang){ 
-	$link = ArticleController::routeName('forms-add-lang', ['lang' => $lang]);
-	return  "<small><a href='$link'>".__('lang', $lang)."</a></small>";
+	$link = ArticleController::routeName('forms-add-lang',[
+		'lang' => $lang,
+	]);
+	return  "<div class='item' data-value='$link'>".__('lang', $lang)."</div>";
 }, $allowedLangsWithoutCurrent);
 ?>
 
@@ -36,11 +38,16 @@ $allowedLangsWithoutCurrent = array_map(function($lang){
         <?php if(count($allowedLangsWithoutCurrent) > 0): ?>
 
         <div>
-
-            <small><?= __('articlesBackend', 'Cambiar idioma del artículo a'); ?>: </small>
-
-            <?= implode(', ', $allowedLangsWithoutCurrent); ?>
-
+            <div>
+                <small><?= __('articlesBackend', 'Cambiar idioma'); ?>:</small>
+            </div>
+            <div class="ui selection dropdown lang-selector">
+                <div class="text"><?= __('lang', $currentLang); ?></div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <?= implode(' ', $allowedLangsWithoutCurrent); ?>
+                </div>
+            </div>
         </div>
 
         <?php endif;?>

@@ -3,6 +3,16 @@ window.addEventListener('load', () => {
 	$('.ui.top.attached.tabular.menu .item').tab({
 		context: 'parent'
 	})
+	$('.ui.selection.dropdown.lang-selector').dropdown({
+		onChange: (value, text, item)=>{
+			try{
+				let url = new URL(value)
+				window.location = url
+			}catch(e){
+				console.warn(e)
+			}
+		}
+	})
 
 	let isEdit = false
 

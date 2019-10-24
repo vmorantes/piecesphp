@@ -260,7 +260,7 @@ $lang = [
         'Se ha creado la categoría, excepto: %s'                             => 'Se ha creado la categoría, excepto: %s',
         'Errores: %s'                                                        => '<br>Errores: <br><br> %s',
         'Se ha guardado la categoría, excepto: %s'                           => 'Se ha guardado la categoría, excepto: %s',
-        'Cambiar idioma del artículo a'                                      => 'Cambiar idioma del artículo a',
+        'Cambiar idioma'                                                     => 'Cambiar idioma',
         'El idioma que intenta usar no existe.'                              => 'El idioma que intenta usar no existe.',
     ],
     'articlesFrontEnd' => [
