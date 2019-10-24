@@ -2,6 +2,7 @@
 
 use App\Model\AppConfigModel;
 use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\SessionToken;
 
@@ -76,6 +77,25 @@ $app = new \Slim\App(get_config('slim_container'));
 //Acciones antes de mostrar una ruta
 $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
 
+    //──── Idiomas ───────────────────────────────────────────────────────────────────────────
+    $allowedLangs = Config::get_allowed_langs();
+    $currenLang = Config::get_lang();
+    $alternativesURL = [];
+
+    foreach ($allowedLangs as $lang) {
+
+        if ($currenLang != $lang) {
+
+            $alternativesURL[$lang] = get_lang_url($currenLang, $lang);
+
+        }
+
+    }
+
+    Config::set_config('alternatives_url', $alternativesURL);
+
+    //──── Validaciones de sesión y redirecciones ────────────────────────────────────────────
+
     $route = $request->getAttribute('route');
 
     if (empty($route)) {
@@ -137,9 +157,9 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
         if ($relative_url) {
             $admin_url = baseurl($admin_url);
-		}
-		
-		$admin_url = convert_lang_url($admin_url, get_config('default_lang'), get_config('app_lang'));
+        }
+
+        $admin_url = convert_lang_url($admin_url, get_config('default_lang'), get_config('app_lang'));
 
         //Verifica que esté logueado
         if ($isActiveSession) {

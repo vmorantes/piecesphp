@@ -1,4 +1,13 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+
+use PiecesPHP\Core\Config;
+
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+$alternativesURL = Config::get_config('alternatives_url');
+
+?>
+
 <!DOCTYPE html>
 <html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>">
 
@@ -16,3 +25,13 @@
 
 <body>
     <div class="global-layout">
+
+        <?php if(is_array($alternativesURL)):?>
+
+        <?php foreach($alternativesURL as $lang => $url): ?>
+
+        <a href="<?= $url; ?>"><?= __('lang',$lang); ?></a>
+
+        <?php endforeach;?>
+
+        <?php endif;?>

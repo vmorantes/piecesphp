@@ -10,6 +10,7 @@ use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\Config;
 
 /**
  * ArticleViewMapper.
@@ -283,6 +284,97 @@ class ArticleViewMapper extends BaseEntityMapper
      */
     public function update()
     {
+    }
+
+    /**
+     * getAlternatives
+     *
+     * @return \stdClass[]
+     */
+    public function getAlternatives()
+    {
+
+        $model = self::model();
+
+        $model->select([
+            'title',
+            'lang',
+            'friendly_url',
+        ])->where([
+            'id' => $this->id,
+            'sub_id' => [
+                '!=' => $this->sub_id,
+            ],
+        ])->orderBy("FIELD(lang, '" . implode("', '", Config::get_allowed_langs()) . "') ASC");
+
+        $model->execute();
+
+        return $model->result();
+
+    }
+
+    /**
+     * getURLAlternatives
+     *
+     * @param bool $onlyURLs
+     *
+     * @return string[]|\stdClass[]
+     */
+    public function getURLAlternatives(bool $onlyURLs = true)
+    {
+
+        $alternatives = $this->getAlternatives();
+        $currentLang = Config::get_lang();
+        $allowedLangs = Config::get_allowed_langs();
+        $urls = [];
+
+        foreach ($alternatives as $alt) {
+
+            if (in_array($alt->lang, $allowedLangs)) {
+
+                $url = ArticleControllerPublic::routeName('single', ['friendly_name' => $alt->friendly_url]);
+                $url = convert_lang_url($url, $currentLang, $alt->lang);
+
+                if ($onlyURLs) {
+
+                    $urls[$alt->lang] = $url;
+
+                } else {
+
+                    $obj = new \stdClass;
+                    $obj->title = $alt->title;
+                    $obj->url = $url;
+                    $urls[$alt->lang] = $obj;
+
+                }
+
+            }
+
+        }
+
+        return $urls;
+
+    }
+
+    /**
+     * getURLAlternativesAnchorTags
+     *
+     * @return string[]
+     */
+    public function getURLAlternativesAnchorTags()
+    {
+
+        $elements = $this->getURLAlternatives(false);
+        $anchors = [];
+
+        foreach ($elements as $lang => $data) {
+
+            $anchors[] = "<a href='{$data->url}' alt='{$data->title}'>" . __('lang', $lang) . "</a>";
+
+        }
+
+        return $anchors;
+
     }
 
     /**

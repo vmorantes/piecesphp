@@ -501,6 +501,15 @@ class Config
     }
 
     /**
+     * Obtiene los lenguajes permitidos
+     * @return string[]
+     */
+    public static function get_allowed_langs()
+    {
+        return self::$app_allowed_langs;
+    }
+
+    /**
      * Devuelve la ruta de directorio de la aplicación
      * @return string
      */
