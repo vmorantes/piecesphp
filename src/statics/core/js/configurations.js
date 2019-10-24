@@ -235,6 +235,8 @@ pcsphpGlobals.messages.es = {
 		"Ha ocurrido un error al cargar las categorías.": "Ha ocurrido un error al cargar las categorías.",
 		"Nombre": "Nombre",
 		"Descripción": "Descripción",
+		"No hay artículos.": "No hay artículos.",
+		"No hay categorías.": "No hay categorías.",
 	},
 	news: {
 		'Error': 'Error',
@@ -518,6 +520,8 @@ pcsphpGlobals.messages.en = {
 		"Ha ocurrido un error al cargar las categorías.": "An error occurred while loading the categories.",
 		"Nombre": "Name",
 		"Descripción": "Description",
+		"No hay artículos.": "There are no items.",
+		"No hay categorías.": "There are no categories.",
 	},
 	news: {
 		'Error': 'Error',
