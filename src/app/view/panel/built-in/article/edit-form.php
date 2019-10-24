@@ -23,7 +23,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
 		'id' => $element->id,
 		'lang' => $lang,
 	]);
-	return  "<small><a href='$link'>".__('lang', $lang)."</a></small>";
+	return  "<div class='item' data-value='$link'>".__('lang', $lang)."</div>";
 }, $allowedLangsWithoutCurrent);
 
 ?>
@@ -48,18 +48,23 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
         <?php if(count($allowedLangsWithoutCurrent) > 0): ?>
 
         <div>
-
-            <small><?= __('articlesBackend', 'Cambiar idioma del artículo a'); ?>: </small>
-
-            <?= implode(', ', $allowedLangsWithoutCurrent); ?>
-
+			<div>
+				<small><?= __('articlesBackend', 'Cambiar idioma'); ?>:</small>
+			</div>
+            <div class="ui selection dropdown lang-selector">
+				<div class="text"><?= __('lang', $currentLang); ?></div>
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <?= implode(' ', $allowedLangsWithoutCurrent); ?>
+                </div>
+            </div>
         </div>
 
         <?php endif;?>
 
         <input type="hidden" name="content_of" value="<?=$element->id;?>">
         <input type="hidden" name="id" value="<?= !is_null($subElement->id) ? $subElement->id : -1;?>">
-		<input type="hidden" name="lang" value="<?= $currentLang; ?>">
+        <input type="hidden" name="lang" value="<?= $currentLang; ?>">
 
         <div class="ui top attached tabular menu">
             <div class="item active" data-tab="content"><?= __('articlesBackend', 'Contenido'); ?></div>
