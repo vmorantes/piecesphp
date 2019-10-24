@@ -84,6 +84,14 @@ class ArticleControllerPublic extends BaseController
 		
     }
 
+    /**
+     * listView
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $params
+     * @return Response
+     */
     public function listView(Request $req, Response $res, array $params)
     {
 
@@ -128,6 +136,14 @@ class ArticleControllerPublic extends BaseController
         return $res;
     }
 
+    /**
+     * single
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $params
+     * @return Response
+     */
     public function single(Request $req, Response $res, array $params)
     {
         $friendly_name = $req->getAttribute('friendly_name');
