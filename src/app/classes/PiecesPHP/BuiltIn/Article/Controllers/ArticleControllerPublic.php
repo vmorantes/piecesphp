@@ -12,6 +12,7 @@ use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -79,7 +80,8 @@ class ArticleControllerPublic extends BaseController
         import_app_libraries();
 
         add_global_asset(base_url('statics/css/global.css'), 'css');
-        add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');
+		add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');
+		
     }
 
     public function listView(Request $req, Response $res, array $params)
@@ -131,6 +133,7 @@ class ArticleControllerPublic extends BaseController
         $friendly_name = $req->getAttribute('friendly_name');
 
         $article = ArticleViewMapper::getByFriendlyURL($friendly_name, true);
+        $article = $article->lang == get_config('app_lang') ? $article : null;
 
         if ($article !== null) {
 
@@ -150,6 +153,8 @@ class ArticleControllerPublic extends BaseController
             $date = $article->formatPreferDate("{DAY_NUMBER} de {MONTH_NAME}, {YEAR}");
 
             $relateds = ArticleViewMapper::allByCategory($article->category->id, $article->lang, true, $article->id, true, 1, 3);
+
+            Config::set_config('alternatives_url', $article->getURLAlternatives());
 
             $this->render('layout/header');
             $this->render('layout/menu');
