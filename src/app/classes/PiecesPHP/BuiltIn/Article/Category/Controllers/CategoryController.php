@@ -235,10 +235,10 @@ class CategoryController extends AdminPanelController
         if ($request->isXhr()) {
 
             $columns_order = [
-                'id',
+                'content_of',
                 'name',
                 'description',
-            ];
+			];
 
             $ids = CategoryContentMapper::getPreferedsIDs();
 
@@ -267,7 +267,7 @@ class CategoryController extends AdminPanelController
                     $mapper = new CategoryContentMapper($e->id);
 
                     return [
-                        $mapper->id,
+                        $mapper->content_of->id,
                         strlen($mapper->name) > 50 ? trim(mb_substr($mapper->name, 0, 50)) . '...' : $mapper->name,
                         strlen($mapper->description) > 50 ? trim(mb_substr($mapper->description, 0, 50)) . '...' : $mapper->description,
                         (string) $buttonEdit,
