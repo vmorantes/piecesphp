@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 23-10-2019 a las 15:38:05
+-- Tiempo de generación: 24-10-2019 a las 14:07:42
 -- Versión del servidor: 5.7.27-0ubuntu0.16.04.1
 -- Versión de PHP: 7.1.32-1+ubuntu16.04.1+deb.sury.org+1
 
@@ -157,10 +157,9 @@ CREATE TABLE `pcsphp_articles` (
   `id` int(11) NOT NULL,
   `author` bigint(20) NOT NULL,
   `category` int(11) NOT NULL,
-  `title` varchar(255) COLLATE utf8_bin NOT NULL,
-  `friendly_url` text COLLATE utf8_bin NOT NULL,
-  `content` longtext COLLATE utf8_bin NOT NULL,
-  `meta` longtext COLLATE utf8_bin,
+  `images` longtext COLLATE utf8_bin,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `visits` int(11) NOT NULL,
   `start_date` datetime DEFAULT NULL,
   `end_date` datetime DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -192,6 +191,24 @@ CREATE TABLE `pcsphp_articles_categories_content` (
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin,
   `friendly_url` text COLLATE utf8_bin NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pcsphp_articles_content`
+--
+
+DROP TABLE IF EXISTS `pcsphp_articles_content`;
+CREATE TABLE `pcsphp_articles_content` (
+  `id` int(11) NOT NULL,
+  `content_of` int(11) NOT NULL,
+  `lang` varchar(255) COLLATE utf8_bin NOT NULL,
+  `title` varchar(255) COLLATE utf8_bin NOT NULL,
+  `friendly_url` text COLLATE utf8_bin NOT NULL,
+  `content` longtext COLLATE utf8_bin NOT NULL,
+  `seo_description` text COLLATE utf8_bin,
+  `meta` longtext COLLATE utf8_bin
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -393,6 +410,13 @@ ALTER TABLE `pcsphp_articles_categories_content`
   ADD KEY `content_of` (`content_of`);
 
 --
+-- Indices de la tabla `pcsphp_articles_content`
+--
+ALTER TABLE `pcsphp_articles_content`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `content_of` (`content_of`);
+
+--
 -- Indices de la tabla `pcsphp_blackboard_news_messages`
 --
 ALTER TABLE `pcsphp_blackboard_news_messages`
@@ -507,6 +531,12 @@ ALTER TABLE `pcsphp_articles_categories_content`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `pcsphp_articles_content`
+--
+ALTER TABLE `pcsphp_articles_content`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `pcsphp_blackboard_news_messages`
 --
 ALTER TABLE `pcsphp_blackboard_news_messages`
@@ -602,6 +632,12 @@ ALTER TABLE `pcsphp_articles`
 --
 ALTER TABLE `pcsphp_articles_categories_content`
   ADD CONSTRAINT `pcsphp_articles_categories_content_ibfk_1` FOREIGN KEY (`content_of`) REFERENCES `pcsphp_articles_categories` (`id`);
+
+--
+-- Filtros para la tabla `pcsphp_articles_content`
+--
+ALTER TABLE `pcsphp_articles_content`
+  ADD CONSTRAINT `pcsphp_articles_content_ibfk_1` FOREIGN KEY (`content_of`) REFERENCES `pcsphp_articles` (`id`);
 
 --
 -- Filtros para la tabla `pcsphp_blackboard_news_messages`

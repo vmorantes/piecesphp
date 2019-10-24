@@ -158,7 +158,7 @@ function BuiltInArticle(options) {
 		date = instance.processDate(new Date(date))
 
 		itemHTML.append(`<div>${_i18n('articles', 'Título')}: ${data.title}</div>`)
-		itemHTML.append(`<div>${_i18n('articles', 'Miniatura')}: <img src="${data.meta.imageThumb}" style="max-width: 500px;"/></div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Miniatura')}: <img src="${data.images.imageThumb}" style="max-width: 500px;"/></div>`)
 		itemHTML.append(`<div>${_i18n('articles', 'Categoría')}: ${data.category.name}</div>`)
 		itemHTML.append(`<div>${_i18n('articles', 'Mes (número)')}: ${date.month}</div>`)
 		itemHTML.append(`<div>${_i18n('articles', 'Mes (texto)')}: ${date.monthName}</div>`)
@@ -166,7 +166,7 @@ function BuiltInArticle(options) {
 		itemHTML.append(`<div>${_i18n('articles', 'Día (texto)')}: ${date.dayName}</div>`)
 		itemHTML.append(`<div>${_i18n('articles', 'Año')}: ${date.year}</div>`)
 		itemHTML.append(`<div>${_i18n('articles', 'Autor')}: ${data.author.username}</div>`)
-		itemHTML.append(`<div>${_i18n('articles', 'Visitas')}: ${data.meta.visits}</div>`)
+		itemHTML.append(`<div>${_i18n('articles', 'Visitas')}: ${data.visits}</div>`)
 		itemHTML.append(`<div><a href="${data.link}">${_i18n('articles', 'URL')}</a></div>`)
 
 		return $(itemHTML)
@@ -200,7 +200,7 @@ function BuiltInArticle(options) {
 				let totalPages = res.pages
 				let totalRecords = res.total
 
-				if (currentPage == totalPages) {
+				if (currentPage == totalPages || totalRecords == 0) {
 					loadMoreTrigger.remove()
 				}
 
