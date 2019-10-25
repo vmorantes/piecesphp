@@ -912,7 +912,12 @@ class ArticleViewMapper extends BaseEntityMapper
      */
     public static function isDuplicate(string $title, string $friendlyURL, int $category, int $id, int $subID)
     {
-        $model = self::model();
+		$model = self::model();
+		
+		$title = \stripslashes($title);
+		$title = \addslashes($title);
+		$friendlyURL = \stripslashes($friendlyURL);
+		$friendlyURL = \addslashes($friendlyURL);
 
         $where = [
             "(
@@ -928,7 +933,7 @@ class ArticleViewMapper extends BaseEntityMapper
         ];
         $where = trim(implode(' ', $where));
 
-        $model->select()->where($where);
+		$model->select()->where($where);
 
         $model->execute();
 
