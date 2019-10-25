@@ -751,7 +751,13 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 				let lengthPagination = controls.find(`[type="number"][length-pagination]`)
 
 				//Ordenamiento				
-				columns.map((e, i) => selectionOrder.append(`<option value="${i}">${e.name}</option>`))
+				columns.map((e, i) => {
+					
+					if(e.orderable){
+						selectionOrder.append(`<option value="${i}">${e.name}</option>`)
+					}
+
+				})
 
 				selectionOrder.dropdown()
 				selectionOrderType.dropdown()
@@ -850,7 +856,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 	}
 
 	return null
-	
+
 }
 
 /**

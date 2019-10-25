@@ -23,52 +23,36 @@
             <div class="fields">
 
                 <div class="field">
-
-                    <div class="fields">
-
-                        <div class="field">
-                            <label><?= __('datatables', 'Buscador')?></label>
-                            <div class="ui transparent icon input">
-                                <input type="search" placeholder="<?= __('datatables', 'Buscar')?>">
-                                <i class="search icon"></i>
-                            </div>
-                        </div>
-
-                        <div class="field">
-                            <label><?= __('datatables', 'Resultados visibles')?></label>
-                            <input type="number" length-pagination placeholder="10">
-                        </div>
-
+                    <label><?= __('datatables', 'Buscador')?></label>
+                    <div class="ui transparent icon input">
+                        <input type="search" placeholder="<?= __('datatables', 'Buscar')?>">
+                        <i class="search icon"></i>
                     </div>
-
                 </div>
 
                 <div class="field">
+                    <label><?= __('datatables', 'Resultados visibles')?></label>
+                    <input type="number" length-pagination placeholder="10">
+                </div>
 
-                    <div class="fields">
+                <div class="field">
+                    <label><?= __('datatables', 'Ordenar por')?>:</label>
+                    <select class="ui dropdown" options-order></select>
+                </div>
 
-                        <div class="field">
-                            <label><?= __('datatables', 'Ordenar por')?>:</label>
-                            <select class="ui dropdown" options-order></select>
-                        </div>
-
-                        <div class="field">
-                            <label>&nbsp;</label>
-                            <select class="ui dropdown" options-order-type>
-                                <option selected value="ASC"><?= __('datatables', 'ASC')?></option>
-                                <option value="DESC"><?= __('datatables', 'DESC')?></option>
-                            </select>
-                        </div>
-
-                    </div>
-
+                <div class="field">
+                    <label>&nbsp;</label>
+                    <select class="ui dropdown" options-order-type>
+                        <option selected value="ASC"><?= __('datatables', 'ASC')?></option>
+                        <option value="DESC"><?= __('datatables', 'DESC')?></option>
+                    </select>
                 </div>
 
             </div>
 
         </div>
 
-        <table url="<?=$process_table;?>" style='width:100%;display:none;' class="ui table striped celled grey inverted">
+        <table url="<?=$process_table;?>" style='display:none;'>
             <thead>
                 <tr>
                     <th><?=__('articlesBackend', 'ID');?></th>
