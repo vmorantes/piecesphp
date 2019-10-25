@@ -42,7 +42,7 @@
 
             <div><strong><?=__('articlesBackend', 'Autor');?>:</strong> <?=  $mapper->author->username; ?></div>
             <div><strong><?=__('articlesBackend', 'Categoría');?>:</strong> <?=  $mapper->category->getName(); ?></div>
-			<div><strong><?=__('articlesBackend', 'Visitas');?>:</strong> <?=  $mapper->visits; ?></div>
+			<div><strong><?=__('articlesBackend', 'Visitas');?>:</strong> <?=  $mapper->visits > 0 ? $mapper->visits : '-'; ?></div>
 			
         </div>
 	</div>
