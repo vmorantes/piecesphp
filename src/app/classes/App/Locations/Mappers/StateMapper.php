@@ -148,6 +148,8 @@ class StateMapper extends BaseEntityMapper
     public static function isDuplicate(string $name, int $country_id, int $ignore_id)
     {
         $model = self::model();
+		$name = \stripslashes($name);
+		$name = \addslashes($name);
 
         $where = trim(implode(' ', [
             "name = '$name' AND ",

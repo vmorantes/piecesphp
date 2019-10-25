@@ -703,7 +703,7 @@ class DataTablesHelper
                                 $search_value = mb_strtoupper($search_value);
                             }
 
-                            $_having_string = '(UPPER({FIELD_NAME}) LIKE \'%{SEARCH_VALUE}%\')';
+                            $_having_string = '(UPPER({FIELD_NAME}) LIKE "%{SEARCH_VALUE}%")';
 
                             if (in_array($name, $ignore_table_on_fields) || !self::$tableOnSearch) {
                                 $_having_string = str_replace(
@@ -713,7 +713,7 @@ class DataTablesHelper
                                     ],
                                     [
                                         $name,
-                                        $search_value,
+                                        \addslashes($search_value),
                                     ],
                                     $_having_string
                                 );
@@ -725,7 +725,7 @@ class DataTablesHelper
                                     ],
                                     [
                                         $table . $name,
-                                        $search_value,
+                                        \addslashes($search_value),
                                     ],
                                     $_having_string
                                 );

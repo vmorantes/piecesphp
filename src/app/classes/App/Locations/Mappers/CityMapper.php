@@ -146,7 +146,9 @@ class CityMapper extends BaseEntityMapper
      */
     public static function isDuplicate(string $name, int $state_id, int $ignore_id)
     {
-        $model = self::model();
+		$model = self::model();
+		$name = \stripslashes($name);
+		$name = \addslashes($name);
 
         $where = trim(implode(' ', [
             "name = '$name' AND ",
