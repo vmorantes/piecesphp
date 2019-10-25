@@ -683,6 +683,177 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 }
 
 /**
+ * dataTablesServerProccesingOnCards
+ * @description Requiere datatables y jquery
+ * @param {String} containerSelector 
+ * @param {Number} perPage 
+ * @param {Object} options 
+ * @returns {Object}
+ */
+function dataTablesServerProccesingOnCards(containerSelector, perPage, options) {
+
+	containerSelector = typeof containerSelector == 'string' ? containerSelector : null
+	perPage = typeof perPage == 'number' ? perPage : 10
+	options = typeof options == 'object' ? options : {}
+
+	let container = containerSelector !== null ? $(containerSelector) : null
+
+	if (container !== null && container.length > 0) {
+
+		let nameLoader = 'PROCCESSING_dataTablesServerProccesingOnCards'
+		let table = container.find('table')
+		let cardsContainer, cards
+
+		showGenericLoader(nameLoader)
+
+		table.hide()
+
+		let processURL = table.attr('url')
+
+		let initComplete = typeof options.initComplete == 'function' ? options.initComplete : () => { }
+		let preDrawCallback = typeof options.preDrawCallback == 'function' ? options.preDrawCallback : () => { }
+		let drawCallback = typeof options.drawCallback == 'function' ? options.drawCallback : () => { }
+
+		let optionsDataTables = {
+			dom: `<"component-wrapper"t<"component-pagination"p>>`,
+			initComplete: function (settings, json) {
+
+				initComplete(settings, json)
+
+				let thisDataTable = table.DataTable()
+
+				let columns = []
+
+				for (let i in settings.aoColumns) {
+
+					let columnSettings = settings.aoColumns[i]
+					columns.push({
+						index: i,
+						name: columnSettings.name,
+						visible: columnSettings.bVisible,
+						orderable: columnSettings.orderable,
+						searchable: columnSettings.searchable,
+						htmlElement: columnSettings.nTh,
+					})
+
+				}
+
+				//Creación del contenedor de fichas y otras manipulaciones de html
+				let wrapper = container.find('.component-wrapper')
+
+				wrapper.prepend(`<br><div class="ui cards"></div><br><br>`)
+
+				//──── Controles ─────────────────────────────────────────────────────────────────────────
+				let controls = container.find('.component-controls')
+				let selectionOrder = controls.find('select[options-order]')
+				let selectionOrderType = controls.find('select[options-order-type]')
+				let search = controls.find(`[type="search"]`)
+				let lengthPagination = controls.find(`[type="number"][length-pagination]`)
+
+				//Ordenamiento				
+				columns.map((e, i) => selectionOrder.append(`<option value="${i}">${e.name}</option>`))
+
+				selectionOrder.dropdown()
+				selectionOrderType.dropdown()
+
+				let orderEvent = function () {
+
+					let orderColumn = columns[selectionOrder.val()]
+					let orderType = selectionOrderType.val()
+
+					orderType = typeof orderType == 'string' && orderType.trim().length > 0 ? orderType.trim() : 'asc'
+					orderType = orderType.toLowerCase()
+					orderType = orderType == 'asc' || orderType == 'desc' ? orderType : 'asc'
+
+					thisDataTable.column(orderColumn.index).order(orderType).draw()
+
+				}
+
+				selectionOrder.change(orderEvent)
+				selectionOrderType.change(orderEvent)
+
+				//Buscador
+				search.on('keyup', function () {
+					thisDataTable.search(search.val()).draw()
+				})
+
+				//Cantidad de elementos por página
+				lengthPagination.attr('min', 1)
+				lengthPagination.attr('step', 1)
+				lengthPagination.val(perPage)
+				lengthPagination.on('change', function () {
+					let length = lengthPagination.val()
+					length = parseInt(length)
+					length = !isNaN(length) ? length : perPage
+					length = length > 0 ? length : perPage
+					thisDataTable.page.len(length).draw()
+				})
+
+				thisDataTable.draw()
+
+				removeGenericLoader(nameLoader)
+
+			},
+			preDrawCallback: function (settings) {
+
+				preDrawCallback(settings)
+
+				cardsContainer = container.find('.ui.cards')
+				cards = cardsContainer.find('.card')
+
+				cardsContainer.html('')
+
+			},
+			drawCallback: function (settings) {
+
+				drawCallback(settings)
+
+				this.find('tbody').remove()
+
+				let json = settings.json
+				let rawData = json.rawData
+
+				for (let data of rawData) {
+					cardsContainer.append(data)
+				}
+
+				cards = cardsContainer.find('.card')
+
+				if (cards.length == 0) {
+					cardsContainer.html(`<h3>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
+				}
+
+			},
+		}
+
+		options.dom = optionsDataTables.dom
+		options.initComplete = optionsDataTables.initComplete
+		options.preDrawCallback = optionsDataTables.preDrawCallback
+		options.drawCallback = optionsDataTables.drawCallback
+
+		table = dataTableServerProccesing(table, processURL, perPage, options)
+
+		table.on('processing.dt', function (e, settings, proccesing) {
+			if (proccesing) {
+
+				if (!activeGenericLoader(nameLoader)) {
+					showGenericLoader(nameLoader)
+				}
+
+			} else {
+				removeGenericLoader(nameLoader)
+			}
+		})
+
+		return table
+
+	}
+
+	return null
+	
+}
+
+/**
  * genericFormHandler
  * 
  * Manejador genérico de formularios, requiere jquery
@@ -1122,6 +1293,7 @@ function showGenericLoader(name = 'DEFAULT') {
 			`
 		),
 		progress: Object.assign(NProgress, {}),
+		active: true,
 	}
 
 	window.uiPcsActivityGenericLoader[name].html.css({
@@ -1170,10 +1342,34 @@ function removeGenericLoader(name = 'DEFAULT') {
 				window.uiPcsActivityGenericLoader[name].progress.done()
 				if (window.uiPcsActivityGenericLoader[name].html instanceof $) {
 					window.uiPcsActivityGenericLoader[name].html.remove()
+					window.uiPcsActivityGenericLoader[name].active = false
 				}
 			}, 500)
 		}
 	}
+
+}
+
+/**
+ * activeGenericLoader
+ * 
+ * Verifica si está activo el loader
+ * 
+ * @returns {void} 
+ */
+function activeGenericLoader(name = 'DEFAULT') {
+
+	let active = false
+
+	if (typeof window.uiPcsActivityGenericLoader == 'object') {
+
+		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
+			active = window.uiPcsActivityGenericLoader[name].active == true
+		}
+
+	}
+
+	return active
 
 }
 

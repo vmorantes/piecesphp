@@ -16,7 +16,6 @@ use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
-use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -234,6 +233,10 @@ class ArticleController extends AdminPanelController
      */
     public function listView(Request $request, Response $response, array $args)
     {
+        set_custom_assets([
+            'statics/js/built-in/article/backend/list.js',
+        ], 'js');
+
         set_title(self::$pluralTitle);
 
         $process_table = self::routeName('datatables');
@@ -553,37 +556,42 @@ class ArticleController extends AdminPanelController
                 'mapper' => new ArticleViewMapper(),
                 'request' => $request,
                 'on_set_data' => function ($e) {
-
-                    $buttonEdit = new HtmlElement('a', __('articlesBackend', 'Editar'));
-                    $buttonEdit->setAttribute('class', "ui button green");
-
-                    $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
-                        'id' => $e->id,
-                    ]));
-
-                    if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
-                        $href = $buttonEdit->getAttributes(false)->offsetGet('href');
-                        if (strlen(trim($href->getValue())) < 1) {
-                            $buttonEdit = '';
-                        }
-                    }
-
-                    $mapper = new ArticleViewMapper($e->sub_id);
-
                     return [
-                        $mapper->id,
-                        strlen($mapper->title) > 50 ? trim(mb_substr($mapper->title, 0, 50)) . '...' : $mapper->title,
-                        $mapper->author->username,
-                        $mapper->category->getName(),
-                        !is_null($mapper->start_date) ? $mapper->start_date->format(__('formatsDate', 'd-m-Y h:i:s A')) : '-',
-                        !is_null($mapper->end_date) ? $mapper->end_date->format(__('formatsDate', 'd-m-Y h:i:s A')) : '-',
-                        $mapper->created->format(__('formatsDate', 'd-m-Y h:i:s A')),
-                        !is_null($mapper->updated) ? $mapper->updated->format(__('formatsDate', 'd-m-Y h:i:s A')) : __('articlesBackend', 'Nunca'),
-                        $mapper->visits,
-                        (string) $buttonEdit,
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
                     ];
                 },
             ]);
+
+            $rawData = $result->getValue('rawData');
+
+            foreach ($rawData as $index => $element) {
+
+                $mapper = new ArticleViewMapper($element->sub_id);
+
+                $rawData[$index] = $this->render(
+                    'panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/util/article-card',
+                    [
+                        'mapper' => $mapper,
+                        'editLink' => self::routeName('forms-edit', [
+                            'id' => $mapper->id,
+                        ]),
+                    ],
+                    false
+                );
+
+            }
+
+            $result->setValue('received', $request->getQueryParams());
+            $result->setValue('rawData', $rawData);
 
             return $response->withJson($result->getValues());
         } else {

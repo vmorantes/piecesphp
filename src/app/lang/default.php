@@ -262,6 +262,7 @@ $lang = [
         'Se ha guardado la categoría, excepto: %s'                           => 'Se ha guardado la categoría, excepto: %s',
         'Cambiar idioma'                                                     => 'Cambiar idioma',
         'El idioma que intenta usar no existe.'                              => 'El idioma que intenta usar no existe.',
+        'Fechas'                                                             => 'Fechas',
     ],
     'articlesFrontEnd' => [
         'Cargar más'               => 'Cargar más',
@@ -626,6 +627,14 @@ $lang = [
 		'Contraseña cambiada.'                              => 'Contraseña cambiada.',
 		'Recuperación de contraseña'                        => 'Recuperación de contraseña',
 		'Contraseña nueva'                                  => 'Contraseña nueva',
+	],
+	'datatables' => [
+		'Buscar'              => 'Buscar por...',
+		'Buscador'            => 'Buscador',
+		'Resultados visibles' => 'Resultados visibles',
+		'Ordenar por'         => 'Ordenar por',
+		'ASC'                 => 'ASC',
+		'DESC'                => 'DESC',
 	],
 ];
 
