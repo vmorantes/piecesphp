@@ -83,8 +83,23 @@ TRUNCATE TABLE `pcsphp_articles_categories`;
 -- Volcado de datos para la tabla `pcsphp_articles_categories`
 --
 
-INSERT INTO `pcsphp_articles_categories` (`id`, `name`, `description`, `friendly_url`) VALUES
-(1, 'General', '', 'general');
+INSERT INTO `pcsphp_articles_categories` (`id`) VALUES
+(1);
+--
+-- Truncar tablas antes de insertar `pcsphp_articles_categories_content`
+--
+
+TRUNCATE TABLE `pcsphp_articles_categories_content`;
+--
+-- Volcado de datos para la tabla `pcsphp_articles_categories_content`
+--
+
+INSERT INTO `pcsphp_articles_categories_content` (`id`, `content_of`, `lang`, `name`, `description`, `friendly_url`) VALUES
+(1, 1, 'es', 'General', '', 'general');
+INSERT INTO `pcsphp_articles_categories_content` (`id`, `content_of`, `lang`, `name`, `description`, `friendly_url`) VALUES
+(2, 1, 'en', 'General', '', 'general-1');
+INSERT INTO `pcsphp_articles_categories_content` (`id`, `content_of`, `lang`, `name`, `description`, `friendly_url`) VALUES
+(3, 1, 'fr', 'Général', '', 'general-2');
 
 --
 -- Truncar tablas antes de insertar `pcsphp_blackboard_news_messages`
