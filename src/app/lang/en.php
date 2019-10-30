@@ -110,6 +110,8 @@ $lang = [
 		'Guardar imagen'                     => 'Save image',
 		'Imagen guardada.'                   => 'Image saved',
 		'Información faltante o inesperada.' => 'Missing or unexpected information.',
+		'Sitemap'                            => 'Sitemap',
+		'Sitemap creado'                     => 'Sitemap created',
 	],
 	'avatarModule' => [
 		'Ha ocurrido un error desconocido, intente más tarde.' => 'An unknown error has occurred, try later.',
@@ -309,6 +311,8 @@ $lang = [
         "Nombre"                                         => "Name",
         "<script src='ejemplo.js'></script>"             => "<script src='sample.js'></script>",
         "https://api.dominio.com/"                       => "https://api.domain.com/",
+        'Generar sitemap'                                => 'Sitemap Generate',
+        'Generar'                                        => 'Generate',
     ],
     'customizationAdminZone' => [
         'Imágenes'                         => 'Images',

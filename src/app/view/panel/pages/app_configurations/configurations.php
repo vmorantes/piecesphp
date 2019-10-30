@@ -138,6 +138,21 @@ use App\Model\AppConfigModel;
 
         </form>
 
+        <br><br>
+
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-sitemap-create');?>" method="POST"
+            class="ui form">
+
+            <div class="field">
+                <label><?= __('configurationsAdminZone', 'Generar sitemap'); ?></label>
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Generar'); ?></button>
+            </div>
+
+        </form>
+
     </div>
 
     <div class="ui bottom attached tab segment" data-tab="email">

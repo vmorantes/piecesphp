@@ -8,10 +8,15 @@ namespace App\Controller;
 
 use App\Model\AppConfigModel;
 use App\Model\UsersModel;
+use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
+use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Sitemap\Sitemap;
+use PiecesPHP\Core\Sitemap\SitemapItem;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
@@ -516,6 +521,92 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * createSitemap
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function createSitemap(Request $req, Response $res, array $args)
+    {
+
+        $time = explode(" ", microtime());
+        $time = $time[1];
+
+        $result = new ResultOperations([], __('appConfig', 'Sitemap'), '', true);
+
+        $sitemap = new Sitemap(basepath('sitemap.xml'), true);
+
+        $sitemap->addItem(new SitemapItem(baseurl()));
+        $sitemap->addItem(new SitemapItem(ArticleControllerPublic::routeName('list')));
+
+        $routes = array_merge(
+            get_routes_by_controller(ArticleControllerPublic::class),
+            get_routes_by_controller(PublicAreaController::class)
+        );
+
+        foreach ($routes as $routeInfo) {
+
+            $url = get_route_sample($routeInfo['name']);
+
+            if (strpos($url, '{') === false) {
+
+                $sitemap->addItem(new SitemapItem($url));
+
+            }
+
+        }
+
+        $categories = CategoryContentMapper::all();
+        $articles = ArticleViewMapper::all();
+
+        foreach ($categories as $categorie) {
+
+            $url = ArticleControllerPublic::routeName('list-by-category', ['category' => $categorie->friendly_url]);
+
+            $sitemap->addItem(new SitemapItem($url));
+
+        }
+
+        foreach ($articles as $article) {
+            $url = ArticleControllerPublic::routeName('single', ['friendly_name' => $article->friendly_url]);
+            $date = !is_null($article->updated) ? $article->updated : $article->created;
+            $date = new \DateTime($date);
+            $sitemap->addItem(new SitemapItem($url, $date, SitemapItem::FREQ_WEEK));
+        }
+
+        try {
+
+            $sitemap->save();
+
+            $result->setMessage(__('appConfig', 'Sitemap creado'));
+
+            $result->setValue('Rendimiento', [
+                'Memory peak usage' => number_format(memory_get_peak_usage() / (1024 * 1024), 2) . "MB",
+                'Execution time' => number_format(explode(" ", microtime())[0] - $time) . "s",
+                'urls' => $sitemap->getLocations(),
+            ]);
+
+            $result->setSuccessOnSingleOperation(true);
+
+        } catch (\Exception $e) {
+
+            $result->setMessage($e->getMessage());
+
+            $result->setValue('exception', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'code' => $e->getCode(),
+            ]);
+
+        }
+
+        return $res->withJson($result);
+    }
+
+    /**
      * processGenericInputValues
      *
      * @param mixed $input
@@ -845,6 +936,20 @@ class AppConfigController extends AdminPanelController
                 "{$startRoute}images/config/generic[/]",
                 $classname . ':actionGeneric',
                 'configurations-generals-generic-action',
+                'POST',
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
+                    UsersModel::TYPE_USER_ADMIN,
+                ]
+            ),
+
+            //Generar sitemap
+            new Route(
+                "{$startRoute}sitemap/create[/]",
+                $classname . ':createSitemap',
+                'configurations-generals-sitemap-create',
                 'POST',
                 true,
                 null,

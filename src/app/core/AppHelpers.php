@@ -260,7 +260,7 @@ function appbase()
  * @param string $type Índice del tipo de mensaje
  * @param string $message Índice del mensaje en el tipo dado
  * @param boolean $echo Si es true hace echo, si no solo retorna el mensaje
- * @return mixed
+ * @return string|void
  * Si $echo es true retorna el string y hace un echo de este.
  * Si $echo es false retorna un string correspondiente al mensaje.
  * Si $message es '' devuelve el array completo de mensajes en $type
