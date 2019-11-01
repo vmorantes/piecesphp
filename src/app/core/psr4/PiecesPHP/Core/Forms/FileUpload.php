@@ -23,6 +23,12 @@ class FileUpload
      */
     protected $validator;
     /**
+     * $quantity
+     *
+     * @var int
+     */
+    protected $quantity = 0;
+    /**
      * $fileInformation
      *
      * @var array
@@ -116,6 +122,8 @@ class FileUpload
                                 'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
                                 'error' => self::NOT_UPLOAD_FAKE_ERROR,
                             ];
+                        } else {
+                            $this->quantity++;
                         }
 
                         $this->fileInformation[] = $file;
@@ -153,6 +161,10 @@ class FileUpload
                             'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
                             'error' => self::NOT_UPLOAD_FAKE_ERROR,
                         ];
+                    } else {
+
+                        $this->quantity++;
+
                     }
 
                     $this->fileInformation = $files[$name];
@@ -266,6 +278,18 @@ class FileUpload
         }
 
         return $valid;
+    }
+
+    /**
+     * getQuantity
+     *
+     * @return int
+     */
+    public function getQuantity()
+    {
+
+        return $this->quantity;
+
     }
 
     /**
