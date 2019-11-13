@@ -660,7 +660,7 @@ class UsersController extends AdminPanelController
                                 (int) $user->id,
                                 $user->username,
                                 false,
-                                $resultOperation->getMessage(),
+                                $resultOperation->getValue('message'),
                                 $extraDataLog
                             );
 
@@ -693,7 +693,7 @@ class UsersController extends AdminPanelController
                             null,
                             $username,
                             false,
-                            $resultOperation->getMessage(),
+                            $resultOperation->getValue('message'),
                             $extraDataLog
                         );
 
@@ -707,7 +707,7 @@ class UsersController extends AdminPanelController
                         null,
                         $username,
                         false,
-                        $resultOperation->getMessage(),
+                        $resultOperation->getValue('message'),
                         $extraDataLog
                     );
 
