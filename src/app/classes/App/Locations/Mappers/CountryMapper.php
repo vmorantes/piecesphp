@@ -7,6 +7,7 @@
 namespace App\Locations\Mappers;
 
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\BaseModel;
 
 /**
  * CountryMapper.
@@ -64,6 +65,41 @@ class CountryMapper extends BaseEntityMapper
     public function __construct(int $value = null, string $field_compare = 'id')
     {
         parent::__construct($value, $field_compare);
+    }
+
+    /**
+     * isDuplicate
+     *
+     * @param string $name
+     * @param int $ignore_id
+     * @return bool
+     */
+    public static function isDuplicate(string $name, int $ignore_id)
+    {
+        $model = self::model();
+        $name = \stripslashes($name);
+        $name = \addslashes($name);
+
+        $where = trim(implode(' ', [
+            "name = '$name' AND ",
+            "id != $ignore_id",
+        ]));
+
+        $model->select()->where($where)->execute();
+
+        $result = $model->result();
+
+        return count($result) > 0;
+    }
+
+    /**
+     * model
+     *
+     * @return BaseModel
+     */
+    public static function model()
+    {
+        return (new static )->getModel();
     }
 
 }

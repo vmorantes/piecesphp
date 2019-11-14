@@ -264,6 +264,7 @@ class City extends AdminPanelController
                     return [
                         $e->id,
                         $e->name,
+                        $e_mapper->state->country->name,
                         $e_mapper->state->name,
                         __('locationBackend', CityMapper::STATUS[$e->active]),
                         (string) $buttonEdit,

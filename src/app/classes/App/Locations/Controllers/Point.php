@@ -265,6 +265,7 @@ class Point extends AdminPanelController
                     return [
                         $e->id,
                         $e->name,
+                        $e_mapper->city->state->country->name,
                         $e_mapper->city->state->name,
                         $e_mapper->city->name,
                         $e_mapper->address,
