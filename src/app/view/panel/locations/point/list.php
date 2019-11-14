@@ -23,6 +23,7 @@
             <tr>
                 <th name='id' order='true' search='true'><?= __('locationBackend', 'ID'); ?></th>
                 <th name='name' order='true' search='true'><?= __('locationBackend', 'Nombre'); ?></th>
+                <th name='country' order='true' search='true'><?= __('locationBackend', 'País'); ?></th>
                 <th name='state' order='true' search='true'><?= __('locationBackend', 'Departamento'); ?></th>
                 <th name='city' order='true' search='true'><?= __('locationBackend', 'Ciudad'); ?></th>
                 <th name='address' order='true' search='true'><?= __('locationBackend', 'Dirección'); ?></th>

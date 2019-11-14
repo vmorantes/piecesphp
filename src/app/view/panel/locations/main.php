@@ -4,6 +4,19 @@ use PiecesPHP\Core\Roles;
 $type_user = (int) get_config('current_user')->type;
 $elements = [
     [
+        'title' => __('locationBackend', 'Países'),
+        'description' => __('locationBackend', 'Listado de los países'),
+		'image'=> base_url('statics/images/cards/countries.jpg'),
+        'route_list' => 'locations-countries-list',
+        'route_add' => 'locations-countries-forms-add',
+        'has_list_permission' => function ($stdClass) use ($type_user) {
+            return Roles::hasPermissions($stdClass->route_list, $type_user);
+        },
+        'has_add_permission' => function ($stdClass) use ($type_user) {
+            return Roles::hasPermissions($stdClass->route_add, $type_user);
+        },
+    ],
+    [
         'title' => __('locationBackend', 'Departamentos'),
         'description' => __('locationBackend', 'Listado de los departamentos'),
 		'image'=> base_url('statics/images/cards/states.jpg'),

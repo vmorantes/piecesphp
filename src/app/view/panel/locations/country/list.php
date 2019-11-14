@@ -23,7 +23,6 @@
             <tr>
                 <th><?= __('locationBackend', 'ID'); ?></th>
                 <th><?= __('locationBackend', 'Nombre'); ?></th>
-                <th><?= __('locationBackend', 'País'); ?></th>
                 <th><?= __('locationBackend', 'Activo/Inactivo'); ?></th>
                 <th order='false'><?= __('locationBackend', 'Acciones'); ?></th>
             </tr>

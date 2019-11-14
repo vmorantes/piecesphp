@@ -236,6 +236,7 @@ class State extends AdminPanelController
             $columns_order = [
                 'id',
                 'name',
+                'country',
                 'active',
             ];
 
@@ -258,15 +259,18 @@ class State extends AdminPanelController
                         }
                     }
 
+                    $mapper = new StateMapper($e->id);
+
                     return [
                         $e->id,
                         $e->name,
+                        $mapper->country->name,
                         __('locationBackend', StateMapper::STATUS[$e->active]),
                         (string) $buttonEdit,
                     ];
 
                 },
-                'where' => is_null($country) ? null : "country = $country",
+                'where_string' => is_null($country) ? null : "country = $country",
             ]);
 
             return $response->withJson($result->getValues());

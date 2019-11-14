@@ -45,8 +45,8 @@ class Locations extends AdminPanelController
      */
     public function __construct()
     {
-		self::$title = __('locationBackend', self::$title);
-		
+        self::$title = __('locationBackend', self::$title);
+
         parent::__construct(false); //No cargar ningún modelo automáticamente.
         set_title(self::$title);
     }
@@ -66,7 +66,7 @@ class Locations extends AdminPanelController
      */
     public static function routes(RouteGroup $group)
     {
-		$group->active(LOCATIONS_ENABLED);
+        $group->active(LOCATIONS_ENABLED);
 
         $routes = [];
 
@@ -75,14 +75,14 @@ class Locations extends AdminPanelController
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
 
-        $permisos_estados_gestion = [
+        $permisos_gestion = [
             UsersModel::TYPE_USER_ROOT,
-		];
-		
-		$permisos_listado = [
+        ];
+
+        $permisos_listado = [
             UsersModel::TYPE_USER_ADMIN,
             UsersModel::TYPE_USER_ROOT,
-		];
+        ];
 
         //General
         $routes[] = new Route("[$startRoute]", static::class . ':indexView', self::$prefixEntity, 'GET', true, null, $permisos_listado);
@@ -91,46 +91,34 @@ class Locations extends AdminPanelController
 
         //Country
         $group->register(
-            self::countryRoutes($startRoute, self::$prefixEntity, Country::class, 'countries', $permisos_estados_gestion)
+            self::genericManageRoutes($startRoute, self::$prefixEntity, Country::class, 'countries', [
+                'edit' => $permisos_gestion,
+                'list' => $permisos_listado,
+            ])
         );
         //State
         $group->register(
-            self::genericManageRoutes($startRoute, self::$prefixEntity, State::class, 'states', $permisos_estados_gestion)
+            self::genericManageRoutes($startRoute, self::$prefixEntity, State::class, 'states', [
+                'edit' => $permisos_gestion,
+                'list' => $permisos_listado,
+            ])
         );
         //City
         $group->register(
-            self::genericManageRoutes($startRoute, self::$prefixEntity, City::class, 'cities', $permisos_estados_gestion)
+            self::genericManageRoutes($startRoute, self::$prefixEntity, City::class, 'cities', [
+                'edit' => $permisos_gestion,
+                'list' => $permisos_listado,
+            ])
         );
         //Point
         $group->register(
-            self::genericManageRoutes($startRoute, self::$prefixEntity, Point::class, 'points', $permisos_estados_gestion)
+            self::genericManageRoutes($startRoute, self::$prefixEntity, Point::class, 'points', [
+                'edit' => $permisos_gestion,
+                'list' => $permisos_listado,
+            ])
         );
 
         return $group;
-    }
-
-    /**
-     * countryRoutes
-     *
-     * @param string $startRoute
-     * @param string $namePrefix
-     * @param string $handler
-     * @param string $uriPrefix
-     * @param array $rolesAllowed
-     * @return Route[]
-     */
-    protected static function countryRoutes(string $startRoute, string $namePrefix, string $handler, string $uriPrefix, array $rolesAllowed = [])
-    {
-        $namePrefix .= '-' . $uriPrefix;
-        $startRoute .= $uriPrefix;
-        return [
-            new Route(
-                "{$startRoute}[/]",
-                "{$handler}:{$uriPrefix}",
-                "{$namePrefix}-ajax-all",
-                'GET'
-            ),
-        ];
     }
 
     /**
@@ -148,6 +136,9 @@ class Locations extends AdminPanelController
         $namePrefix .= '-' . $uriPrefix;
         $startRoute .= $uriPrefix;
 
+        $editPermissions = $rolesAllowed['edit'];
+        $listPermissions = $rolesAllowed['list'];
+
         return [
             new Route(
                 "{$startRoute}[/]",
@@ -159,13 +150,19 @@ class Locations extends AdminPanelController
                 "{$startRoute}/datatables[/]",
                 "{$handler}:{$uriPrefix}DataTables",
                 "{$namePrefix}-datatables",
-                'GET'
+                'GET',
+                true,
+                null,
+                $listPermissions
             ),
             new Route(
                 "{$startRoute}/list[/]",
                 "{$handler}:list",
                 "{$namePrefix}-list",
-                'GET'
+                'GET',
+                true,
+                null,
+                $listPermissions
             ),
             new Route(
                 "{$startRoute}/forms/add[/]",
@@ -174,7 +171,7 @@ class Locations extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $rolesAllowed
+                $editPermissions
             ),
             new Route(
                 "{$startRoute}/action/add[/]",
@@ -183,7 +180,7 @@ class Locations extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $rolesAllowed
+                $editPermissions
             ),
             new Route(
                 "{$startRoute}/forms/edit/{id}[/]",
@@ -192,7 +189,7 @@ class Locations extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $rolesAllowed
+                $editPermissions
             ),
             new Route(
                 "{$startRoute}/action/edit[/]",
@@ -201,7 +198,7 @@ class Locations extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $rolesAllowed
+                $editPermissions
             ),
         ];
     }
