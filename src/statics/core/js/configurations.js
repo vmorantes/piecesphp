@@ -283,7 +283,8 @@ pcsphpGlobals.messages.es = {
 		'Seleccione una opción': 'Seleccione una opción',
 		'Atención': 'Atención',
 		'No hay departamentos registrados.': 'No hay departamentos registrados.',
-		'No hay ciudades registradas en %r.': 'No hay ciudades registradas en %r.',
+		'No hay ciudades registradas en el/los departamento(s) seleccionado(s).': 'No hay ciudades registradas en el/los departamento(s) seleccionado(s).',
+		'No hay locaciones registradas en la(s) ciudad(es) seleccionada(s).': 'No hay locaciones registradas en la(s) ciudad(es) seleccionada(s).',
 		'Información': 'Información',
 		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.',
 		'La ubicación "%r" no se encontró en el mapa.': 'La ubicación "%r" no se encontró en el mapa.',
@@ -568,7 +569,8 @@ pcsphpGlobals.messages.en = {
 		'Seleccione una opción': 'Select an option',
 		'Atención': 'Attention',
 		'No hay departamentos registrados.': 'There are no registered departments.',
-		'No hay ciudades registradas en %r.': 'There are no cities registered in %r.',
+		'No hay ciudades registradas en el/los departamento(s) seleccionado(s).': 'There are no cities registered in the selected state/states.',
+		'No hay locaciones registradas en la(s) ciudad(es) seleccionada(s).': 'There are no localities registered in the selected city(ies).',
 		'Información': 'Information',
 		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'The location "%r" was not found on the map, an approximate position will be used.',
 		'La ubicación "%r" no se encontró en el mapa.': 'The location "%r" was not found on the map.',
@@ -737,8 +739,31 @@ function configCalendars() {
 		}
 
 		for (let grupo of grupos) {
+
 			let start = $($(`[calendar-group-js='${grupo}'][start]`)[0])
 			let end = $($(`[calendar-group-js='${grupo}'][end]`)[0])
+
+			let minDate = start.attr('min')
+			minDate = typeof minDate == 'string' && minDate.trim().length > 0 ? minDate.trim() : null
+			try {
+				minDate = minDate !== null ? new Date(minDate) : null
+				if (!(minDate instanceof Date && !isNaN(minDate))) {
+					minDate = null
+				}
+			} catch (error) {
+				minDate = null
+			}
+
+			let maxDate = start.attr('max')
+			maxDate = typeof maxDate == 'string' && maxDate.trim().length > 0 ? maxDate.trim() : null
+			try {
+				maxDate = maxDate !== null ? new Date(maxDate) : null
+				if (!(maxDate instanceof Date && !isNaN(maxDate))) {
+					maxDate = null
+				}
+			} catch (error) {
+				maxDate = null
+			}
 
 			let startType = start.attr('calendar-type')
 			startType = typeof startType == 'string' && startType.trim().length > 0 ? startType.trim() : 'datetime'
@@ -752,7 +777,10 @@ function configCalendars() {
 			let optEnd = Object.assign({}, pcsphpGlobals.configCalendar)
 
 			optStart.type = startType
+			optStart.minDate = minDate
+			optStart.maxDate = maxDate
 			optEnd.type = endType
+			optEnd.maxDate = maxDate
 
 			optStart.endCalendar = end
 			optEnd.startCalendar = start
