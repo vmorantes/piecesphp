@@ -83,7 +83,7 @@ function Locations() {
 
 			if (firstOption.length > 0) {
 				firstOption = firstOption.get(0).outerHTML
-			} else if (countries.length > 1) {
+			} else if (countries.length > 0) {
 				firstOption = `<option value="">${_i18n('location', 'Seleccione una opción')}</option>`
 			} else {
 				firstOption = null
@@ -123,6 +123,8 @@ function Locations() {
 			function eventHandler(e) {
 
 				let value = $(e.target).val()
+				value = typeof value == 'string' ? value : ''
+
 				if (value.trim().length > 0) {
 					if (!instance.fillSelectWithStates(value)) {
 						infoMessage(_i18n('location', 'Atención'), _i18n('location', 'No hay departamentos registrados.'))
@@ -176,7 +178,7 @@ function Locations() {
 
 			if (firstOption.length > 0) {
 				firstOption = firstOption.get(0).outerHTML
-			} else if (states.length > 1) {
+			} else if (states.length > 0) {
 				firstOption = `<option value="">${_i18n('location', 'Seleccione una opción')}</option>`
 			} else {
 				firstOption = null
@@ -355,7 +357,7 @@ function Locations() {
 
 			if (firstOption.length > 0) {
 				firstOption = firstOption.get(0).outerHTML
-			} else if (cities.length > 1) {
+			} else if (cities.length > 0) {
 				firstOption = `<option value="">${_i18n('location', 'Seleccione una opción')}</option>`
 			} else {
 				firstOption = null
@@ -536,7 +538,7 @@ function Locations() {
 
 			if (firstOption.length > 0) {
 				firstOption = firstOption.get(0).outerHTML
-			} else if (points.length > 1) {
+			} else if (points.length > 0) {
 				firstOption = `<option value="">${_i18n('location', 'Seleccione una opción')}</option>`
 			} else {
 				firstOption = null
