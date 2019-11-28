@@ -1,13 +1,16 @@
-#Preparación del entorno del servidor:
+# Preparación del entorno del servidor:
 
-###Nota:
+### Nota:
 - Esta guia proporciona los pasos para un entorno con las siguientes características:
     - Debian 9
-    - VestaCP
+    - VestaCP/HestiaCP
     - PHP 7.1
     - MariaDB 10.3
 
-##Intalación de VestaCP
+## Intalación de VestaCP/HestiaCP
+
+### VestaCP
+
 - Instalar curl:
 sudo apt install curl
 
@@ -16,13 +19,22 @@ curl -O http://vestacp.com/pub/vst-install.sh
 
 - Instalar VestaCP:
 
-bash vst-install.sh --nginx yes --apache yes --phpfpm no --named yes --remi yes --vsftpd yes --proftpd no --iptables yes --fail2ban yes --quota no --exim yes --dovecot no --spamassassin no --clamav no --softaculous no --mysql yes --postgresql no --hostname {{DOMINIO}} --email {{EMAIL}} --password {{CONTRASEÑA}}
+bash vst-install.sh --nginx yes --apache yes --phpfpm no --named yes --remi yes --vsftpd yes --proftpd no --iptables yes --fail2ban yes --quota no --exim yes --dovecot no --spamassassin no --clamav no --softaculous no --mysql no --postgresql no --hostname {{DOMINIO}} --email {{EMAIL}} --password {{CONTRASEÑA}}
 
-###Nota:
+### HestiaCP
+
+- Descargar HestiaCP:
+wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh
+
+- Instalar HestiaCP:
+
+bash hst-install.sh --nginx yes --apache yes --multiphp yes --named yes --vsftpd yes --iptables yes --fail2ban yes --exim no --dovecot no --spamassassin no --clamav no --mysql no --lang es --hostname DOMINIO --email EMAIL --password CONTRASEÑA
+
+### Nota:
 - Algunas veces phpMyAdmin muestra varios errores por lo que es recomendable ejecutar la siguiente instrucción
 curl -O -k https://raw.githubusercontent.com/skurudo/phpmyadmin-fixer/master/pma.sh && chmod +x pma.sh && ./pma.sh
 
-##Intalación de PHP 7.1
+## Intalación de PHP 7.1
 
 - Actualizar repositorios:
 sudo apt install apt-transport-https lsb-release ca-certificates
@@ -45,7 +57,7 @@ sudo service apache2 restart
 - Cambiar alternativa de php en consola (opcional si no ocurrió automáticamente):
 update-alternatives --config php
 
-###Instalar extensiones PHP 
+### Instalar extensiones PHP 
 - Notas: 
     - La extensión mcrypt debe instalarse como extensión PECL luego de php 7.1.*
     - Al finalizar se debe reiniciar apache
@@ -60,15 +72,15 @@ sudo apt-get -y install gcc make autoconf libc-dev pkg-config
 sudo apt-get -y install php7.2-dev
 sudo apt-get -y install libmcrypt-dev
 
-##Configuración de MariaDB
+## Configuración de MariaDB
 
-###Instalar MariaDB 10.3:
+### Instalar MariaDB 10.3:
 - Actualizar repositorios:
 sudo apt-get install software-properties-common dirmngr
 sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xF1656F24C74CD1D8
 sudo add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://mirror.upb.edu.co/mariadb/repo/10.3/debian stretch main'
 sudo apt-get update
-- Remover versiones anteriores:
+- Remover versiones anteriores (solo si la opción mysql en Vesta/Hestia estaba en yes):
     - Notas:
         - Por prevención se intenta remover mysql también.
         - MariaDB preguntará si se borrarán o no las bases de datos (seleccione que no se borren preferiblemente).
@@ -93,7 +105,7 @@ kill -9 $(pgrep mysql)
 /etc/init.d/mysql start
 
 
-###Crear un usuario:
+### Crear un usuario:
 - Conectarse a la consola mysql:
 mysql
 - Crear usuario:
@@ -103,15 +115,15 @@ GRANT ALL PRIVILEGES ON *.* TO 'USUARIO'@'localhost';
 - Refrescar privilegios:
 FLUSH PRIVILEGES;
 
-##Instalar Composer (globalmente):
+## Instalar Composer (globalmente):
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-php -r "if (hash_file('sha384', 'composer-setup.php') === '48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+php -r "if (hash_file('sha384', 'composer-setup.php') === 'a5c698ffe4b8e849a443b120cd5ba38043260d5c4023dbf93e1558871f1f07f58274fc6f4c93bcfd858c6bd0775cd8d1') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
 php composer-setup.php
 php -r "unlink('composer-setup.php');"
 mv composer.phar /usr/local/bin/composer
 
 
-##Proteger phpmyadmin
+## Proteger phpmyadmin
 
 - Permitir el uso de .htaccess:
 nano /etc/apache2/conf.d/phpmyadmin.conf
