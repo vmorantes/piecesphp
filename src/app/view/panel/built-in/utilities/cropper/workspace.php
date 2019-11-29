@@ -58,6 +58,8 @@ $referenceH = !is_int($referenceH) ? 1080 : $referenceH;
                 <label><?= __('cropper', 'Título de la imagen'); ?></label>
                 <input type="text" cropper-title-export>
             </div>
+			<?php else:?>
+				<input type="hidden" cropper-title-export>
             <?php endif;?>
 
             <div class="field">

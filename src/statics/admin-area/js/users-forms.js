@@ -1,7 +1,25 @@
 $(document).ready(function (e) {
 
 	configAvatar()
-	$('.menu .item').tab()
+	configProfilePhoto()
+
+	$('.user-form-component .menu .item').tab({
+		context: $('.user-form-component')
+	})
+
+	$('.user-form-component #context-sub-tabs .menu .item').tab({
+		context: 'parent'
+	})
+
+	let cropperAdapter = new CropperAdapterComponent({
+		containerSelector: '.ui.form.cropper-adapter',
+		outputWidth: 300,
+		minWidth: 300,
+		cropperOptions: {
+			aspectRatio: 1 / 1,
+			viewMode: 3,
+		},
+	})
 
 	genericFormHandler('form.users.create.root')
 	genericFormHandler('form.users.create.admin')
@@ -62,16 +80,16 @@ $(document).ready(function (e) {
 					displayMode: 'once',
 					id: 'question',
 					zindex: 999,
-					title: 'Confirmación',
-					message: '¿Seguro de guardar el avatar?',
+					title: _i18n('avatar', 'Confirmación'),
+					message: _i18n('avatar', '¿Seguro de guardar el avatar?'),
 					position: 'center',
 					buttons: [
-						['<button>Sí</button>', function (instance, toast) {
+						['<button>' + _i18n('avatar', 'Sí') + '</button>', function (instance, toast) {
 
 							let overlay = $(document.createElement('div'))
 							let overlayID = 'overlay-avatar-upload'
 							overlay.attr('id', overlayID)
-							overlay.html(`<div class="ui text active inverted loader">Cargando...</div>`)
+							overlay.html(`<div class="ui text active inverted loader">${_i18n('avatar', 'Cargando...')}</div>`)
 
 							overlay.css({
 								position: 'absolute',
@@ -114,7 +132,7 @@ $(document).ready(function (e) {
 							instance.hide({}, toast)
 
 						}, true],
-						['<button>No</button>', function (instance, toast) {
+						['<button>' + _i18n('avatar', 'No') + '</button>', function (instance, toast) {
 							instance.hide({}, toast)
 						}],
 					],
@@ -128,6 +146,92 @@ $(document).ready(function (e) {
 			requestSources.fail(function (res) {
 				console.error(res)
 			})
+		}
+	}
+
+	function configProfilePhoto() {
+
+		let formSelector = '.profile-photo-form'
+		let form = $(formSelector)
+		let formExists = form.length > 0
+
+		if (formExists) {
+
+			form.on('submit', function (e) {
+
+				e.preventDefault()
+
+				let user = form.find(`[name="user"]`).val()
+				let isEdit = form.find(`[name="edit"]`).val() == '1'
+				let saveRoute = form.attr('action')
+
+				iziToast.question({
+					timeout: false,
+					close: false,
+					overlay: true,
+					displayMode: 'once',
+					id: 'question',
+					zindex: 999,
+					title: _i18n('avatar', 'Confirmación'),
+					message: _i18n('avatar', '¿Seguro de guardar la foto de perfil?'),
+					position: 'center',
+					buttons: [
+						['<button>' + _i18n('avatar', 'Sí') + '</button>', function (instance, toast) {
+
+							showGenericLoader('CARGA_FOTO_PERFIL')
+
+							let formData = new FormData()
+
+							formData.set('user_id', user)
+
+							if (isEdit) {
+
+								formData.set('image', cropperAdapter.getFile('avatar.png', null, null, null, true))
+
+							} else {
+
+								formData.set('image', cropperAdapter.getFile('avatar.png'))
+
+							}
+
+							let requestUploadAvatar = postRequest(saveRoute, formData)
+
+							requestUploadAvatar.done(function (res) {
+
+								if (res.success) {
+
+									window.location.reload()
+
+								} else {
+
+									errorMessage('Error', res.message)
+
+								}
+
+							})
+
+							requestUploadAvatar.fail(function (res) {
+
+								console.error(res)
+
+							})
+
+							requestUploadAvatar.always(function () {
+
+								removeGenericLoader('CARGA_FOTO_PERFIL')
+
+							})
+
+							instance.hide({}, toast)
+
+						}, true],
+						['<button>' + _i18n('avatar', 'No') + '</button>', function (instance, toast) {
+							instance.hide({}, toast)
+						}],
+					],
+				});
+			})
+
 		}
 	}
 

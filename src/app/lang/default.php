@@ -452,6 +452,11 @@ $lang = [
         'Usuario principal'                                            => 'Usuario principal',
         'Usuario administrador'                                        => 'Usuario administrador',
         'Usuario general'                                              => 'Usuario general',
+        'Avatar o foto de perfil'                                      => 'Avatar o foto de perfil',
+        'Foto de perfil'                                               => 'Foto de perfil',
+        'Puede usar un dibujo personalizado un una imagen.'            => 'Puede usar un dibujo personalizado un una imagen.',
+        'Aún no ha seleccionado un avatar o una foto de perfil.'       => 'Aún no ha seleccionado un avatar o una foto de perfil.',
+        'Guardar foto de perfil'                                       => 'Guardar foto de perfil',
     ],
     'loginReport' => [
         'Registro de ingresos'           => 'Registro de ingresos',
