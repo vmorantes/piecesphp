@@ -392,6 +392,9 @@ class UsersController extends AdminPanelController
      */
     public function formEditByType(Request $req, Response $res, array $args)
     {
+		
+		import_cropper();
+
         set_custom_assets([
             base_url('statics/features/avatars/js/canvg.min.js'),
             base_url('statics/features/avatars/js/avatar.js'),
@@ -400,7 +403,7 @@ class UsersController extends AdminPanelController
 
         set_custom_assets([
             base_url('statics/features/avatars/css/style.css'),
-        ], 'css');
+		], 'css');		
 
         $id = $req->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
@@ -485,6 +488,9 @@ class UsersController extends AdminPanelController
      */
     public function formProfileByType(Request $req, Response $res, array $args)
     {
+		
+		import_cropper();
+
         set_custom_assets([
             base_url('statics/features/avatars/js/canvg.min.js'),
             base_url('statics/features/avatars/js/avatar.js'),

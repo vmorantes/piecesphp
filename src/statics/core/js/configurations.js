@@ -314,6 +314,14 @@ pcsphpGlobals.messages.es = {
 		'Ingrese con su usuario y la nueva contraseña': 'Ingrese con su usuario y la nueva contraseña',
 		'Las contraseñas no coinciden': 'Las contraseñas no coinciden',
 	},
+	avatar: {
+		'Confirmación': 'Confirmación',
+		'¿Seguro de guardar el avatar?': '¿Seguro de guardar el avatar?',
+		'Cargando...': 'Cargando...',
+		'¿Seguro de guardar la foto de perfil?': '¿Seguro de guardar la foto de perfil?',
+		'Sí': 'Sí',
+		'No': 'No',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -599,6 +607,14 @@ pcsphpGlobals.messages.en = {
 		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.': 'The code entered is wrong, please re-enter the code, request a new one or create a support request to report the error.',
 		'Ingrese con su usuario y la nueva contraseña': 'Login with your username and the new password',
 		'Las contraseñas no coinciden': 'Passwords do not match',
+	},
+	avatar: {
+		'Confirmación': 'Confirmation',
+		'¿Seguro de guardar el avatar?': 'Are you sure to save the avatar?',
+		'Cargando...': 'Loading...',
+		'¿Seguro de guardar la foto de perfil?': 'Are you sure to save the profile picture?',
+		'Sí': 'Yes',
+		'No': 'No',
 	},
 }
 

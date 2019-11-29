@@ -110,8 +110,8 @@ $lang = [
         'Guardar imagen'                     => 'Save image',
         'Imagen guardada.'                   => 'Image saved',
         'Información faltante o inesperada.' => 'Missing or unexpected information.',
-		'Sitemap'                            => 'Sitemap',
-		'Sitemap creado'                     => 'Sitemap created',
+        'Sitemap'                            => 'Sitemap',
+        'Sitemap creado'                     => 'Sitemap created',
     ],
     'avatarModule' => [
         'Ha ocurrido un error desconocido, intente más tarde.' => 'An unknown error has occurred, try later.',
@@ -453,6 +453,11 @@ $lang = [
         'Usuario principal'                                            => 'Main user',
         'Usuario administrador'                                        => 'Administator',
         'Usuario general'                                              => 'General user',
+        'Avatar o foto de perfil'                                      => 'Avatar or profile picture',
+        'Foto de perfil'                                               => 'Profile picture',
+        'Puede usar un dibujo personalizado un una imagen.'            => 'You can use a custom drawing on an image.',
+        'Aún no ha seleccionado un avatar o una foto de perfil.'       => 'You have not selected an avatar or profile picture yet.',
+        'Guardar foto de perfil'                                       => 'Save profile picture',
     ],
     'loginReport' => [
         'Registro de ingresos'           => 'Income Record',
