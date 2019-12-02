@@ -356,6 +356,7 @@ class City extends AdminPanelController
 
                     } catch (\Exception $e) {
                         $result->setMessage($e->getMessage());
+                        log_exception($e);
                     }
 
                 } else {
@@ -382,6 +383,7 @@ class City extends AdminPanelController
 
                         } catch (\Exception $e) {
                             $result->setMessage($e->getMessage());
+                            log_exception($e);
                         }
 
                     } else {

@@ -516,6 +516,7 @@ class CategoryController extends AdminPanelController
                     'trace' => $e->getTrace(),
                 ],
             ]);
+            log_exception($e);
 
         }
 
@@ -687,6 +688,7 @@ class CategoryController extends AdminPanelController
                     'trace' => $e->getTrace(),
                 ],
             ]);
+            log_exception($e);
 
         }
 
