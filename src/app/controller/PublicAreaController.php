@@ -200,13 +200,14 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 'exceptionFile' => $e->getFile(),
                 'exceptionLine' => $e->getLine(),
             ];
+            log_exception($e);
         }
 
         $exifResult = self::arrayToHTMLList($exifResult);
 
         import_quilljs();
-		import_cropper();
-		import_izitoast();
+        import_cropper();
+        import_izitoast();
 
         set_custom_assets([
             'statics/js/main.js',

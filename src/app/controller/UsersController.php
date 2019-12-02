@@ -392,8 +392,8 @@ class UsersController extends AdminPanelController
      */
     public function formEditByType(Request $req, Response $res, array $args)
     {
-		
-		import_cropper();
+
+        import_cropper();
 
         set_custom_assets([
             base_url('statics/features/avatars/js/canvg.min.js'),
@@ -403,7 +403,7 @@ class UsersController extends AdminPanelController
 
         set_custom_assets([
             base_url('statics/features/avatars/css/style.css'),
-		], 'css');		
+        ], 'css');
 
         $id = $req->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
@@ -488,8 +488,8 @@ class UsersController extends AdminPanelController
      */
     public function formProfileByType(Request $req, Response $res, array $args)
     {
-		
-		import_cropper();
+
+        import_cropper();
 
         set_custom_assets([
             base_url('statics/features/avatars/js/canvg.min.js'),
@@ -723,6 +723,7 @@ class UsersController extends AdminPanelController
 
                 $resultOperation->setValue('error', self::MISSING_OR_UNEXPECTED_PARAMS);
                 $resultOperation->setValue('message', $e->getMessage());
+                log_exception($e);
 
             } catch (ParsedValueException $e) {
 
@@ -731,11 +732,13 @@ class UsersController extends AdminPanelController
                 $resultOperation->setValue('extras', [
                     'exception' => $e->getMessage(),
                 ]);
+                log_exception($e);
 
             } catch (InvalidParameterValueException $e) {
 
                 $resultOperation->setValue('error', self::GENERIC_ERROR);
                 $resultOperation->setValue('message', $e->getMessage());
+                log_exception($e);
 
             }
 
@@ -986,12 +989,14 @@ class UsersController extends AdminPanelController
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         } catch (\Exception $e) {
 
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         }
 
@@ -1259,12 +1264,14 @@ class UsersController extends AdminPanelController
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         } catch (\Exception $e) {
 
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         }
 

@@ -355,6 +355,7 @@ class State extends AdminPanelController
 
                     } catch (\Exception $e) {
                         $result->setMessage($e->getMessage());
+                        log_exception($e);
                     }
 
                 } else {
@@ -381,6 +382,7 @@ class State extends AdminPanelController
 
                         } catch (\Exception $e) {
                             $result->setMessage($e->getMessage());
+                            log_exception($e);
                         }
 
                     } else {

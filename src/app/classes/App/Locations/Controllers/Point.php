@@ -367,6 +367,7 @@ class Point extends AdminPanelController
                         }
                     } catch (\Exception $e) {
                         $result->setMessage($e->getMessage());
+                        log_exception($e);
                     }
                 } else {
 
@@ -394,6 +395,7 @@ class Point extends AdminPanelController
                             }
                         } catch (\Exception $e) {
                             $result->setMessage($e->getMessage());
+                            log_exception($e);
                         }
                     } else {
                         $result->setMessage($not_exists_message);

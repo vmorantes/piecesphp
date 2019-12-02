@@ -329,12 +329,14 @@ class GenericTokenController extends AdminPanelController
                 $result
                     ->setMessage($e->getMessage())
                     ->operation($operation_name);
+                log_exception($e);
 
             } catch (\Exception $e) {
 
                 $result
                     ->setMessage($e->getMessage())
                     ->operation($operation_name);
+                log_exception($e);
 
             }
 

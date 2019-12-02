@@ -741,6 +741,7 @@ class ArticleController extends AdminPanelController
                                 'line' => $e->getLine(),
                                 'file' => $e->getFile(),
                             ]);
+                            log_exception($e);
                         }
 
                     } else {
@@ -839,6 +840,7 @@ class ArticleController extends AdminPanelController
                                     'line' => $e->getLine(),
                                     'file' => $e->getFile(),
                                 ]);
+                                log_exception($e);
                             }
                         } else {
                             $result->setMessage($notExistsMessage);

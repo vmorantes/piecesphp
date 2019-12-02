@@ -251,12 +251,14 @@ class AppConfigController extends AdminPanelController
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         } catch (\Exception $e) {
 
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         }
 
@@ -339,12 +341,14 @@ class AppConfigController extends AdminPanelController
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         } catch (\Exception $e) {
 
             $result
                 ->setMessage($e->getMessage())
                 ->operation($operation_name);
+            log_exception($e);
 
         }
 
@@ -600,6 +604,7 @@ class AppConfigController extends AdminPanelController
                 'line' => $e->getLine(),
                 'code' => $e->getCode(),
             ]);
+            log_exception($e);
 
         }
 

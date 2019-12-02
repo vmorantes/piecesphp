@@ -1345,3 +1345,20 @@ function move_uploaded_file_to($directory, \Slim\Http\UploadedFile $uploadedFile
         return false;
     }
 }
+
+/**
+ * log_exception
+ *
+ * @param \Exception|\Error $e
+ * @return void
+ */
+function log_exception($e)
+{
+    if (!$e instanceof \Exception && !$e instanceof \Error) {
+        throw new \TypeError('Error type unexpected.');
+    }
+
+    $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
+    $handler->logging();
+
+}
