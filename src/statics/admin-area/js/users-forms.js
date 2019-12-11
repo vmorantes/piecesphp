@@ -1,5 +1,7 @@
 $(document).ready(function (e) {
 
+	let cropperAdapter = null
+
 	configAvatar()
 	configProfilePhoto()
 
@@ -11,15 +13,19 @@ $(document).ready(function (e) {
 		context: 'parent'
 	})
 
-	let cropperAdapter = new CropperAdapterComponent({
-		containerSelector: '.ui.form.cropper-adapter',
-		outputWidth: 300,
-		minWidth: 300,
-		cropperOptions: {
-			aspectRatio: 1 / 1,
-			viewMode: 3,
-		},
-	})
+	if (typeof CropperAdapterComponent != 'undefined') {
+
+		cropperAdapter = new CropperAdapterComponent({
+			containerSelector: '.ui.form.cropper-adapter',
+			outputWidth: 300,
+			minWidth: 300,
+			cropperOptions: {
+				aspectRatio: 1 / 1,
+				viewMode: 3,
+			},
+		})
+
+	}
 
 	genericFormHandler('form.users.create.root')
 	genericFormHandler('form.users.create.admin')
@@ -155,7 +161,7 @@ $(document).ready(function (e) {
 		let form = $(formSelector)
 		let formExists = form.length > 0
 
-		if (formExists) {
+		if (formExists && cropperAdapter !== null) {
 
 			form.on('submit', function (e) {
 
