@@ -16,8 +16,7 @@
 
         <div class="field required">
             <label><?= __('locationBackend', 'País'); ?></label>
-            <select required name="country"
-                locations-component-auto-filled-country="<?= $element->state->country->id; ?>"></select>
+            <select required name="country" locations-component-auto-filled-country="<?= $element->state->country->id; ?>"></select>
         </div>
 
         <div class="field required">
@@ -27,7 +26,12 @@
 
         <div class="field required">
             <label><?= __('locationBackend', 'Nombre'); ?></label>
-            <input type="text" name="name" maxlength="255" value="<?= $element->name; ?>">
+            <input type="text" name="name" maxlength="255" value="<?= $element->name; ?>" required>
+        </div>
+
+        <div class="field">
+            <label><?= __('locationBackend', 'Código'); ?></label>
+            <input type="text" name="code" maxlength="255" value="<?= !is_null($element->code) ? $element->code : ''; ?>">
         </div>
 
         <div class="field required">

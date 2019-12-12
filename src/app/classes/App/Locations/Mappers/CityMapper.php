@@ -17,6 +17,7 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  * @property int $id
+ * @property string|null $code
  * @property int|StateMapper $state
  * @property string $name
  * @property int $active
@@ -38,6 +39,10 @@ class CityMapper extends BaseEntityMapper
         'id' => [
             'type' => 'int',
             'primary_key' => true,
+        ],
+        'code' => [
+            'type' => 'varchar',
+            'null' => true,
         ],
         'state' => [
             'type' => 'int',
@@ -137,18 +142,18 @@ class CityMapper extends BaseEntityMapper
     }
 
     /**
-     * isDuplicate
+     * isDuplicateName
      *
      * @param string $name
      * @param int $state_id
      * @param int $ignore_id
      * @return bool
      */
-    public static function isDuplicate(string $name, int $state_id, int $ignore_id)
+    public static function isDuplicateName(string $name, int $state_id, int $ignore_id)
     {
-		$model = self::model();
-		$name = \stripslashes($name);
-		$name = \addslashes($name);
+        $model = self::model();
+        $name = \stripslashes($name);
+        $name = \addslashes($name);
 
         $where = trim(implode(' ', [
             "name = '$name' AND ",
@@ -161,6 +166,43 @@ class CityMapper extends BaseEntityMapper
         $result = $model->result();
 
         return count($result) > 0;
+    }
+
+    /**
+     * isDuplicateCode
+     *
+     * @param string $code
+     * @param int $state_id
+     * @param int $ignore_id
+     * @return bool
+     */
+    public static function isDuplicateCode(string $code = null, int $state_id, int $ignore_id)
+    {
+
+        if ($code !== null) {
+
+            $model = self::model();
+            $code = \stripslashes($code);
+            $code = \addslashes($code);
+
+            $where = trim(implode(' ', [
+                "code = '$code' AND ",
+                "state = $state_id AND ",
+                "id != $ignore_id",
+            ]));
+
+            $model->select()->where($where)->execute();
+
+            $result = $model->result();
+
+            return count($result) > 0;
+
+        } else {
+
+            return false;
+
+        }
+
     }
 
     /**

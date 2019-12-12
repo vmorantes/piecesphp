@@ -201,6 +201,7 @@ class Country extends AdminPanelController
 
         $columns_order = [
             'id',
+            'code',
             'name',
             'active',
         ];
@@ -226,6 +227,7 @@ class Country extends AdminPanelController
 
                 return [
                     $e->id,
+                    !is_null($e->code) ? $e->code : '-',
                     $e->name,
                     __('locationBackend', CountryMapper::STATUS[$e->active]),
                     (string) $buttonEdit,
@@ -252,6 +254,7 @@ class Country extends AdminPanelController
     {
 
         $id = $request->getParsedBodyParam('id', -1);
+        $code = $request->getParsedBodyParam('code', null);
         $name = $request->getParsedBodyParam('name', null);
         $active = $request->getParsedBodyParam('active', null);
         $is_edit = $id !== -1;
@@ -274,16 +277,20 @@ class Country extends AdminPanelController
         $success_create_message = __('locationBackend', 'País creado.');
         $success_edit_message = __('locationBackend', 'Datos guardados.');
         $unknow_error_message = __('locationBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message = __('locationBackend', 'Ya existe un país con ese nombre.');
+        $is_duplicate_message_name = __('locationBackend', 'Ya existe un país con ese nombre.');
+        $is_duplicate_message_code = __('locationBackend', 'Ya existe un país con ese código.');
 
         $redirect_url_on_create = self::routeName('list');
 
         if ($valid_params) {
 
-            $name = trim($name);
-            $is_duplicate = CountryMapper::isDuplicate($name, $id);
+            $name = clean_string($name);
+            $code = is_string($code) ? clean_string($code) : '';
+            $code = strlen($code) > 0 ? $code : null;
+            $is_duplicate_name = CountryMapper::isDuplicateName($name, $id);
+            $is_duplicate_code = CountryMapper::isDuplicateCode($code, $id);
 
-            if (!$is_duplicate) {
+            if (!$is_duplicate_name && !$is_duplicate_code) {
 
                 if (!$is_edit) {
 
@@ -291,6 +298,7 @@ class Country extends AdminPanelController
 
                     try {
 
+                        $mapper->code = $code;
                         $mapper->name = $name;
                         $mapper->active = $active;
                         $saved = $mapper->save();
@@ -322,6 +330,7 @@ class Country extends AdminPanelController
 
                         try {
 
+                            $mapper->code = $code;
                             $mapper->name = $name;
                             $mapper->active = $active;
                             $updated = $mapper->update();
@@ -344,9 +353,15 @@ class Country extends AdminPanelController
                     }
 
                 }
+
             } else {
 
-                $result->setMessage($is_duplicate_message);
+                if ($is_duplicate_name) {
+                    $result->setMessage($is_duplicate_message_name);
+                } elseif ($is_duplicate_code) {
+                    $result->setMessage($is_duplicate_message_code);
+                }
+
             }
 
         } else {

@@ -18,6 +18,7 @@ use PiecesPHP\Core\BaseModel;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  * @property int $id
+ * @property string|null $code
  * @property string $name
  * @property int $active
  */
@@ -38,6 +39,10 @@ class CountryMapper extends BaseEntityMapper
         'id' => [
             'type' => 'int',
             'primary_key' => true,
+        ],
+        'code' => [
+            'type' => 'varchar',
+            'null' => true,
         ],
         'name' => [
             'type' => 'varchar',
@@ -68,13 +73,13 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * isDuplicate
+     * isDuplicateName
      *
      * @param string $name
      * @param int $ignore_id
      * @return bool
      */
-    public static function isDuplicate(string $name, int $ignore_id)
+    public static function isDuplicateName(string $name, int $ignore_id)
     {
         $model = self::model();
         $name = \stripslashes($name);
@@ -90,6 +95,39 @@ class CountryMapper extends BaseEntityMapper
         $result = $model->result();
 
         return count($result) > 0;
+    }
+
+    /**
+     * isDuplicateCode
+     *
+     * @param string $code
+     * @param int $ignore_id
+     * @return bool
+     */
+    public static function isDuplicateCode(string $code = null, int $ignore_id)
+    {
+
+        if ($code !== null) {
+
+            $model = self::model();
+            $code = \stripslashes($code);
+            $code = \addslashes($code);
+
+            $where = trim(implode(' ', [
+                "code = '$code' AND ",
+                "id != $ignore_id",
+            ]));
+
+            $model->select()->where($where)->execute();
+
+            $result = $model->result();
+
+            return count($result) > 0;
+
+        } else {
+            return false;
+        }
+
     }
 
     /**

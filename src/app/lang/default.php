@@ -617,6 +617,10 @@ $lang = [
         'El país que intenta modificar no existe'                   => 'El país que intenta modificar no existe',
         'País creado.'                                              => 'País creado.',
         'Ya existe un país con ese nombre.'                         => 'Ya existe un país con ese nombre.',
+        'Código'                                                    => 'Código',
+        'Ya existe un país con ese código.'                         => 'Ya existe un país con ese código.',
+        'Ya existe un departamento con ese código.'                 => 'Ya existe un departamento con ese código.',
+        'Ya existe una ciudad con ese código.'                      => 'Ya existe una ciudad con ese código.',
 	],
 	'publicAreaController' => [
 		'Sin información'        => 'Sin información',
