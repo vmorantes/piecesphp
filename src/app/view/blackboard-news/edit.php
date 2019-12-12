@@ -17,7 +17,7 @@
     </div>
     <div class="field required">
         <label><?= __('news', 'Título'); ?></label>
-        <input type="text" name="title" required value="<?=$new->title;?>">
+        <input type="text" name="title" required value="<?=htmlentities($new->title);?>">
     </div>
     <div class="field required">
         <label><?= __('news', 'Mensaje'); ?></label>

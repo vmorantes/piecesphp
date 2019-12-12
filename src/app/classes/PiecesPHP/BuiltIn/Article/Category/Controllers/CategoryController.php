@@ -241,7 +241,9 @@ class CategoryController extends AdminPanelController
                 $pages = ceil($total / $perPage);
 
                 $data = array_map(function ($e) {
-                    $e->link = ArticleControllerPublic::routeName('list-by-category', ['category' => $e->friendly_url]);
+					$e->link = ArticleControllerPublic::routeName('list-by-category', ['category' => $e->friendly_url]);
+					$e->name = htmlentities(stripslashes($e->name));
+					$e->description = htmlentities(stripslashes($e->description));
                     return $e;
                 }, $data);
 

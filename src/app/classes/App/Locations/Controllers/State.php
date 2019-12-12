@@ -200,9 +200,16 @@ class State extends AdminPanelController
                 ]);
             }
 
-            $query->execute();
+			$query->execute();
+			
+            $result = $query->result();
 
-            return $response->withJson($query->result());
+            foreach ($result as $key => $value) {
+                $value->name = htmlentities(stripslashes($value->name));
+                $result[$key] = $value;
+            }
+
+            return $response->withJson($result);
 
         } else {
             throw new NotFoundException($request, $response);
@@ -265,7 +272,7 @@ class State extends AdminPanelController
                     return [
                         $e->id,
                         !is_null($e->code) ? $e->code : '-',
-                        $e->name,
+                        stripslashes($e->name),
                         $mapper->country->name,
                         __('locationBackend', StateMapper::STATUS[$e->active]),
                         (string) $buttonEdit,

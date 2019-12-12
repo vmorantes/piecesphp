@@ -1,7 +1,7 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
 
 
-<h3><?=__('usersModule', 'profile');?>: <?="$edit_user->firstname $edit_user->first_lastname";?></h3>
+<h3><?=__('usersModule', 'profile');?>: <?=htmlentities("$edit_user->firstname $edit_user->first_lastname");?></h3>
 
 <form class="ui form users profile root" action="<?= get_route('user-edit-request'); ?>">
 
@@ -16,8 +16,7 @@
             <div class="column">
 
                 <div class="field">
-                    <input required type="text" name="firstname" placeholder="<?=__('usersModule', 'firstname');?>"
-                        value="<?=$edit_user->firstname;?>">
+                    <input required type="text" name="firstname" placeholder="<?=__('usersModule', 'firstname');?>" value="<?=htmlentities($edit_user->firstname);?>">
                 </div>
 
             </div>
@@ -25,8 +24,7 @@
             <div class="column">
 
                 <div class="field">
-                    <input type="text" name="secondname" placeholder="<?=__('usersModule', 'secondname');?>"
-                        value="<?=$edit_user->secondname;?>">
+                    <input type="text" name="secondname" placeholder="<?=__('usersModule', 'secondname');?>" value="<?=htmlentities($edit_user->secondname);?>">
                 </div>
 
             </div>
@@ -38,8 +36,7 @@
             <div class="column">
 
                 <div class="field">
-                    <input required type="text" name="first_lastname"
-                        placeholder="<?=__('usersModule', 'first-lastname');?>" value="<?=$edit_user->first_lastname;?>">
+                    <input required type="text" name="first_lastname" placeholder="<?=__('usersModule', 'first-lastname');?>" value="<?=htmlentities($edit_user->first_lastname);?>">
                 </div>
 
             </div>
@@ -47,8 +44,7 @@
             <div class="column">
 
                 <div class="field">
-                    <input type="text" name="second_lastname" placeholder="<?=__('usersModule', 'second-lastname');?>"
-                        value="<?=$edit_user->second_lastname;?>">
+                    <input type="text" name="second_lastname" placeholder="<?=__('usersModule', 'second-lastname');?>" value="<?=htmlentities($edit_user->second_lastname);?>">
                 </div>
 
             </div>
@@ -66,7 +62,7 @@
                 <i class="icon user outline large"></i>
                 <?=__('usersModule', 'user');?>
             </div>
-            <input required type="text" name="username" value="<?= $edit_user->username;?>">
+            <input required type="text" name="username" value="<?= htmlentities($edit_user->username);?>">
         </div>
 
     </div>
@@ -80,7 +76,7 @@
                 <?=__('usersModule', 'email-standard');?>
             </div>
 
-            <input required type="email" name="email" value="<?=$edit_user->email;?>">
+            <input required type="email" name="email" value="<?=htmlentities($edit_user->email);?>">
 
         </div>
 

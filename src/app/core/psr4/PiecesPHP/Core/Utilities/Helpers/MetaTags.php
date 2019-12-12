@@ -337,15 +337,15 @@ class MetaTags
         $ogProperties = [
             [
                 'property' => 'author',
-                'content' => self::$owner,
+                'content' => htmlentities(self::$owner),
             ],
             [
                 'property' => 'description',
-                'content' => self::$description,
+                'content' => htmlentities(self::$description),
             ],
             [
                 'property' => 'keywords',
-                'content' => self::$keywords,
+                'content' => htmlentities(self::$keywords),
             ],
             [
                 'property' => 'theme-color',

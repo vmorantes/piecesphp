@@ -77,7 +77,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
 
             <div class="field required">
                 <label><?= __('articlesBackend', 'Título'); ?></label>
-                <input required type="text" name="title" maxlength="255" value="<?=$subElement->title;?>">
+                <input required type="text" name="title" maxlength="255" value="<?= htmlentities($subElement->title); ?>">
             </div>
 
             <div class="field required">

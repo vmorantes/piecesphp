@@ -190,10 +190,10 @@ class UsersController extends AdminPanelController
 
             return [
                 $element->id,
-                $element->firstname . ' ' . $element->secondname,
-                $element->first_lastname . ' ' . $element->second_lastname,
+                stripslashes($element->firstname . ' ' . $element->secondname),
+                stripslashes($element->first_lastname . ' ' . $element->second_lastname),
                 $element->email,
-                $element->username,
+                stripslashes($element->username),
                 $element->status == UsersModel::STATUS_USER_ACTIVE ? __('usersModule', 'Sí') : __('usersModule', 'No'),
                 UsersModel::getTypesUser()[$element->type],
                 '' . $edit_button,
@@ -616,7 +616,7 @@ class UsersController extends AdminPanelController
                 $expectedParameters->validate();
 
                 //Se selecciona un elemento que concuerde con el usuario
-                $username = $usernameParameter->getValue();
+                $username = addslashes($usernameParameter->getValue());
                 $password = $passwordParameter->getValue();
 
                 $user = $this->model->select()->where([

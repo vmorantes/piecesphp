@@ -21,7 +21,7 @@ use App\Model\AppConfigModel;
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Título del sitio'); ?></label>
-                <input type="text" name="value" value="<?=AppConfigModel::getConfigValue('title_app');?>"
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('title_app'));?>"
                     placeholder="<?= __('configurationsAdminZone', 'Nombre'); ?>" required>
                 <input type="hidden" name="name" value="title_app" required="required">
             </div>
@@ -39,7 +39,7 @@ use App\Model\AppConfigModel;
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Propietario'); ?></label>
-                <input type="text" name="value" value="<?=AppConfigModel::getConfigValue('owner');?>"
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('owner'));?>"
                     placeholder="<?= __('configurationsAdminZone', 'Propietario'); ?>" required>
                 <input type="hidden" name="name" value="owner" required="required">
             </div>
@@ -82,7 +82,7 @@ use App\Model\AppConfigModel;
 
                     <?php foreach ($keywords as $key => $value): ?>
 
-                    <option selected value="<?=$value;?>"><?=$value;?></option>
+                    <option selected value="<?=htmlentities($value);?>"><?=htmlentities($value);?></option>
 
                     <?php endforeach;?>
 
@@ -109,7 +109,7 @@ use App\Model\AppConfigModel;
 
             <div class="field">
 				<label><?= __('configurationsAdminZone', 'Color de barra superior en navegadores móviles'); ?></label>
-				<input type="text" name="value" value="<?=AppConfigModel::getConfigValue('meta_theme_color');?>" color-picker-js>
+				<input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('meta_theme_color'));?>" color-picker-js>
                 <input type="hidden" name="name" value="meta_theme_color">
                 <input type="hidden" name="parse" value="uppercase">
             </div>
@@ -223,7 +223,7 @@ use App\Model\AppConfigModel;
                     <label><?= __('configurationsAdminZone', 'Contraseña'); ?></label>
                     <div class="ui icon input" show-hide-password-event>
                         <input type="password" name="value[password]"
-                            value="<?=AppConfigModel::getConfigValue('mail')->password;?>" required>
+                            value="<?=htmlentities(AppConfigModel::getConfigValue('mail')->password);?>" required>
                         <i class="inverted circular eye link icon"></i>
                     </div>
                 </div>
