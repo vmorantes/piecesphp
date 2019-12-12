@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 24-10-2019 a las 14:07:42
--- Versión del servidor: 5.7.27-0ubuntu0.16.04.1
--- Versión de PHP: 7.1.32-1+ubuntu16.04.1+deb.sury.org+1
+-- Tiempo de generación: 12-12-2019 a las 12:11:28
+-- Versión del servidor: 5.7.28-0ubuntu0.16.04.2
+-- Versión de PHP: 7.1.33-2+ubuntu16.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -31,6 +31,7 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `locations_cities`;
 CREATE TABLE `locations_cities` (
   `id` int(11) NOT NULL,
+  `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `state` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1'
@@ -45,6 +46,7 @@ CREATE TABLE `locations_cities` (
 DROP TABLE IF EXISTS `locations_countries`;
 CREATE TABLE `locations_countries` (
   `id` int(11) NOT NULL,
+  `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -75,6 +77,7 @@ CREATE TABLE `locations_points` (
 DROP TABLE IF EXISTS `locations_states`;
 CREATE TABLE `locations_states` (
   `id` int(11) NOT NULL,
+  `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `country` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `active` int(11) NOT NULL DEFAULT '1'

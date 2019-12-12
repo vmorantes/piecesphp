@@ -235,6 +235,7 @@ class City extends AdminPanelController
 
             $columns_order = [
                 'id',
+                'code',
                 'name',
                 'state',
                 'active',
@@ -263,6 +264,7 @@ class City extends AdminPanelController
 
                     return [
                         $e->id,
+                        !is_null($e->code) ? $e->code : '-',
                         $e->name,
                         $e_mapper->state->country->name,
                         $e_mapper->state->name,
@@ -297,6 +299,7 @@ class City extends AdminPanelController
         $id = $request->getParsedBodyParam('id', -1);
         $state = $request->getParsedBodyParam('state', null);
         $name = $request->getParsedBodyParam('name', null);
+        $code = $request->getParsedBodyParam('code', null);
         $active = $request->getParsedBodyParam('active', null);
         $is_edit = $id !== -1;
 
@@ -319,16 +322,21 @@ class City extends AdminPanelController
         $success_create_message = __('locationBackend', 'Ciudad creada.');
         $success_edit_message = __('locationBackend', 'Datos guardados.');
         $unknow_error_message = __('locationBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message = __('locationBackend', 'Ya existe una ciudad con ese nombre.');
+        $is_duplicate_message_name = __('locationBackend', 'Ya existe una ciudad con ese nombre.');
+        $is_duplicate_message_code = __('locationBackend', 'Ya existe una ciudad con ese código.');
 
         $redirect_url_on_create = self::routeName('list');
 
         if ($valid_params) {
 
-            $name = trim($name);
-            $is_duplicate = CityMapper::isDuplicate($name, $state, $id);
+            $name = clean_string($name);
+            $code = !is_null($code) ? clean_string($code) : '';
+            $code = strlen($code) > 0 ? $code : null;
 
-            if (!$is_duplicate) {
+            $is_duplicate_name = CityMapper::isDuplicateName($name, $state, $id);
+            $is_duplicate_code = CityMapper::isDuplicateCode($code, $state, $id);
+
+            if (!$is_duplicate_name && !$is_duplicate_code) {
 
                 if (!$is_edit) {
 
@@ -337,6 +345,7 @@ class City extends AdminPanelController
                     try {
 
                         $mapper->state = $state;
+                        $mapper->code = $code;
                         $mapper->name = $name;
                         $mapper->active = $active;
                         $saved = $mapper->save();
@@ -369,6 +378,7 @@ class City extends AdminPanelController
                         try {
 
                             $mapper->state = $state;
+                            $mapper->code = $code;
                             $mapper->name = $name;
                             $mapper->active = $active;
                             $updated = $mapper->update();
@@ -393,7 +403,16 @@ class City extends AdminPanelController
                 }
             } else {
 
-                $result->setMessage($is_duplicate_message);
+                if ($is_duplicate_name) {
+
+                    $result->setMessage($is_duplicate_message_name);
+
+                } elseif ($is_duplicate_code) {
+
+                    $result->setMessage($is_duplicate_message_code);
+
+                }
+
             }
 
         } else {

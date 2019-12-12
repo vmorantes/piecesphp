@@ -14,7 +14,12 @@
 	
         <div class="field required">
             <label><?= __('locationBackend', 'Nombre'); ?></label>
-            <input type="text" name="name" maxlength="255">
+            <input type="text" name="name" maxlength="255" required>
+        </div>
+	
+        <div class="field">
+            <label><?= __('locationBackend', 'Código'); ?></label>
+            <input type="text" name="code" maxlength="255">
         </div>
 
         <div class="field required">

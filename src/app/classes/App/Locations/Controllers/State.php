@@ -235,6 +235,7 @@ class State extends AdminPanelController
 
             $columns_order = [
                 'id',
+                'code',
                 'name',
                 'country',
                 'active',
@@ -263,6 +264,7 @@ class State extends AdminPanelController
 
                     return [
                         $e->id,
+                        !is_null($e->code) ? $e->code : '-',
                         $e->name,
                         $mapper->country->name,
                         __('locationBackend', StateMapper::STATUS[$e->active]),
@@ -296,6 +298,7 @@ class State extends AdminPanelController
         $id = $request->getParsedBodyParam('id', -1);
         $country = $request->getParsedBodyParam('country', null);
         $name = $request->getParsedBodyParam('name', null);
+        $code = $request->getParsedBodyParam('code', null);
         $active = $request->getParsedBodyParam('active', null);
         $is_edit = $id !== -1;
 
@@ -318,16 +321,21 @@ class State extends AdminPanelController
         $success_create_message = __('locationBackend', 'Departamento creado.');
         $success_edit_message = __('locationBackend', 'Datos guardados.');
         $unknow_error_message = __('locationBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message = __('locationBackend', 'Ya existe un departamento con ese nombre.');
+        $is_duplicate_message_name = __('locationBackend', 'Ya existe un departamento con ese nombre.');
+        $is_duplicate_message_code = __('locationBackend', 'Ya existe un departamento con ese código.');
 
         $redirect_url_on_create = self::routeName('list');
 
         if ($valid_params) {
 
-            $name = trim($name);
-            $is_duplicate = StateMapper::isDuplicate($name, $country, $id);
+            $name = clean_string($name);
+            $code = is_string($name) ? clean_string($code) : '';
+            $code = strlen($code) > 0 ? $code : null;
 
-            if (!$is_duplicate) {
+            $is_duplicate_name = StateMapper::isDuplicateName($name, $country, $id);
+            $is_duplicate_code = StateMapper::isDuplicateCode($code, $country, $id);
+
+            if (!$is_duplicate_name && !$is_duplicate_code) {
 
                 if (!$is_edit) {
 
@@ -336,6 +344,7 @@ class State extends AdminPanelController
                     try {
 
                         $mapper->country = $country;
+                        $mapper->code = $code;
                         $mapper->name = $name;
                         $mapper->active = $active;
                         $saved = $mapper->save();
@@ -368,6 +377,7 @@ class State extends AdminPanelController
                         try {
 
                             $mapper->country = $country;
+                            $mapper->code = $code;
                             $mapper->name = $name;
                             $mapper->active = $active;
                             $updated = $mapper->update();
@@ -392,7 +402,16 @@ class State extends AdminPanelController
                 }
             } else {
 
-                $result->setMessage($is_duplicate_message);
+                if ($is_duplicate_name) {
+
+                    $result->setMessage($is_duplicate_message_name);
+
+                } elseif ($is_duplicate_code) {
+
+                    $result->setMessage($is_duplicate_message_code);
+
+                }
+
             }
 
         } else {
