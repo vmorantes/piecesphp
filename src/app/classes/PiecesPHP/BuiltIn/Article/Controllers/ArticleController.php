@@ -326,7 +326,9 @@ class ArticleController extends AdminPanelController
 
                 $data = array_map(function ($e) {
                     $eMapper = new ArticleViewMapper($e->sub_id);
-                    return $eMapper->getBasicData();
+                    $i = $eMapper->getBasicData();
+                    $i->title = htmlentities($eMapper->title);
+                    return $i;
                 }, $data);
 
                 $response_data['page'] = $page;
@@ -449,7 +451,10 @@ class ArticleController extends AdminPanelController
 
                     $data = array_map(function ($e) {
                         $eMapper = new ArticleViewMapper($e->sub_id);
-                        return $eMapper->getBasicData();
+                        $i = $eMapper->getBasicData();
+                        $i->title = htmlentities($eMapper->title);
+                        $i->category->name = htmlentities(stripslashes($i->category->name));
+                        return $i;
                     }, $data);
 
                     $response_data['page'] = $page;

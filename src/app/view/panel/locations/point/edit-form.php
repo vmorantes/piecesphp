@@ -39,7 +39,7 @@ $element;
 
         <div class="field required">
             <label><?= __('locationBackend', 'Dirección'); ?> <small><?= __('locationBackend', '(localidad, caserío, barrio, etc...)'); ?></small></label>
-            <input type="text" name="address" required value="<?=$element->address;?>">
+            <input type="text" name="address" required value="<?=htmlentities($element->address);?>">
         </div>
 
         <div class="field required">
@@ -62,7 +62,7 @@ $element;
 
         <div class="field required">
             <label><?= __('locationBackend', 'Nombre'); ?></label>
-            <input type="text" name="name" maxlength="255" value="<?=$element->name;?>">
+            <input type="text" name="name" maxlength="255" value="<?=htmlentities($element->name);?>">
         </div>
 
         <div class="field required">

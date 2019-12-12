@@ -182,7 +182,14 @@ class Country extends AdminPanelController
     {
         if ($request->isXhr()) {
             $this->model->select()->execute();
-            return $response->withJson($this->model->result());
+            $result = $this->model->result();
+
+            foreach ($result as $key => $value) {
+                $value->name = htmlentities(stripslashes($value->name));
+                $result[$key] = $value;
+            }
+
+            return $response->withJson($result);
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -228,7 +235,7 @@ class Country extends AdminPanelController
                 return [
                     $e->id,
                     !is_null($e->code) ? $e->code : '-',
-                    $e->name,
+                    stripslashes($e->name),
                     __('locationBackend', CountryMapper::STATUS[$e->active]),
                     (string) $buttonEdit,
                 ];

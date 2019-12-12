@@ -202,7 +202,14 @@ class City extends AdminPanelController
 
             $query->execute();
 
-            return $response->withJson($query->result());
+            $result = $query->result();
+
+            foreach ($result as $key => $value) {
+                $value->name = htmlentities(stripslashes($value->name));
+                $result[$key] = $value;
+            }
+
+            return $response->withJson($result);
 
         } else {
             throw new NotFoundException($request, $response);
@@ -265,7 +272,7 @@ class City extends AdminPanelController
                     return [
                         $e->id,
                         !is_null($e->code) ? $e->code : '-',
-                        $e->name,
+                        stripslashes($e->name),
                         $e_mapper->state->country->name,
                         $e_mapper->state->name,
                         __('locationBackend', CityMapper::STATUS[$e->active]),

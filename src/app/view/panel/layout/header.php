@@ -19,8 +19,8 @@
         <div class="content">
             <form action="<?=get_route('tickets-create');?>" class="ui form">
                 <input type="hidden" name="name"
-                    value="<?=get_config('current_user')->firstname . ' ' . get_config('current_user')->first_lastname;?>">
-                <input type="hidden" name="email" value="<?=get_config('current_user')->email;?>">
+                    value="<?=htmlentities(stripslashes(get_config('current_user')->firstname . ' ' . get_config('current_user')->first_lastname));?>">
+                <input type="hidden" name="email" value="<?= htmlentities(stripslashes(get_config('current_user')->email)); ?>">
                 <div class="field">
                     <label><?= __('supportFormAdminZone', 'Asunto'); ?></label>
                     <input type="text" name="subject">

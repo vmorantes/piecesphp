@@ -56,12 +56,12 @@
 
             <div class="field<?= $subElementRequired ? ' required' : ''; ?>">
                 <label><?= __('articlesBackend', 'Nombre'); ?></label>
-                <input <?= $subElementRequired ? 'required' : ''; ?> type="text" name="properties[<?= $lang; ?>][name]" maxlength="255" value="<?= $subElementName ?>">
+                <input <?= $subElementRequired ? 'required' : ''; ?> type="text" name="properties[<?= $lang; ?>][name]" maxlength="255" value="<?= htmlentities($subElementName) ?>">
             </div>
 
             <div class="field">
                 <label><?= __('articlesBackend', 'Descripción'); ?></label>
-                <input type="text" name="properties[<?= $lang; ?>][description]" value="<?= $subElementDescription; ?>">
+                <input type="text" name="properties[<?= $lang; ?>][description]" value="<?= htmlentities($subElementDescription); ?>">
             </div>
 
         </div>

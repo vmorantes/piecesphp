@@ -201,7 +201,15 @@ class Point extends AdminPanelController
 
             $query->execute();
 
-            return $response->withJson($query->result());
+            $result = $query->result();
+
+            foreach ($result as $key => $value) {
+                $value->name = htmlentities(stripslashes($value->name));
+                $result[$key] = $value;
+            }
+
+            return $response->withJson($result);
+
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -264,7 +272,7 @@ class Point extends AdminPanelController
 
                     return [
                         $e->id,
-                        $e->name,
+                        stripslashes($e->name),
                         $e_mapper->city->state->country->name,
                         $e_mapper->city->state->name,
                         $e_mapper->city->name,

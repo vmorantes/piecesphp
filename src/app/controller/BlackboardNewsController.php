@@ -475,6 +475,9 @@ class BlackboardNewsController extends AdminPanelController
                 $element->end_date = $mapper->end_date->format('d-m-Y h:i A');
             }
 
+            $element->title = $mapper->title;
+            $element->text = $mapper->text;
+
             $filtered[] = $element;
 
         }

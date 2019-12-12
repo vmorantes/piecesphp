@@ -15,7 +15,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         </div>
         <div class="text">
             <div class="main">
-                <?= $user->firstname . '<br>' . $user->first_lastname; ?>
+                <?= htmlentities(stripslashes($user->firstname)) . '<br>' . htmlentities(stripslashes($user->first_lastname)); ?>
             </div>
             <div class="second">
                 <?= isset(UsersModel::getTypesUser()[$user->type]) ? UsersModel::getTypesUser()[$user->type] : '';?>
