@@ -139,23 +139,25 @@ class Schema
     {
         $this->runBefore();
 
+        $data = [];
+        $fields = $this->fields;
+
+        foreach ($fields as $field) {
+
+            /**
+             * @var \PiecesPHP\Core\Importer\Field $field
+             */
+            $field;
+
+            $data[$field->getName()] = $field->getValue();
+
+        }
+
         if (is_callable($this->insertMethod)) {
-            return ($this->insertMethod)($this);
+
+            return ($this->insertMethod)($this, $data);
+
         } else {
-
-            $data = [];
-            $fields = $this->fields;
-
-            foreach ($fields as $field) {
-
-                /**
-                 * @var \PiecesPHP\Core\Importer\Field $field
-                 */
-                $field;
-
-                $data[$field->getName()] = $field->getValue();
-
-            }
 
             $this->model->insert($data);
             $inserted = $this->model->execute();
@@ -176,40 +178,40 @@ class Schema
     {
         $this->runBefore();
 
-        if (is_callable($this->updateMethod)) {
-            return ($this->updateMethod)($this);
+        $data = [];
+        $fields = $this->fields;
+
+        foreach ($fields as $field) {
+
+            /**
+             * @var \PiecesPHP\Core\Importer\Field $field
+             */
+            $field;
+
+            $data[$field->getName()] = $field->getValue();
+
+        }
+
+        $primaryKeyValue = $this->getPrimaryKeyValue();
+        $where = [];
+
+        if ($this->primaryKeyIsSubField) {
+
+            $where = [
+                "JSON_EXTRACT({$this->parentFieldPrimaryKey}, '$.{$this->primaryKey}')" => $primaryKeyValue,
+            ];
+
         } else {
 
-            $data = [];
-            $fields = $this->fields;
+            $where = [
+                $this->primaryKey => $primaryKeyValue,
+            ];
 
-            foreach ($fields as $field) {
+        }
 
-                /**
-                 * @var \PiecesPHP\Core\Importer\Field $field
-                 */
-                $field;
-
-                $data[$field->getName()] = $field->getValue();
-
-            }
-
-            $primaryKeyValue = $this->getPrimaryKeyValue();
-            $where = [];
-
-            if ($this->primaryKeyIsSubField) {
-
-                $where = [
-                    "JSON_EXTRACT({$this->parentFieldPrimaryKey}, '$.{$this->primaryKey}')" => $primaryKeyValue,
-                ];
-
-            } else {
-
-                $where = [
-                    $this->primaryKey => $primaryKeyValue,
-                ];
-
-            }
+        if (is_callable($this->updateMethod)) {
+            return ($this->updateMethod)($this, $data, $where);
+        } else {
 
             $this->model->update($data)->where($where);
 
@@ -386,6 +388,16 @@ class Schema
             return null;
         }
 
+    }
+
+    /**
+     * getModel
+     *
+     * @return BaseModel
+     */
+    public function getModel()
+    {
+        return $this->model;
     }
 
     /**
