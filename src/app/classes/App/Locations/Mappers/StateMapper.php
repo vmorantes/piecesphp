@@ -7,7 +7,7 @@
 namespace App\Locations\Mappers;
 
 use PiecesPHP\Core\BaseEntityMapper;
-use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 
 /**
  * StateMapper.
@@ -82,6 +82,37 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
+     * getBy
+     *
+     * @param mixed $value
+     * @param string $column
+     * @param boolean $as_mapper
+     * @return static|object|null
+     */
+    public static function getBy($value, string $column = 'id', bool $as_mapper = false)
+    {
+        $model = self::model();
+
+        $where = [
+            $column => $value,
+        ];
+
+        $model->select()->where($where);
+
+        $model->execute();
+
+        $result = $model->result();
+
+        $result = count($result) > 0 ? $result[0] : null;
+
+        if (!is_null($result) && $as_mapper) {
+            $result = new static($result->id);
+        }
+
+        return $result;
+    }
+
+    /**
      * getByCountry
      *
      * @param int $country_id
@@ -96,6 +127,8 @@ class StateMapper extends BaseEntityMapper
         $query->where([
             'country' => $country_id,
         ]);
+
+        $query->execute();
 
         $result = $query->result();
 
@@ -130,6 +163,8 @@ class StateMapper extends BaseEntityMapper
         }
 
         $query->where($where);
+
+        $query->execute();
 
         $result = $query->result();
 
@@ -209,7 +244,7 @@ class StateMapper extends BaseEntityMapper
     /**
      * model
      *
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {
