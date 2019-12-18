@@ -350,7 +350,7 @@ class MetaProperty
                 return $value;
             }
 
-        } elseif (!is_scalar($value)) {
+        } elseif (!is_scalar($value) && !is_null($value)) {
             return (array) $value;
         } else {
             return $value;

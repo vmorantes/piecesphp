@@ -239,7 +239,47 @@ class EntityMapperExtensible extends BaseEntityMapper
             $data['META:' . $name] = $property->getValueHuman();
         }
 
+        $fields = array_keys($this->getFields());
+
+        foreach ($fields as $name) {
+
+            $value = $this->$name;
+
+            if (is_subclass_of($value, EntityMapper::class)) {
+
+                $data[$name] = $this->recursiveHumanization($value);
+
+            }
+
+        }
+
         return $data;
+    }
+
+    /**
+     * recursiveHumanization
+     *
+     * @param EntityMapper $mapper
+     * @return array
+     */
+    private function recursiveHumanization(EntityMapper $mapper)
+    {
+
+        $dataHuman = $mapper->humanReadable();
+
+        $subFields = array_keys($mapper->getFields());
+
+        foreach ($subFields as $nameSubField) {
+
+            if (is_subclass_of($mapper->$nameSubField, EntityMapper::class)) {
+
+                $dataHuman[$nameSubField] = $this->recursiveHumanization($mapper->$nameSubField);
+
+            }
+
+        }
+
+        return $dataHuman;
     }
 
     /**
