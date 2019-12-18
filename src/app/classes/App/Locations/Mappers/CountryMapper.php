@@ -7,7 +7,7 @@
 namespace App\Locations\Mappers;
 
 use PiecesPHP\Core\BaseEntityMapper;
-use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 
 /**
  * CountryMapper.
@@ -73,6 +73,37 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
+     * getBy
+     *
+     * @param mixed $value
+     * @param string $column
+     * @param boolean $as_mapper
+     * @return static|object|null
+     */
+    public static function getBy($value, string $column = 'id', bool $as_mapper = false)
+    {
+        $model = self::model();
+
+        $where = [
+            $column => $value,
+        ];
+
+        $model->select()->where($where);
+
+        $model->execute();
+
+        $result = $model->result();
+
+        $result = count($result) > 0 ? $result[0] : null;
+
+        if (!is_null($result) && $as_mapper) {
+            $result = new static($result->id);
+        }
+
+        return $result;
+    }
+
+    /**
      * isDuplicateName
      *
      * @param string $name
@@ -133,7 +164,7 @@ class CountryMapper extends BaseEntityMapper
     /**
      * model
      *
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {
