@@ -28,6 +28,8 @@ class FileValidator
     const TYPE_XLS = 'xls';
     const TYPE_CSV = 'csv';
     const TYPE_PDF = 'pdf';
+    const TYPE_DOC = 'doc';
+    const TYPE_DOCX = 'docx';
 
     const TYPE_MP3 = 'mp3';
 
@@ -91,6 +93,16 @@ class FileValidator
             'text/pdf',
             'text/x-pdf',
         ],
+        self::TYPE_DOC => [
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-word.document.macroEnabled.12',
+        ],
+        self::TYPE_DOCX => [
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-word.document.macroEnabled.12',
+        ],
         self::TYPE_MP3 => [
             'audio/mpeg3',
             'audio/x-mpeg-3',
@@ -141,6 +153,16 @@ class FileValidator
         self::TYPE_PDF => [
             'pdf',
         ],
+        self::TYPE_DOC => [
+            'docx',
+            'doc',
+            'docm',
+        ],
+        self::TYPE_DOCX => [
+            'docx',
+            'doc',
+            'docm',
+        ],
         self::TYPE_MP3 => [
             'mp3',
         ],
@@ -165,13 +187,13 @@ class FileValidator
      *
      * @var int
      */
-	protected $maxFileSizeMB = 0;
-	/**
-	 * $ignoreMimeType
-	 *
-	 * @var bool
-	 */
-	public static $ignoreMimeType = false;
+    protected $maxFileSizeMB = 0;
+    /**
+     * $ignoreMimeType
+     *
+     * @var bool
+     */
+    public static $ignoreMimeType = false;
 
     /**
      * __construct
