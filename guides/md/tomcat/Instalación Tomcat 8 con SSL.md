@@ -85,3 +85,27 @@ nano /tomcat/conf/server.xml
 /tomcat/bin/shutdown.sh
 /tomcat/bin/startup.sh
 ```
+
+## Habilitar CORS
+```bash
+nano /tomcat/conf/web.xml
+```
+```xml
+<filter>
+	<filter-name>CorsFilter</filter-name>
+	<filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+		<init-param>
+		<param-name>cors.allowed.origins</param-name>
+		<param-value>*</param-value>
+	</init-param>
+</filter>
+<filter-mapping>
+	<filter-name>CorsFilter</filter-name>
+	<url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+```bash
+#Reiniciar servidor
+/tomcat/bin/shutdown.sh
+/tomcat/bin/startup.sh
+```
