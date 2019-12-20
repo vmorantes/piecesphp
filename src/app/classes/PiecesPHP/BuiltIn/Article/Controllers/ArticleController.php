@@ -327,7 +327,8 @@ class ArticleController extends AdminPanelController
                 $data = array_map(function ($e) {
                     $eMapper = new ArticleViewMapper($e->sub_id);
                     $i = $eMapper->getBasicData();
-                    $i->title = htmlentities($eMapper->title);
+					$i->title = htmlentities($eMapper->title);					
+					$i->category->name = htmlentities(stripslashes($i->category->name));
                     return $i;
                 }, $data);
 
