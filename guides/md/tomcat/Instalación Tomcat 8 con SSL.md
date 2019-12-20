@@ -109,3 +109,13 @@ nano /tomcat/conf/web.xml
 /tomcat/bin/shutdown.sh
 /tomcat/bin/startup.sh
 ```
+
+## Asignar más memoria 
+```bash
+#Añadir export JAVA_OPTS="-Djava.awt.headless=true -Xms1024m -Xmx1024m"
+nano /tomcat/bin/setenv.sh
+
+#Reiniciar servidor
+/tomcat/bin/shutdown.sh
+/tomcat/bin/startup.sh
+```
