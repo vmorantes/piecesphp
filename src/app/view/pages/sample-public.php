@@ -13,6 +13,7 @@
 </div>
 
 <div class="ui tabular menu">
+    <div style="cursor:pointer;" class="item" data-tab="DialogPCS">DialogPCS</div>
     <div style="cursor:pointer;" class="item" data-tab="Exif">Exif</div>
     <div style="cursor:pointer;" class="item" data-tab="CropperJS">CropperJS</div>
     <div style="cursor:pointer;" class="item" data-tab="QuillJS">QuillJS</div>
@@ -25,7 +26,7 @@
 
     <div class="elements-container centered fit">
 
-        <form action="<?= explode('?', get_current_url())[0]; ?>" method="POST" enctype="multipart/form-data" class="ui form">
+        <form action="<?=explode('?', get_current_url())[0];?>" method="POST" enctype="multipart/form-data" class="ui form">
 
             <div class="field required">
                 <label>Sube una foto</label>
@@ -42,7 +43,7 @@
 
         <h1>Resultado:</h1>
 
-        <div><?= $exifResult; ?></div>
+        <div><?=$exifResult;?></div>
 
     </div>
 
@@ -904,12 +905,12 @@
 
         <ul>
             <li>
-                <a href="<?= \PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic::routeName('list')?>">
+                <a href="<?=\PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic::routeName('list')?>">
                     Artículos
                 </a>
             </li>
             <li>
-                <a href="<?= \PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic::routeName('list-categories')?>">
+                <a href="<?=\PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic::routeName('list-categories')?>">
                     Categorías
                 </a>
             </li>
@@ -918,3 +919,36 @@
     </div>
 
 </div>
+
+<div class="ui tab" data-tab="DialogPCS">
+
+    <div class="ui button greeg open-dialog">Abrir modal</div>
+
+    <div class="ui card dialog-pcs">
+        <div class="content" drag-area>
+            TITLE			
+			<div class="right floated meta">
+				<i class="icon trash" delete></i>
+				<i class="icon times" close></i>
+			</div>
+        </div>
+        <div class="content">
+            <span class="right floated">
+                <i class="heart outline like icon"></i>
+                17 likes
+            </span>
+            <i class="comment icon"></i>
+            3 comments
+        </div>
+        <div class="extra content">
+            <div class="ui large transparent left icon input">
+                <i class="heart outline icon"></i>
+                <input type="text" placeholder="Add Comment...">
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="statics/core/own-plugins/DialogPCS.js?t=<?=time();?>"></script>
