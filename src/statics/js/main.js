@@ -40,10 +40,17 @@ window.addEventListener('load', (e) => {
 	$('.cropper-test-2.title').click(e => console.log(cropperAdapterWithImage.getTitle()))
 	$('.cropper-test-2.crop').click(e => console.log(cropperAdapterWithImage.crop()))
 
+	document.body.style.minHeight = '100vh'
+	let dialog = new DialogPCS('.dialog-pcs', 'body')
+	$('.open-dialog').click(function (e) {
+		e.preventDefault()
+		dialog.open()
+	})
+
 	//Tabs
 	let tabsItemMenu = $('.tabular.menu .item')
 	let tabs = $(`[data-tab]`)
-	let activeTab = 'Exif'
+	let activeTab = 'DialogPCS'
 
 	tabsItemMenu.tab()
 	tabsItemMenu.filter(`[data-tab="${activeTab}"]`).addClass('active')
