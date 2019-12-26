@@ -756,6 +756,18 @@ function import_spectrum(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra DialogPCS como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_dialog_pcs(array $plugins = [], bool $all = true)
+{
+    import_front_library('dialgo_pcs', $plugins, $all);
+}
+
+/**
  * Registra una ruta o un conjunto de rutas
  *
  * register_routes([

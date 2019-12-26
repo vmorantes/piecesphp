@@ -949,6 +949,3 @@
     </div>
 
 </div>
-
-
-<script src="statics/core/own-plugins/DialogPCS.js?t=<?=time();?>"></script>

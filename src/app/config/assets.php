@@ -165,6 +165,16 @@ $assets['spectrum']['css'] = [
 $assets['spectrum']['plugins'] = [];
 
 /**
+ * Dialog PCS
+ * Es una modal con comportamiento de ventana (arrastrable)
+ */
+$assets['dialgo_pcs']['js'] = [
+    'statics/core/own-plugins/DialogPCS.js',
+];
+$assets['dialgo_pcs']['css'] = [];
+$assets['dialgo_pcs']['plugins'] = [];
+
+/**
  * JQuery
  * https://igorescobar.github.io/jQuery-Mask-Plugin/docs.html
  */
