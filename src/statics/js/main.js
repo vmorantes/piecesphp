@@ -41,7 +41,7 @@ window.addEventListener('load', (e) => {
 	$('.cropper-test-2.crop').click(e => console.log(cropperAdapterWithImage.crop()))
 
 	document.body.style.minHeight = '100vh'
-	let dialog = new DialogPCS('.dialog-pcs', 'body')
+	let dialog = new DialogPCS('.dialog-pcs', 'body', true)
 	$('.open-dialog').click(function (e) {
 		e.preventDefault()
 		dialog.open()
