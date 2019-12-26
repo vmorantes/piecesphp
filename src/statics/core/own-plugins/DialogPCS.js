@@ -16,6 +16,7 @@ function DialogPCS(dialogSelector = '.dialog-pcs', parentSelector = 'body') {
 	let isOpen = false
 	let eventsSetted = false
 	let isInit = false
+	let selector = dialogSelector
 
 	init(dialogSelector, parentSelector)
 
@@ -43,6 +44,11 @@ function DialogPCS(dialogSelector = '.dialog-pcs', parentSelector = 'body') {
 
 					DialogPCS.variables.selectors.push(dialogSelector)
 					isInit = true
+
+					dragItem.style.position = 'absolute'
+					dragItem.style.top = '0px'
+					dragItem.style.left = '0px'
+					dragItem.style.zIndex = '1000'
 
 					closeTrigger.click((e) => {
 
@@ -126,6 +132,14 @@ function DialogPCS(dialogSelector = '.dialog-pcs', parentSelector = 'body') {
 		$(dragItem).remove()
 		isInit = false
 
+		let newSelectors = []
+		for (let s of DialogPCS.variables.selectors) {
+			if (s != selector) {
+				newSelectors.push(s)
+			}
+		}
+		DialogPCS.variables.selectors = newSelectors
+
 	}
 
 	this.isOpen = () => {
@@ -174,7 +188,11 @@ function DialogPCS(dialogSelector = '.dialog-pcs', parentSelector = 'body') {
 	}
 
 	function setTranslate(xPos, yPos, el) {
-		el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)"
+
+		el.style.top = yPos + 'px'
+		el.style.left = xPos + 'px'
+		//el.style.transform = "translate3d(" + xPos + "px, " + yPos + "px, 0)"
+
 	}
 
 }
