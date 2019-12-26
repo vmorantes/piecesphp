@@ -207,7 +207,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         import_quilljs();
         import_cropper();
-        import_izitoast();
+		import_izitoast();
+		import_dialog_pcs();
 
         set_custom_assets([
             'statics/js/main.js',
