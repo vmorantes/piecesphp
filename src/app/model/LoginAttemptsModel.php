@@ -155,7 +155,7 @@ class LoginAttemptsModel extends BaseEntityMapper
             $data[] = $attempt->success == $success ? 'Sí' : 'No';
             $data[] = $attempt->message;
             $data[] = $attempt->ip;
-            $data[] = $attempt->date->format('d-m-Y h:i:s');
+            $data[] = $attempt->date->format('d-m-Y H:i:s');
 
             return $data;
         };
@@ -213,7 +213,7 @@ class LoginAttemptsModel extends BaseEntityMapper
             $data[] = $user->id;
             $data[] = trim("$user->firstname $user->secondname $user->first_lastname $user->second_lastname");
 
-            $data[] = self::lastLogin($user->id)->format('d-m-Y h:i:s');
+            $data[] = self::lastLogin($user->id)->format('d-m-Y H:i:s');
             $time_on_platform = TimeOnPlatformModel::getRecordByUser($user->id);
             $data[] = !is_null($time_on_platform) ? round($time_on_platform->minutes, 0) . ' minuto(s)' : 'Sin registro';
 
