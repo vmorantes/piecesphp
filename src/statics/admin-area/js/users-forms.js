@@ -2,9 +2,6 @@ $(document).ready(function (e) {
 
 	let cropperAdapter = null
 
-	configAvatar()
-	configProfilePhoto()
-
 	$('.user-form-component .menu .item').tab({
 		context: $('.user-form-component')
 	})
@@ -26,6 +23,9 @@ $(document).ready(function (e) {
 		})
 
 	}
+
+	configAvatar()
+	configProfilePhoto()
 
 	genericFormHandler('form.users.create.root')
 	genericFormHandler('form.users.create.admin')
