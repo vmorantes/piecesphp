@@ -336,7 +336,7 @@ class State extends AdminPanelController
         if ($valid_params) {
 
             $name = clean_string($name);
-            $code = is_string($name) ? clean_string($code) : '';
+            $code = is_string($code) ? clean_string($code) : '';
             $code = strlen($code) > 0 ? $code : null;
 
             $is_duplicate_name = StateMapper::isDuplicateName($name, $country, $id);
