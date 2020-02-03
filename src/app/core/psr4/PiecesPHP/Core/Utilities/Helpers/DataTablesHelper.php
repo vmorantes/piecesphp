@@ -603,20 +603,20 @@ class DataTablesHelper
 
             //Con GROUP BY
             $filterCount->groupBy($group_string);
-            $filterCount->execute();
-            $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCount->getLastSQLExecuted()));
-            $filterCount = $filterCount->result();
-            $result->setValue('recordsFiltered', count($filterCount));
-
-        } else {
-
-            //Sin GROUP BY
-            $filterCount->execute();
-            $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCount->getLastSQLExecuted()));
-            $filterCount = $filterCount->result();
-            $result->setValue('recordsFiltered', count($filterCount));
 
         }
+
+        $filterCountSQLGenerated = $filterCount->getCompiledSQL();
+
+        $filterCountSQL = "SELECT COUNT(*) AS total FROM (" . $filterCountSQLGenerated . ") AS table_derivate";
+
+        $filterCountPrepared = $filterCount->prepare("$filterCountSQL");
+        $filterCountPrepared->execute();
+        $filterCountResult = $filterCountPrepared->fetchAll(\PDO::FETCH_OBJ);
+
+        $filterCountTotal = count($filterCountResult) > 0 ? (int) $filterCountResult[0]->total : 0;
+        $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCountSQL));
+        $result->setValue('recordsFiltered', $filterCountTotal);
 
         /**
          * @var \PiecesPHP\Core\BaseModel $totalCount
@@ -678,9 +678,9 @@ class DataTablesHelper
 
                         if ($searchable_value === 'false' || $searchable_value === '0' || $searchable_value === 'no' || $searchable_value === 'off') {
                             $searchable_value = false;
-						}
-						
-						$searchable = $searchable_value === true;
+                        }
+
+                        $searchable = $searchable_value === true;
 
                     }
 
