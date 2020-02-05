@@ -91,14 +91,20 @@ class MenuItem
     /**
      * __construct
      *
-     * @param mixed $options
+     * @param array $options
+     * @param string $options['text']
+     * @param string $options['href']
+     * @param string $options['class']
+     * @param array $options['attributes']
+     * @param bool $options['current']
+     * @param bool $options['visible']
      * @return static
      */
     public function __construct($options = [])
     {
-		$this->structureOptions['current']['default'] = function(){
-			return $this->href == get_current_url();
-		};
+        $this->structureOptions['current']['default'] = function () {
+            return $this->href == get_current_url();
+        };
 
         foreach ($this->structureOptions as $name => $config) {
             $defined_in_options = isset($options[$name]);
@@ -198,13 +204,13 @@ class MenuItem
      */
     public function isCurrent()
     {
-		$current = false;
+        $current = false;
 
-		if(is_callable($this->current)){
-			$current = ($this->current)() === true;
-		}else{
-			$current = $this->current === true;
-		}
+        if (is_callable($this->current)) {
+            $current = ($this->current)() === true;
+        } else {
+            $current = $this->current === true;
+        }
 
         return $current;
     }

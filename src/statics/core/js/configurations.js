@@ -941,17 +941,26 @@ function configColorPickers() {
  * @returns {void}
  */
 function pcsAdminSideBar(selector) {
+
 	let menu = $(selector)
+
 	if (menu.length > 0) {
+
 		let groups = menu.find('.group')
+
 		if (groups.length > 0) {
 
-			let titlesGroups = groups.find('.title-group')
+			let titlesGroups = groups.find('.title-group').not('[href]')
+
 			if (titlesGroups.length > 0) {
+
 				titlesGroups.click(function (e) {
 
+					e.preventDefault()
+					e.stopPropagation()
+
 					let ancester = $(this).parent()
-					let items = ancester.find('.items')
+					let items = ancester.find('> .items')
 
 					if (items.length > 0) {
 						if (ancester.hasClass('active')) {
@@ -963,11 +972,12 @@ function pcsAdminSideBar(selector) {
 						}
 					}
 
-					let ancesterOthers = titlesGroups.parent().not(ancester)
+					let ancesterOthers = titlesGroups.parent().not(ancester).not($(this).parents('.group'))
 					let itemsOthers = ancesterOthers.find('.items')
 					ancesterOthers.removeClass('active')
 					itemsOthers.hide(500)
 				})
+
 			}
 
 		}
