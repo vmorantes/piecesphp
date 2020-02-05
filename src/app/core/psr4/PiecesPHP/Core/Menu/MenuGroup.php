@@ -67,6 +67,12 @@ class MenuGroup
      */
     protected $items;
     /**
+     * $groups
+     *
+     * @var MenuGroup[]
+     */
+    protected $groups;
+    /**
      * $structureOptions
      *
      * @var array
@@ -106,16 +112,30 @@ class MenuGroup
             'rules' => ['is_array'],
             'default' => [],
         ],
+        'groups' => [
+            'rules' => ['is_array'],
+            'default' => [],
+        ],
     ];
 
     /**
      * __construct
      *
-     * @param mixed $options
+     * @param array $options
+     * @param string $options['name']
+     * @param string $options['icon']
+     * @param bool $options['current']
+     * @param bool $options['visible']
+     * @param bool $options['asLink']
+     * @param string $options['href']
+     * @param array $options['attributes']
+     * @param MenuItem[] $options['items']
+     * @param MenuGroup[] $options['groups']
      * @return static
      */
     public function __construct($options = [])
     {
+
         foreach ($this->structureOptions as $name => $config) {
 
             $defined_in_options = isset($options[$name]);
@@ -171,6 +191,15 @@ class MenuGroup
                         }
                     }
 
+                    if ($name == 'groups') {
+                        foreach ($value_on_option as $key => $value) {
+                            $valid_item = $this->validateGroup($value);
+                            if (!$valid_item) {
+                                unset($value_on_option[$key]);
+                            }
+                        }
+                    }
+
                     $this->$name = $value_on_option;
                 } else {
                     $this->$name = $config['default'];
@@ -208,6 +237,7 @@ class MenuGroup
         $group_attributes = $this->attributes;
         $group_current = $this->isCurrent();
         $group_items = $this->items;
+        $group_groups = $this->groups;
 
         if ($group_visible) {
 
@@ -259,6 +289,13 @@ class MenuGroup
                     }
                 }
 
+                if ($group_groups !== false) {
+                    foreach ($group_groups as $group) {
+
+                        $group_items_container->appendChild($group->getHtmlElement());
+                    }
+                }
+
                 $group_container->appendChild($group_items_container);
             }
 
@@ -294,6 +331,12 @@ class MenuGroup
                         break;
                     }
                 }
+                foreach ($this->groups as $group) {
+                    if ($group->isCurrent()) {
+                        $this->current = true;
+                        break;
+                    }
+                }
                 if ($this->current !== true) {
                     $this->current = false;
                 }
@@ -316,6 +359,17 @@ class MenuGroup
     }
 
     /**
+     * addGroup
+     *
+     * @param MenuGroup $group
+     * @return void
+     */
+    public function addGroup(MenuGroup $group)
+    {
+        $this->groups[] = $group;
+    }
+
+    /**
      * validateItem
      *
      * @param mixed $value
@@ -324,6 +378,17 @@ class MenuGroup
     protected function validateItem($value)
     {
         return $value instanceof MenuItem;
+    }
+
+    /**
+     * validateGroup
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    protected function validateGroup($value)
+    {
+        return $value instanceof MenuGroup;
     }
 
 }
