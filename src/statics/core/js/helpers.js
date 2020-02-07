@@ -752,8 +752,8 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 
 				//Ordenamiento				
 				columns.map((e, i) => {
-					
-					if(e.orderable){
+
+					if (e.orderable) {
 						selectionOrder.append(`<option value="${i}">${e.name}</option>`)
 					}
 
@@ -1323,7 +1323,11 @@ function showGenericLoader(name = 'DEFAULT') {
 		"height": `100px`,
 	})
 
+	window.uiPcsActivityGenericLoader[name].html.attr('data-name', name)
+
 	$(document.body).append(window.uiPcsActivityGenericLoader[name].html)
+
+	window.uiPcsActivityGenericLoader[name].html = $(document.body).find(`.ui-pcs-activity-loader[data-name="${name}"]`)
 
 	window.uiPcsActivityGenericLoader[name].progress.configure({
 		parent: `.ui-pcs-activity-loader [loader]`
@@ -1344,13 +1348,14 @@ function removeGenericLoader(name = 'DEFAULT') {
 
 	if (typeof window.uiPcsActivityGenericLoader == 'object') {
 		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
-			setTimeout(function () {
+			let timeout = function () {
 				window.uiPcsActivityGenericLoader[name].progress.done()
 				if (window.uiPcsActivityGenericLoader[name].html instanceof $) {
 					window.uiPcsActivityGenericLoader[name].html.remove()
 					window.uiPcsActivityGenericLoader[name].active = false
 				}
-			}, 500)
+			}
+			setTimeout(timeout, 500)
 		}
 	}
 
@@ -1370,7 +1375,7 @@ function activeGenericLoader(name = 'DEFAULT') {
 	if (typeof window.uiPcsActivityGenericLoader == 'object') {
 
 		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
-			active = window.uiPcsActivityGenericLoader[name].active == true
+			active = (window.uiPcsActivityGenericLoader[name].active == true)
 		}
 
 	}
