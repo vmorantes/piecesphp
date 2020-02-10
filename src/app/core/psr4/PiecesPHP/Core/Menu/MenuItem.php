@@ -19,6 +19,12 @@ use PiecesPHP\Core\HTML\HtmlElement;
 class MenuItem
 {
     /**
+     * $routeName
+     *
+     * @var string|null
+     */
+    protected $routeName;
+    /**
      * $text
      *
      * @var string
@@ -85,6 +91,10 @@ class MenuItem
         'visible' => [
             'rules' => ['bool'],
             'default' => true,
+        ],
+        'routeName' => [
+            'rules' => ['is_string'],
+            'default' => null,
         ],
     ];
 
@@ -162,6 +172,27 @@ class MenuItem
             }
         }
 
+    }
+
+    /**
+     * setVisible
+     *
+     * @param bool $visible
+     * @return void
+     */
+    public function setVisible(bool $visible)
+    {
+        $this->visible = $visible;
+    }
+
+    /**
+     * getRouteName
+     *
+     * @return string|null
+     */
+    public function getRouteName()
+    {
+        return $this->routeName;
     }
 
     /**

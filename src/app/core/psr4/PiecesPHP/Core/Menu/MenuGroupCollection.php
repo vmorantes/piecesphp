@@ -81,9 +81,26 @@ class MenuGroupCollection
 
     }
 
+    /**
+     * addItem
+     *
+     * @param MenuGroup $item
+     * @return void
+     */
     public function addItem(MenuGroup $item)
     {
         $this->items[] = $item;
+    }
+
+    /**
+     * getItems
+     *
+     * @param MenuGroup $item
+     * @return MenuGroup[]
+     */
+    public function getItems()
+    {
+        return $this->items;
     }
 
     /**

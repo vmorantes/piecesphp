@@ -19,6 +19,12 @@ use PiecesPHP\Core\HTML\HtmlElement;
 class MenuGroup
 {
     /**
+     * $routeName
+     *
+     * @var string|null
+     */
+    protected $routeName;
+    /**
      * $name
      *
      * @var string
@@ -116,6 +122,10 @@ class MenuGroup
             'rules' => ['is_array'],
             'default' => [],
         ],
+        'routeName' => [
+            'rules' => ['is_string'],
+            'default' => null,
+        ],
     ];
 
     /**
@@ -209,6 +219,46 @@ class MenuGroup
                 $this->$name = $config['default'];
             }
         }
+    }
+
+    /**
+     * asLink
+     *
+     * @return bool
+     */
+    public function asLink()
+    {
+        return $this->asLink;
+    }
+
+    /**
+     * getItems
+     *
+     * @return MenuItem[]
+     */
+    public function getItems()
+    {
+        return $this->items;
+    }
+
+    /**
+     * getGroups
+     *
+     * @return MenuGroup[]
+     */
+    public function getGroups()
+    {
+        return $this->groups;
+    }
+
+    /**
+     * getRouteName
+     *
+     * @return string|null
+     */
+    public function getRouteName()
+    {
+        return $this->routeName;
     }
 
     /**
@@ -367,6 +417,17 @@ class MenuGroup
     public function addGroup(MenuGroup $group)
     {
         $this->groups[] = $group;
+    }
+
+    /**
+     * setVisible
+     *
+     * @param bool $visible
+     * @return void
+     */
+    public function setVisible(bool $visible)
+    {
+        $this->visible = $visible;
     }
 
     /**
