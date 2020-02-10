@@ -1294,11 +1294,12 @@ function showGenericLoader(name = 'DEFAULT') {
 		html: $(
 			`
 				<div class="ui-pcs-activity-loader">
-					<div loader></div>
+					<div loader>
+						<div class="ui loader active"></div>
+					</div>
 				</div>
 			`
 		),
-		progress: Object.assign(NProgress, {}),
 		active: true,
 	}
 
@@ -1329,12 +1330,6 @@ function showGenericLoader(name = 'DEFAULT') {
 
 	window.uiPcsActivityGenericLoader[name].html = $(document.body).find(`.ui-pcs-activity-loader[data-name="${name}"]`)
 
-	window.uiPcsActivityGenericLoader[name].progress.configure({
-		parent: `.ui-pcs-activity-loader [loader]`
-	})
-
-	window.uiPcsActivityGenericLoader[name].progress.start()
-
 }
 
 /**
@@ -1349,7 +1344,6 @@ function removeGenericLoader(name = 'DEFAULT') {
 	if (typeof window.uiPcsActivityGenericLoader == 'object') {
 		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
 			let timeout = function () {
-				window.uiPcsActivityGenericLoader[name].progress.done()
 				if (window.uiPcsActivityGenericLoader[name].html instanceof $) {
 					window.uiPcsActivityGenericLoader[name].html.remove()
 					window.uiPcsActivityGenericLoader[name].active = false
