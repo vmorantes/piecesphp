@@ -864,11 +864,11 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
  * 
  * Manejador genérico de formularios, requiere jquery
  * 
- * @param {String} selector 
+ * @param {String|$} selectorForm 
  * @param {genericFormHandler.Options} options
  * @returns {$} 
  */
-function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options = {}) {
+function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', options = {}) {
 
 	/**
 	 * @typedef genericFormHandler.Options
@@ -883,7 +883,7 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	 */
 	/**
 	 * @typedef genericFormHandler.Options.ConfirmationOption
-	 * @property {String} selector Selector ddel elemento
+	 * @property {String} selector Selector del elemento
 	 * @property {String} [title] Título
 	 * @property {String} [message]	Mensaje de advertencia
 	 * @property {String} [positive] Texto afirmativo
@@ -892,9 +892,11 @@ function genericFormHandler(selector = 'form[pcs-generic-handler-js]', options =
 	 */
 	let ignore;
 
-	selector = typeof selector == 'string' && selector.trim().length > 0 ? selector.trim() : `form[pcs-generic-handler-js]`
+	if (!(selectorForm instanceof $)) {
+		selectorForm = typeof selectorForm == 'string' && selectorForm.trim().length > 0 ? selectorForm.trim() : `form[pcs-generic-handler-js]`
+	}
 
-	let form = $(`${selector}`)
+	let form = selectorForm instanceof $ ? selectorForm : $(`${selectorForm}`)
 
 	let hasConfirmation = false
 	let buttonConfirmation = null
