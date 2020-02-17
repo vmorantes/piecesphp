@@ -412,7 +412,7 @@ class FileUpload
 
         $files = $multiple ? $this->fileInformation : [$this->fileInformation];
 
-        $counter_files = 0;
+        $counterFiles = 0;
 
         $moved_files = [];
 
@@ -433,19 +433,19 @@ class FileUpload
         if ($move) {
             foreach ($files as $file) {
 
-                $counter_files++;
-                $new_name = $name;
+                $counterFiles++;
+                $newName = $name;
 
                 if (!is_null($name) && $multiple) {
-                    $name = pathinfo($file['name'], \PATHINFO_BASENAME);
-                    $new_name = "{$name}_{$counter_files}";
+                    $newName = pathinfo($newName, \PATHINFO_FILENAME);
+                    $newName = "{$newName}_{$counterFiles}";
                 }
 
                 if (is_null($extension)) {
                     $extension = pathinfo($file['name'], \PATHINFO_EXTENSION);
                 }
                 $tmp = $file['tmp_name'];
-                $moved_files[] = self::moveFileTo($directory, $tmp, $new_name, $extension, $overwrite);
+                $moved_files[] = self::moveFileTo($directory, $tmp, $newName, $extension, $overwrite);
             }
         }
 
