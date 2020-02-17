@@ -44,7 +44,29 @@ class ExifHelper
      */
     public function getOriginalDate()
     {
-        return isset($this->exifData['DateTimeOriginal']) ? new \DateTime($this->exifData['DateTimeOriginal']) : null;
+
+        $value = null;
+        $exifData = $this->exifData;
+        $requiredKey = 'DateTimeOriginal';
+        $DateTimeOriginal = isset($exifData[$requiredKey]) ? $exifData[$requiredKey] : null;
+
+        if (!is_null($DateTimeOriginal)) {
+
+            $datetimeParts = explode(' ', $DateTimeOriginal);
+
+            $date = $datetimeParts[0];
+            $time = $datetimeParts[1];
+
+            $date = str_replace(':', '-', $date);
+
+            $datetimeString = "{$date} {$time}";
+
+            $value = new \DateTime($datetimeString);
+
+        }
+
+        return $value;
+
     }
 
     /**
@@ -54,7 +76,28 @@ class ExifHelper
      */
     public function getDigitizedDate()
     {
-        return isset($this->exifData['DateTimeDigitized']) ? new \DateTime($this->exifData['DateTimeDigitized']) : null;
+        $value = null;
+        $exifData = $this->exifData;
+        $requiredKey = 'DateTimeDigitized';
+        $DateTimeDigitized = isset($exifData[$requiredKey]) ? $exifData[$requiredKey] : null;
+
+        if (!is_null($DateTimeDigitized)) {
+
+            $datetimeParts = explode(' ', $DateTimeDigitized);
+
+            $date = $datetimeParts[0];
+            $time = $datetimeParts[1];
+
+            $date = str_replace(':', '-', $date);
+
+            $datetimeString = "{$date} {$time}";
+
+            $value = new \DateTime($datetimeString);
+
+        }
+
+        return $value;
+
     }
 
     /**
