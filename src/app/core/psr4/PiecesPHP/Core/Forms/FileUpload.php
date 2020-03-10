@@ -435,6 +435,7 @@ class FileUpload
 
                 $counterFiles++;
                 $newName = $name;
+                $newExtension = $extension;
 
                 if (!is_null($name) && $multiple) {
                     $newName = pathinfo($newName, \PATHINFO_FILENAME);
@@ -442,10 +443,10 @@ class FileUpload
                 }
 
                 if (is_null($extension)) {
-                    $extension = pathinfo($file['name'], \PATHINFO_EXTENSION);
+                    $newExtension = pathinfo($file['name'], \PATHINFO_EXTENSION);
                 }
                 $tmp = $file['tmp_name'];
-                $moved_files[] = self::moveFileTo($directory, $tmp, $newName, $extension, $overwrite);
+                $moved_files[] = self::moveFileTo($directory, $tmp, $newName, $newExtension, $overwrite);
             }
         }
 
