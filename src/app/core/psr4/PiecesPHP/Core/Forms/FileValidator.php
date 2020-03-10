@@ -16,6 +16,8 @@ namespace PiecesPHP\Core\Forms;
  */
 class FileValidator
 {
+    const TYPE_ANY = 'any';
+
     const TYPE_ALL_IMAGES = 'image/*';
 
     const TYPE_JPG = 'jpg';
@@ -36,6 +38,7 @@ class FileValidator
     const TYPE_MP4 = 'mp4';
 
     const MIME_TYPES = [
+        self::TYPE_ANY => [],
         self::TYPE_ALL_IMAGES => [
             'image/gif',
             'image/jpg',
@@ -114,6 +117,7 @@ class FileValidator
         ],
     ];
     const EXTENSIONS = [
+        self::TYPE_ANY => [],
         self::TYPE_ALL_IMAGES => [
             'gif',
             'jpg',
@@ -170,6 +174,24 @@ class FileValidator
             'mp4',
         ],
     ];
+
+    const DISPLAY = [
+        self::TYPE_ANY => 'Cualquier archivo',
+        self::TYPE_ALL_IMAGES => 'Cualquier imagen',
+        self::TYPE_JPG => 'Imagen JPG',
+        self::TYPE_GIF => 'Imagen GIF',
+        self::TYPE_PNG => 'Imagen PNG',
+        self::TYPE_SVG => 'SVG',
+        self::TYPE_XLSX => 'XLSX (Excel)',
+        self::TYPE_XLS => 'XLS (Excel)',
+        self::TYPE_CSV => 'CSV',
+        self::TYPE_PDF => 'PDF',
+        self::TYPE_DOC => 'DOC (Word)',
+        self::TYPE_DOCX => 'DOCX (Word)',
+        self::TYPE_MP3 => 'MP3',
+        self::TYPE_MP4 => 'MP4',
+    ];
+
     /**
      * $acceptedTypes
      *
@@ -270,8 +292,14 @@ class FileValidator
 
         }
 
-        $valid_mime_type = in_array($mime_type, $mimes) || self::$ignoreMimeType === true;
-        $valid_extension = in_array($extension, $extensions);
+        if (!in_array(self::TYPE_ANY, $this->getAcceptedTypes())) {
+            $valid_mime_type = in_array($mime_type, $mimes) || self::$ignoreMimeType === true;
+            $valid_extension = in_array($extension, $extensions);
+        } else {
+            $valid_mime_type = true;
+            $valid_extension = true;
+        }
+
         $valid_size = $filesize <= $this->maxFileSizeMB;
         $valid = $valid_mime_type && $valid_extension && $valid_size;
 
