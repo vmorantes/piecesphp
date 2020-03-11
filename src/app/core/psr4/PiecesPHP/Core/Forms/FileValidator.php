@@ -146,7 +146,7 @@ class FileValidator
             'svg',
         ],
         self::TYPE_XLSX => [
-            'xlxs',
+            'xlsx',
         ],
         self::TYPE_XLS => [
             'xls',
