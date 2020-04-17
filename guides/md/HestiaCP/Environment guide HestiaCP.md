@@ -2,13 +2,13 @@
 
 ### Nota:
 - Esta guia proporciona los pasos para un entorno con las siguientes características:
-    - Debian 9
+    - Debian 10
     - HestiaCP
     - PHP 7.1
     - MariaDB 10.3
 
 ## Intalación de algunos paquetes
-apt install unzip
+apt install unzip curl
 
 ## Intalación de HestiaCP
 
@@ -20,7 +20,7 @@ wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-ins
 
 - Instalar HestiaCP:
 
-bash hst-install.sh --nginx yes --apache yes --multiphp yes --named yes --vsftpd yes --iptables yes --fail2ban yes --exim no --dovecot no --spamassassin no --clamav no --mysql no --lang es --hostname DOMINIO --email EMAIL --password CONTRASEÑA
+bash hst-install.sh --nginx yes --apache yes --multiphp yes --named yes --vsftpd yes --iptables yes --fail2ban yes --exim no --dovecot no --spamassassin no --clamav no --mysql no --lang es --hostname vps230250.vps.ovh.ca --email EMAIL --password CONTRASEÑA
 
 ## Intalación de PHP 7.1
 
@@ -30,18 +30,6 @@ sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gp
 sudo sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
 sudo apt update
 
-- Instalar php:
-sudo apt install php7.1 libapache2-mod-php7.1
-
-- Verificar el cambio
-php -v
-
-- Cambiar alternativa de php en consola (opcional si no ocurrió automáticamente):
-update-alternatives --config php
-
-- Cambiar alternativa de php en apache:
-sudo a2dismod phpVERSION && sudo a2enmod php7.1
-
 - Reiniciar apache
 sudo service apache2 restart
 
@@ -50,17 +38,13 @@ sudo service apache2 restart
     - La extensión mcrypt debe instalarse como extensión PECL luego de php 7.1.*
     - Al finalizar se debe reiniciar apache
 
-sudo apt install php7.1-pdo php7.1-xml php7.1-ctype php7.1-mbstring php7.1-fileinfo php7.1-gd php7.1-mcrypt php7.1-mysqli php7.1-sqlite3 php7.1-zip php7.1-xsl php7.1-xmlwriter php7.1-xmlreader
+sudo apt install php*-pdo php*-xml php*-ctype php*-mbstring php*-fileinfo php*-gd php*-mysqli php*-sqlite3 php*-zip php*-xsl php*-xmlwriter php*-xmlreader php*-mcrypt
 
 #### Extensiones sugeridas:
-sudo apt install php7.1-mongodb
-
-#### Mcrypt en > 7.1
-sudo apt-get -y install gcc make autoconf libc-dev pkg-config
-sudo apt-get -y install php7.2-dev
-sudo apt-get -y install libmcrypt-dev
+sudo apt install php*-mongodb
 
 ## Módulos apache2
+a2enmod headers
 a2enmod rewrite
 service apache2 restart
 
@@ -69,8 +53,8 @@ service apache2 restart
 ### Instalar MariaDB 10.3:
 - Actualizar repositorios:
 sudo apt-get install software-properties-common dirmngr
-sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xF1656F24C74CD1D8
-sudo add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://mirror.upb.edu.co/mariadb/repo/10.3/debian stretch main'
+sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
+sudo add-apt-repository 'deb [arch=amd64] https://mirror.as205474.net/mariadb/repo/10.3/debian buster main'
 sudo apt-get update
 
 - Instalar MariaDB:
@@ -115,12 +99,13 @@ composer --version
 Nota: Activar SSL en Hestia
 cd ~
 wget https://files.phpmyadmin.net/phpMyAdmin/4.9.2/phpMyAdmin-4.9.2-all-languages.zip
-cd /home/admin/web/DOMINIO/public_html/
+cd /home/admin/web/vps230250.vps.ovh.ca/public_html/
 unzip ~/phpMyAdmin-4.9.2-all-languages.zip -d .
 rm index.html robots.txt
 mv phpMyAdmin-4.9.2-all-languages phpmyadmin
 
 ### Configurar
+cd phpmyadmin
 cp config.sample.inc.php config.inc.php 
 nano config.inc.php
 - Configurar blowfish
@@ -128,6 +113,7 @@ nano config.inc.php
 ### Permisos
 
 - Aplicar permisos a la carpeta de phpmyadmin
+cd ..
 chmod -R 0755 phpmyadmin
 chmod -R 0755 phpmyadmin/*
 mkdir phpmyadmin/tmp
@@ -141,6 +127,7 @@ chown -R www-data:www-data phpmyadmin/*
 ### Seguridad
 
 - Borrar setup
+cd phpmyadmin
 rm -Rf setup
 
 ## Otras configuraciones
