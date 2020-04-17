@@ -136,7 +136,7 @@ $lang = [
         'Cerrar sesión'       => 'Logout',
     ],
     'supportFormAdminZone' => [
-        'Soporte ténico' => 'Technical support',
+        'Soporte técnico' => 'Technical support',
         'Asunto'         => 'Subject',
         'Mensaje'        => 'Message',
         'Enviar'         => 'Send',
