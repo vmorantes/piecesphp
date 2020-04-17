@@ -15,7 +15,7 @@
 <body>
 
     <div class="ui modal" support-js>
-        <div class="header"><?= __('supportFormAdminZone', 'Soporte ténico'); ?></div>
+        <div class="header"><?= __('supportFormAdminZone', 'Soporte técnico'); ?></div>
         <div class="content">
             <form action="<?=get_route('tickets-create');?>" class="ui form">
                 <input type="hidden" name="name"
