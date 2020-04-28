@@ -116,13 +116,82 @@ class PiecesPHPSystemUserHelper {
 	deleteSession() {
 		let now = new Date().getTime()
 		let JWT = this.getJWT()
+		let JWTCookie = this.getCookie('JWTAuth')
 
-		if (JWT.length > 0) {
+		if (typeof JWTCookie == 'string' && JWTCookie.trim().length == 0) {
+			JWTCookie = null
+		}
+
+		if (JWT.length > 0 || JWTCookie !== null) {
 			document.cookie = `JWTAuth=;expires=${now};path=/`;
 			localStorage.removeItem('JWTAuth')
 			localStorage.removeItem('JWTAuthExtraData')
 			window.location.reload()
 		}
+	}
+
+	getCookies() {
+
+		let cookies = document.cookie
+		let parsedCookies = {}
+		let hasValues = false
+		let valueParsed = null
+
+		cookies = cookies.split(';')
+
+		if (Array.isArray(cookies)) {
+
+			for (let cookie of cookies) {
+
+				let pair = cookie.split('=')
+
+				if (Array.isArray(pair) && pair.length === 2) {
+
+					let name = pair[0].trim()
+					let value = pair[1]
+
+					if (typeof parsedCookies[name] === 'undefined') {
+						parsedCookies[name] = []
+					}
+
+					parsedCookies[name].push(value)
+					hasValues = true
+
+				}
+
+			}
+
+			for (let name in parsedCookies) {
+
+				let values = parsedCookies[name]
+
+				if (Array.isArray(values) && values.length === 1) {
+
+					parsedCookies[name] = values[0]
+
+				}
+
+			}
+
+		}
+
+		if (hasValues) {
+			valueParsed = parsedCookies
+		}
+
+		return valueParsed
+	}
+
+	getCookie(name) {
+
+		let cookies = this.getCookies()
+		let value = null
+
+		if (typeof name == 'string' && typeof cookies[name] != 'undefined') {
+			value = cookies[name]
+		}
+
+		return value
 	}
 
 	post(url, data, headers = {}) {
