@@ -32,6 +32,13 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'href' => get_route('admin'),
         ]),
         new MenuGroup([
+            'name' => __('bi-shop-categories', 'Tienda'),
+            'icon' => 'store',
+            'visible' => Roles::hasPermissions('built-in-shop-private-categories-options', $current_type_user),
+            'asLink' => true,
+            'href' => get_route('built-in-shop-private-categories-options', [], true),
+        ]),
+        new MenuGroup([
             'name' => __('sidebarAdminZone', 'Artículos'),
             'icon' => 'newspaper',
             'visible' => Roles::hasPermissions('built-in-articles-list', $current_type_user),
