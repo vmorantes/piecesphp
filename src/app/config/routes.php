@@ -53,6 +53,7 @@ use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
+use PiecesPHP\BuiltIn\Shop\ShopRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
@@ -119,6 +120,9 @@ ArticleControllerPublic::routes($articles);
 
 //Manejador de tokens
 GenericTokenController::routes($token_handler);
+
+//Tienda
+ShopRoutes::routes($zona_administrativa);
 
 $sistema_avatares->register(
     [
