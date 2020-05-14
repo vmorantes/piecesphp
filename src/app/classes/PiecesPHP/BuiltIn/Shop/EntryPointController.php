@@ -9,6 +9,7 @@ namespace PiecesPHP\BuiltIn\Shop;
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Shop\SubCategory\Controllers\SubCategoryController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -48,7 +49,7 @@ class EntryPointController extends AdminPanelController
 
     const BASE_VIEW_DIR = 'built-in/shop';
     const BASE_JS_DIR = 'statics/js/built-in/shop';
-    const LANG_GROUP = 'bi-shop-categories';
+    const LANG_GROUP = 'bi-shop';
 
     /**
      * __construct
@@ -80,6 +81,10 @@ class EntryPointController extends AdminPanelController
             [
                 'title' => __(self::LANG_GROUP, 'Categorías'),
                 'link' => CategoryController::routeName('list'),
+            ],
+            [
+                'title' => __(self::LANG_GROUP, 'Subcategorías'),
+                'link' => SubCategoryController::routeName('list'),
             ],
         ];
 

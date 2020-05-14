@@ -30,25 +30,29 @@ $langGroup;
 
 <div style="max-width:100%;">
 
-    <?php foreach($options as $option): ?>
+    <div class="ui cards">
 
-    <div class="ui card">
+        <?php foreach($options as $option): ?>
 
-        <div class="content">
+        <div class="ui card">
 
-            <div class="header">
-                <?= $option->title; ?>
-            </div>
+            <div class="content">
 
-            <br>
+                <div class="header">
+                    <?= $option->title; ?>
+                </div>
 
-            <div class="description">
+                <br>
 
-                <div>
+                <div class="description">
 
-                    <a class="fluid ui olive button icon" href="<?= $option->link; ?>">
-                        <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Ver'); ?>
-                    </a>
+                    <div>
+
+                        <a class="fluid ui olive button icon" href="<?= $option->link; ?>">
+                            <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Ver'); ?>
+                        </a>
+
+                    </div>
 
                 </div>
 
@@ -56,8 +60,8 @@ $langGroup;
 
         </div>
 
-    </div>
+        <?php endforeach;?>
 
-    <?php endforeach;?>
+    </div>
 
 </div>

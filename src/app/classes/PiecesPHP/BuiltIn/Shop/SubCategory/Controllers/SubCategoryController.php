@@ -1,15 +1,17 @@
 <?php
 
 /**
- * CategoryController.php
+ * SubCategoryController.php
  */
 
-namespace PiecesPHP\BuiltIn\Shop\Category\Controllers;
+namespace PiecesPHP\BuiltIn\Shop\SubCategory\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use PiecesPHP\BuiltIn\Shop\Category\Mappers\CategoryMapper;
+use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Shop\Category\Mappers\CategoryMapper as ShopCategoryMapper;
 use PiecesPHP\BuiltIn\Shop\EntryPointController;
+use PiecesPHP\BuiltIn\Shop\SubCategory\Mappers\SubCategoryMapper;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Roles;
@@ -27,13 +29,13 @@ use Slim\Http\Request as Request;
 use Slim\Http\Response as Response;
 
 /**
- * CategoryController.
+ * SubCategoryController.
  *
- * @package     PiecesPHP\BuiltIn\Shop\Category\Controllers
+ * @package     PiecesPHP\BuiltIn\Shop\SubCategory\Controllers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
  */
-class CategoryController extends AdminPanelController
+class SubCategoryController extends AdminPanelController
 {
 
     /**
@@ -41,27 +43,27 @@ class CategoryController extends AdminPanelController
      *
      * @var string
      */
-    protected static $URLDirectory = 'shop/private/categories';
+    protected static $URLDirectory = 'shop/private/subcategories';
 
     /**
      * $baseRouteName
      *
      * @var string
      */
-    protected static $baseRouteName = 'built-in-shop-private-categories';
+    protected static $baseRouteName = 'built-in-shop-private-subcategories';
 
     /**
      * $title
      *
      * @var string
      */
-    protected static $title = 'Categoría';
+    protected static $title = 'Subcategoría';
     /**
      * $pluralTitle
      *
      * @var string
      */
-    protected static $pluralTitle = 'Categorías';
+    protected static $pluralTitle = 'Subcategorías';
 
     /**
      * $uploadDir
@@ -76,10 +78,10 @@ class CategoryController extends AdminPanelController
      */
     protected $uploadDirURL = '';
 
-    const BASE_VIEW_DIR = 'built-in/shop/categories';
-    const BASE_JS_DIR = 'statics/js/built-in/shop/categories';
-    const UPLOAD_DIR = 'general/shop/categories';
-    const LANG_GROUP = 'bi-shop-categories';
+    const BASE_VIEW_DIR = 'built-in/shop/subcategories';
+    const BASE_JS_DIR = 'statics/js/built-in/shop/subcategories';
+    const UPLOAD_DIR = 'general/shop/subcategories';
+    const LANG_GROUP = 'bi-shop-subcategories';
 
     /**
      * __construct
@@ -93,7 +95,7 @@ class CategoryController extends AdminPanelController
         self::$title = __(self::LANG_GROUP, self::$title);
         self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
 
-        $this->model = (new CategoryMapper())->getModel();
+        $this->model = (new SubCategoryMapper())->getModel();
         set_title(self::$title);
 
         $baseURL = base_url();
@@ -115,6 +117,9 @@ class CategoryController extends AdminPanelController
     public function addForm(Request $request, Response $response, array $args)
     {
 
+        $categoryID = $request->getQueryParam('category', null);
+        $categoryID = !is_null($categoryID) && ctype_digit($categoryID) ? (int) $categoryID : null;
+
         set_custom_assets([
             self::BASE_JS_DIR . '/private/forms.js',
         ], 'js');
@@ -123,12 +128,44 @@ class CategoryController extends AdminPanelController
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
+        $title = self::$title;
+
+        $optionsCategories = array_to_html_options(ShopCategoryMapper::allForSelect(), null);
+
+        if ($categoryID !== null) {
+
+            $category = new ShopCategoryMapper($categoryID);
+
+            if ($category->id !== null) {
+
+                $categories = ShopCategoryMapper::allForSelect();
+
+                foreach ($categories as $kID => $name) {
+
+                    if ($kID != $categoryID || strlen(trim($kID)) == 0) {
+                        unset($categories[$kID]);
+                    }
+
+                }
+
+                $optionsCategories = array_to_html_options($categories, $categoryID);
+
+                $title = vsprintf(__(self::LANG_GROUP, 'Subcategoría de %s'), [
+                    $category->name,
+                ]);
+
+            } else {
+                throw new NotFoundException($request, $response);
+            }
+
+        }
 
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
-        $data['title'] = self::$title;
+        $data['title'] = $title;
+        $data['optionsCategories'] = $optionsCategories;
 
         $this->render('panel/layout/header');
         self::view('private/forms/add', $data);
@@ -150,7 +187,7 @@ class CategoryController extends AdminPanelController
         $id = $request->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
 
-        $element = new CategoryMapper($id);
+        $element = new SubCategoryMapper($id);
 
         if (!is_null($element->id)) {
 
@@ -163,12 +200,15 @@ class CategoryController extends AdminPanelController
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
 
+            $optionsCategories = array_to_html_options(ShopCategoryMapper::allForSelect(), $element->category->id);
+
             $data = [];
             $data['action'] = $action;
             $data['element'] = $element;
             $data['langGroup'] = self::LANG_GROUP;
             $data['backLink'] = $backLink;
             $data['title'] = self::$title;
+            $data['optionsCategories'] = $optionsCategories;
 
             $this->render('panel/layout/header');
             self::view('private/forms/edit', $data);
@@ -191,12 +231,34 @@ class CategoryController extends AdminPanelController
     public function listView(Request $request, Response $response, array $args)
     {
 
-		$backLink = EntryPointController::routeName('options');
+        $categoryID = $request->getQueryParam('category', null);
+        $categoryID = !is_null($categoryID) && ctype_digit($categoryID) ? (int) $categoryID : null;
+
+        $backLink = EntryPointController::routeName('options');
         $addLink = self::routeName('forms-add');
 
         $processTableLink = self::routeName('datatables');
 
         $title = self::$pluralTitle;
+
+        if ($categoryID !== null) {
+
+            $category = new ShopCategoryMapper($categoryID);
+
+            if ($category->id !== null) {
+
+                $backLink = CategoryController::routeName('list');
+                $processTableLink .= "?category={$categoryID}";
+                $addLink .= "?category={$categoryID}";
+                $title = vsprintf(__(self::LANG_GROUP, 'Subcategorías de %s'), [
+                    $category->name,
+                ]);
+
+            } else {
+                throw new NotFoundException($request, $response);
+            }
+
+        }
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
@@ -245,6 +307,17 @@ class CategoryController extends AdminPanelController
                 }
             ),
             new Parameter(
+                'category',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                false,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
                 'name',
                 null,
                 function ($value) {
@@ -276,7 +349,7 @@ class CategoryController extends AdminPanelController
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
-        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Categoría'));
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Subcategoría'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
 
         //Valores iniciales de la respuesta
@@ -286,13 +359,14 @@ class CategoryController extends AdminPanelController
         $resultOperation->setValue('reload', false);
 
         //Mensajes de respuesta
-        $notExistsMessage = __(self::LANG_GROUP, 'La categoría que intenta modificar no existe.');
-        $successCreateMessage = __(self::LANG_GROUP, 'Categoría creada.');
+        $notExistsMessage = __(self::LANG_GROUP, 'La subcategoría que intenta modificar no existe.');
+        $successCreateMessage = __(self::LANG_GROUP, 'Subcategoría creada.');
         $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
-        $isDuplicateMessage = __(self::LANG_GROUP, 'Ya existe una categoría con ese nombre.');
+        $isDuplicateMessage = __(self::LANG_GROUP, 'Ya existe una subcategoría con ese nombre.');
         $noImageMessage = __(self::LANG_GROUP, 'No ha sido subida ninguna imagen.');
+        $categoryNotExistsMessage = __(self::LANG_GROUP, 'La categoría seleccionada no existe.');
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -303,10 +377,12 @@ class CategoryController extends AdminPanelController
             //Información del formulario
             /**
              * @var int $id
+             * @var int $categoryID
              * @var string $name
              * @var string $description
              */;
             $id = $expectedParameters->getValue('id');
+            $categoryID = $expectedParameters->getValue('category');
             $name = $expectedParameters->getValue('name');
             $description = $expectedParameters->getValue('description');
 
@@ -316,95 +392,108 @@ class CategoryController extends AdminPanelController
             //Dirección de redirección en cadso de creación
             $redirectURLOnCreate = self::routeName('list');
 
-            //Verificar si está duplicado
-            $isDuplicate = CategoryMapper::isDuplicate($name, $id);
+            $categoryExists = ShopCategoryMapper::existsByID($categoryID);
 
-            if (!$isDuplicate) {
+            if ($categoryExists) {
 
-                try {
+                //Verificar si está duplicado
+                $isDuplicate = SubCategoryMapper::isDuplicate($name, $categoryID, $id);
 
-                    if (!$isEdit) {
-                        //Nuevo
+                if (!$isDuplicate) {
 
-                        $mapper = new CategoryMapper();
+                    try {
 
-                        $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
-                        $image = self::handlerUploadImage('image', $folder);
+                        if (!$isEdit) {
+                            //Nuevo
 
-                        $mapper->name = $name;
-                        $mapper->description = $description;
-                        $mapper->image = $image;
+                            $mapper = new SubCategoryMapper();
 
-                        if (strlen($image) > 0) {
-
-                            $saved = $mapper->save();
-
-                            $resultOperation->setSuccessOnSingleOperation($saved);
-
-                            if ($saved) {
-
-                                $resultOperation
-                                    ->setMessage($successCreateMessage)
-                                    ->setValue('redirect', true)
-                                    ->setValue('redirect_to', $redirectURLOnCreate);
-
-                            } else {
-                                $resultOperation->setMessage($unknowErrorMessage);
-                            }
-
-                        } else {
-                            $resultOperation->setMessage($noImageMessage);
-                        }
-
-                    } else {
-                        //Existente
-
-                        $mapper = new CategoryMapper((int) $id);
-                        $exists = !is_null($mapper->id);
-
-                        if ($exists) {
-
-                            $image = self::handlerUploadImage('image', '', $mapper->image);
+                            $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
+                            $image = self::handlerUploadImage('image', $folder);
 
                             $mapper->name = $name;
+                            $mapper->category = $categoryID;
                             $mapper->description = $description;
-                            $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
+                            $mapper->image = $image;
 
-                            $updated = $mapper->update();
+                            if (strlen($image) > 0) {
 
-                            $resultOperation->setSuccessOnSingleOperation($updated);
+                                $saved = $mapper->save();
 
-                            if ($updated) {
+                                $resultOperation->setSuccessOnSingleOperation($saved);
 
-                                $resultOperation
-                                    ->setMessage($successEditMessage)
-                                    ->setValue('redirect', true)
-                                    ->setValue('redirect_to', $redirectURLOnCreate);
+                                if ($saved) {
+
+                                    $resultOperation
+                                        ->setMessage($successCreateMessage)
+                                        ->setValue('redirect', true)
+                                        ->setValue('redirect_to', $redirectURLOnCreate);
+
+                                } else {
+                                    $resultOperation->setMessage($unknowErrorMessage);
+                                }
 
                             } else {
-
-                                $resultOperation->setMessage($unknowErrorMessage);
-
+                                $resultOperation->setMessage($noImageMessage);
                             }
 
                         } else {
+                            //Existente
 
-                            $resultOperation->setMessage($notExistsMessage);
+                            $mapper = new SubCategoryMapper((int) $id);
+                            $exists = !is_null($mapper->id);
+
+                            if ($exists) {
+
+                                $image = self::handlerUploadImage('image', '', $mapper->image);
+
+                                $mapper->name = $name;
+                                $mapper->category = $categoryID;
+                                $mapper->description = $description;
+                                $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
+
+                                $updated = $mapper->update();
+
+                                $resultOperation->setSuccessOnSingleOperation($updated);
+
+                                if ($updated) {
+
+                                    $resultOperation
+                                        ->setMessage($successEditMessage)
+                                        ->setValue('redirect', true)
+                                        ->setValue('redirect_to', $redirectURLOnCreate);
+
+                                } else {
+
+                                    $resultOperation->setMessage($unknowErrorMessage);
+
+                                }
+
+                            } else {
+
+                                $resultOperation->setMessage($notExistsMessage);
+
+                            }
 
                         }
+
+                    } catch (\Exception $e) {
+
+                        $resultOperation->setMessage($e->getMessage());
+                        log_exception($e);
 
                     }
 
-                } catch (\Exception $e) {
+                } else {
 
-                    $resultOperation->setMessage($e->getMessage());
-                    log_exception($e);
+                    $resultOperation->setMessage($isDuplicateMessage);
 
                 }
 
             } else {
 
-                $resultOperation->setMessage($isDuplicateMessage);
+                $resultOperation->setMessage($categoryNotExistsMessage);
+
             }
 
         } catch (MissingRequiredParamaterException $e) {
@@ -454,12 +543,26 @@ class CategoryController extends AdminPanelController
     public function dataTables(Request $request, Response $response, array $args)
     {
 
+        $categoryID = $request->getQueryParam('category', null);
+        $categoryID = !is_null($categoryID) && ctype_digit($categoryID) ? (int) $categoryID : null;
+
         $whereString = null;
 
-        $table = CategoryMapper::TABLE;
+        if ($categoryID !== null) {
+
+            $whereString = [];
+
+            $whereString[] = "category = {$categoryID}";
+
+            $whereString = implode(' ', $whereString);
+
+        }
+
+        $table = SubCategoryMapper::TABLE;
 
         $selectFields = [
             "{$table}.id",
+            "{$table}.category",
             "{$table}.name",
             "{$table}.description",
             "{$table}.image",
@@ -467,6 +570,7 @@ class CategoryController extends AdminPanelController
         ];
 
         $columnsOrder = [
+            'category',
             'name',
             'description',
         ];
@@ -479,10 +583,11 @@ class CategoryController extends AdminPanelController
             'where_string' => $whereString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
-            'mapper' => new CategoryMapper(),
+            'mapper' => new SubCategoryMapper(),
             'request' => $request,
             'on_set_data' => function ($e) {
                 return [
+                    '',
                     '',
                     '',
                 ];
@@ -494,7 +599,7 @@ class CategoryController extends AdminPanelController
 
         foreach ($rawData as $index => $element) {
 
-            $mapper = new CategoryMapper($element->id);
+            $mapper = new SubCategoryMapper($element->id);
 
             $rawData[$index] = self::view(
                 'private/util/list-card',

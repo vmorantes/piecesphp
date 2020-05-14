@@ -22,7 +22,7 @@ $action;
 
         <a href="<?= $backLink; ?>" class="ui labeled icon button">
             <i class="icon left arrow"></i>
-            <?= __($langGroup, 'Ir al listado'); ?>
+            <?= __($langGroup, 'Regresar'); ?>
         </a>
 
     </div>
