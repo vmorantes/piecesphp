@@ -8,6 +8,7 @@ namespace PiecesPHP\BuiltIn\Shop;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
+use PiecesPHP\BuiltIn\Shop\Brand\Controllers\BrandController;
 use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryController;
 use PiecesPHP\BuiltIn\Shop\SubCategory\Controllers\SubCategoryController;
 use PiecesPHP\Core\Roles;
@@ -85,6 +86,10 @@ class EntryPointController extends AdminPanelController
             [
                 'title' => __(self::LANG_GROUP, 'Subcategorías'),
                 'link' => SubCategoryController::routeName('list'),
+            ],
+            [
+                'title' => __(self::LANG_GROUP, 'Marcas'),
+                'link' => BrandController::routeName('list'),
             ],
         ];
 
