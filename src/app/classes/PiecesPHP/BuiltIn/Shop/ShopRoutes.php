@@ -7,6 +7,7 @@
 namespace PiecesPHP\BuiltIn\Shop;
 
 use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Shop\SubCategory\Controllers\SubCategoryController;
 use PiecesPHP\Core\RouteGroup;
 
 /**
@@ -31,6 +32,8 @@ class ShopRoutes
         $group = EntryPointController::routes($group);
 
         $group = CategoryController::routes($group);
+
+        $group = SubCategoryController::routes($group);
 
         return $group;
     }

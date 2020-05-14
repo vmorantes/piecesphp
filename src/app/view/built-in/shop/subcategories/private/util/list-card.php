@@ -1,11 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryMapper;
-use PiecesPHP\BuiltIn\Shop\SubCategory\Controllers\SubCategoryController;
+use PiecesPHP\BuiltIn\Shop\SubCategory\Mappers\SubCategoryMapper;
 
 /**
- * @var CategoryMapper $mapper
+ * @var SubCategoryMapper $mapper
  */
 $mapper;
 
@@ -15,8 +14,6 @@ $mapper;
  */;
 $langGroup;
 $editLink;
-
-$subCategoriesLink = SubCategoryController::routeName('list') . "?category={$mapper->id}";
 
 ?>
 
@@ -39,6 +36,8 @@ $subCategoriesLink = SubCategoryController::routeName('list') . "?category={$map
         <div class="description">
 
             <div>
+                <strong><?= __($langGroup, 'Categoría'); ?>:</strong> <?= $mapper->category->name; ?>
+                <br>
                 <?= $mapper->description; ?>
             </div>
 
@@ -49,12 +48,6 @@ $subCategoriesLink = SubCategoryController::routeName('list') . "?category={$map
                 <?php if(strlen($editLink) > 0): ?>
                 <a class="fluid ui olive button icon" href="<?= $editLink; ?>">
                     <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Editar'); ?>
-                </a>
-                <?php endif;?>
-
-                <?php if(strlen($subCategoriesLink) > 0): ?>
-                <a class="fluid ui blue button icon" href="<?= $subCategoriesLink; ?>">
-                    <i class="icon search"></i> &nbsp; <?= __($langGroup, 'Subcategorías'); ?>
                 </a>
                 <?php endif;?>
 

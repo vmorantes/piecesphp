@@ -1,10 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryMapper;
+use PiecesPHP\BuiltIn\Shop\SubCategory\Mappers\SubCategoryMapper;
 
 /**
- * @var CategoryMapper $element
+ * @var SubCategoryMapper $element
  */
 $element;
 
@@ -36,13 +36,20 @@ $action;
 
     <br><br>
 
-    <form method='POST' action="<?= $action; ?>" class="ui form shop-categories">
+    <form method='POST' action="<?= $action; ?>" class="ui form shop-subcategories">
 
         <input type="hidden" name="id" value="<?= $element->id; ?>">
 
         <div class="field required">
             <label><?= __($langGroup, 'Nombre'); ?></label>
             <input required type="text" name="name" maxlength="300" value="<?= $element->name; ?>">
+        </div>
+
+        <div class="field required">
+            <label><?= __($langGroup, 'Categoría'); ?></label>
+            <select name="category" class="ui dropdown search" required>
+                <?= $optionsCategories; ?>
+            </select>
         </div>
 
         <div class="field">
