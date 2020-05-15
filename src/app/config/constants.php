@@ -39,6 +39,9 @@ define('BLACKBOARD_NEWS_PATH_JS', BLACKBOARD_NEWS_PATH_STATICS . '/js');
 //Blog integrado
 define('PIECES_PHP_BLOG_ENABLED', false);
 
+//Tienda integrada
+define('PIECES_PHP_SHOP_ENABLE', false);
+
 //Ubicaciones
 define('LOCATIONS_ENABLED', false);
 define('LOCATIONS_PATH_JS', 'statics/features/locations/js');

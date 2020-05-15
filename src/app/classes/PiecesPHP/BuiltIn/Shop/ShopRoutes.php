@@ -31,15 +31,19 @@ class ShopRoutes
      */
     public static function routes(RouteGroup $group)
     {
-        $group = EntryPointController::routes($group);
+        if (PIECES_PHP_SHOP_ENABLE) {
 
-        $group = CategoryController::routes($group);
+            $group = EntryPointController::routes($group);
 
-        $group = SubCategoryController::routes($group);
+            $group = CategoryController::routes($group);
 
-        $group = BrandController::routes($group);
+            $group = SubCategoryController::routes($group);
 
-        $group = ProductController::routes($group);
+            $group = BrandController::routes($group);
+
+			$group = ProductController::routes($group);
+			
+        }
 
         return $group;
     }
