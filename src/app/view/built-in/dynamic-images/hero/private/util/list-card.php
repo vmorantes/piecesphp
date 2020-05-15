@@ -1,10 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-use PiecesPHP\BuiltIn\Shop\Product\Mappers\ProductMapper;
+use PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers\ImageMapper;
 
 /**
- * @var ProductMapper $mapper
+ * @var ImageMapper $mapper
  */
 $mapper;
 
@@ -14,6 +14,7 @@ $mapper;
  */;
 $langGroup;
 $editLink;
+
 ?>
 
 <div class="ui card">
@@ -21,13 +22,13 @@ $editLink;
     <div class="content">
 
         <div class="header">
-            <?= $mapper->name; ?>
+            <?= $mapper->title; ?>
         </div>
 
         <br>
 
         <div class="image">
-            <img src="<?= $mapper->main_image; ?>">
+            <img src="<?= $mapper->image; ?>">
         </div>
 
         <br>
@@ -35,18 +36,6 @@ $editLink;
         <div class="description">
 
             <div>
-                <strong><?= __($langGroup, 'Marca'); ?>:</strong> <?= $mapper->brand->name; ?>
-                <br>
-                <strong><?= __($langGroup, 'Categoría'); ?>:</strong> <?= $mapper->category->name; ?>
-                <br>
-                <?php if($mapper->subcategory !== null):?>
-                <strong><?= __($langGroup, 'Subcategoría'); ?>:</strong> <?= $mapper->subcategory->name; ?>
-                <br>
-                <?php endif;?>
-                <strong><?= __($langGroup, 'Precio'); ?>:</strong> $<?= $mapper->price; ?>
-                <br>
-                <strong><?= __($langGroup, 'Referencia'); ?>:</strong> <?= $mapper->reference_code; ?>
-                <br>
                 <?= $mapper->description; ?>
             </div>
 

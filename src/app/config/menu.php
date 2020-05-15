@@ -32,11 +32,18 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'href' => get_route('admin'),
         ]),
         new MenuGroup([
-            'name' => __('bi-shop-categories', 'Tienda'),
+            'name' => __('bi-shop', 'Tienda'),
             'icon' => 'store',
             'visible' => Roles::hasPermissions('built-in-shop-private-entry-options', $current_type_user),
             'asLink' => true,
             'href' => get_route('built-in-shop-private-entry-options', [], true),
+        ]),
+        new MenuGroup([
+            'name' => __('bi-dynamic-images', 'Imágenes'),
+            'icon' => 'images',
+            'visible' => Roles::hasPermissions('built-in-dynamic-images-private-entry-options', $current_type_user),
+            'asLink' => true,
+            'href' => get_route('built-in-dynamic-images-private-entry-options', [], true),
         ]),
         new MenuGroup([
             'name' => __('sidebarAdminZone', 'Artículos'),
@@ -146,9 +153,9 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
             'icon' => 'share',
             'visible' => true,
             'asLink' => false,
-			'attributes' => [
-				'pcsphp-users-logout' => '',
-			],
+            'attributes' => [
+                'pcsphp-users-logout' => '',
+            ],
         ]),
     ],
 ]);
