@@ -40,7 +40,7 @@ class EntryPointController extends AdminPanelController
      *
      * @var string
      */
-    protected static $baseRouteName = 'built-in-shop-private-categories';
+    protected static $baseRouteName = 'built-in-shop-private-entry';
 
     /**
      * $title
