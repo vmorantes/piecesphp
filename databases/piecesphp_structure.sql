@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
+-- version 4.9.4
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 12-12-2019 a las 12:11:28
--- Versión del servidor: 5.7.28-0ubuntu0.16.04.2
--- Versión de PHP: 7.1.33-2+ubuntu16.04.1+deb.sury.org+1
+-- Tiempo de generación: 15-05-2020 a las 12:02:03
+-- Versión del servidor: 10.3.22-MariaDB-1:10.3.22+maria~bionic-log
+-- Versión de PHP: 7.3.17-1+ubuntu18.04.1+deb.sury.org+1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -34,7 +34,7 @@ CREATE TABLE `locations_cities` (
   `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `state` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `active` int(11) NOT NULL DEFAULT '1'
+  `active` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -48,7 +48,7 @@ CREATE TABLE `locations_countries` (
   `id` int(11) NOT NULL,
   `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `active` int(11) NOT NULL DEFAULT '1'
+  `active` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -65,7 +65,7 @@ CREATE TABLE `locations_points` (
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `latitude` float NOT NULL,
   `longitude` float NOT NULL,
-  `active` int(11) NOT NULL DEFAULT '1'
+  `active` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -80,7 +80,7 @@ CREATE TABLE `locations_states` (
   `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `country` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `active` int(11) NOT NULL DEFAULT '1'
+  `active` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -96,9 +96,9 @@ CREATE TABLE `login_attempts` (
   `username_attempt` varchar(255) COLLATE utf8_bin NOT NULL,
   `success` int(11) NOT NULL,
   `ip` varchar(255) COLLATE utf8_bin NOT NULL,
-  `message` text COLLATE utf8_bin,
+  `message` text COLLATE utf8_bin DEFAULT NULL,
   `date` datetime NOT NULL,
-  `extra_data` longtext COLLATE utf8_bin
+  `extra_data` longtext COLLATE utf8_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -114,8 +114,8 @@ CREATE TABLE `messages` (
   `message_to` bigint(20) DEFAULT NULL,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `subject` text COLLATE utf8_bin NOT NULL,
-  `message` text COLLATE utf8_bin,
-  `attachment` text COLLATE utf8_bin,
+  `message` text COLLATE utf8_bin DEFAULT NULL,
+  `attachment` text COLLATE utf8_bin DEFAULT NULL,
   `readed` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -130,9 +130,9 @@ CREATE TABLE `messages_responses` (
   `id` int(11) NOT NULL,
   `message_id` int(11) NOT NULL,
   `message_from` bigint(20) NOT NULL,
-  `message` text COLLATE utf8_bin,
+  `message` text COLLATE utf8_bin DEFAULT NULL,
   `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `attachment` text COLLATE utf8_bin,
+  `attachment` text COLLATE utf8_bin DEFAULT NULL,
   `readed` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -146,7 +146,7 @@ DROP TABLE IF EXISTS `pcsphp_app_config`;
 CREATE TABLE `pcsphp_app_config` (
   `id` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `value` longtext COLLATE utf8_bin
+  `value` longtext COLLATE utf8_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -160,7 +160,7 @@ CREATE TABLE `pcsphp_articles` (
   `id` int(11) NOT NULL,
   `author` bigint(20) NOT NULL,
   `category` int(11) NOT NULL,
-  `images` longtext COLLATE utf8_bin,
+  `images` longtext COLLATE utf8_bin DEFAULT NULL,
   `folder` text COLLATE utf8_bin NOT NULL,
   `visits` int(11) NOT NULL,
   `start_date` datetime DEFAULT NULL,
@@ -192,7 +192,7 @@ CREATE TABLE `pcsphp_articles_categories_content` (
   `content_of` int(11) NOT NULL,
   `lang` varchar(255) COLLATE utf8_bin NOT NULL,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin,
+  `description` text COLLATE utf8_bin DEFAULT NULL,
   `friendly_url` text COLLATE utf8_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -210,8 +210,8 @@ CREATE TABLE `pcsphp_articles_content` (
   `title` varchar(255) COLLATE utf8_bin NOT NULL,
   `friendly_url` text COLLATE utf8_bin NOT NULL,
   `content` longtext COLLATE utf8_bin NOT NULL,
-  `seo_description` text COLLATE utf8_bin,
-  `meta` longtext COLLATE utf8_bin
+  `seo_description` text COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
@@ -235,6 +235,22 @@ CREATE TABLE `pcsphp_blackboard_news_messages` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `pcsphp_dynamic_images`
+--
+
+DROP TABLE IF EXISTS `pcsphp_dynamic_images`;
+CREATE TABLE `pcsphp_dynamic_images` (
+  `id` int(11) NOT NULL,
+  `title` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin DEFAULT NULL,
+  `link` text COLLATE utf8_bin DEFAULT NULL,
+  `image` text COLLATE utf8_bin NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `pcsphp_recovery_password`
 --
 
@@ -250,6 +266,77 @@ CREATE TABLE `pcsphp_recovery_password` (
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `pcsphp_shop_brands`
+--
+
+DROP TABLE IF EXISTS `pcsphp_shop_brands`;
+CREATE TABLE `pcsphp_shop_brands` (
+  `id` int(11) NOT NULL,
+  `name` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin DEFAULT NULL,
+  `image` text COLLATE utf8_bin NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pcsphp_shop_categories`
+--
+
+DROP TABLE IF EXISTS `pcsphp_shop_categories`;
+CREATE TABLE `pcsphp_shop_categories` (
+  `id` int(11) NOT NULL,
+  `name` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin DEFAULT NULL,
+  `image` text COLLATE utf8_bin NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pcsphp_shop_products`
+--
+
+DROP TABLE IF EXISTS `pcsphp_shop_products`;
+CREATE TABLE `pcsphp_shop_products` (
+  `id` int(11) NOT NULL,
+  `name` text COLLATE utf8_bin NOT NULL,
+  `reference_code` text COLLATE utf8_bin NOT NULL,
+  `price` double NOT NULL,
+  `brand` int(11) NOT NULL,
+  `category` int(11) NOT NULL,
+  `subcategory` int(11) DEFAULT NULL,
+  `warranty_duration` int(11) NOT NULL,
+  `warranty_measure` int(11) NOT NULL,
+  `description` text COLLATE utf8_bin DEFAULT NULL,
+  `main_image` text COLLATE utf8_bin NOT NULL,
+  `images` longtext COLLATE utf8_bin NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pcsphp_shop_subcategories`
+--
+
+DROP TABLE IF EXISTS `pcsphp_shop_subcategories`;
+CREATE TABLE `pcsphp_shop_subcategories` (
+  `id` int(11) NOT NULL,
+  `category` int(11) NOT NULL,
+  `name` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin DEFAULT NULL,
+  `image` text COLLATE utf8_bin NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `pcsphp_tickets_log`
 --
 
@@ -258,9 +345,9 @@ CREATE TABLE `pcsphp_tickets_log` (
   `id` int(11) NOT NULL,
   `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `message` text COLLATE utf8_bin,
+  `message` text COLLATE utf8_bin DEFAULT NULL,
   `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `information` longtext COLLATE utf8_bin,
+  `information` longtext COLLATE utf8_bin DEFAULT NULL,
   `created` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -293,10 +380,10 @@ CREATE TABLE `pcsphp_users` (
   `first_lastname` varchar(255) COLLATE utf8_bin NOT NULL,
   `second_lastname` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `email` varchar(255) COLLATE utf8_bin NOT NULL,
-  `meta` text COLLATE utf8_bin,
+  `meta` text COLLATE utf8_bin DEFAULT NULL,
   `type` int(3) NOT NULL,
-  `status` int(3) NOT NULL DEFAULT '1',
-  `failed_attempts` int(1) NOT NULL DEFAULT '0',
+  `status` int(3) NOT NULL DEFAULT 1,
+  `failed_attempts` int(1) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -427,10 +514,44 @@ ALTER TABLE `pcsphp_blackboard_news_messages`
   ADD KEY `author` (`author`);
 
 --
+-- Indices de la tabla `pcsphp_dynamic_images`
+--
+ALTER TABLE `pcsphp_dynamic_images`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `pcsphp_recovery_password`
 --
 ALTER TABLE `pcsphp_recovery_password`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pcsphp_shop_brands`
+--
+ALTER TABLE `pcsphp_shop_brands`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pcsphp_shop_categories`
+--
+ALTER TABLE `pcsphp_shop_categories`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `pcsphp_shop_products`
+--
+ALTER TABLE `pcsphp_shop_products`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `brand` (`brand`),
+  ADD KEY `category` (`category`),
+  ADD KEY `subcategory` (`subcategory`);
+
+--
+-- Indices de la tabla `pcsphp_shop_subcategories`
+--
+ALTER TABLE `pcsphp_shop_subcategories`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `category` (`category`);
 
 --
 -- Indices de la tabla `pcsphp_tickets_log`
@@ -546,9 +667,39 @@ ALTER TABLE `pcsphp_blackboard_news_messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `pcsphp_dynamic_images`
+--
+ALTER TABLE `pcsphp_dynamic_images`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `pcsphp_recovery_password`
 --
 ALTER TABLE `pcsphp_recovery_password`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pcsphp_shop_brands`
+--
+ALTER TABLE `pcsphp_shop_brands`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pcsphp_shop_categories`
+--
+ALTER TABLE `pcsphp_shop_categories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pcsphp_shop_products`
+--
+ALTER TABLE `pcsphp_shop_products`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `pcsphp_shop_subcategories`
+--
+ALTER TABLE `pcsphp_shop_subcategories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -647,6 +798,20 @@ ALTER TABLE `pcsphp_articles_content`
 --
 ALTER TABLE `pcsphp_blackboard_news_messages`
   ADD CONSTRAINT `pcsphp_blackboard_news_messages_ibfk_1` FOREIGN KEY (`author`) REFERENCES `pcsphp_users` (`id`);
+
+--
+-- Filtros para la tabla `pcsphp_shop_products`
+--
+ALTER TABLE `pcsphp_shop_products`
+  ADD CONSTRAINT `pcsphp_shop_products_ibfk_1` FOREIGN KEY (`brand`) REFERENCES `pcsphp_shop_brands` (`id`),
+  ADD CONSTRAINT `pcsphp_shop_products_ibfk_2` FOREIGN KEY (`category`) REFERENCES `pcsphp_shop_categories` (`id`),
+  ADD CONSTRAINT `pcsphp_shop_products_ibfk_3` FOREIGN KEY (`subcategory`) REFERENCES `pcsphp_shop_subcategories` (`id`);
+
+--
+-- Filtros para la tabla `pcsphp_shop_subcategories`
+--
+ALTER TABLE `pcsphp_shop_subcategories`
+  ADD CONSTRAINT `pcsphp_shop_subcategories_ibfk_1` FOREIGN KEY (`category`) REFERENCES `pcsphp_shop_categories` (`id`);
 
 --
 -- Filtros para la tabla `time_on_platform`
