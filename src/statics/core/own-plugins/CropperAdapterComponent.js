@@ -2,8 +2,9 @@
  * @function CropperAdapterComponent
  *  
  * @param {AdapterOptions} configurations  
+ * @param {Boolean} prepareOnCreation  
  */
-function CropperAdapterComponent(configurations = {}) {
+function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) {
 
 	/**
 	 * @typedef CropperOptions
@@ -130,7 +131,34 @@ function CropperAdapterComponent(configurations = {}) {
 	/** @type {Object} */ let cropperCanvasData
 	/** @type {Object} */ let cropperCropBoxData
 
-	prepare(configurations)
+	//──── Eventos personalizados ────────────────────────────────────────────────────────────	
+	/** @type {String} */ let eventsPrefix = 'event-cropper'
+	/** @type {HTMLElement} */ let eventer = document.createElement('eventer-cropper')
+	/** @type {Event[]} */ let events = {
+		prepare: {
+			event: new Event(`${eventsPrefix}-prepare`),
+			data: {},
+			wasDispatch: false,
+			canDispatch: function (element) {
+				return element.wasDispatch
+			},
+		},
+		save: {
+			event: new Event(`${eventsPrefix}-save`),
+			data: {},
+			wasDispatch: false,
+			canDispatch: function (element) {
+				return element.wasDispatch
+			},
+		},
+	}
+
+	//──── Varios ────────────────────────────────────────────────────────────────────────────
+	/** @type {Boolean} */ let isPrepared = false
+
+	if (prepareOnCreation) {
+		prepare(configurations)
+	}
 
 	/**
 	 * @method crop
@@ -301,6 +329,86 @@ function CropperAdapterComponent(configurations = {}) {
 	}
 
 	/**
+	 * @method forceInitialize
+	 * @returns {void}
+	 */
+	this.forceInitialize = () => {
+		if (!initialized && isPrepared) {
+			initialize({})
+		}
+	}
+
+	/**
+	 * @method prepare
+	 * @returns {void}
+	 */
+	this.prepare = () => {
+
+		if (!isPrepared) {
+			prepare(configurations)
+		}
+
+	}
+
+	/**
+	 * @method destroy
+	 * @returns {void}
+	 */
+	this.destroy = () => {
+		container.remove()
+		delete this
+	}
+
+	/**
+	 * @method on
+	 * @param {String} eventName
+	 * @param {Function} callback
+	 * @returns {void}
+	 */
+	this.on = (eventName, callback) => {
+
+		let eventPrefixed = `${eventsPrefix}-${eventName}`
+
+		if (typeof events[eventName] !== 'undefined' && typeof callback == 'function') {
+
+			eventer.addEventListener(eventPrefixed, function (e) {
+
+				let eventConfig = events[eventName]
+
+				callback(e, eventConfig.data)
+
+				events[eventName].wasDispatch = true
+
+			})
+
+		}
+
+	}
+
+	/**
+	 * @method dispatch
+	 * @param {String} eventName
+	 * @returns {void}
+	 */
+	this.dispatch = (eventName) => {
+
+		if (typeof events[eventName] !== 'undefined') {
+
+			let eventConfig = events[eventName]
+
+			let eventObject = eventConfig.event
+			let wasDispatch = eventConfig.wasDispatch
+			let canDispatch = eventConfig.canDispatch(eventConfig)
+
+			if (canDispatch) {
+				eventer.dispatchEvent(events[eventName].event)
+			}
+
+		}
+
+	}
+
+	/**
 	 * @function prepare
 	 * @param {AdapterOptions} configurations 
 	 */
@@ -381,6 +489,9 @@ function CropperAdapterComponent(configurations = {}) {
 			let wMinString = `${adapterOptions.minWidth}(px)`
 			container.find(`[show-output]`).html(sizeOutputString)
 			container.find(`[min-w-output]`).html(wMinString)
+
+			isPrepared = true
+			eventer.dispatchEvent(events.prepare.event)
 
 		} catch (error) {
 			errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'Ha ocurrido un error al configurar CropperAdapterComponent'))
@@ -627,8 +738,11 @@ function CropperAdapterComponent(configurations = {}) {
 						updateCropperData()
 						toPreview()
 
+						events.save.data['b64'] = lastImageBase64
+						eventer.dispatchEvent(events.save.event)
+
 					})
-					
+
 					cutImage.src = instance.crop()
 
 				}

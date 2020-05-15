@@ -322,6 +322,13 @@ pcsphpGlobals.messages.es = {
 		'Sí': 'Sí',
 		'No': 'No',
 	},
+	
+	biShopProducts: {
+		'Confirmación': 'Confirmación',
+		'¿Quiere eliminar la imagen?': '¿Quiere eliminar la imagen?',
+		'Sí': 'Sí',
+		'No': 'No',
+	},
 }
 
 pcsphpGlobals.messages.en = {
@@ -957,7 +964,6 @@ function pcsAdminSideBar(selector) {
 				titlesGroups.click(function (e) {
 
 					e.preventDefault()
-					e.stopPropagation()
 
 					let ancester = $(this).parent()
 					let items = ancester.find('> .items')

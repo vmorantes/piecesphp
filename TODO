@@ -1,12 +1,16 @@
 - Implementar catálogo de productos:
 	- ~Categorías~ y ~subcategorías~
 	- ~Marcas~
-	- Productos
-		- Marca
-		- Tipo de electrodomestico
-		- Referencia
-		- Valor
-		- Descripción
-		- Galeria de fotos
-		- Garantia (Tiempo)
+	- ~Productos~
+		- ~Marca~
+		- ~Categoría~
+		- ~Subcategoría (Tipo de electrodomestico)~
+		- ~Referencia~
+		- ~Valor~
+		- ~Descripción~
+		- ~Galeria de fotos~
+		- ~Garantia (Tiempo)~
 - Banner dinámico
+	- Imagen
+	- Texto
+	- Link

@@ -1,17 +1,18 @@
 <?php
 
 /**
- * SubCategoryController.php
+ * ProductController.php
  */
 
-namespace PiecesPHP\BuiltIn\Shop\SubCategory\Controllers;
+namespace PiecesPHP\BuiltIn\Shop\Product\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Shop\Brand\Mappers\BrandMapper;
 use PiecesPHP\BuiltIn\Shop\Category\Mappers\CategoryMapper as ShopCategoryMapper;
 use PiecesPHP\BuiltIn\Shop\EntryPointController;
-use PiecesPHP\BuiltIn\Shop\SubCategory\Mappers\SubCategoryMapper;
+use PiecesPHP\BuiltIn\Shop\Product\Mappers\ProductMapper;
+use PiecesPHP\BuiltIn\Shop\SubCategory\Controllers\SubCategoryController;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Roles;
@@ -24,18 +25,19 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use Slim\Exception\NotFoundException;
 use Slim\Http\Request as Request;
 use Slim\Http\Response as Response;
 
 /**
- * SubCategoryController.
+ * ProductController.
  *
- * @package     PiecesPHP\BuiltIn\Shop\SubCategory\Controllers
+ * @package     PiecesPHP\BuiltIn\Shop\Product\Controllers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
  */
-class SubCategoryController extends AdminPanelController
+class ProductController extends AdminPanelController
 {
 
     /**
@@ -43,27 +45,27 @@ class SubCategoryController extends AdminPanelController
      *
      * @var string
      */
-    protected static $URLDirectory = 'shop/private/subcategories';
+    protected static $URLDirectory = 'shop/private/products';
 
     /**
      * $baseRouteName
      *
      * @var string
      */
-    protected static $baseRouteName = 'built-in-shop-private-subcategories';
+    protected static $baseRouteName = 'built-in-shop-private-products';
 
     /**
      * $title
      *
      * @var string
      */
-    protected static $title = 'Subcategoría';
+    protected static $title = 'Producto';
     /**
      * $pluralTitle
      *
      * @var string
      */
-    protected static $pluralTitle = 'Subcategorías';
+    protected static $pluralTitle = 'Productos';
 
     /**
      * $uploadDir
@@ -78,10 +80,10 @@ class SubCategoryController extends AdminPanelController
      */
     protected $uploadDirURL = '';
 
-    const BASE_VIEW_DIR = 'built-in/shop/subcategories';
-    const BASE_JS_DIR = 'statics/js/built-in/shop/subcategories';
-    const UPLOAD_DIR = 'general/shop/subcategories';
-    const LANG_GROUP = 'bi-shop-subcategories';
+    const BASE_VIEW_DIR = 'built-in/shop/products';
+    const BASE_JS_DIR = 'statics/js/built-in/shop/products';
+    const UPLOAD_DIR = 'general/shop/products';
+    const LANG_GROUP = 'bi-shop-products';
 
     /**
      * __construct
@@ -95,7 +97,7 @@ class SubCategoryController extends AdminPanelController
         self::$title = __(self::LANG_GROUP, self::$title);
         self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
 
-        $this->model = (new SubCategoryMapper())->getModel();
+        $this->model = (new ProductMapper())->getModel();
         set_title(self::$title);
 
         $baseURL = base_url();
@@ -117,9 +119,6 @@ class SubCategoryController extends AdminPanelController
     public function addForm(Request $request, Response $response, array $args)
     {
 
-        $categoryID = $request->getQueryParam('category', null);
-        $categoryID = !is_null($categoryID) && ctype_digit($categoryID) ? (int) $categoryID : null;
-
         set_custom_assets([
             self::BASE_JS_DIR . '/private/forms.js',
         ], 'js');
@@ -130,42 +129,20 @@ class SubCategoryController extends AdminPanelController
         $backLink = self::routeName('list');
         $title = self::$title;
 
+        $optionsBrands = array_to_html_options(BrandMapper::allForSelect(), null);
         $optionsCategories = array_to_html_options(ShopCategoryMapper::allForSelect(), null);
-
-        if ($categoryID !== null) {
-
-            $category = new ShopCategoryMapper($categoryID);
-
-            if ($category->id !== null) {
-
-                $categories = ShopCategoryMapper::allForSelect();
-
-                foreach ($categories as $kID => $name) {
-
-                    if ($kID != $categoryID || strlen(trim($kID)) == 0) {
-                        unset($categories[$kID]);
-                    }
-
-                }
-
-                $optionsCategories = array_to_html_options($categories, $categoryID);
-
-                $title = vsprintf(__(self::LANG_GROUP, 'Subcategoría de %s'), [
-                    $category->name,
-                ]);
-
-            } else {
-                throw new NotFoundException($request, $response);
-            }
-
-        }
+        $optionsWarrantyMeasures = array_to_html_options(ProductMapper::warrantyMeasures(), null);
+        $subcategoryURL = SubCategoryController::routeName('ajax-all');
 
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
         $data['title'] = $title;
+        $data['optionsBrands'] = $optionsBrands;
         $data['optionsCategories'] = $optionsCategories;
+        $data['optionsWarrantyMeasures'] = $optionsWarrantyMeasures;
+        $data['subcategoryURL'] = $subcategoryURL;
 
         $this->render('panel/layout/header');
         self::view('private/forms/add', $data);
@@ -187,7 +164,7 @@ class SubCategoryController extends AdminPanelController
         $id = $request->getAttribute('id', null);
         $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
 
-        $element = new SubCategoryMapper($id);
+        $element = new ProductMapper($id);
 
         if (!is_null($element->id)) {
 
@@ -200,7 +177,10 @@ class SubCategoryController extends AdminPanelController
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
 
+            $optionsBrands = array_to_html_options(BrandMapper::allForSelect(), $element->brand->id);
             $optionsCategories = array_to_html_options(ShopCategoryMapper::allForSelect(), $element->category->id);
+            $optionsWarrantyMeasures = array_to_html_options(ProductMapper::warrantyMeasures(), $element->warranty_measure);
+            $subcategoryURL = SubCategoryController::routeName('ajax-all');
 
             $data = [];
             $data['action'] = $action;
@@ -208,7 +188,10 @@ class SubCategoryController extends AdminPanelController
             $data['langGroup'] = self::LANG_GROUP;
             $data['backLink'] = $backLink;
             $data['title'] = self::$title;
+            $data['optionsBrands'] = $optionsBrands;
             $data['optionsCategories'] = $optionsCategories;
+            $data['optionsWarrantyMeasures'] = $optionsWarrantyMeasures;
+            $data['subcategoryURL'] = $subcategoryURL;
 
             $this->render('panel/layout/header');
             self::view('private/forms/edit', $data);
@@ -231,34 +214,12 @@ class SubCategoryController extends AdminPanelController
     public function listView(Request $request, Response $response, array $args)
     {
 
-        $categoryID = $request->getQueryParam('category', null);
-        $categoryID = !is_null($categoryID) && ctype_digit($categoryID) ? (int) $categoryID : null;
-
         $backLink = EntryPointController::routeName('options');
         $addLink = self::routeName('forms-add');
 
         $processTableLink = self::routeName('datatables');
 
         $title = self::$pluralTitle;
-
-        if ($categoryID !== null) {
-
-            $category = new ShopCategoryMapper($categoryID);
-
-            if ($category->id !== null) {
-
-                $backLink = CategoryController::routeName('list');
-                $processTableLink .= "?category={$categoryID}";
-                $addLink .= "?category={$categoryID}";
-                $title = vsprintf(__(self::LANG_GROUP, 'Subcategorías de %s'), [
-                    $category->name,
-                ]);
-
-            } else {
-                throw new NotFoundException($request, $response);
-            }
-
-        }
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
@@ -307,12 +268,34 @@ class SubCategoryController extends AdminPanelController
                 }
             ),
             new Parameter(
+                'brand',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                false,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
                 'category',
                 null,
                 function ($value) {
                     return ctype_digit($value) || is_int($value);
                 },
                 false,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'subcategory',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
                 function ($value) {
                     return (int) $value;
                 }
@@ -339,8 +322,73 @@ class SubCategoryController extends AdminPanelController
                     return clean_string($value);
                 }
             ),
+            new Parameter(
+                'reference_code',
+                '',
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return clean_string($value);
+                }
+            ),
+            new Parameter(
+                'price',
+                '',
+                function ($value) {
+                    return Validator::isDouble($value);
+                },
+                true,
+                function ($value) {
+                    return (double) $value;
+                }
+            ),
+            new Parameter(
+                'warranty_duration',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                false,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'warranty_measure',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                false,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'has_warranty',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value) || is_bool($value);
+                },
+                false,
+                function ($value) {
+                    return ((int) $value) === 1;
+                }
+            ),
+            new Parameter(
+                'images_to_delete',
+                [],
+                function ($value) {
+                    return is_array($value);
+                },
+                true,
+                function ($value) {
+                    return $value;
+                }
+            ),
         ]);
-
         //Obtención de datos
         $inputData = $request->getParsedBody();
 
@@ -349,7 +397,7 @@ class SubCategoryController extends AdminPanelController
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
-        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Subcategoría'));
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Producto'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
 
         //Valores iniciales de la respuesta
@@ -359,14 +407,13 @@ class SubCategoryController extends AdminPanelController
         $resultOperation->setValue('reload', false);
 
         //Mensajes de respuesta
-        $notExistsMessage = __(self::LANG_GROUP, 'La subcategoría que intenta modificar no existe.');
-        $successCreateMessage = __(self::LANG_GROUP, 'Subcategoría creada.');
+        $notExistsMessage = __(self::LANG_GROUP, 'El producto que intenta modificar no existe.');
+        $successCreateMessage = __(self::LANG_GROUP, 'Producto creado.');
         $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
-        $isDuplicateMessage = __(self::LANG_GROUP, 'Ya existe una subcategoría con ese nombre.');
-        $noImageMessage = __(self::LANG_GROUP, 'No ha sido subida ninguna imagen.');
-        $categoryNotExistsMessage = __(self::LANG_GROUP, 'La categoría seleccionada no existe.');
+        $noImageMessage = __(self::LANG_GROUP, 'No ha sido subida la imagen principal.');
+        $isDuplicateMessage = __(self::LANG_GROUP, 'Ya hay un producto con esa referencia.');
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -377,14 +424,30 @@ class SubCategoryController extends AdminPanelController
             //Información del formulario
             /**
              * @var int $id
+             * @var int $brandID
              * @var int $categoryID
+             * @var int|null $subcategoryID
              * @var string $name
              * @var string $description
+             * @var string $referenceCode
+             * @var double $price
+             * @var int $warrantyDuration
+             * @var int $warrantyMeasure
+             * @var int $hasWarranty
+             * @var string[] $imagesToDelete
              */;
             $id = $expectedParameters->getValue('id');
+            $brandID = $expectedParameters->getValue('brand');
             $categoryID = $expectedParameters->getValue('category');
+            $subcategoryID = $expectedParameters->getValue('subcategory');
             $name = $expectedParameters->getValue('name');
             $description = $expectedParameters->getValue('description');
+            $referenceCode = $expectedParameters->getValue('reference_code');
+            $price = $expectedParameters->getValue('price');
+            $warrantyDuration = $expectedParameters->getValue('warranty_duration');
+            $warrantyMeasure = $expectedParameters->getValue('warranty_measure');
+            $hasWarranty = $expectedParameters->getValue('has_warranty');
+            $imagesToDelete = $expectedParameters->getValue('images_to_delete');
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -392,95 +455,125 @@ class SubCategoryController extends AdminPanelController
             //Dirección de redirección en cadso de creación
             $redirectURLOnCreate = self::routeName('list');
 
-            $categoryExists = ShopCategoryMapper::existsByID($categoryID);
+            try {
 
-            if ($categoryExists) {
-
-                //Verificar si está duplicado
-                $isDuplicate = SubCategoryMapper::isDuplicate($name, $categoryID, $id);
+                $isDuplicate = ProductMapper::existsByReferenceCode($referenceCode, $id);
 
                 if (!$isDuplicate) {
 
-                    try {
+                    if (!$isEdit) {
+                        //Nuevo
 
-                        if (!$isEdit) {
-                            //Nuevo
+                        $mapper = new ProductMapper();
 
-                            $mapper = new SubCategoryMapper();
+                        $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
+                        $mainImage = self::handlerUploadImage('mainImage', $folder);
+                        $imagesToAdd = self::handlerUploadImages('images_to_add', $folder, $imagesToDelete);
 
-                            $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
-                            $image = self::handlerUploadImage('image', $folder);
+                        $now = new \DateTime();
 
-                            $mapper->name = $name;
-                            $mapper->category = $categoryID;
-                            $mapper->description = $description;
-                            $mapper->image = $image;
+                        $mapper->brand = $brandID;
+                        $mapper->category = $categoryID;
+                        $mapper->subcategory = $subcategoryID;
+                        $mapper->name = $name;
+                        $mapper->description = $description;
+                        $mapper->reference_code = $referenceCode;
+                        $mapper->price = $price;
+                        $mapper->warranty_duration = $hasWarranty ? $warrantyDuration : 0;
+                        $mapper->warranty_measure = $hasWarranty ? $warrantyMeasure : ProductMapper::WARRANTY_NO;
+                        $mapper->main_image = $mainImage;
+                        $mapper->images = $imagesToAdd;
+                        $mapper->created_at = $now;
+                        $mapper->updated_at = $now;
 
-                            if (strlen($image) > 0) {
+                        if (strlen($mainImage) > 0) {
 
-                                $saved = $mapper->save();
+                            $saved = $mapper->save();
 
-                                $resultOperation->setSuccessOnSingleOperation($saved);
+                            $resultOperation->setSuccessOnSingleOperation($saved);
 
-                                if ($saved) {
+                            if ($saved) {
 
-                                    $resultOperation
-                                        ->setMessage($successCreateMessage)
-                                        ->setValue('redirect', true)
-                                        ->setValue('redirect_to', $redirectURLOnCreate);
-
-                                } else {
-                                    $resultOperation->setMessage($unknowErrorMessage);
-                                }
+                                $resultOperation
+                                    ->setMessage($successCreateMessage)
+                                    ->setValue('redirect', true)
+                                    ->setValue('redirect_to', $redirectURLOnCreate);
 
                             } else {
-                                $resultOperation->setMessage($noImageMessage);
+                                $resultOperation->setMessage($unknowErrorMessage);
                             }
 
                         } else {
-                            //Existente
+                            $resultOperation->setMessage($noImageMessage);
+                        }
 
-                            $mapper = new SubCategoryMapper((int) $id);
-                            $exists = !is_null($mapper->id);
+                    } else {
+                        //Existente
 
-                            if ($exists) {
+                        $mapper = new ProductMapper((int) $id);
+                        $exists = !is_null($mapper->id);
 
-                                $image = self::handlerUploadImage('image', '', $mapper->image);
+                        if ($exists) {
 
-                                $mapper->name = $name;
-                                $mapper->category = $categoryID;
-                                $mapper->description = $description;
-                                $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
+                            $uploadDirRelativeURL = $this->uploadDirURL;
+                            $folder = str_replace($uploadDirRelativeURL, '', $mapper->main_image);
+                            $folder = str_replace(basename($mapper->main_image), '', $folder);
+                            $folder = trim($folder, '/');
 
-                                $updated = $mapper->update();
+                            $mainImage = self::handlerUploadImage('mainImage', '', $mapper->main_image);
+                            $imagesToAdd = self::handlerUploadImages('images_to_add', $folder, $imagesToDelete);
 
-                                $resultOperation->setSuccessOnSingleOperation($updated);
+                            $now = new \DateTime();
 
-                                if ($updated) {
+                            $mapper->brand = $brandID;
+                            $mapper->category = $categoryID;
+                            $mapper->subcategory = $subcategoryID;
+                            $mapper->name = $name;
+                            $mapper->description = $description;
+                            $mapper->reference_code = $referenceCode;
+                            $mapper->price = $price;
+                            $mapper->warranty_duration = $hasWarranty ? $warrantyDuration : 0;
+                            $mapper->warranty_measure = $hasWarranty ? $warrantyMeasure : ProductMapper::WARRANTY_NO;
+                            $mapper->main_image = strlen($mainImage) > 0 ? $mainImage : $mapper->main_image;
+                            $mapper->updated_at = $now;
 
-                                    $resultOperation
-                                        ->setMessage($successEditMessage)
-                                        ->setValue('redirect', true)
-                                        ->setValue('redirect_to', $redirectURLOnCreate);
+                            $currentImages = (array) $mapper->images;
 
-                                } else {
-
-                                    $resultOperation->setMessage($unknowErrorMessage);
-
+                            foreach ($imagesToDelete as $imageToDelete) {
+                                $indexToDelete = array_search($imageToDelete, $currentImages);
+                                if ($indexToDelete !== false) {
+                                    unset($currentImages[$indexToDelete]);
                                 }
+                            }
+
+                            foreach ($imagesToAdd as $imageToAdd) {
+                                $currentImages[] = $imageToAdd;
+                            }
+
+                            $mapper->images = (array) $currentImages;
+
+                            $updated = $mapper->update();
+
+                            $resultOperation->setSuccessOnSingleOperation($updated);
+
+                            if ($updated) {
+
+                                $resultOperation
+                                    ->setMessage($successEditMessage)
+                                    ->setValue('redirect', true)
+                                    ->setValue('redirect_to', $redirectURLOnCreate);
 
                             } else {
 
-                                $resultOperation->setMessage($notExistsMessage);
+                                $resultOperation->setMessage($unknowErrorMessage);
 
                             }
 
+                        } else {
+
+                            $resultOperation->setMessage($notExistsMessage);
+
                         }
-
-                    } catch (\Exception $e) {
-
-                        $resultOperation->setMessage($e->getMessage());
-                        log_exception($e);
 
                     }
 
@@ -490,9 +583,10 @@ class SubCategoryController extends AdminPanelController
 
                 }
 
-            } else {
+            } catch (\Exception $e) {
 
-                $resultOperation->setMessage($categoryNotExistsMessage);
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
 
             }
 
@@ -526,20 +620,7 @@ class SubCategoryController extends AdminPanelController
      */
     public function all(Request $request, Response $response, array $args)
     {
-        $categoryID = $request->getQueryParam('category', null);
-        $isNegative = is_string($categoryID) && strpos($categoryID, '-') === 0;
-        if ($isNegative) {
-            $categoryID = str_replace('-', '', $categoryID);
-        }
-        $categoryID = !is_null($categoryID) && ctype_digit($categoryID) ? (int) $categoryID : null;
-        $categoryID = $isNegative ? $categoryID * -1 : $categoryID;
-
         $query = $this->model->select();
-        if ($categoryID !== null) {
-            $query->where([
-                'category' => $categoryID,
-            ]);
-        }
         $query->execute();
         $result = $query->result();
         return $response->withJson($result);
@@ -556,35 +637,23 @@ class SubCategoryController extends AdminPanelController
     public function dataTables(Request $request, Response $response, array $args)
     {
 
-        $categoryID = $request->getQueryParam('category', null);
-        $categoryID = !is_null($categoryID) && ctype_digit($categoryID) ? (int) $categoryID : null;
+        $table = ProductMapper::TABLE;
 
         $whereString = null;
 
-        if ($categoryID !== null) {
-
-            $whereString = [];
-
-            $whereString[] = "category = {$categoryID}";
-
-            $whereString = implode(' ', $whereString);
-
-        }
-
-        $table = SubCategoryMapper::TABLE;
-
         $selectFields = [
             "{$table}.id",
-            "{$table}.category",
+            "{$table}.brand",
             "{$table}.name",
             "{$table}.description",
-            "{$table}.image",
-            "{$table}.meta",
+            "{$table}.main_image",
+            "{$table}.price",
         ];
 
         $columnsOrder = [
-            'category',
             'name',
+            'brand',
+            'price',
             'description',
         ];
 
@@ -596,10 +665,11 @@ class SubCategoryController extends AdminPanelController
             'where_string' => $whereString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
-            'mapper' => new SubCategoryMapper(),
+            'mapper' => new ProductMapper(),
             'request' => $request,
             'on_set_data' => function ($e) {
                 return [
+                    '',
                     '',
                     '',
                     '',
@@ -612,7 +682,7 @@ class SubCategoryController extends AdminPanelController
 
         foreach ($rawData as $index => $element) {
 
-            $mapper = new SubCategoryMapper($element->id);
+            $mapper = new ProductMapper($element->id);
 
             $rawData[$index] = self::view(
                 'private/util/list-card',
@@ -746,6 +816,56 @@ class SubCategoryController extends AdminPanelController
         }
 
         return $relativeURL;
+    }
+
+    /**
+     * handlerUploadImages
+     *
+     * @param string $nameOnFiles
+     * @param string $folder
+     * @param string[] $imagesToDelete
+     * @return array[]
+     * @throws \Exception
+     */
+    protected static function handlerUploadImages(string $nameOnFiles, string $folder, array $imagesToDelete = [])
+    {
+        $handler = new FileUpload($nameOnFiles, [
+            FileValidator::TYPE_ALL_IMAGES,
+        ], null, true);
+
+        $name = 'file_' . str_replace('.', '', uniqid());
+        $relativeURLs = [];
+
+        $uploadDirPath = (new static )->uploadDir;
+        $uploadDirRelativeURL = (new static )->uploadDirURL;
+
+        $uploadDirPath = append_to_url($uploadDirPath, $folder);
+        $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
+
+        try {
+
+            foreach ($imagesToDelete as $imageToDelete) {
+                if (strpos($imageToDelete, (new static )->uploadDirURL) !== false && file_exists($imageToDelete)) {
+                    unlink(basepath($imageToDelete));
+                }
+            }
+
+            $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
+
+            foreach ($locations as $url) {
+
+                if (strlen($url) > 0) {
+                    $nameCurrent = basename($url);
+                    $relativeURLs[] = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
+                }
+
+            }
+
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
+
+        return $relativeURLs;
     }
 
     /**

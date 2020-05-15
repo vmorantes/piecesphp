@@ -8,6 +8,7 @@ namespace PiecesPHP\BuiltIn\Shop;
 
 use PiecesPHP\BuiltIn\Shop\Brand\Controllers\BrandController;
 use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Shop\Product\Controllers\ProductController;
 use PiecesPHP\BuiltIn\Shop\SubCategory\Controllers\SubCategoryController;
 use PiecesPHP\Core\RouteGroup;
 
@@ -37,6 +38,8 @@ class ShopRoutes
         $group = SubCategoryController::routes($group);
 
         $group = BrandController::routes($group);
+
+        $group = ProductController::routes($group);
 
         return $group;
     }

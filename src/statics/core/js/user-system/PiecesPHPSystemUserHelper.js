@@ -2,7 +2,6 @@ class PiecesPHPSystemUserHelper {
 
 	constructor(urlAuthenticate, urlVerification) {
 
-		this.triggerLogout = null
 		this.$ = window.PiecesPHPSystemUserHelperJQuery //jQuery JavaScript Library v3.4.1
 		this.extraData = null
 
@@ -100,16 +99,15 @@ class PiecesPHPSystemUserHelper {
 	setTriggerLogout(selector) {
 		let instance = this
 		if (typeof selector == 'string') {
-			let element = document.querySelector(selector)
-			if (element instanceof HTMLElement) {
-				this.triggerLogout = element
-				this.triggerLogout.addEventListener('click', function (e) {
-					e.stopPropagation()
-					e.preventDefault()
-					instance.deleteSession()
-				})
-			}
+			let element = this.$(selector)
+			element.off('click')
+			element.on('click', function (e) {
+				e.stopPropagation()
+				e.preventDefault()
+				instance.deleteSession()
+			})
 		}
+
 		return this
 	}
 

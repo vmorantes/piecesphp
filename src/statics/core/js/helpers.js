@@ -1508,3 +1508,101 @@ function formatStr(str, values) {
 	return typeof str == 'string' ? str : ''
 
 }
+
+/**
+ * 
+ * @param {String} prefix
+ * @param {Boolean} moreEntropy
+ * @param {String}
+ */
+function generateUniqueID(prefix, moreEntropy) {
+
+	if (typeof prefix === 'undefined') {
+		prefix = ''
+	}
+
+	var retId
+	var _formatSeed = function (seed, reqWidth) {
+		seed = parseInt(seed, 10).toString(16) // to hex str
+		if (reqWidth < seed.length) {
+			// so long we split
+			return seed.slice(seed.length - reqWidth)
+		}
+		if (reqWidth > seed.length) {
+			// so short we pad
+			return Array(1 + (reqWidth - seed.length)).join('0') + seed
+		}
+		return seed
+	}
+
+	var $global = (typeof window !== 'undefined' ? window : global)
+	$global.$locutus = $global.$locutus || {}
+	var $locutus = $global.$locutus
+	$locutus.php = $locutus.php || {}
+
+	if (!$locutus.php.uniqidSeed) {
+		// init seed with big random int
+		$locutus.php.uniqidSeed = Math.floor(Math.random() * 0x75bcd15)
+	}
+	$locutus.php.uniqidSeed++
+
+	// start with prefix, add current milliseconds hex string
+	retId = prefix
+	retId += _formatSeed(parseInt(new Date().getTime() / 1000, 10), 8)
+	// add seed hex string
+	retId += _formatSeed($locutus.php.uniqidSeed, 5)
+	if (moreEntropy) {
+		// for more entropy we add a float lower to 10
+		retId += (Math.random() * 10).toFixed(8).toString()
+	}
+
+	return retId
+}
+
+/**
+ * @function addObjectToFormData
+ * 
+ * @param {FormData} formData
+ * @param {Object} inputValue
+ * @param {String} name
+ * @param {Bool} isFirstArray
+ * @param {FormData} 
+ */
+function addObjectToFormData(formData, inputValue, name, isFirstArray = true) {
+
+	if (typeof inputValue == 'object') {
+
+		for (let property in inputValue) {
+
+			let value = inputValue[property]
+			let subName = `${name}[${property}]`
+
+			if (typeof value == 'string' || typeof value == 'number' || value == null) {
+
+				formData.append(subName, value)
+
+			} else if (Array.isArray(value)) {
+
+				for (let i in value) {
+					if (isFirstArray) {
+						formData = addObjectToFormData(formData, value, `${subName}`, false)
+					} else {
+						formData = addObjectToFormData(formData, value[i], `${subName}[${i}]`, false)
+					}
+				}
+
+			} else if (typeof value == 'object') {
+
+				formData = addObjectToFormData(formData, value, subName)
+
+			}
+
+		}
+
+	} else {
+		formData.append(name, inputValue)
+	}
+
+	return formData
+
+}
