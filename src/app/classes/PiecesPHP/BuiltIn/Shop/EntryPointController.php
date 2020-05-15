@@ -10,6 +10,7 @@ use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Shop\Brand\Controllers\BrandController;
 use PiecesPHP\BuiltIn\Shop\Category\Controllers\CategoryController;
+use PiecesPHP\BuiltIn\Shop\Product\Controllers\ProductController;
 use PiecesPHP\BuiltIn\Shop\SubCategory\Controllers\SubCategoryController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -90,6 +91,10 @@ class EntryPointController extends AdminPanelController
             [
                 'title' => __(self::LANG_GROUP, 'Marcas'),
                 'link' => BrandController::routeName('list'),
+            ],
+            [
+                'title' => __(self::LANG_GROUP, 'Productos'),
+                'link' => ProductController::routeName('list'),
             ],
         ];
 
