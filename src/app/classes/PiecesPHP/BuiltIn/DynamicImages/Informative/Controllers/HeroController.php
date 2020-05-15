@@ -273,9 +273,15 @@ class HeroController extends AdminPanelController
 
                     $valid = false;
 
-                    if (is_string($value)) {
+                    if (is_string($value) && strlen($value) > 0) {
+
                         $value = HeroController::parseURL($value);
                         $valid = filter_var($value, \FILTER_VALIDATE_URL, \FILTER_FLAG_PATH_REQUIRED) !== false;
+
+                        if (!$valid) {
+                            throw new \Exception(__(self::LANG_GROUP, 'La URL del enlace tiene un formato inválido'));
+                        }
+
                     }
 
                     return $value === null || $valid;
@@ -430,6 +436,11 @@ class HeroController extends AdminPanelController
             log_exception($e);
 
         } catch (InvalidParameterValueException $e) {
+
+            $resultOperation->setMessage($e->getMessage());
+            log_exception($e);
+
+        } catch (\Exception $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);

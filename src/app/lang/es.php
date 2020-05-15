@@ -151,6 +151,7 @@ $lang = [
 		'Agregar'                                                              => 'Agregar',
 		'Enlace'                                                               => 'Enlace',
 		'Guardar'                                                              => 'Guardar',
+		'La URL del enlace tiene un formato inválido'                          => 'La URL del enlace tiene un formato inválido',
     ],
 ];
 
