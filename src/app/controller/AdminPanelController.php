@@ -330,7 +330,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         $routes = get_routes();
         $total_routes = count($routes);
         $result = [];
-		$typesUsers = UsersModel::getTypesUser();
+        $typesUsers = UsersModel::getTypesUser();
 
         foreach ($typesUsers as $code => $name) {
             if (!isset($result[$name])) {

@@ -42,6 +42,9 @@ define('PIECES_PHP_BLOG_ENABLED', false);
 //Tienda integrada
 define('PIECES_PHP_SHOP_ENABLE', false);
 
+//Módulo de imágenes integrado
+define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', false);
+
 //Ubicaciones
 define('LOCATIONS_ENABLED', false);
 define('LOCATIONS_PATH_JS', 'statics/features/locations/js');
