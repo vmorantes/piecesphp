@@ -10,6 +10,14 @@ $(document).ready(function (e) {
 
 	let container = $('.form-container')
 
+	let systemMail = container.attr('data-system-mail')
+
+	if (typeof systemMail == 'string' && systemMail.trim().length > 0) {
+		systemMail = systemMail.trim()
+	} else {
+		systemMail = 'sample@sample.com'
+	}
+
 	let recoveryContainer = container.find('[recovery]')
 	let codeContainer = container.find('[code]')
 	let errorContainer = container.find('[error]')
@@ -58,7 +66,7 @@ $(document).ready(function (e) {
 					formatStr(
 						_i18n('userProblems', 'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'),
 						[
-							'ayuda@tejidodigital.com',
+							systemMail,
 						]
 					)
 				)
@@ -80,7 +88,7 @@ $(document).ready(function (e) {
 				} else {
 					messageBox.html(res.message)
 				}
-				
+
 			}
 
 		})
@@ -139,7 +147,7 @@ $(document).ready(function (e) {
 
 					recoveryForm[0].reset()
 
-				}else{
+				} else {
 					messageBox.html(res.message)
 				}
 
@@ -177,14 +185,14 @@ $(document).ready(function (e) {
 		recoveryContainer.show(delayShow)
 		codeContainer.hide(delayHide)
 		headerMain.show(delayShow)
-		headerCode.hide(delayHide)		
+		headerCode.hide(delayHide)
 		headerWrongMail.hide(delayHide)
 		headerWrongCode.hide(delayHide)
 		errorContainer.hide(delayHide)
 		finishContainer.hide(delayHide)
 		messageBox.html('')
 		return false
-	})	
+	})
 
 	if (paramsURL.has('code')) {
 		let code = paramsURL.get('code').trim()
