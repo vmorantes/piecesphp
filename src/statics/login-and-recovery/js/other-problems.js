@@ -7,6 +7,14 @@ $(document).ready(function (e) {
 
 	let container = $('.form-container')
 
+	let systemMail = container.attr('data-system-mail')
+
+	if (typeof systemMail == 'string' && systemMail.trim().length > 0) {
+		systemMail = systemMail.trim()
+	} else {
+		systemMail = 'sample@sample.com'
+	}
+
 	let containerForm = container.find('[claim]')
 	let finishContainer = container.find('[finish]')
 	let messageBox = container.find('[message]')
@@ -43,7 +51,7 @@ $(document).ready(function (e) {
 					formatStr(
 						_i18n('userProblems', 'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'),
 						[
-							'ayuda@tejidodigital.com',
+							systemMail,
 						]
 					)
 				)
