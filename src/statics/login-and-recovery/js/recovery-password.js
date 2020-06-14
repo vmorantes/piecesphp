@@ -10,6 +10,14 @@ $(document).ready(function (e) {
 
 	let container = $('.form-container')
 
+	let systemMail = container.attr('data-system-mail')
+
+	if (typeof systemMail == 'string' && systemMail.trim().length > 0) {
+		systemMail = systemMail.trim()
+	} else {
+		systemMail = 'sample@sample.com'
+	}
+
 	let recoveryContainer = container.find('[recovery]')
 	let codeContainer = container.find('[code]')
 	let changePasswordContainer = container.find('[change-password]')
@@ -59,7 +67,7 @@ $(document).ready(function (e) {
 					formatStr(
 						_i18n('userProblems', 'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.'),
 						[
-							'ayuda@tejidodigital.com',
+							systemMail,
 						]
 					)
 				)
