@@ -72,7 +72,7 @@
             </div>
         </div>
 
-        <div class="form-container">
+        <div class="form-container" data-system-mail="<?= get_config('mail')['user']; ?>">
 
             <div message class="message"></div>
 
