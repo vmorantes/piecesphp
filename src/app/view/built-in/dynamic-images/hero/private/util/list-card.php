@@ -39,7 +39,7 @@ $editLink;
                 <?= $mapper->description; ?> <br>
                 <?php if($mapper->start_date !== null): ?>
                 <strong><?= __($langGroup, 'Fecha inicial'); ?>: </strong>
-                <?= $mapper->end_date->format('d-m-Y h:i A'); ?>
+                <?= $mapper->start_date->format('d-m-Y h:i A'); ?>
                 <br>
                 <?php endif; ?>
                 <?php if($mapper->end_date !== null): ?>

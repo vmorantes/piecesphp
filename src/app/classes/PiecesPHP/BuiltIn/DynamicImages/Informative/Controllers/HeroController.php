@@ -396,8 +396,8 @@ class HeroController extends AdminPanelController
                     $mapper->description = $description;
                     $mapper->link = $link;
                     $mapper->image = $image;
-                    $mapper->start_date = $startDate;
-                    $mapper->end_date = $endDate;
+                    $mapper->start_date = $startDate !== null ? $startDate->format('Y-m-d H:i:') . '00' : null;
+                    $mapper->end_date = $endDate !== null ? $endDate->format('Y-m-d H:i:') . '00' : null;
                     $mapper->order = $order;
 
                     if (strlen($image) > 0) {
@@ -435,8 +435,8 @@ class HeroController extends AdminPanelController
                         $mapper->description = $description;
                         $mapper->link = $link;
                         $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
-                        $mapper->start_date = $startDate;
-                        $mapper->end_date = $endDate;
+                        $mapper->start_date = $startDate !== null ? $startDate->format('Y-m-d H:i:') . '00' : null;
+                        $mapper->end_date = $endDate !== null ? $endDate->format('Y-m-d H:i:') . '00' : null;
                         $mapper->order = $order;
 
                         $updated = $mapper->update();
@@ -552,10 +552,21 @@ class HeroController extends AdminPanelController
             "{$table}.description",
             "{$table}.link",
             "{$table}.image",
-            "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.start_date')) AS start_date",
-            "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.end_date')) AS end_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.start_date'))) AS start_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.end_date'))) AS end_date",
             "IF(JSON_EXTRACT({$table}.meta, '$.order') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.order')) AS `order`",
         ])->orderBy("`order` ASC");
+
+        $now = date('Y-m-d H:i:') . '00';
+
+        $having = [
+            "(start_date IS NULL OR start_date <= '{$now}')",
+            "AND (end_date IS NULL OR end_date >= '{$now}')",
+        ];
+
+        $having = implode(' ', $having);
+
+        $model->having($having);
 
         $model->execute(false, $page, $perPage);
 
