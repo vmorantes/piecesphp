@@ -76,10 +76,57 @@ class ImageMapper extends EntityMapperExtensible
      */
     public function __construct(int $value = null, string $fieldCompare = 'primary_key')
     {
+
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DATE, null, true), 'start_date');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DATE, null, true), 'end_date');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_INT, 0, true), 'order');
-        parent::__construct($value, $fieldCompare);
+		parent::__construct($value, $fieldCompare);
+		
+		if ($this->start_date !== null) {
+            $this->start_date = \DateTime::createFromFormat('Y-m-d H:i:s', $this->start_date);
+		}
+		
+		if ($this->end_date !== null) {
+			
+            $this->end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $this->end_date);
+        }
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function save()
+    {
+
+        if ($this->start_date instanceof \DateTime) {
+            $this->start_date = $this->start_date->format('Y-m-d H:i:s');
+        }
+
+        if ($this->end_date instanceof \DateTime) {
+            $this->end_date = $this->end_date->format('Y-m-d H:i:s');
+        }
+
+        return parent::save();
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update()
+    {
+
+        if ($this->start_date instanceof \DateTime) {
+            $this->start_date = $this->start_date->format('Y-m-d H:i:s');
+        }
+
+        if ($this->end_date instanceof \DateTime) {
+            $this->end_date = $this->end_date->format('Y-m-d H:i:s');
+        }
+
+        return parent::update();
+
     }
 
     /**
@@ -120,8 +167,8 @@ class ImageMapper extends EntityMapperExtensible
             "{$table}.description",
             "{$table}.link",
             "{$table}.image",
-            "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.start_date')) AS start_date",
-            "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.end_date')) AS end_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.start_date'))) AS start_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.end_date'))) AS end_date",
             "IF(JSON_EXTRACT({$table}.meta, '$.order') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.order')) AS `order`",
         ])->orderBy("`order` ASC");
 
