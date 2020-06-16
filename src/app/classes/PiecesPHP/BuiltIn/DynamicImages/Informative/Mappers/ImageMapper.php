@@ -8,6 +8,7 @@ namespace PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers;
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\Core\Database\Meta\MetaProperty;
 
 /**
  * ImageMapper.
@@ -21,6 +22,9 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
  * @property string $link
  * @property string $image
  * @property \stdClass|string|null $meta
+ * @property \DateTime|null $start_date
+ * @property \DateTime|null $end_date
+ * @property int $order
  */
 class ImageMapper extends EntityMapperExtensible
 {
@@ -72,6 +76,9 @@ class ImageMapper extends EntityMapperExtensible
      */
     public function __construct(int $value = null, string $fieldCompare = 'primary_key')
     {
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DATE, null, true), 'start_date');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DATE, null, true), 'end_date');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_INT, 0, true), 'order');
         parent::__construct($value, $fieldCompare);
     }
 
@@ -105,8 +112,20 @@ class ImageMapper extends EntityMapperExtensible
     public static function all(bool $asMapper = false)
     {
         $model = self::model();
+        $table = $model->getTable();
 
-        $model->select()->execute();
+        $model->select([
+            "{$table}.id",
+            "{$table}.title",
+            "{$table}.description",
+            "{$table}.link",
+            "{$table}.image",
+            "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.start_date')) AS start_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.end_date')) AS end_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.order') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.order')) AS `order`",
+        ])->orderBy("`order` ASC");
+
+        $model->execute();
 
         $result = $model->result();
 

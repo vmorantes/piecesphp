@@ -70,6 +70,28 @@ $action;
 
         </div>
 
+        <br>
+
+        <div class="field">
+            <label><?= __($langGroup, 'Orden'); ?></label>
+            <input type="number" name="order" value="<?= $element->order; ?>" min="0">
+        </div>
+
+        <div class="two fields">
+            <div class="field">
+                <label><?= __($langGroup, 'Fecha inicial'); ?></label>
+                <div calendar-group-js="dates" start>
+                    <input type="text" name="start_date" value="<?= !is_null($element->start_date) ? $element->start_date->format('Y-m-d H:i') : '';?>">
+                </div>
+            </div>
+            <div class="field">
+                <label><?= __($langGroup, 'Fecha final'); ?></label>
+                <div calendar-group-js="dates" end>
+                    <input type="text" name="end_date" value="<?= !is_null($element->end_date) ? $element->end_date->format('Y-m-d H:i') : '';?>">
+                </div>
+            </div>
+        </div>
+
         <div class="field">
             <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
         </div>
