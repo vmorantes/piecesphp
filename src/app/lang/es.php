@@ -152,6 +152,9 @@ $lang = [
 		'Enlace'                                                               => 'Enlace',
 		'Guardar'                                                              => 'Guardar',
 		'La URL del enlace tiene un formato inválido'                          => 'La URL del enlace tiene un formato inválido',
+		'Fecha inicial'                                                        => 'Fecha inicial',
+		'Fecha final'                                                          => 'Fecha final',
+		'Orden'                                                                => 'Orden',
     ],
 ];
 

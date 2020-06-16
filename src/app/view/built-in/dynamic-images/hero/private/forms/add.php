@@ -60,6 +60,28 @@ $action;
 
         </div>
 
+        <br>
+
+        <div class="field">
+            <label><?= __($langGroup, 'Orden'); ?></label>
+            <input type="number" name="order" value="0" min="0">
+        </div>
+
+        <div class="two fields">
+            <div class="field">
+                <label><?= __($langGroup, 'Fecha inicial'); ?></label>
+                <div calendar-group-js="dates" start>
+                    <input type="text" name="start_date">
+                </div>
+            </div>
+            <div class="field">
+                <label><?= __($langGroup, 'Fecha final'); ?></label>
+                <div calendar-group-js="dates" end>
+                    <input type="text" name="end_date">
+                </div>
+            </div>
+        </div>
+
         <div class="field">
             <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
         </div>

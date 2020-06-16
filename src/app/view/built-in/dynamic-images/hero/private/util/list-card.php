@@ -36,7 +36,20 @@ $editLink;
         <div class="description">
 
             <div>
-                <?= $mapper->description; ?>
+                <?= $mapper->description; ?> <br>
+                <?php if($mapper->start_date !== null): ?>
+                <strong><?= __($langGroup, 'Fecha inicial'); ?>: </strong>
+                <?= $mapper->end_date->format('d-m-Y h:i A'); ?>
+                <br>
+                <?php endif; ?>
+                <?php if($mapper->end_date !== null): ?>
+                <strong><?= __($langGroup, 'Fecha final'); ?>: </strong>
+                <?= $mapper->end_date->format('d-m-Y h:i A'); ?>
+                <br>
+                <?php endif; ?>
+                <strong><?= __($langGroup, 'Orden'); ?>: </strong>
+                <?= $mapper->order > 0 ? $mapper->order . '.' : '<span>0.</span>'; ?>
+                <br>
             </div>
 
             <br>

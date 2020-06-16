@@ -22,6 +22,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use Slim\Exception\NotFoundException;
 use Slim\Http\Request as Request;
 use Slim\Http\Response as Response;
@@ -291,6 +292,39 @@ class HeroController extends AdminPanelController
                     return HeroController::parseURL($value);
                 }
             ),
+            new Parameter(
+                'start_date',
+                null,
+                function ($value) {
+                    return $value === null || Validator::isDate($value, 'd-m-Y h:i A');
+                },
+                true,
+                function ($value) {
+                    return $value === null ? $value : \DateTime::createFromFormat('d-m-Y h:i A', $value);
+                }
+            ),
+            new Parameter(
+                'end_date',
+                null,
+                function ($value) {
+                    return $value === null || Validator::isDate($value, 'd-m-Y h:i A');
+                },
+                true,
+                function ($value) {
+                    return $value === null ? $value : \DateTime::createFromFormat('d-m-Y h:i A', $value);
+                }
+            ),
+            new Parameter(
+                'order',
+                0,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
         ]);
 
         //Obtención de datos
@@ -330,11 +364,17 @@ class HeroController extends AdminPanelController
              * @var string $title
              * @var string $description
              * @var string $link
+             * @var \DateTime|null $start_date
+             * @var \DateTime|null $end_date
+             * @var int $order
              */;
             $id = $expectedParameters->getValue('id');
             $title = $expectedParameters->getValue('title');
             $description = $expectedParameters->getValue('description');
             $link = $expectedParameters->getValue('link');
+            $startDate = $expectedParameters->getValue('start_date');
+            $endDate = $expectedParameters->getValue('end_date');
+            $order = $expectedParameters->getValue('order');
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -356,6 +396,9 @@ class HeroController extends AdminPanelController
                     $mapper->description = $description;
                     $mapper->link = $link;
                     $mapper->image = $image;
+                    $mapper->start_date = $startDate;
+                    $mapper->end_date = $endDate;
+                    $mapper->order = $order;
 
                     if (strlen($image) > 0) {
 
@@ -392,6 +435,9 @@ class HeroController extends AdminPanelController
                         $mapper->description = $description;
                         $mapper->link = $link;
                         $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
+                        $mapper->start_date = $startDate;
+                        $mapper->end_date = $endDate;
+                        $mapper->order = $order;
 
                         $updated = $mapper->update();
 
@@ -460,9 +506,61 @@ class HeroController extends AdminPanelController
      */
     public function all(Request $request, Response $response, array $args)
     {
-        $query = $this->model->select();
-        $query->execute();
-        $result = $query->result();
+        $expectedParameters = new Parameters([
+            new Parameter(
+                'page',
+                1,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'per_page',
+                10,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+        ]);
+
+        $inputData = $request->getQueryParams();
+        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+        $expectedParameters->validate();
+
+        /**
+         * @var int $id
+         * @var int $perPage
+         */;
+        $page = $expectedParameters->getValue('page');
+        $perPage = $expectedParameters->getValue('per_page');
+
+        $model = ImageMapper::model();
+
+        $table = $model->getTable();
+
+        $model->select([
+            "{$table}.id",
+            "{$table}.title",
+            "{$table}.description",
+            "{$table}.link",
+            "{$table}.image",
+            "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.start_date')) AS start_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.end_date')) AS end_date",
+            "IF(JSON_EXTRACT({$table}.meta, '$.order') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.order')) AS `order`",
+        ])->orderBy("`order` ASC");
+
+        $model->execute(false, $page, $perPage);
+
+        $result = $model->result();
+
         return $response->withJson($result);
     }
 
