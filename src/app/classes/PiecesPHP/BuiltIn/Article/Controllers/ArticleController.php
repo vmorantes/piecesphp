@@ -13,6 +13,9 @@ use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryMapper;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleContentMapper;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleMapper;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
+use PiecesPHP\Core\Cache\CacheControllersCriteries;
+use PiecesPHP\Core\Cache\CacheControllersCritery;
+use PiecesPHP\Core\Cache\CacheControllersManager;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
@@ -284,68 +287,101 @@ class ArticleController extends AdminPanelController
             $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
             $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
 
-            //Prepación de la consulta
-            $model = ArticleViewMapper::model();
-            $query = $model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
+            //=================Definir política de cache=================//
+            $cacheHandler = new CacheControllersManager(self::class, 'all', 3600 * 24);
 
-            $now = date('Y-m-d H:i:s');
+            $cacheCriteries = new CacheControllersCriteries([
+                new CacheControllersCritery('allDate', $allDate),
+                new CacheControllersCritery('paginate', $paginate),
+                new CacheControllersCritery('page', $page),
+                new CacheControllersCritery('perPage', $perPage),
+                new CacheControllersCritery('onlyLang', $onlyLang),
+            ]);
 
-            $where = [
-                "(start_date <= '{$now}' OR start_date IS NULL) AND",
-                "(end_date > '{$now}' OR end_date IS NULL)",
-                "AND lang = '$onlyLang'",
-            ];
+            $cacheHandler->setCriteries($cacheCriteries);
 
-            $where = implode(' ', $where);
+            $cacheHandler->process();
 
-            if ($allDate !== 'yes') {
-                $query->where($where);
-            }
+            $hasCache = $cacheHandler->hasCachedData();
+            //=================Fin de política de cache=================//
 
-            if ($paginate === 'yes') {
+            if (!$hasCache) {
 
-                $response_data = [];
+                //Prepación de la consulta
+                $model = ArticleViewMapper::model();
+                $query = $model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
 
-                $response_data['sql'] = $query->getCompiledSQL();
-                $query->execute(false, $page, $perPage);
+                $now = date('Y-m-d H:i:s');
 
-                $data = $query->result();
+                $where = [
+                    "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                    "(end_date > '{$now}' OR end_date IS NULL)",
+                    "AND lang = '$onlyLang'",
+                ];
 
-                $query->resetAll();
-
-                $query->select('COUNT(id) AS total');
+                $where = implode(' ', $where);
 
                 if ($allDate !== 'yes') {
                     $query->where($where);
                 }
 
-                $query->execute();
-                $total = $query->result();
-                $total = count($total) > 0 ? (int) $total[0]->total : 0;
-                $pages = ceil($total / $perPage);
+                if ($paginate === 'yes') {
 
-                $data = array_map(function ($e) {
-                    $eMapper = new ArticleViewMapper($e->sub_id);
-                    $i = $eMapper->getBasicData();
-					$i->title = htmlentities($eMapper->title);					
-					$i->category->name = htmlentities(stripslashes($i->category->name));
-                    return $i;
-                }, $data);
+                    $response_data = [];
 
-                $response_data['page'] = $page;
-                $response_data['perPage'] = $perPage;
-                $response_data['pages'] = $pages;
-                $response_data['total'] = $total;
-                $response_data['data'] = $data;
+                    $response_data['sql'] = $query->getCompiledSQL();
+                    $query->execute(false, $page, $perPage);
 
-                return $response->withJson($response_data);
+                    $data = $query->result();
+
+                    $query->resetAll();
+
+                    $query->select('COUNT(id) AS total');
+
+                    if ($allDate !== 'yes') {
+                        $query->where($where);
+                    }
+
+                    $query->execute();
+                    $total = $query->result();
+                    $total = count($total) > 0 ? (int) $total[0]->total : 0;
+                    $pages = ceil($total / $perPage);
+
+                    $data = array_map(function ($e) {
+                        $eMapper = new ArticleViewMapper($e->sub_id);
+                        $i = $eMapper->getBasicData();
+                        $i->title = htmlentities($eMapper->title);
+                        $i->category->name = htmlentities(stripslashes($i->category->name));
+                        return $i;
+                    }, $data);
+
+                    $response_data['page'] = $page;
+                    $response_data['perPage'] = $perPage;
+                    $response_data['pages'] = $pages;
+                    $response_data['total'] = $total;
+                    $response_data['data'] = $data;
+
+                    $cacheHandler->setDataCache(json_encode($response_data), CacheControllersManager::CONTENT_TYPE_JSON);
+
+                    return $response->withJson($response_data);
+
+                } else {
+
+                    $query->execute();
+
+                    $result = $query->result();
+
+                    $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
+
+                    return $response->withJson($result);
+
+                }
 
             } else {
 
-                $query->execute();
-
-                return $response->withJson($query->result());
-
+                return $response
+                    ->write($cacheHandler->getCachedData(false))
+                    ->withHeader('Content-Type', $cacheHandler->getContentType());
             }
 
         } else {
