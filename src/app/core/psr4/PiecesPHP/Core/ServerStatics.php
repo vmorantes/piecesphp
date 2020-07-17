@@ -40,6 +40,7 @@ class ServerStatics
     const CONTENT_TYPE_MP3 = null;
     const CONTENT_TYPE_MP4 = 'video/mp4';
     const CONTENT_TYPE_CSV = 'text/csv';
+    const CONTENT_TYPE_PDF = 'application/pdf';
 
     const TYPE_JSON = 'JSON';
     const TYPE_JS = 'JS';
@@ -52,10 +53,12 @@ class ServerStatics
     const TYPE_MP3 = 'MP3';
     const TYPE_MP4 = 'MP4';
     const TYPE_CSV = 'CSV';
+    const TYPE_PDF = 'PDF';
 
     const DATA_TYPE_JSON = [
         'code' => self::TYPE_JSON,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_JSON,
         'extensions' => [
             'json',
@@ -65,6 +68,7 @@ class ServerStatics
     const DATA_TYPE_JS = [
         'code' => self::TYPE_JS,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_JS,
         'extensions' => [
             'js',
@@ -74,6 +78,7 @@ class ServerStatics
     const DATA_TYPE_CSS = [
         'code' => self::TYPE_CSS,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_CSS,
         'extensions' => [
             'css',
@@ -83,6 +88,7 @@ class ServerStatics
     const DATA_TYPE_ICO = [
         'code' => self::TYPE_ICO,
         'caching' => true,
+        'compress' => false,
         'contentType' => self::CONTENT_TYPE_ICO,
         'extensions' => [
             'ico',
@@ -92,6 +98,7 @@ class ServerStatics
     const DATA_TYPE_PNG = [
         'code' => self::TYPE_PNG,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_PNG,
         'extensions' => [
             'png',
@@ -101,6 +108,7 @@ class ServerStatics
     const DATA_TYPE_JPG = [
         'code' => self::TYPE_JPG,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_JPG,
         'extensions' => [
             'jpg',
@@ -111,6 +119,7 @@ class ServerStatics
     const DATA_TYPE_GIF = [
         'code' => self::TYPE_GIF,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_GIF,
         'extensions' => [
             'gif',
@@ -120,6 +129,7 @@ class ServerStatics
     const DATA_TYPE_SWF = [
         'code' => self::TYPE_SWF,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_SWF,
         'extensions' => [
             'swf',
@@ -129,6 +139,7 @@ class ServerStatics
     const DATA_TYPE_MP3 = [
         'code' => self::TYPE_MP3,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_MP3,
         'extensions' => [
             'mp3',
@@ -138,6 +149,7 @@ class ServerStatics
     const DATA_TYPE_MP4 = [
         'code' => self::TYPE_MP4,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_MP4,
         'extensions' => [
             'mp4',
@@ -147,9 +159,20 @@ class ServerStatics
     const DATA_TYPE_CSV = [
         'code' => self::TYPE_CSV,
         'caching' => true,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_CSV,
         'extensions' => [
             'csv',
+        ],
+    ];
+
+    const DATA_TYPE_PDF = [
+        'code' => self::TYPE_PDF,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_PDF,
+        'extensions' => [
+            'pdf',
         ],
     ];
 
@@ -165,6 +188,7 @@ class ServerStatics
         self::TYPE_MP3 => self::DATA_TYPE_MP3,
         self::TYPE_MP4 => self::DATA_TYPE_MP4,
         self::TYPE_CSV => self::DATA_TYPE_CSV,
+        self::TYPE_PDF => self::DATA_TYPE_PDF,
     ];
 
     /**
@@ -261,13 +285,16 @@ class ServerStatics
             if (self::allowCaching($extension)) {
 
                 $ifModifiedSince = $request->getHeaderLine('If-Modified-Since');
+                $ifNoneMatch = $request->getHeaderLine('If-None-Match');
 
                 $lastModification = filemtime($filePath);
-
                 $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification);
 
-                $headers['Cache-Control'] = "public";
+                $eTag = sha1($lastModification);
+
+                $headers['Cache-Control'] = "no-cache";
                 $headers['Last-Modified'] = $lastModificationGMT;
+                $headers['ETag'] = $eTag;
 
                 if (is_string($ifModifiedSince) && strlen($ifModifiedSince) > 0) {
 
@@ -295,7 +322,28 @@ class ServerStatics
                         $status = 200;
                     }
 
-                } else {
+                }
+
+                if (is_string($ifNoneMatch) && strlen($ifNoneMatch) > 0) {
+
+                    if ($eTag === $ifNoneMatch) {
+
+                        $status = 304;
+
+                    } else {
+
+                        $headers['Cache-Control'] = [
+                            'no-store',
+                            'max-age=0',
+                        ];
+
+                        $status = 200;
+
+                    }
+
+                }
+
+                if ($status == 0) {
                     $status = 200;
                 }
 
@@ -303,11 +351,13 @@ class ServerStatics
                 $status = 200;
             }
 
-            if ($status != 304) {
-                readfile($filePath);
+            foreach ($headers as $name => $values) {
+                $response = $response->withHeader($name, $values);
             }
 
-            foreach ($headers as $name => $values) {
+            $newHeaders = self::readFile($filePath, $status, $extension, $request);
+
+            foreach ($newHeaders as $name => $values) {
                 $response = $response->withHeader($name, $values);
             }
 
@@ -318,6 +368,90 @@ class ServerStatics
             return $response->withStatus(404)->write('<h1>404 el recurso no existe.</h1>');
 
         }
+    }
+
+    /**
+     * readFile
+     *
+     * @param string $path
+     * @param int $status
+     * @param string $extension
+     * @param Request $request
+     * @return array|null
+     */
+    private static function readFile(string $path, int $status, string $extension, Request $request)
+    {
+
+        $headers = null;
+
+        if ($status != 304) {
+
+            $acceptEncoding = $request->getHeaderLine('Accept-Encoding');
+
+            $fileData = file_get_contents($path);
+
+            if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
+
+                $headers = [];
+
+                $acceptEncoding = explode(',', str_replace(' ', '', trim($acceptEncoding)));
+
+                $supportCompressionAlgorithms = [ //A mayor índice, mayor preferencia
+                    'deflate',
+                    'gzip',
+                ];
+                $supportCompressionAlgorithmsFlip = array_flip($supportCompressionAlgorithms);
+
+                $indexCompressionAlgorithm = -1;
+                $compressionAlgorithm = null;
+
+                foreach ($acceptEncoding as $alg) {
+
+                    $alg = mb_strtolower($alg);
+
+                    if (in_array($alg, $supportCompressionAlgorithms)) {
+
+                        $algIndex = (int) $supportCompressionAlgorithmsFlip[$alg];
+
+                        if ($algIndex > $indexCompressionAlgorithm) {
+                            $indexCompressionAlgorithm = $algIndex;
+                            $compressionAlgorithm = $alg;
+                        }
+
+                    }
+
+                }
+
+                if ($compressionAlgorithm !== null) {
+
+                    $encodingName = '';
+
+                    if ($compressionAlgorithm == 'deflate' && extension_loaded('zlib') && function_exists('gzdeflate')) {
+
+                        $fileData = gzdeflate($fileData);
+                        $encodingName = 'deflate';
+
+                    } elseif ($compressionAlgorithm == 'gzip' && extension_loaded('zlib') && function_exists('gzencode')) {
+
+                        $fileData = gzencode($fileData);
+                        $encodingName = 'gzip';
+
+                    }
+
+                    if (strlen($encodingName) > 0) {
+                        $headers['Content-Encoding'] = $encodingName;
+                    }
+
+                }
+
+            }
+
+            echo $fileData;
+
+        }
+
+        return $headers;
+
     }
 
     /**
@@ -335,7 +469,6 @@ class ServerStatics
 
             $contentType = $dataType['contentType'];
             $extensions = $dataType['extensions'];
-            $caching = $dataType['caching'];
 
             if (in_array($extension, $extensions)) {
                 return $contentType;
@@ -360,12 +493,37 @@ class ServerStatics
 
         foreach ($dataTypes as $code => $dataType) {
 
-            $contentType = $dataType['contentType'];
             $extensions = $dataType['extensions'];
             $caching = $dataType['caching'];
 
             if (in_array($extension, $extensions)) {
                 return $caching;
+            }
+
+        }
+
+        return true;
+
+    }
+
+    /**
+     * allowCompression
+     *
+     * @param string $extension
+     * @return bool
+     */
+    private static function allowCompression(string $extension)
+    {
+
+        $dataTypes = self::DATA_TYPES;
+
+        foreach ($dataTypes as $code => $dataType) {
+
+            $extensions = $dataType['extensions'];
+            $compress = $dataType['compress'];
+
+            if (in_array($extension, $extensions)) {
+                return $compress;
             }
 
         }
@@ -387,9 +545,7 @@ class ServerStatics
 
         foreach ($dataTypes as $code => $dataType) {
 
-            $contentType = $dataType['contentType'];
             $extensions = $dataType['extensions'];
-            $caching = $dataType['caching'];
 
             if (in_array($extension, $extensions)) {
                 return true;

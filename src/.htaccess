@@ -9,7 +9,7 @@ RewriteRule . index.php [L]
 #Servido personalizado de archivos estáticos y manejo de caché
 #Para activar el manejo de caché del archivos estáticos de PiecesPHP mantenga descomentadas las
 #siguientes dos líneas, de lo contrario coméntelas
-RewriteCond %{REQUEST_URI} \.(js|js|css|ico|png|jpg|jpeg|gif|swf|mp3|mp4|csv)$
+RewriteCond %{REQUEST_URI} \.(js|js|css|ico|png|jpg|jpeg|gif|swf|mp3|mp4|csv|pdf)$
 RewriteRule . index.php [L]
 
 #Desactivar el listado de directorios
@@ -47,4 +47,5 @@ AddOutputFilterByType DEFLATE application/xhtml+xml
 AddOutputFilterByType DEFLATE application/rss+xml
 AddOutputFilterByType DEFLATE application/javascript
 AddOutputFilterByType DEFLATE application/x-javascript
+AddOutputFilterByType DEFLATE application/pdf
 </IfModule> 
