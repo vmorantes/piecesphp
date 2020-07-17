@@ -377,12 +377,12 @@ class ServerStatics
      * @param int $status
      * @param string $extension
      * @param Request $request
-     * @return array|null
+     * @return array
      */
     private static function readFile(string $path, int $status, string $extension, Request $request)
     {
 
-        $headers = null;
+        $headers = [];
 
         if ($status != 304) {
 
@@ -391,8 +391,6 @@ class ServerStatics
             $fileData = file_get_contents($path);
 
             if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
-
-                $headers = [];
 
                 $acceptEncoding = explode(',', str_replace(' ', '', trim($acceptEncoding)));
 
