@@ -34,6 +34,7 @@
 		"piecesphp/html": "~1"
 	},
 	"suggest": {
+		"ext-zlib": ">=1.2.0.4",
 		"ext-mongodb": "^1.4.0",
 		"mongodb/mongodb": "~1.3"
 	},
