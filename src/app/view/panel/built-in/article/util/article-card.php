@@ -35,20 +35,21 @@
 
             <?php if(!is_null($mapper->updated)): ?>
             <div class="date">
-                <?=__('articlesBackend', 'Fin');?>:
+                <?=__('articlesBackend', 'Modificado');?>:
                 <?=  $mapper->updated->format(__('formatsDate', 'd-m-Y h:i:s A')); ?>
             </div>
             <?php endif;?>
 
             <div><strong><?=__('articlesBackend', 'Autor');?>:</strong> <?=  $mapper->author->username; ?></div>
             <div><strong><?=__('articlesBackend', 'Categoría');?>:</strong> <?=  $mapper->category->getName(); ?></div>
-			<div><strong><?=__('articlesBackend', 'Visitas');?>:</strong> <?=  $mapper->visits > 0 ? $mapper->visits : '-'; ?></div>
-			
+            <div><strong><?=__('articlesBackend', 'Visitas');?>:</strong>
+                <?=  $mapper->visits > 0 ? $mapper->visits : '-'; ?></div>
+
         </div>
-	</div>
-	
+    </div>
+
     <div class="extra content">
-		
+
         <a class="fluid ui green button" href="<?= $editLink; ?>"><?= __('articlesBackend', 'Editar'); ?></a>
 
     </div>
