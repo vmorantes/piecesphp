@@ -752,6 +752,8 @@ class ArticleController extends AdminPanelController
 
                                 $subMapper->id = $subMapper->getLastInsertID();
 
+                                CacheControllersManager::globalTouch(self::class, 'all');
+
                                 if ($subMapperSaved) {
 
                                     $this->moveTemporaryImages($subMapper);
@@ -853,6 +855,8 @@ class ArticleController extends AdminPanelController
                                     }
 
                                     if ($successAction) {
+
+                                        CacheControllersManager::globalTouch(self::class, 'all');
 
                                         $this->moveTemporaryImages($subMapper, $oldText);
 

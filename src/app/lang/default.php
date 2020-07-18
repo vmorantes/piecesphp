@@ -136,9 +136,9 @@ $lang = [
     ],
     'supportFormAdminZone' => [
         'Soporte técnico' => 'Soporte técnico',
-        'Asunto'         => 'Asunto',
-        'Mensaje'        => 'Mensaje',
-        'Enviar'         => 'Enviar',
+        'Asunto'          => 'Asunto',
+        'Mensaje'         => 'Mensaje',
+        'Enviar'          => 'Enviar',
     ],
     'news' => [
         'Tablero de noticias'                                       => 'Tablero de noticias',
@@ -265,6 +265,7 @@ $lang = [
         'Cambiar idioma'                                                     => 'Cambiar idioma',
         'El idioma que intenta usar no existe.'                              => 'El idioma que intenta usar no existe.',
         'Fechas'                                                             => 'Fechas',
+        'Modificado'                                                         => 'Modificado',
     ],
     'articlesFrontEnd' => [
         'Cargar más'               => 'Cargar más',

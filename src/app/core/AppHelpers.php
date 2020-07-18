@@ -288,10 +288,15 @@ function __(string $type, string $message = '', bool $echo = false)
         $lang_file = include app_basepath("lang/" . $lang . ".php");
 
         foreach ($lang_file as $group_name => $messages) {
-            if (!isset($diccionario[$group_name])) {
+
+            if (!array_key_exists($group_name, $diccionario)) {
                 $diccionario[$group_name] = $messages;
             } else {
-                $diccionario[$group_name] = array_merge($diccionario[$group_name], $messages);
+
+                foreach ($messages as $code_message => $text_message) {
+                    $diccionario[$group_name][$code_message] = $text_message;
+                }
+
             }
         }
     }
