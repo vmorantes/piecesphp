@@ -392,7 +392,10 @@ class ServerStatics
 
             if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
 
+                $headers = [];
+
                 $acceptEncoding = explode(',', str_replace(' ', '', trim($acceptEncoding)));
+                $acceptEncoding = is_array($acceptEncoding) ? $acceptEncoding : [];
 
                 $supportCompressionAlgorithms = [ //A mayor índice, mayor preferencia
                     'deflate',
