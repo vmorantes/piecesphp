@@ -42,17 +42,19 @@ function set_config(string $name, $value)
  *
  * @param bool $appendTitleApp
  * @param string $separator
+ * @param bool $reverse
  *
  * @return string
  */
-function get_title(bool $appendTitleApp = false, string $separator = ' - ')
+function get_title(bool $appendTitleApp = false, string $separator = null, bool $reverse = true)
 {
     $title = get_config('title');
     $title_app = get_config('title_app');
+    $separator = $separator !== null ? $separator : ' - ';
 
     if ($title !== false) {
         if ($appendTitleApp && $title_app != $title) {
-            return $title_app . $separator . get_config('title');
+            return $reverse ? $title_app . $separator . get_config('title') : get_config('title') . $separator . $title_app;
         } else {
             return get_config('title');
         }
@@ -126,55 +128,60 @@ function base_url(string $resource = "")
  */
 function get_lang_url($current_lang = 'es', $target_lang = 'en')
 {
-
-    $default_lang = get_config('default_lang');
-
-    if ($target_lang == $default_lang) {
-        $target_lang = '';
-    } else {
-        $target_lang .= '/';
-    }
-
-    $base_url = baseurl($current_lang . '/');
-    $current_url = get_current_url();
-    $current_segment = str_replace($base_url, '', $current_url);
-    $current_segment = str_replace(remove_last_char($base_url), '', $current_url);
-    $current_segment = str_replace(baseurl(), '', $current_segment);
-    $lang_url = baseurl($target_lang . $current_segment);
-    $path = parse_url($lang_url, PHP_URL_PATH);
-    $path_clean = str_replace('//', '/', $path);
-    $lang_url = str_replace($path, $path_clean, $lang_url);
-    return $lang_url;
+    return convert_lang_url(get_current_url(), $current_lang, $target_lang);
 }
 
 /**
  * Convierte la url basado en el idioma actual en su par de otro idioma
  * Nota: Solo si lang_by_url es true
  *
- * @param string $url
+ * @param string $input_url
  * @param string $current_lang
  * @param string $target_lang
  * @return string
  */
-function convert_lang_url($url, $current_lang = 'es', $target_lang = 'en')
+function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
 {
 
     $default_lang = get_config('default_lang');
+    $target_is_default = $target_lang == $default_lang;
+    $current_is_default = $current_lang == $default_lang;
 
-    if ($target_lang == $default_lang) {
-        $target_lang = '';
+    $current_is_same_target = $current_lang == $target_lang || Config::get_lang() == $target_lang;
+
+    $lang_url = '';
+
+    if (!$current_is_same_target) {
+
+        $input_url_end_slash = last_char($input_url) === '/';
+
+        $base_url = !$current_is_default ? base_url($current_lang) : base_url();
+
+        $protocol_input_url = strpos($input_url, 'https://') !== false ? 'https://' : 'http://';
+        $protocol_base_url = strpos($base_url, 'https://') !== false ? 'https://' : 'http://';
+
+        $input_url = str_replace($protocol_input_url, '', $input_url);
+        $base_url = str_replace($protocol_base_url, '', $base_url);
+        $segment_url = str_replace($base_url, '', $input_url);
+
+        $segments_url = array_filter(explode('/', $segment_url), function ($e) {
+            return strlen(trim($e)) > 0;
+        });
+        $segment_url = implode('/', $segments_url);
+
+        $lang_url = !$target_is_default ? baseurl("{$target_lang}/$segment_url") : baseurl("$segment_url");
+        $lang_url = str_replace($protocol_base_url, $protocol_input_url, $lang_url);
+
+        $lang_url_end_slash = last_char($lang_url) === '/';
+
+        if ($input_url_end_slash && !$lang_url_end_slash) {
+            $lang_url .= '/';
+        }
+
     } else {
-        $target_lang .= '/';
+        $lang_url = $input_url;
     }
 
-    $base_url = baseurl($current_lang . '/');
-    $segment = str_replace($base_url, '', $url);
-    $segment = str_replace(remove_last_char($base_url), '', $url);
-    $segment = str_replace(baseurl(), '', $segment);
-    $lang_url = baseurl($target_lang . $segment);
-    $path = parse_url($lang_url, PHP_URL_PATH);
-    $path_clean = str_replace('//', '/', $path);
-    $lang_url = str_replace($path, $path_clean, $lang_url);
     return $lang_url;
 }
 
@@ -310,6 +317,39 @@ function __(string $type, string $message = '', bool $echo = false)
         if (array_key_exists($message, $diccionario[$type])) {
 
             $msg = $diccionario[$type][$message];
+        } else {
+
+            $filesLangs = app_basepath("lang/files/{$type}");
+            $existsType = file_exists($filesLangs);
+
+            if ($existsType) {
+
+                $langName = Config::get_lang();
+                $fileMessage = app_basepath("lang/files/{$type}/{$message}-{$langName}.html");
+                $fileMessageAlt = app_basepath("lang/files/{$type}/{$message}.html");
+                $existFile = file_exists($fileMessage);
+                $existFileAlt = file_exists($fileMessageAlt);
+
+                if ($existFile) {
+
+                    $contentFile = @file_get_contents($fileMessage);
+
+                    if (is_string($contentFile)) {
+                        $msg = $contentFile;
+                    }
+
+                } elseif ($existFileAlt) {
+
+                    $contentFile = @file_get_contents($fileMessageAlt);
+
+                    if (is_string($contentFile)) {
+                        $msg = $contentFile;
+                    }
+
+                }
+
+            }
+
         }
     }
 
@@ -343,6 +383,7 @@ function lang(string $type, string $message = '', string $lang, bool $echo = fal
     $diccionario = [];
     $existFile = file_exists(app_basepath("lang/" . $lang . ".php"));
     $msg = null;
+    $requesLang = $lang;
 
     if ($existFile) {
 
@@ -360,6 +401,30 @@ function lang(string $type, string $message = '', string $lang, bool $echo = fal
         if (array_key_exists($message, $diccionario[$type])) {
 
             $msg = $diccionario[$type][$message];
+
+        } else {
+
+            $filesLangs = app_basepath("lang/files/{$type}");
+            $existsType = file_exists($filesLangs);
+
+            if ($existsType) {
+
+                $langName = $requesLang;
+                $fileMessage = app_basepath("lang/files/{$type}/{$message}-{$langName}.html");
+                $existFile = file_exists($fileMessage);
+
+                if ($existFile) {
+
+                    $contentFile = @file_get_contents($fileMessage);
+
+                    if (is_string($contentFile)) {
+                        $msg = $contentFile;
+                    }
+
+                }
+
+            }
+
         }
     }
 
@@ -376,19 +441,13 @@ function lang(string $type, string $message = '', string $lang, bool $echo = fal
     }
 }
 
-/** @var @ignore array ['js'=>array(),'css'=>array()] Array asociativo con las rutas de los js y css globales*/
-set_config('global_assets', [
-    'js' => [],
-    'css' => [],
-]);
-/** @var @ignore array ['js'=>array(),'css'=>array()] Array asociativo con las rutas de los js y css específicos de cada vista.*/
-set_config('custom_assets', [
-    'js' => [],
-    'css' => [],
-]);
-
-/** @ignore */
-function load_js($config = array())
+/**
+ * Imprime los scripts js cargados con las funciones auxiliares de assets
+ *
+ * @param array $config
+ * @return void
+ */
+function load_js(array $config = array())
 {
     $global_assets = get_config('global_assets');
     $custom_assets = get_config('custom_assets');
@@ -412,8 +471,13 @@ function load_js($config = array())
     }
 }
 
-/** @ignore */
-function load_css($config = array())
+/**
+ * Imprime los link css cargados con las funciones auxiliares de assets
+ *
+ * @param array $config
+ * @return void
+ */
+function load_css(array $config = array())
 {
     $global_assets = get_config('global_assets');
     $custom_assets = get_config('custom_assets');
@@ -447,7 +511,14 @@ function load_css($config = array())
     }
 }
 
-/** @ignore */
+/**
+ * Verifica que el asset global solicitado exista, de ser así devuelve el índice en el array
+ * de assets globales según el tipo que corresponda, si no existe devuelve false
+ *
+ * @param string $asset
+ * @param string $type
+ * @return int|false
+ */
 function has_global_asset(string $asset, string $type)
 {
 
@@ -470,45 +541,202 @@ function has_global_asset(string $asset, string $type)
     return $index_asset;
 }
 
-/** @ignore */
-function add_global_asset($asset, $type)
+/**
+ * Añade un asset global del tipo definido, devuelve true en caso de que la operación sea existosa, esto es; cuando
+ * agrega el elemento o el elemento ya existe, false en caso contrario.
+ *
+ * @param string $asset
+ * @param string $type
+ * @return bool
+ */
+function add_global_asset(string $asset, string $type)
 {
     $global_assets = get_config('global_assets');
-    if ($type == "js") {
-        $global_assets['js'][count($global_assets['js'])] = $asset;
-        set_config('global_assets', $global_assets);
-    } else if ($type == "css") {
-        $global_assets['css'][count($global_assets['css'])] = $asset;
-        set_config('global_assets', $global_assets);
+    $exists = isset($global_assets[$type]) && in_array($asset, $global_assets[$type]);
+
+    if (is_string($asset) && ($type == "js" || $type == "css")) {
+
+        if (!$exists) {
+
+            if ($type == "js") {
+
+                $global_assets['js'][count($global_assets['js'])] = $asset;
+                set_config('global_assets', $global_assets);
+
+                return true;
+
+            } else if ($type == "css") {
+
+                $global_assets['css'][count($global_assets['css'])] = $asset;
+                set_config('global_assets', $global_assets);
+
+                return true;
+
+            }
+
+        }
+
+        return true;
+
+    } else {
+        return false;
     }
+
 }
 
-/** @ignore */
-function add_global_assets($custom_assets, $type)
+/**
+ * Verifica si existe el asset en los globales y si es de tipo requerido
+ *
+ * @param string $asset
+ * @param string $type
+ * @return bool
+ */
+function is_global_required_asset(string $asset, string $type)
+{
+    return index_global_required_asset($asset, $type) !== null;
+}
+
+/**
+ * Busca el índice del asset global requerido del tipo que corresponda, si existe devuelve el índice,
+ * de lo contrario devuelve null
+ *
+ * @param string $asset
+ * @param string $type
+ * @return int|null
+ */
+function index_global_required_asset(string $asset, string $type)
+{
+    $global_requireds_assets = get_config('global_requireds_assets');
+    $index = null;
+
+    if (is_array($global_requireds_assets) && strlen($asset) > 0 && ($type == 'css' || $type == 'js')) {
+
+        if (array_key_exists($type, $global_requireds_assets)) {
+
+            $assets = $global_requireds_assets[$type];
+
+            if (in_array($asset, $assets)) {
+                $index = array_search($asset, $assets);
+            }
+
+        }
+
+    }
+
+    return $index;
+
+}
+
+/**
+ * Añade un asset del tipo correspondiente a la lista de globales requeridos
+ *
+ * @param string $asset
+ * @param string $type
+ * @return void
+ */
+function add_global_required_asset(string $asset, string $type)
+{
+    $global_requireds_assets = get_config('global_requireds_assets');
+    $global_requireds_assets = is_array($global_requireds_assets) ? $global_requireds_assets : [
+        'css' => [],
+        'js' => [],
+    ];
+
+    $add = add_global_asset($asset, $type);
+
+    if ($add) {
+        $global_requireds_assets[$type][] = $asset;
+        set_config('global_requireds_assets', $global_requireds_assets);
+    }
+
+}
+
+/**
+ * Añade múltiples assets del tipo correspondiente a la lista de globales (itera sobre add_global_asset)
+ *
+ * @param string[] $custom_assets
+ * @param string $type
+ * @return void
+ */
+function add_global_assets(array $custom_assets, string $type)
 {
     foreach ($custom_assets as $asset) {
         add_global_asset($asset, $type);
     }
 }
 
-/** @ignore */
+/**
+ * Añade múltiples assets del tipo correspondiente a la lista de globales requeridos (itera sobre add_global_required_asset)
+ *
+ * @param string[] $custom_assets
+ * @param string $type
+ * @return void
+ */
+function add_global_requireds_assets(array $custom_assets, string $type)
+{
+    foreach ($custom_assets as $asset) {
+        add_global_required_asset($asset, $type);
+    }
+}
+
+/**
+ * Remueve un asset global, devuelve el índice si fue removido, devuelve false si no existe
+ * o en caso de no removerse por ser requerido (para lo cual debe usarse remove_global_required_asset)
+ *
+ * @param string $asset
+ * @param string $type
+ * @return false|int
+ */
 function remove_global_asset(string $asset, string $type)
 {
 
-    $global_assets = get_config('global_assets');
-    $index_asset = has_global_asset($asset, $type);
+    if (!is_global_required_asset($asset, $type)) {
 
-    if ($index_asset !== false) {
-        unset($global_assets[$type][$index_asset]);
+        $global_assets = get_config('global_assets');
+        $index_asset = has_global_asset($asset, $type);
+
+        if ($index_asset !== false) {
+            unset($global_assets[$type][$index_asset]);
+        }
+
+        set_config('global_assets', $global_assets);
+
+        return $index_asset;
+
+    } else {
+        return false;
     }
 
-    set_config('global_assets', $global_assets);
-
-    return $index_asset;
 }
 
-/** @ignore */
-function set_custom_assets($custom_assets, $type)
+/**
+ * Remueve un asset global requerido
+ *
+ * @param string $asset
+ * @param string $type
+ * @return void
+ */
+function remove_global_required_asset(string $asset, string $type)
+{
+    $index = index_global_required_asset($asset, $type);
+
+    if ($index !== null) {
+        $global_requireds_assets = get_config('global_requireds_assets');
+        unset($global_requireds_assets[$type][$index]);
+        remove_global_asset($asset, $type);
+    }
+
+}
+
+/**
+ * Define la lista de assets no globales, segun el tipo que corresponda.
+ * Es una definición por fuerza bruta, cuide de pasar los valores adecuados.
+ *
+ * @param string[] $custom_assets
+ * @param string $type
+ * @return void
+ */
+function set_custom_assets(array $custom_assets, string $type)
 {
     $_custom_assets = get_config('custom_assets');
     if ($type == "js") {
@@ -520,8 +748,15 @@ function set_custom_assets($custom_assets, $type)
     }
 }
 
-/** @ignore */
-function set_global_assets($assets, $type)
+/**
+ * Define la lista de assets globales, segun el tipo que corresponda.
+ * Es una definición por fuerza bruta, cuide de pasar los valores adecuados.
+ *
+ * @param string[] $assets
+ * @param string $type
+ * @return void
+ */
+function set_global_assets(array $assets, string $type)
 {
     $global_assets = get_config('global_assets');
     if ($type == "js") {
@@ -532,6 +767,107 @@ function set_global_assets($assets, $type)
         set_config('global_assets', $global_assets);
     }
 }
+
+/**
+ * Borra todos las librerías front importadas por import_front_library
+ *
+ * @return void
+ */
+function clear_assets_imports()
+{
+
+    $libraries = get_config('default_assets');
+    $imported = get_config('imported_assets');
+    $cssFiles = [];
+    $jsFiles = [];
+
+    set_config('imported_assets', []);
+
+    foreach ($imported as $name => $plugins) {
+
+        $library = $libraries[$name];
+        $library_css = is_array($library) && isset($library['css']) && is_array($library['css']) ? $library['css'] : [];
+        $library_js = is_array($library) && isset($library['js']) && is_array($library['js']) ? $library['js'] : [];
+        $plugins = is_array($plugins) ? $plugins : [];
+
+        foreach ($library_css as $i) {
+            if (is_string($i) && strlen($i) > 0) {
+                $cssFiles[] = $i;
+            }
+        }
+
+        foreach ($library_js as $i) {
+            if (is_string($i) && strlen($i) > 0) {
+                $jsFiles[] = $i;
+            }
+        }
+
+        foreach ($plugins as $plugin) {
+
+            $plugin_data = $library['plugins'][$plugin];
+            $plugin_css = is_array($plugin_data) && isset($plugin_data['css']) && is_array($plugin_data['css']) ? $plugin_data['css'] : [];
+            $plugin_js = is_array($plugin_data) && isset($plugin_data['js']) && is_array($plugin_data['js']) ? $plugin_data['js'] : [];
+
+            foreach ($plugin_css as $i) {
+                if (is_string($i) && strlen($i) > 0) {
+                    $cssFiles[] = $i;
+                }
+            }
+
+            foreach ($plugin_js as $i) {
+                if (is_string($i) && strlen($i) > 0) {
+                    $jsFiles[] = $i;
+                }
+            }
+
+        }
+
+    }
+
+    foreach ($cssFiles as $i) {
+        remove_global_asset($i, 'css');
+    }
+
+    foreach ($jsFiles as $i) {
+        remove_global_asset($i, 'js');
+    }
+}
+
+/**
+ * Borra todos las globales (front)
+ *
+ * @return void
+ */
+function clear_global_assets()
+{
+
+    $global_assets = get_config('global_assets');
+    $global_assets = is_array($global_assets) ? $global_assets : [
+        'css' => [],
+        'js' => [],
+    ];
+
+    $css = isset($global_assets['css']) && is_array($global_assets['css']) ? $global_assets['css'] : [];
+    $js = isset($global_assets['js']) && is_array($global_assets['js']) ? $global_assets['js'] : [];
+
+    foreach ($css as $i) {
+
+        if (is_string($i) && strlen($i) > 0) {
+            remove_global_asset($i, 'css');
+        }
+
+    }
+
+    foreach ($js as $i) {
+
+        if (is_string($i) && strlen($i) > 0) {
+            remove_global_asset($i, 'js');
+        }
+
+    }
+
+}
+
 /**
  * Registra como assets globales la librería y los plugins definidos por parámetro
  *
@@ -627,6 +963,37 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
                 }
             }
         }
+
+        $imported = get_config('imported_assets');
+
+        $plugins_importeds = isset($imported) && isset($imported[$name]) ? $imported[$name] : [];
+        $plugins_to_delete = [];
+
+        foreach ($plugins_importeds as $plugin_imported) {
+            if (!in_array($plugin_imported, $plugins)) {
+                $plugins_to_delete[] = $plugin_imported;
+                unset($imported[$name][array_search($plugin_imported, $imported[$name])]);
+            }
+        }
+
+        set_config('imported_assets', $imported);
+
+        foreach ($plugins_to_delete as $plugin_to_delete) {
+
+            $plugin_files = $library['plugins'][$plugin_to_delete];
+            $plugin_css_files = is_array($plugin_files) && isset($plugin_files['css']) ? $plugin_files['css'] : [];
+            $plugin_js_files = is_array($plugin_files) && isset($plugin_files['js']) ? $plugin_files['js'] : [];
+
+            foreach ($plugin_css_files as $plugin_css_file) {
+                remove_global_asset($plugin_css_file, 'css');
+            }
+
+            foreach ($plugin_js_files as $plugin_js_file) {
+                remove_global_asset($plugin_js_file, 'js');
+            }
+
+        }
+
     }
 }
 
@@ -677,6 +1044,7 @@ function import_nprogress(array $plugins = [], bool $all = false)
 {
     import_front_library('nprogress', $plugins, $all);
 }
+
 /**
  * Registra sweetalert2 como assets globales y los plugins definidos por parámetro
  *
@@ -688,6 +1056,7 @@ function import_swal2(array $plugins = [], bool $all = false)
 {
     import_front_library('sweetalert2', $plugins, $all);
 }
+
 /**
  * Registra izitoast como assets globales y los plugins definidos por parámetro
  *
@@ -787,7 +1156,7 @@ function import_dialog_pcs(array $plugins = [], bool $all = true)
  * ])
  *
  * @param array $routes Rutas
- * @param array &$router Referencia al el enrutador de la aplicación
+ * @param object &$router Referencia al el enrutador de la aplicación
  * @return void
  */
 function register_routes($routes, &$router)

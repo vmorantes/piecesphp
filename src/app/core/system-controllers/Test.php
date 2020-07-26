@@ -6,10 +6,6 @@
 
 namespace PiecesPHP\Core;
 
-use PiecesPHP\Core\BaseController;
-use PiecesPHP\Core\BaseHashEncryption;
-use PiecesPHP\Core\Config;
-use PiecesPHP\Core\StringManipulate;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -27,18 +23,8 @@ class Test
     /** @ignore */
     public function __construct()
     {
-        import_jquery();
-        import_nprogress();
-        import_cropper();
-        import_jquerymask();
-        import_datatables();
-        import_quilljs();
-        import_semantic();
-        import_izitoast();
-        import_swal2();
-        import_app_libraries();
-	}
-	
+    }
+
     public function generateImage(Request $request, Response $response, array $args)
     {
         if (isset($args['w']) && isset($args['h'])) {
@@ -59,10 +45,10 @@ class Test
             $y = (imagesy($imagen) / 2);
             $angle = 0;
             $text_imagen = imagettftext($imagen, $font_size, $angle, $x, $y, $color_negro, $font, $texto);
-            imagepng($imagen);
+            imagejpeg($imagen);
             imagedestroy($imagen);
 
-            return $response->withHeader('Content-type', 'image/png');
+            return $response->withHeader('Content-type', 'image/jpg');
         } else {
             return $response->withStatus(404)->write('<h1>Recurso inexistente.</h1>');
         }

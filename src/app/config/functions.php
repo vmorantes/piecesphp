@@ -4,6 +4,8 @@
  * functions.php
  */
 
+use App\Controller\PublicAreaController;
+
 /**
  * Funciones adicionales.
  * En este este archivo se puede añadir cualquier función adicional.
@@ -148,4 +150,36 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
     }
 
     return trim(implode("\r\n", $options));
+}
+
+/**
+ * genericViewRoute
+ *
+ * @param string $name
+ * @return string
+ */
+function genericViewRoute(string $name)
+{
+
+    return PublicAreaController::routeName('generic', [
+        'name' => $name,
+    ]);
+
+}
+
+/**
+ * genericView2Route
+ *
+ * @param string $folder
+ * @param string $name
+ * @return string
+ */
+function genericView2Route(string $folder, string $name)
+{
+
+    return PublicAreaController::routeName('generic-2', [
+        'folder' => $folder,
+        'name' => $name,
+    ]);
+
 }

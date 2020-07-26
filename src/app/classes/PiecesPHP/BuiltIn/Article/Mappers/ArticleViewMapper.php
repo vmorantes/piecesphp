@@ -221,7 +221,7 @@ class ArticleViewMapper extends BaseEntityMapper
                 $value = $date->format('m');
                 break;
             case self::TYPE_PREFER_DATE_MONTH_NAME:
-                $value = __('month', (string) ($date->format('n') - 1));
+                $value = __('month', (int) ($date->format('n') - 1));
                 break;
             case self::TYPE_PREFER_DATE_YEAR:
                 $value = $date->format('Y');

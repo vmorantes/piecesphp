@@ -199,7 +199,7 @@ function BuiltInArticle(options) {
 			requestURL.searchParams.set('page', page)
 			requestURL.searchParams.set('per_page', perPage)
 
-			showGenericLoader(loaderName)
+			CustomNamespace.loader(loaderName)
 			firstLoad = true
 			loadMoreTrigger.attr('disabled', true)
 
@@ -245,7 +245,7 @@ function BuiltInArticle(options) {
 
 			}).always(function () {
 
-				removeGenericLoader(loaderName)
+				CustomNamespace.loader(loaderName, false)
 				loadMoreTrigger.attr('disabled', false)
 
 			})

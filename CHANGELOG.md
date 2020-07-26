@@ -1,70 +1,22 @@
-# Abreviaturas
-- MV = Movido a (plural MVMV)
-- RN = Renombrado a
-- P = Property (plural PP)
-- M = Method (plural MM)
-- F = Function (plural FF)
-- D = Borrado (plural DD)
-- A = Agregado (plural AA)
-- U = Ruta (plural UU)
+# V5
 
-# v. 2.9
-
-## Generales
-- src/composer.json
-	- **D** Tarea "git-log" de scripts
-- **D** Plugin isotope
-- **D** Plugin alertify
-- **D** Plugin handlebars
-
-## PHP
-- src/app/controller/PublicAreaController.php
-	- **A** *P*: private static $automaticImports
-	- **D** izitoast
-	- Importaciones opcionales con respecto a $automaticImports
-
-- src/app/core/system-controllers/Test.php
-	- **D** *MM* index y overviewBack
-
-- src/app/config/routes.php
-	- **D** *U* overview-2 de Test
-
-- **D** src/app/core/system-views/layout
-- **D** src/app/core/system-views/layout/header.php
-- **D** src/app/core/system-views/layout/footer.php
-- **D** src/app/core/system-views/pages
-- **D** src/app/core/system-views/pages/test
-- **D** src/app/core/system-views/pages/test/overview.php
-
-## JS
-
-- src/statics/core/js/helpers.js
-	- **D** *F* templateResolver
-	- **D** *F* filterSorterResolver
-	- **D** *F* formatHTML
-	- **D** *F* quillsHandlers (**MV** configurations.js dentro de configRichEditor)
-	- **D** *F* simulateInputNumberFormat
-	- **D** *F* pcsFormatNumberString
-	- **D** *F* cropperToDataURL
-	- **D** *F* pcsTopBar
-	- **D** *F* pcsSideBar (**MV** configurations.js como pcsAdminSideBar)
-
-- src/statics/core/js/configurations.js
-	- **A** *F* _i18n
-	- **A** *F* pcsAdminSideBar
-	- **A** *F* quillsHandlers dentro de configRichEditor
-	- **D** *F* dataTableServerProccesing (**MV** helpers.js)
-	- **D** *F* genericFormHandler (**MV** helpers.js)
-	- **D** *F* showGenericLoader (**MV** helpers.js)
-	- **D** *F* removeGenericLoader (**MV** helpers.js)
-
-- **D** src/statics/core/js/internacionalizacion.js
-
-- src/statics/core/main_system_user.js **MV** src/statics/core/js/user-system/main_system_user.js
-- src/statics/core/PiecesPHPSystemUserHelper.js **MV** src/statics/core/js/user-system/PiecesPHPSystemUserHelper.js
-- src/statics/core/sustem.users.jquery.js **MV** src/statics/core/js/user-system/sustem.users.jquery.js
-
-
-
-
-
+- Implementación de la plantilla Editorial de HTML5UP en el front por defecto.
+	- Formulario de contacto.
+	- Vistas de blog.
+	- Slidershow.
+- Migración a Gulp 4 para las tareas.
+	- Se recomiendan los pasos:
+		- npm install
+		- npm audit --force -fix
+		- npm --force install
+- Actualización a JQuery 3.5.1
+- PiecesPHPSystemUserHelper.js libre de JQuery (usa Fetch API).
+- Creación de CustomNamespace.js para algunas tareas genéricas (con la intención de eliminar helpers.js en el futuro)
+	- Slideshow.
+	- Desplazamiento suave.
+	- Loader.
+- Varias modificaciones que no afectan el comportamiento en algunos archivos JS/PHP.
+- En el módulo de imágenes (HeroController en PHP) se implemento internacionalización y posibilidad de eliminar.
+- Mejoramiento del sistema de traducciones.
+- Mejoramiento en el sistema de rutas.
+Nota: No hay nigún problema de retro-compatibilidad conocido.

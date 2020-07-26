@@ -10,6 +10,7 @@ use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\DynamicImages\EntryPointController;
 use PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers\ImageMapper;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Roles;
@@ -156,6 +157,7 @@ class HeroController extends AdminPanelController
         if (!is_null($element->id)) {
 
             set_custom_assets([
+                self::BASE_JS_DIR . '/private/delete-config.js',
                 self::BASE_JS_DIR . '/private/forms.js',
             ], 'js');
 
@@ -167,6 +169,8 @@ class HeroController extends AdminPanelController
             $data = [];
             $data['action'] = $action;
             $data['element'] = $element;
+            $data['deleteRoute'] = self::routeName('actions-delete', ['id' => $element->id]);
+            $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['backLink'] = $backLink;
             $data['title'] = self::$title;
@@ -208,6 +212,7 @@ class HeroController extends AdminPanelController
         $data['title'] = $title;
 
         set_custom_assets([
+            self::BASE_JS_DIR . '/private/delete-config.js',
             self::BASE_JS_DIR . '/private/list.js',
         ], 'js');
 
@@ -249,22 +254,66 @@ class HeroController extends AdminPanelController
                 'title',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+
+                    $valid = false;
+                    $allowedLangs = get_config('allowed_langs');
+
+                    if (is_array($value)) {
+
+                        foreach ($value as $lang => $text) {
+
+                            if (in_array($lang, $allowedLangs) && is_string($text) && strlen(trim($text)) > 0) {
+                                $valid = true;
+                            } else {
+                                $valid = false;
+                                break;
+                            }
+
+                        }
+
+                    }
+
+                    return $valid;
                 },
                 false,
                 function ($value) {
-                    return clean_string($value);
+                    foreach ($value as $lang => $text) {
+                        $value[$lang] = clean_string($text);
+                    }
+                    return $value;
                 }
             ),
             new Parameter(
                 'description',
-                '',
+                [],
                 function ($value) {
-                    return is_string($value);
+
+                    $valid = false;
+                    $allowedLangs = get_config('allowed_langs');
+
+                    if (is_array($value)) {
+
+                        foreach ($value as $lang => $text) {
+
+                            if (in_array($lang, $allowedLangs) && is_string($text) && strlen(trim($text)) > 0) {
+                                $valid = true;
+                            } else {
+                                $valid = false;
+                                break;
+                            }
+
+                        }
+
+                    }
+
+                    return $valid;
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    foreach ($value as $lang => $text) {
+                        $value[$lang] = clean_string($text);
+                    }
+                    return $value;
                 }
             ),
             new Parameter(
@@ -392,13 +441,32 @@ class HeroController extends AdminPanelController
                     $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
                     $image = self::handlerUploadImage('image', $folder);
 
-                    $mapper->title = $title;
-                    $mapper->description = $description;
+                    $defaultLang = get_config('default_lang');
+                    $allowedLangs = get_config('allowed_langs');
+
+                    $mapper->title = $title[$defaultLang];
+                    $mapper->description = array_key_exists($defaultLang, $description) ? $description[$defaultLang] : '';
                     $mapper->link = $link;
                     $mapper->image = $image;
                     $mapper->start_date = $startDate !== null ? $startDate->format('Y-m-d H:i:') . '00' : null;
                     $mapper->end_date = $endDate !== null ? $endDate->format('Y-m-d H:i:') . '00' : null;
                     $mapper->order = $order;
+
+                    foreach ($allowedLangs as $lang) {
+
+                        if ($lang == $defaultLang) {
+                            continue;
+                        }
+
+                        if (array_key_exists($lang, $title)) {
+                            $mapper->setLangData($lang, 'title', $title[$lang]);
+                        }
+
+                        if (array_key_exists($lang, $description)) {
+                            $mapper->setLangData($lang, 'description', $description[$lang]);
+                        }
+
+                    }
 
                     if (strlen($image) > 0) {
 
@@ -431,13 +499,32 @@ class HeroController extends AdminPanelController
 
                         $image = self::handlerUploadImage('image', '', $mapper->image);
 
-                        $mapper->title = $title;
-                        $mapper->description = $description;
+                        $defaultLang = get_config('default_lang');
+                        $allowedLangs = get_config('allowed_langs');
+
+                        $mapper->title = $title[$defaultLang];
+                        $mapper->description = array_key_exists($defaultLang, $description) ? $description[$defaultLang] : '';
                         $mapper->link = $link;
                         $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
                         $mapper->start_date = $startDate !== null ? $startDate->format('Y-m-d H:i:') . '00' : null;
                         $mapper->end_date = $endDate !== null ? $endDate->format('Y-m-d H:i:') . '00' : null;
                         $mapper->order = $order;
+
+                        foreach ($allowedLangs as $lang) {
+
+                            if ($lang == $defaultLang) {
+                                continue;
+                            }
+
+                            if (array_key_exists($lang, $title)) {
+                                $mapper->setLangData($lang, 'title', $title[$lang]);
+                            }
+
+                            if (array_key_exists($lang, $description)) {
+                                $mapper->setLangData($lang, 'description', $description[$lang]);
+                            }
+
+                        }
 
                         $updated = $mapper->update();
 
@@ -497,6 +584,161 @@ class HeroController extends AdminPanelController
     }
 
     /**
+     * toDelete
+     *
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public function toDelete(Request $request, Response $response, array $args)
+    {
+
+        //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+        //Definición de validaciones y procesamiento
+        $expectedParameters = new Parameters([
+            new Parameter(
+                'id',
+                -1,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+        ]);
+
+        //Obtención de datos
+        $inputData = $args;
+
+        //Asignación de datos para procesar
+        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+        //──── Estructura de respuesta ───────────────────────────────────────────────────────────
+
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Eliminar imagen'));
+        $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+
+        //Valores iniciales de la respuesta
+        $resultOperation->setSuccessOnSingleOperation(false);
+        $resultOperation->setValue('redirect', false);
+        $resultOperation->setValue('redirect_to', null);
+        $resultOperation->setValue('reload', false);
+        $resultOperation->setValue('received', $inputData);
+
+        //Mensajes de respuesta
+        $notExistsMessage = __(self::LANG_GROUP, 'La imagen que intenta eliminar no existe.');
+        $successMessage = __(self::LANG_GROUP, 'Imagen eliminada.');
+        $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
+        $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+
+        //──── Acciones ──────────────────────────────────────────────────────────────────────────
+        try {
+
+            //Intenta validar, si todo sale bien el código continúa
+            $expectedParameters->validate();
+
+            //Información del formulario
+
+            /**
+             * @var int $id
+             */;
+            $id = $expectedParameters->getValue('id');
+
+            //Dirección de redirección en cadso de creación
+            $redirectURLOn = self::routeName('list');
+
+            try {
+
+                $exists = ImageMapper::existsByID($id);
+
+                if ($exists) {
+
+                    $imageTable = ImageMapper::TABLE;
+
+                    $transactionSQLDeleteQueries = [
+                        [
+                            'query' => "DELETE FROM {$imageTable} WHERE id = :ID",
+                            'aliasConfig' => [
+                                ':ID' => $id,
+                            ],
+                        ],
+                    ];
+
+                    $pdo = ImageMapper::model()::getDb(Config::app_db('default')['db']);
+
+                    try {
+
+                        $imageMapper = new ImageMapper($id);
+                        $imageToDelete = basepath($imageMapper->image);
+
+                        $pdo->beginTransaction();
+
+                        foreach ($transactionSQLDeleteQueries as $sqlQueryConfig) {
+
+                            $query = $sqlQueryConfig['query'];
+                            $aliasConfig = $sqlQueryConfig['aliasConfig'];
+
+                            $preparedStatement = $pdo->prepare($query);
+                            $preparedStatement->execute($aliasConfig);
+
+                        }
+
+                        $pdo->commit();
+
+                        if (file_exists($imageToDelete)) {
+                            unlink($imageToDelete);
+                        }
+
+                        $resultOperation->setSuccessOnSingleOperation(true);
+
+                        $resultOperation
+                            ->setMessage($successMessage)
+                            ->setValue('redirect', true)
+                            ->setValue('redirect_to', $redirectURLOn);
+
+                    } catch (\Exception $e) {
+                        $pdo->rollBack();
+                        $resultOperation->setValue('transactionError', $e->getMessage());
+                        $resultOperation->setMessage($unknowErrorMessage);
+                        log_exception($e);
+                    }
+
+                } else {
+                    $resultOperation->setMessage($notExistsMessage);
+                }
+
+            } catch (\Exception $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            }
+
+        } catch (MissingRequiredParamaterException $e) {
+
+            $resultOperation->setMessage($e->getMessage());
+            log_exception($e);
+
+        } catch (ParsedValueException $e) {
+
+            $resultOperation->setMessage($unknowErrorWithValuesMessage);
+            log_exception($e);
+
+        } catch (InvalidParameterValueException $e) {
+
+            $resultOperation->setMessage($e->getMessage());
+            log_exception($e);
+
+        }
+
+        return $response->withJson($resultOperation);
+    }
+
+    /**
      * all
      *
      * @param Request $request
@@ -546,31 +788,85 @@ class HeroController extends AdminPanelController
 
         $table = $model->getTable();
 
-        $model->select([
-            "{$table}.id",
-            "{$table}.title",
-            "{$table}.description",
-            "{$table}.link",
-            "{$table}.image",
-            "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.start_date'))) AS start_date",
-            "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.end_date'))) AS end_date",
-            "IF(JSON_EXTRACT({$table}.meta, '$.order') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.order')) AS `order`",
-        ])->orderBy("`order` ASC");
+        $defaultLang = get_config('default_lang');
+        $currentLang = Config::get_lang();
 
-        $now = date('Y-m-d H:i:') . '00';
+        $selects = [];
 
-        $having = [
-            "(start_date IS NULL OR start_date <= '{$now}')",
-            "AND (end_date IS NULL OR end_date >= '{$now}')",
-        ];
+        $selects[] = "{$table}.id";
+        $selects[] = "{$table}.meta";
+        $selects[] = "{$table}.link";
+        $selects[] = "{$table}.image";
 
-        $having = implode(' ', $having);
+        $jsonExtractExists = ImageMapper::jsonExtractExistsMySQL();
 
-        $model->having($having);
+        if ($jsonExtractExists) {
 
-        $model->execute(false, $page, $perPage);
+            if ($defaultLang == $currentLang) {
+                $selects[] = "{$table}.title";
+                $selects[] = "{$table}.description";
+            } else {
+                $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.title') = 'null', {$table}.title, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.title'))) AS title";
+                $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.description') = 'null', {$table}.description, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.description'))) AS description";
+            }
 
-        $result = $model->result();
+            $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.start_date'))) AS start_date";
+            $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.end_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.end_date'))) AS end_date";
+            $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.order') = 'null', NULL, JSON_EXTRACT({$table}.meta, '$.order')) AS `order`";
+
+            $model->select($selects)->orderBy("`order` ASC");
+
+            $now = date('Y-m-d H:i:') . '00';
+
+            $having = [
+                "(start_date IS NULL OR start_date <= '{$now}')",
+                "AND (end_date IS NULL OR end_date >= '{$now}')",
+            ];
+
+            $having = implode(' ', $having);
+
+            $model->having($having);
+
+            $model->execute(false, $page, $perPage);
+
+            $result = $model->result();
+
+        } else {
+
+            $selects[] = "{$table}.title";
+            $selects[] = "{$table}.description";
+
+            $model->select($selects);
+
+            $model->execute(false, $page, $perPage);
+
+            $result = $model->result();
+
+            foreach ($result as $k => $i) {
+
+                $meta = json_decode($i->meta);
+
+                $result[$k]->meta = $meta;
+                $result[$k]->end_date = $meta->end_date;
+                $result[$k]->order = $meta->order;
+                $result[$k]->order = $meta->order;
+
+                $lang_data = $meta->lang_data;
+
+                if ($defaultLang != $currentLang && is_object($lang_data)) {
+
+                    $lang_data = isset($lang_data->$currentLang) ? $lang_data->$currentLang : null;
+
+                    if ($lang_data !== null) {
+                        $result[$k]->title = $lang_data->title;
+                        $result[$k]->description = $lang_data->description;
+                    }
+
+                }
+
+            }
+
+        }
 
         return $response->withJson($result);
     }
@@ -636,6 +932,9 @@ class HeroController extends AdminPanelController
                     'editLink' => self::routeName('forms-edit', [
                         'id' => $mapper->id,
                     ]),
+                    'hasEdit' => self::allowedRoute('forms-edit', ['id' => $mapper->id]),
+                    'deleteRoute' => self::routeName('actions-delete', ['id' => $mapper->id]),
+                    'hasDelete' => self::allowedRoute('actions-delete', ['id' => $mapper->id]),
                     'langGroup' => self::LANG_GROUP,
                 ],
                 false
@@ -730,6 +1029,29 @@ class HeroController extends AdminPanelController
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
         return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+    }
+
+    /**
+     * allowedRoute
+     *
+     * @param string $name
+     * @param array $params
+     * @return bool
+     */
+    public static function allowedRoute(string $name, array $params = [])
+    {
+
+        $route = self::routeName($name, $params, true);
+        $allow = strlen($route) > 0;
+
+        if ($allow) {
+
+            if ($name == 'SAMPLE') { //do something
+            }
+
+        }
+
+        return $allow;
     }
 
     /**
@@ -889,6 +1211,8 @@ class HeroController extends AdminPanelController
 
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
+        $permisos_listado = $all_roles;
+
         $permisos_estados_gestion = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN,
@@ -906,7 +1230,7 @@ class HeroController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_estados_gestion
+                $permisos_listado
             ),
             new Route( //Formulario de crear
                 "{$startRoute}/forms/add[/]",
@@ -941,7 +1265,7 @@ class HeroController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_estados_gestion
+                $permisos_listado
             ),
 
             //──── POST ──────────────────────────────────────────────────────────────────────────────
@@ -959,6 +1283,15 @@ class HeroController extends AdminPanelController
                 "{$startRoute}/action/edit[/]",
                 $classname . ':action',
                 self::$baseRouteName . '-actions-edit',
+                'POST',
+                true,
+                null,
+                $permisos_estados_gestion
+            ),
+            new Route( //Acción de eliminar
+                "{$startRoute}/action/delete/{id}[/]",
+                $classname . ':toDelete',
+                self::$baseRouteName . '-actions-delete',
                 'POST',
                 true,
                 null,

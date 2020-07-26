@@ -7,6 +7,7 @@
 namespace PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers;
 
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 
@@ -25,6 +26,7 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @property \DateTime|null $start_date
  * @property \DateTime|null $end_date
  * @property int $order
+ * @property \stdClass|null $lang_data
  */
 class ImageMapper extends EntityMapperExtensible
 {
@@ -80,14 +82,15 @@ class ImageMapper extends EntityMapperExtensible
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DATE, null, true), 'start_date');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DATE, null, true), 'end_date');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_INT, 0, true), 'order');
-		parent::__construct($value, $fieldCompare);
-		
-		if ($this->start_date !== null) {
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'lang_data');
+        parent::__construct($value, $fieldCompare);
+
+        if ($this->start_date !== null) {
             $this->start_date = \DateTime::createFromFormat('Y-m-d H:i:s', $this->start_date);
-		}
-		
-		if ($this->end_date !== null) {
-			
+        }
+
+        if ($this->end_date !== null) {
+
             $this->end_date = \DateTime::createFromFormat('Y-m-d H:i:s', $this->end_date);
         }
 
@@ -127,6 +130,60 @@ class ImageMapper extends EntityMapperExtensible
 
         return parent::update();
 
+    }
+
+    /**
+     * setLangData
+     *
+     * @param string $lang
+     * @param string $property
+     * @param mixed $data
+     * @return static
+     */
+    public function setLangData(string $lang, string $property, $data)
+    {
+
+        if (!isset($this->lang_data->$lang)) {
+            $this->lang_data->$lang = new \stdClass;
+        }
+        $this->lang_data->$lang->$property = $data;
+
+        return $this;
+    }
+
+    /**
+     * getLangData
+     *
+     * @param string $lang
+     * @param string $property
+     * @return mixed Siempre que no exista se intentará tomar de las propiedades comúnes, de lo contrario devolverá null
+     */
+    public function getLangData(string $lang, string $property)
+    {
+        if (isset($this->lang_data->$lang) && isset($this->lang_data->$lang->$property)) {
+            return $this->lang_data->$lang->$property;
+        } else {
+
+            if ($property == 'title') {
+                return $this->title;
+            } elseif ($property == 'description') {
+                return $this->description;
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * currentLangData
+     *
+     * @param string $property
+     * @return mixed
+     */
+    public function currentLangData(string $property)
+    {
+        $lang = Config::get_lang();
+        return $this->getLangData($lang, $property);
     }
 
     /**
@@ -289,6 +346,37 @@ class ImageMapper extends EntityMapperExtensible
         $result = $model->result();
 
         return count($result) > 0;
+    }
+
+    /**
+     * jsonExtractExistsMySQL
+     *
+     * @return bool
+     */
+    public static function jsonExtractExistsMySQL()
+    {
+
+        try {
+
+            $json = [
+                'ok' => true,
+            ];
+            $json = json_encode($json);
+            $sql = "SELECT JSON_EXTRACT('{$json}'" . ', \'$.test\')';
+            $prepared = self::model()->prepare($sql);
+            $prepared->execute();
+            return true;
+
+        } catch (\PDOException $e) {
+
+            if ($e->getCode() == 1305 || $e->getCode() == 42000) {
+                return false;
+            } else {
+                throw $e;
+            }
+
+        }
+
     }
 
     /**

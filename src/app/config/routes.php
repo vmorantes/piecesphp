@@ -82,9 +82,6 @@ $token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Servido perso
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
 
-//Rutas básicas de la zona pública
-PublicAreaController::routes($zona_publica);
-
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
 
@@ -163,3 +160,6 @@ $tests->register(
         new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
     ]
 );
+
+//Rutas básicas de la zona pública
+PublicAreaController::routes($zona_publica);

@@ -37,6 +37,8 @@ $editLink;
 
             <div>
                 <?= $mapper->description; ?> <br>
+
+                <?php if(\PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers\ImageMapper::jsonExtractExistsMySQL()): ?>
                 <?php if($mapper->start_date !== null): ?>
                 <strong><?= __($langGroup, 'Fecha inicial'); ?>: </strong>
                 <?= $mapper->start_date->format('d-m-Y h:i A'); ?>
@@ -50,15 +52,23 @@ $editLink;
                 <strong><?= __($langGroup, 'Orden'); ?>: </strong>
                 <?= $mapper->order > 0 ? $mapper->order . '.' : '<span>0.</span>'; ?>
                 <br>
+                <?php endif;?>
+
             </div>
 
             <br>
 
             <div>
 
-                <?php if(strlen($editLink) > 0): ?>
+                <?php if($hasEdit): ?>
                 <a class="fluid ui olive button icon" href="<?= $editLink; ?>">
                     <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Editar'); ?>
+                </a>
+                <?php endif;?>
+
+                <?php if($hasDelete): ?>
+                <a class="fluid ui red button icon" delete-hero-image-button data-route="<?= $deleteRoute; ?>">
+                    <i class="icon trash"></i> &nbsp; <?= __($langGroup, 'Eliminar'); ?>
                 </a>
                 <?php endif;?>
 

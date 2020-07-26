@@ -9,6 +9,7 @@
  * En este este archivo se pueden definir elementos útiles para generar menús
  */
 
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItemCollection;
@@ -41,9 +42,9 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
         new MenuGroup([
             'name' => __('bi-dynamic-images', 'Imágenes'),
             'icon' => 'images',
-            'visible' => Roles::hasPermissions('built-in-dynamic-images-private-entry-options', $current_type_user),
+            'visible' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::allowedRoute('options'),
             'asLink' => true,
-            'href' => get_route('built-in-dynamic-images-private-entry-options', [], true),
+            'href' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::routeName('options', [], true),
         ]),
         new MenuGroup([
             'name' => __('sidebarAdminZone', 'Artículos'),
@@ -159,3 +160,19 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
         ]),
     ],
 ]);
+
+$alternativesURL = Config::get_config('alternatives_url');
+
+foreach ($alternativesURL as $lang => $url) {
+
+    $langItem = new MenuGroup([
+        'name' => __('lang', $lang),
+        'icon' => 'language',
+        'visible' => true,
+        'asLink' => true,
+        'href' => $url,
+    ]);
+
+    $config['menus']['sidebar']->addItem($langItem);
+
+}

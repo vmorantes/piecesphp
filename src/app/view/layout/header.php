@@ -7,13 +7,17 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 $alternativesURL = Config::get_config('alternatives_url');
 
 ?>
-
-<!DOCTYPE html>
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
 <html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <base href="<?=baseurl();?>">
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>
@@ -23,15 +27,7 @@ $alternativesURL = Config::get_config('alternatives_url');
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScripts(); ?>
 </head>
 
-<body>
-    <div class="global-layout">
+<body class="is-preload">
 
-        <?php if(is_array($alternativesURL)):?>
-
-        <?php foreach($alternativesURL as $lang => $url): ?>
-
-        <a href="<?= $url; ?>"><?= __('lang',$lang); ?></a>
-
-        <?php endforeach;?>
-
-        <?php endif;?>
+    <!-- Wrapper -->
+    <div id="wrapper">

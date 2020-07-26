@@ -176,10 +176,10 @@ $assets['dialgo_pcs']['plugins'] = [];
 
 /**
  * JQuery
- * https://igorescobar.github.io/jQuery-Mask-Plugin/docs.html
+ * https://jquery.com/
  */
 $assets['jquery']['js'] = [
-    'statics/plugins/jquery/jquery.3.3.1.min.js',
+    'statics/plugins/jquery/jquery-3.5.1.min.js',
 ];
 $assets['jquery']['plugins'] = [];
 
@@ -208,5 +208,17 @@ $assets['app_libraries']['plugins'] = [
     ],
 ];
 
+set_config('global_assets', [
+    'js' => [],
+    'css' => [],
+]);
+set_config('custom_assets', [
+    'js' => [],
+    'css' => [],
+]);
 set_config('default_assets', $assets);
+set_config('global_requireds_assets', [
+    'css' => [],
+    'js' => [],
+]);
 set_config('imported_assets', []);

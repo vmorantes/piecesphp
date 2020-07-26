@@ -5,15 +5,17 @@ showGenericLoader('_CARGA_INICIAL_')
 
 window.addEventListener('load', function () {
 
+	window.dispatchEvent(new Event('canDeleteHeroImageConfig'))
+
 	let isEdit = false
 	let formSelector = `.ui.form.dynamic-images-hero`
 
 	let cropperAdapter = new CropperAdapterComponent({
 		containerSelector: '[cropper-main-image]',
-		minWidth: 1920,
-		outputWidth: 1920,
+		minWidth: 1400,
+		outputWidth: 1400,
 		cropperOptions: {
-			aspectRatio: 1920 / 1080,
+			aspectRatio: 1400 / 700,
 		},
 	})
 

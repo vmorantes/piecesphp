@@ -1,5 +1,23 @@
 <?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<!-- Main -->
+<div id="main">
+    <div class="inner">
 
+        <!-- Header -->
+        <?php if(isset($withSocialBar) && $withSocialBar === true):?>
+        <?php $this->render('layout/social-bar', isset($socialBarData) ? $socialBarData : []); ?>
+        <?php endif;?>
 
-<div built-in-articles-items-js built-in-articles-url="<?= $ajaxURL; ?>"></div>
-<button type="button" built-in-articles-load-more-js><?= __('articlesFrontEnd', 'Cargar más'); ?></button>
+        <!-- Section -->
+        <section class="vm-content-generic-views">
+
+            <header class="major">
+                <h2><?= $titleSection; ?></h2>
+            </header>
+
+            <div class="posts" built-in-articles-items-js built-in-articles-url="<?= $ajaxURL; ?>">
+            </div>
+
+            <button class="button primary" built-in-articles-load-more-js><?= __('articlesFrontEnd', 'Cargar más'); ?></button>
+
+        </section>
