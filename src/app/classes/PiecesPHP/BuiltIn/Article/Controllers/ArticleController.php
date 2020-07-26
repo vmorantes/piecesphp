@@ -264,7 +264,7 @@ class ArticleController extends AdminPanelController
      * @param Request $request
      * @param Response $response
      * @param array $args
-     * @return Response
+     * @return Response|array|object
      */
     public function all(Request $request, Response $response, array $args)
     {
@@ -278,110 +278,21 @@ class ArticleController extends AdminPanelController
             $perPage = $request->getQueryParam('per_page', 5);
             $onlyLang = $request->getQueryParam('lang', null);
 
-            //Tratamiento de las opciones
-            $allowedLangs = get_config('allowed_langs');
+            $result = self::_all($allDate, $paginate, $page, $perPage, $onlyLang);
+            $contentType = $result['contentType'];
+            $data = $result['data'];
+            $dataParsed = $result['dataParsed'];
 
-            $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
-            $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
+            if ($contentType === null) {
 
-            $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
-            $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
-
-            //=================Definir política de cache=================//
-            $cacheHandler = new CacheControllersManager(self::class, 'all', 3600 * 24);
-
-            $cacheCriteries = new CacheControllersCriteries([
-                new CacheControllersCritery('allDate', $allDate),
-                new CacheControllersCritery('paginate', $paginate),
-                new CacheControllersCritery('page', $page),
-                new CacheControllersCritery('perPage', $perPage),
-                new CacheControllersCritery('onlyLang', $onlyLang),
-            ]);
-
-            $cacheHandler->setCriteries($cacheCriteries);
-
-            $cacheHandler->process();
-
-            $hasCache = $cacheHandler->hasCachedData();
-            //=================Fin de política de cache=================//
-
-            if (!$hasCache) {
-
-                //Prepación de la consulta
-                $model = ArticleViewMapper::model();
-                $query = $model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
-
-                $now = date('Y-m-d H:i:s');
-
-                $where = [
-                    "(start_date <= '{$now}' OR start_date IS NULL) AND",
-                    "(end_date > '{$now}' OR end_date IS NULL)",
-                    "AND lang = '$onlyLang'",
-                ];
-
-                $where = implode(' ', $where);
-
-                if ($allDate !== 'yes') {
-                    $query->where($where);
-                }
-
-                if ($paginate === 'yes') {
-
-                    $response_data = [];
-
-                    $response_data['sql'] = $query->getCompiledSQL();
-                    $query->execute(false, $page, $perPage);
-
-                    $data = $query->result();
-
-                    $query->resetAll();
-
-                    $query->select('COUNT(id) AS total');
-
-                    if ($allDate !== 'yes') {
-                        $query->where($where);
-                    }
-
-                    $query->execute();
-                    $total = $query->result();
-                    $total = count($total) > 0 ? (int) $total[0]->total : 0;
-                    $pages = ceil($total / $perPage);
-
-                    $data = array_map(function ($e) {
-                        $eMapper = new ArticleViewMapper($e->sub_id);
-                        $i = $eMapper->getBasicData();
-                        $i->title = htmlentities($eMapper->title);
-                        $i->category->name = htmlentities(stripslashes($i->category->name));
-                        return $i;
-                    }, $data);
-
-                    $response_data['page'] = $page;
-                    $response_data['perPage'] = $perPage;
-                    $response_data['pages'] = $pages;
-                    $response_data['total'] = $total;
-                    $response_data['data'] = $data;
-
-                    $cacheHandler->setDataCache(json_encode($response_data), CacheControllersManager::CONTENT_TYPE_JSON);
-
-                    return $response->withJson($response_data);
-
-                } else {
-
-                    $query->execute();
-
-                    $result = $query->result();
-
-                    $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
-
-                    return $response->withJson($result);
-
-                }
+                return $response->withJson($data);
 
             } else {
 
                 return $response
-                    ->write($cacheHandler->getCachedData(false))
-                    ->withHeader('Content-Type', $cacheHandler->getContentType());
+                    ->write($data)
+                    ->withHeader('Content-Type', $contentType);
+
             }
 
         } else {
@@ -910,6 +821,136 @@ class ArticleController extends AdminPanelController
     }
 
     /**
+     * _all
+     *
+     * @param mixed $allDate
+     * @param mixed $paginate
+     * @param mixed $page
+     * @param mixed $perPage
+     * @param mixed $onlyLang
+     * @return array
+     */
+    public static function _all($allDate = null, $paginate = null, $page = null, $perPage = null, $onlyLang = null)
+    {
+
+        //Tratamiento de las opciones
+        $allowedLangs = get_config('allowed_langs');
+
+        $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+        $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
+
+        $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
+        $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
+
+        //=================Definir política de cache=================//
+        $cacheHandler = new CacheControllersManager(self::class, 'all', 3600 * 24);
+
+        $cacheCriteries = new CacheControllersCriteries([
+            new CacheControllersCritery('allDate', $allDate),
+            new CacheControllersCritery('paginate', $paginate),
+            new CacheControllersCritery('page', $page),
+            new CacheControllersCritery('perPage', $perPage),
+            new CacheControllersCritery('onlyLang', $onlyLang),
+        ]);
+
+        $cacheHandler->setCriteries($cacheCriteries);
+
+        $cacheHandler->process();
+
+        $hasCache = $cacheHandler->hasCachedData();
+        //=================Fin de política de cache=================//
+
+        if (!$hasCache) {
+
+            //Prepación de la consulta
+            $model = ArticleViewMapper::model();
+            $query = $model->select()->orderBy('start_date DESC, end_date DESC, created DESC');
+
+            $now = date('Y-m-d H:i:s');
+
+            $where = [
+                "(start_date <= '{$now}' OR start_date IS NULL) AND",
+                "(end_date > '{$now}' OR end_date IS NULL)",
+                "AND lang = '$onlyLang'",
+            ];
+
+            $where = implode(' ', $where);
+
+            if ($allDate !== 'yes') {
+                $query->where($where);
+            }
+
+            if ($paginate === 'yes') {
+
+                $response_data = [];
+
+                $response_data['sql'] = $query->getCompiledSQL();
+                $query->execute(false, $page, $perPage);
+
+                $data = $query->result();
+
+                $query->resetAll();
+
+                $query->select('COUNT(id) AS total');
+
+                if ($allDate !== 'yes') {
+                    $query->where($where);
+                }
+
+                $query->execute();
+                $total = $query->result();
+                $total = count($total) > 0 ? (int) $total[0]->total : 0;
+                $pages = ceil($total / $perPage);
+
+                $data = array_map(function ($e) {
+                    $eMapper = new ArticleViewMapper($e->sub_id);
+                    $i = $eMapper->getBasicData();
+                    $i->title = htmlentities($eMapper->title);
+                    $i->category->name = htmlentities(stripslashes($i->category->name));
+                    return $i;
+                }, $data);
+
+                $response_data['page'] = $page;
+                $response_data['perPage'] = $perPage;
+                $response_data['pages'] = $pages;
+                $response_data['total'] = $total;
+                $response_data['data'] = $data;
+
+                $cacheHandler->setDataCache(json_encode($response_data), CacheControllersManager::CONTENT_TYPE_JSON);
+
+                return [
+                    'contentType' => null,
+                    'data' => $response_data,
+                    'dataParsed' => $response_data,
+                ];
+
+            } else {
+
+                $query->execute();
+
+                $result = $query->result();
+
+                $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
+
+                return [
+                    'contentType' => null,
+                    'data' => $result,
+                    'dataParsed' => $result,
+                ];
+
+            }
+
+        } else {
+            return [
+                'contentType' => $cacheHandler->getContentType(),
+                'data' => $cacheHandler->getCachedData(false),
+                'dataParsed' => $cacheHandler->getCachedData(true),
+            ];
+        }
+
+    }
+
+    /**
      * handlerUploadImage
      *
      * @param string $nameOnFiles
@@ -971,7 +1012,7 @@ class ArticleController extends AdminPanelController
                         //Eliminar archivo anterior
                         if (!is_null($oldFile)) {
 
-                            if (basename($oldFile) != $nameCurrent) {
+                            if (basename($oldFile) != $nameCurrent && file_exists($oldFile)) {
                                 unlink($oldFile);
                             }
 
@@ -1289,7 +1330,7 @@ class ArticleController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $rolesAllowed
+                $all_roles
             ),
             new Route(
                 "{$startRoute}/forms/add[/]",

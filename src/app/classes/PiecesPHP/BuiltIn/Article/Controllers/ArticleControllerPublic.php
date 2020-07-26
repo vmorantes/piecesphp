@@ -71,16 +71,10 @@ class ArticleControllerPublic extends BaseController
 
         $this->init();
 
-        /* JQuery */
+        clear_global_assets();
+        clear_assets_imports();
         import_jquery();
-        /* Semantic */
-        import_semantic();
-        /* NProgress */
-        import_nprogress();
-        /* Librerías de la aplicación */
         import_app_libraries();
-
-        add_global_asset(base_url('statics/css/global.css'), 'css');
         add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');
         add_global_asset(base_url(self::JS_FOLDER . '/category/BuiltInCategory.js'), 'js');
 
@@ -107,19 +101,31 @@ class ArticleControllerPublic extends BaseController
         }
 
         set_custom_assets([
+            'statics/css/main.css',
+        ], 'css');
+
+        set_custom_assets([
+            'statics/js/browser.min.js',
+            'statics/js/breakpoints.min.js',
+            'statics/js/util.js',
+            'statics/js/CustomNamespace.js',
             base_url(self::JS_FOLDER . '/list.js'),
+            'statics/js/template.js',
         ], 'js');
 
-        set_title(__('articlesFrontEnd', 'Listado de publicaciones'));
+        set_title(__(LANG_GROUP, 'Listado de publicaciones'));
+
+        $titleSection = __(LANG_GROUP, 'Publicaciones');
 
         if ($byCategory) {
 
             if ($category !== null) {
 
                 $this->render('layout/header');
-                $this->render('layout/menu');
 
                 $this->render(self::VIEWS_FOLDER . '/list', [
+                    'titleSection' => $titleSection . ' - ' . CategoryContentMapper::getBy($category, 'friendly_url')->name,
+                    'withSocialBar' => true,
                     'ajaxURL' => ArticleController::routeName('ajax-all-category', ['category' => $category]),
                 ]);
 
@@ -132,12 +138,11 @@ class ArticleControllerPublic extends BaseController
         } else {
 
             $this->render('layout/header');
-            $this->render('layout/menu');
-
             $this->render(self::VIEWS_FOLDER . '/list', [
+                'titleSection' => $titleSection,
+                'withSocialBar' => true,
                 'ajaxURL' => ArticleController::routeName('ajax-all'),
             ]);
-
             $this->render('layout/footer');
         }
 
@@ -156,15 +161,24 @@ class ArticleControllerPublic extends BaseController
     {
 
         set_custom_assets([
+            'statics/css/main.css',
+        ], 'css');
+
+        set_custom_assets([
+            'statics/js/browser.min.js',
+            'statics/js/breakpoints.min.js',
+            'statics/js/util.js',
+            'statics/js/CustomNamespace.js',
+            'statics/js/template.js',
             base_url(self::JS_FOLDER . '/category/list.js'),
         ], 'js');
 
         set_title(__('articlesFrontEnd', 'Listado de categorías'));
 
         $this->render('layout/header');
-        $this->render('layout/menu');
 
         $this->render(self::VIEWS_FOLDER . '/category/list', [
+            'withSocialBar' => true,
             'ajaxURL' => CategoryController::routeName('ajax-all'),
         ]);
 
@@ -190,6 +204,11 @@ class ArticleControllerPublic extends BaseController
 
         if ($article !== null) {
 
+            /**
+             * @var ArticleViewMapper $article
+             */
+            $article;
+
             $article->addVisit();
 
             set_title($article->title);
@@ -203,16 +222,28 @@ class ArticleControllerPublic extends BaseController
             MetaTags::setDescription($seoDescription);
             MetaTags::setImage($imageOpenGraph);
 
-            $date = $article->formatPreferDate("{DAY_NUMBER} de {MONTH_NAME}, {YEAR}");
+            $date = $article->formatPreferDate(__(LANG_GROUP, "{DAY_NUMBER} de {MONTH_NAME}, {YEAR}"));
 
             $relateds = ArticleViewMapper::allByCategory($article->category->id, $article->lang, true, $article->id, true, 1, 3);
 
             Config::set_config('alternatives_url', $article->getURLAlternatives());
 
+            set_custom_assets([
+                'statics/css/main.css',
+            ], 'css');
+
+            set_custom_assets([
+                'statics/js/browser.min.js',
+                'statics/js/breakpoints.min.js',
+                'statics/js/util.js',
+                'statics/js/CustomNamespace.js',
+                'statics/js/template.js',
+            ], 'js');
+
             $this->render('layout/header');
-            $this->render('layout/menu');
 
             $this->render(self::VIEWS_FOLDER . '/single', [
+                'withSocialBar' => true,
                 'article' => $article,
                 'date' => $date,
                 'relateds' => $relateds,

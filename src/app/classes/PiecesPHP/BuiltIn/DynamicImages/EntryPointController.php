@@ -46,6 +46,13 @@ class EntryPointController extends AdminPanelController
      */
     protected static $title = 'Opciones';
 
+    /**
+     * $options
+     *
+     * @var array
+     */
+    private $options = [];
+
     const BASE_VIEW_DIR = 'built-in/dynamic-images';
     const BASE_JS_DIR = 'statics/js/built-in/dynamic-images';
     const LANG_GROUP = 'bi-dynamic-images';
@@ -61,6 +68,13 @@ class EntryPointController extends AdminPanelController
 
         self::$title = __(self::LANG_GROUP, self::$title);
         set_title(self::$title);
+
+        $this->options = [
+            [
+                'title' => __(self::LANG_GROUP, 'Imágenes principales'),
+                'link' => HeroController::routeName('list'),
+            ],
+        ];
     }
 
     /**
@@ -76,24 +90,7 @@ class EntryPointController extends AdminPanelController
 
         $backLink = get_route('admin');
 
-        $options = [
-            [
-                'title' => __(self::LANG_GROUP, 'Imágenes principales'),
-                'link' => HeroController::routeName('list'),
-            ],
-        ];
-
-        foreach ($options as $key => $option) {
-
-            $option = (object) $option;
-
-            if (strlen($option->title) > 0) {
-                $options[$key] = $option;
-            } else {
-                unset($options[$key]);
-            }
-
-        }
+        $options = $this->getAllowedOptions();
 
         $data = [];
         $data['langGroup'] = self::LANG_GROUP;
@@ -104,6 +101,29 @@ class EntryPointController extends AdminPanelController
         $this->render('panel/layout/header');
         self::view('private/options', $data);
         $this->render('panel/layout/footer');
+
+    }
+
+    /**
+     * getAllowedOptions
+     *
+     * @return \stdClass[]
+     */
+    protected function getAllowedOptions()
+    {
+
+        $options = [];
+
+        foreach ($this->options as $option) {
+            $option = (object) $option;
+            $allowedOption = strlen($option->title) > 0;
+            $allowedOption = $allowedOption && strlen($option->link) > 0;
+            if ($allowedOption) {
+                $options[] = $option;
+            }
+        }
+
+        return $options;
 
     }
 
@@ -119,6 +139,32 @@ class EntryPointController extends AdminPanelController
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
         return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+    }
+
+    /**
+     * allowedRoute
+     *
+     * @param string $name
+     * @param array $params
+     * @return bool
+     */
+    public static function allowedRoute(string $name, array $params = [])
+    {
+
+        $route = self::routeName($name, $params, true);
+        $allow = strlen($route) > 0;
+
+        if ($allow) {
+
+            if ($name == 'options') {
+
+                $allow = count((new static )->getAllowedOptions()) > 0;
+
+            }
+
+        }
+
+        return $allow;
     }
 
     /**
@@ -176,6 +222,11 @@ class EntryPointController extends AdminPanelController
         $classname = self::class;
 
         $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $roles_view_options = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_GENERAL,
+        ];
 
         $routes = [
 
@@ -189,7 +240,7 @@ class EntryPointController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $all_roles
+                $roles_view_options
             ),
 
         ];

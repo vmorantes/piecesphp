@@ -54,3 +54,5 @@ define('ACTIVE_TIMER', false);
 
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
+
+define('LANG_GROUP', 'public');

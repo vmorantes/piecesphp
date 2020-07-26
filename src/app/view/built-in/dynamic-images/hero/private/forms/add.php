@@ -31,15 +31,19 @@ $action;
 
     <form method='POST' action="<?= $action; ?>" class="ui form dynamic-images-hero">
 
+        <?php foreach(get_config('allowed_langs') as $lang): ?>
+
         <div class="field required">
-            <label><?= __($langGroup, 'Título'); ?></label>
-            <input required type="text" name="title" maxlength="300">
+            <label><?= __($langGroup, 'Título'); ?> (<?= $lang; ?>)</label>
+            <input required type="text" name="title[<?= $lang; ?>]" maxlength="55">
         </div>
 
         <div class="field">
-            <label><?= __($langGroup, 'Descripción'); ?></label>
-            <textarea name="description"></textarea>
+            <label><?= __($langGroup, 'Descripción'); ?> (<?= $lang; ?>)</label>
+            <textarea name="description[<?= $lang; ?>]" maxlength="230"></textarea>
         </div>
+
+        <?php endforeach; ?>
 
         <div class="field">
             <label><?= __($langGroup, 'Enlace'); ?></label>
@@ -54,14 +58,15 @@ $action;
             </div>
 
             <?php $this->_render('panel/built-in/utilities/cropper/workspace.php', [
-				'referenceW' => '400',
-				'referenceH' => '300',
+				'referenceW' => '800',
+				'referenceH' => '600',
 			]); ?>
 
         </div>
 
         <br>
 
+        <?php if(\PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers\ImageMapper::jsonExtractExistsMySQL()): ?>
         <div class="field">
             <label><?= __($langGroup, 'Orden'); ?></label>
             <input type="number" name="order" value="0" min="0">
@@ -81,6 +86,11 @@ $action;
                 </div>
             </div>
         </div>
+        <?php else: ?>
+        <input type="hidden" name="order" value="0">
+        <input type="hidden" name="start_date">
+        <input type="hidden" name="end_date">
+        <?php endif;?>
 
         <div class="field">
             <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>

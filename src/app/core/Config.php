@@ -263,7 +263,7 @@ class Config
             self::$app_allowed_langs = get_config('allowed_langs');
         } else {
             self::$app_allowed_langs = ['es'];
-		}
+        }
         set_config('allowed_langs', self::$app_allowed_langs);
     }
 
@@ -293,21 +293,21 @@ class Config
         }
 
         set_config('default_lang', self::$default_app_lang);
-		set_config('app_lang', self::$app_lang);
+        set_config('app_lang', self::$app_lang);
 
-		usort(self::$app_allowed_langs, function($a, $b) use ($default_app_lang){
-			if($a == $default_app_lang){
-				return -1;
-			}elseif($b == $default_app_lang){
-				return 1;
-			}else{
-				return 0;
-			}
+        usort(self::$app_allowed_langs, function ($a, $b) use ($default_app_lang) {
+            if ($a == $default_app_lang) {
+                return -1;
+            } elseif ($b == $default_app_lang) {
+                return 1;
+            } else {
+                return 0;
+            }
 
-		});
+        });
 
-		set_config('allowed_langs', self::$app_allowed_langs);
-		
+        set_config('allowed_langs', self::$app_allowed_langs);
+
     }
 
     /**
@@ -437,6 +437,11 @@ class Config
     public static function set_config(string $name, $value)
     {
         self::$configurations[$name] = $value;
+
+        if ($name == 'title_app' && self::$instance !== null) {
+            $instance = self::get_instance();
+            $instance->app_title = $value;
+        }
     }
 
     /**

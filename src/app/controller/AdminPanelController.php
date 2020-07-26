@@ -56,6 +56,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     {
         parent::__construct(false); //No cargar ningún modelo automáticamente
         $this->init();
+        set_title('Dashboard');
     }
 
     /**
@@ -77,7 +78,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
             $this->render('panel/layout/footer');
         } else {
             $this->render('panel/layout/header');
-            $this->render('pages/sample');
+            $this->render('panel/pages/dashboard');
             $this->render('panel/layout/footer');
         }
 

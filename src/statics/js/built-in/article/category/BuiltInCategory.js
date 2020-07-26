@@ -15,7 +15,7 @@ function BuiltInCategory(options) {
 	 */
 
 	/**
-	 * @property {BuiltInArticle} instance
+	 * @property {BuiltInCategory} instance
 	 */
 	let instance = this
 

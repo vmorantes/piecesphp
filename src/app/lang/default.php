@@ -68,6 +68,7 @@ $lang = [
         'click_for_restore_password' => 'Click para restablecer su contraseña',
         'new_password_is'            => 'Su nueva contraseña es: ',
         'loging'                     => 'Iniciar sesión.',
+        'Bienvenido(a)'              => 'Bienvenido(a)',
     ],
     'errors' => [
         'RESTRICTED_AREA'              => 'Intenta acceder a un área restringida. Para la que no tiene permisos.',

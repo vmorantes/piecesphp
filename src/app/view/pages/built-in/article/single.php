@@ -1,52 +1,69 @@
 <?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
+
 /**
  * @var \PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper $article
+ * @var \PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper[] $relateds
  */
 $article;
+$relateds;
 
-defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
+<!-- Main -->
+<div id="main">
 
-<section class="elements-container centered small">
-    <h1><?=$article->title;?></h1>
-    <h2><?=$article->category->getName();?></h2>
-    <p><?=$article->author->username;?></p>
-    <p><?=$date;?></p>
-    <div class="image">
-        <img src="<?=$article->images->imageMain;?>">
-    </div>
-    <h3><?= __('articlesFrontEnd', 'Contenido'); ?></h3>
-    <div class="text-aling-j"><?=$article->content;?></div>
-</section>
+    <div class="inner">
 
-<?php if (count($relateds) > 0): ?>
+        <!-- Header -->
+        <?php if(isset($withSocialBar) && $withSocialBar === true):?>
+        <?php $this->render('layout/social-bar', isset($socialBarData) ? $socialBarData : []); ?>
+        <?php endif;?>
 
-<h3><?= __('articlesFrontEnd', 'Noticias relacionadas'); ?></h3>
+        <!-- Content -->
+        <section>
 
-<section>
+            <header class="main">
+                <h1><?= $article->title; ?></h1>
+                <p><small><?= $date; ?></small></p>
+            </header>
 
-    <?php foreach ($relateds as $related): ?>
+            <span class="image single-post"><img loading="lazy" src="<?=$article->images->imageMain; ?>" alt="<?= $article->title; ?>" /></span>
 
-    <article>
+            <div><?= $article->content; ?></div>
 
-        <div>
-            <img src="<?=$related->images->imageThumb;?>">
-        </div>
+        </section>
 
-        <div>
-            <?=$related->category->getName() . ' | ' . $related->formatPreferDate("{MONTH_NAME} {DAY_NUMBER} del {YEAR}");?>
-        </div>
+        <?php if (count($relateds) > 0): ?>
 
-        <div><?=$related->title;?></div>
+        <!-- Section Relateds-->
+        <section>
 
-        <div>
-            <a href="<?= $related->getSingleURL(); ?>"><?= __('articlesFrontEnd', 'URL'); ?></a>
-        </div>
+            <header class="major">
+                <h2><?= __(LANG_GROUP, 'Relacionadas'); ?></h2>
+            </header>
 
-    </article>
+            <div class="posts">
 
-    <?php endforeach;?>
+                <?php foreach ($relateds as $related): ?>
 
-</section>
+                <article>
+                    <a href="#" class="image"><img loading="lazy" src="<?= $related->images->imageThumb; ?>" alt="" /></a>
+                    <h3><?= $related->title; ?></h3>
+                    <p><?= $related->seo_description; ?></p>
+                    <ul class="actions">
+                        <li>
+                            <a href="<?= ArticleControllerPublic::routeName('single', ['friendly_name' => $related->friendly_url]); ?>" class="button">
+                                <?= __(LANG_GROUP, 'Ver más'); ?>
+                            </a>
+                        </li>
+                    </ul>
+                </article>
 
-<?php endif;?>
+                <?php endforeach;?>
+            </div>
+
+        </section>
+
+        <?php endif;?>

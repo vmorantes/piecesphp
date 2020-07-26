@@ -2,7 +2,6 @@ class PiecesPHPSystemUserHelper {
 
 	constructor(urlAuthenticate, urlVerification) {
 
-		this.$ = window.PiecesPHPSystemUserHelperJQuery //jQuery JavaScript Library v3.4.1
 		this.extraData = null
 
 		if (typeof urlAuthenticate == 'string') {
@@ -30,14 +29,24 @@ class PiecesPHPSystemUserHelper {
 
 			instance
 				.post(urlRequest, formData, {})
-				.done(function (res) {
-					if (res.auth) {
-						instance.extraData = typeof res.extraData == 'object' ? res.extraData : null
-						instance.setJWT(res.token)
+				.then(res => res.json())
+				.then(function (res) {
+
+					if (typeof res.auth == 'boolean') {
+
+						if (res.auth) {
+							instance.extraData = typeof res.extraData == 'object' ? res.extraData : null
+							instance.setJWT(res.token)
+						}
+
+						resolve(res)
+
+					} else {
+						reject(res)
 					}
-					resolve(res)
+
 				})
-				.fail(function (res) {
+				.catch(function (res) {
 					reject(res)
 				})
 		})
@@ -51,22 +60,32 @@ class PiecesPHPSystemUserHelper {
 		return new Promise((resolve, reject) => {
 			instance
 				.post(instance.urlVerification)
-				.done(function (res) {
-					if (res.isAuth == true) {
+				.then(res => res.json())
+				.then(function (res) {
 
-						instance.extraData = instance.getExtraData()
-						instance.setJWT(instance.getJWT())
+					if (typeof res.isAuth == 'boolean') {
 
-						if (typeof onSuccess == 'function') {
-							onSuccess()
+						if (res.isAuth == true) {
+
+							instance.extraData = instance.getExtraData()
+							instance.setJWT(instance.getJWT())
+
+							if (typeof onSuccess == 'function') {
+								onSuccess()
+							}
+
+						} else {
+							instance.deleteSession()
 						}
 
+						resolve(res)
+
 					} else {
-						instance.deleteSession()
+						reject(res)
 					}
-					resolve(res)
+
 				})
-				.fail(function (res) {
+				.catch(function (res) {
 					reject(res)
 				})
 		})
@@ -96,16 +115,37 @@ class PiecesPHPSystemUserHelper {
 		return extraData
 	}
 
+	setExtraDataProperty(property, value) {
+		let extraData = this.getExtraData()
+		extraData = typeof extraData == 'object' && extraData !== null ? extraData : {}
+
+		extraData[property] = value
+
+		localStorage.setItem('JWTAuthExtraData', JSON.stringify(extraData))
+	}
+
 	setTriggerLogout(selector) {
+
 		let instance = this
+
 		if (typeof selector == 'string') {
-			let element = this.$(selector)
-			element.off('click')
-			element.on('click', function (e) {
-				e.stopPropagation()
-				e.preventDefault()
-				instance.deleteSession()
-			})
+
+			let elements = Array.from(document.querySelectorAll(selector))
+
+			for (let element of elements) {
+
+				let clone = element.cloneNode(true)
+
+				element.parentNode.replaceChild(clone, element)
+
+				clone.addEventListener('click', function (e) {
+					e.stopPropagation()
+					e.preventDefault()
+					instance.deleteSession()
+				})
+
+			}
+
 		}
 
 		return this
@@ -114,13 +154,8 @@ class PiecesPHPSystemUserHelper {
 	deleteSession() {
 		let now = new Date().getTime()
 		let JWT = this.getJWT()
-		let JWTCookie = this.getCookie('JWTAuth')
 
-		if (typeof JWTCookie == 'string' && JWTCookie.trim().length == 0) {
-			JWTCookie = null
-		}
-
-		if (JWT.length > 0 || JWTCookie !== null) {
+		if (JWT.length > 0) {
 			document.cookie = `JWTAuth=;expires=${now};path=/`;
 			localStorage.removeItem('JWTAuth')
 			localStorage.removeItem('JWTAuthExtraData')
@@ -192,79 +227,89 @@ class PiecesPHPSystemUserHelper {
 		return value
 	}
 
+	/**
+	 * @param {String|URL} url
+	 * @param {String|HTMLFormElement} data
+	 * @param {Object} headers
+	 * @returns {Promise<Response>}
+	 */
 	post(url, data, headers = {}) {
 
+		url = (typeof url == 'string' && url.trim().length > 0) || url instanceof URL ? url : ''
+		data = typeof data == 'object' || data instanceof FormData ? data : {}
+		headers = typeof headers == 'object' ? headers : {}
+
 		let options = {
-			url: url,
 			method: 'POST',
+			headers: new Headers(),
+			mode: 'cors',
+			credentials: 'include',
 		}
+
+		let parsedHeaders = this.parseHeaders(headers)
 
 		if (data instanceof FormData) {
 
-			options.processData = false
-			options.enctype = "multipart/form-data"
-			options.contentType = false
-			options.cache = false
-			options.data = data
+			options.cache = 'no-store'
+			options.body = data
 
 		} else if (typeof data == 'object') {
 
-			options.data = data
+			options.body = JSON.stringify(data)
+			parsedHeaders.set('Content-Type', 'application/json')
 
+		}
+
+		for (let name of parsedHeaders.keys()) {
+			options.headers.append(name, parsedHeaders.get(name))
+		}
+
+		return this.ajax(url, options)
+	}
+
+	/**
+	 * @param {String|URL} url
+	 * @param {String|HTMLFormElement} data
+	 * @param {Object} headers
+	 * @returns {Promise<Response>}
+	 */
+	get(url, data, headers = {}) {
+
+		url = (typeof url == 'string' && url.trim().length > 0) || url instanceof URL ? url : ''
+		data = typeof data == 'string' || data instanceof HTMLFormElement ? data : ''
+		headers = typeof headers == 'object' ? headers : {}
+
+		let options = {
+			method: 'GET',
+			headers: new Headers(),
+			mode: 'cors',
+			credentials: 'include',
 		}
 
 		let parsedHeaders = this.parseHeaders(headers)
+		parsedHeaders.set('Content-Type', 'application/x-www-form-urlencoded')
 
-		if (parsedHeaders.size > 0) {
-
-			options.beforeSend = function (request) {
-
-				for (let key of parsedHeaders.keys()) {
-					let value = parsedHeaders.get(key)
-					request.setRequestHeader(key, value)
-				}
-
-			}
-
-		}
-
-		return this.$.ajax(options)
-	}
-
-	get(url, data, headers = {}) {
-
-		let options = {
-			url: url,
-			method: 'GET',
-			enctype: "application/x-www-form-urlencoded",
-		}
+		let urlParams = new URLSearchParams()
 
 		if (data instanceof HTMLFormElement) {
 
-			options.data = this.$(data).serialize()
+			let formData = new FormData(data)
 
-		} else if (typeof data == 'string') {
-
-			options.data = data
-
-		}
-
-		let parsedHeaders = this.parseHeaders(headers)
-
-		if (parsedHeaders.size > 0) {
-
-			options.beforeSend = function (request) {
-
-				for (let key of parsedHeaders.keys()) {
-					let value = parsedHeaders.get(key)
-					request.setRequestHeader(key, value)
-				}
-
+			for (let key of formData.keys()) {
+				urlParams.append(key, formData.get(key))
 			}
 
+			url += `?${urlParams.toString()}`
+
+		} else if (typeof data == 'string') {
+			url += `?${data}`
 		}
 
-		return this.$.ajax(options)
+		for (let name of parsedHeaders.keys()) {
+			options.headers.append(name, parsedHeaders.get(name))
+		}
+
+		return this.ajax(url, options)
 	}
 
 	parseHeaders(headers = {}) {
@@ -301,7 +346,8 @@ class PiecesPHPSystemUserHelper {
 					valueString = value
 				}
 
-				mapHeaders.set(name, valueString)
+				let normalizedName = this.normalizeHeaderName(name)
+				mapHeaders.set(normalizedName, valueString)
 
 			}
 
@@ -312,6 +358,23 @@ class PiecesPHPSystemUserHelper {
 
 		return mapHeaders
 
+	}
+
+	normalizeHeaderName(name) {
+		return typeof name == 'string' ? name = name.trim().replace(/\s{1,}/gmi, '').split('-').map(e => this.capitalize(e)).join('-') : name
+	}
+
+	capitalize(str) {
+		return typeof str == 'string' ? str.split('').map(e, i => i == 0 ? e.toUpperCase() : e).join('') : ''
+	}
+
+	/**
+	 * @param {RequestInfo} url
+	 * @param {RequestInit} [options]
+	 * @returns {Promise<Response>}
+	 */
+	ajax(url, options) {
+		return fetch(url, options)
 	}
 
 }

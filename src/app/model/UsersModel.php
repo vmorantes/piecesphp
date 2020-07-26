@@ -168,6 +168,29 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
+     * getFullName
+     *
+     * @return string
+     */
+    public function getFullName()
+    {
+
+        $fullname = [
+            $this->firstname,
+            $this->secondname,
+            $this->first_lastname,
+            $this->secondname,
+        ];
+
+        $fullname = implode(' ', array_filter($fullname, function ($e) {
+            return is_string($e) && strlen(trim($e)) > 0;
+        }));
+
+        return $fullname;
+
+    }
+
+    /**
      * getPublicData
      *
      * @return array
@@ -463,26 +486,27 @@ class UsersModel extends BaseEntityMapper
         return $model->update([
             'failed_attempts' => 0,
         ])->where(['id' => $id])->execute();
-	}
-	
-	/**
-	 * getTypesUser
-	 *
-	 * @return array
-	 */
-	public static function getTypesUser(){
+    }
 
-		$types = [];
+    /**
+     * getTypesUser
+     *
+     * @return array
+     */
+    public static function getTypesUser()
+    {
 
-		foreach(self::TYPES_USERS as $key => $value){
+        $types = [];
 
-			$types[$key] = __('usersModule', $value);
+        foreach (self::TYPES_USERS as $key => $value) {
 
-		}
+            $types[$key] = __('usersModule', $value);
 
-		return $types;
+        }
 
-	}
+        return $types;
+
+    }
 
     /**
      * isDuplicate

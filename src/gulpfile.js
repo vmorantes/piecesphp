@@ -1,10 +1,10 @@
 /*
 * Dependencias
 */
-var gulp = require('gulp')
-var sourcemaps = require('gulp-sourcemaps');
-var sass = require("gulp-sass")
-
+const { src, dest, watch, task, series } = require('gulp');
+// const pug = require('gulp-pug'); // Pug default view template
+const sass = require('gulp-sass')
+const sourcemaps = require('gulp-sourcemaps')
 //--------SASS PiecesPHP
 
 //Archivos que se observar
@@ -50,60 +50,74 @@ var destsPiecesPHP = {
 
 //Compilación plugins propios
 function sassCompileOwnPlugins() {
-	return gulp.src(compilePiecesPHPSassFiles.ownPlugins)
+	return src(compilePiecesPHPSassFiles.ownPlugins)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destsPiecesPHP.ownPlugins))
+		.pipe(dest(destsPiecesPHP.ownPlugins))
 }
 
 //Compilación generales
 function sassCompileGeneral() {
-	return gulp.src(compilePiecesPHPSassFiles.general)
+	return src(compilePiecesPHPSassFiles.general)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destsPiecesPHP.general))
+		.pipe(dest(destsPiecesPHP.general))
 }
 
 //Compilación usuarios
 function sassCompileUsers() {
-	return gulp.src(compilePiecesPHPSassFiles.users)
+	return src(compilePiecesPHPSassFiles.users)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destsPiecesPHP.users))
+		.pipe(dest(destsPiecesPHP.users))
 }
 
 //Compilación avatars
 function sassCompileAvatars() {
-	return gulp.src(compilePiecesPHPSassFiles.avatars)
+	return src(compilePiecesPHPSassFiles.avatars)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destsPiecesPHP.avatars))
+		.pipe(dest(destsPiecesPHP.avatars))
 }
 
 //Tareas de compilación
-gulp.task("sass-compile-own-plugins", sassCompileOwnPlugins)
-gulp.task("sass-compile-general", sassCompileGeneral)
-gulp.task("sass-compile-users", sassCompileUsers)
-gulp.task("sass-compile-avatars", sassCompileAvatars)
+task("sass-compile-own-plugins", (done) => {
+	sassCompileOwnPlugins()
+	done()
+})
+task("sass-compile-general", (done) => {
+	sassCompileGeneral()
+	done()
+})
+task("sass-compile-users", (done) => {
+	sassCompileUsers()
+	done()
+})
+task("sass-compile-avatars", (done) => {
+	sassCompileAvatars()
+	done()
+})
 
 //Tareas de observación
-gulp.task("sass-vendor:watch", () => {
-	gulp.watch(watchingPiecesPHPSassFiles.ownPlugins, ["sass-compile-own-plugins"])
-	gulp.watch(watchingPiecesPHPSassFiles.general, ["sass-compile-general"])
-	gulp.watch(watchingPiecesPHPSassFiles.users, ["sass-compile-users"])
-	gulp.watch(watchingPiecesPHPSassFiles.avatars, ["sass-compile-avatars"])
+task("sass-vendor:watch", (done) => {
+	watch(watchingPiecesPHPSassFiles.ownPlugins, series("sass-compile-own-plugins"))
+	watch(watchingPiecesPHPSassFiles.general, series("sass-compile-general"))
+	watch(watchingPiecesPHPSassFiles.users, series("sass-compile-users"))
+	watch(watchingPiecesPHPSassFiles.avatars, series("sass-compile-avatars"))
+	done()
 })
 
 //Tarea inicial
-gulp.task("sass-vendor:init", () => {
+task("sass-vendor:init", (done) => {
 	sassCompileOwnPlugins()
 	sassCompileGeneral()
 	sassCompileUsers()
 	sassCompileAvatars()
+	done()
 })
 
 
@@ -115,24 +129,26 @@ var compileSassFiles = [
 	'./statics/sass/**/*.scss',
 	'!./statics/sass/import/**/*.scss',
 ]
-var dest = './statics/css'
+var cssDest = './statics/css'
 
 function sassCompileGeneric() {
-	return gulp.src(compileSassFiles)
+	return src(compileSassFiles)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(dest))
+		.pipe(dest(cssDest))
 }
 
-gulp.task("sass", () => {
+task("sass", (done) => {
 	sassCompileGeneric()
+	done()
 })
 
-gulp.task("sass:watch", () => {
-	gulp
-		.watch(watchingSassFiles, ["sass"])
+task("sass:watch", (done) => {
+	watch(watchingSassFiles, series("sass"))
+	done()
 })
-gulp.task("sass:init", () => {
+task("sass:init", (done) => {
 	sassCompileGeneric()
+	done()
 })

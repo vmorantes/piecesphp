@@ -687,7 +687,11 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
  * @description Requiere datatables y jquery
  * @param {String} containerSelector 
  * @param {Number} perPage 
- * @param {Object} options 
+ * @param {Object} options
+ * @param {Function} options.initComplete
+ * @param {Function} options.preDrawCallback
+ * @param {Function} options.drawCallback
+ * @param {Function} options.drawCallbackEnd
  * @returns {Object}
  */
 function dataTablesServerProccesingOnCards(containerSelector, perPage, options) {
@@ -713,6 +717,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 		let initComplete = typeof options.initComplete == 'function' ? options.initComplete : () => { }
 		let preDrawCallback = typeof options.preDrawCallback == 'function' ? options.preDrawCallback : () => { }
 		let drawCallback = typeof options.drawCallback == 'function' ? options.drawCallback : () => { }
+		let drawCallbackEnd = typeof options.drawCallbackEnd == 'function' ? options.drawCallbackEnd : () => { }
 
 		let optionsDataTables = {
 			dom: `<"component-wrapper"t<"component-pagination"p>>`,
@@ -828,6 +833,8 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 				if (cards.length == 0) {
 					cardsContainer.html(`<h3>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
 				}
+
+				drawCallbackEnd(cards)
 
 			},
 		}
@@ -1229,50 +1236,59 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	}
 
 	function showLoader() {
-		loader = $(
-			`
-				<div class="ui-pcs-activity-loader">
-					<div loader></div>
-				</div>
-			`
-		)
-		loader.css({
-			"position": `fixed`,
-			"z-index": `1000`,
-			"top": `0px`,
-			"left": `0px`,
-			"display": `block`,
-			"width": `100%`,
-			"height": `100%`,
-			"background-color": `rgba(255, 255, 255, 0.4)`,
-		})
-		loader.find('[loader]').css({
-			"position": `fixed`,
-			"top": `50%`,
-			"left": `50%`,
-			"transform": `translate(-50%,-50%)`,
-			"display": `block`,
-			"width": `300px`,
-			"max-width": `100%`,
-			"height": `100px`,
-		})
+		if (typeof CustomNamespace == 'undefined') {
+			loader = $(
+				`
+					<div class="ui-pcs-activity-loader">
+						<div loader></div>
+					</div>
+				`
+			)
+			loader.css({
+				"position": `fixed`,
+				"z-index": `1000`,
+				"top": `0px`,
+				"left": `0px`,
+				"display": `block`,
+				"width": `100%`,
+				"height": `100%`,
+				"background-color": `rgba(255, 255, 255, 0.4)`,
+			})
+			loader.find('[loader]').css({
+				"position": `fixed`,
+				"top": `50%`,
+				"left": `50%`,
+				"transform": `translate(-50%,-50%)`,
+				"display": `block`,
+				"width": `300px`,
+				"max-width": `100%`,
+				"height": `100px`,
+			})
 
-		$(document.body).append(loader)
+			$(document.body).append(loader)
 
-		NProgress.configure({
-			parent: `.ui-pcs-activity-loader [loader]`
-		})
+			NProgress.configure({
+				parent: `.ui-pcs-activity-loader [loader]`
+			})
 
-		NProgress.start()
+			NProgress.start()
+
+		} else {
+			CustomNamespace.loader('genericFormHandler')
+		}
 	}
 
 	function removeLoader() {
-		setTimeout(function () {
-			NProgress.done()
-			if (loader instanceof $) {
-				loader.remove()
-			}
-		}, 500)
+		if (typeof CustomNamespace == 'undefined') {
+			setTimeout(function () {
+				NProgress.done()
+				if (loader instanceof $) {
+					loader.remove()
+				}
+			}, 500)
+		} else {
+			CustomNamespace.loader('genericFormHandler', false)
+		}
 	}
 
 	return form

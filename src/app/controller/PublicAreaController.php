@@ -7,14 +7,15 @@
 namespace App\Controller;
 
 use App\Model\AvatarModel;
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
+use PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController;
 use PiecesPHP\Core\BaseHashEncryption;
-use PiecesPHP\Core\Forms\FileUpload;
-use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Utilities\ExifHelper;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -45,13 +46,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     private static $startSegmentRoutes = '';
 
     /**
-     * $automaticImports
-     *
-     * @var bool
-     */
-    private static $automaticImports = true;
-
-    /**
      * $user
      *
      * Usuario logueado
@@ -71,191 +65,172 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         $this->init();
 
-        if (self::$automaticImports === true) {
+        clear_assets_imports();
+        clear_global_assets();
+        import_jquery();
+        import_izitoast();
+        import_app_libraries();
 
-            /* JQuery */
-            import_jquery();
-            /* Semantic */
-            import_semantic();
-            /* NProgress */
-            import_nprogress();
-            /* Librerías de la aplicación */
-            import_app_libraries();
-
-            add_global_asset(base_url('statics/css/global.css'), 'css');
-
-        }
+        set_title('');
     }
 
     /**
      * indexView
      *
-     * Vista principal
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
-     * @return void
+     * @return Response
      */
     public function indexView(Request $req, Response $res, array $args)
     {
 
-        $exifResult = '';
-
-        try {
-
-            $exifImage = new FileUpload('exif-image', [
-                FileValidator::TYPE_JPEG,
-            ]);
-
-            if ($exifImage->hasInput()) {
-
-                if ($exifImage->validate()) {
-
-                    $fileData = $exifImage->getFileInformation();
-                    $exifHelper = new ExifHelper($fileData['tmp_name']);
-
-                    //Fechas
-                    $originalDate = $exifHelper->getOriginalDate();
-                    $digitizedDate = $exifHelper->getDigitizedDate();
-                    $uploadDate = $exifHelper->getFileDate();
-
-                    $originalDate = !is_null($originalDate) ? $originalDate->format('d-m-Y h:i:s A') : __('publicAreaController', 'Sin información');
-                    $digitizedDate = !is_null($digitizedDate) ? $digitizedDate->format('d-m-Y h:i:s A') : __('publicAreaController', 'Sin información');
-                    $uploadDate = !is_null($uploadDate) ? $uploadDate->format('d-m-Y h:i:s A') : __('publicAreaController', 'Sin información');
-
-                    //Coordenadas
-
-                    $baseLongitude = $exifHelper->getGPSDataToNumber(ExifHelper::GPS_TYPE_LONGITUDE);
-                    $baseLatitude = $exifHelper->getGPSDataToNumber(ExifHelper::GPS_TYPE_LATITUDE);
-
-                    $referenceSignLongitude = $exifHelper->getGPSSign(ExifHelper::GPS_TYPE_LONGITUDE);
-                    $referenceSignLatitude = $exifHelper->getGPSSign(ExifHelper::GPS_TYPE_LATITUDE);
-
-                    $longitude = $exifHelper->getGPSLongitude();
-                    $latitude = $exifHelper->getGPSLatitude();
-
-                    $baseLongitude = !is_null($baseLongitude) ? $baseLongitude : __('publicAreaController', 'Sin información');
-                    $baseLatitude = !is_null($baseLatitude) ? $baseLatitude : __('publicAreaController', 'Sin información');
-
-                    $referenceSignLongitude =
-
-                    is_int($referenceSignLongitude) ?
-                    (
-                        $referenceSignLongitude > 0 ?
-                        '+' :
-                        '-'
-                    ) :
-                    __('publicAreaController', 'Sin información');
-
-                    $referenceSignLatitude =
-
-                    is_int($referenceSignLatitude) ?
-                    (
-                        $referenceSignLatitude > 0 ?
-                        '+' :
-                        '-'
-                    ) :
-                    __('publicAreaController', 'Sin información');
-
-                    $longitude = !is_null($longitude) ? $longitude : __('publicAreaController', 'Sin información');
-                    $latitude = !is_null($latitude) ? $latitude : __('publicAreaController', 'Sin información');
-
-                    $exifResult = [
-                        __('publicAreaController', 'Información procesada') => [
-                            __('publicAreaController', 'Fechas') => [
-                                __('publicAreaController', 'Captura') => $originalDate,
-                                __('publicAreaController', 'Digitalización') => $digitizedDate,
-                                __('publicAreaController', 'Subida del archivo') => $uploadDate,
-                            ],
-                            __('publicAreaController', 'GPS') => [
-                                __('publicAreaController', 'Signos de referencia') => [
-                                    __('publicAreaController', 'Longitud') => $referenceSignLongitude,
-                                    __('publicAreaController', 'Latitud') => $referenceSignLatitude,
-                                ],
-                                __('publicAreaController', 'Coordenadas') => [
-                                    __('publicAreaController', 'lng') => $longitude,
-                                    __('publicAreaController', 'lat') => $latitude,
-                                ],
-                                __('publicAreaController', 'Coordenadas sin signos') => [
-                                    __('publicAreaController', 'lng') => $baseLongitude,
-                                    __('publicAreaController', 'lat') => $baseLatitude,
-                                ],
-                            ],
-                        ],
-                        'Datos completos' => $exifHelper->getExifData(),
-                    ];
-
-                } else {
-
-                    $exifResult = $exifImage->getErrorMessages();
-
-                }
-
-            }
-
-        } catch (\Exception $e) {
-            $exifResult = [
-                'exceptionMessage' => $e->getMessage(),
-                'exceptionFile' => $e->getFile(),
-                'exceptionLine' => $e->getLine(),
-            ];
-            log_exception($e);
-        }
-
-        $exifResult = self::arrayToHTMLList($exifResult);
-
-        import_quilljs();
-        import_cropper();
-		import_izitoast();
-		import_dialog_pcs();
+        set_title(__(LANG_GROUP, 'Página principal'));
 
         set_custom_assets([
+            'statics/css/main.css',
+        ], 'css');
+
+        set_custom_assets([
+            'statics/js/browser.min.js',
+            'statics/js/breakpoints.min.js',
+            'statics/js/util.js',
+            'statics/js/CustomNamespace.js',
+            ArticleControllerPublic::JS_FOLDER . '/BuiltInArticle.js',
+            HeroController::BASE_JS_DIR . '/public/main.js',
             'statics/js/main.js',
+            'statics/js/template.js',
         ], 'js');
 
+        $data = [
+            'withSocialBar' => true,
+            'withRecents' => true,
+            'ajaxArticlesGlobalURL' => ArticleController::routeName('ajax-all'),
+            'sliderAjax' => HeroController::routeName('ajax-all'),
+            'req' => $req,
+            'res' => $res,
+            'args' => $args,
+        ];
+
+        $this->setVariables($data);
+
         $this->render('layout/header');
-        $this->render('pages/sample-public', [
-            'exifResult' => $exifResult,
-        ]);
+        $this->render('pages/home', []);
         $this->render('layout/footer');
 
         return $res;
     }
 
     /**
-     * arrayToHTMLList
+     * genericViews
      *
-     * @param mixed $array
-     * @return string
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
      */
-    protected static function arrayToHTMLList($array)
+    public function genericViews(Request $req, Response $res, array $args)
     {
 
-        if (is_array($array)) {
+        $folder = $req->getAttribute('folder', null);
+        $name = $req->getAttribute('name', null);
+        $withSocialBar = $req->getQueryParam('social', 'yes');
+        $withSocialBar = is_string($withSocialBar) ? mb_strtolower($withSocialBar) : 'no';
+        $withSocialBar = strlen($withSocialBar) > 0 ? $withSocialBar : 'yes';
+        $withSocialBar = $withSocialBar === 'yes';
 
-            foreach ($array as $key => $value) {
+        $folder = is_string($folder) && strlen(trim($folder)) > 0 ? trim($folder) : null;
+        $name = strlen(trim($name)) > 0 ? trim($name) : null;
 
-                $title = ctype_digit($key) || is_int($key) ? 'Índice ' . $key : $key;
+        if ($folder !== null) {
+            $name = "{$folder}/{$name}";
+        }
 
-                if (is_array($value)) {
-                    $array[$key] = "<div class='item'><strong>$title:</strong><br/>" . self::arrayToHTMLList($value) . "</div>";
-                } else {
-                    $array[$key] = "<div class='item'><strong>$title:</strong> $value</div>";
-                }
+        $css = [
+            'statics/css/main.css',
+        ];
+        $js = [
+            'statics/js/browser.min.js',
+            'statics/js/breakpoints.min.js',
+            'statics/js/util.js',
+            'statics/js/CustomNamespace.js',
+            'statics/js/generic-views.js',
+            'statics/js/template.js',
+        ];
 
+        $data = [
+            'withSocialBar' => true,
+            'withRecents' => true,
+            'req' => $req,
+            'res' => $res,
+            'args' => $args,
+        ];
+
+        $availableView = [
+            'tabs-sample' => [
+                'title' => __(LANG_GROUP, 'Ejemplo de tabs'),
+            ],
+            'about-us' => [
+                'title' => __(LANG_GROUP, 'Sobre nosotros'),
+            ],
+        ];
+
+        $viewHeader = 'layout/header';
+        $viewFooter = 'layout/footer';
+
+        if (is_string($name) && array_key_exists($name, $availableView)) {
+
+            $viewConfig = $availableView[$name];
+            $file = isset($viewConfig['file']) && $viewConfig['file'] !== null ? $viewConfig['file'] : $name;
+            $viewHeader = isset($viewConfig['header']) ? $viewConfig['header'] : $viewHeader;
+            $viewFooter = isset($viewConfig['footer']) ? $viewConfig['footer'] : $viewFooter;
+            $viewTitle = isset($viewConfig['title']) ? $viewConfig['title'] : null;
+            $viewData = isset($viewConfig['data']) ? $viewConfig['data'] : [];
+            $prependAssets = isset($viewConfig['prependAssets']) ? $viewConfig['prependAssets'] : [];
+            $appendAssets = isset($viewConfig['appendAssets']) ? $viewConfig['appendAssets'] : [];
+            $prependCss = isset($prependAssets['css']) ? $prependAssets['css'] : [];
+            $prependJs = isset($prependAssets['js']) ? $prependAssets['js'] : [];
+            $appendCss = isset($appendAssets['css']) ? $appendAssets['css'] : [];
+            $appendJs = isset($appendAssets['js']) ? $appendAssets['js'] : [];
+
+            foreach ($viewData as $k => $i) {
+                $data[$k] = $i;
+            }
+            foreach ($prependCss as $i) {
+                array_unshift($css, $i);
+            }
+            foreach ($prependJs as $i) {
+                array_unshift($js, $i);
+            }
+            foreach ($appendCss as $i) {
+                array_push($css, $i);
+            }
+            foreach ($appendJs as $i) {
+                array_push($js, $i);
             }
 
-            $array = implode(' ', $array);
-
-        } else {
-
-            $array = '';
+            if ($viewTitle !== null) {
+                set_title($viewTitle);
+            }
 
         }
 
-        return "<div class='ui celled list'>$array</div>";
+        set_custom_assets($css, 'css');
+        set_custom_assets($js, 'js');
 
+        $this->setVariables($data);
+
+        if ($file !== null) {
+
+            $this->render($viewHeader);
+            $this->render("pages/generic-views/{$file}");
+            $this->render($viewFooter);
+
+        } else {
+            throw new NotFoundException($req, $res);
+        }
+
+        return $res;
     }
 
     /**
@@ -311,7 +286,12 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         //Otras rutas
         $namePrefix = self::$prefixNameRoutes;
-        $startRoute .= self::$startSegmentRoutes;
+
+        if (strlen(self::$startSegmentRoutes) > 0) {
+            $startRoute .= self::$startSegmentRoutes;
+        } else {
+            $startRoute = '';
+        }
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
 
@@ -321,11 +301,27 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 $lastIsBar ? "" : "[/]",
                 self::class . ":indexView",
                 "{$namePrefix}-index",
-                'POST|GET'
+                'GET'
+            ),
+            new Route(
+                "{$startRoute}/{name}[/]",
+                self::class . ":genericViews",
+                "{$namePrefix}-generic",
+                'GET'
+            ),
+            new Route(
+                "{$startRoute}/{folder}/{name}[/]",
+                self::class . ":genericViews",
+                "{$namePrefix}-generic-2",
+                'GET'
             ),
         ]);
 
         //──── POST ─────────────────────────────────────────────────────────────────────────
+
+        //Otros controladores asociados
+
+        $group = ContactFormsController::routes($group);
 
         return $group;
     }

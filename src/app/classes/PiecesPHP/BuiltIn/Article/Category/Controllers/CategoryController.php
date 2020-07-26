@@ -201,67 +201,7 @@ class CategoryController extends AdminPanelController
             $perPage = $request->getQueryParam('per_page', 5);
             $onlyLang = $request->getQueryParam('lang', null);
 
-            //Tratamiento de las opciones
-            $allowedLangs = get_config('allowed_langs');
-
-            $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
-            $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
-
-            $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
-            $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
-
-            //Prepación de la consulta
-            $model = CategoryContentMapper::model();
-            $query = $model->select();
-
-            $where = [
-                "lang = '$onlyLang'",
-            ];
-
-            $where = implode(' ', $where);
-
-            $query->where($where);
-
-            if ($paginate === 'yes') {
-
-                $response_data = [];
-
-                $response_data['sql'] = $query->getCompiledSQL();
-                $query->execute(false, $page, $perPage);
-
-                $data = $query->result();
-
-                $query->resetAll();
-
-                $query->select('COUNT(id) AS total');
-                $query->where($where);
-                $query->execute();
-                $total = $query->result();
-                $total = count($total) > 0 ? (int) $total[0]->total : 0;
-                $pages = ceil($total / $perPage);
-
-                $data = array_map(function ($e) {
-					$e->link = ArticleControllerPublic::routeName('list-by-category', ['category' => $e->friendly_url]);
-					$e->name = htmlentities(stripslashes($e->name));
-					$e->description = htmlentities(stripslashes($e->description));
-                    return $e;
-                }, $data);
-
-                $response_data['page'] = $page;
-                $response_data['perPage'] = $perPage;
-                $response_data['pages'] = $pages;
-                $response_data['total'] = $total;
-                $response_data['data'] = $data;
-
-                return $response->withJson($response_data);
-
-            } else {
-
-                $query->execute();
-
-                return $response->withJson($query->result());
-
-            }
+            return $response->withJson(self::_all($paginate, $page, $perPage, $onlyLang));
 
         } else {
             throw new NotFoundException($request, $response);
@@ -695,6 +635,79 @@ class CategoryController extends AdminPanelController
         }
 
         return $result;
+    }
+
+    /**
+     * _all
+     *
+     * @param mixed $allDate
+     * @param mixed $paginate
+     * @param mixed $page
+     * @param mixed $perPage
+     * @return array
+     */
+    public static function _all($paginate = null, $page = null, $perPage = null, $onlyLang = null)
+    {
+
+        //Tratamiento de las opciones
+        $allowedLangs = get_config('allowed_langs');
+
+        $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+        $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
+
+        $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
+        $perPage = is_integer($perPage) || ctype_digit($perPage) ? (int) $perPage : 5;
+
+        //Prepación de la consulta
+        $model = CategoryContentMapper::model();
+        $query = $model->select();
+
+        $where = [
+            "lang = '$onlyLang'",
+        ];
+
+        $where = implode(' ', $where);
+
+        $query->where($where);
+
+        if ($paginate === 'yes') {
+
+            $response_data = [];
+
+            $response_data['sql'] = $query->getCompiledSQL();
+            $query->execute(false, $page, $perPage);
+
+            $data = $query->result();
+
+            $query->resetAll();
+
+            $query->select('COUNT(id) AS total');
+            $query->where($where);
+            $query->execute();
+            $total = $query->result();
+            $total = count($total) > 0 ? (int) $total[0]->total : 0;
+            $pages = ceil($total / $perPage);
+
+            $data = array_map(function ($e) {
+                $e->link = ArticleControllerPublic::routeName('list-by-category', ['category' => $e->friendly_url]);
+                $e->name = htmlentities(stripslashes($e->name));
+                $e->description = htmlentities(stripslashes($e->description));
+                return $e;
+            }, $data);
+
+            $response_data['page'] = $page;
+            $response_data['perPage'] = $perPage;
+            $response_data['pages'] = $pages;
+            $response_data['total'] = $total;
+            $response_data['data'] = $data;
+
+            return $response_data;
+
+        } else {
+            $query->execute();
+            return $query->result();
+        }
+
     }
 
     /**

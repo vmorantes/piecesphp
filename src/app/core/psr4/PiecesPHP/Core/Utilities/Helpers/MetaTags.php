@@ -119,7 +119,7 @@ class MetaTags
 
         if (is_null(self::$title)) {
 
-            $title = get_title(true);
+            $title = get_title(true, null, false);
 
             if ($title !== false) {
                 self::$title = $title;
