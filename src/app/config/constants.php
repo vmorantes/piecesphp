@@ -37,13 +37,13 @@ define('BLACKBOARD_NEWS_PATH_STATICS', 'statics/features/blackboard-news');
 define('BLACKBOARD_NEWS_PATH_JS', BLACKBOARD_NEWS_PATH_STATICS . '/js');
 
 //Blog integrado
-define('PIECES_PHP_BLOG_ENABLED', false);
+define('PIECES_PHP_BLOG_ENABLED', true);
 
 //Tienda integrada
 define('PIECES_PHP_SHOP_ENABLE', false);
 
 //Módulo de imágenes integrado
-define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', false);
+define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
 
 //Ubicaciones
 define('LOCATIONS_ENABLED', false);
