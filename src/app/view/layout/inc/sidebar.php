@@ -37,7 +37,7 @@
             </header>
             <p><?= __(LANG_GROUP, 'Información de contacto'); ?></p>
             <ul class="contact">
-                <li class="icon solid fa-envelope"><a href="#">algo@sitio.com</a></li>
+                <li class="icon solid fa-envelope"><a target="_blank" href="mailto:#">algo@sitio.com</a></li>
                 <li class="icon solid fa-phone"><?= __(LANG_GROUP, 'Teléfono'); ?> 123-456-7891 <br /> <?= __(LANG_GROUP, 'Fax'); ?> 123-456-7891</li>
                 <li class="icon solid fa-home">123 Avenida 50 <br /> ATL 000000 CO</li>
                 <li class="icon solid fa-share-alt">

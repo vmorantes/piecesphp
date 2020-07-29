@@ -17,23 +17,11 @@ window.addEventListener('loadApp', function (e) {
 					let link = typeof image.link == 'string' ? image.link.trim() : ''
 					let hasLink = link.length
 
-					if (title.length > 0 && imageURL.length > 0) {
+					if (imageURL.length > 0) {
 
 						let item = hasLink ? document.createElement('a') : document.createElement('div')
 						let imageElement = document.createElement('img')
-						let caption = document.createElement('div')
-						let titleElement = document.createElement('div')
-
-						item.appendChild(imageElement)
-						item.appendChild(caption)
-						caption.appendChild(titleElement)
-						titleElement.innerHTML = title
-						if (description.length > 0) {
-							let descriptionElement = document.createElement('div')
-							descriptionElement.innerHTML = description
-							caption.appendChild(descriptionElement)
-							descriptionElement.classList.add('text')
-						}
+						let withCaption = description.length > 0 || title.length > 0
 
 						item.classList.add('item')
 
@@ -50,15 +38,37 @@ window.addEventListener('loadApp', function (e) {
 
 						imageElement.setAttribute('loading', 'lazy')
 						imageElement.setAttribute('src', imageURL)
-						caption.classList.add('caption')
-						titleElement.classList.add('title')
+						item.appendChild(imageElement)
+
+						if (withCaption) {
+
+							let caption = document.createElement('div')
+							caption.classList.add('caption')
+
+							if (title.length > 0) {
+								let titleElement = document.createElement('div')
+								caption.appendChild(titleElement)
+								titleElement.innerHTML = title
+								titleElement.classList.add('title')
+							}
+
+							if (description.length > 0) {
+								let descriptionElement = document.createElement('div')
+								descriptionElement.innerHTML = description
+								caption.appendChild(descriptionElement)
+								descriptionElement.classList.add('text')
+							}
+
+							item.appendChild(caption)
+
+						}
 
 						slidershow.appendChild(item)
 
 					}
 
 				}
-				
+
 				CustomNamespace.slideshow('.vm-slideshow')
 
 			}

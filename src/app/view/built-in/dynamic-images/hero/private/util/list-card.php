@@ -50,7 +50,7 @@ $editLink;
                 <br>
                 <?php endif; ?>
                 <strong><?= __($langGroup, 'Orden'); ?>: </strong>
-                <?= $mapper->order > 0 ? $mapper->order . '.' : '<span>0.</span>'; ?>
+                <?= $mapper->order > 0 ? '#' . $mapper->order : '<span>#0</span>'; ?>
                 <br>
                 <?php endif;?>
 
