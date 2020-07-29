@@ -252,7 +252,7 @@ class HeroController extends AdminPanelController
             ),
             new Parameter(
                 'title',
-                null,
+                [],
                 function ($value) {
 
                     $valid = false;
@@ -262,7 +262,7 @@ class HeroController extends AdminPanelController
 
                         foreach ($value as $lang => $text) {
 
-                            if (in_array($lang, $allowedLangs) && is_string($text) && strlen(trim($text)) > 0) {
+                            if (in_array($lang, $allowedLangs) && is_string($text)) {
                                 $valid = true;
                             } else {
                                 $valid = false;
@@ -275,7 +275,7 @@ class HeroController extends AdminPanelController
 
                     return $valid;
                 },
-                false,
+                true,
                 function ($value) {
                     foreach ($value as $lang => $text) {
                         $value[$lang] = clean_string($text);
@@ -318,27 +318,44 @@ class HeroController extends AdminPanelController
             ),
             new Parameter(
                 'link',
-                '',
+                [],
                 function ($value) {
 
                     $valid = false;
+                    $allowedLangs = get_config('allowed_langs');
 
-                    if (is_string($value) && strlen($value) > 0) {
+                    if (is_array($value)) {
 
-                        $value = HeroController::parseURL($value);
-                        $valid = filter_var($value, \FILTER_VALIDATE_URL, \FILTER_FLAG_PATH_REQUIRED) !== false;
+                        foreach ($value as $lang => $text) {
 
-                        if (!$valid) {
-                            throw new \Exception(__(self::LANG_GROUP, 'La URL del enlace tiene un formato inválido'));
+                            if (in_array($lang, $allowedLangs) && is_string($text) && strlen(trim($text)) > 0) {
+
+                                $originalInput = $text;
+                                $text = HeroController::parseURL($text);
+                                $valid = filter_var($text, \FILTER_VALIDATE_URL, \FILTER_FLAG_PATH_REQUIRED) !== false;
+
+                                if (!$valid) {
+                                    throw new \Exception(__(self::LANG_GROUP, 'La URL del enlace tiene un formato inválido') . "({$originalInput})");
+                                }
+
+                            } else {
+                                $valid = false;
+                                break;
+                            }
+
                         }
 
                     }
 
-                    return $value === null || $valid;
+                    return $valid;
+
                 },
                 true,
                 function ($value) {
-                    return HeroController::parseURL($value);
+                    foreach ($value as $lang => $text) {
+                        $value[$lang] = HeroController::parseURL($text);
+                    }
+                    return $value;
                 }
             ),
             new Parameter(
@@ -410,9 +427,9 @@ class HeroController extends AdminPanelController
             //Información del formulario
             /**
              * @var int $id
-             * @var string $title
-             * @var string $description
-             * @var string $link
+             * @var string[] $title
+             * @var string[] $description
+             * @var string[] $link
              * @var \DateTime|null $start_date
              * @var \DateTime|null $end_date
              * @var int $order
@@ -431,6 +448,9 @@ class HeroController extends AdminPanelController
             //Dirección de redirección en cadso de creación
             $redirectURLOnCreate = self::routeName('list');
 
+            $defaultLang = get_config('default_lang');
+            $allowedLangs = get_config('allowed_langs');
+
             try {
 
                 if (!$isEdit) {
@@ -439,15 +459,26 @@ class HeroController extends AdminPanelController
                     $mapper = new ImageMapper();
 
                     $folder = (new \DateTime)->format('Y/m/d/') . str_replace('.', '', uniqid());
-                    $image = self::handlerUploadImage('image', $folder);
+                    $imagePrefix = 'image-';
 
-                    $defaultLang = get_config('default_lang');
-                    $allowedLangs = get_config('allowed_langs');
+                    $images = [];
 
-                    $mapper->title = $title[$defaultLang];
+                    foreach ($allowedLangs as $lang) {
+
+                        $imageLangName = "{$imagePrefix}{$lang}";
+
+                        if (array_key_exists($imageLangName, $_FILES)) {
+
+                            $images[$lang] = self::handlerUploadImage($imageLangName, $folder);
+
+                        }
+
+                    }
+
+                    $mapper->title = array_key_exists($defaultLang, $title) ? $title[$defaultLang] : '';
                     $mapper->description = array_key_exists($defaultLang, $description) ? $description[$defaultLang] : '';
-                    $mapper->link = $link;
-                    $mapper->image = $image;
+                    $mapper->link = array_key_exists($defaultLang, $link) ? $link[$defaultLang] : '';
+                    $mapper->image = array_key_exists($defaultLang, $images) ? $images[$defaultLang] : '';
                     $mapper->start_date = $startDate !== null ? $startDate->format('Y-m-d H:i:') . '00' : null;
                     $mapper->end_date = $endDate !== null ? $endDate->format('Y-m-d H:i:') . '00' : null;
                     $mapper->order = $order;
@@ -466,9 +497,25 @@ class HeroController extends AdminPanelController
                             $mapper->setLangData($lang, 'description', $description[$lang]);
                         }
 
+                        if (array_key_exists($lang, $link)) {
+                            $mapper->setLangData($lang, 'link', $link[$lang]);
+                        }
+
+                        if (array_key_exists($lang, $images)) {
+                            $mapper->setLangData($lang, 'image', $images[$lang]);
+                        } else {
+
+                            $defaultLangImage = $images[$defaultLang];
+                            $defaultLangImageBasename = basename($defaultLangImage);
+                            $copyBasename = $lang . '-' . $defaultLangImageBasename;
+                            $copyDest = str_replace($defaultLangImageBasename, $copyBasename, $defaultLangImage);
+                            copy(basepath($defaultLangImage), basepath($copyDest));
+                            $mapper->setLangData($lang, 'image', $copyDest);
+                        }
+
                     }
 
-                    if (strlen($image) > 0) {
+                    if (strlen($mapper->image) > 0) {
 
                         $saved = $mapper->save();
 
@@ -497,15 +544,29 @@ class HeroController extends AdminPanelController
 
                     if ($exists) {
 
-                        $image = self::handlerUploadImage('image', '', $mapper->image);
+                        $imagePrefix = 'image-';
 
-                        $defaultLang = get_config('default_lang');
-                        $allowedLangs = get_config('allowed_langs');
+                        $images = [];
 
-                        $mapper->title = $title[$defaultLang];
+                        foreach ($allowedLangs as $lang) {
+
+                            $imageLangName = "{$imagePrefix}{$lang}";
+
+                            if (array_key_exists($imageLangName, $_FILES)) {
+
+                                $images[$lang] = self::handlerUploadImage($imageLangName, '', $mapper->getLangData($lang, 'image'));
+
+                            }
+
+                        }
+
+                        $mapper->title = array_key_exists($defaultLang, $title) ? $title[$defaultLang] : '';
                         $mapper->description = array_key_exists($defaultLang, $description) ? $description[$defaultLang] : '';
-                        $mapper->link = $link;
-                        $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
+                        $mapper->link = array_key_exists($defaultLang, $link) ? $link[$defaultLang] : '';
+
+                        $imageDefault = array_key_exists($defaultLang, $images) ? $images[$defaultLang] : '';
+                        $mapper->image = strlen($imageDefault) > 0 ? $imageDefault : $mapper->image;
+
                         $mapper->start_date = $startDate !== null ? $startDate->format('Y-m-d H:i:') . '00' : null;
                         $mapper->end_date = $endDate !== null ? $endDate->format('Y-m-d H:i:') . '00' : null;
                         $mapper->order = $order;
@@ -522,6 +583,14 @@ class HeroController extends AdminPanelController
 
                             if (array_key_exists($lang, $description)) {
                                 $mapper->setLangData($lang, 'description', $description[$lang]);
+                            }
+
+                            if (array_key_exists($lang, $link)) {
+                                $mapper->setLangData($lang, 'link', $link[$lang]);
+                            }
+
+                            if (array_key_exists($lang, $images)) {
+                                $mapper->setLangData($lang, 'image', $images[$lang]);
                             }
 
                         }
@@ -795,8 +864,6 @@ class HeroController extends AdminPanelController
 
         $selects[] = "{$table}.id";
         $selects[] = "{$table}.meta";
-        $selects[] = "{$table}.link";
-        $selects[] = "{$table}.image";
 
         $jsonExtractExists = ImageMapper::jsonExtractExistsMySQL();
 
@@ -805,9 +872,13 @@ class HeroController extends AdminPanelController
             if ($defaultLang == $currentLang) {
                 $selects[] = "{$table}.title";
                 $selects[] = "{$table}.description";
+                $selects[] = "{$table}.link";
+                $selects[] = "{$table}.image";
             } else {
                 $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.title') = 'null', {$table}.title, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.title'))) AS title";
                 $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.description') = 'null', {$table}.description, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.description'))) AS description";
+                $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.link') = 'null', {$table}.link, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.link'))) AS link";
+                $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.image') = 'null', {$table}.image, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.image'))) AS image";
             }
 
             $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.start_date'))) AS start_date";
@@ -835,6 +906,8 @@ class HeroController extends AdminPanelController
 
             $selects[] = "{$table}.title";
             $selects[] = "{$table}.description";
+            $selects[] = "{$table}.link";
+            $selects[] = "{$table}.image";
 
             $model->select($selects);
 
@@ -860,6 +933,8 @@ class HeroController extends AdminPanelController
                     if ($lang_data !== null) {
                         $result[$k]->title = $lang_data->title;
                         $result[$k]->description = $lang_data->description;
+                        $result[$k]->link = $lang_data->link;
+                        $result[$k]->image = $lang_data->image;
                     }
 
                 }

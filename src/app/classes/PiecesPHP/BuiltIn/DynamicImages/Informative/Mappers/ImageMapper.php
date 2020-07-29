@@ -168,6 +168,10 @@ class ImageMapper extends EntityMapperExtensible
                 return $this->title;
             } elseif ($property == 'description') {
                 return $this->description;
+            } elseif ($property == 'link') {
+                return $this->link;
+            } elseif ($property == 'image') {
+                return $this->image;
             }
 
             return null;

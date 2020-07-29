@@ -43,10 +43,14 @@ $action;
 
         <?php foreach(get_config('allowed_langs') as $lang): ?>
 
-        <div class="field required">
+        <div class="field">
             <label><?= __($langGroup, 'Título'); ?> (<?= $lang; ?>)</label>
-            <input required type="text" name="title[<?= $lang; ?>]" maxlength="55" value="<?= $element->getLangData($lang, 'title'); ?>">
+            <input type="text" name="title[<?= $lang; ?>]" maxlength="100" value="<?= $element->getLangData($lang, 'title'); ?>">
         </div>
+
+        <?php endforeach; ?>
+
+        <?php foreach(get_config('allowed_langs') as $lang): ?>
 
         <div class="field">
             <label><?= __($langGroup, 'Descripción'); ?> (<?= $lang; ?>)</label>
@@ -55,25 +59,35 @@ $action;
 
         <?php endforeach; ?>
 
+        <?php foreach(get_config('allowed_langs') as $lang): ?>
+
         <div class="field">
-            <label><?= __($langGroup, 'Enlace'); ?></label>
-            <input type="text" name="link" value="<?= $element->link; ?>">
+            <label><?= __($langGroup, 'Enlace'); ?> (<?= $lang; ?>)</label>
+            <input type="text" name="link[<?= $lang; ?>]" value="<?= $element->getLangData($lang, 'link'); ?>">
         </div>
 
-        <div class="ui form cropper-adapter" cropper-main-image>
+        <?php endforeach; ?>
 
-            <div class="field required">
-                <label><?= __($langGroup, 'Imagen'); ?></label>
+        <?php foreach(get_config('allowed_langs') as $lang): ?>
+
+        <br>
+
+        <div class="ui form cropper-adapter" cropper-adapter data-lang="<?= $lang; ?>">
+
+            <div class="field <?= $lang == get_config('default_lang') ? 'required' : ''; ?>">
+                <label><?= __($langGroup, 'Imagen'); ?> (<?= $lang; ?>)</label>
                 <input type="file" accept="image/*">
             </div>
 
             <?php $this->_render('panel/built-in/utilities/cropper/workspace.php', [
-				'referenceW' => '800',
-				'referenceH' => '600',
-				'image' => $element->image,
+				'referenceW' => '1400',
+				'referenceH' => '700',
+				'image' => $element->getLangData($lang, 'image'),
 			]); ?>
 
         </div>
+
+        <?php endforeach; ?>
 
         <br>
 

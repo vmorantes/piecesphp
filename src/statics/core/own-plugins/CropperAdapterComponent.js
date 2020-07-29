@@ -1381,7 +1381,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 
 		} else {
-			throw new Error(formatStr(_i18n('cropper', 'No existe ningún elemento con el selector %r.', [containerSelector])))
+			throw new Error(formatStr(_i18n('cropper', 'No existe ningún elemento con el selector %r.'), [containerSelector]))
 		}
 
 
