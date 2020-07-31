@@ -931,9 +931,9 @@ class HeroController extends AdminPanelController
                     $lang_data = isset($lang_data->$currentLang) ? $lang_data->$currentLang : null;
 
                     if ($lang_data !== null) {
-                        $result[$k]->title = $lang_data->title;
-                        $result[$k]->description = $lang_data->description;
-                        $result[$k]->link = $lang_data->link;
+                        $result[$k]->title = isset($lang_data->title) ? $lang_data->title : '';
+                        $result[$k]->description = isset($lang_data->description) ? $lang_data->description : '';
+                        $result[$k]->link = isset($lang_data->link) ? $lang_data->link : '';
                         $result[$k]->image = $lang_data->image;
                     }
 
