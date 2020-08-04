@@ -220,7 +220,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         $this->setVariables($data);
 
-        if ($file !== null) {
+        if (isset($file) && $file !== null) {
 
             $this->render($viewHeader);
             $this->render("pages/generic-views/{$file}");
