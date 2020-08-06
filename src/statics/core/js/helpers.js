@@ -668,9 +668,20 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 			configDataTable[option] = options[option]
 		}
 
+		if (typeof options.ajax !== 'undefined') {
+
+			configDataTable.ajax = options.ajax
+
+			if (typeof options.ajax.url == 'undefined') {
+				configDataTable.ajax.url = ajaxURL
+			}
+
+		} else {
+			configDataTable.ajax = ajaxURL
+		}
+
 		configDataTable.processing = true
 		configDataTable.serverSide = true
-		configDataTable.ajax = ajaxURL
 		configDataTable.pageLength = perPage
 
 		table.DataTable(configDataTable)
