@@ -15,12 +15,12 @@ $categories = (object) CategoryController::_all();
     </header>
     <ul>
         <li><a href="<?= PublicAreaController::routeName('index'); ?>"><?= __(LANG_GROUP, 'Página principal'); ?></a></li>
-        <li><a href="<?= genericViewRoute('about-us'); ?>"><?= __(LANG_GROUP, 'Sobre nosotros'); ?></a></li>
+        <li><a href="<?= genericViewRoute('about-us'); ?>"><?= __(LANG_GROUP, 'Quiénes somos'); ?></a></li>
         <li><a href="<?= genericViewRoute('tabs-sample'); ?>"><?= __(LANG_GROUP, 'Ejemplo de tabs'); ?></a></li>
         <li>
             <span class="opener"><?= __(LANG_GROUP, 'Blog'); ?></span>
             <ul>
-                <li><a href="<?= ArticleControllerPublic::routeName('list'); ?>"><?= __(LANG_GROUP, 'Todas las categorías'); ?></a></li>
+                <li><a href="<?= ArticleControllerPublic::routeName('list'); ?>"><?= __(LANG_GROUP, 'Categorías'); ?></a></li>
                 <?php foreach($categories as $category): ?>
                 <li>
                     <a href="<?= ArticleControllerPublic::routeName('list-by-category', ['category' => $category->friendly_url,]) ?>"><?= $category->name; ?></a>

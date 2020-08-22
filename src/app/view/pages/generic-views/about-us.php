@@ -14,11 +14,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <section class="vm-content-generic-views">
 
             <header class="main">
-                <h1><?= __(LANG_GROUP, 'Sobre nosotros'); ?></h1>
+                <h1><?= __(LANG_GROUP, 'Quiénes somos'); ?></h1>
             </header>
 
             <span class="image main">
-                <img loading="lazy" src="<?= baseurl('statics/images/generic-views/about-us.jpg'); ?>" alt="<?= __(LANG_GROUP, 'Sobre nosotros'); ?>" />
+                <img loading="lazy" src="<?= baseurl('statics/images/generic-views/about-us.jpg'); ?>" alt="<?= __(LANG_GROUP, 'Quiénes somos'); ?>" />
             </span>
 
             <p><?= __(LANG_GROUP, 'ABOUT_TEXT'); ?></p>

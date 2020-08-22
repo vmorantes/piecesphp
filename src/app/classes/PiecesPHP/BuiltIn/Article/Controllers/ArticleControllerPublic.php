@@ -113,7 +113,7 @@ class ArticleControllerPublic extends BaseController
             'statics/js/template.js',
         ], 'js');
 
-        set_title(__(LANG_GROUP, 'Listado de publicaciones'));
+        set_title(__(LANG_GROUP, 'Publicaciones'));
 
         $titleSection = __(LANG_GROUP, 'Publicaciones');
 
