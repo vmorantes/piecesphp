@@ -171,7 +171,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 'title' => __(LANG_GROUP, 'Ejemplo de tabs'),
             ],
             'about-us' => [
-                'title' => __(LANG_GROUP, 'Sobre nosotros'),
+                'title' => __(LANG_GROUP, 'Quiénes somos'),
             ],
         ];
 

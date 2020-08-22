@@ -269,12 +269,12 @@ $lang = [
         'Modificado'                                                         => 'Modificado',
     ],
     'articlesFrontEnd' => [
-        'Cargar más'               => 'Cargar más',
-        'Contenido'                => 'Contenido',
-        'Noticias relacionadas'    => 'Noticias relacionadas',
-        'URL'                      => 'URL',
-        'Listado de publicaciones' => 'Listado de publicaciones',
-        'Listado de categorías'    => 'Listado de categorías',
+        'Cargar más'            => 'Cargar más',
+        'Contenido'             => 'Contenido',
+        'Noticias relacionadas' => 'Noticias relacionadas',
+        'URL'                   => 'URL',
+        'Publicaciones'         => 'Publicaciones',
+        'Listado de categorías' => 'Listado de categorías',
     ],
     'page404' => [
         '404 - Página no encontrada'                                     => '404 - Página no encontrada',
