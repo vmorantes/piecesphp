@@ -9,11 +9,7 @@
         <?php endif;?>
 
         <!-- Section -->
-        <section class="vm-content-generic-views">
-
-            <header class="major">
-                <h2><?= $titleSection; ?></h2>
-            </header>
+        <section>
 
             <div class="posts" built-in-articles-items-js built-in-articles-url="<?= $ajaxURL; ?>">
             </div>

@@ -71,8 +71,6 @@ class ArticleControllerPublic extends BaseController
 
         $this->init();
 
-        clear_global_assets();
-        clear_assets_imports();
         import_jquery();
         import_app_libraries();
         add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');

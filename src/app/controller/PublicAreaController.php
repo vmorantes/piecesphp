@@ -65,8 +65,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         $this->init();
 
-        clear_assets_imports();
-        clear_global_assets();
         import_jquery();
         import_izitoast();
         import_app_libraries();
@@ -85,7 +83,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     public function indexView(Request $req, Response $res, array $args)
     {
 
-        set_title(__(LANG_GROUP, 'Página principal'));
+        set_title(__(LANG_GROUP, 'Home'));
 
         set_custom_assets([
             'statics/css/main.css',

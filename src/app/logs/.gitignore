@@ -1,2 +1,4 @@
-**/*
+olds/*
+!olds/.keep
+**/*.json
 !.gitignore

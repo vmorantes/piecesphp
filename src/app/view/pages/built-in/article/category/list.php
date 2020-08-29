@@ -9,11 +9,7 @@
         <?php endif;?>
 
         <!-- Section -->
-        <section class="vm-content-generic-views">
-
-            <header class="major">
-                <h2><?= __(LANG_GROUP, 'Categorías'); ?></h2>
-            </header>
+        <section>
 
             <ul built-in-categories-items-js built-in-categories-url="<?= $ajaxURL; ?>"></ul>
 
