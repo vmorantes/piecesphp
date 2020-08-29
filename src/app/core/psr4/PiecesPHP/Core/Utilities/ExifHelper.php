@@ -34,7 +34,7 @@ class ExifHelper
      */
     public function __construct(string $file)
     {
-        $this->exifData = exif_read_data($file, null);
+        $this->exifData = $this->convertArrayToUTF8(exif_read_data($file, null));
     }
 
     /**
@@ -275,6 +275,32 @@ class ExifHelper
 
         return $number;
 
+    }
+
+    /**
+     * convertArrayToUTF8
+     *
+     * @param array $array
+     * @return array
+     */
+    public function convertArrayToUTF8(array $array)
+    {
+
+        foreach ($array as $index => $element) {
+
+            $fixValue = $element;
+
+            if (is_string($element)) {
+                $fixValue = mb_convert_encoding($element, 'UTF-8', 'UTF-8');
+            } elseif (is_array($element)) {
+                $fixValue = $this->convertArrayToUTF8($element);
+            }
+
+            $array[$index] = $fixValue;
+
+        }
+
+        return $array;
     }
 
     /**

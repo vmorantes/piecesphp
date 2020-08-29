@@ -268,7 +268,7 @@ class FileValidator
         $file_info = finfo_open(\FILEINFO_MIME_TYPE);
 
         $mime_type = finfo_file($file_info, $file);
-        $extension = pathinfo($basename, \PATHINFO_EXTENSION);
+        $extension = @mb_strtolower(pathinfo($basename, \PATHINFO_EXTENSION));
         $filesize = filesize($file) / 1000 / 1000;
 
         finfo_close($file_info);
