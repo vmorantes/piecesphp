@@ -6,6 +6,7 @@
 namespace App\Model;
 
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 
 /**
  * UsersModel.
@@ -489,6 +490,90 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
+     * getUsersByType
+     *
+     * @param int $type
+     * @param int[] $ignoreIDs
+     * @return \stdClass[]
+     */
+    public static function getUsersByType(int $type, array $ignoreIDs = [])
+    {
+
+        $model = (new static())->getModel();
+
+        $where = [
+            "type = {$type}",
+        ];
+
+        if (count($ignoreIDs) > 0) {
+
+            $ignoreIDs = implode(', ', $ignoreIDs);
+            $where[] = "AND id NOT IN ({$ignoreIDs})";
+        }
+
+        $model->select()->where(implode(' ', $where));
+
+        $model->execute();
+
+        return $model->result();
+
+    }
+
+    /**
+     * getUsersByTypes
+     *
+     * @param int[] $types
+     * @param int[] $ignoreIDs
+     * @return \stdClass[]
+     */
+    public static function getUsersByTypes(array $types, array $ignoreIDs = [])
+    {
+
+        $model = (new static())->getModel();
+
+        $where = [
+            '(type = ' . implode(' OR type = ', $types) . ')',
+        ];
+
+        if (count($ignoreIDs) > 0) {
+
+            $ignoreIDs = implode(', ', $ignoreIDs);
+            $where[] = "AND id NOT IN ({$ignoreIDs})";
+        }
+
+        $model->select()->where(implode(' ', $where));
+
+        $model->execute();
+
+        return $model->result();
+
+    }
+
+    /**
+     * getUsersByIDs
+     *
+     * @param int[] $ids
+     * @return \stdClass[]
+     */
+    public static function getUsersByIDs(array $ids = [])
+    {
+
+        $model = (new static())->getModel();
+
+        $ids = count($ids) > 0 ? implode(', ', $ids) : -1;
+        $where = [
+            "id IN ({$ids})",
+        ];
+
+        $model->select()->where(implode(' ', $where));
+
+        $model->execute();
+
+        return $model->result();
+
+    }
+
+    /**
      * getTypesUser
      *
      * @return array
@@ -582,4 +667,15 @@ class UsersModel extends BaseEntityMapper
 
         return count($model->result()) > 0;
     }
+
+    /**
+     * model
+     *
+     * @return ActiveRecordModel
+     */
+    public static function model()
+    {
+        return (new static())->getModel();
+    }
+
 }
