@@ -29,6 +29,7 @@ defined('BASEPATH') or die();
 date_default_timezone_set('America/Bogota');
 
 $config['default_lang'] = "es";
+$config['title_app'] = "App Title";
 $config['base_url'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
 $config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . "/" . mb_substr($config['base_url'], 1);
 

@@ -1473,7 +1473,7 @@ function formatDate(date, format) {
 	let G = hour
 	let h = g < 10 ? `0${g}` : g
 	let H = G < 10 ? `0${G}` : G
-	let A = hour > 12 ? 'PM' : 'AM'
+	let A = hour >= 12 ? 'PM' : 'AM'
 
 	let i = parseInt(date.getMinutes())
 	i = i < 10 ? `0${i}` : i
