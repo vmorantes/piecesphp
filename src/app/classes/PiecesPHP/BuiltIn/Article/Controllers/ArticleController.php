@@ -401,6 +401,8 @@ class ArticleController extends AdminPanelController
                         $eMapper = new ArticleViewMapper($e->sub_id);
                         $i = $eMapper->getBasicData();
                         $i->title = htmlentities($eMapper->title);
+                        $i->content = htmlentities($eMapper->content);
+                        $i->seo_description = htmlentities($eMapper->seo_description);
                         $i->category->name = htmlentities(stripslashes($i->category->name));
                         return $i;
                     }, $data);
@@ -906,6 +908,8 @@ class ArticleController extends AdminPanelController
                     $eMapper = new ArticleViewMapper($e->sub_id);
                     $i = $eMapper->getBasicData();
                     $i->title = htmlentities($eMapper->title);
+                    $i->content = htmlentities($eMapper->content);
+                    $i->seo_description = htmlentities($eMapper->seo_description);
                     $i->category->name = htmlentities(stripslashes($i->category->name));
                     return $i;
                 }, $data);

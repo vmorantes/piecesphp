@@ -35,6 +35,10 @@ class BaseController
      */
     public function __construct(bool $auto_model = true, string $group_database_model = 'default', $system_models = false)
     {
+
+        clear_global_assets();
+        clear_assets_imports();
+
         $this->setConfig(array(
             "extension" => ".php",
         ));
