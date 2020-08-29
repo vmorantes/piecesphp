@@ -68,8 +68,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         import_jquery();
         import_izitoast();
         import_app_libraries();
-
-        set_title('');
     }
 
     /**
