@@ -38,6 +38,7 @@ class BaseController
 
         clear_global_assets();
         clear_assets_imports();
+        set_title('');
 
         $this->setConfig(array(
             "extension" => ".php",
