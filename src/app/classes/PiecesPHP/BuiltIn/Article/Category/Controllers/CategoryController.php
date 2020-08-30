@@ -795,7 +795,11 @@ class CategoryController extends AdminPanelController
     {
         $namePrefix .= '-' . $uriPrefix;
         $startRoute .= $uriPrefix;
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $all_roles = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_GENERAL,
+        ];
 
         $routes = [
             new Route(

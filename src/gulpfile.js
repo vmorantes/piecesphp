@@ -14,7 +14,6 @@ var watchingPiecesPHPSassFiles = {
 	],
 	general: [
 		'./statics/core/sass/**/*.scss',
-		'./statics/core/sass/components/**/*.scss',
 	],
 	users: [
 		'./statics/login-and-recovery/sass/**/*.scss',
@@ -30,7 +29,7 @@ var compilePiecesPHPSassFiles = {
 		'./statics/core/own-plugins/sass/**/*.scss',
 	],
 	general: [
-		'./statics/core/sass/ui-pcs.scss',
+		'./statics/core/sass/**/*.scss',
 	],
 	users: [
 		'./statics/login-and-recovery/sass/**/*.scss',

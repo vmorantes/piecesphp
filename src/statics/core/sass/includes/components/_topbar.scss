@@ -1,6 +1,4 @@
-@import '../colors';
-@import '../sizes';
-.ui-pcs.topbar {
+.#{$globalClassPcs}.topbar {
     background-color: white;
     display: grid;
     grid-template-columns: 280px auto 210px;

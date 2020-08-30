@@ -132,6 +132,11 @@ $assets['quilljs']['plugins'] = [
             'statics/plugins/quilljs/plugins/image-resize.min.js',
         ],
     ],
+    'videoResize' => [
+        'js' => [
+            'statics/plugins/quilljs/plugins/video-resize.min.js',
+        ],
+    ],
     'adapter' => [
         'js' => [
             'statics/plugins/tidy-html5/tidy.js',

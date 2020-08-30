@@ -107,7 +107,7 @@ class BlackboardNewsController extends AdminPanelController
 
         $types = Roles::getRolesIdentifiers(true);
 
-        import_quilljs(['imageUpload', 'imageResize']);
+        import_quilljs(['videoResize', 'imageResize']);
 
         $this->render(ADMIN_PATH_VIEWS . '/layout/header');
         $this->render(BLACKBOARD_NEWS_PATH_VIEWS . '/create', [
@@ -136,7 +136,7 @@ class BlackboardNewsController extends AdminPanelController
 
         if (!is_null($new->id)) {
 
-            import_quilljs(['imageUpload', 'imageResize']);
+            import_quilljs(['videoResize', 'imageResize']);
 
             $this->render(ADMIN_PATH_VIEWS . '/layout/header');
             $this->render(BLACKBOARD_NEWS_PATH_VIEWS . '/edit', [

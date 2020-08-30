@@ -1,7 +1,5 @@
-@import '../colors';
-@import '../sizes';
-.ui-pcs.button,
-a.ui-pcs.button {
+.#{$globalClassPcs}.button,
+a.#{$globalClassPcs}.button {
     cursor: pointer;
     font-size: 1rem;
     font-family: 'Quicksand', sans-serif;

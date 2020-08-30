@@ -1248,41 +1248,26 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 
 	function showLoader() {
 		if (typeof CustomNamespace == 'undefined') {
-			loader = $(
-				`
-					<div class="ui-pcs-activity-loader">
-						<div loader></div>
-					</div>
-				`
-			)
-			loader.css({
-				"position": `fixed`,
-				"z-index": `1000`,
-				"top": `0px`,
-				"left": `0px`,
-				"display": `block`,
-				"width": `100%`,
-				"height": `100%`,
-				"background-color": `rgba(255, 255, 255, 0.4)`,
-			})
-			loader.find('[loader]').css({
-				"position": `fixed`,
-				"top": `50%`,
-				"left": `50%`,
-				"transform": `translate(-50%,-50%)`,
-				"display": `block`,
-				"width": `300px`,
-				"max-width": `100%`,
-				"height": `100px`,
-			})
 
-			$(document.body).append(loader)
+			name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
 
-			NProgress.configure({
-				parent: `.ui-pcs-activity-loader [loader]`
-			})
+			let contentLoader = document.createElement('div')
+			let boxLoader = document.createElement('div')
+			let loader = document.createElement('div')
 
-			NProgress.start()
+			contentLoader.classList.add('ui-pcs-global-loader', 'active')
+			boxLoader.classList.add('ui-pcs-box')
+			loader.classList.add('ui-pcs-loader')
+
+			contentLoader.setAttribute('form-handler-data-name', name)
+
+			let currentActive = document.querySelector(`.ui-pcs-global-loader[form-handler-data-name="${name}"]`)
+
+			if (!(currentActive instanceof HTMLElement)) {
+				boxLoader.appendChild(loader)
+				contentLoader.appendChild(boxLoader)
+				document.body.appendChild(contentLoader)
+			}
 
 		} else {
 			CustomNamespace.loader('genericFormHandler')
@@ -1292,9 +1277,22 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	function removeLoader() {
 		if (typeof CustomNamespace == 'undefined') {
 			setTimeout(function () {
-				NProgress.done()
-				if (loader instanceof $) {
-					loader.remove()
+				name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
+
+				let contentLoader = document.createElement('div')
+				let boxLoader = document.createElement('div')
+				let loader = document.createElement('div')
+
+				contentLoader.classList.add('ui-pcs-global-loader', 'active')
+				boxLoader.classList.add('ui-pcs-box')
+				loader.classList.add('ui-pcs-loader')
+
+				contentLoader.setAttribute('form-handler-data-name', name)
+
+				let currentActive = document.querySelector(`.ui-pcs-global-loader[form-handler-data-name="${name}"]`)
+
+				if (currentActive instanceof HTMLElement) {
+					currentActive.remove()
 				}
 			}, 500)
 		} else {
@@ -1315,49 +1313,25 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
  */
 function showGenericLoader(name = 'DEFAULT') {
 
-	if (typeof window.uiPcsActivityGenericLoader != 'object') {
-		window.uiPcsActivityGenericLoader = {}
+	name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
+
+	let contentLoader = document.createElement('div')
+	let boxLoader = document.createElement('div')
+	let loader = document.createElement('div')
+
+	contentLoader.classList.add('ui-pcs-global-loader', 'active')
+	boxLoader.classList.add('ui-pcs-box')
+	loader.classList.add('ui-pcs-loader')
+
+	contentLoader.setAttribute('data-name', name)
+
+	let currentActive = document.querySelector(`.ui-pcs-global-loader[data-name="${name}"]`)
+
+	if (!(currentActive instanceof HTMLElement)) {
+		boxLoader.appendChild(loader)
+		contentLoader.appendChild(boxLoader)
+		document.body.appendChild(contentLoader)
 	}
-
-	window.uiPcsActivityGenericLoader[name] = {
-		html: $(
-			`
-				<div class="ui-pcs-activity-loader">
-					<div loader>
-						<div class="ui loader active"></div>
-					</div>
-				</div>
-			`
-		),
-		active: true,
-	}
-
-	window.uiPcsActivityGenericLoader[name].html.css({
-		"position": `fixed`,
-		"z-index": `1000`,
-		"top": `0px`,
-		"left": `0px`,
-		"display": `block`,
-		"width": `100%`,
-		"height": `100%`,
-		"background-color": `rgba(255, 255, 255, 0.4)`,
-	})
-	window.uiPcsActivityGenericLoader[name].html.find('[loader]').css({
-		"position": `fixed`,
-		"top": `50%`,
-		"left": `50%`,
-		"transform": `translate(-50%,-50%)`,
-		"display": `block`,
-		"width": `300px`,
-		"max-width": `100%`,
-		"height": `100px`,
-	})
-
-	window.uiPcsActivityGenericLoader[name].html.attr('data-name', name)
-
-	$(document.body).append(window.uiPcsActivityGenericLoader[name].html)
-
-	window.uiPcsActivityGenericLoader[name].html = $(document.body).find(`.ui-pcs-activity-loader[data-name="${name}"]`)
 
 }
 
@@ -1370,16 +1344,22 @@ function showGenericLoader(name = 'DEFAULT') {
  */
 function removeGenericLoader(name = 'DEFAULT') {
 
-	if (typeof window.uiPcsActivityGenericLoader == 'object') {
-		if (typeof window.uiPcsActivityGenericLoader[name] == 'object') {
-			let timeout = function () {
-				if (window.uiPcsActivityGenericLoader[name].html instanceof $) {
-					window.uiPcsActivityGenericLoader[name].html.remove()
-					window.uiPcsActivityGenericLoader[name].active = false
-				}
-			}
-			setTimeout(timeout, 500)
-		}
+	name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
+
+	let contentLoader = document.createElement('div')
+	let boxLoader = document.createElement('div')
+	let loader = document.createElement('div')
+
+	contentLoader.classList.add('ui-pcs-global-loader', 'active')
+	boxLoader.classList.add('ui-pcs-box')
+	loader.classList.add('ui-pcs-loader')
+
+	contentLoader.setAttribute('data-name', name)
+
+	let currentActive = document.querySelector(`.ui-pcs-global-loader[data-name="${name}"]`)
+
+	if (currentActive instanceof HTMLElement) {
+		currentActive.remove()
 	}
 
 }
