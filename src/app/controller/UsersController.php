@@ -119,8 +119,6 @@ class UsersController extends AdminPanelController
     /** @ignore */
     public function __construct()
     {
-        parent::__construct();
-
         $this->mapper = new UsersModel();
         $this->model = $this->mapper->getModel();
 
@@ -131,6 +129,8 @@ class UsersController extends AdminPanelController
         $this->setVariables($global_variables);
 
         $this->token_controller = new TokenController();
+
+        parent::__construct();
     }
 
     /**
