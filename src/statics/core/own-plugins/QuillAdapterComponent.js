@@ -1,3 +1,4 @@
+/// <reference path="../../core/js/helpers.js" />
 /**
  * @function QuillAdapterComponent
  * 
@@ -138,6 +139,8 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 	 */
 	function instantiate(quillAdapterOptions) {
 
+		showGenericLoader('QuillAdapterComponent')
+
 		try {
 
 			configs(quillAdapterOptions)
@@ -145,14 +148,6 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 			toolbarOptions = Array.isArray(toolbar) ? toolbar : toolbarDefault
 			component = $(containerSelector)
 			textareaTarget = $(textareaTargetSelector)
-
-			//Estilos component
-			component.css({
-				position: 'relative',
-				minHeight: '500px',
-				maxHeight: '500px',
-				overflowY: 'auto',
-			})
 
 			//Ocultar textarea
 			textareaTarget.css({
@@ -165,6 +160,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 				opacity: '0',
 			})
 
+			//Verificar que el selector no esté en uso por otra instancia de Quill
 			if (component.length !== 1 || textareaTarget.length < 1) {
 				throw new Error(_i18n('quill', 'Falta(n) el componente o el textarea en el DOM.'))
 			} else {
@@ -181,6 +177,8 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 			}
 
 			instantiateQuill()
+
+			removeGenericLoader('QuillAdapterComponent')
 
 		} catch (error) {
 
@@ -242,6 +240,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 				toolbar: toolbarOptions,
 				imageUpload: imageUploadModuleOptions(),
 				imageResize: imageResizeModuleOptions(),
+				videoResize: videoResizeModuleOptions(),
 			}
 		})
 
@@ -260,6 +259,13 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 			}
 
+		})
+
+		//Aplicar estilos de tamaño al contenedor editable
+		let qlEditor = component.find('.ql-editor')
+		qlEditor.css({
+			minHeight: '500px',
+			maxHeight: '500px',
 		})
 
 		let toolbarModule = quillInstance.getModule('toolbar')
@@ -321,6 +327,17 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 		let imageResizeModule = {}
 
 		return imageResizeModule
+
+	}
+
+	/**
+	 * @function videoResizeModuleOptions
+	 */
+	function videoResizeModuleOptions() {
+
+		let videoResize = {}
+
+		return videoResize
 
 	}
 
@@ -432,10 +449,9 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 			buttonFinish.on('click', function () {
 
-				let html = textarea.val().trim()
-				html = html.replace(/(\r|\n|\t)*/gmi, '')
+				let html = textarea.val()
 
-				quillInstance.pasteHTML(html.trim())
+				quillInstance.pasteHTML(html)
 
 				modalEditor.hide(500, () => {
 					modalEditor.remove()
@@ -450,7 +466,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 	instantiate(quillAdapterOptions)
 
-	return this
+	return instance
 }
 
 QuillAdapterComponent.componentsSelectors = []
@@ -618,11 +634,11 @@ QuillAdapterComponent.imageUploadModule = function (quill, options = {}) {
 
 QuillAdapterComponent.BlotsConfig = function () {
 
+	const BlotsBlockEmbed = Quill.import('blots/block/embed')
+
 	function imageBlot() {
 
-		let BlockEmbed = Quill.import('blots/block/embed')
-
-		class ImageBlot extends BlockEmbed {
+		class ImageBlot extends BlotsBlockEmbed {
 			static create(value) {
 
 				let node = super.create()
@@ -676,7 +692,7 @@ QuillAdapterComponent.AttributtorsConfig = function () {
 
 			}
 
-			remove(node) {	
+			remove(node) {
 
 				if (node instanceof HTMLElement) {
 

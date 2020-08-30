@@ -894,3 +894,6 @@
 .ql-container.ql-snow {
   border: 1px solid #ccc;
 }
+.ql-editor iframe {
+    pointer-events: none;
+}

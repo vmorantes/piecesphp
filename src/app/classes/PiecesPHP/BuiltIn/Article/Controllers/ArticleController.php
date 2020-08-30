@@ -155,7 +155,7 @@ class ArticleController extends AdminPanelController
         $data['lang'] = $lang;
         $data['title'] = self::$title;
 
-        import_quilljs(['imageResize']);
+        import_quilljs(['videoResize', 'imageResize']);
         import_cropper();
 
         $this->render('panel/layout/header');
@@ -215,7 +215,7 @@ class ArticleController extends AdminPanelController
             $data['quill_proccesor_link'] = $quill_proccesor_link;
             $data['title'] = self::$title;
 
-            import_quilljs(['imageResize']);
+            import_quilljs(['videoResize', 'imageResize']);
             import_cropper();
 
             $this->render('panel/layout/header');
@@ -1312,7 +1312,11 @@ class ArticleController extends AdminPanelController
     {
         $namePrefix .= '-' . $uriPrefix;
         $startRoute .= $uriPrefix;
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $all_roles = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_GENERAL,
+        ];
 
         $routes = [
             new Route(

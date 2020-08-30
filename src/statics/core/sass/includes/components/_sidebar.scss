@@ -1,7 +1,4 @@
-@import '../colors';
-@import '../sizes';
-
-.ui-pcs.sidebar-toggle {
+.#{$globalClassPcs}.sidebar-toggle {
     display: none;
     font-family: $font-family-first;
 
@@ -31,7 +28,7 @@
     }
 }
 
-.ui-pcs.sidebar {
+.#{$globalClassPcs}.sidebar {
     position: relative;
     display: block;
     margin: 0px 0px;

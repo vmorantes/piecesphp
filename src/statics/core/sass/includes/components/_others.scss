@@ -1,9 +1,7 @@
-@import '../colors';
-@import '../sizes';
 //-------- Párrafos descriptivos
 .section-description {
-    &.ui-pcs,
-    .ui-pcs & {
+    &.#{$globalClassPcs},
+    .#{$globalClassPcs} & {
         max-width: 50rem;
         text-align: left;
     }
@@ -11,8 +9,8 @@
 
 //-------- Vista de formulario de usuarios
 .user-form-component {
-    &.ui-pcs,
-    .ui-pcs & {
+    &.#{$globalClassPcs},
+    .#{$globalClassPcs} & {
         //Items de los tabs
         .items-pointing {
             .item {

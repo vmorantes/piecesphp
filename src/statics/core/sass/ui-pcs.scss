@@ -1,6 +1,9 @@
-@import 'fonts';
-@import 'functions';
-@import 'components';
+@import 'includes/variables';
+@import 'includes/fonts';
+@import 'includes/functions';
+@import 'includes/colors';
+@import 'includes/sizes';
+@import 'includes/components';
 
 * {
     box-sizing: border-box;
@@ -19,7 +22,7 @@ body {
     overflow-x: hidden;
 }
 
-.ui-pcs {
+.#{$globalClassPcs} {
     font-size: $html-font-size;
     color: $color-fourth;
 }
@@ -44,14 +47,15 @@ h4,
 h5,
 h6 {
 
-    .ui-pcs &.text-reading,
-    &.text-reading.ui-pcs {
+    .#{$globalClassPcs} &.text-reading,
+    &.text-reading.#{$globalClassPcs} {
         font-family: $font-family-second;
         font-weight: 400;
     }
 }
 
 .dev-css-mode {
+
     &,
     * {
         background: rgba(255, 0, 0, .1);
@@ -62,8 +66,8 @@ h6 {
 //Link
 a {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         display: inline-block;
         color: $color-fourth;
         transition: 0.5s all ease;
@@ -84,8 +88,8 @@ a {
 //Headers
 h1 {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         font-weight: 700;
         font-size: $h1-font-size;
         color: $text-header-1;
@@ -96,8 +100,8 @@ h1 {
 
 h2 {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         font-weight: 700;
         font-size: $h2-font-size;
         color: $text-header-2;
@@ -107,8 +111,8 @@ h2 {
 
 h3 {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         font-weight: 400;
         font-size: $h3-font-size;
         color: $text-header-3;
@@ -120,8 +124,8 @@ h4,
 h5,
 h6 {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         font-weight: 700;
         font-size: $h4-font-size;
         color: $text-header-3;
@@ -132,8 +136,8 @@ h6 {
 //Paragraph
 p {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         font-family: $p-font-family;
         text-align: left;
         font-size: $p-font-size;
@@ -148,8 +152,8 @@ p {
 ul,
 ol {
 
-    .ui-pcs &.pcs-list,
-    &.list.ui-pcs {
+    .#{$globalClassPcs} &.pcs-list,
+    &.list.#{$globalClassPcs} {
         font-family: $list-font-family;
         text-align: left;
         font-size: $list-font-size;
@@ -223,8 +227,8 @@ img {
 
 .image {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         max-width: $p-max-width;
         text-align: left;
 
@@ -240,14 +244,14 @@ blockquote,
 p.cita,
 p.quote {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         font-size: $quote-font-size;
         line-height: $quote-line-height;
         color: $text-quote;
         text-align: center;
-		margin-top: $quote-margin-top;
-		max-width: $quote-max-width;
+        margin-top: $quote-margin-top;
+        max-width: $quote-max-width;
         $quote-padding: 3% 10% 0% 10%;
         $quote-border-top: 1px solid $color-first;
         $quote-border-bottom: 1px solid $color-first;
@@ -255,10 +259,10 @@ p.quote {
 }
 
 //Footer
-footer.ui-pcs {
+footer.#{$globalClassPcs} {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         display: flex;
         align-content: center;
         padding: 10px 15px;
@@ -275,8 +279,58 @@ footer.ui-pcs {
 
 .container-medium {
 
-    .ui-pcs &,
-    &.ui-pcs {
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
         max-width: 1200px;
     }
+}
+
+.#{$globalClassPcs}-global-loader {
+
+    position: fixed;
+    z-index: 1000;
+    top: 0px;
+    left: 0px;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.85);
+
+    &.active {
+        display: block;
+    }
+
+    .#{$globalClassPcs}-box {
+
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: block;
+        width: 300px;
+        max-width: max-content;
+        max-height: max-content;
+
+
+        .#{$globalClassPcs}-loader {
+            border: 16px solid transparentize($color-third, 0.5);
+            border-top: 16px solid $color-second;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite !important;
+        }
+
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
 }

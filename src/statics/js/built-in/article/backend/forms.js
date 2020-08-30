@@ -1,3 +1,4 @@
+showGenericLoader('form-article-view')
 window.addEventListener('load', () => {
 
 	$('.ui.top.attached.tabular.menu .item').tab({
@@ -89,4 +90,6 @@ window.addEventListener('load', () => {
 		nameOnRequest: 'image',
 	})
 
+	removeGenericLoader('form-article-view')
+	
 })
