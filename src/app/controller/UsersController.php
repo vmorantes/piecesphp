@@ -119,6 +119,11 @@ class UsersController extends AdminPanelController
     /** @ignore */
     public function __construct()
     {
+
+        $this->token_controller = new TokenController();
+
+        parent::__construct();
+
         $this->mapper = new UsersModel();
         $this->model = $this->mapper->getModel();
 
@@ -127,10 +132,6 @@ class UsersController extends AdminPanelController
         $global_variables = $this->getGlobalVariables();
         $global_variables['requested_uri'] = isset($flash['requested_uri']) ? $flash['requested_uri'] : '';
         $this->setVariables($global_variables);
-
-        $this->token_controller = new TokenController();
-
-        parent::__construct();
     }
 
     /**
