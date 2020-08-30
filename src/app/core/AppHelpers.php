@@ -81,7 +81,7 @@ function get_title(bool $appendTitleApp = false, string $separator = null, bool 
  */
 function set_title(string $title)
 {
-    return set_config('title', $title);
+    return strlen($title) > 0 ? set_config('title', $title) : set_config('title', false);
 }
 
 /**

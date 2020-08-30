@@ -38,6 +38,35 @@ class TasksManager
             }
         }
 
+        if (count(explode('-', $params['task'])) > 0) {
+
+            $taskName = explode('-', $params['task']);
+            $isFirstWord = true;
+
+            foreach ($taskName as $k => $i) {
+
+                if ($isFirstWord) {
+                    $taskName[$k] = mb_strtolower($i);
+                    $isFirstWord = false;
+                } else {
+                    $i = mb_strtolower($i);
+                    $iStrlen = mb_strlen($i);
+                    if ($iStrlen > 1) {
+                        $iFirstChar = mb_substr($i, 0, 1);
+                        $iThen = mb_substr($i, 1, $iStrlen - 1);
+                        $i = mb_strtoupper($iFirstChar) . $iThen;
+                    } else {
+                        $i = mb_strtoupper($i);
+                    }
+                    $taskName[$k] = $i;
+                }
+
+            }
+
+            $params['task'] = implode('', $taskName);
+
+        }
+
         if (isset($params['task']) && is_string($params['task'])) {
 
             $task = $params['task'];
@@ -53,6 +82,7 @@ class TasksManager
             echo "- bundle [zip=yes|no] [verbose=yes|no] \r\n";
             echo "- srcChmod [verbose=yes|no] \r\n";
             echo "- langsToExcels \r\n";
+            echo "- sqlFromMapper name=MAPPER_NAME \r\n";
             echo "\r\n";
         }
     }
