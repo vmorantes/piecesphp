@@ -234,6 +234,9 @@ class UsersController extends AdminPanelController
      */
     public function loginForm(Request $request, Response $response, array $args)
     {
+
+        set_title(str_replace('.', '', __('general', 'loging')));
+
         /* JQuery */
         import_jquery();
         /* Semantic */

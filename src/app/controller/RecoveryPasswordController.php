@@ -26,6 +26,7 @@ use \Slim\Http\Response as Response;
  */
 class RecoveryPasswordController extends UsersController
 {
+    const LANG_GROUP = 'revoveryPasswordModule';
 
     /**
      * $userMapper
@@ -53,6 +54,9 @@ class RecoveryPasswordController extends UsersController
      */
     public function recoveryPasswordForm(Request $request, Response $response, array $args)
     {
+
+        set_title(__(self::LANG_GROUP, 'Recuperación de contraseña'));
+
         /* JQuery */
         import_jquery();
         /* Semantic */

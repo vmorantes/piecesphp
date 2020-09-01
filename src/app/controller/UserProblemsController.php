@@ -27,6 +27,7 @@ class UserProblemsController extends UsersController
 {
     const TYPE_USER_FORGET = 'TYPE_USER_FORGET';
     const TYPE_USER_BLOCKED = 'TYPE_USER_BLOCKED';
+    const LANG_GROUP = 'usersProblems';
 
     /**
      * $userMapper
@@ -55,6 +56,8 @@ class UserProblemsController extends UsersController
     public function userProblemsList(Request $request, Response $response, array $args)
     {
 
+        set_title(__(self::LANG_GROUP, 'Solución a problemas de ingreso'));
+
         /* JQuery */
         import_jquery();
         /* Semantic */
@@ -82,6 +85,9 @@ class UserProblemsController extends UsersController
      */
     public function userForgetForm(Request $request, Response $response, array $args)
     {
+
+        set_title(__(self::LANG_GROUP, 'No recuerdo mi usuario'));
+
         /* JQuery */
         import_jquery();
         /* Semantic */
@@ -116,6 +122,9 @@ class UserProblemsController extends UsersController
      */
     public function userBlockedForm(Request $request, Response $response, array $args)
     {
+
+        set_title(__(self::LANG_GROUP, 'Desbloquear mi usuario'));
+
         /* JQuery */
         import_jquery();
         /* Semantic */
@@ -150,6 +159,9 @@ class UserProblemsController extends UsersController
      */
     public function otherProblemsForm(Request $request, Response $response, array $args)
     {
+
+        set_title(__(self::LANG_GROUP, 'Creación de solicitud de soporte'));
+
         /* JQuery */
         import_jquery();
         /* Semantic */
