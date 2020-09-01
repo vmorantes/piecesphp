@@ -77,7 +77,7 @@ use App\Controller\ContactFormsController;
 <!-- Scripts -->
 <?php load_js(['base_url' => "", 'custom_url' => ""]) ?>
 <?php if(!isset($withContactFormGlobal) || $withContactFormGlobal === true): ?>
-<script src="<?= baseurl('statics/js/contact-form.js'); ?>"></script>
+<script src="<?= baseurl('statics/js/contact/contact-form.js'); ?>"></script>
 <?php endif;?>
 </body>
 

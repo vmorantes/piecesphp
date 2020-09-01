@@ -1,0 +1,26 @@
+// Template.
+@import 'default-template-front-end/template';
+
+.padding-10 {
+    padding: 10px;
+}
+
+.featured-sidebar-image {
+
+    transition: all 0.5s ease;
+
+    &:hover {
+        filter: blur(2px);
+    }
+
+    a {
+        text-decoration: none;
+        outline: none;
+        border: none;
+    }
+
+    &,
+    img {
+        max-width: 100%;
+    }
+}

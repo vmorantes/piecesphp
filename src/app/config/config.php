@@ -28,10 +28,24 @@ defined('BASEPATH') or die();
 
 date_default_timezone_set('America/Bogota');
 
-$config['default_lang'] = "es";
-$config['title_app'] = "Nombre Plataforma";
 $config['base_url'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
 $config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . "/" . mb_substr($config['base_url'], 1);
+
+$config['default_lang'] = "es";
+
+$config['title_app'] = "Nombre Plataforma";
+$config['owner'] = "Nombre Plataforma";
+
+$config['keywords'] = [
+    'Website',
+    'Application',
+];
+$config['meta_theme_color'] = "#13436C";
+
+$config['description'] = "Descripción de la página.";
+
+$config['osTicketAPI'] = "";
+$config['osTicketAPIKey'] = "";
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 

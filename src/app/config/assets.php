@@ -194,7 +194,9 @@ $assets['jquery']['plugins'] = [];
  * Configuraciones de los plugins anteriores tales como:
  * Traducción de mensajes, configuración de valores por defecto, etc...
  */
-$assets['app_libraries']['css'] = [];
+$assets['app_libraries']['css'] = [
+	'statics/core/css/helpers.css',
+];
 $assets['app_libraries']['js'] = [
     'statics/core/js/util-pieces.js',
     'statics/core/js/helpers.js',

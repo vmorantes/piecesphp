@@ -1,3 +1,5 @@
+/// <reference path="../../core/js/helpers.js"/>
+/// <reference path="../../core/js/configurations.js"/>
 /**
  * @function ComponentsProvider
  * 
