@@ -1,0 +1,57 @@
+///
+/// Editorial by HTML5 UP
+/// html5up.net | @ajlkn
+/// Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+///
+
+/* Icons */
+
+ul.icons {
+    cursor: default;
+    list-style: none;
+    padding-left: 0;
+
+    li {
+        display: inline-block;
+        padding: 0 1em 0 0;
+
+        &:last-child {
+            padding-right: 0;
+        }
+
+        .icon {
+            color: inherit;
+
+            &:before {
+                font-size: 1.25em;
+            }
+        }
+
+        &.alt {
+			vertical-align: bottom;
+            a {
+                display: flex;
+                align-content: center;
+				align-items: center;
+				border: none;
+
+                >span {
+                    &:last-child {
+                        padding-left: 8px;
+                    }
+
+					&.label{
+						font-weight: bold;
+						text-transform: capitalize;
+					}
+
+                    &.image {
+                        img {
+                            width: 25px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

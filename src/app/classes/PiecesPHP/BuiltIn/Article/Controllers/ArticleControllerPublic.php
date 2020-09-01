@@ -99,16 +99,13 @@ class ArticleControllerPublic extends BaseController
         }
 
         set_custom_assets([
-            'statics/css/main.css',
+            'statics/css/style.css',
         ], 'css');
 
         set_custom_assets([
-            'statics/js/browser.min.js',
-            'statics/js/breakpoints.min.js',
-            'statics/js/util.js',
             'statics/js/CustomNamespace.js',
             base_url(self::JS_FOLDER . '/list.js'),
-            'statics/js/template.js',
+            'statics/js/default-template.js',
         ], 'js');
 
         set_title(__(LANG_GROUP, 'Publicaciones'));
@@ -159,15 +156,12 @@ class ArticleControllerPublic extends BaseController
     {
 
         set_custom_assets([
-            'statics/css/main.css',
+            'statics/css/style.css',
         ], 'css');
 
         set_custom_assets([
-            'statics/js/browser.min.js',
-            'statics/js/breakpoints.min.js',
-            'statics/js/util.js',
             'statics/js/CustomNamespace.js',
-            'statics/js/template.js',
+            'statics/js/default-template.js',
             base_url(self::JS_FOLDER . '/category/list.js'),
         ], 'js');
 
@@ -227,15 +221,12 @@ class ArticleControllerPublic extends BaseController
             Config::set_config('alternatives_url', $article->getURLAlternatives());
 
             set_custom_assets([
-                'statics/css/main.css',
+                'statics/css/style.css',
             ], 'css');
 
             set_custom_assets([
-                'statics/js/browser.min.js',
-                'statics/js/breakpoints.min.js',
-                'statics/js/util.js',
                 'statics/js/CustomNamespace.js',
-                'statics/js/template.js',
+                'statics/js/default-template.js',
             ], 'js');
 
             $this->render('layout/header');

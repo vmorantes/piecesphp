@@ -30,10 +30,8 @@ if (get_config('control_access_login') === true) {
 }
 
 if (APP_CONFIGURATION_MODULE) {
+
     $default_configurations_values = [
-        'title_app' => 'Nombre Plataforma',
-        'osTicketAPI' => 'http://ayuda.tejidodigital.com',
-        'osTicketAPIKey' => '93F0F2E3DCD3B79A686A3157620CFF24',
         'favicon' => 'statics/images/favicon.png',
         'favicon-back' => 'statics/images/favicon-back.png',
         'logo' => 'statics/images/logo.png',
@@ -48,25 +46,32 @@ if (APP_CONFIGURATION_MODULE) {
             'statics/login-and-recovery/images/login/bg4.jpg',
             'statics/login-and-recovery/images/login/bg5.jpg',
         ],
-        'mail' => [
-            'auto_tls' => true,
-            'protocol' => 'ssl',
-            'host' => 'smtp.zoho.com',
-            'auth' => true,
-            'user' => 'correo@correo.com',
-            'password' => '123456',
-            'port' => 465,
-        ],
-        'owner' => 'Sample Inc.',
-        'description' => 'Descripción de la página.',
-        'keywords' => [
-            'A',
-            'B',
-            'C D',
-        ],
-        'meta_theme_color' => '#2692D0',
         'open_graph_image' => 'statics/images/open_graph.jpg',
     ];
+
+    $default_configurations_values['title_app'] = get_config('title_app');
+    $default_configurations_values['mail'] = get_config('mail') !== false ? get_config('mail') : [
+        'auto_tls' => true,
+        'protocol' => 'ssl',
+        'host' => 'smtp.zoho.com',
+        'auth' => true,
+        'user' => 'correo@correo.com',
+        'password' => '123456',
+        'port' => 465,
+    ];
+    $default_configurations_values['owner'] = get_config('owner') !== false ? get_config('owner') : '';
+    $default_configurations_values['description'] = get_config('description') !== false ? get_config('description') : 'Descripción de la página.';
+    if (get_config('osTicketAPI') !== false) {
+        $default_configurations_values['osTicketAPI'] = get_config('osTicketAPI');
+    }
+    if (get_config('osTicketAPIKey') !== false) {
+        $default_configurations_values['osTicketAPIKey'] = get_config('osTicketAPIKey');
+    }
+    $default_configurations_values['meta_theme_color'] = get_config('meta_theme_color') !== false ? get_config('meta_theme_color') : '#2692D0';
+    $default_configurations_values['keywords'] = get_config('keywords') !== false ? get_config('keywords') : [
+        'Website',
+    ];
+
     ksort($default_configurations_values);
     AppConfigModel::initializateConfigurations($default_configurations_values);
 }

@@ -21,8 +21,9 @@
             border-top: solid 2px _palette(border);
 
             &:first-of-type {
+				padding-top: 2rem !important;
                 border-top: 0 !important;
-            }
+			}
         }
     }
 
@@ -52,6 +53,10 @@
 
             >section {
                 @include padding(3em, 0);
+
+				&:first-of-type {
+					padding-top: 1rem !important;
+				}
             }
         }
     }

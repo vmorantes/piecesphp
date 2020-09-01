@@ -84,18 +84,15 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         set_title(__(LANG_GROUP, 'Home'));
 
         set_custom_assets([
-            'statics/css/main.css',
+            'statics/css/style.css',
         ], 'css');
 
         set_custom_assets([
-            'statics/js/browser.min.js',
-            'statics/js/breakpoints.min.js',
-            'statics/js/util.js',
             'statics/js/CustomNamespace.js',
             ArticleControllerPublic::JS_FOLDER . '/BuiltInArticle.js',
             HeroController::BASE_JS_DIR . '/public/main.js',
             'statics/js/main.js',
-            'statics/js/template.js',
+            'statics/js/default-template.js',
         ], 'js');
 
         $data = [
@@ -130,10 +127,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         $folder = $req->getAttribute('folder', null);
         $name = $req->getAttribute('name', null);
-        $withSocialBar = $req->getQueryParam('social', 'yes');
-        $withSocialBar = is_string($withSocialBar) ? mb_strtolower($withSocialBar) : 'no';
-        $withSocialBar = strlen($withSocialBar) > 0 ? $withSocialBar : 'yes';
-        $withSocialBar = $withSocialBar === 'yes';
 
         $folder = is_string($folder) && strlen(trim($folder)) > 0 ? trim($folder) : null;
         $name = strlen(trim($name)) > 0 ? trim($name) : null;
@@ -143,15 +136,12 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         }
 
         $css = [
-            'statics/css/main.css',
+            'statics/css/style.css',
         ];
         $js = [
-            'statics/js/browser.min.js',
-            'statics/js/breakpoints.min.js',
-            'statics/js/util.js',
             'statics/js/CustomNamespace.js',
-            'statics/js/generic-views.js',
-            'statics/js/template.js',
+            'statics/js/generic-views/generic-views.js',
+            'statics/js/default-template.js',
         ];
 
         $data = [

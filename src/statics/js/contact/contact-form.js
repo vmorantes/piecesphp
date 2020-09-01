@@ -1,5 +1,5 @@
-/// <reference path="./CustomNamespace.js" />
-/// <reference path="../core/js/helpers.js" />
+/// <reference path=".././CustomNamespace.js" />
+/// <reference path="../../core/js/helpers.js" />
 window.addEventListener('loadApp', function (e) {
 
 	let formSelector = '[global-contact-form]'

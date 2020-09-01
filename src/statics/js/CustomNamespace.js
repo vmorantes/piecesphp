@@ -11,42 +11,16 @@ function CustomNamespace() {
  * 
  * @param {String} [name=generic]
  * @param {Boolean} [on=true]
+ * @param {String} [classPrefix=vm-]
  * @description Cargador
  * @returns {void}
  */
-CustomNamespace.loader = function (name = null, on = true) {
+CustomNamespace.loader = function (name = null, on = true, classPrefix = null) {
 
-	name = typeof name == 'string' && name.length > 0 ? name : 'generic'
-	on = typeof on == 'boolean' ? on : true
-
-	let contentLoader = document.createElement('div')
-	let boxLoader = document.createElement('div')
-	let loader = document.createElement('div')
-
-	contentLoader.classList.add('vm-global-loader', 'active')
-	boxLoader.classList.add('vm-box')
-	loader.classList.add('vm-loader')
-
-	contentLoader.setAttribute('data-name', name)
-
-	let currentActive = document.querySelector(`[data-name="${name}"]`)
-
-	if (currentActive instanceof HTMLElement) {
-
-		if (on === false) {
-			currentActive.remove()
-		}
-
+	if (on === false) {
+		removeGenericLoader(name, classPrefix)
 	} else {
-
-		if (on === true) {
-
-			boxLoader.appendChild(loader)
-			contentLoader.appendChild(boxLoader)
-			document.body.appendChild(contentLoader)
-
-		}
-
+		showGenericLoader(name, classPrefix)
 	}
 
 }

@@ -1247,57 +1247,11 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	}
 
 	function showLoader() {
-		if (typeof CustomNamespace == 'undefined') {
-
-			name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
-
-			let contentLoader = document.createElement('div')
-			let boxLoader = document.createElement('div')
-			let loader = document.createElement('div')
-
-			contentLoader.classList.add('ui-pcs-global-loader', 'active')
-			boxLoader.classList.add('ui-pcs-box')
-			loader.classList.add('ui-pcs-loader')
-
-			contentLoader.setAttribute('form-handler-data-name', name)
-
-			let currentActive = document.querySelector(`.ui-pcs-global-loader[form-handler-data-name="${name}"]`)
-
-			if (!(currentActive instanceof HTMLElement)) {
-				boxLoader.appendChild(loader)
-				contentLoader.appendChild(boxLoader)
-				document.body.appendChild(contentLoader)
-			}
-
-		} else {
-			CustomNamespace.loader('genericFormHandler')
-		}
+		showGenericLoader('genericFormHandler')
 	}
 
 	function removeLoader() {
-		if (typeof CustomNamespace == 'undefined') {
-			setTimeout(function () {
-				name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
-
-				let contentLoader = document.createElement('div')
-				let boxLoader = document.createElement('div')
-				let loader = document.createElement('div')
-
-				contentLoader.classList.add('ui-pcs-global-loader', 'active')
-				boxLoader.classList.add('ui-pcs-box')
-				loader.classList.add('ui-pcs-loader')
-
-				contentLoader.setAttribute('form-handler-data-name', name)
-
-				let currentActive = document.querySelector(`.ui-pcs-global-loader[form-handler-data-name="${name}"]`)
-
-				if (currentActive instanceof HTMLElement) {
-					currentActive.remove()
-				}
-			}, 500)
-		} else {
-			CustomNamespace.loader('genericFormHandler', false)
-		}
+		removeGenericLoader('genericFormHandler')
 	}
 
 	return form
@@ -1311,7 +1265,9 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
  * 
  * @returns {void} 
  */
-function showGenericLoader(name = 'DEFAULT') {
+function showGenericLoader(name = 'DEFAULT', classPrefix = 'ui-pcs-') {
+
+	classPrefix = typeof classPrefix == 'string' && classPrefix.length  ? classPrefix : 'ui-pcs-'
 
 	name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
 
@@ -1319,13 +1275,13 @@ function showGenericLoader(name = 'DEFAULT') {
 	let boxLoader = document.createElement('div')
 	let loader = document.createElement('div')
 
-	contentLoader.classList.add('ui-pcs-global-loader', 'active')
-	boxLoader.classList.add('ui-pcs-box')
-	loader.classList.add('ui-pcs-loader')
+	contentLoader.classList.add(`${classPrefix}global-loader`, 'active')
+	boxLoader.classList.add(`${classPrefix}box`)
+	loader.classList.add(`${classPrefix}loader`)
 
 	contentLoader.setAttribute('data-name', name)
 
-	let currentActive = document.querySelector(`.ui-pcs-global-loader[data-name="${name}"]`)
+	let currentActive = document.querySelector(`.${classPrefix}global-loader[data-name="${name}"]`)
 
 	if (!(currentActive instanceof HTMLElement)) {
 		boxLoader.appendChild(loader)
@@ -1342,7 +1298,9 @@ function showGenericLoader(name = 'DEFAULT') {
  * 
  * @returns {void} 
  */
-function removeGenericLoader(name = 'DEFAULT') {
+function removeGenericLoader(name = 'DEFAULT', classPrefix = 'ui-pcs-') {
+
+	classPrefix = typeof classPrefix == 'string' && classPrefix.length  ? classPrefix : 'ui-pcs-'
 
 	name = typeof name == 'string' && name.length > 0 ? name : 'DEFAULT'
 
@@ -1350,13 +1308,13 @@ function removeGenericLoader(name = 'DEFAULT') {
 	let boxLoader = document.createElement('div')
 	let loader = document.createElement('div')
 
-	contentLoader.classList.add('ui-pcs-global-loader', 'active')
-	boxLoader.classList.add('ui-pcs-box')
-	loader.classList.add('ui-pcs-loader')
+	contentLoader.classList.add(`${classPrefix}global-loader`, 'active')
+	boxLoader.classList.add(`${classPrefix}box`)
+	loader.classList.add(`${classPrefix}loader`)
 
 	contentLoader.setAttribute('data-name', name)
 
-	let currentActive = document.querySelector(`.ui-pcs-global-loader[data-name="${name}"]`)
+	let currentActive = document.querySelector(`.${classPrefix}global-loader[data-name="${name}"]`)
 
 	if (currentActive instanceof HTMLElement) {
 		currentActive.remove()

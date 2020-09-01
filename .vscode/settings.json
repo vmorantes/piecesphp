@@ -7,7 +7,7 @@
 		"**/.DS_Store": true,
 		"src/vendor": false,
 		"**/node_modules": true,
-		"tasks/output": true,
+		"tasks/output": true
 	},
 	"files.watcherExclude": {
 		"**/.git/objects/**": true,
@@ -15,5 +15,7 @@
 		"**/node_modules/**": true,
 		"tasks/output": true
 	},
-	"html.format.wrapLineLength": 300
+	"html.format.wrapLineLength": 300,
+	"phpfmt.indent_with_space": 4,
+	"phpfmt.psr2": true
 }

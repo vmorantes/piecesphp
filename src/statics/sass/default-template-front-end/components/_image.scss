@@ -91,6 +91,15 @@
     }
 }
 
+#sidebar {
+    .image {
+        &.logo {
+            padding-bottom: 0em;
+            margin-bottom: 1em;
+        }
+    }
+}
+
 a.image {
     overflow: hidden;
 
@@ -102,5 +111,24 @@ a.image {
         img {
             @include vendor('transform', 'scale(1.075)');
         }
+    }
+}
+
+.ribbon-image {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+
+    a {
+        display: inline-block;
+        text-decoration: none;
+        outline: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    img {
+        max-width: 100%;
     }
 }
