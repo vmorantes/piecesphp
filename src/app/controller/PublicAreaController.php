@@ -107,9 +107,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         $this->setVariables($data);
 
-        $this->render('layout/header');
-        $this->render('pages/home', []);
-        $this->render('layout/footer');
+        $this->render('layout/header-template');
+        $this->render('pages/home-template', []);
+        $this->render('layout/footer-template');
 
         return $res;
     }
@@ -161,8 +161,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             ],
         ];
 
-        $viewHeader = 'layout/header';
-        $viewFooter = 'layout/footer';
+        $viewHeader = 'layout/header-template';
+        $viewFooter = 'layout/footer-template';
 
         if (is_string($name) && array_key_exists($name, $availableView)) {
 

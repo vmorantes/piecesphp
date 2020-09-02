@@ -116,15 +116,15 @@ class ArticleControllerPublic extends BaseController
 
             if ($category !== null) {
 
-                $this->render('layout/header');
+                $this->render('layout/header-template');
 
-                $this->render(self::VIEWS_FOLDER . '/list', [
+                $this->render(self::VIEWS_FOLDER . '/list-template', [
                     'titleSection' => $titleSection . ' - ' . CategoryContentMapper::getBy($category, 'friendly_url')->name,
                     'withSocialBar' => true,
                     'ajaxURL' => ArticleController::routeName('ajax-all-category', ['category' => $category]),
                 ]);
 
-                $this->render('layout/footer');
+                $this->render('layout/footer-template');
 
             } else {
                 throw new NotFoundException($req, $res);
@@ -132,13 +132,13 @@ class ArticleControllerPublic extends BaseController
 
         } else {
 
-            $this->render('layout/header');
-            $this->render(self::VIEWS_FOLDER . '/list', [
+            $this->render('layout/header-template');
+            $this->render(self::VIEWS_FOLDER . '/list-template', [
                 'titleSection' => $titleSection,
                 'withSocialBar' => true,
                 'ajaxURL' => ArticleController::routeName('ajax-all'),
             ]);
-            $this->render('layout/footer');
+            $this->render('layout/footer-template');
         }
 
         return $res;
@@ -167,14 +167,14 @@ class ArticleControllerPublic extends BaseController
 
         set_title(__('articlesFrontEnd', 'Listado de categorías'));
 
-        $this->render('layout/header');
+        $this->render('layout/header-template');
 
-        $this->render(self::VIEWS_FOLDER . '/category/list', [
+        $this->render(self::VIEWS_FOLDER . '/category/list-template', [
             'withSocialBar' => true,
             'ajaxURL' => CategoryController::routeName('ajax-all'),
         ]);
 
-        $this->render('layout/footer');
+        $this->render('layout/footer-template');
 
         return $res;
     }
@@ -229,16 +229,16 @@ class ArticleControllerPublic extends BaseController
                 'statics/js/default-template.js',
             ], 'js');
 
-            $this->render('layout/header');
+            $this->render('layout/header-template');
 
-            $this->render(self::VIEWS_FOLDER . '/single', [
+            $this->render(self::VIEWS_FOLDER . '/single-template', [
                 'withSocialBar' => true,
                 'article' => $article,
                 'date' => $date,
                 'relateds' => $relateds,
             ]);
 
-            $this->render('layout/footer');
+            $this->render('layout/footer-template');
 
         } else {
             throw new NotFoundException($req, $res);

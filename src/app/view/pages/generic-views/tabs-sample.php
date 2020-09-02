@@ -5,7 +5,7 @@
 
         <!-- Header -->
         <?php if(isset($withSocialBar) && $withSocialBar === true):?>
-        <?php $this->render('layout/social-bar', isset($socialBarData) ? $socialBarData : []); ?>
+        <?php $this->render('layout/template-inc/social-bar', isset($socialBarData) ? $socialBarData : []); ?>
         <?php endif;?>
 
         <!-- Content -->
@@ -51,19 +51,23 @@
 
                     </div>
 
-                    <div data-tab-content="tab-2-1-1">
+                    <div data-tab-content="tab-2-1">
 
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Accusamus nemo magnam quaerat alias amet qui, quam praesentium esse hic sed eligendi cupiditate dolore molestias? Voluptatum, nobis est. Voluptatum, illo reiciendis!</p>
+                        <div data-tab-name="tab-2-1-1">
 
-                    </div>
+                            <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Accusamus nemo magnam quaerat alias amet qui, quam praesentium esse hic sed eligendi cupiditate dolore molestias? Voluptatum, nobis est. Voluptatum, illo reiciendis!</p>
 
-                    <div data-tab-content="tab-2-1-2">
+                        </div>
 
-                        <ul>
-                            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit voluptatum dignissimos corrupti! Iure minus perspiciatis fugiat, quo magnam voluptatum totam quod at reiciendis fuga, alias inventore voluptas eveniet sint. Iusto?</li>
-                            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit voluptatum dignissimos corrupti! Iure minus perspiciatis fugiat, quo magnam voluptatum totam quod at reiciendis fuga, alias inventore voluptas eveniet sint. Iusto?</li>
-                            <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit voluptatum dignissimos corrupti! Iure minus perspiciatis fugiat, quo magnam voluptatum totam quod at reiciendis fuga, alias inventore voluptas eveniet sint. Iusto?</li>
-                        </ul>
+                        <div data-tab-name="tab-2-1-2">
+
+                            <ul>
+                                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit voluptatum dignissimos corrupti! Iure minus perspiciatis fugiat, quo magnam voluptatum totam quod at reiciendis fuga, alias inventore voluptas eveniet sint. Iusto?</li>
+                                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit voluptatum dignissimos corrupti! Iure minus perspiciatis fugiat, quo magnam voluptatum totam quod at reiciendis fuga, alias inventore voluptas eveniet sint. Iusto?</li>
+                                <li>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit voluptatum dignissimos corrupti! Iure minus perspiciatis fugiat, quo magnam voluptatum totam quod at reiciendis fuga, alias inventore voluptas eveniet sint. Iusto?</li>
+                            </ul>
+
+                        </div>
 
                     </div>
 
