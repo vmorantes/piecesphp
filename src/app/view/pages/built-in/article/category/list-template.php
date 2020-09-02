@@ -5,7 +5,7 @@
 
         <!-- Header -->
         <?php if(isset($withSocialBar) && $withSocialBar === true):?>
-        <?php $this->render('layout/social-bar', isset($socialBarData) ? $socialBarData : []); ?>
+        <?php $this->render('layout/template-inc/social-bar', isset($socialBarData) ? $socialBarData : []); ?>
         <?php endif;?>
 
         <!-- Section -->

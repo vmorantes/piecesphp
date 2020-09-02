@@ -17,7 +17,7 @@
         <?php endif; ?>
 
         <!-- Menu -->
-        <?php $this->render('layout/menu'); ?>
+        <?php $this->render('layout/menu-template'); ?>
 
         <section class="featured-sidebar-image">
             <a href="#" target="_blank">
@@ -27,7 +27,7 @@
 
         <?php if(isset($withRecents) && $withRecents): ?>
         <!-- Section recents articles -->
-        <?php $this->render('layout/inc/sidebar-recents'); ?>
+        <?php $this->render('layout/template-inc/sidebar-recents'); ?>
         <?php endif; ?>
 
         <!-- Section -->
