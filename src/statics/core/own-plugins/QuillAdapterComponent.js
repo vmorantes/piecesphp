@@ -282,6 +282,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 			method: 'POST',
 			callbackOK: onSuccess,
 			callbackKO: onError,
+			customUploader: false,
 		}
 
 		if (urlProcessImage.length > 0 && urlProcessImage.length > 0) {
@@ -483,89 +484,111 @@ QuillAdapterComponent.imageUploadModule = function (quill, options = {}) {
 	class QuillImageUpload {
 
 		/**
-		 * Instantiate the module given a quill instance and any options
+		 * Crear instancia del módulo a partir de las opciones y la instancia de QuillJS
 		 * @param {Quill} quill
 		 * @param {Object} options
 		 */
 		constructor(quill, options = {}) {
-			// save the quill reference
-			this.quill = quill;
-			// save options
-			this.options = options;
-			// listen for drop and paste events
-			this.quill
-				.getModule('toolbar')
-				.addHandler('image', this.selectLocalImage.bind(this));
+
+			// Referencia a QuillJS
+			this.quill = quill
+
+			// Opciones
+			this.options = Object.assign({}, options)
+			this.options.checkBeforeSend = typeof options.checkBeforeSend == 'function' ? options.checkBeforeSend : this.checkBeforeSend.bind(this)
+			this.options.customUploader = typeof options.customUploader == 'function' ? options.customUploader : false
+			this.options.method = typeof options.method == 'string' ? options.method : 'POST'
+			this.options.name = typeof options.name == 'string' ? options.name : 'image'
+			this.options.headers = typeof options.headers == 'object' ? options.headers : {}
+			this.options.callbackOK = typeof options.callbackOK == 'function' ? options.callbackOK : this.uploadImageCallbackOK.bind(this)
+			this.options.callbackKO = typeof options.callbackKO == 'function' ? options.callbackKO : this.uploadImageCallbackKO.bind(this)
+
+
+			// Asignar manejador a toolbar
+			let toolbar = this.quill.getModule('toolbar')
+			toolbar.addHandler('image', this.selectLocalImage.bind(this))
 		}
 
 		/**
-		 * Select local image
+		 * Seleccionar imagen desde el sistema local de ficheros
 		 */
 		selectLocalImage() {
-			const input = document.createElement('input');
-			input.setAttribute('type', 'file');
-			input.click();
 
-			// Listen upload local image and save to server
+			const input = document.createElement('input')
+			input.setAttribute('type', 'file')
+			input.click()
+
+			// Evento de subida de archivo
 			input.onchange = () => {
+
 				const file = input.files[0];
 
-				// file type is only image.
+				// Solo adminitr imágenes
 				if (/^image\//.test(file.type)) {
-					const checkBeforeSend =
-						this.options.checkBeforeSend || this.checkBeforeSend.bind(this);
-					checkBeforeSend(file, this.sendToServer.bind(this));
+
+					const checkBeforeSend = this.options.checkBeforeSend
+					checkBeforeSend(file, this.sendToServer.bind(this))
+
 				} else {
-					console.warn('You could only upload images.');
+
+					console.warn('You could only upload images.')
+
 				}
-			};
+
+			}
+
 		}
 
 		/**
-		 * Check file before sending to the server
+		 * Verificar archivo antes de enviarlo al servidor
 		 * @param {File} file
 		 * @param {Function} next
 		 */
 		checkBeforeSend(file, next) {
-			next(file);
+			next(file)
 		}
 
 		/**
-		 * Send to server
+		 * Enviar archivo al servidor
 		 * @param {File} file
 		 */
 		sendToServer(file) {
-			// Handle custom upload
+
+			// Manejador personalizado de subida
 			if (this.options.customUploader) {
-				this.options.customUploader(file, dataUrl => {
-					this.insert(dataUrl);
-				});
+
+				this.options.customUploader(file, (dataUrl) => {
+					this.insert(dataUrl)
+				})
+
 			} else {
-				const url = this.options.url,
-					method = this.options.method || 'POST',
-					name = this.options.name || 'image',
-					headers = this.options.headers || {},
-					callbackOK =
-						this.options.callbackOK || this.uploadImageCallbackOK.bind(this),
-					callbackKO =
-						this.options.callbackKO || this.uploadImageCallbackKO.bind(this);
+
+				const url = this.options.url
+				const method = this.options.method
+				const name = this.options.name
+				const headers = this.options.headers
+				const callbackOK = this.options.callbackOK
+				const callbackKO = this.options.callbackKO
 
 				if (url) {
+
 					const fd = new FormData();
 
 					fd.append(name, file);
 
 					if (this.options.csrf) {
-						// add CSRF
-						fd.append(this.options.csrf.token, this.options.csrf.hash);
+						// Agregar CSRF
+						fd.append(this.options.csrf.token, this.options.csrf.hash)
 					}
 
-					const xhr = new XMLHttpRequest();
+					const xhr = new XMLHttpRequest()
+
 					// init http query
-					xhr.open(method, url, true);
+					xhr.open(method, url, true)
+
 					// add custom headers
 					for (var index in headers) {
-						xhr.setRequestHeader(index, headers[index]);
+						xhr.setRequestHeader(index, headers[index])
 					}
 
 					// listen callback
@@ -579,20 +602,23 @@ QuillAdapterComponent.imageUploadModule = function (quill, options = {}) {
 								body: xhr.responseText
 							});
 						}
-					};
-
-					if (this.options.withCredentials) {
-						xhr.withCredentials = true;
 					}
 
-					xhr.send(fd);
+					if (this.options.withCredentials) {
+						xhr.withCredentials = true
+					}
+
+					xhr.send(fd)
+
 				} else {
-					const reader = new FileReader();
+
+					const reader = new FileReader()
 
 					reader.onload = event => {
-						callbackOK(event.target.result, this.insert.bind(this));
-					};
-					reader.readAsDataURL(file);
+						callbackOK(event.target.result, this.insert.bind(this))
+					}
+
+					reader.readAsDataURL(file)
 				}
 			}
 		}
@@ -602,13 +628,15 @@ QuillAdapterComponent.imageUploadModule = function (quill, options = {}) {
 		 * @param {String} dataUrl  The base64-encoded image URI
 		 */
 		insert(dataUrl) {
+
 			const index =
-				(this.quill.getSelection() || {}).index || this.quill.getLength();
+				(this.quill.getSelection() || {}).index || this.quill.getLength()
 
 			this.quill.insertEmbed(index, 'image', {
 				alt: 'Imagen de contenido',
 				url: dataUrl,
-			}, Quill.sources.USER);
+			}, Quill.sources.USER)
+
 		}
 
 		/**
@@ -624,7 +652,7 @@ QuillAdapterComponent.imageUploadModule = function (quill, options = {}) {
 		 * @param {Any} error http error
 		 */
 		uploadImageCallbackKO(error) {
-			alert(error);
+			alert(error)
 		}
 	}
 
