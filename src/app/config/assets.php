@@ -229,3 +229,4 @@ set_config('global_requireds_assets', [
     'js' => [],
 ]);
 set_config('imported_assets', []);
+set_config('lock_assets', false);
