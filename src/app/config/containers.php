@@ -1,10 +1,26 @@
 <?php
 
+use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
+
 $container_configurations = [
     'settings' => [
         'displayErrorDetails' => true,
         'determineRouteBeforeAppMiddleware' => true,
     ],
+    'foundHandler' => function ($c) {
+
+        //Antes de ejecutar el método de la ruta
+        RequestResponsePiecesPHP::setBeforeCallMethod(function () {
+            set_config('lock_assets', true);
+        });
+
+        //Después de ejecutar el método de la ruta
+        RequestResponsePiecesPHP::setAfterCallMethod(function () {
+            set_config('lock_assets', false);
+        });
+
+        return new \PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
+    },
     'errorHandler' => function ($c) {
         return new \PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler($c);
     },
