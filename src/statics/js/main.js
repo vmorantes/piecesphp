@@ -17,5 +17,8 @@ window.addEventListener('loadApp', function (e) {
 	})
 
 	homeArticleManager.loadItems()
+		.then(function () {
+			$(window).trigger('resize')
+		})
 
 })
