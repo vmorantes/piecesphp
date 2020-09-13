@@ -189,6 +189,7 @@ class TasksManager
         $ignored = [];
 
         $directory->process(new FilesIgnore([
+            'src/app/cache/PiecesPHP',
             'src/vendor',
             'src/node_modules',
             'gulpfile.js',

@@ -19,4 +19,7 @@ window.addEventListener('loadApp', function (e) {
 	})
 
 	articleManager.loadItems()
+		.then(function () {
+			$(window).trigger('resize')
+		})
 })

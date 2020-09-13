@@ -21,6 +21,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\LetsEncryptHandler;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -612,6 +613,102 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * sslGenerator
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function sslGenerator(Request $req, Response $res, array $args)
+    {
+        $sslMessages = 'config-ssl';
+
+        $result = new ResultOperations([], 'SSL', '', true);
+
+        $sslCreatedMessage = __($sslMessages, 'SSL creado.');
+        $tryLaterMessage = __($sslMessages, 'El SSL no pudo ser creado, intente más tarde.');
+        $unknowErrorMessage = __($sslMessages, 'Ha ocurrido un error inesperado.');
+
+        $parametersExcepted = new Parameters([
+            new Parameter(
+                'domain',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return clean_string($value);
+                }
+            ),
+            new Parameter(
+                'folder',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return clean_string($value);
+                }
+            ),
+            new Parameter(
+                'email',
+                null,
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return clean_string($value);
+                }
+            ),
+        ]);
+
+        $parametersExcepted->setInputValues($req->getParsedBody());
+
+        try {
+
+            $parametersExcepted->validate();
+
+            ini_set('max_execution_time', 120);
+
+            $domain = $parametersExcepted->getValue('domain');
+            $folder = $parametersExcepted->getValue('folder');
+            $email = $parametersExcepted->getValue('email');
+
+            $client = new LetsEncryptHandler($domain, $email, $folder);
+            $client->testMode(false); // Modo de pruebas
+            $client->init(LetsEncryptHandler::LOG_OFF); // Inicializar con log
+            $client->order(); // Crear/obtener orden
+            $success = $client->certify(); // Generar certificados
+
+            $result->setSuccessOnSingleOperation($success);
+
+            if ($success) {
+
+                $result->setMessage($sslCreatedMessage);
+
+            } else {
+
+                $result->setMessage($tryLaterMessage);
+
+            }
+
+        } catch (\Exception $e) {
+
+            $result
+                ->setMessage($unknowErrorMessage)
+                ->setValue('errorMessage', $e->getMessage());
+            log_exception($e);
+
+        }
+
+        return $res->withJson($result);
+    }
+
+    /**
      * processGenericInputValues
      *
      * @param mixed $input
@@ -961,6 +1058,19 @@ class AppConfigController extends AdminPanelController
                 [
                     UsersModel::TYPE_USER_ROOT,
                     UsersModel::TYPE_USER_ADMIN,
+                ]
+            ),
+
+            //Generar ssl
+            new Route(
+                "{$startRoute}ssl[/]",
+                $classname . ':sslGenerator',
+                'configurations-ssl',
+                'POST',
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
                 ]
             ),
 

@@ -18,4 +18,6 @@ window.addEventListener('loadApp', function (e) {
 		}
 	})
 
+	$(window).trigger('resize')
+
 })

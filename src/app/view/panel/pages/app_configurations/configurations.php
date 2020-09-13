@@ -12,17 +12,16 @@ use App\Model\AppConfigModel;
         <a class="item active" data-tab="general"><?= __('configurationsAdminZone', 'Generales'); ?></a>
         <a class="item" data-tab="email"><?= __('configurationsAdminZone', 'Email'); ?></a>
         <a class="item" data-tab="os-ticket"><?= __('configurationsAdminZone', 'OsTicket'); ?></a>
+        <a class="item" data-tab="ssl">SSL</a>
     </div>
 
     <div class="ui bottom attached tab segment active" data-tab="general">
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Título del sitio'); ?></label>
-                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('title_app'));?>"
-                    placeholder="<?= __('configurationsAdminZone', 'Nombre'); ?>" required>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('title_app'));?>" placeholder="<?= __('configurationsAdminZone', 'Nombre'); ?>" required>
                 <input type="hidden" name="name" value="title_app" required="required">
             </div>
 
@@ -34,13 +33,11 @@ use App\Model\AppConfigModel;
 
         <br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Propietario'); ?></label>
-                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('owner'));?>"
-                    placeholder="<?= __('configurationsAdminZone', 'Propietario'); ?>" required>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('owner'));?>" placeholder="<?= __('configurationsAdminZone', 'Propietario'); ?>" required>
                 <input type="hidden" name="name" value="owner" required="required">
             </div>
 
@@ -52,13 +49,11 @@ use App\Model\AppConfigModel;
 
         <br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Descripción'); ?></label>
-                <textarea name="value" placeholder="<?= __('configurationsAdminZone', 'Descripción'); ?>"
-                    required><?=AppConfigModel::getConfigValue('description');?></textarea>
+                <textarea name="value" placeholder="<?= __('configurationsAdminZone', 'Descripción'); ?>" required><?=AppConfigModel::getConfigValue('description');?></textarea>
                 <input type="hidden" name="name" value="description" required="required">
             </div>
 
@@ -70,8 +65,7 @@ use App\Model\AppConfigModel;
 
         <br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Palabras clave'); ?></label>
@@ -104,12 +98,11 @@ use App\Model\AppConfigModel;
 
         <br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
-				<label><?= __('configurationsAdminZone', 'Color de barra superior en navegadores móviles'); ?></label>
-				<input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('meta_theme_color'));?>" color-picker-js>
+                <label><?= __('configurationsAdminZone', 'Color de barra superior en navegadores móviles'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('meta_theme_color'));?>" color-picker-js>
                 <input type="hidden" name="name" value="meta_theme_color">
                 <input type="hidden" name="parse" value="uppercase">
             </div>
@@ -122,13 +115,11 @@ use App\Model\AppConfigModel;
 
         <br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Scripts adicionales'); ?></label>
-                <textarea name="value"
-                    placeholder="<?= __('configurationsAdminZone', "<script src='ejemplo.js'></script>"); ?>"><?=AppConfigModel::getConfigValue('extra_scripts');?></textarea>
+                <textarea name="value" placeholder="<?= __('configurationsAdminZone', "<script src='ejemplo.js'></script>"); ?>"><?=AppConfigModel::getConfigValue('extra_scripts');?></textarea>
                 <input type="hidden" name="name" value="extra_scripts">
             </div>
 
@@ -140,8 +131,7 @@ use App\Model\AppConfigModel;
 
         <br><br>
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-sitemap-create');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-sitemap-create');?>" method="POST" class="ui form">
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Generar sitemap'); ?></label>
@@ -157,8 +147,7 @@ use App\Model\AppConfigModel;
 
     <div class="ui bottom attached tab segment" data-tab="email">
 
-        <form mail-configuration-form action="<?=get_route('configurations-generals-generic-action');?>" method="POST"
-            class="ui form">
+        <form mail-configuration-form action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <input type="hidden" name="name" value="mail" required>
             <input type="hidden" name="parse[auto_tls]" value="<?=AppConfigController::PARSE_TYPE_BOOL;?>" required>
@@ -169,16 +158,14 @@ use App\Model\AppConfigModel;
 
                 <div class="field">
                     <div class="ui toggle checkbox">
-                        <input type="checkbox" name="value[auto_tls]"
-                            <?=AppConfigModel::getConfigValue('mail')->auto_tls ? 'checked' : '';?>>
+                        <input type="checkbox" name="value[auto_tls]" <?=AppConfigModel::getConfigValue('mail')->auto_tls ? 'checked' : '';?>>
                         <label><?= __('configurationsAdminZone', 'Auto TLS'); ?></label>
                     </div>
                 </div>
 
                 <div class="field">
                     <div class="ui toggle checkbox">
-                        <input type="checkbox" name="value[auth]"
-                            <?=AppConfigModel::getConfigValue('mail')->auth == true ? 'checked' : '';?>>
+                        <input type="checkbox" name="value[auth]" <?=AppConfigModel::getConfigValue('mail')->auth == true ? 'checked' : '';?>>
                         <label><?= __('configurationsAdminZone', 'Autenticar'); ?></label>
                     </div>
                 </div>
@@ -191,20 +178,17 @@ use App\Model\AppConfigModel;
 
                 <div class="field">
                     <label><?= __('configurationsAdminZone', 'Host'); ?></label>
-                    <input type="text" name="value[host]" value="<?=AppConfigModel::getConfigValue('mail')->host;?>"
-                        required>
+                    <input type="text" name="value[host]" value="<?=AppConfigModel::getConfigValue('mail')->host;?>" required>
                 </div>
 
                 <div class="field">
                     <label><?= __('configurationsAdminZone', 'Protocolo'); ?></label>
-                    <input type="text" name="value[protocol]"
-                        value="<?=AppConfigModel::getConfigValue('mail')->protocol;?>" required>
+                    <input type="text" name="value[protocol]" value="<?=AppConfigModel::getConfigValue('mail')->protocol;?>" required>
                 </div>
 
                 <div class="field">
                     <label><?= __('configurationsAdminZone', 'Puerto'); ?></label>
-                    <input type="text" name="value[port]" value="<?=AppConfigModel::getConfigValue('mail')->port;?>"
-                        required>
+                    <input type="text" name="value[port]" value="<?=AppConfigModel::getConfigValue('mail')->port;?>" required>
                 </div>
 
             </div>
@@ -215,15 +199,13 @@ use App\Model\AppConfigModel;
 
                 <div class="field">
                     <label><?= __('configurationsAdminZone', 'Correo electrónico'); ?></label>
-                    <input type="text" name="value[user]" value="<?=AppConfigModel::getConfigValue('mail')->user;?>"
-                        required>
+                    <input type="text" name="value[user]" value="<?=AppConfigModel::getConfigValue('mail')->user;?>" required>
                 </div>
 
                 <div class="field">
                     <label><?= __('configurationsAdminZone', 'Contraseña'); ?></label>
                     <div class="ui icon input" show-hide-password-event>
-                        <input type="password" name="value[password]"
-                            value="<?=htmlentities(AppConfigModel::getConfigValue('mail')->password);?>" required>
+                        <input type="password" name="value[password]" value="<?=htmlentities(AppConfigModel::getConfigValue('mail')->password);?>" required>
                         <i class="inverted circular eye link icon"></i>
                     </div>
                 </div>
@@ -240,20 +222,43 @@ use App\Model\AppConfigModel;
 
     <div class="ui bottom attached tab segment" data-tab="os-ticket">
 
-        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-osticket-action');?>" method="POST"
-            class="ui form">
+        <form pcs-generic-handler-js action="<?=get_route('configurations-generals-osticket-action');?>" method="POST" class="ui form">
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'URL'); ?></label>
-                <input type="text" name="url" value="<?=AppConfigModel::getConfigValue('osTicketAPI');?>"
-                    placeholder="<?= __('configurationsAdminZone', 'https://api.dominio.com/'); ?>" required>
+                <input type="text" name="url" value="<?=AppConfigModel::getConfigValue('osTicketAPI');?>" placeholder="<?= __('configurationsAdminZone', 'https://api.dominio.com/'); ?>" required>
             </div>
 
             <div class="field">
                 <label><?= __('configurationsAdminZone', 'Key'); ?></label>
-                <input autocomplete="off" type="text" name="key"
-                    value="<?=AppConfigModel::getConfigValue('osTicketAPIKey');?>" placeholder="ABCD123456EFGH"
-                    required>
+                <input autocomplete="off" type="text" name="key" value="<?=AppConfigModel::getConfigValue('osTicketAPIKey');?>" placeholder="ABCD123456EFGH" required>
+            </div>
+
+            <div class="field">
+                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="ui bottom attached tab segment" data-tab="ssl">
+
+        <form mail-configuration-form action="<?= get_route('configurations-ssl'); ?>" method="POST" class="ui form">
+
+            <div class="field required">
+                <label><?= __('configurationsAdminZone', 'Dominio')?></label>
+                <input required type="text" name="domain" value="<?= trim(str_replace(array('http://','https://'), '', baseurl()), '/') ?>" placeholder="example.com...">
+            </div>
+
+            <div class="field required">
+                <label><?= __('configurationsAdminZone', 'Carpeta pública del dominio')?></label>
+                <input required type="text" name="folder" value="<?= basepath(); ?>" placeholder="/home/user/example.com/public_html">
+            </div>
+
+            <div class="field">
+                <label>Email</label>
+                <input required type="email" name="email" placeholder="info@example.com...">
             </div>
 
             <div class="field">
