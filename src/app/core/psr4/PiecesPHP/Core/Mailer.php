@@ -21,6 +21,13 @@ class Mailer extends PHPMailer
 {
 
     /**
+     * Log
+     *
+     * @var array
+     */
+    protected $log = [];
+
+    /**
      * __construct
      *
      * Constructor
@@ -93,6 +100,50 @@ class Mailer extends PHPMailer
             $this->isSMTP();
 
         }
+
+        $this->Debugoutput = function ($str, $level) {
+
+            if (!isset($this->log[$level])) {
+                $this->log[$level] = [];
+            }
+
+            $this->log[$level][] = $str;
+
+        };
+
+    }
+
+    /**
+     * Devuelve el log
+     *
+     * @return array
+     */
+    public function log()
+    {
+        return $this->log;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setFrom($address, $name = '', $uselessParam = true)
+    {
+
+        $domainsNotAllowedOtherFrom = [
+            'yandex.com',
+            'yandex.ru',
+            'zoho.com',
+        ];
+
+        foreach ($domainsNotAllowedOtherFrom as $domain) {
+            if (strpos($this->Host, $domain) !== false) {
+                $address = $this->Username;
+                $name = explode('@', $address)[0];
+                break;
+            }
+        }
+
+        return parent::setFrom($address, $name, $uselessParam);
     }
 
     /**
