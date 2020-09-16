@@ -679,10 +679,10 @@ class AppConfigController extends AdminPanelController
             $email = $parametersExcepted->getValue('email');
 
             $client = new LetsEncryptHandler($domain, $email, $folder);
-            $client->testMode(false); // Modo de pruebas
-            $client->init(LetsEncryptHandler::LOG_OFF); // Inicializar con log
-            $client->order(); // Crear/obtener orden
-            $success = $client->certify(); // Generar certificados
+            $client->testMode(false);
+            $client->init();
+            $client->order();
+            $success = $client->certify();
 
             $result->setSuccessOnSingleOperation($success);
 
