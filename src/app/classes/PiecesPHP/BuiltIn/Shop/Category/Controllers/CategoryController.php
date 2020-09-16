@@ -203,7 +203,7 @@ class CategoryController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = mb_strlen($addLink) > 0;
         $data['title'] = $title;
 
         set_custom_assets([
@@ -248,7 +248,7 @@ class CategoryController extends AdminPanelController
                 'name',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && mb_strlen(trim($value)) > 0;
                 },
                 false,
                 function ($value) {
@@ -335,7 +335,7 @@ class CategoryController extends AdminPanelController
                         $mapper->description = $description;
                         $mapper->image = $image;
 
-                        if (strlen($image) > 0) {
+                        if (mb_strlen($image) > 0) {
 
                             $saved = $mapper->save();
 
@@ -368,7 +368,7 @@ class CategoryController extends AdminPanelController
 
                             $mapper->name = $name;
                             $mapper->description = $description;
-                            $mapper->image = strlen($image) > 0 ? $image : $mapper->image;
+                            $mapper->image = mb_strlen($image) > 0 ? $image : $mapper->image;
 
                             $updated = $mapper->update();
 
@@ -562,10 +562,10 @@ class CategoryController extends AdminPanelController
                 if ($setNameByInput && $valid) {
 
                     $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = strrpos($name, '.');
+                    $lastPointIndex = mb_strrpos($name, '.');
 
                     if ($lastPointIndex !== false) {
-                        $name = substr($name, 0, $lastPointIndex);
+                        $name = mb_substr($name, 0, $lastPointIndex);
                     }
 
                 }
@@ -575,7 +575,7 @@ class CategoryController extends AdminPanelController
                     $oldFile = append_to_url(basepath(), $currentRoute);
                     $oldFile = file_exists($oldFile) ? $oldFile : null;
 
-                    if (strlen(trim($folder)) < 1) {
+                    if (mb_strlen(trim($folder)) < 1) {
                         //Si folder está vacío
                         $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
                         $folder = str_replace(basename($currentRoute), '', $folder);
@@ -642,7 +642,7 @@ class CategoryController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

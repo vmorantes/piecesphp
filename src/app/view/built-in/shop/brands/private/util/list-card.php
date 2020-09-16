@@ -43,7 +43,7 @@ $editLink;
 
             <div>
 
-                <?php if(strlen($editLink) > 0): ?>
+                <?php if(mb_strlen($editLink) > 0): ?>
                 <a class="fluid ui olive button icon" href="<?= $editLink; ?>">
                     <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Editar'); ?>
                 </a>

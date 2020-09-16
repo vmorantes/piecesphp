@@ -567,7 +567,7 @@ class UsersController extends AdminPanelController
             },
             false,
             function ($value) {
-                return trim(strtolower($value));
+                return trim(mb_strtolower($value));
             }
         );
 
@@ -805,7 +805,7 @@ class UsersController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return strtolower($value);
+                    return mb_strtolower($value);
                 }
             ),
             new Parameter(
@@ -816,7 +816,7 @@ class UsersController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return strtolower($value);
+                    return mb_strtolower($value);
                 }
             ),
             new Parameter(
@@ -1041,7 +1041,7 @@ class UsersController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return strtolower($value);
+                    return mb_strtolower($value);
                 }
             ),
             new Parameter(
@@ -1052,7 +1052,7 @@ class UsersController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return strtolower($value);
+                    return mb_strtolower($value);
                 }
             ),
             new Parameter(

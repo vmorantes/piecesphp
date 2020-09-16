@@ -116,8 +116,8 @@ class EntryPointController extends AdminPanelController
 
         foreach ($this->options as $option) {
             $option = (object) $option;
-            $allowedOption = strlen($option->title) > 0;
-            $allowedOption = $allowedOption && strlen($option->link) > 0;
+            $allowedOption = mb_strlen($option->title) > 0;
+            $allowedOption = $allowedOption && mb_strlen($option->link) > 0;
             if ($allowedOption) {
                 $options[] = $option;
             }
@@ -152,7 +152,7 @@ class EntryPointController extends AdminPanelController
     {
 
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = mb_strlen($route) > 0;
 
         if ($allow) {
 
@@ -179,7 +179,7 @@ class EntryPointController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

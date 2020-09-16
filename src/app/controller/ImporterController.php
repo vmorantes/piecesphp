@@ -103,7 +103,7 @@ class ImporterController extends AdminPanelController
 
             $data['text'] = $this->getImporter($type, [])->getDescription();
 
-            if (strlen($data['text']) == 0) {
+            if (mb_strlen($data['text']) == 0) {
                 $data['text'] = $this->getText($type);
             }
 

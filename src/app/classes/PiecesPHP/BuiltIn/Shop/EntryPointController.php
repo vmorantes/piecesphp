@@ -102,7 +102,7 @@ class EntryPointController extends AdminPanelController
 
             $option = (object) $option;
 
-            if (strlen($option->title) > 0) {
+            if (mb_strlen($option->title) > 0) {
                 $options[$key] = $option;
             } else {
                 unset($options[$key]);
@@ -148,7 +148,7 @@ class EntryPointController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

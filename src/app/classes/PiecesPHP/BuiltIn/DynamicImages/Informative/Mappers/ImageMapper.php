@@ -314,7 +314,7 @@ class ImageMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Imágenes');
+        $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Imágenes');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

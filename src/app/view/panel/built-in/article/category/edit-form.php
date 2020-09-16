@@ -50,7 +50,7 @@
 			<?php $subElement = $element->getContentByLang($lang); ?>
 			<?php $subElementName = !is_null($subElement) ? $subElement->name : ''; ?>
 			<?php $subElementDescription = !is_null($subElement) ? $subElement->description : ''; ?>
-			<?php $subElementRequired = strlen(trim($subElementName)) > 0;?>
+			<?php $subElementRequired = mb_strlen(trim($subElementName)) > 0;?>
 			
 			<input type="hidden" name="properties[<?= $lang; ?>][id]" value="<?= !is_null($subElement) ? $subElement->id : ''; ?>">
 

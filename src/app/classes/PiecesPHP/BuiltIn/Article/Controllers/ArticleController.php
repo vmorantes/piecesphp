@@ -250,7 +250,7 @@ class ArticleController extends AdminPanelController
         $data['process_table'] = $process_table;
         $data['back_link'] = $back_link;
         $data['add_link'] = $add_link;
-        $data['has_permissions_add'] = strlen($add_link) > 0;
+        $data['has_permissions_add'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
 
         $this->render('panel/layout/header');
@@ -328,7 +328,7 @@ class ArticleController extends AdminPanelController
             //Tratamiento de las opciones
             $allowedLangs = get_config('allowed_langs');
 
-            $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+            $onlyLang = is_string($onlyLang) && mb_strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
             $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
 
             $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
@@ -577,8 +577,8 @@ class ArticleController extends AdminPanelController
         $end_date = $request->getParsedBodyParam('end_date', '');
         $seoDescription = $request->getParsedBodyParam('seo_description', '');
 
-        $start_date = strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
-        $end_date = strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
+        $start_date = mb_strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
+        $end_date = mb_strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
 
         $isEdit = $contentOf !== -1;
 
@@ -645,7 +645,7 @@ class ArticleController extends AdminPanelController
                             $mainMapper->images = [
                                 "imageMain" => $imageMain,
                                 "imageThumb" => $imageThumb,
-                                "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : '',
+                                "imageOpenGraph" => mb_strlen($imageOpenGraph) > 0 ? $imageOpenGraph : '',
                             ];
 
                             $articleSaved = $mainMapper->save();
@@ -734,9 +734,9 @@ class ArticleController extends AdminPanelController
                                     $mainMapper->images->imageOpenGraph
                                 );
                                 $mainMapper->images = [
-                                    "imageMain" => strlen($imageMain) > 0 ? $imageMain : $mainMapper->images->imageMain,
-                                    "imageThumb" => strlen($imageThumb) > 0 ? $imageThumb : $mainMapper->images->imageThumb,
-                                    "imageOpenGraph" => strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $mainMapper->images->imageOpenGraph,
+                                    "imageMain" => mb_strlen($imageMain) > 0 ? $imageMain : $mainMapper->images->imageMain,
+                                    "imageThumb" => mb_strlen($imageThumb) > 0 ? $imageThumb : $mainMapper->images->imageThumb,
+                                    "imageOpenGraph" => mb_strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $mainMapper->images->imageOpenGraph,
                                 ];
 
                                 $articleUpdated = $mainMapper->update();
@@ -838,7 +838,7 @@ class ArticleController extends AdminPanelController
         //Tratamiento de las opciones
         $allowedLangs = get_config('allowed_langs');
 
-        $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+        $onlyLang = is_string($onlyLang) && mb_strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
         $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
 
         $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
@@ -986,10 +986,10 @@ class ArticleController extends AdminPanelController
                 if ($setNameByInput && $valid) {
 
                     $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = strrpos($name, '.');
+                    $lastPointIndex = mb_strrpos($name, '.');
 
                     if ($lastPointIndex !== false) {
-                        $name = substr($name, 0, $lastPointIndex);
+                        $name = mb_substr($name, 0, $lastPointIndex);
                     }
 
                 }
@@ -1112,7 +1112,7 @@ class ArticleController extends AdminPanelController
         $imagesOnOldText = [];
         $currentImagesOnText = [];
 
-        $isEdit = !is_null($oldText) && strlen($oldText) > 0;
+        $isEdit = !is_null($oldText) && mb_strlen($oldText) > 0;
         $id = $entity->id;
 
         $regex = '/https?\:\/\/[^\",]+/i';
@@ -1125,7 +1125,7 @@ class ArticleController extends AdminPanelController
 
             foreach ($imagesOnText as $url) {
 
-                if (strpos($url, $this->uploadDirTmpURL) !== false) {
+                if (mb_strpos($url, $this->uploadDirTmpURL) !== false) {
 
                     $filename = basename($url);
 
@@ -1149,7 +1149,7 @@ class ArticleController extends AdminPanelController
                     $entity->content = str_replace($url, $_url, $entity->content);
 
                     $currentImagesOnText[] = $_url;
-                } elseif (strpos($url, $this->uploadDirURL) !== false) {
+                } elseif (mb_strpos($url, $this->uploadDirURL) !== false) {
 
                     $currentImagesOnText[] = trim($url, '/');
                 }
@@ -1194,7 +1194,7 @@ class ArticleController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixParentEntity . '-' . self::$prefixEntity . $name : self::$prefixParentEntity;

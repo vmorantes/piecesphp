@@ -174,7 +174,7 @@ class CategoryController extends AdminPanelController
         $data['process_table'] = $process_table;
         $data['back_link'] = $back_link;
         $data['add_link'] = $add_link;
-        $data['has_permissions_add'] = strlen($add_link) > 0;
+        $data['has_permissions_add'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
 
         $this->render('panel/layout/header');
@@ -247,7 +247,7 @@ class CategoryController extends AdminPanelController
 
                     if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
                         $href = $buttonEdit->getAttributes(false)->offsetGet('href');
-                        if (strlen(trim($href->getValue())) < 1) {
+                        if (mb_strlen(trim($href->getValue())) < 1) {
                             $buttonEdit = '';
                         }
                     }
@@ -256,8 +256,8 @@ class CategoryController extends AdminPanelController
 
                     return [
                         $mapper->content_of->id,
-                        strlen($mapper->name) > 50 ? trim(mb_substr($mapper->name, 0, 50)) . '...' : $mapper->name,
-                        strlen($mapper->description) > 50 ? trim(mb_substr($mapper->description, 0, 50)) . '...' : $mapper->description,
+                        mb_strlen($mapper->name) > 50 ? trim(mb_substr($mapper->name, 0, 50)) . '...' : $mapper->name,
+                        mb_strlen($mapper->description) > 50 ? trim(mb_substr($mapper->description, 0, 50)) . '...' : $mapper->description,
                         (string) $buttonEdit,
                     ];
                 },
@@ -349,7 +349,7 @@ class CategoryController extends AdminPanelController
                     $description = is_string($description) ? clean_string($description) : '';
 
                     //Validación final de entrada
-                    $validations = strlen($name) > 0;
+                    $validations = mb_strlen($name) > 0;
 
                     if ($validations) {
 
@@ -514,7 +514,7 @@ class CategoryController extends AdminPanelController
                     $description = is_string($description) ? clean_string($description) : '';
 
                     //Validación final de entrada
-                    $validations = strlen($name) > 0;
+                    $validations = mb_strlen($name) > 0;
 
                     if ($validations) {
 
@@ -652,7 +652,7 @@ class CategoryController extends AdminPanelController
         //Tratamiento de las opciones
         $allowedLangs = get_config('allowed_langs');
 
-        $onlyLang = is_string($onlyLang) && strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
+        $onlyLang = is_string($onlyLang) && mb_strlen(trim($onlyLang)) > 0 ? trim($onlyLang) : null;
         $onlyLang = !is_null($onlyLang) && in_array($onlyLang, $allowedLangs) ? $onlyLang : get_config('app_lang');
 
         $page = is_integer($page) || ctype_digit($page) ? (int) $page : 1;
@@ -722,7 +722,7 @@ class CategoryController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixRootParentEntity . '-' . self::$prefixParentEntity . '-' . self::$prefixEntity . $name : self::$prefixRootParentEntity;

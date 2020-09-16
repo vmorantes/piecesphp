@@ -208,7 +208,7 @@ class HeroController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = mb_strlen($addLink) > 0;
         $data['title'] = $title;
 
         set_custom_assets([
@@ -295,7 +295,7 @@ class HeroController extends AdminPanelController
 
                         foreach ($value as $lang => $text) {
 
-                            if (in_array($lang, $allowedLangs) && is_string($text) && strlen(trim($text)) > 0) {
+                            if (in_array($lang, $allowedLangs) && is_string($text) && mb_strlen(trim($text)) > 0) {
                                 $valid = true;
                             } else {
                                 $valid = false;
@@ -328,7 +328,7 @@ class HeroController extends AdminPanelController
 
                         foreach ($value as $lang => $text) {
 
-                            if (in_array($lang, $allowedLangs) && is_string($text) && strlen(trim($text)) > 0) {
+                            if (in_array($lang, $allowedLangs) && is_string($text) && mb_strlen(trim($text)) > 0) {
 
                                 $originalInput = $text;
                                 $text = HeroController::parseURL($text);
@@ -515,7 +515,7 @@ class HeroController extends AdminPanelController
 
                     }
 
-                    if (strlen($mapper->image) > 0) {
+                    if (mb_strlen($mapper->image) > 0) {
 
                         $saved = $mapper->save();
 
@@ -565,7 +565,7 @@ class HeroController extends AdminPanelController
                         $mapper->link = array_key_exists($defaultLang, $link) ? $link[$defaultLang] : '';
 
                         $imageDefault = array_key_exists($defaultLang, $images) ? $images[$defaultLang] : '';
-                        $mapper->image = strlen($imageDefault) > 0 ? $imageDefault : $mapper->image;
+                        $mapper->image = mb_strlen($imageDefault) > 0 ? $imageDefault : $mapper->image;
 
                         $mapper->start_date = $startDate !== null ? $startDate->format('Y-m-d H:i:') . '00' : null;
                         $mapper->end_date = $endDate !== null ? $endDate->format('Y-m-d H:i:') . '00' : null;
@@ -1032,7 +1032,7 @@ class HeroController extends AdminPanelController
     protected static function parseURL(string $value)
     {
 
-        if (strlen($value) > 0) {
+        if (mb_strlen($value) > 0) {
 
             $value = str_replace(' ', '', $value);
             $value = trim($value, '.');
@@ -1041,11 +1041,11 @@ class HeroController extends AdminPanelController
             $value = mb_strtolower($value);
             $https = false;
 
-            $hasPoints = strpos($value, '.') !== false;
+            $hasPoints = mb_strpos($value, '.') !== false;
 
             if ($hasPoints) {
 
-                if (strpos($value, 'https://') !== false) {
+                if (mb_strpos($value, 'https://') !== false) {
                     $https = true;
                 }
 
@@ -1117,7 +1117,7 @@ class HeroController extends AdminPanelController
     {
 
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = mb_strlen($route) > 0;
 
         if ($allow) {
 
@@ -1162,10 +1162,10 @@ class HeroController extends AdminPanelController
                 if ($setNameByInput && $valid) {
 
                     $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = strrpos($name, '.');
+                    $lastPointIndex = mb_strrpos($name, '.');
 
                     if ($lastPointIndex !== false) {
-                        $name = substr($name, 0, $lastPointIndex);
+                        $name = mb_substr($name, 0, $lastPointIndex);
                     }
 
                 }
@@ -1175,7 +1175,7 @@ class HeroController extends AdminPanelController
                     $oldFile = append_to_url(basepath(), $currentRoute);
                     $oldFile = file_exists($oldFile) ? $oldFile : null;
 
-                    if (strlen(trim($folder)) < 1) {
+                    if (mb_strlen(trim($folder)) < 1) {
                         //Si folder está vacío
                         $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
                         $folder = str_replace(basename($currentRoute), '', $folder);
@@ -1242,7 +1242,7 @@ class HeroController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
