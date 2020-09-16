@@ -1,4 +1,4 @@
-site_name: Configuración de entorno de desarrollo
+site_name: Documentación de desarrollo
 nav:
     - Home: index.md
     - Guías de instalación de entorno:       
@@ -6,3 +6,4 @@ nav:
         - HestiaCP (Debian 9): hestiacp/index.md 
         - Tomacat 8 (Debian 9): tomcat/index.md 
 theme: readthedocs
+site_dir: ../../docs
