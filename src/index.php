@@ -1,6 +1,7 @@
 <?php
 
 use App\Model\AppConfigModel;
+use App\Model\UsersModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
@@ -110,12 +111,138 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
     $name_route = $route->getName(); //Nombre de la ruta
     $methods = $route->getMethods(); //Métodos que acepta la ruta solicitada
     $arguments = $route->getArguments(); //Argumentos pasados en la url
+    $user = null; //Usuario activo
 
     //Control de acceso por login
     $control_access_login = get_config('control_access_login');
 
     //Verifica validez del JWT
     $isActiveSession = SessionToken::isActiveSession($JWT);
+
+    //Verifica la validez del usuario activo si hay una sesion activa
+    if ($isActiveSession) {
+
+        $user = BaseToken::getData($JWT); //Información del usuario
+        $validationUserObject = new class($user)
+        {
+            /**
+             * El usuario entrante
+             *
+             * @var \stdClass
+             */
+            private $element = null;
+            /**
+             * El usuario
+             *
+             * @param \stdClass|mixed $user
+             */
+            function __construct($user)
+            {
+                $this->element = $user;
+            }
+            /**
+             * Trata de buscar al usuario en la base de datos
+             *
+             * @return \stdClass|null
+             */
+            function getUserFromDatabase()
+            {
+                $user = null;
+
+                if ($this->isValid()) {
+
+                    $usersModel = UsersModel::model()->select()->where(['id' => $this->element->id]);
+                    $usersModel->execute();
+                    $user = $usersModel->result();
+                    $user = count($user) > 0 ? $user[0] : null;
+
+                    if ($user !== null) {
+                        $fullname = [
+                            trim(is_string($user->firstname) ? $user->firstname : ''),
+                            trim(is_string($user->first_lastname) ? $user->first_lastname : ''),
+                            trim(is_string($user->secondname) ? $user->secondname : ''),
+                            trim(is_string($user->second_lastname) ? $user->second_lastname : ''),
+                        ];
+                        $user->fullName = trim(implode(' ', $fullname));
+                    }
+
+                }
+
+                return $user;
+            }
+            /**
+             * Valida que la variable de entrada sea un objeto con las
+             * propiedades id y type válidas
+             *
+             * @return bool
+             */
+            function isValid()
+            {
+                return $this->hasID() && $this->validType();
+            }
+            /**
+             * Valida que sea un objeto
+             *
+             * @return bool
+             */
+            function isObject()
+            {
+                return $this->element instanceof \stdClass;
+            }
+            /**
+             * Valida que tenga un ID válido
+             *
+             * @return bool
+             */
+            function hasID()
+            {
+                $e = $this->element;
+                return $this->isObject() && isset($e->id) && $this->isInteger($e->id);
+            }
+            /**
+             * Valida que tenga un type de tipo válido
+             *
+             * @return bool
+             */
+            function hasType()
+            {
+                $e = $this->element;
+                return $this->isObject() && isset($e->type) && $this->isInteger($e->type);
+            }
+            /**
+             * Valida que el type exista
+             *
+             * @return bool
+             */
+            function validType()
+            {
+                $e = $this->element;
+                return $this->hasType() && in_array((int) $e->type, UsersModel::TYPES_USERS);
+            }
+            /**
+             * Valida que sea un entero válido
+             *
+             * @param string|int $value
+             * @return bool
+             */
+            function isInteger($value)
+            {
+                return (is_string($value) && ctype_digit($value)) || is_int($value);
+            }
+
+        };
+
+        $user = $validationUserObject->getUserFromDatabase();
+
+        if ($user !== null) {
+            set_config('current_user', $user);
+            Roles::setCurrentRole($user->type); //Se establece el rol
+        } else {
+            $isActiveSession = false;
+            SessionToken::setMinimumDateCreated(new \DateTime());
+        }
+
+    }
 
     //Verifica si el control automático de acceso por login está activado
     if ($control_access_login) {
@@ -177,23 +304,8 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         //Control de permisos por roles
         $roles_control = get_config('roles');
         $active_roles_control = isset($roles_control['active']) ? $roles_control['active'] : false;
-        $user = null;
-        $current_role = null;
+        $current_role = $user !== null ? Roles::getCurrentRole() : null;
         $has_permissions = null;
-
-        //Verifica si hay una sesion activa
-        if ($isActiveSession) {
-
-            $user = BaseToken::getData($JWT); //Información del usuario
-            $user = $user instanceof \stdClass ? (new \App\Model\UsersModel())->getModel()->select()->where(['id' => $user->id])->row() : $user;
-
-            if ($user instanceof \stdClass) {
-                set_config('current_user', $user);
-                Roles::setCurrentRole($user->type); //Se establece el rol
-                $current_role = Roles::getCurrentRole(); //Se obtiene el rol
-            }
-
-        }
 
         //Verifica si está activada la comprobación automática de roles
         if ($current_role !== null && $active_roles_control === true) {
@@ -246,7 +358,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
             set_config('mail', $mail_config);
         }
 
-        if (strlen(get_title()) == 0) {
+        if (mb_strlen(get_title()) == 0) {
             set_title(AppConfigModel::getConfigValue('title_app'));
         }
     }
