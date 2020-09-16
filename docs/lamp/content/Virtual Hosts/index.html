@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../../../img/favicon.ico">
+  <title>Añadir soporte de dominios en apache2 (funciona para ssl, hacer los mismos pasos con el archivo default-ssl.conf) (Debian 9) - Documentación de desarrollo</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../../../css/theme.css" />
+  <link rel="stylesheet" href="../../../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "A\u00f1adir soporte de dominios en apache2 (funciona para ssl, hacer los mismos pasos con el archivo default-ssl.conf) (Debian 9)";
+    var mkdocs_page_input_path = "lamp/content/Virtual Hosts.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="../../.." class="icon icon-home"> Documentación de desarrollo</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Guías de instalación de entorno</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../">LAMP</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../hestiacp/">HestiaCP (Debian 9)</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../tomcat/">Tomacat 8 (Debian 9)</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../..">Documentación de desarrollo</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Añadir soporte de dominios en apache2 (funciona para ssl, hacer los mismos pasos con el archivo default-ssl.conf) (Debian 9)</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="anadir-soporte-de-dominios-en-apache2-funciona-para-ssl-hacer-los-mismos-pasos-con-el-archivo-default-sslconf-debian-9">Añadir soporte de dominios en apache2 (funciona para ssl, hacer los mismos pasos con el archivo default-ssl.conf) (Debian 9)</h1>
+<p>Nota: La información es sacada de <a href="https://www.digitalocean.com/community/tutorials/como-configurar-virtual-hosts-de-apache-en-ubuntu-16-04-es">DigitalOcean</a></p>
+<ul>
+<li>Crear el archivo de configuración</li>
+</ul>
+<pre><code class="bash">cd /etc/apache2/sites-available
+cp 000-default.conf DOMINIO.COM.conf
+</code></pre>
+
+<ul>
+<li>La información de DOMINIO.COM.conf es algo como lo siguiente</li>
+</ul>
+<pre><code class="apacheconf">&lt;VirtualHost *:80&gt;
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+&lt;/VirtualHost&gt;
+</code></pre>
+
+<ul>
+<li>Modificar información</li>
+</ul>
+<pre><code class="bash">nano DOMINIO.COM.conf
+</code></pre>
+
+<pre><code class="apacheconf">&lt;VirtualHost *:80&gt;
+    ...
+    ServerAdmin admin@DOMINIO.COM #Opcional
+    ServerName DOMINIO.COM
+    ServerAlias www.DOMINIO.COM
+    DocumentRoot /var/www/DOMINIO.COM/public_html
+    ...
+&lt;/VirtualHost&gt;
+</code></pre>
+
+<ul>
+<li>Activar vhost y desactivar configuración por defecto</li>
+</ul>
+<pre><code class="bash">a2ensite DOMINIO.COM.conf
+a2dissite 000-default.conf
+</code></pre>
+
+<ul>
+<li>Reinicar servidor</li>
+</ul>
+<pre><code class="bash">service apache2 restart
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+    </span>
+</div>
+    <script>var base_url = '../../..';</script>
+    <script src="../../../js/theme.js" defer></script>
+      <script src="../../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
