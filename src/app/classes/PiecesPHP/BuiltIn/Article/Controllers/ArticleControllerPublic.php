@@ -94,7 +94,7 @@ class ArticleControllerPublic extends BaseController
 
         if ($category !== null) {
             $byCategory = true;
-            $category = is_string($category) && strlen($category) > 0 ? mb_strtolower($category) : null;
+            $category = is_string($category) && mb_strlen($category) > 0 ? mb_strtolower($category) : null;
             $category = !is_null($category) && CategoryContentMapper::existsByFriendlyURL($category) ? $category : null;
         }
 
@@ -206,10 +206,10 @@ class ArticleControllerPublic extends BaseController
             set_title($article->title);
 
             $seoDescription = isset($article->seoDescription) ? $article->seoDescription : '';
-            $seoDescription = strlen($seoDescription) > 0 ? $seoDescription : $article->content;
+            $seoDescription = mb_strlen($seoDescription) > 0 ? $seoDescription : $article->content;
 
             $imageOpenGraph = isset($article->images->imageOpenGraph) ? $article->images->imageOpenGraph : '';
-            $imageOpenGraph = strlen($imageOpenGraph) > 0 ? baseurl($imageOpenGraph) : base_url($article->images->imageMain);
+            $imageOpenGraph = mb_strlen($imageOpenGraph) > 0 ? baseurl($imageOpenGraph) : base_url($article->images->imageMain);
 
             MetaTags::setDescription($seoDescription);
             MetaTags::setImage($imageOpenGraph);
@@ -259,7 +259,7 @@ class ArticleControllerPublic extends BaseController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixNameRoutes . $name : self::$prefixNameRoutes;
@@ -297,7 +297,7 @@ class ArticleControllerPublic extends BaseController
 
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
-        $startRoute = strlen(self::$startSegmentRoutes) > 0 ? $startRoute : '';
+        $startRoute = mb_strlen(self::$startSegmentRoutes) > 0 ? $startRoute : '';
 
         //Otras rutas
         $namePrefix = self::$prefixNameRoutes;

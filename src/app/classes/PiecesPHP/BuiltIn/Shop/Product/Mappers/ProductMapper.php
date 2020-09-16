@@ -382,7 +382,7 @@ class ProductMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Productos');
+        $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Productos');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

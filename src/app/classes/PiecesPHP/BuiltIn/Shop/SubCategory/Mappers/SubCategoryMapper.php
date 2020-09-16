@@ -198,7 +198,7 @@ class SubCategoryMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Subcategorías');
+        $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Subcategorías');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

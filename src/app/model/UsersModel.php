@@ -184,7 +184,7 @@ class UsersModel extends BaseEntityMapper
         ];
 
         $fullname = implode(' ', array_filter($fullname, function ($e) {
-            return is_string($e) && strlen(trim($e)) > 0;
+            return is_string($e) && mb_strlen(trim($e)) > 0;
         }));
 
         return $fullname;

@@ -209,8 +209,8 @@ class BlackboardNewsController extends AdminPanelController
         $start_date = $request->getParsedBodyParam('start_date', null);
         $end_date = $request->getParsedBodyParam('end_date', null);
 
-        $start_date = strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
-        $end_date = strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
+        $start_date = mb_strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
+        $end_date = mb_strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
 
         $params_verify = !in_array(null, [
             $type,
@@ -276,8 +276,8 @@ class BlackboardNewsController extends AdminPanelController
         $start_date = $request->getParsedBodyParam('start_date', null);
         $end_date = $request->getParsedBodyParam('end_date', null);
 
-        $start_date = strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
-        $end_date = strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
+        $start_date = mb_strlen(trim($start_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $start_date) : null;
+        $end_date = mb_strlen(trim($end_date)) > 0 ? date_create_from_format(self::FORMAT_DATETIME, $end_date) : null;
 
         $params_verify = !in_array(null, [
             $id,
@@ -333,7 +333,7 @@ class BlackboardNewsController extends AdminPanelController
         $imagesOnOldText = [];
         $currentImagesOnText = [];
 
-        $isEdit = !is_null($oldText) && strlen($oldText) > 0;
+        $isEdit = !is_null($oldText) && mb_strlen($oldText) > 0;
         $id = $entity->id;
 
         $regex = '/https?\:\/\/[^\",]+/i';
@@ -346,7 +346,7 @@ class BlackboardNewsController extends AdminPanelController
 
             foreach ($imagesOnText as $url) {
 
-                if (strpos($url, $this->uploadDirTmpURL) !== false) {
+                if (mb_strpos($url, $this->uploadDirTmpURL) !== false) {
 
                     $filename = str_replace($this->uploadDirTmpURL, '', $url);
 
@@ -370,7 +370,7 @@ class BlackboardNewsController extends AdminPanelController
 
                     $currentImagesOnText[] = $_url;
 
-                } elseif (strpos($url, $this->uploadDirURL) !== false) {
+                } elseif (mb_strpos($url, $this->uploadDirURL) !== false) {
 
                     $currentImagesOnText[] = $url;
 

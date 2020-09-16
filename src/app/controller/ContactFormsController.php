@@ -66,7 +66,7 @@ class ContactFormsController extends PublicAreaController
                 'from',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && mb_strlen(trim($value)) > 0;
                 },
                 false,
                 function ($value) {
@@ -77,7 +77,7 @@ class ContactFormsController extends PublicAreaController
                 'name',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && mb_strlen(trim($value)) > 0;
                 },
                 false,
                 function ($value) {
@@ -88,7 +88,7 @@ class ContactFormsController extends PublicAreaController
                 'email',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && mb_strlen(trim($value)) > 0;
                 },
                 false,
                 function ($value) {
@@ -99,7 +99,7 @@ class ContactFormsController extends PublicAreaController
                 'subject',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && mb_strlen(trim($value)) > 0;
                 },
                 false,
                 function ($value) {
@@ -110,7 +110,7 @@ class ContactFormsController extends PublicAreaController
                 'message',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && mb_strlen(trim($value)) > 0;
                 },
                 false,
                 function ($value) {
@@ -200,7 +200,7 @@ class ContactFormsController extends PublicAreaController
                 $mailer->isHTML(true);
 
                 //Si es Zoho el dato de From debe ser igual al del usuario que envía por SMPT
-                $isZoho = strpos($mailer->Host, 'zoho') !== false;
+                $isZoho = mb_strpos($mailer->Host, 'zoho') !== false;
                 $mailer->setFrom($isZoho ? $mailer->Username : $email, $name);
 
                 foreach ($this->recipientsMessages as $recipient) {
@@ -259,7 +259,7 @@ class ContactFormsController extends PublicAreaController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixNameRoutes . $name : self::$prefixNameRoutes;
@@ -301,7 +301,7 @@ class ContactFormsController extends PublicAreaController
         //Otras rutas
         $namePrefix = self::$prefixNameRoutes;
 
-        if (strlen(self::$startSegmentRoutes) > 0) {
+        if (mb_strlen(self::$startSegmentRoutes) > 0) {
             $startRoute .= self::$startSegmentRoutes;
         } else {
             $startRoute = '';

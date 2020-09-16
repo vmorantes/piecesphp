@@ -128,8 +128,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         $folder = $req->getAttribute('folder', null);
         $name = $req->getAttribute('name', null);
 
-        $folder = is_string($folder) && strlen(trim($folder)) > 0 ? trim($folder) : null;
-        $name = strlen(trim($name)) > 0 ? trim($name) : null;
+        $folder = is_string($folder) && mb_strlen(trim($folder)) > 0 ? trim($folder) : null;
+        $name = mb_strlen(trim($name)) > 0 ? trim($name) : null;
 
         if ($folder !== null) {
             $name = "{$folder}/{$name}";
@@ -231,7 +231,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixNameRoutes . $name : self::$prefixNameRoutes;
@@ -273,7 +273,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         //Otras rutas
         $namePrefix = self::$prefixNameRoutes;
 
-        if (strlen(self::$startSegmentRoutes) > 0) {
+        if (mb_strlen(self::$startSegmentRoutes) > 0) {
             $startRoute .= self::$startSegmentRoutes;
         } else {
             $startRoute = '';

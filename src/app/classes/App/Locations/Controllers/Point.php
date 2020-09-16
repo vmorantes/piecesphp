@@ -159,7 +159,7 @@ class Point extends AdminPanelController
         $data['process_table'] = $process_table;
         $data['back_link'] = $back_link;
         $data['add_link'] = $add_link;
-        $data['has_add_link_permissions'] = strlen($add_link) > 0;
+        $data['has_add_link_permissions'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
 
         $this->render('panel/layout/header');
@@ -263,7 +263,7 @@ class Point extends AdminPanelController
 
                     if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
                         $href = $buttonEdit->getAttributes(false)->offsetGet('href');
-                        if (strlen(trim($href->getValue())) < 1) {
+                        if (mb_strlen(trim($href->getValue())) < 1) {
                             $buttonEdit = __('locationBackend', 'Sin acciones');
                         }
                     }
@@ -432,7 +432,7 @@ class Point extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixParentEntity . '-' . self::$prefixEntity . $name : self::$prefixParentEntity;

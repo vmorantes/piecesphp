@@ -46,13 +46,13 @@ $subCategoriesLink = SubCategoryController::routeName('list') . "?category={$map
 
             <div>
 
-                <?php if(strlen($editLink) > 0): ?>
+                <?php if(mb_strlen($editLink) > 0): ?>
                 <a class="fluid ui olive button icon" href="<?= $editLink; ?>">
                     <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Editar'); ?>
                 </a>
                 <?php endif;?>
 
-                <?php if(strlen($subCategoriesLink) > 0): ?>
+                <?php if(mb_strlen($subCategoriesLink) > 0): ?>
                 <a class="fluid ui blue button icon" href="<?= $subCategoriesLink; ?>">
                     <i class="icon search"></i> &nbsp; <?= __($langGroup, 'Subcategorías'); ?>
                 </a>

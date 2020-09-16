@@ -555,7 +555,7 @@ class AppConfigController extends AdminPanelController
 
             $url = get_route_sample($routeInfo['name']);
 
-            if (strpos($url, '{') === false) {
+            if (mb_strpos($url, '{') === false) {
 
                 $sitemap->addItem(new SitemapItem($url));
 
@@ -794,7 +794,7 @@ class AppConfigController extends AdminPanelController
                     $toFalse = [0, '0', 'off', 'no', 'false', null, 'null'];
                     $toTrue = [1, '1', 'on', 'yes', 'si', 'sí', 'true'];
                     if (is_string($value)) {
-                        $value = strtolower($value);
+                        $value = mb_strtolower($value);
                     }
                     foreach ($toTrue as $i) {
                         if ($i === $value) {

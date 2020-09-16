@@ -161,7 +161,7 @@ class BrandMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Marcas');
+        $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Marcas');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

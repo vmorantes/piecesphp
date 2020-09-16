@@ -3,7 +3,7 @@
     <div class="content">
 
         <div class="header">
-            <?=  strlen($mapper->title) > 50 ? trim(mb_substr($mapper->title, 0, 50)) . '...' : $mapper->title; ?>
+            <?=  mb_strlen($mapper->title) > 50 ? trim(mb_substr($mapper->title, 0, 50)) . '...' : $mapper->title; ?>
         </div>
 
         <div class="ui divider"></div>
@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <?php if(strlen($editLink) > 0): ?>
+    <?php if(mb_strlen($editLink) > 0): ?>
     <div class="extra content">
 
         <a class="fluid ui green button" href="<?= $editLink; ?>"><?= __('articlesBackend', 'Editar'); ?></a>
