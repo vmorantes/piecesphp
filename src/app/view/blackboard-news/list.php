@@ -1,9 +1,13 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use App\Controller\BlackboardNewsController;
+$langGroup = BlackboardNewsController::LANG_GROUP;
+?>
 
 <h3 class="ui dividing header">
-    <?= __('news', 'Noticias'); ?>
+    <?= __($langGroup, 'Noticias'); ?>
 </h3>
-<a href="<?=get_route('blackboard-news-create-form');?>" class="ui mini button green"><?= __('news', 'Nueva noticia'); ?></a>
+<a href="<?=get_route('blackboard-news-create-form');?>" class="ui mini button green"><?= __($langGroup, 'Nueva noticia'); ?></a>
 <br>
 <br>
 <div table blackboard-list='<?=get_route('blackboard-news-get');?>'>

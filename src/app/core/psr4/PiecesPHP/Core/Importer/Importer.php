@@ -66,6 +66,8 @@ class Importer
      */
     protected $description = '';
 
+    const LANG_GROUP = 'importerModule';
+
     /**
      * __construct
      *
@@ -76,7 +78,7 @@ class Importer
      */
     public function __construct(Schema $schema, array $data, string $title = null)
     {
-		$this->$title = __('importerModule', $this->title);
+		$this->$title = __(self::LANG_GROUP, $this->title);
         $this->schema = $schema;
         $this->data = $data;
         $this->responses = new ResponseCollection();
@@ -181,9 +183,9 @@ class Importer
                         $this->totalImported += 1;
 
                         if ($this->update) {
-                            $response->appendMessage(sprintf(__('importerModule', 'Registro de la fila %s actualizado.'), $row));
+                            $response->appendMessage(sprintf(__(self::LANG_GROUP, 'Registro de la fila %s actualizado.'), $row));
                         } else {
-                            $response->appendMessage(sprintf(__('importerModule', 'Registro de la fila %s insertado.'), $row));
+                            $response->appendMessage(sprintf(__(self::LANG_GROUP, 'Registro de la fila %s insertado.'), $row));
                         }
 
                     } else {
@@ -193,14 +195,14 @@ class Importer
                         if ($this->update) {
                             $response->appendMessage(
 								sprintf(
-									__('importerModule', 'El registro de la fila %s no ha podido ser actualizado debido a un error desconocido.'),
+									__(self::LANG_GROUP, 'El registro de la fila %s no ha podido ser actualizado debido a un error desconocido.'),
 									$row
 								)
 							);
                         } else {
                             $response->appendMessage(
 								sprintf(
-									__('importerModule', 'El registro de la fila %s no ha podido ser insertado debido a un error desconocido.'),
+									__(self::LANG_GROUP, 'El registro de la fila %s no ha podido ser insertado debido a un error desconocido.'),
 									$row
 								)
 							);
@@ -286,7 +288,7 @@ class Importer
             $response->setSuccess(false);
             $response->appendMessage(
 				sprintf(
-					__('importerModule', 'Error: el campo %s es obligatorio.'),
+					__(self::LANG_GROUP, 'Error: el campo %s es obligatorio.'),
 					"$name/$humanName"
 				)
 			);

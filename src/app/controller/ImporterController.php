@@ -56,6 +56,8 @@ class ImporterController extends AdminPanelController
      */
     protected $defaultView = 'panel/pages/importador/generic';
 
+    const LANG_GROUP = 'importerModule';
+
     public function __construct()
     {
         $this->importers = new StringArray([
@@ -67,7 +69,7 @@ class ImporterController extends AdminPanelController
         ];
 
         $this->texts = [
-            'users' => __('importerModule', 'TEXTO_IMPORTACION_USUARIOS'),
+            'users' => __(self::LANG_GROUP, 'TEXTO_IMPORTACION_USUARIOS'),
         ];
 
         parent::__construct();
@@ -158,15 +160,15 @@ class ImporterController extends AdminPanelController
                     $json_response['success'] = true;
 
                 } else {
-                    $json_response['message'] = __('importerModule', 'El importador no es válido.');
+                    $json_response['message'] = __(self::LANG_GROUP, 'El importador no es válido.');
                 }
 
             } else {
-                $json_response['message'] = __('importerModule', 'No existe el importador solicitado.');
+                $json_response['message'] = __(self::LANG_GROUP, 'No existe el importador solicitado.');
             }
 
         } else {
-            $json_response['message'] = __('importerModule', 'Ha ocurrido un error.');
+            $json_response['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error.');
         }
 
         return $res->withJson($json_response);
@@ -192,7 +194,7 @@ class ImporterController extends AdminPanelController
                 $importer = $this->getImporter($type, []);
                 $schema = $importer->getSchema();
                 $template = $schema->template();
-                $name = __('importerModule', 'plantilla');
+                $name = __(self::LANG_GROUP, 'plantilla');
 
                 $template->save('php://output');
 

@@ -1,10 +1,14 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use App\Controller\UsersController;
+$langGroup = UsersController::LANG_GROUP;
+?>
 <div class="user-form-component">
 
     <div class="ui pointing secondary menu items-pointing">
-        <a class="item active" data-tab="form-container"><?= __('usersModule', 'Datos de usuario'); ?></a>
+        <a class="item active" data-tab="form-container"><?= __($langGroup, 'Datos de usuario'); ?></a>
         <?php if (!$create): ?>
-        <a class="item" data-tab="avatar-photo-container"><?= __('usersModule', 'Avatar o foto de perfil'); ?></a>
+        <a class="item" data-tab="avatar-photo-container"><?= __($langGroup, 'Avatar o foto de perfil'); ?></a>
         <?php endif;?>
     </div>
 
@@ -18,7 +22,7 @@
 
         <p>
             <small>
-                <small><?= __('usersModule', 'Puede usar un dibujo personalizado un una imagen.'); ?></small>
+                <small><?= __($langGroup, 'Puede usar un dibujo personalizado un una imagen.'); ?></small>
             </small>
         </p>
 
@@ -26,7 +30,7 @@
 
         <div class="ui message warning">
             <div class="header">
-                <?= __('usersModule', 'Aún no ha seleccionado un avatar o una foto de perfil.'); ?>
+                <?= __($langGroup, 'Aún no ha seleccionado un avatar o una foto de perfil.'); ?>
             </div>
         </div>
 
@@ -35,23 +39,23 @@
         <div id="context-sub-tabs">
 
             <div class="ui pointing secondary menu items-pointing">
-                <a class="item active" data-tab="avatar-container"><?= __('usersModule', 'Avatar'); ?></a>
-                <a class="item" data-tab="photo-container"><?= __('usersModule', 'Foto de perfil'); ?></a>
+                <a class="item active" data-tab="avatar-container"><?= __($langGroup, 'Avatar'); ?></a>
+                <a class="item" data-tab="photo-container"><?= __($langGroup, 'Foto de perfil'); ?></a>
             </div>
 
             <div class="ui bottom attached tab active" data-tab="avatar-container">
                 <?php if ($hasAvatar): ?>
                 <div>
-                    <h2><?= __('usersModule', 'Avatar actual'); ?></h2>
+                    <h2><?= __($langGroup, 'Avatar actual'); ?></h2>
                     <img class="ui middle aligned small circular image" src="<?=$avatar;?>">
                     <button change-avatar class="ui mini button green">
                         <i class="edit icon"></i>
-                        <?= __('usersModule', 'Cambiar'); ?>
+                        <?= __($langGroup, 'Cambiar'); ?>
                     </button>
                 </div>
                 <?php endif;?>
                 <div>
-                    <h3><?= __('usersModule', 'Seleccionar avatar'); ?></h3>
+                    <h3><?= __($langGroup, 'Seleccionar avatar'); ?></h3>
                     <div <?=$hasAvatar ? 'hide' : '';?> class="avatar-component" user="<?=$edit_user->id;?>" resources-route="<?=get_route('avatars');?>" save-route="<?=get_route('push-avatars');?>">
                         <div class="frame">
                             <div style="position:absolute;top:0;left:0;width:100%;height: 100%;z-index: 10;"></div>
@@ -73,62 +77,62 @@
                             <div class="field">
                                 <div buttons-move='cabello'>
                                     <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                                    <input label="<?= __('usersModule', 'Cabello'); ?>">
+                                    <input label="<?= __($langGroup, 'Cabello'); ?>">
                                     <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                                 </div>
                                 <div group-color='cabello'>
-                                    <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
+                                    <div class="caption"><i class="tint icon large"></i><?= __($langGroup, 'Color'); ?></div>
                                     <div container-colors></div>
                                 </div>
                             </div>
                             <div class="field">
                                 <div buttons-move='ojo'>
                                     <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                                    <input label="<?= __('usersModule', 'Ojos'); ?>">
+                                    <input label="<?= __($langGroup, 'Ojos'); ?>">
                                     <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                                 </div>
                                 <div group-color='ojo'>
-                                    <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
+                                    <div class="caption"><i class="tint icon large"></i><?= __($langGroup, 'Color'); ?></div>
                                     <div container-colors></div>
                                 </div>
                             </div>
                             <div class="field">
                                 <div buttons-move='nariz'>
                                     <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                                    <input label="<?= __('usersModule', 'Nariz'); ?>">
+                                    <input label="<?= __($langGroup, 'Nariz'); ?>">
                                     <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                                 </div>
                                 <div group-color='nariz'>
-                                    <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
+                                    <div class="caption"><i class="tint icon large"></i><?= __($langGroup, 'Color'); ?></div>
                                     <div container-colors></div>
                                 </div>
                             </div>
                             <div class="field">
                                 <div buttons-move='boca'>
                                     <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                                    <input label="<?= __('usersModule', 'Boca'); ?>">
+                                    <input label="<?= __($langGroup, 'Boca'); ?>">
                                     <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                                 </div>
                                 <div group-color='boca'>
-                                    <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
+                                    <div class="caption"><i class="tint icon large"></i><?= __($langGroup, 'Color'); ?></div>
                                     <div container-colors></div>
                                 </div>
                             </div>
                             <div class="field">
                                 <div buttons-move='silueta'>
                                     <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                                    <input label="<?= __('usersModule', 'Cuerpo'); ?>">
+                                    <input label="<?= __($langGroup, 'Cuerpo'); ?>">
                                     <button next class="ui-pcs arrow left icon button"><i class="arrow right icon large"></i></button>
                                 </div>
                                 <div group-color='silueta'>
-                                    <div class="caption"><i class="tint icon large"></i><?= __('usersModule', 'Color'); ?></div>
+                                    <div class="caption"><i class="tint icon large"></i><?= __($langGroup, 'Color'); ?></div>
                                     <div container-colors></div>
                                 </div>
                             </div>
                             <div class="field">
                                 <div buttons-move='ropa'>
                                     <button prev class="ui-pcs arrow left icon button"><i class="arrow left icon large"></i></button>
-                                    <input label="<?= __('usersModule', 'Ropa'); ?>">
+                                    <input label="<?= __($langGroup, 'Ropa'); ?>">
                                     <button next class="ui-pcs arrow right icon button"><i class="arrow right icon large"></i></button>
                                 </div>
                             </div>
@@ -136,7 +140,7 @@
                         <div class="center">
                             <div class="ui button green" save-button>
                                 <i class="save icon"></i>
-                                <?= __('usersModule', 'Guardar'); ?>
+                                <?= __($langGroup, 'Guardar'); ?>
                             </div>
                         </div>
                     </div>
@@ -153,7 +157,7 @@
                     <div class="ui form cropper-adapter">
 
                         <div class="field required">
-                            <label><?= __('usersModule', 'Foto de perfil'); ?></label>
+                            <label><?= __($langGroup, 'Foto de perfil'); ?></label>
                             <input type="file" accept="image/*" required>
                         </div>
 
@@ -167,7 +171,7 @@
                         <br>
 
                         <div style="text-align:center;">
-                            <button type="submit" class="ui button green"><?= __('usersModule', 'Guardar foto de perfil'); ?></button>
+                            <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar foto de perfil'); ?></button>
                         </div>
 
                     </div>

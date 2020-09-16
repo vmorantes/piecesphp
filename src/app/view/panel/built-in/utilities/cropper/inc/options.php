@@ -5,7 +5,7 @@
         <div class="icon">
             <i class="sync alternate icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Girar'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Girar'); ?></div>
 
     </div>
 
@@ -14,7 +14,7 @@
         <div class="icon">
             <i class="exchange alternate icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Voltear'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Voltear'); ?></div>
 
     </div>
 
@@ -23,7 +23,7 @@
         <div class="icon">
             <i class="expand icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Ajustar'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Ajustar'); ?></div>
 
     </div>
 
@@ -32,7 +32,7 @@
         <div class="icon">
             <i class="image outline icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Cambiar'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Cambiar'); ?></div>
 
     </div>
 
@@ -45,7 +45,7 @@
         <div class="icon">
             <i class="arrow left icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Atrás'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Atrás'); ?></div>
 
     </div>
 
@@ -54,7 +54,7 @@
         <div class="icon">
             <i class="undo icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Izquierda'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Izquierda'); ?></div>
 
     </div>
 
@@ -63,7 +63,7 @@
         <div class="icon">
             <i class="redo icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Derecha'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Derecha'); ?></div>
 
     </div>
 
@@ -76,7 +76,7 @@
         <div class="icon">
             <i class="arrow left icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Atrás'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Atrás'); ?></div>
 
     </div>
 
@@ -85,7 +85,7 @@
         <div class="icon">
             <i class="arrows alternate horizontal icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Horizontal'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Horizontal'); ?></div>
 
     </div>
 
@@ -94,7 +94,7 @@
         <div class="icon">
             <i class="arrows alternate vertical icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Vertical'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Vertical'); ?></div>
 
     </div>
 
@@ -107,7 +107,7 @@
         <div class="icon">
             <i class="arrow left icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Atrás'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Atrás'); ?></div>
 
     </div>
 
@@ -116,7 +116,7 @@
         <div class="icon">
             <i class="arrow alternate circle up outline icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Arriba'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Arriba'); ?></div>
 
     </div>
 
@@ -125,7 +125,7 @@
         <div class="icon">
             <i class="arrow alternate circle down outline icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Abajo'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Abajo'); ?></div>
 
     </div>
 
@@ -134,7 +134,7 @@
         <div class="icon">
             <i class="arrow alternate circle left outline icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Izquierda'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Izquierda'); ?></div>
 
     </div>
 
@@ -143,7 +143,7 @@
         <div class="icon">
             <i class="arrow alternate circle right outline icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Derecha'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Derecha'); ?></div>
 
     </div>
 
@@ -152,7 +152,7 @@
         <div class="icon">
             <i class="search minus icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Alejar'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Alejar'); ?></div>
 
     </div>
 
@@ -161,7 +161,7 @@
         <div class="icon">
             <i class="search plus icon"></i>
         </div>
-        <div class="text"><?= __('cropper','Acercar'); ?></div>
+        <div class="text"><?= __(CROPPER_ADAPTER_LANG_GROUP,'Acercar'); ?></div>
 
     </div>
 

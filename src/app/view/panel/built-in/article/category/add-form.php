@@ -1,12 +1,18 @@
 <?php
+
  defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+ 
+ use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
+
  $allowed_langs = get_config('allowed_langs');
  $isFirst = true;
- ?>
+
+ $langGroup = ArticleController::LANG_GROUP;
+?>
 
 <div style="max-width:850px;">
 
-    <h3><?= __('articlesBackend', 'Agregar'); ?> <?= $title; ?></h3>
+    <h3><?= __($langGroup, 'Agregar'); ?> <?= $title; ?></h3>
 
     <div class="ui buttons">
         <a href="<?= $back_link; ?>" class="ui button blue"><i class="icon left arrow"></i></a>
@@ -42,12 +48,12 @@
         <div class="ui bottom attached tab segment<?= $isFirst ? ' active' : ''; ?>" data-tab='<?= $lang; ?>'>
 
             <div class="field">
-                <label><?= __('articlesBackend', 'Nombre'); ?></label>
+                <label><?= __($langGroup, 'Nombre'); ?></label>
                 <input type="text" name="properties[<?= $lang; ?>][name]" maxlength="255">
             </div>
 
             <div class="field">
-                <label><?= __('articlesBackend', 'Descripción'); ?></label>
+                <label><?= __($langGroup, 'Descripción'); ?></label>
                 <input type="text" name="properties[<?= $lang; ?>][description]">
             </div>
 
@@ -58,7 +64,7 @@
         <?php endforeach; ?>
 
         <div class="field">
-            <button type="submit" class="ui button green"><?= __('articlesBackend', 'Guardar'); ?></button>
+            <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
         </div>
 
     </form>

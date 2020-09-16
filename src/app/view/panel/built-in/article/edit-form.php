@@ -26,11 +26,13 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
 	return  "<div class='item' data-value='$link'>".__('lang', $lang)."</div>";
 }, $allowedLangsWithoutCurrent);
 
+$langGroup = ArticleController::LANG_GROUP;
+
 ?>
 
 <div style="max-width:850px;">
 
-    <h3><?= __('articlesBackend', 'Editar'); ?> <?=$title;?></h3>
+    <h3><?= __($langGroup, 'Editar'); ?> <?=$title;?></h3>
 
     <br>
 
@@ -39,7 +41,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
         <div class="ui buttons">
 
             <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
-            <button type="submit" class="ui button green"><?= __('articlesBackend', 'Guardar'); ?></button>
+            <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
 
         </div>
 
@@ -49,7 +51,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
 
         <div>
 			<div>
-				<small><?= __('articlesBackend', 'Cambiar idioma'); ?>:</small>
+				<small><?= __($langGroup, 'Cambiar idioma'); ?>:</small>
 			</div>
             <div class="ui selection dropdown lang-selector">
 				<div class="text"><?= __('lang', $currentLang); ?></div>
@@ -67,21 +69,21 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
         <input type="hidden" name="lang" value="<?= $currentLang; ?>">
 
         <div class="ui top attached tabular menu">
-            <div class="item active" data-tab="content"><?= __('articlesBackend', 'Contenido'); ?></div>
-            <div class="item" data-tab="images"><?= __('articlesBackend', 'Imágenes'); ?></div>
-            <div class="item" data-tab="details"><?= __('articlesBackend', 'Detalles'); ?></div>
-            <div class="item" data-tab="seo"><?= __('articlesBackend', 'SEO'); ?></div>
+            <div class="item active" data-tab="content"><?= __($langGroup, 'Contenido'); ?></div>
+            <div class="item" data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
+            <div class="item" data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
+            <div class="item" data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
         </div>
 
         <div class="ui bottom attached tab segment active" data-tab='content'>
 
             <div class="field required">
-                <label><?= __('articlesBackend', 'Título'); ?></label>
+                <label><?= __($langGroup, 'Título'); ?></label>
                 <input required type="text" name="title" maxlength="255" value="<?= htmlentities($subElement->title); ?>">
             </div>
 
             <div class="field required">
-                <label><?= __('articlesBackend', 'Contenido'); ?></label>
+                <label><?= __($langGroup, 'Contenido'); ?></label>
                 <div quill-editor><?=$subElement->content;?></div>
                 <textarea name="content" required><?=$subElement->content;?></textarea>
             </div>
@@ -93,7 +95,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
             <div class="ui form cropper-adapter" cropper-image-main>
 
                 <div class="field">
-                    <label><?= __('articlesBackend', 'Imagen principal'); ?></label>
+                    <label><?= __($langGroup, 'Imagen principal'); ?></label>
                     <input type="file" accept="image/*">
                 </div>
 
@@ -108,7 +110,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
             <div class="ui form cropper-adapter" cropper-image-thumb>
 
                 <div class="field">
-                    <label><?= __('articlesBackend', 'Imagen miniatura'); ?></label>
+                    <label><?= __($langGroup, 'Imagen miniatura'); ?></label>
                     <input type="file" accept="image/*">
                 </div>
 
@@ -125,17 +127,17 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
         <div class="ui bottom attached tab segment" data-tab='details'>
 
             <div class="field required">
-                <label><?= __('articlesBackend', 'Categoría'); ?></label>
+                <label><?= __($langGroup, 'Categoría'); ?></label>
                 <select required class='ui dropdown' name="category"><?=$options_categories;?></select>
             </div>
 
             <div class="two fields">
                 <div class="field" calendar-group-js='periodo' start>
-                    <label><?= __('articlesBackend', 'Iniciar'); ?></label>
+                    <label><?= __($langGroup, 'Iniciar'); ?></label>
                     <input type="text" name="start_date" autocomplete="off" value="<?=!is_null($element->start_date) ? $element->start_date->format('Y-m-d H:i') : '';?>">
                 </div>
                 <div class="field" calendar-group-js='periodo' end>
-                    <label><?= __('articlesBackend', 'Finalizar'); ?></label>
+                    <label><?= __($langGroup, 'Finalizar'); ?></label>
                     <input type="text" name="end_date" autocomplete="off" value="<?=!is_null($element->end_date) ? $element->end_date->format('Y-m-d H:i') : '';?>">
                 </div>
             </div>
@@ -147,7 +149,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
             <div class="ui form cropper-adapter" cropper-image-og>
 
                 <div class="field">
-                    <label><?= __('articlesBackend', 'Imagen'); ?></label>
+                    <label><?= __($langGroup, 'Imagen'); ?></label>
                     <input type="file" accept="image/*">
                 </div>
 
@@ -160,7 +162,7 @@ $allowedLangsWithoutCurrent = array_map(function($lang) use($element){
             </div>
 
             <div class="field">
-                <label><?= __('articlesBackend', 'Descripción'); ?></label>
+                <label><?= __($langGroup, 'Descripción'); ?></label>
                 <textarea name="seo_description"><?= $subElement->seo_description; ?></textarea>
             </div>
 

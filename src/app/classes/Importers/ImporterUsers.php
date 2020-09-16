@@ -23,17 +23,20 @@ use PiecesPHP\Core\Validation\Validator;
  */
 class ImporterUsers extends Importer
 {
+
+    const LANG_GROUP = 'importerModule';
+
     public function __construct(array $data)
     {
-        $id              = new Field('id', __('importerModule', 'ID'), null, true, '', false);
-        $username        = new Field('username', __('importerModule', 'Usuario'), '', false);
-        $password        = new Field('password', __('importerModule', 'Contraseña'), '', false);
-        $firstname       = new Field('firstname', __('importerModule', 'Primer nombre'), '', false);
-        $secondname      = new Field('secondname', __('importerModule', 'Segundo nombre'), '', true);
-        $first_lastname  = new Field('first_lastname', __('importerModule', 'Primer apellido'), '', false);
-        $second_lastname = new Field('second_lastname', __('importerModule', 'Segundo apellido'), '', true);
-        $email           = new Field('email', __('importerModule', 'Email'), '', false);
-        $type            = new Field('type', __('importerModule', 'Tipo'), UsersModel::TYPE_USER_GENERAL, true, '', false);
+        $id              = new Field('id', __(self::LANG_GROUP, 'ID'), null, true, '', false);
+        $username        = new Field('username', __(self::LANG_GROUP, 'Usuario'), '', false);
+        $password        = new Field('password', __(self::LANG_GROUP, 'Contraseña'), '', false);
+        $firstname       = new Field('firstname', __(self::LANG_GROUP, 'Primer nombre'), '', false);
+        $secondname      = new Field('secondname', __(self::LANG_GROUP, 'Segundo nombre'), '', true);
+        $first_lastname  = new Field('first_lastname', __(self::LANG_GROUP, 'Primer apellido'), '', false);
+        $second_lastname = new Field('second_lastname', __(self::LANG_GROUP, 'Segundo apellido'), '', true);
+        $email           = new Field('email', __(self::LANG_GROUP, 'Email'), '', false);
+        $type            = new Field('type', __(self::LANG_GROUP, 'Tipo'), UsersModel::TYPE_USER_GENERAL, true, '', false);
 
         $email->setValidator(function ($value) {
             return Validator::isEmail($value);
@@ -71,7 +74,7 @@ class ImporterUsers extends Importer
 
             if ($duplicatedID) {
                 $messageDuplicated[] = vsprintf(
-                    __('importerModule', "El ID '%s' ya existe."),
+                    __(self::LANG_GROUP, "El ID '%s' ya existe."),
                     [
                         $id,
                     ]
@@ -80,7 +83,7 @@ class ImporterUsers extends Importer
 
             if ($duplicatedUsername) {
                 $messageDuplicated[] = vsprintf(
-                    __('importerModule', "El usuario '%s' ya existe."),
+                    __(self::LANG_GROUP, "El usuario '%s' ya existe."),
                     [
                         $username,
                     ]
@@ -89,7 +92,7 @@ class ImporterUsers extends Importer
 
             if ($duplicatedEmail) {
                 $messageDuplicated[] = vsprintf(
-                    __('importerModule', "El email '%s' ya existe."),
+                    __(self::LANG_GROUP, "El email '%s' ya existe."),
                     [
                         $email,
                     ]
@@ -105,7 +108,7 @@ class ImporterUsers extends Importer
 
         $schema->setTemplateWithHumanReadable(true);
 
-        parent::__construct($schema, $data, __('importerModule', 'Agregar de usuarios'));
+        parent::__construct($schema, $data, __(self::LANG_GROUP, 'Agregar de usuarios'));
 
     }
 

@@ -19,6 +19,8 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 
 	let instance = this
 
+	const LANG_GROUP = 'news'
+
 	let attrForm = ''
 	let selectorForm = ''
 	let attrList = ''
@@ -30,6 +32,7 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 
 	this.page = 1
 	this.perPage = 10
+
 
 	_constructor(page, perPage, attrSelectorForm, attrSelectorList)
 
@@ -81,14 +84,14 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 
 						} else {
 
-							errorMessage(_i18n('news', 'Error'), res.message)
+							errorMessage(_i18n(LANG_GROUP, 'Error'), res.message)
 
 						}
 					})
 
 					req.fail((res) => {
 
-						errorMessage(_i18n('news', 'Error'), _i18n('news', 'Ha ocurrido un error desconocido.'))
+						errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Ha ocurrido un error desconocido.'))
 						console.log(res)
 
 					})
@@ -322,7 +325,7 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 						let buttonMore = $(document.createElement('button'))
 						buttonMore.attr(loadMoreButtonAttr, '')
 						buttonMore.addClass('ui mini button green')
-						buttonMore.html(_i18n('news', 'Cargar más.'))
+						buttonMore.html(_i18n(LANG_GROUP, 'Cargar más.'))
 
 						divButton.append(buttonMore)
 						divButton.on('click', function (e) {
@@ -411,7 +414,7 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 
 		if (options.type == 'normal') {
 			if (items.length == 0) {
-				options.container.append('<h6><small>'+_i18n('news', 'No hay noticias')+'</small></h6>')
+				options.container.append('<h6><small>' + _i18n(LANG_GROUP, 'No hay noticias') + '</small></h6>')
 			}
 			for (let item of items) {
 
@@ -450,17 +453,17 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 			thead.html('')
 			thead.append(
 				$('<tr></tr>')
-					.append(`<th>${_i18n('news', 'Nombre')}</th>`)
-					.append(`<th>${_i18n('news', 'Inicio')}</th>`)
-					.append(`<th>${_i18n('news', 'Fin')}</th>`)
-					.append(`<th>${_i18n('news', 'Creado')}</th>`)
-					.append(`<th>${_i18n('news', 'Dirigido a')}</th>`)
-					.append(`<th>${_i18n('news', 'Acciones')}</th>`)
+					.append(`<th>${_i18n(LANG_GROUP, 'Nombre')}</th>`)
+					.append(`<th>${_i18n(LANG_GROUP, 'Inicio')}</th>`)
+					.append(`<th>${_i18n(LANG_GROUP, 'Fin')}</th>`)
+					.append(`<th>${_i18n(LANG_GROUP, 'Creado')}</th>`)
+					.append(`<th>${_i18n(LANG_GROUP, 'Dirigido a')}</th>`)
+					.append(`<th>${_i18n(LANG_GROUP, 'Acciones')}</th>`)
 			)
 
 
 			if (items.length == 0) {
-				tbody.append('<tr empty><td><strong>'+_i18n('news', 'No hay noticias')+'</strong></td></tr>')
+				tbody.append('<tr empty><td><strong>' + _i18n(LANG_GROUP, 'No hay noticias') + '</strong></td></tr>')
 			} else {
 				tbody.find('[empty]').remove()
 			}
@@ -486,12 +489,12 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 				tr.append(
 					$(`<td></td>`)
 						.append(
-							$('<a>'+_i18n('news', 'Editar')+'</a>')
+							$('<a>' + _i18n(LANG_GROUP, 'Editar') + '</a>')
 								.attr('href', editHref)
 								.addClass('ui mini button green')
 						)
 						.append(
-							$('<a>'+_i18n('news', 'Eliminar')+'</a>')
+							$('<a>' + _i18n(LANG_GROUP, 'Eliminar') + '</a>')
 								.attr('href', deleteHref)
 								.addClass('ui mini button red')
 								.on('click', function (e) {
@@ -507,11 +510,11 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 										displayMode: 'once',
 										id: 'question',
 										zindex: 999,
-										title: _i18n('news', 'Confirmación'),
-										message: _i18n('news', '¿Quiere eliminar la noticia?'),
+										title: _i18n(LANG_GROUP, 'Confirmación'),
+										message: _i18n(LANG_GROUP, '¿Quiere eliminar la noticia?'),
 										position: 'center',
 										buttons: [
-											['<button><b>'+_i18n('news', 'Sí')+'</b></button>', function (instance, toast) {
+											['<button><b>' + _i18n(LANG_GROUP, 'Sí') + '</b></button>', function (instance, toast) {
 
 												instance.hide({ transitionOut: 'fadeOut' }, toast, 'button');
 												postRequest(url).done((res) => {
@@ -521,12 +524,12 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 														errorMessage(res.name, res.message)
 													}
 												}).fail((res) => {
-													errorMessage(_i18n('news', 'Error'), _i18n('news', 'Ha ocurrido un error desconocido.'))
+													errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Ha ocurrido un error desconocido.'))
 													console.log(res)
 												})
 
 											}, true],
-											['<button>'+_i18n('news', 'No')+'</button>', function (instance, toast) {
+											['<button>' + _i18n(LANG_GROUP, 'No') + '</button>', function (instance, toast) {
 												instance.hide({ transitionOut: 'fadeOut' }, toast, 'button')
 											}],
 										]

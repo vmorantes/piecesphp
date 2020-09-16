@@ -6,6 +6,8 @@
  */
 function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
+	const LANG_GROUP = 'messenger'
+
 	/**
 	 * @typedef Configuration
 	 * @property {$|HTMLElement|String} [container=[messenger-component-container]]
@@ -345,20 +347,20 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
 				if (typeof response.success !== 'undefined' && response.success === true) {
 
-					successMessage(_i18n('messenger', '¡Listo!'), response.message)
+					successMessage(_i18n(LANG_GROUP, '¡Listo!'), response.message)
 					message.val('')
 					instance.loadMessages()
 
 				} else {
 
-					errorMessage(_i18n('messenger', 'Error'), response.message)
+					errorMessage(_i18n(LANG_GROUP, 'Error'), response.message)
 
 				}
 
 			}).fail(function (error) {
 
 				console.error(error)
-				errorMessage(_i18n('messenger', 'Error'), _i18n('messenger', 'Ha ocurrido un error desconocido.'))
+				errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Ha ocurrido un error desconocido.'))
 
 			}).always(function () {
 
@@ -868,20 +870,20 @@ function MessagesComponent(page = 1, perPage = 10, configuration = {}) {
 
 					if (typeof response.success !== 'undefined' && response.success === true) {
 
-						successMessage(_i18n('messenger', '¡Listo!'), response.message)
+						successMessage(_i18n(LANG_GROUP, '¡Listo!'), response.message)
 						instance.loadMessages()
 						message.val('')
 
 					} else {
 
-						errorMessage(_i18n('messenger', 'Error'), response.message)
+						errorMessage(_i18n(LANG_GROUP, 'Error'), response.message)
 
 					}
 
 				}).fail(function (error) {
 
 					console.error(error)
-					errorMessage(_i18n('messenger', 'Error'), _i18n('messenger', 'Ha ocurrido un error desconocido.'))
+					errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Ha ocurrido un error desconocido.'))
 
 				}).always(function () {
 

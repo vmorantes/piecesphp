@@ -23,6 +23,8 @@ use \Slim\Http\Response as Response;
 class AvatarController extends BaseController
 {
 
+    const LANG_GROUP = 'avatarModule';
+
     public function __construct()
     {
         parent::__construct(false);
@@ -60,12 +62,12 @@ class AvatarController extends BaseController
 
             if ($uploaded) {
                 $json_response['success'] = $uploaded;
-                $json_response['message'] = __('avatarModule', 'Ha ocurrido un error desconocido, intente más tarde.');
+                $json_response['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
             }
 
         } else {
             $json_response['error'] = 'MISSING_OR_UNEXPECTED_PARAMS';
-            $json_response['message'] = __('avatarModule', 'MISSING_OR_UNEXPECTED_PARAMS');
+            $json_response['message'] = __(self::LANG_GROUP, 'MISSING_OR_UNEXPECTED_PARAMS');
         }
 
         return $response->withJson($json_response);

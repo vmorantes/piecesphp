@@ -44,6 +44,10 @@ class AppConfigController extends AdminPanelController
     const PARSE_TYPE_UPPERCASE = 'uppercase';
     const PARSE_TYPE_LOWERCASE = 'lowercase';
 
+    const LANG_GROUP = 'appConfig';
+    const LANG_GROUP_FORMS = 'configurationsAdminZone';
+    const LANG_GROUP_FORMS_2 = 'customizationAdminZone';
+
     /**
      * $mapper
      *
@@ -128,14 +132,14 @@ class AppConfigController extends AdminPanelController
      */
     public function actionGeneric(Request $req, Response $res, array $args)
     {
-        $operation_name = __('appConfig', 'Configuración');
+        $operation_name = __(self::LANG_GROUP, 'Configuración');
 
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = __('appConfig', 'Guardado.');
-        $message_unknow_error = __('appConfig', 'Ha ocurrido un error inesperado.');
+        $message_create = __(self::LANG_GROUP, 'Guardado.');
+        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
 
         $parametersExcepted = new Parameters([
             new Parameter(
@@ -276,14 +280,14 @@ class AppConfigController extends AdminPanelController
      */
     public function actionOsTicket(Request $req, Response $res, array $args)
     {
-        $operation_name = __('appConfig', 'Configuración OsTicket');
+        $operation_name = __(self::LANG_GROUP, 'Configuración OsTicket');
 
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = __('appConfig', 'Guardado.');
-        $message_unknow_error = __('appConfig', 'Ha ocurrido un error inesperado.');
+        $message_create = __(self::LANG_GROUP, 'Guardado.');
+        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
 
         $parametersExcepted = new Parameters([
             new Parameter(
@@ -468,14 +472,14 @@ class AppConfigController extends AdminPanelController
 
         }
 
-        $operation_name = __('appConfig', 'Guardar imagen');
+        $operation_name = __(self::LANG_GROUP, 'Guardar imagen');
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = __('appConfig', 'Imagen guardada.');
-        $message_unknow_error = __('appConfig', 'Ha ocurrido un error inesperado.');
-        $message_unexpected_or_missing_params = __('appConfig', 'Información faltante o inesperada.');
+        $message_create = __(self::LANG_GROUP, 'Imagen guardada.');
+        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
+        $message_unexpected_or_missing_params = __(self::LANG_GROUP, 'Información faltante o inesperada.');
 
         if ($validParamenters) {
 
@@ -539,7 +543,7 @@ class AppConfigController extends AdminPanelController
         $time = explode(" ", microtime());
         $time = $time[1];
 
-        $result = new ResultOperations([], __('appConfig', 'Sitemap'), '', true);
+        $result = new ResultOperations([], __(self::LANG_GROUP, 'Sitemap'), '', true);
 
         $sitemap = new Sitemap(basepath('sitemap.xml'), true);
 
@@ -585,7 +589,7 @@ class AppConfigController extends AdminPanelController
 
             $sitemap->save();
 
-            $result->setMessage(__('appConfig', 'Sitemap creado'));
+            $result->setMessage(__(self::LANG_GROUP, 'Sitemap creado'));
 
             $result->setValue('Rendimiento', [
                 'Memory peak usage' => number_format(memory_get_peak_usage() / (1024 * 1024), 2) . "MB",

@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\Core;
 
+use App\Controller\UsersController;
 use PiecesPHP\Core\Exceptions\RoleDuplicateException;
 use PiecesPHP\Core\Exceptions\RoleMalformedException;
 use PiecesPHP\Core\Exceptions\RoleNotExistsException;
@@ -167,7 +168,7 @@ class Roles
     /**
      * getRolesIdentifiers
      *
-	 * @param bool $i18n
+     * @param bool $i18n
      * Devuelve los roles registrados de la forma:
      *
      * [
@@ -182,7 +183,7 @@ class Roles
         $roles = [];
 
         foreach (self::$roles as $role) {
-            $roles[($i18n ? __('usersModule', $role['name']) : $role['name'])] = $role['code'];
+            $roles[($i18n ? __(UsersController::LANG_GROUP, $role['name']) : $role['name'])] = $role['code'];
         }
 
         return $roles;

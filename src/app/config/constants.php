@@ -55,4 +55,7 @@ define('ACTIVE_TIMER', false);
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 
+define('ADMIN_MENU_LANG_GROUP', 'sidebarAdminZone');
+define('SUPPORT_FORM_ADMIN_LANG_GROUP', 'supportFormAdminZone');
+define('CROPPER_ADAPTER_LANG_GROUP', 'cropper');
 define('LANG_GROUP', 'public');

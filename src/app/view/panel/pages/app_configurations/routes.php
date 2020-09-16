@@ -1,9 +1,12 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); ?>
+<?php 
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+$langGroup = 'routesViewAdminZone';
+?>
 
 <div class="container-medium">
 
     <div class="ui top attached tabular menu">
-        <a class="item active" data-tab="general"><?= __('routesViewAdminZone', 'Rutas y permisos'); ?></a>
+        <a class="item active" data-tab="general"><?= __($langGroup, 'Rutas y permisos'); ?></a>
     </div>
 
     <div class="ui bottom attached tab segment active" data-tab="general">
@@ -11,12 +14,12 @@
         <table class="ui table stripped celled roles" style="max-width:100%;">
             <thead>
                 <tr>
-                    <th><?= __('routesViewAdminZone', 'Nombre'); ?></th>
-                    <th><?= __('routesViewAdminZone', 'Definición'); ?></th>
-                    <th><?= __('routesViewAdminZone', 'Ruta'); ?></th>
-                    <th><?= __('routesViewAdminZone', 'Clase'); ?></th>
-                    <th><?= __('routesViewAdminZone', 'Método'); ?></th>
-                    <th><?= __('routesViewAdminZone', 'Roles con acceso'); ?></th>
+                    <th><?= __($langGroup, 'Nombre'); ?></th>
+                    <th><?= __($langGroup, 'Definición'); ?></th>
+                    <th><?= __($langGroup, 'Ruta'); ?></th>
+                    <th><?= __($langGroup, 'Clase'); ?></th>
+                    <th><?= __($langGroup, 'Método'); ?></th>
+                    <th><?= __($langGroup, 'Roles con acceso'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -27,7 +30,7 @@
                     <td><?=str_replace(baseurl(), '', get_route_sample($information['name']));?></td>
                     <td><?=explode(':', $information['controller'])[0];?></td>
                     <td><?=explode(':', $information['controller'])[1];?></td>
-                    <td><?=$information['require_login'] ? '- ' . implode('<br>- ', get_route_roles_allowed($name, 'name')) : __('routesViewAdminZone', 'No requiere autenticación');?>
+                    <td><?=$information['require_login'] ? '- ' . implode('<br>- ', get_route_roles_allowed($name, 'name')) : __($langGroup, 'No requiere autenticación');?>
                     </td>
                 </tr>
                 <?php endforeach;?>

@@ -1,3 +1,7 @@
+<?php
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
+$langGroup = ArticleController::LANG_GROUP;
+?>
 <div class="ui card">
 
     <div class="content">
@@ -10,39 +14,39 @@
 
         <div class="description">
 
-            <div><strong><?=__('articlesBackend', 'ID');?>:</strong> <?=  $mapper->id; ?></div>
+            <div><strong><?=__($langGroup, 'ID');?>:</strong> <?=  $mapper->id; ?></div>
 
-            <div><strong><?=__('articlesBackend', 'Fechas');?>:</strong> </div>
+            <div><strong><?=__($langGroup, 'Fechas');?>:</strong> </div>
 
             <?php if(!is_null($mapper->start_date)): ?>
             <div class="date">
-                <?=__('articlesBackend', 'Inicio');?>:
+                <?=__($langGroup, 'Inicio');?>:
                 <?=  $mapper->start_date->format(__('formatsDate', 'd-m-Y h:i:s A')); ?>
             </div>
             <?php endif;?>
 
             <?php if(!is_null($mapper->end_date)): ?>
             <div class="date">
-                <?=__('articlesBackend', 'Fin');?>:
+                <?=__($langGroup, 'Fin');?>:
                 <?=  $mapper->end_date->format(__('formatsDate', 'd-m-Y h:i:s A')); ?>
             </div>
             <?php endif;?>
 
             <div class="date">
-                <?=__('articlesBackend', 'Creado');?>:
+                <?=__($langGroup, 'Creado');?>:
                 <?=  $mapper->created->format(__('formatsDate', 'd-m-Y h:i:s A')); ?>
             </div>
 
             <?php if(!is_null($mapper->updated)): ?>
             <div class="date">
-                <?=__('articlesBackend', 'Modificado');?>:
+                <?=__($langGroup, 'Modificado');?>:
                 <?=  $mapper->updated->format(__('formatsDate', 'd-m-Y h:i:s A')); ?>
             </div>
             <?php endif;?>
 
-            <div><strong><?=__('articlesBackend', 'Autor');?>:</strong> <?=  $mapper->author->username; ?></div>
-            <div><strong><?=__('articlesBackend', 'Categoría');?>:</strong> <?=  $mapper->category->getName(); ?></div>
-            <div><strong><?=__('articlesBackend', 'Visitas');?>:</strong> <?=  $mapper->visits > 0 ? $mapper->visits : '-'; ?></div>
+            <div><strong><?=__($langGroup, 'Autor');?>:</strong> <?=  $mapper->author->username; ?></div>
+            <div><strong><?=__($langGroup, 'Categoría');?>:</strong> <?=  $mapper->category->getName(); ?></div>
+            <div><strong><?=__($langGroup, 'Visitas');?>:</strong> <?=  $mapper->visits > 0 ? $mapper->visits : '-'; ?></div>
 
         </div>
     </div>
@@ -50,7 +54,7 @@
     <?php if(mb_strlen($editLink) > 0): ?>
     <div class="extra content">
 
-        <a class="fluid ui green button" href="<?= $editLink; ?>"><?= __('articlesBackend', 'Editar'); ?></a>
+        <a class="fluid ui green button" href="<?= $editLink; ?>"><?= __($langGroup, 'Editar'); ?></a>
 
     </div>
     <?php endif;?>

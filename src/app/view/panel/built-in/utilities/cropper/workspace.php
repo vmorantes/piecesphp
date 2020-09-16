@@ -36,14 +36,14 @@ $referenceH = !is_int($referenceH) ? 1080 : $referenceH;
 
         <div class="step add">
 
-            <div class="ui header medium centered"><?= __('cropper', 'Agregar imagen'); ?></div>
+            <div class="ui header medium centered"><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Agregar imagen'); ?></div>
 
             <div class="placeholder">
 
                 <div class="content">
                     <div>
                         <i class="upload icon"></i>
-                        <button class="ui button blue fluid" type="button" load-image><?= __('cropper', 'Seleccionar imagen'); ?></button>
+                        <button class="ui button blue fluid" type="button" load-image><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Seleccionar imagen'); ?></button>
                     </div>
                 </div>
 
@@ -55,7 +55,7 @@ $referenceH = !is_int($referenceH) ? 1080 : $referenceH;
 
             <?php if ($withTitle): ?>
             <div class="field required">
-                <label><?= __('cropper', 'Título de la imagen'); ?></label>
+                <label><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Título de la imagen'); ?></label>
                 <input type="text" cropper-title-export>
             </div>
 			<?php else:?>
