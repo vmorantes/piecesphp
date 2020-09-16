@@ -174,7 +174,7 @@ class BaseController
      */
     public static function setViewDir(string $dir)
     {
-        $last_char = mb_substr($dir, strlen($dir) - 1);
+        $last_char = mb_substr($dir, mb_strlen($dir) - 1);
         $is_bar = ($last_char == '/' || $last_char == '\\');
         self::$view_folder = $is_bar ? $dir : $dir . '/';
     }

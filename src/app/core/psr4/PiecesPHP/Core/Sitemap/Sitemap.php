@@ -48,7 +48,7 @@ class Sitemap
     public function __construct(string $file = 'sitemap.xml', bool $load = false)
     {
 
-        $this->file = strlen($file) > 0 ? $file : $this->file;
+        $this->file = mb_strlen($file) > 0 ? $file : $this->file;
 
         if ($load) {
 

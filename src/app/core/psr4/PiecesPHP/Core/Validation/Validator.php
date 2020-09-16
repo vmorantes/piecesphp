@@ -115,7 +115,7 @@ class Validator
 
             $domain_email = explode('@', $value);
             $domain_email = isset($domain_email[1]) ? $domain_email[1] : '';
-            return strlen($domain_email)>0 && checkdnsrr($domain_email, 'MX');
+            return mb_strlen($domain_email) > 0 && checkdnsrr($domain_email, 'MX');
 
         } else {
 

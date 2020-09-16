@@ -107,7 +107,7 @@ class Field
         $this->defaultValue = $defaultValue;
         $this->sampleValue = $sampleValue;
         $this->humanReadableName = $humanReadableName === null ? $this->name : mb_strtolower(trim($humanReadableName));
-        $this->humanReadableName = str_split($this->humanReadableName);
+        $this->humanReadableName = mb_str_split($this->humanReadableName);
         $this->humanReadableName[0] = mb_strtoupper($this->humanReadableName[0]);
         $this->humanReadableName = trim(implode('', $this->humanReadableName));
         $this->optional = $optional;

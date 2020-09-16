@@ -81,7 +81,7 @@ function get_title(bool $appendTitleApp = false, string $separator = null, bool 
  */
 function set_title(string $title)
 {
-    return strlen($title) > 0 ? set_config('title', $title) : set_config('title', false);
+    return mb_strlen($title) > 0 ? set_config('title', $title) : set_config('title', false);
 }
 
 /**
@@ -94,7 +94,7 @@ function baseurl(string $resource = "")
 {
     $app_url = Config::app_url();
 
-    if (strlen($resource > 0) && $resource[0] == "/") {
+    if (mb_strlen($resource > 0) && $resource[0] == "/") {
         $resource = remove_first_char($resource);
     }
 
@@ -157,15 +157,15 @@ function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
 
         $base_url = !$current_is_default ? base_url($current_lang) : base_url();
 
-        $protocol_input_url = strpos($input_url, 'https://') !== false ? 'https://' : 'http://';
-        $protocol_base_url = strpos($base_url, 'https://') !== false ? 'https://' : 'http://';
+        $protocol_input_url = mb_strpos($input_url, 'https://') !== false ? 'https://' : 'http://';
+        $protocol_base_url = mb_strpos($base_url, 'https://') !== false ? 'https://' : 'http://';
 
         $input_url = str_replace($protocol_input_url, '', $input_url);
         $base_url = str_replace($protocol_base_url, '', $base_url);
         $segment_url = str_replace($base_url, '', $input_url);
 
         $segments_url = array_filter(explode('/', $segment_url), function ($e) {
-            return strlen(trim($e)) > 0;
+            return mb_strlen(trim($e)) > 0;
         });
         $segment_url = implode('/', $segments_url);
 
@@ -609,7 +609,7 @@ function index_global_required_asset(string $asset, string $type)
     $global_requireds_assets = get_config('global_requireds_assets');
     $index = null;
 
-    if (is_array($global_requireds_assets) && strlen($asset) > 0 && ($type == 'css' || $type == 'js')) {
+    if (is_array($global_requireds_assets) && mb_strlen($asset) > 0 && ($type == 'css' || $type == 'js')) {
 
         if (array_key_exists($type, $global_requireds_assets)) {
 
@@ -791,13 +791,13 @@ function clear_assets_imports()
         $plugins = is_array($plugins) ? $plugins : [];
 
         foreach ($library_css as $i) {
-            if (is_string($i) && strlen($i) > 0) {
+            if (is_string($i) && mb_strlen($i) > 0) {
                 $cssFiles[] = $i;
             }
         }
 
         foreach ($library_js as $i) {
-            if (is_string($i) && strlen($i) > 0) {
+            if (is_string($i) && mb_strlen($i) > 0) {
                 $jsFiles[] = $i;
             }
         }
@@ -809,13 +809,13 @@ function clear_assets_imports()
             $plugin_js = is_array($plugin_data) && isset($plugin_data['js']) && is_array($plugin_data['js']) ? $plugin_data['js'] : [];
 
             foreach ($plugin_css as $i) {
-                if (is_string($i) && strlen($i) > 0) {
+                if (is_string($i) && mb_strlen($i) > 0) {
                     $cssFiles[] = $i;
                 }
             }
 
             foreach ($plugin_js as $i) {
-                if (is_string($i) && strlen($i) > 0) {
+                if (is_string($i) && mb_strlen($i) > 0) {
                     $jsFiles[] = $i;
                 }
             }
@@ -852,7 +852,7 @@ function clear_global_assets()
 
     foreach ($css as $i) {
 
-        if (is_string($i) && strlen($i) > 0) {
+        if (is_string($i) && mb_strlen($i) > 0) {
             remove_global_asset($i, 'css');
         }
 
@@ -860,7 +860,7 @@ function clear_global_assets()
 
     foreach ($js as $i) {
 
-        if (is_string($i) && strlen($i) > 0) {
+        if (is_string($i) && mb_strlen($i) > 0) {
             remove_global_asset($i, 'js');
         }
 
@@ -1182,7 +1182,7 @@ function register_routes($routes, &$router)
 
         if (count($methods) > 0) {
             foreach ($methods as $key => $method) {
-                $methods[$key] = strtolower($method);
+                $methods[$key] = mb_strtolower($method);
             }
         }
 
@@ -1201,7 +1201,7 @@ function register_routes($routes, &$router)
         }
 
         foreach ($methods as $key => $method) {
-            $methods[$key] = strtoupper($method);
+            $methods[$key] = mb_strtoupper($method);
         }
 
         if (is_string($name) && $name !== null && $name !== '') {
@@ -1396,18 +1396,18 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
         $route = get_config('slim_app')->getContainer()->get('router')->pathFor($name, $params);
 
         $app_base = appbase();
-        $app_base_position = strlen($app_base) > 0 ? strpos($route, $app_base) : false;
-        $app_base_length = strlen($app_base);
+        $app_base_position = mb_strlen($app_base) > 0 ? mb_strpos($route, $app_base) : false;
+        $app_base_length = mb_strlen($app_base);
 
         if ($app_base_position !== false) {
             $route = mb_substr($route, $app_base_position + $app_base_length);
         }
 
         $route = baseurl($route);
-        $base_len = strlen(baseurl());
+        $base_len = mb_strlen(baseurl());
         $route = mb_substr($route, $base_len);
 
-        if (is_string($route) && strlen($route) > 0 && $route[0] == '/') {
+        if (is_string($route) && mb_strlen($route) > 0 && $route[0] == '/') {
             $route = remove_first_char($route);
         }
 
