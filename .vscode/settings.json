@@ -17,5 +17,6 @@
 	},
 	"html.format.wrapLineLength": 300,
 	"phpfmt.indent_with_space": 4,
-	"phpfmt.psr2": true
+	"phpfmt.psr2": true,
+	"editor.wordWrap": "on"
 }
