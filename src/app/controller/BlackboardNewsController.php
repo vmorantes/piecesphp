@@ -58,6 +58,8 @@ class BlackboardNewsController extends AdminPanelController
      */
     protected $uploadDirTmpURL = '';
 
+    const LANG_GROUP = 'news';
+
     /**
      * __construct
      *
@@ -168,7 +170,7 @@ class BlackboardNewsController extends AdminPanelController
 
         $result = new ResultOperations([
             'deleteNew' => new Operation('deleteNew'),
-        ], __('news', 'Eliminación de noticia'));
+        ], __(self::LANG_GROUP, 'Eliminación de noticia'));
 
         if (!is_null($new->id)) {
 
@@ -182,12 +184,12 @@ class BlackboardNewsController extends AdminPanelController
             }
 
             $result
-                ->setMessage($deleted ? __('news', 'La noticia ha sido eliminada.') : __('news', 'La noticia no pudo ser eliminada, intente luego.'))
+                ->setMessage($deleted ? __(self::LANG_GROUP, 'La noticia ha sido eliminada.') : __(self::LANG_GROUP, 'La noticia no pudo ser eliminada, intente luego.'))
                 ->operation('deleteNew')
                 ->setSuccess($deleted);
 
         } else {
-            $result->setMessage(__('news', 'La noticia no existe'));
+            $result->setMessage(__(self::LANG_GROUP, 'La noticia no existe'));
         }
         return $response->withJson($result);
     }
@@ -243,13 +245,13 @@ class BlackboardNewsController extends AdminPanelController
 
             $result
                 ->setValue('redirect', $redirect)
-                ->setMessage($saved ? __('news', 'La noticia ha sido creada') : __('news', 'No se ha podido crear la noticia, intente más tarde.'))
+                ->setMessage($saved ? __(self::LANG_GROUP, 'La noticia ha sido creada') : __(self::LANG_GROUP, 'No se ha podido crear la noticia, intente más tarde.'))
                 ->operation('registerNew')
                 ->setSuccess($saved);
 
         } else {
             $result
-                ->setMessage(__('news', 'Los parámetros recibidos no son correctos'))
+                ->setMessage(__(self::LANG_GROUP, 'Los parámetros recibidos no son correctos'))
                 ->operation('registerNew');
         }
 
@@ -307,13 +309,13 @@ class BlackboardNewsController extends AdminPanelController
             }
 
             $result
-                ->setMessage($updated ? __('news', 'La noticia ha sido actualizada') : __('news', 'No se ha podido actualizar la noticia, intente más tarde.'))
+                ->setMessage($updated ? __(self::LANG_GROUP, 'La noticia ha sido actualizada') : __(self::LANG_GROUP, 'No se ha podido actualizar la noticia, intente más tarde.'))
                 ->operation('editNew')
                 ->setSuccess($updated);
 
         } else {
             $result
-                ->setMessage(__('news', 'Los parámetros recibidos no son correctos'))
+                ->setMessage(__(self::LANG_GROUP, 'Los parámetros recibidos no son correctos'))
                 ->operation('editNew');
         }
 
@@ -483,8 +485,8 @@ class BlackboardNewsController extends AdminPanelController
         }
 
         return $response->withJson(
-            (new ResultOperations([], 'Noticias', __('news', 'Paginado de noticias')))
-                ->setValue('news', $filtered)
+            (new ResultOperations([], 'Noticias', __(self::LANG_GROUP, 'Paginado de noticias')))
+                ->setValue(self::LANG_GROUP, $filtered)
                 ->setValue('page', $page)
                 ->setValue('perPage', $perPage)
                 ->setValue('total', $total)
@@ -526,13 +528,13 @@ class BlackboardNewsController extends AdminPanelController
                     if (!is_null($filename)) {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage(__('news', 'Imagen subida'))
+                            ->setMessage(__(self::LANG_GROUP, 'Imagen subida'))
                             ->setSuccess(true);
                         $result->setValue('path', $url);
                     } else {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage(__('news', 'La imagen no pudo ser subida, intente después.'));
+                            ->setMessage(__(self::LANG_GROUP, 'La imagen no pudo ser subida, intente después.'));
                     }
 
                 }
@@ -541,7 +543,7 @@ class BlackboardNewsController extends AdminPanelController
         } else {
             $result
                 ->operation('uploadImage')
-                ->setMessage(__('news', 'No se ha subido ninguna imagen.'));
+                ->setMessage(__(self::LANG_GROUP, 'No se ha subido ninguna imagen.'));
         }
 
         return $response->withJson($result);

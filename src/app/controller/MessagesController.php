@@ -44,6 +44,8 @@ class MessagesController extends AdminPanelController
         ],
     ];
 
+    const LANG_GROUP = 'messenger';
+
     /**
      * __construct
      *
@@ -189,13 +191,13 @@ class MessagesController extends AdminPanelController
 
             $json_response['success'] = $saved;
             if (!$saved) {
-                $json_response['message'] = __('messenger', 'No ha podido enviarse el mensaje, intente más tarde.');
+                $json_response['message'] = __(self::LANG_GROUP, 'No ha podido enviarse el mensaje, intente más tarde.');
             } else {
-                $json_response['message'] = __('messenger', 'El mensaje ha sido enviado.');
+                $json_response['message'] = __(self::LANG_GROUP, 'El mensaje ha sido enviado.');
             }
 
         } else {
-            $json_response['message'] = __('messenger', 'Los parámetros recibidos no son correctos.');
+            $json_response['message'] = __(self::LANG_GROUP, 'Los parámetros recibidos no son correctos.');
         }
 
         return $response->withJson($json_response);
@@ -233,13 +235,13 @@ class MessagesController extends AdminPanelController
 
             $json_response['success'] = $saved;
             if (!$saved) {
-                $json_response['message'] = __('messenger', 'No ha podido enviarse el mensaje, intente más tarde.');
+                $json_response['message'] = __(self::LANG_GROUP, 'No ha podido enviarse el mensaje, intente más tarde.');
             } else {
-                $json_response['message'] = __('messenger', 'El mensaje ha sido enviado.');
+                $json_response['message'] = __(self::LANG_GROUP, 'El mensaje ha sido enviado.');
             }
 
         } else {
-            $json_response['message'] = __('messenger', 'Los parámetros recibidos no son correctos.');
+            $json_response['message'] = __(self::LANG_GROUP, 'Los parámetros recibidos no son correctos.');
         }
 
         return $response->withJson($json_response);
@@ -285,16 +287,16 @@ class MessagesController extends AdminPanelController
 
                 if ($updated) {
                     $structureResponse['success'] = $updated;
-                    $structureResponse['message'] = __('messenger', 'El mensaje ha sido marcado como leído.');
+                    $structureResponse['message'] = __(self::LANG_GROUP, 'El mensaje ha sido marcado como leído.');
                 } else {
-                    $structureResponse['message'] = __('messenger', 'Ha ocurrido un error, intente luego.');
+                    $structureResponse['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error, intente luego.');
                 }
             } else {
-                $structureResponse['message'] = __('messenger', 'El mensaje que intenta modificar no existe.');
+                $structureResponse['message'] = __(self::LANG_GROUP, 'El mensaje que intenta modificar no existe.');
             }
 
         } else {
-            $structureResponse['message'] = __('messenger', 'Parámetros incompatibles.');
+            $structureResponse['message'] = __(self::LANG_GROUP, 'Parámetros incompatibles.');
         }
 
         return $response->withJson($structureResponse);
@@ -332,13 +334,13 @@ class MessagesController extends AdminPanelController
 
             } else {
 
-                $structureResponse['message'] = __('messenger', 'El usuario no existe.');
+                $structureResponse['message'] = __(self::LANG_GROUP, 'El usuario no existe.');
 
             }
 
         } else {
 
-            $structureResponse['message'] = __('messenger', 'Parámetros incompatibles.');
+            $structureResponse['message'] = __(self::LANG_GROUP, 'Parámetros incompatibles.');
 
         }
 

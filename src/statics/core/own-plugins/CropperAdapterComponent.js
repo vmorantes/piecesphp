@@ -6,6 +6,8 @@
  */
 function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) {
 
+	const LANG_GROUP = 'cropper'
+
 	/**
 	 * @typedef CropperOptions
 	 * @property {Number} [aspectRatio=4/4] Define the fixed aspect ratio of the crop box
@@ -109,9 +111,9 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 	/** @type {$} Disparador de aumento */ let actionZoomIn
 
 	//──── Textos ────────────────────────────────────────────────────────────────────────────
-	/** @type {String} Texto agregar imagen */ let addImageText = _i18n('cropper', 'Agregar imagen')
-	/** @type {String} Texto cambiar imagen */ let changeImageText = _i18n('cropper', 'Cambiar imagen')
-	/** @type {String} Texto título por defecto */ let title = _i18n('cropper', 'imagen') + '_' + (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase()
+	/** @type {String} Texto agregar imagen */ let addImageText = _i18n(LANG_GROUP, 'Agregar imagen')
+	/** @type {String} Texto cambiar imagen */ let changeImageText = _i18n(LANG_GROUP, 'Cambiar imagen')
+	/** @type {String} Texto título por defecto */ let title = _i18n(LANG_GROUP, 'imagen') + '_' + (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase()
 
 	//──── Elementos de interfaz ─────────────────────────────────────────────────────────────
 	/** @type {$} Disparador de inicio de la interfaz */ let startButton
@@ -494,7 +496,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 			eventer.dispatchEvent(events.prepare.event)
 
 		} catch (error) {
-			errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'Ha ocurrido un error al configurar CropperAdapterComponent'))
+			errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Ha ocurrido un error al configurar CropperAdapterComponent'))
 			console.error(error)
 		}
 
@@ -588,7 +590,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 				if (isOnEdit) {
 					$(`[show-crop-dimensions]`).html(formatStr(
-						_i18n('cropper', `Tamaño real de la máscara de corte %rx%r(px)`),
+						_i18n(LANG_GROUP, `Tamaño real de la máscara de corte %rx%r(px)`),
 						[
 							realWidth,
 							realHeight,
@@ -657,8 +659,8 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 							let inputWidth = img.width
 
 							if (inputWidth < adapterOptions.minWidth) {
-								errorMessage(_i18n('cropper', 'Error'), formatStr(
-									_i18n('cropper', `El ancho mínimo de la imagen debe ser: %rpx`),
+								errorMessage(_i18n(LANG_GROUP, 'Error'), formatStr(
+									_i18n(LANG_GROUP, `El ancho mínimo de la imagen debe ser: %rpx`),
 									[
 										adapterOptions.minWidth,
 									]
@@ -683,13 +685,13 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 				} else {
 
-					errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'Seleccione una imagen, por favor.'))
+					errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Seleccione una imagen, por favor.'))
 
 				}
 
 			} else {
 
-				errorMessage(_i18n('cropper', 'Error'), _i18n('cropper', 'No hay imágenes seleccionadas.'))
+				errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'No hay imágenes seleccionadas.'))
 
 			}
 
@@ -1122,7 +1124,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 				fileInput = $(fileInput)
 
 			} else {
-				throw new Error(_i18n('cropper', 'No se ha encontrado ningún input de tipo file.'))
+				throw new Error(_i18n(LANG_GROUP, 'No se ha encontrado ningún input de tipo file.'))
 			}
 
 			//──────────────────────────────────────────────────────────────────────────────────
@@ -1133,7 +1135,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 				canvas = $(canvas)
 				canvasImage = canvas.attr('data-image')
 			} else {
-				throw new Error(_i18n('cropper', 'No se ha encontrado ningún canvas.'))
+				throw new Error(_i18n(LANG_GROUP, 'No se ha encontrado ningún canvas.'))
 			}
 
 			//──────────────────────────────────────────────────────────────────────────────────
@@ -1381,7 +1383,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 
 		} else {
-			throw new Error(formatStr(_i18n('cropper', 'No existe ningún elemento con el selector %r.'), [containerSelector]))
+			throw new Error(formatStr(_i18n(LANG_GROUP, 'No existe ningún elemento con el selector %r.'), [containerSelector]))
 		}
 
 

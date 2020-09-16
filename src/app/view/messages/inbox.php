@@ -1,6 +1,8 @@
 <?php
 use App\Controller\MessagesController as Messages;
+use App\Controller\MessagesController;
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+$langGroup = MessagesController::LANG_GROUP;
 ?>
 
 <section class="ui text message-component-message-container">
@@ -18,7 +20,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <i class="plus icon"></i>
                         </div>
                         <div class="text">
-                            <?= __('messenger', 'Enviar nuevo mensaje'); ?>
+                            <?= __($langGroup, 'Enviar nuevo mensaje'); ?>
                         </div>
                     </div>
 
@@ -26,22 +28,22 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                         <form messages-component-external-editor action="<?=get_route('messages-send-message');?>"
                             method="POST" class="ui form">
-                            <p><strong><?= __('messenger', 'Redactar mensaje'); ?></strong></p>
+                            <p><strong><?= __($langGroup, 'Redactar mensaje'); ?></strong></p>
 
                             <input type="hidden" name="from" value="<?=$this->user->id;?>">
 
                             <div class="field required">
-                                <label><?= __('messenger', 'Asunto'); ?></label>
+                                <label><?= __($langGroup, 'Asunto'); ?></label>
                                 <input type="text" name="subject" required>
                             </div>
 
                             <div class="field required">
-                                <label><?= __('messenger', 'Mensaje'); ?></label>
+                                <label><?= __($langGroup, 'Mensaje'); ?></label>
                                 <input type="text" name="message" required>
                             </div>
 
                             <div class="field">
-                                <button type="submit" class="ui button green"><?= __('messenger', 'Enviar'); ?></button>
+                                <button type="submit" class="ui button green"><?= __($langGroup, 'Enviar'); ?></button>
                             </div>
 
                         </form>
@@ -57,7 +59,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <i class="plus icon"></i>
                         </div>
                         <div class="text">
-                            <?= __('messenger', 'Enviar nuevo mensaje'); ?>
+                            <?= __($langGroup, 'Enviar nuevo mensaje'); ?>
                         </div>
                     </div>
 
@@ -65,14 +67,14 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                         <form messages-component-external-editor action="<?=get_route('messages-send-message');?>"
                             method="POST" class="ui form">
-                            <p><strong><?= __('messenger', 'Redactar mensaje'); ?></strong></p>
+                            <p><strong><?= __($langGroup, 'Redactar mensaje'); ?></strong></p>
 
 							<input type="hidden" name="from" value="<?=$this->user->id;?>">
 							
                             <div class="field required">
-                                <label><?= __('messenger', 'Para'); ?></label>
+                                <label><?= __($langGroup, 'Para'); ?></label>
                                 <select name="to" class="ui dropdown search">
-                                    <option value=""><?= __('messenger', 'Seleccionar destinatario'); ?></option>
+                                    <option value=""><?= __($langGroup, 'Seleccionar destinatario'); ?></option>
                                     <?php foreach ($destinatarios as $destinatario): ?>
                                     <option value="<?=$destinatario->id;?>">
                                         <?="$destinatario->firstname $destinatario->first_lastname";?>
@@ -82,17 +84,17 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             </div>
 
                             <div class="field required">
-                                <label><?= __('messenger', 'Asunto'); ?></label>
+                                <label><?= __($langGroup, 'Asunto'); ?></label>
                                 <input type="text" name="subject" required>
                             </div>
 
                             <div class="field required">
-                                <label><?= __('messenger', 'Mensaje'); ?></label>
+                                <label><?= __($langGroup, 'Mensaje'); ?></label>
                                 <textarea name="message" cols="30" rows="10" required></textarea>
                             </div>
 
                             <div class="field">
-                                <button type="submit" class="ui button green"><?= __('messenger', 'Enviar'); ?></button>
+                                <button type="submit" class="ui button green"><?= __($langGroup, 'Enviar'); ?></button>
                             </div>
 
                         </form>
@@ -107,7 +109,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 <div previews>
                 </div>
 
-                <button message-component-load-more><?= __('messenger', 'Cargar más'); ?></button>
+                <button message-component-load-more><?= __($langGroup, 'Cargar más'); ?></button>
 
             </div>
 
@@ -140,7 +142,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="details-container">
             <div class="top-bar">
-                <button message-component-close-conversation class="ui mini button red"><?= __('messenger', 'Cerrar'); ?></button>
+                <button message-component-close-conversation class="ui mini button red"><?= __($langGroup, 'Cerrar'); ?></button>
             </div>
             <div emisor-details-container>
                 <div>
@@ -175,10 +177,10 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <input type="hidden" name="message_from">
         <div class="field">
             <div class="field required">
-                <textarea name="message" placeholder="<?= __('messenger', 'Escriba su respuesta'); ?>"></textarea>
+                <textarea name="message" placeholder="<?= __($langGroup, 'Escriba su respuesta'); ?>"></textarea>
             </div>
             <div class="field">
-                <button class="ui blue button" type="submit"><?= __('messenger', 'Enviar'); ?>
+                <button class="ui blue button" type="submit"><?= __($langGroup, 'Enviar'); ?>
             </div>
         </div>
     </form>

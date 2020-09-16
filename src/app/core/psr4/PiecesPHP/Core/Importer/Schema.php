@@ -99,6 +99,8 @@ class Schema
      */
     protected $model = null;
 
+    const LANG_GROUP = 'importerModule';
+
     /**
      * __construct
      *
@@ -533,7 +535,7 @@ class Schema
 
         $spreadSheet = new Spreadsheet();
         $spreadSheet->getProperties()
-            ->setCreator(__('importerModule', 'Plantilla'));
+            ->setCreator(__(self::LANG_GROUP, 'Plantilla'));
 
         $columnIndex = 1;
         foreach ($columns as $name => $field) {

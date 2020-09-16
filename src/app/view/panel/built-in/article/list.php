@@ -1,11 +1,16 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
+
+$langGroup = ArticleController::LANG_GROUP;
+?>
 
 <div style="max-width:850px;">
 
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
         <?php if ($has_permissions_add): ?>
-        <a href="<?=$add_link;?>" class="ui button green"><?= __('articlesBackend', 'Agregar'); ?></a>
+        <a href="<?=$add_link;?>" class="ui button green"><?= __($langGroup, 'Agregar'); ?></a>
         <?php endif;?>
     </div>
 
@@ -55,16 +60,16 @@
         <table url="<?=$process_table;?>" style='display:none;'>
             <thead>
                 <tr>
-                    <th><?=__('articlesBackend', 'ID');?></th>
-                    <th><?=__('articlesBackend', 'Título');?></th>
-                    <th><?=__('articlesBackend', 'Autor');?></th>
-                    <th><?=__('articlesBackend', 'Categoría');?></th>
-                    <th><?=__('articlesBackend', 'Inicio');?></th>
-                    <th><?=__('articlesBackend', 'Fin');?></th>
-                    <th><?=__('articlesBackend', 'Creado');?></th>
-                    <th><?=__('articlesBackend', 'Editado');?></th>
-                    <th><?=__('articlesBackend', 'Visitas');?></th>
-                    <th order='false' search='false'><?=__('articlesBackend', 'Acciones');?></th>
+                    <th><?=__($langGroup, 'ID');?></th>
+                    <th><?=__($langGroup, 'Título');?></th>
+                    <th><?=__($langGroup, 'Autor');?></th>
+                    <th><?=__($langGroup, 'Categoría');?></th>
+                    <th><?=__($langGroup, 'Inicio');?></th>
+                    <th><?=__($langGroup, 'Fin');?></th>
+                    <th><?=__($langGroup, 'Creado');?></th>
+                    <th><?=__($langGroup, 'Editado');?></th>
+                    <th><?=__($langGroup, 'Visitas');?></th>
+                    <th order='false' search='false'><?=__($langGroup, 'Acciones');?></th>
                 </tr>
             </thead>
         </table>

@@ -2,16 +2,16 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\AppConfigController;
 use App\Model\AppConfigModel;
-
+$langGroup = AppConfigController::LANG_GROUP_FORMS;
 ?>
 
 
 <div class="container-medium">
 
     <div class="ui top attached tabular menu">
-        <a class="item active" data-tab="general"><?= __('configurationsAdminZone', 'Generales'); ?></a>
-        <a class="item" data-tab="email"><?= __('configurationsAdminZone', 'Email'); ?></a>
-        <a class="item" data-tab="os-ticket"><?= __('configurationsAdminZone', 'OsTicket'); ?></a>
+        <a class="item active" data-tab="general"><?= __($langGroup, 'Generales'); ?></a>
+        <a class="item" data-tab="email"><?= __($langGroup, 'Email'); ?></a>
+        <a class="item" data-tab="os-ticket"><?= __($langGroup, 'OsTicket'); ?></a>
         <a class="item" data-tab="ssl">SSL</a>
     </div>
 
@@ -20,13 +20,13 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Título del sitio'); ?></label>
-                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('title_app'));?>" placeholder="<?= __('configurationsAdminZone', 'Nombre'); ?>" required>
+                <label><?= __($langGroup, 'Título del sitio'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('title_app'));?>" placeholder="<?= __($langGroup, 'Nombre'); ?>" required>
                 <input type="hidden" name="name" value="title_app" required="required">
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -36,13 +36,13 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Propietario'); ?></label>
-                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('owner'));?>" placeholder="<?= __('configurationsAdminZone', 'Propietario'); ?>" required>
+                <label><?= __($langGroup, 'Propietario'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('owner'));?>" placeholder="<?= __($langGroup, 'Propietario'); ?>" required>
                 <input type="hidden" name="name" value="owner" required="required">
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -52,13 +52,13 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Descripción'); ?></label>
-                <textarea name="value" placeholder="<?= __('configurationsAdminZone', 'Descripción'); ?>" required><?=AppConfigModel::getConfigValue('description');?></textarea>
+                <label><?= __($langGroup, 'Descripción'); ?></label>
+                <textarea name="value" placeholder="<?= __($langGroup, 'Descripción'); ?>" required><?=AppConfigModel::getConfigValue('description');?></textarea>
                 <input type="hidden" name="name" value="description" required="required">
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -68,7 +68,7 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Palabras clave'); ?></label>
+                <label><?= __($langGroup, 'Palabras clave'); ?></label>
                 <?php $keywords = AppConfigModel::getConfigValue('keywords'); ?>
                 <select name="value[]" multiple class="ui dropdown multiple search selection additions" required>
 
@@ -82,7 +82,7 @@ use App\Model\AppConfigModel;
 
                     <?php else: ?>
 
-                    <option value=""><?= __('configurationsAdminZone', 'Agregue alguna palabra clave'); ?></option>
+                    <option value=""><?= __($langGroup, 'Agregue alguna palabra clave'); ?></option>
 
                     <?php endif;?>
 
@@ -91,7 +91,7 @@ use App\Model\AppConfigModel;
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -101,14 +101,14 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Color de barra superior en navegadores móviles'); ?></label>
+                <label><?= __($langGroup, 'Color de barra superior en navegadores móviles'); ?></label>
                 <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('meta_theme_color'));?>" color-picker-js>
                 <input type="hidden" name="name" value="meta_theme_color">
                 <input type="hidden" name="parse" value="uppercase">
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -118,13 +118,13 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-generic-action');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Scripts adicionales'); ?></label>
-                <textarea name="value" placeholder="<?= __('configurationsAdminZone', "<script src='ejemplo.js'></script>"); ?>"><?=AppConfigModel::getConfigValue('extra_scripts');?></textarea>
+                <label><?= __($langGroup, 'Scripts adicionales'); ?></label>
+                <textarea name="value" placeholder="<?= __($langGroup, "<script src='ejemplo.js'></script>"); ?>"><?=AppConfigModel::getConfigValue('extra_scripts');?></textarea>
                 <input type="hidden" name="name" value="extra_scripts">
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -134,11 +134,11 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-sitemap-create');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Generar sitemap'); ?></label>
+                <label><?= __($langGroup, 'Generar sitemap'); ?></label>
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Generar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Generar'); ?></button>
             </div>
 
         </form>
@@ -159,14 +159,14 @@ use App\Model\AppConfigModel;
                 <div class="field">
                     <div class="ui toggle checkbox">
                         <input type="checkbox" name="value[auto_tls]" <?=AppConfigModel::getConfigValue('mail')->auto_tls ? 'checked' : '';?>>
-                        <label><?= __('configurationsAdminZone', 'Auto TLS'); ?></label>
+                        <label><?= __($langGroup, 'Auto TLS'); ?></label>
                     </div>
                 </div>
 
                 <div class="field">
                     <div class="ui toggle checkbox">
                         <input type="checkbox" name="value[auth]" <?=AppConfigModel::getConfigValue('mail')->auth == true ? 'checked' : '';?>>
-                        <label><?= __('configurationsAdminZone', 'Autenticar'); ?></label>
+                        <label><?= __($langGroup, 'Autenticar'); ?></label>
                     </div>
                 </div>
 
@@ -177,17 +177,17 @@ use App\Model\AppConfigModel;
             <div class="fields three">
 
                 <div class="field">
-                    <label><?= __('configurationsAdminZone', 'Host'); ?></label>
+                    <label><?= __($langGroup, 'Host'); ?></label>
                     <input type="text" name="value[host]" value="<?=AppConfigModel::getConfigValue('mail')->host;?>" required>
                 </div>
 
                 <div class="field">
-                    <label><?= __('configurationsAdminZone', 'Protocolo'); ?></label>
+                    <label><?= __($langGroup, 'Protocolo'); ?></label>
                     <input type="text" name="value[protocol]" value="<?=AppConfigModel::getConfigValue('mail')->protocol;?>" required>
                 </div>
 
                 <div class="field">
-                    <label><?= __('configurationsAdminZone', 'Puerto'); ?></label>
+                    <label><?= __($langGroup, 'Puerto'); ?></label>
                     <input type="text" name="value[port]" value="<?=AppConfigModel::getConfigValue('mail')->port;?>" required>
                 </div>
 
@@ -198,12 +198,12 @@ use App\Model\AppConfigModel;
             <div class="fields two">
 
                 <div class="field">
-                    <label><?= __('configurationsAdminZone', 'Correo electrónico'); ?></label>
+                    <label><?= __($langGroup, 'Correo electrónico'); ?></label>
                     <input type="text" name="value[user]" value="<?=AppConfigModel::getConfigValue('mail')->user;?>" required>
                 </div>
 
                 <div class="field">
-                    <label><?= __('configurationsAdminZone', 'Contraseña'); ?></label>
+                    <label><?= __($langGroup, 'Contraseña'); ?></label>
                     <div class="ui icon input" show-hide-password-event>
                         <input type="password" name="value[password]" value="<?=htmlentities(AppConfigModel::getConfigValue('mail')->password);?>" required>
                         <i class="inverted circular eye link icon"></i>
@@ -213,7 +213,7 @@ use App\Model\AppConfigModel;
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -225,17 +225,17 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?=get_route('configurations-generals-osticket-action');?>" method="POST" class="ui form">
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'URL'); ?></label>
-                <input type="text" name="url" value="<?=AppConfigModel::getConfigValue('osTicketAPI');?>" placeholder="<?= __('configurationsAdminZone', 'https://api.dominio.com/'); ?>" required>
+                <label><?= __($langGroup, 'URL'); ?></label>
+                <input type="text" name="url" value="<?=AppConfigModel::getConfigValue('osTicketAPI');?>" placeholder="<?= __($langGroup, 'https://api.dominio.com/'); ?>" required>
             </div>
 
             <div class="field">
-                <label><?= __('configurationsAdminZone', 'Key'); ?></label>
+                <label><?= __($langGroup, 'Key'); ?></label>
                 <input autocomplete="off" type="text" name="key" value="<?=AppConfigModel::getConfigValue('osTicketAPIKey');?>" placeholder="ABCD123456EFGH" required>
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>
@@ -247,12 +247,12 @@ use App\Model\AppConfigModel;
         <form mail-configuration-form action="<?= get_route('configurations-ssl'); ?>" method="POST" class="ui form">
 
             <div class="field required">
-                <label><?= __('configurationsAdminZone', 'Dominio')?></label>
+                <label><?= __($langGroup, 'Dominio')?></label>
                 <input required type="text" name="domain" value="<?= trim(str_replace(array('http://','https://'), '', baseurl()), '/') ?>" placeholder="example.com...">
             </div>
 
             <div class="field required">
-                <label><?= __('configurationsAdminZone', 'Carpeta pública del dominio')?></label>
+                <label><?= __($langGroup, 'Carpeta pública del dominio')?></label>
                 <input required type="text" name="folder" value="<?= basepath(); ?>" placeholder="/home/user/example.com/public_html">
             </div>
 
@@ -262,7 +262,7 @@ use App\Model\AppConfigModel;
             </div>
 
             <div class="field">
-                <button type="submit" class="ui button green"><?= __('configurationsAdminZone', 'Guardar'); ?></button>
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
             </div>
 
         </form>

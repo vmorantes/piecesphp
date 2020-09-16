@@ -90,6 +90,8 @@ class Field
      */
     protected $showInTemplate = true;
 
+    const LANG_GROUP = 'importerModule';
+
     /**
      * __construct
      *
@@ -190,7 +192,7 @@ class Field
                 } else {
                     throw new \Exception(
 						sprintf(
-							__('importerModule', 'El valor ingresado en %s no es válido.'),
+							__(self::LANG_GROUP, 'El valor ingresado en %s no es válido.'),
 							"$this->name/$this->humanReadableName"
 						)
 					);

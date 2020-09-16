@@ -1,4 +1,8 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use App\Controller\UsersController;
+$langGroup = UsersController::LANG_GROUP;
+?>
 
 
 <div container-cards>
@@ -13,7 +17,7 @@
                 </div>
             </div>
             <div class="extra content">
-                <a href="<?= $type['link'];?>" class="ui blue button"><?= __('usersModule', 'Agregar'); ?></a>
+                <a href="<?= $type['link'];?>" class="ui blue button"><?= __($langGroup, 'Agregar'); ?></a>
             </div>
         </div>
         <?php endforeach;?>

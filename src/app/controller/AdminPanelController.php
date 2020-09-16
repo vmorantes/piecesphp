@@ -47,6 +47,8 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      */
     protected $modelUsers;
 
+    const LANG_GROUP = 'adminZone';
+
     /**
      * __construct
      *
@@ -128,14 +130,14 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
             $comments,
         ]);
 
-        $operation_name = __('adminZone', 'Crear ticket de soporte');
+        $operation_name = __(self::LANG_GROUP, 'Crear ticket de soporte');
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = __('adminZone', 'Ticket de soporte creado.');
-        $message_unknow_error = __('adminZone', 'Ha ocurrido un error inesperado.');
-        $message_unexpected_or_missing_params = __('adminZone', 'Información faltante o inesperada.');
+        $message_create = __(self::LANG_GROUP, 'Ticket de soporte creado.');
+        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
+        $message_unexpected_or_missing_params = __(self::LANG_GROUP, 'Información faltante o inesperada.');
 
         if ($params_ok) {
 
@@ -159,7 +161,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            $logRequest->type = __('adminZone', 'Ticket soporte dentro del panel administrativo (osTicket).');
+            $logRequest->type = __(self::LANG_GROUP, 'Ticket soporte dentro del panel administrativo (osTicket).');
             $logRequest->save();
 
             if ($success) {

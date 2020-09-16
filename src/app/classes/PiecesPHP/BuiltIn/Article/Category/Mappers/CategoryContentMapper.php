@@ -59,6 +59,8 @@ class CategoryContentMapper extends BaseEntityMapper
         ],
     ];
 
+    const LANG_GROUP = 'articlesBackend';
+
     /**
      * __construct
      *
@@ -109,7 +111,7 @@ class CategoryContentMapper extends BaseEntityMapper
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = is_string($defaultLabel) && mb_strlen($defaultLabel) > 0 ? $defaultLabel : __('articlesBackend', 'Categorías');
+        $defaultLabel = is_string($defaultLabel) && mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Categorías');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

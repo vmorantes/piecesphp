@@ -99,6 +99,8 @@ class ArticleController extends AdminPanelController
      */
     protected $uploadDirTmpURL = '';
 
+    const LANG_GROUP = 'articlesBackend';
+
     /**
      * __construct
      *
@@ -107,8 +109,8 @@ class ArticleController extends AdminPanelController
     public function __construct()
     {
 
-        self::$title = __('articlesBackend', self::$title);
-        self::$pluralTitle = __('articlesBackend', self::$pluralTitle);
+        self::$title = __(self::LANG_GROUP, self::$title);
+        self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
 
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
@@ -588,7 +590,7 @@ class ArticleController extends AdminPanelController
             $content,
         ]);
 
-        $operationName = $isEdit ? __('articlesBackend', 'Modificar artículo') : __('articlesBackend', 'Crear artículo');
+        $operationName = $isEdit ? __(self::LANG_GROUP, 'Modificar artículo') : __(self::LANG_GROUP, 'Crear artículo');
 
         $result = new ResultOperations([
             new Operation($operationName),
@@ -596,13 +598,13 @@ class ArticleController extends AdminPanelController
 
         $result->setValue('redirect', false);
 
-        $errorParametersMessage = __('articlesBackend', 'Los parámetros recibidos son erróneos.');
-        $notExistsMessage = __('articlesBackend', 'El artículo que intenta modificar no existe');
-        $successCreatedMessage = __('articlesBackend', 'Artículo creado.');
-        $successEditMessage = __('articlesBackend', 'Datos guardados.');
-        $unknowErrorMessage = __('articlesBackend', 'Ha ocurrido un error desconocido.');
-        $isDuplicateMessage = __('articlesBackend', 'Ya existe un artículo con ese nombre en la categoría seleccionada.');
-        $unexistsLangMessages = __('articlesBackend', 'El idioma que intenta usar no existe.');
+        $errorParametersMessage = __(self::LANG_GROUP, 'Los parámetros recibidos son erróneos.');
+        $notExistsMessage = __(self::LANG_GROUP, 'El artículo que intenta modificar no existe');
+        $successCreatedMessage = __(self::LANG_GROUP, 'Artículo creado.');
+        $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
+        $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
+        $isDuplicateMessage = __(self::LANG_GROUP, 'Ya existe un artículo con ese nombre en la categoría seleccionada.');
+        $unexistsLangMessages = __(self::LANG_GROUP, 'El idioma que intenta usar no existe.');
 
         if ($valid_params) {
 
@@ -1080,20 +1082,20 @@ class ArticleController extends AdminPanelController
                     if (!is_null($filename)) {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage(__('articlesBackend', 'Imagen subida'))
+                            ->setMessage(__(self::LANG_GROUP, 'Imagen subida'))
                             ->setSuccess(true);
                         $result->setValue('path', $url);
                     } else {
                         $result
                             ->operation('uploadImage')
-                            ->setMessage(__('articlesBackend', 'La imagen no pudo ser subida, intente después.'));
+                            ->setMessage(__(self::LANG_GROUP, 'La imagen no pudo ser subida, intente después.'));
                     }
                 }
             }
         } else {
             $result
                 ->operation('uploadImage')
-                ->setMessage(__('articlesBackend', 'No se ha subido ninguna imagen.'));
+                ->setMessage(__(self::LANG_GROUP, 'No se ha subido ninguna imagen.'));
         }
 
         return $response->withJson($result);

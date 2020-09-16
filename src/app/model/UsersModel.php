@@ -55,6 +55,8 @@ class UsersModel extends BaseEntityMapper
         self::TYPE_USER_GENERAL => 1,
     ];
 
+    const LANG_GROUP = 'usersModule';
+
     protected $table = 'pcsphp_users';
 
     protected $fields = [
@@ -585,7 +587,7 @@ class UsersModel extends BaseEntityMapper
 
         foreach (self::TYPES_USERS as $key => $value) {
 
-            $types[$key] = __('usersModule', $value);
+            $types[$key] = __(self::LANG_GROUP, $value);
 
         }
 

@@ -1,4 +1,7 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
+?>
 <!-- Main -->
 <div id="main">
     <div class="inner">
@@ -13,6 +16,6 @@
 
             <ul built-in-categories-items-js built-in-categories-url="<?= $ajaxURL; ?>"></ul>
 
-            <button type="button primary" built-in-categories-load-more-js><?= __('articlesFrontEnd', 'Cargar más'); ?></button>
+            <button type="button primary" built-in-categories-load-more-js><?= __(ArticleControllerPublic::LANG_GROUP, 'Cargar más'); ?></button>
 
         </section>

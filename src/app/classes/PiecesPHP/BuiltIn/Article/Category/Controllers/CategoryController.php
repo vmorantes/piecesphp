@@ -73,6 +73,8 @@ class CategoryController extends AdminPanelController
      */
     protected static $pluralTitle = 'Categorías';
 
+    const LANG_GROUP = 'articlesBackend';
+
     /**
      * __construct
      *
@@ -80,8 +82,8 @@ class CategoryController extends AdminPanelController
      */
     public function __construct()
     {
-        self::$title = __('articlesBackend', self::$title);
-        self::$pluralTitle = __('articlesBackend', self::$pluralTitle);
+        self::$title = __(self::LANG_GROUP, self::$title);
+        self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
         parent::__construct(false); //No cargar ningún modelo automáticamente.
 
         $this->model = (new CategoryContentMapper())->getModel();
@@ -239,7 +241,7 @@ class CategoryController extends AdminPanelController
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
-                    $buttonEdit = new HtmlElement('a', __('articlesBackend', 'Editar'));
+                    $buttonEdit = new HtmlElement('a', __(self::LANG_GROUP, 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                         'id' => $e->content_of,
@@ -307,7 +309,7 @@ class CategoryController extends AdminPanelController
     {
 
         //Configuraciones iniciales de la respuesta
-        $result = new ResultOperations([], __('articlesBackend', 'Crear categoría'), '', true);
+        $result = new ResultOperations([], __(self::LANG_GROUP, 'Crear categoría'), '', true);
         $result->setValue('redirect', false);
 
         //URLs para redirección
@@ -315,12 +317,12 @@ class CategoryController extends AdminPanelController
         $urlEdit = '';
 
         //Mensajes
-        $createdWithErrorsMessage = __('articlesBackend', 'Se ha creado la categoría, excepto: %s');
-        $multipleErrorsMessages = __('articlesBackend', 'Errores: %s');
-        $noInformationMessage = __('articlesBackend', 'No se ha recibido información.');
-        $unknowErrorMessage = __('articlesBackend', 'Ha ocurrido un error desconocido.');
-        $isDuplicateMessage = __('articlesBackend', 'Ya existe una categoría con ese nombre.');
-        $successCreatedMessage = __('articlesBackend', 'Categoría creada.');
+        $createdWithErrorsMessage = __(self::LANG_GROUP, 'Se ha creado la categoría, excepto: %s');
+        $multipleErrorsMessages = __(self::LANG_GROUP, 'Errores: %s');
+        $noInformationMessage = __(self::LANG_GROUP, 'No se ha recibido información.');
+        $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
+        $isDuplicateMessage = __(self::LANG_GROUP, 'Ya existe una categoría con ese nombre.');
+        $successCreatedMessage = __(self::LANG_GROUP, 'Categoría creada.');
 
         try {
 
@@ -479,17 +481,17 @@ class CategoryController extends AdminPanelController
     {
 
         //Configuraciones iniciales de la respuesta
-        $result = new ResultOperations([], __('articlesBackend', 'Modificar categoría'), '', true);
+        $result = new ResultOperations([], __(self::LANG_GROUP, 'Modificar categoría'), '', true);
         $result->setValue('reload', false);
 
         //Mensajes
-        $editedWithErrorsMessage = __('articlesBackend', 'Se ha guardado la categoría, excepto: %s');
-        $multipleErrorsMessages = __('articlesBackend', 'Errores: %s');
-        $noInformationMessage = __('articlesBackend', 'No se ha recibido información.');
-        $unknowErrorMessage = __('articlesBackend', 'Ha ocurrido un error desconocido.');
-        $isDuplicateMessage = __('articlesBackend', 'Ya existe una categoría con ese nombre.');
-        $successEditMessage = __('articlesBackend', 'Datos guardados.');
-        $notExistsMessage = __('articlesBackend', 'La categoría que intenta modificar no existe');
+        $editedWithErrorsMessage = __(self::LANG_GROUP, 'Se ha guardado la categoría, excepto: %s');
+        $multipleErrorsMessages = __(self::LANG_GROUP, 'Errores: %s');
+        $noInformationMessage = __(self::LANG_GROUP, 'No se ha recibido información.');
+        $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
+        $isDuplicateMessage = __(self::LANG_GROUP, 'Ya existe una categoría con ese nombre.');
+        $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
+        $notExistsMessage = __(self::LANG_GROUP, 'La categoría que intenta modificar no existe');
 
         try {
 
