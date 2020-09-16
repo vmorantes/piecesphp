@@ -1,11 +1,7 @@
 # Instalación de PHPMyAdmin 4.9.2
 
-- [Índice de contenido](./index.md)
-
-### Nota:
-- Esta guia proporciona los pasos para un entorno con las siguientes características:
-    - Ubuntu 20
-    - PHPMyAdmin 4.9.2
+- Ubuntu 20
+- PHPMyAdmin 4.9.2
 
 ## Instalación 
 ```bash

@@ -1,12 +1,8 @@
 # Instalación de PHP 7.3 (probado también con 7.4, 7.1)
 
-- [Índice de contenido](./index.md)
-
-### Nota:
-- Esta guia proporciona los pasos para un entorno con las siguientes características:
-    - Ubuntu 20
-    - PHP 7.3
-    - Composer
+- Ubuntu 20
+- PHP 7.3
+- Composer
 
 ## Actualizar repositorios
 
