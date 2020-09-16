@@ -1,11 +1,7 @@
 # Instalación de Adminer 4.7.7
 
-- [Índice de contenido](./index.md)
-
-### Nota:
-- Esta guia proporciona los pasos para un entorno con las siguientes características:
-    - Ubuntu 20
-    - Adminer 4.7.7
+- Ubuntu 20
+- Adminer 4.7.7
 
 ## Instalación 
 ```bash

@@ -1,11 +1,7 @@
 # Instalación de MariaDB 10.5
 
-- [Índice de contenido](./index.md)
-
-### Nota:
-- Esta guia proporciona los pasos para un entorno con las siguientes características:
-    - Ubuntu 20
-    - MariaDB 10.5
+- Ubuntu 20
+- MariaDB 10.5
 
 ## Actualizar repositorios
 
