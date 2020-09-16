@@ -77,7 +77,7 @@ class ResultOperations implements \JsonSerializable
         }, $operations);
 
         $this->setOperations($operations);
-        $this->name = strlen(trim($name)) > 0 ? $name : time();
+        $this->name = mb_strlen(trim($name)) > 0 ? $name : time();
         $this->message = $message;
 
         if (count($this->operations) > 0) {

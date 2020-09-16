@@ -86,7 +86,7 @@ function get_part_request($part = 1)
     $part = $part - 1;
     $part_uri = explode("/", get_request());
     if (count($part_uri) > 0) {
-        if (strlen($part_uri[count($part_uri) - 1]) == 0) {
+        if (mb_strlen($part_uri[count($part_uri) - 1]) == 0) {
             unset($part_uri[count($part_uri) - 1]);
         }
 
@@ -115,7 +115,7 @@ function append_to_url(string $url, string $segment)
     $path = isset($parts['path']) ? $parts['path'] : '';
     $url = "$host/$path/$segment";
     $url = preg_replace('|\/{2,}|', '/', $url);
-    if (strlen($scheme) > 0) {
+    if (mb_strlen($scheme) > 0) {
         $url = "$scheme://$url";
     } else {
         $url = "$url";
@@ -177,7 +177,7 @@ function generate_code(int $length = 6, bool $only_numeric = true)
         $chars = "-_$*.ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
     }
     //Se obtiene la longitud de la cadena
-    $len_chars = strlen($chars);
+    $len_chars = mb_strlen($chars);
     //Se define una longitud para la contraseña
     $len_pass = $length;
 
@@ -496,6 +496,7 @@ function string_compare(string $str1, $compare)
 
 /**
  * Elimina las posiciones vacías.
+ * NO se considera vacío: 0, 0.0, "0", false, null ni []
  * @param array $array
  * @return array El array nuevo
  */

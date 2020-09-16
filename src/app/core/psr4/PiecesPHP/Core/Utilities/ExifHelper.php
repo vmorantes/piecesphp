@@ -209,7 +209,7 @@ class ExifHelper
         } elseif (is_string($value)) {
 
             $value = trim(mb_strtoupper($value));
-            $value = str_split($value);
+            $value = mb_str_split($value);
             $lastChar = end($value);
 
             if ($lastChar == $positiveReference) {

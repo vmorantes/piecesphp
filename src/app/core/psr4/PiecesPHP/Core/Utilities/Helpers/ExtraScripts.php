@@ -75,7 +75,7 @@ class ExtraScripts
 
         $html = "";
 
-        if (strlen(trim(self::$scripts)) > 0) {
+        if (mb_strlen(trim(self::$scripts)) > 0) {
             $html .= "<!-- Extra scripts -->\r\n";
             $html .= self::$scripts;
             $html .= "\r\n<!-- Close Extra scripts -->\r\n";

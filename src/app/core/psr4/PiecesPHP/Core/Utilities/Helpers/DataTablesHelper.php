@@ -282,8 +282,8 @@ class DataTablesHelper
 
         //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
         $having_string = trim($having_string);
-        if (strlen($having_string) > 0) {
-            if (strlen($having) > 0) {
+        if (mb_strlen($having_string) > 0) {
+            if (mb_strlen($having) > 0) {
                 $having = "($having_string) AND $having";
             } else {
                 $having = "($having_string)";
@@ -292,8 +292,8 @@ class DataTablesHelper
 
         //Mezclar búsqueda de datatables con los criterios por defecto (inútil, ahora la búsqueda es por HAVING)
         $where_string = trim($where_string);
-        if (strlen($where_string) > 0) {
-            if (strlen($where) > 0) {
+        if (mb_strlen($where_string) > 0) {
+            if (mb_strlen($where) > 0) {
                 $where = "($where_string) AND $where";
             } else {
                 $where = "($where_string)";
@@ -358,22 +358,22 @@ class DataTablesHelper
         /* Aplicar las diferentes cláusulas SQL y otras configuraciones*/
 
         //WHERE
-        if (strlen($where) > 0) {
+        if (mb_strlen($where) > 0) {
             $limit->where($where);
         }
 
         //HAVING
-        if (strlen($having) > 0) {
+        if (mb_strlen($having) > 0) {
             $limit->having($having);
         }
 
         //ORDER BY
-        if (strlen($order_by) > 0) {
+        if (mb_strlen($order_by) > 0) {
             $limit->orderBy($order_by);
         }
 
         //GROUP BY
-        if (!is_null($group_string) && strlen($group_string) > 0) {
+        if (!is_null($group_string) && mb_strlen($group_string) > 0) {
             $limit->groupBy($group_string);
         }
 
@@ -467,13 +467,13 @@ class DataTablesHelper
 
                         $value = '';
                         $reference_table = $field['reference_table'];
-                        $is_foreign = is_string($reference_table) && strlen($reference_table) > 0;
+                        $is_foreign = is_string($reference_table) && mb_strlen($reference_table) > 0;
 
                         if ($is_foreign) {
 
                             $human_readable_reference_field = $field['human_readable_reference_field'];
                             $reference_field = $field['reference_field'];
-                            $has_human_readable = is_string($human_readable_reference_field) && strlen($human_readable_reference_field) > 0;
+                            $has_human_readable = is_string($human_readable_reference_field) && mb_strlen($human_readable_reference_field) > 0;
 
                             if ($has_human_readable) {
 
@@ -515,7 +515,7 @@ class DataTablesHelper
 
                 if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
-                    $direction_ordering = trim(strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
+                    $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
                     $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
 
                     if (!is_null($column_name) && $column_name == self::INGNORE) {
@@ -590,16 +590,16 @@ class DataTablesHelper
         }
 
         //WHERE
-        if (strlen($where) > 0) {
+        if (mb_strlen($where) > 0) {
             $filterCount->where($where);
         }
 
         //HAVING
-        if (strlen($having) > 0) {
+        if (mb_strlen($having) > 0) {
             $filterCount->having($having);
         }
 
-        if (!is_null($group_string) && strlen($group_string) > 0) {
+        if (!is_null($group_string) && mb_strlen($group_string) > 0) {
 
             //Con GROUP BY
             $filterCount->groupBy($group_string);
@@ -654,9 +654,9 @@ class DataTablesHelper
 
         //Verificar criterios de búsqueda
         $search_value = is_array($search) && isset($search['value']) ? trim($search['value']) : '';
-        $has_search = strlen($search_value) > 0;
+        $has_search = mb_strlen($search_value) > 0;
 
-        $table = strlen(trim($table)) > 0 ? "$table." : '';
+        $table = mb_strlen(trim($table)) > 0 ? "$table." : '';
 
         if ($has_search) {
 
@@ -739,7 +739,7 @@ class DataTablesHelper
         }
 
         $having = trim(implode(' OR ', $having));
-        $having = strlen($having) > 0 ? "($having)" : '';
+        $having = mb_strlen($having) > 0 ? "($having)" : '';
 
         return $having;
     }
@@ -759,7 +759,7 @@ class DataTablesHelper
     {
         $order_by = [];
 
-        $table = strlen(trim($table)) > 0 ? "$table." : '';
+        $table = mb_strlen(trim($table)) > 0 ? "$table." : '';
 
         if (!self::$tableOnOrder) {
             $table = '';
@@ -775,7 +775,7 @@ class DataTablesHelper
 
                 if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
-                    $direction_ordering = trim(strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
+                    $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
                     $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
 
                     if (!is_null($column_name)) {
@@ -801,7 +801,7 @@ class DataTablesHelper
         foreach ($custom_order as $column => $direction) {
             $exists_order = false;
             foreach ($order_by as $index => $order_item) {
-                if (strpos($order_item, $column) !== false) {
+                if (mb_strpos($order_item, $column) !== false) {
                     $exists_order = true;
                     break;
                 }

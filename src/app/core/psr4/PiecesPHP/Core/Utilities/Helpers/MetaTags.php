@@ -173,7 +173,7 @@ class MetaTags
 
             $themeColor = get_config('meta_theme_color');
             $themeColor = $themeColor !== false ? $themeColor : '';
-            $themeColor = is_string($themeColor) && strlen(trim($themeColor)) > 0 ? trim($themeColor) : null;
+            $themeColor = is_string($themeColor) && mb_strlen(trim($themeColor)) > 0 ? trim($themeColor) : null;
 
             if ($themeColor !== null) {
                 self::$themeColor = $themeColor;
@@ -242,7 +242,7 @@ class MetaTags
     {
         $value = strip_tags($value);
         $value = trim($value);
-        $valueLength = strlen($value);
+        $valueLength = mb_strlen($value);
         $fromIndex = $fromIndex >= $valueLength ? 0 : $fromIndex;
         $value = $valueLength > $maxLength ? trim(mb_substr($value, $fromIndex, $maxLength)) . '...' : $value;
         self::$description = $value;

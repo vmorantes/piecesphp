@@ -98,7 +98,7 @@ class FilesIgnore
         $include_string_control = 'INCLUDE_EXPR::';
 
         $include_regexprs = array_filter($this->exclude_regexprs, function ($regexpr) use ($include_string_control) {
-            return strpos($regexpr, $include_string_control) !== false;
+            return mb_strpos($regexpr, $include_string_control) !== false;
         });
 
         $normal_regexprs = array_filter($this->exclude_regexprs, function ($regexpr) use ($include_regexprs) {
@@ -106,7 +106,7 @@ class FilesIgnore
         });
 
         $include_regexprs = array_map(function ($regexpr) use ($include_string_control) {
-            $pos_regexpr = strpos($regexpr, $include_string_control) + strlen($include_string_control);
+            $pos_regexpr = mb_strpos($regexpr, $include_string_control) + mb_strlen($include_string_control);
             return mb_substr($regexpr, $pos_regexpr);
         }, $include_regexprs);
 
