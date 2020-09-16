@@ -7,6 +7,7 @@ namespace PiecesPHP;
 
 use LEClient\LEClient;
 use LEClient\LEOrder;
+use Psr\Log\LoggerInterface;
 
 /**
  * LetsEncryptHandler.
@@ -15,12 +16,8 @@ use LEClient\LEOrder;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
  */
-class LetsEncryptHandler
+class LetsEncryptHandler implements LoggerInterface
 {
-
-    const LOG_OFF = LEClient::LOG_OFF; // Logs no messages or faults, except Runtime Exceptions.
-    const LOG_STATUS = LEClient::LOG_STATUS; // Logs only messages and faults.
-    const LOG_DEBUG = LEClient::LOG_DEBUG; // Logs messages, faults and raw responses from HTTP requests.
 
     /**
      * @var string
@@ -72,6 +69,40 @@ class LetsEncryptHandler
     protected $order = null;
 
     /**
+     * Logs
+     *
+     * @var array
+     */
+    protected $logs = [
+        'emergency' => [],
+        'alert' => [],
+        'critical' => [],
+        'error' => [],
+        'warning' => [],
+        'notice' => [],
+        'info' => [],
+        'debug' => [],
+        'log' => [],
+    ];
+
+    /**
+     * Logs contexts
+     *
+     * @var array
+     */
+    protected $logsContexts = [
+        'emergency' => [],
+        'alert' => [],
+        'critical' => [],
+        'error' => [],
+        'warning' => [],
+        'notice' => [],
+        'info' => [],
+        'debug' => [],
+        'log' => [],
+    ];
+
+    /**
      * @param string $domain
      * @param string $email
      * @param string $challengePath
@@ -90,10 +121,9 @@ class LetsEncryptHandler
 
     /**
      * Inicializa el cliente ACME
-     * @param int $logMode
      * @return static
      */
-    public function init(int $logMode = LetsEncryptHandler::LOG_OFF)
+    public function init()
     {
 
         $apiURL = $this->testMode() ? LEClient::LE_STAGING : LEClient::LE_PRODUCTION;
@@ -103,7 +133,7 @@ class LetsEncryptHandler
         $this->client = new LEClient(
             [$this->email()],
             $apiURL,
-            $logMode,
+            $this,
             $certificateKeys,
             $accountKeys
         );
@@ -167,22 +197,23 @@ class LetsEncryptHandler
         $this->checkPendingAuthorizations();
 
         $order = $this->order;
+        $result = false;
 
         // Check once more whether all authorizations are valid before we can finalize the order.
         if ($order->allAuthorizationsValid()) {
             // Finalize the order first, if that is not yet done.
             if (!$order->isFinalized()) {
-                return $order->finalizeOrder();
+                $result = $order->finalizeOrder();
             }
 
             // Check whether the order has been finalized before we can get the certificate. If finalized, get the certificate.
             if ($order->isFinalized()) {
-                return $order->getCertificate();
+                $result = $order->getCertificate();
             }
 
         }
 
-        return false;
+        return $result;
     }
 
     /**
@@ -195,7 +226,11 @@ class LetsEncryptHandler
         if ($this->client === null) {
             throw new \Exception($this->clientNotInstantiatedMessage);
         }
-        $this->order = $this->client->getOrCreateOrder($this->domain(), [$this->domain()]);
+        $domains = [
+            $this->domain(),
+            'www.' . $this->domain(),
+        ];
+        $this->order = $this->client->getOrCreateOrder($this->domain(), $domains);
         return $this;
     }
 
@@ -276,7 +311,7 @@ class LetsEncryptHandler
         if ($value === null) {
             return $this->configurations[$nameProperty];
         } else {
-            $this->configurations[$nameProperty] = $value;
+            $this->configurations[$nameProperty] = self::cleanDomain($value);
         }
 
         return $this;
@@ -312,6 +347,200 @@ class LetsEncryptHandler
         $value = trim($value, \DIRECTORY_SEPARATOR);
         $value = str_replace(\DIRECTORY_SEPARATOR . \DIRECTORY_SEPARATOR, \DIRECTORY_SEPARATOR, $value);
         return $value;
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    public static function cleanDomain(string $url)
+    {
+        $domainParse = parse_url($url);
+
+        if (is_array($domainParse) && isset($domainParse['host'])) {
+            $url = $domainParse['host'];
+        }
+
+        $urlWhioutWWW = preg_replace("/^www\./i", "", $url);
+
+        $url = $urlWhioutWWW !== null ? $urlWhioutWWW : $url;
+
+        return $url;
+
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getLogs()
+    {
+        return $this->logs;
+    }
+
+    /**
+     * Return the log
+     *
+     * @param string $type
+     * @return string[]
+     */
+    public function getLog(string $type)
+    {
+        return isset($this->logs[$type]) ? $this->logs[$type] : [];
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getLogsContexts()
+    {
+        return $this->logsContexts;
+    }
+
+    /**
+     * Return the log contexts
+     *
+     * @param string $type
+     * @return array[]
+     */
+    public function getLogContexts(string $type)
+    {
+        return isset($this->logsContexts[$type]) ? $this->logsContexts[$type] : [];
+    }
+
+    /**
+     * Multipurpose logger
+     *
+     * @param string $type
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function toLog(string $type, string $message, array $context = array())
+    {
+
+        $sign = "(ID: " . uniqid() . " Date: " . date('d-m-Y h:i:s A') . ")";
+
+        $this->logs[$type][] = $message . " ({$sign})";
+        $this->logsContexts[$type][$sign] = $context;
+
+    }
+
+    /**
+     * System is unusable.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function emergency($message, array $context = array())
+    {
+        $this->toLog('emergency', $message, $context);
+    }
+
+    /**
+     * Action must be taken immediately.
+     *
+     * Example: Entire website down, database unavailable, etc. This should
+     * trigger the SMS alerts and wake you up.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function alert($message, array $context = array())
+    {
+        $this->toLog('alert', $message, $context);
+    }
+
+    /**
+     * Critical conditions.
+     *
+     * Example: Application component unavailable, unexpected exception.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function critical($message, array $context = array())
+    {
+        $this->toLog('critical', $message, $context);
+    }
+
+    /**
+     * Runtime errors that do not require immediate action but should typically
+     * be logged and monitored.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function error($message, array $context = array())
+    {
+        $this->toLog('error', $message, $context);
+    }
+    /**
+     * Exceptional occurrences that are not errors.
+     *
+     * Example: Use of deprecated APIs, poor use of an API, undesirable things
+     * that are not necessarily wrong.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function warning($message, array $context = array())
+    {
+        $this->toLog('warning', $message, $context);
+    }
+    /**
+     * Normal but significant events.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function notice($message, array $context = array())
+    {
+        $this->toLog('notice', $message, $context);
+    }
+
+    /**
+     * Interesting events.
+     *
+     * Example: User logs in, SQL logs.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function info($message, array $context = array())
+    {
+        $this->toLog('info', $message, $context);
+    }
+
+    /**
+     * Detailed debug information.
+     *
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function debug($message, array $context = array())
+    {
+        $this->toLog('debug', $message, $context);
+    }
+
+    /**
+     * Logs with an arbitrary level.
+     *
+     * @param mixed $level
+     * @param string $message
+     * @param array $context
+     * @return void
+     */
+    public function log($level, $message, array $context = array())
+    {
+        $this->toLog('log', $message, $context);
     }
 
 }
