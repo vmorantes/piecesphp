@@ -1748,3 +1748,69 @@ function log_exception($e)
     $handler->logging();
 
 }
+
+/**
+ * A partir de un string de fecha válido para \DateTime::__construct()
+ * devuelve el nombre del mes en español
+ *
+ * @param string $date Fecha para formatear
+ * @return string El nombre del mes en español
+ */
+function num_month_to_text(string $date)
+{
+    $date = date_format(date_create($date), 'd-m-Y');
+
+    $date_array = explode('-', $date);
+
+    $langGroup = 'calendar';
+
+    if ($date_array[1] == "01") {
+        $month = __($langGroup, 'Enero');
+    }
+
+    if ($date_array[1] == "02") {
+        $month = __($langGroup, 'Febrero');
+    }
+
+    if ($date_array[1] == "03") {
+        $month = __($langGroup, 'Marzo');
+    }
+
+    if ($date_array[1] == "04") {
+        $month = __($langGroup, 'Abril');
+    }
+
+    if ($date_array[1] == "05") {
+        $month = __($langGroup, 'Mayo');
+    }
+
+    if ($date_array[1] == "06") {
+        $month = __($langGroup, 'Junio');
+    }
+
+    if ($date_array[1] == "07") {
+        $month = __($langGroup, 'Julio');
+    }
+
+    if ($date_array[1] == "08") {
+        $month = __($langGroup, 'Agosto');
+    }
+
+    if ($date_array[1] == "09") {
+        $month = __($langGroup, 'Septiembre');
+    }
+
+    if ($date_array[1] == "10") {
+        $month = __($langGroup, 'Octubre');
+    }
+
+    if ($date_array[1] == "11") {
+        $month = __($langGroup, 'Noviembre');
+    }
+
+    if ($date_array[1] == "12") {
+        $month = __($langGroup, 'Diciembre');
+    }
+
+    return $month;
+}

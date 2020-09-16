@@ -445,7 +445,7 @@ class Config
     }
 
     /**
-     * get_config
+     * Obtiene el valor de la configuración solicitada.
      *
      * @param string $name
      * @return mixed|boolean Devuelve el valor o false si no existe o es null
