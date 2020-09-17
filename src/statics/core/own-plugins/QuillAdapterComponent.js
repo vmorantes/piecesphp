@@ -244,6 +244,9 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 			}
 		})
 
+		let delta = quillInstance.clipboard.convert(textareaTarget.val())
+        quillInstance.setContents(delta, 'silent')
+
 		//Evento para rellenar el textarea
 		quillInstance.on('editor-change', (delta, oldDelta, source) => {
 
@@ -371,7 +374,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 				let formatOptions = {
 					"indent": "auto",
 					"indent-spaces": 4,
-					"wrap": 80,
+					"wrap": 100,
 					"markup": true,
 					"output-xml": false,
 					"numeric-entities": true,
@@ -379,7 +382,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 					"quote-nbsp": false,
 					"show-body-only": true,
 					"quote-ampersand": false,
-					"break-before-br": false,
+					"break-before-br": true,
 					"uppercase-tags": false,
 					"uppercase-attributes": false,
 					"drop-font-tags": false,
@@ -672,6 +675,8 @@ QuillAdapterComponent.BlotsConfig = function () {
 				let node = super.create()
 				node.setAttribute('alt', value.alt)
 				node.setAttribute('src', value.url)
+				node.setAttribute('width', value.width)
+				node.setAttribute('style', value.style)
 				return node
 
 			}
@@ -679,7 +684,9 @@ QuillAdapterComponent.BlotsConfig = function () {
 			static value(node) {
 				return {
 					alt: node.getAttribute('alt'),
-					url: node.getAttribute('src')
+					url: node.getAttribute('src'),
+					width: node.getAttribute('width'),
+					style: node.getAttribute('style'),
 				}
 			}
 
@@ -691,7 +698,48 @@ QuillAdapterComponent.BlotsConfig = function () {
 		return ImageBlot
 	}
 
+
+	function iframeBlot() {
+
+		class VideoBlot extends BlotsBlockEmbed {
+			static create(value) {
+
+				let node = super.create(value)
+
+				node.setAttribute('frameborder', '0')
+				node.setAttribute('allowfullscreen', true)
+
+				if (typeof value == 'string') {
+					node.setAttribute('src', value)
+				} else {
+					node.setAttribute('src', value.src)
+					node.setAttribute('width', value.width)
+					node.setAttribute('height', value.height)
+					node.setAttribute('style', value.style)
+				}
+
+				return node
+			}
+
+			static value(node) {
+				return {
+					src: node.getAttribute('src'),
+					width: node.getAttribute('width'),
+					height: node.getAttribute('height'),
+					style: node.getAttribute('style'),
+				}
+			}
+		}
+
+		VideoBlot.blotName = 'video'
+		VideoBlot.className = 'ql-video'
+		VideoBlot.tagName = 'iframe'
+
+		return VideoBlot
+	}
+
 	Quill.register(imageBlot())
+	Quill.register('formats/video', iframeBlot())
 
 }
 
