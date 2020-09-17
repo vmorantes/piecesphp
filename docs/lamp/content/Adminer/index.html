@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../../../img/favicon.ico">
-  <title>Instalación de Adminer 4.7.7 - Documentación de desarrollo</title>
+  <title>Adminer - Documentación de desarrollo</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../../../css/theme.css" />
@@ -18,7 +18,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Instalaci\u00f3n de Adminer 4.7.7";
+    var mkdocs_page_name = "Adminer";
     var mkdocs_page_input_path = "lamp/content/Adminer.md";
     var mkdocs_page_url = null;
   </script>
@@ -51,15 +51,48 @@
                     <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
                     </li>
                 </ul>
-                <p class="caption"><span class="caption-text">Guías de instalación de entorno</span></p>
+                <p class="caption"><span class="caption-text">LAMP</span></p>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="#">Contenido</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../Apache/">Apache2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../PHP/">PHP</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../MariaDB/">MariaDB</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Extras</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../PHPMyAdmin/">PHPMyAdmin</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="./">Adminer</a>
+    <ul class="current">
+    <li class="toctree-l4"><a class="reference internal" href="#instalacion">Instalación</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../SSL%20con%20Lets%20Encrypt/">SSL con Lets Encrypt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../Virtual%20Hosts/">Virtual Hosts - Soporte para dominios</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">HestiaCP</span></p>
                 <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../../">LAMP</a>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../hestiacp/">Contenido</a>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../../hestiacp/">HestiaCP (Debian 9)</a>
+                </ul>
+                <p class="caption"><span class="caption-text">PiecesPHP</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../piecesphp/">Contenido</a>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../../tomcat/">Tomacat 8 (Debian 9)</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../../piecesphp/">PiecesPHP (Ubuntu 20)</a>
+                </ul>
+                <p class="caption"><span class="caption-text">Tomcat 8</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../tomcat/">Contenido</a>
                     </li>
                 </ul>
       </div>
@@ -82,8 +115,20 @@
     <li><a href="../../..">Docs</a> &raquo;</li>
     
       
+        
+          <li>Extras &raquo;</li>
+        
+      
+        
+          <li>Contenido &raquo;</li>
+        
+      
+        
+          <li>LAMP &raquo;</li>
+        
+      
     
-    <li>Instalación de Adminer 4.7.7</li>
+    <li>Adminer</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -94,7 +139,7 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="instalacion-de-adminer-477">Instalación de Adminer 4.7.7</h1>
+                <h1 id="adminer-477">Adminer 4.7.7</h1>
 <ul>
 <li>Ubuntu 20</li>
 <li>Adminer 4.7.7</li>
@@ -104,6 +149,7 @@
 cd ~
 
 #Configurar algunas variables útiles
+###La carpeta pública
 export CARPETA_DE_INSTALACION=&quot;/var/www/html&quot;
 
 #Crear carpeta de adminer
@@ -128,6 +174,15 @@ sudo nano $CARPETA_DE_INSTALACION/adminer/index.php
           </div>
           <footer>
   
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../SSL%20con%20Lets%20Encrypt/" class="btn btn-neutral float-right" title="SSL con Lets Encrypt">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../PHPMyAdmin/" class="btn btn-neutral" title="PHPMyAdmin"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
 
   <hr/>
 
@@ -150,6 +205,10 @@ sudo nano $CARPETA_DE_INSTALACION/adminer/index.php
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../PHPMyAdmin/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../SSL%20con%20Lets%20Encrypt/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

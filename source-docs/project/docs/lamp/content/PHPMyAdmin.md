@@ -1,4 +1,4 @@
-# Instalación de PHPMyAdmin 4.9.2
+# PHPMyAdmin 4.9.2
 
 - Ubuntu 20
 - PHPMyAdmin 4.9.2
@@ -8,7 +8,8 @@
 # Moverse al directorio de usuario
 cd ~
 
-#Configurar algunas variables útiles 
+#Configurar algunas variables útiles
+###La carpeta pública
 export CARPETA_DE_INSTALACION="/var/www/html"
 
 #Descargar

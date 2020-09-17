@@ -1,4 +1,7 @@
-# Añadir soporte de SSL con Lets Encrypt (LE) en apache2 (Debian 9)
+# Soporte de SSL con Lets Encrypt (LE) en apache2
+
+_(probado en Debian 9)_  
+
 Nota: La información es sacada de [snel.com](https://www.snel.com/support/lets-encrypt-on-debian-9-with-apache-webserver/)
 
 ```bash

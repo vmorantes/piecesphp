@@ -1,4 +1,4 @@
-# Instalación de Adminer 4.7.7
+# Adminer 4.7.7
 
 - Ubuntu 20
 - Adminer 4.7.7
@@ -9,6 +9,7 @@
 cd ~
 
 #Configurar algunas variables útiles
+###La carpeta pública
 export CARPETA_DE_INSTALACION="/var/www/html"
 
 #Crear carpeta de adminer

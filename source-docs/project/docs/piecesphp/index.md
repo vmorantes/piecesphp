@@ -1,4 +1,5 @@
 # PiecesPHP Framework
+
 - Requerimientos
     - PiecesPHP
     - Composer
@@ -92,7 +93,12 @@ composer install ##NO USAR sudo
 
 ```
 
-### Otras configuraciones
+### Activación de módulos apache necesarios
+```bash
+sudo a2enmod rewrite headers ssl
+```
+
+### Más información
 - Existen las siguientes tareas en Gulp (dentro de src):
     - gulp sass:init (para compilar los archivos en src/statics/sass)
     - gulp sass:watch (para observar los archivos en src/statics/sass)

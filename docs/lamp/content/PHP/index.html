@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../../../img/favicon.ico">
-  <title>Instalación de PHP 7.3 (probado también con 7.4, 7.1) - Documentación de desarrollo</title>
+  <title>PHP - Documentación de desarrollo</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../../../css/theme.css" />
@@ -18,7 +18,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Instalaci\u00f3n de PHP 7.3 (probado tambi\u00e9n con 7.4, 7.1)";
+    var mkdocs_page_name = "PHP";
     var mkdocs_page_input_path = "lamp/content/PHP.md";
     var mkdocs_page_url = null;
   </script>
@@ -51,15 +51,54 @@
                     <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
                     </li>
                 </ul>
-                <p class="caption"><span class="caption-text">Guías de instalación de entorno</span></p>
+                <p class="caption"><span class="caption-text">LAMP</span></p>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="#">Contenido</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../Apache/">Apache2</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">PHP</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#actualizar-repositorios">Actualizar repositorios</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#intalacion">Intalación</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#activacion">Activación</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#instalar-composer-globalmente">Instalar Composer (globalmente)</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../MariaDB/">MariaDB</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="#">Extras</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../PHPMyAdmin/">PHPMyAdmin</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../Adminer/">Adminer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../SSL%20con%20Lets%20Encrypt/">SSL con Lets Encrypt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../Virtual%20Hosts/">Virtual Hosts - Soporte para dominios</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">HestiaCP</span></p>
                 <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../../">LAMP</a>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../hestiacp/">Contenido</a>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../../hestiacp/">HestiaCP (Debian 9)</a>
+                </ul>
+                <p class="caption"><span class="caption-text">PiecesPHP</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../piecesphp/">Contenido</a>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../../tomcat/">Tomacat 8 (Debian 9)</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../../../piecesphp/">PiecesPHP (Ubuntu 20)</a>
+                </ul>
+                <p class="caption"><span class="caption-text">Tomcat 8</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../../../tomcat/">Contenido</a>
                     </li>
                 </ul>
       </div>
@@ -82,8 +121,16 @@
     <li><a href="../../..">Docs</a> &raquo;</li>
     
       
+        
+          <li>Contenido &raquo;</li>
+        
+      
+        
+          <li>LAMP &raquo;</li>
+        
+      
     
-    <li>Instalación de PHP 7.3 (probado también con 7.4, 7.1)</li>
+    <li>PHP</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -94,7 +141,8 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="instalacion-de-php-73-probado-tambien-con-74-71">Instalación de PHP 7.3 (probado también con 7.4, 7.1)</h1>
+                <h1 id="instalacion-de-php-73">Instalación de PHP 7.3</h1>
+<p><em>(probado también con 7.4, 7.1)</em></p>
 <ul>
 <li>Ubuntu 20</li>
 <li>PHP 7.3</li>
@@ -123,7 +171,7 @@ sudo update-alternatives --config php
 #Instalar extensiones PHP
 sudo apt install php7.3-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
 ##Si se decidió por PHP 7.1
-sudo apt install php7.1-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mcrypt,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
+sudo apt install php7.1-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,mcrypt}
 </code></pre>
 
 <h2 id="activacion">Activación</h2>
@@ -143,6 +191,15 @@ mv composer.phar /usr/local/bin/composer
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../MariaDB/" class="btn btn-neutral float-right" title="MariaDB">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../Apache/" class="btn btn-neutral" title="Apache2"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -166,6 +223,10 @@ mv composer.phar /usr/local/bin/composer
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../Apache/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../MariaDB/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

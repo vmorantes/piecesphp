@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>HestiaCP (Debian 9) - Documentación de desarrollo</title>
+  <title>Contenido - Documentación de desarrollo</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,7 +18,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "HestiaCP (Debian 9)";
+    var mkdocs_page_name = "Contenido";
     var mkdocs_page_input_path = "hestiacp/index.md";
     var mkdocs_page_url = null;
   </script>
@@ -51,57 +51,52 @@
                     <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                     </li>
                 </ul>
-                <p class="caption"><span class="caption-text">Guías de instalación de entorno</span></p>
-                <ul class="current">
-                    <li class="toctree-l1"><a class="reference internal" href="../lamp/">LAMP</a>
+                <p class="caption"><span class="caption-text">LAMP</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="#">Contenido</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../lamp/content/Apache/">Apache2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lamp/content/PHP/">PHP</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lamp/content/MariaDB/">MariaDB</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="#">Extras</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/PHPMyAdmin/">PHPMyAdmin</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/Adminer/">Adminer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/SSL%20con%20Lets%20Encrypt/">SSL con Lets Encrypt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/Virtual%20Hosts/">Virtual Hosts - Soporte para dominios</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
                     </li>
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">HestiaCP (Debian 9)</a>
+                </ul>
+                <p class="caption"><span class="caption-text">HestiaCP</span></p>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Contenido</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#nota">Nota:</a>
+    <li class="toctree-l2"><a class="reference internal" href="#algunos-paquetes">Algunos paquetes</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#intalacion-de-algunos-paquetes">Intalación de algunos paquetes</a>
+    <li class="toctree-l2"><a class="reference internal" href="#variables">Variables</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#intalacion-de-hestiacp">Intalación de HestiaCP</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#hestiacp">HestiaCP</a>
+    <li class="toctree-l2"><a class="reference internal" href="#instalacion">Instalación</a>
     </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#intalacion-de-php-71">Intalación de PHP 7.1</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#instalar-extensiones-php">Instalar extensiones PHP</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#extensiones-sugeridas">Extensiones sugeridas:</a>
-    </li>
-        </ul>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#modulos-apache2">Módulos apache2</a>
+    <li class="toctree-l2"><a class="reference internal" href="#modulos-php-y-apache">Módulos PHP y Apache</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#configuracion-de-mariadb">Configuración de MariaDB</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#instalar-mariadb-103">Instalar MariaDB 10.3:</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#crear-un-usuario">Crear un usuario:</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#instalar-composer-globalmente">Instalar Composer (globalmente):</a>
+    <li class="toctree-l2"><a class="reference internal" href="#instalar-composer-globalmente">Instalar Composer (globalmente)</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#phpmyadmin">PHPMyAdmin</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#instalar">Instalar</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#configurar">Configurar</a>
+    <li class="toctree-l2"><a class="reference internal" href="#adminer-alternativa-ligera-a-phpmyadmin">Adminer (alternativa ligera a PHPMyAdmin)</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#permisos">Permisos</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#seguridad">Seguridad</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#otras-configuraciones">Otras configuraciones</a>
+    <li class="toctree-l2"><a class="reference internal" href="#otras-configuraciones-de-hestiacp">Otras configuraciones de HestiaCP</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#configuraciones-de-php">Configuraciones de PHP</a>
     </li>
@@ -109,9 +104,15 @@
     </li>
     </ul>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../tomcat/">Tomacat 8 (Debian 9)</a>
+                </ul>
+                <p class="caption"><span class="caption-text">PiecesPHP</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../piecesphp/">Contenido</a>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../piecesphp/">PiecesPHP (Ubuntu 20)</a>
+                </ul>
+                <p class="caption"><span class="caption-text">Tomcat 8</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../tomcat/">Contenido</a>
                     </li>
                 </ul>
       </div>
@@ -135,11 +136,11 @@
     
       
         
-          <li>Guías de instalación de entorno &raquo;</li>
+          <li>HestiaCP &raquo;</li>
         
       
     
-    <li>HestiaCP (Debian 9)</li>
+    <li>Contenido</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -150,143 +151,60 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="preparacion-del-entorno-del-servidor">Preparación del entorno del servidor:</h1>
-<h3 id="nota">Nota:</h3>
+                <h1 id="hestiacp">HestiaCP:</h1>
 <ul>
-<li>Esta guia proporciona los pasos para un entorno con las siguientes características:<ul>
-<li>Debian 10</li>
+<li>Ubuntu 20</li>
 <li>HestiaCP</li>
-<li>PHP 7.1</li>
-<li>MariaDB 10.3</li>
 </ul>
-</li>
-</ul>
-<h2 id="intalacion-de-algunos-paquetes">Intalación de algunos paquetes</h2>
-<p>apt install unzip curl</p>
-<h2 id="intalacion-de-hestiacp">Intalación de HestiaCP</h2>
-<h3 id="hestiacp">HestiaCP</h3>
-<ul>
-<li>
-<p>Descargar HestiaCP:
-cd ~
-wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh</p>
-</li>
-<li>
-<p>Instalar HestiaCP:</p>
-</li>
-</ul>
-<p>bash hst-install.sh --nginx yes --apache yes --multiphp yes --named yes --vsftpd yes --iptables yes --fail2ban yes --exim no --dovecot no --spamassassin no --clamav no --mysql no --lang es --hostname vps230250.vps.ovh.ca --email EMAIL --password CONTRASEÑA</p>
-<h2 id="intalacion-de-php-71">Intalación de PHP 7.1</h2>
-<ul>
-<li>
-<p>Actualizar repositorios:
-sudo apt install apt-transport-https lsb-release ca-certificates
-sudo wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-sudo sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" &gt; /etc/apt/sources.list.d/php.list'
-sudo apt update</p>
-</li>
-<li>
-<p>Reiniciar apache
-sudo service apache2 restart</p>
-</li>
-</ul>
-<h3 id="instalar-extensiones-php">Instalar extensiones PHP</h3>
-<ul>
-<li>Notas: <ul>
-<li>La extensión mcrypt debe instalarse como extensión PECL luego de php 7.1.*</li>
-<li>Al finalizar se debe reiniciar apache</li>
-</ul>
-</li>
-</ul>
-<p>sudo apt install php<em>-pdo php</em>-xml php<em>-ctype php</em>-mbstring php<em>-fileinfo php</em>-gd php<em>-mysqli php</em>-sqlite3 php<em>-zip php</em>-xsl php<em>-xmlwriter php</em>-xmlreader php*-mcrypt</p>
-<h4 id="extensiones-sugeridas">Extensiones sugeridas:</h4>
-<p>sudo apt install php*-mongodb</p>
-<h2 id="modulos-apache2">Módulos apache2</h2>
-<p>a2enmod headers
-a2enmod rewrite
-service apache2 restart</p>
+<h2 id="algunos-paquetes">Algunos paquetes</h2>
+<pre><code class="bash">sudo apt install curl zip unzip openssl git wget
+</code></pre>
+
+<h2 id="variables">Variables</h2>
+<pre><code class="bash">export HESTIA_DOMAIN=&quot;sample.com&quot;
+export HESTIA_EMAIL=&quot;admin@sample.com&quot;
+export HESTIA_PASSWORD=&quot;hestiacp8083pass&quot;
+export HESTIA_PHP_VERSION_MODULES=&quot;*&quot;
+</code></pre>
+
+<h2 id="instalacion">Instalación</h2>
+<pre><code class="bash">#Descargar
+wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh
+#Instalar
+bash hst-install.sh --apache yes --nginx yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mysql yes --postgresql no --exim yes --dovecot yes --clamav yes --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --lang en --interactive yes --hostname $HESTIA_DOMAIN --email $HESTIA_EMAIL --password $HESTIA_PASSWORD 
+</code></pre>
+
+<p><em>Nota: Puede ver las opciones en la <a href="https://docs.hestiacp.com/getting_started.html#all-available-options-of-install-script">documentación de HestiaCP</a></em></p>
+<h2 id="modulos-php-y-apache">Módulos PHP y Apache</h2>
+<pre><code class="bash">#Instalar módulos
+sudo apt install php$HESTIA_PHP_VERSION_MODULES-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,mcrypt}
+#Módulos apache
+sudo a2enmod rewrite headers ssl
+#Reiniciar apache
+sudo service apache2 restart
+</code></pre>
+
 <h2 id="configuracion-de-mariadb">Configuración de MariaDB</h2>
-<h3 id="instalar-mariadb-103">Instalar MariaDB 10.3:</h3>
 <ul>
-<li>
-<p>Actualizar repositorios:
-sudo apt-get install software-properties-common dirmngr
-sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
-sudo add-apt-repository 'deb [arch=amd64] https://mirror.as205474.net/mariadb/repo/10.3/debian buster main'
-sudo apt-get update</p>
-</li>
-<li>
-<p>Instalar MariaDB:
-sudo apt-get install mariadb-server mariadb-client</p>
-</li>
-<li>
-<p>Caso de error 1524 (HY000): Plugin 'unix_socket' is not loaded:</p>
-</li>
+<li>Puede seguir los pasos acá: <a href="../lamp/content/MariaDB/">MariaDB</a></li>
 </ul>
-<p>sudo su
-/etc/init.d/mysql stop
-mysqld_safe --skip-grant-tables &amp;
-mysql -uroot
-use mysql;
-update user set password=PASSWORD("") where User='root';
-update user set plugin="mysql_native_password";
-quit;
-/etc/init.d/mysql stop
-kill -9 $(pgrep mysql)
-/etc/init.d/mysql start</p>
-<h3 id="crear-un-usuario">Crear un usuario:</h3>
-<ul>
-<li>Conectarse a la consola mysql:
-mysql</li>
-<li>Crear usuario:
-CREATE USER 'USUARIO'@'localhost' IDENTIFIED BY 'CONTRASEÑA';</li>
-<li>Otorgar permisos al usuario_
-GRANT ALL PRIVILEGES ON <em>.</em> TO 'USUARIO'@'localhost';</li>
-<li>Refrescar privilegios:
-FLUSH PRIVILEGES;</li>
-</ul>
-<h2 id="instalar-composer-globalmente">Instalar Composer (globalmente):</h2>
-<p>cd ~
-php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+<h2 id="instalar-composer-globalmente">Instalar Composer (globalmente)</h2>
+<pre><code class="bash">cd ~
+php -r &quot;copy('https://getcomposer.org/installer', 'composer-setup.php');&quot;
 php composer-setup.php
-php -r "unlink('composer-setup.php');"
+php -r &quot;unlink('composer-setup.php');&quot;
 mv composer.phar /usr/local/bin/composer
-composer --version</p>
+</code></pre>
+
 <h2 id="phpmyadmin">PHPMyAdmin</h2>
-<h3 id="instalar">Instalar</h3>
-<p>Nota: Activar SSL en Hestia
-cd ~
-wget https://files.phpmyadmin.net/phpMyAdmin/4.9.2/phpMyAdmin-4.9.2-all-languages.zip
-cd /home/admin/web/vps230250.vps.ovh.ca/public_html/
-unzip ~/phpMyAdmin-4.9.2-all-languages.zip -d .
-rm index.html robots.txt
-mv phpMyAdmin-4.9.2-all-languages phpmyadmin</p>
-<h3 id="configurar">Configurar</h3>
-<p>cd phpmyadmin
-cp config.sample.inc.php config.inc.php 
-nano config.inc.php
-- Configurar blowfish</p>
-<h3 id="permisos">Permisos</h3>
 <ul>
-<li>Aplicar permisos a la carpeta de phpmyadmin
-cd ..
-chmod -R 0755 phpmyadmin
-chmod -R 0755 phpmyadmin/*
-mkdir phpmyadmin/tmp
-chmod -R 0777 phpmyadmin/tmp</li>
-<li>Verificar usuario del servidor apache2 (posiblemente sea www-data)
-ps aux | egrep '(apache|httpd|www)'</li>
-<li>Cambiar de propietario la carpeta de phpmyadmin
-chown -R www-data:www-data phpmyadmin
-chown -R www-data:www-data phpmyadmin/*</li>
+<li>Puede seguir los pasos acá: <a href="../lamp/content/PHPMyAdmin/">PHPMyAdmin</a></li>
 </ul>
-<h3 id="seguridad">Seguridad</h3>
+<h2 id="adminer-alternativa-ligera-a-phpmyadmin">Adminer (alternativa ligera a PHPMyAdmin)</h2>
 <ul>
-<li>Borrar setup
-cd phpmyadmin
-rm -Rf setup</li>
+<li>Puede seguir los pasos acá: <a href="../lamp/content/Adminer/">Adminer</a></li>
 </ul>
-<h2 id="otras-configuraciones">Otras configuraciones</h2>
+<h2 id="otras-configuraciones-de-hestiacp">Otras configuraciones de HestiaCP</h2>
 <h3 id="configuraciones-de-php">Configuraciones de PHP</h3>
 <ul>
 <li>max_execution_time: 600</li>
@@ -302,10 +220,10 @@ rm -Rf setup</li>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../tomcat/" class="btn btn-neutral float-right" title="Tomacat 8 (Debian 9)">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../piecesphp/" class="btn btn-neutral float-right" title="Contenido">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../lamp/" class="btn btn-neutral" title="LAMP"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../lamp/content/Virtual%20Hosts/" class="btn btn-neutral" title="Virtual Hosts - Soporte para dominios"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -331,10 +249,10 @@ rm -Rf setup</li>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../lamp/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../lamp/content/Virtual%20Hosts/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../tomcat/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../piecesphp/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
