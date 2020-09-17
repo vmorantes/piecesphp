@@ -1,4 +1,6 @@
-# Instalación de PHP 7.3 (probado también con 7.4, 7.1)
+# Instalación de PHP 7.3
+
+_(probado también con 7.4, 7.1)_
 
 - Ubuntu 20
 - PHP 7.3
@@ -30,7 +32,7 @@ sudo update-alternatives --config php
 #Instalar extensiones PHP
 sudo apt install php7.3-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
 ##Si se decidió por PHP 7.1
-sudo apt install php7.1-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mcrypt,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
+sudo apt install php7.1-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,mcrypt}
 ```
 ## Activación
 

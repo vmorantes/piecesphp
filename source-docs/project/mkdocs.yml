@@ -1,10 +1,24 @@
 site_name: Documentación de desarrollo
 nav:
     - Home: index.md
-    - Guías de instalación de entorno:       
-        - LAMP: lamp/index.md 
-        - HestiaCP (Debian 9): hestiacp/index.md 
-        - Tomacat 8 (Debian 9): tomcat/index.md 
-        - PiecesPHP (Ubuntu 20): piecesphp/index.md 
+    - LAMP:
+        - Contenido:
+            - Apache2: lamp/content/Apache.md
+            - PHP: lamp/content/PHP.md
+            - MariaDB: lamp/content/MariaDB.md
+            - Extras:
+                - PHPMyAdmin: lamp/content/PHPMyAdmin.md
+                - Adminer: lamp/content/Adminer.md
+                - SSL con Lets Encrypt: lamp/content/SSL con Lets Encrypt.md
+                - Virtual Hosts - Soporte para dominios: lamp/content/Virtual Hosts.md
+    - HestiaCP:
+        - Contenido: hestiacp/index.md 
+    - PiecesPHP:
+        - Contenido: piecesphp/index.md 
+    - Tomcat 8:
+        - Contenido: tomcat/index.md 
 theme: readthedocs
 site_dir: ../../docs
+
+
+

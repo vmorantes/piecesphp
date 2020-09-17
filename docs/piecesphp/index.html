@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>PiecesPHP (Ubuntu 20) - Documentación de desarrollo</title>
+  <title>Contenido - Documentación de desarrollo</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,7 +18,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "PiecesPHP (Ubuntu 20)";
+    var mkdocs_page_name = "Contenido";
     var mkdocs_page_input_path = "piecesphp/index.md";
     var mkdocs_page_url = null;
   </script>
@@ -51,15 +51,39 @@
                     <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                     </li>
                 </ul>
-                <p class="caption"><span class="caption-text">Guías de instalación de entorno</span></p>
+                <p class="caption"><span class="caption-text">LAMP</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="#">Contenido</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../lamp/content/Apache/">Apache2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lamp/content/PHP/">PHP</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lamp/content/MariaDB/">MariaDB</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="#">Extras</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/PHPMyAdmin/">PHPMyAdmin</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/Adminer/">Adminer</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/SSL%20con%20Lets%20Encrypt/">SSL con Lets Encrypt</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../lamp/content/Virtual%20Hosts/">Virtual Hosts - Soporte para dominios</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">HestiaCP</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../hestiacp/">Contenido</a>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">PiecesPHP</span></p>
                 <ul class="current">
-                    <li class="toctree-l1"><a class="reference internal" href="../lamp/">LAMP</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../hestiacp/">HestiaCP (Debian 9)</a>
-                    </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../tomcat/">Tomacat 8 (Debian 9)</a>
-                    </li>
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">PiecesPHP (Ubuntu 20)</a>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Contenido</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#actualizar-repositorios">Actualizar repositorios</a>
     </li>
@@ -75,13 +99,20 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#desplegar-piecesphp">Desplegar PiecesPHP</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#otras-configuraciones">Otras configuraciones</a>
+    <li class="toctree-l3"><a class="reference internal" href="#activacion-de-modulos-apache-necesarios">Activación de módulos apache necesarios</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mas-informacion">Más información</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#comentarios-adicionales">Comentarios adicionales</a>
     </li>
         </ul>
     </li>
     </ul>
+                    </li>
+                </ul>
+                <p class="caption"><span class="caption-text">Tomcat 8</span></p>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../tomcat/">Contenido</a>
                     </li>
                 </ul>
       </div>
@@ -105,11 +136,11 @@
     
       
         
-          <li>Guías de instalación de entorno &raquo;</li>
+          <li>PiecesPHP &raquo;</li>
         
       
     
-    <li>PiecesPHP (Ubuntu 20)</li>
+    <li>Contenido</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -213,7 +244,11 @@ composer install ##NO USAR sudo
 
 </code></pre>
 
-<h3 id="otras-configuraciones">Otras configuraciones</h3>
+<h3 id="activacion-de-modulos-apache-necesarios">Activación de módulos apache necesarios</h3>
+<pre><code class="bash">sudo a2enmod rewrite headers ssl
+</code></pre>
+
+<h3 id="mas-informacion">Más información</h3>
 <ul>
 <li>Existen las siguientes tareas en Gulp (dentro de src):<ul>
 <li>gulp sass:init (para compilar los archivos en src/statics/sass)</li>
@@ -241,8 +276,10 @@ composer install ##NO USAR sudo
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
+        <a href="../tomcat/" class="btn btn-neutral float-right" title="Contenido">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-        <a href="../tomcat/" class="btn btn-neutral" title="Tomacat 8 (Debian 9)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+        <a href="../hestiacp/" class="btn btn-neutral" title="Contenido"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -268,8 +305,10 @@ composer install ##NO USAR sudo
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../tomcat/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../hestiacp/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
+      
+        <span style="margin-left: 15px"><a href="../tomcat/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

@@ -1,4 +1,7 @@
-# Añadir soporte de dominios en apache2 (funciona para ssl, hacer los mismos pasos con el archivo default-ssl.conf) (Debian 9)
+# Añadir soporte de dominios en apache2
+
+_(funciona para ssl, hacer los mismos pasos con el archivo default-ssl.conf) (Debian 9)_  
+
 Nota: La información es sacada de [DigitalOcean](https://www.digitalocean.com/community/tutorials/como-configurar-virtual-hosts-de-apache-en-ubuntu-16-04-es)
 
 - Crear el archivo de configuración

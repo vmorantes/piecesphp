@@ -1,4 +1,6 @@
-# Instalación de Tomcat 8 con SSL (Debian 9)
+# Instalación de Tomcat 8 con SSL
+
+- Probado en Debian 9
 
 ```bash
 # Crear directorio
