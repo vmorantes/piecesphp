@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>LAMP - Documentación de desarrollo</title>
+  <title>PiecesPHP (Ubuntu 20) - Documentación de desarrollo</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "LAMP";
-    var mkdocs_page_input_path = "lamp/index.md";
+    var mkdocs_page_name = "PiecesPHP (Ubuntu 20)";
+    var mkdocs_page_input_path = "piecesphp/index.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -53,17 +53,27 @@
                 </ul>
                 <p class="caption"><span class="caption-text">Guías de instalación de entorno</span></p>
                 <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">LAMP</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#contenido">Contenido</a>
-    </li>
-    </ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../lamp/">LAMP</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../hestiacp/">HestiaCP (Debian 9)</a>
                     </li>
                     <li class="toctree-l1"><a class="reference internal" href="../tomcat/">Tomacat 8 (Debian 9)</a>
                     </li>
-                    <li class="toctree-l1"><a class="reference internal" href="../piecesphp/">PiecesPHP (Ubuntu 20)</a>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">PiecesPHP (Ubuntu 20)</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#actualizar-repositorios">Actualizar repositorios</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#instalacion-de-dependencias-de-desarrollo">Instalación de dependencias de desarrollo</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#composer">Composer</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#nodejs-y-npm">NodeJS y NPM</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gulp-cli">Gulp CLI</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                     </li>
                 </ul>
       </div>
@@ -91,7 +101,7 @@
         
       
     
-    <li>LAMP</li>
+    <li>PiecesPHP (Ubuntu 20)</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -102,26 +112,58 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="entorno-apache2php-73mariadb">Entorno Apache2/PHP 7.3/MariaDB</h1>
+                <h1 id="piecesphp-framework">PiecesPHP Framework</h1>
 <ul>
-<li>Ubuntu 20</li>
-<li>Apache2</li>
-<li>PHP 7.3 (probado también con 7.4, 7.1)</li>
-<li>MariaDB 10.5</li>
-</ul>
-<h2 id="contenido">Contenido</h2>
-<ul>
-<li><a href="content/Apache/">Apache2</a></li>
-<li><a href="content/PHP/">PHP</a></li>
-<li><a href="content/MariaDB/">MariaDB</a></li>
-<li>Extras<ul>
-<li><a href="content/PHPMyAdmin/">PHPMyAdmin</a></li>
-<li><a href="content/Adminer/">Adminer</a> (alternativa ligera a PHPMyAdmin)</li>
-<li><a href="content/SSL%20con%20Lets%20Encrypt/">SSL con Lets Encrypt</a> (Probado en Debian 9)</li>
-<li><a href="content/Virtual%20Hosts/">Virtual Hosts - Soporte para dominios</a> (Probado en Debian 9)</li>
+<li>Requerimientos<ul>
+<li>PiecesPHP</li>
+<li>Composer</li>
+<li>NodeJS 12.x LTS</li>
+<li>NPM</li>
+<li>Gulp CLI</li>
 </ul>
 </li>
 </ul>
+<h2 id="actualizar-repositorios">Actualizar repositorios</h2>
+<pre><code class="bash">#Integrar respositorio
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+#Actualizar
+sudo apt update
+</code></pre>
+
+<h2 id="instalacion-de-dependencias-de-desarrollo">Instalación de dependencias de desarrollo</h2>
+<h3 id="composer">Composer</h3>
+<ul>
+<li>Mediante apt:</li>
+</ul>
+<pre><code class="bash">#Instalar
+sudo apt install composer
+#Verificar versión
+composer --version ##1.10.1
+</code></pre>
+
+<ul>
+<li>Mediante descarga:</li>
+</ul>
+<pre><code class="bash">php -r &quot;copy('https://getcomposer.org/installer', 'composer-setup.php');&quot;
+php composer-setup.php
+php -r &quot;unlink('composer-setup.php');&quot;
+mv composer.phar /usr/local/bin/composer ##Para que esté disponible globalmente
+</code></pre>
+
+<h3 id="nodejs-y-npm">NodeJS y NPM</h3>
+<pre><code class="bash">#Instalar
+sudo apt install nodejs
+#Verificar versiones
+node --version ##v12.18.4
+npm --version ##6.14.6
+</code></pre>
+
+<h3 id="gulp-cli">Gulp CLI</h3>
+<pre><code class="bash">#Instalar globalmente
+sudo npm install -g gulp-cli
+#Verificar versión
+gulp --version ##CLI version: 2.3.0
+</code></pre>
               
             </div>
           </div>
@@ -129,10 +171,8 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../hestiacp/" class="btn btn-neutral float-right" title="HestiaCP (Debian 9)">Next <span class="icon icon-circle-arrow-right"></span></a>
       
-      
-        <a href=".." class="btn btn-neutral" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../tomcat/" class="btn btn-neutral" title="Tomacat 8 (Debian 9)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -158,10 +198,8 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href=".." style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../tomcat/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
-      
-        <span style="margin-left: 15px"><a href="../hestiacp/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>

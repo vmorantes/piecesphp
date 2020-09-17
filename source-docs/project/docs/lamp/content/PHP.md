@@ -25,12 +25,12 @@ sudo apt install php7.3
 sudo service apache2 restart
 
 #Cambiar alternativa de php en consola (opcional si no ocurrió automáticamente):
-update-alternatives --config php
+sudo update-alternatives --config php
 
 #Instalar extensiones PHP
-sudo apt install php7.3-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader}
+sudo apt install php7.3-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
 ##Si se decidió por PHP 7.1
-sudo apt install php7.1-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mcrypt,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader}
+sudo apt install php7.1-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mcrypt,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
 ```
 ## Activación
 
