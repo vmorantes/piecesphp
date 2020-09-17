@@ -53,29 +53,27 @@
                 </ul>
                 <p class="caption"><span class="caption-text">LAMP</span></p>
                 <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="#">Contenido</a>
+                    <li class="toctree-l1"><a class="reference internal" href="../../">Contenido</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../Apache/">Apache2</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../PHP/">PHP</a>
+                    </li>
+                    <li class="toctree-l1"><a class="reference internal" href="../MariaDB/">MariaDB</a>
+                    </li>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="#">Extras</a>
     <ul class="current">
-                <li class="toctree-l2"><a class="reference internal" href="../Apache/">Apache2</a>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../PHP/">PHP</a>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../MariaDB/">MariaDB</a>
-                </li>
-                <li class="toctree-l2 current"><a class="reference internal current" href="#">Extras</a>
+                <li class="toctree-l2 current"><a class="reference internal current" href="./">PHPMyAdmin</a>
     <ul class="current">
-                <li class="toctree-l3 current"><a class="reference internal current" href="./">PHPMyAdmin</a>
-    <ul class="current">
-    <li class="toctree-l4"><a class="reference internal" href="#instalacion">Instalación</a>
+    <li class="toctree-l3"><a class="reference internal" href="#instalacion">Instalación</a>
     </li>
     </ul>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../Adminer/">Adminer</a>
+                <li class="toctree-l2"><a class="reference internal" href="../Adminer/">Adminer</a>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../SSL%20con%20Lets%20Encrypt/">SSL con Lets Encrypt</a>
+                <li class="toctree-l2"><a class="reference internal" href="../SSL%20con%20Lets%20Encrypt/">SSL con Lets Encrypt</a>
                 </li>
-                <li class="toctree-l3"><a class="reference internal" href="../Virtual%20Hosts/">Virtual Hosts - Soporte para dominios</a>
-                </li>
-    </ul>
+                <li class="toctree-l2"><a class="reference internal" href="../Virtual%20Hosts/">Virtual Hosts - Soporte para dominios</a>
                 </li>
     </ul>
                     </li>
@@ -120,10 +118,6 @@
         
       
         
-          <li>Contenido &raquo;</li>
-        
-      
-        
           <li>LAMP &raquo;</li>
         
       
@@ -139,10 +133,10 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="phpmyadmin-492">PHPMyAdmin 4.9.2</h1>
+                <h1 id="phpmyadmin-502">PHPMyAdmin 5.0.2</h1>
 <ul>
 <li>Ubuntu 20</li>
-<li>PHPMyAdmin 4.9.2</li>
+<li>PHPMyAdmin 5.0.2</li>
 </ul>
 <h2 id="instalacion">Instalación</h2>
 <pre><code class="bash"># Moverse al directorio de usuario
@@ -153,19 +147,19 @@ cd ~
 export CARPETA_DE_INSTALACION=&quot;/var/www/html&quot;
 
 #Descargar
-wget https://files.phpmyadmin.net/phpMyAdmin/4.9.2/phpMyAdmin-4.9.2-all-languages.zip
+wget https://files.phpmyadmin.net/phpMyAdmin/5.0.2/phpMyAdmin-5.0.2-all-languages.zip
 
 #Moverse a carpeta de instalación
 cd $CARPETA_DE_INSTALACION
 
 #Descomprimir
-sudo unzip ~/phpMyAdmin-4.9.2-all-languages.zip -d .
+sudo unzip ~/phpMyAdmin-5.0.2-all-languages.zip -d .
 
 #Borrar zip
-rm ~/phpMyAdmin-4.9.2-all-languages.zip
+rm ~/phpMyAdmin-5.0.2-all-languages.zip
 
 #Renombrar
-sudo mv phpMyAdmin-4.9.2-all-languages phpmyadmin
+sudo mv phpMyAdmin-5.0.2-all-languages phpmyadmin
 
 #Configuración
 cd phpmyadmin
@@ -173,7 +167,9 @@ sudo cp config.sample.inc.php config.inc.php
 
 #Configurar blowfish
 sudo nano config.inc.php 
-###Para habilitar login sin contraseña (no recomendado en producción): Configurar opción AllowNoPassword en true
+### $cfg['blowfish_secret'] = 'RugpCGHE7vZIPoMSu48QMnfBywDrtKB1';
+### $cfg['Servers'][$i]['AllowNoPassword'] = true; (Para habilitar login sin contraseña, no recomendado en producción)
+### $cfg['Servers'][$i]['hide_db'] = '^(information_schema|mysql|performance_schema)$';
 
 #Subir de directorio
 cd ..
