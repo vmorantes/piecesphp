@@ -84,7 +84,7 @@ $langGroup = ArticleController::LANG_GROUP;
 
             <div class="field required">
                 <label><?= __($langGroup, 'Contenido'); ?></label>
-                <div quill-editor><?=$subElement->content;?></div>
+                <div quill-editor></div>
                 <textarea name="content" required><?=$subElement->content;?></textarea>
             </div>
 
