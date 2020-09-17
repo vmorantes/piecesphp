@@ -17,7 +17,7 @@ sudo a2ensite default-ssl.conf
 #Reiniciar
 sudo service apache2 restart
 #Paquetes útiles para el entorno
-sudo apt install curl zip unzip openssl git
+sudo apt install curl zip unzip openssl git wget
 ```
 
 ## Configuraciones generales
