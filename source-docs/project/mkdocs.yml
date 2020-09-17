@@ -5,5 +5,6 @@ nav:
         - LAMP: lamp/index.md 
         - HestiaCP (Debian 9): hestiacp/index.md 
         - Tomacat 8 (Debian 9): tomcat/index.md 
+        - PiecesPHP (Ubuntu 20): piecesphp/index.md 
 theme: readthedocs
 site_dir: ../../docs
