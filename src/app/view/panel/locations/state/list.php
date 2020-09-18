@@ -7,7 +7,7 @@
     <div class="ui buttons">
         <a href="<?=$back_link;?>" class="ui button blue"><i class="icon left arrow"></i></a>
         <?php if($has_add_link_permissions):?>
-        <a href="<?=$add_link;?>" class="ui button green"><?= __('locationBackend', 'Agregar'); ?></a>
+        <a href="<?=$add_link;?>" class="ui button green"><?= __(LOCATIONS_LANG_GROUP, 'Agregar'); ?></a>
         <?php endif;?>
     </div>
 
@@ -21,12 +21,12 @@
     <table process="<?=$process_table;?>" style='width:100%;' class="ui table striped celled grey inverted">
         <thead>
             <tr>
-                <th><?= __('locationBackend', 'ID'); ?></th>
-                <th><?= __('locationBackend', 'Código'); ?></th>
-                <th><?= __('locationBackend', 'Nombre'); ?></th>
-                <th><?= __('locationBackend', 'País'); ?></th>
-                <th><?= __('locationBackend', 'Activo/Inactivo'); ?></th>
-                <th order='false'><?= __('locationBackend', 'Acciones'); ?></th>
+                <th><?= __(LOCATIONS_LANG_GROUP, 'ID'); ?></th>
+                <th><?= __(LOCATIONS_LANG_GROUP, 'Código'); ?></th>
+                <th><?= __(LOCATIONS_LANG_GROUP, 'Nombre'); ?></th>
+                <th><?= __(LOCATIONS_LANG_GROUP, 'País'); ?></th>
+                <th><?= __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo'); ?></th>
+                <th order='false'><?= __(LOCATIONS_LANG_GROUP, 'Acciones'); ?></th>
             </tr>
         </thead>
     </table>

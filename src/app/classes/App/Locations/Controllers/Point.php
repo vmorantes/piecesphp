@@ -68,8 +68,8 @@ class Point extends AdminPanelController
     public function __construct()
     {
 
-        self::$title = __('locationBackend', self::$title);
-        self::$pluralTitle = __('locationBackend', self::$pluralTitle);
+        self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
+        self::$pluralTitle = __(LOCATIONS_LANG_GROUP, self::$pluralTitle);
 
         parent::__construct(false); //No cargar ningún modelo automáticamente.
         $this->model = (new PointMapper())->getModel();
@@ -88,7 +88,7 @@ class Point extends AdminPanelController
     {
 
         $action = self::routeName('actions-add');
-        $status_options = array_map(function ($i) {return __('locationBackend', $i);}, PointMapper::STATUS);
+        $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, PointMapper::STATUS);
         $status_options = array_to_html_options($status_options, PointMapper::ACTIVE);
         $back_link = self::routeName('list');
 
@@ -122,7 +122,7 @@ class Point extends AdminPanelController
         if (!is_null($element->id)) {
 
             $action = self::routeName('actions-edit');
-            $status_options = array_map(function ($i) {return __('locationBackend', $i);}, PointMapper::STATUS);
+            $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, PointMapper::STATUS);
             $status_options = array_to_html_options($status_options, $element->active);
             $back_link = self::routeName('list');
 
@@ -255,7 +255,7 @@ class Point extends AdminPanelController
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
-                    $buttonEdit = new HtmlElement('a', __('locationBackend', 'Editar'));
+                    $buttonEdit = new HtmlElement('a', __(LOCATIONS_LANG_GROUP, 'Editar'));
                     $buttonEdit->setAttribute('class', "ui button green");
                     $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                         'id' => $e->id,
@@ -264,7 +264,7 @@ class Point extends AdminPanelController
                     if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
                         $href = $buttonEdit->getAttributes(false)->offsetGet('href');
                         if (mb_strlen(trim($href->getValue())) < 1) {
-                            $buttonEdit = __('locationBackend', 'Sin acciones');
+                            $buttonEdit = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
                         }
                     }
 
@@ -278,7 +278,7 @@ class Point extends AdminPanelController
                         $e_mapper->city->name,
                         $e_mapper->address,
                         "$e->longitude, $e->latitude",
-                        __('locationBackend', PointMapper::STATUS[$e->active]),
+                        __(LOCATIONS_LANG_GROUP, PointMapper::STATUS[$e->active]),
                         (string) $buttonEdit,
                     ];
                 },
@@ -323,7 +323,7 @@ class Point extends AdminPanelController
             $active,
         ]);
 
-        $operation_name = $is_edit ? __('locationBackend', 'Modificar localidad') : __('locationBackend', 'Crear localidad');
+        $operation_name = $is_edit ? __(LOCATIONS_LANG_GROUP, 'Modificar localidad') : __(LOCATIONS_LANG_GROUP, 'Crear localidad');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -331,12 +331,12 @@ class Point extends AdminPanelController
 
         $result->setValue('redirect', false);
 
-        $error_parameters_message = __('locationBackend', 'Los parámetros recibidos son erróneos.');
-        $not_exists_message = __('locationBackend', 'La localidad que intenta modificar no existe');
-        $success_create_message = __('locationBackend', 'Localidad creada.');
-        $success_edit_message = __('locationBackend', 'Datos guardados.');
-        $unknow_error_message = __('locationBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message = __('locationBackend', 'Ya existe una localidad con ese nombre.');
+        $error_parameters_message = __(LOCATIONS_LANG_GROUP, 'Los parámetros recibidos son erróneos.');
+        $not_exists_message = __(LOCATIONS_LANG_GROUP, 'La localidad que intenta modificar no existe');
+        $success_create_message = __(LOCATIONS_LANG_GROUP, 'Localidad creada.');
+        $success_edit_message = __(LOCATIONS_LANG_GROUP, 'Datos guardados.');
+        $unknow_error_message = __(LOCATIONS_LANG_GROUP, 'Ha ocurrido un error desconocido.');
+        $is_duplicate_message = __(LOCATIONS_LANG_GROUP, 'Ya existe una localidad con ese nombre.');
 
         $redirect_url_on_create = self::routeName('list');
 

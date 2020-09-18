@@ -47,6 +47,7 @@ define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
 
 //Ubicaciones
 define('LOCATIONS_ENABLED', false);
+define('LOCATIONS_LANG_GROUP', 'locationBackend');
 define('LOCATIONS_PATH_JS', 'statics/features/locations/js');
 
 //Temporizadores
@@ -55,7 +56,11 @@ define('ACTIVE_TIMER', false);
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 
+//Traducciones
 define('ADMIN_MENU_LANG_GROUP', 'sidebarAdminZone');
 define('SUPPORT_FORM_ADMIN_LANG_GROUP', 'supportFormAdminZone');
 define('CROPPER_ADAPTER_LANG_GROUP', 'cropper');
+define('LOGIN_REPORT_LANG_GROUP', 'loginReport');
+define('MAIL_TEMPLATES_LANG_GROUP', 'mailTemplates');
+define('USER_LOGIN_LANG_GROUP', 'userLogin');
 define('LANG_GROUP', 'public');

@@ -68,8 +68,8 @@ class Country extends AdminPanelController
     public function __construct()
     {
 
-        self::$title = __('locationBackend', self::$title);
-        self::$pluralTitle = __('locationBackend', self::$pluralTitle);
+        self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
+        self::$pluralTitle = __(LOCATIONS_LANG_GROUP, self::$pluralTitle);
 
         parent::__construct(false); //No cargar ningún modelo automáticamente.
         $this->model = (new CountryMapper())->getModel();
@@ -90,7 +90,7 @@ class Country extends AdminPanelController
     {
 
         $action = self::routeName('actions-add');
-        $status_options = array_map(function ($i) {return __('locationBackend', $i);}, CountryMapper::STATUS);
+        $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CountryMapper::STATUS);
         $status_options = array_to_html_options($status_options, CountryMapper::ACTIVE);
         $back_link = self::routeName('list');
 
@@ -124,7 +124,7 @@ class Country extends AdminPanelController
         if (!is_null($element->id)) {
 
             $action = self::routeName('actions-edit');
-            $status_options = array_map(function ($i) {return __('locationBackend', $i);}, CountryMapper::STATUS);
+            $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CountryMapper::STATUS);
             $status_options = array_to_html_options($status_options, $element->active);
             $back_link = self::routeName('list');
 
@@ -219,7 +219,7 @@ class Country extends AdminPanelController
             'request' => $request,
             'on_set_data' => function ($e) {
 
-                $buttonEdit = new HtmlElement('a', __('locationBackend', 'Editar'));
+                $buttonEdit = new HtmlElement('a', __(LOCATIONS_LANG_GROUP, 'Editar'));
                 $buttonEdit->setAttribute('class', "ui button green");
                 $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
                     'id' => $e->id,
@@ -228,7 +228,7 @@ class Country extends AdminPanelController
                 if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
                     $href = $buttonEdit->getAttributes(false)->offsetGet('href');
                     if (mb_strlen(trim($href->getValue())) < 1) {
-                        $buttonEdit = __('locationBackend', 'Sin acciones');
+                        $buttonEdit = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
                     }
                 }
 
@@ -236,7 +236,7 @@ class Country extends AdminPanelController
                     $e->id,
                     !is_null($e->code) ? $e->code : '-',
                     stripslashes($e->name),
-                    __('locationBackend', CountryMapper::STATUS[$e->active]),
+                    __(LOCATIONS_LANG_GROUP, CountryMapper::STATUS[$e->active]),
                     (string) $buttonEdit,
                 ];
 
@@ -271,7 +271,7 @@ class Country extends AdminPanelController
             $active,
         ]);
 
-        $operation_name = $is_edit ? __('locationBackend', 'Modificar país') : __('locationBackend', 'Crear país');
+        $operation_name = $is_edit ? __(LOCATIONS_LANG_GROUP, 'Modificar país') : __(LOCATIONS_LANG_GROUP, 'Crear país');
 
         $result = new ResultOperations([
             new Operation($operation_name),
@@ -279,13 +279,13 @@ class Country extends AdminPanelController
 
         $result->setValue('redirect', false);
 
-        $error_parameters_message = __('locationBackend', 'Los parámetros recibidos son erróneos.');
-        $not_exists_message = __('locationBackend', 'El país que intenta modificar no existe');
-        $success_create_message = __('locationBackend', 'País creado.');
-        $success_edit_message = __('locationBackend', 'Datos guardados.');
-        $unknow_error_message = __('locationBackend', 'Ha ocurrido un error desconocido.');
-        $is_duplicate_message_name = __('locationBackend', 'Ya existe un país con ese nombre.');
-        $is_duplicate_message_code = __('locationBackend', 'Ya existe un país con ese código.');
+        $error_parameters_message = __(LOCATIONS_LANG_GROUP, 'Los parámetros recibidos son erróneos.');
+        $not_exists_message = __(LOCATIONS_LANG_GROUP, 'El país que intenta modificar no existe');
+        $success_create_message = __(LOCATIONS_LANG_GROUP, 'País creado.');
+        $success_edit_message = __(LOCATIONS_LANG_GROUP, 'Datos guardados.');
+        $unknow_error_message = __(LOCATIONS_LANG_GROUP, 'Ha ocurrido un error desconocido.');
+        $is_duplicate_message_name = __(LOCATIONS_LANG_GROUP, 'Ya existe un país con ese nombre.');
+        $is_duplicate_message_code = __(LOCATIONS_LANG_GROUP, 'Ya existe un país con ese código.');
 
         $redirect_url_on_create = self::routeName('list');
 

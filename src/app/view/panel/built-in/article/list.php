@@ -3,6 +3,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 
 $langGroup = ArticleController::LANG_GROUP;
+$lanGroupDataTables = 'datatables';
 ?>
 
 <div style="max-width:850px;">
@@ -28,28 +29,28 @@ $langGroup = ArticleController::LANG_GROUP;
             <div class="fields">
 
                 <div class="field">
-                    <label><?= __('datatables', 'Buscador')?></label>
+                    <label><?= __($lanGroupDataTables, 'Buscador')?></label>
                     <div class="ui transparent icon input">
-                        <input type="search" placeholder="<?= __('datatables', 'Buscar')?>">
+                        <input type="search" placeholder="<?= __($lanGroupDataTables, 'Buscar')?>">
                         <i class="search icon"></i>
                     </div>
                 </div>
 
                 <div class="field">
-                    <label><?= __('datatables', 'Resultados visibles')?></label>
+                    <label><?= __($lanGroupDataTables, 'Resultados visibles')?></label>
                     <input type="number" length-pagination placeholder="10">
                 </div>
 
                 <div class="field">
-                    <label><?= __('datatables', 'Ordenar por')?>:</label>
+                    <label><?= __($lanGroupDataTables, 'Ordenar por')?>:</label>
                     <select class="ui dropdown" options-order></select>
                 </div>
 
                 <div class="field">
                     <label>&nbsp;</label>
                     <select class="ui dropdown" options-order-type>
-                        <option selected value="ASC"><?= __('datatables', 'ASC')?></option>
-                        <option value="DESC"><?= __('datatables', 'DESC')?></option>
+                        <option selected value="ASC"><?= __($lanGroupDataTables, 'ASC')?></option>
+                        <option value="DESC"><?= __($lanGroupDataTables, 'DESC')?></option>
                     </select>
                 </div>
 
