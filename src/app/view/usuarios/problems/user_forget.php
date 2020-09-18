@@ -17,11 +17,11 @@
 
         <div class="topbar">
             <div class="text">
-                <?= __('usersProblems', 'No recuerdo <br> mi usuario')?>
+                <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerdo <br> mi usuario')?>
             </div>
             <div class="back">
                 <a href="<?=get_route('user-problems-list')?>">
-                    <?= __('usersProblems', 'Volver atrás')?>
+                    <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Volver atrás')?>
                 </a>
             </div>
         </div>
@@ -31,7 +31,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/user-block.png'); ?>">
                 </div>
-                <div class="text"><?= __('usersProblems', 'Paso')?> 2</div>
+                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Paso')?> 2</div>
             </div>
         </div>
 
@@ -40,7 +40,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/code-mail.png'); ?>">
                 </div>
-                <div class="text"><?= __('usersProblems', 'Paso')?> 3</div>
+                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Paso')?> 3</div>
             </div>
         </div>
 
@@ -49,7 +49,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/wrong-mail.png'); ?>">
                 </div>
-                <div class="text"><?= __('usersProblems', 'Correo no registrado')?></div>
+                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Correo no registrado')?></div>
             </div>
         </div>
 
@@ -58,7 +58,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/wrong-code.png'); ?>">
                 </div>
-                <div class="text"><?= __('usersProblems', 'Código incorrecto')?></div>
+                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Código incorrecto')?></div>
             </div>
         </div>
 
@@ -67,7 +67,7 @@
                 <div class="image">
                     <img src="<?= base_url('statics/login-and-recovery/images/problems/user-unblock.png'); ?>">
                 </div>
-                <div class="text"><?= __('usersProblems', 'Usuario recuperado')?></div>
+                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Usuario recuperado')?></div>
             </div>
         </div>
 
@@ -79,14 +79,14 @@
 
                 <form class="ui form">
                     <div class="field required">
-                        <input required type="email" name="username" placeholder="<?= __('usersProblems', 'Ingrese su correo electrónico')?>">
+                        <input required type="email" name="username" placeholder="<?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingrese su correo electrónico')?>">
                     </div>
                     <div class="field">
-                        <button type="submit" class="ui button green fluid"><?= __('usersProblems', 'Siguiente')?></button>
+                        <button type="submit" class="ui button green fluid"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Siguiente')?></button>
                     </div>
                     <p>
                         <strong>
-                            <a href="#" class="ui mini button blue" has-code><?= __('usersProblems', 'Ya tengo un código')?></a>
+                            <a href="#" class="ui mini button blue" has-code><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ya tengo un código')?></a>
                         </strong>
                     </p>
                 </form>
@@ -99,10 +99,10 @@
                     <div class="field required">
                         <input required type="text" name="code" placeholder="######">
                     </div>
-                    <div class="field"><button type="submit" class="ui button green fluid"><?= __('usersProblems', 'Enviar')?></button></div>
+                    <div class="field"><button type="submit" class="ui button green fluid"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Enviar')?></button></div>
                     <p>
                         <strong>
-                            <a href="#" class="ui mini button blue" repeat><?= __('usersProblems', 'Introducir un email diferente')?></a>
+                            <a href="#" class="ui mini button blue" repeat><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Introducir un email diferente')?></a>
                         </strong>
                     </p>
                 </form>
@@ -114,10 +114,10 @@
                 <form class="ui form">
                     <div class="two fields">
                         <div class="field">
-                            <a href="<?= get_route('other-problems-form'); ?>" class="ui button green"><?= __('usersProblems', 'Solicitud de soporte')?></a>
+                            <a href="<?= get_route('other-problems-form'); ?>" class="ui button green"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Solicitud de soporte')?></a>
                         </div>
                         <div class="field">
-                            <a href="#" class="ui button green" repeat><?= __('usersProblems', 'Nuevo correo')?></a>
+                            <a href="#" class="ui button green" repeat><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Nuevo correo')?></a>
                         </div>
                     </div>
                 </form>
@@ -128,7 +128,7 @@
 
                 <form class="ui form">
                     <div class="field">
-                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid"><?= __('usersProblems', 'Ingresar')?></a>
+                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingresar')?></a>
                     </div>
                 </form>
 

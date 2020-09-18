@@ -1,8 +1,11 @@
 <?php
+
+$langGroup = MAIL_TEMPLATES_LANG_GROUP;
+
 $this->render('usuarios/mail/template_base_problem', [
-    'text' => __('mailTemplates', 'Código de verificación') . ': ',
+    'text' => __($langGroup, 'Código de verificación') . ': ',
     'url' => $url,
     'code' => $code,
-    'text_button' => __('mailTemplates', 'Ingresar el código'),
-    'note' => __('mailTemplates', 'MENSAJE_DE_VALIDEZ'),
+    'text_button' => __($langGroup, 'Ingresar el código'),
+    'note' => __($langGroup, 'MENSAJE_DE_VALIDEZ'),
 ]);

@@ -1,13 +1,16 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");?>
+<?php 
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+$langGroup = LOGIN_REPORT_LANG_GROUP;
+?>
 
 <h3 class="ui dividing header">
-    <?= __('loginReport', 'Registro de ingresos'); ?>
+    <?= __($langGroup, 'Registro de ingresos'); ?>
 </h3>
 
 <div class="ui tabular menu">
-    <div class="item active" data-tab="logged"><?= __('loginReport', 'Usuarios que han ingresado'); ?></div>
-    <div class="item" data-tab="not-logged"><?= __('loginReport', 'Usuarios que no han ingresado'); ?></div>
-    <div class="item" data-tab="attempts"><?= __('loginReport', 'Registro de intentos de inicio'); ?></div>
+    <div class="item active" data-tab="logged"><?= __($langGroup, 'Usuarios que han ingresado'); ?></div>
+    <div class="item" data-tab="not-logged"><?= __($langGroup, 'Usuarios que no han ingresado'); ?></div>
+    <div class="item" data-tab="attempts"><?= __($langGroup, 'Registro de intentos de inicio'); ?></div>
 </div>
 
 <div class="ui tab active" data-tab="logged">
@@ -15,10 +18,10 @@
         style="max-width:100%;width:100%;">
         <thead>
             <tr>
-                <th><?= __('loginReport', 'ID'); ?></th>
-                <th><?= __('loginReport', 'Nombre'); ?></th>
-                <th><?= __('loginReport', 'Último acceso'); ?></th>
-                <th><?= __('loginReport', 'Tiempo en plataforma'); ?></th>
+                <th><?= __($langGroup, 'ID'); ?></th>
+                <th><?= __($langGroup, 'Nombre'); ?></th>
+                <th><?= __($langGroup, 'Último acceso'); ?></th>
+                <th><?= __($langGroup, 'Tiempo en plataforma'); ?></th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -30,8 +33,8 @@
         style="max-width:100%;width:100%;">
         <thead>
             <tr>
-                <th><?= __('loginReport', 'ID'); ?></th>
-                <th><?= __('loginReport', 'Nombre'); ?></th>
+                <th><?= __($langGroup, 'ID'); ?></th>
+                <th><?= __($langGroup, 'Nombre'); ?></th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -43,11 +46,11 @@
         class="ui table stripped celled attempts" style="max-width:100%;width:100%;">
         <thead>
             <tr>
-                <th><?= __('loginReport', 'Usuario ingresado'); ?></th>
-                <th><?= __('loginReport', 'Intento exitoso'); ?></th>
-                <th><?= __('loginReport', 'Información'); ?></th>
-                <th><?= __('loginReport', 'IP'); ?></th>
-                <th><?= __('loginReport', 'Fecha'); ?></th>
+                <th><?= __($langGroup, 'Usuario ingresado'); ?></th>
+                <th><?= __($langGroup, 'Intento exitoso'); ?></th>
+                <th><?= __($langGroup, 'Información'); ?></th>
+                <th><?= __($langGroup, 'IP'); ?></th>
+                <th><?= __($langGroup, 'Fecha'); ?></th>
             </tr>
         </thead>
         <tbody></tbody>
