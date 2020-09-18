@@ -15,59 +15,66 @@ namespace PiecesPHP\Core;
 class Config
 {
 
-    /** @var string $app_title Título de la aplicación */
-    protected $app_title = null;
-
-    /** @var string $app_path Ruta raíz de la aplicación (ruta de directorio) */
-    protected $app_path = null;
-
-    /** @var string $app_base Ruta relativa de la aplicación es como $app_path, pero sin el DocumentRoot */
-    protected $app_base = null;
-
-    /** @var string $app_protocol Protocolo de la aplicación http/https */
-    protected $app_protocol = null;
-
-    /** @var string $app_title URL de la aplicación es el HOST concatenado al $app_base */
-    protected $app_url = null;
+    /**
+     * Grupo de configuración de conexión por defecto
+     */
+    const DATABASE_CONFIG_DEFAULT_GROUP = '';
 
     /**
-     * @var array $app_db Configuración de la base de datos
-     * <pre>
-     * [
-     *  'group_name' => [
-     *      'DB' => 'db',
-     *      'USER' => 'user',
-     *      'PASSWORD' => 'password',
-     *      'HOST' => 'host',
-     *  ],...
-     * ]
-     * </pre>
+     * Valores de configuración de conexión por defecto
      */
-    protected $app_db = null;
+    const DATABASE_CONFIG_DEFAULT_VALUES = [
+        'driver' => 'mysql',
+        'host' => 'localhost',
+        'db' => 'piecesphp',
+        'user' => 'root',
+        'password' => '',
+        'charset' => 'utf8',
+    ];
 
-    /** @var string $app_key Llave usada para la encriptación en la aplicación */
-    protected $app_key = null;
+    /** @var string Título de la aplicación */
+    protected $appTitle = null;
 
-    /** @var array $app_cookies Configuración de las cookies */
-    protected $app_cookies = null;
+    /** @var string Ruta raíz de la aplicación (ruta de directorio) */
+    protected $appPath = null;
 
-    /** @var string $default_app_lang Lenguaje por defecto de la aplicación */
-    protected static $default_app_lang = 'es';
+    /** @var string Ruta relativa de la aplicación es como $appPath, pero sin el DocumentRoot */
+    protected $appBase = null;
 
-    /** @var string $app_lang Lenguaje de la aplicación */
-    protected static $app_lang = 'es';
+    /** @var string Protocolo de la aplicación http/https */
+    protected $appProtocol = null;
 
-    /** @var string $prefix_lang Prefijo de lenguaje de la aplicación */
-    protected static $prefix_lang = '';
+    /** @var string URL de la aplicación es el HOST concatenado al $appBase */
+    protected $appURL = null;
 
-    /** @var array $app_lang Leguajes permitidos por la aplicación */
-    protected static $app_allowed_langs = ['es'];
+    /**
+     * @var array Configuración de la base de datos
+     */
+    protected $appDB = null;
 
-    /** @var Config $instance Instancia */
-    protected static $instance = null;
+    /** @var string Llave usada para la encriptación en la aplicación */
+    protected $appKey = null;
 
-    /** @var array $configurations Configuraciones */
+    /** @var array Configuración de las cookies para session.cookie_* de PHP*/
+    protected $appCookies = null;
+
+    /** @var string Lenguaje por defecto de la aplicación */
+    protected static $defaultAppLang = 'es';
+
+    /** @var string Lenguaje de la aplicación (actual) */
+    protected static $appLang = 'es';
+
+    /** @var string Prefijo de lenguaje de la aplicación */
+    protected static $prefixLang = '';
+
+    /** @var array Leguajes permitidos por la aplicación */
+    protected static $appAllowedLangs = ['es'];
+
+    /** @var array Configuraciones */
     protected static $configurations = [];
+
+    /** @var Config Instancia */
+    protected static $instance = null;
 
     /**
      * Constructor
@@ -102,19 +109,21 @@ class Config
     /**
      * initTitleAppConfig
      *
-     * Configura el título de la app
+     * Configura el título de la app (title_app)
      *
      * @return void
      */
     public function initTitleAppConfig()
     {
+        $configName = 'title_app';
+        $configValue = get_config($configName);
 
-        if (get_config('title_app') !== false && is_string(get_config('title_app'))) {
-            $this->app_title = get_config('title_app');
+        if ($configValue !== false && is_string($configValue)) {
+            $this->appTitle = $configValue;
         } else {
-            $this->app_title = "Title App";
+            $this->appTitle = "Title App";
         }
-        set_config("title_app", $this->app_title);
+        set_config($configValue, $this->appTitle);
 
     }
 
@@ -128,7 +137,7 @@ class Config
     public function initAppPathConfig()
     {
 
-        $this->app_path = __DIR__ . "/../../";
+        $this->appPath = __DIR__ . "/../../";
 
     }
 
@@ -142,7 +151,7 @@ class Config
     public function initAppProtocolConfig()
     {
 
-        $this->app_protocol = isset($_SERVER['HTTPS']) ? "https" : "http";
+        $this->appProtocol = isset($_SERVER['HTTPS']) ? "https" : "http";
 
     }
 
@@ -155,67 +164,57 @@ class Config
      */
     public function initAppDBConfig()
     {
-        if ($this->app_db === null) {
-            if (get_config('database') !== false && is_array(get_config('database'))) {
+        if ($this->appDB === null) {
 
-                $app_db = get_config('database');
+            $configName = 'database';
+            $configValue = get_config($configName);
 
-                $this->app_db = [];
+            if ($configValue !== false && is_array($configValue)) {
 
-                foreach ($app_db as $grupo => $db) {
+                $this->appDB = [];
 
-                    if (!isset($app_db[$grupo]['driver'])) {
-                        $this->app_db[$grupo]['driver'] = 'mysql';
+                $configKeys = array_keys(self::DATABASE_CONFIG_DEFAULT_VALUES);
+
+                foreach ($configValue as $groupName => $groupConfig) {
+
+                    $groupName = is_string($groupName) && mb_strlen($groupName) > 0 ? $groupName : null;
+                    $groupConfig = is_array($groupConfig) && count($groupConfig) > 0 ? $groupConfig : null;
+
+                    if ($groupName !== null && $groupConfig !== null) {
+
+                        if (!array_key_exists($groupName, $this->appDB)) {
+                            $this->appDB[$groupName] = self::DATABASE_CONFIG_DEFAULT_VALUES;
+                        }
+
+                        foreach ($configKeys as $configKey) {
+
+                            $inputConfig = isset($groupConfig[$configKey]) && is_string($groupConfig[$configKey]) ? $groupConfig[$configKey] : null;
+
+                            if ($inputConfig !== null) {
+                                $this->appDB[$groupName][$configKey] = $inputConfig;
+                            } else if ($configKey == 'db') {
+                                $this->appDB[$groupName][$configKey] = '';
+                            }
+
+                        }
+
                     } else {
-                        $this->app_db[$grupo]['driver'] = $db['driver'];
-                    }
-
-                    if (!isset($app_db[$grupo]['host'])) {
-                        $this->app_db[$grupo]['host'] = 'localhost';
-                    } else {
-                        $this->app_db[$grupo]['host'] = $db['host'];
-                    }
-
-                    if (!isset($app_db[$grupo]['db'])) {
-                        $this->app_db[$grupo]['db'] = 'piecesphp';
-                    } else {
-                        $this->app_db[$grupo]['db'] = $db['db'];
-                    }
-
-                    if (!isset($app_db[$grupo]['user'])) {
-                        $this->app_db[$grupo]['user'] = 'root';
-                    } else {
-                        $this->app_db[$grupo]['user'] = $db['user'];
-                    }
-
-                    if (!isset($app_db[$grupo]['password'])) {
-                        $this->app_db[$grupo]['password'] = '';
-                    } else {
-                        $this->app_db[$grupo]['password'] = $db['password'];
-                    }
-
-                    if (!isset($app_db[$grupo]['charset'])) {
-                        $this->app_db[$grupo]['charset'] = 'utf8';
-                    } else {
-                        $this->app_db[$grupo]['charset'] = $db['charset'];
+                        $this->appDB = [
+                            self::DATABASE_CONFIG_DEFAULT_GROUP => self::DATABASE_CONFIG_DEFAULT_VALUES,
+                        ];
                     }
 
                 }
 
             } else {
 
-                $this->app_db['dafault'] = [
-                    'driver' => 'mysql',
-                    'db' => 'piecesphp',
-                    'user' => 'root',
-                    'password' => '',
-                    'host' => 'localhost',
-                    'charset' => 'utf8',
+                $this->appDB = [
+                    self::DATABASE_CONFIG_DEFAULT_GROUP => self::DATABASE_CONFIG_DEFAULT_VALUES,
                 ];
 
             }
 
-            set_config("database", $this->app_db);
+            set_config($configName, $this->appDB);
 
         }
     }
@@ -229,12 +228,16 @@ class Config
      */
     public function initAppKeyConfig()
     {
-        if (get_config('app_key') !== false && is_string(get_config('app_key'))) {
-            $this->app_key = get_config('app_key');
+
+        $configName = 'app_key';
+        $configValue = get_config($configName);
+
+        if ($configValue !== false && is_string($configValue)) {
+            $this->appKey = $configValue;
         } else {
-            $this->app_key = 'secret';
+            $this->appKey = 'secret';
         }
-        set_config('app_key', $this->app_key);
+        set_config($configName, $this->appKey);
     }
 
     /**
@@ -246,8 +249,9 @@ class Config
      */
     public function initLangByURLConfig()
     {
-        $lang_by_url = get_config('lang_by_url') === true;
-        set_config('lang_by_url', $lang_by_url);
+        $configName = 'lang_by_url';
+        $lang_by_url = get_config($configName) === true;
+        set_config($configName, $lang_by_url);
     }
 
     /**
@@ -259,12 +263,16 @@ class Config
      */
     public function initAppAllowedLangsConfig()
     {
-        if (get_config('allowed_langs') !== false && is_array(get_config('allowed_langs'))) {
-            self::$app_allowed_langs = get_config('allowed_langs');
+
+        $configName = 'allowed_langs';
+        $configValue = get_config($configName);
+
+        if ($configValue !== false && is_array($configValue)) {
+            self::$appAllowedLangs = $configValue;
         } else {
-            self::$app_allowed_langs = ['es'];
+            self::$appAllowedLangs = ['es'];
         }
-        set_config('allowed_langs', self::$app_allowed_langs);
+        set_config($configName, self::$appAllowedLangs);
     }
 
     /**
@@ -276,29 +284,33 @@ class Config
      */
     public function initAppLangConfig()
     {
-        $default_app_lang = get_config('default_lang');
-        $app_lang = get_config('app_lang');
+        $defaultLangConfigName = 'default_lang';
+        $appLangConfigName = 'app_lang';
+        $allowedLangsConfigName = 'allowed_langs';
 
-        $is_set_default_lang = $default_app_lang !== false && is_string($default_app_lang);
-        $is_set_lang = $app_lang !== false && is_string($app_lang);
+        $defaultAppLang = get_config($defaultLangConfigName);
+        $appLang = get_config($appLangConfigName);
+
+        $is_set_default_lang = $defaultAppLang !== false && is_string($defaultAppLang);
+        $is_set_lang = $appLang !== false && is_string($appLang);
 
         if ($is_set_default_lang) {
-            self::$default_app_lang = $default_app_lang;
+            self::$defaultAppLang = $defaultAppLang;
         }
 
         if ($is_set_lang) {
-            self::$app_lang = $app_lang;
+            self::$appLang = $appLang;
         } else {
-            self::$app_lang = $default_app_lang;
+            self::$appLang = $defaultAppLang;
         }
 
-        set_config('default_lang', self::$default_app_lang);
-        set_config('app_lang', self::$app_lang);
+        set_config($defaultLangConfigName, self::$defaultAppLang);
+        set_config($appLangConfigName, self::$appLang);
 
-        usort(self::$app_allowed_langs, function ($a, $b) use ($default_app_lang) {
-            if ($a == $default_app_lang) {
+        usort(self::$appAllowedLangs, function ($a, $b) use ($defaultAppLang) {
+            if ($a == $defaultAppLang) {
                 return -1;
-            } elseif ($b == $default_app_lang) {
+            } elseif ($b == $defaultAppLang) {
                 return 1;
             } else {
                 return 0;
@@ -306,7 +318,7 @@ class Config
 
         });
 
-        set_config('allowed_langs', self::$app_allowed_langs);
+        set_config($allowedLangsConfigName, self::$appAllowedLangs);
 
     }
 
@@ -319,22 +331,31 @@ class Config
      */
     public function initAppBaseConfig()
     {
-        if ($this->app_base === null) {
-            if (get_config('base_url') !== false && is_string(get_config('base_url'))) {
-                $base_url = get_config('base_url');
-                $this->app_url = string_compare(last_char($base_url), '/') ? $base_url : $base_url . "/";
-                $this->app_base = str_replace([
+
+        $configBaseURLName = 'base_url';
+        $configBaseURLValue = get_config($configBaseURLName);
+        $configBaseAppName = 'base_app';
+
+        if ($this->appBase === null) {
+
+            if ($configBaseURLValue !== false && is_string($configBaseURLValue)) {
+
+                $this->appURL = string_compare(last_char($configBaseURLValue), '/') ? $configBaseURLValue : $configBaseURLValue . "/";
+
+                $this->appBase = str_replace([
                     "http://" . $_SERVER['HTTP_HOST'] . "/",
                     "https://" . $_SERVER['HTTP_HOST'] . "/",
-                ], "", $this->app_url);
+                ], "", $this->appURL);
+
             } else {
-                $this->app_base = self::get_app_base();
-                $this->app_url = $this->app_protocol . "://" . str_replace("//", "/", $_SERVER['HTTP_HOST'] . "/" . $this->app_base);
+                $this->appBase = self::get_app_base();
+                $this->appURL = $this->appProtocol . "://" . str_replace("//", "/", $_SERVER['HTTP_HOST'] . "/" . $this->appBase);
             }
+
         }
 
-        set_config("base_app", $this->app_base);
-        set_config("base_url", $this->app_url);
+        set_config($configBaseAppName, $this->appBase);
+        set_config($configBaseURLName, $this->appURL);
     }
 
     /**
@@ -346,29 +367,31 @@ class Config
      */
     public function initAppCookiesConfig()
     {
-        if ($this->app_cookies === null) {
-            if (get_config('cookies') !== false && is_array(get_config('cookies'))) {
+        if ($this->appCookies === null) {
 
-                $this->app_cookies = get_config('cookies');
+            $configName = 'cookies';
+            $configValue = get_config($configName);
 
-                if (!isset($this->app_cookies['lifetime'])) {
-                    $this->app_cookies['lifetime'] = 0;
+            $default = [
+                'lifetime' => 0,
+                'path' => '/',
+                'domain' => $_SERVER['HTTP_HOST'],
+                'secure' => false,
+                'httponly' => false,
+            ];
+
+            if ($configValue !== false && is_array($configValue)) {
+
+                $this->appCookies = $configValue;
+
+                foreach ($default as $key => $value) {
+                    if (!isset($this->appCookies[$key])) {
+                        $this->appCookies[$key] = $value;
+                    }
                 }
 
-                if (!isset($this->app_cookies['path'])) {
-                    $this->app_cookies['path'] = '/';
-                }
-                if (!isset($this->app_cookies['domain'])) {
-                    $this->app_cookies['domain'] = $_SERVER['HTTP_HOST'];
-                }
-                if (!isset($this->app_cookies['secure'])) {
-                    $this->app_cookies['secure'] = false;
-                }
-                if (!isset($this->app_cookies['httponly'])) {
-                    $this->app_cookies['httponly'] = false;
-                }
             } else {
-                $this->app_cookies = [
+                $this->appCookies = [
                     'lifetime' => 0,
                     'path' => '/',
                     'domain' => $_SERVER['HTTP_HOST'],
@@ -379,14 +402,14 @@ class Config
 
             //Aplicando configuraciones
             if (session_status() == PHP_SESSION_NONE) {
-                ini_set('session.cookie_lifetime', $this->app_cookies['lifetime']);
-                ini_set('session.cookie_path', $this->app_cookies['path']);
-                ini_set('session.cookie_domain', $this->app_cookies['domain']);
-                ini_set('session.cookie_secure', $this->app_cookies['secure']);
-                ini_set('session.cookie_httponly', $this->app_cookies['httponly']);
+                ini_set('session.cookie_lifetime', $this->appCookies['lifetime']);
+                ini_set('session.cookie_path', $this->appCookies['path']);
+                ini_set('session.cookie_domain', $this->appCookies['domain']);
+                ini_set('session.cookie_secure', $this->appCookies['secure']);
+                ini_set('session.cookie_httponly', $this->appCookies['httponly']);
             }
 
-            set_config("cookies", $this->app_cookies);
+            set_config($configName, $this->appCookies);
         }
     }
 
@@ -399,9 +422,13 @@ class Config
      */
     public function initAppRolesConfig()
     {
-        if (get_config('roles') !== false && is_array(get_config('roles'))) {
 
-            $roles = get_config('roles');
+        $configName = 'roles';
+        $configValue = get_config($configName);
+
+        if ($configValue !== false && is_array($configValue)) {
+
+            $roles = $configValue;
 
             if ($roles['active']) {
                 if (!Roles::hasRoles()) {
@@ -440,7 +467,7 @@ class Config
 
         if ($name == 'title_app' && self::$instance !== null) {
             $instance = self::get_instance();
-            $instance->app_title = $value;
+            $instance->appTitle = $value;
         }
     }
 
@@ -466,10 +493,10 @@ class Config
      */
     public static function set_lang($lang = "es")
     {
-        if (in_array($lang, self::$app_allowed_langs)) {
-            self::$app_lang = $lang;
+        if (in_array($lang, self::$appAllowedLangs)) {
+            self::$appLang = $lang;
         } else {
-            self::$app_lang = 'es';
+            self::$appLang = 'es';
         }
     }
 
@@ -483,26 +510,35 @@ class Config
         $url_lang = get_part_request(1);
         $lang_by_url = get_config('lang_by_url');
         if ($lang_by_url === true) {
-            if (in_array($url_lang, self::$app_allowed_langs)) {
-                self::$app_lang = $url_lang;
+            if (in_array($url_lang, self::$appAllowedLangs)) {
+                self::$appLang = $url_lang;
             } else {
-                self::$app_lang = self::$default_app_lang;
+                self::$appLang = self::$defaultAppLang;
             }
         }
 
-        self::$prefix_lang = self::$app_lang == self::$default_app_lang ? '' : '/' . self::$app_lang;
+        self::$prefixLang = self::$appLang == self::$defaultAppLang ? '' : '/' . self::$appLang;
 
-        set_config('prefix_lang', self::$prefix_lang);
-        set_config('app_lang', self::$app_lang);
+        set_config('prefix_lang', self::$prefixLang);
+        set_config('app_lang', self::$appLang);
     }
 
     /**
-     * Obtiene el lenguaje de la aplicación
+     * Obtiene el lenguaje por defecto de la aplicaión
+     * @return string
+     */
+    public static function get_default_lang()
+    {
+        return self::$defaultAppLang;
+    }
+
+    /**
+     * Obtiene el lenguaje de la aplicación (el lenguaje actual)
      * @return string
      */
     public static function get_lang()
     {
-        return self::$app_lang;
+        return self::$appLang;
     }
 
     /**
@@ -511,7 +547,7 @@ class Config
      */
     public static function get_allowed_langs()
     {
-        return self::$app_allowed_langs;
+        return self::$appAllowedLangs;
     }
 
     /**
@@ -521,7 +557,7 @@ class Config
     public static function app_path()
     {
         $instance = self::get_instance();
-        return realpath($instance->app_path);
+        return realpath($instance->appPath);
     }
 
     /**
@@ -531,7 +567,7 @@ class Config
     public static function app_base()
     {
         $instance = self::get_instance();
-        return $instance->app_base;
+        return $instance->appBase;
 
     }
 
@@ -542,7 +578,7 @@ class Config
     public static function app_url()
     {
         $instance = self::get_instance();
-        return $instance->app_url;
+        return $instance->appURL;
 
     }
 
@@ -554,7 +590,7 @@ class Config
     public static function app_db(string $key)
     {
         $instance = self::get_instance();
-        return $instance->app_db[$key];
+        return $instance->appDB[$key];
 
     }
 
@@ -565,7 +601,7 @@ class Config
     public static function app_key()
     {
         $instance = self::get_instance();
-        return $instance->app_key;
+        return $instance->appKey;
 
     }
 
@@ -576,7 +612,7 @@ class Config
     public static function app_title()
     {
         $instance = self::get_instance();
-        return $instance->app_title;
+        return $instance->appTitle;
 
     }
 
@@ -586,9 +622,9 @@ class Config
      */
     private static function get_app_base()
     {
-        $app_base = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-        $app_base = mb_substr($app_base, 1);
-        return $app_base;
+        $appBase = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
+        $appBase = mb_substr($appBase, 1);
+        return $appBase;
     }
 
     /**
