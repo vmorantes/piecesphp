@@ -6,7 +6,7 @@ use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
 $articlesRequest = ArticleController::_all(null, 'yes', 1, 3);
-$articlesRequest = array_key_exists('dataParsed', $articlesRequest) ? $articlesRequest['dataParsed'] : null;
+$articlesRequest = array_key_exists('dataParsed', $articlesRequest) ? (object) $articlesRequest['dataParsed'] : null;
 $articles = $articlesRequest !== null && isset($articlesRequest->data) ? $articlesRequest->data : [];
 
 ?>
