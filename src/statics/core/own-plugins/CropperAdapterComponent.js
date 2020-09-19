@@ -25,7 +25,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 	 * @typedef AdapterOptions
 	 * @property {String} [outputFormat=image/jpeg] Formato de la imagen al exportar
 	 * @property {String} [outputFillColor=white] Color de relleno de la imagen al exportar
-	 * @property {Number} [outputWidth=400] Ancho de exportación
+	 * @property {Number} [outputWidth=400] Ancho de exportación, -1 para exportar del tamaño real de la máscara de recorte
 	 * @property {Number} [minWidth=400] Ancho mínimo de la imagen entrante
 	 * @property {String} [containerSelector=[cropper-adapter-component]]
 	 * @property {function(Cropper, HTMLCanvasElement)} [onReadyCropper] Se ejecuta la cada vez que se configura el canvas de cropper
@@ -489,7 +489,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 			let height = (adapterOptions.outputWidth / (adapterOptions.cropperOptions.aspectRatio))
 			let sizeOutputString = `${adapterOptions.outputWidth}x${height}(px)`
 			let wMinString = `${adapterOptions.minWidth}(px)`
-			container.find(`[show-output]`).html(sizeOutputString)
+			container.find(`[show-output]`).html(adapterOptions.outputWidth !== -1 ? sizeOutputString : '0x0(px)')
 			container.find(`[min-w-output]`).html(wMinString)
 
 			isPrepared = true
@@ -589,6 +589,7 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 				let realWidth = detail.width.toFixed(0)
 
 				if (isOnEdit) {
+
 					$(`[show-crop-dimensions]`).html(formatStr(
 						_i18n(LANG_GROUP, `Tamaño real de la máscara de corte %rx%r(px)`),
 						[
@@ -596,6 +597,11 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 							realHeight,
 						],
 					))
+
+					if (adapterOptions.outputWidth === -1) {
+						container.find(`[show-output]`).html(`${realWidth}x${realHeight}(px)`)
+					}
+
 				} else {
 					$(`[show-crop-dimensions]`).html(``)
 				}
