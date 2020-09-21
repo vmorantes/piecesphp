@@ -77,7 +77,7 @@ class Config
     protected static $instance = null;
 
     /**
-     * Constructor
+     * @ignore
      */
     private function __construct()
     {
@@ -85,8 +85,6 @@ class Config
     }
 
     /**
-     * initAppConfigs
-     *
      * Establece todas las configuraciones de la aplicación
      *
      * @return void
@@ -107,8 +105,6 @@ class Config
     }
 
     /**
-     * initTitleAppConfig
-     *
      * Configura el título de la app (title_app)
      *
      * @return void
@@ -128,8 +124,6 @@ class Config
     }
 
     /**
-     * initAppPathConfig
-     *
      * Configura el ROOT path de la aplicación
      *
      * @return void
@@ -142,8 +136,6 @@ class Config
     }
 
     /**
-     * initAppProtocolConfig
-     *
      * Configura el protocolo de la aplicación
      *
      * @return void
@@ -156,8 +148,6 @@ class Config
     }
 
     /**
-     * initAppDBConfig
-     *
      * Configura la base de datos de la aplicación
      *
      * @return void
@@ -220,8 +210,6 @@ class Config
     }
 
     /**
-     * initAppKeyConfig
-     *
      * Configura la llave de la aplicación
      *
      * @return void
@@ -241,8 +229,6 @@ class Config
     }
 
     /**
-     * initLangByURLConfig
-     *
      * Configura la si la aplicación tomará el idioma de la url
      *
      * @return void
@@ -255,8 +241,6 @@ class Config
     }
 
     /**
-     * initAppAllowedLangsConfig
-     *
      * Configura los idiomas permitidos
      *
      * @return void
@@ -276,8 +260,6 @@ class Config
     }
 
     /**
-     * initAppLangConfig
-     *
      * Configura el idioma por defecto de la aplicación
      *
      * @return void
@@ -323,8 +305,6 @@ class Config
     }
 
     /**
-     * initAppBaseConfig
-     *
      * Configura la la url base de la aplicación
      *
      * @return void
@@ -359,8 +339,6 @@ class Config
     }
 
     /**
-     * initAppCookiesConfig
-     *
      * Configura las opciones de la cookies de la aplicación
      *
      * @return void
@@ -414,8 +392,6 @@ class Config
     }
 
     /**
-     * initAppRolesConfig
-     *
      * Configura los roles de la aplicación
      *
      * @return void
@@ -440,8 +416,6 @@ class Config
     }
 
     /**
-     * init
-     *
      * Establece todas las configuraciones de la aplicación
      *
      * @return void
@@ -455,8 +429,6 @@ class Config
     }
 
     /**
-     * set_config
-     *
      * @param string $name
      * @param mixed $value
      * @return void
