@@ -85,26 +85,12 @@ function set_title(string $title)
 }
 
 /**
- * Obtiene PiecesPHP\Core\Config::app_url() y lo une a $resource
- *
  * @param string $resource
  * @return string
  */
 function baseurl(string $resource = "")
 {
-    $app_url = Config::app_url();
-
-    if (mb_strlen($resource > 0) && $resource[0] == "/") {
-        $resource = remove_first_char($resource);
-    }
-
-    if (last_char($app_url) == "/") {
-        $app_url = remove_last_char($app_url);
-    }
-
-    $url = $app_url . '/' . $resource;
-
-    return $url;
+    return Config::baseurl($resource);
 }
 
 /**
@@ -219,15 +205,7 @@ function get_current_langs_urls(string $url = null, bool $short_lang = false)
  */
 function basepath(string $resource = "")
 {
-    $path = Config::app_path() . "/" . $resource;
-
-    $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
-
-    if (file_exists($path)) {
-        return realpath($path);
-    } else {
-        return $path;
-    }
+    return Config::basepath($resource);
 }
 
 /**
@@ -238,15 +216,7 @@ function basepath(string $resource = "")
  */
 function app_basepath($resource = "")
 {
-    $path = Config::app_path() . "/app/" . $resource;
-
-    $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
-
-    if (file_exists($path)) {
-        return realpath($path);
-    } else {
-        return $path;
-    }
+    return Config::app_basepath($resource);
 }
 
 /**
@@ -267,99 +237,14 @@ function appbase()
  * @param string $type Índice del tipo de mensaje
  * @param string $message Índice del mensaje en el tipo dado
  * @param boolean $echo Si es true hace echo, si no solo retorna el mensaje
- * @return string|void
+ * @return string|string[]
  * Si $echo es true retorna el string y hace un echo de este.
  * Si $echo es false retorna un string correspondiente al mensaje.
  * Si $message es '' devuelve el array completo de mensajes en $type
  */
 function __(string $type, string $message = '', bool $echo = false)
 {
-    $diccionario = [];
-    $default_file = app_basepath("lang/default.php");
-    if (file_exists($default_file)) {
-        $default_file = include $default_file;
-        foreach ($default_file as $group_name => $messages) {
-            if (!isset($diccionario[$group_name])) {
-                $diccionario[$group_name] = $messages;
-            } else {
-                $diccionario[$group_name] = array_merge($diccionario[$group_name], $messages);
-            }
-        }
-    }
-    $lang = Config::get_lang();
-    $existFile = file_exists(app_basepath("lang/" . $lang . ".php"));
-    $msg = $message;
-
-    if ($existFile) {
-
-        $lang_file = include app_basepath("lang/" . $lang . ".php");
-
-        foreach ($lang_file as $group_name => $messages) {
-
-            if (!array_key_exists($group_name, $diccionario)) {
-                $diccionario[$group_name] = $messages;
-            } else {
-
-                foreach ($messages as $code_message => $text_message) {
-                    $diccionario[$group_name][$code_message] = $text_message;
-                }
-
-            }
-        }
-    }
-
-    if (array_key_exists($type, $diccionario)) {
-
-        if ($message === '') {
-            return $diccionario[$type];
-        }
-
-        if (array_key_exists($message, $diccionario[$type])) {
-
-            $msg = $diccionario[$type][$message];
-        } else {
-
-            $filesLangs = app_basepath("lang/files/{$type}");
-            $existsType = file_exists($filesLangs);
-
-            if ($existsType) {
-
-                $langName = Config::get_lang();
-                $fileMessage = app_basepath("lang/files/{$type}/{$message}-{$langName}.html");
-                $fileMessageAlt = app_basepath("lang/files/{$type}/{$message}.html");
-                $existFile = file_exists($fileMessage);
-                $existFileAlt = file_exists($fileMessageAlt);
-
-                if ($existFile) {
-
-                    $contentFile = @file_get_contents($fileMessage);
-
-                    if (is_string($contentFile)) {
-                        $msg = $contentFile;
-                    }
-
-                } elseif ($existFileAlt) {
-
-                    $contentFile = @file_get_contents($fileMessageAlt);
-
-                    if (is_string($contentFile)) {
-                        $msg = $contentFile;
-                    }
-
-                }
-
-            }
-
-        }
-    }
-
-    if ($echo) {
-
-        echo $msg;
-    } else {
-
-        return $msg;
-    }
+    return Config::i18n($type, $message, $echo);
 }
 
 /**
@@ -380,65 +265,7 @@ function __(string $type, string $message = '', bool $echo = false)
  */
 function lang(string $type, string $message = '', string $lang, bool $echo = false)
 {
-    $diccionario = [];
-    $existFile = file_exists(app_basepath("lang/" . $lang . ".php"));
-    $msg = null;
-    $requesLang = $lang;
-
-    if ($existFile) {
-
-        $lang_file = include app_basepath("lang/" . $lang . ".php");
-
-        $diccionario = array_merge($diccionario, $lang_file);
-    }
-
-    if (array_key_exists($type, $diccionario)) {
-
-        if ($message === '') {
-            return $diccionario[$type];
-        }
-
-        if (array_key_exists($message, $diccionario[$type])) {
-
-            $msg = $diccionario[$type][$message];
-
-        } else {
-
-            $filesLangs = app_basepath("lang/files/{$type}");
-            $existsType = file_exists($filesLangs);
-
-            if ($existsType) {
-
-                $langName = $requesLang;
-                $fileMessage = app_basepath("lang/files/{$type}/{$message}-{$langName}.html");
-                $existFile = file_exists($fileMessage);
-
-                if ($existFile) {
-
-                    $contentFile = @file_get_contents($fileMessage);
-
-                    if (is_string($contentFile)) {
-                        $msg = $contentFile;
-                    }
-
-                }
-
-            }
-
-        }
-    }
-
-    if ($msg == null) {
-        $msg = __($type, $message);
-    }
-
-    if ($echo) {
-
-        echo $msg;
-    } else {
-
-        return $msg;
-    }
+    return Config::i18n($type, $message, $echo, $lang);
 }
 
 /**

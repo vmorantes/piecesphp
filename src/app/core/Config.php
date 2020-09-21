@@ -5,6 +5,8 @@
  */
 namespace PiecesPHP\Core;
 
+use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
+
 /**
  * Config - Clase para manejar las configuraciones de la aplicación.
  *
@@ -73,6 +75,9 @@ class Config
     /** @var array Configuraciones */
     protected static $configurations = [];
 
+    /** @var array Traducciones */
+    protected static $translations = [];
+
     /** @var Config Instancia */
     protected static $instance = null;
 
@@ -99,6 +104,7 @@ class Config
         $this->initAppAllowedLangsConfig();
         $this->initLangByURLConfig();
         $this->initAppLangConfig();
+        $this->initAppTranslations();
         $this->initAppBaseConfig();
         $this->initAppCookiesConfig();
         $this->initAppRolesConfig();
@@ -305,6 +311,84 @@ class Config
     }
 
     /**
+     * Configura las traducciones
+     *
+     * @return void
+     */
+    public function initAppTranslations()
+    {
+
+        $allowedLangs = self::$appAllowedLangs;
+        $allowedLangs[] = 'default';
+
+        foreach ($allowedLangs as $langName) {
+
+            $langFile = __DIR__ . "/../lang/{$langName}.php";
+
+            if (file_exists($langFile)) {
+
+                $langData = include_once $langFile;
+
+                if (is_array($langData)) {
+
+                    foreach ($langData as $groupName => $messages) {
+
+                        if (is_array($messages)) {
+
+                            foreach ($messages as $messageKey => $messageValue) {
+
+                                if (is_scalar($messageKey) && is_scalar($messageValue)) {
+                                    self::addLangMessage($langName, $groupName, $messageKey, $messageValue);
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        $directoryFilesLang = new DirectoryObject(__DIR__ . "/../lang/files");
+
+        $directoryFilesLang->process();
+
+        $directories = $directoryFilesLang->getDirectories();
+
+        foreach ($directories as $directory) {
+
+            $groupName = $directory->getBasename();
+            $files = $directory->getFiles();
+
+            foreach ($files as $file) {
+
+                $filename = $file->getBasename();
+
+                if (strpos(mb_strtolower($filename), '.html') !== false) {
+
+                    $messageKey = preg_replace("|^(.*)\.html$|i", '$1', $filename);
+                    $belongToLang = mb_strtolower(preg_replace("|^.*\-(.*)\.html$|i", '$1', $filename));
+                    $messageValue = @file_get_contents($file->getPath());
+
+                    if (in_array($belongToLang, $allowedLangs)) {
+                        $messageKey = preg_replace("|^(.*)\-{$belongToLang}$|i", '$1', $messageKey);
+                    } else {
+                        $belongToLang = 'default';
+                    }
+
+                    self::addLangMessage($belongToLang, $groupName, $messageKey, $messageValue);
+
+                }
+
+            }
+        }
+    }
+
+    /**
      * Configura la la url base de la aplicación
      *
      * @return void
@@ -429,8 +513,102 @@ class Config
     }
 
     /**
-     * @param string $name
-     * @param mixed $value
+     * Agrega una traducción
+     *
+     * @param string $lang
+     * @param string $groupName
+     * @param string $messageKey
+     * @param string $messageValue
+     * @return void
+     */
+    public static function addLangMessage(string $lang, string $groupName, string $messageKey, string $messageValue)
+    {
+
+        $t = self::$translations;
+
+        if (!array_key_exists($lang, $t)) {
+            $t[$lang] = [];
+        }
+
+        if (!array_key_exists($groupName, $t[$lang])) {
+            $t[$lang][$groupName] = [];
+        }
+
+        $t[$lang][$groupName][$messageKey] = $messageValue;
+
+        self::$translations = $t;
+
+    }
+
+    /**
+     * Devuelve la traducción en caso de existir
+     *
+     * Si $echo es true retorna el string y hace un echo de este (el echo es omitido si $message es '').
+     * Si $echo es false retorna un string correspondiente al mensaje.
+     * Si $message es '' devuelve el array completo de mensajes en $groupName
+     *
+     * @param string $groupName
+     * @param string $message
+     * @param bool $echo
+     * @param string $forceLang
+     * @return string|string[]
+     */
+    public static function i18n(string $groupName, string $message = '', bool $echo = false, string $forceLang = null)
+    {
+
+        $t = self::$translations;
+        $str = $message;
+
+        $currentLang = self::get_config('app_lang');
+        $searchOnLangs = [
+            $forceLang,
+            $currentLang,
+            'default',
+        ];
+
+        foreach ($searchOnLangs as $lang) {
+
+            if ($lang === null) {
+                continue;
+            }
+
+            if (array_key_exists($lang, $t)) {
+
+                $langData = $t[$lang];
+
+                if (array_key_exists($groupName, $langData)) {
+
+                    $groupData = $langData[$groupName];
+
+                    if (array_key_exists($message, $groupData) || $message === '') {
+
+                        if ($message === '') {
+                            $str = $groupData;
+                        } else {
+                            $str = $groupData[$message];
+                        }
+                        break;
+                    }
+
+                }
+
+            }
+
+        }
+
+        if ($echo && $message !== '') {
+            echo $str;
+        }
+
+        return $str;
+
+    }
+
+    /**
+     * Establece el valor de la configuración señalada.
+     *
+     * @param string $name Nombre de la configuración
+     * @param mixed $value Valor que se establecerá
      * @return void
      */
     public static function set_config(string $name, $value)
@@ -586,6 +764,67 @@ class Config
         $instance = self::get_instance();
         return $instance->appTitle;
 
+    }
+
+    /**
+     * Obtiene Config::app_url() y lo une a $resource
+     *
+     * @param string $resource
+     * @return string
+     */
+    public static function baseurl(string $resource = "")
+    {
+        $app_url = Config::app_url();
+
+        if (mb_strlen($resource > 0) && $resource[0] == "/") {
+            $resource = remove_first_char($resource);
+        }
+
+        if (last_char($app_url) == "/") {
+            $app_url = remove_last_char($app_url);
+        }
+
+        $url = $app_url . '/' . $resource;
+
+        return $url;
+    }
+
+    /**
+     * Obtiene PiecesPHP\Core\Config::app_path() y lo une a "/".$resource
+     *
+     * @param string $resource
+     * @return string
+     */
+    public static function basepath(string $resource = "")
+    {
+        $path = Config::app_path() . "/" . $resource;
+
+        $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
+
+        if (file_exists($path)) {
+            return realpath($path);
+        } else {
+            return $path;
+        }
+    }
+
+    /**
+     * Obtiene PiecesPHP\Core\Config::app_path() y lo une a "/app/".$resource
+     *
+     * @param string $resource
+     * @return string
+     */
+    public static function app_basepath($resource = "")
+    {
+        $path = Config::app_path() . "/app/" . $resource;
+
+        $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
+
+        if (file_exists($path)) {
+            return realpath($path);
+        } else {
+            return $path;
+        }
     }
 
     /**
