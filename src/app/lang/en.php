@@ -852,6 +852,7 @@ $lang = [
 		'Relacionadas'                                                         => 'Related',
 		'Ver más'                                                              => 'See more',
 		'Categorías'                                                           => 'Categories',
+		'Todas las categorías'                                                 => 'Of all categories',
 	],
 ];
 

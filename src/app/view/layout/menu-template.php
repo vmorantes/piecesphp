@@ -20,7 +20,7 @@ $categories = (object) CategoryController::_all();
         <li>
             <span class="opener"><?= __(LANG_GROUP, 'Blog'); ?></span>
             <ul>
-                <li><a href="<?= ArticleControllerPublic::routeName('list'); ?>"><?= __(LANG_GROUP, 'Categorías'); ?></a></li>
+                <li><a href="<?= ArticleControllerPublic::routeName('list'); ?>"><?= __(LANG_GROUP, 'Todas las categorías'); ?></a></li>
                 <?php foreach($categories as $category): ?>
                 <li>
                     <a href="<?= ArticleControllerPublic::routeName('list-by-category', ['category' => $category->friendly_url,]) ?>"><?= $category->name; ?></a>
