@@ -13,6 +13,7 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\StringManipulate;
 
 /**
  * Obtiene el valor de la configuración solicitada.
@@ -1640,4 +1641,16 @@ function num_month_to_text(string $date)
     }
 
     return $month;
+}
+
+/**
+ * Una cadena para url amigables
+ * @param string $string Cadena para formatear
+ * @param int $maxWords Cantidad máxima de palabras
+ * @param bool $legacy
+ * @return string Cadena formateada
+ */
+function friendly_url(string $string, int $maxWords = null, bool $legacy = false)
+{
+    return $legacy ? StringManipulate::friendlyURLStringLegacy($string, $maxWords) : StringManipulate::friendlyURLString($string, $maxWords);
 }

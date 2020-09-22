@@ -18,12 +18,6 @@ use JsonSerializable;
 class PaginationResult implements JsonSerializable
 {
     /**
-     * Convertidor de elementos
-     *
-     * @var callable|null
-     */
-    protected $elementParser = null;
-    /**
      * Página actual
      *
      * @var int
@@ -60,7 +54,7 @@ class PaginationResult implements JsonSerializable
      */
     protected $elements = [];
     /**
-     * Elementos de la página convertidos según $elementParser
+     * Elementos de la página convertidos
      *
      * @var array
      */
@@ -78,7 +72,7 @@ class PaginationResult implements JsonSerializable
      */
     protected $isFinal = false;
 
-    public function __construct(PageQuery $pageQuery, callable $parser = null)
+    public function __construct(PageQuery $pageQuery, callable $elementParser = null, callable $each = null)
     {
         $this->page = $pageQuery->getPage();
         $this->perPage = $pageQuery->getPerPage();
@@ -103,18 +97,30 @@ class PaginationResult implements JsonSerializable
 
         }
 
-        $this->elementParser = $parser;
-
         $this->parsedElements = [];
 
-        if ($this->elementParser !== null) {
+        $hasParser = $elementParser !== null;
+        $hasEach = $each !== null;
 
-            foreach ($this->elements as $element) {
-                $parsed = ($this->elementParser)($element);
-                $this->parsedElements[] = $parsed !== null ? $parsed : $element;
+        if ($hasParser || $hasEach) {
+
+            foreach ($this->elements as $key => $element) {
+
+                if ($hasParser) {
+                    $parsed = ($elementParser)($element);
+                    $this->parsedElements[] = $parsed !== null ? $parsed : $element;
+                }
+
+                if ($hasEach) {
+                    $parsed = ($each)($element);
+                    $this->elements[$key] = $parsed !== null ? $parsed : $element;
+                }
+
             }
 
-        } else {
+        }
+
+        if (!$hasParser) {
             $this->parsedElements = $this->elements;
         }
 

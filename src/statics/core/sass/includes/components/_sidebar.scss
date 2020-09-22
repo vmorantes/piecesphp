@@ -191,16 +191,21 @@
                     margin: 0px;
                     padding: 0px;
                     padding-left: 0;
-					list-style: none;
-					line-height: 100%;
+                    list-style: none;
+                    line-height: 100%;
                 }
 
                 li {
                     margin: 0px;
-                    padding: 0px;
-                    padding-left: 25px;
+                    padding: 13px 0px 14px 50px;
                     list-style: none;
+                    border-bottom: 1px rgb(123, 123, 123) solid;
+                    background-color: rgba(117, 117, 117, 65%);
 
+					&:nth-child(odd){
+						background-color: #676767;
+					}
+					
                     .item {
 
                         display: block;
