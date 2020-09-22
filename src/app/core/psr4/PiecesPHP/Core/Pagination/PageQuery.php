@@ -125,11 +125,12 @@ class PageQuery
 
     /**
      * @param callable $parser
+     * @param callable $each
      * @return PaginationResult
      */
-    public function getPagination(callable $parser = null)
+    public function getPagination(callable $parser = null, callable $each = null)
     {
-        return new PaginationResult($this, $parser);
+        return new PaginationResult($this, $parser, $each);
     }
 
     /**
