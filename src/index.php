@@ -217,7 +217,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
             function validType()
             {
                 $e = $this->element;
-                return $this->hasType() && in_array((int) $e->type, UsersModel::TYPES_USERS);
+                return $this->hasType() && in_array((int) $e->type, array_keys(UsersModel::TYPES_USERS));
             }
             /**
              * Valida que sea un entero válido
