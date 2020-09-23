@@ -15,7 +15,6 @@ use PiecesPHP\Core\RouteGroup;
  * @package     PiecesPHP\BuiltIn\DynamicImages
  * @author      Tejido Digital S.A.S.
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @link        http://www.tejidodigital.com/
  * @copyright   Copyright (c) 2019
  */
 class DynamicImagesRoutes

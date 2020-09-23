@@ -138,7 +138,7 @@ function BuiltInArticle(options) {
 			onDraw = createItem
 		}
 
-		if (typeof options.onDraw == 'function') {
+		if (typeof options.onEmpty == 'function') {
 			onEmpty = options.onEmpty
 		} else {
 			onEmpty = function () {
