@@ -5,7 +5,7 @@
  */
 namespace PiecesPHP\Core;
 
-use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
+use PiecesPHP\LangInjector;
 
 /**
  * Config - Clase para manejar las configuraciones de la aplicación.
@@ -317,75 +317,10 @@ class Config
      */
     public function initAppTranslations()
     {
-
         $allowedLangs = self::$appAllowedLangs;
         $allowedLangs[] = 'default';
-
-        foreach ($allowedLangs as $langName) {
-
-            $langFile = __DIR__ . "/../lang/{$langName}.php";
-
-            if (file_exists($langFile)) {
-
-                $langData = include_once $langFile;
-
-                if (is_array($langData)) {
-
-                    foreach ($langData as $groupName => $messages) {
-
-                        if (is_array($messages)) {
-
-                            foreach ($messages as $messageKey => $messageValue) {
-
-                                if (is_scalar($messageKey) && is_scalar($messageValue)) {
-                                    self::addLangMessage($langName, $groupName, $messageKey, $messageValue);
-                                }
-
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        $directoryFilesLang = new DirectoryObject(__DIR__ . "/../lang/files");
-
-        $directoryFilesLang->process();
-
-        $directories = $directoryFilesLang->getDirectories();
-
-        foreach ($directories as $directory) {
-
-            $groupName = $directory->getBasename();
-            $files = $directory->getFiles();
-
-            foreach ($files as $file) {
-
-                $filename = $file->getBasename();
-
-                if (strpos(mb_strtolower($filename), '.html') !== false) {
-
-                    $messageKey = preg_replace("|^(.*)\.html$|i", '$1', $filename);
-                    $belongToLang = mb_strtolower(preg_replace("|^.*\-(.*)\.html$|i", '$1', $filename));
-                    $messageValue = @file_get_contents($file->getPath());
-
-                    if (in_array($belongToLang, $allowedLangs)) {
-                        $messageKey = preg_replace("|^(.*)\-{$belongToLang}$|i", '$1', $messageKey);
-                    } else {
-                        $belongToLang = 'default';
-                    }
-
-                    self::addLangMessage($belongToLang, $groupName, $messageKey, $messageValue);
-
-                }
-
-            }
-        }
+        $langInjector = new LangInjector(__DIR__ . "/../lang/", $allowedLangs);
+        $langInjector->inject();
     }
 
     /**

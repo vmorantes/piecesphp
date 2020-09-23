@@ -92,17 +92,28 @@ window.addEventListener('canDeleteHeroImageConfig', function (e) {
 		if (typeof pcsphpGlobals.messages.en != 'object') {
 			pcsphpGlobals.messages.en = {}
 		}
-		pcsphpGlobals.messages.es[name] = {
+
+		let es = {
 			'Confirmación': 'Confirmación',
 			'¿Seguro de eliminar el elemento?': '¿Seguro de eliminar el elemento?',
 			'Sí': 'Sí',
 			'No': 'No',
 		}
-		pcsphpGlobals.messages.en[name] = {
+		let en = {
 			'Confirmación': 'Confirmation',
 			'¿Seguro de eliminar el elemento?': 'Are you sure you want to delete the item?',
 			'Sí': 'Yes',
 			'No': 'No',
+		}
+
+		for (let i in es) {
+			if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
+			pcsphpGlobals.messages.es[name][i] = es[i]
+		}
+
+		for (let i in en) {
+			if (typeof pcsphpGlobals.messages.en[name] == 'undefined') pcsphpGlobals.messages.en[name] = {}
+			pcsphpGlobals.messages.en[name][i] = en[i]
 		}
 	}
 

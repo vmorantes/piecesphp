@@ -12,18 +12,19 @@
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
+use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Menu\MenuItemCollection;
 use PiecesPHP\Core\Roles;
 
 $role = Roles::getCurrentRole();
 $current_type_user = !is_null($role) ? $role['code'] : null;
 
-$config['menus']['header_dropdown'] = new MenuItemCollection([
+$headerDropdown = new MenuItemCollection([
     'items' => [
     ],
 ]);
 
-$config['menus']['sidebar'] = new MenuGroupCollection([
+$sidebar = new MenuGroupCollection([
     'items' => [
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Inicio'),
@@ -161,18 +162,29 @@ $config['menus']['sidebar'] = new MenuGroupCollection([
     ],
 ]);
 
+//Idiomas
 $alternativesURL = Config::get_config('alternatives_url');
+
+$langsItem = new MenuGroup([
+    'name' => '',
+    'icon' => 'language',
+    'position' => 300,
+]);
 
 foreach ($alternativesURL as $lang => $url) {
 
-    $langItem = new MenuGroup([
-        'name' => __('lang', $lang),
-        'icon' => 'language',
+    $langItem = new MenuItem([
+        'text' => __('lang', $lang),
         'visible' => true,
-        'asLink' => true,
         'href' => $url,
     ]);
 
-    $config['menus']['sidebar']->addItem($langItem);
+    $langsItem->addItem($langItem);
 
 }
+
+$sidebar->addItem($langsItem);
+
+//Añadir menús a la configuración global
+$config['menus']['header_dropdown'] = $headerDropdown;
+$config['menus']['sidebar'] = $sidebar;

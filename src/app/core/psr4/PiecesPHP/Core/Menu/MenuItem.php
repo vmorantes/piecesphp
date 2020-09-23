@@ -19,50 +19,39 @@ use PiecesPHP\Core\HTML\HtmlElement;
 class MenuItem
 {
     /**
-     * $routeName
-     *
      * @var string|null
      */
     protected $routeName;
     /**
-     * $text
-     *
      * @var string
      */
     protected $text;
     /**
-     * $href
-     *
      * @var string
      */
     protected $href;
     /**
-     * $class
-     *
      * @var string
      */
     protected $class;
     /**
-     * $attributes
-     *
      * @var array
      */
     protected $attributes;
     /**
-     * $current
-     *
      * @var boolean
      */
     protected $current;
     /**
-     * $visible
-     *
      * @var boolean
      */
     protected $visible;
     /**
-     * $structureOptions
-     *
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var array
      */
     protected $structureOptions = [
@@ -96,11 +85,13 @@ class MenuItem
             'rules' => ['is_string'],
             'default' => null,
         ],
+        'position' => [
+            'rules' => ['integer'],
+            'default' => -1,
+        ],
     ];
 
     /**
-     * __construct
-     *
      * @param array $options
      * @param string $options['text']
      * @param string $options['href']
@@ -108,6 +99,8 @@ class MenuItem
      * @param array $options['attributes']
      * @param bool $options['current']
      * @param bool $options['visible']
+     * @param string $options['routeName']
+     * @param int $options['position']
      * @return static
      */
     public function __construct($options = [])
@@ -162,7 +155,12 @@ class MenuItem
                         }
                     }
 
-                    $this->$name = $value_on_option;
+                    if ($name == 'position') {
+                        $this->setPosition($value_on_option);
+                    } else {
+                        $this->$name = $value_on_option;
+                    }
+
                 } else {
                     $this->$name = $config['default'];
                 }
@@ -175,19 +173,42 @@ class MenuItem
     }
 
     /**
-     * setVisible
-     *
+     * @param integer $position
+     * @return static
+     */
+    public function setPosition(int $position)
+    {
+        $this->position = $position !== -1 && $position <= 0 ? 1 : $position;
+        return $this;
+    }
+
+    /**
      * @param bool $visible
-     * @return void
+     * @return static
      */
     public function setVisible(bool $visible)
     {
         $this->visible = $visible;
+        return $this;
     }
 
     /**
-     * getRouteName
-     *
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
      * @return string|null
      */
     public function getRouteName()
@@ -196,8 +217,14 @@ class MenuItem
     }
 
     /**
-     * getHtml
-     *
+     * @return string
+     */
+    public function getText()
+    {
+        return $this->text;
+    }
+
+    /**
      * @return string
      */
     public function getHtml()
@@ -206,8 +233,6 @@ class MenuItem
     }
 
     /**
-     * getHtmlElement
-     *
      * @return HtmlElement
      */
     public function getHtmlElement()
@@ -229,8 +254,6 @@ class MenuItem
     }
 
     /**
-     * isCurrent
-     *
      * @return bool
      */
     public function isCurrent()

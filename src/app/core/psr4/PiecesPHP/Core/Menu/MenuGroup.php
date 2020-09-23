@@ -19,68 +19,51 @@ use PiecesPHP\Core\HTML\HtmlElement;
 class MenuGroup
 {
     /**
-     * $routeName
-     *
      * @var string|null
      */
     protected $routeName;
     /**
-     * $name
-     *
      * @var string
      */
     protected $name;
     /**
-     * $icon
-     *
      * @var string
      */
     protected $icon;
     /**
-     * $current
-     *
      * @var boolean
      */
     protected $current;
     /**
-     * $visible
-     *
      * @var boolean
      */
     protected $visible;
     /**
-     * $asLink
-     *
      * @var boolean
      */
     protected $asLink;
     /**
-     * $href
-     *
      * @var string
      */
     protected $href;
     /**
-     * $attributes
-     *
      * @var array
      */
     protected $attributes;
     /**
-     * $items
-     *
      * @var MenuItem[]
      */
     protected $items;
     /**
-     * $groups
-     *
      * @var MenuGroup[]
      */
     protected $groups;
     /**
-     * $structureOptions
-     *
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var array
      */
     protected $structureOptions = [
@@ -126,11 +109,13 @@ class MenuGroup
             'rules' => ['is_string'],
             'default' => null,
         ],
+        'position' => [
+            'rules' => ['integer'],
+            'default' => -1,
+        ],
     ];
 
     /**
-     * __construct
-     *
      * @param array $options
      * @param string $options['name']
      * @param string $options['icon']
@@ -141,6 +126,7 @@ class MenuGroup
      * @param array $options['attributes']
      * @param MenuItem[] $options['items']
      * @param MenuGroup[] $options['groups']
+     * @param int $options['position']
      * @return static
      */
     public function __construct($options = [])
@@ -193,12 +179,20 @@ class MenuGroup
                     }
 
                     if ($name == 'items') {
+
+                        $this->items = [];
+
                         foreach ($value_on_option as $key => $value) {
                             $valid_item = $this->validateItem($value);
-                            if (!$valid_item) {
+                            if (!$valid_item || !$value->isVisible()) {
                                 unset($value_on_option[$key]);
                             }
                         }
+
+                        foreach ($value_on_option as $key => $value) {
+                            $this->addItem($value);
+                        }
+
                     }
 
                     if ($name == 'groups') {
@@ -210,7 +204,12 @@ class MenuGroup
                         }
                     }
 
-                    $this->$name = $value_on_option;
+                    if ($name == 'position') {
+                        $this->setPosition($value_on_option);
+                    } else {
+                        $this->$name = $value_on_option;
+                    }
+
                 } else {
                     $this->$name = $config['default'];
                 }
@@ -222,8 +221,24 @@ class MenuGroup
     }
 
     /**
-     * asLink
-     *
+     * @param integer $position
+     * @return static
+     */
+    public function setPosition(int $position)
+    {
+        $this->position = $position !== -1 && $position <= 0 ? 1 : $position;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
      * @return bool
      */
     public function asLink()
@@ -232,18 +247,74 @@ class MenuGroup
     }
 
     /**
-     * getItems
-     *
      * @return MenuItem[]
      */
     public function getItems()
     {
-        return $this->items;
+
+        $defaultPositions = [];
+        $nextPosition = 1;
+
+        $items = $this->items;
+        $itemsToOrder = [];
+
+        foreach ($items as $item) {
+            if ($item->getPosition() !== -1) {
+                $defaultPositions[] = $item->getPosition();
+            }
+        }
+
+        sort($defaultPositions);
+
+        foreach ($items as $item) {
+
+            $itemToOrder = clone $item;
+
+            if ($itemToOrder->getPosition() === -1) {
+
+                while (in_array($nextPosition, $defaultPositions)) {
+                    $nextPosition++;
+                }
+
+                $itemToOrder->setPosition($nextPosition);
+                $nextPosition++;
+
+            }
+
+            $itemsToOrder[] = $itemToOrder;
+        }
+
+        /**
+         * @param MenuItem $a
+         * @param MenuItem $b
+         */
+        uasort($itemsToOrder, function ($a, $b) {
+
+            $et = 0;
+            $gt = 1;
+            $lt = -1;
+            $result = 0;
+
+            if ($a->getPosition() === $b->getPosition()) {
+                $result = $et;
+            } elseif ($a->getPosition() === -1) {
+                $result = $gt;
+            } elseif ($b->getPosition() === -1) {
+                $result = $lt;
+            } elseif ($a->getPosition() > $b->getPosition()) {
+                $result = $gt;
+            } else {
+                $result = $lt;
+            }
+
+            return $result;
+
+        });
+
+        return $itemsToOrder;
     }
 
     /**
-     * getGroups
-     *
      * @return MenuGroup[]
      */
     public function getGroups()
@@ -252,8 +323,6 @@ class MenuGroup
     }
 
     /**
-     * getRouteName
-     *
      * @return string|null
      */
     public function getRouteName()
@@ -262,8 +331,6 @@ class MenuGroup
     }
 
     /**
-     * getHtml
-     *
      * @return string
      */
     public function getHtml()
@@ -273,8 +340,14 @@ class MenuGroup
     }
 
     /**
-     * getHtmlElement
-     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
      * @return HtmlElement|null
      */
     public function getHtmlElement()
@@ -286,7 +359,7 @@ class MenuGroup
         $group_visible = $this->visible;
         $group_attributes = $this->attributes;
         $group_current = $this->isCurrent();
-        $group_items = $this->items;
+        $group_items = $this->getItems();
         $group_groups = $this->groups;
 
         if ($group_visible) {
@@ -357,8 +430,6 @@ class MenuGroup
     }
 
     /**
-     * isCurrent
-     *
      * @return bool
      */
     public function isCurrent()
@@ -375,7 +446,8 @@ class MenuGroup
             }
 
             if ($href != $current_url) {
-                foreach ($this->items as $item) {
+                $items = $this->getItems();
+                foreach ($items as $item) {
                     if ($item->isCurrent()) {
                         $this->current = true;
                         break;
@@ -398,41 +470,44 @@ class MenuGroup
     }
 
     /**
-     * addItem
-     *
+     * @return bool
+     */
+    public function isVisible()
+    {
+        return $this->visible;
+    }
+
+    /**
      * @param MenuItem $item
-     * @return void
+     * @return static
      */
     public function addItem(MenuItem $item)
     {
         $this->items[] = $item;
+        return $this;
     }
 
     /**
-     * addGroup
-     *
      * @param MenuGroup $group
-     * @return void
+     * @return static
      */
     public function addGroup(MenuGroup $group)
     {
         $this->groups[] = $group;
+        return $this;
     }
 
     /**
-     * setVisible
-     *
      * @param bool $visible
-     * @return void
+     * @return static
      */
     public function setVisible(bool $visible)
     {
         $this->visible = $visible;
+        return $this;
     }
 
     /**
-     * validateItem
-     *
      * @param mixed $value
      * @return bool
      */
@@ -442,8 +517,6 @@ class MenuGroup
     }
 
     /**
-     * validateGroup
-     *
      * @param mixed $value
      * @return bool
      */

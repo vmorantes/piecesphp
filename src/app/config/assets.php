@@ -180,6 +180,18 @@ $assets['dialgo_pcs']['css'] = [];
 $assets['dialgo_pcs']['plugins'] = [];
 
 /**
+ * fancyBox v3.5.7
+ * https://fancyapps.com/fancybox/3/
+ */
+$assets['fancybox3']['js'] = [
+    'statics/plugins/fancybox/jquery.fancybox.min.js',
+];
+$assets['fancybox3']['css'] = [
+    'statics/plugins/fancybox/jquery.fancybox.min.css',
+];
+$assets['fancybox3']['plugins'] = [];
+
+/**
  * JQuery
  * https://jquery.com/
  */
@@ -195,7 +207,7 @@ $assets['jquery']['plugins'] = [];
  * Traducción de mensajes, configuración de valores por defecto, etc...
  */
 $assets['app_libraries']['css'] = [
-	'statics/core/css/helpers.css',
+    'statics/core/css/helpers.css',
 ];
 $assets['app_libraries']['js'] = [
     'statics/core/js/util-pieces.js',

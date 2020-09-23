@@ -19,15 +19,12 @@ use PiecesPHP\Core\HTML\HtmlElement;
 class MenuGroupCollection
 {
     /**
-     * $items
      *
      * @var MenuGroup[]
      */
     protected $items;
 
     /**
-     * $structureOptions
-     *
      * @var array
      */
     protected $structureOptions = [
@@ -38,8 +35,6 @@ class MenuGroupCollection
     ];
 
     /**
-     * __construct
-     *
      * @param mixed $options
      * @return static
      */
@@ -61,15 +56,24 @@ class MenuGroupCollection
                 if ($valid) {
 
                     if ($name == 'items') {
+
+                        $this->items = [];
+
                         foreach ($value_on_option as $key => $value) {
                             $valid_item = $value instanceof MenuGroup;
-                            if (!$valid_item) {
+                            if (!$valid_item || !$value->isVisible()) {
                                 unset($value_on_option[$key]);
                             }
                         }
+
+                        foreach ($value_on_option as $key => $value) {
+                            $this->addItem($value);
+                        }
+
+                    } else {
+                        $this->$name = $value_on_option;
                     }
 
-                    $this->$name = $value_on_option;
                 } else {
                     $this->$name = $config['default'];
                 }
@@ -82,30 +86,85 @@ class MenuGroupCollection
     }
 
     /**
-     * addItem
-     *
      * @param MenuGroup $item
-     * @return void
+     * @return static
      */
     public function addItem(MenuGroup $item)
     {
         $this->items[] = $item;
+        return $this;
     }
 
     /**
-     * getItems
-     *
      * @param MenuGroup $item
      * @return MenuGroup[]
      */
     public function getItems()
     {
-        return $this->items;
+
+        $defaultPositions = [];
+        $nextPosition = 1;
+
+        $items = $this->items;
+        $itemsToOrder = [];
+
+        foreach ($items as $item) {
+            if ($item->getPosition() !== -1) {
+                $defaultPositions[] = $item->getPosition();
+            }
+        }
+
+        sort($defaultPositions);
+
+        foreach ($items as $item) {
+
+            $itemToOrder = clone $item;
+
+            if ($itemToOrder->getPosition() === -1) {
+
+                while (in_array($nextPosition, $defaultPositions)) {
+                    $nextPosition++;
+                }
+
+                $itemToOrder->setPosition($nextPosition);
+                $nextPosition++;
+
+            }
+
+            $itemsToOrder[] = $itemToOrder;
+        }
+
+        /**
+         * @param MenuGroup $a
+         * @param MenuGroup $b
+         */
+        uasort($itemsToOrder, function ($a, $b) {
+
+            $et = 0;
+            $gt = 1;
+            $lt = -1;
+            $result = 0;
+
+            if ($a->getPosition() === $b->getPosition()) {
+                $result = $et;
+            } elseif ($a->getPosition() === -1) {
+                $result = $gt;
+            } elseif ($b->getPosition() === -1) {
+                $result = $lt;
+            } elseif ($a->getPosition() > $b->getPosition()) {
+                $result = $gt;
+            } else {
+                $result = $lt;
+            }
+
+            return $result;
+
+        });
+
+        return $itemsToOrder;
     }
 
     /**
-     * getHtml
-     *
      * @return string
      */
     public function getHtml()
@@ -119,15 +178,14 @@ class MenuGroupCollection
     }
 
     /**
-     * getHtmlElements
-     *
      * @return HtmlElement[]
      */
     public function getHtmlElements()
     {
         $groups = [];
+        $items = $this->getItems();
 
-        foreach ($this->items as $group) {
+        foreach ($items as $group) {
             $groups[] = $group->getHtmlElement();
         }
 

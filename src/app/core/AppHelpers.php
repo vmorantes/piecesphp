@@ -970,6 +970,18 @@ function import_dialog_pcs(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra fancybox3 como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_fancybox3(array $plugins = [], bool $all = true)
+{
+    import_front_library('fancybox3', $plugins, $all);
+}
+
+/**
  * Registra una ruta o un conjunto de rutas
  *
  * register_routes([
