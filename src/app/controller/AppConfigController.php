@@ -13,6 +13,7 @@ use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Sitemap\Sitemap;
@@ -48,12 +49,44 @@ class AppConfigController extends AdminPanelController
     const LANG_GROUP_FORMS = 'configurationsAdminZone';
     const LANG_GROUP_FORMS_2 = 'customizationAdminZone';
 
+    const ROLES_VIEW_CUTOMIZATION_VIEW = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_VIEW_CONFIGURATIONS_VIEW = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_ROUTES_VIEWS = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+    const ROLES_GENERIC_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_IMAGES_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_OS_TICKET_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+    const ROLES_SITEMAP_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+    const ROLES_SSL_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+
     /**
-     * $mapper
-     *
      * @var AppConfigModel
      */
     protected $mapper;
+
+    /**
+     * @var string
+     */
+    protected static $baseRouteName = 'configurations';
 
     public function __construct()
     {
@@ -63,10 +96,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * routesView
-     *
-     * Vista de configuraciones de las rutas y los permisos
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -84,10 +113,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * configurationsView
-     *
-     * Vista de configuraciones
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -96,18 +121,95 @@ class AppConfigController extends AdminPanelController
     public function configurationsView(Request $req, Response $res, array $args)
     {
         import_spectrum();
+
+        $langGroup = AppConfigController::LANG_GROUP_FORMS;
+
+        $tabsTitles = [];
+        $tabsItems = [];
+
+        $currentUser = get_config('current_user');
+        $baseViewDir = 'panel/pages/app_configurations';
+
+        if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {
+
+            $actionGenericURL = AppConfigController::routeName('generals-generic-action');
+            $actionSitemapURL = AppConfigController::routeName('generals-sitemap-create');
+            $actionOsTicketURL = AppConfigController::routeName('generals-osticket-action');
+            $actionSSLURL = AppConfigController::routeName('ssl');
+
+            $hasPermissionsGenerals = count(array_filter([
+                $actionGenericURL,
+                $actionSitemapURL,
+            ], function ($e) {return mb_strlen(trim($e)) > 0;})) > 0;
+            $hasPermissionsMail = mb_strlen(trim($actionGenericURL)) > 0;
+            $hasPermissionsOsTicket = mb_strlen(trim($actionOsTicketURL)) > 0;
+            $hasPermissionsSSL = mb_strlen(trim($actionSSLURL)) > 0;
+
+            if ($hasPermissionsGenerals) {
+
+                $data = [
+                    'langGroup' => $langGroup,
+                    'actionGenericURL' => $actionGenericURL,
+                    'actionSitemapURL' => $actionSitemapURL,
+                ];
+
+                $tabsTitles['general'] = __($langGroup, 'Generales');
+                $tabsItems['general'] = $this->render("{$baseViewDir}/inc/configuration-tabs/general", $data, false, false);
+
+            }
+
+            if ($hasPermissionsMail) {
+
+                $data = [
+                    'langGroup' => $langGroup,
+                    'actionGenericURL' => $actionGenericURL,
+                ];
+
+                $tabsTitles['mail'] = __($langGroup, 'Email');
+                $tabsItems['mail'] = $this->render("{$baseViewDir}/inc/configuration-tabs/email", $data, false, false);
+
+            }
+
+            if ($hasPermissionsOsTicket) {
+
+                $data = [
+                    'langGroup' => $langGroup,
+                    'actionOsTicketURL' => $actionOsTicketURL,
+                ];
+
+                $tabsTitles['os-ticket'] = __($langGroup, 'OsTicket');
+                $tabsItems['os-ticket'] = $this->render("{$baseViewDir}/inc/configuration-tabs/os-ticket", $data, false, false);
+
+            }
+
+            if ($hasPermissionsSSL) {
+
+                $data = [
+                    'langGroup' => $langGroup,
+                    'actionSSLURL' => $actionSSLURL,
+                ];
+
+                $tabsTitles['ssl'] = __($langGroup, 'SSL');
+                $tabsItems['ssl'] = $this->render("{$baseViewDir}/inc/configuration-tabs/ssl", $data, false, false);
+
+            }
+
+        }
+
+        $data = [
+            'langGroup' => $langGroup,
+            'tabsTitles' => $tabsTitles,
+            'tabsItems' => $tabsItems,
+        ];
+
         $this->render('panel/layout/header');
-        $this->render('panel/pages/app_configurations/configurations');
+        $this->render("{$baseViewDir}/configurations", $data);
         $this->render('panel/layout/footer');
 
         return $res;
     }
 
     /**
-     * customizationView
-     *
-     * Vista de personalización
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -115,16 +217,61 @@ class AppConfigController extends AdminPanelController
      */
     public function customizationView(Request $req, Response $res, array $args)
     {
+        $langGroup = AppConfigController::LANG_GROUP_FORMS_2;
+
+        $tabsTitles = [];
+        $tabsItems = [];
+
+        $currentUser = get_config('current_user');
+        $baseViewDir = 'panel/pages/app_configurations';
+
+        if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {
+
+            $actionCustomImagesURL = AppConfigController::routeName('customization-images-action');
+
+            $hasPermissionsImages = mb_strlen(trim($actionCustomImagesURL)) > 0;
+            $hasPermissionsBGImages = mb_strlen(trim($actionCustomImagesURL)) > 0;
+
+            if ($hasPermissionsImages) {
+
+                $data = [
+                    'langGroup' => $langGroup,
+                    'actionCustomImagesURL' => $actionCustomImagesURL,
+                ];
+
+                $tabsTitles['images'] = __($langGroup, 'Imágenes');
+                $tabsItems['images'] = $this->render("{$baseViewDir}/inc/customization-tabs/images", $data, false, false);
+
+            }
+
+            if ($hasPermissionsBGImages) {
+
+                $data = [
+                    'langGroup' => $langGroup,
+                    'actionCustomImagesURL' => $actionCustomImagesURL,
+                ];
+
+                $tabsTitles['bg'] = __($langGroup, 'Fondos del login');
+                $tabsItems['bg'] = $this->render("{$baseViewDir}/inc/customization-tabs/background", $data, false, false);
+
+            }
+
+        }
+
+        $data = [
+            'langGroup' => $langGroup,
+            'tabsTitles' => $tabsTitles,
+            'tabsItems' => $tabsItems,
+        ];
+
         $this->render('panel/layout/header');
-        $this->render('panel/pages/app_configurations/customization');
+        $this->render("{$baseViewDir}/customization", $data);
         $this->render('panel/layout/footer');
 
         return $res;
     }
 
     /**
-     * actionGeneric
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -271,8 +418,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * actionOsTicket
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -361,8 +506,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * actionImages
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -530,8 +673,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * createSitemap
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -617,8 +758,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * sslGenerator
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -953,6 +1092,62 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * @param string $name
+     * @param array $params
+     * @return bool
+     */
+    public static function allowedRoute(string $name, array $params = [])
+    {
+
+        $route = self::routeName($name, $params, true);
+        $allow = strlen($route) > 0;
+
+        if ($allow) {
+
+            if ($name == 'SAMPLE') { //do something
+            }
+
+        }
+
+        return $allow;
+    }
+
+    /**
+     * @param string $name
+     * @param array $params
+     * @param bool $silentOnNotExists
+     * @return string
+     */
+    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    {
+        if (!is_null($name)) {
+            $name = trim($name);
+            $name = strlen($name) > 0 ? "-{$name}" : '';
+        }
+
+        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
+
+        $allowed = false;
+        $current_user = get_config('current_user');
+
+        if ($current_user != false) {
+            $allowed = Roles::hasPermissions($name, (int) $current_user->type);
+        } else {
+            $allowed = true;
+        }
+
+        if ($allowed) {
+            return get_route(
+                $name,
+                $params,
+                $silentOnNotExists
+            );
+        } else {
+            return '';
+        }
+    }
+
+    /**
      * routes
      *
      * @param RouteGroup $group
@@ -971,7 +1166,17 @@ class AppConfigController extends AdminPanelController
         $group->register([
 
             //──── GET ─────────────────────────────────────────────────────────────────────────
-            //Vista de personalización de imágenes
+            //Vista de configuración general
+            new Route(
+                "{$startRoute}[/]",
+                $classname . ':configurationsView',
+                'configurations-generals',
+                'GET',
+                true,
+                null,
+                self::ROLES_VIEW_CONFIGURATIONS_VIEW
+            ),
+            //Vista de personalización de imágenes y textos
             new Route(
                 "{$startRoute}images[/]",
                 $classname . ':customizationView',
@@ -979,23 +1184,7 @@ class AppConfigController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
-            ),
-            //Vista de configuración general
-            new Route(
-                "{$startRoute}generals[/]",
-                $classname . ':configurationsView',
-                'configurations-generals',
-                'GET',
-                true,
-                null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                self::ROLES_VIEW_CUTOMIZATION_VIEW
             ),
             //Vista de configuración de rutas y permisos
             new Route(
@@ -1005,9 +1194,7 @@ class AppConfigController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                ]
+                self::ROLES_ROUTES_VIEWS
             ),
 
             //──── POST ────────────────────────────────────────────────────────────────────────
@@ -1019,10 +1206,7 @@ class AppConfigController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                self::ROLES_IMAGES_ACTION
             ),
             //OsTicket
             new Route(
@@ -1032,10 +1216,7 @@ class AppConfigController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                self::ROLES_OS_TICKET_ACTION
             ),
             //General
             new Route(
@@ -1045,10 +1226,7 @@ class AppConfigController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                self::ROLES_GENERIC_ACTION
             ),
 
             //Generar sitemap
@@ -1059,10 +1237,7 @@ class AppConfigController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                self::ROLES_SITEMAP_ACTION
             ),
 
             //Generar ssl
@@ -1073,9 +1248,7 @@ class AppConfigController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                ]
+                self::ROLES_SSL_ACTION
             ),
 
         ]);
