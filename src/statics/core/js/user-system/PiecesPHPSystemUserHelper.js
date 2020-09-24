@@ -154,6 +154,7 @@ class PiecesPHPSystemUserHelper {
 	deleteSession() {
 		let now = new Date().getTime()
 		let JWT = this.getJWT()
+		JWT = JWT.length > 0 ? JWT : this.getCookie('JWTAuth').trim()
 
 		if (JWT.length > 0) {
 			document.cookie = `JWTAuth=;expires=${now};path=/`;
