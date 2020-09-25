@@ -197,17 +197,17 @@ class ContactFormsController extends PublicAreaController
 
                 $mailer = new Mailer();
 
+                $mailer->SMTPDebug = 2;
                 $mailer->isHTML(true);
 
                 //Si es Zoho el dato de From debe ser igual al del usuario que envía por SMPT
-                $isZoho = mb_strpos($mailer->Host, 'zoho') !== false;
-                $mailer->setFrom($isZoho ? $mailer->Username : $email, $name);
+                $mailer->setFrom($email, $name);
 
                 foreach ($this->recipientsMessages as $recipient) {
                     $mailer->addAddress($recipient);
                 }
 
-                $mailer->Subject = __(LANG_GROUP, 'Contacto') . ': ' . $subject;
+                $mailer->Subject = utf8_decode(__(LANG_GROUP, 'Contacto') . ': ' . $subject);
                 $mailer->Body = $bodyMessage;
 
                 $success = $mailer->send();
@@ -222,6 +222,7 @@ class ContactFormsController extends PublicAreaController
             } catch (\Exception $e) {
 
                 $resultOperation->setMessage($e->getMessage());
+                $resultOperation->setValue('logMailer', $mailer->log());
                 log_exception($e);
 
             }

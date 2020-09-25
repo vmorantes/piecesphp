@@ -284,3 +284,13 @@ footer.#{$globalClassPcs} {
         max-width: 1200px;
     }
 }
+
+a.ui.button{
+    text-decoration: none !important;    
+}
+
+.ui.tabular.menu{
+    .item:not(.active){
+        cursor: pointer;
+    }
+}

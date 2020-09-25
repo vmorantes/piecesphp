@@ -495,11 +495,30 @@ class Config
         $str = $message;
 
         $currentLang = self::get_config('app_lang');
+
         $searchOnLangs = [
-            $forceLang,
             $currentLang,
             'default',
         ];
+
+        if ($forceLang !== null) {
+
+            $searchOnLangs = [
+                $forceLang,
+                'default',
+                $currentLang,
+            ];
+
+            if ($forceLang === self::get_config('default_lang')) {
+
+                $searchOnLangs = [
+                    $forceLang,
+                    'default',
+                ];
+
+            }
+
+        }
 
         foreach ($searchOnLangs as $lang) {
 
@@ -550,10 +569,36 @@ class Config
     {
         self::$configurations[$name] = $value;
 
-        if ($name == 'title_app' && self::$instance !== null) {
-            $instance = self::get_instance();
-            $instance->appTitle = $value;
+        $namesOnInstance = [
+            'title_app' => 'appTitle',
+            'database' => 'appDB',
+            'app_key' => 'appKey',
+        ];
+
+        $namesOnStatic = [
+            'allowed_langs' => 'appAllowedLangs',
+            'default_lang' => 'defaultAppLang',
+            'app_lang' => 'appLang',
+            'prefix_lang' => 'prefixLang',
+        ];
+
+        if (array_key_exists($name, $namesOnStatic)) {
+
+            $propertyToSet = $namesOnStatic[$name];
+            self::$$propertyToSet = $value;
+
+        } elseif (self::$instance !== null) {
+
+            if (array_key_exists($name, $namesOnInstance)) {
+
+                $instance = self::get_instance();
+                $propertyToSet = $namesOnInstance[$name];
+                $instance->$propertyToSet = $value;
+
+            }
+
         }
+
     }
 
     /**

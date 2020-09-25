@@ -26,32 +26,5 @@ ul.icons {
                 font-size: 1.25em;
             }
         }
-
-        &.alt {
-			vertical-align: bottom;
-            a {
-                display: flex;
-                align-content: center;
-				align-items: center;
-				border: none;
-
-                >span {
-                    &:last-child {
-                        padding-left: 8px;
-                    }
-
-					&.label{
-						font-weight: bold;
-						text-transform: capitalize;
-					}
-
-                    &.image {
-                        img {
-                            width: 25px;
-                        }
-                    }
-                }
-            }
-        }
     }
 }

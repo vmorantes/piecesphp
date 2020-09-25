@@ -31,6 +31,13 @@ class EntityMapperExtensible extends BaseEntityMapper
     private $metaProperties = [];
 
     /**
+     * ID insertado al hacer el último save
+     *
+     * @var int|null
+     */
+    protected $insertIdOnSave = null;
+
+    /**
      * __construct
      *
      * @param int $value
@@ -193,7 +200,13 @@ class EntityMapperExtensible extends BaseEntityMapper
 
         $this->$metaColumnName = $metaColumnValue;
 
-        return parent::save();
+        $saveResult = parent::save();
+
+        if ($saveResult) {
+            $this->insertIdOnSave = $this->getLastInsertID();
+        }
+
+        return $saveResult;
 
     }
 
@@ -226,6 +239,14 @@ class EntityMapperExtensible extends BaseEntityMapper
 
         return parent::update();
 
+    }
+
+    /**
+     * @return int|null Devuelve el ID insertado al hacer el último save o NULL si no ha sido guardado nada aún
+     */
+    public function getInsertIDOnSave()
+    {
+        return $this->insertIdOnSave;
     }
 
     /**
