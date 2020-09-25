@@ -25,7 +25,79 @@
     }
 
     .icons {
-        text-align: right;
+
+        display: flex;
+        flex-wrap: wrap;
+        flex: 0 0 auto;
+        justify-content: flex-end;
+        align-items: center;
+        align-content: center;
+
+        li {
+            &.alt {
+
+                a {
+                    display: flex;
+                    align-content: center;
+                    align-items: center;
+                    border: none;
+                    color: inherit;
+
+                    >span {
+                        &:last-child {
+                            padding-left: 8px;
+                        }
+
+                        &.label {
+                            position: relative;
+                            top: -1.5px;
+                            text-transform: capitalize;
+                        }
+
+                        &.image {
+
+                            &,
+                            *,
+                            *::before {
+                                line-height: 100%;
+                            }
+
+                            img {
+                                display: inline-block;
+                                width: 25px;
+                            }
+                        }
+
+                        &.icon {
+                            .icon {
+                                display: inline-block;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @media screen and (max-width:480px) {
+            position: absolute;
+            top: 0px;
+            right: initial !important;
+            left: 50% !important;
+            transform: translateX(-50%);
+            width: max-content;
+        }
+
+        @media screen and (max-width:380px) {
+            li {
+                &.alt {
+                    span {
+                        &.label:not(.visible-allways) {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @include breakpoint('<=xlarge') {

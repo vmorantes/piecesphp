@@ -32,22 +32,16 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 {
 
     /**
-     * $prefixNameRoutes
-     *
      * @var string
      */
     private static $prefixNameRoutes = 'public';
 
     /**
-     * $startSegmentRoutes
-     *
      * @var string
      */
     private static $startSegmentRoutes = '';
 
     /**
-     * $user
-     *
      * Usuario logueado
      *
      * @var \stdClass
@@ -55,8 +49,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     protected $user = null;
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -71,8 +63,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * indexView
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -115,8 +105,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * genericViews
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -220,8 +208,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -257,8 +243,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -313,8 +297,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * init
-     *
      * @return void
      */
     protected function init()

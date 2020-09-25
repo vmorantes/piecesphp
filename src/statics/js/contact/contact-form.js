@@ -1,4 +1,4 @@
-/// <reference path=".././CustomNamespace.js" />
+/// <reference path="../CustomNamespace.js" />
 /// <reference path="../../core/js/helpers.js" />
 window.addEventListener('loadApp', function (e) {
 
