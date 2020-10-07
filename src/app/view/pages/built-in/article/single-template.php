@@ -31,7 +31,7 @@ $relateds;
 
             <span class="image single-post"><img loading="lazy" src="<?=$article->images->imageMain; ?>" alt="<?= $article->title; ?>" /></span>
 
-            <div><?= $article->content; ?></div>
+            <div class="post-content"><?= $article->content; ?></div>
 
         </section>
 
