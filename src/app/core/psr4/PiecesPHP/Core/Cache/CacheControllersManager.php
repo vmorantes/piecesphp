@@ -159,6 +159,65 @@ class CacheControllersManager implements Serializable, JsonSerializable
         $this->ownConfigurationFileName = $this->hash . '.json';
         $this->creationTime = time();
 
+        if ($this->isExpired() || $this->globalOptions['shouldBeRecached'] === true) {
+
+            if (file_exists($this->folderCache) && is_dir($this->folderCache)) {
+
+                $removedElements = [];
+
+                $removeDir = function ($path, &$removedElements) use (&$removeDir) {
+
+                    $dirResource = opendir($path);
+
+                    if ($dirResource !== false) {
+
+                        $dirEntry = readdir($dirResource);
+
+                        $removedDirectories = [];
+                        $removedElements[basename($path)] = [
+                            'files' => [],
+                            'directories' => [],
+                        ];
+
+                        while ($dirEntry !== false) {
+
+                            if (!in_array($dirEntry, ['.', '..', 'configuration.json'])) {
+
+                                $fullPathEntry = $path . '/' . $dirEntry;
+                                $fullPathEntry = realpath($fullPathEntry);
+
+                                if (file_exists($fullPathEntry)) {
+
+                                    if (is_dir($fullPathEntry)) {
+                                        ($removeDir)($fullPathEntry, $removedDirectories);
+                                        rmdir($fullPathEntry);
+                                    } else {
+                                        $removedElements[basename($path)]['files'][] = basename($fullPathEntry);
+                                        unlink($fullPathEntry);
+                                    }
+
+                                }
+
+                            }
+
+                            $dirEntry = readdir($dirResource);
+
+                        }
+
+                        $removedElements[basename($path)]['directories'] = $removedDirectories;
+
+                        closedir($dirResource);
+
+                    }
+
+                };
+
+                ($removeDir)($this->folderCache, $removedElements);
+
+            }
+
+        }
+
         $fileConfig = append_to_url($this->folderCache, $this->ownConfigurationFileName);
 
         if (!file_exists($fileConfig)) {
@@ -166,15 +225,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
             chmod($fileConfig, 0777);
         } else {
             $this->unserialize(file_get_contents($fileConfig));
-        }
-
-        if ($this->isExpired() || $this->globalOptions['shouldBeRecached'] === true) {
-            if (file_exists($fileConfig)) {
-                unlink($fileConfig);
-            }
-            if (file_exists($this->getCachedDataFileName(true))) {
-                unlink($this->getCachedDataFileName(true));
-            }
         }
 
         return $this;
