@@ -59,3 +59,10 @@
 @import 'layout/banner';
 @import 'layout/footer';
 @import 'layout/menu';
+
+
+.post-content{
+    img{
+        max-width: 100%;
+    }
+}

@@ -1,3 +1,6 @@
+/// <reference path="../../core/js/helpers.js" />
+/// <reference path="../../core/js/user-system/main_system_user.js" />
+/// <reference path="../../core/js/user-system/PiecesPHPSystemUserHelper.js" />
 /**
  * Selecciona una imagen de entre varias al azar
  */
@@ -33,10 +36,10 @@ function changeImageLogin() {
 
 	$(window).resize(bgHandler)
 
-	function randomNumber(max = 5){
+	function randomNumber(max = 5) {
 		let number = Math.random() * max
 		number = Math.round(number)
-		if(number > max){
+		if (number > max) {
 			number--
 		}
 		return number
@@ -61,13 +64,17 @@ function configLoginForm() {
 	let problemsMessageBottom = problemsContent.find('.message-bottom')
 	let problemsProblemButton = problemsContent.find('.ui.button.problem')
 
-	problemsRetryButton.click(function (e) {
+	problemsRetryButton.on('click', function (e) {
 		problemsContainer.hide()
 	})
 
 	form.on('submit', function (e) {
 
 		e.preventDefault()
+
+		const LoaderName = 'login'
+
+		showGenericLoader(LoaderName)
 
 		let login = pcsphp.authenticator.authenticateWithUsernamePassword(
 			form.find("[name='username']").val(),
@@ -98,9 +105,11 @@ function configLoginForm() {
 				problemsRetryButton.show()
 				problemsMessageBottom.show()
 				setMessageError(res.error, res)
+				removeGenericLoader(LoaderName)
 			}
 
 		}).catch(function (jqXHR) {
+			removeGenericLoader(LoaderName)
 			console.error(jqXHR)
 			errorMessage(_i18n('loginForm', 'Error'), _i18n('loginForm', 'Ha ocurrido un error inesperado, intente más tarde.'))
 		})
@@ -108,7 +117,7 @@ function configLoginForm() {
 		return false
 	})
 
-	function setMessageError(error, data) {		
+	function setMessageError(error, data) {
 
 		let problemsTitleContainer = problemsTitle.parent()
 		problemsTitleContainer.html(`<span class="text"></span> <span class="mark"></span>`)
@@ -143,7 +152,7 @@ function configLoginForm() {
 					)
 				)
 			problemsMessage.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
-			
+
 			problemsTitle = problemsContent.find('.title .text')
 			problemsTitleMark = problemsContent.find('.title .mark')
 
@@ -169,7 +178,7 @@ function configLoginForm() {
 	}
 }
 
-$(document).ready(function (e) {
+window.addEventListener('load', function (e) {
 	changeImageLogin()
 	configLoginForm()
 })
