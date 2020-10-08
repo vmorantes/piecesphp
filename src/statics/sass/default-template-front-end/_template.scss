@@ -65,4 +65,9 @@
     img{
         max-width: 100%;
     }
+    a{
+       &::before, &::after{
+           content: ' ';
+       }
+    }
 }

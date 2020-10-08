@@ -5,6 +5,7 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\SessionToken;
 
 require __DIR__ . '/app/core/bootstrap.php';
@@ -377,4 +378,5 @@ require_once basepath("app/config/routes.php");
 require_once basepath("app/config/final-configurations.php");
 
 /** Activar enrutador */
+RouteGroup::initRoutes();
 get_config('slim_app')->run();
