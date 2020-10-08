@@ -5,7 +5,9 @@
  */
 namespace PiecesPHP\Core;
 
+use Exception;
 use PiecesPHP\Core\Route;
+use Slim\App;
 
 /**
  * RouteGroup - Esquema de grupo de rutas
@@ -18,14 +20,18 @@ class RouteGroup
 {
 
     /**
-     * $router
-     *
-     * @var \Slim\App
+     * @var App
      */
     protected static $router = null;
     /**
-     * $routeGroup
-     *
+     * @var static[]
+     */
+    protected static $groups = [];
+    /**
+     * @var bool
+     */
+    protected static $isInit = false;
+    /**
      * @var string
      */
     protected $routeGroup = '';
@@ -36,39 +42,24 @@ class RouteGroup
      */
     protected $routes = [];
     /**
-     * $instanceRouter
-     *
-     * @var \Slim\App
+     * @var App
      */
     protected $instanceRouter = null;
     /**
-     * $lastRouteGroupInstance
-     *
-     * @var \Slim\Interfaces\RouteGroupInterface
+     * @var array<callable>|array<string>
      */
-    protected $lastRouteGroupInstance = null;
+    protected $middlewares = [];
     /**
-     * $generalMiddleware
-     *
-     * @var callable|string
-     */
-    protected $generalMiddleware = null;
-    /**
-     * $active
-     *
      * @var bool
      */
     protected $active = true;
 
     /**
-     * __construct
-     *
      * @param string $routeGroup
-     * @param \Slim\App $router
+     * @param App $router
      * @param bool $useClassRouter
-     * @return static
      */
-    public function __construct(string $routeGroup, \Slim\App $router = null, bool $useClassRouter = true)
+    public function __construct(string $routeGroup, App $router = null, bool $useClassRouter = true)
     {
         $routerDefined = false;
 
@@ -77,14 +68,14 @@ class RouteGroup
 
         if ($useClassRouter) {
 
-            if (self::$router instanceof \Slim\App) {
+            if (self::$router instanceof App) {
                 $this->instanceRouter = self::$router;
                 $routerDefined = true;
             }
 
         } else {
 
-            if ($router instanceof \Slim\App) {
+            if ($router instanceof App) {
                 $this->instanceRouter = $router;
                 $routerDefined = true;
             }
@@ -98,74 +89,83 @@ class RouteGroup
     }
 
     /**
-     * register
-     *
      * @param Route[] $routes
-     * @param \Slim\App $router
+     * @param App $router
      * @return static
      */
     public function register($routes)
     {
 
-        $router = $this->instanceRouter;
+        $groupSegmentURL = rtrim($this->routeGroup, '/');
 
-        $routes = !is_array($routes) ? [$routes] : $routes;
+        foreach ($routes as $route) {
 
-        if ($this->active) {
+            if ($route instanceof Route) {
 
-            $set_routes_callable = function () use ($routes) {
-                foreach ($routes as $route) {
-                    if ($route instanceof Route) {
-                        $route->register($this);
-                        $routes[] = $route;
+                $segment = $route->routeSegment();
+
+                if ($segment === '[/]') {
+
+                    $segment = "{$groupSegmentURL}{$segment}";
+
+                } elseif (mb_strlen($segment) > 0) {
+
+                    if ($segment[0] == '/') {
+                        $segment = mb_substr($segment, 1, mb_strlen($segment) - 1);
                     }
+
+                    $segment = "{$groupSegmentURL}/{$segment}";
+
+                } else {
+                    $segment = "{$groupSegmentURL}[/]";
                 }
-            };
 
-            $this->lastRouteGroupInstance = $router->group($this->routeGroup, $set_routes_callable);
-
-            if ($this->generalMiddleware !== null) {
-                $this->lastRouteGroupInstance->add($this->generalMiddleware);
+                $route->routeSegment($segment);
+                $this->routes[] = $route;
             }
 
+        }
+
+        if (!array_key_exists($this->routeGroup, self::$groups)) {
+            self::$groups[$this->routeGroup] = $this;
         }
 
         return $this;
     }
 
     /**
-     * addMiddleware
-     *
      * @param callable|string $callable
      * @return static
      */
     public function addMiddleware($callable)
     {
         if ($this->active) {
-            if ($this->lastRouteGroupInstance !== null) {
-                $this->lastRouteGroupInstance->add($callable);
+            if (is_callable($callable) || is_string($callable)) {
+                $this->middlewares[] = $callable;
             }
         }
         return $this;
     }
 
     /**
-     * withMiddleware
-     *
+     * Alias de addMiddleware
      * @param callable|string $callable
      * @return static
      */
     public function withMiddleware($callable)
     {
-        if (is_callable($callable) || is_string($callable)) {
-            $this->generalMiddleware = $callable;
-        }
-        return $this;
+        return $this->addMiddleware($callable);
     }
 
     /**
-     * active
-     *
+     * @return string
+     */
+    public function getGroupSegment()
+    {
+        return $this->routeGroup;
+    }
+
+    /**
      * @param bool $active
      * @return static
      */
@@ -176,23 +176,47 @@ class RouteGroup
     }
 
     /**
-     * setRouter
-     *
-     * @param \Slim\App $router
      * @return void
      */
-    public static function setRouter(\Slim\App $router)
+    public static function initRoutes()
     {
-        self::$router = $router;
+
+        if (!self::$isInit) {
+
+            foreach (self::$groups as $group) {
+
+                $router = $group->instanceRouter;
+
+                if ($group->active) {
+
+                    $routes = $group->routes;
+
+                    foreach ($routes as $route) {
+
+                        foreach ($group->middlewares as $mw) {
+                            $route->addMiddleware($mw);
+                        }
+
+                        $route->register($router);
+
+                    }
+
+                }
+
+            }
+
+            self::$isInit = true;
+
+        }
+
     }
 
     /**
-     * getGroupSegment
-     *
-     * @return string
+     * @param App $router
+     * @return void
      */
-    public function getGroupSegment()
+    public static function setRouter(App $router)
     {
-        return $this->routeGroup;
+        self::$router = $router;
     }
 }

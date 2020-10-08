@@ -984,98 +984,97 @@ function import_fancybox3(array $plugins = [], bool $all = true)
 /**
  * Registra una ruta o un conjunto de rutas
  *
- * register_routes([
- *         [
- *             'route'=>'ruta/{param}',
- *             'route_alias'=>'ruta_alternativa/{param}',
- *             'name'=>'nombre-de-la-ruta',
- *             'method'=>'GET|POST',
- *             'controller'=> Controller::class.':method',
- *             'require_login'=> true|false,
- *         ]
- * ])
- *
  * @param array $routes Rutas
  * @param object &$router Referencia al el enrutador de la aplicación
  * @return void
  */
 function register_routes($routes, &$router)
 {
-    $_routes = get_config('_routes_');
+
+    $routes = is_array($routes) ? $routes : [$routes];
 
     if (count($routes) < 1) {
         return;
     }
 
-    if ($_routes === false) {
-        set_config('_routes_', []);
-        $_routes = [];
-    }
-
-    $routes = is_array($routes) ? $routes : [$routes];
-
     foreach ($routes as $route) {
-
-        $route_segment = $route['route'];
-
-        $methods = explode('|', $route['method']);
-
-        if (count($methods) > 0) {
-            foreach ($methods as $key => $method) {
-                $methods[$key] = mb_strtolower($method);
-            }
-        }
-
-        $name = isset($route['name']) ? $route['name'] : uniqid();
-        $route_alias = isset($route['route_alias']) ? (is_string($route['route_alias']) ? $route['route_alias'] : null) : null;
-        $controller = $route['controller'];
-        $require_login = isset($route['require_login']) ? $route['require_login'] : false;
-        $require_login = $require_login === true ? true : false;
-        $roles_allowed = isset($route['roles_allowed']) ? $route['roles_allowed'] : [];
-        $roles_allowed = is_array($roles_allowed) ? $roles_allowed : [$roles_allowed];
-        $parameters = isset($route['parameters']) ? $route['parameters'] : [];
-        $parameters = is_array($parameters) ? $parameters : [$parameters];
-
-        if (array_key_exists($name, $_routes)) {
-            throw new RouteDuplicateNameException();
-        }
-
-        foreach ($methods as $key => $method) {
-            $methods[$key] = mb_strtoupper($method);
-        }
-
-        if (is_string($name) && $name !== null && $name !== '') {
-            $router->map($methods, $route_segment, $controller)->setName($name);
-        } else {
-            $router->map($methods, $route_segment, $controller);
-        }
-
-        if ($route_alias !== null) {
-            $router->map($methods, $route_alias, $controller);
-        }
-
-        if (is_string($name) && $name !== null && $name !== '') {
-
-            $_routes[$name]['route'] = $route_segment;
-            $_routes[$name]['name'] = $name;
-            $_routes[$name]['controller'] = $controller;
-            $_routes[$name]['method'] = implode('|', $methods);
-            $_routes[$name]['require_login'] = $require_login;
-            $_routes[$name]['roles_allowed'] = $roles_allowed;
-            $_routes[$name]['parameters'] = $parameters;
-
-            if ($route_alias !== null) {
-                $_routes[$name]['route_alias'] = $route_alias;
-            }
-
-            foreach ($roles_allowed as $role) {
-                Roles::addPermission($name, $role);
-            }
-
-            set_config('_routes_', $_routes);
-
-        }
+        register_route($route, $router);
     }
+
+}
+
+/**
+ * @param array $route
+ * @param string $route[route]
+ * @param string|callable $route[controller]
+ * @param string|string[] $route[method]
+ * @param string|null $route[name]
+ * @param string|null $route[route_alias]
+ * @param bool $route[require_login]
+ * @param array $route[roles_allowed]
+ * @param array $route[parameters]
+ * @param array<string|callable> $route[middlewares]
+ * @param \Slim\App $router
+ * @return void
+ */
+function register_route(array $route, \Slim\App &$router)
+{
+
+    $routesSetted = get_config('_routes_');
+
+    if ($routesSetted === false) {
+        set_config('_routes_', []);
+        $routesSetted = [];
+    }
+
+    $instanceRoute = \PiecesPHP\Core\Route::instanceFromArray($route);
+
+    $routeSegment = $instanceRoute->routeSegment();
+    $methods = $instanceRoute->method(null, true);
+    $name = $instanceRoute->name();
+    $alias = $instanceRoute->alias();
+    $controller = $instanceRoute->controller();
+    $rolesAllowed = $instanceRoute->rolesAllowed();
+    $middlewares = $instanceRoute->middlewares();
+
+    if (array_key_exists($name, $routesSetted)) {
+        throw new RouteDuplicateNameException();
+    }
+
+    $middleware = function ($request, $response, $next) use ($middlewares) {
+
+        $response = $next($request, $response);
+
+        foreach ($middlewares as $mw) {
+            $response = ($mw)($request, $response, $next);
+        }
+
+        return $response;
+
+    };
+
+    if (is_string($name) && $name !== null && $name !== '') {
+        $router->map($methods, $routeSegment, $controller)->setName($name)->add($middleware);
+    } else {
+        $router->map($methods, $routeSegment, $controller)->add($middleware);
+    }
+
+    if ($alias !== null) {
+        $router->map($methods, $alias, $controller)->add($middleware);
+    }
+
+    if (is_string($name) && $name !== null && $name !== '') {
+
+        $routesSetted[$name] = $instanceRoute->toArray();
+
+        foreach ($rolesAllowed as $role) {
+            Roles::addPermission($name, $role);
+        }
+
+        set_config('_routes_', $routesSetted);
+
+    }
+
 }
 
 /**
