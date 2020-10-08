@@ -30,11 +30,11 @@
         "spipu/html2pdf": "^5.1",
         "monolog/monolog": "^1.23",
         "phpoffice/phpspreadsheet": "^1.6",
-        "piecesphp/database": "~1",
         "piecesphp/datastructures": "~1",
         "piecesphp/html": "~1",
         "yourivw/leclient": "^1.2",
-        "psr/log": "^1.1"
+        "psr/log": "^1.1",
+        "piecesphp/database": "~2"
     },
     "suggest": {
         "ext-zlib": ">=1.2.0.4",
