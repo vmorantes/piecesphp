@@ -76,7 +76,7 @@ class BaseController
         }
 
         if (static::$view_folder == '/../view/') {
-            static::$view_folder = __DIR__ . "/../view/";
+            static::$view_folder = __DIR__ . \DIRECTORY_SEPARATOR . '..' . \DIRECTORY_SEPARATOR . "view" . \DIRECTORY_SEPARATOR;
         }
     }
 
@@ -97,7 +97,7 @@ class BaseController
         extract($this->global_variables);
 
         ob_start();
-        require self::$view_folder . $pcs_php__name_view__ . $this->config['extension'];
+        require $this->getInstanceViewDir() . $pcs_php__name_view__ . $this->config['extension'];
         $output = ob_get_contents();
         ob_end_clean();
 
@@ -129,7 +129,7 @@ class BaseController
         extract($this->global_variables);
 
         ob_start();
-        require self::$view_folder . $pcs_php__name_view__;
+        require $this->getInstanceViewDir() . $pcs_php__name_view__;
         $output = ob_get_contents();
         ob_end_clean();
 
@@ -158,13 +158,35 @@ class BaseController
      * Establece variables que serán accesibles desde todos los archivos solicitados por los métodos _render y render.
      *
      * Nota: Estas variables sobreescriben a las pasadas por las funciones _render y render si tienen el mismo nombre.
-     * <
+     *
      * @param array $variables Un array asociativo que designa las variables que estarán disponibles dentro de los archivos
      * @return void
      */
     public function setVariables(array $variables = array())
     {
         $this->global_variables = $variables;
+    }
+
+    /**
+     * Establece el directorio de las vistas en la instancia
+     * @param string $dir Directorio de las vistas
+     * @return static
+     */
+    public function setInstanceViewDir(string $dir)
+    {
+        $last_char = mb_substr($dir, mb_strlen($dir) - 1);
+        $is_bar = ($last_char == '/' || $last_char == '\\');
+        $this->instance_view_folder = $is_bar ? $dir : $dir . \DIRECTORY_SEPARATOR;
+        return $this;
+    }
+
+    /**
+     * Devuelve la ruta del directorio de las vistas de la instancia
+     * @return string
+     */
+    public function getInstanceViewDir()
+    {
+        return $this->instance_view_folder !== null ? $this->instance_view_folder : self::$view_folder;
     }
 
     /**
@@ -176,11 +198,11 @@ class BaseController
     {
         $last_char = mb_substr($dir, mb_strlen($dir) - 1);
         $is_bar = ($last_char == '/' || $last_char == '\\');
-        self::$view_folder = $is_bar ? $dir : $dir . '/';
+        self::$view_folder = $is_bar ? $dir : $dir . \DIRECTORY_SEPARATOR;
     }
 
     /**
-     * Devuelve la ruta deel directorio de las vistas
+     * Devuelve la ruta del directorio de las vistas
      * @return string
      */
     public static function getViewDir()
@@ -189,8 +211,6 @@ class BaseController
     }
 
     /**
-     * getGlobalVariables
-     *
      * @return array
      */
     public function getGlobalVariables()
@@ -199,8 +219,6 @@ class BaseController
     }
 
     /**
-     * $global_variables
-     *
      * Array de variables globales de las vistas
      *
      * @var array
@@ -208,15 +226,16 @@ class BaseController
     protected $global_variables = [];
 
     /**
-     * $model
-     *
      * @var BaseModel
      */
     protected $model = null;
 
     /**
-     * $view_folder
-     *
+     * @var string
+     */
+    protected $instance_view_folder = null;
+
+    /**
      * Directorio de vistas
      *
      * @ignore @var string
@@ -224,8 +243,6 @@ class BaseController
     protected static $view_folder = "/../view/";
 
     /**
-     * $config
-     *
      * @ignore @var array $config Array de configuraciones
      */
     protected $config = [];

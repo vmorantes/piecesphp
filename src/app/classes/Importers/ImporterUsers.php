@@ -28,6 +28,9 @@ class ImporterUsers extends Importer
 
     public function __construct(array $data)
     {
+
+        $this->setUpdate(false);
+
         $id              = new Field('id', __(self::LANG_GROUP, 'ID'), null, true, '', false);
         $username        = new Field('username', __(self::LANG_GROUP, 'Usuario'), '', false);
         $password        = new Field('password', __(self::LANG_GROUP, 'Contraseña'), '', false);
@@ -72,6 +75,10 @@ class ImporterUsers extends Importer
 
             $messageDuplicated = [];
 
+            $instance->mode(Schema::MODE_DEFINE_BY_IMPORTER); //Dejar que el modo sea definido por el importador (por defecto insert)
+            //$instance->mode(Schema::MODE_INSERT); //Activar modo insert
+            //$instance->mode(Schema::MODE_UPDATE); //Activar modo update
+
             if ($duplicatedID) {
                 $messageDuplicated[] = vsprintf(
                     __(self::LANG_GROUP, "El ID '%s' ya existe."),
@@ -105,6 +112,39 @@ class ImporterUsers extends Importer
             }
 
         });
+
+        /**
+         * Insertador personalizado en caso de no usar el integrado
+         * Nota: Este ejemplo es simétrico al funcionamiento interno luego de recolectar los valores en $values
+         * @param Schema $instance
+         * @param array<string,string> $values
+         */
+        $schema->setAlternativeInsert(function (Schema $instance, array $values) {
+            $success = false;
+            $model = $instance->getModel();
+            $success = $model->insert($values)->execute();
+            return $success;
+
+        });
+
+        /**
+         * Actualizador personalizado en caso de no usar el integrado
+         * Nota: Este ejemplo casi simétrico al funcionamiento interno luego de recolectar
+         * los valores en $values y definr $where, la diferencia es que internamente antes de ejecutar
+         * el update se ejecuta beforeExecuteUpdate($model, $where) con el objectivo de personalizar
+         * el valor de $where con más libertad y aplicarlo a la consulta.
+         * @param Schema $instance
+         * @param array<string,string> $values
+         * @param array<string,string> $where
+         */
+        $schema->setAlternativeUpdate(function (Schema $instance, array $values, array $where) {
+            $success = false;
+            $model = $instance->getModel();
+            $success = $model->update($values)->where($where)->execute();
+            return $success;
+        });
+
+        $schema->setPrimaryKey('id'); //Definir llave primaria (esto es para el where en modo update)
 
         $schema->setTemplateWithHumanReadable(true);
 

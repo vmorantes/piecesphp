@@ -265,8 +265,7 @@ class PointMapper extends BaseEntityMapper
     public static function isDuplicate(string $name, int $city_id, int $ignore_id)
     {
         $model = self::model();
-        $name = \stripslashes($name);
-        $name = \addslashes($name);
+        $name = escapeString($name);
 
         $where = trim(implode(' ', [
             "name = '$name' AND ",

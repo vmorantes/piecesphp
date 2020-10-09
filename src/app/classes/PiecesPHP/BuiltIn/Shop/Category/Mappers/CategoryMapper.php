@@ -210,7 +210,7 @@ class CategoryMapper extends EntityMapperExtensible
     {
         $model = self::model();
 
-        $name = \addslashes(\stripslashes($name));
+        $name = escapeString($name);
 
         $where = [
             "name = '$name'",

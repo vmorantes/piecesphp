@@ -78,14 +78,14 @@ class Importer
      */
     public function __construct(Schema $schema, array $data, string $title = null)
     {
-		$this->$title = __(self::LANG_GROUP, $this->title);
+        $this->$title = __(self::LANG_GROUP, $this->title);
         $this->schema = $schema;
         $this->data = $data;
         $this->responses = new ResponseCollection();
         if (!is_null($title)) {
             $this->title = $title;
-		}
-		set_title($this->title);
+        }
+        set_title($this->title);
     }
 
     /**
@@ -95,6 +95,7 @@ class Importer
      */
     public function import()
     {
+
         foreach ($this->data as $index => $data) {
 
             foreach ($data as $name => $value) {
@@ -166,9 +167,19 @@ class Importer
                 //Insertar registro en la base de datos
                 try {
 
+                    $this->schema->runBefore();
+                    $schemaMode = $this->schema->mode();
+                    $modeUpdate = $this->update;
+
+                    if ($schemaMode === Schema::MODE_INSERT) {
+                        $modeUpdate = false;
+                    } elseif ($schemaMode === Schema::MODE_UPDATE) {
+                        $modeUpdate = true;
+                    }
+
                     $success = false;
 
-                    if ($this->update) {
+                    if ($modeUpdate) {
                         $success = $this->schema->update(); //Actualizar
                     } else {
                         $success = $this->schema->insert(); //Insertar
@@ -182,7 +193,7 @@ class Importer
                         //Aumentar el conteo de registros insertados y agregar mensaje de operación exitosa
                         $this->totalImported += 1;
 
-                        if ($this->update) {
+                        if ($modeUpdate) {
                             $response->appendMessage(sprintf(__(self::LANG_GROUP, 'Registro de la fila %s actualizado.'), $row));
                         } else {
                             $response->appendMessage(sprintf(__(self::LANG_GROUP, 'Registro de la fila %s insertado.'), $row));
@@ -192,20 +203,20 @@ class Importer
                         //Si no se insertó
 
                         //Agregar mensaje de la operación errónea
-                        if ($this->update) {
+                        if ($modeUpdate) {
                             $response->appendMessage(
-								sprintf(
-									__(self::LANG_GROUP, 'El registro de la fila %s no ha podido ser actualizado debido a un error desconocido.'),
-									$row
-								)
-							);
+                                sprintf(
+                                    __(self::LANG_GROUP, 'El registro de la fila %s no ha podido ser actualizado debido a un error desconocido.'),
+                                    $row
+                                )
+                            );
                         } else {
                             $response->appendMessage(
-								sprintf(
-									__(self::LANG_GROUP, 'El registro de la fila %s no ha podido ser insertado debido a un error desconocido.'),
-									$row
-								)
-							);
+                                sprintf(
+                                    __(self::LANG_GROUP, 'El registro de la fila %s no ha podido ser insertado debido a un error desconocido.'),
+                                    $row
+                                )
+                            );
                         }
 
                     }
@@ -287,11 +298,11 @@ class Importer
         if (!$field->isOptional() && !$hasInput) {
             $response->setSuccess(false);
             $response->appendMessage(
-				sprintf(
-					__(self::LANG_GROUP, 'Error: el campo %s es obligatorio.'),
-					"$name/$humanName"
-				)
-			);
+                sprintf(
+                    __(self::LANG_GROUP, 'Error: el campo %s es obligatorio.'),
+                    "$name/$humanName"
+                )
+            );
         }
 
         //Aplicar valor por defecto

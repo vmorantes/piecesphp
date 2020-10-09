@@ -914,10 +914,8 @@ class ArticleViewMapper extends BaseEntityMapper
     {
         $model = self::model();
 
-        $title = \stripslashes($title);
-        $title = \addslashes($title);
-        $friendlyURL = \stripslashes($friendlyURL);
-        $friendlyURL = \addslashes($friendlyURL);
+        $title = escapeString($title);
+        $friendlyURL = escapeString($friendlyURL);
 
         $where = [
             "(

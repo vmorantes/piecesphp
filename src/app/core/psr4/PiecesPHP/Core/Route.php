@@ -220,6 +220,7 @@ class Route
 
             $this->route = str_replace(' ', '', $value);
 
+            $paramsSetted = $this->params;
             $params = [];
             preg_match_all('/\{[a-z|A-Z|0-9|_|-]*\}/', $this->route, $params);
             $this->params = [];
@@ -228,6 +229,10 @@ class Route
                     $param = str_replace(['{', '}'], '', $param);
                     $this->params[$param] = null;
                 }
+            }
+
+            foreach ($paramsSetted as $paramName => $paramValue) {
+                $this->setParameterValue($paramName, $paramValue);
             }
 
         } else {

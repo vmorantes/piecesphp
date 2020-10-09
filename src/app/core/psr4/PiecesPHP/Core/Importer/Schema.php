@@ -20,84 +20,73 @@ use PiecesPHP\Core\Importer\Collections\FieldCollection;
  */
 class Schema
 {
+
+    const MODE_UPDATE = 1;
+    const MODE_INSERT = 2;
+    const MODE_DEFINE_BY_IMPORTER = 3;
+
+    const MODES = [
+        self::MODE_UPDATE,
+        self::MODE_INSERT,
+        self::MODE_DEFINE_BY_IMPORTER,
+    ];
+
     /**
-     * $before
-     *
      * @var callable
      */
     protected $before = null;
     /**
-     * $insertMethod
-     *
      * @var callable
      */
     protected $insertMethod = null;
     /**
-     * $updateMethod
-     *
      * @var callable
      */
     protected $updateMethod = null;
     /**
-     * $beforeExecuteUpdate
-     *
      * @var callable
      */
     protected $beforeExecuteUpdate = null;
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = '';
     /**
-     * $primaryKey
-     *
      * @var string
      */
     protected $primaryKey = 'id';
     /**
-     * $primaryKeyIsSubField
-     *
      * @var bool
      */
     protected $primaryKeyIsSubField = false;
     /**
-     * $parentFieldPrimaryKey
-     *
      * @var string
      */
     protected $parentFieldPrimaryKey = '';
     /**
-     * $fields
-     *
      * @var FieldCollection
      */
     protected $fields = null;
     /**
-     * $fieldsNames
-     *
      * @var string[]
      */
     protected $fieldsNames = [];
     /**
-     * $requiredFields
-     *
      * @var string[]
      */
     protected $requiredFields = [];
     /**
-     * $templateWithHumanReadable
-     *
      * @var boolean
      */
     protected $templateWithHumanReadable = false;
     /**
-     * $model
-     *
      * @var BaseModel
      */
     protected $model = null;
+    /**
+     * @var int
+     */
+    protected $mode = self::MODE_DEFINE_BY_IMPORTER;
 
     const LANG_GROUP = 'importerModule';
 
@@ -139,7 +128,6 @@ class Schema
      */
     public function insert(): bool
     {
-        $this->runBefore();
 
         $data = [];
         $fields = $this->fields;
@@ -178,7 +166,6 @@ class Schema
      */
     public function update(): bool
     {
-        $this->runBefore();
 
         $data = [];
         $fields = $this->fields;
@@ -234,6 +221,25 @@ class Schema
             return $updated;
 
         }
+
+    }
+
+    /**
+     * Define si el modo del importador será definido por el Schema
+     *
+     * @param int $value Pude ser alguna de las constantes de clase MODE_*
+     * @return static|int
+     */
+    public function mode(int $value = null)
+    {
+
+        if ($value !== null) {
+            $this->mode = in_array($value, self::MODES) ? $value : self::MODE_DEFINE_BY_IMPORTER;
+        } else {
+            return $this->mode;
+        }
+
+        return $this;
 
     }
 

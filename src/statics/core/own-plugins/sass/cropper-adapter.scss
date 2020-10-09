@@ -11,12 +11,13 @@ $gray-transparent: #CCCCCC;
         color: $gray;
     }
 
-    input[type=file] {   
-		display: block;
-		width: 0px !important;
-		height: 0px !important;
-		padding: 0px !important;
-		margin: 0px !important;
+    input[type=file] {
+        display: block;
+        width: 0px !important;
+        height: 0px !important;
+        padding: 0px !important;
+        margin: 0px !important;
+        visibility: hidden;
     }
 
     >.preview {
@@ -85,7 +86,7 @@ $gray-transparent: #CCCCCC;
             }
 
             &.edit {
-                canvas + * {
+                canvas+* {
                     margin-left: auto;
                     margin-right: auto;
                 }
@@ -101,13 +102,14 @@ $gray-transparent: #CCCCCC;
         }
 
         .note {
-			margin: 0em auto;
-			padding: 0rem;
-			text-align: center;
-			line-height: 100%;
-			>*{
-				display: block;
-			}
+            margin: 0em auto;
+            padding: 0rem;
+            text-align: center;
+            line-height: 100%;
+
+            >* {
+                display: block;
+            }
         }
 
         >.options,

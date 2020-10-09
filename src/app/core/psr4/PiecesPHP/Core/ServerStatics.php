@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\Core;
 
+use Leafo\ScssPhp\Compiler as ScssCompiler;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -205,17 +206,71 @@ class ServerStatics
     }
 
     /**
-     * serve
-     *
      * @param Request $request
      * @param Response $response
      * @param array $args
+     * @param string $path
      * @return void
      */
-    public function serve(Request $request, Response $response, array $args)
+    public function compileScssServe(Request $request, Response $response, array $args, string $path = null)
+    {
+
+        $resource = $args['params'];
+        $matches = [];
+        $matched = preg_match('~^css.*\.css$~', $resource, $matches);
+
+        if ($matched === 1) {
+
+            $filePathCss = $path === null ? self::getStaticPath() . "/$resource" : rtrim(rtrim($path, '\\'), '/') . "/$resource";
+            $filePathSass = str_replace(['css/', '.css'], ['sass/', '.scss'], $filePathCss);
+
+            if (file_exists($filePathSass)) {
+
+                $toCompile = false;
+
+                if (!file_exists($filePathCss)) {
+                    $toCompile = true;
+                } else {
+                    $lastModificationCss = (new \DateTime)->setTimestamp(filemtime($filePathCss));
+                    $lastModificationScss = (new \DateTime)->setTimestamp(filemtime($filePathSass));
+                    $toCompile = $lastModificationCss < $lastModificationScss;
+                }
+
+                if ($toCompile) {
+
+                    $scss = new ScssCompiler();
+                    $compiledCss = $scss->compile(file_get_contents($filePathSass));
+
+                    $cssBasename = basename($filePathCss);
+                    $cssFolderDes = str_replace(DIRECTORY_SEPARATOR . $cssBasename, '', $filePathCss);
+
+                    if (!file_exists($cssFolderDes)) {
+                        mkdir($cssFolderDes, 0777, true);
+                    }
+
+                    file_put_contents($filePathCss, $compiledCss);
+                    chmod($filePathCss, 0777);
+                }
+
+            }
+
+        }
+
+        return self::verifyFile($resource, $request, $response, $path);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @param string $path
+     * @return void
+     */
+    public function serve(Request $request, Response $response, array $args, string $path = null)
     {
         $resource = $args['params'];
-        return self::verifyFile($resource, $request, $response);
+
+        return self::verifyFile($resource, $request, $response, $path);
     }
 
     public static function setStaticPath(string $path)
@@ -247,14 +302,15 @@ class ServerStatics
      * @param string $resource
      * @param Request $request
      * @param Response $response
+     * @param string $path
      * @return array|false
      */
-    private static function verifyFile(string $resource, Request $request, Response $response)
+    private static function verifyFile(string $resource, Request $request, Response $response, string $path = null)
     {
 
         $fileInformation = finfo_open(FILEINFO_MIME_TYPE);
 
-        $filePath = self::getStaticPath() . "/$resource";
+        $filePath = $path === null ? self::getStaticPath() . "/$resource" : rtrim(rtrim($path, '\\'), '/') . "/$resource";
 
         if (file_exists($filePath) && is_string($resource)) {
 

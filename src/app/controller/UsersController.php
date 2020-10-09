@@ -622,7 +622,7 @@ class UsersController extends AdminPanelController
                 $expectedParameters->validate();
 
                 //Se selecciona un elemento que concuerde con el usuario
-                $username = addslashes($usernameParameter->getValue());
+                $username = escapeString($usernameParameter->getValue());
                 $password = $passwordParameter->getValue();
 
                 $user = $this->model->select()->where([

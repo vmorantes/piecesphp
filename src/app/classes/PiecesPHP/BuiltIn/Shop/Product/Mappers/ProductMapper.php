@@ -431,7 +431,7 @@ class ProductMapper extends EntityMapperExtensible
     {
         $model = self::model();
 
-        $referenceCode = \addslashes(\stripslashes($referenceCode));
+        $referenceCode = escapeString($referenceCode);
 
         $where = [
             "reference_code = '$referenceCode'",

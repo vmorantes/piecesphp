@@ -63,7 +63,7 @@ class RouteGroup
     {
         $routerDefined = false;
 
-        $this->routeGroup = $routeGroup;
+        $this->routeGroup = rtrim($routeGroup, '/');
         $this->instanceRouter = $router;
 
         if ($useClassRouter) {
@@ -96,28 +96,31 @@ class RouteGroup
     public function register($routes)
     {
 
-        $groupSegmentURL = rtrim($this->routeGroup, '/');
-
         foreach ($routes as $route) {
 
             if ($route instanceof Route) {
 
                 $segment = $route->routeSegment();
+                $segment = str_replace([
+                    '//',
+                    '/[/]',
+                ], [
+                    '/',
+                    '[/]',
+                ], $segment);
 
                 if ($segment === '[/]') {
 
-                    $segment = "{$groupSegmentURL}{$segment}";
+                    $segment = "{$segment}";
 
                 } elseif (mb_strlen($segment) > 0) {
 
-                    if ($segment[0] == '/') {
-                        $segment = mb_substr($segment, 1, mb_strlen($segment) - 1);
+                    if ($segment[0] != '/') {
+                        $segment = "/{$segment}";
                     }
 
-                    $segment = "{$groupSegmentURL}/{$segment}";
-
                 } else {
-                    $segment = "{$groupSegmentURL}[/]";
+                    $segment = "[/]";
                 }
 
                 $route->routeSegment($segment);
@@ -176,9 +179,10 @@ class RouteGroup
     }
 
     /**
+     * @param bool $debug
      * @return void
      */
-    public static function initRoutes()
+    public static function initRoutes(bool $debug = false)
     {
 
         if (!self::$isInit) {
@@ -189,20 +193,55 @@ class RouteGroup
 
                 if ($group->active) {
 
+                    if ($debug) {
+                        echo '---------------<br>';
+                        echo $group->getGroupSegment() . "<br>";
+                    }
+
+                    /**
+                     * @var Route[] $routes
+                     */
                     $routes = $group->routes;
+                    /**
+                     * @var callable[]|string[] $middlewares
+                     */
+                    $middlewares = array_reverse($group->middlewares);
 
-                    foreach ($routes as $route) {
+                    $groupSetted = $router->group($group->getGroupSegment(), function (App $appRouter) use ($routes, $debug) {
 
-                        foreach ($group->middlewares as $mw) {
-                            $route->addMiddleware($mw);
+                        if ($debug) {
+
+                            echo "<br>";
+
+                            foreach ($routes as $route) {
+                                echo $route->routeSegment() . "<br>";
+                                echo "<pre>";
+                                var_dump($route->getParameters());
+                                echo "</pre>";
+                            }
+
+                            echo "<br>";
+
+                        } else {
+
+                            foreach ($routes as $route) {
+                                $route->register($appRouter);
+                            }
+
                         }
 
-                        $route->register($router);
+                    });
 
+                    foreach ($middlewares as $mw) {
+                        $groupSetted->add($mw);
                     }
 
                 }
 
+            }
+
+            if ($debug) {
+                exit;
             }
 
             self::$isInit = true;

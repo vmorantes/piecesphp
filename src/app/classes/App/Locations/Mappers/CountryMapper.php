@@ -113,8 +113,7 @@ class CountryMapper extends BaseEntityMapper
     public static function isDuplicateName(string $name, int $ignore_id)
     {
         $model = self::model();
-        $name = \stripslashes($name);
-        $name = \addslashes($name);
+        $name = escapeString($name);
 
         $where = trim(implode(' ', [
             "name = '$name' AND ",
@@ -141,8 +140,7 @@ class CountryMapper extends BaseEntityMapper
         if ($code !== null) {
 
             $model = self::model();
-            $code = \stripslashes($code);
-            $code = \addslashes($code);
+            $code = escapeString($code);
 
             $where = trim(implode(' ', [
                 "code = '$code' AND ",
