@@ -65,7 +65,9 @@ $slim_app = get_config('slim_app');
 PiecesRouteGroup::setRouter($slim_app);
 
 //──── GRUPOS DE RUTAS ───────────────────────────────────────────────────────────────────
-$zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
+
+//Nota: Declarar de más específico a menos específico, tanto los grupos como las rutas independientes dentro de los grupos
+
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
 $configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Zona administrativa
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
@@ -79,6 +81,7 @@ $articles = new PiecesRouteGroup($prefix_lang . '/articles'); //Blog
 $sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios
 $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
 $token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Servido personalizado de archivos estáticos
+$zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
 
@@ -149,15 +152,6 @@ $generacion_imagenes->register(
     [
         //──── GET ───────────────────────────────────────────────────────────────────────────────
         new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
-    ]
-);
-
-$tests = new PiecesRouteGroup($prefix_lang . '/overview'); //Muestra de algunas funciones
-$tests->active(true); //Grupo activo/inactivo
-$tests->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('/image-generator/{w}/{h}[/]', Test::class . ':generateImage', 'image-gen'),
     ]
 );
 

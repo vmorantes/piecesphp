@@ -1035,32 +1035,30 @@ function register_route(array $route, \Slim\App &$router)
     $alias = $instanceRoute->alias();
     $controller = $instanceRoute->controller();
     $rolesAllowed = $instanceRoute->rolesAllowed();
-    $middlewares = $instanceRoute->middlewares();
+    $middlewares = array_reverse($instanceRoute->middlewares());
 
     if (array_key_exists($name, $routesSetted)) {
         throw new RouteDuplicateNameException();
     }
 
-    $middleware = function ($request, $response, $next) use ($middlewares) {
-
-        $response = $next($request, $response);
-
-        foreach ($middlewares as $mw) {
-            $response = ($mw)($request, $response, $next);
-        }
-
-        return $response;
-
-    };
+    $settedRoute = null;
+    $settedRouteAlias = null;
 
     if (is_string($name) && $name !== null && $name !== '') {
-        $router->map($methods, $routeSegment, $controller)->setName($name)->add($middleware);
+        $settedRoute = $router->map($methods, $routeSegment, $controller)->setName($name);
     } else {
-        $router->map($methods, $routeSegment, $controller)->add($middleware);
+        $settedRoute = $router->map($methods, $routeSegment, $controller);
     }
 
     if ($alias !== null) {
-        $router->map($methods, $alias, $controller)->add($middleware);
+        $settedRouteAlias = $router->map($methods, $alias, $controller);
+    }
+
+    foreach ($middlewares as $mw) {
+        $settedRoute = $settedRoute->add($mw);
+        if ($settedRouteAlias != null) {
+            $settedRouteAlias->add($mw);
+        }
     }
 
     if (is_string($name) && $name !== null && $name !== '') {
@@ -1664,4 +1662,15 @@ function num_month_to_text(string $date)
 function friendly_url(string $string, int $maxWords = null, bool $legacy = false)
 {
     return $legacy ? StringManipulate::friendlyURLStringLegacy($string, $maxWords) : StringManipulate::friendlyURLString($string, $maxWords);
+}
+
+/**
+ * Aplica stripslashes seguido de addslashes
+ *
+ * @param string $str
+ * @return string La cadena escapada
+ */
+function escapeString(string $str)
+{
+    return \addslashes(\stripslashes($str));
 }

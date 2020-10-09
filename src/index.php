@@ -378,5 +378,5 @@ require_once basepath("app/config/routes.php");
 require_once basepath("app/config/final-configurations.php");
 
 /** Activar enrutador */
-RouteGroup::initRoutes();
+RouteGroup::initRoutes(false);
 get_config('slim_app')->run();

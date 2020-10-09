@@ -362,10 +362,8 @@ class CategoryContentMapper extends BaseEntityMapper
     public static function isDuplicate(string $name, string $friendly_url, int $content_of, int $ignore_id)
     {
         $model = self::model();
-		$name = \stripslashes($name);
-		$name = \addslashes($name);
-		$friendly_url = \stripslashes($friendly_url);
-		$friendly_url = \addslashes($friendly_url);
+        $name = escapeString($name);
+        $friendly_url = escapeString($friendly_url);
 
         $where = [
             "(

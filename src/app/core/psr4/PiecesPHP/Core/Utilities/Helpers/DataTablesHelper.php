@@ -5,7 +5,9 @@
  */
 namespace PiecesPHP\Core\Utilities\Helpers;
 
+use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\Core\Database\ORM\ORM;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
@@ -28,34 +30,28 @@ class DataTablesHelper
     const ONLY_ORDER = self::class . '::ONLY_ORDER';
 
     /**
-     * $tableOnOrder
-     *
      * @var bool
      */
     private static $tableOnOrder = true;
     /**
-     * $tableOnSearch
-     *
      * @var bool
      */
     private static $tableOnSearch = true;
 
     /**
-     * process
-     *
      * @param array $options
-     * @var $options[request] \Slim\Http\Request, required
-     * @var $options[mapper] \PiecesPHP\Core\Database\EntityMapper, required
-     * @var $options[columns_order] array, required
-     * @var $options[where_string] string
-     * @var $options[having_string] string
-     * @var $options[on_set_data] callable Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
-     * @var $options[as_mapper] bool
-     * @var $options[on_set_model] callable
-     * @var $options[config_result_model] callable
-     * @var $options[select_fields] array|string
-     * @var $options[custom_order] array
-     * @var $options[group_string] string
+     * @var Request $options[request] required
+     * @var EntityMapper|ORM $options[mapper] required
+     * @var array $options[columns_order] required
+     * @var string $options[where_string]
+     * @var string $options[having_string]
+     * @var callable $options[on_set_data] Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
+     * @var bool $options[as_mapper]
+     * @var callable $options[on_set_model]
+     * @var callable $options[config_result_model]
+     * @var array|string $options[select_fields]
+     * @var array $options[custom_order]
+     * @var string $options[group_string]
      * @return ResultOperations
      */
     public static function process(array $options)
@@ -64,77 +60,62 @@ class DataTablesHelper
         //──── INICIO ────────────────────────────────────────────────────────────────────────────
         //Variables de configuración
         /**
-         * $request
-         * @var \Slim\Http\Request
+         * @var Request
          */
         $request = null;
         /**
-         * $mapper
-         * @var \PiecesPHP\Core\Database\EntityMapper
+         * @var EntityMapper|ORM
          */
         $mapper = null;
         /**
-         * $columns_order
          * @var array
          */
         $columns_order = [];
         /**
-         * $where_string
          * @var string
          */
         $where_string = null;
         /**
-         * $having_string
          * @var string
          */
         $having_string = null;
         /**
-         * $on_set_data
          * @var callable
          */
         $on_set_data = null;
         /**
-         * $as_mapper
          * @var bool
          */
         $as_mapper = null;
         /**
-         * $on_set_model
          * @var callable
          */
         $on_set_model = null;
         /**
-         * $config_result_model
          * @var callable
          */
         $config_result_model = null;
         /**
-         * $select_fields
          * @var array|string
          */
         $select_fields = null;
         /**
-         * $custom_order
          * @var array
          */
         $custom_order = [];
         /**
-         * $group_string
          * @var string
          */
         $group_string = '';
         /**
-         * $ignore_table_in_order
          * @var bool
          */
         $ignore_table_in_order = false;
         /**
-         * $ignore_fields_in_where
          * @var array
          */
         $ignore_fields_in_where = [];
         /**
-         * $ignore_table_on_fields_in_where
          * @var array
          */
         $ignore_table_on_fields_in_where = [];
@@ -147,7 +128,9 @@ class DataTablesHelper
                 return $value instanceof Request;
             }),
             new Parameter('mapper', null, function ($value) {
-                return $value instanceof EntityMapper || is_subclass_of($value, '\\PiecesPHP\\Core\\Database\\EntityMapper');
+                return ($value instanceof EntityMapper || is_subclass_of($value, EntityMapper::class))
+                    ||
+                    ($value instanceof ORM || is_subclass_of($value, ORM::class));
             }),
             new Parameter('columns_order', null, function ($value) {
                 return is_array($value);
@@ -225,47 +208,44 @@ class DataTablesHelper
         //Parámetros recibidos desde datatables
 
         /**
-         * @var int $draw
+         * @var int
          */
         $draw = (int) $request->getQueryParam('draw', null);
         /**
-         * @var int $start
+         * @var int
          */
         $start = $request->getQueryParam('start', 0);
         /**
-         * @var int $length
+         * @var int
          */
         $length = $request->getQueryParam('length', 10);
         /**
-         * @var array $search
+         * @var array
          */
         $search = $request->getQueryParam('search', null);
         /**
-         * @var array $order
+         * @var array
          */
         $order = $request->getQueryParam('order', null);
         /**
-         * @var array $columns
+         * @var array
          */
         $columns = $request->getQueryParam('columns', null);
-
         /**
-         * @var string $tableName
+         * @var string
          */
         $tableName = $mapper->getModel()->getTable();
-
         /**
-         * @var int $page
+         * @var int
          */
         $page = self::generatePage((int) $start, (int) $length);
-
         /**
-         * @var string $where Criterios de filtro
+         * @var string Criterios de filtro
          */
         $where = '';
 
         /**
-         * @var string $having Criterios del input de búsqueda de datatables
+         * @var string Criterios del input de búsqueda de datatables
          */
         $having = self::generateHaving(
             array_filter(
@@ -321,17 +301,17 @@ class DataTablesHelper
         //──── Ejecutar consultas ────────────────────────────────────────────────────────────────
 
         /**
-         * @var \PiecesPHP\Core\BaseModel $model Modelo base de la tabla
+         * @var BaseModel Modelo base de la tabla
          */
         $model = $mapper->getModel();
 
         //Ejecutar callable $on_set_model sobre el modelo
         if (!is_null($on_set_model)) {
 
-            //Se espera que se devuelva un objeto de la clase \PiecesPHP\Core\BaseModel o que la herede
+            //Se espera que se devuelva un objeto de la clase BaseModel o que la herede
             $set_model_value = ($on_set_model)($model);
 
-            if (is_subclass_of($set_model_value, '\PiecesPHP\Core\BaseModel')) {
+            if (is_subclass_of($set_model_value, BaseModel::class)) {
                 $model = $set_model_value;
             }
         }
@@ -342,7 +322,7 @@ class DataTablesHelper
          */
 
         /**
-         * @var \PiecesPHP\Core\BaseModel $limit
+         * @var BaseModel
          * Clon del modelo para los resultados sobre los que se aplicarán los filtros
          */
         $limit = clone $model;
@@ -399,12 +379,12 @@ class DataTablesHelper
         $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $limit->getLastSQLExecuted()));
 
         /**
-         * @var array $limitResult Resultado de la consulta principal
+         * @var array Resultado de la consulta principal
          */
         $limitResult = $limit->result();
 
         /**
-         * @var array $data Array con los elementos resultantes
+         * @var array Array con los elementos resultantes
          */
         $data = [];
 
@@ -430,12 +410,12 @@ class DataTablesHelper
                 }
 
                 $data[] = $data_process;
-
+                
             } else {
                 //Procesamiento de filas integrado
 
                 /**
-                 * @var string[] $poperties Las propiedades (columnas) del modelo
+                 * @var string[] Las propiedades (columnas) del modelo
                  */
                 $properties = [];
 
@@ -574,7 +554,7 @@ class DataTablesHelper
         //Realizar consulta para configurar los datos necesarios para la paginación
 
         /**
-         * @var \PiecesPHP\Core\BaseModel $filterCount
+         * @var BaseModel
          * Clon del modelo para la paginación
          */
         $filterCount = clone $model;
@@ -619,7 +599,7 @@ class DataTablesHelper
         $result->setValue('recordsFiltered', $filterCountTotal);
 
         /**
-         * @var \PiecesPHP\Core\BaseModel $totalCount
+         * @var BaseModel
          * Clon del modelo para el conteo del total de elementos en la base de datos
          */
         $totalCount = clone $model;
@@ -637,8 +617,6 @@ class DataTablesHelper
     }
 
     /**
-     * generateHaving
-     *
      * Devuelve un array con la estructura de un HAVING para un EntityMapper
      *
      * @param array $columns_order
@@ -713,7 +691,7 @@ class DataTablesHelper
                                     ],
                                     [
                                         $name,
-                                        \addslashes($search_value),
+                                        escapeString($search_value),
                                     ],
                                     $_having_string
                                 );
@@ -725,7 +703,7 @@ class DataTablesHelper
                                     ],
                                     [
                                         $table . $name,
-                                        \addslashes($search_value),
+                                        escapeString($search_value),
                                     ],
                                     $_having_string
                                 );
@@ -745,8 +723,6 @@ class DataTablesHelper
     }
 
     /**
-     * generateOrderBy
-     *
      * Devuelve un string con la estructura de un orderBy para un EntityMapper
      *
      * @param array $columns_order
@@ -815,8 +791,6 @@ class DataTablesHelper
     }
 
     /**
-     * setTablePrefixOnOrder
-     *
      * @param bool $value
      * @return void
      */
@@ -826,8 +800,6 @@ class DataTablesHelper
     }
 
     /**
-     * setTablePrefixOnSearch
-     *
      * @param bool $value
      * @return void
      */
@@ -837,8 +809,6 @@ class DataTablesHelper
     }
 
     /**
-     * generatePage
-     *
      * Devuelve un string con la estructura de un orderBy para un EntityMapper
      *
      * @param int $start
