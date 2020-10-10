@@ -212,6 +212,53 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
+     * @param string $destination
+     * @return array
+     */
+    public function copyContentTo(string $destination)
+    {
+        $result = [
+            'files' => [],
+            'folders' => [],
+            'total_copies' => 0,
+        ];
+
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
+        }
+
+        $result['folders'][] = [
+            'from' => $this->getPath(),
+            'to' => $destination,
+        ];
+
+        if ($this->directoryExists()) {
+
+            foreach ($this->files as $file) {
+
+                $newPath = $destination . DIRECTORY_SEPARATOR . $file->getBasename();
+                copy($file->getPath(), $newPath);
+                chmod($newPath, 0777);
+
+                $result['files'][] = [
+                    'from' => $file->getPath(),
+                    'to' => $newPath,
+                ];
+            }
+
+            foreach ($this->directories as $directory) {
+                $sub_result = $directory->copyTo($destination, false);
+                $result['files'] = array_merge($result['files'], $sub_result['files']);
+                $result['folders'] = array_merge($result['folders'], $sub_result['folders']);
+            }
+        }
+
+        $result['total_copies'] = count($result['files']) + count($result['folders']);
+
+        return $result;
+    }
+
+    /**
      * delete
      *
      * @param mixed bool
