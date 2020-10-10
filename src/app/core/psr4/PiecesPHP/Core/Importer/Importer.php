@@ -200,6 +200,7 @@ class Importer
                         }
 
                     } else {
+                        $response->setSuccess(false);
                         //Si no se insertó
 
                         //Agregar mensaje de la operación errónea
