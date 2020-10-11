@@ -889,3 +889,43 @@ function seconds_to_duration(int $seconds_count, array $options = [])
 
     return $time;
 }
+
+/**
+ * Convierte una índice que representa una columna de excel en su cadena correspondiente
+ * Nota: Una columna excel corresponde al patrón de conteo A-Z ... AA-AZ ... ZA-ZZ ... etc...
+ *
+ * @param int $index
+ * @param bool $startOnZero Para definir el índice inicial como cero. Si es true, A=0; si es false, A=1
+ * @return string
+ */
+function excelColumnByIndex(int $index, bool $startOnZero = true)
+{
+
+    $index = $startOnZero ? $index : $index - 1;
+    $strColumn = '';
+
+    while ($index >= 0) {
+        $strColumn = chr($index % 26 + 0x41) . $strColumn;
+        $index = intval($index / 26) - 1;
+    }
+
+    return $strColumn;
+}
+
+/**
+ * Convierte una cadena que representa una columna de excel en su índice
+ * Nota: Una columna excel corresponde al patrón de conteo A-Z ... AA-AZ ... ZA-ZZ ... etc...
+ *
+ * @param string $column
+ * @param boolean $startOnZero Para definir el índice inicial como cero. Si es true, A=0; si es false, A=1
+ * @return int
+ */
+function indexByExcelColumn(string $column, bool $startOnZero = true)
+{
+    $l = strlen($column);
+    $n = 0;
+    for ($i = 0; $i < $l; $i++) {
+        $n = $n * 26 + ord($column[$i]) - 0x40;
+    }
+    return (int) ($startOnZero ? $n - 1 : $n);
+}
