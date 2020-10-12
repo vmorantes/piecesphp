@@ -51,6 +51,7 @@ use App\Controller\MessagesController;
 use App\Controller\PublicAreaController;
 use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
+use App\Presentations\PresentationsRoutes;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
@@ -154,6 +155,9 @@ $generacion_imagenes->register(
         new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
     ]
 );
+
+//Módulo de presentaciones
+PresentationsRoutes::routes($zona_administrativa, $zona_publica);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);
