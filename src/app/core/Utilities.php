@@ -929,3 +929,40 @@ function indexByExcelColumn(string $column, bool $startOnZero = true)
     }
     return (int) ($startOnZero ? $n - 1 : $n);
 }
+
+//========================================================================================
+/*                                                                                      *
+ *                                       Polyfills                                      *
+ *                                                                                      */
+//========================================================================================
+
+if (!function_exists('array_key_last')) {
+
+    /**
+     * @param array $array
+     * @return mixed
+     */
+    function array_key_last(array $array)
+    {
+        if (!empty($array)) {
+            return key(array_slice($array, -1, 1, true));
+        }
+
+    }
+}
+
+if (!function_exists('array_key_first')) {
+
+    /**
+     * @param array $array
+     * @return mixed
+     */
+    function array_key_first(array $arr)
+    {
+        foreach ($arr as $key => $unused) {
+            return $key;
+        }
+
+    }
+
+}
