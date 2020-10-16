@@ -21,7 +21,7 @@ use \Slim\Http\Response as Response;
 
 /**
  * ContactFormsController.
- * *
+ *
  * @package     App\Controller
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
@@ -30,15 +30,11 @@ class ContactFormsController extends PublicAreaController
 {
 
     /**
-     * $prefixNameRoutes
-     *
      * @var string
      */
     private static $prefixNameRoutes = 'contact-forms';
 
     /**
-     * $startSegmentRoutes
-     *
      * @var string
      */
     private static $startSegmentRoutes = 'contact';
@@ -48,8 +44,6 @@ class ContactFormsController extends PublicAreaController
     ];
 
     /**
-     * contactMessage
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
