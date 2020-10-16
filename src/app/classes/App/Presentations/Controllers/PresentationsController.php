@@ -1181,7 +1181,7 @@ class PresentationsController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $permisos_estados_gestion,
+                $permisos_estados_gestion
             ),
             new Route( //Acción de eliminar
                 "{$startRoute}/action/delete/{id}[/]",
@@ -1190,7 +1190,7 @@ class PresentationsController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $permisos_estados_gestion,
+                $permisos_estados_gestion
             ),
 
         ];
