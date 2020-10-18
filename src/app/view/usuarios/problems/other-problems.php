@@ -14,38 +14,23 @@
 
 <body>
 
-
-
     <section class="container">
 
-        <div class="topbar">
-            <div class="text">
-                <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Creación de <br> solicitud de <br> soporte'); ?>
-            </div>
-            <div class="back">
-                <a href="<?=get_route('user-problems-list')?>">
-                    <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Volver atrás'); ?>
-                </a>
-            </div>
-        </div>
+        <?= $this->render('usuarios/problems/inc/topbar', [
+            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
+            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
+            'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Solicitud de soporte'),
+            'classesCSS' => "one",
+            'active' => false,
+        ]); ?>
 
-        <div class="header one">
-            <div class="content">
-                <div class="image">
-                    <img src="<?= base_url('statics/login-and-recovery/images/problems/support-1.png'); ?>">
-                </div>
-                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Solicitud de soporte'); ?></div>
-            </div>
-        </div>
-
-        <div class="header two">
-            <div class="content">
-                <div class="image">
-                    <img src="<?= base_url('statics/login-and-recovery/images/problems/support-2.png'); ?>">
-                </div>
-                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Su solicitud de soporte <br> ha sido creada'); ?></div>
-            </div>
-        </div>
+        <?= $this->render('usuarios/problems/inc/topbar', [
+            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
+            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
+            'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Su solicitud de soporte <br> ha sido creada'),
+            'classesCSS' => "two",
+            'active' => true,
+        ]); ?>
 
         <div class="form-container" data-system-mail="<?= get_config('mail')['user']; ?>">
 
@@ -70,9 +55,16 @@
                     <div class="field required">
                         <textarea required name="message" placeholder="<?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Problema presentado'); ?>"></textarea>
                     </div>
-                    <div class="field">
-                        <button type="submit" class="ui button green fluid"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Enviar'); ?></button>
+
+                    <div class="field buttons">
+                        <a href="<?= get_route('user-problems-list'); ?>" class="ui button">
+                            <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Atrás')?>
+                        </a>
+                        <button type="submit" class="ui button blue">
+                            <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Enviar')?>
+                        </button>
                     </div>
+
                 </form>
 
             </div>
@@ -81,7 +73,9 @@
 
                 <form class="ui form">
                     <div class="field">
-                        <a href="<?= get_route('users-form-login'); ?>" class="ui button green fuid"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingresar'); ?></a>
+                        <a href="<?= get_route('users-form-login'); ?>" class="ui button blue fuid">
+                            <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingresar')?>
+                        </a>
                     </div>
                 </form>
 

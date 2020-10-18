@@ -20,8 +20,8 @@ $(document).ready(function (e) {
 	let messageBox = container.find('[message]')
 	let form = containerForm.find('form')
 
-	let headerMain = $('.container .header.one')
-	let headerFinish = $('.container .header.two')
+	let headerMain = $('.container .topbar.one')
+	let headerFinish = $('.container .topbar.two')
 
 	let lang = pcsphpGlobals.lang == pcsphpGlobals.defaultLang ? '' : pcsphpGlobals.lang + '/'
 

@@ -16,6 +16,8 @@
 
     <section class="container" bg-js="<?= base64_encode(json_encode(get_config('backgrounds'))); ?>">
 
+        <div class="overlay"></div>
+
         <article class="form-container">
 
             <div class="problems-message-container">
@@ -23,21 +25,25 @@
                 <div class="content">
 
                     <div class="title">
-                        <span class="text"></span> <span class="mark"></span>
+                        <span class="mark"></span>
+                        <span class="text"></span>
                     </div>
 
-                    <p class="message"></p>
+                    <div>
+                        <p class="message"></p>
 
-                    <span class="ui button green retry">
-                       <?= __(USER_LOGIN_LANG_GROUP, 'Intentar nuevamente'); ?>
-                    </span>
+                        <span class="ui button blue retry">
+                            <?= __(USER_LOGIN_LANG_GROUP, 'Intentar nuevamente'); ?>
+                        </span>
+                    </div>
 
-                    <p class="message-bottom"></p>
+                    <div>
+                        <p class="message-bottom"></p>
 
-                    <a href="<?=get_route('user-problems-list')?>" class="ui button red labeled icon problem">
-                        <i class="question circle outline icon"></i>
-                        <?= __(USER_LOGIN_LANG_GROUP, '¿Problemas para ingresar?'); ?>
-                    </a>
+                        <a href="<?=get_route('user-problems-list')?>" class="ui button red">
+                            <?= __(USER_LOGIN_LANG_GROUP, 'Ayuda para ingresar'); ?>
+                        </a>
+                    </div>
 
                 </div>
 
@@ -52,33 +58,36 @@
                 <form login-form-js last-uri='<?= $requested_uri; ?>' class="ui form">
 
                     <div class="field">
-                        <input type="text" required name='username' placeholder="<?= __(USER_LOGIN_LANG_GROUP, 'Digita tu nombre de usuario'); ?>">
+                        <label><?= __(USER_LOGIN_LANG_GROUP, 'Usuario'); ?></label>
+                        <input type="text" required name='username' placeholder="<?= __(USER_LOGIN_LANG_GROUP, 'name@domain.com'); ?>">
                     </div>
 
                     <div class="field">
-                        <input type="password" required name='password' placeholder="<?= __(USER_LOGIN_LANG_GROUP, 'Digita tu contraseña'); ?>">
+                        <label><?= __(USER_LOGIN_LANG_GROUP, 'Contraseña'); ?></label>
+                        <input type="password" required name='password'>
                     </div>
 
-                    <div class="field">
-                        <button type="submit" class="ui blue fluid button"><?= __(USER_LOGIN_LANG_GROUP, 'Ingresar'); ?></button>
-                    </div>
-
-                    <div class="field problems-button">
-                        <a href="<?=get_route('user-problems-list')?>" class="ui button red labeled icon">
-                            <i class="question circle outline icon"></i>
-                            <?= __(USER_LOGIN_LANG_GROUP, '¿Problemas para ingresar?'); ?>
-                        </a>
+                    <div class="field text-center">
+                        <button type="submit" class="ui blue button"><?= __(USER_LOGIN_LANG_GROUP, 'Ingresar'); ?></button>
                     </div>
 
                 </form>
 
-            </div>
+                <div class="problems-button">
 
-            <div class="footer">
-                <div class="developer"><?= __('general','Desarrollado por') . ' ' . get_config('developer');?></div>
+                    <a href="<?=get_route('user-problems-list')?>" class="ui button red">
+                        <?= __(USER_LOGIN_LANG_GROUP, 'Ayuda para ingresar'); ?>
+                    </a>
+
+                </div>
+
             </div>
 
         </article>
+
+        <div class="footer">
+            <div class="text"><?= get_config('title_app'); ?></div>
+        </div>
 
     </section>
 

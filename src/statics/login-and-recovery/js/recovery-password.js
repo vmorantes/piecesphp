@@ -27,12 +27,12 @@ $(document).ready(function (e) {
 	let repeat = container.find('[repeat]')
 	let messageBox = container.find('[message]')
 
-	let headerMain = $('.container .header.one')
-	let headerCode = $('.container .header.two')
-	let headerChangePassword = $('.container .header.two-two')
-	let headerWrongMail = $('.container .header.three')
-	let headerWrongCode = $('.container .header.four')
-	let headerFinish = $('.container .header.five')
+	let headerMain = $('.container .topbar.one')
+	let headerCode = $('.container .topbar.two')
+	let headerChangePassword = $('.container .topbar.two-two')
+	let headerWrongMail = $('.container .topbar.three')
+	let headerWrongCode = $('.container .topbar.four')
+	let headerFinish = $('.container .topbar.five')
 
 	let lang = pcsphpGlobals.lang == pcsphpGlobals.defaultLang ? '' : pcsphpGlobals.lang + '/'
 

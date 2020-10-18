@@ -16,25 +16,13 @@ function changeImageLogin() {
 
 	let bgHandler = function (e) {
 
-		if ($(window).width() > 768) {
-
-			bgElement.css({
-				'background-image': `url(${urlImage})`,
-			})
-
-		} else {
-
-			bgElement.css({
-				'background-image': 'none',
-			})
-
-		}
+		bgElement.css({
+			'background-image': `url(${urlImage})`,
+		})
 
 	}
 
 	bgHandler()
-
-	$(window).resize(bgHandler)
 
 	function randomNumber(max = 5) {
 		let number = Math.random() * max
@@ -62,7 +50,6 @@ function configLoginForm() {
 	let problemsMessage = problemsContent.find('.message')
 	let problemsRetryButton = problemsContent.find('.ui.button.retry')
 	let problemsMessageBottom = problemsContent.find('.message-bottom')
-	let problemsProblemButton = problemsContent.find('.ui.button.problem')
 
 	problemsRetryButton.on('click', function (e) {
 		problemsContainer.hide()
