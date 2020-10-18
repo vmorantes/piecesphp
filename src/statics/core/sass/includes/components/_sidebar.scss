@@ -250,6 +250,7 @@
         color: $color-sidebar-logo-developed;
 
         img {
+            filter: brightness(0) invert(1);
             max-width: 150px;
         }
     }

@@ -1,87 +1,94 @@
-$bg-color-form-container: white;
-$primary-color: rgb(10, 70, 94);
-$secondary-color: rgb(230, 49, 41);
-
-body,
-html {
-    min-height: 100%;
-    height: 100%;
-}
+@import '../../fonts/lato/lato.css';
+@import 'import/variables';
+@import 'import/reset';
 
 * {
     box-sizing: border-box;
 }
 
 .container {
+
+    position: relative;
     width: 100%;
-    min-height: 100vh;
-    background-position: center;
+    min-height: 100%;
+    background-position: center center;
     background-size: cover;
+    background-repeat: no-repeat;
+
+    >.overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: $login-overlay-color;
+    }
+
+    .text-center {
+        text-align: center;
+    }
 
     .form-container {
-        position: relative;
-        padding-top: 4rem;
-        padding-bottom: 2rem;
-        padding-left: 4rem;
-        padding-right: 4rem;
-        width: 480px;
-        min-height: 100vh;
-        max-height: 100vh;
-        background-color: $bg-color-form-container;
-        box-shadow: 2px 0px 12px rgba(0, 0, 0, 0.4);
 
-        .header {
-            font-weight: 500;
-            font-size: 2rem;
-            color: $primary-color;
-            text-align: center;
-            max-width: 100%;
-            line-height: 2.5rem;
-        }
+        position: absolute;
+        z-index: 10;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: block;
+        height: 70%;
+        max-width: 480px;
+        margin-top: 55px;
+        padding: 15px 75px;
+        background-color: $login-form-bg-color;
+        border: 1px solid $login-form-border-color;
 
         .caption {
-            margin: 0 auto;
-            width: 300px;
-            max-width: 100%;
-            text-align: center;
-        }
 
-        .content {
-            max-width: 100%;
-        }
-
-        .footer {
             position: absolute;
-            bottom: 50px;
+            z-index: 10;
+            top: 0%;
             left: 50%;
-            transform: translateX(-50%);
-            padding-top: 5rem;
-            padding-left: 4rem;
-            padding-right: 4rem;
-            width: 100%;
-            word-break: break-all;
-            text-align: center;
+            transform: translate(-50%, -50%);
+            display: grid;
+            grid-template-columns: auto;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            width: 220px;
+            height: 220px;
+            border-radius: 100%;
+            background-color: $login-form-caption-bg-color;
 
-            .developer {
-                color: black;
-                opacity: 0.6;
-                font-size: 0.84rem;
+            img {
+                max-width: 100%;
             }
+
+        }
+
+        >.content {
+
+            display: grid;
+            justify-content: center;
+            align-items: flex-end;
+            grid-template-columns: 100%;
+            height: 100%;
+            width: 100%;
+            max-width: 320px;
+
+            .problems-button {
+                position: relative;
+                top: -25px;
+                text-align: center;
+            }
+
         }
 
         .ui.form {
-            .ui.button.blue {
-                background-color: $primary-color;
-                transition: background-color 0.5s ease;
+            width: 600px;
 
-                &:hover {
-                    background-color: transparentize($primary-color, 0.2)
-                }
-            }
-
-            .problems-button {
-                margin-top: 4rem;
-                text-align: center;
+            label {
+                color: $login-form-label-color !important;
             }
         }
 
@@ -93,14 +100,20 @@ html {
             z-index: 10;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: $login-form-problems-bg-color;
 
             .content {
-                max-width: 360px;
+
+                display: grid;
+                justify-content: center;
+                align-items: center;
+                grid-template-columns: 100%;
+                height: 100%;
+                width: 100%;
                 margin: 0 auto;
-                padding: 3rem 2rem;
+                padding: 6rem 2rem;
                 text-align: center;
-                color: white;
+                color: $login-form-problems-font-color;
                 font-size: 1.1rem;
 
                 .title {
@@ -108,11 +121,11 @@ html {
                     font-size: 1.2rem;
                     text-transform: uppercase;
 
-                    .text {}
+                    /* .text {} */
 
                     .mark {
                         display: block;
-                        color: red;
+                        color: $login-form-problems-title-mark-color;
                     }
                 }
 
@@ -128,81 +141,82 @@ html {
 
     }
 
+    >.footer {
+        position: absolute;
+        bottom: 10px;
+        left: 0px;
+        width: 100%;
+        height: 30px;
+        text-align: center;
+        color: $login-footer-font-color;
+        font-size: 0.75rem;
+    }
+
     img {
         max-width: 100%;
     }
-}
 
-@media screen and (max-width:900px) {
-    .container {
-        .form-container {
-
-            .footer {
-                position: relative;
-                bottom: initial;
-                left: initial;
-                text-align: center;
-                transform: initial;
-            }
-
-        }
+    .ui.button,
+    input,
+    select {
+        border-radius: 0px !important;
     }
-}
 
-@media screen and (max-width:768px) {
-    .container {
+    @media screen and (max-width:500px) {
+
         .form-container {
-            padding-left: 2rem;
-            padding-right: 2rem;
-            background-color: rgba(255, 255, 255, 0.8);
-            width: 100%;
 
-            .ui.form {
-                .field {
-                    input {
-                        border: 0.5px solid $primary-color;
+            width: 400px;
+            max-width: 90%;
+            height: 600px;
+            max-height: 80%;
+            margin-top: 37.5px;
+            padding: 15px 30px;
 
-                        &::placeholder {
-                            color: $primary-color;
-                        }
-                    }
+            >.content {
+                grid-template-rows: 80% 20%;
+                align-items: baseline;
+                row-gap: 8px;
+                position: absolute;
+                width: 100%;
+                max-width: 92%;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                height: auto;
+
+                .problems-button {
+                    top: 0px;
                 }
-            }
-        }
-    }
-}
 
-@media screen and (min-width:426px) and (max-width:768px) {
-    .container {
-        .form-container {
-            .content {
-                max-width: 65%;
-                margin-left: 20%;
             }
-        }
-    }
-}
-
-@media screen and (orientation:landscape) and (max-height:400px) {
-    .container {
-        .form-container {
-            padding-top: 0.2rem;
-            padding-bottom: 0.2rem;
 
             .caption {
-                height: 120px;
-
-                img {
-                    max-height: 100%;
-                }
+                width: 150px;
+                height: 150px;
             }
 
-            .footer {
-                position: relative;
-                bottom: initial;
-                left: initial;
-                padding: 2rem 0.2rem 0rem;
-            }
+        }
+
+        >.footer {
+            height: 20px;
+            bottom: 1px;
+        }
+
+    }
+
+}
+
+@media screen and (max-height:500px) {
+
+    html {
+        height: 600px;
+    }
+
+    .container {
+        >.footer {
+            bottom: 0px;
+            height: 25px;
         }
     }
 }

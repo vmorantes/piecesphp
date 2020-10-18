@@ -16,75 +16,55 @@
 
     <section class="container">
 
-        <div class="topbar">
-            <div class="text">
-                <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Solución a <br> problemas de <br> ingreso'); ?>
-            </div>
-            <div class="back">
-                <a href="<?=get_route('users-form-login')?>">
-                    <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Volver al login'); ?>
-                </a>
-            </div>
-        </div>
+        <?= $this->render('usuarios/problems/inc/topbar', [
+            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
+            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
+            'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Paso') . ' 1',
+        ]); ?>
 
         <div class="header">
-            <div class="content">
-                <div class="image">
-                    <img src="<?= base_url('statics/login-and-recovery/images/problems/notebook.png'); ?>">
-                </div>
-                <div class="text"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Paso'); ?> 1</div>
-            </div>
+            <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ayuda para ingresar'); ?>
         </div>
 
         <div class="options">
 
-            <div class="option">
-                <div class="content">
-                    <a href="<?= get_route("user-forget-form"); ?>" class="link"></a>
-                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerdo mi usuario'); ?></div>
-                    <div class="subtitle"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerda cuál fue el usuario asignado'); ?></div>
+            <a class="option" href="<?= get_route("user-forget-form"); ?>">
+                <div class="image">
+                    <img src="<?= baseurl("statics/login-and-recovery/images/problems/forget.svg"); ?>">
                 </div>
-            </div>
+                <div class="content">
+                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerdo'); ?></div>
+                    <div><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Usuario'); ?></div>
+                </div>
+            </a>
 
-            <div class="option">
-                <div class="content">
-                    <a href="<?= get_route("recovery-form"); ?>" class="link"></a>
-                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerdo mi contraseña'); ?></div>
-                    <div class="subtitle"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerda la contraseña asignada'); ?></div>
+            <a class="option" href="<?= get_route("recovery-form"); ?>">
+                <div class="image">
+                    <img src="<?= baseurl("statics/login-and-recovery/images/problems/forget.svg"); ?>">
                 </div>
-            </div>
+                <div class="content">
+                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerdo'); ?></div>
+                    <div><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Contraseña'); ?></div>
+                </div>
+            </a>
 
-            <div class="option">
-                <div class="content">
-                    <a href="<?= get_route("user-blocked-form"); ?>" class="link"></a>
-                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Mi usuario está bloqueado'); ?></div>
-                    <div class="subtitle"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Intenta ingresar y aparece el mensaje informando el bloqueo'); ?></div>
+            <a class="option" href="<?= get_route("user-blocked-form"); ?>">
+                <div class="image">
+                    <img src="<?= baseurl("statics/login-and-recovery/images/problems/locked.svg"); ?>">
                 </div>
-            </div>
+                <div class="content">
+                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Usuario bloqueado'); ?></div>
+                </div>
+            </a>
 
-            <div class="option">
-                <div class="content">
-                    <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
-                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerdo mi usuario ni mi contraseña'); ?></div>
-                    <div class="subtitle"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No recuerda cuáles fueron sus usuario y contraseña asignados'); ?></div>
+            <a class="option" href="<?= get_route("other-problems-form"); ?>">
+                <div class="image">
+                    <img src="<?= baseurl("statics/login-and-recovery/images/problems/another.svg"); ?>">
                 </div>
-            </div>
-
-            <div class="option">
                 <div class="content">
-                    <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
-                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No tengo una cuenta'); ?></div>
-                    <div class="subtitle"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No se encuentra inscrito o tiene problemas al crear el usuario'); ?></div>
+                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Otro problema'); ?></div>
                 </div>
-            </div>
-
-            <div class="option">
-                <div class="content">
-                    <a href="<?= get_route("other-problems-form"); ?>" class="link"></a>
-                    <div class="title"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'No funciona el login'); ?></div>
-                    <div class="subtitle"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Intenta ingresar, pero luego de digitar la información no pasa nada'); ?></div>
-                </div>
-            </div>
+            </a>
 
         </div>
 
