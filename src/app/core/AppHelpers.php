@@ -1102,6 +1102,11 @@ function get_routes_by_controller(string $name_controller = '', string $method =
     $controller_routes = [];
 
     foreach ($routes as $route) {
+
+        if (!is_string($route['controller'])) {
+            continue;
+        }
+
         $controller = explode(':', $route['controller'])[0];
         $method_controller = explode(':', $route['controller'])[1];
         if ($controller == $name_controller) {

@@ -24,6 +24,7 @@ $langGroup = 'routesViewAdminZone';
             </thead>
             <tbody>
                 <?php foreach ($routes as $name => $information): ?>
+                <?php if(!is_string($information['controller'])) continue;?>
                 <tr>
                     <td><?=$information['name'];?></td>
                     <td><?=$information['route'];?></td>

@@ -681,8 +681,7 @@ class AppConfigController extends AdminPanelController
     public function createSitemap(Request $req, Response $res, array $args)
     {
 
-        $time = explode(" ", microtime());
-        $time = $time[1];
+        $startTime = microtime(true);
 
         $result = new ResultOperations([], __(self::LANG_GROUP, 'Sitemap'), '', true);
 
@@ -732,9 +731,11 @@ class AppConfigController extends AdminPanelController
 
             $result->setMessage(__(self::LANG_GROUP, 'Sitemap creado'));
 
+            $endTime = microtime(true);
+
             $result->setValue('Rendimiento', [
-                'Memory peak usage' => number_format(memory_get_peak_usage() / (1024 * 1024), 2) . "MB",
-                'Execution time' => number_format(explode(" ", microtime())[0] - $time) . "s",
+                'Memory peak usage' => number_format(memory_get_peak_usage() / (1024 * 1024), 4) . "MB",
+                'Execution time' => number_format($endTime - $startTime, 10) . "s",
                 'urls' => $sitemap->getLocations(),
             ]);
 
