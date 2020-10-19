@@ -14,8 +14,8 @@ $(document).ready(function (e) {
 
 		cropperAdapter = new CropperAdapterComponent({
 			containerSelector: '.ui.form.cropper-adapter',
-			outputWidth: 300,
-			minWidth: 300,
+			outputWidth: 400,
+			minWidth: 400,
 			cropperOptions: {
 				aspectRatio: 1 / 1,
 				viewMode: 3,
