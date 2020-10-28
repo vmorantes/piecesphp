@@ -117,17 +117,6 @@ $lang = [
         'Información faltante o inesperada.'                         => 'Missing or unexpected information.',
         'Ticket soporte dentro del panel administrativo (osTicket).' => 'Ticket support within the administrative panel (osTicket).',
     ],
-    'appConfig' => [
-        'Configuración'                      => 'Setting',
-        'Guardado.'                          => 'Saved.',
-        'Ha ocurrido un error inesperado.'   => 'An unexpected error has occurred.',
-        'Configuración OsTicket'             => 'OsTicket configuration',
-        'Guardar imagen'                     => 'Save image',
-        'Imagen guardada.'                   => 'Image saved',
-        'Información faltante o inesperada.' => 'Missing or unexpected information.',
-        'Sitemap'                            => 'Sitemap',
-        'Sitemap creado'                     => 'Sitemap created',
-    ],
     'avatarModule' => [
         'Ha ocurrido un error desconocido, intente más tarde.' => 'An unknown error has occurred, try later.',
         'MISSING_OR_UNEXPECTED_PARAMS'                         => 'Missing or unexpected parameters.',

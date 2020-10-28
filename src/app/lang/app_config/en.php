@@ -1,0 +1,27 @@
+<?php
+
+return [    
+    'Configuración'                                                                   => 'Setting',
+    'Guardado.'                                                                       => 'Saved.',
+    'Ha ocurrido un error inesperado.'                                                => 'An unexpected error has occurred.',
+    'Configuración OsTicket'                                                          => 'OsTicket configuration',
+    'Guardar imagen'                                                                  => 'Save image',
+    'Imagen guardada.'                                                                => 'Image saved',
+    'Información faltante o inesperada.'                                              => 'Missing or unexpected information.',
+    'Sitemap'                                                                         => 'Sitemap',
+    'Sitemap creado'                                                                  => 'Sitemap created',
+    'Fondos'                                                                          => 'Backgrounds',
+    'Fondo'                                                                           => 'Background',
+    'Fondos del login'                                                                => 'Login backgrounds',
+    'Tamaño de la imagen {dimensions}'                                                => 'Image size {dimensions}',
+    'Personalización de fondos'                                                       => 'Background customization',
+    'Seleccionar imagen'                                                              => 'Select image',
+    'Imágenes de marca'                                                               => 'Brand images',
+    'Imagen preferiblemente con fondo transparente. Tamaño de la imagen {dimensions}' => 'Image preferably with transparent background. Image size {dimensions}',
+    'Íconos de favoritos (favicon)'                                                   => 'Favorite icons (favicon)',
+    'Favicon en zona pública'                                                         => 'Favicon in public area',
+    'Favicon en zona administrativa'                                                  => 'Favicon in administrative area',
+    'Logos'                                                                           => 'Logos',
+    'Logo'                                                                            => 'Logo',
+    'Logo blanco'                                                                     => 'White logo',
+];

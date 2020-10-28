@@ -10,6 +10,7 @@
  * @copyright   Copyright (c) 2018
  */
 use App\Model\UsersModel;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
@@ -1678,4 +1679,39 @@ function friendly_url(string $string, int $maxWords = null, bool $legacy = false
 function escapeString(string $str)
 {
     return \addslashes(\stripslashes($str));
+}
+
+/**
+ * @param string $str
+ * @param array $template
+ * @return string
+ */
+function strReplaceTemplate(string $str, array $template)
+{
+    return str_replace(array_keys($template), array_values($template), $str);
+}
+
+/**
+ * Devuelve el HTML del adaptador de CropperJS integrado
+ *
+ * @param array $data
+ * @param bool $echo
+ * @return string|void
+ */
+function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
+{
+
+    $lockAssets = get_config('lock_assets');
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', true);
+    }
+
+    $controller = new BaseController();
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', false);
+    }
+
+    return $controller->_render('panel/built-in/utilities/cropper/workspace.php', $data, $echo);
 }

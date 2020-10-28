@@ -6,7 +6,7 @@
     <div class="header">
 
         <div class="logo">
-            <img src="<?=get_config('logo-login');?>">
+            <img src="<?=get_config('white-logo');?>">
         </div>
 
         <div class="back">

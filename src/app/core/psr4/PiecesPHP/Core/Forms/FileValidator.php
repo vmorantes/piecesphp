@@ -22,6 +22,7 @@ class FileValidator
 
     const TYPE_JPG = 'jpg';
     const TYPE_JPEG = 'jpeg';
+    const TYPE_WEBP = 'webp';
     const TYPE_GIF = 'gif';
     const TYPE_PNG = 'png';
     const TYPE_SVG = 'svg';
@@ -52,10 +53,17 @@ class FileValidator
         self::TYPE_JPG => [
             'image/jpg',
             'image/jpeg',
+            'image/webp',
         ],
         self::TYPE_JPEG => [
             'image/jpeg',
             'image/jpg',
+            'image/webp',
+        ],
+        self::TYPE_WEBP => [
+            'image/jpeg',
+            'image/jpg',
+            'image/webp',
         ],
         self::TYPE_GIF => [
             'image/gif',
@@ -131,10 +139,17 @@ class FileValidator
         self::TYPE_JPG => [
             'jpg',
             'jpeg',
+            'webp',
         ],
         self::TYPE_JPEG => [
             'jpeg',
             'jpg',
+            'webp',
+        ],
+        self::TYPE_WEBP => [
+            'jpeg',
+            'jpg',
+            'webp',
         ],
         self::TYPE_GIF => [
             'gif',
@@ -179,6 +194,8 @@ class FileValidator
         self::TYPE_ANY => 'Cualquier archivo',
         self::TYPE_ALL_IMAGES => 'Cualquier imagen',
         self::TYPE_JPG => 'Imagen JPG',
+        self::TYPE_JPEG => 'Imagen JPG',
+        self::TYPE_WEBP => 'Imagen WEBP',
         self::TYPE_GIF => 'Imagen GIF',
         self::TYPE_PNG => 'Imagen PNG',
         self::TYPE_SVG => 'SVG',
