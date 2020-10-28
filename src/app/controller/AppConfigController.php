@@ -21,6 +21,9 @@ use PiecesPHP\Core\Sitemap\Sitemap;
 use PiecesPHP\Core\Sitemap\SitemapItem;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\LangInjector;
@@ -56,6 +59,10 @@ class AppConfigController extends AdminPanelController
         UsersModel::TYPE_USER_ADMIN,
     ];
     const ROLES_LOGOS_FAVICONS = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_SEO = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
     ];
@@ -358,6 +365,278 @@ class AppConfigController extends AdminPanelController
             }
 
             $res = $res->withJson($result);
+
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function seo(Request $req, Response $res, array $args)
+    {
+        $langGroup = self::LANG_GROUP;
+
+        $requestMethod = mb_strtoupper($req->getMethod());
+
+        set_title(__(self::LANG_GROUP, 'Ajustes SEO'));
+
+        if ($requestMethod == 'GET') {
+
+            import_cropper();
+
+            set_custom_assets([
+                'statics/core/js/app_config/seo.js',
+            ], 'js');
+
+            set_custom_assets([
+                'statics/core/css/app_config/seo.css',
+            ], 'css');
+
+            $actionURL = self::routeName('seo');
+
+            $titleApp = htmlentities(AppConfigModel::getConfigValue('title_app'));
+            $owner = htmlentities(AppConfigModel::getConfigValue('owner'));
+            $description = AppConfigModel::getConfigValue('description');
+            $extraScripts = AppConfigModel::getConfigValue('extra_scripts');
+
+            $keywordsSelect = [];
+            $keywords = AppConfigModel::getConfigValue('keywords');
+
+            if (is_array($keywords) && count($keywords) > 0) {
+
+                foreach ($keywords as $keyword) {
+                    $keywordsSelect[$keyword] = $keyword;
+                }
+
+            } else {
+                $keywords = [];
+                $keywordsSelect[''] = __(self::LANG_GROUP, 'Agregue alguna palabra clave');
+            }
+
+            $keywordsSelect = array_to_html_options($keywordsSelect, $keywords, true);
+
+            $data = [
+                'langGroup' => $langGroup,
+                'actionURL' => $actionURL,
+                'openGraph' => get_config('open_graph_image'),
+                'titleApp' => $titleApp,
+                'owner' => $owner,
+                'description' => $description,
+                'keywords' => $keywordsSelect,
+                'extraScripts' => $extraScripts,
+            ];
+
+            $baseViewDir = 'panel/pages/app_configurations';
+            $this->render('panel/layout/header');
+            $this->render("{$baseViewDir}/seo", $data);
+            $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST') {
+
+            //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+            //Definición de validaciones y procesamiento
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'titleApp',
+                    null,
+                    function ($value) {
+                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                    },
+                    false,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'owner',
+                    null,
+                    function ($value) {
+                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                    },
+                    false,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'description',
+                    null,
+                    function ($value) {
+                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                    },
+                    false,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'keywords',
+                    [],
+                    function ($value) {
+                        return is_array($value);
+                    },
+                    true,
+                    function ($value) {
+                        return array_filter(array_map(function ($e) {
+                            return clean_string($e);
+                        }, $value), function ($e) {
+                            return is_string($e);
+                        });
+                    }
+                ),
+                new Parameter(
+                    'extraScripts',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return trim($value);
+                    }
+                ),
+            ]);
+
+            //Obtención de datos
+            $inputData = $req->getParsedBody();
+
+            //Asignación de datos para procesar
+            $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+            //──── Estructura de respuesta ───────────────────────────────────────────────────────────
+
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Ajustes SEO'));
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+
+            //Valores iniciales de la respuesta
+            $resultOperation->setSuccessOnSingleOperation(false);
+
+            //Mensajes de respuesta
+            $successMessage = __(self::LANG_GROUP, 'Datos guardados.');
+            $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
+            $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+
+            //──── Acciones ──────────────────────────────────────────────────────────────────────────
+            try {
+
+                //Intenta validar, si todo sale bien el código continúa
+                $expectedParameters->validate();
+
+                //Información del formulario
+                /**
+                 * @var string $titleApp
+                 * @var string $owner
+                 * @var string $description
+                 * @var string[] $keywords
+                 * @var string $extraScripts
+                 */;
+                $titleApp = $expectedParameters->getValue('titleApp');
+                $owner = $expectedParameters->getValue('owner');
+                $description = $expectedParameters->getValue('description');
+                $keywords = $expectedParameters->getValue('keywords');
+                $extraScripts = $expectedParameters->getValue('extraScripts');
+
+                $nameImageUploaded = 'open-graph';
+                $fileHandler = new FileUpload($nameImageUploaded, [
+                    FileValidator::TYPE_JPG, FileValidator::TYPE_JPEG,
+                ], 5);
+
+                try {
+
+                    $options = [
+                        'title_app' => $titleApp,
+                        'owner' => $owner,
+                        'description' => $description,
+                        'keywords' => $keywords,
+                        'extra_scripts' => $extraScripts,
+                    ];
+
+                    $success = true;
+
+                    foreach ($options as $optionName => $optionValue) {
+
+                        $optionMapper = new AppConfigModel($optionName);
+
+                        $optionMapper->value = $optionValue;
+
+                        if ($optionMapper->id !== null) {
+                            $success = $success && $optionMapper->update();
+                        } else {
+                            $optionMapper->name = $optionName;
+                            $success = $success && $optionMapper->save();
+                        }
+
+                    }
+
+                    if ($fileHandler->hasInput()) {
+
+                        if ($fileHandler->validate()) {
+
+                            $folder = 'statics/images';
+                            $nameImage = 'open_graph';
+                            $extension = 'jpg';
+                            $relativePath = "{$folder}/{$nameImage}.{$extension}";
+
+                            $openGraphMapper = new AppConfigModel('open_graph_image');
+                            $openGraphMapper->value = $relativePath;
+
+                            $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
+                            $img = imagecreatefromjpeg(basepath($relativePath));
+                            imagejpeg($img, basepath($relativePath), 70);
+
+                            if (count($route) > 0) {
+
+                                if ($openGraphMapper->id !== null) {
+                                    $success = $success && $openGraphMapper->update();
+                                } else {
+                                    $openGraphMapper->name = 'open_graph_image';
+                                    $success = $success && $openGraphMapper->save();
+                                }
+
+                            }
+
+                        } else {
+                            $unknowErrorMessage = implode('<br>', $fileHandler->getErrorMessages());
+                        }
+
+                    }
+
+                    if ($success) {
+                        $resultOperation->setMessage($successMessage);
+                        $resultOperation->setSuccessOnSingleOperation($success);
+                    } else {
+                        $resultOperation->setMessage($unknowErrorMessage);
+                    }
+
+                } catch (\Exception $e) {
+                    $resultOperation->setMessage($e->getMessage());
+                    log_exception($e);
+                }
+
+            } catch (MissingRequiredParamaterException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            } catch (ParsedValueException $e) {
+
+                $resultOperation->setMessage($unknowErrorWithValuesMessage);
+                log_exception($e);
+
+            } catch (InvalidParameterValueException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            }
+
+            return $res->withJson($resultOperation);
 
         }
 
@@ -1517,6 +1796,17 @@ class AppConfigController extends AdminPanelController
                 true,
                 null,
                 self::ROLES_LOGOS_FAVICONS
+            ),
+
+            //SEO
+            new Route(
+                "{$startRoute}/seo[/]",
+                $classname . ':seo',
+                self::$baseRouteName . '-' . 'seo',
+                'GET|POST',
+                true,
+                null,
+                self::ROLES_SEO
             ),
 
         ]);
