@@ -8,7 +8,7 @@ $isFirstItem = true;
 
 <div class="container-medium">
 
-    <div class="ui top attached tabular menu">
+    <div class="ui top attached tabular menu main">
         <?php foreach($tabsTitles as $name => $text): ?>
         <?php if($isFirstTitle): $isFirstTitle = false;?>
         <a class="item active" data-tab="<?= $name; ?>"><?= $text; ?></a>

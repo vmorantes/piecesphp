@@ -86,78 +86,15 @@ use App\Model\AppConfigModel;
 
     <form action="<?= $actionCustomImagesURL; ?>" pcs-generic-handler-js method="POST" class="ui form">
 
-        <div class="ui header small"><?= __($langGroup, 'Login'); ?></div>
-
-        <div class="image-preview logo">
-            <img src="<?=AppConfigModel::getConfigValue('logo-login');?>">
-        </div>
-
-        <div class="field">
-            <label><?= __($langGroup, 'Cambiar'); ?></label>
-            <input type="file" name="logo-login" accept="image/png" required>
-        </div>
-
-        <div class="field">
-            <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
-        </div>
-
-    </form>
-
-    <br><br><br><br>
-
-    <form action="<?= $actionCustomImagesURL; ?>" pcs-generic-handler-js method="POST" class="ui form">
-
-        <div class="ui header small"><?= __($langGroup, 'Superior de la barra lateral'); ?></div>
-
-        <div class="image-preview logo">
-            <img src="<?=AppConfigModel::getConfigValue('logo-sidebar-top');?>">
-        </div>
-
-        <div class="field">
-            <label><?= __($langGroup, 'Cambiar'); ?></label>
-            <input type="file" name="logo-sidebar-top" accept="image/png" required>
-        </div>
-
-        <div class="field">
-            <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
-        </div>
-
-    </form>
-
-    <br><br><br><br>
-
-    <form action="<?= $actionCustomImagesURL; ?>" pcs-generic-handler-js method="POST" class="ui form">
-
         <div class="ui header small"><?= __($langGroup, 'Inferior de la barra lateral'); ?></div>
 
         <div class="image-preview logo">
-            <img src="<?=AppConfigModel::getConfigValue('logo-sidebar-bottom');?>">
+            <img src="<?=AppConfigModel::getConfigValue('white-logo');?>">
         </div>
 
         <div class="field">
             <label><?= __($langGroup, 'Cambiar'); ?></label>
-            <input type="file" name="logo-sidebar-bottom" accept="image/png" required>
-        </div>
-
-        <div class="field">
-            <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
-        </div>
-
-    </form>
-
-    <br><br><br><br>
-
-    <form action="<?= $actionCustomImagesURL; ?>" pcs-generic-handler-js method="POST" class="ui form">
-
-        <div class="ui header small"><?= __($langGroup, 'Plantillas de correo electrónico'); ?></div>
-
-        <div class="image-preview logo">
-            <img src="<?=AppConfigModel::getConfigValue('logo-mailing');?>">
-        </div>
-
-        <div class="field">
-            <label><?= __($langGroup, 'Cambiar'); ?></label>
-            <input type="file" name="logo-mailing" accept="image/png" required>
+            <input type="file" name="white-logo" accept="image/png" required>
         </div>
 
         <div class="field">

@@ -289,6 +289,10 @@ a.ui.button{
     text-decoration: none !important;    
 }
 
+.ui.button{
+    border-radius: 0px !important;
+}
+
 .ui.tabular.menu{
     .item:not(.active){
         cursor: pointer;

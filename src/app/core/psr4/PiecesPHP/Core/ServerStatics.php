@@ -36,6 +36,7 @@ class ServerStatics
     const CONTENT_TYPE_ICO = 'image/x-icon';
     const CONTENT_TYPE_PNG = 'image/png';
     const CONTENT_TYPE_JPG = 'image/jpeg';
+    const CONTENT_TYPE_WEBP = 'image/webp';
     const CONTENT_TYPE_GIF = 'image/gif';
     const CONTENT_TYPE_SWF = 'application/x-shockwave-flash';
     const CONTENT_TYPE_MP3 = null;
@@ -49,6 +50,7 @@ class ServerStatics
     const TYPE_ICO = 'ICO';
     const TYPE_PNG = 'PNG';
     const TYPE_JPG = 'JPG';
+    const TYPE_WEBP = 'WEBP';
     const TYPE_GIF = 'GIF';
     const TYPE_SWF = 'SWF';
     const TYPE_MP3 = 'MP3';
@@ -114,6 +116,16 @@ class ServerStatics
         'extensions' => [
             'jpg',
             'jpeg',
+        ],
+    ];
+
+    const DATA_TYPE_WEBP = [
+        'code' => self::TYPE_WEBP,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_WEBP,
+        'extensions' => [
+            'webp',
         ],
     ];
 
@@ -184,6 +196,7 @@ class ServerStatics
         self::TYPE_ICO => self::DATA_TYPE_ICO,
         self::TYPE_PNG => self::DATA_TYPE_PNG,
         self::TYPE_JPG => self::DATA_TYPE_JPG,
+        self::TYPE_WEBP => self::DATA_TYPE_WEBP,
         self::TYPE_GIF => self::DATA_TYPE_GIF,
         self::TYPE_SWF => self::DATA_TYPE_SWF,
         self::TYPE_MP3 => self::DATA_TYPE_MP3,
@@ -613,4 +626,5 @@ class ServerStatics
         return false;
 
     }
+
 }

@@ -1,0 +1,56 @@
+.ui.header.small {
+    margin-top: 0.5rem;
+    opacity: 0.5;
+}
+
+.ui-pcs.container-sidebar>.content {
+    padding-right: 1rem;
+    padding-left: 1.8rem;
+}
+
+.container-backgrounds {
+
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+
+    >form.ui.form {
+
+        padding: 1rem 0.5rem;
+        width: 50%;
+        min-width: 280px;
+        max-width: 480px;
+
+        .ui.card {
+            width: auto;
+        }
+
+        .cropper-adapter {
+            >.preview {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            >.workspace>.steps>.step {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            img {
+                max-width: 100%;
+            }
+        }
+
+    }
+
+    @media screen and (max-width: 900px) {
+
+        justify-content: center;
+        >form.ui.form {
+            width: 80%;
+        }
+
+    }
+
+}

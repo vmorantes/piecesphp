@@ -50,7 +50,7 @@
             </div>
 
             <div class="caption">
-                <img src="<?=get_config('logo-login');?>">
+                <img src="<?=get_config('logo');?>">
             </div>
 
             <div class="content">

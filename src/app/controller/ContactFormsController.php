@@ -175,7 +175,7 @@ class ContactFormsController extends PublicAreaController
                     baseurl(),
                     $title,
                 ]);
-                $logo = baseurl('statics/images/logo-mailing.png');
+                $logo = baseurl(get_config('logo'));
 
                 $bodyMessage = $this->render('mail-templates/generic-contact-form', [
                     'from' => $from,

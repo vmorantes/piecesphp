@@ -11,6 +11,7 @@ use App\Model\UsersModel;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Roles;
@@ -22,6 +23,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\LangInjector;
 use PiecesPHP\LetsEncryptHandler;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
@@ -49,6 +51,14 @@ class AppConfigController extends AdminPanelController
     const LANG_GROUP_FORMS = 'configurationsAdminZone';
     const LANG_GROUP_FORMS_2 = 'customizationAdminZone';
 
+    const ROLES_BACKGROUND = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_LOGOS_FAVICONS = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
     const ROLES_VIEW_CUTOMIZATION_VIEW = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
@@ -93,6 +103,265 @@ class AppConfigController extends AdminPanelController
         parent::__construct();
         $this->mapper = new AppConfigModel();
         $this->model = $this->mapper->getModel();
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function backgrounds(Request $req, Response $res, array $args)
+    {
+        $langGroup = self::LANG_GROUP;
+        $requestMethod = mb_strtoupper($req->getMethod());
+        set_title(__(self::LANG_GROUP, 'Personalización de fondos'));
+
+        if ($requestMethod == 'GET') {
+
+            import_cropper();
+
+            set_custom_assets([
+                'statics/core/js/app_config/backgrounds.js',
+            ], 'js');
+
+            set_custom_assets([
+                'statics/core/css/app_config/backgrounds.css',
+            ], 'css');
+
+            $actionURL = self::routeName('backgrounds');
+
+            $data = [
+                'langGroup' => $langGroup,
+                'actionURL' => $actionURL,
+            ];
+
+            $baseViewDir = 'panel/pages/app_configurations';
+            $this->render('panel/layout/header');
+            $this->render("{$baseViewDir}/backgrounds", $data);
+            $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST') {
+
+            $allowedImages = [
+                'background-1' => 'bg1',
+                'background-2' => 'bg2',
+                'background-3' => 'bg3',
+                'background-4' => 'bg4',
+                'background-5' => 'bg5',
+            ];
+
+            $nameCurrentAllowedImage = '';
+            $nameImage = '';
+            $extension = '';
+            $folder = 'statics/login-and-recovery/images/login';
+            $relativePath = "{$folder}/";
+            $validParamenters = false;
+
+            foreach ($allowedImages as $imageName => $name) {
+                $validParamenters = isset($_FILES[$imageName]) && $_FILES[$imageName]['error'] == \UPLOAD_ERR_OK;
+                if ($validParamenters) {
+                    $nameCurrentAllowedImage = $imageName;
+                    $nameImage = $name;
+                    $extension = mb_strtolower(pathinfo($_FILES[$imageName]['name'], \PATHINFO_EXTENSION));
+                    $extension = $extension == 'jpeg' ? 'jpg' : $extension;
+                    $relativePath = "{$folder}/{$name}.{$extension}";
+                    break;
+                }
+            }
+
+            $currentBackgroundConfigMapper = new AppConfigModel('backgrounds');
+            $oldImage = '';
+            $currentBackgroundConfigValues = $currentBackgroundConfigMapper->value;
+
+            foreach ($currentBackgroundConfigValues as $i => $v) {
+                if (mb_strlen($nameImage) > 0 && strpos($v, $nameImage) !== false) {
+                    $currentBackgroundConfigValues[$i] = $relativePath;
+                    $oldImage = $v != $relativePath ? $v : '';
+                    break;
+                }
+            }
+
+            $currentBackgroundConfigMapper->value = $currentBackgroundConfigValues;
+
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'), true);
+
+            $createMessage = __(self::LANG_GROUP, 'Imagen guardada.');
+            $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
+            $unexpectedOrMissedParamMessage = __(self::LANG_GROUP, 'Información faltante o inesperada.');
+
+            if ($validParamenters) {
+
+                $fileHandler = new FileUpload($nameCurrentAllowedImage, [FileValidator::TYPE_JPG, FileValidator::TYPE_JPEG, FileValidator::TYPE_WEBP], 5);
+
+                if ($fileHandler->validate()) {
+
+                    $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
+
+                    if ($extension == 'webp') {
+                        $img = imagecreatefromwebp(basepath($relativePath));
+                        imagewebp($img, basepath($relativePath), 70);
+                    } elseif ($extension == 'jpg' || $extension == 'jpeg') {
+                        $img = imagecreatefromjpeg(basepath($relativePath));
+                        imagejpeg($img, basepath($relativePath), 70);
+                    }
+
+                    if (count($route) > 0) {
+
+                        $updated = $currentBackgroundConfigMapper->update();
+
+                        if ($updated && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
+                            unlink(basepath($oldImage));
+                        }
+
+                        $result
+                            ->setMessage($createMessage)
+                            ->setSuccessOnSingleOperation(true);
+
+                    } else {
+                        $result->setMessage($unknowErrorMessage);
+                    }
+
+                } else {
+                    $result->setMessage(implode('<br>', $fileHandler->getErrorMessages()));
+                }
+
+            } else {
+                $result->setMessage($unexpectedOrMissedParamMessage);
+            }
+
+            $res = $res->withJson($result);
+
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function faviconsAndLogos(Request $req, Response $res, array $args)
+    {
+        $langGroup = self::LANG_GROUP;
+        $requestMethod = mb_strtoupper($req->getMethod());
+        set_title(__(self::LANG_GROUP, 'Imágenes de marca'));
+
+        if ($requestMethod == 'GET') {
+
+            import_cropper();
+
+            set_custom_assets([
+                'statics/core/js/app_config/logos-favicons.js',
+            ], 'js');
+
+            set_custom_assets([
+                'statics/core/css/app_config/logos-favicons.css',
+            ], 'css');
+
+            $actionURL = self::routeName('logos-favicons');
+
+            $data = [
+                'langGroup' => $langGroup,
+                'actionURL' => $actionURL,
+                'publicFavicon' => get_config('favicon'),
+                'backFavicon' => get_config('favicon-back'),
+                'logo' => get_config('logo'),
+                'whiteLogo' => get_config('white-logo'),
+            ];
+
+            $baseViewDir = 'panel/pages/app_configurations';
+            $this->render('panel/layout/header');
+            $this->render("{$baseViewDir}/logos-favicons", $data);
+            $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST') {
+
+            $allowedImages = [
+                'favicon' => 'favicon',
+                'favicon-back' => 'favicon-back',
+                'logo' => 'logo',
+                'white-logo' => 'white-logo',
+            ];
+
+            $nameCurrentAllowedImage = '';
+            $nameImage = '';
+            $extension = '';
+            $folder = 'statics/images';
+            $relativePath = "{$folder}/";
+            $validParamenters = false;
+
+            foreach ($allowedImages as $imageName => $name) {
+                $validParamenters = isset($_FILES[$imageName]) && $_FILES[$imageName]['error'] == \UPLOAD_ERR_OK;
+                if ($validParamenters) {
+                    $nameCurrentAllowedImage = $imageName;
+                    $nameImage = $name;
+                    $extension = mb_strtolower(pathinfo($_FILES[$imageName]['name'], \PATHINFO_EXTENSION));
+                    $extension = $extension == 'jpeg' ? 'jpg' : $extension;
+                    $relativePath = "{$folder}/{$name}.{$extension}";
+                    break;
+                }
+            }
+
+            $logosAndFaviconsMapper = new AppConfigModel($nameCurrentAllowedImage);
+            $oldImage = $logosAndFaviconsMapper->value;
+            $logosAndFaviconsMapper->value = $relativePath;
+
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'), true);
+
+            $createMessage = __(self::LANG_GROUP, 'Imagen guardada.');
+            $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
+            $unexpectedOrMissedParamMessage = __(self::LANG_GROUP, 'Información faltante o inesperada.');
+
+            if ($validParamenters) {
+
+                $fileHandler = new FileUpload($nameCurrentAllowedImage, [FileValidator::TYPE_PNG, FileValidator::TYPE_JPG, FileValidator::TYPE_JPEG], 5);
+
+                if ($fileHandler->validate()) {
+
+                    $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
+
+                    if ($extension == 'png') {
+                        $img = imagecreatefrompng(basepath($relativePath));
+                        imagealphablending($img, false);
+                        imagesavealpha($img, true);
+                        imagepng($img, basepath($relativePath), 9);
+                    } elseif ($extension == 'jpg' || $extension == 'jpeg') {
+                        $img = imagecreatefromjpeg(basepath($relativePath));
+                        imagejpeg($img, basepath($relativePath), 70);
+                    }
+
+                    if (count($route) > 0) {
+
+                        $updated = $logosAndFaviconsMapper->update();
+
+                        if ($updated && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
+                            unlink(basepath($oldImage));
+                        }
+
+                        $result
+                            ->setMessage($createMessage)
+                            ->setSuccessOnSingleOperation(true);
+
+                    } else {
+                        $result->setMessage($unknowErrorMessage);
+                    }
+
+                } else {
+                    $result->setMessage(implode('<br>', $fileHandler->getErrorMessages()));
+                }
+
+            } else {
+                $result->setMessage($unexpectedOrMissedParamMessage);
+            }
+
+            $res = $res->withJson($result);
+
+        }
+
+        return $res;
     }
 
     /**
@@ -533,29 +802,11 @@ class AppConfigController extends AdminPanelController
                 'folder' => basepath('statics/images'),
                 'dafault' => 'statics/images/logo.png',
             ],
-            'logo-login' => [
-                'name' => 'logo-login',
+            'white-logo' => [
+                'name' => 'white-logo',
                 'extension' => 'png',
                 'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/logo-login.png',
-            ],
-            'logo-sidebar-top' => [
-                'name' => 'logo-sidebar-top',
-                'extension' => 'png',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/logo-sidebar-top.png',
-            ],
-            'logo-sidebar-bottom' => [
-                'name' => 'logo-sidebar-bottom',
-                'extension' => 'png',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/logo-sidebar-bottom.png',
-            ],
-            'logo-mailing' => [
-                'name' => 'logo-mailing',
-                'extension' => 'png',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/logo-mailing.png',
+                'dafault' => 'statics/images/white-logo.png',
             ],
             'background-1' => [
                 'name' => 'bg1',
@@ -853,8 +1104,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * processGenericInputValues
-     *
      * @param mixed $input
      * @param string|array $parse
      * @return mixed
@@ -911,8 +1160,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * parseTo
-     *
      * @param mixed $value
      * @param string $to
      * @return mixed
@@ -1017,8 +1264,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * recursiveMergeArray
-     *
      * @param array|\stdClass $one
      * @param array|\stdClass $two
      * @return array
@@ -1149,8 +1394,6 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -1252,9 +1495,39 @@ class AppConfigController extends AdminPanelController
                 self::ROLES_SSL_ACTION
             ),
 
+            //──── Mixtas ────────────────────────────────────────────────────────────────────────────
+
+            //Fondos
+            new Route(
+                "{$startRoute}/backgrounds[/]",
+                $classname . ':backgrounds',
+                self::$baseRouteName . '-' . 'backgrounds',
+                'GET|POST',
+                true,
+                null,
+                self::ROLES_BACKGROUND
+            ),
+
+            //Logos y favicons
+            new Route(
+                "{$startRoute}/logos-favicons[/]",
+                $classname . ':faviconsAndLogos',
+                self::$baseRouteName . '-' . 'logos-favicons',
+                'GET|POST',
+                true,
+                null,
+                self::ROLES_LOGOS_FAVICONS
+            ),
+
         ]);
 
         //──── POST ─────────────────────────────────────────────────────────────────────────
+
+        //Inject lang
+        if (APP_CONFIGURATION_MODULE) {
+            $injector = new LangInjector(basepath('app/lang/app_config'), Config::get_allowed_langs());
+            $injector->injectGroup(self::LANG_GROUP);
+        }
 
         return $group;
     }

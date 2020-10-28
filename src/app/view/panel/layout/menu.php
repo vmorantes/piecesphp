@@ -29,6 +29,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     <div class="logo-developed">
         <small><?= __('general', 'Desarrollado por'); ?> <?= get_config('developer'); ?> <?= __('general', 'para'); ?>:</small>
-        <img src="<?=get_config('logo-sidebar-bottom');?>">
+        <img src="<?=get_config('white-logo');?>">
     </div>
 </aside> <!-- .ui-pcs.sidebar -->
