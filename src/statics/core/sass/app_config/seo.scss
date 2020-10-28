@@ -1,0 +1,43 @@
+.ui.header.small {
+    margin-top: 0.5rem;
+    opacity: 0.5;
+}
+
+.ui-pcs.container-sidebar>.content {
+    padding-right: 1rem;
+    padding-left: 1.8rem;
+}
+
+.container-seo {
+
+    max-width: 750px;
+
+    >form.ui.form {
+
+        padding: 1rem 0.5rem;
+        min-width: 280px;
+        max-width: 1200px;
+
+        .ui.card {
+            width: auto;
+        }
+
+        .cropper-adapter {
+            >.preview {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            >.workspace>.steps>.step {
+                min-width: auto;
+                max-width: 100%;
+            }
+
+            img {
+                max-width: 100%;
+            }
+        }
+
+    }
+
+}
