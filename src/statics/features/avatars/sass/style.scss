@@ -1,5 +1,5 @@
 $color-principal: rgb(16, 146, 208);
-$color-first: rgb(150, 150, 150);
+$colorFirst: rgb(150, 150, 150);
 $color2: rgb(40, 100, 133);
 $color3: #fff;
 $color4: #c0c1c2;
@@ -21,7 +21,7 @@ $color5: rgb(32, 32, 32);
         width: 300px;
         height: 300px;
         margin: 0;
-        box-shadow: 0 0 5px 0px $color-first;
+        box-shadow: 0 0 5px 0px $colorFirst;
         [item] {
             position: absolute;
             top: 0;
@@ -37,7 +37,7 @@ $color5: rgb(32, 32, 32);
             position: absolute;
             bottom: 0;
             margin-bottom: -33px;
-            box-shadow: 0 0 5px 0 $color-first;
+            box-shadow: 0 0 5px 0 $colorFirst;
             width: 100%;
             text-align: center;
             padding: 0.5rem;

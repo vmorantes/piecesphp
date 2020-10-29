@@ -14,15 +14,15 @@
         //Items de los tabs
         .items-pointing {
             .item {
-                color: $color-third;
+                color: $colorThird;
             }
             .item.active {
                 &,
                 &:hover {
                     padding: 0.7rem;
-                    color: $color-second !important;
-                    border-color: $color-second !important;
-                    border-bottom: 4px solid $color-second;
+                    color: $colorSecond !important;
+                    border-color: $colorSecond !important;
+                    border-bottom: 4px solid $colorSecond;
                     font-size: 1.1rem;
                 }
             }
@@ -31,15 +31,15 @@
             .field {
                 .ui.labeled {
                     .ui.label {
-                        background-color: $color-first;
+                        background-color: $colorFirst;
                         font-size: 1.1rem;
                         padding: 0.7rem;
-                        color: $color-first-over;
+                        color: $colorFirstOver;
                         width: 35%;
                         align-items: center;
                         display: flex;
                         &.pass {
-                            background-color: $color-third;
+                            background-color: $colorThird;
                         }
                     }
                 }
@@ -47,23 +47,23 @@
                     font-size: 1.1rem;
                     border: 1px solid #ccc;
                     font-weight: 700;
-                    color: $color-second;
+                    color: $colorSecond;
                 }
                 input[type=email] {
                     font-size: 1.1rem;
                     border: 1px solid #ccc;
-                    color: $color-second;
+                    color: $colorSecond;
                     font-weight: 700;
                 }
                 select {
                     border: 1px solid #ccc;
-                    color: $color-second;
+                    color: $colorSecond;
                     font-weight: 700;
                 }
                 input[type=password] {
                     font-size: 1.1rem;
                     border: 1px solid #ccc;
-                    color: $color-second;
+                    color: $colorSecond;
                     font-weight: 700;
                 }
             }

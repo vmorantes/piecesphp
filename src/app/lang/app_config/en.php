@@ -38,4 +38,6 @@ return [
     'Datos guardados.'                                                                => 'Saved data.',
     'Ha ocurrido un error desconocido, intente más tarde.'                            => 'An unknown error has occurred, try again later.',
     'Ha ocurrido un error desconocido al procesar los valores ingresados.'            => 'An unknown error has occurred while processing the entered values.',
+    'Configuraciones'                                                                 => 'Settings',
+    'Otras configuraciones'                                                           => 'Other configurations',
 ];

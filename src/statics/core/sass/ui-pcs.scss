@@ -1,8 +1,4 @@
 @import 'includes/variables';
-@import 'includes/fonts';
-@import 'includes/functions';
-@import 'includes/colors';
-@import 'includes/sizes';
 @import 'includes/components';
 
 * {
@@ -12,19 +8,17 @@
 //Generals
 html,
 body {
-    font-size: $html-font-size;
-    font-family: $font-family-first;
+    font-size: $htmlFontSize;
+    font-family: $fontFamilyFirst;
     font-weight: 400;
-    width: auto;
-    height: auto;
-    min-width: 100%;
-    min-height: 100%;
-    overflow-x: hidden;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
 .#{$globalClassPcs} {
-    font-size: $html-font-size;
-    color: $color-fourth;
+    font-size: $htmlFontSize;
+    color: $colorFourth;
 }
 
 p,
@@ -49,7 +43,7 @@ h6 {
 
     .#{$globalClassPcs} &.text-reading,
     &.text-reading.#{$globalClassPcs} {
-        font-family: $font-family-second;
+        font-family: $fontFamilySecond;
         font-weight: 400;
     }
 }
@@ -69,13 +63,13 @@ a {
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
         display: inline-block;
-        color: $color-fourth;
+        color: $colorFourth;
         transition: 0.5s all ease;
 
         &:hover,
         &:active,
         &:focus {
-            color: $color-first;
+            color: $colorFirst;
             text-decoration: underline dotted;
         }
 
@@ -91,9 +85,9 @@ h1 {
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
         font-weight: 700;
-        font-size: $h1-font-size;
-        color: $text-header-1;
-        margin: $h1-margin;
+        font-size: $h1FontSize;
+        color: $textHeader1Color;
+        margin: $h1Margin;
         text-transform: uppercase;
     }
 }
@@ -103,9 +97,9 @@ h2 {
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
         font-weight: 700;
-        font-size: $h2-font-size;
-        color: $text-header-2;
-        margin: $h2-margin;
+        font-size: $h2FontSize;
+        color: $textHeader2Color;
+        margin: $h2Margin;
     }
 }
 
@@ -114,9 +108,9 @@ h3 {
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
         font-weight: 400;
-        font-size: $h3-font-size;
-        color: $text-header-3;
-        margin: $h3-margin;
+        font-size: $h3FontSize;
+        color: $textHeader3Color;
+        margin: $h3Margin;
     }
 }
 
@@ -127,9 +121,9 @@ h6 {
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
         font-weight: 700;
-        font-size: $h4-font-size;
-        color: $text-header-3;
-        margin: $h4-margin;
+        font-size: $h4FontSize;
+        color: $textHeader3Color;
+        margin: $h4Margin;
     }
 }
 
@@ -138,13 +132,13 @@ p {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $p-font-family;
+        font-family: $pFontFamily;
         text-align: left;
-        font-size: $p-font-size;
-        line-height: $p-line-heigth;
-        color: $color-fourth;
-        margin: $p-margin;
-        max-width: $p-max-width;
+        font-size: $pFontSize;
+        line-height: $pLineHeight;
+        color: $colorFourth;
+        margin: $pMargin;
+        max-width: $pMaxWidth;
     }
 }
 
@@ -154,21 +148,21 @@ ol {
 
     .#{$globalClassPcs} &.pcs-list,
     &.list.#{$globalClassPcs} {
-        font-family: $list-font-family;
+        font-family: $listFontFamily;
         text-align: left;
-        font-size: $list-font-size;
-        line-height: $list-line-heigth;
-        color: $color-fourth;
-        margin: $list-margin;
-        padding: $list-padding;
-        max-width: $list-max-width;
+        font-size: $listFontSize;
+        line-height: $listLineHeight;
+        color: $colorFourth;
+        margin: $listMargin;
+        padding: $listPadding;
+        max-width: $listMaxWidth;
 
         &:not(ol) {
             list-style: none;
 
             li {
                 position: relative;
-                padding: $list-item-padding;
+                padding: $listItemPadding;
 
                 &::before {
                     display: block;
@@ -179,7 +173,7 @@ ol {
                     width: 1rem;
                     height: 1rem;
                     border-radius: 100%;
-                    background-color: $color-first;
+                    background-color: $colorFirst;
                 }
             }
         }
@@ -190,10 +184,10 @@ ol {
 
             li {
                 position: relative;
-                padding: $list-item-padding;
+                padding: $listItemPadding;
 
                 &::before {
-                    font-family: $font-family-first;
+                    font-family: $fontFamilyFirst;
                     counter-increment: list;
                     display: block;
                     position: absolute;
@@ -207,7 +201,7 @@ ol {
                     border-radius: 100%;
                     line-height: 2rem;
                     text-align: left;
-                    color: $color-first;
+                    color: $colorFirst;
                 }
             }
         }
@@ -229,7 +223,7 @@ img {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        max-width: $p-max-width;
+        max-width: $pMaxWidth;
         text-align: left;
 
         img {
@@ -246,15 +240,15 @@ p.quote {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-size: $quote-font-size;
-        line-height: $quote-line-height;
-        color: $text-quote;
+        font-size: $quoteFontSize;
+        line-height: $quoteLineHeight;
+        color: $textQuoteColor;
         text-align: center;
-        margin-top: $quote-margin-top;
-        max-width: $quote-max-width;
-        $quote-padding: 3% 10% 0% 10%;
-        $quote-border-top: 1px solid $color-first;
-        $quote-border-bottom: 1px solid $color-first;
+        margin-top: $quoteMarginTop;
+        max-width: $quoteMaxWidth;
+        $quotePadding: 3% 10% 0% 10%;
+        $quoteBorderTop: 1px solid $colorFirst;
+        $quoteBorderBottom: 1px solid $colorFirst;
     }
 }
 
@@ -285,16 +279,16 @@ footer.#{$globalClassPcs} {
     }
 }
 
-a.ui.button{
-    text-decoration: none !important;    
+a.ui.button {
+    text-decoration: none !important;
 }
 
-.ui.button{
+.ui.button {
     border-radius: 0px !important;
 }
 
-.ui.tabular.menu{
-    .item:not(.active){
+.ui.tabular.menu {
+    .item:not(.active) {
         cursor: pointer;
     }
 }

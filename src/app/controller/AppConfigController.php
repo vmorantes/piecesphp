@@ -52,7 +52,6 @@ class AppConfigController extends AdminPanelController
 
     const LANG_GROUP = 'appConfig';
     const LANG_GROUP_FORMS = 'configurationsAdminZone';
-    const LANG_GROUP_FORMS_2 = 'customizationAdminZone';
 
     const ROLES_BACKGROUND = [
         UsersModel::TYPE_USER_ROOT,
@@ -66,10 +65,6 @@ class AppConfigController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
     ];
-    const ROLES_VIEW_CUTOMIZATION_VIEW = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
-    ];
     const ROLES_VIEW_CONFIGURATIONS_VIEW = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
@@ -78,10 +73,6 @@ class AppConfigController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
     ];
     const ROLES_GENERIC_ACTION = [
-        UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
-    ];
-    const ROLES_IMAGES_ACTION = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
     ];
@@ -761,68 +752,6 @@ class AppConfigController extends AdminPanelController
      * @param Request $req
      * @param Response $res
      * @param array $args
-     * @return void
-     */
-    public function customizationView(Request $req, Response $res, array $args)
-    {
-        $langGroup = AppConfigController::LANG_GROUP_FORMS_2;
-
-        $tabsTitles = [];
-        $tabsItems = [];
-
-        $currentUser = get_config('current_user');
-        $baseViewDir = 'panel/pages/app_configurations';
-
-        if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {
-
-            $actionCustomImagesURL = AppConfigController::routeName('customization-images-action');
-
-            $hasPermissionsImages = mb_strlen(trim($actionCustomImagesURL)) > 0;
-            $hasPermissionsBGImages = mb_strlen(trim($actionCustomImagesURL)) > 0;
-
-            if ($hasPermissionsImages) {
-
-                $data = [
-                    'langGroup' => $langGroup,
-                    'actionCustomImagesURL' => $actionCustomImagesURL,
-                ];
-
-                $tabsTitles['images'] = __($langGroup, 'Imágenes');
-                $tabsItems['images'] = $this->render("{$baseViewDir}/inc/customization-tabs/images", $data, false, false);
-
-            }
-
-            if ($hasPermissionsBGImages) {
-
-                $data = [
-                    'langGroup' => $langGroup,
-                    'actionCustomImagesURL' => $actionCustomImagesURL,
-                ];
-
-                $tabsTitles['bg'] = __($langGroup, 'Fondos del login');
-                $tabsItems['bg'] = $this->render("{$baseViewDir}/inc/customization-tabs/background", $data, false, false);
-
-            }
-
-        }
-
-        $data = [
-            'langGroup' => $langGroup,
-            'tabsTitles' => $tabsTitles,
-            'tabsItems' => $tabsItems,
-        ];
-
-        $this->render('panel/layout/header');
-        $this->render("{$baseViewDir}/customization", $data);
-        $this->render('panel/layout/footer');
-
-        return $res;
-    }
-
-    /**
-     * @param Request $req
-     * @param Response $res
-     * @param array $args
      * @return Response
      */
     public function actionGeneric(Request $req, Response $res, array $args)
@@ -1048,155 +977,6 @@ class AppConfigController extends AdminPanelController
                 ->operation($operation_name);
             log_exception($e);
 
-        }
-
-        return $res->withJson($result);
-    }
-
-    /**
-     * @param Request $req
-     * @param Response $res
-     * @param array $args
-     * @return Response
-     */
-    public function actionImages(Request $req, Response $res, array $args)
-    {
-
-        $allowedImages = [
-            'favicon' => [
-                'name' => 'favicon',
-                'extension' => 'png',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/favicon.png',
-            ],
-            'favicon-back' => [
-                'name' => 'favicon-back',
-                'extension' => 'png',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/favicon-back.png',
-            ],
-            'logo' => [
-                'name' => 'logo',
-                'extension' => 'png',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/logo.png',
-            ],
-            'white-logo' => [
-                'name' => 'white-logo',
-                'extension' => 'png',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/images/white-logo.png',
-            ],
-            'background-1' => [
-                'name' => 'bg1',
-                'extension' => 'jpg',
-                'folder' => basepath('statics/login-and-recovery/images/login'),
-                'dafault' => 'statics/login-and-recovery/images/login/bg1.jpg',
-            ],
-            'background-2' => [
-                'name' => 'bg2',
-                'extension' => 'jpg',
-                'folder' => basepath('statics/login-and-recovery/images/login'),
-                'dafault' => 'statics/login-and-recovery/images/login/bg2.jpg',
-            ],
-            'background-3' => [
-                'name' => 'bg3',
-                'extension' => 'jpg',
-                'folder' => basepath('statics/login-and-recovery/images/login'),
-                'dafault' => 'statics/login-and-recovery/images/login/bg3.jpg',
-            ],
-            'background-4' => [
-                'name' => 'bg4',
-                'extension' => 'jpg',
-                'folder' => basepath('statics/login-and-recovery/images/login'),
-                'dafault' => 'statics/login-and-recovery/images/login/bg4.jpg',
-            ],
-            'background-5' => [
-                'name' => 'bg5',
-                'extension' => 'jpg',
-                'folder' => basepath('statics/login-and-recovery/images/login'),
-                'dafault' => 'statics/login-and-recovery/images/login/bg5.jpg',
-            ],
-            'open_graph_image' => [
-                'name' => 'open_graph',
-                'extension' => 'jpg',
-                'folder' => basepath('statics/images'),
-                'dafault' => 'statics/login-and-recovery/images/login/bg6.jpg',
-            ],
-        ];
-
-        $nameCurrentAllowedImage = '';
-        $nameImage = '';
-        $extension = '';
-        $folder = '';
-        $validParamenters = false;
-
-        foreach ($allowedImages as $imageName => $config) {
-
-            $validParamenters = isset($_FILES[$imageName]) && $_FILES[$imageName]['error'] == \UPLOAD_ERR_OK;
-
-            if ($validParamenters) {
-                $nameCurrentAllowedImage = $imageName;
-                $nameImage = $config['name'];
-                $extension = $config['extension'];
-                $folder = $config['folder'];
-                break;
-            }
-
-        }
-
-        $operation_name = __(self::LANG_GROUP, 'Guardar imagen');
-        $result = new ResultOperations([
-            new Operation($operation_name),
-        ], $operation_name);
-
-        $message_create = __(self::LANG_GROUP, 'Imagen guardada.');
-        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
-        $message_unexpected_or_missing_params = __(self::LANG_GROUP, 'Información faltante o inesperada.');
-
-        if ($validParamenters) {
-
-            $fileHandler = new FileUpload($nameCurrentAllowedImage, [
-                $extension == 'png' ? FileValidator::TYPE_PNG : FileValidator::TYPE_JPG,
-            ], 5);
-
-            if ($fileHandler->validate()) {
-
-                $route = $fileHandler->moveTo($folder, $nameImage, $extension);
-
-                if (count($route) > 0) {
-
-                    $configElement = new AppConfigModel($nameCurrentAllowedImage);
-
-                    if ($configElement->id === null) {
-                        $configElement->name = $nameCurrentAllowedImage;
-                        $configElement->value = $allowedImages[$nameCurrentAllowedImage]['dafault'];
-                        $configElement->save();
-                    }
-
-                    $result->setValue('reload', true);
-                    $result
-                        ->setMessage($message_create)
-                        ->operation($operation_name)
-                        ->setSuccess(true);
-                } else {
-                    $result
-                        ->setMessage($message_unknow_error)
-                        ->operation($operation_name);
-                }
-
-            } else {
-
-                $result
-                    ->setMessage(implode('<br>', $fileHandler->getErrorMessages()))
-                    ->operation($operation_name);
-
-            }
-
-        } else {
-            $result
-                ->setMessage($message_unexpected_or_missing_params)
-                ->operation($operation_name);
         }
 
         return $res->withJson($result);
@@ -1699,16 +1479,6 @@ class AppConfigController extends AdminPanelController
                 null,
                 self::ROLES_VIEW_CONFIGURATIONS_VIEW
             ),
-            //Vista de personalización de imágenes y textos
-            new Route(
-                "{$startRoute}images[/]",
-                $classname . ':customizationView',
-                'configurations-customization',
-                'GET',
-                true,
-                null,
-                self::ROLES_VIEW_CUTOMIZATION_VIEW
-            ),
             //Vista de configuración de rutas y permisos
             new Route(
                 "{$startRoute}routes[/]",
@@ -1721,16 +1491,6 @@ class AppConfigController extends AdminPanelController
             ),
 
             //──── POST ────────────────────────────────────────────────────────────────────────
-            //Manejadores de imágenes
-            new Route(
-                "{$startRoute}images/add/images[/]",
-                $classname . ':actionImages',
-                'configurations-customization-images-action',
-                'POST',
-                true,
-                null,
-                self::ROLES_IMAGES_ACTION
-            ),
             //OsTicket
             new Route(
                 "{$startRoute}images/config/osticket[/]",

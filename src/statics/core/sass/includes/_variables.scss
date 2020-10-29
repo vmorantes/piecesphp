@@ -1,2 +1,78 @@
-//Misc
+//========FONTS
+@import '../../fonts/lato/lato.css';
+@import '../../fonts/merriweather/merriweather.css';
+$fontFamilyFirst: 'Lato',
+'Helvetica Neue',
+Arial,
+Helvetica,
+sans-serif;
+$fontFamilySecond: Arial,
+Helvetica,
+sans-serif;
+//Paragraph
+$pFontFamily:$fontFamilySecond;
+$listFontFamily:$fontFamilySecond;
+//========COLORS
+//Generales
+$colorFirst: rgb(0, 146, 208);
+$colorSecond: rgb(40, 100, 133);
+$colorThird: rgb(150, 150, 150);
+$colorFourth: rgb(70, 70, 70);
+$colorFirstOver: white;
+$textHeader1Color: #1e1e1e;
+$textHeader2Color: #286485;
+$textHeader3Color: #464646;
+$textQuoteColor: $colorThird;
+
+//Sidebar
+$sidebarBgColor: #111213;
+$sidebarColor: rgb(220, 220, 220);
+$sidebarColorLogoDeveloped: rgb(200, 200, 200);
+;
+$toggleMenuColor: rgb(146, 146, 146);
+$toggleMenuColorActive: white;
+
+//Topbar
+$topbarColorUserInfoMain: rgb(240, 240, 240);
+$topbarColorUserInfoSecond: rgb(200, 200, 200);
+
+//Colors by names
+$gray-light:#959595;
+$green:#1bc256;
+$gray:#5f5f5f;
+
+//========SIZES
+//General
+$htmlFontSize: 14px;
+//Header
+$h1FontSize:2.3rem;
+$h2FontSize:2rem;
+$h3FontSize:1.6rem;
+$h4FontSize:1.3rem;
+$h1Margin: 0 0 1.5rem 0;
+$h2Margin: 0 0 1rem 0;
+$h3Margin: 0 0 1rem 0;
+$h4Margin: 0 0 1rem 0;
+//Paragraph
+$pFontSize:1.15rem;
+$pLineHeight:1.8rem;
+$pMargin:0.5rem 0 0.5rem 0;
+$pMaxWidth: 58rem;
+//List
+$listFontSize:1.15rem;
+$listLineHeight:1.8rem;
+$listMargin:1.5rem 0 1rem 0;
+$listPadding:0 0 0 4rem;
+$listMaxWidth: 54rem;
+$listItemPadding:0 0 0 0;
+//Quotes
+$quoteFontSize:1.15rem;
+$quoteLineHeight:1.8rem;
+$quoteMarginTop:1.5rem;
+$quotePadding: 3% 10% 0% 10%;
+$quoteMaxWidth: 54rem;
+$quoteBorderTop: 1px solid $colorFirst;
+$quoteBorderBottom: 1px solid $colorFirst;
+
+//========MISC
 $globalClassPcs: 'ui-pcs';
