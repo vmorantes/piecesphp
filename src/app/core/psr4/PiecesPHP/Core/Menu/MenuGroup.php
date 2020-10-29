@@ -73,7 +73,7 @@ class MenuGroup
         ],
         'icon' => [
             'rules' => ['is_string'],
-            'default' => 'bullseye',
+            'default' => '',
         ],
         'current' => [
             'rules' => ['bool'],
@@ -369,9 +369,14 @@ class MenuGroup
             }
 
             $group_container = new HtmlElement('ul', '', null, $group_attributes);
-            $group_container->setAttribute('class', 'group');
 
-            $group_name = "<i class='icon $group_icon'></i><span>$group_name</span>";
+            if (mb_strlen(trim($group_icon)) > 0) {
+                $group_container->setAttribute('class', 'group');
+                $group_name = "<i class='icon $group_icon'></i><span>$group_name</span>";
+            } else {
+                $group_container->setAttribute('class', 'group no-icon');
+                $group_name = "<span>$group_name</span>";
+            }
 
             if (!$group_as_link || $group_current) {
 

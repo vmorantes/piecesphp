@@ -9,6 +9,7 @@
  * En este este archivo se pueden definir elementos útiles para generar menús
  */
 
+use App\Controller\AppConfigController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
@@ -28,70 +29,66 @@ $sidebar = new MenuGroupCollection([
     'items' => [
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Inicio'),
-            'icon' => 'home',
             'visible' => Roles::hasPermissions('admin', $current_type_user),
             'asLink' => true,
             'href' => get_route('admin'),
         ]),
         new MenuGroup([
             'name' => __('bi-shop', 'Tienda'),
-            'icon' => 'store',
             'visible' => Roles::hasPermissions('built-in-shop-private-entry-options', $current_type_user),
             'asLink' => true,
             'href' => get_route('built-in-shop-private-entry-options', [], true),
         ]),
         new MenuGroup([
             'name' => __('bi-dynamic-images', 'Imágenes'),
-            'icon' => 'images',
             'visible' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::allowedRoute('options'),
             'asLink' => true,
             'href' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::routeName('options', [], true),
         ]),
         new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Artículos'),
-            'icon' => 'newspaper',
-            'visible' => Roles::hasPermissions('built-in-articles-list', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('built-in-articles-list', [], true),
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Categorías'),
-            'icon' => 'tags',
-            'visible' => Roles::hasPermissions('built-in-articles-categories-list', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('built-in-articles-categories-list', [], true),
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Blog'),
+            'visible' =>
+            Roles::hasPermissions('built-in-articles-list', $current_type_user) ||
+            Roles::hasPermissions('built-in-articles-categories-list', $current_type_user),
+            'items' => [
+                new MenuItem([
+                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Artículos'),
+                    'href' => get_route('built-in-articles-list', [], true),
+                    'visible' => Roles::hasPermissions('built-in-articles-list', $current_type_user),
+                ]),
+                new MenuItem([
+                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Categorías'),
+                    'href' => get_route('built-in-articles-categories-list', [], true),
+                    'visible' => Roles::hasPermissions('built-in-articles-categories-list', $current_type_user),
+                ]),
+            ],
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),
-            'icon' => 'marker',
             'visible' => Roles::hasPermissions('locations', $current_type_user),
             'asLink' => true,
             'href' => get_route('locations', [], true),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Noticias'),
-            'icon' => 'newspaper',
             'visible' => Roles::hasPermissions('blackboard-news-list', $current_type_user),
             'asLink' => true,
             'href' => get_route('blackboard-news-list', [], true),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Gestionar usuarios'),
-            'icon' => 'user',
             'visible' => Roles::hasPermissions('users-list', $current_type_user),
             'asLink' => true,
             'href' => get_route('users-list'),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Informes de ingreso'),
-            'icon' => 'file',
             'visible' => Roles::hasPermissions('informes-acceso', $current_type_user),
             'asLink' => true,
             'href' => get_route('informes-acceso'),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Importar usuarios'),
-            'icon' => 'upload',
             'visible' => Roles::hasPermissions('importer-form', $current_type_user),
             'asLink' => true,
             'href' => get_route('importer-form', ['type' => 'users'], true),
@@ -101,42 +98,48 @@ $sidebar = new MenuGroupCollection([
             'attributes' => [
                 'unread-threads' => get_route('messages-threads-status', [], true),
             ],
-            'icon' => 'envelope',
             'visible' => Roles::hasPermissions('messages-inbox', $current_type_user),
             'asLink' => true,
             'href' => get_route('messages-inbox', [], true),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Opciones de usuario'),
-            'icon' => 'user cog',
             'visible' => true,
             'asLink' => true,
             'href' => get_route('users-form-profile'),
         ]),
         new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Personalización'),
-            'icon' => 'pencil alternate',
-            'visible' => Roles::hasPermissions('configurations-customization', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('configurations-customization', [], true),
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Configuraciones'),
-            'icon' => 'cogs',
-            'visible' => Roles::hasPermissions('configurations-generals', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('configurations-generals', [], true),
+            'name' => __(AppConfigController::LANG_GROUP, 'Configuraciones'),
+            'visible' =>
+            AppConfigController::allowedRoute('generals') ||
+            AppConfigController::allowedRoute('backgrounds') ||
+            AppConfigController::allowedRoute('logos-favicons'),
+            'items' => [
+                new MenuItem([
+                    'text' => __(AppConfigController::LANG_GROUP, 'Personalización de fondos'),
+                    'href' => AppConfigController::routeName('backgrounds'),
+                    'visible' => AppConfigController::allowedRoute('backgrounds'),
+                ]),
+                new MenuItem([
+                    'text' => __(AppConfigController::LANG_GROUP, 'Imágenes de marca'),
+                    'href' => AppConfigController::routeName('logos-favicons'),
+                    'visible' => AppConfigController::allowedRoute('logos-favicons'),
+                ]),
+                new MenuItem([
+                    'text' => __(AppConfigController::LANG_GROUP, 'Otras configuraciones'),
+                    'href' => AppConfigController::routeName('generals'),
+                    'visible' => AppConfigController::allowedRoute('generals'),
+                ]),
+            ],
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Log de errores'),
-            'icon' => 'file alternate outline',
             'visible' => Roles::hasPermissions('admin-error-log', $current_type_user),
             'asLink' => true,
             'href' => get_route('admin-error-log'),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Soporte técnico'),
-            'icon' => 'question',
             'visible' => Roles::hasPermissions('tickets-create', $current_type_user),
             'asLink' => true,
             'attributes' => [
@@ -145,14 +148,12 @@ $sidebar = new MenuGroupCollection([
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Rutas y permisos'),
-            'icon' => 'shield alternate',
             'visible' => Roles::hasPermissions('configurations-routes', $current_type_user),
             'asLink' => true,
             'href' => get_route('configurations-routes', [], true),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Cerrar sesión'),
-            'icon' => 'share',
             'visible' => true,
             'asLink' => false,
             'attributes' => [
@@ -166,8 +167,7 @@ $sidebar = new MenuGroupCollection([
 $alternativesURL = Config::get_config('alternatives_url');
 
 $langsItem = new MenuGroup([
-    'name' => '',
-    'icon' => 'language',
+    'name' =>  __(ADMIN_MENU_LANG_GROUP, 'Idiomas'),
     'position' => 300,
 ]);
 
