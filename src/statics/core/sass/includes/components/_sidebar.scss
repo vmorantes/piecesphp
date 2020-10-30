@@ -250,6 +250,12 @@
                             font-weight: 900;
                         }
 
+                        &.current, &.active{
+                            border-bottom: 0.5px dashed;
+                            padding-bottom: 0.5px;
+                            max-width: max-content;
+                        }
+
                     }
                 }
             }
