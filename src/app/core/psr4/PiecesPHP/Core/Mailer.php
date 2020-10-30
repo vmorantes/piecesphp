@@ -39,63 +39,49 @@ class Mailer extends PHPMailer
     {
         parent::__construct($exceptions);
 
-        $mail_config = get_config('mail');
+        $mailConfig = get_config('mail');
+        $mailConfig = $mailConfig instanceof \stdClass || is_array($mailConfig) ? (array) $mailConfig : [];
 
-        if ($mail_config instanceof \stdClass) {
-            $mail_config = (array) $mail_config;
-        }
+        $defaultConfig = [
+            'smtp_debug' => SMTP::DEBUG_OFF,
+            'is_smtp' => true,
+            'host' => 'smtp.host.com',
+            'user' => 'correo@correo.com',
+            'password' => '123456',
+            'protocol' => 'ssl',
+            'port' => '465',
+            'auto_tls' => true,
+            'smtp_options' => [],
+        ];
 
-        if (!isset($mail_config['smtp_debug'])) {
-            $mail_config['smtp_debug'] = SMTP::DEBUG_OFF;
-        }
-        if (!isset($mail_config['is_smtp'])) {
-            $mail_config['is_smtp'] = true;
-        }
-        if (!isset($mail_config['host'])) {
-            $mail_config['host'] = 'smtp.host.com';
-        }
-        if (!isset($mail_config['auth'])) {
-            $mail_config['auth'] = true;
-        }
-        if (!isset($mail_config['user'])) {
-            $mail_config['user'] = 'correo@correo.com';
-        }
-        if (!isset($mail_config['password'])) {
-            $mail_config['password'] = '123456';
-        }
-        if (!isset($mail_config['protocol'])) {
-            $mail_config['protocol'] = 'ssl';
-        }
-        if (!isset($mail_config['port'])) {
-            $mail_config['port'] = '465';
-        }
-        if (!isset($mail_config['auto_tls'])) {
-            $mail_config['auto_tls'] = true;
-        }
-        if (!isset($mail_config['smtp_options'])) {
-            $mail_config['smtp_options'] = [];
+        foreach ($defaultConfig as $nameConfig => $valueConfig) {
+
+            if (!array_key_exists($nameConfig, $mailConfig)) {
+                $mailConfig[$nameConfig] = $valueConfig;
+            }
+
         }
 
-        $this->SMTPDebug = $mail_config['smtp_debug'];
-        $this->Host = $mail_config['host'];
-        $this->Port = $mail_config['port'];
-        $this->SMTPAutoTLS = $mail_config['auto_tls'];
+        $this->SMTPDebug = $mailConfig['smtp_debug'];
+        $this->Host = $mailConfig['host'];
+        $this->Port = $mailConfig['port'];
+        $this->SMTPAutoTLS = $mailConfig['auto_tls'];
 
-        if ($mail_config['protocol'] !== false) {
-            $this->SMTPSecure = $mail_config['protocol'];
+        if ($mailConfig['protocol'] !== false) {
+            $this->SMTPSecure = $mailConfig['protocol'];
         }
 
-        if (is_array($mail_config['smtp_options']) && count($mail_config['smtp_options']) > 0) {
-            $this->SMTPOptions = $mail_config['smtp_options'];
+        if (is_array($mailConfig['smtp_options']) && count($mailConfig['smtp_options']) > 0) {
+            $this->SMTPOptions = $mailConfig['smtp_options'];
         }
 
-        if ($mail_config['auth'] === true) {
-            $this->SMTPAuth = $mail_config['auth'];
-            $this->Username = $mail_config['user'];
-            $this->Password = $mail_config['password'];
+        if ($mailConfig['auth'] === true) {
+            $this->SMTPAuth = $mailConfig['auth'];
+            $this->Username = $mailConfig['user'];
+            $this->Password = $mailConfig['password'];
         }
 
-        if ($mail_config['is_smtp'] === true) {
+        if ($mailConfig['is_smtp'] === true) {
 
             $this->isSMTP();
 

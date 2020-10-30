@@ -132,7 +132,7 @@ class HttpClient
             ],
         ]);
 
-        $this->requestURI = append_to_url(self::$baseURL, $request_uri);
+        $this->requestURI = append_to_url(self::$baseURL, $request_uri, true);
 
         $response = @file_get_contents($this->requestURI, false, $context);
         $this->response['headers'] = $this->parseReponseHeaders($http_response_header);
