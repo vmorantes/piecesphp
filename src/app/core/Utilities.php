@@ -105,21 +105,71 @@ function get_part_request($part = 1)
  *
  * @param string $url La URL
  * @param string $segment El segmento que se añadirá
+ * @param bool $complete Si la URL podría incluir user, pass y port
  * @return string La URL
  */
-function append_to_url(string $url, string $segment)
+function append_to_url(string $url, string $segment, bool $complete = false)
 {
-    $parts = parse_url($url);
-    $scheme = isset($parts['scheme']) ? $parts['scheme'] : '';
-    $host = isset($parts['host']) ? $parts['host'] : '';
-    $path = isset($parts['path']) ? $parts['path'] : '';
-    $url = "$host/$path/$segment";
+
+    $parts = [
+        'scheme' => parse_url($url, \PHP_URL_SCHEME),
+        'user' => parse_url($url, \PHP_URL_USER),
+        'pass' => parse_url($url, \PHP_URL_PASS),
+        'host' => parse_url($url, \PHP_URL_HOST),
+        'port' => parse_url($url, \PHP_URL_PORT),
+        'path' => parse_url($url, \PHP_URL_PATH),
+    ];
+
+    $getKeyValue = function (string $key) use ($parts) {
+        return isset($parts[$key]) && $parts[$key] !== null ? $parts[$key] : '';
+    };
+
+    $scheme = ($getKeyValue)('scheme');
+    $user = ($getKeyValue)('user');
+    $pass = ($getKeyValue)('pass');
+    $host = ($getKeyValue)('host');
+    $port = ($getKeyValue)('port');
+    $path = ($getKeyValue)('path');
+
+    if ($complete) {
+
+        $url = [];
+
+        if (mb_strlen($user) > 0) {
+
+            $authString = "{$user}";
+
+            if (mb_strlen($pass) > 0) {
+                $authString .= ":{$pass}";
+            }
+
+            $authString .= '@';
+
+            $url[] = $authString;
+
+        }
+
+        $url[] = "{$host}";
+
+        if (mb_strlen($port) > 0) {
+            $url[] = ":{$port}";
+        }
+
+        $url[] = "/{$path}/$segment";
+        $url = implode('', $url);
+
+    } else {
+        $url = "$host/$path/$segment";
+    }
+
     $url = preg_replace('|\/{2,}|', '/', $url);
+
     if (mb_strlen($scheme) > 0) {
         $url = "$scheme://$url";
     } else {
         $url = "$url";
     }
+
     return $url;
 }
 
