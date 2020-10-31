@@ -2,7 +2,7 @@
 
     position: relative;
     z-index: 1;
-    background-color: $sidebarBgColor;
+    background-color: var(--bg-color);
     display: grid;
     grid-template-columns: 300px auto;
     justify-content: flex-end;

@@ -66,7 +66,8 @@ if (APP_CONFIGURATION_MODULE) {
     if (get_config('osTicketAPIKey') !== false) {
         $default_configurations_values['osTicketAPIKey'] = get_config('osTicketAPIKey');
     }
-    $default_configurations_values['meta_theme_color'] = get_config('meta_theme_color') !== false ? get_config('meta_theme_color') : '#2692D0';
+    $default_configurations_values['meta_theme_color'] = get_config('meta_theme_color') !== false ? get_config('meta_theme_color') : '#13436C';
+    $default_configurations_values['admin_menu_color'] = get_config('admin_menu_color') !== false ? get_config('admin_menu_color') : '#111213';
     $default_configurations_values['keywords'] = get_config('keywords') !== false ? get_config('keywords') : [
         'Website',
     ];

@@ -3,7 +3,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use App\Model\UsersModel;
 ?>
 
-<div class="ui-pcs topbar">
+<div style="--bg-color:<?= get_config('admin_menu_color'); ?>;" class="ui-pcs topbar">
 
     <div class="blank">
     </div>
