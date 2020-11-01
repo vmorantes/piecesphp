@@ -57,6 +57,13 @@ $config['statics_path'] = __DIR__ . '/../../statics';
 
 //──── Extras ────────────────────────────────────────────────────────────────────────────
 
+$config['mailjet'] = [
+    'email' => 'correo@correo.com',
+    'name' => 'Name',
+    'apiKey' => 'API_KEY',
+    'secretKey' => 'SECRET_KEY',
+];
+
 //======Información complementaria para mostrar en la aplicación========
 
 //Desarrollador

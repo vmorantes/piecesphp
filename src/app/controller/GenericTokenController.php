@@ -304,6 +304,10 @@ class GenericTokenController extends AdminPanelController
 
                 $mailer->Body = $this->render('panel/pages/generic_token/mail_template', $data, false, false);
 
+                if (!$mailer->checkSettedSMTP()) {
+                    $mailer->asGoDaddy();
+                }
+
                 $success = $mailer->send();
 
                 if ($success) {

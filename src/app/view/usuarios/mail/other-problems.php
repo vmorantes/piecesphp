@@ -3,6 +3,7 @@ $langGroup = MAIL_TEMPLATES_LANG_GROUP;
 ?>
 <h1><?= __($langGroup, 'Mensaje'); ?></h1>
 
+<p><strong><?= __($langGroup, 'Enviado desde'); ?>: <?= $originURL; ?></strong></p>
 <p><strong><?= __($langGroup, 'Asunto'); ?>: <?= $subject; ?></strong></p>
 <p><strong><?= __($langGroup, 'E-mail'); ?>: <?= $mail; ?></strong></p>
 <p><strong><?= __($langGroup, 'Nombre'); ?>: <?= $name; ?></strong></p>
