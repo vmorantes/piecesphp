@@ -6,19 +6,23 @@ $langGroup = UsersController::LANG_GROUP;
 <div class="user-form-component">
 
     <div class="ui pointing secondary menu items-pointing">
+        <?php if (!$onlyImage): ?>
         <a class="item active" data-tab="form-container"><?= __($langGroup, 'Datos de usuario'); ?></a>
-        <?php if (!$create): ?>
-        <a class="item" data-tab="avatar-photo-container"><?= __($langGroup, 'Foto de perfil'); ?></a>
+        <?php endif;?>
+        <?php if (!$create && !$onlyProfile): ?>
+        <a class="item<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container"><?= __($langGroup, 'Foto de perfil'); ?></a>
         <?php endif;?>
     </div>
 
+    <?php if (!$onlyImage): ?>
     <div class="ui bottom attached tab active" data-tab="form-container">
         <?= $form; ?>
     </div>
+    <?php endif;?>
 
-    <?php if (!$create): ?>
+    <?php if (!$create && !$onlyProfile): ?>
 
-    <div class="ui bottom attached tab" data-tab="avatar-photo-container">
+    <div class="ui bottom attached tab<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container">
 
         <form action="<?=get_route('push-avatars');?>" class="ui form profile-photo-form">
 

@@ -1000,17 +1000,27 @@ function pcsAdminSideBar(selector) {
 		}
 
 		let toggle = $('.ui-pcs.sidebar-toggle')
+
 		if (toggle.length > 0) {
-			toggle.click(function (e) {
+
+			let bgColor = menu.css('--bg-color')
+
+			toggle.on('click', function (e) {
+
 				if (menu.is(':visible')) {
+
 					menu.fadeOut(500, function () {
-						menu.attr('style', '')
+						menu.attr('style', `--bg-color:${bgColor};`)
 						$(menu).removeClass('overlay')
 					})
+
 					$(this).removeClass('active')
+
 				} else {
+
 					$(menu).addClass('overlay')
 					$(this).addClass('active')
+
 				}
 
 			})
