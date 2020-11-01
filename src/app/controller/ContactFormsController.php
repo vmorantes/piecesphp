@@ -6,6 +6,7 @@
 
 namespace App\Controller;
 
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -190,12 +191,13 @@ class ContactFormsController extends PublicAreaController
                 $bodyMessage = utf8_decode($bodyMessage);
 
                 $mailer = new Mailer();
+                $mailConfig = new MailConfig;
 
                 $mailer->SMTPDebug = 2;
                 $mailer->isHTML(true);
 
-                //Si es Zoho el dato de From debe ser igual al del usuario que envía por SMPT
-                $mailer->setFrom($email, $name);
+                $mailer->setFrom($mailConfig->user());
+                $mailer->addReplyTo($email, $name);
 
                 foreach ($this->recipientsMessages as $recipient) {
                     $mailer->addAddress($recipient);
@@ -203,6 +205,10 @@ class ContactFormsController extends PublicAreaController
 
                 $mailer->Subject = utf8_decode(__(LANG_GROUP, 'Contacto') . ': ' . $subject);
                 $mailer->Body = $bodyMessage;
+
+                if (!$mailer->checkSettedSMTP()) {
+                    $mailer->asGoDaddy();
+                }
 
                 $success = $mailer->send();
 

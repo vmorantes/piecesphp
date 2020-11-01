@@ -23,7 +23,6 @@ $directories = [
     'utilities' => __DIR__ . "/Utilities.php",
     'config' => __DIR__ . "/../config/config.php",
     'database' => __DIR__ . "/../config/database.php",
-    'mail' => __DIR__ . "/../config/mail.php",
     'cookies' => __DIR__ . "/../config/cookies.php",
     'roles' => __DIR__ . "/../config/roles.php",
     'config_class' => __DIR__ . "/Config.php",
@@ -62,7 +61,6 @@ require $directories['utilities'];
 require $directories['config'];
 require $directories['config_class'];
 require $directories['database'];
-require $directories['mail'];
 require $directories['cookies'];
 require $directories['roles'];
 

@@ -9,6 +9,7 @@ namespace App\Controller;
 use App\Model\TicketsLogModel;
 use App\Model\UserProblemsModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use \Slim\Http\Request as Request;
@@ -28,6 +29,8 @@ class UserProblemsController extends UsersController
     const TYPE_USER_FORGET = 'TYPE_USER_FORGET';
     const TYPE_USER_BLOCKED = 'TYPE_USER_BLOCKED';
     const LANG_GROUP = 'usersProblems';
+
+    const EMAIL_ON_FAILED_OS_TICKET = 'sir.vamb@gmail.com';
 
     /**
      * $userMapper
@@ -498,10 +501,7 @@ class UserProblemsController extends UsersController
     private function sendCode(string $code, \stdClass $usuario, $type = 'TYPE_USER_FORGET')
     {
         $mail = new Mailer();
-
-        $from = get_config('mail')['user'];
-
-        $from_name = get_title();
+        $mailConfig = new MailConfig;
 
         $to = $usuario->email;
 
@@ -525,7 +525,16 @@ class UserProblemsController extends UsersController
             ], false);
         }
 
-        $mail->setMessageInformation($from, $from_name, $to, $to_name, $subject, $message);
+        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->addAddress($to, $to_name);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $message;
+        $mail->AltBody = strip_tags($message);
+
+        if (!$mail->checkSettedSMTP()) {
+            $mail->asGoDaddy();
+        }
 
         return $mail->send();
     }
@@ -546,6 +555,7 @@ class UserProblemsController extends UsersController
         $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . get_title();
 
         $message = $this->render('usuarios/mail/other-problems', [
+            'originURL' => baseurl(),
             'subject' => $subject,
             'mail' => $email,
             'name' => $name,
@@ -556,9 +566,32 @@ class UserProblemsController extends UsersController
         $api = get_config('osTicketAPI');
         $key = get_config('osTicketAPIKey');
 
-        $osTicket = new OsTicketAPI($api, $key);
+        $success = false;
 
-        $success = $osTicket->createTicket($name, $email, $subject, $message);
+        if (is_string($api) && mb_strlen(trim($api)) > 0 && is_string($key) && mb_strlen(trim($key)) > 0) {
+            $osTicket = new OsTicketAPI($api, $key);
+            $success = $osTicket->createTicket($name, $email, $subject, $message);
+        }
+
+        if (!$success) {
+
+            $mail = new Mailer();
+            $mailConfig = new MailConfig;
+
+            $mail->setFrom($mailConfig->user(), get_title());
+            $mail->addReplyTo($email, $name);
+            $mail->addAddress(self::EMAIL_ON_FAILED_OS_TICKET);
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+            $mail->Body = $message;
+            $mail->AltBody = strip_tags($message);
+
+            if (!$mail->checkSettedSMTP()) {
+                $mail->asGoDaddy();
+            }
+
+            $success = $mail->send();
+        }
 
         return [
             'success' => $success,

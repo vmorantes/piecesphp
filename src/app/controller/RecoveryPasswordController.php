@@ -10,6 +10,7 @@ use App\Model\RecoveryPasswordModel;
 use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\StringManipulate;
 use \Slim\Http\Request as Request;
@@ -505,11 +506,9 @@ class RecoveryPasswordController extends UsersController
      */
     private function mailRecoveryPassword(string $url, \stdClass $usuario)
     {
+
         $mail = new Mailer();
-
-        $from = get_config('mail')['user'];
-
-        $from_name = get_title();
+        $mailConfig = new MailConfig;
 
         $to = $usuario->email;
 
@@ -519,9 +518,19 @@ class RecoveryPasswordController extends UsersController
 
         $message = $this->render('usuarios/mail/recovery_password', ['url' => $url], false);
 
-        $mail->setMessageInformation($from, $from_name, $to, $to_name, $subject, $message);
+        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->addAddress($to, $to_name);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $message;
+        $mail->AltBody = strip_tags($message);
+
+        if (!$mail->checkSettedSMTP()) {
+            $mail->asGoDaddy();
+        }
 
         return $mail->send();
+
     }
 
     /**
@@ -535,10 +544,7 @@ class RecoveryPasswordController extends UsersController
     private function mailRecoveryPasswordCode(string $code, \stdClass $usuario)
     {
         $mail = new Mailer();
-
-        $from = get_config('mail')['user'];
-
-        $from_name = get_title();
+        $mailConfig = new MailConfig;
 
         $to = $usuario->email;
 
@@ -551,7 +557,16 @@ class RecoveryPasswordController extends UsersController
             'url' => get_route('recovery-form') . "?code=$code",
         ], false);
 
-        $mail->setMessageInformation($from, $from_name, $to, $to_name, $subject, $message);
+        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->addAddress($to, $to_name);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $message;
+        $mail->AltBody = strip_tags($message);
+
+        if (!$mail->checkSettedSMTP()) {
+            $mail->asGoDaddy();
+        }
 
         return $mail->send();
     }
@@ -567,10 +582,7 @@ class RecoveryPasswordController extends UsersController
     private function mailNewPassword(string $password, \stdClass $usuario)
     {
         $mail = new Mailer();
-
-        $from = get_config('mail')['user'];
-
-        $from_name = get_title();
+        $mailConfig = new MailConfig;
 
         $to = $usuario->email;
 
@@ -580,7 +592,16 @@ class RecoveryPasswordController extends UsersController
 
         $message = $this->render('usuarios/mail/restored_password', ['password' => $password], false);
 
-        $mail->setMessageInformation($from, $from_name, $to, $to_name, $subject, $message);
+        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->addAddress($to, $to_name);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $message;
+        $mail->AltBody = strip_tags($message);
+
+        if (!$mail->checkSettedSMTP()) {
+            $mail->asGoDaddy();
+        }
 
         return $mail->send();
     }

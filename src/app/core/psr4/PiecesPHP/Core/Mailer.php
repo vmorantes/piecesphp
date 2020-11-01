@@ -5,9 +5,9 @@
  */
 namespace PiecesPHP\Core;
 
-use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 
 /**
  * Mailer - Enviar mails.
@@ -28,10 +28,6 @@ class Mailer extends PHPMailer
     protected $log = [];
 
     /**
-     * __construct
-     *
-     * Constructor
-     *
      * @param bool $exceptions Establece si lanzará excepciones
      * @return void
      */
@@ -39,52 +35,22 @@ class Mailer extends PHPMailer
     {
         parent::__construct($exceptions);
 
-        $mailConfig = get_config('mail');
-        $mailConfig = $mailConfig instanceof \stdClass || is_array($mailConfig) ? (array) $mailConfig : [];
+        $this->CharSet = 'UTF-8';
 
-        $defaultConfig = [
-            'smtp_debug' => SMTP::DEBUG_OFF,
-            'is_smtp' => true,
-            'host' => 'smtp.host.com',
-            'user' => 'correo@correo.com',
-            'password' => '123456',
-            'protocol' => 'ssl',
-            'port' => '465',
-            'auto_tls' => true,
-            'smtp_options' => [],
-        ];
+        $mailConfig = new MailConfig;
 
-        foreach ($defaultConfig as $nameConfig => $valueConfig) {
+        $this->SMTPDebug = $mailConfig->smtpDebug();
+        $this->Host = $mailConfig->host();
+        $this->Port = $mailConfig->port();
+        $this->SMTPAutoTLS = $mailConfig->autoTls();
+        $this->SMTPSecure = $mailConfig->protocol();
+        $this->SMTPOptions = $mailConfig->smtpOptions();
+        $this->SMTPAuth = $mailConfig->auth();
+        $this->Username = $mailConfig->user();
+        $this->Password = $mailConfig->password();
 
-            if (!array_key_exists($nameConfig, $mailConfig)) {
-                $mailConfig[$nameConfig] = $valueConfig;
-            }
-
-        }
-
-        $this->SMTPDebug = $mailConfig['smtp_debug'];
-        $this->Host = $mailConfig['host'];
-        $this->Port = $mailConfig['port'];
-        $this->SMTPAutoTLS = $mailConfig['auto_tls'];
-
-        if ($mailConfig['protocol'] !== false) {
-            $this->SMTPSecure = $mailConfig['protocol'];
-        }
-
-        if (is_array($mailConfig['smtp_options']) && count($mailConfig['smtp_options']) > 0) {
-            $this->SMTPOptions = $mailConfig['smtp_options'];
-        }
-
-        if ($mailConfig['auth'] === true) {
-            $this->SMTPAuth = $mailConfig['auth'];
-            $this->Username = $mailConfig['user'];
-            $this->Password = $mailConfig['password'];
-        }
-
-        if ($mailConfig['is_smtp'] === true) {
-
+        if ($mailConfig->isSmtp()) {
             $this->isSMTP();
-
         }
 
         $this->Debugoutput = function ($str, $level) {
@@ -133,33 +99,39 @@ class Mailer extends PHPMailer
     }
 
     /**
-     * setMessageInformation
-     *
-     * @param string $remitentMail
-     * @param string $remitentName
-     * @param string $recipientMail
-     * @param string $recipientName
-     * @param string $subject
-     * @param string $body
-     * @param string $altBody
-     * @param bool $utf_decode
-     * @return void
+     * @param bool $sendmail
+     * @return static
      */
-    public function setMessageInformation(string $remitentMail, string $remitentName, string $recipientMail, string $recipientName, string $subject, string $body, string $altBody = '', bool $utf_decode = true)
+    public function asGoDaddy(bool $sendmail = false)
     {
-        if ($utf_decode) {
-            $remitentName = utf8_decode($remitentName);
-            $recipientName = utf8_decode($recipientName);
-            $subject = utf8_decode($subject);
-            $body = utf8_decode($body);
-            $altBody = utf8_decode($altBody);
+        if ($sendmail) {
+            $this->isSendmail();
+        } else {
+            $this->isMail();
         }
+        $this->SMTPAuth = false;
+        $this->SMTPAutoTLS = false;
+        $this->Host = 'localhost';
+        $this->Port = 25;
+        return $this;
+    }
 
-        $this->setFrom($remitentMail, $remitentName);
-        $this->addAddress($recipientMail, $recipientName);
-        $this->isHTML(true);
-        $this->Subject = $subject;
-        $this->Body = $body;
-        $this->AltBody = $altBody;
+    /**
+     * @return bool
+     */
+    public function checkSettedSMTP()
+    {
+        return self::checkSMTP($this->Host, $this->Port);
+    }
+
+    /**
+     * @param string $host
+     * @param integer $port
+     * @return bool
+     */
+    public static function checkSMTP(string $host, int $port)
+    {
+        $smtp = new SMTP();
+        return $smtp->connect($host, $port);
     }
 }

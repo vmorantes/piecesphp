@@ -481,6 +481,7 @@ $lang = [
         'Iniciar sesión.'                      => 'Log in.',
         'Su nueva contraseña es'               => 'Your new password is',
         'Código de verificación'               => 'Verification code',
+        'Enviado desde'                        => 'Sent from',
     ],
     'usersProblems' => [
         'Creación de solicitud de soporte'                                => "Creation of the request for support",
