@@ -31,7 +31,7 @@
         display: flex;
         flex: 0 0 auto;
         flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: flex-end;
         align-items: center;
         height: 100%;
 
@@ -211,7 +211,7 @@
             display: none;
             position: absolute;
             top: 100%;
-            left: 0px;
+            right: 0px;
             background-color: black;
             width: max-content;
             max-width: 300px;
@@ -292,6 +292,7 @@
     @media screen and (max-width:900px) {
 
         grid-template-columns: 350px 150px 320px;
+        padding-left: 0px;
 
         .nav-buttons {
 
@@ -330,7 +331,6 @@
         height: auto;
         max-height: initial;
 
-
         .blank {
             display: none;
         }
@@ -350,13 +350,21 @@
                     padding: 5px;
                 }
 
+                >.items {
+                    left: 50%;
+                    transform: translateX(-50%);
+                }
+
             }
 
         }
 
         .user-info {
 
-            grid-template-columns: auto;
+            grid-template-columns: 100%;
+            width: 100%;
+            padding-left: 0px;
+            padding-right: 0px;
 
             >.avatar {
                 display: none;
@@ -364,6 +372,7 @@
 
             .info-menu {
                 left: 50%;
+                right: initial;
                 transform: translateX(-50%);
             }
 

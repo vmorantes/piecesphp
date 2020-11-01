@@ -2,6 +2,8 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\UsersController;
 $langGroup = UsersController::LANG_GROUP;
+$onlyProfile = isset($onlyProfile) ? $onlyProfile : false;
+$onlyImage = isset($onlyImage) ? $onlyImage : false;
 ?>
 <div class="user-form-component">
 
