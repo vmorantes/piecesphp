@@ -2,11 +2,18 @@
     display: none;
     font-family: $fontFamilyFirst;
 
+    i.icon {
+        font-size: 30px;
+        line-height: 30px;
+        padding: 0px;
+        margin: 0px;
+    }
+
     @media (max-width: 800px) {
         display: block;
         position: fixed;
-        top: 20px;
-        left: 15px;
+        top: 5px;
+        left: 5px;
         z-index: 200;
         font-size: 2.5rem;
         color: $toggleMenuColor;
@@ -140,7 +147,7 @@
                 padding: 0.5rem;
                 padding-left: 2.5em;
                 padding-right: 0px;
-                transition: 0.8s color ease;
+                transition: 0.8s color ease, 0.8s background-color ease;
                 text-decoration: none;
                 cursor: pointer;
                 color: $sidebarColor;
@@ -155,7 +162,7 @@
                 }
 
                 &:hover {
-                    color: transparentize($sidebarColor, 0.6);
+                    background-color: transparent;
 
                     a {
                         color: transparentize($sidebarColor, 0.6) !important;
@@ -250,7 +257,8 @@
                             font-weight: 900;
                         }
 
-                        &.current, &.active{
+                        &.current,
+                        &.active {
                             border-bottom: 0.5px dashed;
                             padding-bottom: 0.5px;
                             max-width: max-content;

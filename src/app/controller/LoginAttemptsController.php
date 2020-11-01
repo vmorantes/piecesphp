@@ -56,8 +56,23 @@ class LoginAttemptsController extends AdminPanelController
             }
 
         } else {
+
+            $logged = $request->getQueryParam('logged', 'no') === 'yes';
+            $notLogged = $request->getQueryParam('not-logged', 'no') === 'yes';
+            $attempts = $request->getQueryParam('attempts', 'no') === 'yes';
+
             $this->render('panel/layout/header');
-            $this->render('panel/pages/login-reports');
+
+            if ($logged) {
+                $this->render('panel/pages/login-reports/logged');
+            } elseif ($notLogged) {
+                $this->render('panel/pages/login-reports/not-logged');
+            } elseif ($attempts) {
+                $this->render('panel/pages/login-reports/attempts');
+            } else {
+                $this->render('panel/pages/login-reports/login-reports');
+            }
+
             $this->render('panel/layout/footer');
         }
     }

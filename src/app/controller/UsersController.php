@@ -495,6 +495,9 @@ class UsersController extends AdminPanelController
     public function formProfileByType(Request $req, Response $res, array $args)
     {
 
+        $onlyProfile = $req->getQueryParam('onlyProfile', 'no') === 'yes';
+        $onlyImage = $req->getQueryParam('onlyImage', 'no') === 'yes';
+
         import_cropper();
 
         set_custom_assets([
@@ -538,6 +541,8 @@ class UsersController extends AdminPanelController
             $data['avatar'] = AvatarModel::getAvatar($user->id);
             $data['hasAvatar'] = !is_null($data['avatar']);
             $data['create'] = false;
+            $data['onlyProfile'] = $onlyProfile;
+            $data['onlyImage'] = $onlyImage;
 
             $this->render('panel/layout/header');
             $this->render('usuarios/form', $data);

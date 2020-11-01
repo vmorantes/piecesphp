@@ -1,35 +1,178 @@
 .#{$globalClassPcs}.topbar {
 
+    --bottom-padding: 5px;
     position: relative;
     z-index: 1;
     background-color: var(--bg-color);
     display: grid;
-    grid-template-columns: 300px auto;
+    grid-template-columns: 300px 280px auto;
     justify-content: flex-end;
     margin: 0px;
     padding-top: 0px;
-    padding-right: 5px;
-    padding-bottom: 5px;
+    padding-right: 0px;
+    padding-bottom: 0px;
     padding-left: 15px;
     height: 70px;
     max-height: 70px;
+
+    &.debug {
+        >* {
+            border: 1px solid red;
+        }
+    }
 
     .blank {
         position: relative;
     }
 
+    .nav-buttons {
+
+        position: relative;
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        height: 100%;
+
+        >.menu {
+
+            z-index: 2;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            width: 70px;
+            height: 100%;
+            transition: 0.5s background-color ease;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #323334;
+
+                .items {
+                    display: flex;
+                }
+            }
+
+            >.icon {
+                color: white;
+                font-size: 1.8rem;
+                line-height: 1.8rem;
+            }
+
+            .items {
+
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0px;
+                background-color: black;
+                width: max-content;
+                max-width: 300px;
+                max-width: 300px;
+                min-height: 100px;
+                max-height: 300px;
+                overflow-y: auto;
+                flex: 0 0 auto;
+                flex-wrap: wrap;
+                justify-content: center;
+
+                &.FORCE_ACTIVE {
+                    display: flex;
+                }
+
+                >.item {
+
+                    width: 100%;
+                    color: white;
+                    padding: 0.5rem 0.8rem 0.5rem 1.2rem;
+                    display: grid;
+                    grid-template-columns: 30px auto;
+                    column-gap: 8px;
+                    align-items: center;
+                    cursor: pointer;
+                    text-decoration: none;
+                    background-color: var(--bg-color);
+                    transition: 0.5s background-color ease;
+
+                    &:not(:first-child) {
+                        margin-top: 0.4rem;
+                    }
+
+                    .figure {
+                        font-size: 1.5rem;
+                        line-height: 1.5rem;
+                    }
+
+                    .text {
+                        font-size: 1.1rem;
+                        text-overflow: ellipsis;
+                        max-width: 260px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                    }
+
+                    &:hover {
+                        background-color: transparent;
+                    }
+
+                    &.avatar {
+
+                        margin-top: 1rem;
+                        margin-bottom: 0.5rem;
+                        grid-template-columns: 60px auto;
+                        background-color: transparent;
+                        cursor: default;
+
+                        .figure {
+
+                            img {
+                                border-radius: 100%;
+                            }
+
+                            .no-avatar {
+                                background-color: $colorFirst;
+                                width: 60px;
+                                height: 60px;
+                                border-radius: 100%;
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
     .user-info {
 
+        position: relative;
         font-family: $fontFamilyFirst;
         $avatar-size: 50px;
         display: grid;
         grid-template-columns: $avatar-size auto;
-        justify-content: left;
+        justify-content: right;
         align-items: center;
         align-content: center;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 5px var(--bottom-padding) 1rem;
+        cursor: pointer;
+        transition: 0.5s background-color ease;
 
-        .text {
+        &:hover {
+            background-color: #323334;
+
+            .info-menu {
+                display: flex;
+            }
+        }
+
+        >.text {
+
             padding: 0.5rem;
             padding-bottom: 0;
 
@@ -38,6 +181,10 @@
                 line-height: 17px;
                 color: $topbarColorUserInfoMain;
                 font-weight: 500;
+                text-overflow: ellipsis;
+                max-width: 260px;
+                white-space: nowrap;
+                overflow: hidden;
             }
 
             .second {
@@ -46,7 +193,7 @@
             }
         }
 
-        .avatar {
+        >.avatar {
             margin: 0 auto;
             width: $avatar-size;
             height: $avatar-size;
@@ -61,21 +208,167 @@
         }
 
         .info-menu {
-            position: absolute;
             display: none;
+            position: absolute;
+            top: 100%;
+            left: 0px;
+            background-color: black;
+            width: max-content;
+            max-width: 300px;
+            max-width: 300px;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+
+            >.item {
+
+                width: 100%;
+                color: white;
+                padding: 0.5rem 0.8rem 0.5rem 1.2rem;
+                display: grid;
+                grid-template-columns: 30px auto;
+                column-gap: 8px;
+                align-items: center;
+                cursor: pointer;
+                text-decoration: none;
+                background-color: var(--bg-color);
+                transition: 0.5s background-color ease;
+
+                &:not(:first-child) {
+                    margin-top: 0.4rem;
+                }
+
+                .figure {
+                    font-size: 1.5rem;
+                    line-height: 1.5rem;
+                }
+
+                .text {
+                    font-size: 1.1rem;
+                    text-overflow: ellipsis;
+                    max-width: 260px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                }
+
+                &:hover {
+                    background-color: transparent;
+                }
+
+                &.avatar {
+
+                    margin-top: 1rem;
+                    margin-bottom: 0.5rem;
+                    grid-template-columns: 60px auto;
+                    background-color: transparent;
+                    cursor: default;
+
+                    .figure {
+
+                        img {
+                            border-radius: 100%;
+                        }
+
+                        .no-avatar {
+                            background-color: $colorFirst;
+                            width: 60px;
+                            height: 60px;
+                            border-radius: 100%;
+                        }
+
+                    }
+
+                }
+
+            }
+
         }
     }
 
-    @media screen and (max-width:800px) {
-        .blank {
-            display: none;
+    @media screen and (max-width:900px) {
+
+        grid-template-columns: 350px 150px 320px;
+
+        .nav-buttons {
+
+            justify-content: flex-end;
+
+            >.menu {
+
+                width: 40px;
+
+                >.icon {
+                    font-size: 1.2rem;
+                    line-height: 1.2rem;
+                }
+
+            }
+
         }
+
+    }
+
+    @media screen and (max-width:800px) {
+
+        grid-template-columns: 50px 200px auto;
 
         .user-info {
             justify-self: flex-end;
         }
 
-        grid-template-columns: 100%;
+    }
+
+    @media screen and (max-width:540px) {
+
+        grid-template-columns: auto;
+        justify-content: center;
+        padding-top: 10px;
+        height: auto;
+        max-height: initial;
+
+
+        .blank {
+            display: none;
+        }
+
+        .nav-buttons {
+
+            padding-bottom: 0px;
+            justify-content: center;
+            column-gap: 10px;
+
+            >.menu {
+
+                z-index: 300;
+                width: auto;
+
+                >.icon {
+                    padding: 5px;
+                }
+
+            }
+
+        }
+
+        .user-info {
+
+            grid-template-columns: auto;
+
+            >.avatar {
+                display: none;
+            }
+
+            .info-menu {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+        }
 
     }
+
 }

@@ -10,7 +10,7 @@ $(document).ready(function (e) {
 		context: 'parent'
 	})
 
-	if (typeof CropperAdapterComponent != 'undefined') {
+	if (typeof CropperAdapterComponent != 'undefined' && $('.ui.form.cropper-adapter').length > 0) {
 
 		cropperAdapter = new CropperAdapterComponent({
 			containerSelector: '.ui.form.cropper-adapter',

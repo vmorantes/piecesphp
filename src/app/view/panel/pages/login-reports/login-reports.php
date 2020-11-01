@@ -66,6 +66,5 @@ window.onload = function(e) {
     dataTableServerProccesing(tableLogged, tableLogged.attr('process'), 25)
     dataTableServerProccesing(tableNotLogged, tableNotLogged.attr('process'), 25)
     dataTableServerProccesing(tableAttempts, tableAttempts.attr('process'), 25)
-
 }
 </script>
