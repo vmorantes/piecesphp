@@ -89,7 +89,7 @@ class BaseController
      * @param bool $format En true formatea la salida con \PiecesPHP\Core\HTML\FormatHtml si está disponible
      * @return void|string
      */
-    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = true)
+    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
     {
         $pcs_php__name_view__ = $name;
 
