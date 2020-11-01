@@ -8,6 +8,37 @@ use PiecesPHP\Core\Roles;
 
 $role = Roles::getCurrentRole();
 $currenUserType = !is_null($role) ? $role['code'] : null;
+$canViewUserOption = array_reduce([
+    Roles::hasPermissions('users-selection-create', $currenUserType),
+    Roles::hasPermissions('users-list', $currenUserType),
+    Roles::hasPermissions('importer-form', $currenUserType),
+    Roles::hasPermissions('informes-acceso', $currenUserType),
+    Roles::hasPermissions('informes-acceso', $currenUserType),
+    Roles::hasPermissions('informes-acceso', $currenUserType),
+], function($a, $b){
+    return $a || $b;
+}, false);
+
+$canViewUserOption = array_reduce([
+    Roles::hasPermissions('users-selection-create', $currenUserType),
+    Roles::hasPermissions('users-list', $currenUserType),
+    Roles::hasPermissions('importer-form', $currenUserType),
+    Roles::hasPermissions('informes-acceso', $currenUserType),
+    Roles::hasPermissions('informes-acceso', $currenUserType),
+    Roles::hasPermissions('informes-acceso', $currenUserType),
+], function($a, $b){
+    return $a || $b;
+}, false);
+$canViewConfigsOption = array_reduce([
+    AppConfigController::allowedRoute('logos-favicons'),
+    AppConfigController::allowedRoute('backgrounds'),
+    AppConfigController::allowedRoute('generals'),
+    AppConfigController::allowedRoute('seo'),
+    Roles::hasPermissions('admin-error-log', $currenUserType),
+    Roles::hasPermissions('configurations-routes', $currenUserType),
+], function($a, $b){
+    return $a || $b;
+}, false);
 
 ?>
 
@@ -17,6 +48,7 @@ $currenUserType = !is_null($role) ? $role['code'] : null;
 
     <div class="nav-buttons">
 
+        <?php if($canViewUserOption): ?>
         <div class="menu">
 
             <div class="icon">
@@ -70,7 +102,9 @@ $currenUserType = !is_null($role) ? $role['code'] : null;
             </div>
 
         </div>
+        <?php endif; ?>
 
+        <?php if($canViewConfigsOption): ?>
         <div class="menu" title="<?= __(AppConfigController::LANG_GROUP, 'Configuraciones'); ?>">
 
             <div class="icon">
@@ -100,6 +134,13 @@ $currenUserType = !is_null($role) ? $role['code'] : null;
                 </a>
                 <?php endif; ?>
 
+                <?php if(AppConfigController::allowedRoute('seo')): ?>
+                <a class="item" href="<?= AppConfigController::routeName('seo'); ?>">
+                    <div class="figure"> <i class="icon user cog"></i></div>
+                    <div class="text"><?= __(AppConfigController::LANG_GROUP, 'Ajustes SEO'); ?></div>
+                </a>
+                <?php endif; ?>
+
                 <?php if(Roles::hasPermissions('admin-error-log', $currenUserType)): ?>
                 <a class="item" href="<?=  get_route('admin-error-log', [], true); ?>" target="blank">
                     <div class="figure"> <i class="icon times"></i></div>
@@ -117,8 +158,9 @@ $currenUserType = !is_null($role) ? $role['code'] : null;
             </div>
 
         </div>
+        <?php endif; ?>
 
-        <?php if(Roles::hasPermissions('tickets-create', $currenUserType)): ?>
+        <?php if(false && Roles::hasPermissions('tickets-create', $currenUserType)): ?>
         <div class="menu" title="<?= __(ADMIN_MENU_LANG_GROUP, 'Soporte técnico'); ?>" support-button-js>
 
             <div class="icon">
