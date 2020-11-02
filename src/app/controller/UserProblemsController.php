@@ -595,7 +595,7 @@ class UserProblemsController extends UsersController
 
         return [
             'success' => $success,
-            'instance' => $osTicket,
+            'instance' => isset($osTicket) ? $osTicket : null,
         ];
     }
 }
