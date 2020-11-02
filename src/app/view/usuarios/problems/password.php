@@ -64,7 +64,7 @@
             'active' => true,
         ]); ?>
 
-        <div class="form-container" data-system-mail="<?= get_config('mail')['user']; ?>">
+        <div class="form-container" data-system-mail="<?= \PiecesPHP\Core\ConfigHelpers\MailConfig::getValue('user'); ?>">
 
             <div message class="message"></div>
 

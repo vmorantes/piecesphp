@@ -4,6 +4,7 @@ use App\Model\AppConfigModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\SessionToken;
@@ -49,7 +50,8 @@ if (APP_CONFIGURATION_MODULE) {
     ];
 
     $default_configurations_values['title_app'] = get_config('title_app');
-    $default_configurations_values['mail'] = get_config('mail') !== false ? get_config('mail') : [
+    $default_configurations_values['mail'] = get_config('mail');
+    $default_configurations_values['mail'] = $default_configurations_values['mail'] !== false ? $default_configurations_values['mail'] : [
         'auto_tls' => true,
         'protocol' => 'ssl',
         'host' => 'smtp.zoho.com',
@@ -350,12 +352,11 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
             set_config($name, $value);
         }
 
-        $mail_config = get_config('mail');
-        if (!is_scalar($mail_config)) {
-            $mail_config = json_encode($mail_config);
-            $mail_config = json_decode($mail_config, true);
-            set_config('mail', $mail_config);
-        }
+        (function ($config) {
+            if (!is_scalar($config)) {
+                set_config('mail', (new MailConfig)->toArray());
+            }
+        })(get_config('mail'));
 
         if (mb_strlen(get_title()) == 0) {
             set_title(AppConfigModel::getConfigValue('title_app'));

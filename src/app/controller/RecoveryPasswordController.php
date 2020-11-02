@@ -518,7 +518,7 @@ class RecoveryPasswordController extends UsersController
 
         $message = $this->render('usuarios/mail/recovery_password', ['url' => $url], false);
 
-        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -557,7 +557,7 @@ class RecoveryPasswordController extends UsersController
             'url' => get_route('recovery-form') . "?code=$code",
         ], false);
 
-        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -592,7 +592,7 @@ class RecoveryPasswordController extends UsersController
 
         $message = $this->render('usuarios/mail/restored_password', ['password' => $password], false);
 
-        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
         $mail->Subject = $subject;

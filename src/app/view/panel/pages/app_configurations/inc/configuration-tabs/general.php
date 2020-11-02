@@ -39,19 +39,3 @@ use App\Model\AppConfigModel;
 <br><br>
 
 <?php endif; ?>
-
-<?php if(mb_strlen($actionSitemapURL) > 0): ?>
-
-<form pcs-generic-handler-js action="<?= $actionSitemapURL; ?>" method="POST" class="ui form">
-
-    <div class="field">
-        <label><?= __($langGroup, 'Generar sitemap'); ?></label>
-    </div>
-
-    <div class="field">
-        <button type="submit" class="ui button green"><?= __($langGroup, 'Generar'); ?></button>
-    </div>
-
-</form>
-
-<?php endif; ?>

@@ -5,6 +5,8 @@
  */
 namespace PiecesPHP\Core\ConfigHelpers;
 
+use PiecesPHP\Core\BaseHashEncryption;
+
 /**
  * MailjetConfig
  *
@@ -149,6 +151,11 @@ class MailjetConfig
     {
 
         $mailConfig = get_config('mailjet');
+
+        if (is_string($mailConfig)) {
+            $mailConfig = json_decode(gzuncompress(self::decrypt($mailConfig)), true);
+        }
+
         $mailConfig = $mailConfig instanceof \stdClass || is_array($mailConfig) ? (array) $mailConfig : [];
 
         $defaultConfig = [
@@ -156,7 +163,7 @@ class MailjetConfig
             'name' => 'Mailer',
             'apiKey' => 'API_KEY',
             'secretKey' => 'SECRET_KEY',
-            'smptHost' => 'in-v3.mailjet.com',
+            'smtpHost' => 'in-v3.mailjet.com',
             'smtpPort' => 587,
         ];
 
@@ -172,11 +179,69 @@ class MailjetConfig
         $this->name = $mailConfig['name'];
         $this->apiKey = $mailConfig['apiKey'];
         $this->secretKey = $mailConfig['secretKey'];
-        $this->smptHost = $mailConfig['smptHost'];
+        $this->smtpHost = $mailConfig['smtpHost'];
         $this->smtpPort = $mailConfig['smtpPort'];
 
         return $this;
 
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $data = [];
+        $data['email'] = $this->email;
+        $data['name'] = $this->name;
+        $data['apiKey'] = $this->apiKey;
+        $data['secretKey'] = $this->secretKey;
+        $data['smtpHost'] = $this->smtpHost;
+        $data['smtpPort'] = $this->smtpPort;
+        return $data;
+    }
+
+    /**
+     * @return string
+     */
+    public function toSave()
+    {
+        return self::encrypt(gzcompress(json_encode($this->toArray())));
+    }
+
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
+    public static function getValue(string $name)
+    {
+        $mailConfig = new static;
+        $data = [];
+        $data['email'] = $mailConfig->email();
+        $data['name'] = $mailConfig->name();
+        $data['apiKey'] = $mailConfig->apiKey();
+        $data['secretKey'] = $mailConfig->secretKey();
+        $data['smtpHost'] = $mailConfig->smtpHost();
+        $data['smtpPort'] = $mailConfig->smtpPort();
+        return array_key_exists($name, $data) ? $data[$name] : null;
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    protected static function encrypt(string $value)
+    {
+        return BaseHashEncryption::encrypt($value, self::class);
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    protected static function decrypt(string $value)
+    {
+        return BaseHashEncryption::decrypt($value, self::class);
     }
 
 }

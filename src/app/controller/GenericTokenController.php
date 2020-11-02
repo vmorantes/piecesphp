@@ -8,6 +8,7 @@ namespace App\Controller;
 
 use App\Model\TokenModel;
 use PiecesPHP\Core\BaseToken;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -277,8 +278,9 @@ class GenericTokenController extends AdminPanelController
                 $resquired_response = $resquired_response->getValue();
 
                 $mailer = new Mailer();
+                $mailConfig = new MailConfig;
 
-                $mailer->setFrom($mailer->Username, $mailer->Username);
+                $mailer->setFrom($mailConfig->user(), $mailConfig->name());
                 $mailer->addAddress($email->getValue(), $email->getValue());
                 $mailer->isHTML(true);
                 $mailer->Subject = utf8_decode($subject->getValue());
