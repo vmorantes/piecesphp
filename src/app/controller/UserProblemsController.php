@@ -525,7 +525,7 @@ class UserProblemsController extends UsersController
             ], false);
         }
 
-        $mail->setFrom($mailConfig->user(), get_title());
+        $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
         $mail->Subject = $subject;
@@ -578,7 +578,7 @@ class UserProblemsController extends UsersController
             $mail = new Mailer();
             $mailConfig = new MailConfig;
 
-            $mail->setFrom($mailConfig->user(), get_title());
+            $mail->setFrom($mailConfig->user(), $mailConfig->name());
             $mail->addReplyTo($email, $name);
             $mail->addAddress(self::EMAIL_ON_FAILED_OS_TICKET);
             $mail->isHTML(true);

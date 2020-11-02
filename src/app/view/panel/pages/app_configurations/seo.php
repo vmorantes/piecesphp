@@ -80,8 +80,12 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                 </div>
 
-                <button class="ui bottom attached button green" type="submit">
-                    <?= __($langGroup, 'Guardar imagen'); ?>
+            </div>
+
+            <div class="field">
+
+                <button class="ui button green" type="submit">
+                    <?= __($langGroup, 'Guardar'); ?>
                 </button>
 
             </div>

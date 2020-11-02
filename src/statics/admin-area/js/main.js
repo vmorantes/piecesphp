@@ -1,6 +1,9 @@
-$(document).ready(function (e) {
+/// <reference path="../../core/js/helpers.js" />
+/// <reference path="../../core/js/configurations.js" />
+window.addEventListener('load', function (e) {
 	timeOnPlatform()
 	adminZoneSupportForm()
+	adminSitemapUpdate()
 })
 
 function timeOnPlatform() {
@@ -47,11 +50,32 @@ function adminZoneSupportForm() {
 	if (buttonSupport.length > 0) {
 		genericFormHandler(formSupportSelector)
 
-		buttonSupport.click((e) => {
+		buttonSupport.on('click', (e) => {
 			e.preventDefault()
 			modalSupport.modal('show')
 			return false
 		})
+	}
+
+}
+
+function adminSitemapUpdate() {
+
+	let button = document.querySelector('[sitemap-update-trigger]')
+
+	if (button !== null) {
+
+		let formSitemap = document.createElement('form')
+		formSitemap.method = 'POST'
+		formSitemap.action = button.dataset.url
+		formSitemap = $(formSitemap)
+
+		genericFormHandler(formSitemap)
+
+		button.addEventListener('click', function () {
+			formSitemap.submit()
+		})
+
 	}
 
 }

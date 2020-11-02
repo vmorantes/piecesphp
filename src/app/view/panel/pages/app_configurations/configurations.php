@@ -1,7 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\AppConfigController;
-$langGroup = AppConfigController::LANG_GROUP_FORMS;
+$langGroup = AppConfigController::LANG_GROUP;
 $isFirstTitle = true;
 $isFirstItem = true;
 ?>
@@ -44,44 +44,6 @@ window.addEventListener('load', function(e) {
         })
 
     //Eventos
-
-    //Mostrar/ocultar contraseña
-    $('[show-hide-password-event] .icon').click(function(e) {
-        let that = $(e.target)
-        let parent = that.parent()
-        let input = parent.find('input')
-
-        if (input.attr('type') == 'text') {
-            that.removeClass('eye slash')
-            that.addClass('eye')
-            input.attr('type', 'password')
-        } else {
-            that.removeClass('eye')
-            that.addClass('eye slash')
-            input.attr('type', 'text')
-        }
-
-    })
-
-    //Formulario mail
-    genericFormHandler(
-        'form[mail-configuration-form]', {
-            onSetFormData: (formData, form) => {
-
-                formData.set(
-                    'value[auto_tls]',
-                    form.find(`[name="value[auto_tls]"]`).parent().checkbox('is checked') ? true :
-                    false
-                )
-                formData.set(
-                    'value[auth]',
-                    form.find(`[name="value[auth]"]`).parent().checkbox('is checked') ? true : false
-                )
-
-                return formData
-            },
-        }
-    )
 
     //Formulario ssl
     genericFormHandler(

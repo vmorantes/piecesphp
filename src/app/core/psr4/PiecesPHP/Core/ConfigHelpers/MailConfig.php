@@ -5,6 +5,8 @@
  */
 namespace PiecesPHP\Core\ConfigHelpers;
 
+use PiecesPHP\Core\BaseHashEncryption;
+
 /**
  * MailConfig
  *
@@ -39,6 +41,10 @@ class MailConfig
      * @var string
      */
     protected $password;
+    /**
+     * @var string
+     */
+    protected $name;
     /**
      * @var string
      */
@@ -161,6 +167,22 @@ class MailConfig
      * @param string $value
      * @return string|static
      */
+    public function name(string $value = null)
+    {
+
+        if ($value !== null) {
+            $this->name = $value;
+            return $this;
+        } else {
+            return $this->name;
+        }
+
+    }
+
+    /**
+     * @param string $value
+     * @return string|static
+     */
     public function protocol(string $value = null)
     {
 
@@ -228,6 +250,11 @@ class MailConfig
     {
 
         $mailConfig = get_config('mail');
+
+        if (is_string($mailConfig)) {
+            $mailConfig = json_decode(gzuncompress(self::decrypt($mailConfig)));
+        }
+
         $mailConfig = $mailConfig instanceof \stdClass || is_array($mailConfig) ? (array) $mailConfig : [];
 
         $defaultConfig = [
@@ -237,6 +264,7 @@ class MailConfig
             'host' => 'localhost',
             'user' => 'correo@correo.com',
             'password' => '123456',
+            'name' => '',
             'protocol' => 'ssl',
             'port' => '465',
             'auto_tls' => true,
@@ -257,6 +285,7 @@ class MailConfig
         $this->host = $mailConfig['host'];
         $this->user = $mailConfig['user'];
         $this->password = $mailConfig['password'];
+        $this->name = mb_strlen($mailConfig['name']) > 0 ? $mailConfig['name'] : $mailConfig['user'];
         $this->protocol = $mailConfig['protocol'];
         $this->port = $mailConfig['port'];
         $this->autoTls = $mailConfig['auto_tls'];
@@ -264,6 +293,93 @@ class MailConfig
 
         return $this;
 
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        $data = [];
+        $data['smtp_debug'] = $this->smtpDebug;
+        $data['is_smtp'] = $this->isSmtp;
+        $data['auth'] = $this->auth;
+        $data['host'] = $this->host;
+        $data['user'] = $this->user;
+        $data['password'] = $this->password;
+        $data['name'] = $this->name;
+        $data['protocol'] = $this->protocol;
+        $data['port'] = $this->port;
+        $data['auto_tls'] = $this->autoTls;
+        $data['smtp_options'] = $this->smtpOptions;
+        return $data;
+    }
+
+    /**
+     * @return string
+     */
+    public function toSave()
+    {
+        return self::encrypt(gzcompress(json_encode($this->toArray())));
+    }
+
+    /**
+     * @param string $name
+     * @return mixed|null
+     */
+    public static function getValue(string $name)
+    {
+
+        $mailConfig = new static;
+
+        $data = [];
+
+        $data['smtp_debug'] = $mailConfig->smtpDebug();
+        $data['smtpDebug'] = $mailConfig->smtpDebug();
+
+        $data['is_smtp'] = $mailConfig->isSmtp();
+        $data['isSmtp'] = $mailConfig->isSmtp();
+
+        $data['auth'] = $mailConfig->auth();
+
+        $data['host'] = $mailConfig->host();
+
+        $data['user'] = $mailConfig->user();
+
+        $data['password'] = $mailConfig->password();
+
+        $data['name'] = $mailConfig->name();
+
+        $data['protocol'] = $mailConfig->protocol();
+
+        $data['port'] = $mailConfig->port();
+
+        $data['auto_tls'] = $mailConfig->autoTls();
+        $data['autoTls'] = $mailConfig->autoTls();
+
+        $data['smtp_options'] = $mailConfig->smtpOptions();
+        $data['smtpOptions'] = $mailConfig->smtpOptions();
+
+        return array_key_exists($name, $data) ? $data[$name] : null;
+
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    protected static function encrypt(string $value)
+    {
+        return BaseHashEncryption::encrypt($value, self::class);
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    protected static function decrypt(string $value)
+    {
+        return BaseHashEncryption::decrypt($value, self::class);
     }
 
 }

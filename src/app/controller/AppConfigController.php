@@ -12,6 +12,7 @@ use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Roles;
@@ -51,7 +52,6 @@ class AppConfigController extends AdminPanelController
     const PARSE_TYPE_LOWERCASE = 'lowercase';
 
     const LANG_GROUP = 'appConfig';
-    const LANG_GROUP_FORMS = 'configurationsAdminZone';
 
     const ROLES_BACKGROUND = [
         UsersModel::TYPE_USER_ROOT,
@@ -65,6 +65,13 @@ class AppConfigController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
     ];
+    const ROLES_EMAIL = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_OS_TICKET = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
     const ROLES_VIEW_CONFIGURATIONS_VIEW = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
@@ -75,9 +82,6 @@ class AppConfigController extends AdminPanelController
     const ROLES_GENERIC_ACTION = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
-    ];
-    const ROLES_OS_TICKET_ACTION = [
-        UsersModel::TYPE_USER_ROOT,
     ];
     const ROLES_SITEMAP_ACTION = [
         UsersModel::TYPE_USER_ROOT,
@@ -640,6 +644,388 @@ class AppConfigController extends AdminPanelController
      * @param array $args
      * @return void
      */
+    public function email(Request $req, Response $res, array $args)
+    {
+        $langGroup = self::LANG_GROUP;
+
+        $requestMethod = mb_strtoupper($req->getMethod());
+
+        set_title(__(self::LANG_GROUP, 'Configuración de emails'));
+
+        if ($requestMethod == 'GET') {
+
+            set_custom_assets([
+                'statics/core/js/app_config/email.js',
+            ], 'js');
+
+            set_custom_assets([
+                'statics/core/css/app_config/email.css',
+            ], 'css');
+
+            $actionURL = self::routeName('email');
+
+            $element = new MailConfig;
+
+            $data = [
+                'langGroup' => $langGroup,
+                'actionURL' => $actionURL,
+                'element' => $element,
+            ];
+
+            $baseViewDir = 'panel/pages/app_configurations';
+            $this->render('panel/layout/header');
+            $this->render("{$baseViewDir}/email", $data);
+            $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST') {
+
+            //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+            //Definición de validaciones y procesamiento
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'auto_tls',
+                    null,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value) || is_bool($value);
+                    },
+                    false,
+                    function ($value) {
+                        return $value === 1 || $value == '1' || $value === true;
+                    }
+                ),
+                new Parameter(
+                    'auth',
+                    null,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value) || is_bool($value);
+                    },
+                    false,
+                    function ($value) {
+                        return $value === 1 || $value == '1' || $value === true;
+                    }
+                ),
+                new Parameter(
+                    'host',
+                    null,
+                    function ($value) {
+                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                    },
+                    false,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'protocol',
+                    null,
+                    function ($value) {
+                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                    },
+                    false,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'port',
+                    null,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value);
+                    },
+                    false,
+                    function ($value) {
+                        return (int) $value;
+                    }
+                ),
+                new Parameter(
+                    'user',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'password',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'name',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+            ]);
+
+            //Obtención de datos
+            $inputData = $req->getParsedBody();
+
+            //Asignación de datos para procesar
+            $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+            //──── Estructura de respuesta ───────────────────────────────────────────────────────────
+
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Configuración de emails'));
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+
+            //Valores iniciales de la respuesta
+            $resultOperation->setSuccessOnSingleOperation(false);
+
+            //Mensajes de respuesta
+            $successMessage = __(self::LANG_GROUP, 'Datos guardados.');
+            $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
+            $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+
+            //──── Acciones ──────────────────────────────────────────────────────────────────────────
+            try {
+
+                //Intenta validar, si todo sale bien el código continúa
+                $expectedParameters->validate();
+
+                //Información del formulario
+                /**
+                 * @var bool $autoTLS
+                 * @var bool $auth
+                 * @var string $host
+                 * @var string $protocol
+                 * @var int $port
+                 * @var string $user
+                 * @var string $password
+                 * @var string $name
+                 */;
+                $autoTLS = $expectedParameters->getValue('auto_tls');
+                $auth = $expectedParameters->getValue('auth');
+                $host = $expectedParameters->getValue('host');
+                $protocol = $expectedParameters->getValue('protocol');
+                $port = $expectedParameters->getValue('port');
+                $user = $expectedParameters->getValue('user');
+                $password = $expectedParameters->getValue('password');
+                $name = $expectedParameters->getValue('name');
+
+                try {
+
+                    $mailConfig = new MailConfig;
+                    $mailConfig->autoTls($autoTLS);
+                    $mailConfig->auth($auth);
+                    $mailConfig->host($host);
+                    $mailConfig->protocol($protocol);
+                    $mailConfig->port($port);
+                    $mailConfig->user($user);
+                    $mailConfig->password($password);
+                    $mailConfig->name($name);
+
+                    $success = true;
+
+                    $optionName = 'mail';
+                    $optionMapper = new AppConfigModel($optionName);
+
+                    $optionMapper->value = $mailConfig->toSave();
+
+                    if ($optionMapper->id !== null) {
+                        $success = $success && $optionMapper->update();
+                    } else {
+                        $optionMapper->name = $optionName;
+                        $success = $success && $optionMapper->save();
+                    }
+
+                    if ($success) {
+                        $resultOperation->setMessage($successMessage);
+                        $resultOperation->setSuccessOnSingleOperation($success);
+                    } else {
+                        $resultOperation->setMessage($unknowErrorMessage);
+                    }
+
+                } catch (\Exception $e) {
+                    $resultOperation->setMessage($e->getMessage());
+                    log_exception($e);
+                }
+
+            } catch (MissingRequiredParamaterException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            } catch (ParsedValueException $e) {
+
+                $resultOperation->setMessage($unknowErrorWithValuesMessage);
+                log_exception($e);
+
+            } catch (InvalidParameterValueException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            }
+
+            return $res->withJson($resultOperation);
+
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function osTicket(Request $req, Response $res, array $args)
+    {
+        $langGroup = self::LANG_GROUP;
+
+        $requestMethod = mb_strtoupper($req->getMethod());
+
+        set_title(__(self::LANG_GROUP, 'OsTicket'));
+
+        if ($requestMethod == 'GET') {
+
+            set_custom_assets([
+                'statics/core/js/app_config/os-ticket.js',
+            ], 'js');
+
+            set_custom_assets([
+                'statics/core/css/app_config/os-ticket.css',
+            ], 'css');
+
+            $actionURL = self::routeName('os-ticket');
+            $url = get_config('osTicketAPI');
+            $key = get_config('osTicketAPIKey');
+
+            $data = [
+                'langGroup' => $langGroup,
+                'actionURL' => $actionURL,
+                'url' => $url,
+                'key' => $key,
+            ];
+
+            $baseViewDir = 'panel/pages/app_configurations';
+            $this->render('panel/layout/header');
+            $this->render("{$baseViewDir}/os-ticket", $data);
+            $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST') {
+
+            //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+            //Definición de validaciones y procesamiento
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'url',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return rtrim($value, '/');
+                    }
+                ),
+                new Parameter(
+                    'key',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                ),
+            ]);
+
+            //Obtención de datos
+            $inputData = $req->getParsedBody();
+
+            //Asignación de datos para procesar
+            $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+            //──── Estructura de respuesta ───────────────────────────────────────────────────────────
+
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Configuración OsTicket'));
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+
+            //Valores iniciales de la respuesta
+            $resultOperation->setSuccessOnSingleOperation(false);
+
+            //Mensajes de respuesta
+            $successMessage = __(self::LANG_GROUP, 'Datos guardados.');
+            $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
+            $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+
+            //──── Acciones ──────────────────────────────────────────────────────────────────────────
+            try {
+
+                //Intenta validar, si todo sale bien el código continúa
+                $expectedParameters->validate();
+
+                try {
+
+                    $url = new AppConfigModel('osTicketAPI');
+                    $key = new AppConfigModel('osTicketAPIKey');
+
+                    $url->value = $expectedParameters->getValue('url');
+                    $key->value = $expectedParameters->getValue('key');
+
+                    $successUrl = $url->id !== null ? $url->update() : $url->save();
+                    $successKey = $key->id !== null ? $key->update() : $key->save();
+                    $success = $successUrl || $successKey;
+
+                    if ($success) {
+                        $resultOperation->setMessage($successMessage);
+                        $resultOperation->setSuccessOnSingleOperation($success);
+                    } else {
+                        $resultOperation->setMessage($unknowErrorMessage);
+                    }
+
+                } catch (\Exception $e) {
+                    $resultOperation->setMessage($e->getMessage());
+                    log_exception($e);
+                }
+
+            } catch (MissingRequiredParamaterException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            } catch (ParsedValueException $e) {
+
+                $resultOperation->setMessage($unknowErrorWithValuesMessage);
+                log_exception($e);
+
+            } catch (InvalidParameterValueException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            }
+
+            return $res->withJson($resultOperation);
+
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
     public function routesView(Request $req, Response $res, array $args)
     {
         $this->render('panel/layout/header');
@@ -661,7 +1047,7 @@ class AppConfigController extends AdminPanelController
     {
         import_spectrum();
 
-        $langGroup = AppConfigController::LANG_GROUP_FORMS;
+        $langGroup = AppConfigController::LANG_GROUP;
 
         $tabsTitles = [];
         $tabsItems = [];
@@ -672,16 +1058,11 @@ class AppConfigController extends AdminPanelController
         if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {
 
             $actionGenericURL = AppConfigController::routeName('generals-generic-action');
-            $actionSitemapURL = AppConfigController::routeName('generals-sitemap-create');
-            $actionOsTicketURL = AppConfigController::routeName('generals-osticket-action');
             $actionSSLURL = AppConfigController::routeName('ssl');
 
             $hasPermissionsGenerals = count(array_filter([
                 $actionGenericURL,
-                $actionSitemapURL,
             ], function ($e) {return mb_strlen(trim($e)) > 0;})) > 0;
-            $hasPermissionsMail = mb_strlen(trim($actionGenericURL)) > 0;
-            $hasPermissionsOsTicket = mb_strlen(trim($actionOsTicketURL)) > 0;
             $hasPermissionsSSL = mb_strlen(trim($actionSSLURL)) > 0;
 
             if ($hasPermissionsGenerals) {
@@ -689,35 +1070,10 @@ class AppConfigController extends AdminPanelController
                 $data = [
                     'langGroup' => $langGroup,
                     'actionGenericURL' => $actionGenericURL,
-                    'actionSitemapURL' => $actionSitemapURL,
                 ];
 
                 $tabsTitles['general'] = __($langGroup, 'Generales');
                 $tabsItems['general'] = $this->render("{$baseViewDir}/inc/configuration-tabs/general", $data, false, false);
-
-            }
-
-            if ($hasPermissionsMail) {
-
-                $data = [
-                    'langGroup' => $langGroup,
-                    'actionGenericURL' => $actionGenericURL,
-                ];
-
-                $tabsTitles['mail'] = __($langGroup, 'Email');
-                $tabsItems['mail'] = $this->render("{$baseViewDir}/inc/configuration-tabs/email", $data, false, false);
-
-            }
-
-            if ($hasPermissionsOsTicket) {
-
-                $data = [
-                    'langGroup' => $langGroup,
-                    'actionOsTicketURL' => $actionOsTicketURL,
-                ];
-
-                $tabsTitles['os-ticket'] = __($langGroup, 'OsTicket');
-                $tabsItems['os-ticket'] = $this->render("{$baseViewDir}/inc/configuration-tabs/os-ticket", $data, false, false);
 
             }
 
@@ -859,94 +1215,6 @@ class AppConfigController extends AdminPanelController
                 $success = $option->save();
 
             }
-
-            if ($success) {
-
-                $result
-                    ->setMessage($message_create)
-                    ->operation($operation_name)
-                    ->setSuccess(true);
-
-            } else {
-
-                $result
-                    ->setMessage($message_unknow_error)
-                    ->operation($operation_name);
-
-            }
-
-        } catch (\PDOException $e) {
-
-            $result
-                ->setMessage($e->getMessage())
-                ->operation($operation_name);
-            log_exception($e);
-
-        } catch (\Exception $e) {
-
-            $result
-                ->setMessage($e->getMessage())
-                ->operation($operation_name);
-            log_exception($e);
-
-        }
-
-        return $res->withJson($result);
-    }
-
-    /**
-     * @param Request $req
-     * @param Response $res
-     * @param array $args
-     * @return Response
-     */
-    public function actionOsTicket(Request $req, Response $res, array $args)
-    {
-        $operation_name = __(self::LANG_GROUP, 'Configuración OsTicket');
-
-        $result = new ResultOperations([
-            new Operation($operation_name),
-        ], $operation_name);
-
-        $message_create = __(self::LANG_GROUP, 'Guardado.');
-        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
-
-        $parametersExcepted = new Parameters([
-            new Parameter(
-                'url',
-                null,
-                function ($value) {
-                    return is_string($value);
-                },
-                false,
-                function ($value) {
-                    return rtrim($value, '/');
-                }
-            ),
-            new Parameter(
-                'key',
-                null,
-                function ($value) {
-                    return is_string($value);
-                }
-            ),
-        ]);
-
-        $parametersExcepted->setInputValues($req->getParsedBody());
-
-        try {
-
-            $parametersExcepted->validate();
-
-            $url = new AppConfigModel('osTicketAPI');
-            $key = new AppConfigModel('osTicketAPIKey');
-
-            $url->value = $parametersExcepted->getValue('url');
-            $key->value = $parametersExcepted->getValue('key');
-
-            $successUrl = $url->update();
-            $successKey = $key->update();
-            $success = $successUrl || $successKey;
 
             if ($success) {
 
@@ -1491,16 +1759,6 @@ class AppConfigController extends AdminPanelController
             ),
 
             //──── POST ────────────────────────────────────────────────────────────────────────
-            //OsTicket
-            new Route(
-                "{$startRoute}images/config/osticket[/]",
-                $classname . ':actionOsTicket',
-                'configurations-generals-osticket-action',
-                'POST',
-                true,
-                null,
-                self::ROLES_OS_TICKET_ACTION
-            ),
             //General
             new Route(
                 "{$startRoute}images/config/generic[/]",
@@ -1567,6 +1825,28 @@ class AppConfigController extends AdminPanelController
                 true,
                 null,
                 self::ROLES_SEO
+            ),
+
+            //Email
+            new Route(
+                "{$startRoute}/email[/]",
+                $classname . ':email',
+                self::$baseRouteName . '-' . 'email',
+                'GET|POST',
+                true,
+                null,
+                self::ROLES_EMAIL
+            ),
+
+            //OsTicket
+            new Route(
+                "{$startRoute}/os-ticket[/]",
+                $classname . ':osTicket',
+                self::$baseRouteName . '-' . 'os-ticket',
+                'GET|POST',
+                true,
+                null,
+                self::ROLES_OS_TICKET
             ),
 
         ]);
