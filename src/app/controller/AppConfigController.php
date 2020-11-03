@@ -76,14 +76,15 @@ class AppConfigController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
     ];
-    const ROLES_ROUTES_VIEWS = [
-        UsersModel::TYPE_USER_ROOT,
-    ];
     const ROLES_GENERIC_ACTION = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
     ];
     const ROLES_SITEMAP_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+    const ROLES_ROUTES_VIEWS = [
         UsersModel::TYPE_USER_ROOT,
     ];
     const ROLES_SSL_ACTION = [
