@@ -1,7 +1,10 @@
 .#{$globalClassPcs}.topbar {
 
     --bottom-padding: 5px;
-    position: relative;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
     z-index: 4;
     background-color: var(--bg-color);
     display: grid;
@@ -12,8 +15,8 @@
     padding-right: 0px;
     padding-bottom: 0px;
     padding-left: 15px;
-    height: 70px;
-    max-height: 70px;
+    height: $topbarHeight;
+    max-height: $topbarHeight;
 
     &.debug {
         >* {
@@ -327,8 +330,8 @@
 
         grid-template-columns: auto;
         justify-content: center;
-        padding-top: 10px;
-        height: auto;
+        padding-top: 3px;
+        height: $topbarHeightMobile;
         max-height: initial;
 
         .blank {
@@ -363,11 +366,14 @@
 
             grid-template-columns: 100%;
             width: 100%;
-            padding-left: 0px;
-            padding-right: 0px;
+            padding: 0px;
 
             >.avatar {
                 display: none;
+            }
+
+            >.text {
+                padding-top: 0px;
             }
 
             .info-menu {

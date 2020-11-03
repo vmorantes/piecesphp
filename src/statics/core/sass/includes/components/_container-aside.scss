@@ -5,6 +5,7 @@
     height: 100%;
     max-height: 100%;
     overflow: hidden;
+    padding-top: $topbarHeight + 4;
 
     >.content {
         padding: 2rem 3rem 8rem 5rem;
@@ -27,11 +28,11 @@
     @media (max-width: 800px) {
         grid-template-columns: 100%;
         row-gap: 2rem;
-    }
+        padding-top: $topbarHeightMobile + 4;
 
-    @media(max-width: 500px) {
         >.content {
-            padding: 5rem 1rem 0rem 1rem;
+            padding: 1rem 1rem 0rem 1rem;
         }
+
     }
 }
