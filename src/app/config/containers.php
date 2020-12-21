@@ -10,12 +10,12 @@ $container_configurations = [
     'foundHandler' => function ($c) {
 
         //Antes de ejecutar el método de la ruta
-        RequestResponsePiecesPHP::setBeforeCallMethod(function () {
+        RequestResponsePiecesPHP::appendBeforeCallMethod(function ($name) {
             set_config('lock_assets', true);
         });
 
         //Después de ejecutar el método de la ruta
-        RequestResponsePiecesPHP::setAfterCallMethod(function () {
+        RequestResponsePiecesPHP::appendAfterCallMethod(function () {
             set_config('lock_assets', false);
         });
 

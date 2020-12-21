@@ -21,13 +21,13 @@ class RequestResponsePiecesPHP implements InvocationStrategyInterface
 {
 
     /**
-     * @var callable $beforeCallMethod
+     * @var callable[]
      */
-    protected static $beforeCallMethod = null;
+    protected static $beforeCallMethods = null;
     /**
-     * @var callable $afterCallMethod
+     * @var callable[]
      */
-    protected static $afterCallMethod = null;
+    protected static $afterCallMethods = null;
 
     /**
      * Invoke a route callable with request, response, and all route parameters
@@ -51,39 +51,118 @@ class RequestResponsePiecesPHP implements InvocationStrategyInterface
             $request = $request->withAttribute($k, $v);
         }
 
-        if (self::$beforeCallMethod !== null) {
-            (self::$beforeCallMethod)();
+        $nameControllerMethod = null;
+
+        if (is_array($callable) && count($callable) == 2) {
+
+            $classname = @get_class($callable[0]);
+            $method = $callable[1];
+
+            if (mb_strlen(trim($classname)) > 0 && mb_strlen(trim($method)) > 0) {
+                $nameControllerMethod = trim($classname) . ':' . trim($method);
+            }
+
+        }
+
+        if (self::$beforeCallMethods !== null && is_array(self::$beforeCallMethods) && count(self::$beforeCallMethods) > 0) {
+
+            foreach (self::$beforeCallMethods as $beforeCallMethods) {
+
+                if (is_callable($beforeCallMethods)) {
+
+                    ($beforeCallMethods)($nameControllerMethod);
+
+                }
+
+            }
+
         }
 
         $invokeResult = call_user_func($callable, $request, $response, $routeArguments);
 
-        if (self::$afterCallMethod !== null) {
-            (self::$afterCallMethod)();
+        if (self::$afterCallMethods !== null && is_array(self::$afterCallMethods) && count(self::$afterCallMethods) > 0) {
+
+            foreach (self::$afterCallMethods as $afterCallMethods) {
+
+                if (is_callable($afterCallMethods)) {
+
+                    ($afterCallMethods)($nameControllerMethod);
+
+                }
+
+            }
+
         }
 
         return $invokeResult;
     }
 
     /**
-     * setBeforeCallMethod
-     *
      * @param callable $do
      * @return void
      */
-    public static function setBeforeCallMethod(callable $do)
+    public static function appendBeforeCallMethod(callable $do)
     {
-        self::$beforeCallMethod = $do;
+        if (!is_array(self::$beforeCallMethods)) {
+            self::$beforeCallMethods = [];
+        }
+        self::$beforeCallMethods[] = $do;
     }
 
     /**
-     * setAfterCallMethod
-     *
      * @param callable $do
      * @return void
      */
-    public static function setAfterCallMethod(callable $do)
+    public static function appendAfterCallMethod(callable $do)
     {
-        self::$afterCallMethod = $do;
+        if (!is_array(self::$afterCallMethods)) {
+            self::$afterCallMethods = [];
+        }
+        self::$afterCallMethods[] = $do;
+    }
+
+    /**
+     * @param callable[] $do
+     * @return void
+     */
+    public static function setBeforeCallMethods(array $do)
+    {
+        self::$beforeCallMethods = [];
+
+        foreach ($do as $i) {
+            self::appendBeforeCallMethod($i);
+        }
+
+    }
+
+    /**
+     * @param callable[] $do
+     * @return void
+     */
+    public static function setAfterCallMethods(array $do)
+    {
+        self::$afterCallMethods = [];
+
+        foreach ($do as $i) {
+            self::appendAfterCallMethod($i);
+        }
+
+    }
+
+    /**
+     * @return int
+     */
+    public static function countAfterCallMethods()
+    {
+        return is_array(self::$afterCallMethods) ? count(self::$afterCallMethods) : 0;
+    }
+
+    /**
+     * @return int
+     */
+    public static function countBeforeCallMethods()
+    {
+        return is_array(self::$beforeCallMethods) ? count(self::$beforeCallMethods) : 0;
     }
 
 }
