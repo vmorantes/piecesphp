@@ -15,6 +15,7 @@ use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
 use PiecesPHP\Core\ServerStatics;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -29,6 +30,11 @@ use Slim\Http\Response;
  */
 class PresentationsRoutes
 {
+
+    /**
+     * @var boolean
+     */
+    private static $init = false;
 
     const APP_PRESENTATIONS_ENABLE = false;
 
@@ -45,21 +51,19 @@ class PresentationsRoutes
             $groupAdministration = PresentationsCategoryController::routes($groupAdministration);
             $groupPublic = PresentationsPublicController::routes($groupPublic);
 
-            /**
-             * @param Request $request
-             * @param Response $response
-             * @param array $args
-             * @return Response
-             */
-            $callableHandler = function (Request $request, Response $response, array $args) {
-                $server = new ServerStatics();
-                return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics');
-            };
-
-            $routeStatics = new Route('presentations/statics-resolver/[{params:.*}]', $callableHandler, PresentationsRoutes::class);
-            $groupAdministration->register([$routeStatics]);
+            self::staticResolver($groupAdministration);
 
             PresentationsLang::injectLang();
+
+            $groupAdministration->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
+
+                return $next($request, $response);
+            });
+
+            RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
+                self::init();
+            });
+
         }
 
         return [
@@ -71,51 +75,61 @@ class PresentationsRoutes
     /**
      * @return void
      */
-    public static function setMenu()
+    public static function init()
     {
 
-        $currentUser = get_config('current_user');
-        $currentUserType = (int) $currentUser->type;
+        if (!self::$init) {
 
-        /**
-         * @var MenuGroupCollection $sidebar
-         */
-        $sidebar = get_config('menus')['sidebar'];
+            $currentUser = get_config('current_user');
 
-        if ($currentUserType === UsersModel::TYPE_USER_ROOT) {
+            if (!($currentUser instanceof \stdClass)) {
+                return null;
+            }
 
-            $sidebar->addItem(new MenuGroup([
-                'name' => __(PresentationsLang::LANG_GROUP, 'Presentaciones de entrenamiento'),
-                'icon' => 'file powerpoint outline',
-                'items' => [
-                    new MenuItem([
-                        'text' => __(PresentationsLang::LANG_GROUP, 'Listado (Administación)'),
-                        'href' => PresentationsController::routeName('list'),
-                        'visible' => PresentationsController::allowedRoute('list'),
-                    ]),
-                    new MenuItem([
-                        'text' => __(PresentationsLang::LANG_GROUP, 'Listado para usuarios'),
-                        'href' => PresentationsPublicController::routeName('list'),
-                        'visible' => PresentationsPublicController::allowedRoute('list'),
-                    ]),
-                ],
-                'position' => 4,
-            ]));
+            $currentUserType = (int) $currentUser->type;
 
-        } else {
+            /**
+             * @var MenuGroupCollection $sidebar
+             */
+            $sidebar = get_config('menus')['sidebar'];
 
-            $sidebar->addItem(new MenuGroup(
-                [
-                    'name' => __(PresentationsLang::LANG_GROUP, 'Presentaciones'),
+            if ($currentUserType === UsersModel::TYPE_USER_ROOT) {
+
+                $sidebar->addItem(new MenuGroup([
+                    'name' => __(PresentationsLang::LANG_GROUP, 'Presentaciones de entrenamiento'),
                     'icon' => 'file powerpoint outline',
-                    'visible' => PresentationsPublicController::allowedRoute('list'),
-                    'href' => PresentationsPublicController::routeName('list'),
-                    'asLink' => true,
+                    'items' => [
+                        new MenuItem([
+                            'text' => __(PresentationsLang::LANG_GROUP, 'Listado (Administación)'),
+                            'href' => PresentationsController::routeName('list'),
+                            'visible' => PresentationsController::allowedRoute('list'),
+                        ]),
+                        new MenuItem([
+                            'text' => __(PresentationsLang::LANG_GROUP, 'Listado para usuarios'),
+                            'href' => PresentationsPublicController::routeName('list'),
+                            'visible' => PresentationsPublicController::allowedRoute('list'),
+                        ]),
+                    ],
                     'position' => 4,
-                ]
-            ));
+                ]));
 
+            } else {
+
+                $sidebar->addItem(new MenuGroup(
+                    [
+                        'name' => __(PresentationsLang::LANG_GROUP, 'Presentaciones'),
+                        'icon' => 'file powerpoint outline',
+                        'visible' => PresentationsPublicController::allowedRoute('list'),
+                        'href' => PresentationsPublicController::routeName('list'),
+                        'asLink' => true,
+                        'position' => 4,
+                    ]
+                ));
+
+            }
         }
+
+        self::$init = true;
 
     }
 
@@ -126,6 +140,29 @@ class PresentationsRoutes
     public static function staticRoute(string $segment = '')
     {
         return append_to_url(str_replace('/[{params:.*}]', '', get_route(self::class)), $segment);
+    }
+
+    /**
+     * @param RouteGroup $group
+     * @return void
+     */
+    protected static function staticResolver(RouteGroup $group)
+    {
+
+        /**
+         * @param Request $request
+         * @param Response $response
+         * @param array $args
+         * @return Response
+         */
+        $callableHandler = function (Request $request, Response $response, array $args) {
+            $server = new ServerStatics();
+            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics');
+        };
+
+        $routeStatics = new Route('presentations/statics-resolver/[{params:.*}]', $callableHandler, PresentationsRoutes::class);
+        $group->register([$routeStatics]);
+
     }
 
 }
