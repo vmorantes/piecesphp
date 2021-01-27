@@ -58,8 +58,12 @@
             padding: 30px;
             width: 220px;
             height: 220px;
-            border-radius: 100%;
             background-color: $login-form-caption-bg-color;
+
+            &.round{
+                border-radius: 100%;
+                overflow: hidden;
+            }
 
             img {
                 max-width: 100%;
