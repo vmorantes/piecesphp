@@ -7,6 +7,7 @@
 namespace App\Controller;
 
 use App\Model\TokenModel;
+use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
@@ -46,15 +47,11 @@ class GenericTokenController extends AdminPanelController
     const LANG_GROUP = 'genericTokenModule';
 
     /**
-     * $tokenString
-     *
-     * @var string
+     * @var int
      */
-    protected $tokenString = '';
+    protected $tokenID = -1;
 
     /**
-     * $tokenData
-     *
      * @var array
      */
     protected $tokenData = [];
@@ -66,8 +63,6 @@ class GenericTokenController extends AdminPanelController
     }
 
     /**
-     * entryPoint
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -79,10 +74,31 @@ class GenericTokenController extends AdminPanelController
         $is_post = $method_request == 'POST';
 
         $handler = $req->getAttribute('handler');
-        $token = $req->getAttribute('token');
+        $token = null;
+        $tokenID = $req->getAttribute('token', '');
 
         if ($is_post) {
-            $token = $req->getParsedBodyParam('token', '');
+            $tokenID = $req->getParsedBodyParam('token', '');
+        }
+
+        $tokenID = BaseHashEncryption::decrypt($tokenID, self::class);
+        $tokenID = ctype_digit($tokenID) || is_int($tokenID) ? (int) $tokenID : null;
+
+        if ($tokenID !== null) {
+
+            $tokenModel = new TokenModel();
+            $tokenModel->select()->where([
+                'id' => $tokenID,
+            ]);
+            $tokenModel->execute();
+            $tokenElement = $tokenModel->result();
+            $tokenElement = count($tokenElement) > 0 ? $tokenElement[0] : null;
+
+            if ($tokenElement !== null) {
+                $token = $tokenElement->token;
+                $this->tokenID = (int) $tokenElement->id;
+            }
+
         }
 
         $handler = is_string($handler) ? $handler : '';
@@ -90,12 +106,12 @@ class GenericTokenController extends AdminPanelController
 
         $exists = array_key_exists($handler, self::TYPES_HANDLER);
 
-        $this->tokenString = $token;
-        $token = BaseToken::getData($token, self::KEY_JWT, null, true);
-        $this->tokenData = is_array($token) ? $token : [];
+        $tokenData = BaseToken::getData($token, self::KEY_JWT, null, true);
+        $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass ? (array) $tokenData : [];
 
         $tokenController = new TokenController();
-        $exists_token = $tokenController->tokenExists($this->tokenString);
+
+        $exists_token = $tokenController->tokenExists($token);
 
         if ($exists) {
 
@@ -165,7 +181,7 @@ class GenericTokenController extends AdminPanelController
 
             } else {
 
-                $tokenController->deleteToken($this->tokenString);
+                $tokenController->deleteTokenByID($this->tokenID);
 
                 $controller = new \PiecesPHP\Core\BaseController(false);
                 $controller->render('pages/403');
@@ -174,7 +190,7 @@ class GenericTokenController extends AdminPanelController
 
         } else {
 
-            $tokenController->deleteToken($this->tokenString);
+            $tokenController->deleteTokenByID($this->tokenID);
             throw new NotFoundException($req, $res);
         }
 
@@ -182,8 +198,6 @@ class GenericTokenController extends AdminPanelController
     }
 
     /**
-     * commentary
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -199,7 +213,8 @@ class GenericTokenController extends AdminPanelController
             $this->render('panel/pages/generic_token/commentary', [
                 'action' => get_route('generic-token-action', ['handler' => 'commentary']),
                 'method_action' => 'POST',
-                'token' => $this->tokenString,
+                'token' => $this->tokenID,
+                'tokenData' => $this->tokenData,
             ]);
             $this->render('layout/footer');
 
@@ -250,15 +265,15 @@ class GenericTokenController extends AdminPanelController
 
             });
 
-            $resquired_response = new Parameter('response', false, null, true);
+            $token = new Parameter('token', null);
 
-            $resquired_response->setValidator(function ($value) {
+            $token->setValidator(function ($value) {
 
-                return is_string($value) || is_bool($value);
+                return (is_string($value) && ctype_digit($value)) || is_int($value);
 
             })->setParser(function ($value) {
 
-                return trim($value) === 'yes';
+                return (int) $value;
 
             });
 
@@ -266,7 +281,7 @@ class GenericTokenController extends AdminPanelController
                 $email,
                 $subject,
                 $message,
-                $resquired_response,
+                $token,
             ]);
 
             $parametersExcepted->setInputValues($req->getParsedBody());
@@ -274,43 +289,52 @@ class GenericTokenController extends AdminPanelController
             try {
 
                 $parametersExcepted->validate();
+                $this->tokenID = $token->getValue();
 
-                $resquired_response = $resquired_response->getValue();
+                $tokenModel = new TokenModel();
+                $tokenModel->select()->where([
+                    'id' => $this->tokenID,
+                ]);
+                $tokenModel->execute();
+                $tokenElement = $tokenModel->result();
+                $tokenElement = count($tokenElement) > 0 ? $tokenElement[0] : null;
 
-                $mailer = new Mailer();
-                $mailConfig = new MailConfig;
+                if ($tokenElement !== null) {
 
-                $mailer->setFrom($mailConfig->user(), $mailConfig->name());
-                $mailer->addAddress($email->getValue(), $email->getValue());
-                $mailer->isHTML(true);
-                $mailer->Subject = utf8_decode($subject->getValue());
+                    $tokenData = BaseToken::getData($tokenElement->token, self::KEY_JWT, null, true);
+                    $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass ? (array) $tokenData : [];
 
-                $data = [];
+                    //ACCIONES AL ENVIAR
 
-                $data['text'] = utf8_decode($message->getValue());
-                $data['with_link'] = false;
-                $data['note'] = '';
-                $data['url'] = '';
-                $data['text_button'] = '';
+                    $mailer = new Mailer();
+                    $mailConfig = new MailConfig;
 
-                if ($resquired_response) {
+                    $mailer->setFrom($mailConfig->user(), $mailConfig->name());
+                    $mailer->addAddress($mailConfig->user(), $mailConfig->name());
+                    $mailer->isHTML(true);
+                    $mailer->Subject = utf8_decode($subject->getValue());
 
-                    $data['with_link'] = true;
-                    $data['note'] = utf8_decode(__(self::LANG_GROUP, 'El enlace tendrá validez de una hora.'));
-                    $data['url'] = self::createTokenURL('HANDLER', [
-                        //INFORMACIÓN
-                    ], 60);
-                    $data['text_button'] = __(self::LANG_GROUP, 'Responder');
+                    $data = [];
 
+                    $data['text'] = utf8_decode($message->getValue());
+                    $data['with_link'] = false;
+                    $data['note'] = '';
+                    $data['url'] = '';
+                    $data['text_button'] = '';
+
+                    $mailer->Body = $this->render('panel/pages/generic_token/mail_template', $data, false, false);
+
+                    if (!$mailer->checkSettedSMTP()) {
+                        $mailer->asGoDaddy();
+                    }
+
+                    $success = $mailer->send();
+
+                    //FIN DE ACCIONES AL ENVIAR
+
+                } else {
+                    throw new \Exception(__(self::LANG_GROUP, 'El recurso al que intenta acceder ha expirado o ya ha sido utilizado.'));
                 }
-
-                $mailer->Body = $this->render('panel/pages/generic_token/mail_template', $data, false, false);
-
-                if (!$mailer->checkSettedSMTP()) {
-                    $mailer->asGoDaddy();
-                }
-
-                $success = $mailer->send();
 
                 if ($success) {
 
@@ -322,7 +346,7 @@ class GenericTokenController extends AdminPanelController
                         ->setSuccess(true);
 
                     $tokenController = new TokenController();
-                    $tokenController->deleteToken($this->tokenString);
+                    $tokenController->deleteTokenByID($this->tokenID);
 
                 } else {
 
@@ -360,8 +384,6 @@ class GenericTokenController extends AdminPanelController
     }
 
     /**
-     * createTokenURL
-     *
      * @param string $handlerName
      * @param array $data
      * @param int $duration Minutos
@@ -378,15 +400,16 @@ class GenericTokenController extends AdminPanelController
             'type' => TokenController::TOKEN_GENERIC_CONTROLLER,
         ])->execute();
 
+        $tokenID = $tokenModel->lastInsertId();
+        $tokenID = BaseHashEncryption::encrypt($tokenID, self::class);
+
         return get_route('generic-token-view', [
             'handler' => $handlerName,
-            'token' => $token,
+            'token' => $tokenID,
         ]);
     }
 
     /**
-     * createToken
-     *
      * @param array $data
      * @param int $duration Minutos
      * @return string
@@ -395,12 +418,11 @@ class GenericTokenController extends AdminPanelController
     {
         $time = time();
         $duration = $duration * 60 + $time;
-        return BaseToken::setToken($data, self::KEY_JWT, $time, $duration);
+        $token = BaseToken::setToken($data, self::KEY_JWT, $time, $duration);
+        return $token;
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
