@@ -35,7 +35,7 @@ class TokenController extends BaseController
     public function tokenExists($token)
     {
         $result = $this->model
-            ->select(['token'])
+            ->select()
             ->where("token = '" . $token . "'")
             ->execute();
         $result = $this->model->result();
@@ -44,16 +44,32 @@ class TokenController extends BaseController
     public function tokenExistsByType($code)
     {
         $result = $this->model
-            ->select(['token'])
+            ->select()
             ->where("type = '" . $code . "'")
             ->execute();
         $result = $this->model->result();
+        return ($result !== false && count($result) > 0);
+    }
+    public static function tokenExistsByID($id)
+    {
+        $controller = new static();
+        $result = $controller->model
+            ->select()
+            ->where("id = '" . $id . "'")
+            ->execute();
+        $result = $controller->model->result();
         return ($result !== false && count($result) > 0);
     }
     public function deleteToken($token)
     {
         $this->model
             ->delete("token = '" . $token . "'")
+            ->execute();
+    }
+    public function deleteTokenByID($tokenID)
+    {
+        $this->model
+            ->delete("id = {$tokenID}")
             ->execute();
     }
 

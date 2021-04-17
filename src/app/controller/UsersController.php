@@ -11,6 +11,7 @@ use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\HTML\HtmlElement;
+use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\SessionToken;
@@ -1291,6 +1292,146 @@ class UsersController extends AdminPanelController
     }
 
     /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public function all(Request $request, Response $response, array $args)
+    {
+
+        $expectedParameters = new Parameters([
+            new Parameter(
+                'page',
+                1,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'per_page',
+                10,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'type',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value) || $value == -1;
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'ignore',
+                [],
+                function ($value) {
+                    return is_array($value) || ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+
+                    if (is_scalar($value)) {
+                        $value = [$value];
+                    }
+
+                    $value = is_array($value) ? $value : [];
+
+                    $value = array_filter($value, function ($i) {
+
+                        return (is_string($i) && ctype_digit($i)) || is_int($i);
+
+                    });
+                    $value = array_map(function ($i) {
+
+                        return (int) $i;
+
+                    }, $value);
+
+                    return $value;
+
+                }
+            ),
+        ]);
+
+        $expectedParameters->setInputValues($request->getQueryParams());
+        $expectedParameters->validate();
+
+        /**
+         * @var int $id
+         * @var int $perPage
+         * @var int $type
+         * @var int[] $ignore
+         */;
+        $page = $expectedParameters->getValue('page');
+        $perPage = $expectedParameters->getValue('per_page');
+        $type = $expectedParameters->getValue('type');
+        $ignore = $expectedParameters->getValue('ignore');
+
+        $result = self::_all($page, $perPage, $type, $ignore);
+
+        return $response->withJson($result);
+    }
+
+    /**
+     * @param int $page
+     * @param int $perPage
+     * @param int $type
+     * @param int[] $ignore
+     * @return PaginationResult
+     */
+    public static function _all(int $page = 1, int $perPage = 10, int $type = null, array $ignore = [])
+    {
+        $table = 'pcsphp_users';
+        $fields = [
+            "{$table}.*",
+        ];
+
+        $whereString = null;
+        $where = [
+            $type !== null ? "{$table}.type = {$type}" : '',
+        ];
+
+        $where = array_filter($where, function ($i) {return mb_strlen($i) > 0;});
+
+        if (count($ignore) > 0) {
+            $ignore = implode(', ', $ignore);
+            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
+        }
+
+        if (count($where) > 0) {
+            $whereString = implode('', $where);
+        }
+
+        $fields = implode(', ', $fields);
+        $sqlSelect = "SELECT {$fields} FROM {$table}";
+        $sqlCount = "SELECT COUNT({$table}.id) AS total FROM {$table}";
+
+        if ($whereString !== null) {
+            $sqlSelect .= " WHERE {$whereString}";
+            $sqlCount .= " WHERE {$whereString}";
+        }
+
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+
+        $pagination = $pageQuery->getPagination();
+
+        return $pagination;
+    }
+
+    /**
      * encodeURL
      *
      * @param mixed $data
@@ -1390,6 +1531,14 @@ class UsersController extends AdminPanelController
                 "{$startRoute}datatables[/]",
                 $users . ':dataTablesRequestUsers',
                 'users-datatables',
+                'GET'
+            ),
+
+            //JSON
+            new Route( //JSON con todos los elementos
+                "{$startRoute}/all[/]",
+                $users . ':all',
+                'users-ajax-all',
                 'GET'
             ),
         ]);

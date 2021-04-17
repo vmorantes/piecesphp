@@ -22,8 +22,7 @@ $langGroup = GenericTokenController::LANG_GROUP;
 
     <h2 class="ui header"><?= __($langGroup, 'Comentarios'); ?></h2>
 
-    <form pcs-generic-handler-js action="<?= $action; ?>" method="<?= $method_action; ?>" class="ui form"
-        style="max-width: 600px; margin: 0 auto;">
+    <form pcs-generic-handler-js action="<?= $action; ?>" method="<?= $method_action; ?>" class="ui form" style="max-width: 600px; margin: 0 auto;">
         <input type="hidden" name="token" value="<?= $token; ?>">
 
         <div class="field required">
@@ -39,11 +38,6 @@ $langGroup = GenericTokenController::LANG_GROUP;
         <div class="field required">
             <label><?= __($langGroup, 'Comentario'); ?></label>
             <textarea name="message" required></textarea>
-        </div>
-
-        <div class="field required">
-            <label><?= __($langGroup, 'Requerir respuesta'); ?></label>
-            <input type="checkbox" name="response" value='yes'>
         </div>
 
         <div class="field">

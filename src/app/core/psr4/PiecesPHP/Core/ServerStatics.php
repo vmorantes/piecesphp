@@ -223,9 +223,10 @@ class ServerStatics
      * @param Response $response
      * @param array $args
      * @param string $path
+     * @param array $replacement
      * @return void
      */
-    public function compileScssServe(Request $request, Response $response, array $args, string $path = null)
+    public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [])
     {
 
         $resource = $args['params'];
@@ -252,7 +253,13 @@ class ServerStatics
                 if ($toCompile) {
 
                     $scss = new ScssCompiler();
-                    $compiledCss = $scss->compile(file_get_contents($filePathSass));
+                    $fileContent = file_get_contents($filePathSass);
+
+                    foreach ($replacement as $toReplace => $replacement) {
+                        $fileContent = str_replace($toReplace, $replacement, $fileContent);
+                    }
+
+                    $compiledCss = $scss->compile($fileContent);
 
                     $cssBasename = basename($filePathCss);
                     $cssFolderDes = str_replace(DIRECTORY_SEPARATOR . $cssBasename, '', $filePathCss);

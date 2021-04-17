@@ -24,6 +24,5 @@ class TokenModel extends BaseModel
     }
 
     /** @ignore */
-    protected $prefix_table = 'pcsphp_';
-    protected $table = 'tokens';
+    protected $table = 'pcsphp_tokens';
 }
