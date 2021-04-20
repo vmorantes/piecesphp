@@ -23,32 +23,27 @@ SET time_zone = "+00:00";
 --
 
 --
--- Truncar tablas antes de insertar `locations_cities`
---
-
-TRUNCATE TABLE `locations_cities`;
---
--- Truncar tablas antes de insertar `locations_countries`
---
-
-TRUNCATE TABLE `locations_countries`;
---
--- Volcado de datos para la tabla `locations_countries`
---
-
-INSERT INTO `locations_countries` (`id`, `name`, `active`) VALUES
-(1, 'Colombia', 1);
-
---
 -- Truncar tablas antes de insertar `locations_points`
 --
 
 TRUNCATE TABLE `locations_points`;
+
+--
+-- Truncar tablas antes de insertar `locations_cities`
+--
+
+TRUNCATE TABLE `locations_cities`;
+
 --
 -- Truncar tablas antes de insertar `locations_states`
 --
 
 TRUNCATE TABLE `locations_states`;
+--
+-- Truncar tablas antes de insertar `locations_countries`
+--
+
+TRUNCATE TABLE `locations_countries`;
 --
 -- Truncar tablas antes de insertar `login_attempts`
 --
