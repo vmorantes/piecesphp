@@ -1,4 +1,6 @@
-$(document).ready(function (e) {
+/// <reference path="../../../core/js/configurations.js" />
+/// <reference path="../../../core/js/helpers.js" />
+window.addEventListener('load', function (e) {
 
 	let locations = new Locations()
 	let mapBoxAdapter = new MapBoxAdapter()
@@ -60,7 +62,7 @@ function Locations() {
 	 * @method fillSelectWithCountries
 	 * @description Rellena un select con los países
 	 * @returns {bool} true si hay, false si no
- 	 */
+	   */
 	this.fillSelectWithCountries = () => {
 
 		let countries = this.getCountries()
@@ -159,7 +161,7 @@ function Locations() {
 	 * @description Rellena un select con los estados del país provisto
 	 * @param {number} country El id del país
 	 * @returns {bool} true si hay, false si no
- 	 */
+	   */
 	this.fillSelectWithStates = (country) => {
 
 		let states = []
@@ -325,7 +327,7 @@ function Locations() {
 	 * @description Rellena un select con las ciudades del estado provisto
 	 * @param {number} state El id del estado
 	 * @returns {bool} true si hay, false si no
- 	 */
+	   */
 	this.fillSelectWithCities = (state) => {
 
 		let cities = []
@@ -506,7 +508,7 @@ function Locations() {
 	 * @description Rellena un select con los puntos de la ciudad provista
 	 * @param {number} city El id del estado
 	 * @returns {bool} true si hay, false si no
- 	 */
+	   */
 	this.fillSelectWithPoints = (city) => {
 
 		let points = []
@@ -641,7 +643,7 @@ function Locations() {
 	 * @method getCountries
 	 * @description Devuelve los países
 	 * @returns {array}
- 	 */
+	   */
 	this.getCountries = () => {
 		let countries = []
 		$.ajax({
@@ -659,7 +661,7 @@ function Locations() {
 	 * @description Devuelve los estados del país provisto
 	 * @param {number} country
 	 * @returns {array}
- 	 */
+	   */
 	this.getStates = (country) => {
 		let states = []
 		$.ajax({
@@ -677,7 +679,7 @@ function Locations() {
 	 * @description Devuelve las ciudades del estado provisto
 	 * @param {number} state
 	 * @returns {array}
- 	 */
+	   */
 	this.getCities = (state) => {
 		let cities = []
 		$.ajax({
@@ -695,7 +697,7 @@ function Locations() {
 	 * @description Devuelve los puntos de la ciudad provista
 	 * @param {number} city
 	 * @returns {array}
- 	 */
+	   */
 	this.getPoints = (city) => {
 		let points = []
 		$.ajax({
@@ -779,13 +781,18 @@ function MapBoxAdapter() {
 	 */
 	this.configurate = function (configurations = {}, config = {}) {
 
+		let dependenciesPath = new URL('statics/features/locations/dependencies/mapbox/', $('base').attr('href'))
+		let appendToPath = function (segmentURL, pathURL) {
+			let appended = new URL(segmentURL, pathURL.href)
+			return appended.href
+		}
+
 		return new Promise(function (resolve, reject) {
 
 			let styleSheets = [
-				'https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.css',
-				'https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.css',
+				appendToPath('v0.47.0/mapbox-gl.css', dependenciesPath),
+				appendToPath('geocoder/v2.3.0/mapbox-gl-geocoder.css', dependenciesPath),
 			]
-
 			for (let styleSheet of styleSheets) {
 				$('<link/>', {
 					rel: 'stylesheet',
@@ -795,8 +802,8 @@ function MapBoxAdapter() {
 			}
 
 			$.when(
-				$.getScript("https://api.tiles.mapbox.com/mapbox-gl-js/v0.47.0/mapbox-gl.js"),
-				$.getScript("https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.min.js"),
+				$.getScript(appendToPath('v0.47.0/mapbox-gl.js', dependenciesPath)),
+				$.getScript(appendToPath('geocoder/v2.3.0/mapbox-gl-geocoder.min.js', dependenciesPath)),
 				$.Deferred(function (deferred) {
 					$(deferred.resolve);
 				})
