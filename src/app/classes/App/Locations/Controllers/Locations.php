@@ -200,6 +200,13 @@ class Locations extends AdminPanelController
                 null,
                 $editPermissions
             ),
+            //JSON
+            new Route( //JSON con todos los elementos
+                "{$startRoute}/all[/]",
+                "{$handler}:all",
+                "{$namePrefix}-ajax-all2",
+                'GET'
+            ),
         ];
     }
 
