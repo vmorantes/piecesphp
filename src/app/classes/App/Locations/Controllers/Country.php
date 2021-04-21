@@ -180,19 +180,15 @@ class Country extends AdminPanelController
      */
     public function countries(Request $request, Response $response, array $args)
     {
-        if ($request->isXhr()) {
-            $this->model->select()->execute();
-            $result = $this->model->result();
+        $this->model->select()->execute();
+        $result = $this->model->result();
 
-            foreach ($result as $key => $value) {
-                $value->name = htmlentities(stripslashes($value->name));
-                $result[$key] = $value;
-            }
-
-            return $response->withJson($result);
-        } else {
-            throw new NotFoundException($request, $response);
+        foreach ($result as $key => $value) {
+            $value->name = htmlentities(stripslashes($value->name));
+            $result[$key] = $value;
         }
+
+        return $response->withJson($result);
     }
 
     /**

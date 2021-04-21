@@ -9,10 +9,14 @@ namespace App\Locations\Controllers;
 use App\Controller\AdminPanelController;
 use App\Locations\Mappers\PointMapper;
 use PiecesPHP\Core\HTML\HtmlElement;
+use PiecesPHP\Core\Pagination\PageQuery;
+use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\Core\Validation\Parameters\Parameter;
+use PiecesPHP\Core\Validation\Parameters\Parameters;
 use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
@@ -189,7 +193,7 @@ class Point extends AdminPanelController
 
         $valid = $city !== -1;
 
-        if ($request->isXhr() && $valid) {
+        if ($valid) {
 
             $query = $this->model->select();
 
@@ -418,6 +422,147 @@ class Point extends AdminPanelController
         }
 
         return $response->withJson($result);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public function all(Request $request, Response $response, array $args)
+    {
+
+        $expectedParameters = new Parameters([
+            new Parameter(
+                'page',
+                1,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'per_page',
+                10,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'city',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value) || $value == -1;
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'ignore',
+                [],
+                function ($value) {
+                    return is_array($value) || ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+
+                    if (is_scalar($value)) {
+                        $value = [$value];
+                    }
+
+                    $value = is_array($value) ? $value : [];
+
+                    $value = array_filter($value, function ($i) {
+
+                        return (is_string($i) && ctype_digit($i)) || is_int($i);
+
+                    });
+                    $value = array_map(function ($i) {
+
+                        return (int) $i;
+
+                    }, $value);
+
+                    return $value;
+
+                }
+            ),
+        ]);
+
+        $expectedParameters->setInputValues($request->getQueryParams());
+        $expectedParameters->validate();
+
+        /**
+         * @var int $id
+         * @var int $perPage
+         * @var int $city
+         * @var int[] $ignore
+         */;
+        $page = $expectedParameters->getValue('page');
+        $perPage = $expectedParameters->getValue('per_page');
+        $city = $expectedParameters->getValue('city');
+        $ignore = $expectedParameters->getValue('ignore');
+
+        $result = self::_all($page, $perPage, $city, $ignore);
+
+        return $response->withJson($result);
+    }
+
+    /**
+     * @param int $page
+     * @param int $perPage
+     * @param int $city
+     * @param int[] $ignore
+     * @return PaginationResult
+     */
+    public static function _all(int $page = 1, int $perPage = 10, int $city = null, array $ignore = [])
+    {
+        $table = PointMapper::PREFIX_TABLE . PointMapper::TABLE;
+        $fields = [
+            "{$table}.*",
+        ];
+
+        $whereString = null;
+        $where = [
+        ];
+
+        if ($city !== null) {
+            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.city = ($city)";
+        }
+
+        if (count($ignore) > 0) {
+            $ignore = implode(', ', $ignore);
+            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
+        }
+
+        if (count($where) > 0) {
+            $whereString = implode('', $where);
+        }
+
+        $fields = implode(', ', $fields);
+        $sqlSelect = "SELECT {$fields} FROM {$table}";
+        $sqlCount = "SELECT COUNT({$table}.id) AS total FROM {$table}";
+
+        if ($whereString !== null) {
+            $sqlSelect .= " WHERE {$whereString}";
+            $sqlCount .= " WHERE {$whereString}";
+        }
+
+        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
+
+        $pagination = $pageQuery->getPagination();
+
+        return $pagination;
     }
 
     /**
