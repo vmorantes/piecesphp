@@ -980,6 +980,80 @@ function indexByExcelColumn(string $column, bool $startOnZero = true)
     return (int) ($startOnZero ? $n - 1 : $n);
 }
 
+/**
+ * Convierte una notación de coordenatas decimal a Grados, minutos y segundos (degrees, minutes, seconds)
+ *
+ * @param string $value El valor decimal
+ * @param string $type El tipo: longitude|latitude
+ * @param string $decimalPoint La puntuación que se usa para separar decimales
+ * @return array|null
+ * En caso de éxito devuelve un array con los índices: degrees, minutes, seconds y hemisphere (N,S,E,W)-
+ * Devuelve NULL en caso de que la entrada sea incorrecta
+ */
+function decimalCoordinatesToDMS(string $value, string $type = 'longitude', string $decimalPoint = '.')
+{
+    $decimalPoint = $decimalPoint == ',' || $decimalPoint == '.' ? $decimalPoint : '.';
+    $pointDelete = $decimalPoint == '.' ? ',' : '.';
+    $valid = false;
+
+    $value = trim(str_replace($pointDelete, '', $value));
+
+    if (is_numeric($value)) {
+
+        $pointsCount = substr_count($value, $decimalPoint);
+
+        if ($pointsCount === 1 || $pointsCount === 0) {
+
+            $valid = true;
+
+            if($pointsCount === 0){
+                $value .= "{$decimalPoint}0";
+            }
+
+        }
+
+    }
+
+    if ($valid) {
+
+        $parts = explode(".", $value);
+        $degrees = (int) $parts[0];
+        $time = $parts[1];
+        $temporalReference = "0." . $time;
+
+        $temporalReference = $temporalReference * 3600;
+        $minutes = floor($temporalReference / 60);
+        $seconds = $temporalReference - ($minutes * 60);
+
+        $hemisphere = '';
+
+        if ($type == 'longitude') {
+            if ($degrees < 0) {
+                $hemisphere = 'W';
+            } else {
+                $hemisphere = 'E';
+            }
+        } elseif ($type == 'latitude') {
+            if ($degrees < 0) {
+                $hemisphere = 'S';
+            } else {
+                $hemisphere = 'N';
+            }
+        }
+
+        return [
+            "hemisphere" => $hemisphere,
+            "degrees" => $degrees,
+            "minutes" => $minutes,
+            "seconds" => $seconds,
+        ];
+
+    } else {
+        return null;
+    }
+
+}
+
 //========================================================================================
 /*                                                                                      *
  *                                       Polyfills                                      *
