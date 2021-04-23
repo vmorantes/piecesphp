@@ -152,9 +152,12 @@ class PiecesPHPSystemUserHelper {
 	}
 
 	deleteSession() {
+
 		let now = new Date().getTime()
 		let JWT = this.getJWT()
-		JWT = JWT.length > 0 ? JWT : this.getCookie('JWTAuth').trim()
+		let JWTFromCookie = this.getCookie('JWTAuth')
+		JWTFromCookie = typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : ''
+		JWT = JWT.length > 0 ? JWT : JWTFromCookie
 
 		if (JWT.length > 0) {
 			document.cookie = `JWTAuth=;expires=${now};path=/`;
@@ -162,6 +165,7 @@ class PiecesPHPSystemUserHelper {
 			localStorage.removeItem('JWTAuthExtraData')
 			window.location.reload()
 		}
+
 	}
 
 	getCookies() {
