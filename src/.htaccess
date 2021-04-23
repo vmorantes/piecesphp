@@ -1,21 +1,49 @@
-#Permitir dominios cruzados y cualqueier cabecera
-Header set Access-Control-Allow-Origin "*"
-Header set Access-Control-Allow-Headers "*"
+##### CABECERAS - INICIO #####
+
+<IfModule mod_headers.c>
+
+    # Restricción de enmarcado (establece dónde puede ser puesto este sitio en un iframe)
+	Header set X-Frame-Options "SAMEORIGIN"
+
+    # Obliga a que el navegador no cargue un elemento a menos que el MIME haya sido declarado correctamente
+	Header set X-Content-Type-Options "nosniff"
+
+    # X-XSS-Protection
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Permitir dominios cruzados y cualquier cabecera
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Headers "*"
+
+    # Forzar HSTS a 44 semanas
+    <If "%{HTTP_HOST} != 'localhost'">
+        Header set Strict-Transport-Security "max-age=26611200; includeSubDomains; preload"
+    </If>
+
+    # Configurar política de contenido
+    Header set Content-Security-Policy "default-src https: data: 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://api.mapbox.com https://twemoji.maxcdn.com; script-src https: 'self' 'unsafe-inline' https://twemoji.maxcdn.com; object-src 'none'"
+
+</IfModule>
+
+##### CABECERAS - FIN #####
+
+##### REESCRITURA - INICIO #####
 
 #Activar redirección para el funcionamiento de las rutas
 RewriteEngine on
 
-# Redirect www to non-www
-##RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
-##RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
-
 # Redirect HTTP to HTTPS
-##RewriteCond %{HTTPS} off
-##RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{HTTP_HOST} !=localhost
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Redirect HTTPS to HTTP
 ##RewriteCond %{HTTP:X-Forwarded-Proto} =https
 ##RewriteRule ^(.*)$ http://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Redirect www to non-www
+##RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+##RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -26,6 +54,10 @@ RewriteRule . index.php [L]
 #siguientes dos líneas, de lo contrario coméntelas
 RewriteCond %{REQUEST_URI} \.(js|js|css|ico|png|jpg|jpeg|webp|gif|swf|mp3|mp4|csv|pdf)$
 RewriteRule . index.php [L]
+
+##### REESCRITURA - FIN #####
+
+##### CONTROL DE ACCESO - INICIO #####
 
 #Desactivar el listado de directorios
 Options -Indexes
@@ -50,6 +82,10 @@ Options -Indexes
 	</IfVersion>
 </FilesMatch>
 
+##### CONTROL DE ACCESO - FIN #####
+
+##### PROCESAMIENTO - INICIO #####
+
 <IfModule mod_deflate.c>
 AddOutputFilterByType DEFLATE image/*
 AddOutputFilterByType DEFLATE text/plain
@@ -64,3 +100,5 @@ AddOutputFilterByType DEFLATE application/javascript
 AddOutputFilterByType DEFLATE application/x-javascript
 AddOutputFilterByType DEFLATE application/pdf
 </IfModule> 
+
+##### PROCESAMIENTO - FIN #####
