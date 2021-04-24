@@ -157,7 +157,7 @@ class ArticleController extends AdminPanelController
         $data['lang'] = $lang;
         $data['title'] = self::$title;
 
-        import_quilljs(['videoResize', 'imageResize']);
+        import_default_rich_editor();
         import_cropper();
 
         $this->render('panel/layout/header');
@@ -217,7 +217,7 @@ class ArticleController extends AdminPanelController
             $data['quill_proccesor_link'] = $quill_proccesor_link;
             $data['title'] = self::$title;
 
-            import_quilljs(['videoResize', 'imageResize']);
+            import_default_rich_editor();
             import_cropper();
 
             $this->render('panel/layout/header');

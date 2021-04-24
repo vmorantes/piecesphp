@@ -146,6 +146,14 @@ $assets['quilljs']['plugins'] = [
 ];
 
 /**
+ * Editor por defecto
+ */
+$defaultRichEditorName = 'quilljs';
+$assets['defaultRichEditor']['js'] = $assets[$defaultRichEditorName]['js'];
+$assets['defaultRichEditor']['css'] = $assets[$defaultRichEditorName]['css'];
+$assets['defaultRichEditor']['plugins'] = $assets[$defaultRichEditorName]['plugins'];
+
+/**
  * iziToast v1.4
  * http://izitoast.marcelodolce.com
  */

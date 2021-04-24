@@ -935,6 +935,18 @@ function import_quilljs(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra el editor por defecto como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_default_rich_editor(array $plugins = [], bool $all = true)
+{
+    import_front_library('defaultRichEditor', $plugins, $all);
+}
+
+/**
  * Registra app_libraries como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
