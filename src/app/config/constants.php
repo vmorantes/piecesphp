@@ -53,6 +53,9 @@ define('LOCATIONS_PATH_JS', 'statics/features/locations/js');
 //Temporizadores
 define('ACTIVE_TIMER', false);
 
+//Gestor de archivos
+define('FILE_MANAGER_MODULE', false);
+
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 

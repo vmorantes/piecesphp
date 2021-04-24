@@ -200,6 +200,33 @@ $assets['fancybox3']['css'] = [
 $assets['fancybox3']['plugins'] = [];
 
 /**
+ * ElFinder
+ * https://github.com/Studio-42/elFinder
+ */
+$assets['elfinder']['js'] = [
+    'statics/plugins/jquery-ui/jquery-ui.min.js',
+    'statics/plugins/elfinder/js/elfinder.full.js',
+];
+$assets['elfinder']['css'] = [
+    'statics/plugins/jquery-ui/jquery-ui.min.css',
+    'statics/plugins/elfinder/css/elfinder.full.css',
+    'statics/plugins/elfinder/css/theme.css',
+];
+$assets['elfinder']['plugins'] = [];
+
+/**
+ * JQuery UI
+ * https://github.com/Studio-42/elFinder
+ */
+$assets['jqueryui']['js'] = [
+    'statics/plugins/jquery-ui/jquery-ui.min.js',
+];
+$assets['jqueryui']['css'] = [
+    'statics/plugins/jquery-ui/jquery-ui.min.css',
+];
+$assets['jqueryui']['plugins'] = [];
+
+/**
  * JQuery
  * https://jquery.com/
  */
