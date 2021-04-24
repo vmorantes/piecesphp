@@ -1,0 +1,173 @@
+.ui-pcs.container-sidebar>.content {
+    padding: 10px 25px !important;
+    background-color: rgb(51, 51, 51);
+
+    h3 {
+        color: white;
+    }
+
+    h4 {
+        font-size: 80%;
+        font-style: italic;
+        color: white;
+        opacity: 0.7;
+    }
+
+    @media screen and (max-width:800px) {
+        padding: 10px 15px !important;
+    }
+}
+
+.single-presentation{
+    
+    display: grid;
+    grid-template-columns: auto;
+    justify-content: center;
+    justify-items: center;
+
+    .main{
+        max-width: 800px;
+    }
+    .list{
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-height: 250px;
+        overflow-y: auto;
+        margin: 10px auto;
+        max-width: 1200px;
+        >*{
+            width: 180px;
+            margin-left: 10px;
+        }
+    }
+    img{
+        pointer-events: none;
+    }
+}
+.presentations-list {
+
+    margin: 15px 0px;
+
+    >.load-more {
+        display: block !important;
+        margin: 0px auto;
+        border-radius: 0px;
+        max-width: 95%;
+    }
+
+    >.content.empty {
+        margin-top: 10px;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    >.content:not(.empty) {
+
+        display: grid;
+        grid-template-columns: auto;
+
+        >.item {
+
+            &:not(:last-child) {
+                border-bottom: 0.8px #cececebd solid;
+                padding-bottom: 15px;
+            }
+
+
+            display: grid;
+            grid-template-columns: auto auto;
+            align-items: center;
+            justify-content: flex-start;
+            column-gap: 15px;
+            margin: 10px 0px;
+            text-decoration: none;
+            transition: 0.3s ease all;
+
+            &:hover {
+                opacity: 0.8;
+            }
+
+            >.image {
+
+                img {
+                    max-width: 300px;
+                }
+
+            }
+
+            >.text {
+
+                max-width: 300px;
+                color: white;
+
+                >.title {
+                    font-size: 1.3rem;
+                    margin-bottom: 8px;
+                }
+
+                >.category {
+                    font-size: 1.1rem;
+                    margin-bottom: 8px;
+                    opacity: 0.8;
+                }
+
+                >.description {}
+
+            }
+
+            @media screen and (max-width:900px) {
+                grid-template-columns: auto;
+            }
+
+        }
+
+    }
+
+    &.mini {
+
+        >.content:not(.empty) {
+
+            >.item {
+
+                grid-template-columns: auto auto;
+
+                >.image {
+
+                    img {
+                        max-width: 100px;
+                    }
+
+                }
+
+                >.text {
+
+                    max-width: 300px;
+
+                    >.title {
+                        font-size: 1.3rem;
+                    }
+
+                    >.category {
+                        font-size: 1.1rem;
+                    }
+
+                }
+
+            }
+
+        }
+
+
+    }
+
+}
+
+.ui.form.presentations-filter {
+
+    label {
+        color: white;
+    }
+
+}

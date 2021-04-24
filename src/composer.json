@@ -36,7 +36,8 @@
         "psr/log": "^1.1",
         "piecesphp/database": "~2",
         "leafo/scssphp": "^0.8.4",
-        "mpdf/mpdf": "^8.0"
+        "mpdf/mpdf": "^8.0",
+        "studio-42/elfinder": "^2.1"
     },
     "suggest": {
         "ext-zlib": ">=1.2.0.4",

@@ -52,6 +52,7 @@ use App\Controller\PublicAreaController;
 use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
+use FileManager\FileManagerRoutes;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
@@ -88,6 +89,9 @@ $zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
+
+//Gestor de archivos
+FileManagerRoutes::routes($zona_administrativa);
 
 //Personalización de configuraciones
 AppConfigController::routes($configurations);

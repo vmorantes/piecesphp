@@ -839,6 +839,18 @@ function import_jquery(array $plugins = [], bool $all = false)
 }
 
 /**
+ * Registra jqueryui como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_jqueryui(array $plugins = [], bool $all = false)
+{
+    import_front_library('jqueryui', $plugins, $all);
+}
+
+/**
  * Registra semantic como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
@@ -992,6 +1004,18 @@ function import_dialog_pcs(array $plugins = [], bool $all = true)
 function import_fancybox3(array $plugins = [], bool $all = true)
 {
     import_front_library('fancybox3', $plugins, $all);
+}
+
+/**
+ * Registra elfinder como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_elfinder(array $plugins = [], bool $all = true)
+{
+    import_front_library('elfinder', $plugins, $all);
 }
 
 /**
