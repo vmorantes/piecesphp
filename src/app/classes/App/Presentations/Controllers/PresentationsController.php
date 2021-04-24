@@ -124,7 +124,6 @@ class PresentationsController extends AdminPanelController
         ], 'js');
 
         import_cropper();
-        import_quilljs();
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
@@ -176,7 +175,6 @@ class PresentationsController extends AdminPanelController
             ], 'js');
 
             import_cropper();
-            import_quilljs();
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');

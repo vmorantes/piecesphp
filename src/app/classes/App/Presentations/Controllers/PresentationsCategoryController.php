@@ -93,9 +93,6 @@ class PresentationsCategoryController extends AdminPanelController
             PresentationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/forms.js'),
         ], 'js');
 
-        import_cropper();
-        import_quilljs();
-
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
 
@@ -142,9 +139,6 @@ class PresentationsCategoryController extends AdminPanelController
                 PresentationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/delete-config.js'),
                 PresentationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/forms.js'),
             ], 'js');
-
-            import_cropper();
-            import_quilljs();
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
