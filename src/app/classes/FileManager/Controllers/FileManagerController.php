@@ -109,9 +109,20 @@ class FileManagerController extends AdminPanelController
         // https://github.com/Studio-42/elFinder/wiki/Connector-configuration-options
 
         $base = 'statics/filemanager';
+        $basePath = basepath($base);
 
         $pathDir = basepath("{$base}/files");
         $pathTrashDir = basepath("{$base}/.trash");
+
+        if (!file_exists($basePath)) {
+            mkdir($basePath, 0777);
+        }
+        if (!file_exists($pathDir)) {
+            mkdir($pathDir, 0777);
+        }
+        if (!file_exists($pathTrashDir)) {
+            mkdir($pathTrashDir, 0777);
+        }
 
         $pathURL = baseurl("{$base}/files");
         $pathTrashTmbURL = baseurl("{$base}/.trash/.tmb");
@@ -287,7 +298,7 @@ class FileManagerController extends AdminPanelController
                 "{$startRoute}/configuration[/]",
                 $classname . ':fileManagerConfiguration',
                 self::$baseRouteName . '-filemanager-configuration',
-                'GET',
+                'GET|POST',
                 true,
                 null,
                 $permisos_estados_gestion
