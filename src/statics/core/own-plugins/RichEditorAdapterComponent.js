@@ -1,0 +1,507 @@
+/// <reference path="../../core/js/helpers.js" />
+/**
+ * @param {RichEditorAdapterOptions} adapterOptions 
+ * @param {Array} [toolbar=null] 
+ * @param {Boolean} [silentError=true] 
+ */
+function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentError = true) {
+	//──── Types ─────────────────────────────────────────────────────────────────────────────
+	/**
+	 * @typedef RichEditorAdapterOptions
+	 * @property {String} [containerSelector=[rich-editor-adapter-component]]
+	 * @property {String} [textareaTargetSelector=[rich-editor-adapter-component] + textarea[target]]
+	 * @property {String} [fileManagerURL]
+	 * @property {String} [fileManagerBaseURLStatics]
+	 */
+	adapterOptions;
+
+	//──── Variables ─────────────────────────────────────────────────────────────────────────
+	/**
+	 * @property {RichEditorAdapterComponent}
+	 */
+	let instance = this;
+
+	/**
+	 * @property {String}
+	 */
+	let langGroup = 'richEditor'
+
+	//──── Misc. vars ──────────────────────────────────────────────────────────────────────
+
+	/**
+	 * @property {Array}
+	 */
+	let toolbarDefault = {
+		items: [
+			'heading',
+			'|',
+			'undo',
+			'redo',
+			'|',
+			'fontSize',
+			'fontBackgroundColor',
+			'fontColor',
+			'highlight',
+			'removeFormat',
+			'|',
+			'bold',
+			'italic',
+			'underline',
+			'strikethrough',
+			'link',
+			'|',
+			'bulletedList',
+			'numberedList',
+			'|',
+			'alignment',
+			'outdent',
+			'indent',
+			'|',
+			'CKFinder',
+			'imageUpload',
+			'blockQuote',
+			'insertTable',
+			'mediaEmbed',
+			'horizontalLine',
+			'todoList',
+			'code',
+			'subscript',
+			'superscript',
+			'specialCharacters',
+			'codeBlock'
+		]
+	}
+
+	/**
+	 * @property {String}
+	 */
+	let containerSelector = '[rich-editor-adapter-component]'
+
+	/**
+	 * @property {String}
+	 */
+	let textareaTargetSelector = `${containerSelector} + textarea[target]`
+
+	/**
+	 * @property {String}
+	 */
+	let fileManagerURL = ''
+
+	/**
+	 * @property {String}
+	 */
+	let fileManagerBaseURLStatics = ''
+
+	/**
+	 * @property {Object}
+	 */
+	let fileManager = null
+
+	/**
+	 * @property {String}
+	 */
+	let uploadTargetHash = 'l1_Lw'
+
+	/**
+	 * @property {String}
+	 */
+	let idComponent = 'componentID_' + generateUniqueID()
+
+	//──── Components vars ───────────────────────────────────────────────────────────────────
+
+	/**
+	 * @property {Array}
+	 */
+	let toolbarOptions = {}
+
+	/**
+	 * @property {Quill}
+	 */
+	let editorInstance = null
+
+	/**
+	 * @property {$}
+	 */
+	let component = null
+
+	/**
+	 * @property {$}
+	 */
+	let textareaTarget = null
+
+	//──── Methods ───────────────────────────────────────────────────────────────────────────
+
+
+	//──── Functions ─────────────────────────────────────────────────────────────────────────
+
+	/**
+	 * @function instantiate
+	 * @param {RichEditorAdapterOptions} adapterOptions 
+	 */
+	function instantiate(adapterOptions) {
+
+		showGenericLoader('RichEditorAdapterComponent')
+
+		try {
+
+			configs(adapterOptions)
+
+			toolbarOptions = Array.isArray(toolbar) ? toolbar : toolbarDefault
+			component = $(containerSelector)
+			textareaTarget = $(textareaTargetSelector)
+
+			//Verificar que el selector no esté en uso por otra instancia del Editor
+			if (textareaTarget.length < 1) {
+				throw new Error(_i18n(langGroup, 'Falta(n) el componente o el textarea en el DOM.'))
+			} else {
+				if (RichEditorAdapterComponent.componentsSelectors.indexOf(containerSelector) === -1 && RichEditorAdapterComponent.componentsSelectors.indexOf(textareaTargetSelector) === -1) {
+					RichEditorAdapterComponent.componentsSelectors.push(containerSelector)
+					RichEditorAdapterComponent.componentsSelectors.push(textareaTargetSelector)
+				} else {
+					throw new Error(formatStr(
+						_i18n(langGroup, 'El componente "%r" ya está en uso.'),
+						[
+							containerSelector,
+						]
+					))
+				}
+			}
+
+			instantiateEditor()
+
+			removeGenericLoader('RichEditorAdapterComponent')
+
+		} catch (error) {
+
+			if (silentError !== true) {
+				if (typeof errorMessage == 'function') {
+					errorMessage(_i18n(langGroup, 'Error en RichEditorAdapterComponent'), _i18n(langGroup, 'Ha ocurrido un error al instanciar.'))
+				} else {
+					alert(_i18n(langGroup, 'Ha ocurrido un error al instanciar RichEditorAdapterComponent.'))
+				}
+			}
+
+			console.error(error)
+		}
+
+	}
+
+	/**
+	 * Instancia el editor de texto
+	 */
+	function instantiateEditor() {
+
+		component.remove()
+		textareaTarget.attr('id-component-rich-editor', idComponent)
+
+		ClassicEditor
+			.create(document.querySelector(`[id-component-rich-editor="${idComponent}"]`), {
+				toolbar: toolbarOptions,
+				language: 'es',
+				image: {
+					toolbar: [
+						'imageTextAlternative',
+						'imageStyle:full',
+						'imageStyle:side',
+						'linkImage'
+					]
+				},
+				table: {
+					contentToolbar: [
+						'tableColumn',
+						'tableRow',
+						'mergeTableCells',
+						'tableCellProperties',
+						'tableProperties'
+					]
+				},
+				licenseKey: '',
+			})
+			.then(editor => {
+				editorInstance = editor
+				editorInstance.model.document.on('change:data', () => {
+					textareaTarget.html(editorInstance.getData())
+				})
+
+				const CKFinder = editor.commands.get('ckfinder')
+				const fileRepository = editorInstance.plugins.get('FileRepository')
+
+				CKFinder.execute = () => {
+
+					let fileManagerPromise = fileManagerHandler()
+
+					fileManagerPromise.then(fileManager => {
+						fileManager.getUI().dialogelfinder('open')
+					})
+
+				}
+
+				fileRepository.createUploadAdapter = loader => {
+					return new UploadAdapter(loader)
+				}
+
+			})
+			.catch(error => {
+				console.error('Oops, something went wrong!');
+				console.error('Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:');
+				console.warn('Build id: 5wrscflhyf7l-4wddmedqene5');
+				console.error(error);
+			})
+
+	}
+
+	/**
+	 * @function configs
+	 * @param {RichEditorAdapterOptions} adapterOptions 
+	 */
+	function configs(adapterOptions) {
+
+		if (typeof adapterOptions.containerSelector == 'string' && adapterOptions.containerSelector.length > 0) {
+			containerSelector = adapterOptions.containerSelector
+		}
+
+		if (typeof adapterOptions.textareaTargetSelector == 'string' && adapterOptions.textareaTargetSelector.length > 0) {
+			textareaTargetSelector = adapterOptions.textareaTargetSelector
+		}
+
+		if (typeof adapterOptions.fileManagerURL == 'string' && adapterOptions.fileManagerURL.length > 0) {
+			fileManagerURL = adapterOptions.fileManagerURL
+		} else {
+			fileManagerURL = 'admin/filemanager/rich-editor/configuration/'
+		}
+
+		if (typeof adapterOptions.fileManagerBaseURLStatics == 'string' && adapterOptions.fileManagerBaseURLStatics.length > 0) {
+			fileManagerBaseURLStatics = adapterOptions.fileManagerBaseURLStatics
+		} else {
+			fileManagerBaseURLStatics = 'statics/plugins/elfinder'
+		}
+
+	}
+
+	/**
+	 * @param {String} target
+	 * @param {Boolean} verifyImgCmd
+	 * @returns {Promise}
+	 */
+	function fileManagerHandler(target = null, verifyImgCmd = false) {
+
+		return new Promise((resolve, reject) => {
+
+			const done = () => {
+
+				if (target) {
+
+					if (!Object.keys(fileManager.files()).length) {
+
+						fileManager.one('open', () => {
+							fileManager.file(target) ? resolve(fileManager) : reject(fileManager, 'errFolderNotFound');
+						})
+
+					} else {
+
+						new Promise((res, rej) => {
+
+							if (fileManager.file(target)) {
+
+								res()
+
+							} else {
+
+								fileManager.request({ cmd: 'parents', target: target }).done(e => {
+
+									fileManager.file(target) ? res() : rej()
+
+								}).fail(() => {
+									rej()
+								})
+							}
+
+						}).then(() => {
+
+							fileManager.exec('open', target).done(() => {
+								resolve(fileManager)
+							}).fail(err => {
+								reject(fileManager, err ? err : 'errFolderNotFound')
+							})
+
+						}).catch((err) => {
+							reject(fileManager, err ? err : 'errFolderNotFound')
+						})
+
+					}
+
+				} else {
+					resolve(fileManager);
+				}
+
+			}
+
+			if (fileManager != null) {
+				done()
+			} else {
+
+				fileManager = $('<div/>').dialogelfinder({
+					title: 'Seleccionar imagen',
+					url: fileManagerURL,
+					baseUrl: fileManagerBaseURLStatics + '/',
+					lang: 'es',
+					useBrowserHistory: false,
+					autoOpen: false,
+					width: 'auto',
+					commandsOptions: {
+						getfile: {
+							oncomplete: 'close',
+							multiple: true
+						}
+					},
+					getFileCallback: (files, instance) => {
+
+						let imagesSrc = []
+
+						instance.getUI('cwd').trigger('unselectall')
+
+						$.each(files, function (index, file) {
+
+							if (typeof file == 'object' && typeof file.url == 'string' && file.url.length > 0) {
+
+								let baseURL = new URL($('head base').attr('href'))
+								let fileURL = file.url.replace(baseURL.href, '').replace(/(^\/|\/$)/g, '')
+
+								if (file.mime.match(/^image\//i)) {
+
+									imagesSrc.push(fileURL)
+
+								} else {
+									errorMessage('Error', 'Debe seleccionar una image')
+								}
+
+							}
+
+						})
+
+						if (imagesSrc.length > 0) {
+							insertImages(imagesSrc, verifyImgCmd)
+						}
+
+					}
+
+				}).elfinder('instance')
+
+				done()
+
+			}
+
+		})
+
+	}
+
+	/**
+	 * @param {Object} loader 
+	 */
+	function UploadAdapter(loader) {
+
+		let upload = function (file, resolve, reject) {
+
+			fileManagerHandler(uploadTargetHash, true).then(instance => {
+
+				let fmNode = instance.getUI()
+
+				fmNode.dialogelfinder('open')
+
+				instance.exec('upload', { files: [file], target: uploadTargetHash }, void (0), uploadTargetHash)
+					.done(data => {
+
+						if (data.added && data.added.length) {
+
+							instance.url(data.added[0].hash, { async: true }).done(function (url) {
+
+								let baseURL = new URL($('head base').attr('href'))
+								let fileURL = url.replace(baseURL.href, '').replace(/(^\/|\/$)/g, '')
+
+								resolve({
+									'default': fileURL,
+								})
+
+								fmNode.dialogelfinder('close')
+
+							}).fail(function () {
+
+								reject('errFileNotFound')
+
+							})
+
+						} else {
+
+							reject(instance.i18n(data.error ? data.error : 'errUpload'))
+							fmNode.dialogelfinder('close')
+
+						}
+
+					})
+					.fail(err => {
+						const error = instance.parseError(err)
+						reject(instance.i18n(error ? (error === 'userabort' ? 'errAbort' : error) : 'errUploadNoFiles'))
+					})
+
+			}).catch((instance, err) => {
+				console.error(instance)
+				console.error(err)
+				const error = instance.parseError(err)
+				reject(instance.i18n(error ? (error === 'userabort' ? 'errAbort' : error) : 'errUploadNoFiles'))
+			})
+
+		}
+
+		this.upload = function () {
+
+			return new Promise(function (resolve, reject) {
+
+				if (loader.file instanceof Promise || (loader.file && typeof loader.file.then === 'function')) {
+
+					loader.file.then(function (file) {
+						upload(file, resolve, reject)
+					})
+
+				} else {
+					upload(loader.file, resolve, reject)
+				}
+
+			})
+
+		}
+
+		this.abort = function () {
+			fileManager && fileManager.getUI().trigger('uploadabort')
+		}
+
+	}
+
+	/**
+	 * @param {String[]|String} url 
+	 * @param {Boolean} verifyImgCmd 
+	 * @returns {void}
+	 */
+	function insertImages(url, verifyImgCmd = false) {
+
+		const imgCmd = editorInstance.commands.get('imageUpload')
+
+		if (verifyImgCmd === true) {
+
+			if (!imgCmd.isEnabled) {
+				editorInstance.execute('imageInsert', { source: url })
+			} else {
+				errorMessage('Error', 'No se puede insertar la imagen en esa posición.')
+			}
+
+		} else {
+			editorInstance.execute('imageInsert', { source: url })
+		}
+
+	}
+
+	instantiate(adapterOptions)
+
+	return instance
+}
+
+RichEditorAdapterComponent.componentsSelectors = []

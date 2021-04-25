@@ -121,10 +121,15 @@ $assets['jquerymask']['plugins'] = [];
  * https://quilljs.com/
  */
 $assets['quilljs']['js'] = [
+    'statics/plugins/jquery-ui/jquery-ui.min.js',
+    'statics/plugins/elfinder/js/elfinder.full.js',
     'statics/plugins/quilljs/quill.min.js',
 ];
 $assets['quilljs']['css'] = [
     'statics/plugins/quilljs/quill.snow.css',
+    'statics/plugins/jquery-ui/jquery-ui.min.css',
+    'statics/plugins/elfinder/css/elfinder.full.css',
+    'statics/plugins/elfinder/css/theme.css',
 ];
 $assets['quilljs']['plugins'] = [
     'imageResize' => [
@@ -146,9 +151,34 @@ $assets['quilljs']['plugins'] = [
 ];
 
 /**
+ * CKEditor5
+ * https://ckeditor.com/ckeditor-5/
+ */
+$assets['ckeditor']['js'] = [
+    'statics/plugins/ckeditor/ckeditor.js',
+];
+$assets['ckeditor']['css'] = [];
+$assets['ckeditor']['plugins'] = [
+    'ckfinder' => [
+        'css' => [],
+        'js' => [
+            'statics/plugins/ckeditor/ckfinder/ckfinder.js',
+        ],
+    ],
+    'adapter' => [
+        'css' => [
+            'statics/core/own-plugins/css/rich-editor-adapter.css',
+        ],
+        'js' => [
+            'statics/core/own-plugins/RichEditorAdapterComponent.js',
+        ],
+    ],
+];
+
+/**
  * Editor por defecto
  */
-$defaultRichEditorName = 'quilljs';
+$defaultRichEditorName = 'ckeditor';
 $assets['defaultRichEditor']['js'] = $assets[$defaultRichEditorName]['js'];
 $assets['defaultRichEditor']['css'] = $assets[$defaultRichEditorName]['css'];
 $assets['defaultRichEditor']['plugins'] = $assets[$defaultRichEditorName]['plugins'];

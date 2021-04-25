@@ -956,6 +956,9 @@ function import_quilljs(array $plugins = [], bool $all = true)
 function import_default_rich_editor(array $plugins = [], bool $all = true)
 {
     import_front_library('defaultRichEditor', $plugins, $all);
+    if (function_exists('import_elfinder')) {
+        import_elfinder();
+    }
 }
 
 /**

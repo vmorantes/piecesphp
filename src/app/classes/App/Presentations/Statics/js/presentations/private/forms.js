@@ -1,7 +1,6 @@
 /// <reference path="../../../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../../../statics/core/js/helpers.js" />
 /// <reference path="../../../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
-/// <reference path="../../../../../../../../statics/core/own-plugins/QuillAdapterComponent.js" />
 showGenericLoader('_CARGA_INICIAL_')
 
 window.addEventListener('load', function () {

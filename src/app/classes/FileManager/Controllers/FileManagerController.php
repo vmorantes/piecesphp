@@ -136,6 +136,79 @@ class FileManagerController extends AdminPanelController
             'roots' => array(
                 // Items volume
                 array(
+                    'id' => '1',
+                    'alias' => 'Archivos',
+                    'driver' => 'LocalFileSystem',
+                    'path' => $pathDir,
+                    'URL' => $pathURL,
+                    'trashHash' => 't1_Lw',
+                    'winHashFix' => DIRECTORY_SEPARATOR !== '/',
+                    'uploadDeny' => $uploadDeny,
+                    'uploadAllow' => $allowedMimeUploads,
+                    'uploadOrder' => $uploadOrder,
+                    'accessControl' => $accessControl,
+                ),
+                // Trash volume
+                array(
+                    'id' => '1',
+                    'driver' => 'Trash',
+                    'path' => $pathTrashDir,
+                    'tmbURL' => $pathTrashTmbURL,
+                    'winHashFix' => DIRECTORY_SEPARATOR !== '/',
+                    'uploadDeny' => $uploadDeny,
+                    'uploadAllow' => $allowedMimeUploads,
+                    'uploadOrder' => $uploadOrder,
+                    'accessControl' => $accessControl,
+                ),
+            ),
+        );
+
+        $connector = new elFinderConnector(new elFinder($opts));
+        $connector->run();
+
+        return $response;
+
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return void
+     */
+    public function fileManagerConfigurationRichEditor(Request $request, Response $response, array $args)
+    {
+
+        // https://github.com/Studio-42/elFinder/wiki/Connector-configuration-options
+
+        $base = 'statics/filemanager';
+        $basePath = basepath($base);
+
+        $pathDir = basepath("{$base}/files");
+        $pathTrashDir = basepath("{$base}/.trash");
+
+        if (!file_exists($basePath)) {
+            mkdir($basePath, 0777);
+        }
+        if (!file_exists($pathDir)) {
+            mkdir($pathDir, 0777);
+        }
+        if (!file_exists($pathTrashDir)) {
+            mkdir($pathTrashDir, 0777);
+        }
+
+        $pathURL = baseurl("{$base}/files");
+        $pathTrashTmbURL = baseurl("{$base}/.trash/.tmb");
+
+        $uploadDeny = array('');
+        $allowedMimeUploads = array('image');
+        $uploadOrder = array('deny', 'allow');
+        $accessControl = self::class . 'accessElFinderHandler';
+
+        $opts = array(
+            'roots' => array(
+                // Items volume
+                array(
                     'alias' => 'Archivos',
                     'driver' => 'LocalFileSystem',
                     'path' => $pathDir,
@@ -294,10 +367,19 @@ class FileManagerController extends AdminPanelController
                 $permisos_estados_gestion
             ),
             //JSON
-            new Route( //Vista del listado
+            new Route(
                 "{$startRoute}/configuration[/]",
                 $classname . ':fileManagerConfiguration',
                 self::$baseRouteName . '-filemanager-configuration',
+                'GET|POST',
+                true,
+                null,
+                $permisos_estados_gestion
+            ),
+            new Route(
+                "{$startRoute}/rich-editor/configuration[/]",
+                $classname . ':fileManagerConfigurationRichEditor',
+                self::$baseRouteName . '-filemanager-configuration-rich-editor',
                 'GET|POST',
                 true,
                 null,
