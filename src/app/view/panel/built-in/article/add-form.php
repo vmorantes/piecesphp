@@ -18,13 +18,13 @@ $allowedLangsWithoutCurrent = array_map(function($lang){
 $langGroup = ArticleController::LANG_GROUP;
 ?>
 
-<div style="max-width:850px;">
+<div style="max-width:1440px;">
 
     <h3><?= __($langGroup, 'Agregar'); ?> <?=$title;?></h3>
 
     <br>
 
-    <form pcsphp-articles method='POST' action="<?=$action;?>" class="ui form" quill="<?=$quill_proccesor_link;?>">
+    <form pcsphp-articles method='POST' action="<?=$action;?>" class="ui form">
 
         <input type="hidden" name="lang" value="<?= $currentLang; ?>">
 
@@ -70,7 +70,7 @@ $langGroup = ArticleController::LANG_GROUP;
 
             <div class="field required">
                 <label><?= __($langGroup, 'Contenido'); ?></label>
-                <div quill-editor></div>
+                <div rich-editor-adapter-component></div>
                 <textarea name="content" required></textarea>
             </div>
 

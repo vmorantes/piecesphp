@@ -146,14 +146,12 @@ class ArticleController extends AdminPanelController
 
         $action = self::routeName('actions-add');
         $back_link = self::routeName('list');
-        $quill_proccesor_link = self::routeName('image-handler');
         $options_categories = array_to_html_options(CategoryContentMapper::allForSelect(), null);
 
         $data = [];
         $data['action'] = $action;
         $data['back_link'] = $back_link;
         $data['options_categories'] = $options_categories;
-        $data['quill_proccesor_link'] = $quill_proccesor_link;
         $data['lang'] = $lang;
         $data['title'] = self::$title;
 
@@ -205,7 +203,6 @@ class ArticleController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $back_link = self::routeName('list');
-            $quill_proccesor_link = self::routeName('image-handler');
             $options_categories = array_to_html_options(CategoryContentMapper::allForSelect(), $element->category->id);
 
             $data = [];
@@ -214,7 +211,6 @@ class ArticleController extends AdminPanelController
             $data['subElement'] = $subElement;
             $data['back_link'] = $back_link;
             $data['options_categories'] = $options_categories;
-            $data['quill_proccesor_link'] = $quill_proccesor_link;
             $data['title'] = self::$title;
 
             import_default_rich_editor();

@@ -1,3 +1,6 @@
+/// <reference path="../../../../core/js/configurations.js" />
+/// <reference path="../../../../core/js/helpers.js" />
+/// <reference path="../../../../core/own-plugins/RichEditorAdapterComponent.js" />
 showGenericLoader('form-article-view')
 window.addEventListener('load', () => {
 
@@ -5,11 +8,11 @@ window.addEventListener('load', () => {
 		context: 'parent'
 	})
 	$('.ui.selection.dropdown.lang-selector').dropdown({
-		onChange: (value, text, item)=>{
-			try{
+		onChange: (value, text, item) => {
+			try {
 				let url = new URL(value)
 				window.location = url
-			}catch(e){
+			} catch (e) {
 				console.warn(e)
 			}
 		}
@@ -83,13 +86,11 @@ window.addEventListener('load', () => {
 
 	isEdit = form.find(`[name="id"]`).length > 0
 
-	let quillAdapter = new QuillAdapterComponent({
-		containerSelector: '[quill-editor]',
+	let richEditorAdapter = new RichEditorAdapterComponent({
+		containerSelector: '[rich-editor-adapter-component]',
 		textareaTargetSelector: "textarea[name='content']",
-		urlProcessImage: form.attr('quill'),
-		nameOnRequest: 'image',
 	})
 
 	removeGenericLoader('form-article-view')
-	
+
 })
