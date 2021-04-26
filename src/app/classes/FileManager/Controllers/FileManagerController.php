@@ -114,6 +114,13 @@ class FileManagerController extends AdminPanelController
         $pathDir = basepath("{$base}/files");
         $pathTrashDir = basepath("{$base}/.trash");
 
+        $pathImagesDir = basepath("{$base}/images");
+        $pathImagesTrashDir = basepath("{$base}/.trash-images");
+
+        $pathUploadsDir = basepath("statics/uploads");
+
+        $pathTmpDir = basepath("tmp");
+
         if (!file_exists($basePath)) {
             mkdir($basePath, 0777);
         }
@@ -123,24 +130,77 @@ class FileManagerController extends AdminPanelController
         if (!file_exists($pathTrashDir)) {
             mkdir($pathTrashDir, 0777);
         }
+        if (!file_exists($pathUploadsDir)) {
+            mkdir($pathUploadsDir, 0777);
+        }
+        if (decoct(fileperms($pathUploadsDir) & 0777) != 777) {
+            @chmod($pathUploadsDir, 0777);
+        }
+        if (!file_exists($pathTmpDir)) {
+            mkdir($pathTmpDir, 0777);
+        }
+        if (decoct(fileperms($pathTmpDir) & 0777) != 777) {
+            @chmod($pathTmpDir, 0777);
+        }
 
         $pathURL = baseurl("{$base}/files");
         $pathTrashTmbURL = baseurl("{$base}/.trash/.tmb");
 
+        $pathImagesURL = baseurl("{$base}/images");
+        $pathImagesTrashTmbURL = baseurl("{$base}/.trash-images/.tmb");
+
+        $pathUploadsURL = baseurl("statics/uploads");
+        $pathTmpUploadsURL = baseurl("tmp");
+
         $uploadDeny = array();
-        $allowedMimeUploads = array('image/x-ms-bmp', 'image/gif', 'image/jpeg', 'image/jpg', 'image/png', 'image/x-icon');
+        $allowedMimeUploads = array('image');
         $uploadOrder = array('deny', 'allow');
-        $accessControl = self::class . 'accessElFinderHandler';
+        $accessControl = self::class . '::accessElFinderHandler';
 
         $opts = array(
             'roots' => array(
                 // Items volume
                 array(
-                    'id' => '1',
                     'alias' => 'Archivos',
                     'driver' => 'LocalFileSystem',
                     'path' => $pathDir,
                     'URL' => $pathURL,
+                    'trashHash' => 't1_Lw',
+                    'winHashFix' => DIRECTORY_SEPARATOR !== '/',
+                    'uploadDeny' => $uploadDeny,
+                    'uploadAllow' => $allowedMimeUploads,
+                    'uploadOrder' => $uploadOrder,
+                    'accessControl' => $accessControl,
+                ),
+                array(
+                    'alias' => 'Imágenes (Editor de texto)',
+                    'driver' => 'LocalFileSystem',
+                    'path' => $pathImagesDir,
+                    'URL' => $pathImagesURL,
+                    'trashHash' => 't2_Lw',
+                    'winHashFix' => DIRECTORY_SEPARATOR !== '/',
+                    'uploadDeny' => array('all'),
+                    'uploadAllow' => array('image'),
+                    'uploadOrder' => $uploadOrder,
+                    'accessControl' => $accessControl,
+                ),
+                array(
+                    'alias' => 'Cargas',
+                    'driver' => 'LocalFileSystem',
+                    'path' => $pathUploadsDir,
+                    'URL' => $pathUploadsURL,
+                    'trashHash' => 't1_Lw',
+                    'winHashFix' => DIRECTORY_SEPARATOR !== '/',
+                    'uploadDeny' => $uploadDeny,
+                    'uploadAllow' => $allowedMimeUploads,
+                    'uploadOrder' => $uploadOrder,
+                    'accessControl' => $accessControl,
+                ),
+                array(
+                    'alias' => 'Temporales',
+                    'driver' => 'LocalFileSystem',
+                    'path' => $pathTmpDir,
+                    'URL' => $pathTmpUploadsURL,
                     'trashHash' => 't1_Lw',
                     'winHashFix' => DIRECTORY_SEPARATOR !== '/',
                     'uploadDeny' => $uploadDeny,
@@ -157,6 +217,18 @@ class FileManagerController extends AdminPanelController
                     'winHashFix' => DIRECTORY_SEPARATOR !== '/',
                     'uploadDeny' => $uploadDeny,
                     'uploadAllow' => $allowedMimeUploads,
+                    'uploadOrder' => $uploadOrder,
+                    'accessControl' => $accessControl,
+                ),
+                array(
+                    'id' => '2',
+                    'alias' => 'Papelera' . ' (Imágenes)',
+                    'driver' => 'Trash',
+                    'path' => $pathImagesTrashDir,
+                    'tmbURL' => $pathImagesTrashTmbURL,
+                    'winHashFix' => DIRECTORY_SEPARATOR !== '/',
+                    'uploadDeny' => array('all'),
+                    'uploadAllow' => array('image'),
                     'uploadOrder' => $uploadOrder,
                     'accessControl' => $accessControl,
                 ),
@@ -184,8 +256,8 @@ class FileManagerController extends AdminPanelController
         $base = 'statics/filemanager';
         $basePath = basepath($base);
 
-        $pathDir = basepath("{$base}/files");
-        $pathTrashDir = basepath("{$base}/.trash");
+        $pathDir = basepath("{$base}/images");
+        $pathTrashDir = basepath("{$base}/.trash-images");
 
         if (!file_exists($basePath)) {
             mkdir($basePath, 0777);
@@ -197,19 +269,19 @@ class FileManagerController extends AdminPanelController
             mkdir($pathTrashDir, 0777);
         }
 
-        $pathURL = baseurl("{$base}/files");
-        $pathTrashTmbURL = baseurl("{$base}/.trash/.tmb");
+        $pathURL = baseurl("{$base}/images");
+        $pathTrashTmbURL = baseurl("{$base}/.trash-images/.tmb");
 
-        $uploadDeny = array('');
+        $uploadDeny = array('all');
         $allowedMimeUploads = array('image');
         $uploadOrder = array('deny', 'allow');
-        $accessControl = self::class . 'accessElFinderHandler';
+        $accessControl = self::class . '::accessElFinderHandler';
 
         $opts = array(
             'roots' => array(
                 // Items volume
                 array(
-                    'alias' => 'Archivos',
+                    'alias' => 'Imágenes',
                     'driver' => 'LocalFileSystem',
                     'path' => $pathDir,
                     'URL' => $pathURL,
