@@ -38,36 +38,33 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			'undo',
 			'redo',
 			'|',
-			'fontSize',
 			'fontBackgroundColor',
 			'fontColor',
-			'highlight',
-			'removeFormat',
+			'fontFamily',
 			'|',
 			'bold',
 			'italic',
 			'underline',
 			'strikethrough',
 			'link',
-			'|',
-			'bulletedList',
-			'numberedList',
+			'removeFormat',
 			'|',
 			'alignment',
+			'blockQuote',
+			'bulletedList',
+			'numberedList',
 			'outdent',
 			'indent',
 			'|',
 			'CKFinder',
 			'imageUpload',
-			'blockQuote',
-			'insertTable',
 			'mediaEmbed',
-			'horizontalLine',
-			'todoList',
-			'code',
-			'subscript',
+			'insertTable',
+			'|',
 			'superscript',
-			'specialCharacters',
+			'subscript',
+			'htmlEmbed',
+			'horizontalLine',
 			'codeBlock'
 		]
 	}
@@ -101,6 +98,11 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @property {String}
 	 */
 	let uploadTargetHash = 'l1_Lw'
+
+	/**
+	 * @property {Boolean}
+	 */
+	let verifyImgCmd = false
 
 	/**
 	 * @property {String}
@@ -231,6 +233,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 					let fileManagerPromise = fileManagerHandler()
 
 					fileManagerPromise.then(fileManager => {
+						verifyImgCmd = false
 						fileManager.getUI().dialogelfinder('open')
 					})
 
@@ -244,7 +247,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			.catch(error => {
 				console.error('Oops, something went wrong!');
 				console.error('Please, report the following error on https://github.com/ckeditor/ckeditor5/issues with the build id and the error stack trace:');
-				console.warn('Build id: 5wrscflhyf7l-4wddmedqene5');
+				console.warn('Build id: jphltcuj0rzv-bt20ajtolrmd');
 				console.error(error);
 			})
 
@@ -280,10 +283,9 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 
 	/**
 	 * @param {String} target
-	 * @param {Boolean} verifyImgCmd
 	 * @returns {Promise}
 	 */
-	function fileManagerHandler(target = null, verifyImgCmd = false) {
+	function fileManagerHandler(target = null) {
 
 		return new Promise((resolve, reject) => {
 
@@ -380,7 +382,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 						})
 
 						if (imagesSrc.length > 0) {
-							insertImages(imagesSrc, verifyImgCmd)
+							insertImages(imagesSrc)
 						}
 
 					}
@@ -402,10 +404,11 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 
 		let upload = function (file, resolve, reject) {
 
-			fileManagerHandler(uploadTargetHash, true).then(instance => {
+			fileManagerHandler(uploadTargetHash).then(instance => {
 
 				let fmNode = instance.getUI()
 
+				verifyImgCmd = true
 				fmNode.dialogelfinder('open')
 
 				instance.exec('upload', { files: [file], target: uploadTargetHash }, void (0), uploadTargetHash)
@@ -478,10 +481,9 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 
 	/**
 	 * @param {String[]|String} url 
-	 * @param {Boolean} verifyImgCmd 
 	 * @returns {void}
 	 */
-	function insertImages(url, verifyImgCmd = false) {
+	function insertImages(url) {
 
 		const imgCmd = editorInstance.commands.get('imageUpload')
 
