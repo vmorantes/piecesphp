@@ -383,7 +383,7 @@ class FileManagerController extends AdminPanelController
                 'GET|POST',
                 true,
                 null,
-                $permisos_estados_gestion
+                $all_roles
             ),
 
         ];
