@@ -2,3 +2,32 @@
     min-height: 500px;
     max-height: 500px;
 }
+
+.ck-editor{
+
+    figure {
+
+        &.image {
+        
+            //Solo en el editor
+            margin-left: initial;
+            margin-right: initial;    
+            //--------------------
+
+            display: block;
+            max-width: 100%;
+
+            &.image-style-align-center {
+                margin-left: auto;
+                margin-right: auto;                
+            }
+
+        }
+
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+}
