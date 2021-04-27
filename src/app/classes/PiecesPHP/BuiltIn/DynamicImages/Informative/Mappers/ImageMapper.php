@@ -197,7 +197,7 @@ class ImageMapper extends EntityMapperExtensible
      */
     public function hasDescription()
     {
-        return count(trim($this->description)) > 0;
+        return mb_strlen(trim($this->description)) > 0;
     }
 
     /**
@@ -207,7 +207,7 @@ class ImageMapper extends EntityMapperExtensible
      */
     public function hasLink()
     {
-        return count(trim($this->link)) > 0;
+        return mb_strlen(trim($this->link)) > 0;
     }
 
     /**
