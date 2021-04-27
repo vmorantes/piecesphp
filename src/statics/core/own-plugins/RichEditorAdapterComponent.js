@@ -204,9 +204,22 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 					toolbar: [
 						'imageTextAlternative',
 						'imageStyle:full',
-						'imageStyle:side',
-						'linkImage'
-					]
+						'imageStyle:alignCenter',
+						'linkImage',
+						'resizeImage:original',
+					],
+					resizeUnit: 'px',
+					resizeOptions: [
+						{
+							name: 'resizeImage:original',
+							value: null,
+							icon: 'original'
+						},
+					],
+					styles: [
+						'full',
+						'alignCenter',
+					],
 				},
 				table: {
 					contentToolbar: [
