@@ -24,7 +24,6 @@ use Slim\Http\Response;
  * PresentationsRoutes.
  *
  * @package     App\Presentations
- * @author      Tejido Digital S.A.S.
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
  */
@@ -160,8 +159,41 @@ class PresentationsRoutes
             return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics');
         };
 
-        $routeStatics = new Route('presentations/statics-resolver/[{params:.*}]', $callableHandler, PresentationsRoutes::class);
-        $group->register([$routeStatics]);
+        /**
+         * @param Request $request
+         * @param Response $response
+         * @param array $args
+         * @return Response
+         */
+        $cssGlobalVariables = function (Request $request, Response $response, array $args) {
+
+            $css = [
+                "--readable-color:" . 'white' . ";",
+            ];
+
+            $css = implode("\n", $css);
+
+            $css = ":root {\n{$css}\n}";
+
+            $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '29-04-2021 12:20 PM');
+            $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $css);
+
+            foreach ($headersAndStatus['headers'] as $header => $value) {
+                $response = $response->withHeader($header, $value);
+            }
+
+            return $response
+                ->write($css)
+                ->withStatus($headersAndStatus['status'])
+                ->withHeader('Content-Type', 'text/css');
+
+        };
+
+        $routeStatics = [
+            new Route('presentations/statics-resolver/globals-vars.css', $cssGlobalVariables, PresentationsRoutes::class . '-global-vars'),
+            new Route('presentations/statics-resolver/[{params:.*}]', $callableHandler, PresentationsRoutes::class),
+        ];
+        $group->register($routeStatics);
 
     }
 

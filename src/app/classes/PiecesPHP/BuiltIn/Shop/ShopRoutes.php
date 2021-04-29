@@ -16,7 +16,6 @@ use PiecesPHP\Core\RouteGroup;
  * ShopRoutes.
  *
  * @package     PiecesPHP\BuiltIn\Shop
- * @author      Tejido Digital S.A.S.
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */

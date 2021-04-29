@@ -102,6 +102,8 @@ class PresentationsPublicController extends AdminPanelController
 
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
+        add_global_asset(PresentationsRoutes::staticRoute('globals-vars.css'), 'css');
+
     }
 
     /**

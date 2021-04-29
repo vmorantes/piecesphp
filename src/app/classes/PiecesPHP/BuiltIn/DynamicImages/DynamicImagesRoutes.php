@@ -13,7 +13,6 @@ use PiecesPHP\Core\RouteGroup;
  * DynamicImagesRoutes.
  *
  * @package     PiecesPHP\BuiltIn\DynamicImages
- * @author      Tejido Digital S.A.S.
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */

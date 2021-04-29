@@ -13,7 +13,6 @@ use PiecesPHP\LangInjector;
  * PresentationsLang.
  *
  * @package     App\Presentations
- * @author      Tejido Digital S.A.S.
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
  */

@@ -108,6 +108,9 @@ class PresentationsController extends AdminPanelController
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
+
+        add_global_asset(PresentationsRoutes::staticRoute('globals-vars.css'), 'css');
+
     }
 
     /**
