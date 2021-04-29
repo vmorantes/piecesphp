@@ -981,7 +981,7 @@ function indexByExcelColumn(string $column, bool $startOnZero = true)
 }
 
 /**
- * Convierte una notación de coordenatas decimal a Grados, minutos y segundos (degrees, minutes, seconds)
+ * Convierte una notación de coordenadas decimal a Grados, minutos y segundos (degrees, minutes, seconds)
  *
  * @param string $value El valor decimal
  * @param string $type El tipo: longitude|latitude
@@ -1006,7 +1006,7 @@ function decimalCoordinatesToDMS(string $value, string $type = 'longitude', stri
 
             $valid = true;
 
-            if($pointsCount === 0){
+            if ($pointsCount === 0) {
                 $value .= "{$decimalPoint}0";
             }
 
@@ -1052,6 +1052,89 @@ function decimalCoordinatesToDMS(string $value, string $type = 'longitude', stri
         return null;
     }
 
+}
+
+/**
+ * Según la información provista devuelve las cabeceras y el estado adecuado para el uso de caché
+ *
+ * @param \Slim\Http\Request $request
+ * @param \DateTime $lastModification
+ * @param string $eTagContent
+ * @return array
+ * Un array con dos índices: headers (array asociativo Cabecera => Valor) y status (número entero que representa el estado de la solicitud)
+ */
+function generateCachingHeadersAndStatus(\Slim\Http\Request $request, \DateTime $lastModification, string $eTagContent = null)
+{
+
+    $lastModification = $lastModification->getTimestamp();
+    $ifModifiedSince = $request->getHeaderLine('If-Modified-Since');
+    $ifNoneMatch = $request->getHeaderLine('If-None-Match');
+
+    $headers = [];
+    $status = 0;
+
+    $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification);
+    $eTag = $eTagContent === null ? sha1($lastModification) : sha1($eTagContent);
+
+    $headers['Cache-Control'] = "no-cache";
+    $headers['Last-Modified'] = $lastModificationGMT;
+    $headers['ETag'] = $eTag;
+
+    if (is_string($ifModifiedSince) && strlen($ifModifiedSince) > 0) {
+
+        try {
+
+            $lastModificationDateTime = (new \DateTime)->setTimestamp($lastModification);
+            $ifModifiedSinceDateTime = new \DateTime($ifModifiedSince);
+
+            if ($lastModificationDateTime <= $ifModifiedSinceDateTime) {
+
+                $status = 304;
+
+            } else if ($lastModificationDateTime > $ifModifiedSinceDateTime) {
+
+                $headers['Cache-Control'] = [
+                    'no-store',
+                    'max-age=0',
+                ];
+
+                $status = 200;
+
+            }
+
+        } catch (\Exception $e) {
+            $status = 200;
+        }
+
+    }
+
+    if (is_string($ifNoneMatch) && strlen($ifNoneMatch) > 0) {
+
+        if ($eTag === $ifNoneMatch) {
+
+            $status = 304;
+
+        } else {
+
+            $headers['Cache-Control'] = [
+                'no-store',
+                'max-age=0',
+            ];
+
+            $status = 200;
+
+        }
+
+    }
+
+    if ($status == 0) {
+        $status = 200;
+    }
+
+    return [
+        'headers' => $headers,
+        'status' => $status,
+    ];
 }
 
 //========================================================================================

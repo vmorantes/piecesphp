@@ -5,6 +5,7 @@ const { src, dest, watch, task, series } = require('gulp');
 // const pug = require('gulp-pug'); // Pug default view template
 const sass = require('gulp-sass')
 const sourcemaps = require('gulp-sourcemaps')
+const rename = require('gulp-rename')
 //--------SASS PiecesPHP
 
 //Archivos que se observar
@@ -149,5 +150,43 @@ task("sass:watch", (done) => {
 })
 task("sass:init", (done) => {
 	sassCompileGeneric()
+	done()
+})
+
+//Modules
+var watchingModulesSassFiles = [
+	'./app/classes/**/sass/**/*.scss',
+]
+var compileMonulesSassFiles = [
+	'./app/classes/**/sass/**/*.scss',
+]
+var cssModulesDest = './app/classes'
+
+function sassCompileModules() {
+	return src(compileMonulesSassFiles)
+		.pipe(sourcemaps.init())
+		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(sourcemaps.write('./'))
+		.pipe(rename(function (path) {
+			return {
+				dirname: path.dirname.replace('sass', 'css'),
+				basename: path.basename,
+				extname: path.extname,
+			}
+		}))
+		.pipe(dest(cssModulesDest))
+}
+
+task("sass-modules", (done) => {
+	sassCompileModules()
+	done()
+})
+
+task("sass-modules:watch", (done) => {
+	watch(watchingModulesSassFiles, series("sass-modules"))
+	done()
+})
+task("sass-modules:init", (done) => {
+	sassCompileModules()
 	done()
 })
