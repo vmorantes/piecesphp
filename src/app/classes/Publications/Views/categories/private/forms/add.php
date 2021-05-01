@@ -12,11 +12,7 @@ $action;
 
 ?>
 
-<div style="max-width:500px;">
-
-    <h3><?= __($langGroup, 'Agregar'); ?>
-        <?= $title; ?>
-    </h3>
+<div>
 
     <div class="ui buttons">
 
@@ -29,7 +25,11 @@ $action;
 
     <br><br>
 
-    <form method='POST' action="<?= $action; ?>" class="ui form app-presentations-categories">
+    <h3 class="title-form"><?= __($langGroup, 'Agregar'); ?>
+        <?= $title; ?>
+    </h3>
+
+    <form method='POST' action="<?= $action; ?>" class="ui form app-presentations-categories standard-form">
 
         <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
 
@@ -37,8 +37,6 @@ $action;
             <label><?= __($langGroup, 'Nombre'); ?></label>
             <input required type="text" name="name" maxlength="300">
         </div>
-
-        <br><br>
 
         <div class="field">
             <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>

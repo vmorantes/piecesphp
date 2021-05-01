@@ -62,10 +62,10 @@ $langGroup;
 
         <div class="presentations-list mini">
 
-            <div class="content" app-presentations-js></div>
+            <div class="content" publications-js></div>
 
             <br>
-            <span class="ui button red fluid load-more" app-presentations-load-more-js><?= __($langGroup, 'Cargar más'); ?></span>
+            <span class="ui button red fluid load-more" publications-load-more-js><?= __($langGroup, 'Cargar más'); ?></span>
             <br>
 
         </div>

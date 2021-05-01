@@ -1,9 +1,9 @@
-/// <reference path="../../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../../statics/core/js/helpers.js" />
-window.addEventListener('canDeletePresentation', function (e) {
+/// <reference path="../../../../../../statics/core/js/configurations.js" />
+/// <reference path="../../../../../../statics/core/js/helpers.js" />
+window.addEventListener('canDeletePublication', function (e) {
 
 	const langGroup = 'appPublicationsLang'
-	const deleteButtons = document.querySelectorAll('[delete-presentation-button]')
+	const deleteButtons = document.querySelectorAll('[delete-publication-button]')
 
 	registerDynamicMessages(langGroup)
 

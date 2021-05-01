@@ -40,7 +40,7 @@ $editLink;
                 <?php endif;?>
 
                 <?php if($hasDelete): ?>
-                <a class="fluid ui red button icon" delete-presentation-button data-route="<?= $deleteRoute; ?>">
+                <a class="fluid ui red button icon" delete-publication-button data-route="<?= $deleteRoute; ?>">
                     <i class="icon trash"></i> &nbsp; <?= __($langGroup, 'Eliminar'); ?>
                 </a>
                 <?php endif;?>

@@ -62,6 +62,7 @@ class PublicationsCategoryController extends AdminPanelController
     protected $helpController = null;
 
     const BASE_VIEW_DIR = 'categories';
+    const BASE_CSS_DIR = 'css';
     const BASE_JS_DIR = 'js/categories';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
 
@@ -77,6 +78,9 @@ class PublicationsCategoryController extends AdminPanelController
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
+
+        add_global_asset(PublicationsRoutes::staticRoute('globals-vars.css'), 'css');
+        add_global_asset(PublicationsRoutes::staticRoute(self::BASE_CSS_DIR . '/publications.css'), 'css');
 
     }
 

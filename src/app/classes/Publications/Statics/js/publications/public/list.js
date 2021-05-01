@@ -11,8 +11,8 @@ window.addEventListener('load', function () {
 		requestURL: $('[data-presentation-url]').attr('data-presentation-url'),
 		page: 1,
 		perPage: 10,
-		containerSelector: '[app-presentations-js]',
-		loadMoreTriggerSelector: '[app-presentations-load-more-js]',
+		containerSelector: '[publications-js]',
+		loadMoreTriggerSelector: '[publications-load-more-js]',
 		onDraw: (item, parsed) => {
 			return parsed
 		},

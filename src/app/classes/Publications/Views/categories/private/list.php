@@ -11,22 +11,21 @@ $editLink;
 $langGroupDatatables = 'datatables';
 
 ?>
+<div class="header-list">
 
-<div style="max-width:850px;">
-
-    <h3>
+    <h3 class="title-list">
         <strong><?= $title; ?></strong>
     </h3>
 
-    <div>
+    <div class="container-buttons">
 
-        <a href="<?= $backLink; ?>" class="ui labeled icon button">
+        <a href="<?= $backLink; ?>" class="ui labeled icon button custom-color">
             <i class="icon left arrow"></i>
             <?= __($langGroup, 'Regresar'); ?>
         </a>
 
         <?php if ($hasPermissionsAdd):  ?>
-        <a href="<?= $addLink; ?>" class="ui button blue"><?= __($langGroup, 'Agregar categoría'); ?></a>
+        <a href="<?= $addLink; ?>" class="ui button custom-color"><?= __($langGroup, 'Agregar categoría'); ?></a>
         <?php endif; ?>
 
     </div>
@@ -36,7 +35,7 @@ $langGroupDatatables = 'datatables';
 <br>
 <br>
 
-<div style="max-width:100%;">
+<div class="container-table-standard-list">
 
     <div class="table-to-cards">
 
