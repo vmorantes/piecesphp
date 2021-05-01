@@ -23,7 +23,4 @@ window.addEventListener('load', function (e) {
 	})
 
 	articleManager.loadItems()
-		.then(function () {
-			$(window).trigger('resize')
-		})
 })

@@ -5,7 +5,7 @@
 
         <div class="wrapper">
 
-            <h1 class="segment-title text-center">Elements</h1>
+            <h1 class="segment-title text-center"><?= __(LANG_GROUP, 'Elements'); ?></h1>
 
         </div>
 

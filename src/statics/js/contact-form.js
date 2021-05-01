@@ -18,6 +18,4 @@ window.addEventListener('load', function (e) {
 		}
 	})
 
-	$(window).trigger('resize')
-
 })

@@ -50,8 +50,6 @@ class ArticleControllerPublic extends BaseController
     const JS_FOLDER = 'statics/js/built-in/article';
     const VIEWS_FOLDER = 'pages/built-in/article';
 
-    const LANG_GROUP = 'articlesFrontEnd';
-
     /**
      * $user
      *

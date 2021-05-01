@@ -41,7 +41,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="wrapper no-padding-top-mobile">
 
-            <h2 class="segment-title text-center">Personas</h2>
+            <h2 class="segment-title text-center">Lorem, ipsum dolor.</h2>
 
             <section class="persons-list">
 
@@ -52,15 +52,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
 
                     <div class="content">
-
-                        <div class="title">Juan Pedro</div>
-                        <div class="meta">Bimba Pérez</div>
-
-                        <div class="description">
-                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
-                            consequat.
-                        </div>
-
+                        <div class="title">John Doe</div>
+                        <div class="meta">Junior Developer</div>
+                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
                     </div>
 
                 </article>
@@ -72,15 +66,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
 
                     <div class="content">
-
-                        <div class="title">Juan Pedro</div>
-                        <div class="meta">Bimba Pérez</div>
-
-                        <div class="description">
-                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
-                            consequat.
-                        </div>
-
+                        <div class="title">John Doe</div>
+                        <div class="meta">Designer</div>
+                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
                     </div>
 
                 </article>
@@ -92,15 +80,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
 
                     <div class="content">
-
-                        <div class="title">Juan Pedro</div>
-                        <div class="meta">Bimba Pérez</div>
-
-                        <div class="description">
-                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
-                            consequat.
-                        </div>
-
+                        <div class="title">John Doe</div>
+                        <div class="meta">Junior Developer</div>
+                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
                     </div>
 
                 </article>
@@ -112,15 +94,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
 
                     <div class="content">
-
-                        <div class="title">Juan Pedro</div>
-                        <div class="meta">Bimba Pérez</div>
-
-                        <div class="description">
-                            Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo
-                            consequat.
-                        </div>
-
+                        <div class="title">John Doe</div>
+                        <div class="meta">Designer</div>
+                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
                     </div>
 
                 </article>

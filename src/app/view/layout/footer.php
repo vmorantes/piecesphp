@@ -41,7 +41,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             </div>
 
             <div class="copy">
-                Lorem, ipsum dolor. | Todos los derechos reservados, 2020
+                Lorem, ipsum dolor. | <?= __(LANG_GROUP, 'Todos los derechos reservados'); ?>, <?= date('Y'); ?>
             </div>
 
         </div>
