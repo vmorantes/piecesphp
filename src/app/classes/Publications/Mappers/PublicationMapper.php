@@ -175,23 +175,6 @@ class PublicationMapper extends EntityMapperExtensible
      */
     protected $table = self::TABLE;
 
-    //id
-    //preferSlug
-    //title
-    //content
-    //seoDescription
-    //author
-    //category
-    //mainImage
-    //thumbImage
-    //ogImage
-    //folder
-    //visits
-    //startDate
-    //endDate
-    //createdAt
-    //updatedAt
-
     /**
      * @param int $value
      * @param string $fieldCompare
@@ -220,18 +203,19 @@ class PublicationMapper extends EntityMapperExtensible
      */
     public function save()
     {
-        if (self::existsByName($this->name, is_object($this->category) ? $this->category->id : $this->category, -1)) {
+        if (self::existsByTitle($this->title, is_object($this->category) ? $this->category->id : $this->category, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
             return false;
         }
 
+        $this->createdAt = new \DateTime();
         $saveResult = parent::save();
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
             $this->id = $idInserted;
             $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update();
+            $this->update(true);
         }
 
         return $saveResult;
@@ -239,13 +223,17 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * @param bool $noDateUpdate
      * @inheritDoc
      */
-    public function update()
+    public function update(bool $noDateUpdate = false)
     {
-        if (self::existsByName($this->name, is_object($this->category) ? $this->category->id : $this->category, $this->id)) {
+        if (self::existsByTitle($this->title, is_object($this->category) ? $this->category->id : $this->category, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
             return false;
+        }
+        if (!$noDateUpdate) {
+            $this->updatedAt = new \DateTime();
         }
         return parent::update();
     }
@@ -643,20 +631,20 @@ class PublicationMapper extends EntityMapperExtensible
     /**
      * Verifica si existe algún registro igual
      *
-     * @param string $name
+     * @param string $title
      * @param integer $categoryID
      * @param integer $ignoreID
      * @return bool
      */
-    public static function existsByName(string $name, int $categoryID, int $ignoreID = -1)
+    public static function existsByTitle(string $title, int $categoryID, int $ignoreID = -1)
     {
 
         $model = self::model();
 
-        $name = escapeString($name);
+        $title = escapeString($title);
 
         $where = [
-            "name = '{$name}' AND",
+            "title = '{$title}' AND",
             "category = {$categoryID} AND",
             "id != {$ignoreID}",
         ];

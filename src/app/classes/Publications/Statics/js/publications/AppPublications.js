@@ -12,8 +12,8 @@ function AppPublications(options) {
 	 * @property {function(Object)} onEmpty Recibe el contenedor asignado
 	 * @property {Number} [page=1]
 	 * @property {Number} [perPage=5]
-	 * @property {String} [containerSelector=[app-presentations-js]]
-	 * @property {String} [loadMoreTriggerSelector=[app-presentations-load-more-js]]
+	 * @property {String} [containerSelector=[publications-js]]
+	 * @property {String} [loadMoreTriggerSelector=[publications-load-more-js]]
 	 */
 
 	/** @constant {string} */
@@ -34,9 +34,9 @@ function AppPublications(options) {
 	/** @property {Number} */
 	let prevPage = 1
 	/** @property {String} */
-	let containerSelector = '[app-presentations-js]'
+	let containerSelector = '[publications-js]'
 	/** @property {String} */
-	let loadMoreTriggerSelector = '[app-presentations-load-more-js]'
+	let loadMoreTriggerSelector = '[publications-load-more-js]'
 	/** @property {String|URL} */
 	let requestURL = ''
 

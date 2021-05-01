@@ -20,11 +20,7 @@ $action;
 
 ?>
 
-<div style="max-width:500px;">
-
-    <h3><?= __($langGroup, 'Editar'); ?>
-        <?= $title; ?>
-    </h3>
+<div>
 
     <div class="ui buttons">
 
@@ -38,6 +34,10 @@ $action;
     <br>
     <br>
 
+    <h3 class="title-form"><?= __($langGroup, 'Editar'); ?>
+        <?= $title; ?>
+    </h3>
+
     <div class="ui form">
         <div class="field required">
             <label><?= __($langGroup, 'Idiomas'); ?></label>
@@ -49,7 +49,7 @@ $action;
 
     <br><br>
 
-    <form method='POST' action="<?= $action; ?>" class="ui form app-presentations-categories">
+    <form method='POST' action="<?= $action; ?>" class="ui form app-presentations-categories standard-form">
 
         <input type="hidden" name="id" value="<?= $element->id; ?>">
         <input type="hidden" name="lang" value="<?= $lang; ?>">

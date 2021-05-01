@@ -153,14 +153,15 @@ class PublicationsRoutes
         $cssGlobalVariables = function (Request $request, Response $response, array $args) {
 
             $css = [
-                "--readable-color:" . 'white' . ";",
+                "--emphasis-color:" . '#282828' . ";",
+                "--over-emphasis-color:" . 'white' . ";",
             ];
 
             $css = implode("\n", $css);
 
             $css = ":root {\n{$css}\n}";
 
-            $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '29-04-2021 12:20 PM');
+            $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '01-05-2021 04:22 PM');
             $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $css);
 
             foreach ($headersAndStatus['headers'] as $header => $value) {

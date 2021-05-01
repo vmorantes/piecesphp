@@ -8,10 +8,6 @@ namespace Publications\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use Publications\Mappers\PublicationCategoryMapper;
-use Publications\Mappers\PublicationMapper;
-use Publications\PublicationsLang;
-use Publications\PublicationsRoutes;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
@@ -27,6 +23,11 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
+use Publications\Mappers\PublicationCategoryMapper;
+use Publications\Mappers\PublicationMapper;
+use Publications\PublicationsLang;
+use Publications\PublicationsRoutes;
 use Slim\Exception\NotFoundException;
 use Slim\Http\Request as Request;
 use Slim\Http\Response as Response;
@@ -79,11 +80,11 @@ class PublicationsController extends AdminPanelController
      */
     protected $helpController = null;
 
-    const BASE_VIEW_DIR = 'presentations';
-    const BASE_JS_DIR = 'js/presentations';
-    const BASE_CSS_DIR = 'css/presentations';
-    const UPLOAD_DIR = 'presentations';
-    const UPLOAD_DIR_TMP = 'presentations/tmp';
+    const BASE_VIEW_DIR = 'publications';
+    const BASE_JS_DIR = 'js/publications';
+    const BASE_CSS_DIR = 'css';
+    const UPLOAD_DIR = 'publications';
+    const UPLOAD_DIR_TMP = 'publications/tmp';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
 
     public function __construct()
@@ -110,6 +111,7 @@ class PublicationsController extends AdminPanelController
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
         add_global_asset(PublicationsRoutes::staticRoute('globals-vars.css'), 'css');
+        add_global_asset(PublicationsRoutes::staticRoute(self::BASE_CSS_DIR . '/publications.css'), 'css');
 
     }
 
@@ -123,10 +125,11 @@ class PublicationsController extends AdminPanelController
     {
 
         set_custom_assets([
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/forms.js'),
+            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
         ], 'js');
 
         import_cropper();
+        import_default_rich_editor();
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
@@ -140,7 +143,7 @@ class PublicationsController extends AdminPanelController
         $data['allCategories'] = $allCategories;
 
         $this->helpController->render('panel/layout/header');
-        self::view('private/forms/add', $data);
+        self::view('forms/add', $data);
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -173,11 +176,12 @@ class PublicationsController extends AdminPanelController
         if ($element->id !== null && PublicationMapper::existsByID($element->id)) {
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/delete-config.js'),
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/forms.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
             ], 'js');
 
             import_cropper();
+            import_default_rich_editor();
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
@@ -197,7 +201,7 @@ class PublicationsController extends AdminPanelController
             $data['lang'] = $lang;
 
             $this->helpController->render('panel/layout/header');
-            self::view('private/forms/edit', $data, true, false);
+            self::view('forms/edit', $data, true, false);
             $this->helpController->render('panel/layout/footer');
 
             return $response;
@@ -238,12 +242,12 @@ class PublicationsController extends AdminPanelController
         $data['title'] = $title;
 
         set_custom_assets([
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/delete-config.js'),
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/list.js'),
+            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
+            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
         ], 'js');
 
         $this->helpController->render('panel/layout/header');
-        self::view('private/list', $data);
+        self::view('list', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -286,7 +290,7 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'name',
+                'title',
                 null,
                 function ($value) {
                     return is_string($value) && strlen(trim($value)) > 0;
@@ -297,14 +301,25 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'order',
-                0,
+                'content',
+                null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return is_string($value) && strlen(trim($value)) > 0;
                 },
                 false,
                 function ($value) {
-                    return (int) $value;
+                    return clean_string($value);
+                }
+            ),
+            new Parameter(
+                'seoDescription',
+                null,
+                function ($value) {
+                    return $value === null || is_string($value);
+                },
+                true,
+                function ($value) {
+                    return is_string($value) && strlen(trim($value)) > 0 ? clean_string($value) : '';
                 }
             ),
             new Parameter(
@@ -319,14 +334,25 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'images_to_delete',
-                [],
+                'startDate',
+                null,
                 function ($value) {
-                    return is_array($value);
+                    return $value === null || Validator::isDate($value, 'd-m-Y h:i A');
                 },
                 true,
                 function ($value) {
-                    return $value;
+                    return $value === null ? $value : \DateTime::createFromFormat('d-m-Y h:i A', $value);
+                }
+            ),
+            new Parameter(
+                'endDate',
+                null,
+                function ($value) {
+                    return $value === null || Validator::isDate($value, 'd-m-Y h:i A');
+                },
+                true,
+                function ($value) {
+                    return $value === null ? $value : \DateTime::createFromFormat('d-m-Y h:i A', $value);
                 }
             ),
         ]);
@@ -354,7 +380,6 @@ class PublicationsController extends AdminPanelController
         $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
-        $noImageMessage = __(self::LANG_GROUP, 'No ha sido subida ninguna imagen.');
         $categoryNotExistsMessage = __(self::LANG_GROUP, 'No hay existe la categoría.');
         $notAllowedLangMessage = __(self::LANG_GROUP, 'El idioma "%s" no está permitido.');
 
@@ -368,17 +393,21 @@ class PublicationsController extends AdminPanelController
             /**
              * @var int $id
              * @var string $lang
-             * @var string $name
-             * @var int $order
+             * @var string $title
+             * @var string $content
+             * @var string $seoDescription
              * @var int $category
-             * @var string[] $imagesToDelete
+             * @var \DateTime|null $startDate
+             * @var \DateTime|null $endDate
              */;
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
-            $name = $expectedParameters->getValue('name');
-            $order = $expectedParameters->getValue('order');
+            $title = $expectedParameters->getValue('title');
+            $content = $expectedParameters->getValue('content');
+            $seoDescription = $expectedParameters->getValue('seoDescription');
             $category = $expectedParameters->getValue('category');
-            $imagesToDelete = $expectedParameters->getValue('images_to_delete');
+            $startDate = $expectedParameters->getValue('startDate');
+            $endDate = $expectedParameters->getValue('endDate');
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -404,37 +433,40 @@ class PublicationsController extends AdminPanelController
 
                     $mapper = new PublicationMapper();
 
-                    $mapper->setLangData($lang, 'name', $name);
-                    $mapper->setLangData($lang, 'order', $order);
+                    $mapper->setLangData($lang, 'title', $title);
+                    $mapper->setLangData($lang, 'content', $content);
+                    $mapper->setLangData($lang, 'seoDescription', $seoDescription);
+                    $mapper->setLangData($lang, 'startDate', $startDate);
+                    $mapper->setLangData($lang, 'endDate', $endDate);
                     $mapper->setLangData($lang, 'category', $category);
+                    $mapper->setLangData($lang, 'visits', 0);
+                    $mapper->setLangData($lang, 'author', get_config('current_user')->id);
+                    $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
 
-                    $folder = str_replace('.', '', uniqid());
-                    $imagesToAdd = self::handlerUploadImages('images_to_add', $folder, $imagesToDelete, 1, null, Config::get_default_lang());
-                    $mapper->setLangData($lang, 'images', array_values((array) $imagesToAdd));
+                    $mainImage = self::handlerUploadImage('mainImage', $mapper->folder);
+                    $thumbImage = self::handlerUploadImage('thumbImage', $mapper->folder);
+                    $ogImage = self::handlerUploadImage('ogImage', $mapper->folder);
 
-                    if (count($imagesToAdd) > 0) {
+                    $mapper->setLangData($lang, 'mainImage', $mainImage);
+                    $mapper->setLangData($lang, 'thumbImage', $thumbImage);
+                    $mapper->setLangData($lang, 'ogImage', $ogImage);
 
-                        $saved = $mapper->save();
+                    $saved = $mapper->save();
+                    $resultOperation->setSuccessOnSingleOperation($saved);
+
+                    if ($saved) {
 
                         $mapper->id = $mapper->getInsertIDOnSave();
 
-                        $resultOperation->setSuccessOnSingleOperation($saved);
-
-                        if ($saved) {
-
-                            $resultOperation
-                                ->setMessage($successCreateMessage)
-                                ->setValue('redirect', true)
-                                ->setValue('redirect_to', self::routeName('forms-edit', [
-                                    'id' => $mapper->id,
-                                ]));
-
-                        } else {
-                            $resultOperation->setMessage($unknowErrorMessage);
-                        }
+                        $resultOperation
+                            ->setMessage($successCreateMessage)
+                            ->setValue('redirect', true)
+                            ->setValue('redirect_to', self::routeName('forms-edit', [
+                                'id' => $mapper->id,
+                            ]));
 
                     } else {
-                        $resultOperation->setMessage($noImageMessage);
+                        $resultOperation->setMessage($unknowErrorMessage);
                     }
 
                 } else {
@@ -445,56 +477,41 @@ class PublicationsController extends AdminPanelController
 
                     if ($exists) {
 
-                        $mapper->setLangData($lang, 'name', $name);
-                        $mapper->setLangData($lang, 'order', $order);
+                        $mapper->setLangData($lang, 'title', $title);
+                        $mapper->setLangData($lang, 'content', $content);
+                        $mapper->setLangData($lang, 'seoDescription', $seoDescription);
+                        $mapper->setLangData($lang, 'startDate', $startDate);
+                        $mapper->setLangData($lang, 'endDate', $endDate);
                         $mapper->setLangData($lang, 'category', $category);
 
-                        $currentImages = array_values((array) $mapper->getLangData($lang, 'images', false, []));
+                        $mainImage = self::handlerUploadImage('mainImage', '', $mapper->mainImage);
+                        $thumbImage = self::handlerUploadImage('thumbImage', '', $mapper->thumbImage);
+                        $ogImage = self::handlerUploadImage('ogImage', mb_strlen($mapper->ogImage) > 0 ? '' : $mapper->folder, mb_strlen($mapper->ogImage) > 0 ? $mapper->ogImage : null);
 
-                        //Obtener directorio de imágenes
-                        $uploadDirRelativeURL = $this->uploadDirURL;
-                        $directoryReferencePath = count($currentImages) > 0 ? $currentImages[0] : array_values((array) $mapper->images)[0];
-                        $folder = str_replace($uploadDirRelativeURL, '', $directoryReferencePath);
-                        $folder = str_replace(basename($directoryReferencePath), '', $folder);
-                        $folder = trim($folder, '/');
-                        //Obtener directorio de imágenes FIN
-
-                        $imagesToAdd = self::handlerUploadImages('images_to_add', $folder, $imagesToDelete, 1, count($currentImages), $lang);
-
-                        foreach ($imagesToDelete as $imageToDelete) {
-                            $indexToDelete = array_search($imageToDelete, $currentImages);
-                            if ($indexToDelete !== false) {
-                                unset($currentImages[$indexToDelete]);
-                            }
+                        if (mb_strlen($mainImage) > 0) {
+                            $mapper->setLangData($lang, 'mainImage', $mainImage);
+                        }
+                        if (mb_strlen($thumbImage) > 0) {
+                            $mapper->setLangData($lang, 'thumbImage', $thumbImage);
+                        }
+                        if (mb_strlen($ogImage) > 0) {
+                            $mapper->setLangData($lang, 'ogImage', $ogImage);
                         }
 
-                        foreach ($imagesToAdd as $imageToAdd) {
-                            $currentImages[] = $imageToAdd;
-                        }
+                        $updated = $mapper->update();
+                        $resultOperation->setSuccessOnSingleOperation($updated);
 
-                        $mapper->setLangData($lang, 'images', array_values((array) $currentImages));
+                        if ($updated) {
 
-                        if (count($currentImages) > 0) {
-
-                            $updated = $mapper->update();
-
-                            $resultOperation->setSuccessOnSingleOperation($updated);
-
-                            if ($updated) {
-
-                                $resultOperation
-                                    ->setMessage($successEditMessage)
-                                    ->setValue('redirect', true)
-                                    ->setValue('redirect_to', self::routeName('list'));
-
-                            } else {
-
-                                $resultOperation->setMessage($unknowErrorMessage);
-
-                            }
+                            $resultOperation
+                                ->setMessage($successEditMessage)
+                                ->setValue('redirect', true)
+                                ->setValue('redirect_to', self::routeName('list'));
 
                         } else {
-                            $resultOperation->setMessage($noImageMessage);
+
+                            $resultOperation->setMessage($unknowErrorMessage);
+
                         }
 
                     } else {
@@ -797,7 +814,7 @@ class PublicationsController extends AdminPanelController
             $mapper = new PublicationMapper($element->id);
 
             $rawData[$index] = self::view(
-                'private/util/list-card',
+                'util/list-card',
                 [
                     'mapper' => $mapper,
                     'editLink' => self::routeName('forms-edit', [
@@ -979,76 +996,104 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
+     * handlerUploadImage
+     *
      * @param string $nameOnFiles
      * @param string $folder
-     * @param string[] $imagesToDelete
-     * @param int $minImages
-     * @param int $currentTotal
-     * @param string $namePrefrix
-     * @return array[]
+     * @param string $currentRoute
+     * @param bool $setNameByInput
+     * @return string
      * @throws \Exception
      */
-    protected static function handlerUploadImages(string $nameOnFiles, string $folder, array $imagesToDelete = [], int $minImages = 1, int $currentTotal = null, string $namePrefrix = 'file')
+    protected static function handlerUploadImage(string $nameOnFiles, string $folder, string $currentRoute = null, bool $setNameByInput = true)
     {
         $handler = new FileUpload($nameOnFiles, [
             FileValidator::TYPE_ALL_IMAGES,
-        ], null, true);
+        ]);
+        $valid = false;
+        $relativeURL = '';
 
-        $name = $namePrefrix . '_' . str_replace('.', '', uniqid());
-        $relativeURLs = [];
+        $name = 'file_' . uniqid();
+        $oldFile = null;
 
-        $uploadDirPath = (new static )->uploadDir;
-        $uploadDirRelativeURL = (new static )->uploadDirURL;
+        if ($handler->hasInput()) {
 
-        $uploadDirPath = append_to_url($uploadDirPath, $folder);
-        $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
+            try {
 
-        $deleteImages = function (array $images, string $uploadDirRelativeURL) {
-            foreach ($images as $imageToDelete) {
-                if (mb_strpos($imageToDelete, $uploadDirRelativeURL) !== false && file_exists($imageToDelete)) {
-                    unlink(basepath($imageToDelete));
-                }
-            }
-        };
+                $valid = $handler->validate();
 
-        try {
+                $uploadDirPath = (new static )->uploadDir;
+                $uploadDirRelativeURL = (new static )->uploadDirURL;
 
-            $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
+                if ($setNameByInput && $valid) {
 
-            foreach ($locations as $url) {
+                    $name = $_FILES[$nameOnFiles]['name'];
+                    $lastPointIndex = mb_strrpos($name, '.');
 
-                if (mb_strlen($url) > 0) {
-                    $nameCurrent = basename($url);
-                    $relativeURLs[] = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-                }
-
-            }
-
-            if ($currentTotal !== null) {
-
-                $readyToDelete = true;
-                $uploadCount = count($relativeURLs);
-                $toDeleteCount = count($imagesToDelete);
-
-                if ($toDeleteCount === $currentTotal) {
-                    if ($uploadCount < $minImages) {
-                        $readyToDelete = false;
+                    if ($lastPointIndex !== false) {
+                        $name = mb_substr($name, 0, $lastPointIndex);
                     }
+
                 }
 
-                if ($readyToDelete) {
-                    ($deleteImages)($imagesToDelete, (new static )->uploadDirURL);
+                if (!is_null($currentRoute)) {
+                    //Si ya existe
+                    $oldFile = append_to_url(basepath(), $currentRoute);
+                    $oldFile = file_exists($oldFile) ? $oldFile : null;
+
+                    if (mb_strlen(trim($folder)) < 1) {
+                        //Si folder está vacío
+                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
+                        $folder = str_replace(basename($currentRoute), '', $folder);
+                        $folder = trim($folder, '/');
+                    }
+
                 }
 
-            } else {
-                ($deleteImages)($imagesToDelete, (new static )->uploadDirURL);
+                $uploadDirPath = append_to_url($uploadDirPath, $folder);
+                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
+
+                if ($valid) {
+
+                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
+
+                    if (count($locations) > 0) {
+
+                        $url = $locations[0];
+                        $nameCurrent = basename($url);
+                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
+
+                        //Eliminar archivo anterior
+                        if (!is_null($oldFile)) {
+
+                            if (basename($oldFile) != $nameCurrent) {
+                                unlink($oldFile);
+                            }
+
+                        }
+
+                        //Se elimina cualquier otro archivo
+                        foreach ($locations as $file) {
+                            if ($url != $file) {
+                                if (is_string($file) && file_exists($file)) {
+                                    unlink($file);
+                                }
+                            }
+                        }
+
+                    }
+
+                } else {
+                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
+                }
+
+            } catch (\Exception $e) {
+                throw new \Exception($e->getMessage());
             }
 
-        } catch (\Exception $e) {
-            throw new \Exception($e->getMessage());
         }
 
-        return $relativeURLs;
+        return $relativeURL;
     }
 
     /**
