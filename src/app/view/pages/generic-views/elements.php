@@ -5,7 +5,17 @@
 
         <div class="wrapper">
 
-            <h1 class="segment-title text-center">Tabs</h1>
+            <h1 class="segment-title text-center">Elements</h1>
+
+        </div>
+
+    </div>
+
+    <div class="content">
+
+        <div class="wrapper">
+
+            <h2 class="text-center">Tabs</h2>
 
             <div data-tab-menu="tabs-1" class="tabs-menu-items">
                 <div data-tab-active="yes" data-tab-target="tab-1">Tab 1</div>

@@ -962,6 +962,19 @@ function import_default_rich_editor(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra app_front_libraries como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_app_front_libraries(array $plugins = [], bool $all = false)
+{
+    import_front_library('app_front_libraries', $plugins, $all);
+}
+
+
+/**
  * Registra app_libraries como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins

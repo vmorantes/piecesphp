@@ -1,6 +1,6 @@
 
 CustomNamespace.loader()
-window.addEventListener('loadApp', function (e) {
+window.addEventListener('load', function (e) {
 
 	CustomNamespace.loader(null, false)
 
@@ -9,10 +9,14 @@ window.addEventListener('loadApp', function (e) {
 	let articleManager = new BuiltInArticle({
 		requestURL: requestURL,
 		page: 1,
-		perPage: 6,
+		perPage: 2,
 		containerSelector: '[built-in-articles-items-js]',
 		loadMoreTriggerSelector: '[built-in-articles-load-more-js]',
-		onDraw: (item) => CustomNamespace.itemArticleElement(item),
+		onDraw: (item) => {
+			let htmlElement = CustomNamespace.itemArticleElement(item)
+			htmlElement.classList.add('horizontal')
+			return htmlElement
+		},
 		onEmpty: (container) => {
 			container.parent().html(`<h2>${_i18n('articles', 'No hay artículos.')}</h2>`)
 		},

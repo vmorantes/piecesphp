@@ -1,0 +1,44 @@
+//──── Misc ──────────────────────────────────────────────────────────────────────────────
+$parentSelector: "body>.body";
+$parentSelectorHeader: "body>.header";
+$parentSelectorHero: "body>.hero";
+$parentSelectorFooter: "body>.footer";
+
+//──── Sizes ─────────────────────────────────────────────────────────────────────────────
+$fontSizeHTML: 14;
+$slideShowDotSize: 30;
+$slideShowDotSizeDesktop: 18;
+$slideShowArrowsFontSize: 30;
+$slideShowArrowsFontSizeDesktop: 20;
+
+//──── Media queries ─────────────────────────────────────────────────────────────────────
+$rsMedium: 1000px;
+$rsTablet: 780px;
+$rsMobile: 480px;
+
+//──── Colors ────────────────────────────────────────────────────────────────────────────
+$white: white;
+$gray: #EBEBEB;
+$gray1: #C2C2C2;
+$gray2: #EBEBEB;
+$gray3: #A2A2A2;
+$gray4: #676767;
+$blue: #033041;
+$blue1: #032938;
+$blue2: #2FB3E8;
+$blue3: #258FBA;
+$blue4: #04425a;
+
+//──── Fonts ─────────────────────────────────────────────────────────────────────────────
+$fontAbhaya: 'Abhaya Libre';
+$fontLato: 'Lato';
+
+// Weights
+$fwHairLine: 100;
+$fwLight: 300;
+$fwRegular: 400;
+$fwMedium: 500;
+$fwSemiBold: 600;
+$fwBold: 700;
+$fwExtraBold: 800;
+
