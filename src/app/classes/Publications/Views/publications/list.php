@@ -8,8 +8,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 $langGroup;
 $editLink;
 
-$langGroupDatatables = 'datatables';
-
 ?>
 <div class="header-list">
 
@@ -45,64 +43,25 @@ $langGroupDatatables = 'datatables';
 
 <div class="container-table-standard-list">
 
-    <div class="table-to-cards">
+    <table url="<?= $processTableLink; ?>" class="ui table stripped celled">
 
-        <div class="ui form component-controls">
+        <thead>
 
-            <div class="fields">
+            <tr>
+                <th><?= __($langGroup, '#'); ?></th>
+                <th><?= __($langGroup, 'Título'); ?></th>
+                <th><?= __($langGroup, 'Categoría'); ?></th>
+                <th><?= __($langGroup, 'Visitas'); ?></th>
+                <th><?= __($langGroup, 'Fecha inicial'); ?></th>
+                <th><?= __($langGroup, 'Fecha final'); ?></th>
+                <th><?= __($langGroup, 'Creación'); ?></th>
+                <th><?= __($langGroup, 'Edición'); ?></th>
+                <th><?= __($langGroup, 'Autor'); ?></th>
+                <th><?= __($langGroup, 'Acciones'); ?></th>
+            </tr>
 
-                <div class="field">
+        </thead>
 
-                    <label><?= __($langGroupDatatables, 'Buscador') ?></label>
-
-                    <div class="ui icon input">
-                        <input type="search" placeholder="<?= __($langGroupDatatables, 'Buscar') ?>">
-                        <i class="search icon"></i>
-                    </div>
-
-                </div>
-
-                <div class="field">
-
-                    <label><?= __($langGroupDatatables, 'Resultados visibles') ?></label>
-                    <input type="number" length-pagination placeholder="10">
-
-                </div>
-
-                <div class="field">
-
-                    <label><?= __($langGroupDatatables, 'Ordenar por') ?>:</label>
-                    <select class="ui dropdown" options-order></select>
-
-                </div>
-
-                <div class="field">
-
-                    <label>&nbsp;</label>
-                    <select class="ui dropdown" options-order-type>
-                        <option selected value="ASC"><?= __($langGroupDatatables, 'ASC') ?></option>
-                        <option value="DESC"><?= __($langGroupDatatables, 'DESC') ?></option>
-                    </select>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <table url="<?= $processTableLink; ?>" style='display:none;'>
-
-            <thead>
-
-                <tr>
-                    <th><?= __($langGroup, 'Nombre'); ?></th>
-                    <th><?= __($langGroup, 'Categoría'); ?></th>
-                </tr>
-
-            </thead>
-
-        </table>
-
-    </div>
+    </table>
 
 </div>
