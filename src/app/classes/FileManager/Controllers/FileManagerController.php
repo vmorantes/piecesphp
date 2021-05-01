@@ -130,6 +130,12 @@ class FileManagerController extends AdminPanelController
         if (!file_exists($pathTrashDir)) {
             mkdir($pathTrashDir, 0777);
         }
+        if (!file_exists($pathImagesDir)) {
+            mkdir($pathImagesDir, 0777);
+        }
+        if (!file_exists($pathImagesTrashDir)) {
+            mkdir($pathImagesTrashDir, 0777);
+        }
         if (!file_exists($pathUploadsDir)) {
             mkdir($pathUploadsDir, 0777);
         }

@@ -8,50 +8,7 @@
 	<base href="<?= base_url(); ?>">
 	<link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
     <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
-    <style>
-    body {
-        --color-text: rgb(40, 100, 133);
-        --color-bg: #F1F2F2;
-        --color-link: rgb(0, 146, 208);
-        color: var(--color-text);
-        background-color: var(--color-bg);
-    }
-
-    .content-404 {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        min-width: 300px;
-        max-width: 100%;
-        text-align: center;
-    }
-
-    .title-404 {
-        font-size: 32px;
-        text-transform: uppercase;
-        font-weight: 800;
-    }
-
-    .text-404 {
-        font-size: 20px;
-    }
-
-    .bt-404 {
-        width: 200px;
-        padding: 10px;
-        font-size: 18px;
-        font-weight: 800;
-        color: white;
-        background: var(--color-text);
-        cursor: pointer;
-        text-decoration: none;
-    }
-
-    .bt-404:hover {
-        background: var(--color-link);
-    }
-    </style>
+    <link rel="stylesheet" href="statics/css/404.css">
 </head>
 
 <body>
