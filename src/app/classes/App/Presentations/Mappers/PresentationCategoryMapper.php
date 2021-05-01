@@ -300,14 +300,14 @@ class PresentationCategoryMapper extends EntityMapperExtensible
                 if (array_key_exists($fieldToLang, $specialBehaviour)) {
                     $fields[] = ($specialBehaviour[$fieldToLang])($fieldToLang);
                 } else {
-                    $langDataIsNull = "JSON_EXTRACT(app_presentations.meta, '$.lang_data') = 'null'";
-                    $langDataIsNull2 = "JSON_EXTRACT(app_presentations.meta, '$.lang_data') IS NULL";
+                    $langDataIsNull = "JSON_EXTRACT({$table}.meta, '$.lang_data') = 'null'";
+                    $langDataIsNull2 = "JSON_EXTRACT({$table}.meta, '$.lang_data') IS NULL";
 
-                    $langIsNull = "JSON_EXTRACT(app_presentations.meta, '$.lang_data.{$currentLang}') = 'null'";
-                    $langIsNull2 = "JSON_EXTRACT(app_presentations.meta, '$.lang_data.{$currentLang}') IS NULL";
+                    $langIsNull = "JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}') = 'null'";
+                    $langIsNull2 = "JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}') IS NULL";
 
-                    $fieldIsNull = "JSON_EXTRACT(app_presentations.meta, '$.lang_data.{$currentLang}.{$fieldToLang}') = 'null'";
-                    $fieldIsNull2 = "JSON_EXTRACT(app_presentations.meta, '$.lang_data.{$currentLang}.{$fieldToLang}') IS NULL";
+                    $fieldIsNull = "JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.{$fieldToLang}') = 'null'";
+                    $fieldIsNull2 = "JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.{$fieldToLang}') IS NULL";
 
                     $normalField = "{$table}.{$fieldToLang}";
                     $langField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.{$fieldToLang}'))";
