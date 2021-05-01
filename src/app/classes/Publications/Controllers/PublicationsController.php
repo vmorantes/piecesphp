@@ -779,13 +779,16 @@ class PublicationsController extends AdminPanelController
 
         $selectFields = PublicationMapper::fieldsToSelect();
 
-        $table = PublicationMapper::TABLE;
-        $tableCategory = PublicationCategoryMapper::TABLE;
-        $selectFields[] = "(SELECT {$tableCategory}.name FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category) AS categoryName";
-
         $columnsOrder = [
-            'name',
+            'idPadding',
+            'title',
             'categoryName',
+            'visits',
+            'startDate',
+            'endDate',
+            'createdAt',
+            'updatedAt',
+            'authorUser',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -799,40 +802,43 @@ class PublicationsController extends AdminPanelController
             'mapper' => new PublicationMapper(),
             'request' => $request,
             'on_set_data' => function ($e) {
-                return [
-                    '',
-                    '',
-                ];
+
+                $mapper = PublicationMapper::objectToMapper($e);
+
+                $buttons = [];
+                $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
+                $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
+
+                if ($hasEdit) {
+                    $editLink = self::routeName('forms-edit', ['id' => $e->id]);
+                    $editText = __(self::LANG_GROUP, 'Editar');
+                    $editButton = "<a href='{$editLink}' class='ui button green mini'>{$editText}</a>";
+                    $buttons[] = $editButton;
+                }
+                if ($hasDelete) {
+                    $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
+                    $deleteText = __(self::LANG_GROUP, 'Eliminar');
+                    $deleteButton = "<a href='{$deleteLink}' class='ui button red mini'>{$deleteText}</a>";
+                    $buttons[] = $deleteButton;
+                }
+
+                $buttons = implode('', $buttons);
+                $columns = [];
+
+                $columns[] = $e->idPadding;
+                $columns[] = $e->title;
+                $columns[] = $e->categoryName;
+                $columns[] = $e->visits;
+                $columns[] = $mapper->startDate !== null ? $mapper->startDate->format('d-m-Y h:i:s A') : '-';
+                $columns[] = $mapper->endDate !== null ? $mapper->endDate->format('d-m-Y h:i:s A') : '-';
+                $columns[] = $mapper->createdAt->format('d-m-Y h:i:s A');
+                $columns[] = $mapper->updatedAt !== null ? $mapper->updatedAt->format('d-m-Y h:i:s A') : '-';
+                $columns[] = $e->authorUser;
+                $columns[] = $buttons;
+                return $columns;
             },
 
         ]);
-
-        $rawData = $result->getValue('rawData');
-
-        foreach ($rawData as $index => $element) {
-
-            $mapper = new PublicationMapper($element->id);
-
-            $rawData[$index] = self::view(
-                'util/list-card',
-                [
-                    'mapper' => $mapper,
-                    'editLink' => self::routeName('forms-edit', [
-                        'id' => $mapper->id,
-                    ]),
-                    'hasEdit' => self::allowedRoute('forms-edit', [
-                        'id' => $mapper->id,
-                    ]),
-                    'deleteRoute' => self::routeName('actions-delete', ['id' => $mapper->id]),
-                    'hasDelete' => self::allowedRoute('actions-delete', ['id' => $mapper->id]),
-                    'langGroup' => self::LANG_GROUP,
-                ],
-                false
-            );
-
-        }
-
-        $result->setValue('rawData', $rawData);
 
         return $response->withJson($result->getValues());
     }

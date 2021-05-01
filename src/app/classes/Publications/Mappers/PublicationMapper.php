@@ -151,6 +151,7 @@ class PublicationMapper extends EntityMapperExtensible
         'endDate',
         'createdAt',
         'updatedAt',
+        'visits',
     ];
 
     /**
@@ -165,7 +166,6 @@ class PublicationMapper extends EntityMapperExtensible
         'mainImage',
         'thumbImage',
         'ogImage',
-        'visits',
     ];
 
     /**
@@ -370,10 +370,18 @@ class PublicationMapper extends EntityMapperExtensible
         $model = $mapper->getModel();
         $table = $model->getTable();
 
+        $tableCategory = PublicationCategoryMapper::TABLE;
+        $tableUser = UsersModel::TABLE;
+
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
-        $fields = [];
+        $fields = [
+            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "(SELECT {$tableCategory}.name FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category) AS categoryName",
+            "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.author) AS authorUser",
+            "{$table}.meta",
+        ];
 
         if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
 

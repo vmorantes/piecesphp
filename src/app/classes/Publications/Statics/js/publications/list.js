@@ -2,8 +2,12 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
-	dataTablesServerProccesingOnCards('.table-to-cards', 20, {
-		drawCallbackEnd: function (cards) {
+	let tableSelector = "table[url]"
+	let table = $(tableSelector)
+	let tableURLAttr = "url"
+
+	dataTableServerProccesing(table, table.attr(tableURLAttr), 20, {
+		drawCallback: function () {
 			window.dispatchEvent(new Event('canDeletePublication'))
 		},
 	})
