@@ -1,36 +1,333 @@
-//Template por defecto (se puede quitar de no usarse)
-@import 'default-template.scss';
+@import '../fonts/abhaya/abhaya.css';
+@import 'imports/functions';
+@import 'imports/variables';
+@import 'imports/components';
+@import 'imports/overwrites';
 
-//Genéricos útiles para cualquier proyecto
-@import 'components/components';
+html {
+    overflow-x: hidden;
+    height: auto;
+    min-height: 100%;
+}
 
-.post-content {
+body {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto;
+    overflow: hidden;
+    height: auto;
+    min-height: 100vh;
+}
 
-    figure {
+html,
+body {
+    font-size: unquote($fontSizeHTML + 'px');
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
 
-        &.image {
+img {
+    max-width: 100%;
+}
 
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+body {
+
+    position: relative;
+    font-family: $fontLato;
+    font-weight: $fwRegular;
+    font-size: pxToRem(18);
+    line-height: pxToRem(25);
+    color: $gray4;
+
+    >.header,
+    >.hero,
+    >.body,
+    >.footer {
+
+        a {
+            @include simple-link;
+
+            &.more {
+                margin-top: pxToRem(20);
+                padding: pxToRem(15) pxToRem(15) pxToRem(5) pxToRem(15);
+                text-transform: uppercase;
+            }
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .hidden {
+
+            &,
+            & * {
+
+                &,
+                &::before,
+                &::after {
+                    display: none !important;
+                }
+            }
+
+        }
+
+        .element-center {
             display: block;
-            max-width: 100%;
+            max-width: max-content;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
 
-            &.image-style-align-center {
-                margin-left: auto;
-                margin-right: auto;                
+        >.content {
+
+            >.wrapper {
+
+                max-width: 1920px;
+                margin: 0 auto;
+                padding: pxToRem(30) pxToRem(15);
+
+                &::before,
+                &::after {
+                    display: block;
+                    content: ' ';
+                    clear: both;
+                }
+
+                &:not(:first-child) {
+                    padding-top: 0px;
+                }
+
+                &.unbounds {
+                    padding: pxToRem(0);
+                }
+
+                &.no-padding-top {
+                    padding-top: 0px;
+                }
+
+                &.no-padding-top-mobile {
+                    padding-top: 0px;
+                }
+
+                &.medium-size {
+                    max-width: 1200px;
+                }
+
+                &.small-size {
+                    max-width: 720px;
+                }
+
+                >.text{
+                    margin: 0 auto;
+                    max-width: 1400px;
+                }
+
+                @media screen and (min-width: $rsTablet) {
+
+                    &.no-padding-top-mobile {
+                        padding-top: pxToRem(30);
+                    }
+
+                }
+
+            }
+
+            &.overlay-effect {
+
+                position: relative;
+
+                >* {
+                    position: relative;
+                    z-index: 1;
+                }
+
+                &::before {
+                    position: absolute;
+                    bottom: 0px;
+                    left: 0px;
+                    z-index: 0;
+                    display: block;
+                    content: ' ';
+                    width: 100%;
+                    height: 300px;
+                    background-color: $gray2;
+                }
+
+            }
+
+            &.bg-1 {
+
+                background-color: $gray2;
+
+                &.overlay-effect {
+
+                    &::before {
+                        background-color: $white;
+                    }
+
+                }
+
+            }
+
+            &.bg-2 {
+
+                background-color: $blue;
+
             }
 
         }
 
     }
 
-    img {
-        max-width: 100%;
-    }
+    >.body {
 
-    a {
-
-        &::before,
-        &::after {
-            content: ' ';
+        .segment-title {
+            @include simple-title;
         }
+
+        .quote {
+            @include quote;
+        }
+
+        .cards {
+            @include simple-content-card;
+        }
+
+        hr {
+            display: block;
+            width: 90%;
+            height: 0px;
+            max-width: 1920px;
+            margin: pxToRem(10) auto;
+            padding: 0;
+            border-style: inset;
+            border: none;
+            border-bottom: 0.2px solid transparentize($blue1, 0.8);
+            box-shadow: 0 0 13px transparentize($blue1, 0.5);
+
+        }
+
+        .tabs-menu-items {
+            @include simple-tabs;
+        }
+
     }
+
+    >.footer {
+
+        align-self: flex-end;
+        align-self: end;
+        color: $white;
+
+        >.content {
+            padding-top: pxToRem(10);
+            min-height: 240px;
+        }
+
+        .social {
+
+            display: flex;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 0 auto;
+            padding: 0;
+            list-style: none;
+
+            >li {
+
+                margin: 0;
+                padding: pxToRem(0) pxToRem(15) pxToRem(15);
+                list-style: none;
+
+                a {
+
+                    font-size: pxToRem(40);
+                    line-height: pxToRem(40);
+
+                    i.icon {
+                        margin: 0;
+                        padding: 0;
+                        color: $white;
+                        transition: ease color 0.5s;
+                    }
+
+                    &:hover {
+                        border-color: transparent;
+
+                        i.icon {
+                            color: $blue3;
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+        .address {
+
+            font-size: pxToRem(14);
+            margin-bottom: pxToRem(10);
+
+            >* {
+                font-style: normal;
+                text-transform: uppercase;
+                text-align: center;
+            }
+
+        }
+
+        .copy {
+
+            font-size: pxToRem(9);
+            text-transform: uppercase;
+            text-align: center;
+
+        }
+
+    }
+
+    >button.to-top {
+
+        position: fixed;
+        bottom: 10px;
+        right: 25px;
+        z-index: 10;
+        margin: 0;
+        padding: 10px 10px;
+        background-color: transparent;
+        border: 1px solid $blue3;
+        color: $blue3;
+        opacity: 0.5;
+        cursor: pointer;
+        transition: 0.5s ease all;
+        outline: none;
+
+        i.icon {
+            font-size: 1rem;
+            line-height: 1rem;
+            margin: 0;
+            padding: 0;
+        }
+
+        &:hover {
+            opacity: 1;
+        }
+
+    }
+
 }
+
+@import 'imports/posts';
+@import 'imports/persons';

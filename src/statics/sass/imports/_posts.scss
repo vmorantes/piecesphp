@@ -1,0 +1,46 @@
+#{$parentSelector} .posts-list {
+    @include simple-content-card;
+}
+
+#{$parentSelector} .post-image {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: max-content;
+}
+
+//Contenido de un artículo
+#{$parentSelector} .post-content {    
+
+    max-width: 1440px;
+    padding: pxToRem(10) pxToRem(15);
+    margin: 0 auto;
+    
+    figure {
+
+        &.image {
+
+            display: block;
+            max-width: 100%;
+
+            &.image-style-align-center {
+                margin-left: auto;
+                margin-right: auto;                
+            }
+
+        }
+
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    a {
+
+        &::before,
+        &::after {
+            content: ' ';
+        }
+    }
+
+}

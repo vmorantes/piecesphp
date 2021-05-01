@@ -1,0 +1,137 @@
+@mixin simple-title {
+
+    font-family: $fontAbhaya;
+    font-weight: $fwExtraBold;
+    font-size: pxToRem(30);
+    line-height: pxToRem(30);
+    margin: 0;
+    padding: pxToRem(15) pxToRem(15);
+    text-transform: capitalize;
+    color: $blue1;
+
+    &.medium {
+        font-size: pxToRem(25);
+        line-height: pxToRem(25);
+    }
+
+    @media screen and (min-width: $rsTablet) {
+        font-size: pxToRem(51);
+        line-height: pxToRem(51);
+
+        &.medium {
+            font-size: pxToRem(35);
+            line-height: pxToRem(35);
+        }
+    }
+
+}
+
+@mixin simple-link {
+
+    &,
+    &:visited {
+        display: inline-block;
+        font-size: pxToRem(15);
+        line-height: pxToRem(15);
+        text-decoration: none;
+        border-bottom: 1px dashed transparent;
+        color: $blue2;
+        transition: 0.5s ease color, 0.5s ease border;
+    }
+
+    &:hover {
+        color: $blue3;
+        border-bottom-color: $blue2;
+    }
+}
+
+@mixin quote {
+
+    $quoteSize: pxToRem(300);
+    position: relative;
+    max-width: 800px;
+    margin: 0;
+    padding: pxToRem(10) pxToRem(15);
+
+    &.wide {
+        max-width: 1100px;
+    }
+
+    &.align-r {
+
+        float: right;
+
+        .text {
+            text-align: right;
+        }
+
+        .author {
+            text-align: right;
+        }
+
+        .meta {
+            text-align: right;
+        }
+
+    }
+
+    sup {
+        font-weight: $fwExtraBold;
+    }
+
+    .text {
+
+        position: relative;
+
+        >* {
+            font-size: pxToRem(16);
+            line-height: pxToRem(25);
+            padding: 0px 0px pxToRem(10) 0px;
+        }
+
+        &::before,
+        &::after {
+            position: absolute;
+            font-family: $fontAbhaya;
+            font-weight: $fwExtraBold;
+            top: 50%;
+            transform: translateY(-50%);
+            display: block;
+            font-size: $quoteSize;
+            opacity: 0.12;
+        }
+
+        &::before {
+            left: pxToRem(-35);
+            content: '\000AB';
+        }
+
+        &::after {
+            right: pxToRem(-35);
+            content: '\000BB';
+        }
+
+    }
+
+    .author {
+        font-weight: $fwLight;
+        font-style: normal;
+    }
+
+    .meta {
+        font-weight: $fwLight;
+        font-size: pxToRem(13);
+        font-style: normal;
+    }
+
+    &.no-quotes {
+        .text {
+
+            &::before,
+            &::after {
+                display: none;
+            }
+        }
+    }
+
+}

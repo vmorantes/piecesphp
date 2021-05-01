@@ -7,7 +7,6 @@
 namespace PiecesPHP\BuiltIn\Article\Controllers;
 
 use App\Model\AvatarModel;
-use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
 use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
@@ -74,15 +73,16 @@ class ArticleControllerPublic extends BaseController
         $this->init();
 
         import_jquery();
+        import_izitoast();
+        import_semantic();
         import_app_libraries();
+        import_app_front_libraries();
         add_global_asset(base_url(self::JS_FOLDER . '/BuiltInArticle.js'), 'js');
         add_global_asset(base_url(self::JS_FOLDER . '/category/BuiltInCategory.js'), 'js');
 
     }
 
     /**
-     * listView
-     *
      * @param Request $req
      * @param Response $res
      * @param array $params
@@ -105,9 +105,8 @@ class ArticleControllerPublic extends BaseController
         ], 'css');
 
         set_custom_assets([
-            'statics/js/CustomNamespace.js',
             base_url(self::JS_FOLDER . '/list.js'),
-            'statics/js/default-template.js',
+            base_url('statics/js/main.js'),
         ], 'js');
 
         set_title(__(LANG_GROUP, 'Publicaciones'));
@@ -118,15 +117,16 @@ class ArticleControllerPublic extends BaseController
 
             if ($category !== null) {
 
-                $this->render('layout/header-template');
+                $this->render('layout/header');
+                $this->render('layout/menu');
 
-                $this->render(self::VIEWS_FOLDER . '/list-template', [
+                $this->render(self::VIEWS_FOLDER . '/list', [
                     'titleSection' => $titleSection . ' - ' . CategoryContentMapper::getBy($category, 'friendly_url')->name,
                     'withSocialBar' => true,
                     'ajaxURL' => ArticleController::routeName('ajax-all-category', ['category' => $category]),
                 ]);
 
-                $this->render('layout/footer-template');
+                $this->render('layout/footer');
 
             } else {
                 throw new NotFoundException($req, $res);
@@ -134,56 +134,20 @@ class ArticleControllerPublic extends BaseController
 
         } else {
 
-            $this->render('layout/header-template');
-            $this->render(self::VIEWS_FOLDER . '/list-template', [
+            $this->render('layout/header');
+            $this->render('layout/menu');
+            $this->render(self::VIEWS_FOLDER . '/list', [
                 'titleSection' => $titleSection,
                 'withSocialBar' => true,
                 'ajaxURL' => ArticleController::routeName('ajax-all'),
             ]);
-            $this->render('layout/footer-template');
+            $this->render('layout/footer');
         }
 
         return $res;
     }
 
     /**
-     * listCategoriesView
-     *
-     * @param Request $req
-     * @param Response $res
-     * @param array $params
-     * @return Response
-     */
-    public function listCategoriesView(Request $req, Response $res, array $params)
-    {
-
-        set_custom_assets([
-            'statics/css/style.css',
-        ], 'css');
-
-        set_custom_assets([
-            'statics/js/CustomNamespace.js',
-            'statics/js/default-template.js',
-            base_url(self::JS_FOLDER . '/category/list.js'),
-        ], 'js');
-
-        set_title(__(self::LANG_GROUP, 'Listado de categorías'));
-
-        $this->render('layout/header-template');
-
-        $this->render(self::VIEWS_FOLDER . '/category/list-template', [
-            'withSocialBar' => true,
-            'ajaxURL' => CategoryController::routeName('ajax-all'),
-        ]);
-
-        $this->render('layout/footer-template');
-
-        return $res;
-    }
-
-    /**
-     * single
-     *
      * @param Request $req
      * @param Response $res
      * @param array $params
@@ -203,10 +167,12 @@ class ArticleControllerPublic extends BaseController
              */
             $article;
 
+            //Agregar visita
             $article->addVisit();
 
             set_title($article->title);
 
+            //Configuraciones de SEO
             $seoDescription = isset($article->seoDescription) ? $article->seoDescription : '';
             $seoDescription = mb_strlen($seoDescription) > 0 ? $seoDescription : $article->content;
 
@@ -216,31 +182,26 @@ class ArticleControllerPublic extends BaseController
             MetaTags::setDescription($seoDescription);
             MetaTags::setImage($imageOpenGraph);
 
+            //Configuraciones de fecha
             $date = $article->formatPreferDate(__(LANG_GROUP, "{DAY_NUMBER} de {MONTH_NAME}, {YEAR}"));
 
-            $relateds = ArticleViewMapper::allByCategory($article->category->id, $article->lang, true, $article->id, true, 1, 3);
-
+            //URL alternativas según el idioma
             Config::set_config('alternatives_url', $article->getURLAlternatives());
 
             set_custom_assets([
                 'statics/css/style.css',
             ], 'css');
-
             set_custom_assets([
-                'statics/js/CustomNamespace.js',
-                'statics/js/default-template.js',
+                'statics/js/main.js',
             ], 'js');
 
-            $this->render('layout/header-template');
-
-            $this->render(self::VIEWS_FOLDER . '/single-template', [
-                'withSocialBar' => true,
+            $this->render('layout/header');
+            $this->render('layout/menu');
+            $this->render(self::VIEWS_FOLDER . '/single', [
                 'article' => $article,
                 'date' => $date,
-                'relateds' => $relateds,
             ]);
-
-            $this->render('layout/footer-template');
+            $this->render('layout/footer');
 
         } else {
             throw new NotFoundException($req, $res);
@@ -250,8 +211,6 @@ class ArticleControllerPublic extends BaseController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -287,8 +246,6 @@ class ArticleControllerPublic extends BaseController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -313,12 +270,6 @@ class ArticleControllerPublic extends BaseController
                 "{$startRoute}[/]",
                 self::class . ":listView",
                 "{$namePrefix}-list",
-                'GET'
-            ),
-            new Route(
-                "{$startRoute}/categories[/]",
-                self::class . ":listCategoriesView",
-                "{$namePrefix}-list-categories",
                 'GET'
             ),
             new Route(

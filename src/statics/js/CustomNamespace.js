@@ -29,20 +29,28 @@ CustomNamespace.loader = function (name = null, on = true, classPrefix = null) {
  * @method itemArticleElement
  * 
  * @param {Object} item
- * @param {Boolean} sidebar
  * @returns {HTMLElement}
  */
 CustomNamespace.itemArticleElement = function (item) {
 
-	let template = `<article>
-						<a href="${item.link}" class="image">
-							<img loading="lazy" src="${item.images.imageThumb}"/>
-						</a>
-						<h3>${item.title}</h3>
-						<p>${item.seo_description}</p>
-						<ul class="actions">
-							<li><a href="${item.link}" class="button">${_i18n('public', 'Ver más')}</a></li>
-						</ul>
+	let fullNameAuthor = [
+		item.author.firstname.trim(),
+		item.author.secondname.trim(),
+		item.author.first_lastname.trim(),
+		item.author.second_lastname.trim(),
+	]	
+	fullNameAuthor = fullNameAuthor.filter(e => e.length > 0).join(' ').trim()
+
+	let template = `<article class="item">
+						<a href="${item.link}" class="link-item"></a>
+						<div class="image">
+							<img src="${item.images.imageThumb}" alt="${item.title}">
+						</div>
+						<div class="content">
+							<div class="title">${item.title}</div>
+							<div class="meta">${fullNameAuthor}</div>
+							<div class="description">${item.seo_description}</div>
+						</div>
 					</article>`
 
 	return $(template).get(0)
@@ -215,6 +223,10 @@ CustomNamespace.slideshow = function (selector, delay = 5) {
 	 */
 	let slideshow = document.querySelector(selector)
 
+	if (!(slideshow instanceof HTMLElement)) {
+		return null
+	}
+
 	let items = slideshow.querySelectorAll('.item')
 	let navigationDots = slideshow.querySelector('.navigation-dots')
 	let prev = slideshow.querySelector('.prev')
@@ -265,6 +277,15 @@ CustomNamespace.slideshow = function (selector, delay = 5) {
 
 		pages.push(parseInt(totalPagesNumber))
 		pages.sort((a, b) => (a < b ? -1 : (a > b ? 1 : 0)))
+
+		//Touch events
+		swipedetect(item, function (e) {
+			if (e == 'r') {
+				prevPage()
+			} else if (e == 'l') {
+				nextPage()
+			}
+		})
 
 	})
 

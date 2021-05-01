@@ -206,8 +206,8 @@ class ContactFormsController extends PublicAreaController
                 $mailer->Subject = utf8_decode(__(LANG_GROUP, 'Contacto') . ': ' . $subject);
                 $mailer->Body = $bodyMessage;
 
-                if (!$mailer->checkSettedSMTP()) {
-                    $mailer->asGoDaddy();
+                if (!$mailer->checkSettedSMTP() && !is_local()) {
+                    $mailer->asGoDaddy(true);
                 }
 
                 $success = $mailer->send();

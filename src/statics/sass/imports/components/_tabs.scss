@@ -1,0 +1,38 @@
+@mixin simple-tabs {
+
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0 auto;
+    padding: pxToRem(0) pxToRem(15);
+    width: max-content;
+    max-width: 100%;
+
+    >* {
+        width: 100%;
+        margin: pxToRem(5) pxToRem(2);
+        padding: pxToRem(10) pxToRem(10);
+        border: 1px solid $blue1;
+        cursor: pointer;
+        background-color: $white;
+        transition: 0.5s ease background-color;
+        color: $blue;
+
+        &.active,
+        &:hover {
+            background-color: $blue;
+            color: white;
+        }
+
+    }
+
+    @media screen and (min-width: $rsTablet) {
+
+        >* {
+            width: auto;
+        }
+
+    }
+
+}

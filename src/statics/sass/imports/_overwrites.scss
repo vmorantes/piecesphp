@@ -1,0 +1,46 @@
+//Resets
+figure{
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+
+//Correcciones a los estilos semantic
+a.ui.button {
+    text-decoration: none !important;
+}
+
+.ui.button {
+    border-radius: 0px !important;
+    background-color: $blue4;
+    color: $white;
+
+    &:hover,
+    &.active {
+        background-color: $blue4;
+        color: $white;
+        opacity: 0.5;
+    }
+}
+
+.ui.form {
+
+    .field {
+
+        input,
+        select,
+        textarea {
+            border-radius: 0px !important;
+        }
+    }
+
+}
+
+.ui.dropdown {
+    border-radius: 0px;
+
+    .menu {
+        border-radius: 0px;
+    }
+}

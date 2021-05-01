@@ -292,6 +292,15 @@ $assets['app_libraries']['plugins'] = [
     ],
 ];
 
+//Utilidades para el front, depende de app_libraries
+$assets['app_front_libraries']['css'] = [
+];
+$assets['app_front_libraries']['js'] = [
+    'statics/js/CustomNamespace.js',
+];
+$assets['app_front_libraries']['plugins'] = [
+];
+
 set_config('global_assets', [
     'js' => [],
     'css' => [],

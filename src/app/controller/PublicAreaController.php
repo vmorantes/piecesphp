@@ -59,7 +59,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         import_jquery();
         import_izitoast();
+        import_semantic();
         import_app_libraries();
+        import_app_front_libraries();
     }
 
     /**
@@ -78,28 +80,57 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         ], 'css');
 
         set_custom_assets([
-            'statics/js/CustomNamespace.js',
             ArticleControllerPublic::JS_FOLDER . '/BuiltInArticle.js',
             HeroController::BASE_JS_DIR . '/public/main.js',
             'statics/js/main.js',
-            'statics/js/default-template.js',
         ], 'js');
 
         $data = [
-            'withSocialBar' => true,
-            'withRecents' => true,
-            'ajaxArticlesGlobalURL' => ArticleController::routeName('ajax-all'),
+            'ajaxArticlesURL' => ArticleController::routeName('ajax-all'),
             'sliderAjax' => HeroController::routeName('ajax-all'),
-            'req' => $req,
-            'res' => $res,
-            'args' => $args,
+            'langGroup' => LANG_GROUP,
         ];
 
         $this->setVariables($data);
 
-        $this->render('layout/header-template');
-        $this->render('pages/home-template', []);
-        $this->render('layout/footer-template');
+        $this->render('layout/header');
+        $this->render('layout/menu');
+        $this->render('pages/home', []);
+        $this->render('layout/footer');
+
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function contactView(Request $req, Response $res, array $args)
+    {
+
+        set_title(__(LANG_GROUP, 'Contacto'));
+
+        set_custom_assets([
+            'statics/css/style.css',
+        ], 'css');
+
+        set_custom_assets([
+            'statics/js/main.js',
+            'statics/js/contact-form.js',
+        ], 'js');
+
+        $data = [
+            'contactURL' => ContactFormsController::routeName('general'),
+            'langGroup' => LANG_GROUP,
+        ];
+
+        $this->setVariables($data);
+        $this->render('layout/header');
+        $this->render('layout/menu');
+        $this->render('pages/contact', []);
+        $this->render('layout/footer');
 
         return $res;
     }
@@ -128,8 +159,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         ];
         $js = [
             'statics/js/CustomNamespace.js',
-            'statics/js/generic-views/generic-views.js',
-            'statics/js/default-template.js',
+            'statics/js/main.js',
         ];
 
         $data = [
@@ -143,20 +173,32 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         $availableView = [
             'tabs-sample' => [
                 'title' => __(LANG_GROUP, 'Ejemplo de tabs'),
+                'appendAssets' => [
+                    'js' => [
+                        'statics/js/generic-views/tabs.js',
+                    ],
+                ],
             ],
-            'about-us' => [
-                'title' => __(LANG_GROUP, 'Quiénes somos'),
+            'elements' => [
+                'title' => __(LANG_GROUP, 'Elementos'),
+                'appendAssets' => [
+                    'js' => [
+                        'statics/js/generic-views/elements.js',
+                    ],
+                ],
             ],
         ];
 
-        $viewHeader = 'layout/header-template';
-        $viewFooter = 'layout/footer-template';
+        $viewHeader = 'layout/header';
+        $viewMenu = 'layout/menu';
+        $viewFooter = 'layout/footer';
 
         if (is_string($name) && array_key_exists($name, $availableView)) {
 
             $viewConfig = $availableView[$name];
             $file = isset($viewConfig['file']) && $viewConfig['file'] !== null ? $viewConfig['file'] : $name;
             $viewHeader = isset($viewConfig['header']) ? $viewConfig['header'] : $viewHeader;
+            $viewMenu = isset($viewConfig['menu']) ? $viewConfig['menu'] : $viewMenu;
             $viewFooter = isset($viewConfig['footer']) ? $viewConfig['footer'] : $viewFooter;
             $viewTitle = isset($viewConfig['title']) ? $viewConfig['title'] : null;
             $viewData = isset($viewConfig['data']) ? $viewConfig['data'] : [];
@@ -197,6 +239,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         if (isset($file) && $file !== null) {
 
             $this->render($viewHeader);
+            $this->render($viewMenu);
             $this->render("pages/generic-views/{$file}");
             $this->render($viewFooter);
 
@@ -271,6 +314,12 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 $lastIsBar ? "" : "[/]",
                 self::class . ":indexView",
                 "{$namePrefix}-index",
+                'GET'
+            ),
+            new Route(
+                "{$startRoute}/contact[/]",
+                self::class . ":contactView",
+                "{$namePrefix}-contact",
                 'GET'
             ),
             new Route(

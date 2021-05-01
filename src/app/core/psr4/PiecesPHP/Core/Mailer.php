@@ -121,7 +121,13 @@ class Mailer extends PHPMailer
      */
     public function checkSettedSMTP()
     {
-        return self::checkSMTP($this->Host, $this->Port);
+        $connect = true;
+        try {
+            $connect = $this->smtpConnect();
+        } catch (\Throwable $th) {
+            $connect = false;
+        }
+        return $connect;
     }
 
     /**

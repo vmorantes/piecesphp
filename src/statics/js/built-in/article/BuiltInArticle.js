@@ -84,6 +84,8 @@ function BuiltInArticle(options) {
 			//Acciones inciales
 			loadMoreTrigger.click(function (e) {
 
+				e.preventDefault()
+
 				if (firstLoad) {
 					page += 1
 				}
