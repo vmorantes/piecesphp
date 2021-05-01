@@ -60,6 +60,7 @@ use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Test;
+use Publications\PublicationsRoutes;
 
 $prefix_lang = get_config('prefix_lang');
 $slim_app = get_config('slim_app');
@@ -158,6 +159,9 @@ $generacion_imagenes->register(
 
 //Módulo de presentaciones
 PresentationsRoutes::routes($zona_administrativa, $zona_publica);
+
+//Publicaciones
+PublicationsRoutes::routes($zona_administrativa, $zona_publica);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);
