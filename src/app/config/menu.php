@@ -33,12 +33,6 @@ $sidebar = new MenuGroupCollection([
             'href' => get_route('admin'),
         ]),
         new MenuGroup([
-            'name' => __('bi-shop', 'Tienda'),
-            'visible' => Roles::hasPermissions('built-in-shop-private-entry-options', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('built-in-shop-private-entry-options', [], true),
-        ]),
-        new MenuGroup([
             'name' => __('bi-dynamic-images', 'Imágenes'),
             'visible' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::allowedRoute('options'),
             'asLink' => true,

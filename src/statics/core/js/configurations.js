@@ -322,12 +322,6 @@ pcsphpGlobals.messages.es = {
 		'Sí': 'Sí',
 		'No': 'No',
 	},
-	biShopProducts: {
-		'Confirmación': 'Confirmación',
-		'¿Quiere eliminar la imagen?': '¿Quiere eliminar la imagen?',
-		'Sí': 'Sí',
-		'No': 'No',
-	},
 	public: {
 		'Ver más': 'Ver más',
 	},
@@ -622,12 +616,6 @@ pcsphpGlobals.messages.en = {
 		'¿Seguro de guardar el avatar?': 'Are you sure to save the avatar?',
 		'Cargando...': 'Loading...',
 		'¿Seguro de guardar la foto de perfil?': 'Are you sure to save the profile picture?',
-		'Sí': 'Yes',
-		'No': 'No',
-	},
-	biShopProducts: {
-		'Confirmación': 'Confirmation',
-		'¿Quiere eliminar la imagen?': 'Do you want to delete the image?',
 		'Sí': 'Yes',
 		'No': 'No',
 	},

@@ -56,7 +56,6 @@ use FileManager\FileManagerRoutes;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
 use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
-use PiecesPHP\BuiltIn\Shop\ShopRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
@@ -126,9 +125,6 @@ ArticleControllerPublic::routes($articles);
 
 //Manejador de tokens
 GenericTokenController::routes($token_handler);
-
-//Tienda
-ShopRoutes::routes($zona_administrativa);
 
 //Imágenes
 DynamicImagesRoutes::routes($zona_administrativa);
