@@ -56,8 +56,9 @@ class UsersModel extends BaseEntityMapper
     ];
 
     const LANG_GROUP = 'usersModule';
+    const TABLE = 'pcsphp_users';
 
-    protected $table = 'pcsphp_users';
+    protected $table = self::TABLE;
 
     protected $fields = [
         'id' => [
