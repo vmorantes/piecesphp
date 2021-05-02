@@ -22,8 +22,9 @@ use Publications\PublicationsLang;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
  * @property int $id
- * @property string $name
  * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property string $name
+ * @property int $status
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
  */
@@ -42,6 +43,10 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         'name' => [
             'type' => 'text',
         ],
+        'status' => [
+            'type' => 'int',
+            'default' => self::ACTIVE,
+        ],
         'meta' => [
             'type' => 'json',
             'null' => true,
@@ -49,23 +54,23 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         ],
     ];
 
+    const ACTIVE = 1;
+    const INACTIVE = 0;
+
     const TABLE = 'publications_categories';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
         '`name` ASC',
         '`id` ASC',
+        '`status` DESC',
     ];
 
     /**
      * Propiedades que no necesitan multi-idioma
-     *
+     * Si está vacía se llenará automáticamente con los campos no incluidos en $translatableProperties
      * @var string[]
      */
-    protected $noTranslatableProperties = [
-        'id',
-        'preferSlug',
-        'meta',
-    ];
+    protected $noTranslatableProperties = [];
 
     /**
      * Propiedades necesitan multi-idioma
@@ -93,6 +98,16 @@ class PublicationCategoryMapper extends EntityMapperExtensible
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
         parent::__construct($value, $fieldCompare);
+
+        //Definición de campos no traducibles en caso de que estén vacíos
+        $fields = array_keys($this->fields);
+        if (count($this->noTranslatableProperties) == 0) {
+            foreach ($fields as $fieldName) {
+                if (!in_array($fieldName, $this->translatableProperties) && $this->metaColumnName !== $fieldName) {
+                    $this->noTranslatableProperties[] = $fieldName;
+                }
+            }
+        }
 
     }
 
@@ -308,25 +323,9 @@ class PublicationCategoryMapper extends EntityMapperExtensible
                 if (array_key_exists($fieldToLang, $specialBehaviour)) {
                     $fields[] = ($specialBehaviour[$fieldToLang])($fieldToLang);
                 } else {
-                    $langDataIsNull = "JSON_EXTRACT({$table}.meta, '$.langData') = 'null'";
-                    $langDataIsNull2 = "JSON_EXTRACT({$table}.meta, '$.langData') IS NULL";
-
-                    $langIsNull = "JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}') = 'null'";
-                    $langIsNull2 = "JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}') IS NULL";
-
-                    $fieldIsNull = "JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldToLang}') = 'null'";
-                    $fieldIsNull2 = "JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldToLang}') IS NULL";
-
                     $normalField = "{$table}.{$fieldToLang}";
                     $langField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldToLang}'))";
-
-                    $if6 = "IF($fieldIsNull2, $normalField, $langField)";
-                    $if5 = "IF($fieldIsNull, $normalField, $if6)";
-                    $if4 = "IF($langIsNull2, $normalField, $if5)";
-                    $if3 = "IF($langIsNull, $normalField, $if4)";
-                    $if2 = "IF($langDataIsNull2, $normalField, $if3)";
-                    $if1 = "IF($langDataIsNull, $normalField, $if2)";
-                    $fields[] = "({$if1}) AS `{$fieldToLang}`";
+                    $fields[] = "IF({$langField} IS NOT NULL, {$langField}, {$normalField}) AS `{$fieldToLang}`";
                 }
 
             }
