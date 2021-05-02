@@ -120,7 +120,6 @@ task("sass-vendor:init", (done) => {
 	done()
 })
 
-
 //SASS others
 var watchingSassFiles = [
 	'./statics/sass/**/*.scss',
@@ -189,4 +188,21 @@ task("sass-modules:watch", (done) => {
 task("sass-modules:init", (done) => {
 	sassCompileModules()
 	done()
+})
+
+
+//Compilar todo
+task("sass-all", (done) => {
+
+	sassCompileOwnPlugins()
+	sassCompileGeneral()
+	sassCompileUsers()
+	sassCompileAvatars()
+
+	sassCompileGeneric()
+
+	sassCompileModules()
+
+	done()
+
 })
