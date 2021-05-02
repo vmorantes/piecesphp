@@ -149,7 +149,7 @@ class PublicationsPublicController extends AdminPanelController
             ], 'css');
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/AppPublications.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/PublicationsAdapter.js'),
                 PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/list.js'),
             ], 'js');
 
@@ -200,7 +200,7 @@ class PublicationsPublicController extends AdminPanelController
             ], 'css');
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/AppPublications.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/PublicationsAdapter.js'),
                 PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/list.js'),
                 PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/single.js'),
             ], 'js');

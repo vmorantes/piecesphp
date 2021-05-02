@@ -2,9 +2,9 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 /**
  * @param {OptionsConfiguration} options
- * @returns {AppPublications}
+ * @returns {PublicationsAdapter}
  */
-function AppPublications(options) {
+function PublicationsAdapter(options) {
 	/**
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL
@@ -17,12 +17,12 @@ function AppPublications(options) {
 	 */
 
 	/** @constant {string} */
-	const langGroup = 'AppPublications'
+	const langGroup = 'PublicationsAdapter'
 
 	/** @constant {string} */
-	const LOADER_NAME = 'AppPublications'
+	const LOADER_NAME = 'PublicationsAdapter'
 
-	/**  @property {AppPublications} */
+	/**  @property {PublicationsAdapter} */
 	let instance = this
 
 	/** @property {Number} */

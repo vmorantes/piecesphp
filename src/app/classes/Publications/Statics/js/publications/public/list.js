@@ -1,13 +1,13 @@
 /// <reference path="../../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../AppPublications.js" />
+/// <reference path="../PublicationsAdapter.js" />
 window.addEventListener('load', function () {
 
-	const langGroup = 'AppPublications'
+	const langGroup = 'PublicationsAdapter'
 
 	registerDynamicMessages(langGroup)
 
-	let presentation = new AppPublications({
+	let presentation = new PublicationsAdapter({
 		requestURL: $('[data-presentation-url]').attr('data-presentation-url'),
 		page: 1,
 		perPage: 10,
