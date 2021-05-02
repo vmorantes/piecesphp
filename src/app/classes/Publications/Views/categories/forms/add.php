@@ -29,7 +29,7 @@ $action;
         <?= $title; ?>
     </h3>
 
-    <form method='POST' action="<?= $action; ?>" class="ui form app-presentations-categories standard-form">
+    <form method='POST' action="<?= $action; ?>" class="ui form publications-categories standard-form">
 
         <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
 

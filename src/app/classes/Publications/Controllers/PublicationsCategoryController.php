@@ -8,10 +8,6 @@ namespace Publications\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use Publications\Mappers\PublicationCategoryMapper;
-use Publications\Mappers\PublicationMapper;
-use Publications\PublicationsLang;
-use Publications\PublicationsRoutes;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
@@ -25,6 +21,10 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use Publications\Mappers\PublicationCategoryMapper;
+use Publications\Mappers\PublicationMapper;
+use Publications\PublicationsLang;
+use Publications\PublicationsRoutes;
 use Slim\Exception\NotFoundException;
 use Slim\Http\Request as Request;
 use Slim\Http\Response as Response;
@@ -94,7 +94,7 @@ class PublicationsCategoryController extends AdminPanelController
     {
 
         set_custom_assets([
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/forms.js'),
+            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
         ], 'js');
 
         $action = self::routeName('actions-add');
@@ -107,7 +107,7 @@ class PublicationsCategoryController extends AdminPanelController
         $data['title'] = self::$title;
 
         $this->helpController->render('panel/layout/header');
-        self::view('private/forms/add', $data);
+        self::view('forms/add', $data);
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -140,8 +140,8 @@ class PublicationsCategoryController extends AdminPanelController
         if ($element->id !== null && PublicationCategoryMapper::existsByID($element->id)) {
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/delete-config.js'),
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/forms.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
             ], 'js');
 
             $action = self::routeName('actions-edit');
@@ -160,7 +160,7 @@ class PublicationsCategoryController extends AdminPanelController
             $data['lang'] = $lang;
 
             $this->helpController->render('panel/layout/header');
-            self::view('private/forms/edit', $data, true, false);
+            self::view('forms/edit', $data, true, false);
             $this->helpController->render('panel/layout/footer');
 
             return $response;
@@ -195,12 +195,12 @@ class PublicationsCategoryController extends AdminPanelController
         $data['title'] = $title;
 
         set_custom_assets([
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/delete-config.js'),
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/private/list.js'),
+            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
+            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
         ], 'js');
 
         $this->helpController->render('panel/layout/header');
-        self::view('private/list', $data);
+        self::view('list', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -655,7 +655,7 @@ class PublicationsCategoryController extends AdminPanelController
             $mapper = new PublicationCategoryMapper($element->id);
 
             $rawData[$index] = self::view(
-                'private/util/list-card',
+                'util/list-card',
                 [
                     'mapper' => $mapper,
                     'editLink' => self::routeName('forms-edit', [
