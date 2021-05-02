@@ -942,7 +942,8 @@ class PublicationsController extends AdminPanelController
         if ($title !== null) {
 
             $beforeOperator = count($where) > 0 ? 'AND' : '';
-            $critery = "{$table}.title = {$title}";
+            $titleField = PublicationMapper::fieldCurrentLangForSQL('title');
+            $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
