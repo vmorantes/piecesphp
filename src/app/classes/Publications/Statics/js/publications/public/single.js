@@ -1,6 +1,6 @@
 /// <reference path="../../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../AppPublications.js" />
+/// <reference path="../PublicationsAdapter.js" />
 window.addEventListener('load', function () {
 
 	const langGroup = 'fancy'
