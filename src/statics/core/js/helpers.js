@@ -1624,3 +1624,49 @@ function swipedetect(el, callback) {
 		e.preventDefault()
 	}, false)
 }
+
+/**
+ * Configura un scroll x espejo en la parte de arriba
+ */
+function configMirrorScrollX() {
+
+	let mirrorScrollX = $('.mirror-scroll-x')
+
+	if (mirrorScrollX.length > 0) {
+
+		let mirrorScrollXContent = mirrorScrollX.find('.mirror-scroll-x-content')
+		let mirrorTarget = $(mirrorScrollX.attr('mirror-scroll-target'))
+
+		let checkScrollX = function () {
+
+			let scrollXWidth = mirrorTarget.get(0).scrollWidth
+			let targetWidth = mirrorTarget.get(0).clientWidth
+			let isVisibleScrollX = targetWidth < scrollXWidth
+
+			if (isVisibleScrollX) {
+				mirrorScrollXContent.width(scrollXWidth)
+				mirrorTarget.addClass('with-mirror-scroll-x')
+				mirrorScrollX.show()
+			} else {
+				mirrorTarget.removeClass('with-mirror-scroll-x')
+				mirrorScrollX.hide()
+			}
+
+			mirrorScrollX.get(0).onscroll = function () {
+				mirrorTarget.get(0).scrollLeft = mirrorScrollX.get(0).scrollLeft
+			}
+
+			mirrorTarget.get(0).onscroll = function () {
+				mirrorScrollX.get(0).scrollLeft = mirrorTarget.get(0).scrollLeft
+			}
+
+		}
+
+		$(window).off('resize', checkScrollX)
+		$(window).on('resize', checkScrollX)
+		setTimeout(function () {
+			$(window).trigger('resize')
+		}, 500)
+	}
+
+}

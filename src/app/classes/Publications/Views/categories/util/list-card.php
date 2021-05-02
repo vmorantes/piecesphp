@@ -1,10 +1,9 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
-use Publications\Mappers\PublicationMapper;
+use Publications\Mappers\PublicationCategoryMapper;
 
 /**
- * @var PublicationMapper $mapper
+ * @var PublicationCategoryMapper $mapper
  */
 $mapper;
 
@@ -22,7 +21,7 @@ $editLink;
     <div class="content">
 
         <div class="header">
-            <?= $mapper->name; ?>
+            <?= $mapper->currentLangData('name'); ?>
         </div>
 
         <br>
@@ -38,7 +37,7 @@ $editLink;
                 <?php endif;?>
 
                 <?php if($hasDelete): ?>
-                <a class="fluid ui red button icon" delete-presentation-category-button data-route="<?= $deleteRoute; ?>">
+                <a class="fluid ui red button icon" delete-publication-category-button data-route="<?= $deleteRoute; ?>">
                     <i class="icon trash"></i> &nbsp; <?= __($langGroup, 'Eliminar'); ?>
                 </a>
                 <?php endif;?>

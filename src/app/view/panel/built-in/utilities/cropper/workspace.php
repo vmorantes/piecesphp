@@ -1,6 +1,7 @@
 <?php
 
 $image = isset($image) && is_string($image) ? $image : '';
+$imageName = isset($imageName) && is_string($imageName) ? $imageName : '';
 
 if (isset($withTitle)) {
     $withTitle = $withTitle === true;
@@ -56,10 +57,10 @@ $referenceH = !is_int($referenceH) ? 1080 : $referenceH;
             <?php if ($withTitle): ?>
             <div class="field required">
                 <label><?= __(CROPPER_ADAPTER_LANG_GROUP, 'Título de la imagen'); ?></label>
-                <input type="text" cropper-title-export>
+                <input type="text" cropper-title-export<?= mb_strlen($imageName)> 0 ? " value='{$imageName}'" : ''; ?>>
             </div>
             <?php else:?>
-            <input type="hidden" cropper-title-export>
+            <input type="hidden" cropper-title-export<?= mb_strlen($imageName) > 0 ? " value='{$imageName}'" : ''; ?>>
             <?php endif;?>
 
             <div class="field">

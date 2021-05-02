@@ -41,6 +41,10 @@ $editLink;
 <br>
 <br>
 
+<div class="mirror-scroll-x" mirror-scroll-target=".container-table-standard-list">
+    <div class="mirror-scroll-x-content"></div>
+</div>
+
 <div class="container-table-standard-list">
 
     <table url="<?= $processTableLink; ?>" class="ui table stripped celled">

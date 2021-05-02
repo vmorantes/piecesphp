@@ -3,7 +3,7 @@
 window.addEventListener('canDeletePublicationCategory', function (e) {
 
 	const langGroup = 'appPublicationsLang'
-	const deleteButtons = document.querySelectorAll('[delete-presentation-category-button]')
+	const deleteButtons = document.querySelectorAll('[delete-publication-category-button]')
 
 	registerDynamicMessages(langGroup)
 
@@ -95,13 +95,13 @@ window.addEventListener('canDeletePublicationCategory', function (e) {
 
 		let es = {
 			'Confirmación': 'Confirmación',
-			'¿Seguro de eliminar el elemento?': '¿Está seguro de eliminar la categoría? Esta acción eliminará todas las presentaciones pertenecientes y es irreversible.',
+			'¿Seguro de eliminar el elemento?': '¿Está seguro de eliminar la categoría?',
 			'Sí': 'Sí',
 			'No': 'No',
 		}
 		let en = {
 			'Confirmación': 'Confirmation',
-			'¿Seguro de eliminar el elemento?': 'Are you sure to delete the category? This action will delete all the belonging presentations and is irreversible.',
+			'¿Seguro de eliminar el elemento?': 'Are you sure to delete the category?',
 			'Sí': 'Yes',
 			'No': 'No',
 		}

@@ -7,8 +7,10 @@ window.addEventListener('load', function () {
 	let tableURLAttr = "url"
 
 	dataTableServerProccesing(table, table.attr(tableURLAttr), 20, {
+		responsive: false,
 		drawCallback: function () {
 			window.dispatchEvent(new Event('canDeletePublication'))
+			configMirrorScrollX()
 		},
 	})
 

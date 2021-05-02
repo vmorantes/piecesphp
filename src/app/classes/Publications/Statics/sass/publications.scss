@@ -1,13 +1,13 @@
 .ui-pcs.container-sidebar>.content {
 
-    .title-list{
+    .title-list {
         color: var(--emphasis-color);
         text-align: center;
         font-size: 2rem;
         margin-bottom: 2rem;
     }
 
-    .title-form{        
+    .title-form {
         color: var(--emphasis-color);
         font-size: 1.2rem;
         font-weight: bold;
@@ -16,12 +16,20 @@
         border-bottom: 1px solid black;
     }
 
-    .container-table-standard-list{
+    .container-table-standard-list {
+        position: relative;
         max-width: 1920px;
+        padding: 0px 0px 3rem 0px;
+        overflow-x: auto;
+
+        >* {
+            max-width: 98%;
+        }
+
     }
 
-    .container-buttons{
-        >.button{
+    .container-buttons {
+        >.button {
             margin-top: 0.5rem;
             margin-bottom: 0.5rem;
         }
@@ -46,8 +54,8 @@
 
         }
 
-        &.form{
-            &.standard-form{
+        &.form {
+            &.standard-form {
                 max-width: 1920px;
             }
         }
