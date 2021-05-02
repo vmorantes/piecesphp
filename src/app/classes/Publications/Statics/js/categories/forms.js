@@ -1,13 +1,13 @@
-/// <reference path="../../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../../statics/core/js/helpers.js" />
+/// <reference path="../../../../../../statics/core/js/configurations.js" />
+/// <reference path="../../../../../../statics/core/js/helpers.js" />
 showGenericLoader('_CARGA_INICIAL_')
 
 window.addEventListener('load', function () {
 
-	window.dispatchEvent(new Event('canDeletePresentationCategory'))
+	window.dispatchEvent(new Event('canDeletePublicationCategory'))
 
 	let isEdit = false
-	let formSelector = `.ui.form.app-presentations-categories`
+	let formSelector = `.ui.form.publications-categories`
 
 	let form = genericFormHandler(formSelector, {
 		onInvalidEvent: function (event) {

@@ -49,7 +49,7 @@ $action;
 
     <br><br>
 
-    <form method='POST' action="<?= $action; ?>" class="ui form app-presentations-categories standard-form">
+    <form method='POST' action="<?= $action; ?>" class="ui form publications-categories standard-form">
 
         <input type="hidden" name="id" value="<?= $element->id; ?>">
         <input type="hidden" name="lang" value="<?= $lang; ?>">

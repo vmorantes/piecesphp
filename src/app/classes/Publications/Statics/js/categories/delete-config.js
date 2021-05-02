@@ -1,6 +1,6 @@
-/// <reference path="../../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../../statics/core/js/helpers.js" />
-window.addEventListener('canDeletePresentationCategory', function (e) {
+/// <reference path="../../../../../../statics/core/js/configurations.js" />
+/// <reference path="../../../../../../statics/core/js/helpers.js" />
+window.addEventListener('canDeletePublicationCategory', function (e) {
 
 	const langGroup = 'appPublicationsLang'
 	const deleteButtons = document.querySelectorAll('[delete-presentation-category-button]')
