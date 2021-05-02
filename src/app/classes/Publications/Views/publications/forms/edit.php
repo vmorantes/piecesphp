@@ -89,6 +89,7 @@ $action;
                     'referenceW'=> '800',
                     'referenceH'=> '600',
                     'image' => $element->getLangData($lang, 'mainImage'),
+                    'imageName' => $element->getLangData($lang, 'mainImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
                 ]); ?>
 
             </div>
@@ -104,6 +105,7 @@ $action;
                     'referenceW'=> '400',
                     'referenceH'=> '300',
                     'image' => $element->getLangData($lang, 'thumbImage'),
+                    'imageName' => $element->getLangData($lang, 'thumbImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
                 ]); ?>
 
             </div>
@@ -148,6 +150,7 @@ $action;
                     'referenceW'=> '1200',
                     'referenceH'=> '600',
                     'image' => $element->getLangData($lang, 'ogImage', true, ''),
+                    'imageName' => $element->getLangData($lang, 'ogImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
                 ]); ?>
 
             </div>

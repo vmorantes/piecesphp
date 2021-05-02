@@ -24,7 +24,6 @@ use Publications\PublicationsLang;
  * @property int $id
  * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
  * @property string $name
- * @property int $status
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
  */
@@ -43,10 +42,6 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         'name' => [
             'type' => 'text',
         ],
-        'status' => [
-            'type' => 'int',
-            'default' => self::ACTIVE,
-        ],
         'meta' => [
             'type' => 'json',
             'null' => true,
@@ -54,15 +49,13 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         ],
     ];
 
-    const ACTIVE = 1;
-    const INACTIVE = 0;
+    const UNCATEGORIZED_ID = -10;
 
     const TABLE = 'publications_categories';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
         '`name` ASC',
         '`id` ASC',
-        '`status` DESC',
     ];
 
     /**
@@ -333,6 +326,31 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         }
 
         return $fields;
+
+    }
+
+    /**
+     * @param string $fieldName
+     * @return string
+     */
+    public static function fieldCurrentLangForSQL(string $fieldName)
+    {
+
+        $table = self::TABLE;
+
+        $defaultLang = Config::get_default_lang();
+        $currentLang = Config::get_lang();
+
+        $fieldSQL = '';
+
+        if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
+            $fieldSQL = "{$table}.{$fieldName}";
+        } else {
+            $jsonExtractField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldName}'))";
+            $fieldSQL = "IF({$jsonExtractField} IS NOT NULL, {$jsonExtractField}, {$table}.{$fieldName})";
+        }
+
+        return $fieldSQL;
 
     }
 
@@ -641,6 +659,28 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         }
 
         return $allFilled ? $mapper : null;
+
+    }
+
+    /**
+     * Crea u obtiene la categoría genérica para las publicaciones huérfanas por la eliminación
+     *
+     * @return static Devuelve la categoría
+     */
+    public static function uncategorizedCategory()
+    {
+
+        $category = new static(self::UNCATEGORIZED_ID);
+
+        if ($category->id == null) {
+            $category->setLangData('es', 'name', 'Sin categoría');
+            $category->setLangData('en', 'name', 'Uncategorized');
+            $category->id = self::UNCATEGORIZED_ID;
+            $category->primaryKey = 'ALGO';
+            $category->save();
+        }
+
+        return $category;
 
     }
 

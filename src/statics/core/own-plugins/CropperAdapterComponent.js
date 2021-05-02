@@ -529,7 +529,18 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 				lastTitleSave = instance.getTitle()
 			}
 
-			if (typeof presetTitle == 'string' && presetTitle.trim().length > 0) {
+			let titleOnInput = titleInput.val()
+
+			if (typeof titleOnInput == 'string') {
+				titleOnInput = friendlyURL(titleOnInput.trim())
+				titleOnInput = titleOnInput.length > 0 ? titleOnInput : null
+			} else {
+				titleOnInput = null
+			}
+
+			if (titleOnInput !== null) {
+				titleInput.val(titleOnInput)
+			} else if (typeof presetTitle == 'string' && presetTitle.trim().length > 0) {
 				titleInput.val(presetTitle)
 			} else {
 				titleInput.val(title)

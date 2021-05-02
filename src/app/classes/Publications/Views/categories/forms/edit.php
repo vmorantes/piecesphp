@@ -65,7 +65,7 @@ $action;
             <div class="ui buttons">
                 <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
                 <?php if($allowDelete): ?>
-                <button type="submit" class="ui button red" delete-presentation-category-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
+                <button type="submit" class="ui button red" delete-publication-category-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
                 <?php endif; ?>
             </div>
         </div>

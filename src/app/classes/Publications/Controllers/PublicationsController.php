@@ -484,9 +484,31 @@ class PublicationsController extends AdminPanelController
                         $mapper->setLangData($lang, 'endDate', $endDate);
                         $mapper->setLangData($lang, 'category', $category);
 
-                        $mainImage = self::handlerUploadImage('mainImage', '', $mapper->mainImage);
-                        $thumbImage = self::handlerUploadImage('thumbImage', '', $mapper->thumbImage);
-                        $ogImage = self::handlerUploadImage('ogImage', mb_strlen($mapper->ogImage) > 0 ? '' : $mapper->folder, mb_strlen($mapper->ogImage) > 0 ? $mapper->ogImage : null);
+                        $mainImageSetted = $mapper->getLangData($lang, 'mainImage', false, null);
+                        $thumbImageSetted = $mapper->getLangData($lang, 'thumbImage', false, null);
+                        $ogImageSetted = $mapper->getLangData($lang, 'ogImage', false, null);
+
+                        if (is_string($ogImageSetted) && mb_strlen(trim($ogImageSetted)) < 1) {
+                            $ogImageSetted = null;
+                        }
+
+                        if ($mainImageSetted !== null) {
+                            $mainImage = self::handlerUploadImage('mainImage', '', $mainImageSetted);
+                        } else {
+                            $mainImage = self::handlerUploadImage('mainImage', $mapper->folder, null);
+                        }
+
+                        if ($thumbImageSetted !== null) {
+                            $thumbImage = self::handlerUploadImage('thumbImage', '', $thumbImageSetted);
+                        } else {
+                            $thumbImage = self::handlerUploadImage('thumbImage', $mapper->folder, null);
+                        }
+
+                        if ($ogImageSetted !== null) {
+                            $ogImage = self::handlerUploadImage('ogImage', '', $ogImageSetted);
+                        } else {
+                            $ogImage = self::handlerUploadImage('ogImage', $mapper->folder, null);
+                        }
 
                         if (mb_strlen($mainImage) > 0) {
                             $mapper->setLangData($lang, 'mainImage', $mainImage);
@@ -627,10 +649,11 @@ class PublicationsController extends AdminPanelController
                     $redirectURLOn = self::routeName('list');
 
                     $table = PublicationMapper::TABLE;
+                    $inactive = PublicationMapper::INACTIVE;
 
                     $transactionSQLDeleteQueries = [
                         [
-                            'query' => "DELETE FROM {$table} WHERE id = :ID",
+                            'query' => "UPDATE {$table} SET {$table}.status = {$inactive} WHERE id = :ID",
                             'aliasConfig' => [
                                 ':ID' => $id,
                             ],
@@ -640,8 +663,6 @@ class PublicationsController extends AdminPanelController
                     $pdo = PublicationMapper::model()::getDb(Config::app_db('default')['db']);
 
                     try {
-
-                        $mapper = PublicationMapper::getBy($id, 'id', true);
 
                         $pdo->beginTransaction();
 
@@ -656,8 +677,6 @@ class PublicationsController extends AdminPanelController
                         }
 
                         $pdo->commit();
-
-                        self::deletePresentationImages($mapper);
 
                         $resultOperation->setSuccessOnSingleOperation(true);
 
@@ -747,6 +766,28 @@ class PublicationsController extends AdminPanelController
                     return (int) $value;
                 }
             ),
+            new Parameter(
+                'status',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value) || (is_string($value) && mb_strtoupper($value) == 'ANY');
+                },
+                true,
+                function ($value) {
+                    return (is_string($value) && mb_strtoupper($value) == 'ANY') ? 'ANY' : (int) $value;
+                }
+            ),
+            new Parameter(
+                'title',
+                null,
+                function ($value) {
+                    return is_scalar($value) && mb_strlen((string) $value) > 0;
+                },
+                true,
+                function ($value) {
+                    return (string) $value;
+                }
+            ),
         ]);
 
         $expectedParameters->setInputValues($request->getQueryParams());
@@ -756,12 +797,19 @@ class PublicationsController extends AdminPanelController
          * @var int $id
          * @var int $perPage
          * @var int $category
+         * @var int $status
+         * @var string $title
          */;
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $category = $expectedParameters->getValue('category');
+        $status = $expectedParameters->getValue('status');
+        $title = $expectedParameters->getValue('title');
 
-        $result = self::_all($page, $perPage, $category);
+        $ignoreStatus = $status === 'ANY';
+        $status = $status === 'ANY' ? null : $status;
+
+        $result = self::_all($page, $perPage, $category, $status, $ignoreStatus, $title);
 
         return $response->withJson($result);
     }
@@ -776,6 +824,16 @@ class PublicationsController extends AdminPanelController
     {
 
         $whereString = null;
+        $table = PublicationMapper::TABLE;
+        $active = PublicationMapper::ACTIVE;
+
+        $where = [
+            "{$table}.status = {$active}",
+        ];
+
+        if (count($where) > 0) {
+            $whereString = trim(implode(' ', $where));
+        }
 
         $selectFields = PublicationMapper::fieldsToSelect();
 
@@ -812,13 +870,13 @@ class PublicationsController extends AdminPanelController
                 if ($hasEdit) {
                     $editLink = self::routeName('forms-edit', ['id' => $e->id]);
                     $editText = __(self::LANG_GROUP, 'Editar');
-                    $editButton = "<a href='{$editLink}' class='ui button green mini'>{$editText}</a>";
+                    $editButton = "<a href='{$editLink}' class='ui button green'>{$editText}</a>";
                     $buttons[] = $editButton;
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
                     $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteButton = "<a href='{$deleteLink}' class='ui button red mini'>{$deleteText}</a>";
+                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button red' delete-publication-button>{$deleteText}</a>";
                     $buttons[] = $deleteButton;
                 }
 
@@ -844,13 +902,20 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
-     * @param int $page
-     * @param int $perPage
-     * @param int $category
+     * @param int $page =1
+     * @param int $perPage =10
+     * @param int $category =null
+     * @param int $status =PublicationMapper::ACTIVE
+     * @param bool $ignoreStatus =false
+     * @param string $title =null
      * @return PaginationResult
      */
-    public static function _all(int $page = 1, int $perPage = 10, int $category = null)
+    public static function _all(int $page = null, int $perPage = null, int $category = null, int $status = null, bool $ignoreStatus = false, string $title = null)
     {
+        $page = $page === null ? 1 : $page;
+        $perPage = $perPage === null ? 10 : $perPage;
+        $status = $status === null ? PublicationMapper::ACTIVE : $status;
+
         $table = PublicationMapper::TABLE;
         $fields = PublicationMapper::fieldsToSelect();
         $jsonExtractExists = PublicationMapper::jsonExtractExistsMySQL();
@@ -859,11 +924,31 @@ class PublicationsController extends AdminPanelController
         $where = [];
 
         if ($category !== null) {
-            $where[] = "category = {$category}";
+
+            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $critery = "{$table}.category = {$category}";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        if (!$ignoreStatus) {
+
+            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $critery = "{$table}.status = {$status}";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        if ($title !== null) {
+
+            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $critery = "{$table}.title = {$title}";
+            $where[] = "{$beforeOperator} ({$critery})";
+
         }
 
         if (count($where) > 0) {
-            $whereString = implode('', $where);
+            $whereString = implode(' ', $where);
         }
 
         $fields = implode(', ', $fields);
@@ -888,54 +973,6 @@ class PublicationsController extends AdminPanelController
         $pagination = $pageQuery->getPagination($parser, $each);
 
         return $pagination;
-    }
-
-    /**
-     * Elimina todas las imágenes de una presentación
-     * @param PublicationMapper $mapper
-     * @return void
-     */
-    public static function deletePresentationImages(PublicationMapper $mapper)
-    {
-
-        $langData = $mapper->langData;
-        $currentImages = array_values((array) $mapper->images);
-
-        if ($langData instanceof \stdClass) {
-
-            $properties = get_object_vars($langData);
-
-            if (is_array($properties)) {
-
-                foreach ($properties as $value) {
-
-                    $value = (array) $value;
-                    $imagesLang = isset($value['images']) ? (array) $value['images'] : [];
-
-                    foreach ($imagesLang as $imageLang) {
-                        $currentImages[] = $imageLang;
-                    }
-
-                }
-
-            }
-
-        }
-
-        $imagesToDelete = [];
-
-        foreach ($currentImages as $image) {
-            $imagesToDelete[] = basepath($image);
-        }
-
-        foreach ($imagesToDelete as $imageToDelete) {
-
-            if (file_exists($imageToDelete)) {
-                unlink($imageToDelete);
-            }
-
-        }
-
     }
 
     /**
@@ -981,14 +1018,30 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
+     * Verificar si una ruta es permitida
+     *
      * @param string $name
      * @param array $params
      * @return bool
      */
     public static function allowedRoute(string $name, array $params = [])
     {
-
         $route = self::routeName($name, $params, true);
+        $allow = strlen($route) > 0;
+        return $allow;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    private static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+
         $allow = strlen($route) > 0;
 
         if ($allow) {
@@ -1103,6 +1156,8 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
+     * Obtener URL de una ruta
+     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -1110,6 +1165,9 @@ class PublicationsController extends AdminPanelController
      */
     public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
+
+        $simpleName = $name;
+
         if (!is_null($name)) {
             $name = trim($name);
             $name = strlen($name) > 0 ? "-{$name}" : '';
@@ -1126,15 +1184,19 @@ class PublicationsController extends AdminPanelController
             $allowed = true;
         }
 
+        $route = '';
+
         if ($allowed) {
-            return get_route(
+            $route = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
-        } else {
-            return '';
         }
+
+        $allow = self::_allowedRoute($simpleName, $route, $params);
+
+        return $allow ? $route : '';
     }
 
     /**

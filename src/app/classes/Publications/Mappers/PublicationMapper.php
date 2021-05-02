@@ -382,9 +382,12 @@ class PublicationMapper extends EntityMapperExtensible
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
+        $categoryNameCurrentLang = PublicationCategoryMapper::fieldCurrentLangForSQL('name');
+        $categoryNameSubQuery = "SELECT $categoryNameCurrentLang FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category";
+
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
-            "(SELECT {$tableCategory}.name FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category) AS categoryName",
+            "({$categoryNameSubQuery}) AS categoryName",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.author) AS authorUser",
             "{$table}.meta",
         ];
@@ -429,6 +432,31 @@ class PublicationMapper extends EntityMapperExtensible
         }
 
         return $fields;
+
+    }
+
+    /**
+     * @param string $fieldName
+     * @return string
+     */
+    public static function fieldCurrentLangForSQL(string $fieldName)
+    {
+
+        $table = self::TABLE;
+
+        $defaultLang = Config::get_default_lang();
+        $currentLang = Config::get_lang();
+
+        $fieldSQL = '';
+
+        if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
+            $fieldSQL = "{$table}.{$fieldName}";
+        } else {
+            $jsonExtractField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldName}'))";
+            $fieldSQL = "IF({$jsonExtractField} IS NOT NULL, {$jsonExtractField}, {$table}.{$fieldName})";
+        }
+
+        return $fieldSQL;
 
     }
 

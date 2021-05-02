@@ -420,6 +420,9 @@ class PublicationsCategoryController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
+                    if ($value == PublicationCategoryMapper::UNCATEGORIZED_ID || $value == (string) PublicationCategoryMapper::UNCATEGORIZED_ID) {
+                        $value = PublicationCategoryMapper::UNCATEGORIZED_ID;
+                    }
                     return ctype_digit($value) || is_int($value);
                 },
                 true,
@@ -452,6 +455,7 @@ class PublicationsCategoryController extends AdminPanelController
         $successMessage = __(self::LANG_GROUP, 'Categoría eliminada.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+        $notAllowedDelete = __(self::LANG_GROUP, 'No está permitido eliminar esta categoría.');
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -475,12 +479,19 @@ class PublicationsCategoryController extends AdminPanelController
                     //Dirección de redirección en caso de creación
                     $redirectURLOn = self::routeName('list');
 
-                    $tablePresentations = PublicationMapper::TABLE;
+                    $tablePublications = PublicationMapper::TABLE;
                     $table = PublicationCategoryMapper::TABLE;
+
+                    $uncategorizedMapper = PublicationCategoryMapper::uncategorizedCategory();
+                    $isUncategorized = $uncategorizedMapper->id == $id;
+
+                    if ($isUncategorized) {
+                        throw new \Exception($notAllowedDelete);
+                    }
 
                     $transactionSQLDeleteQueries = [
                         [
-                            'query' => "DELETE FROM {$tablePresentations} WHERE category = :ID",
+                            'query' => "UPDATE {$tablePublications} SET {$tablePublications}.category = {$uncategorizedMapper->id} WHERE category = :ID",
                             'aliasConfig' => [
                                 ':ID' => $id,
                             ],
@@ -497,8 +508,6 @@ class PublicationsCategoryController extends AdminPanelController
 
                     try {
 
-                        $presentationsByCategory = PublicationMapper::allBy('category', $id, true);
-
                         $pdo->beginTransaction();
 
                         foreach ($transactionSQLDeleteQueries as $sqlQueryConfig) {
@@ -512,10 +521,6 @@ class PublicationsCategoryController extends AdminPanelController
                         }
 
                         $pdo->commit();
-
-                        foreach ($presentationsByCategory as $presentation) {
-                            PublicationsController::deletePresentationImages($presentation);
-                        }
 
                         $resultOperation->setSuccessOnSingleOperation(true);
 
@@ -764,19 +769,46 @@ class PublicationsCategoryController extends AdminPanelController
     }
 
     /**
+     * Verificar si una ruta es permitida
+     *
      * @param string $name
      * @param array $params
      * @return bool
      */
     public static function allowedRoute(string $name, array $params = [])
     {
-
         $route = self::routeName($name, $params, true);
+        $allow = strlen($route) > 0;
+        return $allow;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    private static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+
         $allow = strlen($route) > 0;
 
         if ($allow) {
 
-            if ($name == 'SAMPLE') { //do something
+            if ($name == 'actions-delete') { //Denegar ruta de eliminación a la categoría genérica de huérfanos
+
+                if (array_key_exists('id', $params)) {
+
+                    $id = $params['id'];
+                    $uncategorizedID = PublicationCategoryMapper::UNCATEGORIZED_ID;
+                    $isUncategorized = is_scalar($id) && ($id === $uncategorizedID || $id === (string) $uncategorizedID);
+
+                    $allow = !$isUncategorized;
+
+                }
+
             }
 
         }
@@ -785,6 +817,8 @@ class PublicationsCategoryController extends AdminPanelController
     }
 
     /**
+     * Obtener URL de una ruta
+     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -792,6 +826,9 @@ class PublicationsCategoryController extends AdminPanelController
      */
     public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
+
+        $simpleName = $name;
+
         if (!is_null($name)) {
             $name = trim($name);
             $name = strlen($name) > 0 ? "-{$name}" : '';
@@ -808,15 +845,19 @@ class PublicationsCategoryController extends AdminPanelController
             $allowed = true;
         }
 
+        $route = '';
+
         if ($allowed) {
-            return get_route(
+            $route = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
-        } else {
-            return '';
         }
+
+        $allow = self::_allowedRoute($simpleName, $route, $params);
+
+        return $allow ? $route : '';
     }
 
     /**
