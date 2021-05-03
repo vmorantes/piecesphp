@@ -8,9 +8,6 @@ namespace App\Controller;
 
 use App\Model\AppConfigModel;
 use App\Model\UsersModel;
-use PiecesPHP\BuiltIn\Article\Category\Mappers\CategoryContentMapper;
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
-use PiecesPHP\BuiltIn\Article\Mappers\ArticleViewMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Forms\FileUpload;
@@ -29,6 +26,11 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\LangInjector;
 use PiecesPHP\LetsEncryptHandler;
+use Publications\Controllers\PublicationsCategoryController;
+use Publications\Controllers\PublicationsController;
+use Publications\Controllers\PublicationsPublicController;
+use Publications\Mappers\PublicationCategoryMapper;
+use Publications\Mappers\PublicationMapper;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -1267,10 +1269,10 @@ class AppConfigController extends AdminPanelController
         $sitemap = new Sitemap(basepath('sitemap.xml'), true);
 
         $sitemap->addItem(new SitemapItem(baseurl()));
-        $sitemap->addItem(new SitemapItem(ArticleControllerPublic::routeName('list')));
+        $sitemap->addItem(new SitemapItem(PublicationsPublicController::routeName('list')));
 
         $routes = array_merge(
-            get_routes_by_controller(ArticleControllerPublic::class),
+            get_routes_by_controller(PublicationsPublicController::class),
             get_routes_by_controller(PublicAreaController::class)
         );
 
@@ -1286,22 +1288,25 @@ class AppConfigController extends AdminPanelController
 
         }
 
-        $categories = CategoryContentMapper::all();
-        $articles = ArticleViewMapper::all();
+        $categories = PublicationsCategoryController::_all()->elements();
+        $articles = PublicationsController::_all()->elements();
+        
 
-        foreach ($categories as $categorie) {
-
-            $url = ArticleControllerPublic::routeName('list-by-category', ['category' => $categorie->friendly_url]);
-
+        foreach ($categories as $category) {
+            $category = PublicationCategoryMapper::objectToMapper($category);
+            $url = PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $category->getSlug()]);
             $sitemap->addItem(new SitemapItem($url));
-
         }
 
         foreach ($articles as $article) {
-            $url = ArticleControllerPublic::routeName('single', ['friendly_name' => $article->friendly_url]);
-            $date = !is_null($article->updated) ? $article->updated : $article->created;
-            $date = new \DateTime($date);
+            $article = PublicationMapper::objectToMapper($article);
+            $url = PublicationsPublicController::routeName('single', ['slug' => $article->getSlug()]);
+            $date = !is_null($article->updatedAt) ? $article->updatedAt : $article->createdAt;
+            $date = is_object($date) ? $date : new \DateTime($date);
             $sitemap->addItem(new SitemapItem($url, $date, SitemapItem::FREQ_WEEK));
+            foreach ($article->getURLAlternatives() as $url) {
+                $sitemap->addItem(new SitemapItem($url, $date, SitemapItem::FREQ_WEEK));
+            }
         }
 
         try {

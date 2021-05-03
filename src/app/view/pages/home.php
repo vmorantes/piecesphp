@@ -1,5 +1,6 @@
 <?php
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
+use Publications\Controllers\PublicationsPublicController;
+
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 
@@ -31,7 +32,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <section class="posts-list" articles-container data-route="<?= $ajaxArticlesURL; ?>"></section>
 
-            <a href="<?= ArticleControllerPublic::routeName('list'); ?>" class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
+            <a href="<?= PublicationsPublicController::routeName('list'); ?>" class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
 
         </div>
 

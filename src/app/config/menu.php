@@ -39,24 +39,6 @@ $sidebar = new MenuGroupCollection([
             'href' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::routeName('options', [], true),
         ]),
         new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Blog'),
-            'visible' =>
-            Roles::hasPermissions('built-in-articles-list', $current_type_user) ||
-            Roles::hasPermissions('built-in-articles-categories-list', $current_type_user),
-            'items' => [
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Artículos'),
-                    'href' => get_route('built-in-articles-list', [], true),
-                    'visible' => Roles::hasPermissions('built-in-articles-list', $current_type_user),
-                ]),
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Categorías'),
-                    'href' => get_route('built-in-articles-categories-list', [], true),
-                    'visible' => Roles::hasPermissions('built-in-articles-categories-list', $current_type_user),
-                ]),
-            ],
-        ]),
-        new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),
             'visible' => Roles::hasPermissions('locations', $current_type_user),
             'asLink' => true,

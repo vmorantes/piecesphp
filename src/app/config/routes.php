@@ -53,8 +53,6 @@ use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
 use FileManager\FileManagerRoutes;
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
@@ -79,7 +77,6 @@ $mensajeria = new PiecesRouteGroup($prefix_lang . '/messages'); //Mensajería
 $locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
 $sistema_tablero_noticias = new PiecesRouteGroup($prefix_lang . '/blackboard-news/'); //Servido personalizado de archivos estáticos
 $importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadores
-$articles = new PiecesRouteGroup($prefix_lang . '/articles'); //Blog
 $sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios
 $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
 $token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Servido personalizado de archivos estáticos
@@ -119,10 +116,6 @@ BlackboardNewsController::routes($sistema_tablero_noticias);
 
 //Importadores
 ImporterController::routes($importadores);
-
-//Blog
-ArticleController::routes($zona_administrativa);
-ArticleControllerPublic::routes($articles);
 
 //Manejador de tokens
 GenericTokenController::routes($token_handler);
