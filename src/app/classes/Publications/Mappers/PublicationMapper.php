@@ -13,6 +13,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\StringManipulate;
+use Publications\Controllers\PublicationsPublicController;
 use Publications\Exceptions\DuplicateException;
 use Publications\PublicationsLang;
 
@@ -195,13 +196,63 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
-     * Devuelve el slug
-     *
      * @return string
      */
-    public function getSlug()
+    public function authorFullName()
     {
-        return self::elementFriendlySlug($this);
+        $author = $this->author;
+
+        if (!is_object($author)) {
+            $this->author = new UsersModel($this->author);
+        }
+
+        $this->author->getFullName();
+    }
+
+    /**
+     * @return static
+     */
+    public function addVisit()
+    {
+        if ($this->id !== null) {
+            $this->visits += 1;
+            $this->update();
+        }
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getURLAlternatives()
+    {
+
+        $currentLang = Config::get_lang();
+        $allowedLangs = Config::get_allowed_langs();
+        $urls = [];
+
+        foreach ($allowedLangs as $lang) {
+            $existOnLang = $this->getLangData($lang, 'title', false, null) !== null;
+            if ($existOnLang && $lang != $currentLang) {
+                $url = PublicationsPublicController::routeName('single', ['slug' => $this->getSlug($lang)]);
+                $url = convert_lang_url($url, $currentLang, $lang);
+                $urls[$lang] = $url;
+            }
+        }
+
+        return $urls;
+
+    }
+
+    /**
+     * Devuelve el slug
+     *
+     * @param string $lang
+     * @return string
+     */
+    public function getSlug(string $lang = null)
+    {
+        return self::elementFriendlySlug($this, $lang);
     }
 
     /**
@@ -492,9 +543,10 @@ class PublicationMapper extends EntityMapperExtensible
      * Devuelve el nombre amigable del elemento
      *
      * @param \stdClass|PublicationMapper|int $elementOrID
+     * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID)
+    public static function elementFriendlySlug($elementOrID, string $lang = null)
     {
         $slug = '';
 
@@ -513,9 +565,9 @@ class PublicationMapper extends EntityMapperExtensible
         if ($elementOrID instanceof PublicationMapper && $elementOrID->id !== null) {
 
             $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
-            $name = StringManipulate::friendlyURLString($elementOrID->currentLangData('name'));
+            $title = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('title') : $elementOrID->getLangData($lang, 'title'));
 
-            $slug = "{$name}-{$uniqid}";
+            $slug = "{$title}-{$uniqid}";
 
         }
 
@@ -733,7 +785,7 @@ class PublicationMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->name !== null) {
+                if ($mapper->preferSlug === null && $mapper->title !== null) {
                     $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
                     $mapper->update();
                 }

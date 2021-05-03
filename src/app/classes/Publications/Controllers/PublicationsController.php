@@ -759,7 +759,7 @@ class PublicationsController extends AdminPanelController
                 'category',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return (ctype_digit($value) || is_int($value)) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
                 },
                 true,
                 function ($value) {
@@ -965,7 +965,13 @@ class PublicationsController extends AdminPanelController
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
-        $parser = null;
+        $parser = function ($element) {
+            $element = PublicationMapper::objectToMapper($element);
+            $element = PublicationsPublicController::view('public/util/item', [
+                'element' => $element,
+            ], false, false);
+            return $element;
+        };
         $each = !$jsonExtractExists ? function ($element) {
             $element = PublicationMapper::translateEntityObject($element);
             return $element;
@@ -1055,9 +1061,12 @@ class PublicationsController extends AdminPanelController
         return $allow;
     }
 
+    public static function pathFrontPublicationsAdapter()
+    {
+        return PublicationsRoutes::staticRoute('js/PublicationsAdapter.js');
+    }
+
     /**
-     * handlerUploadImage
-     *
      * @param string $nameOnFiles
      * @param string $folder
      * @param string $currentRoute

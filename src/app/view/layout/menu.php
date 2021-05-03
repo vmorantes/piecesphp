@@ -1,12 +1,16 @@
 <?php
 
 use App\Controller\PublicAreaController;
-use PiecesPHP\BuiltIn\Article\Category\Controllers\CategoryController;
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
+use Publications\Controllers\PublicationsCategoryController;
+use Publications\Controllers\PublicationsPublicController;
+use Publications\Mappers\PublicationCategoryMapper;
 
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 
-$categories = (object) CategoryController::_all();
+$categories =  PublicationsCategoryController::_all()->elements();
+foreach($categories as $k => $i){
+    $categories[$k] = PublicationCategoryMapper::objectToMapper($i);
+}
 ?>
 
 <nav class="navigation">
@@ -46,13 +50,13 @@ $categories = (object) CategoryController::_all();
 
             <span class="item menu">
 
-                <div class="text"><?= __(LANG_GROUP, 'Blog'); ?>&nbsp;&nbsp;<i class="icon angle down"></i></div>
+                <div class="text"><?=__(LANG_GROUP, 'Blog');?>&nbsp;&nbsp;<i class="icon angle down"></i></div>
 
                 <div class="subitems">
-                    <a href="<?= ArticleControllerPublic::routeName('list'); ?>" class="item"><?= __(LANG_GROUP, 'Todas las categorías'); ?></a>
+                    <a href="<?= PublicationsPublicController::routeName('list');?>" class="item"><?=__(LANG_GROUP, 'Todas las categorías'); ?></a>
 
-                    <?php foreach($categories as $category): ?>
-                    <a href="<?= ArticleControllerPublic::routeName('list-by-category', ['category' => $category->friendly_url,]) ?>" class="item">
+                    <?php foreach ($categories as $category): ?>
+                    <a href="<?= PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $category->getSlug()]) ?>" class="item">
                         <?= $category->name; ?>
                     </a>
                     <?php endforeach; ?>

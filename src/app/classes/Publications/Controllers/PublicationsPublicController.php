@@ -6,19 +6,18 @@
 
 namespace Publications\Controllers;
 
-use App\Controller\AdminPanelController;
+use App\Model\AvatarModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Route;
+use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Utilities\Helpers\MetaTags;
+use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
-use PiecesPHP\Core\BaseController;
-use PiecesPHP\Core\Pagination\PageQuery;
-use PiecesPHP\Core\Roles;
-use PiecesPHP\Core\Route;
-use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Validation\Parameters\Parameter;
-use PiecesPHP\Core\Validation\Parameters\Parameters;
 use Slim\Exception\NotFoundException;
 use Slim\Http\Request as Request;
 use Slim\Http\Response as Response;
@@ -30,7 +29,7 @@ use Slim\Http\Response as Response;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
  */
-class PublicationsPublicController extends AdminPanelController
+class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 {
 
     /**
@@ -48,21 +47,16 @@ class PublicationsPublicController extends AdminPanelController
     protected static $baseRouteName = 'publications';
 
     /**
-     * $title
-     *
-     * @var string
-     */
-    protected static $title = 'Publicación';
-    /**
-     * $pluralTitle
-     *
-     * @var string
-     */
-    protected static $pluralTitle = 'Publicaciones';
-    /**
      * @var BaseController
      */
     protected $helpController = null;
+
+    /**
+     * Usuario logueado
+     *
+     * @var \stdClass
+     */
+    protected $user = null;
 
     const BASE_VIEW_DIR = PublicationsController::BASE_VIEW_DIR;
     const BASE_JS_DIR = PublicationsController::BASE_JS_DIR;
@@ -72,35 +66,18 @@ class PublicationsPublicController extends AdminPanelController
     public function __construct()
     {
         parent::__construct(false); //No cargar ningún modelo automáticamente.
-
-        self::$title = __(self::LANG_GROUP, self::$title);
-        self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
+        $this->init();
 
         $this->model = (new PublicationMapper())->getModel();
-
-        set_title(self::$title);
-
-        $this->helpController = (function ($user) {
-            set_config('lock_assets', true);
-            $c = new class extends BaseController
-            {
-
-                public $user;
-
-                public function __construct()
-                {
-                    parent::__construct(false);
-                }
-
-            };
-            $c->user = $user;
-            set_config('lock_assets', false);
-            return $c;
-        })($this->user);
-
-        $this->helpController->setVariables($this->getGlobalVariables());
+        $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
 
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
+
+        import_jquery();
+        import_izitoast();
+        import_semantic();
+        import_app_libraries();
+        import_app_front_libraries();
 
         add_global_asset(PublicationsRoutes::staticRoute('globals-vars.css'), 'css');
 
@@ -117,45 +94,47 @@ class PublicationsPublicController extends AdminPanelController
 
         try {
 
-            $category = new Parameter('category');
-            $category->setDefaultValue(null)->setOptional(true);
-            $category->setValidator(function ($value) {
-                return ctype_digit($value) || is_int($value);
-            });
-            $category->setParser(function ($value) {
-                return (int) $value;
-            });
-            $category->setValue($request->getQueryParam('category', null));
-            $category = $category->getValue();
+            $category = $request->getAttribute('categorySlug', null);
+            $categoryMapper = null;
 
-            $backLink = get_route('admin');
+            if (is_string($category)) {
+                $category = PublicationCategoryMapper::extractIDFromSlug($category);
+            }
 
-            $title = self::$pluralTitle;
+            set_title(__(LANG_GROUP, 'Publicaciones'));
+            $titleSection = __(LANG_GROUP, 'Publicaciones');
+
+            if ($category !== null) {
+
+                $categoryMapper = new PublicationCategoryMapper($category);
+
+                if ($categoryMapper->id === null) {
+                    throw new NotFoundException($request, $response);
+                } else {
+                    $titleSection .= ': ' . $categoryMapper->currentLangData('name');
+                }
+            }
 
             $ajaxURL = self::routeName('ajax-all') . ($category !== null ? "?category={$category}" : '');
-            $currentURL = get_current_url();
-            $categoriesOptions = array_to_html_options(PublicationCategoryMapper::allForSelect(), $category);
 
             $data = [];
-            $data['langGroup'] = self::LANG_GROUP;
-            $data['backLink'] = $backLink;
-            $data['title'] = $title;
+            $data['titleSection'] = $titleSection;
             $data['ajaxURL'] = $ajaxURL;
-            $data['currentURL'] = $currentURL;
-            $data['categoriesOptions'] = $categoriesOptions;
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_CSS_DIR . '/presentation-style.css'),
+                'statics/css/style.css',
             ], 'css');
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/PublicationsAdapter.js'),
+                PublicationsController::pathFrontPublicationsAdapter(),
                 PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/list.js'),
+                'statics/js/main.js',
             ], 'js');
 
-            $this->helpController->render('panel/layout/header');
+            $this->helpController->render('layout/header');
+            $this->helpController->render('layout/menu');
             self::view('public/list', $data);
-            $this->helpController->render('panel/layout/footer');
+            $this->helpController->render('layout/footer');
 
         } catch (\Exception $e) {
             throw new NotFoundException($request, $response);
@@ -175,39 +154,50 @@ class PublicationsPublicController extends AdminPanelController
         $slug = $request->getAttribute('slug', '');
         $slugID = PublicationMapper::extractIDFromSlug($slug);
         $element = new PublicationMapper($slugID);
+        $currentLang = Config::get_lang();
 
         if ($element->id !== null) {
 
-            $backLink = PublicationsPublicController::routeName('list');
-
-            $title = $element->currentLangData('name');
-
-            $ajaxURL = self::routeName('ajax-all') . "?category={$element->category->id}&ignore={$element->id}";
-            $titleCategory = $element->currentLangData('category')->currentLangData('name');
-
-            $data = [];
-            $data['langGroup'] = self::LANG_GROUP;
-            $data['backLink'] = $backLink;
-            $data['title'] = $title;
-            $data['ajaxURL'] = $ajaxURL;
-            $data['titleCategory'] = $titleCategory;
-            $data['element'] = $element;
-
-            import_fancybox3();
-
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_CSS_DIR . '/presentation-style.css'),
+                'statics/css/style.css',
             ], 'css');
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/PublicationsAdapter.js'),
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/list.js'),
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/single.js'),
+                PublicationsController::pathFrontPublicationsAdapter(),
+                'statics/js/main.js',
             ], 'js');
 
-            $this->helpController->render('panel/layout/header');
+            $title = $element->currentLangData('title');
+
+            set_title($title);
+
+            //Agregar visita
+            $element->addVisit();
+
+            //Configuraciones de SEO
+            $seoDescription = $element->getLangData($currentLang, 'seoDescription', false, null);
+            $seoDescription =
+            is_string($seoDescription) && mb_strlen($seoDescription) > 0 ?
+            $seoDescription :
+            strip_tags($element->currentLangData('content'));
+
+            $imageOpenGraph = $element->getLangData($currentLang, 'ogImage');
+            $imageOpenGraph = is_string($imageOpenGraph) && mb_strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $element->currentLangData('mainImage');
+
+            MetaTags::setDescription($seoDescription);
+            MetaTags::setImage($imageOpenGraph);
+
+            //URL alternativas según el idioma
+            Config::set_config('alternatives_url', $element->getURLAlternatives());
+
+            $data = [];
+            $data['langGroup'] = self::LANG_GROUP;
+            $data['element'] = $element;
+
+            $this->helpController->render('layout/header');
+            $this->helpController->render('layout/menu');
             self::view('public/single', $data);
-            $this->helpController->render('panel/layout/footer');
+            $this->helpController->render('layout/footer');
 
         } else {
             throw new NotFoundException($request, $response);
@@ -223,119 +213,7 @@ class PublicationsPublicController extends AdminPanelController
      */
     public function all(Request $request, Response $response, array $args)
     {
-
-        $expectedParameters = new Parameters([
-            new Parameter(
-                'page',
-                1,
-                function ($value) {
-                    return ctype_digit($value) || is_int($value);
-                },
-                true,
-                function ($value) {
-                    return (int) $value;
-                }
-            ),
-            new Parameter(
-                'per_page',
-                10,
-                function ($value) {
-                    return ctype_digit($value) || is_int($value);
-                },
-                true,
-                function ($value) {
-                    return (int) $value;
-                }
-            ),
-            new Parameter(
-                'category',
-                null,
-                function ($value) {
-                    return ctype_digit($value) || is_int($value);
-                },
-                true,
-                function ($value) {
-                    return (int) $value;
-                }
-            ),
-            new Parameter(
-                'ignore',
-                null,
-                function ($value) {
-                    return ctype_digit($value) || is_int($value);
-                },
-                true,
-                function ($value) {
-                    return (int) $value;
-                }
-            ),
-        ]);
-
-        $expectedParameters->setInputValues($request->getQueryParams());
-        $expectedParameters->validate();
-
-        /**
-         * @var int $id
-         * @var int $perPage
-         * @var int $category
-         * @var int $ignore
-         */;
-        $page = $expectedParameters->getValue('page');
-        $perPage = $expectedParameters->getValue('per_page');
-        $category = $expectedParameters->getValue('category');
-        $ignore = $expectedParameters->getValue('ignore');
-
-        $table = PublicationMapper::TABLE;
-        $fields = PublicationMapper::fieldsToSelect();
-        $jsonExtractExists = PublicationMapper::jsonExtractExistsMySQL();
-
-        $whereString = null;
-        $where = [];
-
-        if ($category !== null) {
-            $where[] = "category = {$category}";
-        }
-
-        if ($ignore !== null) {
-            if (count($where) > 0) {
-                $where[] = "AND id != {$ignore}";
-            } else {
-                $where[] = "id != {$ignore}";
-            }
-        }
-
-        if (count($where) > 0) {
-            $whereString = implode(' ', $where);
-        }
-
-        $fields = implode(', ', $fields);
-        $sqlSelect = "SELECT {$fields} FROM {$table}";
-        $sqlCount = "SELECT COUNT({$table}.id) AS total FROM {$table}";
-
-        if ($whereString !== null) {
-            $sqlSelect .= " WHERE {$whereString}";
-            $sqlCount .= " WHERE {$whereString}";
-        }
-
-        $sqlSelect .= " ORDER BY " . implode(', ', PublicationMapper::ORDER_BY_PREFERENCE);
-
-        $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
-
-        $parser = function ($element) {
-            $element = PublicationMapper::objectToMapper($element);
-            $element = PublicationsPublicController::view('public/util/item', [
-                'element' => $element,
-            ], false, false);
-            return $element;
-        };
-        $each = !$jsonExtractExists ? function ($element) {
-            $element = PublicationMapper::translateEntityObject($element);
-            return $element;
-        } : null;
-
-        $pagination = $pageQuery->getPagination($parser, $each);
-
-        return $response->withJson($pagination);
+        return (new PublicationsController)->all($request, $response, $args);
     }
 
     /**
@@ -423,8 +301,6 @@ class PublicationsPublicController extends AdminPanelController
 
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
-        $permisos_listado = $all_roles;
-
         $routes = [
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
@@ -434,19 +310,20 @@ class PublicationsPublicController extends AdminPanelController
                 $classname . ':singleView',
                 self::$baseRouteName . '-single',
                 'GET',
-                true,
-                null,
-                $permisos_listado
+                false
             ),
             //HTML
             new Route( //Vista del listado
                 "{$startRoute}/list[/]",
                 $classname . ':listView',
                 self::$baseRouteName . '-list',
-                'GET',
-                true,
-                null,
-                $permisos_listado
+                'GET'
+            ),
+            new Route( //Vista del listado
+                "{$startRoute}/list/{categorySlug}[/]",
+                $classname . ':listView',
+                self::$baseRouteName . '-list-by-category',
+                'GET'
             ),
             //JSON
             new Route( //JSON con todos los elementos
@@ -462,4 +339,30 @@ class PublicationsPublicController extends AdminPanelController
 
         return $group;
     }
+
+    /**
+     * @return void
+     */
+    protected function init()
+    {
+        $api_url = get_config('osTicketAPI');
+        $api_key = get_config('osTicketAPIKey');
+
+        OsTicketAPI::setBaseURL($api_url);
+        OsTicketAPI::setBaseAPIKey($api_key);
+
+        $view_data = [];
+        $this->user = get_config('current_user');
+
+        if ($this->user instanceof \stdClass) {
+            $view_data['user'] = $this->user;
+            $this->user->avatar = AvatarModel::getAvatar((int) $this->user->id);
+            $this->user->hasAvatar = !is_null($this->user->avatar);
+            unset($this->user->password);
+        }
+
+        $this->setVariables($view_data);
+
+    }
+
 }

@@ -1,71 +1,22 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
-/**
- * @var string $langGroup
- */;
-$langGroup;
 ?>
+<section class="body">
 
-<div style="max-width:850px;">
+    <div class="content">
 
-    <h3>
-        <strong><?= $title; ?></strong>
-    </h3>
+        <div class="wrapper">
 
-    <div>
+            <h2 class="segment-title text-center"><?= $titleSection; ?></h2>
 
-        <a href="<?= $backLink; ?>" class="ui labeled icon button red">
-            <i class="icon left arrow"></i>
-            <?= __($langGroup, 'Regresar'); ?>
-        </a>
+            <section class="posts-list horizontal" data-publication-url="<?= $ajaxURL; ?>" publications-js>
+
+            </section>
+
+            <a href="#" class="more element-center" publications-load-more-js><?= __(LANG_GROUP, 'Cargar más'); ?></a>
+
+        </div>
 
     </div>
 
-</div>
-
-<br>
-
-<div style="max-width:500px;">
-
-    <form action="<?= $currentURL; ?>" method="GET" class="ui form presentations-filter">
-
-        <h3><small><?= __($langGroup, 'Filtrar por categoría'); ?></small></h3>
-
-        <div class="field">
-            <label><?= __($langGroup, 'Categoría'); ?></label>
-            <select name="category" class="ui dropdown search">
-                <?= $categoriesOptions; ?>
-            </select>
-        </div>
-
-        <div class="field">
-            <button class="ui button red icon" type="submit">
-                <?= __($langGroup, 'Filtrar'); ?>
-                <i class="ui icon search"></i>
-            </button>
-            <a href="<?= $currentURL; ?>" class="ui button red inverted icon" type="reset">
-                <?= __($langGroup, 'Limpiar'); ?>
-                <i class="ui icon trash"></i>
-            </a>
-        </div>
-
-    </form>
-
-</div>
-
-<br>
-
-<div data-presentation-url="<?= $ajaxURL; ?>">
-
-    <div class="presentations-list">
-
-        <div class="content" publications-js></div>
-
-        <br>
-        <span class="ui button red fluid load-more" publications-load-more-js><?= __($langGroup, 'Cargar más'); ?></span>
-        <br>
-
-    </div>
-
-</div>
+</section>
