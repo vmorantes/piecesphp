@@ -7,14 +7,13 @@
 namespace App\Controller;
 
 use App\Model\AvatarModel;
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleController;
-use PiecesPHP\BuiltIn\Article\Controllers\ArticleControllerPublic;
 use PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
+use Publications\Controllers\PublicationsController;
 use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
@@ -80,13 +79,13 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         ], 'css');
 
         set_custom_assets([
-            ArticleControllerPublic::JS_FOLDER . '/BuiltInArticle.js',
+            PublicationsController::pathFrontPublicationsAdapter(),
             HeroController::BASE_JS_DIR . '/public/main.js',
             'statics/js/main.js',
         ], 'js');
 
         $data = [
-            'ajaxArticlesURL' => ArticleController::routeName('ajax-all'),
+            'ajaxArticlesURL' => PublicationsController::routeName('ajax-all'),
             'sliderAjax' => HeroController::routeName('ajax-all'),
             'langGroup' => LANG_GROUP,
         ];

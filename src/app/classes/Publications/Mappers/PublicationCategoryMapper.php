@@ -107,11 +107,12 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     /**
      * Devuelve el slug
      *
+     * @param string $lang
      * @return string
      */
-    public function getSlug()
+    public function getSlug(string $lang = null)
     {
-        return self::elementFriendlySlug($this);
+        return self::elementFriendlySlug($this, $lang);
     }
 
     /**
@@ -284,7 +285,10 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
-        $fields = [];
+        $fields = [
+            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "{$table}.meta",
+        ];
 
         if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
 
@@ -386,9 +390,10 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * Devuelve el nombre amigable del elemento
      *
      * @param \stdClass|PublicationCategoryMapper|int $elementOrID
+     * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID)
+    public static function elementFriendlySlug($elementOrID, string $lang = null)
     {
         $slug = '';
 
@@ -407,7 +412,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         if ($elementOrID instanceof PublicationCategoryMapper && $elementOrID->id !== null) {
 
             $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
-            $name = StringManipulate::friendlyURLString($elementOrID->currentLangData('name'));
+            $name = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('name') : $elementOrID->getLangData($lang, 'name'));
 
             $slug = "{$name}-{$uniqid}";
 
@@ -424,12 +429,24 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      */
     public static function extractIDFromSlug(string $slug)
     {
+        $isUncategorized = false;
         $slug = is_string($slug) ? explode('-', $slug) : null;
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
-        $slug = $slug !== null ? explode('-', $slug) : null;
-        $slugID = is_array($slug) && count($slug) === 2 ? $slug[0] : null;
-        $slugID = is_string($slugID) && ctype_digit($slugID) ? (int) $slugID : null;
+
+        if ($slug !== null) {
+            $uncategorizedIDLen = mb_strlen(self::UNCATEGORIZED_ID);
+            $isUncategorized = substr($slug, 0, $uncategorizedIDLen) == self::UNCATEGORIZED_ID;
+        }
+
+        if (!$isUncategorized) {
+            $slug = $slug !== null ? explode('-', $slug) : null;
+            $slugID = is_array($slug) && count($slug) === 2 ? $slug[0] : null;
+            $slugID = (is_string($slugID) && ctype_digit($slugID)) || $slugID == self::UNCATEGORIZED_ID ? (int) $slugID : null;
+        } else {
+            $slugID = self::UNCATEGORIZED_ID;
+        }
+
         return $slugID;
     }
 
@@ -646,7 +663,6 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         }
 
         $allFilled = count($fieldsFilleds) === count($fields);
-
         if ($allFilled) {
 
             if ($mapper->id !== null) {

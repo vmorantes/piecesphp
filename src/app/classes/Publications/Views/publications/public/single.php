@@ -9,67 +9,29 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var PublicationMapper $element
  */;
 $langGroup;
+$element;
 ?>
+<section class="body">
 
-<div style="max-width:850px;">
+    <div class="content">
 
-    <div>
+        <div class="wrapper">
 
-        <a href="<?= $backLink; ?>" class="ui labeled icon button red">
-            <i class="icon left arrow"></i>
-            <?= __($langGroup, 'Regresar'); ?>
-        </a>
+            <div class="post-image">
+                <img src="<?= $element->currentLangData('mainImage'); ?>" alt="<?= $element->currentLangData('title'); ?>">
+            </div>
 
-    </div>
-
-    <br><br>
-
-    <h3>
-        <strong><?= $title; ?></strong>
-    </h3>
-
-    <h4>
-        <strong><?= $titleCategory; ?></strong>
-    </h4>
-
-</div>
-
-<div>
-
-    <div class="single-presentation">
-
-        <div class="main">
-            <a data-fancybox="images" href="<?= $element->currentLangData('images')[0]; ?>">
-                <img src="<?= $element->currentLangData('images')[0]; ?>" />
-            </a>
         </div>
 
-        <div class="list">
-            <?php for($i = 1; $i < count($element->currentLangData('images')); $i++): ?>
-            <a data-fancybox="images" href="<?= $element->currentLangData('images')[$i]; ?>">
-                <img src="<?= $element->currentLangData('images')[$i]; ?>" />
-            </a>
-            <?php endfor;?>
-        </div>
+        <div class="wrapper no-padding-top-mobile">
 
-    </div>
+            <h2 class="segment-title text-center"><?= $element->currentLangData('title'); ?></h2>
+            <p><small><?= $element->createdAt->format('d-m-Y'); ?></small></p>
 
-    <br><br>
-
-    <div data-presentation-url="<?= $ajaxURL; ?>">
-
-        <h4><?= __($langGroup, 'Presentaciones relacionadas'); ?></h4>
-
-        <div class="presentations-list mini">
-
-            <div class="content" publications-js></div>
-
-            <br>
-            <span class="ui button red fluid load-more" publications-load-more-js><?= __($langGroup, 'Cargar más'); ?></span>
-            <br>
+            <div class="post-content"><?= $element->currentLangData('content'); ?></div>
 
         </div>
 
     </div>
 
-</div>
+</section>

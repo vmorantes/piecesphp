@@ -1,64 +1,27 @@
 /// <reference path="../../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../../statics/core/js/helpers.js" />
-/// <reference path="../PublicationsAdapter.js" />
-window.addEventListener('load', function () {
+/// <reference path="../../PublicationsAdapter.js" />
+CustomNamespace.loader()
+window.addEventListener('load', function (e) {
 
-	const langGroup = 'PublicationsAdapter'
+	CustomNamespace.loader(null, false)
 
-	registerDynamicMessages(langGroup)
+	let requestURL = $('[data-publication-url]').attr('data-publication-url')
 
-	let presentation = new PublicationsAdapter({
-		requestURL: $('[data-presentation-url]').attr('data-presentation-url'),
+	let articleManager = new PublicationsAdapter({
+		requestURL: requestURL,
 		page: 1,
 		perPage: 10,
 		containerSelector: '[publications-js]',
 		loadMoreTriggerSelector: '[publications-load-more-js]',
 		onDraw: (item, parsed) => {
+			parsed.addClass('horizontal')
 			return parsed
 		},
 		onEmpty: (container) => {
-			container.addClass('empty')
-			container.html(_i18n(langGroup, 'No hay presentaciones disponibles'))
+			container.closest('.posts-list').html(`<h2>............</h2>`)
 		},
 	})
 
-	presentation.loadItems()
-
-	$('.ui.dropdown').dropdown()
-
-	function registerDynamicMessages(name) {
-
-		if (typeof pcsphpGlobals != 'object') {
-			pcsphpGlobals = {}
-		}
-		if (typeof pcsphpGlobals.messages != 'object') {
-			pcsphpGlobals.messages = {}
-		}
-		if (typeof pcsphpGlobals.messages.es != 'object') {
-			pcsphpGlobals.messages.es = {}
-		}
-		if (typeof pcsphpGlobals.messages.en != 'object') {
-			pcsphpGlobals.messages.en = {}
-		}
-
-		let es = {
-			'No hay presentaciones disponibles': 'No hay presentaciones disponibles',
-		}
-
-		let en = {
-			'No hay presentaciones disponibles': 'No presentations available',
-		}
-
-		for (let i in es) {
-			if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
-			pcsphpGlobals.messages.es[name][i] = es[i]
-		}
-
-		for (let i in en) {
-			if (typeof pcsphpGlobals.messages.en[name] == 'undefined') pcsphpGlobals.messages.en[name] = {}
-			pcsphpGlobals.messages.en[name][i] = en[i]
-		}
-
-	}
-
+	articleManager.loadItems()
 })

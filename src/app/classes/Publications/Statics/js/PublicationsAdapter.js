@@ -1,5 +1,5 @@
-/// <reference path="../../../../../../statics/core/js/configurations.js" />
-/// <reference path="../../../../../../statics/core/js/helpers.js" />
+/// <reference path="../../../../../statics/core/js/configurations.js" />
+/// <reference path="../../../../../statics/core/js/helpers.js" />
 /**
  * @param {OptionsConfiguration} options
  * @returns {PublicationsAdapter}
@@ -100,6 +100,7 @@ function PublicationsAdapter(options) {
 
 			request.done(function (res) {
 
+				let elements = res.elements
 				let parsedElements = res.parsedElements
 				let totalElements = res.totalElements
 				let isFinal = res.isFinal
@@ -116,14 +117,16 @@ function PublicationsAdapter(options) {
 					onEmpty(container)
 				}
 
-				for (let element of parsedElements) {
+				for (let index in parsedElements) {
 
-					let item = onDraw(element, createItem(element))
+					let element = elements[index]
+					let parsedElement = parsedElements[index]
+					let item = onDraw(element, createItem(parsedElement))
 
 					if (item instanceof HTMLElement) {
 						item = $(item)
 					} else if (!(item instanceof $)) {
-						item = createItem(element)
+						item = createItem(parsedElement)
 					}
 
 					item.hide()

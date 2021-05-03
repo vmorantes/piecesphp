@@ -9,12 +9,14 @@ use Publications\Mappers\PublicationMapper;
  */
 
 ?>
-<a class="item" href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>">
+<article class="item">
+    <a href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>" class="link-item"></a>
     <div class="image">
-        <img src="<?= $element->currentLangData('images')[0]; ?>">
+        <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>">
     </div>
-    <div class="text">
-        <div class="title"><?= $element->currentLangData('name'); ?></div>
-        <div class="category"><?= PublicationCategoryMapper::getBy($element->currentLangData('category'), 'id', true)->currentLangData('name'); ?></div>
+    <div class="content">
+        <div class="title"><?= $element->currentLangData('title'); ?></div>
+        <div class="meta"><?= $element->authorFullName(); ?></div>
+        <div class="description"><?= substr($element->currentLangData('content'), 0, 200); ?>...</div>
     </div>
-</a>
+</article>

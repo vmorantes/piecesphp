@@ -1,24 +1,23 @@
 //Referencias para ayuda del editor
 /// <reference path="./CustomNamespace.js" />
-/// <reference path="./built-in/article/BuiltInArticle.js" />
+/// <reference path="../../app/classes/Publications/Statics/js/PublicationsAdapter.js" />
 CustomNamespace.loader()
 window.addEventListener('load', function (e) {
-	
+
 	//Configurar carga de artículos del blog
 	let articlesContainerSelector = '[articles-container]'
 	let articlesContainer = $(articlesContainerSelector)
 	if (articlesContainer.length > 0) {
 
-		let homeArticleManager = new BuiltInArticle({
+		let homeArticleManager = new PublicationsAdapter({
 			requestURL: articlesContainer.data('route'),
 			page: 1,
 			perPage: 3,
 			containerSelector: articlesContainerSelector,
 			loadMoreTriggerSelector: '[load-more-articles]',
-			onDraw: (item) => {
-				console.log(item)
+			onDraw: (item, parsed) => {
 				//Recibo el item y devuelvo el HTML
-				return CustomNamespace.itemArticleElement(item)
+				return item
 			},
 			onEmpty: (container) => {
 				//Si no hay artículos elimino la sección

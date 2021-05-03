@@ -26,38 +26,6 @@ CustomNamespace.loader = function (name = null, on = true, classPrefix = null) {
 }
 
 /**
- * @method itemArticleElement
- * 
- * @param {Object} item
- * @returns {HTMLElement}
- */
-CustomNamespace.itemArticleElement = function (item) {
-
-	let fullNameAuthor = [
-		item.author.firstname.trim(),
-		item.author.secondname.trim(),
-		item.author.first_lastname.trim(),
-		item.author.second_lastname.trim(),
-	]	
-	fullNameAuthor = fullNameAuthor.filter(e => e.length > 0).join(' ').trim()
-
-	let template = `<article class="item">
-						<a href="${item.link}" class="link-item"></a>
-						<div class="image">
-							<img src="${item.images.imageThumb}" alt="${item.title}">
-						</div>
-						<div class="content">
-							<div class="title">${item.title}</div>
-							<div class="meta">${fullNameAuthor}</div>
-							<div class="description">${item.seo_description}</div>
-						</div>
-					</article>`
-
-	return $(template).get(0)
-
-}
-
-/**
  * @method smoothScroll
  * 
  * @param {String} [selector]
