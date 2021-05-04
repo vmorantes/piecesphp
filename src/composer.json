@@ -34,10 +34,10 @@
         "piecesphp/html": "~1",
         "yourivw/leclient": "^1.2",
         "psr/log": "^1.1",
-        "piecesphp/database": "~2",
         "leafo/scssphp": "^0.8.4",
         "mpdf/mpdf": "^8.0",
-        "studio-42/elfinder": "^2.1"
+        "studio-42/elfinder": "^2.1",
+        "piecesphp/database": "^2.0"
     },
     "suggest": {
         "ext-zlib": ">=1.2.0.4",
