@@ -1137,6 +1137,56 @@ function generateCachingHeadersAndStatus(\Slim\Http\Request $request, \DateTime 
     ];
 }
 
+/**
+ * Toma un fichero, lo recorta y redimensiona.
+ * Dependiendo de $outputPath lo guarda o simplemente lo muestra.
+ * El resultado es una imagen JPG
+ *
+ * @param string $imagePath
+ * @param int $thumbWidth
+ * @param int $thumbHeight
+ * @param float $quality
+ * @param string $outputPath
+ * @return void
+ */
+function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, string $outputPath = null)
+{
+
+    if (file_exists($imagePath)) {
+
+        $imageResource = imagecreatefromstring(file_get_contents($imagePath));
+        $width = imagesx($imageResource);
+        $height = imagesy($imageResource);
+
+        $aspectRatioOriginal = $width / $height;
+        $aspectRatioThumb = $thumbWidth / $thumbHeight;
+
+        //Se toma la mayor relación de aspecto
+        if ($aspectRatioOriginal >= $aspectRatioThumb) {
+            $newHeight = $thumbHeight;
+            $newWidth = $width / ($height / $thumbHeight);
+        } else {
+            $newWidth = $thumbWidth;
+            $newHeight = $height / ($width / $thumbWidth);
+        }
+
+        $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
+
+        // Redimencionar y cortar
+        imagecopyresampled($thumbImage,
+            $imageResource,
+            0 - ($newWidth - $thumbWidth) / 2, // Centra la image horizontalmente
+            0 - ($newHeight - $thumbHeight) / 2, // Centra la image verticalmente
+            0, 0,
+            $newWidth, $newHeight,
+            $width, $height);
+
+        imagejpeg($thumbImage, $outputPath, $quality);
+
+    }
+
+}
+
 //========================================================================================
 /*                                                                                      *
  *                                       Polyfills                                      *
