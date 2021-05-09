@@ -93,6 +93,29 @@ class AppConfigController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
     ];
 
+    const SEO_OPTION_TITLE_APP = 'title_app';
+    const SEO_OPTION_OWNER = 'owner';
+    const SEO_OPTION_DESCRIPTION = 'description';
+    const SEO_OPTION_KEYWORDS = 'keywords';
+    const SEO_OPTION_EXTRA_SCRIPTS = 'extra_scripts';
+    const SEO_OPTION_OPEN_GRAPH_IMAGE = 'open_graph_image';
+
+    const SEO_OPTION_TITLE_APP_ON_FORM = 'titleApp';
+    const SEO_OPTION_OWNER_ON_FORM = 'owner';
+    const SEO_OPTION_DESCRIPTION_ON_FORM = 'description';
+    const SEO_OPTION_KEYWORDS_ON_FORM = 'keywords';
+    const SEO_OPTION_EXTRA_SCRIPTS_ON_FORM = 'extraScripts';
+    const SEO_OPTION_OPEN_GRAPH_IMAGE_ON_FORM = 'openGraph';
+
+    const SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME = [
+        self::SEO_OPTION_TITLE_APP_ON_FORM => self::SEO_OPTION_TITLE_APP,
+        self::SEO_OPTION_OWNER_ON_FORM => self::SEO_OPTION_OWNER,
+        self::SEO_OPTION_DESCRIPTION_ON_FORM => self::SEO_OPTION_DESCRIPTION,
+        self::SEO_OPTION_KEYWORDS_ON_FORM => self::SEO_OPTION_KEYWORDS,
+        self::SEO_OPTION_EXTRA_SCRIPTS_ON_FORM => self::SEO_OPTION_EXTRA_SCRIPTS,
+        self::SEO_OPTION_OPEN_GRAPH_IMAGE_ON_FORM => self::SEO_OPTION_OPEN_GRAPH_IMAGE,
+    ];
+
     /**
      * @var AppConfigModel
      */
@@ -397,36 +420,43 @@ class AppConfigController extends AdminPanelController
 
             $actionURL = self::routeName('seo');
 
-            $titleApp = htmlentities(AppConfigModel::getConfigValue('title_app'));
-            $owner = htmlentities(AppConfigModel::getConfigValue('owner'));
-            $description = AppConfigModel::getConfigValue('description');
-            $extraScripts = AppConfigModel::getConfigValue('extra_scripts');
+            $SEOValues = self::getSEOConfigValues();
 
-            $keywordsSelect = [];
-            $keywords = AppConfigModel::getConfigValue('keywords');
+            foreach ($SEOValues as $lang => $values) {
 
-            if (is_array($keywords) && count($keywords) > 0) {
+                foreach ($values as $name => $value) {
 
-                foreach ($keywords as $keyword) {
-                    $keywordsSelect[$keyword] = $keyword;
+                    if (strpos($name, self::SEO_OPTION_KEYWORDS_ON_FORM) !== false) {
+
+                        $keywordsToSelect = [];
+
+                        $keywords = $value;
+                        if (is_array($keywords) && count($keywords) > 0) {
+
+                            foreach ($keywords as $keyword) {
+                                $keywordsToSelect[$keyword] = $keyword;
+                            }
+
+                        } else {
+                            $value = [];
+                            $keywordsToSelect[''] = __(self::LANG_GROUP, 'Agregue alguna palabra clave');
+                        }
+
+                        $keywordsToSelect = array_to_html_options($keywordsToSelect, $keywords, true);
+                        $SEOValues[$lang][$name] = $keywordsToSelect;
+
+                    }
+
                 }
 
-            } else {
-                $keywords = [];
-                $keywordsSelect[''] = __(self::LANG_GROUP, 'Agregue alguna palabra clave');
             }
 
-            $keywordsSelect = array_to_html_options($keywordsSelect, $keywords, true);
+            $extraScripts = AppConfigModel::getConfigValue('extra_scripts');
 
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
-                'openGraph' => get_config('open_graph_image'),
-                'titleApp' => $titleApp,
-                'owner' => $owner,
-                'description' => $description,
-                'keywords' => $keywordsSelect,
-                'extraScripts' => $extraScripts,
+                'SEOValues' => $SEOValues,
             ];
 
             $baseViewDir = 'panel/pages/app_configurations';
@@ -440,6 +470,14 @@ class AppConfigController extends AdminPanelController
 
             //Definición de validaciones y procesamiento
             $expectedParameters = new Parameters([
+                new Parameter(
+                    'lang',
+                    null,
+                    function ($value) {
+                        return is_string($value) && mb_strlen(trim($value)) > 0;
+                    },
+                    false
+                ),
                 new Parameter(
                     'titleApp',
                     null,
@@ -528,12 +566,14 @@ class AppConfigController extends AdminPanelController
 
                 //Información del formulario
                 /**
+                 * @var string $lang
                  * @var string $titleApp
                  * @var string $owner
                  * @var string $description
                  * @var string[] $keywords
                  * @var string $extraScripts
                  */;
+                $lang = $expectedParameters->getValue('lang');
                 $titleApp = $expectedParameters->getValue('titleApp');
                 $owner = $expectedParameters->getValue('owner');
                 $description = $expectedParameters->getValue('description');
@@ -547,17 +587,23 @@ class AppConfigController extends AdminPanelController
 
                 try {
 
+                    $defaultLang = Config::get_default_lang();
+
                     $options = [
-                        'title_app' => $titleApp,
-                        'owner' => $owner,
-                        'description' => $description,
-                        'keywords' => $keywords,
-                        'extra_scripts' => $extraScripts,
+                        self::SEO_OPTION_TITLE_APP => $titleApp,
+                        self::SEO_OPTION_OWNER => $owner,
+                        self::SEO_OPTION_DESCRIPTION => $description,
+                        self::SEO_OPTION_KEYWORDS => $keywords,
+                        self::SEO_OPTION_EXTRA_SCRIPTS => $extraScripts,
                     ];
 
                     $success = true;
 
                     foreach ($options as $optionName => $optionValue) {
+
+                        if ($lang !== $defaultLang) {
+                            $optionName .= "_{$lang}";
+                        }
 
                         $optionMapper = new AppConfigModel($optionName);
 
@@ -576,12 +622,20 @@ class AppConfigController extends AdminPanelController
 
                         if ($fileHandler->validate()) {
 
+                            $nameOptionOG = 'open_graph_image';
+
                             $folder = 'statics/images';
                             $nameImage = 'open_graph';
+
+                            if ($lang !== $defaultLang) {
+                                $nameImage .= "_{$lang}";
+                                $nameOptionOG .= "_{$lang}";
+                            }
+
                             $extension = 'jpg';
                             $relativePath = "{$folder}/{$nameImage}.{$extension}";
 
-                            $openGraphMapper = new AppConfigModel('open_graph_image');
+                            $openGraphMapper = new AppConfigModel($nameOptionOG);
                             $openGraphMapper->value = $relativePath;
 
                             $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
@@ -593,7 +647,7 @@ class AppConfigController extends AdminPanelController
                                 if ($openGraphMapper->id !== null) {
                                     $success = $success && $openGraphMapper->update();
                                 } else {
-                                    $openGraphMapper->name = 'open_graph_image';
+                                    $openGraphMapper->name = $nameOptionOG;
                                     $success = $success && $openGraphMapper->save();
                                 }
 
@@ -1471,6 +1525,101 @@ class AppConfigController extends AdminPanelController
         }
 
         return $res->withJson($result);
+    }
+
+    /**
+     * @return array
+     */
+    public static function getSEOConfigValues()
+    {
+
+        $defaultLang = Config::get_default_lang();
+        $allowedLangs = Config::get_allowed_langs();
+
+        $values = [];
+
+        foreach (self::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME as $nameOnForm => $nameOnConfig) {
+
+            $valuesToAdd = [
+                $defaultLang => [],
+            ];
+            $valuesToAdd[$defaultLang][$nameOnForm] = AppConfigModel::getConfigValue($nameOnConfig);
+
+            foreach ($allowedLangs as $lang) {
+
+                if (!array_key_exists($lang, $valuesToAdd)) {
+                    $valuesToAdd[$lang] = [];
+                }
+
+                if ($lang !== $defaultLang) {
+                    $nameLang = "{$nameOnConfig}_{$lang}";
+                    $nameLangOnForm = "{$nameOnForm}_{$lang}";
+                    $valueLang = AppConfigModel::getConfigValue($nameLang);
+                    $defaultValue = $valuesToAdd[$defaultLang][$nameOnForm];
+
+                    if ($valueLang === null) {
+
+                        $newConfig = new AppConfigModel();
+                        $newConfig->name = $nameLang;
+
+                        if ($nameOnConfig == self::SEO_OPTION_OPEN_GRAPH_IMAGE) {
+
+                            $folder = 'statics/images';
+                            $nameImage = 'open_graph';
+                            $extension = 'jpg';
+                            $relativePath = "{$folder}/{$nameImage}_{$lang}.{$extension}";
+                            $newConfig->value = $relativePath;
+
+                            if (file_exists(basepath($defaultValue))) {
+
+                                if (@copy(basepath($defaultValue), basepath($relativePath))) {
+                                    $newConfig->save();
+                                }
+
+                            }
+
+                        } else {
+                            $newConfig->value = $defaultValue;
+                            $newConfig->save();
+                        }
+
+                        $valueLang = $newConfig->value;
+
+                    }
+
+                    if ($nameOnConfig == self::SEO_OPTION_OPEN_GRAPH_IMAGE) {
+
+                        if (file_exists(basepath($defaultValue)) && !file_exists(basepath($valueLang))) {
+                            @copy(basepath($defaultValue), basepath($valueLang));
+                        }
+
+                    }
+
+                    $valuesToAdd[$lang][$nameLangOnForm] = $valueLang;
+
+                }
+
+            }
+
+            foreach ($valuesToAdd as $lang => $valuesOnLang) {
+
+                if (!array_key_exists($lang, $values)) {
+                    $values[$lang] = [];
+                }
+
+                foreach ($valuesOnLang as $name => $value) {
+
+                    if (strpos($name, self::SEO_OPTION_TITLE_APP_ON_FORM) !== false || strpos($name, self::SEO_OPTION_OWNER_ON_FORM) !== false) {
+                        $value = htmlentities($value);
+                    }
+
+                    $values[$lang][$name] = $value;
+                }
+            }
+
+        }
+
+        return $values;
     }
 
     /**

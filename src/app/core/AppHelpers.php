@@ -9,6 +9,8 @@
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
+
+use App\Controller\AppConfigController;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
@@ -24,6 +26,16 @@ use PiecesPHP\Core\StringManipulate;
  */
 function get_config(string $name)
 {
+    if (array_key_exists($name, array_flip(AppConfigController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME))) {
+
+        $defaultLang = Config::get_default_lang();
+        $currentLang = Config::get_lang();
+
+        if ($defaultLang !== $currentLang) {
+            $name .= "_{$currentLang}";
+        }
+
+    }
     return Config::get_config($name);
 }
 
