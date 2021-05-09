@@ -1,0 +1,6 @@
+# Grupo general
+User-agent: *
+Disallow: /admin/
+Disallow: /*/admin/
+Disallow: /users/
+Disallow: /*/users/
