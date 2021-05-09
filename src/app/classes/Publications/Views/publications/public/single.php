@@ -22,10 +22,12 @@ $element;
             </div>
 
             <div class="text-center">
-                <p><small><?= $element->createdAtFormat(); ?></small></p>
+                <strong><?= $element->createdAtFormat(); ?></strong>
+                -
+                <em><?= $element->authorFullName(); ?></em>
             </div>
 
-            <h2 class="segment-title text-center"><?= $element->currentLangData('title'); ?></h2>
+            <h2 class="segment-title text-center mw-1200 element-center"><?= $element->currentLangData('title'); ?></h2>
 
         </div>
 
