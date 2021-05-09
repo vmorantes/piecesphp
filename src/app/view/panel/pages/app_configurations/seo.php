@@ -1,61 +1,95 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+use App\Controller\AppConfigController;
+use PiecesPHP\Core\Config;
+$getName = function ($name, $lang) {
+    $dl = Config::get_default_lang();
+    return $lang == $dl ? $name : "{$name}_$lang";
+};
 ?>
 
 <div class="ui header"><?=  __($langGroup, 'Ajustes SEO'); ?></div>
 
 <div class="container-seo">
 
-    <form action="<?= $actionURL; ?>" method="POST" class="ui form seo">
+    <div class="ui top attached tabular menu">
+        <?php $isFirstTab = true; ?>
+        <?php foreach($SEOValues as $lang => $values): ?>
+        <a class="<?= $isFirstTab ? 'active ' : ''; ?>item" data-tab="<?= $lang; ?>"><?= __('lang', $lang); ?></a>
+        <?php $isFirstTab = false; ?>
+        <?php endforeach; ?>
+    </div>
 
-        <div class="field">
 
-            <div class="two fields">
+    <?php $isFirstTab = true; ?>
+    <?php foreach($SEOValues as $lang => $values): ?>
+    <div class="ui bottom attached<?= $isFirstTab ? ' active ' : ' '; ?>tab segment" data-tab="<?= $lang; ?>">
 
-                <div class="field required">
-                    <label><?= __($langGroup, 'Título del sitio'); ?></label>
-                    <input type="text" name="titleApp" value="<?= $titleApp; ?>" placeholder="<?= __($langGroup, 'Nombre'); ?>" required>
-                </div>
+        <form action="<?= $actionURL; ?>" method="POST" class="ui form seo" lang="<?= $lang; ?>">
 
-                <div class="field required">
-                    <label><?= __($langGroup, 'Propietario'); ?></label>
-                    <input type="text" name="owner" value="<?= $owner; ?>" placeholder="<?= __($langGroup, 'Propietario'); ?>" required>
+            <input type="hidden" name="lang" value="<?= $lang; ?>">
+
+            <div class="field">
+
+                <div class="two fields">
+
+                    <div class="field required">
+                        <label><?= __($langGroup, 'Título del sitio'); ?></label>
+                        <?php $property = AppConfigController::SEO_OPTION_TITLE_APP_ON_FORM; ?>
+                        <?php $propertyLang = ($getName)($property, $lang); ?>
+                        <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Nombre'); ?>" required>
+                    </div>
+
+                    <div class="field required">
+                        <label><?= __($langGroup, 'Propietario'); ?></label>
+                        <?php $property = AppConfigController::SEO_OPTION_OWNER_ON_FORM; ?>
+                        <?php $propertyLang = ($getName)($property, $lang); ?>
+                        <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Propietario'); ?>" required>
+                    </div>
+
                 </div>
 
             </div>
 
-        </div>
+            <div class="field required">
+                <label><?= __($langGroup, 'Descripción'); ?></label>
+                <?php $property = AppConfigController::SEO_OPTION_DESCRIPTION_ON_FORM; ?>
+                <?php $propertyLang = ($getName)($property, $lang); ?>
+                <textarea required name="<?= $property; ?>" placeholder="<?= __($langGroup, 'Descripción de la página.'); ?>" required><?= $values[$propertyLang]; ?></textarea>
+            </div>
 
-        <div class="field required">
-            <label><?= __($langGroup, 'Descripción'); ?></label>
-            <textarea required name="description" placeholder="<?= __($langGroup, 'Descripción de la página.'); ?>" required><?= $description; ?></textarea>
-        </div>
+            <div class="field">
+                <label><?= __($langGroup, 'Palabras clave'); ?></label>
+                <?php $property = AppConfigController::SEO_OPTION_KEYWORDS_ON_FORM; ?>
+                <?php $propertyLang = ($getName)($property, $lang); ?>
+                <select name="<?= $property; ?>[]" multiple class="ui dropdown multiple search selection keywords">
+                    <?= $values[$propertyLang]; ?>
+                </select>
+            </div>
 
-        <div class="field">
-            <label><?= __($langGroup, 'Palabras clave'); ?></label>
-            <select name="keywords[]" multiple class="ui dropdown multiple search selection keywords">
-                <?= $keywords; ?>
-            </select>
-        </div>
+            <div class="field">
+                <label><?= __($langGroup, 'Scripts adicionales'); ?></label>
+                <?php $property = AppConfigController::SEO_OPTION_EXTRA_SCRIPTS_ON_FORM; ?>
+                <?php $propertyLang = ($getName)($property, $lang); ?>
+                <textarea name="<?= $property; ?>" placeholder="<?= __($langGroup, "<script src='ejemplo.js'></script>"); ?>"><?= $values[$propertyLang]; ?></textarea>
+            </div>
 
-        <div class="field">
-            <label><?= __($langGroup, 'Scripts adicionales'); ?></label>
-            <textarea name="extraScripts" placeholder="<?= __($langGroup, "<script src='ejemplo.js'></script>"); ?>"><?= $extraScripts; ?></textarea>
-        </div>
+            <div class="field">
 
-        <div class="field">
+                <div class="ui card fluid">
 
-            <div class="ui card">
+                    <div class="content">
 
-                <div class="content">
+                        <div class="ui form cropper-adapter">
 
-                    <div class="ui form cropper-adapter">
-
-                        <input type="file" accept="image/*">
-                        <?php 
+                            <?php $property = AppConfigController::SEO_OPTION_OPEN_GRAPH_IMAGE_ON_FORM; ?>
+                            <?php $propertyLang = ($getName)($property, $lang); ?>
+                            <input type="file" accept="image/*">
+                            <?php 
                             cropperAdapterWorkSpace([
                                 'withTitle'=> false,
-                                'image'=> $openGraph,
+                                'image'=> $values[$propertyLang],
                                 'referenceW'=> '1200',
                                 'referenceH'=> '630',
                                 'cancelButtonText' => null,
@@ -67,31 +101,35 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                                 ],
                             ]); 
                         ?>
+                        </div>
+
+                    </div>
+
+                    <div class="content">
+                        <label class="header"><?= __($langGroup, 'Imagen Open graph'); ?></label>
+
+                        <div class="meta">
+                            <span><?= strReplaceTemplate(__($langGroup, 'Tamaño de la imagen {dimensions}'), ['{dimensions}' => "1200x630px",])?></span>
+                        </div>
+
                     </div>
 
                 </div>
 
-                <div class="content">
-                    <label class="header"><?= __($langGroup, 'Imagen Open graph'); ?></label>
+                <div class="field">
 
-                    <div class="meta">
-                        <span><?= strReplaceTemplate(__($langGroup, 'Tamaño de la imagen {dimensions}'), ['{dimensions}' => "1200x630px",])?></span>
-                    </div>
+                    <button class="ui button green" type="submit">
+                        <?= __($langGroup, 'Guardar'); ?>
+                    </button>
 
                 </div>
 
             </div>
 
-            <div class="field">
+        </form>
 
-                <button class="ui button green" type="submit">
-                    <?= __($langGroup, 'Guardar'); ?>
-                </button>
-
-            </div>
-
-        </div>
-
-    </form>
+    </div>
+    <?php $isFirstTab = false; ?>
+    <?php endforeach; ?>
 
 </div>

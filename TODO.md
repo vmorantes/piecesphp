@@ -1,7 +1,6 @@
 # TODO
 
 - Implementación de PayU.
-- Traducción en Ajustes SEO.
 
 ## En proceso
 - Archivo de opciones json para usar las opciones en el front.
@@ -10,4 +9,3 @@
 - Rehacer módulo temporizador (revisar en educative).
 - Módulo sencillo de Encuestas con formularios independientes de: anexos, general y coordenadas.
     - App para el módulo. https://mobileui.github.io/#getting-started
-- Mejorar sistema de traducción front.

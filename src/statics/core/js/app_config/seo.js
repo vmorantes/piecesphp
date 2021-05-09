@@ -39,17 +39,24 @@ window.addEventListener('load', () => {
 		return formData
 	}
 
-	let cropperOpenGraph = instantiateCropper(`form.seo .cropper-adapter`)
-	let form = genericFormHandler(`form.seo`, {
-		onSetFormData: (formData) => {
-			return onSetFormData(formData, cropperOpenGraph, `open-graph`)
-		},
-		onInvalidEvent: onInvalidHandler,
-	})
+	let langs = $('form[lang]').toArray().map((e) => e.getAttribute('lang'))
 
-	form.find('.ui.dropdown.keywords').dropdown({
-		allowAdditions: true,
-	})
+	for (let lang of langs) {
+
+		let cropperOpenGraph = instantiateCropper(`form.seo[lang="${lang}"] .cropper-adapter`)
+		let form = genericFormHandler(`form.seo[lang="${lang}"]`, {
+			onSetFormData: (formData) => {
+				return onSetFormData(formData, cropperOpenGraph, `open-graph`)
+			},
+			onInvalidEvent: onInvalidHandler,
+		})
+
+		form.find('.ui.dropdown.keywords').dropdown({
+			allowAdditions: true,
+		})
+	}
+
+	$('.menu .item').tab()
 
 	removeGenericLoader('seo')
 
