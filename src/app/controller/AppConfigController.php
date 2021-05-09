@@ -1266,36 +1266,73 @@ class AppConfigController extends AdminPanelController
 
         $result = new ResultOperations([], __(self::LANG_GROUP, 'Sitemap'), '', true);
 
-        $sitemap = new Sitemap(basepath('sitemap.xml'), true);
+        $sitemap = new Sitemap(basepath('sitemap.xml'), false);
 
-        $sitemap->addItem(new SitemapItem(baseurl()));
-        $sitemap->addItem(new SitemapItem(PublicationsPublicController::routeName('list')));
+        $getAlternativesURLs = function ($url, callable $existOnLangVerify = null) {
+
+            $existOnLangVerify = $existOnLangVerify !== null ? $existOnLangVerify : function ($lang) {
+                return true;
+            };
+            $currentLang = Config::get_lang();
+            $allowedLangs = Config::get_allowed_langs();
+            $urls = [];
+
+            foreach ($allowedLangs as $lang) {
+                $existOnLang = ($existOnLangVerify)($lang);
+                $existOnLang = is_bool($existOnLang) ? $existOnLang : false;
+                if ($existOnLang && $lang != $currentLang) {
+                    $url = convert_lang_url($url, $currentLang, $lang);
+                    $urls[$lang] = $url;
+                }
+            }
+
+            return $urls;
+
+        };
+
+        $somesURLs = [
+            baseurl(),
+            PublicationsPublicController::routeName('list'),
+        ];
 
         $routes = array_merge(
             get_routes_by_controller(PublicationsPublicController::class),
-            get_routes_by_controller(PublicAreaController::class)
+            get_routes_by_controller(PublicAreaController::class),
         );
 
         foreach ($routes as $routeInfo) {
-
             $url = get_route_sample($routeInfo['name']);
-
             if (mb_strpos($url, '{') === false) {
-
-                $sitemap->addItem(new SitemapItem($url));
-
+                $somesURLs[] = $url;
             }
+        }
 
+        foreach ($somesURLs as $url) {
+            $sitemap->addItem(new SitemapItem($url));
+            $alternativesURLs = ($getAlternativesURLs)($url);
+            foreach ($alternativesURLs as $url) {
+                $sitemap->addItem(new SitemapItem($url));
+            }
         }
 
         $categories = PublicationsCategoryController::_all()->elements();
         $articles = PublicationsController::_all()->elements();
-        
 
         foreach ($categories as $category) {
+
             $category = PublicationCategoryMapper::objectToMapper($category);
             $url = PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $category->getSlug()]);
+
             $sitemap->addItem(new SitemapItem($url));
+
+            $alternativesURLs = ($getAlternativesURLs)($url, function ($lang) use ($category) {
+                return $category->getLangData($lang, 'name', false, null) !== null;
+            });
+
+            foreach ($alternativesURLs as $url) {
+                $sitemap->addItem(new SitemapItem($url));
+            }
+
         }
 
         foreach ($articles as $article) {
