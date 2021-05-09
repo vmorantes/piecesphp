@@ -1,6 +1,7 @@
 SET AUTOCOMMIT = 0;
 START TRANSACTION;
 
+DROP VIEW IF EXISTS presentations_active_date_elements;
 CREATE VIEW presentations_active_date_elements AS (
     SELECT
         pe.id,
