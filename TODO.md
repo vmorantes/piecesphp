@@ -14,5 +14,4 @@
     - App para el módulo. https://mobileui.github.io/#getting-started
 - Mejorar sistema de traducción front.
 - Blog:
-    - Validar las fechas de inicio y final.
     - Cacheo.
