@@ -199,7 +199,7 @@ class PublicationMapper extends EntityMapperExtensible
             $this->author = new UsersModel($this->author);
         }
 
-        $this->author->getFullName();
+        return $this->author->getFullName();
     }
 
     /**
