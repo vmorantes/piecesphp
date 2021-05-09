@@ -30,7 +30,6 @@ class BlackboardNewsController extends AdminPanelController
 {
 
     const UPLOAD_DIR = 'blackboard';
-    const UPLOAD_DIR_TMP = 'blackboard/tmp';
     const FORMAT_DATETIME = 'd-m-Y h:i A';
 
     /**
@@ -40,23 +39,11 @@ class BlackboardNewsController extends AdminPanelController
      */
     protected $uploadDir = '';
     /**
-     * $uploadDir
-     *
-     * @var string
-     */
-    protected $uploadTmpDir = '';
-    /**
      * $uploadDirURL
      *
      * @var string
      */
     protected $uploadDirURL = '';
-    /**
-     * $uploadDirTmpURL
-     *
-     * @var string
-     */
-    protected $uploadDirTmpURL = '';
 
     const LANG_GROUP = 'news';
 
@@ -71,9 +58,7 @@ class BlackboardNewsController extends AdminPanelController
         add_global_asset(BLACKBOARD_NEWS_PATH_JS . '/main.js', 'js');
 
         $this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR);
-        $this->uploadDirTmpURL = append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR_TMP);
     }
 
     /**
@@ -239,7 +224,6 @@ class BlackboardNewsController extends AdminPanelController
 
             $redirect = '';
             if ($saved) {
-                $this->moveTemporaryImages($entity);
                 $redirect = get_route('blackboard-news-list');
             }
 
@@ -304,10 +288,6 @@ class BlackboardNewsController extends AdminPanelController
             $entity->end_date = $end_date;
             $updated = $entity->update();
 
-            if ($updated) {
-                $this->moveTemporaryImages($entity, $oldText);
-            }
-
             $result
                 ->setMessage($updated ? __(self::LANG_GROUP, 'La noticia ha sido actualizada') : __(self::LANG_GROUP, 'No se ha podido actualizar la noticia, intente más tarde.'))
                 ->operation('editNew')
@@ -320,93 +300,6 @@ class BlackboardNewsController extends AdminPanelController
         }
 
         return $response->withJson($result);
-    }
-
-    /**
-     * moveTemporaryImages
-     *
-     * @param BlackboardNewsModel $entity
-     * @param string $oldText
-     * @return void
-     */
-    protected function moveTemporaryImages(BlackboardNewsModel &$entity, string $oldText = null)
-    {
-        $imagesOnText = [];
-        $imagesOnOldText = [];
-        $currentImagesOnText = [];
-
-        $isEdit = !is_null($oldText) && mb_strlen($oldText) > 0;
-        $id = $entity->id;
-
-        $regex = '/https?\:\/\/[^\",]+/i';
-
-        preg_match_all($regex, $entity->text, $imagesOnText);
-
-        $imagesOnText = $imagesOnText[0];
-
-        if (count($imagesOnText) > 0) {
-
-            foreach ($imagesOnText as $url) {
-
-                if (mb_strpos($url, $this->uploadDirTmpURL) !== false) {
-
-                    $filename = str_replace($this->uploadDirTmpURL, '', $url);
-
-                    $oldPath = append_to_url($this->uploadTmpDir, "$filename");
-
-                    $newFolder = append_to_url($this->uploadDir, "$id");
-
-                    $newPath = append_to_url($newFolder, "$filename");
-
-                    if (!file_exists($newFolder)) {
-                        make_directory($newFolder);
-                    }
-
-                    if (file_exists($oldPath)) {
-                        rename($oldPath, $newPath);
-                    }
-
-                    $_url = append_to_url($this->uploadDirURL, "$id/$filename");
-
-                    $entity->text = str_replace($url, $_url, $entity->text);
-
-                    $currentImagesOnText[] = $_url;
-
-                } elseif (mb_strpos($url, $this->uploadDirURL) !== false) {
-
-                    $currentImagesOnText[] = $url;
-
-                }
-            }
-
-        }
-
-        $updated = $entity->update();
-
-        if ($isEdit) {
-
-            preg_match_all($regex, $oldText, $imagesOnOldText);
-            $imagesOnOldText = $imagesOnOldText[0];
-
-            if ($updated && count($imagesOnOldText) > 0) {
-
-                foreach ($imagesOnOldText as $url) {
-
-                    if (!in_array($url, $currentImagesOnText)) {
-
-                        $filename = str_replace($this->uploadDirURL, '', $url);
-
-                        $path = append_to_url($this->uploadDir, $filename);
-
-                        if (file_exists($path)) {
-                            unlink($path);
-                        }
-
-                    }
-                }
-
-            }
-        }
     }
 
     /**
@@ -495,61 +388,6 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * imageHandler
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
-     * @return Response
-     */
-    public function imageHandler(Request $request, Response $response, array $args)
-    {
-        $files_uploaded = $request->getUploadedFiles();
-        $image = isset($files_uploaded['image']) ? $files_uploaded['image'] : null;
-
-        $result = new ResultOperations([
-            'uploadImage' => new Operation('uploadImage'),
-        ]);
-
-        $result->setValue('path', null);
-
-        if (!is_null($image)) {
-
-            $images = is_array($image) ? $image : [$image];
-
-            foreach ($images as $image) {
-
-                if ($image->getError() === UPLOAD_ERR_OK) {
-
-                    $filename = move_uploaded_file_to($this->uploadTmpDir, $image, uniqid());
-
-                    $url = append_to_url($this->uploadDirTmpURL, $filename);
-
-                    if (!is_null($filename)) {
-                        $result
-                            ->operation('uploadImage')
-                            ->setMessage(__(self::LANG_GROUP, 'Imagen subida'))
-                            ->setSuccess(true);
-                        $result->setValue('path', $url);
-                    } else {
-                        $result
-                            ->operation('uploadImage')
-                            ->setMessage(__(self::LANG_GROUP, 'La imagen no pudo ser subida, intente después.'));
-                    }
-
-                }
-
-            }
-        } else {
-            $result
-                ->operation('uploadImage')
-                ->setMessage(__(self::LANG_GROUP, 'No se ha subido ninguna imagen.'));
-        }
-
-        return $response->withJson($result);
-    }
-
-    /**
      * routes
      *
      * @param RouteGroup $group
@@ -629,15 +467,6 @@ class BlackboardNewsController extends AdminPanelController
             "{$startRoute}delete/{id}[/]",
             $classname . ':deleteNew',
             'blackboard-news-delete',
-            'POST',
-            true,
-            null,
-            $edition_permissions
-        );
-        $routes[] = new Route(
-            "{$startRoute}image-handler[/]",
-            $classname . ':imageHandler',
-            'blackboard-image-handler',
             'POST',
             true,
             null,

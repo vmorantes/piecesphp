@@ -33,6 +33,7 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 	this.page = 1
 	this.perPage = 10
 
+	BlackBoardComponent.registerDynamicMessages(LANG_GROUP)
 
 	_constructor(page, perPage, attrSelectorForm, attrSelectorList)
 
@@ -543,4 +544,57 @@ function BlackBoardComponent(page, perPage, attrSelectorForm, attrSelectorList) 
 	}
 
 	return this
+}
+
+/**
+ * @param {String} name 
+ * @returns {void}
+ */
+BlackBoardComponent.registerDynamicMessages = function (name) {
+
+	if (typeof pcsphpGlobals != 'object') {
+		pcsphpGlobals = {}
+	}
+	if (typeof pcsphpGlobals.messages != 'object') {
+		pcsphpGlobals.messages = {}
+	}
+	if (typeof pcsphpGlobals.messages.es != 'object') {
+		pcsphpGlobals.messages.es = {}
+	}
+	if (typeof pcsphpGlobals.messages.en != 'object') {
+		pcsphpGlobals.messages.en = {}
+	}
+
+	let es = {
+	}
+
+	let en = {
+		'Error': 'Error',
+		'Ha ocurrido un error desconocido.': 'An unknown error has occurred.',
+		'Cargar más.': 'Load more.',
+		'No hay noticias': 'No news',
+		'Nombre': 'Name',
+		'Inicio': 'Start',
+		'Fin': 'End',
+		'Creado': 'Created',
+		'Dirigido a': 'To',
+		'Acciones': 'Actions',
+		'Editar': 'Edit',
+		'Eliminar': 'Remove',
+		'Confirmación': 'Confirmation',
+		'¿Quiere eliminar la noticia?': 'Do you want to delete the news?',
+		'Sí': 'Yes',
+		'No': 'No',
+	}
+
+	for (let i in es) {
+		if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
+		pcsphpGlobals.messages.es[name][i] = es[i]
+	}
+
+	for (let i in en) {
+		if (typeof pcsphpGlobals.messages.en[name] == 'undefined') pcsphpGlobals.messages.en[name] = {}
+		pcsphpGlobals.messages.en[name][i] = en[i]
+	}
+
 }

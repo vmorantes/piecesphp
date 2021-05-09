@@ -24,30 +24,28 @@ $langGroup = BlackboardNewsController::LANG_GROUP;
     <div class="field required">
         <label><?= __($langGroup, 'Título'); ?></label>
         <input type="text" name="title" required>
-	</div>
-	
+    </div>
+
     <div class="field required">
         <label><?= __($langGroup, 'Mensaje'); ?></label>
-        <div image-process="<?= get_route('blackboard-image-handler')?>" image-name="image" rich-editor-js editor-target="[name='text']"></div>
+        <div image-name="image" rich-editor-js editor-target="[name='text']"></div>
         <textarea name="text" required></textarea>
-	</div>
-	
-    <div class="field">
-        <label><?= __($langGroup, 'Fecha de inicio'); ?></label>
-        <div calendar-group-js="test" start="">
+    </div>
+
+    <div class="two fields">
+        <div class="field" calendar-group-js="test" start>
+            <label><?= __($langGroup, 'Fecha de inicio'); ?></label>
             <input type="text" name="start_date">
         </div>
-	</div>
-	
-    <div class="field">
-        <label><?= __($langGroup, 'Fecha final'); ?></label>
-        <div calendar-group-js="test" end="">
+
+        <div class="field" calendar-group-js="test" end>
+            <label><?= __($langGroup, 'Fecha final'); ?></label>
             <input type="text" name="end_date">
         </div>
-	</div>
-	
+    </div>
+
     <div class="field">
         <button class="ui button green" type="submit"><?= __($langGroup, 'Guardar'); ?></button>
-	</div>
-	
+    </div>
+
 </form>

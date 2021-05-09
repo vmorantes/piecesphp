@@ -7,6 +7,11 @@
  * @param {Boolean} [silentError=true] 
  */
 function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentError = true) {
+
+	const LANG_GROUP = 'quill'
+
+	QuillAdapterComponent.registerDynamicMessages(LANG_GROUP)
+
 	//──── Types ─────────────────────────────────────────────────────────────────────────────
 	/**
 	 * @typedef QuillAdapterOptions
@@ -162,13 +167,13 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 			//Verificar que el selector no esté en uso por otra instancia de Quill
 			if (component.length !== 1 || textareaTarget.length < 1) {
-				throw new Error(_i18n('quill', 'Falta(n) el componente o el textarea en el DOM.'))
+				throw new Error(_i18n(LANG_GROUP, 'Falta(n) el componente o el textarea en el DOM.'))
 			} else {
 				if (QuillAdapterComponent.componentsSelectors.indexOf(containerSelector) === -1) {
 					QuillAdapterComponent.componentsSelectors.push(containerSelector)
 				} else {
 					throw new Error(formatStr(
-						_i18n('quill', 'El componente "%r" ya está en uso.'),
+						_i18n(LANG_GROUP, 'El componente "%r" ya está en uso.'),
 						[
 							containerSelector,
 						]
@@ -184,9 +189,9 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 			if (silentError !== true) {
 				if (typeof errorMessage == 'function') {
-					errorMessage(_i18n('quill', 'Error en QuillAdapterComponent'), _i18n('quill', 'Ha ocurrido un error al instanciar.'))
+					errorMessage(_i18n(LANG_GROUP, 'Error en QuillAdapterComponent'), _i18n(LANG_GROUP, 'Ha ocurrido un error al instanciar.'))
 				} else {
-					alert(_i18n('quill', 'Ha ocurrido un error al instanciar QuillAdapterComponent.'))
+					alert(_i18n(LANG_GROUP, 'Ha ocurrido un error al instanciar QuillAdapterComponent.'))
 				}
 			}
 
@@ -245,7 +250,7 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 		})
 
 		let delta = quillInstance.clipboard.convert(textareaTarget.val())
-        quillInstance.setContents(delta, 'silent')
+		quillInstance.setContents(delta, 'silent')
 
 		//Evento para rellenar el textarea
 		quillInstance.on('editor-change', (delta, oldDelta, source) => {
@@ -311,10 +316,10 @@ function QuillAdapterComponent(quillAdapterOptions = {}, toolbar = null, silentE
 
 			if (typeof errorMessage == 'function') {
 
-				errorMessage(_i18n('quill', 'Error'), _i18n('quill', 'Ha ocurrido un error al carga la imagen.'))
+				errorMessage(_i18n(LANG_GROUP, 'Error'), _i18n(LANG_GROUP, 'Ha ocurrido un error al carga la imagen.'))
 			} else {
 
-				alert(_i18n('quill', 'Ha ocurrido un error al cargar la imagen.'))
+				alert(_i18n(LANG_GROUP, 'Ha ocurrido un error al cargar la imagen.'))
 
 			}
 
@@ -793,5 +798,50 @@ QuillAdapterComponent.AttributtorsConfig = function () {
 	}
 
 	Quill.register(alignAttributtorCustom(), true)
+
+}
+
+/**
+ * @param {String} name 
+ * @returns {void}
+ */
+QuillAdapterComponent.registerDynamicMessages = function (name) {
+
+	if (typeof pcsphpGlobals != 'object') {
+		pcsphpGlobals = {}
+	}
+	if (typeof pcsphpGlobals.messages != 'object') {
+		pcsphpGlobals.messages = {}
+	}
+	if (typeof pcsphpGlobals.messages.es != 'object') {
+		pcsphpGlobals.messages.es = {}
+	}
+	if (typeof pcsphpGlobals.messages.en != 'object') {
+		pcsphpGlobals.messages.en = {}
+	}
+
+	let es = {
+	}
+
+	let en = {
+		'Falta(n) el componente o el textarea en el DOM.': 'The component or textarea is missing in the DOM.',
+		'Error en QuillAdapterComponent': 'Error in QuillAdapterComponent',
+		'Ha ocurrido un error al instanciar.': 'An error occurred while instantiating.',
+		'Ha ocurrido un error al instanciar QuillAdapterComponent.': 'An error occurred while instantiating QuillAdapterComponent.',
+		'El componente "%r" ya está en uso.': 'The component "%r" is already in use.',
+		'Error': 'Error',
+		'Ha ocurrido un error al carga la imagen.': 'An error has occurred while loading the image.',
+		'Ha ocurrido un error al cargar la imagen.': 'An error occurred while loading the image.',
+	}
+
+	for (let i in es) {
+		if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
+		pcsphpGlobals.messages.es[name][i] = es[i]
+	}
+
+	for (let i in en) {
+		if (typeof pcsphpGlobals.messages.en[name] == 'undefined') pcsphpGlobals.messages.en[name] = {}
+		pcsphpGlobals.messages.en[name][i] = en[i]
+	}
 
 }
