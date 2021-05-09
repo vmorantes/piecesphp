@@ -13,5 +13,3 @@
 - Módulo sencillo de Encuestas con formularios independientes de: anexos, general y coordenadas.
     - App para el módulo. https://mobileui.github.io/#getting-started
 - Mejorar sistema de traducción front.
-- Blog:
-    - Cacheo.
