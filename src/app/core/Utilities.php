@@ -1187,6 +1187,75 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
 
 }
 
+/**
+ * Devuelve la fecha con strftime extrapolando los códigos de formato de date()
+ *
+ * Para sistemas unix la conversión de zona horaria está bien. Los usuarios de Windows deben cambiar %z and %Z.
+ *
+ * Formatos no soportados de date(): S, n, t, L, B, G, u, e, I, P, Z, c, r
+ * Formatos no soportados de strftime(): %U, %W, %C, %g, %r, %R, %T, %X, %c, %D, %F, %x
+ *
+ * @param string $format
+ * @param \DateTime $time
+ * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
+ * @return string
+ * @see https://www.php.net/manual/es/function.strftime.php#96424
+ */
+function localeDateFormat(string $format, \DateTime $time = null, array $replaceTemplate = [])
+{
+    if ($time !== null) {
+        $time = new \DateTime();
+    }
+
+    $formatDay = [
+        // Day - no strf eq : S
+        'd' => '%d', 'D' => '%a', 'j' => '%e', 'l' => '%A', 'N' => '%u', 'w' => '%w', 'z' => '%j',
+    ];
+    $formatMonth = [
+        // Month - no strf eq : n, t
+        'F' => '%B', 'm' => '%m', 'M' => '%b',
+    ];
+
+    $formatOptions = array(
+        // Week - no date eq : %U, %W
+        'W' => '%V',
+        // Year - no strf eq : L; no date eq : %C, %g
+        'o' => '%G', 'Y' => '%Y', 'y' => '%y',
+        // Time - no strf eq : B, G, u; no date eq : %r, %R, %T, %X
+        'a' => '%P', 'A' => '%p', 'g' => '%l', 'h' => '%I', 'H' => '%H', 'i' => '%M', 's' => '%S',
+        // Timezone - no strf eq : e, I, P, Z
+        'O' => '%z', 'T' => '%Z',
+        // Full Date / Time - no strf eq : c, r; no date eq : %c, %D, %F, %x
+        'U' => '%s',
+    );
+
+    $changedCase = [];
+
+    foreach ($formatDay as $key => $value) {
+        $value = strftime($value, $time->getTimestamp());
+        $changedCase[$value] = mb_convert_case($value, \MB_CASE_TITLE);
+    }
+
+    foreach ($formatMonth as $key => $value) {
+        $value = strftime($value, $time->getTimestamp());
+        $changedCase[$value] = mb_convert_case($value, \MB_CASE_TITLE);
+    }
+
+    $formatOptions = array_merge($formatDay, $formatMonth, $formatOptions);
+
+    $formatToStrftime = strtr((string) $format, $formatOptions);
+
+    $formated = strftime($formatToStrftime, $time->getTimestamp());
+
+    foreach ($changedCase as $original => $replaceWith) {
+        $formated = str_replace($original, $replaceWith, $formated);
+    }
+
+    $formated = str_replace(array_keys($replaceTemplate), array_values($replaceTemplate), $formated);
+
+    return $formated;
+}
+
 //========================================================================================
 /*                                                                                      *
  *                                       Polyfills                                      *

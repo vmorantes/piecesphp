@@ -326,7 +326,7 @@ class PublicationsController extends AdminPanelController
                 'category',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return ctype_digit($value) || is_int($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
                 },
                 false,
                 function ($value) {

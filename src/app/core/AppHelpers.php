@@ -87,6 +87,19 @@ function set_title(string $title)
 }
 
 /**
+ * Obtiene el formato de fecha preferido para el idioma actual
+ * @param int $type 1 = Sábado,
+ * @return string
+ */
+function get_default_format_date()
+{
+    $default = 'Y-m-d';
+    $format = get_config('format_date_lang');
+    $format = is_array($format) && isset($format[Config::get_lang()]) ? $format[Config::get_lang()] : null;
+    return is_string($format) ? $format : $default;
+}
+
+/**
  * @param string $resource
  * @return string
  */
@@ -972,7 +985,6 @@ function import_app_front_libraries(array $plugins = [], bool $all = false)
 {
     import_front_library('app_front_libraries', $plugins, $all);
 }
-
 
 /**
  * Registra app_libraries como assets globales y los plugins definidos por parámetro
