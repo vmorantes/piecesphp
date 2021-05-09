@@ -63,8 +63,7 @@ pcsphpGlobals.messages.es = {
 		password_should_be_string: 'La contraseña debe ser un string.',
 	},
 	semantic_calendar: {
-		days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-		daysLetter: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
+		days: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
 		months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
 		monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
 		today: 'Hoy',
@@ -184,8 +183,7 @@ pcsphpGlobals.messages.en = {
 		password_should_be_string: 'The password must be a string.',
 	},
 	semantic_calendar: {
-		days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-		daysLetter: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+		days: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
 		months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 		monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
 		today: 'Today',
@@ -378,7 +376,7 @@ pcsphpGlobals.configCropper = {
 
 
 if (typeof $ !== 'undefined') {
-	$(document).ready(function (e) {
+	window.addEventListener('load', function (e) {
 
 		configCalendars()
 		configMessagesValidationsSemanticForm()
