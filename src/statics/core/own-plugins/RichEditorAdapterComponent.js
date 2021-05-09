@@ -26,6 +26,8 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 */
 	let langGroup = 'richEditor'
 
+	RichEditorAdapterComponent.registerDynamicMessages(langGroup)
+
 	//──── Misc. vars ──────────────────────────────────────────────────────────────────────
 
 	/**
@@ -387,7 +389,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 									imagesSrc.push(fileURL)
 
 								} else {
-									errorMessage('Error', 'Debe seleccionar una image')
+									errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Debe seleccionar una imagen'))
 								}
 
 							}
@@ -505,7 +507,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			if (!imgCmd.isEnabled) {
 				editorInstance.execute('imageInsert', { source: url })
 			} else {
-				errorMessage('Error', 'No se puede insertar la imagen en esa posición.')
+				errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'No se puede insertar la imagen en esa posición.'))
 			}
 
 		} else {
@@ -519,4 +521,47 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	return instance
 }
 
-RichEditorAdapterComponent.componentsSelectors = []
+RichEditorAdapterComponent.componentsSelectors = []/**
+
+* @param {String} name 
+* @returns {void}
+*/
+RichEditorAdapterComponent.registerDynamicMessages = function (name) {
+
+	if (typeof pcsphpGlobals != 'object') {
+		pcsphpGlobals = {}
+	}
+	if (typeof pcsphpGlobals.messages != 'object') {
+		pcsphpGlobals.messages = {}
+	}
+	if (typeof pcsphpGlobals.messages.es != 'object') {
+		pcsphpGlobals.messages.es = {}
+	}
+	if (typeof pcsphpGlobals.messages.en != 'object') {
+		pcsphpGlobals.messages.en = {}
+	}
+
+	let es = {
+	}
+
+	let en = {
+		'Falta(n) el componente o el textarea en el DOM.': 'The component or textarea is missing in the DOM.',
+		'Error en RichEditorAdapterComponent': 'Error in RichEditorAdapterComponent',
+		'Ha ocurrido un error al instanciar.': 'An error occurred while instantiating.',
+		'Ha ocurrido un error al instanciar RichEditorAdapterComponent.': 'An error occurred while instantiating RichEditorAdapterComponent.',
+		'El componente "%r" ya está en uso.': 'The component "%r" is already in use.',
+		'Error': 'Error',
+		'No se puede insertar la imagen en esa posición.': 'You cannot insert the image in that position.',
+		'Debe seleccionar una imagen': 'You must select an image',
+	}
+
+	for (let i in es) {
+		if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
+		pcsphpGlobals.messages.es[name][i] = es[i]
+	}
+
+	for (let i in en) {
+		if (typeof pcsphpGlobals.messages.en[name] == 'undefined') pcsphpGlobals.messages.en[name] = {}
+		pcsphpGlobals.messages.en[name][i] = en[i]
+	}
+}

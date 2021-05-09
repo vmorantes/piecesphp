@@ -8,6 +8,8 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 	const LANG_GROUP = 'cropper'
 
+	CropperAdapterComponent.registerDynamicMessages(LANG_GROUP)
+
 	/**
 	 * @typedef CropperOptions
 	 * @property {Number} [aspectRatio=4/4] Define the fixed aspect ratio of the crop box
@@ -1808,5 +1810,53 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 	}
 
 	return this
+
+
+}
+/**
+ * @param {String} name 
+ * @returns {void}
+ */
+CropperAdapterComponent.registerDynamicMessages = function (name) {
+
+	if (typeof pcsphpGlobals != 'object') {
+		pcsphpGlobals = {}
+	}
+	if (typeof pcsphpGlobals.messages != 'object') {
+		pcsphpGlobals.messages = {}
+	}
+	if (typeof pcsphpGlobals.messages.es != 'object') {
+		pcsphpGlobals.messages.es = {}
+	}
+	if (typeof pcsphpGlobals.messages.en != 'object') {
+		pcsphpGlobals.messages.en = {}
+	}
+
+	let es = {
+	}
+
+	let en = {
+		'Agregar imagen': 'Add image',
+		'Cambiar imagen': 'Change image',
+		'imagen': 'image',
+		'Error': 'Error',
+		'Ha ocurrido un error al configurar CropperAdapterComponent': 'An error occurred configuring CropperAdapterComponent',
+		'Tamaño real de la máscara de corte %rx%r(px)': 'Actual size of cutting mask %rx%r(px)',
+		'El ancho mínimo de la imagen debe ser: %rpx': 'The minimum width of the image must be: %rpx',
+		'Seleccione una imagen, por favor.': 'Select an image, please.',
+		'No hay imágenes seleccionadas.': 'There are no images selected.',
+		'No se ha encontrado ningún input de tipo file.': 'No file type input was found.',
+		'No se ha encontrado ningún canvas.': 'No canvas found.',
+	}
+
+	for (let i in es) {
+		if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
+		pcsphpGlobals.messages.es[name][i] = es[i]
+	}
+
+	for (let i in en) {
+		if (typeof pcsphpGlobals.messages.en[name] == 'undefined') pcsphpGlobals.messages.en[name] = {}
+		pcsphpGlobals.messages.en[name][i] = en[i]
+	}
 
 }
