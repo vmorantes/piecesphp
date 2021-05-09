@@ -849,6 +849,16 @@ class PublicationsController extends AdminPanelController
             'authorUser',
         ];
 
+        $customOrder = [
+            'idPadding' => 'DESC',
+            'createdAt' => 'DESC',
+            'updatedAt' => 'DESC',
+            'startDate' => 'DESC',
+            'endDate' => 'DESC',
+            'authorUser' => 'DESC',
+            'categoryName' => 'DESC',
+        ];
+
         DataTablesHelper::setTablePrefixOnOrder(false);
         DataTablesHelper::setTablePrefixOnSearch(false);
 
@@ -857,6 +867,7 @@ class PublicationsController extends AdminPanelController
             'where_string' => $whereString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
+            'custom_order' => $customOrder,
             'mapper' => new PublicationMapper(),
             'request' => $request,
             'on_set_data' => function ($e) {
@@ -887,10 +898,10 @@ class PublicationsController extends AdminPanelController
                 $columns[] = $e->title;
                 $columns[] = $e->categoryName;
                 $columns[] = $e->visits;
-                $columns[] = $mapper->startDate !== null ? $mapper->startDate->format('d-m-Y h:i:s A') : '-';
-                $columns[] = $mapper->endDate !== null ? $mapper->endDate->format('d-m-Y h:i:s A') : '-';
-                $columns[] = $mapper->createdAt->format('d-m-Y h:i:s A');
-                $columns[] = $mapper->updatedAt !== null ? $mapper->updatedAt->format('d-m-Y h:i:s A') : '-';
+                $columns[] = $mapper->startDate !== null ? $mapper->startDate->format('d-m-Y h:i A') : '-';
+                $columns[] = $mapper->endDate !== null ? $mapper->endDate->format('d-m-Y h:i A') : '-';
+                $columns[] = $mapper->createdAt->format('d-m-Y h:i A');
+                $columns[] = $mapper->updatedAt !== null ? $mapper->updatedAt->format('d-m-Y h:i A') : '-';
                 $columns[] = $e->authorUser;
                 $columns[] = $buttons;
                 return $columns;
@@ -908,9 +919,10 @@ class PublicationsController extends AdminPanelController
      * @param int $status =PublicationMapper::ACTIVE
      * @param bool $ignoreStatus =false
      * @param string $title =null
+     * @param bool $ignoreDateLimit =false
      * @return PaginationResult
      */
-    public static function _all(int $page = null, int $perPage = null, int $category = null, int $status = null, bool $ignoreStatus = false, string $title = null)
+    public static function _all(int $page = null, int $perPage = null, int $category = null, int $status = null, bool $ignoreStatus = false, string $title = null, bool $ignoreDateLimit = false)
     {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
@@ -944,6 +956,24 @@ class PublicationsController extends AdminPanelController
             $beforeOperator = count($where) > 0 ? 'AND' : '';
             $titleField = PublicationMapper::fieldCurrentLangForSQL('title');
             $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
+        $now = $now->getTimestamp();
+        $unixNowDate = "FROM_UNIXTIME({$now})";
+        $startDateSQL = "{$table}.startDate";
+        $endDateSQL = "{$table}.endDate";
+
+        if (!$ignoreDateLimit) {
+
+            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $critery = "{$startDateSQL} <= {$unixNowDate} OR {$table}.startDate IS NULL";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }

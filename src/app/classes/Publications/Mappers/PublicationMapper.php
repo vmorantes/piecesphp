@@ -215,6 +215,26 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Verifica si ya está disponible según startDate y endDate
+     * @return string
+     */
+    public function isActiveByDates()
+    {
+        $active = true;
+        $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
+
+        if ($this->startDate !== null) {
+            $active = $active && $this->startDate <= $now;
+        }
+
+        if ($this->endDate !== null) {
+            $active = $active && $this->endDate > $now;
+        }
+
+        return $active;
+    }
+
+    /**
      * @param string $format
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string

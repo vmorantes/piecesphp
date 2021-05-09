@@ -156,7 +156,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
         $element = new PublicationMapper($slugID);
         $currentLang = Config::get_lang();
 
-        if ($element->id !== null && $element->status == PublicationMapper::ACTIVE) {
+        if ($element->id !== null && $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates()) {
 
             set_custom_assets([
                 'statics/css/style.css',
