@@ -20,7 +20,7 @@ $action;
 
 ?>
 
-<div style="max-width:850px;">
+<div>
 
     <div class="ui buttons">
 

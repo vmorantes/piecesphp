@@ -125,13 +125,6 @@ class PublicationMapper extends EntityMapperExtensible
         ],
     ];
 
-    const TYPE_PREFER_DATE_DATETIME = '{DATETIME}';
-    const TYPE_PREFER_DATE_DAY_NUMBER = '{DAY_NUMBER}';
-    const TYPE_PREFER_DATE_DAY_NAME = '{DAY_NAME}';
-    const TYPE_PREFER_DATE_MONTH_NUMBER = '{MONTH_NUMBER}';
-    const TYPE_PREFER_DATE_MONTH_NAME = '{MONTH_NAME}';
-    const TYPE_PREFER_DATE_YEAR = '{YEAR}';
-
     const ACTIVE = 1;
     const INACTIVE = 0;
 
@@ -219,6 +212,54 @@ class PublicationMapper extends EntityMapperExtensible
             $this->update();
         }
         return $this;
+    }
+
+    /**
+     * @param string $format
+     * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
+     * @return string
+     */
+    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    {
+        $format = is_string($format) ? $format : get_default_format_date();
+        $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
+        return $formated;
+    }
+
+    /**
+     * @param string $format
+     * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
+     * @return string
+     */
+    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    {
+        $format = is_string($format) ? $format : get_default_format_date();
+        $formated = localeDateFormat($format, $this->updatedAt, $replaceTemplate);
+        return $formated;
+    }
+
+    /**
+     * @param string $format
+     * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
+     * @return string|null
+     */
+    public function startDateFormat(string $format = null, array $replaceTemplate = [])
+    {
+        $format = is_string($format) ? $format : get_default_format_date();
+        $formated = $this->startDate instanceof \DateTime ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
+        return $formated;
+    }
+
+    /**
+     * @param string $format
+     * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
+     * @return string|null
+     */
+    public function endDateFormat(string $format = null, array $replaceTemplate = [])
+    {
+        $format = is_string($format) ? $format : get_default_format_date();
+        $formated = $this->endDate instanceof \DateTime ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
+        return $formated;
     }
 
     /**

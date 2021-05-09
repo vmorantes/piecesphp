@@ -69,8 +69,13 @@ class Config
     /** @var string Prefijo de lenguaje de la aplicación */
     protected static $prefixLang = '';
 
-    /** @var array Leguajes permitidos por la aplicación */
+    /** @var array Lenguajes permitidos por la aplicación */
     protected static $appAllowedLangs = ['es'];
+
+    /** @var array Códigos de localidad según lenguaje */
+    protected static $appLocaleLangs = [
+        'es' => 'es_CO.utf8',
+    ];
 
     /** @var array Configuraciones */
     protected static $configurations = [];
@@ -104,6 +109,7 @@ class Config
         $this->initAppAllowedLangsConfig();
         $this->initLangByURLConfig();
         $this->initAppLangConfig();
+        $this->initAppLocaleLangs();
         $this->initAppTranslations();
         $this->initAppBaseConfig();
         $this->initAppCookiesConfig();
@@ -311,6 +317,38 @@ class Config
     }
 
     /**
+     * Configura los códigos de localidad según idioma
+     *
+     * @return void
+     */
+    public function initAppLocaleLangs()
+    {
+        $defaultLangConfigName = 'default_lang';
+        $appLocaleLangsConfigName = 'locale_langs';
+
+        $defaultAppLang = get_config($defaultLangConfigName);
+        $appLocaleLangs = get_config($appLocaleLangsConfigName);
+
+        self::$appLocaleLangs = $appLocaleLangs;
+
+        set_config($appLocaleLangsConfigName, self::$appLocaleLangs);
+
+        uksort(self::$appLocaleLangs, function ($a, $b) use ($defaultAppLang) {
+            if ($a == $defaultAppLang) {
+                return -1;
+            } elseif ($b == $defaultAppLang) {
+                return 1;
+            } else {
+                return 0;
+            }
+
+        });
+
+        set_config($appLocaleLangsConfigName, self::$appLocaleLangs);
+
+    }
+
+    /**
      * Configura las traducciones
      *
      * @return void
@@ -444,6 +482,7 @@ class Config
         if (self::$instance === null) {
             self::$instance = new Config();
             self::set_lang_by_url();
+            self::set_locale_from_current_lang();
         }
     }
 
@@ -580,6 +619,7 @@ class Config
             'default_lang' => 'defaultAppLang',
             'app_lang' => 'appLang',
             'prefix_lang' => 'prefixLang',
+            'locale_langs' => 'appLocaleLangs',
         ];
 
         if (array_key_exists($name, $namesOnStatic)) {
@@ -628,6 +668,56 @@ class Config
         } else {
             self::$appLang = 'es';
         }
+    }
+
+    /**
+     * Establece setlocale a partir del lenguaje actual de la aplicación.
+     * @param int $categories Por defecto [\LC_COLLATE, \LC_CTYPE, \LC_TIME, \LC_MESSAGES (Solo si existe) ]
+     * @return void
+     */
+    public static function set_locale_from_current_lang(array $categories = [\LC_COLLATE, \LC_CTYPE, \LC_TIME, 'LC_MESSAGES'])
+    {
+        $allowedCategories = [
+            \LC_ALL,
+            \LC_COLLATE,
+            \LC_CTYPE,
+            \LC_TIME,
+            \LC_MONETARY,
+            \LC_NUMERIC,
+            'LC_MESSAGES',
+        ];
+
+        $usedCategories = [];
+
+        $localeLang = isset(self::$appLocaleLangs[self::$appLang]) ? self::$appLocaleLangs[self::$appLang] : null;
+        $localeLang = is_string($localeLang) ? $localeLang : null;
+
+        if (is_string($localeLang)) {
+
+            foreach ($categories as $category) {
+
+                if ($category === 'LC_MESSAGES') {
+
+                    if (defined('LC_MESSAGES')) {
+                        $category = \LC_MESSAGES;
+                    } else {
+                        $category = null;
+                    }
+
+                }
+
+                if (in_array($category, $allowedCategories)) {
+
+                    if (!in_array($category, $usedCategories)) {
+                        setlocale($category, $localeLang);
+                    }
+
+                }
+
+            }
+
+        }
+
     }
 
     /**

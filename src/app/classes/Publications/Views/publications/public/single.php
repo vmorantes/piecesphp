@@ -15,21 +15,22 @@ $element;
 
     <div class="content">
 
-        <div class="wrapper">
+        <div class="wrapper unbounds">
 
             <div class="post-image">
                 <img src="<?= $element->currentLangData('mainImage'); ?>" alt="<?= $element->currentLangData('title'); ?>">
             </div>
 
-        </div>
-
-        <div class="wrapper no-padding-top-mobile">
+            <div class="text-center">
+                <p><small><?= $element->createdAtFormat(); ?></small></p>
+            </div>
 
             <h2 class="segment-title text-center"><?= $element->currentLangData('title'); ?></h2>
-            <p><small><?= $element->createdAt->format('d-m-Y'); ?></small></p>
 
+        </div>
+
+        <div class="wrapper">
             <div class="post-content"><?= $element->currentLangData('content'); ?></div>
-
         </div>
 
     </div>

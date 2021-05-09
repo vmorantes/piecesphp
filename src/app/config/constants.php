@@ -36,9 +36,6 @@ define('BLACKBOARD_NEWS_PATH_VIEWS', 'blackboard-news');
 define('BLACKBOARD_NEWS_PATH_STATICS', 'statics/features/blackboard-news');
 define('BLACKBOARD_NEWS_PATH_JS', BLACKBOARD_NEWS_PATH_STATICS . '/js');
 
-//Blog integrado
-define('PIECES_PHP_BLOG_ENABLED', true);
-
 //Módulo de imágenes integrado
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
 

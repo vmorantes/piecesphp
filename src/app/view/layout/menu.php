@@ -70,6 +70,7 @@ foreach($categories as $k => $i){
 
             </a>
 
+            <?php if(count(\PiecesPHP\Core\Config::get_config('alternatives_url')) > 0): ?>
             <span class="item menu">
 
                 <div class="text"><?= __(LANG_GROUP, 'Idiomas'); ?>&nbsp;&nbsp;<i class="icon angle down"></i></div>
@@ -83,6 +84,7 @@ foreach($categories as $k => $i){
                 </div>
 
             </span>
+            <?php endif; ?>
 
         </div>
 
