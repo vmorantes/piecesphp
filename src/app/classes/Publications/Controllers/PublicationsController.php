@@ -8,6 +8,9 @@ namespace Publications\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
+use PiecesPHP\Core\Cache\CacheControllersCriteries;
+use PiecesPHP\Core\Cache\CacheControllersCritery;
+use PiecesPHP\Core\Cache\CacheControllersManager;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
@@ -86,6 +89,9 @@ class PublicationsController extends AdminPanelController
     const UPLOAD_DIR = 'publications';
     const UPLOAD_DIR_TMP = 'publications/tmp';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
+
+    const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
+    const RESPONSE_SOURCE_NORMAL_RESULT = 'NORMAL_RESULT';
 
     public function __construct()
     {
@@ -809,9 +815,67 @@ class PublicationsController extends AdminPanelController
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
 
-        $result = self::_all($page, $perPage, $category, $status, $ignoreStatus, $title);
+        //=================Definir política de cache=================//
 
-        return $response->withJson($result);
+        //Datos para la verificación
+        $activesByDateIDs = PublicationMapper::activesByDateIDs();
+        $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
+        $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
+        $checksumData = [
+            $page,
+            $perPage,
+            $category,
+            $status,
+            $title,
+            sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
+        ];
+        $checksum = sha1(json_encode($checksumData));
+
+        //Validar cacheo por cabeceras
+        $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $checksum);
+        foreach ($headersAndStatus['headers'] as $header => $value) {
+            $response = $response->withHeader($header, $value);
+        }
+        $response = $response->withStatus($headersAndStatus['status']);
+        $shouldBeRecached = $response->getStatusCode() == 200; //La información cambió o debe ser actualizada
+        $hasCache = false;
+
+        //Verificar si ya hay archivos estáticos generados para esta petición
+        if ($shouldBeRecached) {
+            $cacheHandler = new CacheControllersManager(self::class, 'all', 3600 * 24 * 7 * 4);
+            $cacheCriteries = new CacheControllersCriteries([
+                new CacheControllersCritery('checksum', $checksum),
+            ]);
+            $hasCache = $cacheHandler->setCriteries($cacheCriteries)->process()->hasCachedData();
+        }
+
+        //=================Fin de política de cache=================//
+
+        $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
+
+        if ($shouldBeRecached) {
+
+            if (!$hasCache) {
+
+                $result = self::_all($page, $perPage, $category, $status, $ignoreStatus, $title);
+                $response = $response->withJson($result);
+
+                //Definir respuesta para la generación del archivo estático
+                $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
+
+            } else {
+                $response = $response
+                    ->withHeader('Content-Type', $cacheHandler->getContentType())
+                    ->write($cacheHandler->getCachedData(false));
+                $sourceData = self::RESPONSE_SOURCE_STATIC_CACHE;
+            }
+
+        }
+
+        $response = $response->withHeader('PCSPHP-Response-Source', $sourceData);
+
+        return $response;
+
     }
 
     /**

@@ -129,6 +129,7 @@ class PublicationMapper extends EntityMapperExtensible
     const INACTIVE = 0;
 
     const TABLE = 'publications_elements';
+    const VIEW_ACTIVE_DATE = 'presentations_active_date_elements';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
         '`title` ASC',
@@ -741,6 +742,57 @@ class PublicationMapper extends EntityMapperExtensible
         if (!is_null($result) && $as_mapper) {
             $result = self::objectToMapper($result);
         }
+
+        return $result;
+    }
+
+    /**
+     * @param bool $asMapper
+     *
+     * @return \stdClass|static|null
+     */
+    public static function lastModifiedElement(bool $asMapper = false)
+    {
+        $table = self::TABLE;
+        $model = self::model();
+
+        $selectFields = [];
+
+        $model->select($selectFields);
+
+        $model->orderBy("{$table}.updatedAt DESC, {$table}.createdAt DESC");
+
+        $model->execute(false, 1, 1);
+
+        $result = $model->result();
+        $result = count($result) > 0 ? $result[0] : null;
+
+        if ($asMapper) {
+            $result = self::objectToMapper($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return string|null Los ID separados por comas, i.e.: 1,2,3,4 O null si no hay resultados
+     */
+    public static function activesByDateIDs()
+    {
+        $table = self::VIEW_ACTIVE_DATE;
+        $model = clone self::model();
+        $model->setTable($table);
+
+        $selectFields = [
+            "GROUP_CONCAT({$table}.id) AS ids",
+        ];
+
+        $model->select($selectFields);
+        $model->having("ids IS NOT NULL");
+        $model->execute();
+
+        $result = $model->result();
+        $result = count($result) > 0 ? $result[0]->ids : null;
 
         return $result;
     }
