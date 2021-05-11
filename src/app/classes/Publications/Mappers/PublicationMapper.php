@@ -129,7 +129,7 @@ class PublicationMapper extends EntityMapperExtensible
     const INACTIVE = 0;
 
     const TABLE = 'publications_elements';
-    const VIEW_ACTIVE_DATE = 'presentations_active_date_elements';
+    const VIEW_ACTIVE_DATE = 'publications_active_date_elements';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
         '`title` ASC',
