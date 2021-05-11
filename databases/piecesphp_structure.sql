@@ -235,8 +235,8 @@ CREATE TABLE `pcsphp_user_problems` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-DROP VIEW IF EXISTS `presentations_active_date_elements`;
-CREATE TABLE `presentations_active_date_elements` (`id` int(11), `startDate` datetime, `endDate` datetime, `status` int(11), `nowDate` bigint(17));
+DROP VIEW IF EXISTS `publications_active_date_elements`;
+CREATE TABLE `publications_active_date_elements` (`id` int(11), `startDate` datetime, `endDate` datetime, `status` int(11), `nowDate` bigint(17));
 
 
 DROP TABLE IF EXISTS `publications_categories`;
@@ -288,7 +288,7 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-DROP TABLE IF EXISTS `presentations_active_date_elements`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `presentations_active_date_elements` AS (select `pe`.`id` AS `id`,`pe`.`startDate` AS `startDate`,`pe`.`endDate` AS `endDate`,`pe`.`status` AS `status`,unix_timestamp(current_timestamp()) AS `nowDate` from `publications_elements` `pe` having (unix_timestamp(`pe`.`startDate`) <= `nowDate` or `pe`.`startDate` is null) and (unix_timestamp(`pe`.`endDate`) > `nowDate` or `pe`.`endDate` is null));
+DROP TABLE IF EXISTS `publications_active_date_elements`;
+CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `publications_active_date_elements` AS (select `pe`.`id` AS `id`,`pe`.`startDate` AS `startDate`,`pe`.`endDate` AS `endDate`,`pe`.`status` AS `status`,unix_timestamp(current_timestamp()) AS `nowDate` from `publications_elements` `pe` having (unix_timestamp(`pe`.`startDate`) <= `nowDate` or `pe`.`startDate` is null) and (unix_timestamp(`pe`.`endDate`) > `nowDate` or `pe`.`endDate` is null));
 
 -- 2021-05-09 19:14:09
