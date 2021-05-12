@@ -17,10 +17,10 @@ window.addEventListener('load', function () {
 	let commonCropperAdapterSelector = '[cropper-adapter]'
 	let commonCropperConfig = {
 		containerSelector: '',
-		minWidth: 1400,
-		outputWidth: 1400,
+		minWidth: 1920,
+		outputWidth: 1920,
 		cropperOptions: {
-			aspectRatio: 1400 / 700,
+			aspectRatio: 1920 / 823,
 		},
 	}
 
