@@ -767,7 +767,7 @@ class PublicationMapper extends EntityMapperExtensible
         $result = $model->result();
         $result = count($result) > 0 ? $result[0] : null;
 
-        if ($asMapper) {
+        if ($asMapper && $result !== null) {
             $result = self::objectToMapper($result);
         }
 

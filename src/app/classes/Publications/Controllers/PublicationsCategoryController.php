@@ -82,6 +82,8 @@ class PublicationsCategoryController extends AdminPanelController
         add_global_asset(PublicationsRoutes::staticRoute('globals-vars.css'), 'css');
         add_global_asset(PublicationsRoutes::staticRoute(self::BASE_CSS_DIR . '/publications.css'), 'css');
 
+        PublicationCategoryMapper::uncategorizedCategory();
+
     }
 
     /**
@@ -124,7 +126,7 @@ class PublicationsCategoryController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = !is_null($id) && ctype_digit($id) || $id == PublicationCategoryMapper::UNCATEGORIZED_ID ? (int) $id : null;
 
         $lang = $request->getAttribute('lang', null);
         $lang = is_string($lang) ? $lang : null;
@@ -697,6 +699,24 @@ class PublicationsCategoryController extends AdminPanelController
 
         $whereString = null;
         $where = [];
+
+        //Verificación de idioma
+        $defaultLang = Config::get_default_lang();
+        $currentLang = Config::get_lang();
+
+        if ($currentLang != $defaultLang) {
+
+            if ($jsonExtractExists) {
+                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
+                $where[] = "{$beforeOperator} ({$critery})";
+            } else {
+                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
+                $where[] = "{$beforeOperator} ({$critery})";
+            }
+
+        }
 
         if (count($where) > 0) {
             $whereString = implode('', $where);

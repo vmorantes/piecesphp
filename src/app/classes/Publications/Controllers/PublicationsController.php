@@ -119,6 +119,8 @@ class PublicationsController extends AdminPanelController
         add_global_asset(PublicationsRoutes::staticRoute('globals-vars.css'), 'css');
         add_global_asset(PublicationsRoutes::staticRoute(self::BASE_CSS_DIR . '/publications.css'), 'css');
 
+        PublicationCategoryMapper::uncategorizedCategory();
+
     }
 
     /**
@@ -818,10 +820,15 @@ class PublicationsController extends AdminPanelController
         //=================Definir política de cache=================//
 
         //Datos para la verificación
+        $currentLang = Config::get_lang();
         $activesByDateIDs = PublicationMapper::activesByDateIDs();
         $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
-        $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
+        $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', '01-01-1990 00:00:00');
+        if ($lastModifiedElement !== null) {
+            $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
+        }
         $checksumData = [
+            $currentLang,
             $page,
             $perPage,
             $category,
@@ -1039,6 +1046,24 @@ class PublicationsController extends AdminPanelController
             $beforeOperator = count($where) > 0 ? 'AND' : '';
             $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
             $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        //Verificación de idioma
+        $defaultLang = Config::get_default_lang();
+        $currentLang = Config::get_lang();
+
+        if ($currentLang != $defaultLang) {
+
+            if ($jsonExtractExists) {
+                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
+                $where[] = "{$beforeOperator} ({$critery})";
+            } else {
+                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
+                $where[] = "{$beforeOperator} ({$critery})";
+            }
 
         }
 

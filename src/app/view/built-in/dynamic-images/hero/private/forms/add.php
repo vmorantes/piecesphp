@@ -70,8 +70,8 @@ $action;
             </div>
 
             <?php $this->_render('panel/built-in/utilities/cropper/workspace.php', [
-				'referenceW' => '1400',
-				'referenceH' => '700',
+				'referenceW' => '1920',
+				'referenceH' => '823',
 			]); ?>
 
         </div>

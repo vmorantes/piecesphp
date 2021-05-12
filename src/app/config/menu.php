@@ -64,25 +64,28 @@ $sidebar = new MenuGroupCollection([
 
 //Idiomas
 $alternativesURL = Config::get_config('alternatives_url');
+$hasManyLangs = count($alternativesURL) > 0;
 
-$langsItem = new MenuGroup([
-    'name' => __(ADMIN_MENU_LANG_GROUP, 'Idiomas'),
-    'position' => 300,
-]);
-
-foreach ($alternativesURL as $lang => $url) {
-
-    $langItem = new MenuItem([
-        'text' => __('lang', $lang),
-        'visible' => true,
-        'href' => $url,
+if ($hasManyLangs) {
+    $langsItem = new MenuGroup([
+        'name' => __(ADMIN_MENU_LANG_GROUP, 'Idiomas'),
+        'position' => 300,
     ]);
 
-    $langsItem->addItem($langItem);
+    foreach ($alternativesURL as $lang => $url) {
 
+        $langItem = new MenuItem([
+            'text' => __('lang', $lang),
+            'visible' => true,
+            'href' => $url,
+        ]);
+
+        $langsItem->addItem($langItem);
+
+    }
+
+    $sidebar->addItem($langsItem);
 }
-
-$sidebar->addItem($langsItem);
 
 //Añadir menús a la configuración global
 $config['menus']['header_dropdown'] = $headerDropdown;

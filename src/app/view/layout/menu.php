@@ -55,7 +55,7 @@ foreach($categories as $k => $i){
                 <div class="subitems">
                     <a href="<?= PublicationsPublicController::routeName('list');?>" class="item"><?=__(LANG_GROUP, 'Todas las categorías'); ?></a>
 
-                    <?php foreach ($categories as $category): ?>
+                    <?php foreach ($categories as $category): if($category->id == PublicationCategoryMapper::UNCATEGORIZED_ID){continue;} ?>
                     <a href="<?= PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $category->getSlug()]) ?>" class="item">
                         <?= $category->name; ?>
                     </a>
