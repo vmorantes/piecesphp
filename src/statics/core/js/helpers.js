@@ -194,14 +194,13 @@ function setCountdown(dateLimit, time = 1000) {
  * @param {string} url URL que se consultará
  * @param {FormData|Object} [data] Información enviada
  * @param {Object} [headers] Cabeceras
+ * @param {Object} [options] Opciones de $.ajax
  * @returns {jqXHR}
  */
-function postRequest(url, data, headers = {}) {
+function postRequest(url, data, headers = {}, options = {}) {
 
-	let options = {
-		url: url,
-		method: 'POST',
-	}
+	options.url = url
+	options.method = 'POST'
 
 	if (data instanceof FormData) {
 
@@ -294,15 +293,14 @@ function postRequest(url, data, headers = {}) {
  * @param {String} url URL que se consultará
  * @param {String|HTMLElement|JQuery} [data] Formulario
  * @param {Object} [headers] Cabeceras
+ * @param {Object} [options] Opciones de $.ajax
  * @returns {jqXHR}
  */
-function getRequest(url, data, headers = {}) {
+function getRequest(url, data, headers = {}, options = {}) {
 
-	let options = {
-		url: url,
-		method: 'GET',
-		enctype: "application/x-www-form-urlencoded",
-	}
+	options.url = url
+	options.method = 'GET'
+	options.enctype = 'application/x-www-form-urlencoded'
 
 	if (data instanceof HTMLFormElement) {
 
@@ -1061,19 +1059,37 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 
 			let request = null
 
-			showLoader()
+			let loaderElement = showLoader()
 
 			if (method == 'POST') {
 
 				let processFormData = onSetFormData(formData, form)
+				let optionsPost = {
+					xhr: function () {
+
+						let xhr = new XMLHttpRequest()
+
+						xhr.upload.addEventListener("progress", function (e) {
+
+							if (e.lengthComputable) {
+								let percentComplete = ((e.loaded / e.total) * 100);
+								loaderElement.updatePercent(percentComplete)
+							}
+
+						}, false)
+
+						return xhr
+
+					}
+				}
 
 				if (typeof processFormData.then !== 'undefined') {
 					processFormData.then(function (formData) {
-						request = postRequest(action, formData)
+						request = postRequest(action, formData, {}, optionsPost)
 						handlerRequest(request, form, formData)
 					})
 				} else {
-					request = postRequest(action, processFormData)
+					request = postRequest(action, processFormData, {}, optionsPost)
 					handlerRequest(request, form, formData)
 				}
 
@@ -1247,7 +1263,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	}
 
 	function showLoader() {
-		showGenericLoader('genericFormHandler')
+		return showGenericLoader('genericFormHandler')
 	}
 
 	function removeLoader() {
@@ -1263,9 +1279,9 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
  * 
  * Muestra un modal de carga en el body
  * 
- * @returns {void} 
+ * @returns {HTMLElement} 
  */
-function showGenericLoader(name = 'DEFAULT', classPrefix = 'ui-pcs-') {
+function showGenericLoader(name = 'DEFAULT', classPrefix = 'ui-pcs-', withProgress = false) {
 
 	classPrefix = typeof classPrefix == 'string' && classPrefix.length ? classPrefix : 'ui-pcs-'
 
@@ -1281,12 +1297,54 @@ function showGenericLoader(name = 'DEFAULT', classPrefix = 'ui-pcs-') {
 
 	contentLoader.setAttribute('data-name', name)
 
+	contentLoader.updatePercent = function (percent) {
+
+		percent = parseInt(percent)
+		percent = !isNaN(percent) ? percent : 0
+
+		if (this.hasProgress()) {
+			let progress = this.getProgressElement()
+			progress.update(percent)
+		} else {
+			addProgress(percent, this.querySelector(`.${classPrefix}box`))
+		}
+
+		if (percent == 100) {
+			this.remove()
+		}
+
+	}
+
+	contentLoader.hasProgress = function () {
+		return contentLoader.querySelector(`.${classPrefix}progress`) !== null
+	}
+
+	contentLoader.getProgressElement = function () {
+		return contentLoader.querySelector(`.${classPrefix}progress`)
+	}
+
 	let currentActive = document.querySelector(`.${classPrefix}global-loader[data-name="${name}"]`)
 
 	if (!(currentActive instanceof HTMLElement)) {
 		boxLoader.appendChild(loader)
 		contentLoader.appendChild(boxLoader)
 		document.body.appendChild(contentLoader)
+		if (withProgress) {
+			addProgress(0, boxLoader)
+		}
+		return contentLoader
+	} else {
+		return currentActive
+	}
+
+	function addProgress(percent, parent) {
+		let progress = document.createElement('span')
+		progress.innerHTML = `${percent}%`
+		progress.classList.add(`${classPrefix}progress`)
+		parent.appendChild(progress)
+		progress.update = function (percent) {
+			progress.innerHTML = `${percent}%`
+		}
 	}
 
 }
