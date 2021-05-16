@@ -282,7 +282,7 @@ class PublicationMapper extends EntityMapperExtensible
     {
         if ($this->id !== null) {
             $this->visits += 1;
-            $this->update();
+            $this->update(true);
         }
         return $this;
     }
@@ -444,8 +444,8 @@ class PublicationMapper extends EntityMapperExtensible
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
             return false;
         }
-        $this->modifiedBy = get_config('current_user')->id;
         if (!$noDateUpdate) {
+            $this->modifiedBy = get_config('current_user')->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
