@@ -1,9 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
 use Publications\Mappers\PublicationMapper;
-use PiecesPHP\Core\Config;
-
 /**
  * @var PublicationMapper $element
  */
@@ -17,7 +14,6 @@ $element;
 $langGroup;
 $backLink;
 $action;
-
 ?>
 
 <div>
@@ -69,6 +65,20 @@ $action;
             </div>
 
             <div class="field required">
+                <label><?= __($langGroup, 'Autor'); ?></label>
+                <select class="ui dropdown search" name="author" data-search-url="<?= $searchUsersURL; ?>" required>
+                    <option value="<?= $element->author->id; ?>"><?= $element->author->getFullName(); ?></option>
+                </select>
+            </div>
+
+            <div class="field">
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" name="featured" value="<?= PublicationMapper::FEATURED; ?>" <?= $element->isFeatured() ? 'checked' : ''; ?>>
+                    <label><?= __($langGroup, 'Destacado'); ?></label>
+                </div>
+            </div>
+
+            <div class="field required">
                 <label><?= __($langGroup, 'Contenido'); ?></label>
                 <div rich-editor-adapter-component></div>
                 <textarea name="content" required><?= $element->getLangData($lang, 'content', false, ''); ?></textarea>
@@ -116,7 +126,7 @@ $action;
 
             <div class="field required">
                 <label><?= __($langGroup, 'Categorías'); ?></label>
-                <select name="category" required>
+                <select class="ui dropdown" name="category" required>
                     <?= $allCategories; ?>
                 </select>
             </div>

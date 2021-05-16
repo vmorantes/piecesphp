@@ -92,6 +92,7 @@ class PublicationsController extends AdminPanelController
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
     const RESPONSE_SOURCE_NORMAL_RESULT = 'NORMAL_RESULT';
+    const ENABLE_CACHE = true;
 
     public function __construct()
     {
@@ -142,6 +143,7 @@ class PublicationsController extends AdminPanelController
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
         $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), null);
+        $searchUsersURL = get_route('users-search-dropdown');
 
         $data = [];
         $data['action'] = $action;
@@ -149,6 +151,7 @@ class PublicationsController extends AdminPanelController
         $data['backLink'] = $backLink;
         $data['title'] = self::$title;
         $data['allCategories'] = $allCategories;
+        $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
 
         $this->helpController->render('panel/layout/header');
         self::view('forms/add', $data);
@@ -195,6 +198,7 @@ class PublicationsController extends AdminPanelController
             $backLink = self::routeName('list');
             $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category->id);
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
+            $searchUsersURL = get_route('users-search-dropdown');
 
             $data = [];
             $data['action'] = $action;
@@ -207,6 +211,7 @@ class PublicationsController extends AdminPanelController
             $data['allCategories'] = $allCategories;
             $data['allowedLangs'] = $allowedLangs;
             $data['lang'] = $lang;
+            $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
 
             $this->helpController->render('panel/layout/header');
             self::view('forms/edit', $data, true, false);
@@ -282,6 +287,17 @@ class PublicationsController extends AdminPanelController
                     return ctype_digit($value) || is_int($value);
                 },
                 true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
+                'author',
+                null,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                false,
                 function ($value) {
                     return (int) $value;
                 }
@@ -363,6 +379,17 @@ class PublicationsController extends AdminPanelController
                     return $value === null ? $value : \DateTime::createFromFormat('d-m-Y h:i A', $value);
                 }
             ),
+            new Parameter(
+                'featured',
+                PublicationMapper::UNFEATURED,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
         ]);
 
         //Obtención de datos
@@ -400,6 +427,7 @@ class PublicationsController extends AdminPanelController
             //Información del formulario
             /**
              * @var int $id
+             * @var int $author
              * @var string $lang
              * @var string $title
              * @var string $content
@@ -407,8 +435,10 @@ class PublicationsController extends AdminPanelController
              * @var int $category
              * @var \DateTime|null $startDate
              * @var \DateTime|null $endDate
+             * @var int $featured
              */;
             $id = $expectedParameters->getValue('id');
+            $author = $expectedParameters->getValue('author');
             $lang = $expectedParameters->getValue('lang');
             $title = $expectedParameters->getValue('title');
             $content = $expectedParameters->getValue('content');
@@ -416,6 +446,7 @@ class PublicationsController extends AdminPanelController
             $category = $expectedParameters->getValue('category');
             $startDate = $expectedParameters->getValue('startDate');
             $endDate = $expectedParameters->getValue('endDate');
+            $featured = $expectedParameters->getValue('featured') == PublicationMapper::FEATURED ? PublicationMapper::FEATURED : PublicationMapper::UNFEATURED;
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -448,8 +479,9 @@ class PublicationsController extends AdminPanelController
                     $mapper->setLangData($lang, 'endDate', $endDate);
                     $mapper->setLangData($lang, 'category', $category);
                     $mapper->setLangData($lang, 'visits', 0);
-                    $mapper->setLangData($lang, 'author', get_config('current_user')->id);
+                    $mapper->setLangData($lang, 'author', $author);
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
+                    $mapper->setLangData($lang, 'featured', $featured);
 
                     $mainImage = self::handlerUploadImage('mainImage', $mapper->folder);
                     $thumbImage = self::handlerUploadImage('thumbImage', $mapper->folder);
@@ -491,6 +523,8 @@ class PublicationsController extends AdminPanelController
                         $mapper->setLangData($lang, 'startDate', $startDate);
                         $mapper->setLangData($lang, 'endDate', $endDate);
                         $mapper->setLangData($lang, 'category', $category);
+                        $mapper->setLangData($lang, 'featured', $featured);
+                        $mapper->setLangData($lang, 'author', $author);
 
                         $mainImageSetted = $mapper->getLangData($lang, 'mainImage', false, null);
                         $thumbImageSetted = $mapper->getLangData($lang, 'thumbImage', false, null);
@@ -796,6 +830,17 @@ class PublicationsController extends AdminPanelController
                     return (string) $value;
                 }
             ),
+            new Parameter(
+                'featured',
+                null,
+                function ($value) {
+                    return (ctype_digit($value) || is_int($value)) || is_null($value);
+                },
+                true,
+                function ($value) {
+                    return ctype_digit($value) || is_int($value) ? (int) $value : null;
+                }
+            ),
         ]);
 
         $expectedParameters->setInputValues($request->getQueryParams());
@@ -807,75 +852,87 @@ class PublicationsController extends AdminPanelController
          * @var int $category
          * @var int $status
          * @var string $title
+         * @var int $featured
          */;
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $category = $expectedParameters->getValue('category');
         $status = $expectedParameters->getValue('status');
         $title = $expectedParameters->getValue('title');
+        $featured = $expectedParameters->getValue('featured');
 
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
 
-        //=================Definir política de cache=================//
+        if (self::ENABLE_CACHE) {
 
-        //Datos para la verificación
-        $currentLang = Config::get_lang();
-        $activesByDateIDs = PublicationMapper::activesByDateIDs();
-        $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
-        $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', '01-01-1990 00:00:00');
-        if ($lastModifiedElement !== null) {
-            $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
-        }
-        $checksumData = [
-            $currentLang,
-            $page,
-            $perPage,
-            $category,
-            $status,
-            $title,
-            sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
-        ];
-        $checksum = sha1(json_encode($checksumData));
+            //=================Definir política de cache=================//
 
-        //Validar cacheo por cabeceras
-        $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $checksum);
-        foreach ($headersAndStatus['headers'] as $header => $value) {
-            $response = $response->withHeader($header, $value);
-        }
-        $response = $response->withStatus($headersAndStatus['status']);
-        $shouldBeRecached = $response->getStatusCode() == 200; //La información cambió o debe ser actualizada
-        $hasCache = false;
-
-        //Verificar si ya hay archivos estáticos generados para esta petición
-        if ($shouldBeRecached) {
-            $cacheHandler = new CacheControllersManager(self::class, 'all', 3600 * 24 * 7 * 4);
-            $cacheCriteries = new CacheControllersCriteries([
-                new CacheControllersCritery('checksum', $checksum),
-            ]);
-            $hasCache = $cacheHandler->setCriteries($cacheCriteries)->process()->hasCachedData();
-        }
-
-        //=================Fin de política de cache=================//
-
-        $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
-
-        if ($shouldBeRecached) {
-
-            if (!$hasCache) {
-
-                $result = self::_all($page, $perPage, $category, $status, $ignoreStatus, $title);
-                $response = $response->withJson($result);
-
-                //Definir respuesta para la generación del archivo estático
-                $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
-
-            } else {
-                $response = $response
-                    ->withHeader('Content-Type', $cacheHandler->getContentType())
-                    ->write($cacheHandler->getCachedData(false));
-                $sourceData = self::RESPONSE_SOURCE_STATIC_CACHE;
+            //Datos para la verificación
+            $currentLang = Config::get_lang();
+            $activesByDateIDs = PublicationMapper::activesByDateIDs();
+            $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
+            $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', '01-01-1990 00:00:00');
+            if ($lastModifiedElement !== null) {
+                $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
             }
+            $checksumData = [
+                $currentLang,
+                $page,
+                $perPage,
+                $category,
+                $status,
+                $title,
+                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
+            ];
+            $checksum = sha1(json_encode($checksumData));
+
+            //Validar cacheo por cabeceras
+            $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $checksum);
+            foreach ($headersAndStatus['headers'] as $header => $value) {
+                $response = $response->withHeader($header, $value);
+            }
+            $response = $response->withStatus($headersAndStatus['status']);
+            $shouldBeRecached = $response->getStatusCode() == 200; //La información cambió o debe ser actualizada
+            $hasCache = false;
+
+            //Verificar si ya hay archivos estáticos generados para esta petición
+            if ($shouldBeRecached) {
+                $cacheHandler = new CacheControllersManager(self::class, 'all', 3600 * 24 * 7 * 4);
+                $cacheCriteries = new CacheControllersCriteries([
+                    new CacheControllersCritery('checksum', $checksum),
+                ]);
+                $hasCache = $cacheHandler->setCriteries($cacheCriteries)->process()->hasCachedData();
+            }
+
+            //=================Fin de política de cache=================//
+
+            $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
+
+            if ($shouldBeRecached) {
+
+                if (!$hasCache) {
+
+                    $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus);
+                    $response = $response->withJson($result);
+
+                    //Definir respuesta para la generación del archivo estático
+                    $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
+
+                } else {
+                    $response = $response
+                        ->withHeader('Content-Type', $cacheHandler->getContentType())
+                        ->write($cacheHandler->getCachedData(false));
+                    $sourceData = self::RESPONSE_SOURCE_STATIC_CACHE;
+                }
+
+            }
+
+        } else {
+
+            $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
+            $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus);
+            $response = $response->withJson($result);
 
         }
 
@@ -918,6 +975,7 @@ class PublicationsController extends AdminPanelController
             'createdAt',
             'updatedAt',
             'authorUser',
+            'featuredDisplay',
         ];
 
         $customOrder = [
@@ -928,6 +986,7 @@ class PublicationsController extends AdminPanelController
             'endDate' => 'DESC',
             'authorUser' => 'DESC',
             'categoryName' => 'DESC',
+            'featuredDisplay' => 'DESC',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -974,6 +1033,7 @@ class PublicationsController extends AdminPanelController
                 $columns[] = $mapper->createdAt->format('d-m-Y h:i A');
                 $columns[] = $mapper->updatedAt !== null ? $mapper->updatedAt->format('d-m-Y h:i A') : '-';
                 $columns[] = $e->authorUser;
+                $columns[] = $e->featuredDisplay;
                 $columns[] = $buttons;
                 return $columns;
             },
@@ -988,13 +1048,22 @@ class PublicationsController extends AdminPanelController
      * @param int $perPage =10
      * @param int $category =null
      * @param int $status =PublicationMapper::ACTIVE
-     * @param bool $ignoreStatus =false
+     * @param int $featured =null
      * @param string $title =null
+     * @param bool $ignoreStatus =false
      * @param bool $ignoreDateLimit =false
      * @return PaginationResult
      */
-    public static function _all(int $page = null, int $perPage = null, int $category = null, int $status = null, bool $ignoreStatus = false, string $title = null, bool $ignoreDateLimit = false)
-    {
+    public static function _all(
+        int $page = null,
+        int $perPage = null,
+        int $category = null,
+        int $status = null,
+        int $featured = null,
+        string $title = null,
+        bool $ignoreStatus = false,
+        bool $ignoreDateLimit = false
+    ) {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
         $status = $status === null ? PublicationMapper::ACTIVE : $status;
@@ -1027,6 +1096,14 @@ class PublicationsController extends AdminPanelController
             $beforeOperator = count($where) > 0 ? 'AND' : '';
             $titleField = PublicationMapper::fieldCurrentLangForSQL('title');
             $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        if ($featured !== null) {
+
+            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $critery = "{$table}.featured = {$featured}";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }

@@ -292,7 +292,6 @@ class BaseToken
             $aud = $_SERVER['REMOTE_ADDR'];
         }
 
-        $aud .= @$_SERVER['HTTP_USER_AGENT'];
         $aud .= gethostname();
 
         return sha1($aud);
@@ -471,7 +470,7 @@ class BaseToken
                     return false;
                 }
                 // returns 1 en exito, 0 en fallo, -1 en error.
-                throw new DomainException(
+                throw new \DomainException(
                     'OpenSSL error: ' . openssl_error_string()
                 );
             case 'hash_hmac':

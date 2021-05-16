@@ -40,6 +40,7 @@ use Publications\PublicationsLang;
  * @property string|\DateTime $createdAt
  * @property string|\DateTime $updatedAt
  * @property int $status
+ * @property int $featured
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
  */
@@ -118,6 +119,10 @@ class PublicationMapper extends EntityMapperExtensible
             'type' => 'int',
             'default' => self::ACTIVE,
         ],
+        'featured' => [
+            'type' => 'int',
+            'default' => self::UNFEATURED,
+        ],
         'meta' => [
             'type' => 'json',
             'null' => true,
@@ -128,10 +133,14 @@ class PublicationMapper extends EntityMapperExtensible
     const ACTIVE = 1;
     const INACTIVE = 0;
 
+    const FEATURED = 1;
+    const UNFEATURED = 0;
+
     const TABLE = 'publications_elements';
     const VIEW_ACTIVE_DATE = 'publications_active_date_elements';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
+        '`featured` DESC',
         '`title` ASC',
         '`category` ASC',
         '`startDate` ASC',
@@ -190,6 +199,17 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * @param int $maxLength
+     * @return string
+     */
+    public function excerpt(int $maxLength = 300)
+    {
+        $content = strip_tags($this->currentLangData('content'));
+        $contentLength = mb_strlen($content);
+        return $contentLength <= $maxLength ? $content : substr($content, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
+    }
+
+    /**
      * @return string
      */
     public function authorFullName()
@@ -233,6 +253,14 @@ class PublicationMapper extends EntityMapperExtensible
         }
 
         return $active;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFeatured()
+    {
+        return $this->featured == self::FEATURED;
     }
 
     /**
@@ -498,10 +526,14 @@ class PublicationMapper extends EntityMapperExtensible
         $categoryNameCurrentLang = PublicationCategoryMapper::fieldCurrentLangForSQL('name');
         $categoryNameSubQuery = "SELECT $categoryNameCurrentLang FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category";
 
+        $yesText = __(self::LANG_GROUP, 'Sí');
+        $noText = __(self::LANG_GROUP, 'No');
+
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "({$categoryNameSubQuery}) AS categoryName",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.author) AS authorUser",
+            "IF({$table}.featured, '{$yesText}', '{$noText}') AS featuredDisplay",
             "{$table}.meta",
         ];
 
@@ -863,6 +895,16 @@ class PublicationMapper extends EntityMapperExtensible
         $mapper = new static;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
+
+        $defaultPropertiesValues = [
+            'featured' => self::UNFEATURED,
+        ];
+
+        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
+            if (!array_key_exists($defaultProperty, $element)) {
+                $element[$defaultProperty] = $defaultPropertyValue;
+            }
+        }
 
         foreach ($element as $property => $value) {
 

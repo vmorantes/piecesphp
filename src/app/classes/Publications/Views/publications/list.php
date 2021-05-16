@@ -61,6 +61,7 @@ $editLink;
                 <th><?= __($langGroup, 'Creación'); ?></th>
                 <th><?= __($langGroup, 'Edición'); ?></th>
                 <th><?= __($langGroup, 'Autor'); ?></th>
+                <th><?= __($langGroup, 'Destacado'); ?></th>
                 <th><?= __($langGroup, 'Acciones'); ?></th>
             </tr>
 

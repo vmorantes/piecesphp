@@ -1,6 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
+use Publications\Mappers\PublicationMapper;
 /**
  * @var string $langGroup
  * @var string $backLink
@@ -9,7 +9,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 $langGroup;
 $backLink;
 $action;
-
 ?>
 
 <div>
@@ -45,6 +44,20 @@ $action;
             <div class="field required">
                 <label><?= __($langGroup, 'Nombre'); ?></label>
                 <input required type="text" name="title" maxlength="300">
+            </div>
+
+            <div class="field required">
+                <label><?= __($langGroup, 'Autor'); ?></label>
+                <select class="ui dropdown search" name="author" data-search-url="<?= $searchUsersURL; ?>" required>
+                    <option value=""><?= __($langGroup, 'Seleccionar usuario'); ?></option>
+                </select>
+            </div>
+
+            <div class="field">
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" name="featured" value="<?= PublicationMapper::FEATURED; ?>">
+                    <label><?= __($langGroup, 'Destacado'); ?></label>
+                </div>
             </div>
 
             <div class="field required">
@@ -91,7 +104,7 @@ $action;
 
             <div class="field required">
                 <label><?= __($langGroup, 'Categorías'); ?></label>
-                <select name="category" required>
+                <select class="ui dropdown" name="category" required>
                     <?= $allCategories; ?>
                 </select>
             </div>

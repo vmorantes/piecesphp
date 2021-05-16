@@ -43,6 +43,8 @@ window.addEventListener('load', function () {
 		textareaTargetSelector: "textarea[name='content']",
 	})
 
+	configFomanticDropdown('.ui.dropdown:not(.langs)') //Debe inciarse antes de genericFormHandler para la validación
+
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
 
@@ -80,7 +82,7 @@ window.addEventListener('load', function () {
 	})
 
 	form.find('input, select, textarea').attr('autocomplete', 'off')
-	form.find('.ui.dropdown').dropdown()
+	form.find('.checkbox').checkbox()
 	$('.tabular.menu .item').tab()
 
 	isEdit = form.find(`[name="id"]`).length > 0
