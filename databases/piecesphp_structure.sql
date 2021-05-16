@@ -268,6 +268,7 @@ CREATE TABLE `publications_elements` (
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
   `status` int(11) NOT NULL,
+  `featured` int(11) NOT NULL,
   `meta` longtext COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `author` (`author`),
@@ -291,4 +292,4 @@ CREATE TABLE `time_on_platform` (
 DROP TABLE IF EXISTS `publications_active_date_elements`;
 CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `publications_active_date_elements` AS (select `pe`.`id` AS `id`,`pe`.`startDate` AS `startDate`,`pe`.`endDate` AS `endDate`,`pe`.`status` AS `status`,unix_timestamp(current_timestamp()) AS `nowDate` from `publications_elements` `pe` having (unix_timestamp(`pe`.`startDate`) <= `nowDate` or `pe`.`startDate` is null) and (unix_timestamp(`pe`.`endDate`) > `nowDate` or `pe`.`endDate` is null));
 
--- 2021-05-09 19:14:09
+-- 2021-05-16 05:46:04
