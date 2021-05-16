@@ -226,6 +226,59 @@ class UsersController extends AdminPanelController
     }
 
     /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public function searchDropdown(Request $request, Response $response, array $args)
+    {
+
+        $search = $request->getQueryParam('search', null);
+        $search = is_string($search) && mb_strlen(trim($search)) > 0 ? trim($search) : null;
+
+        $results = new \stdClass;
+        $results->success = true;
+        $results->results = [];
+
+        $model = UsersModel::model();
+        $model->select(UsersModel::fieldsToSelect());
+        $model->orderBy('fullname ASC, username ASC, id DESC');
+
+        if ($search !== null) {
+
+            $search = mb_strtolower($search);
+            $having = [
+                "LOWER(fullname) LIKE '{$search}%'",
+                "OR LOWER(username) LIKE '{$search}%'",
+                "OR LOWER(firstname) LIKE '{$search}%'",
+                "OR LOWER(secondname) LIKE '{$search}%'",
+                "OR LOWER(second_lastname) LIKE '{$search}%'",
+                "OR LOWER(first_lastname) LIKE '{$search}%'",
+            ];
+            $having = trim(implode(' ', $having));
+
+            $model->having($having);
+
+            $model->execute();
+
+        } else {
+            $model->execute(false, 1, 15);
+        }
+
+        $resultsQuery = $model->result();
+
+        foreach ($resultsQuery as $element) {
+            $results->results[] = [
+                'value' => $element->id,
+                'name' => $element->fullname,
+            ];
+        }
+
+        return $response->withJson($results);
+    }
+
+    /**
      * loginForm
      *
      * No espera parámetros.
@@ -1531,6 +1584,13 @@ class UsersController extends AdminPanelController
                 "{$startRoute}datatables[/]",
                 $users . ':dataTablesRequestUsers',
                 'users-datatables',
+                'GET'
+            ),
+            //Search Dropdown
+            new Route(
+                "{$startRoute}search-dropdown[/]",
+                $users . ':searchDropdown',
+                'users-search-dropdown',
                 'GET'
             ),
 

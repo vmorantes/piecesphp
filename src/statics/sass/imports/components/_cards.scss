@@ -49,7 +49,7 @@
 
     @media screen and (min-width: $rsMobile) {
 
-        max-width: 1000px;
+        max-width: 1440px;
 
     }
 
@@ -73,6 +73,12 @@
         height: 100%;
         border: none;
         outline: none;
+    }
+
+    .element-link {
+        outline: none;
+        border: none;
+        text-decoration: none;
     }
 
     >.image {
@@ -112,7 +118,7 @@
             font-size: pxToRem(16);
             line-height: pxToRem(20);
             color: $gray4;
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
         }
 
@@ -123,6 +129,21 @@
 
         max-width: 352px;
 
+    }
+
+    @media screen and (min-width: $rsTablet) {
+
+        >.content {
+
+            padding: pxToRem(25) pxToRem(30);
+
+            >.description {
+                min-height: 250px;
+            }
+
+
+        }
+
         &:not(.small) {
             min-height: 500px;
         }
@@ -130,23 +151,6 @@
         &.small {
             max-width: 300px;
         }
-
-        >.content {
-
-            padding: pxToRem(25) pxToRem(30);
-
-            >.description {
-                height: 165px;
-                max-height: 165px;
-                overflow: hidden;
-            }
-
-
-        }
-
-    }
-
-    @media screen and (min-width: $rsTablet) {
 
         >.content {
 
@@ -201,6 +205,7 @@
                     line-height: pxToRem(18);
                     height: initial;
                     max-height: initial;
+                    min-height: initial;
                 }
 
 

@@ -1728,3 +1728,76 @@ function configMirrorScrollX() {
 	}
 
 }
+
+/**
+ * Configura un dropdown
+ * @param {String} selectSelector 
+ * @param {Object} defaultOptions 
+ * @returns {$[]} 
+ */
+function configFomanticDropdown(selectSelector, defaultOptions = {}) {
+	selectSelector = typeof selectSelector == 'string' ? selectSelector : 'NONE_SELECTOR'
+	defaultOptions = typeof defaultOptions == 'object' ? defaultOptions : {}
+
+	let selects = Array.from(document.querySelectorAll(selectSelector))
+	let dropdowns = []
+
+	for (let select of selects) {
+
+		select = $(select)
+		let searchURL = select.data('search-url')
+		searchURL = typeof searchURL == 'string' && searchURL.trim().length > 0 ? searchURL.trim() : null
+
+		let options = Object.assign({}, defaultOptions)
+
+		if (searchURL) {
+			let apiSettings = typeof options.apiSettings == 'object' ? options.apiSettings : {}
+			apiSettings.url = searchURL
+			options.apiSettings = apiSettings
+		}
+
+		let dropdown = null
+
+		//Input para simular el error de validación
+		let uniqueID = generateUniqueID()
+		let selectSimulator = document.createElement('select')
+		selectSimulator.setAttribute('required', true)
+		selectSimulator.setAttribute('simulator', uniqueID)
+		selectSimulator.setAttribute('style', [
+			"display: block !important;",
+			"height: 0px !important;",
+			"width: 0px !important;",
+			"margin: 0px !important;",
+			"padding: 0px !important;",
+			"outline: none !important;",
+			"border: none !important;",
+		].join(' '))
+
+		let onChange = function (value, text, $selectedItem) {
+			let selectValidator = document.querySelector(`select[simulator="${uniqueID}"]`)
+			if (typeof value == 'string' && value.length > 0 && selectValidator !== null) {
+				selectValidator.innerHTML = `<option value="${value}" selected></option>`
+			}
+		}
+
+		if (typeof options.onChange == 'function') {
+			let onChangeOption = options.onChange
+			options.onChange = function (value, text, $selectedItem) {
+				onChange(value, text, $selectedItem)
+				onChangeOption(value, text, $selectedItem)
+			}
+		} else {
+			options.onChange = onChange
+		}
+
+		dropdown = $(select).dropdown(options)
+
+		//Añadir input para simular el error de validación
+		dropdown.parent().get(0).insertBefore(selectSimulator, dropdown.get(0))
+		dropdowns.push(dropdown)
+		onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
+
+	}
+
+	return dropdowns
+}

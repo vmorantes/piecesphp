@@ -672,6 +672,32 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
+     * @return string[]
+     */
+    public static function fieldsToSelect()
+    {
+
+        $table = self::TABLE;
+        $secondNameSegment = "IF({$table}.secondname IS NOT NULL, CONCAT(' ', {$table}.secondname), '')";
+        $secondLastNameSegment = "IF({$table}.second_lastname IS NOT NULL, CONCAT(' ', {$table}.second_lastname), '')";
+
+        $fields = array_map(function ($f) use ($table) {
+            return "{$table}.{$f}";
+        }, array_keys((new static )->getFields()));
+        $fieldsToAdd = [
+            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "CONCAT(TRIM({$table}.firstname), TRIM({$secondNameSegment}), ' ',TRIM({$table}.first_lastname), TRIM({$secondLastNameSegment})) AS fullname",
+        ];
+
+        foreach ($fieldsToAdd as $fieldToAdd) {
+            $fields[] = $fieldToAdd;
+        }
+
+        return $fields;
+
+    }
+
+    /**
      * model
      *
      * @return ActiveRecordModel
