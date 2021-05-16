@@ -5,6 +5,7 @@
  */
 
 use App\Controller\BlackboardNewsController;
+use App\Controller\PublicAreaController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\LangInjector;
 
@@ -14,9 +15,11 @@ use PiecesPHP\LangInjector;
  */
 
 //Idiomas
+$langsOptions = array_merge(Config::get_allowed_langs(), ['default']);
 $langInjectors = [
-    LANG_GROUP => new LangInjector(basepath('app/lang/public'), Config::get_allowed_langs()),
-    BlackboardNewsController::LANG_GROUP => new LangInjector(basepath('app/lang/blackboard-news'), Config::get_allowed_langs()),
+    LANG_GROUP => new LangInjector(basepath('app/lang/public'), $langsOptions),
+    BlackboardNewsController::LANG_GROUP => new LangInjector(basepath('app/lang/blackboard-news'), $langsOptions),
+    PublicAreaController::LANG_REPLACE_GENERIC_TITLES => new LangInjector(basepath('app/lang/replace-generic-titles'), $langsOptions),
 ];
 
 foreach ($langInjectors as $group => $injector) {

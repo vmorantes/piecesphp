@@ -686,7 +686,7 @@ class UsersModel extends BaseEntityMapper
         }, array_keys((new static )->getFields()));
         $fieldsToAdd = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
-            "CONCAT(TRIM({$table}.firstname), TRIM({$secondNameSegment}), ' ',TRIM({$table}.first_lastname), TRIM({$secondLastNameSegment})) AS fullname",
+            "TRIM(CONCAT(TRIM({$table}.firstname), {$secondNameSegment}, ' ', {$table}.first_lastname, {$secondLastNameSegment})) AS fullname",
         ];
 
         foreach ($fieldsToAdd as $fieldToAdd) {
