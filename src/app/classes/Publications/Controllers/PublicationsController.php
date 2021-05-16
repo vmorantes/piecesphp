@@ -358,6 +358,17 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
+                'publicDate',
+                null,
+                function ($value) {
+                    return Validator::isDate($value, 'd-m-Y');
+                },
+                false,
+                function ($value) {
+                    return \DateTime::createFromFormat('d-m-Y H:i:s', "{$value} 00:00:00");
+                }
+            ),
+            new Parameter(
                 'startDate',
                 null,
                 function ($value) {
@@ -433,6 +444,7 @@ class PublicationsController extends AdminPanelController
              * @var string $content
              * @var string $seoDescription
              * @var int $category
+             * @var \DateTime $publicDate
              * @var \DateTime|null $startDate
              * @var \DateTime|null $endDate
              * @var int $featured
@@ -444,6 +456,7 @@ class PublicationsController extends AdminPanelController
             $content = $expectedParameters->getValue('content');
             $seoDescription = $expectedParameters->getValue('seoDescription');
             $category = $expectedParameters->getValue('category');
+            $publicDate = $expectedParameters->getValue('publicDate');
             $startDate = $expectedParameters->getValue('startDate');
             $endDate = $expectedParameters->getValue('endDate');
             $featured = $expectedParameters->getValue('featured') == PublicationMapper::FEATURED ? PublicationMapper::FEATURED : PublicationMapper::UNFEATURED;
@@ -475,6 +488,7 @@ class PublicationsController extends AdminPanelController
                     $mapper->setLangData($lang, 'title', $title);
                     $mapper->setLangData($lang, 'content', $content);
                     $mapper->setLangData($lang, 'seoDescription', $seoDescription);
+                    $mapper->setLangData($lang, 'publicDate', $publicDate);
                     $mapper->setLangData($lang, 'startDate', $startDate);
                     $mapper->setLangData($lang, 'endDate', $endDate);
                     $mapper->setLangData($lang, 'category', $category);
@@ -520,6 +534,7 @@ class PublicationsController extends AdminPanelController
                         $mapper->setLangData($lang, 'title', $title);
                         $mapper->setLangData($lang, 'content', $content);
                         $mapper->setLangData($lang, 'seoDescription', $seoDescription);
+                        $mapper->setLangData($lang, 'publicDate', $publicDate);
                         $mapper->setLangData($lang, 'startDate', $startDate);
                         $mapper->setLangData($lang, 'endDate', $endDate);
                         $mapper->setLangData($lang, 'category', $category);
@@ -970,10 +985,7 @@ class PublicationsController extends AdminPanelController
             'title',
             'categoryName',
             'visits',
-            'startDate',
-            'endDate',
-            'createdAt',
-            'updatedAt',
+            'publicDate',
             'authorUser',
             'featuredDisplay',
         ];
@@ -982,8 +994,6 @@ class PublicationsController extends AdminPanelController
             'idPadding' => 'DESC',
             'createdAt' => 'DESC',
             'updatedAt' => 'DESC',
-            'startDate' => 'DESC',
-            'endDate' => 'DESC',
             'authorUser' => 'DESC',
             'categoryName' => 'DESC',
             'featuredDisplay' => 'DESC',
@@ -1025,17 +1035,14 @@ class PublicationsController extends AdminPanelController
                 $columns = [];
 
                 $columns[] = $e->idPadding;
-                $columns[] = $e->title;
+                $columns[] = mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...';
                 $columns[] = $e->categoryName;
                 $columns[] = $e->visits;
-                $columns[] = $mapper->startDate !== null ? $mapper->startDate->format('d-m-Y h:i A') : '-';
-                $columns[] = $mapper->endDate !== null ? $mapper->endDate->format('d-m-Y h:i A') : '-';
-                $columns[] = $mapper->createdAt->format('d-m-Y h:i A');
-                $columns[] = $mapper->updatedAt !== null ? $mapper->updatedAt->format('d-m-Y h:i A') : '-';
+                $columns[] = $mapper->publicDate->format('d-m-Y');
                 $columns[] = $e->authorUser;
                 $columns[] = $e->featuredDisplay;
                 $columns[] = $buttons;
-                return $columns;
+                return $columns;                
             },
 
         ]);

@@ -56,10 +56,7 @@ $editLink;
                 <th><?= __($langGroup, 'Título'); ?></th>
                 <th><?= __($langGroup, 'Categoría'); ?></th>
                 <th><?= __($langGroup, 'Visitas'); ?></th>
-                <th><?= __($langGroup, 'Fecha inicial'); ?></th>
-                <th><?= __($langGroup, 'Fecha final'); ?></th>
-                <th><?= __($langGroup, 'Creación'); ?></th>
-                <th><?= __($langGroup, 'Edición'); ?></th>
+                <th><?= __($langGroup, 'Fecha'); ?></th>
                 <th><?= __($langGroup, 'Autor'); ?></th>
                 <th><?= __($langGroup, 'Destacado'); ?></th>
                 <th><?= __($langGroup, 'Acciones'); ?></th>

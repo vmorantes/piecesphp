@@ -35,10 +35,13 @@ use Publications\PublicationsLang;
  * @property string $ogImage
  * @property string $folder
  * @property int $visits
+ * @property string|\DateTime $publicDate
  * @property string|\DateTime|null $startDate
  * @property string|\DateTime|null $endDate
  * @property string|\DateTime $createdAt
  * @property string|\DateTime $updatedAt
+ * @property int|UsersModel $createdBy
+ * @property int|UsersModel $modifiedBy
  * @property int $status
  * @property int $featured
  * @property \stdClass|string|null $meta
@@ -99,6 +102,10 @@ class PublicationMapper extends EntityMapperExtensible
         'visits' => [
             'type' => 'int',
         ],
+        'publicDate' => [
+            'type' => 'datetime',
+            'default' => 'timestamp',
+        ],
         'startDate' => [
             'type' => 'datetime',
             'null' => true,
@@ -113,6 +120,23 @@ class PublicationMapper extends EntityMapperExtensible
         ],
         'updatedAt' => [
             'type' => 'datetime',
+            'null' => true,
+        ],
+        'createdBy' => [
+            'type' => 'int',
+            'reference_table' => UsersModel::TABLE,
+            'reference_field' => 'id',
+            'reference_primary_key' => 'id',
+            'human_readable_reference_field' => 'username',
+            'mapper' => UsersModel::class,
+        ],
+        'modifiedBy' => [
+            'type' => 'int',
+            'reference_table' => UsersModel::TABLE,
+            'reference_field' => 'id',
+            'reference_primary_key' => 'id',
+            'human_readable_reference_field' => 'username',
+            'mapper' => UsersModel::class,
             'null' => true,
         ],
         'status' => [
@@ -144,7 +168,7 @@ class PublicationMapper extends EntityMapperExtensible
         '`title` ASC',
         '`category` ASC',
         '`startDate` ASC',
-        '`createdAt` ASC',
+        '`publicDate` ASC',
         '`endDate` ASC',
     ];
 
@@ -224,6 +248,34 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * @return string
+     */
+    public function createdByFullName()
+    {
+        $createdBy = $this->createdBy;
+
+        if (!is_object($createdBy)) {
+            $this->createdBy = new UsersModel($this->createdBy);
+        }
+
+        return $this->createdBy->getFullName();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function modifiedByFullName()
+    {
+        $modifiedBy = $this->modifiedBy;
+
+        if (!is_object($modifiedBy) && $modifiedBy !== null) {
+            $this->modifiedBy = new UsersModel($this->modifiedBy);
+        }
+
+        return $modifiedBy !== null ? $this->modifiedBy->getFullName() : null;
+    }
+
+    /**
      * @return static
      */
     public function addVisit()
@@ -268,6 +320,18 @@ class PublicationMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
+    public function publicDateFormat(string $format = null, array $replaceTemplate = [])
+    {
+        $format = is_string($format) ? $format : get_default_format_date();
+        $formated = localeDateFormat($format, $this->publicDate, $replaceTemplate);
+        return $formated;
+    }
+
+    /**
+     * @param string $format
+     * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
+     * @return string
+     */
     public function createdAtFormat(string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
@@ -278,12 +342,12 @@ class PublicationMapper extends EntityMapperExtensible
     /**
      * @param string $format
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
-     * @return string
+     * @return string|null
      */
     public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = localeDateFormat($format, $this->updatedAt, $replaceTemplate);
+        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -356,6 +420,7 @@ class PublicationMapper extends EntityMapperExtensible
         }
 
         $this->createdAt = new \DateTime();
+        $this->createdBy = get_config('current_user')->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -379,6 +444,7 @@ class PublicationMapper extends EntityMapperExtensible
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
             return false;
         }
+        $this->modifiedBy = get_config('current_user')->id;
         if (!$noDateUpdate) {
             $this->updatedAt = new \DateTime();
         }

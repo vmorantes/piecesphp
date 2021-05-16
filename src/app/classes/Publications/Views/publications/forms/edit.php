@@ -43,7 +43,98 @@ $action;
         </div>
     </div>
 
-    <br><br>
+    <br>
+
+    <div class="ui accordion fluid mw-1200">
+
+        <div class="title">
+            <i class="dropdown icon"></i>
+            <?= __($langGroup, 'Ficha rápida de información'); ?>
+        </div>
+
+        <div class="content">
+
+            <div class="ui piled segment transition hidden">
+
+                <div class="ui form">
+
+                    <div class="field">
+                        <strong><?= __($langGroup, 'Título'); ?>:</strong>
+                        <?= $element->getLangData($lang, 'title', false, ''); ?>
+                    </div>
+
+                    <div class="four fields">
+
+                        <div class="field">
+                            <div class="ui sub header"><?= __($langGroup, 'Datos básicos'); ?></div>
+                            <strong><?= __($langGroup, 'Categoría'); ?>:</strong>
+                            <?= $element->category->getLangData($lang, 'name', false, ''); ?>
+                            <br>
+                            <strong><?= __($langGroup, 'Autor'); ?>:</strong>
+                            <?= $element->authorFullName(); ?>
+                            <br>
+                            <strong><?= __($langGroup, 'Fecha pública'); ?>:</strong>
+                            <?= $element->publicDate->format('d-m-Y'); ?>
+                            <br>
+                            <strong><?= __($langGroup, 'Destacado'); ?>:</strong>
+                            <?= $element->isFeatured() ? __($langGroup, 'Sí') : __($langGroup, 'No'); ?>
+                        </div>
+
+                        <div class="field">
+                            <div class="ui sub header"><?= __($langGroup, 'Datos de creación'); ?></div>
+                            <div>
+                                <strong><?= __($langGroup, 'Fecha'); ?>:</strong>
+                                <?= $element->createdAt->format('d-m-Y h:i:s A'); ?>
+                                <br>
+                                <strong><?= __($langGroup, 'Usuario'); ?>:</strong>
+                                <?= $element->createdByFullName(); ?>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="ui sub header"><?= __($langGroup, 'Datos de modificación'); ?></div>
+                            <div>
+                                <?php if($element->updatedAt !== null): ?>
+                                <strong><?= __($langGroup, 'Fecha'); ?>:</strong>
+                                <?= $element->updatedAt->format('d-m-Y h:i:s A'); ?>
+                                <br>
+                                <strong><?= __($langGroup, 'Usuario'); ?>:</strong>
+                                <?= $element->modifiedByFullName(); ?>
+                                <?php else: ?>
+                                <strong><?= __($langGroup, 'Sin modificaciones'); ?></strong>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <div class="ui sub header"><?= __($langGroup, 'Otros datos'); ?></div>
+                            <div>
+                                <strong><?= __($langGroup, 'Tiene imagen SEO'); ?>:</strong>
+                                <?= mb_strlen($element->getLangData($lang, 'ogImage', true, '')) > 0 ? __($langGroup, 'Sí') : __($langGroup, 'No'); ?>
+                                <br>
+                                <strong><?= __($langGroup, 'Tiene descripción SEO'); ?>:</strong>
+                                <?= mb_strlen($element->getLangData($lang, 'seoDescription', true, '')) > 0 ? __($langGroup, 'Sí') : __($langGroup, 'No'); ?>
+                                <br>
+                                <strong><?= __($langGroup, 'Fecha de inicio'); ?>:</strong>
+                                <?= $element->startDateFormat('d-m-Y h:i:s') !== null ? $element->startDateFormat('d-m-Y h:i:s') : 'Sin especificar'; ?>
+                                <br>
+                                <strong><?= __($langGroup, 'Fecha de finalización'); ?>:</strong>
+                                <?= $element->endDateFormat('d-m-Y h:i:s') !== null ? $element->endDateFormat('d-m-Y h:i:s') : 'Sin especificar'; ?>
+                                <br>
+                                <strong><?= __($langGroup, 'Visitas'); ?>:</strong>
+                                <?= $element->visits; ?>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
     <div class="ui tabular menu">
         <div class="item active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
@@ -69,6 +160,11 @@ $action;
                 <select class="ui dropdown search" name="author" data-search-url="<?= $searchUsersURL; ?>" required>
                     <option value="<?= $element->author->id; ?>"><?= $element->author->getFullName(); ?></option>
                 </select>
+            </div>
+
+            <div class="field" calendar-js calendar-type="date">
+                <label><?= __($langGroup, 'Fecha'); ?></label>
+                <input type="text" name="publicDate" required autocomplete="off" value="<?= $element->publicDate->format('Y-m-d h:i:s A'); ?>">
             </div>
 
             <div class="field">
