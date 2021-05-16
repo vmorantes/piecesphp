@@ -1203,7 +1203,7 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
  */
 function localeDateFormat(string $format, \DateTime $time = null, array $replaceTemplate = [])
 {
-    if ($time !== null) {
+    if ($time === null) {
         $time = new \DateTime();
     }
 

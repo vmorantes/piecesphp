@@ -1,10 +1,9 @@
 //Resets
-figure{
+figure {
     display: block;
     margin: 0;
     padding: 0;
 }
-
 
 //Correcciones a los estilos semantic
 a.ui.button {
@@ -38,9 +37,24 @@ a.ui.button {
 }
 
 .ui.dropdown {
-    border-radius: 0px;
+    border-radius: 0px !important;
 
     .menu {
+        border-radius: 0px !important;
+    }
+}
+
+.ui.tabular.menu {
+    .item:not(.active) {
+        cursor: pointer;
+    }
+}
+
+.ui.card,
+.ui.cards {
+    border-radius: 0px;
+
+    .card {
         border-radius: 0px;
     }
 }

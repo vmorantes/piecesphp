@@ -80,6 +80,17 @@
 
     }
 
+    .container-cards-standard-list {
+        position: relative;
+        max-width: 1920px;
+        padding: 0px 0px 3rem 0px;
+
+        >* {
+            max-width: 98%;
+        }
+
+    }
+
     .container-buttons {
         >.button {
             margin-top: 0.5rem;

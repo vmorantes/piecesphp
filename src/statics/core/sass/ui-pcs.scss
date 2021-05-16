@@ -279,6 +279,23 @@ footer.#{$globalClassPcs} {
     }
 }
 
+.mw-800{
+    max-width: 800px !important;
+}
+
+.mw-900{
+    max-width: 900px !important;
+}
+
+.mw-1200{
+    max-width: 1200px !important;
+}
+
+.mw-1440{
+    max-width: 1440px !important;
+}
+
+//Correcciones a los estilos semantic
 a.ui.button {
     text-decoration: none !important;
 }
@@ -287,8 +304,36 @@ a.ui.button {
     border-radius: 0px !important;
 }
 
+.ui.form {
+
+    .field {
+
+        input,
+        select,
+        textarea {
+            border-radius: 0px !important;
+        }
+    }
+
+}
+
+.ui.dropdown {
+    border-radius: 0px !important;
+
+    .menu {
+        border-radius: 0px !important;
+    }
+}
+
 .ui.tabular.menu {
     .item:not(.active) {
         cursor: pointer;
+    }
+}
+
+.ui.card, .ui.cards{
+    border-radius: 0px;
+    .card{
+        border-radius: 0px;
     }
 }

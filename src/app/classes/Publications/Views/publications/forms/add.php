@@ -53,6 +53,11 @@ $action;
                 </select>
             </div>
 
+            <div class="field required" calendar-js calendar-type="date">
+                <label><?= __($langGroup, 'Fecha'); ?></label>
+                <input type="text" name="publicDate" required autocomplete="off" value="<?= date('Y-m-d h:i:s A'); ?>">
+            </div>
+
             <div class="field">
                 <div class="ui toggle checkbox">
                     <input type="checkbox" name="featured" value="<?= PublicationMapper::FEATURED; ?>">

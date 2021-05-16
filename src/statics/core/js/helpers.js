@@ -1761,7 +1761,9 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 		//Input para simular el error de validación
 		let uniqueID = generateUniqueID()
 		let selectSimulator = document.createElement('select')
-		selectSimulator.setAttribute('required', true)
+		if (select.get(0).required) {
+			selectSimulator.setAttribute('required', true)
+		}
 		selectSimulator.setAttribute('simulator', uniqueID)
 		selectSimulator.setAttribute('style', [
 			"display: block !important;",

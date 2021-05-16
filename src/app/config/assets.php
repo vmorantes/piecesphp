@@ -121,15 +121,10 @@ $assets['jquerymask']['plugins'] = [];
  * https://quilljs.com/
  */
 $assets['quilljs']['js'] = [
-    'statics/plugins/jquery-ui/jquery-ui.min.js',
-    'statics/plugins/elfinder/js/elfinder.full.js',
     'statics/plugins/quilljs/quill.min.js',
 ];
 $assets['quilljs']['css'] = [
     'statics/plugins/quilljs/quill.snow.css',
-    'statics/plugins/jquery-ui/jquery-ui.min.css',
-    'statics/plugins/elfinder/css/elfinder.full.css',
-    'statics/plugins/elfinder/css/theme.css',
 ];
 $assets['quilljs']['plugins'] = [
     'imageResize' => [
@@ -246,6 +241,7 @@ $assets['elfinder']['plugins'] = [];
 
 /**
  * JQuery UI
+ * Sin accordion
  * https://github.com/Studio-42/elFinder
  */
 $assets['jqueryui']['js'] = [

@@ -22,7 +22,7 @@ $element;
             </div>
 
             <div class="text-center">
-                <strong><?= $element->createdAtFormat(); ?></strong>
+                <strong><?= $element->publicDateFormat(); ?></strong>
                 -
                 <em><?= $element->authorFullName(); ?></em>
             </div>

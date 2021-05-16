@@ -35,7 +35,7 @@ $langGroupDatatables = 'datatables';
 <br>
 <br>
 
-<div class="container-table-standard-list">
+<div class="container-cards-standard-list">
 
     <div class="table-to-cards">
 

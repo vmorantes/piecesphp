@@ -435,7 +435,15 @@ function configCalendars() {
 
 		let grupos = []
 
-		calendarios.calendar(pcsphpGlobals.configCalendar)
+		for (let calendario of calendarios.toArray()) {
+			calendario = $(calendario)
+			let tipoCalendario = calendario.attr('calendar-type')
+			tipoCalendario = typeof tipoCalendario == 'string' && tipoCalendario.trim().length > 0 ? tipoCalendario.trim() : 'date'
+			tipoCalendario = tipoCalendario == 'datetime' || tipoCalendario == 'date' ? tipoCalendario : 'datetime'
+			let calendarioOpciones = Object.assign({}, pcsphpGlobals.configCalendar)
+			calendarioOpciones.type = tipoCalendario
+			$(calendario).calendar(calendarioOpciones)
+		}
 
 		for (let calendarioGrupo of calendariosGrupos) {
 
