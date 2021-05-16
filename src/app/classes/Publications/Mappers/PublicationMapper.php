@@ -165,10 +165,10 @@ class PublicationMapper extends EntityMapperExtensible
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
         '`featured` DESC',
+        '`publicDate` DESC',
         '`title` ASC',
         '`category` ASC',
         '`startDate` ASC',
-        '`publicDate` ASC',
         '`endDate` ASC',
     ];
 

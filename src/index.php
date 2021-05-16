@@ -1,5 +1,6 @@
 <?php
 
+use App\Controller\PublicAreaController;
 use App\Model\AppConfigModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseToken;
@@ -84,16 +85,32 @@ $app = new \Slim\App(get_config('slim_container'));
 $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
 
     //──── Idiomas ───────────────────────────────────────────────────────────────────────────
+    $route = $request->getAttribute('route');
+    $isGenericView = $route->getName() == 'public-generic';
     $allowedLangs = Config::get_allowed_langs();
-    $currenLang = Config::get_lang();
+    $currentLang = Config::get_lang();
     $alternativesURL = [];
 
     foreach ($allowedLangs as $lang) {
 
-        if ($currenLang != $lang) {
+        if ($currentLang != $lang) {
 
-            $alternativesURL[$lang] = get_lang_url($currenLang, $lang);
+            $alternativesURL[$lang] = get_lang_url($currentLang, $lang);
 
+            if ($isGenericView) {
+                $arguments = $route->getArguments();
+
+                if (array_key_exists('name', $arguments)) {
+
+                    $nameGenericView = $arguments['name'];
+
+                    if (is_string($nameGenericView)) {
+                        $nameGenericViewLang = lang(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, $nameGenericView, $lang);
+                        $alternativesURL[$lang] = str_replace($nameGenericView, $nameGenericViewLang, $alternativesURL[$lang]);
+                    }
+
+                }
+            }
         }
 
     }

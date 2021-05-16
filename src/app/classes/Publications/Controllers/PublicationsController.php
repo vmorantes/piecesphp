@@ -898,6 +898,7 @@ class PublicationsController extends AdminPanelController
                 $category,
                 $status,
                 $title,
+                $featured,
                 sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
             ];
             $checksum = sha1(json_encode($checksumData));
@@ -1042,7 +1043,7 @@ class PublicationsController extends AdminPanelController
                 $columns[] = $e->authorUser;
                 $columns[] = $e->featuredDisplay;
                 $columns[] = $buttons;
-                return $columns;                
+                return $columns;
             },
 
         ]);
@@ -1176,9 +1177,15 @@ class PublicationsController extends AdminPanelController
             return $element;
         };
         $each = !$jsonExtractExists ? function ($element) {
+            $mapper = PublicationMapper::objectToMapper($element);
             $element = PublicationMapper::translateEntityObject($element);
+            $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
             return $element;
-        } : null;
+        } : function ($element) {
+            $mapper = PublicationMapper::objectToMapper($element);
+            $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
+            return $element;
+        };
 
         $pagination = $pageQuery->getPagination($parser, $each);
 

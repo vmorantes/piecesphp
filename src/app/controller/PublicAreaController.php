@@ -47,6 +47,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
      */
     protected $user = null;
 
+    const LANG_REPLACE_GENERIC_TITLES = 'REPLACE_GENERIC_TITLES';
+
     /**
      * @return static
      */
@@ -147,7 +149,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         $name = $req->getAttribute('name', null);
 
         $folder = is_string($folder) && mb_strlen(trim($folder)) > 0 ? trim($folder) : null;
-        $name = mb_strlen(trim($name)) > 0 ? trim($name) : null;
+        $name = mb_strlen(trim($name)) > 0 ? __(self::LANG_REPLACE_GENERIC_TITLES, trim($name)) : null;
 
         if ($folder !== null) {
             $name = "{$folder}/{$name}";

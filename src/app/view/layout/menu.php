@@ -36,13 +36,13 @@ foreach($categories as $k => $i){
 
             </a>
 
-            <a class="item" href="<?= genericViewRoute('elements'); ?>">
+            <a class="item" href="<?= genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'elements')); ?>">
 
                 <div class="text"><?= __(LANG_GROUP, 'Elementos')?></div>
 
             </a>
 
-            <a class="item" href="<?= genericViewRoute('tabs-sample'); ?>">
+            <a class="item" href="<?= genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'tabs-sample')); ?>">
 
                 <div class="text"><?= __(LANG_GROUP, 'Ejemplo de tabs')?></div>
 
