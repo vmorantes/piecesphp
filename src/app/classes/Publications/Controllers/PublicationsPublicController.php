@@ -185,7 +185,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
             $imageOpenGraph = is_string($imageOpenGraph) && mb_strlen($imageOpenGraph) > 0 ? $imageOpenGraph : $element->currentLangData('mainImage');
 
             MetaTags::setDescription($seoDescription);
-            MetaTags::setImage($imageOpenGraph);
+            MetaTags::setImage(baseurl($imageOpenGraph));
 
             //URL alternativas según el idioma
             Config::set_config('alternatives_url', $element->getURLAlternatives());
