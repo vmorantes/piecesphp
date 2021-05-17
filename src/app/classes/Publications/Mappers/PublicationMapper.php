@@ -160,6 +160,11 @@ class PublicationMapper extends EntityMapperExtensible
     const FEATURED = 1;
     const UNFEATURED = 0;
 
+    const CAN_DELETE_ALL = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
+
     const TABLE = 'publications_elements';
     const VIEW_ACTIVE_DATE = 'publications_active_date_elements';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
