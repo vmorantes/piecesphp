@@ -895,12 +895,23 @@ class PublicationsCategoryController extends AdminPanelController
 
         $classname = self::class;
 
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = array_keys(UsersModel::TYPES_USERS);
 
-        $permisos_listado = $all_roles;
-
-        $permisos_estados_gestion = [
+        //Permisos
+        $list = $allRoles;
+        $creation = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_GENERAL,
+        ];
+        $edition = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_GENERAL,
+        ];
+        $deletion = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN,
         ];
 
         $routes = [
@@ -914,7 +925,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_listado
+                $list
             ),
             new Route( //Formulario de crear
                 "{$startRoute}/forms/add[/]",
@@ -923,7 +934,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_estados_gestion
+                $creation
             ),
             new Route( //Formulario de editar
                 "{$startRoute}/forms/edit/{id}/{lang}[/]",
@@ -932,7 +943,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_estados_gestion,
+                $edition,
                 [
                     'lang' => Config::get_default_lang(),
                 ]
@@ -952,7 +963,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_listado
+                $list
             ),
 
             //──── POST ──────────────────────────────────────────────────────────────────────────────
@@ -964,7 +975,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $all_roles
+                $creation
             ),
             new Route( //Acción de editar
                 "{$startRoute}/action/edit[/]",
@@ -973,7 +984,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $permisos_estados_gestion
+                $edition
             ),
             new Route( //Acción de eliminar
                 "{$startRoute}/action/delete/{id}[/]",
@@ -982,7 +993,7 @@ class PublicationsCategoryController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $permisos_estados_gestion
+                $deletion
             ),
 
         ];
