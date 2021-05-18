@@ -19,13 +19,14 @@ $_SERVER['argc'] = isset($_SERVER['argc']) ? $_SERVER['argc'] : count($_SERVER['
 
 if (!isset($_SERVER['HTTP_HOST'])) {
 
-    $fileEntry = $_SERVER['PHP_SELF'];
+    $fileEntry = basename($_SERVER['PHP_SELF']);
 
     if ($fileEntry == 'index.php') {
 
+        $_SERVER['SCRIPT_NAME'] = '';
         $argv = $_SERVER['argv'];
         $argc = $_SERVER['argc'];
-        $firstArgument = $argc > 0 ? $argv[0] : null;
+        $firstArgument = $argc > 0 ? basename($argv[0]) : null;
         $firstArgumentValid = $firstArgument == $fileEntry;
 
         if ($firstArgument !== null && $firstArgument) {
