@@ -37,7 +37,8 @@
         "leafo/scssphp": "^0.8.4",
         "mpdf/mpdf": "^8.0",
         "studio-42/elfinder": "^2.1",
-        "piecesphp/database": "^2.0"
+        "piecesphp/database": "^2.0",
+        "ifsnop/mysqldump-php": "^2.9"
     },
     "suggest": {
         "ext-zlib": ">=1.2.0.4",

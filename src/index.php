@@ -9,6 +9,7 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\TerminalData;
 
 require __DIR__ . '/app/core/bootstrap.php';
 
@@ -136,6 +137,19 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
 
     //Verifica validez del JWT
     $isActiveSession = SessionToken::isActiveSession($JWT);
+
+    //En caso de ser desde la terminal conectarse al root
+    if (!$isActiveSession && get_config('terminalData')->isTerminal()) {
+        $rootUser = new UsersModel(1);
+        if ($rootUser->id !== null) {
+            $JWT = SessionToken::generateToken([
+                'id' => $rootUser->id,
+                'type' => $rootUser->type,
+            ]);
+            $_SERVER["HTTP_" . mb_strtoupper(SessionToken::TOKEN_NAME)] = $JWT;
+            $isActiveSession = SessionToken::isActiveSession($JWT);
+        }
+    }
 
     //Verifica la validez del usuario activo si hay una sesion activa
     if ($isActiveSession) {
@@ -290,8 +304,14 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
                         }
 
                     } else {
-                        set_flash_message('requested_uri', get_current_url());
-                        return $response->withRedirect(get_route('users-form-login'));
+
+                        if (!TerminalData::getInstance()->isTerminal()) {
+                            set_flash_message('requested_uri', get_current_url());
+                            return $response->withRedirect(get_route('users-form-login'));
+                        } else {
+                            return $response->write("Esta ruta necesita autenticación \r\n");
+                        }
+
                     }
 
                 }
@@ -395,4 +415,39 @@ require_once basepath("app/config/final-configurations.php");
 
 /** Activar enrutador */
 RouteGroup::initRoutes(false);
+
+if (TerminalData::getInstance()->isTerminal()) {
+
+    $terminalDataInstance = TerminalData::getInstance();
+    $routeName = $terminalDataInstance->route();
+    $routeInformation = get_route_info($routeName, [], true);
+    $_SERVER['REQUEST_URI'] = '';
+
+    if ($routeInformation !== null) {
+
+        $routeURLSegment = str_replace([
+            'http://',
+            'https://',
+            'localhost',
+        ], '', get_route($routeName));
+
+        $container = $app->getContainer();
+
+        $basicServerVariables = $terminalDataInstance->basicServerVariables();
+
+        $basicServerVariables['REQUEST_URI'] = $routeURLSegment;
+
+        foreach ($basicServerVariables as $key => $value) {
+            $_SERVER[$key] = $value;
+        }
+
+        $container['environment'] = \Slim\Http\Environment::mock($basicServerVariables);
+
+    } else {
+        echo "La ruta solicitada no existe\r\n";
+        exit;
+    }
+
+}
+
 get_config('slim_app')->run();
