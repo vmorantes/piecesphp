@@ -8,6 +8,67 @@
  * @copyright   Copyright (c) 2018
  */
 
+//Preparación para solicitudes desde la terminal
+$_SERVER['PCSPHP_TERMINAL_DATA'] = [
+    'isTerminal' => defined('STDIN'),
+    'arguments' => [],
+    'route' => [],
+];
+$_SERVER['argv'] = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
+$_SERVER['argc'] = isset($_SERVER['argc']) ? $_SERVER['argc'] : count($_SERVER['argv']);
+
+if (!isset($_SERVER['HTTP_HOST'])) {
+
+    $fileEntry = $_SERVER['PHP_SELF'];
+
+    if ($fileEntry == 'index.php') {
+
+        $argv = $_SERVER['argv'];
+        $argc = $_SERVER['argc'];
+        $firstArgument = $argc > 0 ? $argv[0] : null;
+        $firstArgumentValid = $firstArgument == $fileEntry;
+
+        if ($firstArgument !== null && $firstArgument) {
+            unset($argv[0]);
+            $argc--;
+        }
+
+        if ($argc > 0 && $firstArgumentValid) {
+
+            $terminalData = $_SERVER['PCSPHP_TERMINAL_DATA'];
+
+            foreach ($argv as $i) {
+
+                $argParts = explode('=', $i);
+
+                if (count($argParts) == 2) {
+
+                    $argName = $argParts[0];
+                    $argValue = $argParts[1];
+                    if (is_string($argName) && is_string($argValue)) {
+                        $terminalData['arguments'][$argName] = $argValue;
+                    }
+
+                }
+
+            }
+
+            $arguments = $terminalData['arguments'];
+            $routeArgument = isset($arguments['route']) ? $arguments['route'] : null;
+
+            if ($routeArgument !== null) {
+                $terminalData['route'] = $routeArgument;
+            }
+
+            $_SERVER['HTTP_HOST'] = 'localhost';
+            $_SERVER['REQUEST_URI'] = '';
+            $_SERVER['PCSPHP_TERMINAL_DATA'] = $terminalData;
+
+        }
+    }
+}
+
+//Manejo de errores
 error_reporting(E_ALL);
 ini_set('display_errors', isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost');
 set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line, $array_context) {
@@ -42,6 +103,7 @@ use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\TerminalData;
 
 if (!defined('BASEPATH')) {
     /**
@@ -107,3 +169,5 @@ BaseHashEncryption::setSecretKey(Config::app_key());
 
 //Configurar directorio de vistas por defecto
 BaseController::setViewDir(Config::app_path() . "/app/view/");
+
+set_config('terminalData', TerminalData::getInstance()->setData($_SERVER['PCSPHP_TERMINAL_DATA']));

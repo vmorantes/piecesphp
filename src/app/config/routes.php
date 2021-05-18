@@ -59,6 +59,7 @@ use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Test;
 use Publications\PublicationsRoutes;
+use Terminal\Controllers\TerminalController;
 
 $prefix_lang = get_config('prefix_lang');
 $slim_app = get_config('slim_app');
@@ -68,6 +69,7 @@ PiecesRouteGroup::setRouter($slim_app);
 
 //Nota: Declarar de más específico a menos específico, tanto los grupos como las rutas independientes dentro de los grupos
 
+$terminalGroup = new PiecesRouteGroup($prefix_lang . '/terminal'); //Zona administrativa
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
 $configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Zona administrativa
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
@@ -83,6 +85,9 @@ $token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Servido perso
 $zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
+
+//Rutas para solicitudes desde la terminal
+TerminalController::routes($terminalGroup);
 
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
