@@ -108,6 +108,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     </div>
 
+    <?php if($suscriberEnable) : ?>
     <div class="content">
 
         <div class="wrapper mw-800">
@@ -131,5 +132,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         </div>
 
     </div>
+    <?php endif; ?>
 
 </section>

@@ -7,6 +7,7 @@
 namespace App\Controller;
 
 use Newsletter\Mappers\NewsletterSuscriberMapper;
+use Newsletter\NewsletterRoutes;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
@@ -220,12 +221,14 @@ class ContactFormsController extends PublicAreaController
                     $resultOperation->setMessage($unknowErrorMessage);
                 }
 
-                //Agregar a suscriptores
-                $suscriber = new NewsletterSuscriberMapper();
-                $suscriber->name = $name;
-                $suscriber->email = $email;
-                $suscriber->acceptUpdates = $updates ? NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : NewsletterSuscriberMapper::ACCEPT_UPDATES_NO;
-                $suscriber->save(true);
+                if (NewsletterRoutes::ENABLE) {
+                    //Agregar a suscriptores
+                    $suscriber = new NewsletterSuscriberMapper();
+                    $suscriber->name = $name;
+                    $suscriber->email = $email;
+                    $suscriber->acceptUpdates = $updates ? NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : NewsletterSuscriberMapper::ACCEPT_UPDATES_NO;
+                    $suscriber->save(true);
+                }
 
             } catch (\Exception $e) {
 
