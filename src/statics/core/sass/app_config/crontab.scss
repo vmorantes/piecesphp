@@ -1,0 +1,34 @@
+.ui.header.small {
+    margin-top: 0.5rem;
+    opacity: 0.5;
+}
+
+.ui-pcs.container-sidebar>.content {
+    padding-right: 1rem;
+    padding-left: 1.8rem;
+}
+
+.container-crontab {
+
+    max-width: 650px;
+
+    >form.ui.form {
+
+        padding: 1rem 0.5rem;
+        min-width: 280px;
+        max-width: 1200px;
+
+    }
+
+    .crontab-selector,
+    .jqCron {
+        display: block;
+        padding: 10px;
+        margin: 5px 0px 5px 0px;
+    }
+
+    .jqCron-selector-title {
+        padding: 10px;
+    }
+
+}
