@@ -7,6 +7,7 @@
 namespace App\Controller;
 
 use App\Model\AvatarModel;
+use Newsletter\Controllers\NewsletterController;
 use PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Roles;
@@ -89,6 +90,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         $data = [
             'ajaxArticlesURL' => PublicationsController::routeName('ajax-all'),
             'sliderAjax' => HeroController::routeName('ajax-all'),
+            'addSuscriberURL' => NewsletterController::routeName('add'),
             'langGroup' => LANG_GROUP,
         ];
 

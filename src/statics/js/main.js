@@ -42,6 +42,17 @@ window.addEventListener('load', function (e) {
 	})
 
 	CustomNamespace.loader(null, false)
+
+	//Formulario de suscriptor
+	let formSuscriber = $('.ui.form.add-suscriber')
+	if (formSuscriber.length > 0) {
+		genericFormHandler(formSuscriber, {
+			onSuccess: function () {
+				formSuscriber.toArray().map(e => e.reset())
+				formSuscriber.find('button').toArray().map(e => e.blur())
+			}
+		})
+	}
 })
 
 function configurateNavigation() {

@@ -85,8 +85,13 @@ $app = new \Slim\App(get_config('slim_container'));
 //Acciones antes de mostrar una ruta
 $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
 
-    //──── Idiomas ───────────────────────────────────────────────────────────────────────────
     $route = $request->getAttribute('route');
+
+    if (empty($route)) {
+        throw new \Slim\Exception\NotFoundException($request, $response);
+    }
+
+    //──── Idiomas ───────────────────────────────────────────────────────────────────────────
     $isGenericView = $route->getName() == 'public-generic';
     $allowedLangs = Config::get_allowed_langs();
     $currentLang = Config::get_lang();
@@ -119,13 +124,6 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
     Config::set_config('alternatives_url', $alternativesURL);
 
     //──── Validaciones de sesión y redirecciones ────────────────────────────────────────────
-
-    $route = $request->getAttribute('route');
-
-    if (empty($route)) {
-        throw new \Slim\Exception\NotFoundException($request, $response);
-    }
-
     $JWT = SessionToken::getJWTReceived();
     $name_route = $route->getName(); //Nombre de la ruta
     $methods = $route->getMethods(); //Métodos que acepta la ruta solicitada

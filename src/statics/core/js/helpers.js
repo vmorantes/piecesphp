@@ -1073,7 +1073,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 
 							if (e.lengthComputable) {
 								let percentComplete = ((e.loaded / e.total) * 100);
-								loaderElement.updatePercent(percentComplete)
+								loaderElement.updatePercent(percentComplete >= 100 ? 99 : percentComplete)
 							}
 
 						}, false)

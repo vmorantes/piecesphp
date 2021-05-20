@@ -132,6 +132,19 @@ CREATE TABLE `messages_responses` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `newsletter_sucribers`;
+CREATE TABLE `newsletter_sucribers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` text COLLATE utf8_bin NOT NULL,
+  `email` text COLLATE utf8_bin NOT NULL,
+  `acceptUpdates` int(11) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `pcsphp_app_config`;
 CREATE TABLE `pcsphp_app_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -299,4 +312,4 @@ CREATE TABLE `time_on_platform` (
 DROP TABLE IF EXISTS `publications_active_date_elements`;
 CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `publications_active_date_elements` AS (select `pe`.`id` AS `id`,`pe`.`startDate` AS `startDate`,`pe`.`endDate` AS `endDate`,`pe`.`status` AS `status`,unix_timestamp(current_timestamp()) AS `nowDate` from `publications_elements` `pe` having (unix_timestamp(`pe`.`startDate`) <= `nowDate` or `pe`.`startDate` is null) and (unix_timestamp(`pe`.`endDate`) > `nowDate` or `pe`.`endDate` is null));
 
--- 2021-05-16 20:41:35
+-- 2021-05-19 03:44:37
