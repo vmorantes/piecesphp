@@ -39,6 +39,7 @@ $canViewConfigsOption = array_reduce([
     AppConfigController::allowedRoute('generals-sitemap-create'),
     AppConfigController::allowedRoute('email'),
     AppConfigController::allowedRoute('os-ticket'),
+    AppConfigController::allowedRoute('crontab'),
 ], function($a, $b){
     return $a || $b;
 }, false);
@@ -169,6 +170,13 @@ $canViewConfigsOption = array_reduce([
                 <a class="item" href="<?=  get_route('admin-error-log', [], true); ?>" target="blank">
                     <div class="figure"> <i class="icon times"></i></div>
                     <div class="text"><?= __(AppConfigController::LANG_GROUP, 'Log de errores'); ?></div>
+                </a>
+                <?php endif; ?>
+
+                <?php if(AppConfigController::allowedRoute('crontab')): ?>
+                <a class="item" href="<?= AppConfigController::routeName('crontab'); ?>">
+                    <div class="figure"> <i class="icon clock"></i></div>
+                    <div class="text"><?= __(AppConfigController::LANG_GROUP, 'Crontab'); ?></div>
                 </a>
                 <?php endif; ?>
 

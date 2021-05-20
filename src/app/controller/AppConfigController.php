@@ -24,6 +24,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\CrontabManager;
 use PiecesPHP\LangInjector;
 use PiecesPHP\LetsEncryptHandler;
 use Publications\Controllers\PublicationsCategoryController;
@@ -55,6 +56,9 @@ class AppConfigController extends AdminPanelController
 
     const LANG_GROUP = 'appConfig';
 
+    const ROLES_CRONTAB = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
     const ROLES_BACKGROUND = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
@@ -1165,6 +1169,160 @@ class AppConfigController extends AdminPanelController
      * @param Request $req
      * @param Response $res
      * @param array $args
+     * @return void
+     */
+    public function crontab(Request $req, Response $res, array $args)
+    {
+        $langGroup = self::LANG_GROUP;
+
+        $requestMethod = mb_strtoupper($req->getMethod());
+
+        set_title(__(self::LANG_GROUP, 'Crontab'));
+
+        if ($requestMethod == 'GET') {
+
+            set_custom_assets([
+                'statics/core/js/app_config/crontab/jqcron/jqCron.js',
+                'statics/core/js/app_config/crontab/jqcron/jqCron.en.js',
+                'statics/core/js/app_config/crontab/crontab.js',
+            ], 'js');
+
+            set_custom_assets([
+                'statics/core/js/app_config/crontab/jqcron/jqCron.css',
+                'statics/core/css/app_config/crontab.css',
+            ], 'css');
+
+            $actionURL = self::routeName('crontab');
+            $crontabs = CrontabManager::getJobs();
+
+            $data = [
+                'langGroup' => $langGroup,
+                'actionURL' => $actionURL,
+                'crontabs' => $crontabs,
+            ];
+
+            $baseViewDir = 'panel/pages/app_configurations';
+            $this->render('panel/layout/header');
+            $this->render("{$baseViewDir}/crontab", $data);
+            $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST') {
+
+            //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+            //Definición de validaciones y procesamiento
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'crontab',
+                    null,
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    false,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+                new Parameter(
+                    'crontask',
+                    null,
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    false,
+                    function ($value) {
+                        return clean_string($value);
+                    }
+                ),
+            ]);
+
+            //Obtención de datos
+            $inputData = $req->getParsedBody();
+
+            //Asignación de datos para procesar
+            $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+            //──── Estructura de respuesta ───────────────────────────────────────────────────────────
+
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Configuración Crontab'));
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+
+            //Valores iniciales de la respuesta
+            $resultOperation->setSuccessOnSingleOperation(false);
+
+            //Mensajes de respuesta
+            $successMessage = __(self::LANG_GROUP, 'Datos guardados.');
+            $existsMessages = __(self::LANG_GROUP, 'La tarea ya existe.');
+            $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
+            $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+
+            //──── Acciones ──────────────────────────────────────────────────────────────────────────
+            try {
+
+                //Intenta validar, si todo sale bien el código continúa
+                $expectedParameters->validate();
+
+                try {
+
+                    /**
+                     * @var string $crontab
+                     * @var string $crontask
+                     */
+                    $crontab = $expectedParameters->getValue('crontab');
+                    $crontask = $expectedParameters->getValue('crontask');
+                    $cronjob = "{$crontab} {$crontask}";
+                    $exists = CrontabManager::doesJobExist($cronjob);
+
+                    if (!$exists) {
+
+                        $result = CrontabManager::addJob($cronjob);
+                        $success = $result !== false;
+
+                        if ($success) {
+                            $resultOperation->setMessage($successMessage);
+                            $resultOperation->setSuccessOnSingleOperation($success);
+                            $resultOperation->setValue('reload', true);
+                        } else {
+                            $resultOperation->setMessage($unknowErrorMessage);
+                        }
+
+                    } else {
+                        $resultOperation->setMessage($existsMessages);
+                    }
+
+                } catch (\Exception $e) {
+                    $resultOperation->setMessage($e->getMessage());
+                    log_exception($e);
+                }
+
+            } catch (MissingRequiredParamaterException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            } catch (ParsedValueException $e) {
+
+                $resultOperation->setMessage($unknowErrorWithValuesMessage);
+                log_exception($e);
+
+            } catch (InvalidParameterValueException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            }
+
+            return $res->withJson($resultOperation);
+
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
      * @return Response
      */
     public function actionGeneric(Request $req, Response $res, array $args)
@@ -2039,6 +2197,17 @@ class AppConfigController extends AdminPanelController
                 true,
                 null,
                 self::ROLES_OS_TICKET
+            ),
+
+            //Crontab
+            new Route(
+                "{$startRoute}/crontab[/]",
+                $classname . ':crontab',
+                self::$baseRouteName . '-' . 'crontab',
+                'GET|POST',
+                true,
+                null,
+                self::ROLES_CRONTAB
             ),
 
         ]);
