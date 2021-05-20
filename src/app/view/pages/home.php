@@ -108,4 +108,28 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     </div>
 
+    <div class="content">
+
+        <div class="wrapper mw-800">
+
+            <h2 class="segment-title text-center"><?= __(LANG_GROUP, 'Suscribirse'); ?></h2>
+
+            <p><?= __(LANG_GROUP, 'Recibe nuestras actualizaciones a tu correo'); ?></p>
+
+            <form action="<?= $addSuscriberURL; ?>" class="ui form add-suscriber">
+                <div class="field">
+                    <div class="ui action input">
+                        <input type="email" name="email">
+                        <button class="ui right labeled icon button" type="submit">
+                            <i class="send icon"></i>
+                            <?= __(LANG_GROUP, 'Suscribirse'); ?>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
 </section>
