@@ -100,7 +100,6 @@ if (count($langs) > 0) {
     $publicMenu->addItem($menuLangGroup);
 }
 
-
 ?>
 
 <nav class="navigation">
