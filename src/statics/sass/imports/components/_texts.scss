@@ -53,6 +53,14 @@
     margin: 0;
     padding: pxToRem(10) pxToRem(15);
 
+    &.text-justify{
+        text-align: justify;
+    }
+
+    &.text-center{
+        text-align: center;
+    }
+
     &.wide {
         max-width: 1100px;
     }

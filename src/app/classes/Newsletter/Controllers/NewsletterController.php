@@ -938,6 +938,7 @@ class NewsletterController extends AdminPanelController
                 $params,
                 $silentOnNotExists
             );
+            $route = !is_string($route) ? '' : $route;
         }
 
         $allow = self::_allowedRoute($simpleName, $route, $params);
