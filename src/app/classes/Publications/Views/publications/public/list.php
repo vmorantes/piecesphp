@@ -9,7 +9,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <h2 class="segment-title text-center"><?= $titleSection; ?></h2>
 
-            <section class="posts-list horizontal" data-publication-url="<?= $ajaxURL; ?>" publications-js>
+            <section class="ui cards posts-list" data-publication-url="<?= $ajaxURL; ?>" publications-js>
 
             </section>
 

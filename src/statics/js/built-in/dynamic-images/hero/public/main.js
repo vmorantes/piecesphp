@@ -1,6 +1,6 @@
 window.addEventListener('load', function (e) {
 
-	let slidershow = document.querySelector('.slideshow')
+	let slidershow = document.querySelector('.slideshow-main-home')
 	let sliderAjaxURL = slidershow !== null ? slidershow.dataset.url : null
 
 	if (sliderAjaxURL !== null) {
@@ -69,7 +69,7 @@ window.addEventListener('load', function (e) {
 
 				}
 
-				CustomNamespace.slideshow('.slideshow')
+				CustomNamespace.slideshow('.slideshow-main-home')
 
 			}
 

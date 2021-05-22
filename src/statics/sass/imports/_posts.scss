@@ -1,5 +1,12 @@
 #{$parentSelector} .posts-list {
-    @include simple-content-card;
+
+    .ui.card{
+        &.horizontal .image{
+            width: 400px;
+            max-width: 100%;
+        }
+    }
+    
 }
 
 #{$parentSelector} .post-image {

@@ -12,14 +12,16 @@ a.ui.button {
 
 .ui.button {
     border-radius: 0px !important;
-    background-color: $blue4;
-    color: $white;
+    background-color: $primaryColor;
+    color: $primaryColorOver;
 
     &:hover,
+    &:active,
+    &:focus,
     &.active {
-        background-color: $blue4;
-        color: $white;
-        opacity: 0.5;
+        background-color: $primaryColor;
+        color: $primaryColorOver;
+        opacity: 0.8;
     }
 }
 
@@ -53,6 +55,7 @@ a.ui.button {
 .ui.card,
 .ui.cards {
     border-radius: 0px;
+    color: $defaultTextColor;
 
     .card {
         border-radius: 0px;
