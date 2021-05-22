@@ -33,6 +33,6 @@ set_config('locale_langs', [
  * Formatos de fechas según idioma
  */
 set_config('format_date_lang', [
-    'es' => 'l, d/F/Y, h:i A', // Sábado, 08/Mayo/2021, 05:43 PM
-    'en' => 'l, Y/F/d, h:i A',
+    'es' => 'l, d/F/Y', // Sábado, 08/Mayo/2021
+    'en' => 'l, Y/F/d',
 ]);
