@@ -53,6 +53,9 @@ window.addEventListener('load', function (e) {
 			}
 		})
 	}
+
+	//Activar ejemplo de slideshow estático
+	CustomNamespace.slideshow('.slideshow-static')
 })
 
 function configurateNavigation() {

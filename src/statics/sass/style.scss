@@ -45,7 +45,7 @@ body {
     font-weight: $fwRegular;
     font-size: pxToRem(18);
     line-height: pxToRem(25);
-    color: $gray4;
+    color: $defaultTextColor;
 
     >.header,
     >.hero,
@@ -167,19 +167,19 @@ body {
                     content: ' ';
                     width: 100%;
                     height: 300px;
-                    background-color: $gray2;
+                    background-color: $overlayEffectBGColor;
                 }
 
             }
 
             &.bg-1 {
 
-                background-color: $gray2;
+                background-color: $genericBGColor1;
 
                 &.overlay-effect {
 
                     &::before {
-                        background-color: $white;
+                        background-color: $overlayEffectBGColorAlt;
                     }
 
                 }
@@ -188,7 +188,7 @@ body {
 
             &.bg-2 {
 
-                background-color: $blue;
+                background-color: $primaryColor;
 
             }
 
@@ -206,10 +206,6 @@ body {
             @include quote;
         }
 
-        .cards {
-            @include simple-content-card;
-        }
-
         hr {
             display: block;
             width: 90%;
@@ -219,8 +215,8 @@ body {
             padding: 0;
             border-style: inset;
             border: none;
-            border-bottom: 0.2px solid transparentize($blue1, 0.8);
-            box-shadow: 0 0 13px transparentize($blue1, 0.5);
+            border-bottom: 0.2px solid transparentize($primaryColor, 0.8);
+            box-shadow: 0 0 13px transparentize($primaryColor, 0.5);
 
         }
 
@@ -234,7 +230,7 @@ body {
 
         align-self: flex-end;
         align-self: end;
-        color: $white;
+        color: $footerColor;
 
         >.content {
             padding-top: pxToRem(10);
@@ -265,7 +261,7 @@ body {
                     i.icon {
                         margin: 0;
                         padding: 0;
-                        color: $white;
+                        color: $footerColor;
                         transition: ease color 0.5s;
                     }
 
@@ -273,7 +269,7 @@ body {
                         border-color: transparent;
 
                         i.icon {
-                            color: $blue3;
+                            color: $footerSocialIconsOnHoverColor;
                         }
                     }
 
@@ -315,8 +311,8 @@ body {
         margin: 0;
         padding: 10px 10px;
         background-color: transparent;
-        border: 1px solid $blue3;
-        color: $blue3;
+        border: 1px solid $toTopIconColor;
+        color: $toTopIconColor;
         opacity: 0.5;
         cursor: pointer;
         transition: 0.5s ease all;
@@ -338,4 +334,3 @@ body {
 }
 
 @import 'imports/posts';
-@import 'imports/persons';
