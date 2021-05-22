@@ -120,7 +120,7 @@ body>.navigation {
                         transition: 0.5s ease all;
                         font-size: pxToRem(13);
                         color: $white;
-                        text-transform: uppercase;
+                        text-transform: capitalize;
 
                         &:hover {
                             opacity: 0.5;
@@ -257,13 +257,23 @@ body>.navigation {
 
                     position: relative;
 
+                    &:last-child {
+
+                        >.subitems {
+                            left: initial;
+                            right: 0;
+                        }
+                        
+                    }
+
                     >.subitems {
 
                         display: flex;
                         position: absolute;
                         top: 100%;
+                        left: 0;
                         z-index: -1;
-                        min-width: 100%;
+                        min-width: 180px;
                         padding-left: 15px;
                         padding-right: 15px;
                         background-color: $blue;
