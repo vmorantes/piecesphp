@@ -113,6 +113,7 @@ class ServerStatics
         'caching' => true,
         'compress' => true,
         'contentType' => self::CONTENT_TYPE_JPG,
+        'convertTo' => self::TYPE_WEBP,
         'extensions' => [
             'jpg',
             'jpeg',
@@ -358,7 +359,25 @@ class ServerStatics
                 $mimeType,
             ];
 
-            if (self::allowCaching($extension)) {
+            $allowCaching = self::allowCaching($extension);
+
+            if (self::allowConvertion($extension)) {
+
+                $dataTypeConvertible = self::getDataTypeByExtension($extension);
+
+                if ($dataTypeConvertible !== null) {
+
+                    $dataTypeConvertion = isset(self::DATA_TYPES[$dataTypeConvertible['convertTo']]) ? self::DATA_TYPES[$dataTypeConvertible['convertTo']] : null;
+
+                    if ($dataTypeConvertible !== null) {
+                        $allowCaching = $dataTypeConvertion['caching'];
+                    }
+
+                }
+
+            }
+
+            if ($allowCaching) {
 
                 $ifModifiedSince = $request->getHeaderLine('If-Modified-Since');
                 $ifNoneMatch = $request->getHeaderLine('If-None-Match');
@@ -463,12 +482,46 @@ class ServerStatics
         if ($status != 304) {
 
             $acceptEncoding = $request->getHeaderLine('Accept-Encoding');
-
             $fileData = file_get_contents($path);
 
-            if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
+            if (self::allowConvertion($extension)) {
 
-                $headers = [];
+                $dataType = self::getDataTypeByExtension($extension);
+
+                if ($dataType !== null) {
+
+                    $codeType = $dataType['code'];
+                    $convertTo = $dataType['convertTo'];
+
+                    if ($codeType == self::TYPE_JPG) {
+
+                        $acceptConvertType = self::typeIsAllowed($convertTo, $request);
+
+                        if ($acceptConvertType) {
+
+                            if ($convertTo == self::TYPE_WEBP) {
+
+                                $resourceImage = imagecreatefromjpeg($path);
+
+                                ob_start();
+                                imagewebp($resourceImage);
+                                $fileData = ob_get_contents();
+                                ob_end_clean();
+
+                                $headers['Content-Type'] = [
+                                    self::CONTENT_TYPE_WEBP,
+                                ];
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            }
+
+            if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
 
                 $acceptEncoding = explode(',', str_replace(' ', '', trim($acceptEncoding)));
                 $acceptEncoding = is_array($acceptEncoding) ? $acceptEncoding : [];
@@ -558,6 +611,27 @@ class ServerStatics
     }
 
     /**
+     * @param string $extension
+     * @return array|null
+     */
+    private static function getDataTypeByExtension(string $extension)
+    {
+
+        $dataTypes = self::DATA_TYPES;
+
+        foreach ($dataTypes as $type => $config) {
+            $extensions = $config['extensions'];
+            if (in_array($extension, $extensions)) {
+                return $config;
+                break;
+            }
+        }
+
+        return null;
+
+    }
+
+    /**
      * allowCaching
      *
      * @param string $extension
@@ -607,6 +681,49 @@ class ServerStatics
 
         return true;
 
+    }
+
+    /**
+     * @param string $extension
+     * @return bool
+     */
+    private static function allowConvertion(string $extension)
+    {
+
+        $dataTypes = self::DATA_TYPES;
+
+        foreach ($dataTypes as $code => $dataType) {
+
+            $extensions = $dataType['extensions'];
+            $convertTo = isset($dataType['convertTo']) ? $dataType['convertTo'] : null;
+
+            if (in_array($extension, $extensions)) {
+                return $convertTo !== null;
+            }
+
+        }
+
+        return false;
+
+    }
+
+    /**
+     * @param string $typeCode
+     * @param Request $request
+     * @return bool
+     */
+    private static function typeIsAllowed(string $typeCode, Request $request)
+    {
+        $dataType = isset(self::DATA_TYPES[$typeCode]) ? self::DATA_TYPES[$typeCode] : null;
+
+        if ($dataType !== null) {
+            $acceptTypes = $request->getHeaderLine('Accept');
+            if (mb_strpos($acceptTypes, $dataType['contentType']) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
