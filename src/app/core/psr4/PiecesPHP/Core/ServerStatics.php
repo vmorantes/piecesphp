@@ -43,6 +43,7 @@ class ServerStatics
     const CONTENT_TYPE_MP4 = 'video/mp4';
     const CONTENT_TYPE_CSV = 'text/csv';
     const CONTENT_TYPE_PDF = 'application/pdf';
+    const CONTENT_TYPE_WOFF2 = 'font/woff2';
 
     const TYPE_JSON = 'JSON';
     const TYPE_JS = 'JS';
@@ -57,6 +58,7 @@ class ServerStatics
     const TYPE_MP4 = 'MP4';
     const TYPE_CSV = 'CSV';
     const TYPE_PDF = 'PDF';
+    const TYPE_WOFF2 = 'WOFF2';
 
     const DATA_TYPE_JSON = [
         'code' => self::TYPE_JSON,
@@ -190,6 +192,16 @@ class ServerStatics
         ],
     ];
 
+    const DATA_TYPE_WOFF2 = [
+        'code' => self::TYPE_WOFF2,
+        'caching' => true,
+        'compress' => false,
+        'contentType' => self::CONTENT_TYPE_WOFF2,
+        'extensions' => [
+            'woff2',
+        ],
+    ];
+
     const DATA_TYPES = [
         self::TYPE_JSON => self::DATA_TYPE_JSON,
         self::TYPE_JS => self::DATA_TYPE_JS,
@@ -204,6 +216,7 @@ class ServerStatics
         self::TYPE_MP4 => self::DATA_TYPE_MP4,
         self::TYPE_CSV => self::DATA_TYPE_CSV,
         self::TYPE_PDF => self::DATA_TYPE_PDF,
+        self::TYPE_WOFF2 => self::DATA_TYPE_WOFF2,
     ];
 
     /**
