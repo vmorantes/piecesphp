@@ -16,6 +16,8 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
+use PiecesPHP\CSSVariables;
+use Publications\Controllers\PublicationsController;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -79,8 +81,20 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
             $this->render('panel/pages/main');
             $this->render('panel/layout/footer');
         } else {
-            $this->render('panel/layout/header');
-            $this->render('panel/pages/dashboard');
+
+            add_global_asset('statics/core/css/dashboard.css', 'css');
+
+            $publicationsListLink = PublicationsController::routeName('list');
+
+            $data = [];
+            $data['publicationsListLink'] = $publicationsListLink;
+
+            $this->render('panel/layout/header', [
+                'containerClasses' => [
+                    'with-banner',
+                ],
+            ]);
+            $this->render('panel/pages/dashboard', $data);
             $this->render('panel/layout/footer');
         }
 
@@ -220,6 +234,22 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 true
             ),
         ]);
+
+        //Variables css globales
+        $cssGlobalVariables = function (Request $request, Response $response, array $args) {
+            $css = CSSVariables::instance('global');
+            return $css->toResponse($request, $response, false);
+        };
+
+        $routeStatics = [
+            new Route(
+                "{$startRoute}/global-variables/variables.css[/]",
+                $cssGlobalVariables,
+                'admin-global-variables-css',
+                'GET'
+            ),
+        ];
+        $group->register($routeStatics);
 
         //──── POST ─────────────────────────────────────────────────────────────────────────
 

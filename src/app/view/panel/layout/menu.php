@@ -5,7 +5,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 <div class="ui-pcs sidebar-toggle">
     <i class="icon bars"></i>
 </div>
-<aside style="--bg-color:<?= get_config('admin_menu_color'); ?>;" class="ui-pcs sidebar">
+<aside class="ui-pcs sidebar">
 
     <div class="logo">
 
