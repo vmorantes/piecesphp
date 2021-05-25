@@ -13,6 +13,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
 use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\CSSVariables;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
@@ -151,28 +152,8 @@ class PublicationsRoutes
          * @return Response
          */
         $cssGlobalVariables = function (Request $request, Response $response, array $args) {
-
-            $css = [
-                "--emphasis-color:" . '#282828' . ";",
-                "--over-emphasis-color:" . 'white' . ";",
-            ];
-
-            $css = implode("\n", $css);
-
-            $css = ":root {\n{$css}\n}";
-
-            $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '01-05-2021 04:22 PM');
-            $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $css);
-
-            foreach ($headersAndStatus['headers'] as $header => $value) {
-                $response = $response->withHeader($header, $value);
-            }
-
-            return $response
-                ->write($css)
-                ->withStatus($headersAndStatus['status'])
-                ->withHeader('Content-Type', 'text/css');
-
+            $css = CSSVariables::instance('global');
+            return $css->toResponse($request, $response, false);
         };
 
         $routeStatics = [

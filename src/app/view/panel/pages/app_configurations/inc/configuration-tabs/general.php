@@ -38,4 +38,55 @@ use App\Model\AppConfigModel;
 
 <br><br>
 
+<div class="ui form">
+
+    <div class="fields">
+
+        <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="field">
+
+            <div class="field">
+                <label><?= __($langGroup, 'Color de énfasis'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('emphasis_color_admin_area', true));?>" color-picker-js>
+                <input type="hidden" name="name" value="emphasis_color_admin_area">
+                <input type="hidden" name="parse" value="uppercase">
+            </div>
+
+            <br>
+
+            <div class="field">
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
+            </div>
+
+        </form>
+
+        <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="field">
+
+            <div class="field">
+                <label><?= __($langGroup, 'Color de contraste con énfasis'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('emphasis_over_color_admin_area', true));?>" color-picker-js>
+                <input type="hidden" name="name" value="emphasis_over_color_admin_area">
+                <input type="hidden" name="parse" value="uppercase">
+            </div>
+
+            <br>
+
+            <div class="field">
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
+            </div>
+
+        </form>
+
+        <div class="field">
+            <label><?= __($langGroup, 'Muestra'); ?></label>
+            <div style="background-color: var(--emphasis-color); padding: 10px;">
+                <p style="color: var(--over-emphasis-color);">Lorem ipsum dolor sit.</p>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<br><br>
+
 <?php endif; ?>
