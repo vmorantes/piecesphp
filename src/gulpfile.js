@@ -1,7 +1,7 @@
 /*
 * Dependencias
 */
-const { src, dest, watch, task, series } = require('gulp');
+const { src, dest, watch, task, series, parallel } = require('gulp');
 // const pug = require('gulp-pug'); // Pug default view template
 const sass = require('gulp-sass')
 const sourcemaps = require('gulp-sourcemaps')
@@ -206,4 +206,14 @@ task("sass-all", (done) => {
 
 	done()
 
+})
+
+task("sass-all:watch", (done) => {
+	parallel(
+		"sass-all",
+		"sass:watch",
+		"sass-modules:watch",
+		"sass-vendor:watch",
+	)()
+	done()
 })

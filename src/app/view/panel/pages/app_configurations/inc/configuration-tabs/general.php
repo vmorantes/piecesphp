@@ -76,10 +76,27 @@ use App\Model\AppConfigModel;
 
         </form>
 
+        <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="field">
+
+            <div class="field">
+                <label><?= __($langGroup, 'Color de resaltado'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('modules_mark_color', true));?>" color-picker-js>
+                <input type="hidden" name="name" value="modules_mark_color">
+                <input type="hidden" name="parse" value="uppercase">
+            </div>
+
+            <br>
+
+            <div class="field">
+                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
+            </div>
+
+        </form>
+
         <div class="field">
             <label><?= __($langGroup, 'Muestra'); ?></label>
             <div style="background-color: var(--emphasis-color); padding: 10px;">
-                <p style="color: var(--over-emphasis-color);">Lorem ipsum dolor sit.</p>
+                <p style="color: var(--over-emphasis-color); border-bottom: 1px solid var(--mark-color);">Lorem ipsum dolor sit.</p>
             </div>
         </div>
 
