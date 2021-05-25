@@ -15,6 +15,7 @@ $container_configurations = [
         $cssGlobalVariables->setVariable('bg-color', get_config('admin_menu_color'));
         $cssGlobalVariables->setVariable('emphasis-color', get_config('emphasis_color_admin_area'));
         $cssGlobalVariables->setVariable('over-emphasis-color', get_config('emphasis_over_color_admin_area'));
+        $cssGlobalVariables->setVariable('mark-color', get_config('modules_mark_color'));
 
         //CSS de variables globales del área administrativa
         add_global_required_asset(get_route('admin-global-variables-css'), 'css');

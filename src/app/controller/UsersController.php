@@ -1380,11 +1380,11 @@ class UsersController extends AdminPanelController
                 'type',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) || $value == -1;
+                    return ctype_digit($value) || is_int($value) || $value == -1 || $value == 'ANY';
                 },
                 true,
                 function ($value) {
-                    return (int) $value;
+                    return $value != 'ANY' ? (int) $value : $value;
                 }
             ),
             new Parameter(
@@ -1431,6 +1431,7 @@ class UsersController extends AdminPanelController
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $type = $expectedParameters->getValue('type');
+        $type = $type == 'ANY' ? null : $type;
         $ignore = $expectedParameters->getValue('ignore');
 
         $result = self::_all($page, $perPage, $type, $ignore);

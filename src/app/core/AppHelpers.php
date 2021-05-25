@@ -1035,6 +1035,18 @@ function import_dialog_pcs(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra simple_upload_placeholder como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_simple_upload_placeholder(array $plugins = [], bool $all = true)
+{
+    import_front_library('simple_upload_placeholder', $plugins, $all);
+}
+
+/**
  * Registra fancybox3 como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins

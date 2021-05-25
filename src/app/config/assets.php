@@ -213,6 +213,18 @@ $assets['dialgo_pcs']['css'] = [];
 $assets['dialgo_pcs']['plugins'] = [];
 
 /**
+ * Simple Upload Placeholder
+ * Manejador de comportamiento genérico de un formulario de subida de archivos con vista previa
+ */
+$assets['simple_upload_placeholder']['js'] = [
+    'statics/core/own-plugins/SimpleUploadPlaceholder.js',
+];
+$assets['simple_upload_placeholder']['css'] = [
+    'statics/core/own-plugins/css/simple-upload-placeholder.css',
+];
+$assets['simple_upload_placeholder']['plugins'] = [];
+
+/**
  * fancyBox v3.5.7
  * https://fancyapps.com/fancybox/3/
  */
