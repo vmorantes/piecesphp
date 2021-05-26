@@ -63,7 +63,7 @@ RewriteRule . index.php [L]
 Options -Indexes
 
 #Prohibir acceso a algunos archivos
-<FilesMatch "\.(sass|scss|htaccess|php|gitignore)$">
+<FilesMatch "\.(sass|scss|htaccess|php|gitignore|zip)$">
 	<IfVersion > 2.4>
 		Deny from All
 	</IfVersion>
