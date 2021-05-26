@@ -21,6 +21,9 @@ $assets['semantic']['css'] = [
 $assets['semantic']['js'] = [
     'statics/plugins/semantic/semantic.min.js',
 ];
+$assets['semantic']['font'] = [
+    'statics/fonts/lato/lato.css',
+];
 $assets['semantic']['plugins'] = [
 ];
 
@@ -312,15 +315,18 @@ $assets['app_front_libraries']['plugins'] = [
 set_config('global_assets', [
     'js' => [],
     'css' => [],
+    'font' => [],
 ]);
 set_config('custom_assets', [
     'js' => [],
     'css' => [],
+    'font' => [],
 ]);
 set_config('default_assets', $assets);
 set_config('global_requireds_assets', [
     'css' => [],
     'js' => [],
+    'font' => [],
 ]);
 set_config('imported_assets', []);
 set_config('lock_assets', false);

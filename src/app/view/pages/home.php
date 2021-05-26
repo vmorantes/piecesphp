@@ -62,7 +62,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
                 </div>
 
-                <a class="item" href="//google.com" target="_blank">
+                <a class="item" href="//google.com" rel="noreferrer" target="_blank">
                     <img loading="lazy" src="https://via.placeholder.com/400x300">
                     <div class="caption">
                         <div class="title">Lorem ipsum dolor sit.</div>
@@ -70,7 +70,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                     </div>
                 </a>
 
-                <a class="item" href="//google.com" target="_blank">
+                <a class="item" href="//google.com" rel="noreferrer" target="_blank">
                     <img loading="lazy" src="https://via.placeholder.com/400x300">
                 </a>
 

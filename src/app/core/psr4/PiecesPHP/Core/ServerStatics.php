@@ -44,6 +44,9 @@ class ServerStatics
     const CONTENT_TYPE_CSV = 'text/csv';
     const CONTENT_TYPE_PDF = 'application/pdf';
     const CONTENT_TYPE_WOFF2 = 'font/woff2';
+    const CONTENT_TYPE_WOFF = 'font/woff,application/x-font-woff';
+    const CONTENT_TYPE_EOT = 'application/vnd.ms-fontobject';
+    const CONTENT_TYPE_TTF = 'font/ttf,application/font-sfnt';
 
     const TYPE_JSON = 'JSON';
     const TYPE_JS = 'JS';
@@ -59,6 +62,9 @@ class ServerStatics
     const TYPE_CSV = 'CSV';
     const TYPE_PDF = 'PDF';
     const TYPE_WOFF2 = 'WOFF2';
+    const TYPE_WOFF = 'WOFF';
+    const TYPE_EOT = 'EOT';
+    const TYPE_TTF = 'TTF';
 
     const DATA_TYPE_JSON = [
         'code' => self::TYPE_JSON,
@@ -195,10 +201,40 @@ class ServerStatics
     const DATA_TYPE_WOFF2 = [
         'code' => self::TYPE_WOFF2,
         'caching' => true,
-        'compress' => false,
+        'compress' => true,
         'contentType' => self::CONTENT_TYPE_WOFF2,
         'extensions' => [
             'woff2',
+        ],
+    ];
+
+    const DATA_TYPE_WOFF = [
+        'code' => self::TYPE_WOFF,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_WOFF,
+        'extensions' => [
+            'woff',
+        ],
+    ];
+
+    const DATA_TYPE_EOT = [
+        'code' => self::TYPE_EOT,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_EOT,
+        'extensions' => [
+            'eot',
+        ],
+    ];
+
+    const DATA_TYPE_TTF = [
+        'code' => self::TYPE_TTF,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_TTF,
+        'extensions' => [
+            'ttf',
         ],
     ];
 
@@ -217,6 +253,9 @@ class ServerStatics
         self::TYPE_CSV => self::DATA_TYPE_CSV,
         self::TYPE_PDF => self::DATA_TYPE_PDF,
         self::TYPE_WOFF2 => self::DATA_TYPE_WOFF2,
+        self::TYPE_WOFF => self::DATA_TYPE_WOFF,
+        self::TYPE_EOT => self::DATA_TYPE_EOT,
+        self::TYPE_TTF => self::DATA_TYPE_TTF,
     ];
 
     /**

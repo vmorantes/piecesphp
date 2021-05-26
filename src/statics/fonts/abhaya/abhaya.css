@@ -2,6 +2,7 @@
 @font-face {
     font-family: 'Abhaya Libre';
     font-style: normal;
+    font-display: fallback;
     font-weight: 400;
     src: url('files/abhaya-libre-v6-latin-ext_latin-regular.eot'); /* IE9 Compat Modes */
     src: local('Abhaya Libre Regular'), local('AbhayaLibre-Regular'),
@@ -15,6 +16,7 @@
   @font-face {
     font-family: 'Abhaya Libre';
     font-style: normal;
+    font-display: fallback;
     font-weight: 500;
     src: url('files/abhaya-libre-v6-latin-ext_latin-500.eot'); /* IE9 Compat Modes */
     src: local('Abhaya Libre Medium'), local('AbhayaLibre-Medium'),
@@ -28,6 +30,7 @@
   @font-face {
     font-family: 'Abhaya Libre';
     font-style: normal;
+    font-display: fallback;
     font-weight: 600;
     src: url('files/abhaya-libre-v6-latin-ext_latin-600.eot'); /* IE9 Compat Modes */
     src: local('Abhaya Libre SemiBold'), local('AbhayaLibre-SemiBold'),
@@ -41,6 +44,7 @@
   @font-face {
     font-family: 'Abhaya Libre';
     font-style: normal;
+    font-display: fallback;
     font-weight: 700;
     src: url('files/abhaya-libre-v6-latin-ext_latin-700.eot'); /* IE9 Compat Modes */
     src: local('Abhaya Libre Bold'), local('AbhayaLibre-Bold'),
@@ -54,6 +58,7 @@
   @font-face {
     font-family: 'Abhaya Libre';
     font-style: normal;
+    font-display: fallback;
     font-weight: 800;
     src: url('files/abhaya-libre-v6-latin-ext_latin-800.eot'); /* IE9 Compat Modes */
     src: local('Abhaya Libre ExtraBold'), local('AbhayaLibre-ExtraBold'),

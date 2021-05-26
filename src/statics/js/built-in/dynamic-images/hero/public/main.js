@@ -32,12 +32,14 @@ window.addEventListener('load', function (e) {
 								let urlBase = new URL(document.baseURI)
 								if (url.origin != urlBase.origin) {
 									item.target = '_blank'
+									item.rel = 'noreferrer'
 								}
-							} catch{ }
+							} catch { }
 						}
 
 						imageElement.setAttribute('loading', 'lazy')
 						imageElement.setAttribute('src', imageURL)
+						imageElement.setAttribute('alt', imageURL.indexOf('/') !== -1 ? imageURL.split('/').reverse()[0] : imageURL)
 						item.appendChild(imageElement)
 
 						if (withCaption) {
@@ -50,6 +52,7 @@ window.addEventListener('load', function (e) {
 								caption.appendChild(titleElement)
 								titleElement.innerHTML = title
 								titleElement.classList.add('title')
+								imageElement.setAttribute('alt', title)
 							}
 
 							if (description.length > 0) {

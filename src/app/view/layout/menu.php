@@ -106,7 +106,7 @@ if (count($langs) > 0) {
 
     <div class="content">
 
-        <button class="open-nav">
+        <button class="open-nav" aria-label="<?= __(LANG_GROUP, 'Desplegar menú'); ?>">
             <i class="icon ellipsis vertical"></i>
         </button>
 
