@@ -11,26 +11,26 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             <ul class="social">
 
                 <li>
-                    <a href="#">
+                    <a href="#" aria-label="instagram">
                         <i class="icon instagram"></i>
                     </a>
                 </li>
 
                 <li>
-                    <a href="#">
+                    <a href="#" aria-label="facebook">
                         <i class="icon facebook"></i>
                     </a>
                 </li>
 
                 <li>
-                    <a href="#">
+                    <a href="#" aria-label="twitter">
                         <i class="icon twitter"></i>
                     </a>
                 </li>
 
                 <li>
-                    <a href="#">
-                        <i class="icon spotify"></i>
+                    <a href="#" aria-label="youtube">
+                        <i class="icon youtube"></i>
                     </a>
                 </li>
 
@@ -50,7 +50,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 </footer>
 
-<button class="to-top">
+<button class="to-top" aria-label="<?= __(LANG_GROUP, 'Desplazarse hacia arriba'); ?>">
     <i class="icon arrow up"></i>
 </button>
 

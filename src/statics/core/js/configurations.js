@@ -415,9 +415,16 @@ if (typeof $ !== 'undefined') {
 			toggleDevCSSMode.click()
 		}
 
+		//Cargar CSS diferidos
 		let preloadLinkTagsCSS = document.querySelectorAll(`link[is-preload-custom="yes"]`)
 		preloadLinkTagsCSS.forEach(function (element) {
 			element.setAttribute('rel', 'stylesheet')
+		})
+
+		//Poner etiqueta alt a imágenes que no la tengan
+		let notAltImages = document.querySelectorAll(`img:not([alt])`)
+		notAltImages.forEach(function (element) {
+			element.setAttribute('alt', element.src.indexOf('/') !== -1 ? element.src.split('/').reverse()[0] : element.src)
 		})
 		
 	})
