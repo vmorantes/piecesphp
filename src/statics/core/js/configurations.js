@@ -384,6 +384,7 @@ if (typeof $ !== 'undefined') {
 		configColorPickers()
 		pcsAdminSideBar('.ui-pcs.sidebar')
 		genericFormHandler()
+		configRichEditor()
 
 		let toggleDevCSSMode = $('[toggle-dev-css-mode]')
 		let toggleDevCSSModeIsActive = typeof toggleDevCSSMode.attr('active') == 'string'
@@ -414,13 +415,13 @@ if (typeof $ !== 'undefined') {
 			toggleDevCSSMode.click()
 		}
 
+		let preloadLinkTagsCSS = document.querySelectorAll(`link[is-preload-custom="yes"]`)
+		preloadLinkTagsCSS.forEach(function (element) {
+			element.setAttribute('rel', 'stylesheet')
+		})
+		
 	})
 
-	$(window).on('load', function (e) {
-
-		configRichEditor()
-
-	})
 }
 
 /**

@@ -299,6 +299,11 @@ function lang(string $type, string $message = '', string $lang, bool $echo = fal
  * Imprime los scripts js cargados con las funciones auxiliares de assets
  *
  * @param array $config
+ * @var string $config['base_url']
+ * @var string $config['custom_url']
+ * @var array<string,string> $config['attr']
+ * @var array<string,string[]> $config['attrApplyTo']
+ * @var array<string,string[]> $config['attrNoApplyTo']
  * @return void
  */
 function load_js(array $config = array())
@@ -307,21 +312,217 @@ function load_js(array $config = array())
     $custom_assets = get_config('custom_assets');
 
     ksort($global_assets['js']);
-    foreach ($global_assets['js'] as $script) {
-        $base_url = array_key_exists("base_url", $config) ? $config['base_url'] : "";
-        $ruta = $base_url . $script;
-        echo "<script src='$ruta'></script>" . "\r\n";
+    ksort($custom_assets['js']);
+
+    $jsGlobal = $global_assets['js'];
+    $jsCustom = $custom_assets['js'];
+
+    /**
+     * @return array<string,string>
+     */
+    $processAttr = function (array $config, array $currentAttr, string $src) {
+
+        $attrApplyTo = array_key_exists('attrApplyTo', $config) ? $config['attrApplyTo'] : [];
+        $attrApplyTo = is_array($attrApplyTo) ? $attrApplyTo : [];
+
+        foreach ($attrApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrApplyTo[$k]);
+            }
+
+        }
+
+        $attrNoApplyTo = array_key_exists('attrNoApplyTo', $config) ? $config['attrNoApplyTo'] : [];
+        $attrNoApplyTo = is_array($attrNoApplyTo) ? $attrNoApplyTo : [];
+
+        foreach ($attrNoApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrNoApplyTo[$k]);
+            }
+
+        }
+
+        $attr = array_key_exists('attr', $config) ? $config['attr'] : [];
+        $attr = is_array($attr) ? $attr : [];
+
+        foreach ($attr as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_string($i)) {
+                $unsetElement = true;
+            }
+
+            if ($unsetElement) {
+                unset($attr[$k]);
+            }
+
+        }
+
+        foreach ($attr as $k => $i) {
+
+            $allowedTo = array_key_exists($k, $attrApplyTo) ? $attrApplyTo[$k] : null;
+            $excludeTo = array_key_exists($k, $attrNoApplyTo) ? $attrNoApplyTo[$k] : null;
+
+            if (is_array($allowedTo)) {
+
+                $isAllowed = false;
+
+                foreach ($allowedTo as $regexp) {
+
+                    $regexp = str_replace('/', '\/', $regexp);
+                    $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                    if ($isMatch) {
+                        $isAllowed = true;
+                        break;
+                    }
+
+                }
+
+                if (is_array($excludeTo)) {
+
+                    foreach ($excludeTo as $regexp) {
+
+                        $regexp = str_replace('/', '\/', $regexp);
+                        $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                        if ($isMatch) {
+                            $isAllowed = false;
+                            break;
+                        }
+
+                    }
+
+                }
+
+                if ($isAllowed) {
+                    $currentAttr[$k] = $i;
+                }
+
+            }
+
+        }
+
+        return $currentAttr;
+
+    };
+
+    /**
+     * @return string
+     */
+    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr) {
+
+        $defaultConfig = [
+            'base_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+            ],
+            'custom_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+                'overwrite' => true,
+            ],
+        ];
+
+        $configValues = [];
+        $attributes = [];
+
+        foreach ($defaultConfig as $configName => $configOptions) {
+
+            $outputName = array_key_exists('outputName', $configOptions) ? $configOptions['outputName'] : $configName;
+            $defaultValue = array_key_exists('default', $configOptions) ? $configOptions['default'] : null;
+            $onAttribute = array_key_exists('onAttribute', $configOptions) ? $configOptions['onAttribute'] : null;
+            $overwrite = array_key_exists('overwrite', $configOptions) ? $configOptions['overwrite'] : false;
+
+            if (!in_array($configName, $ingoreConfig)) {
+
+                $isConfigured = array_key_exists($outputName, $configValues);
+                $exists = array_key_exists($configName, $config);
+                $value = $exists ? $config[$configName] : $defaultValue;
+
+                if (!$isConfigured || ($exists && $overwrite)) {
+
+                    $configValues[$outputName] = $value;
+
+                    if (is_string($onAttribute)) {
+                        $attributes[$onAttribute] = $value;
+                    }
+
+                }
+
+            }
+
+        }
+
+        $path = $configValues['baseURL'] . $src;
+        $attributes['src'] = $path;
+
+        $attributes = ($processAttr)($config, $attributes, $src);
+
+        $attributesString = [];
+
+        foreach ($attributes as $ka => $ia) {
+            unset($attributes[$ka]);
+            $attributesString[] = "{$ka}='{$ia}'";
+        }
+
+        $attributesString = implode(' ', $attributesString);
+        $element = "<script {$attributesString}></script>";
+        return $element;
+
+    };
+
+    foreach ($jsGlobal as $script) {
+        $tag = ($processElement)($config, $script, [
+            'custom_url',
+        ]);
+        echo $tag . "\n";
     }
 
-    ksort($custom_assets['js']);
-    foreach ($custom_assets['js'] as $script) {
-
-        $base_url = array_key_exists("custom_url", $config) ?
-        $config['custom_url'] : (array_key_exists("base_url", $config) ?
-            $config['base_url'] : "");
-
-        $ruta = $base_url . $script;
-        echo "<script src='$ruta'></script>" . "\r\n";
+    foreach ($jsCustom as $script) {
+        $tag = ($processElement)($config, $script);
+        echo $tag . "\n";
     }
 }
 
@@ -329,6 +530,12 @@ function load_js(array $config = array())
  * Imprime los link css cargados con las funciones auxiliares de assets
  *
  * @param array $config
+ * @var string $config['rel']
+ * @var string $config['base_url']
+ * @var string $config['custom_url']
+ * @var array<string,string> $config['attr']
+ * @var array<string,string[]> $config['attrApplyTo']
+ * @var array<string,string[]> $config['attrNoApplyTo']
  * @return void
  */
 function load_css(array $config = array())
@@ -337,32 +544,224 @@ function load_css(array $config = array())
     $custom_assets = get_config('custom_assets');
 
     ksort($global_assets['css']);
-    foreach ($global_assets['css'] as $stylesheet) {
-
-        $rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
-        $base_url = array_key_exists("base_url", $config) ? $config['base_url'] : '';
-        $path = $base_url . $stylesheet;
-        $tag = "<link rel='$rel' href='$path'>";
-
-        echo $tag . "\r\n";
-    }
-
     ksort($custom_assets['css']);
-    foreach ($custom_assets['css'] as $stylesheet) {
 
-        $rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
-        if (array_key_exists("custom_url", $config)) {
-            $base_url = $config['custom_url'];
-        } else if (array_key_exists("base_url", $config)) {
-            $base_url = $config['base_url'];
-        } else {
-            $base_url = '';
+    $cssGlobal = $global_assets['css'];
+    $cssCustom = $custom_assets['css'];
+
+    /**
+     * @return array<string,string>
+     */
+    $processAttr = function (array $config, array $currentAttr, string $src) {
+
+        $attrApplyTo = array_key_exists('attrApplyTo', $config) ? $config['attrApplyTo'] : [];
+        $attrApplyTo = is_array($attrApplyTo) ? $attrApplyTo : [];
+
+        foreach ($attrApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrApplyTo[$k]);
+            }
+
         }
-        $path = $base_url . $stylesheet;
-        $tag = "<link rel='$rel' href='$path'>";
 
-        echo $tag . "\r\n";
+        $attrNoApplyTo = array_key_exists('attrNoApplyTo', $config) ? $config['attrNoApplyTo'] : [];
+        $attrNoApplyTo = is_array($attrNoApplyTo) ? $attrNoApplyTo : [];
+
+        foreach ($attrNoApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrNoApplyTo[$k]);
+            }
+
+        }
+
+        $attr = array_key_exists('attr', $config) ? $config['attr'] : [];
+        $attr = is_array($attr) ? $attr : [];
+
+        foreach ($attr as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_string($i)) {
+                $unsetElement = true;
+            }
+
+            if ($unsetElement) {
+                unset($attr[$k]);
+            }
+
+        }
+
+        foreach ($attr as $k => $i) {
+
+            $allowedTo = array_key_exists($k, $attrApplyTo) ? $attrApplyTo[$k] : null;
+            $excludeTo = array_key_exists($k, $attrNoApplyTo) ? $attrNoApplyTo[$k] : null;
+
+            if (is_array($allowedTo)) {
+
+                $isAllowed = false;
+
+                foreach ($allowedTo as $regexp) {
+
+                    $regexp = str_replace('/', '\/', $regexp);
+                    $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                    if ($isMatch) {
+                        $isAllowed = true;
+                        break;
+                    }
+
+                }
+
+                if (is_array($excludeTo)) {
+
+                    foreach ($excludeTo as $regexp) {
+
+                        $regexp = str_replace('/', '\/', $regexp);
+                        $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                        if ($isMatch) {
+                            $isAllowed = false;
+                            break;
+                        }
+
+                    }
+
+                }
+
+                if ($isAllowed) {
+                    $currentAttr[$k] = $i;
+                }
+
+            }
+
+        }
+
+        return $currentAttr;
+
+    };
+
+    /**
+     * @return string
+     */
+    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr) {
+
+        $defaultConfig = [
+            'rel' => [
+                'outputName' => 'rel',
+                'default' => 'stylesheet',
+                'onAttribute' => 'rel',
+            ],
+            'base_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+            ],
+            'custom_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+                'overwrite' => true,
+            ],
+        ];
+
+        $configValues = [];
+        $attributes = [];
+
+        foreach ($defaultConfig as $configName => $configOptions) {
+
+            $outputName = array_key_exists('outputName', $configOptions) ? $configOptions['outputName'] : $configName;
+            $defaultValue = array_key_exists('default', $configOptions) ? $configOptions['default'] : null;
+            $onAttribute = array_key_exists('onAttribute', $configOptions) ? $configOptions['onAttribute'] : null;
+            $overwrite = array_key_exists('overwrite', $configOptions) ? $configOptions['overwrite'] : false;
+
+            if (!in_array($configName, $ingoreConfig)) {
+
+                $isConfigured = array_key_exists($outputName, $configValues);
+                $exists = array_key_exists($configName, $config);
+                $value = $exists ? $config[$configName] : $defaultValue;
+
+                if (!$isConfigured || ($exists && $overwrite)) {
+
+                    $configValues[$outputName] = $value;
+
+                    if (is_string($onAttribute)) {
+                        $attributes[$onAttribute] = $value;
+                    }
+
+                }
+
+            }
+
+        }
+
+        $path = $configValues['baseURL'] . $src;
+        $attributes['href'] = $path;
+
+        $attributes = ($processAttr)($config, $attributes, $src);
+
+        $attributesString = [];
+
+        foreach ($attributes as $ka => $ia) {
+            unset($attributes[$ka]);
+            $attributesString[] = "{$ka}='{$ia}'";
+        }
+
+        $attributesString = implode(' ', $attributesString);
+        $element = "<link {$attributesString}>";
+        return $element;
+
+    };
+
+    foreach ($cssGlobal as $stylesheet) {
+        $tag = ($processElement)($config, $stylesheet, [
+            'custom_url',
+        ]);
+        echo $tag . "\n";
     }
+
+    foreach ($cssCustom as $stylesheet) {
+        $tag = ($processElement)($config, $stylesheet);
+        echo $tag . "\n";
+    }
+
 }
 
 /**
