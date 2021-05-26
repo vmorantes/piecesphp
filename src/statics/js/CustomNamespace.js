@@ -3,7 +3,7 @@
 /**
  * Clase para evitar colisiones
  */
-function CustomNamespace() {
+ function CustomNamespace() {
 }
 
 /**
@@ -247,10 +247,12 @@ CustomNamespace.slideshow = function (selector, delay = 5) {
 		pages.sort((a, b) => (a < b ? -1 : (a > b ? 1 : 0)))
 
 		//Touch events
-		swipedetect(item, function (e) {
-			if (e == 'r') {
+		swipedetect(item, function (direction, event) {
+			if (direction == 'r') {
+				event.preventDefault()
 				prevPage()
-			} else if (e == 'l') {
+			} else if (direction == 'l') {
+				event.preventDefault()
 				nextPage()
 			}
 		})

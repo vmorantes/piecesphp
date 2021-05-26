@@ -5,7 +5,7 @@
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  */
-function successMessage(title, message, onClose = null) {
+ function successMessage(title, message, onClose = null) {
 	title = title !== undefined ? title : ''
 	message = message !== undefined ? message : ''
 
@@ -1633,7 +1633,7 @@ function addObjectToFormData(formData, inputValue, name, isFirstArray = true) {
 /**
  * Detección de evento swipe
  * @param {HTMLElement} el 
- * @param {Function} callback Función que devuelve como parámetro alguna de las siguientes opciones: u, r, d, l, none
+ * @param {Function} callback Función que devuelve como parámetro alguna de las siguientes opciones: u, r, d, l, none y el evento
  * @link http://www.javascriptkit.com/javatutors/touchevents2.shtml
  */
 function swipedetect(el, callback) {
@@ -1658,12 +1658,9 @@ function swipedetect(el, callback) {
 		startX = touchobj.pageX
 		startY = touchobj.pageY
 		startTime = new Date().getTime() // record time when finger first makes contact with surface
-		e.preventDefault()
-	}, false)
-
-	touchsurface.addEventListener('touchmove', function (e) {
-		e.preventDefault() // prevent scrolling when inside DIV
-	}, false)
+	}, {
+		passive: true,
+	})
 
 	touchsurface.addEventListener('touchend', function (e) {
 		var touchobj = e.changedTouches[0]
@@ -1678,8 +1675,7 @@ function swipedetect(el, callback) {
 				swipedir = (distY < 0) ? 'u' : 'd' // if dist traveled is negative, it indicates up swipe
 			}
 		}
-		handleswipe(swipedir)
-		e.preventDefault()
+		handleswipe(swipedir, e)
 	}, false)
 }
 
