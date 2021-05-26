@@ -7,8 +7,8 @@ use Publications\Mappers\PublicationMapper;
  */
 ?>
 <article class="ui card">
-    <a class="image" href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>" loading="lazy">
-        <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>">
+    <a class="image" href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>">
+        <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>" loading="lazy">
     </a>
     <div class="content">
         <div class="header"><?= $element->currentLangData('title'); ?></div>
