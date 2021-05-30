@@ -204,6 +204,16 @@
         background-color: #E5E5E5;
     }
 
+    .clearfix {
+
+        &::before,
+        &::after {
+            display: block;
+            content: ' ';
+            clear: both;
+        }
+    }
+
     .ui {
 
         &.button {
@@ -242,6 +252,103 @@
                 &.wide {
                     max-width: 1900px;
                 }
+            }
+
+        }
+
+    }
+}
+
+.ui-pcs.container-sidebar>.content.with-standard-sidebar {
+
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+    padding-top: 0rem !important;
+
+    .container-standard-sidebar-content {
+
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: auto auto;
+        max-height: 100vh;
+        height: 100%;
+        overflow: auto;
+
+        >.sidebar {
+
+            padding: 2rem 0.5rem 0.5rem 0.5rem;
+            background-color: var(--mark-color);
+            overflow: auto;
+
+            >.title {
+                font-size: 2rem;
+                font-weight: 600;
+                text-align: center;
+                color: var(--over-emphasis-color);
+            }
+
+            >.content {
+
+                padding: 2rem 0.5rem 0.5rem 0.5rem;
+
+                p,
+                span,
+                div,
+                article,
+                a:hover,
+                a:active,
+                a:visited,
+                a {
+                    &:not(.button) {
+                        color: var(--over-emphasis-color);
+                    }
+                }
+
+                .ui {
+
+                    &.accordion {
+
+                        padding-left: 2rem;
+
+                        >.content {
+                            padding-left: 1rem;
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        >.content {
+            padding: 3.5rem 1rem 1rem 1rem;
+            overflow: auto;
+        }
+
+        @media (min-width: 1025px) {
+
+            grid-template-rows: auto;
+            grid-template-columns: 250px auto;
+
+            >.sidebar {
+                padding-top: 5rem;
+
+                >.content {
+
+                    .items-dropdowns {
+                        display: block;
+
+                        .field {
+                            display: block;
+                            width: 100%;
+                        }
+                    }
+
+                }
+
             }
 
         }

@@ -2505,3 +2505,22 @@ function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
 
     return $controller->_render('panel/built-in/utilities/cropper/workspace.php', $data, $echo);
 }
+
+/**
+ * @param \Slim\Http\Request $request
+ * @param \Slim\Http\Response $response
+ * @return \Slim\Http\Response
+ */
+function throw403(\Slim\Http\Request $request, \Slim\Http\Response $response)
+{
+    $response = $response->withStatus(403);
+
+    if (!$request->isXhr()) {
+        $controller = new PiecesPHP\Core\BaseController(false);
+        $controller->render('pages/403');
+    } else {
+        $response = $response->withJson("403 Forbidden");
+    }
+
+    return $response;
+}

@@ -43,7 +43,8 @@
             background-repeat: no-repeat;
             background-size: cover;
             background-position: center center;
-            &.image{
+
+            &.image {
                 background-color: transparent;
             }
         }
@@ -75,5 +76,25 @@
             opacity: 0.8;
         }
     }
+
+    &.only-button {
+
+        border: none;
+        box-shadow: none;
+        margin: 0px !important;
+        padding: 0px !important;
+
+        .preview {
+            display: none;
+        }
+
+        .ui.button.trigger-file {
+            position: relative;
+            top: initial;
+            left: initial;
+            transform: none;
+        }
+    }
+
 
 }

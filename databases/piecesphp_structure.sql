@@ -30,6 +30,32 @@ CREATE TABLE `app_presentations_categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `image_repository_images`;
+CREATE TABLE `image_repository_images` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `author` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin NOT NULL,
+  `image` text COLLATE utf8_bin NOT NULL,
+  `authorization` text COLLATE utf8_bin DEFAULT NULL,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `resolution` text COLLATE utf8_bin NOT NULL,
+  `size` double NOT NULL,
+  `coordinates` longtext COLLATE utf8_bin DEFAULT NULL,
+  `captureDate` datetime NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `image_repository_images_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `image_repository_images_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `locations_cities`;
 CREATE TABLE `locations_cities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -247,11 +273,6 @@ CREATE TABLE `pcsphp_user_problems` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-
-DROP VIEW IF EXISTS `publications_active_date_elements`;
-CREATE TABLE `publications_active_date_elements` (`id` int(11), `startDate` datetime, `endDate` datetime, `status` int(11), `nowDate` bigint(17));
-
-
 DROP TABLE IF EXISTS `publications_categories`;
 CREATE TABLE `publications_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -308,8 +329,4 @@ CREATE TABLE `time_on_platform` (
   CONSTRAINT `time_on_platform_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-
-DROP TABLE IF EXISTS `publications_active_date_elements`;
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `publications_active_date_elements` AS (select `pe`.`id` AS `id`,`pe`.`startDate` AS `startDate`,`pe`.`endDate` AS `endDate`,`pe`.`status` AS `status`,unix_timestamp(current_timestamp()) AS `nowDate` from `publications_elements` `pe` having (unix_timestamp(`pe`.`startDate`) <= `nowDate` or `pe`.`startDate` is null) and (unix_timestamp(`pe`.`endDate`) > `nowDate` or `pe`.`endDate` is null));
-
--- 2021-05-19 03:44:37
+-- 2021-05-30 01:59:26
