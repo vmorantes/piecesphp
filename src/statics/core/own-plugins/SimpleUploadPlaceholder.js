@@ -14,6 +14,7 @@ function SimpleUploadPlaceholder(configurations = {}) {
 	 * @property {String} [containerSelector=[simple-upload-placeholder]]
 	 * @property {function(Event)} [onReady]
 	 * @property {function(FileList,$,SimpleUploadPlaceholder,Event)} [onChangeFile] Devuelve el evento, el componente $ y la instancia
+	 * @property {function(Image)} [onImagePreview]
 	 */
 
 	//──── Valores de configuración ──────────────────────────────────────────────────────────
@@ -22,6 +23,7 @@ function SimpleUploadPlaceholder(configurations = {}) {
 		containerSelector: '[simple-upload-placeholder]',
 		onReady: (e) => { },
 		onChangeFile: (files, component, instance, event) => { },
+		onImagePreview: (img) => { },
 	}
 
 	//──── Variables ─────────────────────────────────────────────────────────────────────────
@@ -144,6 +146,7 @@ function SimpleUploadPlaceholder(configurations = {}) {
 								overlayElement.addClass('image')
 								overlayElement.attr('style', `background-image: url(${imagePreview.src})`)
 								removeGenericLoader('loadImage...')
+								SimpleUploadPlaceholderOptions.onImagePreview(imagePreview)
 							})
 
 						} else {
@@ -187,6 +190,10 @@ function SimpleUploadPlaceholder(configurations = {}) {
 
 		if (typeof SimpleUploadPlaceholderOptions.onChangeFile != 'function') {
 			SimpleUploadPlaceholderOptions.onChangeFile = defaultSimpleUploadPlaceholderOptions.onChangeFile
+		}
+
+		if (typeof SimpleUploadPlaceholderOptions.onImagePreview != 'function') {
+			SimpleUploadPlaceholderOptions.onImagePreview = defaultSimpleUploadPlaceholderOptions.onImagePreview
 		}
 
 		//Establecer valores

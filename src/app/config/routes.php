@@ -53,6 +53,7 @@ use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
 use FileManager\FileManagerRoutes;
+use ImagesRepository\ImagesRepositoryRoutes;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
@@ -164,6 +165,9 @@ PublicationsRoutes::routes($zona_administrativa, $zona_publica);
 
 //Newsletter
 NewsletterRoutes::routes($zona_administrativa, $zona_publica);
+
+//Registro fotográfico
+ImagesRepositoryRoutes::routes($zona_administrativa);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

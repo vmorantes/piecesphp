@@ -1799,3 +1799,26 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 
 	return dropdowns
 }
+
+/**
+ * Simplifica una fracción
+ * @param {Numbar} numerator 
+ * @param {Numbar} denominator 
+ * @returns {Object} Un objeto con las promiedades numerator, denominator
+ */
+function simplify(numerator, denominator) {
+
+	for (var i = Math.max(numerator, denominator); i > 1; i--) {
+
+		if ((numerator % i == 0) && (denominator % i == 0)) {
+			numerator /= i
+			denominator /= i
+		}
+
+	}
+
+	return {
+		numerator: numerator,
+		denominator: denominator,
+	}
+}
