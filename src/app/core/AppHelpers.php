@@ -2524,3 +2524,17 @@ function throw403(\Slim\Http\Request $request, \Slim\Http\Response $response)
 
     return $response;
 }
+
+/**
+ * Genera una salida en la terminal
+ *
+ * @param string $text
+ * @param boolean $newLine
+ * @param string $newLineChars
+ * @return void
+ */
+function echoTerminal(string $text, bool $newLine = true, string $newLineChars = "\r\n")
+{
+    fwrite(STDOUT, $text . ($newLine ? $newLineChars : ''));
+    flush();
+}
