@@ -6,6 +6,8 @@
 ## Algunos paquetes
 ```bash
 sudo apt install curl zip unzip openssl git wget
+# Soporte de español
+sudo apt-get install language-pack-es
 ```
 
 ## Variables
