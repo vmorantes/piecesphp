@@ -18,14 +18,17 @@ set_config('lang_by_url', true);
  */
 set_config('allowed_langs', [
     'es',
-    'en',
+    //'en',
 ]);
 
 /**
  * Array con los códigos de localidad según el idioma
  */
 set_config('locale_langs', [
-    'es' => 'es_CO.utf8',
+    'es' => [
+        'es_CO.utf8',
+        'es_ES.utf8',
+    ],
     'en' => 'en_US.utf8',
 ]);
 

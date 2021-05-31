@@ -690,9 +690,17 @@ class Config
         $usedCategories = [];
 
         $localeLang = isset(self::$appLocaleLangs[self::$appLang]) ? self::$appLocaleLangs[self::$appLang] : null;
-        $localeLang = is_string($localeLang) ? $localeLang : null;
+        $localeLang = is_scalar($localeLang) ? [$localeLang] : (is_array($localeLang) ? $localeLang : null);
 
-        if (is_string($localeLang)) {
+        if (is_array($localeLang)) {
+
+            foreach ($localeLang as $k => $i) {
+
+                if (!is_scalar($i)) {
+                    unset($localeLang[$k]);
+                }
+
+            }
 
             foreach ($categories as $category) {
 
