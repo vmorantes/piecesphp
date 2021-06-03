@@ -286,9 +286,7 @@ $assets['app_libraries']['css'] = [
     'statics/core/css/helpers.css',
 ];
 $assets['app_libraries']['js'] = [
-    'statics/core/js/util-pieces.js',
-    'statics/core/js/helpers.js',
-    'statics/core/js/configurations.js',
+    'statics/core/js/configurations.min.js',
 ];
 $assets['app_libraries']['plugins'] = [
     'adminStyle' => [

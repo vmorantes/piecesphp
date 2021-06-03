@@ -1,5 +1,5 @@
-/// <reference path="../../core/js/helpers.js"/>
-/// <reference path="../../core/js/configurations.js"/>
+/// <reference path="../../../../../statics/core/js/helpers.js"/>
+/// <reference path="../../../../../statics/core/js/configurations.js"/>
 /**
  * @param {String} file
  * @returns {ComponentsProvider}

@@ -21,33 +21,6 @@ body {
     color: $colorFourth;
 }
 
-p,
-span,
-div,
-strong,
-small,
-ul,
-ol,
-li,
-dl,
-dd,
-a,
-mark,
-q,
-blockquote h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-
-    .#{$globalClassPcs} &.text-reading,
-    &.text-reading.#{$globalClassPcs} {
-        font-family: $fontFamilySecond;
-        font-weight: 400;
-    }
-}
-
 .dev-css-mode {
 
     &,
@@ -336,4 +309,14 @@ a.ui.button {
     .card{
         border-radius: 0px;
     }
+}
+
+.text-center{
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs}
+    {
+        text-align: center;
+    }
+   
 }
