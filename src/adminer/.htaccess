@@ -1,0 +1,24 @@
+RewriteEngine off
+
+Options -Indexes
+
+#Prohibir acceso a algunos archivos
+<FilesMatch "\.(sass|scss|htaccess|php|gitignore)$">
+	<IfVersion > 2.4>
+		Deny from All
+	</IfVersion>
+	<IfVersion <= 2.4>
+		Require all denied
+	</IfVersion>
+</FilesMatch>
+
+#Permitir acceso php solo a index.php
+<FilesMatch "^index.php$">
+	<IfVersion > 2.4>
+		Allow from All
+	</IfVersion>
+	<IfVersion <= 2.4>
+		Require all granted
+	</IfVersion>
+</FilesMatch>
+

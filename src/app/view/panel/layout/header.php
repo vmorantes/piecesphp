@@ -10,7 +10,38 @@
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph(); ?>
     <link rel="shortcut icon" href="<?= get_config('favicon-back'); ?>" type="image/x-icon">
-    <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
+    <?php load_font() ?>
+    <?php load_css([
+        'base_url' => "", 
+        'custom_url' => "",
+        'attr' => [
+            'is-preload-custom' => 'yes',
+            'rel' => 'preload',
+            'as' => 'style',
+        ],
+        'attrApplyTo' => [
+            'is-preload-custom' => [
+                '.*$',
+            ],
+            'rel' => [
+                '.*$',
+            ],
+            'as' => [
+                '.*$',
+            ],
+        ],
+        'attrNoApplyTo' => [
+            'is-preload-custom' => [
+                '.*(helpers|semantic\.min|variables|ui-pcs)\.css/?$',
+            ],
+            'rel' => [
+                '.*(helpers|semantic\.min|variables|ui-pcs)\.css/?$',
+            ],
+            'as' => [
+                '.*(helpers|semantic\.min|variables|ui-pcs)\.css/?$',
+            ],
+        ],
+    ]) ?>
 </head>
 
 <body>
@@ -43,7 +74,7 @@
 
     <?php $this->render('panel/layout/topbar'); ?>
 
-    <div  style="--bg-color:<?= get_config('admin_menu_color'); ?>;" class="ui-pcs logo-sidebar-desktop">
+    <div class="ui-pcs logo-sidebar-desktop">
 
         <div class="image">
             <img src="<?= get_config('logo'); ?>">
@@ -57,4 +88,19 @@
 
         <?php $this->render('panel/layout/menu'); ?>
 
-        <div class="content">
+        <?php 
+        if(isset($containerClasses) && is_array($containerClasses)){
+
+            foreach($containerClasses as $k => $class){
+                if(!is_string($class)){
+                    unset($containerClasses[$k]);
+                }
+            }
+
+            $containerClasses = trim(implode(' ', $containerClasses));
+
+        }else{
+            $containerClasses = '';
+        }
+        ?>
+        <div class="content <?= $containerClasses; ?>">

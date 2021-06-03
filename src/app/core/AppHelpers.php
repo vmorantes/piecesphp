@@ -299,6 +299,11 @@ function lang(string $type, string $message = '', string $lang, bool $echo = fal
  * Imprime los scripts js cargados con las funciones auxiliares de assets
  *
  * @param array $config
+ * @var string $config['base_url']
+ * @var string $config['custom_url']
+ * @var array<string,string> $config['attr']
+ * @var array<string,string[]> $config['attrApplyTo']
+ * @var array<string,string[]> $config['attrNoApplyTo']
  * @return void
  */
 function load_js(array $config = array())
@@ -307,21 +312,217 @@ function load_js(array $config = array())
     $custom_assets = get_config('custom_assets');
 
     ksort($global_assets['js']);
-    foreach ($global_assets['js'] as $script) {
-        $base_url = array_key_exists("base_url", $config) ? $config['base_url'] : "";
-        $ruta = $base_url . $script;
-        echo "<script src='$ruta'></script>" . "\r\n";
+    ksort($custom_assets['js']);
+
+    $jsGlobal = $global_assets['js'];
+    $jsCustom = $custom_assets['js'];
+
+    /**
+     * @return array<string,string>
+     */
+    $processAttr = function (array $config, array $currentAttr, string $src) {
+
+        $attrApplyTo = array_key_exists('attrApplyTo', $config) ? $config['attrApplyTo'] : [];
+        $attrApplyTo = is_array($attrApplyTo) ? $attrApplyTo : [];
+
+        foreach ($attrApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrApplyTo[$k]);
+            }
+
+        }
+
+        $attrNoApplyTo = array_key_exists('attrNoApplyTo', $config) ? $config['attrNoApplyTo'] : [];
+        $attrNoApplyTo = is_array($attrNoApplyTo) ? $attrNoApplyTo : [];
+
+        foreach ($attrNoApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrNoApplyTo[$k]);
+            }
+
+        }
+
+        $attr = array_key_exists('attr', $config) ? $config['attr'] : [];
+        $attr = is_array($attr) ? $attr : [];
+
+        foreach ($attr as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_string($i)) {
+                $unsetElement = true;
+            }
+
+            if ($unsetElement) {
+                unset($attr[$k]);
+            }
+
+        }
+
+        foreach ($attr as $k => $i) {
+
+            $allowedTo = array_key_exists($k, $attrApplyTo) ? $attrApplyTo[$k] : null;
+            $excludeTo = array_key_exists($k, $attrNoApplyTo) ? $attrNoApplyTo[$k] : null;
+
+            if (is_array($allowedTo)) {
+
+                $isAllowed = false;
+
+                foreach ($allowedTo as $regexp) {
+
+                    $regexp = str_replace('/', '\/', $regexp);
+                    $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                    if ($isMatch) {
+                        $isAllowed = true;
+                        break;
+                    }
+
+                }
+
+                if (is_array($excludeTo)) {
+
+                    foreach ($excludeTo as $regexp) {
+
+                        $regexp = str_replace('/', '\/', $regexp);
+                        $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                        if ($isMatch) {
+                            $isAllowed = false;
+                            break;
+                        }
+
+                    }
+
+                }
+
+                if ($isAllowed) {
+                    $currentAttr[$k] = $i;
+                }
+
+            }
+
+        }
+
+        return $currentAttr;
+
+    };
+
+    /**
+     * @return string
+     */
+    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr) {
+
+        $defaultConfig = [
+            'base_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+            ],
+            'custom_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+                'overwrite' => true,
+            ],
+        ];
+
+        $configValues = [];
+        $attributes = [];
+
+        foreach ($defaultConfig as $configName => $configOptions) {
+
+            $outputName = array_key_exists('outputName', $configOptions) ? $configOptions['outputName'] : $configName;
+            $defaultValue = array_key_exists('default', $configOptions) ? $configOptions['default'] : null;
+            $onAttribute = array_key_exists('onAttribute', $configOptions) ? $configOptions['onAttribute'] : null;
+            $overwrite = array_key_exists('overwrite', $configOptions) ? $configOptions['overwrite'] : false;
+
+            if (!in_array($configName, $ingoreConfig)) {
+
+                $isConfigured = array_key_exists($outputName, $configValues);
+                $exists = array_key_exists($configName, $config);
+                $value = $exists ? $config[$configName] : $defaultValue;
+
+                if (!$isConfigured || ($exists && $overwrite)) {
+
+                    $configValues[$outputName] = $value;
+
+                    if (is_string($onAttribute)) {
+                        $attributes[$onAttribute] = $value;
+                    }
+
+                }
+
+            }
+
+        }
+
+        $path = $configValues['baseURL'] . $src;
+        $attributes['src'] = $path;
+
+        $attributes = ($processAttr)($config, $attributes, $src);
+
+        $attributesString = [];
+
+        foreach ($attributes as $ka => $ia) {
+            unset($attributes[$ka]);
+            $attributesString[] = "{$ka}='{$ia}'";
+        }
+
+        $attributesString = implode(' ', $attributesString);
+        $element = "<script {$attributesString}></script>";
+        return $element;
+
+    };
+
+    foreach ($jsGlobal as $script) {
+        $tag = ($processElement)($config, $script, [
+            'custom_url',
+        ]);
+        echo $tag . "\n";
     }
 
-    ksort($custom_assets['js']);
-    foreach ($custom_assets['js'] as $script) {
-
-        $base_url = array_key_exists("custom_url", $config) ?
-        $config['custom_url'] : (array_key_exists("base_url", $config) ?
-            $config['base_url'] : "");
-
-        $ruta = $base_url . $script;
-        echo "<script src='$ruta'></script>" . "\r\n";
+    foreach ($jsCustom as $script) {
+        $tag = ($processElement)($config, $script);
+        echo $tag . "\n";
     }
 }
 
@@ -329,6 +530,12 @@ function load_js(array $config = array())
  * Imprime los link css cargados con las funciones auxiliares de assets
  *
  * @param array $config
+ * @var string $config['rel']
+ * @var string $config['base_url']
+ * @var string $config['custom_url']
+ * @var array<string,string> $config['attr']
+ * @var array<string,string[]> $config['attrApplyTo']
+ * @var array<string,string[]> $config['attrNoApplyTo']
  * @return void
  */
 function load_css(array $config = array())
@@ -337,32 +544,458 @@ function load_css(array $config = array())
     $custom_assets = get_config('custom_assets');
 
     ksort($global_assets['css']);
-    foreach ($global_assets['css'] as $stylesheet) {
-
-        $rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
-        $base_url = array_key_exists("base_url", $config) ? $config['base_url'] : '';
-        $path = $base_url . $stylesheet;
-        $tag = "<link rel='$rel' href='$path'>";
-
-        echo $tag . "\r\n";
-    }
-
     ksort($custom_assets['css']);
-    foreach ($custom_assets['css'] as $stylesheet) {
 
-        $rel = array_key_exists("rel", $config) ? $config['rel'] : 'stylesheet';
-        if (array_key_exists("custom_url", $config)) {
-            $base_url = $config['custom_url'];
-        } else if (array_key_exists("base_url", $config)) {
-            $base_url = $config['base_url'];
-        } else {
-            $base_url = '';
+    $cssGlobal = $global_assets['css'];
+    $cssCustom = $custom_assets['css'];
+
+    /**
+     * @return array<string,string>
+     */
+    $processAttr = function (array $config, array $currentAttr, string $src) {
+
+        $attrApplyTo = array_key_exists('attrApplyTo', $config) ? $config['attrApplyTo'] : [];
+        $attrApplyTo = is_array($attrApplyTo) ? $attrApplyTo : [];
+
+        foreach ($attrApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrApplyTo[$k]);
+            }
+
         }
-        $path = $base_url . $stylesheet;
-        $tag = "<link rel='$rel' href='$path'>";
 
-        echo $tag . "\r\n";
+        $attrNoApplyTo = array_key_exists('attrNoApplyTo', $config) ? $config['attrNoApplyTo'] : [];
+        $attrNoApplyTo = is_array($attrNoApplyTo) ? $attrNoApplyTo : [];
+
+        foreach ($attrNoApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrNoApplyTo[$k]);
+            }
+
+        }
+
+        $attr = array_key_exists('attr', $config) ? $config['attr'] : [];
+        $attr = is_array($attr) ? $attr : [];
+
+        foreach ($attr as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_string($i)) {
+                $unsetElement = true;
+            }
+
+            if ($unsetElement) {
+                unset($attr[$k]);
+            }
+
+        }
+
+        foreach ($attr as $k => $i) {
+
+            $allowedTo = array_key_exists($k, $attrApplyTo) ? $attrApplyTo[$k] : null;
+            $excludeTo = array_key_exists($k, $attrNoApplyTo) ? $attrNoApplyTo[$k] : null;
+
+            if (is_array($allowedTo)) {
+
+                $isAllowed = false;
+
+                foreach ($allowedTo as $regexp) {
+
+                    $regexp = str_replace('/', '\/', $regexp);
+                    $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                    if ($isMatch) {
+                        $isAllowed = true;
+                        break;
+                    }
+
+                }
+
+                if (is_array($excludeTo)) {
+
+                    foreach ($excludeTo as $regexp) {
+
+                        $regexp = str_replace('/', '\/', $regexp);
+                        $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                        if ($isMatch) {
+                            $isAllowed = false;
+                            break;
+                        }
+
+                    }
+
+                }
+
+                if ($isAllowed) {
+                    $currentAttr[$k] = $i;
+                }
+
+            }
+
+        }
+
+        return $currentAttr;
+
+    };
+
+    /**
+     * @return string
+     */
+    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr) {
+
+        $defaultConfig = [
+            'rel' => [
+                'outputName' => 'rel',
+                'default' => 'stylesheet',
+                'onAttribute' => 'rel',
+            ],
+            'base_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+            ],
+            'custom_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+                'overwrite' => true,
+            ],
+        ];
+
+        $configValues = [];
+        $attributes = [];
+
+        foreach ($defaultConfig as $configName => $configOptions) {
+
+            $outputName = array_key_exists('outputName', $configOptions) ? $configOptions['outputName'] : $configName;
+            $defaultValue = array_key_exists('default', $configOptions) ? $configOptions['default'] : null;
+            $onAttribute = array_key_exists('onAttribute', $configOptions) ? $configOptions['onAttribute'] : null;
+            $overwrite = array_key_exists('overwrite', $configOptions) ? $configOptions['overwrite'] : false;
+
+            if (!in_array($configName, $ingoreConfig)) {
+
+                $isConfigured = array_key_exists($outputName, $configValues);
+                $exists = array_key_exists($configName, $config);
+                $value = $exists ? $config[$configName] : $defaultValue;
+
+                if (!$isConfigured || ($exists && $overwrite)) {
+
+                    $configValues[$outputName] = $value;
+
+                    if (is_string($onAttribute)) {
+                        $attributes[$onAttribute] = $value;
+                    }
+
+                }
+
+            }
+
+        }
+
+        $path = $configValues['baseURL'] . $src;
+        $attributes['href'] = $path;
+
+        $attributes = ($processAttr)($config, $attributes, $src);
+
+        $attributesString = [];
+
+        foreach ($attributes as $ka => $ia) {
+            unset($attributes[$ka]);
+            $attributesString[] = "{$ka}='{$ia}'";
+        }
+
+        $attributesString = implode(' ', $attributesString);
+        $element = "<link {$attributesString}>";
+        return $element;
+
+    };
+
+    foreach ($cssGlobal as $stylesheet) {
+        $tag = ($processElement)($config, $stylesheet, [
+            'custom_url',
+        ]);
+        echo $tag . "\n";
     }
+
+    foreach ($cssCustom as $stylesheet) {
+        $tag = ($processElement)($config, $stylesheet);
+        echo $tag . "\n";
+    }
+
+}
+/**
+ * Imprime los link de fuentes cargados con las funciones auxiliares de assets
+ *
+ * @param array $config
+ * @var string $config['base_url']
+ * @var string $config['custom_url']
+ * @var array<string,string> $config['attr']
+ * @var array<string,string[]> $config['attrApplyTo']
+ * @var array<string,string[]> $config['attrNoApplyTo']
+ * @return void
+ */
+function load_font(array $config = array())
+{
+    $global_assets = get_config('global_assets');
+    $custom_assets = get_config('custom_assets');
+
+    ksort($global_assets['font']);
+    ksort($custom_assets['font']);
+
+    $fontGlobal = $global_assets['font'];
+    $fontCustom = $custom_assets['font'];
+
+    /**
+     * @return array<string,string>
+     */
+    $processAttr = function (array $config, array $currentAttr, string $src) {
+
+        $attrApplyTo = array_key_exists('attrApplyTo', $config) ? $config['attrApplyTo'] : [];
+        $attrApplyTo = is_array($attrApplyTo) ? $attrApplyTo : [];
+
+        foreach ($attrApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrApplyTo[$k]);
+            }
+
+        }
+
+        $attrNoApplyTo = array_key_exists('attrNoApplyTo', $config) ? $config['attrNoApplyTo'] : [];
+        $attrNoApplyTo = is_array($attrNoApplyTo) ? $attrNoApplyTo : [];
+
+        foreach ($attrNoApplyTo as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_array($i)) {
+                $unsetElement = true;
+            } else {
+                foreach ($i as $ki => $ii) {
+                    if (!is_string($ii)) {
+                        $unsetElement = true;
+                        break;
+                    }
+                }
+            }
+
+            if ($unsetElement) {
+                unset($attrNoApplyTo[$k]);
+            }
+
+        }
+
+        $attr = array_key_exists('attr', $config) ? $config['attr'] : [];
+        $attr = is_array($attr) ? $attr : [];
+
+        foreach ($attr as $k => $i) {
+
+            $unsetElement = false;
+
+            if (!is_string($k)) {
+                $unsetElement = true;
+            }
+
+            if (!is_string($i)) {
+                $unsetElement = true;
+            }
+
+            if ($unsetElement) {
+                unset($attr[$k]);
+            }
+
+        }
+
+        foreach ($attr as $k => $i) {
+
+            $allowedTo = array_key_exists($k, $attrApplyTo) ? $attrApplyTo[$k] : null;
+            $excludeTo = array_key_exists($k, $attrNoApplyTo) ? $attrNoApplyTo[$k] : null;
+
+            if (is_array($allowedTo)) {
+
+                $isAllowed = false;
+
+                foreach ($allowedTo as $regexp) {
+
+                    $regexp = str_replace('/', '\/', $regexp);
+                    $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                    if ($isMatch) {
+                        $isAllowed = true;
+                        break;
+                    }
+
+                }
+
+                if (is_array($excludeTo)) {
+
+                    foreach ($excludeTo as $regexp) {
+
+                        $regexp = str_replace('/', '\/', $regexp);
+                        $isMatch = preg_match('/' . $regexp . '/i', $src) === 1;
+
+                        if ($isMatch) {
+                            $isAllowed = false;
+                            break;
+                        }
+
+                    }
+
+                }
+
+                if ($isAllowed) {
+                    $currentAttr[$k] = $i;
+                }
+
+            }
+
+        }
+
+        return $currentAttr;
+
+    };
+
+    /**
+     * @return string
+     */
+    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr) {
+
+        $defaultConfig = [
+            'base_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+            ],
+            'custom_url' => [
+                'outputName' => 'baseURL',
+                'default' => '',
+                'overwrite' => true,
+            ],
+        ];
+
+        $configValues = [];
+        $attributes = [];
+
+        foreach ($defaultConfig as $configName => $configOptions) {
+
+            $outputName = array_key_exists('outputName', $configOptions) ? $configOptions['outputName'] : $configName;
+            $defaultValue = array_key_exists('default', $configOptions) ? $configOptions['default'] : null;
+            $onAttribute = array_key_exists('onAttribute', $configOptions) ? $configOptions['onAttribute'] : null;
+            $overwrite = array_key_exists('overwrite', $configOptions) ? $configOptions['overwrite'] : false;
+
+            if (!in_array($configName, $ingoreConfig)) {
+
+                $isConfigured = array_key_exists($outputName, $configValues);
+                $exists = array_key_exists($configName, $config);
+                $value = $exists ? $config[$configName] : $defaultValue;
+
+                if (!$isConfigured || ($exists && $overwrite)) {
+
+                    $configValues[$outputName] = $value;
+
+                    if (is_string($onAttribute)) {
+                        $attributes[$onAttribute] = $value;
+                    }
+
+                }
+
+            }
+
+        }
+
+        $path = $configValues['baseURL'] . $src;
+        $attributes['href'] = $path;
+        $attributes['is-preload-custom'] = 'yes';
+        $attributes['rel'] = 'preload';
+        $attributes['as'] = 'style';
+
+        $attributes = ($processAttr)($config, $attributes, $src);
+
+        $attributesString = [];
+
+        foreach ($attributes as $ka => $ia) {
+            unset($attributes[$ka]);
+            $attributesString[] = "{$ka}='{$ia}'";
+        }
+
+        $attributesString = implode(' ', $attributesString);
+        $element = "<link {$attributesString}>";
+        return $element;
+
+    };
+
+    foreach ($fontGlobal as $stylesheet) {
+        $tag = ($processElement)($config, $stylesheet, [
+            'custom_url',
+        ]);
+        echo $tag . "\n";
+    }
+
+    foreach ($fontCustom as $stylesheet) {
+        $tag = ($processElement)($config, $stylesheet);
+        echo $tag . "\n";
+    }
+
 }
 
 /**
@@ -384,9 +1017,11 @@ function has_global_asset(string $asset, string $type)
         $assets = $global_assets[$type];
     } else if ($type == 'css') {
         $assets = $global_assets[$type];
+    } else if ($type == 'font') {
+        $assets = $global_assets[$type];
     }
 
-    if ($type == 'js' || $type == 'css') {
+    if ($type == 'js' || $type == 'css' || $type == 'font') {
 
         $index_asset = array_search($asset, $assets);
 
@@ -408,7 +1043,7 @@ function add_global_asset(string $asset, string $type)
     $global_assets = get_config('global_assets');
     $exists = isset($global_assets[$type]) && in_array($asset, $global_assets[$type]);
 
-    if (is_string($asset) && ($type == "js" || $type == "css")) {
+    if (is_string($asset) && ($type == "js" || $type == "css" || $type == "font")) {
 
         if (!$exists) {
 
@@ -422,6 +1057,13 @@ function add_global_asset(string $asset, string $type)
             } else if ($type == "css") {
 
                 $global_assets['css'][count($global_assets['css'])] = $asset;
+                set_config('global_assets', $global_assets);
+
+                return true;
+
+            } else if ($type == "font") {
+
+                $global_assets['font'][count($global_assets['font'])] = $asset;
                 set_config('global_assets', $global_assets);
 
                 return true;
@@ -463,7 +1105,7 @@ function index_global_required_asset(string $asset, string $type)
     $global_requireds_assets = get_config('global_requireds_assets');
     $index = null;
 
-    if (is_array($global_requireds_assets) && mb_strlen($asset) > 0 && ($type == 'css' || $type == 'js')) {
+    if (is_array($global_requireds_assets) && mb_strlen($asset) > 0 && ($type == 'css' || $type == 'js' || $type == 'font')) {
 
         if (array_key_exists($type, $global_requireds_assets)) {
 
@@ -494,6 +1136,7 @@ function add_global_required_asset(string $asset, string $type)
     $global_requireds_assets = is_array($global_requireds_assets) ? $global_requireds_assets : [
         'css' => [],
         'js' => [],
+        'font' => [],
     ];
 
     $add = add_global_asset($asset, $type);
@@ -599,6 +1242,9 @@ function set_custom_assets(array $custom_assets, string $type)
     } else if ($type == "css") {
         $_custom_assets['css'] = $custom_assets;
         set_config('custom_assets', $_custom_assets);
+    } else if ($type == "font") {
+        $_custom_assets['font'] = $custom_assets;
+        set_config('custom_assets', $_custom_assets);
     }
 }
 
@@ -619,6 +1265,9 @@ function set_global_assets(array $assets, string $type)
     } else if ($type == "css") {
         $global_assets['css'] = $assets;
         set_config('global_assets', $global_assets);
+    } else if ($type == "font") {
+        $global_assets['font'] = $assets;
+        set_config('global_assets', $global_assets);
     }
 }
 
@@ -634,6 +1283,7 @@ function clear_assets_imports()
     $imported = get_config('imported_assets');
     $cssFiles = [];
     $jsFiles = [];
+    $fontFiles = [];
 
     set_config('imported_assets', []);
 
@@ -642,6 +1292,7 @@ function clear_assets_imports()
         $library = $libraries[$name];
         $library_css = is_array($library) && isset($library['css']) && is_array($library['css']) ? $library['css'] : [];
         $library_js = is_array($library) && isset($library['js']) && is_array($library['js']) ? $library['js'] : [];
+        $library_font = is_array($library) && isset($library['font']) && is_array($library['font']) ? $library['font'] : [];
         $plugins = is_array($plugins) ? $plugins : [];
 
         foreach ($library_css as $i) {
@@ -656,11 +1307,18 @@ function clear_assets_imports()
             }
         }
 
+        foreach ($library_font as $i) {
+            if (is_string($i) && mb_strlen($i) > 0) {
+                $fontFiles[] = $i;
+            }
+        }
+
         foreach ($plugins as $plugin) {
 
             $plugin_data = $library['plugins'][$plugin];
             $plugin_css = is_array($plugin_data) && isset($plugin_data['css']) && is_array($plugin_data['css']) ? $plugin_data['css'] : [];
             $plugin_js = is_array($plugin_data) && isset($plugin_data['js']) && is_array($plugin_data['js']) ? $plugin_data['js'] : [];
+            $plugin_font = is_array($plugin_data) && isset($plugin_data['font']) && is_array($plugin_data['font']) ? $plugin_data['font'] : [];
 
             foreach ($plugin_css as $i) {
                 if (is_string($i) && mb_strlen($i) > 0) {
@@ -674,6 +1332,12 @@ function clear_assets_imports()
                 }
             }
 
+            foreach ($plugin_font as $i) {
+                if (is_string($i) && mb_strlen($i) > 0) {
+                    $fontFiles[] = $i;
+                }
+            }
+
         }
 
     }
@@ -684,6 +1348,10 @@ function clear_assets_imports()
 
     foreach ($jsFiles as $i) {
         remove_global_asset($i, 'js');
+    }
+
+    foreach ($fontFiles as $i) {
+        remove_global_asset($i, 'font');
     }
 }
 
@@ -699,10 +1367,12 @@ function clear_global_assets()
     $global_assets = is_array($global_assets) ? $global_assets : [
         'css' => [],
         'js' => [],
+        'font' => [],
     ];
 
     $css = isset($global_assets['css']) && is_array($global_assets['css']) ? $global_assets['css'] : [];
     $js = isset($global_assets['js']) && is_array($global_assets['js']) ? $global_assets['js'] : [];
+    $font = isset($global_assets['font']) && is_array($global_assets['font']) ? $global_assets['font'] : [];
 
     foreach ($css as $i) {
 
@@ -716,6 +1386,14 @@ function clear_global_assets()
 
         if (is_string($i) && mb_strlen($i) > 0) {
             remove_global_asset($i, 'js');
+        }
+
+    }
+
+    foreach ($font as $i) {
+
+        if (is_string($i) && mb_strlen($i) > 0) {
+            remove_global_asset($i, 'font');
         }
 
     }
@@ -747,6 +1425,7 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
         if (!$is_imported) {
             $has_js = array_key_exists('js', $library);
             $has_css = array_key_exists('css', $library);
+            $has_font = array_key_exists('font', $library);
             $was_imported = false;
 
             if ($has_js) {
@@ -762,6 +1441,14 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
 
                 if (is_array($css)) {
                     add_global_assets($css, 'css');
+                    $was_imported = true;
+                }
+            }
+            if ($has_font) {
+                $font = $library['font'];
+
+                if (is_array($font)) {
+                    add_global_assets($font, 'font');
                     $was_imported = true;
                 }
             }
@@ -789,6 +1476,7 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
                         $_plugin = $library_plugins[$plugin];
                         $plugin_has_js = array_key_exists('js', $_plugin);
                         $plugin_has_css = array_key_exists('css', $_plugin);
+                        $plugin_has_font = array_key_exists('font', $_plugin);
                         $plugin_was_imported = false;
 
                         if ($plugin_has_js) {
@@ -805,6 +1493,15 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
 
                             if (is_array($_plugin_css)) {
                                 add_global_assets($_plugin_css, 'css');
+                                $plugin_was_imported = true;
+                            }
+                        }
+
+                        if ($plugin_has_font) {
+                            $_plugin_font = $_plugin['font'];
+
+                            if (is_array($_plugin_font)) {
+                                add_global_assets($_plugin_font, 'font');
                                 $plugin_was_imported = true;
                             }
                         }
@@ -837,6 +1534,7 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
             $plugin_files = $library['plugins'][$plugin_to_delete];
             $plugin_css_files = is_array($plugin_files) && isset($plugin_files['css']) ? $plugin_files['css'] : [];
             $plugin_js_files = is_array($plugin_files) && isset($plugin_files['js']) ? $plugin_files['js'] : [];
+            $plugin_font_files = is_array($plugin_files) && isset($plugin_files['font']) ? $plugin_files['font'] : [];
 
             foreach ($plugin_css_files as $plugin_css_file) {
                 remove_global_asset($plugin_css_file, 'css');
@@ -844,6 +1542,10 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
 
             foreach ($plugin_js_files as $plugin_js_file) {
                 remove_global_asset($plugin_js_file, 'js');
+            }
+
+            foreach ($plugin_font_files as $plugin_font_file) {
+                remove_global_asset($plugin_font_file, 'font');
             }
 
         }
@@ -1032,6 +1734,18 @@ function import_spectrum(array $plugins = [], bool $all = true)
 function import_dialog_pcs(array $plugins = [], bool $all = true)
 {
     import_front_library('dialgo_pcs', $plugins, $all);
+}
+
+/**
+ * Registra simple_upload_placeholder como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_simple_upload_placeholder(array $plugins = [], bool $all = true)
+{
+    import_front_library('simple_upload_placeholder', $plugins, $all);
 }
 
 /**
@@ -1790,4 +2504,37 @@ function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
     }
 
     return $controller->_render('panel/built-in/utilities/cropper/workspace.php', $data, $echo);
+}
+
+/**
+ * @param \Slim\Http\Request $request
+ * @param \Slim\Http\Response $response
+ * @return \Slim\Http\Response
+ */
+function throw403(\Slim\Http\Request $request, \Slim\Http\Response $response)
+{
+    $response = $response->withStatus(403);
+
+    if (!$request->isXhr()) {
+        $controller = new PiecesPHP\Core\BaseController(false);
+        $controller->render('pages/403');
+    } else {
+        $response = $response->withJson("403 Forbidden");
+    }
+
+    return $response;
+}
+
+/**
+ * Genera una salida en la terminal
+ *
+ * @param string $text
+ * @param boolean $newLine
+ * @param string $newLineChars
+ * @return void
+ */
+function echoTerminal(string $text, bool $newLine = true, string $newLineChars = "\r\n")
+{
+    fwrite(STDOUT, $text . ($newLine ? $newLineChars : ''));
+    flush();
 }

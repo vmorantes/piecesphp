@@ -1259,27 +1259,43 @@ class PublicationsController extends AdminPanelController
     private static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
+        $getParam = function ($paramName) use ($params) {
+            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
+            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
+            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
+            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
+            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            return $paramValue;
+        };
+
         $allow = strlen($route) > 0;
 
         if ($allow) {
 
-            if ($name == 'actions-delete') {
+            $currentUser = get_config('current_user');
 
-                $allow = false;
-                $id = $params['id'];
-                $publication = PublicationMapper::getBy($id, 'id');
-                $currentUser = get_config('current_user');
+            if (is_object($currentUser)) {
 
-                if ($publication !== null && is_object($currentUser)) {
+                $currentUserType = (int) $currentUser->type;
+                $currentUserID = (int) $currentUser->id;
 
-                    $currentUserType = (int) $currentUser->type;
-                    $currentUserID = (int) $currentUser->id;
-                    $createdByID = (int) $publication->createdBy;
-                    $authorID = (int) $publication->author;
-                    $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
+                if ($name == 'actions-delete') {
 
-                    if(in_array($currentUserType, PublicationMapper::CAN_DELETE_ALL)){
-                        $allow = true;
+                    $allow = false;
+                    $id = ($getParam)('id');
+                    $publication = PublicationMapper::getBy($id, 'id');
+                    $currentUser = get_config('current_user');
+
+                    if ($publication !== null && is_object($currentUser)) {
+
+                        $createdByID = (int) $publication->createdBy;
+                        $authorID = (int) $publication->author;
+                        $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
+
+                        if (in_array($currentUserType, PublicationMapper::CAN_DELETE_ALL)) {
+                            $allow = true;
+                        }
+
                     }
 
                 }
@@ -1432,6 +1448,7 @@ class PublicationsController extends AdminPanelController
                 $params,
                 $silentOnNotExists
             );
+            $route = !is_string($route) ? '' : $route;
         }
 
         $allow = self::_allowedRoute($simpleName, $route, $params);
@@ -1558,6 +1575,28 @@ class PublicationsController extends AdminPanelController
         ];
 
         $group->register($routes);
+
+        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
+
+            $route = $request->getAttribute('route');
+            $routeName = $route->getName();
+            $routeArguments = $route->getArguments();
+            $routeArguments = is_array($routeArguments) ? $routeArguments : [];
+            $basenameRoute = self::$baseRouteName . '-';
+
+            if (strpos($routeName, $basenameRoute) !== false) {
+
+                $simpleName = str_replace($basenameRoute, '', $routeName);
+                $routeURL = self::routeName($simpleName, $routeArguments);
+                $allowed = mb_strlen($routeURL) > 0;
+
+                if (!$allowed) {
+                    return throw403($request, $response);
+                }
+
+            }
+            return $next($request, $response);
+        });
 
         return $group;
     }

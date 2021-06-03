@@ -136,9 +136,10 @@ class AppConfigModel extends BaseEntityMapper
      * getConfigValue
      *
      * @param string $name
+     * @param bool $staticConfig Si no existe en la base de datos intenta buscar en la configuración estática
      * @return mixed
      */
-    public static function getConfigValue(string $name)
+    public static function getConfigValue(string $name, bool $staticConfig = false)
     {
 
         if (self::optionExists($name)) {
@@ -151,6 +152,8 @@ class AppConfigModel extends BaseEntityMapper
                 return null;
             }
 
+        } else if ($staticConfig) {
+            return get_config($name);
         }
 
         return null;

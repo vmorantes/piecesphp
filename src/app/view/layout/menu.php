@@ -1,23 +1,112 @@
 <?php
-
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\PublicAreaController;
+use PiecesPHP\Core\Menu\MenuGroup;
+use PiecesPHP\Core\Menu\MenuGroupCollection;
+use PiecesPHP\Core\Menu\MenuItem;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsPublicController;
 use Publications\Mappers\PublicationCategoryMapper;
+/**
+ * @var MenuGroupCollection $publicMenu
+ */
+$publicMenu = new MenuGroupCollection([
+    'items' => [
+        new MenuGroup([
+            'name' => __(LANG_GROUP, 'Página principal'),
+            'visible' => PublicAreaController::allowedRoute('index'),
+            'asLink' => true,
+            'href' => PublicAreaController::routeName('index'),
+        ]),
+        new MenuGroup([
+            'name' => __(LANG_GROUP, 'Elementos'),
+            'visible' => true,
+            'asLink' => true,
+            'href' => genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'elements')),
+        ]),
+        new MenuGroup([
+            'name' => __(LANG_GROUP, 'Ejemplo de tabs'),
+            'visible' => true,
+            'asLink' => true,
+            'href' => genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'tabs-sample')),
+        ]),
+        new MenuGroup([
+            'name' => __(LANG_GROUP, 'Contacto'),
+            'visible' => true,
+            'asLink' => true,
+            'href' => PublicAreaController::routeName('contact'),
+            'position' => 20,
+        ]),
+    ],
+]);
 
-defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+//Menú para el blog
 
-$categories =  PublicationsCategoryController::_all()->elements();
-foreach($categories as $k => $i){
-    $categories[$k] = PublicationCategoryMapper::objectToMapper($i);
+$menuBlogGroup = new MenuGroup([
+    'name' => __(LANG_GROUP, 'Blog') . '&nbsp;&nbsp;',
+    'visible' => true,
+    'items' => [
+        new MenuItem([
+            'text' => __(LANG_GROUP, 'Todas las categorías'),
+            'visible' => true,
+            'href' => PublicationsPublicController::routeName('list'),
+        ]),
+    ],
+]);
+
+$categories = PublicationsCategoryController::_all()->elements();
+
+foreach ($categories as $k => $i) {
+
+    $categoryMapper = PublicationCategoryMapper::objectToMapper($i);
+
+    if ($categoryMapper->id != PublicationCategoryMapper::UNCATEGORIZED_ID) {
+
+        $menuBlogGroup->addItem(new MenuItem([
+            'text' => $categoryMapper->currentLangData('name'),
+            'visible' => true,
+            'href' => PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $categoryMapper->getSlug()]),
+        ]));
+
+    }
+
 }
+
+$publicMenu->addItem($menuBlogGroup);
+
+//Menú de idiomas
+
+$menuLangGroup = new MenuGroup([
+    'name' => __(LANG_GROUP, 'Idiomas') . '&nbsp;&nbsp;',
+    'visible' => true,
+    'items' => [],
+    'position' => 21,
+]);
+
+$langs = \PiecesPHP\Core\Config::get_config('alternatives_url');
+
+if (count($langs) > 0) {
+
+    foreach ($langs as $lang => $url) {
+
+        $menuLangGroup->addItem(new MenuItem([
+            'text' => $lang,
+            'visible' => true,
+            'href' => $url,
+        ]));
+
+    }
+
+    $publicMenu->addItem($menuLangGroup);
+}
+
 ?>
 
 <nav class="navigation">
 
     <div class="content">
 
-        <button class="open-nav">
+        <button class="open-nav" aria-label="<?= __(LANG_GROUP, 'Desplegar menú'); ?>">
             <i class="icon ellipsis vertical"></i>
         </button>
 
@@ -29,62 +118,39 @@ foreach($categories as $k => $i){
 
         <div class="items">
 
+            <?php foreach($publicMenu->getItems() as $element): ?>
 
-            <a class="item" href="<?=  PublicAreaController::routeName('index'); ?>">
+            <?php if($element->asLink()): ?>
 
-                <div class="text"><?= __(LANG_GROUP, 'Página principal')?></div>
-
+            <a class="item <?= $element->isCurrent() ? 'current' : '' ?>" href="<?= $element->getHref(); ?>">
+                <div class="text"><?= $element->getName(); ?></div>
             </a>
 
-            <a class="item" href="<?= genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'elements')); ?>">
+            <?php else: ?>
 
-                <div class="text"><?= __(LANG_GROUP, 'Elementos')?></div>
+            <span class="item menu <?= $element->isCurrent() ? 'current' : '' ?>">
 
-            </a>
-
-            <a class="item" href="<?= genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'tabs-sample')); ?>">
-
-                <div class="text"><?= __(LANG_GROUP, 'Ejemplo de tabs')?></div>
-
-            </a>
-
-            <span class="item menu">
-
-                <div class="text"><?=__(LANG_GROUP, 'Blog');?>&nbsp;&nbsp;<i class="icon angle down"></i></div>
+                <div class="text">
+                    <?= $element->getName(); ?> <i class="icon angle down"></i>
+                </div>
 
                 <div class="subitems">
-                    <a href="<?= PublicationsPublicController::routeName('list');?>" class="item"><?=__(LANG_GROUP, 'Todas las categorías'); ?></a>
 
-                    <?php foreach ($categories as $category): if($category->id == PublicationCategoryMapper::UNCATEGORIZED_ID){continue;} ?>
-                    <a href="<?= PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $category->getSlug()]) ?>" class="item">
-                        <?= $category->name; ?>
+                    <?php foreach($element->getItems() as $subElement): ?>
+
+                    <a class="item" href="<?= $subElement->getHref(); ?>">
+                        <?= $subElement->getText(); ?>
                     </a>
+
                     <?php endforeach; ?>
+
                 </div>
 
             </span>
 
-            <a class="item" href="<?=  PublicAreaController::routeName('contact'); ?>">
-
-                <div class="text"><?= __(LANG_GROUP, 'Contacto')?></div>
-
-            </a>
-
-            <?php if(count(\PiecesPHP\Core\Config::get_config('alternatives_url')) > 0): ?>
-            <span class="item menu">
-
-                <div class="text"><?= __(LANG_GROUP, 'Idiomas'); ?>&nbsp;&nbsp;<i class="icon angle down"></i></div>
-
-                <div class="subitems">
-                    <?php foreach(\PiecesPHP\Core\Config::get_config('alternatives_url') as $lang => $url): ?>
-                    <a href="<?= $url; ?>" class="item">
-                        <?= $lang; ?>
-                    </a>
-                    <?php endforeach; ?>
-                </div>
-
-            </span>
             <?php endif; ?>
+
+            <?php endforeach; ?>
 
         </div>
 

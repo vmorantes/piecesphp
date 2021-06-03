@@ -12,13 +12,18 @@
 
 /**
  * Obtiene la url actual
- *
+ * @param bool $decodeURL
  * @return string La url
  */
-function get_current_url()
+function get_current_url(bool $decodeURL = false)
 {
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http";
     $url = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+    if ($decodeURL) {
+        $url = urldecode($url);
+    }
+
     return $url;
 }
 

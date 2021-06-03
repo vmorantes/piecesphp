@@ -348,6 +348,14 @@ class MenuGroup
     }
 
     /**
+     * @return string
+     */
+    public function getHref()
+    {
+        return $this->href;
+    }
+
+    /**
      * @return HtmlElement|null
      */
     public function getHtmlElement()
@@ -440,8 +448,9 @@ class MenuGroup
     public function isCurrent()
     {
         if (is_null($this->current)) {
-            $current_url = get_current_url();
-            $href = $this->href;
+            $current_url = get_current_url(true);
+            $href = preg_replace('/#.*/', '', $this->href);
+            $href = is_string($href) ? $href : $this->href;
 
             while (last_char($current_url) == '/') {
                 $current_url = remove_last_char($current_url);

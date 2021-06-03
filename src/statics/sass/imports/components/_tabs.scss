@@ -13,16 +13,16 @@
         width: 100%;
         margin: pxToRem(5) pxToRem(2);
         padding: pxToRem(10) pxToRem(10);
-        border: 1px solid $blue1;
+        border: 1px solid $primaryColor;
         cursor: pointer;
-        background-color: $white;
+        background-color: $primaryColorOver;
         transition: 0.5s ease background-color;
-        color: $blue;
+        color: $primaryColor;
 
         &.active,
         &:hover {
-            background-color: $blue;
-            color: white;
+            background-color: $primaryColor;
+            color: $primaryColorOver;
         }
 
     }

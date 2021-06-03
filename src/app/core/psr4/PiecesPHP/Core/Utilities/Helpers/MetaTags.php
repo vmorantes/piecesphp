@@ -353,23 +353,26 @@ class MetaTags
             ],
         ];
 
-        $html[] = "<!-- Meta tags basic -->\r\n";
+        $htmlResult = "\r\n\t<!-- Meta tags basic -->\r\n";
 
-        $html[] = "<title>" . self::$title . "</title>\r\n";
+        $html[] = "\t<title>" . self::$title . "</title>\r\n";
 
         foreach ($ogProperties as $tag) {
             $name = $tag['property'];
             $content = $tag['content'];
             if (!is_null($content)) {
-                $html[] = "<meta name='{$name}' content='{$content}' />";
+                $html[] = "\t<meta name='{$name}' content='{$content}' />";
             }
         }
 
-        $html[] = '<!-- Close Meta tags basic -->';
-
+        
         $html = implode("\r\n", $html);
+        
+        $html .= "\r\n\t<!-- Close Meta tags basic -->\r\n";
 
-        return $html;
+        $htmlResult .= $html;
+
+        return $htmlResult;
     }
 
     /**
@@ -416,18 +419,20 @@ class MetaTags
             ],
         ];
 
-        $html[] = "<!-- Open Graph Tags -->\r\n";
+        $htmlResult = "\r\n\t<!-- Open Graph Tags -->\r\n";
 
         foreach ($ogProperties as $tag) {
             $name = $tag['property'];
             $content = $tag['content'];
-            $html[] = "<meta property='og:{$name}' content='{$content}' />";
+            $html[] = "\t<meta property='og:{$name}' content='{$content}' />";
         }
-
-        $html[] = '<!-- Close Open Graph Tags -->';
 
         $html = implode("\r\n", $html);
 
-        return $html;
+        $html .= "\r\n\t<!-- Close Open Graph Tags -->\r\n";
+
+        $htmlResult .= $html;
+
+        return $htmlResult;
     }
 }

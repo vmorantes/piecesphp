@@ -6,15 +6,15 @@ use Publications\Mappers\PublicationMapper;
  * @var PublicationMapper $element
  */
 ?>
-<article class="item">
-    <div class="image">
-        <a href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>" class="element-link">
-            <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>">
-        </a>
-    </div>
+<article class="ui card">
+    <a class="image" href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>">
+        <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>" loading="lazy">
+    </a>
     <div class="content">
-        <div class="title"><?= $element->currentLangData('title'); ?></div>
-        <div class="meta"><?= $element->authorFullName(); ?></div>
+        <div class="header"><?= $element->currentLangData('title'); ?></div>
+        <div class="meta">
+            <span><?= $element->authorFullName(); ?></span>
+        </div>
         <div class="description"><?= $element->excerpt(); ?></div>
     </div>
 </article>

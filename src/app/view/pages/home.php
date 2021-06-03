@@ -10,7 +10,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="wrapper unbounds">
 
-            <div class="slideshow text-center" data-url="<?= $sliderAjax; ?>">
+            <div class="slideshow slideshow-main-home text-center" data-url="<?= $sliderAjax; ?>">
                 <span class="prev">&#10094;</span>
                 <span class="next">&#10095;</span>
                 <div class="navigation-dots"></div>
@@ -30,7 +30,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <h2 class="segment-title text-center"><?= __(LANG_GROUP, 'Publicaciones'); ?></h2>
 
-            <section class="posts-list" articles-container data-route="<?= $ajaxArticlesURL; ?>"></section>
+            <section class="ui cards centered posts-list" articles-container data-route="<?= $ajaxArticlesURL; ?>"></section>
 
             <a href="<?= PublicationsPublicController::routeName('list'); ?>" class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
 
@@ -44,65 +44,55 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <h2 class="segment-title text-center">Lorem, ipsum dolor.</h2>
 
-            <section class="persons-list">
+        </div>
 
-                <article class="item">
+        <div class="wrapper">
 
-                    <div class="image">
-                        <img src="https://via.placeholder.com/300x300">
+            <div class="slideshow slideshow-static element-center text-center">
+
+                <span class="prev">&#10094;</span>
+                <span class="next">&#10095;</span>
+                <div class="navigation-dots"></div>
+
+                <div class="item">
+                    <img loading="lazy" src="https://via.placeholder.com/400x300">
+                    <div class="caption">
+                        <div class="title">Lorem ipsum dolor sit.</div>
+                        <div class="text">Reiciendis dolore minima officia assumenda asperiores quam</div>
                     </div>
+                </div>
 
-                    <div class="content">
-                        <div class="title">John Doe</div>
-                        <div class="meta">Junior Developer</div>
-                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
+                <a class="item" href="//google.com" rel="noreferrer" target="_blank">
+                    <img loading="lazy" src="https://via.placeholder.com/400x300">
+                    <div class="caption">
+                        <div class="title">Lorem ipsum dolor sit.</div>
+                        <div class="text">Reiciendis dolore minima officia assumenda asperiores quam</div>
                     </div>
+                </a>
 
-                </article>
+                <a class="item" href="//google.com" rel="noreferrer" target="_blank">
+                    <img loading="lazy" src="https://via.placeholder.com/400x300">
+                </a>
 
-                <article class="item">
-
-                    <div class="image">
-                        <img src="https://via.placeholder.com/300x300">
+                <div class="item">
+                    <img loading="lazy" src="https://via.placeholder.com/400x300">
+                    <div class="caption">
+                        <div class="title">Lorem ipsum dolor sit.</div>
                     </div>
+                </div>
 
-                    <div class="content">
-                        <div class="title">John Doe</div>
-                        <div class="meta">Designer</div>
-                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
+                <div class="item">
+                    <img loading="lazy" src="https://via.placeholder.com/400x300">
+                    <div class="caption">
+                        <div class="text">Reiciendis dolore minima officia assumenda asperiores quam</div>
                     </div>
+                </div>
 
-                </article>
+                <div class="item">
+                    <img loading="lazy" src="https://via.placeholder.com/400x300">
+                </div>
 
-                <article class="item">
-
-                    <div class="image">
-                        <img src="https://via.placeholder.com/300x300">
-                    </div>
-
-                    <div class="content">
-                        <div class="title">John Doe</div>
-                        <div class="meta">Junior Developer</div>
-                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
-                    </div>
-
-                </article>
-
-                <article class="item">
-
-                    <div class="image">
-                        <img src="https://via.placeholder.com/300x300">
-                    </div>
-
-                    <div class="content">
-                        <div class="title">John Doe</div>
-                        <div class="meta">Designer</div>
-                        <div class="description">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis exercitationem beatae magni praesentium ipsam ipsa, facere aliquam dolorum sequi earum commodi necessitatibus nihil obcaecati alias animi? Expedita enim nesciunt molestiae!</div>
-                    </div>
-
-                </article>
-
-            </section>
+            </div>
 
         </div>
 

@@ -876,15 +876,15 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 }
 
 /**
- * genericFormHandler
- * 
  * Manejador genérico de formularios, requiere jquery
  * 
  * @param {String|$} selectorForm 
  * @param {genericFormHandler.Options} options
+ * @param {Boolean} [overwrite=true] Si es true aplica .off al evento submit
+ * @param {Boolean} [defaultInvalidHandler=true] Si es true aplica un manejador de invalidez del formulario predefinido
  * @returns {$} 
  */
-function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', options = {}) {
+function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', options = {}, overwrite = true, defaultInvalidHandler = true) {
 
 	/**
 	 * @typedef genericFormHandler.Options
@@ -912,6 +912,9 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		selectorForm = typeof selectorForm == 'string' && selectorForm.trim().length > 0 ? selectorForm.trim() : `form[pcs-generic-handler-js]`
 	}
 
+	overwrite = overwrite === true
+	defaultInvalidHandler = defaultInvalidHandler === true
+
 	let form = selectorForm instanceof $ ? selectorForm : $(`${selectorForm}`)
 
 	let hasConfirmation = false
@@ -929,7 +932,136 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	}
 	let onError = function () {
 	}
+
+	let onInvalidEventOnToTopAnimation = false
 	let onInvalidEvent = function (event) {
+
+		let element = event.target
+		let validationMessage = element.validationMessage
+		let jElement = $(element)
+		let field = jElement.closest('.field')
+		let nameOnLabel = field.find('label').html()
+		let parentForm = jElement.closest('form')
+
+		//Si es un dropdown con simulador se ignora
+		if (typeof jElement.attr('data-simulator') == 'string' && jElement.attr('data-simulator').length > 1) {
+			event.preventDefault()
+			return
+		}
+
+		field.addClass('error')
+		field.find('input,select,textarea').map((i, e) => e.blur())
+		let removeErrorClass = function () {
+			field.removeClass('error')
+			form.find(`li[data-name="${dataID}"]`).remove()
+			const messageContainer = form.find(`[${errorMessageContainerAttr}]`)
+			if (messageContainer.find('.list li').length < 1) {
+				messageContainer.remove()
+			}
+		}
+
+		field.off('focus change', '*', removeErrorClass)
+		field.on('focus change', '*', removeErrorClass)
+
+		//Agregar errores
+		const dataID = configElementDataID()
+		const errorMessageContainerAttr = 'error-form-container'
+
+		configErrorMessageContainer(parentForm)
+
+		event.preventDefault()
+
+		function configElementDataID() {
+			let dataID = jElement.data('id')
+			jElement.data('id')
+			const hasDataID = typeof dataID == 'string' && dataID.trim().length > 0
+			dataID = hasDataID ? dataID.trim() : generateUniqueID().trim()
+			if (!hasDataID) {
+				jElement.attr('data-id', dataID)
+			}
+			return dataID
+		}
+
+		function configErrorMessageContainer(form) {
+
+			let messageContainer = form.find(`[${errorMessageContainerAttr}]`)
+
+			if (messageContainer.length < 1) {
+				let html = `<div class="ui error message" ${errorMessageContainerAttr}>`
+				html += `<i class="close icon"></i><br>`
+				html += `<div class="content"><ul class="list"></ul></div>`
+				html += `</div>`
+				form.prepend(html)
+				messageContainer = form.find(`[${errorMessageContainerAttr}]`)
+				messageContainer.find('.close').off('click')
+				messageContainer.find('.close').on('click', function () {
+					$(this).closest('.message').transition('fade')
+				})
+			}
+
+			let toTop = () => {
+				if (!onInvalidEventOnToTopAnimation) {
+					onInvalidEventOnToTopAnimation = true
+					$('body,html,.ui-pcs.container-sidebar>.content').animate({
+						scrollTop: form.offset().top
+					}, {
+						easing: 'linear',
+						complete: function () {
+							onInvalidEventOnToTopAnimation = false
+						}
+					})
+				}
+			}
+
+			if (!messageContainer.is(':visible')) {
+				messageContainer.transition('fade', {
+					onComplete: function () {
+						if (!visibleInViewPort(messageContainer)) {
+							toTop()
+						}
+						messageContainer.find('.content').css('min-height', 'min-content')
+						messageContainer.find('.content').css('overflow', 'auto')
+						messageContainer.find('.content').css('max-height', '220px')
+					}
+				})
+			} else {
+				toTop()
+			}
+
+			configIndividualError(messageContainer)
+			removeOrphanIndividualErrors(messageContainer)
+
+			function configIndividualError(messageContainer) {
+
+				const liErrorSelector = `[data-name="${dataID}"]`
+				let liError = messageContainer.find(liErrorSelector)
+				liError.remove()
+
+				messageContainer.find('.list').append(`<li data-name="${dataID}"></li>`)
+				liError = messageContainer.find(liErrorSelector)
+				liError.html(`<strong>${nameOnLabel}</strong>: ${validationMessage}`)
+
+				messageContainer.find('.list').append(liError)
+
+			}
+
+			function removeOrphanIndividualErrors() {
+				const liErrors = messageContainer.find('.list li')
+				liErrors.map(function (i, element) {
+					let dataID = element.dataset.name
+					let inputElement = form.find(`[data-id="${dataID}"]`)
+					if (inputElement.length < 1) {
+						$(element).remove()
+					}
+				})
+			}
+
+			return messageContainer
+
+		}
+
+	}
+	onInvalidEvent = defaultInvalidHandler ? onInvalidEvent : function (event) {
 	}
 	let toast = true
 
@@ -989,9 +1121,13 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	if (form.length > 0) {
 
 		form.off('invalid')
+		form.find('input,textarea,select').off('invalid')
 		form.find('input,textarea,select').on('invalid', onInvalidEvent)
 
-		form.submit(function (e) {
+		if (overwrite) {
+			form.off('submit')
+		}
+		form.on('submit', function (e) {
 
 			e.preventDefault()
 
@@ -1633,7 +1769,7 @@ function addObjectToFormData(formData, inputValue, name, isFirstArray = true) {
 /**
  * Detección de evento swipe
  * @param {HTMLElement} el 
- * @param {Function} callback Función que devuelve como parámetro alguna de las siguientes opciones: u, r, d, l, none
+ * @param {Function} callback Función que devuelve como parámetro alguna de las siguientes opciones: u, r, d, l, none y el evento
  * @link http://www.javascriptkit.com/javatutors/touchevents2.shtml
  */
 function swipedetect(el, callback) {
@@ -1658,12 +1794,9 @@ function swipedetect(el, callback) {
 		startX = touchobj.pageX
 		startY = touchobj.pageY
 		startTime = new Date().getTime() // record time when finger first makes contact with surface
-		e.preventDefault()
-	}, false)
-
-	touchsurface.addEventListener('touchmove', function (e) {
-		e.preventDefault() // prevent scrolling when inside DIV
-	}, false)
+	}, {
+		passive: true,
+	})
 
 	touchsurface.addEventListener('touchend', function (e) {
 		var touchobj = e.changedTouches[0]
@@ -1678,8 +1811,7 @@ function swipedetect(el, callback) {
 				swipedir = (distY < 0) ? 'u' : 'd' // if dist traveled is negative, it indicates up swipe
 			}
 		}
-		handleswipe(swipedir)
-		e.preventDefault()
+		handleswipe(swipedir, e)
 	}, false)
 }
 
@@ -1764,6 +1896,7 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 		if (select.get(0).required) {
 			selectSimulator.setAttribute('required', true)
 		}
+		select.attr('data-simulator', uniqueID)
 		selectSimulator.setAttribute('simulator', uniqueID)
 		selectSimulator.setAttribute('style', [
 			"display: block !important;",
@@ -1802,4 +1935,119 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 	}
 
 	return dropdowns
+}
+
+/**
+ * @param {$} dropdown 
+ * @param {Boolean} [required] 
+ * @param {Boolea} [hideOnNoRequire] 
+ */
+function toggleRequiredSemanticDropdown(dropdown, required = true, hideOnNoRequire = false) {
+	let mainSelect = dropdown.find('select')
+	let simulatorSelect = $(`select[simulator="${mainSelect.attr('data-simulator')}"]`)
+	simulatorSelect.val('')
+	dropdown.dropdown('restore defaults', '')
+	dropdown.dropdown('refresh', '')
+	dropdown.dropdown('set value', '')
+	if (required) {
+		mainSelect.attr('required', true)
+		simulatorSelect.attr('required', true)
+		if (!dropdown.closest('.field').is(':visible')) {
+			dropdown.closest('.field').show()
+		}
+	} else {
+		mainSelect.removeAttr('required')
+		simulatorSelect.removeAttr('required')
+		if (hideOnNoRequire) {
+			dropdown.closest('.field').hide()
+		}
+	}
+}
+
+/**
+ * @param {$} input 
+ * @param {Boolean} [required] 
+ * @param {Boolea} [hideOnNoRequire] 
+ * @param {Boolea} [disableOnNoRequire] 
+ */
+function toggleRequiredSemanticInput(input, required = true, hideOnNoRequire = false, disableOnNoRequire = false) {
+
+	let prevValue = input.attr('data-prev-value')
+	prevValue = typeof prevValue == 'string' && prevValue.trim().length > 0 ? prevValue : input.val()
+
+	input.attr('data-prev-value', prevValue)
+
+	let fieldContainer = input.closest('.field')
+
+	if (required) {
+		input.attr('required', true)
+		input.val(prevValue)
+		if (!fieldContainer.is(':visible')) {
+			fieldContainer.show()
+		}
+		fieldContainer.removeClass('disabled')
+		input.removeAttr('disabled')
+	} else {
+		input.removeAttr('required')
+		input.val('')
+		if (hideOnNoRequire) {
+			fieldContainer.hide()
+		}
+		if (disableOnNoRequire) {
+			fieldContainer.addClass('disabled')
+			input.attr('disabled', true)
+		}
+	}
+}
+
+/**
+ * @param {$} dropdown 
+ * @param {String} value 
+ * @param {String} text 
+ */
+function changeValueSemanticDropdown(dropdown, value, text = null) {
+	if (text !== null) {
+		dropdown.dropdown('set value', value)
+		dropdown.dropdown('set text', text)
+		dropdown.dropdown('set selected', value)
+		dropdown.dropdown('refresh')
+	} else {
+		dropdown.dropdown('set selected', value)
+		dropdown.dropdown('refresh')
+	}
+}
+
+/**
+ * Simplifica una fracción
+ * @param {Numbar} numerator 
+ * @param {Numbar} denominator 
+ * @returns {Object} Un objeto con las promiedades numerator, denominator
+ */
+function simplify(numerator, denominator) {
+
+	for (var i = Math.max(numerator, denominator); i > 1; i--) {
+
+		if ((numerator % i == 0) && (denominator % i == 0)) {
+			numerator /= i
+			denominator /= i
+		}
+
+	}
+
+	return {
+		numerator: numerator,
+		denominator: denominator,
+	}
+}
+
+/**
+ * @param {$} element
+ * @returns {Boolean}
+ */
+function visibleInViewPort(element) {
+	const elementTop = element.offset().top
+	const elementBottom = elementTop + element.outerHeight()
+	const viewportTop = $(window).scrollTop()
+	const viewportBottom = viewportTop + $(window).height()
+	return elementBottom > viewportTop && elementTop < viewportBottom
 }

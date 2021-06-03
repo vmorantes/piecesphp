@@ -1,4 +1,3 @@
-@import 'components/cards';
 @import 'components/texts';
 @import 'components/slideshow';
 @import 'components/tabs';
@@ -18,7 +17,7 @@ body>.navigation {
     width: 100%;
     min-height: 70px;
     z-index: 200;
-    background-color: $blue;
+    background-color: $primaryColor;
 
     &.active {
         .items {
@@ -68,7 +67,7 @@ body>.navigation {
 
                 padding: 13px 0px 7px 0px;
                 font-size: pxToRem(16);
-                color: $white;
+                color: $primaryColorOver;
                 transition: 0.5s ease all;
                 text-transform: uppercase;
 
@@ -119,8 +118,8 @@ body>.navigation {
                         padding: 5px 0px;
                         transition: 0.5s ease all;
                         font-size: pxToRem(13);
-                        color: $white;
-                        text-transform: uppercase;
+                        color: $primaryColorOver;
+                        text-transform: capitalize;
 
                         &:hover {
                             opacity: 0.5;
@@ -161,7 +160,7 @@ body>.navigation {
         padding: 10px 10px;
         background-color: transparent;
         border: none;
-        color: $white;
+        color: $primaryColorOver;
         cursor: pointer;
         transition: 0.5s ease all;
 
@@ -179,14 +178,14 @@ body>.navigation {
 
     &.inverted {
 
-        background-color: $white;
+        background-color: $primaryColorOver;
 
         .items {
 
             >.item {
 
                 >.text {
-                    color: $blue;
+                    color: $primaryColor;
                 }
 
 
@@ -195,7 +194,7 @@ body>.navigation {
                     >.subitems {
 
                         >.item {
-                            color: $blue;
+                            color: $primaryColor;
                         }
 
                     }
@@ -207,7 +206,7 @@ body>.navigation {
         }
 
         .open-nav {
-            color: $blue;
+            color: $primaryColor;
         }
 
     }
@@ -232,7 +231,7 @@ body>.navigation {
             justify-content: flex-end;
             align-content: center;
             overflow-y: initial;
-            background-color: $blue;
+            background-color: $primaryColor;
 
 
             >.item {
@@ -244,7 +243,7 @@ body>.navigation {
                 width: auto;
                 box-shadow: none;
                 height: 100%;
-                background-color: $blue;
+                background-color: $primaryColor;
 
                 >.text {
 
@@ -257,16 +256,26 @@ body>.navigation {
 
                     position: relative;
 
+                    &:last-child {
+
+                        >.subitems {
+                            left: initial;
+                            right: 0;
+                        }
+                        
+                    }
+
                     >.subitems {
 
                         display: flex;
                         position: absolute;
                         top: 100%;
+                        left: 0;
                         z-index: -1;
-                        min-width: 100%;
+                        min-width: 180px;
                         padding-left: 15px;
                         padding-right: 15px;
-                        background-color: $blue;
+                        background-color: $primaryColor;
                         transform: translateY(-100%) scaleY(0);
 
                         animation: ungrow-subitems ease 0.5s;
@@ -320,7 +329,7 @@ body>.navigation {
                     content: ' ';
                     height: 2px;
                     width: 100%;
-                    border-bottom: 4px $blue3 solid;
+                    border-bottom: 4px $borderActiveMenuColor solid;
                     animation: ungrow-line 0.5s ease;
 
                     @keyframes ungrow-line {
@@ -377,24 +386,24 @@ body>.navigation {
 
             .items {
 
-                background-color: $white;
+                background-color: $primaryColorOver;
 
 
                 >.item {
 
-                    background-color: $white;
+                    background-color: $primaryColorOver;
 
                     &.menu {
 
 
                         >.subitems {
-                            background-color: $white;
+                            background-color: $primaryColorOver;
                         }
 
                     }
 
                     &::after {
-                        border-bottom: 4px $blue solid;
+                        border-bottom: 4px $primaryColor solid;
                     }
 
                 }

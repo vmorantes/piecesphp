@@ -43,6 +43,10 @@ class ServerStatics
     const CONTENT_TYPE_MP4 = 'video/mp4';
     const CONTENT_TYPE_CSV = 'text/csv';
     const CONTENT_TYPE_PDF = 'application/pdf';
+    const CONTENT_TYPE_WOFF2 = 'font/woff2';
+    const CONTENT_TYPE_WOFF = 'font/woff,application/x-font-woff';
+    const CONTENT_TYPE_EOT = 'application/vnd.ms-fontobject';
+    const CONTENT_TYPE_TTF = 'font/ttf,application/font-sfnt';
 
     const TYPE_JSON = 'JSON';
     const TYPE_JS = 'JS';
@@ -57,6 +61,10 @@ class ServerStatics
     const TYPE_MP4 = 'MP4';
     const TYPE_CSV = 'CSV';
     const TYPE_PDF = 'PDF';
+    const TYPE_WOFF2 = 'WOFF2';
+    const TYPE_WOFF = 'WOFF';
+    const TYPE_EOT = 'EOT';
+    const TYPE_TTF = 'TTF';
 
     const DATA_TYPE_JSON = [
         'code' => self::TYPE_JSON,
@@ -113,6 +121,7 @@ class ServerStatics
         'caching' => true,
         'compress' => true,
         'contentType' => self::CONTENT_TYPE_JPG,
+        'convertTo' => self::TYPE_WEBP,
         'extensions' => [
             'jpg',
             'jpeg',
@@ -189,6 +198,46 @@ class ServerStatics
         ],
     ];
 
+    const DATA_TYPE_WOFF2 = [
+        'code' => self::TYPE_WOFF2,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_WOFF2,
+        'extensions' => [
+            'woff2',
+        ],
+    ];
+
+    const DATA_TYPE_WOFF = [
+        'code' => self::TYPE_WOFF,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_WOFF,
+        'extensions' => [
+            'woff',
+        ],
+    ];
+
+    const DATA_TYPE_EOT = [
+        'code' => self::TYPE_EOT,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_EOT,
+        'extensions' => [
+            'eot',
+        ],
+    ];
+
+    const DATA_TYPE_TTF = [
+        'code' => self::TYPE_TTF,
+        'caching' => true,
+        'compress' => true,
+        'contentType' => self::CONTENT_TYPE_TTF,
+        'extensions' => [
+            'ttf',
+        ],
+    ];
+
     const DATA_TYPES = [
         self::TYPE_JSON => self::DATA_TYPE_JSON,
         self::TYPE_JS => self::DATA_TYPE_JS,
@@ -203,6 +252,10 @@ class ServerStatics
         self::TYPE_MP4 => self::DATA_TYPE_MP4,
         self::TYPE_CSV => self::DATA_TYPE_CSV,
         self::TYPE_PDF => self::DATA_TYPE_PDF,
+        self::TYPE_WOFF2 => self::DATA_TYPE_WOFF2,
+        self::TYPE_WOFF => self::DATA_TYPE_WOFF,
+        self::TYPE_EOT => self::DATA_TYPE_EOT,
+        self::TYPE_TTF => self::DATA_TYPE_TTF,
     ];
 
     /**
@@ -358,7 +411,25 @@ class ServerStatics
                 $mimeType,
             ];
 
-            if (self::allowCaching($extension)) {
+            $allowCaching = self::allowCaching($extension);
+
+            if (self::allowConvertion($extension)) {
+
+                $dataTypeConvertible = self::getDataTypeByExtension($extension);
+
+                if ($dataTypeConvertible !== null) {
+
+                    $dataTypeConvertion = isset(self::DATA_TYPES[$dataTypeConvertible['convertTo']]) ? self::DATA_TYPES[$dataTypeConvertible['convertTo']] : null;
+
+                    if ($dataTypeConvertible !== null) {
+                        $allowCaching = $dataTypeConvertion['caching'];
+                    }
+
+                }
+
+            }
+
+            if ($allowCaching) {
 
                 $ifModifiedSince = $request->getHeaderLine('If-Modified-Since');
                 $ifNoneMatch = $request->getHeaderLine('If-None-Match');
@@ -463,12 +534,46 @@ class ServerStatics
         if ($status != 304) {
 
             $acceptEncoding = $request->getHeaderLine('Accept-Encoding');
-
             $fileData = file_get_contents($path);
 
-            if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
+            if (self::allowConvertion($extension)) {
 
-                $headers = [];
+                $dataType = self::getDataTypeByExtension($extension);
+
+                if ($dataType !== null) {
+
+                    $codeType = $dataType['code'];
+                    $convertTo = $dataType['convertTo'];
+
+                    if ($codeType == self::TYPE_JPG) {
+
+                        $acceptConvertType = self::typeIsAllowed($convertTo, $request);
+
+                        if ($acceptConvertType) {
+
+                            if ($convertTo == self::TYPE_WEBP) {
+
+                                $resourceImage = imagecreatefromjpeg($path);
+
+                                ob_start();
+                                imagewebp($resourceImage);
+                                $fileData = ob_get_contents();
+                                ob_end_clean();
+
+                                $headers['Content-Type'] = [
+                                    self::CONTENT_TYPE_WEBP,
+                                ];
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            }
+
+            if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
 
                 $acceptEncoding = explode(',', str_replace(' ', '', trim($acceptEncoding)));
                 $acceptEncoding = is_array($acceptEncoding) ? $acceptEncoding : [];
@@ -558,6 +663,27 @@ class ServerStatics
     }
 
     /**
+     * @param string $extension
+     * @return array|null
+     */
+    private static function getDataTypeByExtension(string $extension)
+    {
+
+        $dataTypes = self::DATA_TYPES;
+
+        foreach ($dataTypes as $type => $config) {
+            $extensions = $config['extensions'];
+            if (in_array($extension, $extensions)) {
+                return $config;
+                break;
+            }
+        }
+
+        return null;
+
+    }
+
+    /**
      * allowCaching
      *
      * @param string $extension
@@ -607,6 +733,49 @@ class ServerStatics
 
         return true;
 
+    }
+
+    /**
+     * @param string $extension
+     * @return bool
+     */
+    private static function allowConvertion(string $extension)
+    {
+
+        $dataTypes = self::DATA_TYPES;
+
+        foreach ($dataTypes as $code => $dataType) {
+
+            $extensions = $dataType['extensions'];
+            $convertTo = isset($dataType['convertTo']) ? $dataType['convertTo'] : null;
+
+            if (in_array($extension, $extensions)) {
+                return $convertTo !== null;
+            }
+
+        }
+
+        return false;
+
+    }
+
+    /**
+     * @param string $typeCode
+     * @param Request $request
+     * @return bool
+     */
+    private static function typeIsAllowed(string $typeCode, Request $request)
+    {
+        $dataType = isset(self::DATA_TYPES[$typeCode]) ? self::DATA_TYPES[$typeCode] : null;
+
+        if ($dataType !== null) {
+            $acceptTypes = $request->getHeaderLine('Accept');
+            if (mb_strpos($acceptTypes, $dataType['contentType']) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

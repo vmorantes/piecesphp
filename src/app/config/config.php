@@ -42,6 +42,9 @@ $config['keywords'] = [
 ];
 $config['meta_theme_color'] = "#13436C";
 $config['admin_menu_color'] = "#111213";
+$config['emphasis_color_admin_area'] = "#111213";
+$config['emphasis_over_color_admin_area'] = "white";
+$config['modules_mark_color'] = "#336799";
 
 $config['description'] = "Descripción de la página.";
 
