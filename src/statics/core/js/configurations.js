@@ -426,7 +426,7 @@ if (typeof $ !== 'undefined') {
 		notAltImages.forEach(function (element) {
 			element.setAttribute('alt', element.src.indexOf('/') !== -1 ? element.src.split('/').reverse()[0] : element.src)
 		})
-		
+
 	})
 
 }
@@ -436,88 +436,107 @@ if (typeof $ !== 'undefined') {
  * @returns {void}
  */
 function configCalendars() {
-	let calendarios = $('[calendar-js]')
-	let calendariosGrupos = $('[calendar-group-js]').toArray()
 
 	try {
-
-		let grupos = []
-
-		for (let calendario of calendarios.toArray()) {
-			calendario = $(calendario)
-			let tipoCalendario = calendario.attr('calendar-type')
-			tipoCalendario = typeof tipoCalendario == 'string' && tipoCalendario.trim().length > 0 ? tipoCalendario.trim() : 'date'
-			tipoCalendario = tipoCalendario == 'datetime' || tipoCalendario == 'date' ? tipoCalendario : 'datetime'
-			let calendarioOpciones = Object.assign({}, pcsphpGlobals.configCalendar)
-			calendarioOpciones.type = tipoCalendario
-			$(calendario).calendar(calendarioOpciones)
-		}
-
-		for (let calendarioGrupo of calendariosGrupos) {
-
-			let grupo = $(calendarioGrupo).attr('calendar-group-js')
-
-			if (grupos.indexOf(grupo) == -1 && typeof grupo == 'string' && grupo.trim().length > 0) {
-				grupos.push(grupo)
-			}
-		}
-
-		for (let grupo of grupos) {
-
-			let start = $($(`[calendar-group-js='${grupo}'][start]`)[0])
-			let end = $($(`[calendar-group-js='${grupo}'][end]`)[0])
-
-			let minDate = start.attr('min')
-			minDate = typeof minDate == 'string' && minDate.trim().length > 0 ? minDate.trim() : null
-			try {
-				minDate = minDate !== null ? new Date(minDate) : null
-				if (!(minDate instanceof Date && !isNaN(minDate))) {
-					minDate = null
-				}
-			} catch (error) {
-				minDate = null
-			}
-
-			let maxDate = start.attr('max')
-			maxDate = typeof maxDate == 'string' && maxDate.trim().length > 0 ? maxDate.trim() : null
-			try {
-				maxDate = maxDate !== null ? new Date(maxDate) : null
-				if (!(maxDate instanceof Date && !isNaN(maxDate))) {
-					maxDate = null
-				}
-			} catch (error) {
-				maxDate = null
-			}
-
-			let startType = start.attr('calendar-type')
-			startType = typeof startType == 'string' && startType.trim().length > 0 ? startType.trim() : 'datetime'
-			startType = startType == 'datetime' || startType == 'date' ? startType : 'datetime'
-
-			let endType = end.attr('calendar-type')
-			endType = typeof endType == 'string' && endType.trim().length > 0 ? endType.trim() : 'datetime'
-			endType = endType == 'datetime' || endType == 'date' ? endType : 'datetime'
-
-			let optStart = Object.assign({}, pcsphpGlobals.configCalendar)
-			let optEnd = Object.assign({}, pcsphpGlobals.configCalendar)
-
-			optStart.type = startType
-			optStart.minDate = minDate
-			optStart.maxDate = maxDate
-			optEnd.type = endType
-			optEnd.maxDate = maxDate
-
-			optStart.endCalendar = end
-			optEnd.startCalendar = start
-
-			start.calendar(optStart)
-			end.calendar(optEnd)
-		}
-
+		configSinglesCalendar('calendar-js')
+		configGroupCalendar('calendar-group-js')
 	} catch (error) {
-		if (calendarios.calendar !== undefined) {
+		if ($('').calendar !== undefined) {
 			console.error(error)
 		}
 	}
+}
+
+/**
+ * @returns {void}
+ */
+function configSinglesCalendar(selectorAttr, selectorAttrName) {
+
+	selectorAttr = typeof selectorAttr == 'string' && selectorAttr.length > 0 ? selectorAttr : null
+	selectorAttrName = typeof selectorAttrName == 'string' && selectorAttrName.length > 0 ? selectorAttrName : selectorAttr
+	let calendars = $(`[${selectorAttr}]`).toArray()
+
+	for (let calendar of calendars) {
+		calendar = $(calendar)
+		let calendarType = calendar.attr('calendar-type')
+		calendarType = typeof calendarType == 'string' && calendarType.trim().length > 0 ? calendarType.trim() : 'date'
+		calendarType = calendarType == 'datetime' || calendarType == 'date' ? calendarType : 'datetime'
+		let calendarOptions = Object.assign({}, pcsphpGlobals.configCalendar)
+		calendarOptions.type = calendarType
+		$(calendar).calendar(calendarOptions)
+	}
+
+}
+
+/**
+ * @returns {void}
+ */
+function configGroupCalendar(selectorAttr, selectorAttrName) {
+
+	selectorAttr = typeof selectorAttr == 'string' && selectorAttr.length > 0 ? selectorAttr : null
+	selectorAttrName = typeof selectorAttrName == 'string' && selectorAttrName.length > 0 ? selectorAttrName : selectorAttr
+	let groupCalendars = $(`[${selectorAttr}]`).toArray()
+
+	let groups = []
+
+	for (let groupCalendar of groupCalendars) {
+		let groupName = $(groupCalendar).attr(selectorAttrName)
+		if (groups.indexOf(groupName) == -1 && typeof groupName == 'string' && groupName.trim().length > 0) {
+			groups.push(groupName)
+		}
+	}
+
+	for (let group of groups) {
+
+		let start = $($(`[${selectorAttrName}='${group}'][start]`)[0])
+		let end = $($(`[${selectorAttrName}='${group}'][end]`)[0])
+
+		let minDate = start.attr('min')
+		minDate = typeof minDate == 'string' && minDate.trim().length > 0 ? minDate.trim() : null
+		try {
+			minDate = minDate !== null ? new Date(minDate) : null
+			if (!(minDate instanceof Date && !isNaN(minDate))) {
+				minDate = null
+			}
+		} catch (error) {
+			minDate = null
+		}
+
+		let maxDate = start.attr('max')
+		maxDate = typeof maxDate == 'string' && maxDate.trim().length > 0 ? maxDate.trim() : null
+		try {
+			maxDate = maxDate !== null ? new Date(maxDate) : null
+			if (!(maxDate instanceof Date && !isNaN(maxDate))) {
+				maxDate = null
+			}
+		} catch (error) {
+			maxDate = null
+		}
+
+		let startType = start.attr('calendar-type')
+		startType = typeof startType == 'string' && startType.trim().length > 0 ? startType.trim() : 'datetime'
+		startType = startType == 'datetime' || startType == 'date' ? startType : 'datetime'
+
+		let endType = end.attr('calendar-type')
+		endType = typeof endType == 'string' && endType.trim().length > 0 ? endType.trim() : 'datetime'
+		endType = endType == 'datetime' || endType == 'date' ? endType : 'datetime'
+
+		let optStart = Object.assign({}, pcsphpGlobals.configCalendar)
+		let optEnd = Object.assign({}, pcsphpGlobals.configCalendar)
+
+		optStart.type = startType
+		optStart.minDate = minDate
+		optStart.maxDate = maxDate
+		optEnd.type = endType
+		optEnd.maxDate = maxDate
+
+		optStart.endCalendar = end
+		optEnd.startCalendar = start
+
+		start.calendar(optStart)
+		end.calendar(optEnd)
+	}
+
 }
 
 /**
