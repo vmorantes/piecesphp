@@ -101,6 +101,9 @@ sudo a2enmod rewrite headers ssl
 ```
 
 #### Más información
+- Durante el desarrollo se recomiendo el uso de las siguientes tareas de gulp (para más información, [clic aquí](../gulp)):
+    - init-project
+    - init-project:watch
 - Base de datos:
     - Se debe configurar la conexión en el archivo src/app/database.php
     - Los archivos para usar en la base de datos están en la carpeta databases
