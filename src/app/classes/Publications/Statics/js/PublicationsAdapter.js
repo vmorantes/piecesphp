@@ -117,6 +117,7 @@ function PublicationsAdapter(options) {
 					onEmpty(container)
 				}
 
+				let items = []
 				for (let index in parsedElements) {
 
 					let element = elements[index]
@@ -130,10 +131,12 @@ function PublicationsAdapter(options) {
 					}
 
 					item.hide()
+					items.push(item)
 					container.append(item)
-					item.show(500)
 
 				}
+
+				items.map(e => $(e).show(500))
 
 				resolve(res)
 

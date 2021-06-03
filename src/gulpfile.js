@@ -1,11 +1,102 @@
 /*
 * Dependencias
 */
-const { src, dest, watch, task, series } = require('gulp');
+const { src, dest, watch, task, series, parallel } = require('gulp');
 // const pug = require('gulp-pug'); // Pug default view template
 const sass = require('gulp-sass')
 const sourcemaps = require('gulp-sourcemaps')
 const rename = require('gulp-rename')
+const concat = require('gulp-concat')
+const uglifyJS = require('gulp-uglify')
+const typescript = require('gulp-typescript')
+//--------TS PiecesPHP
+
+//Archivos que se observar
+var watchingPiecesPHPTS = {
+	base: [
+		'./statics/core/ts/**/*.ts',
+	],
+}
+//Archivos que se compilan
+var compilePiecesPHPTS = {
+	base: [
+		'./statics/core/ts/**/*.ts',
+	],
+}
+
+var destsPiecesPHPTS = {
+	base: './statics/core/js',
+}
+
+//---------Funciones de compilación
+
+function tsTask() {
+	return src(compilePiecesPHPTS.base)
+		.pipe(sourcemaps.init())
+		.pipe(typescript({
+			target: 'es5',
+		}))
+		.pipe(sourcemaps.write('./'))
+		.pipe(dest(destsPiecesPHPTS.base))
+}
+
+//Tareas de compilación
+task("ts-vendor", (done) => {
+	tsTask()
+	done()
+})
+
+//Tareas de observación
+task("js-vendor:watch", (done) => {
+	watch(watchingPiecesPHPTS.base, series("ts-vendor"))
+	done()
+})
+//--------JS PiecesPHP
+
+//Archivos que se observar
+var watchingPiecesPHPJS = {
+	base: [
+		'./statics/core/js/UtilPieces.js',
+		'./statics/core/js/configurations.js',
+		'./statics/core/js/helpers.js',
+	],
+}
+//Archivos que se compilan
+var compilePiecesPHPJS = {
+	base: [
+		'./statics/core/js/UtilPieces.js',
+		'./statics/core/js/configurations.js',
+		'./statics/core/js/helpers.js',
+	],
+}
+
+var destsPiecesPHPJS = {
+	base: './statics/core/js',
+}
+
+//---------Funciones de compilación
+
+function jsTask() {
+	return src(compilePiecesPHPJS.base)
+		.pipe(sourcemaps.init())
+		.pipe(concat('configurations.min.js'))
+		.pipe(uglifyJS())
+		.pipe(sourcemaps.write('./'))
+		.pipe(dest(destsPiecesPHPJS.base))
+}
+
+//Tareas de compilación
+task("js-vendor", (done) => {
+	jsTask()
+	done()
+})
+
+//Tareas de observación
+task("js-vendor:watch", (done) => {
+	watch(watchingPiecesPHPJS.base, series("js-vendor"))
+	done()
+})
+
 //--------SASS PiecesPHP
 
 //Archivos que se observar
@@ -142,7 +233,6 @@ task("sass", (done) => {
 	sassCompileGeneric()
 	done()
 })
-
 task("sass:watch", (done) => {
 	watch(watchingSassFiles, series("sass"))
 	done()
@@ -181,7 +271,6 @@ task("sass-modules", (done) => {
 	sassCompileModules()
 	done()
 })
-
 task("sass-modules:watch", (done) => {
 	watch(watchingModulesSassFiles, series("sass-modules"))
 	done()
@@ -190,7 +279,6 @@ task("sass-modules:init", (done) => {
 	sassCompileModules()
 	done()
 })
-
 
 //Compilar todo
 task("sass-all", (done) => {
@@ -206,4 +294,32 @@ task("sass-all", (done) => {
 
 	done()
 
+})
+task("sass-all:watch", (done) => {
+	parallel(
+		"sass-all",
+		"sass:watch",
+		"sass-modules:watch",
+		"sass-vendor:watch",
+	)()
+	done()
+})
+
+//General
+task("init-project", (done) => {	
+	tsTask()
+	jsTask()
+	parallel(
+		"sass-all",
+	)()
+	done()
+})
+task("init-project:watch", (done) => {
+	parallel(
+		"init-project",
+		"sass-all",
+		"sass-all:watch",
+		"js-vendor:watch",
+	)()
+	done()
 })

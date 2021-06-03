@@ -46,7 +46,7 @@ $canViewConfigsOption = array_reduce([
 
 ?>
 
-<div style="--bg-color:<?= get_config('admin_menu_color'); ?>;" class="ui-pcs topbar">
+<div class="ui-pcs topbar">
 
     <div class="blank"></div>
 

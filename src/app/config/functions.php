@@ -13,8 +13,6 @@ use App\Controller\PublicAreaController;
  */
 
 /**
- * menu_header_items
- *
  * Devuelve un string con los ítems del menú desplegable del header
  *
  * @param \stdClass $user
@@ -27,8 +25,6 @@ function menu_header_items(\stdClass $user): string
 }
 
 /**
- * menu_sidebar_items
- *
  * Devuelve un string con los ítems del menú lateral
  *
  * @param \stdClass $user
@@ -41,10 +37,7 @@ function menu_sidebar_items(\stdClass $user): string
 }
 
 /**
- * datatables_proccessing_with_options
- *
  * @param array $options
- *
  * @var $options[request] \Slim\Http\Request, required
  * @var $options[mapper] \PiecesPHP\Core\Database\EntityMapper, required
  * @var $options[columns_order] array, required
@@ -60,8 +53,6 @@ function datatables_proccessing_with_options(array $options)
 }
 
 /**
- * datatables_proccessing
- *
  * Devuelve un string con la estructura de un orderBy para un EntityMapper
  *
  * @param \Slim\Http\Request $request
@@ -94,8 +85,6 @@ function datatables_proccessing(
 }
 
 /**
- * array_to_html_options
- *
  * Devuelve un string con la estructura de un orderBy para un EntityMapper
  *
  * @param array $values
@@ -153,33 +142,25 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
 }
 
 /**
- * genericViewRoute
- *
  * @param string $name
  * @return string
  */
 function genericViewRoute(string $name)
 {
-
     return PublicAreaController::routeName('generic', [
         'name' => $name,
     ]);
-
 }
 
 /**
- * genericView2Route
- *
  * @param string $folder
  * @param string $name
  * @return string
  */
 function genericView2Route(string $folder, string $name)
 {
-
     return PublicAreaController::routeName('generic-2', [
         'folder' => $folder,
         'name' => $name,
     ]);
-
 }

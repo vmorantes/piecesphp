@@ -1,4 +1,4 @@
-# HestiaCP:
+# HestiaCP
 
 - Ubuntu 20
 - HestiaCP
@@ -6,6 +6,8 @@
 ## Algunos paquetes
 ```bash
 sudo apt install curl zip unzip openssl git wget
+# Soporte de español, pueden revisarse los idiomas disponibles con locale -a
+sudo apt-get install language-pack-es
 ```
 
 ## Variables
@@ -60,6 +62,6 @@ mv composer.phar /usr/local/bin/composer
 
 - max_execution_time: 600
 - max_input_time: 600
-- post_max_size: 20M
-- upload_max_filesize: 20M
-- memory_limit: 200M
+- post_max_size: 70M
+- upload_max_filesize: 50M
+- memory_limit: 500M

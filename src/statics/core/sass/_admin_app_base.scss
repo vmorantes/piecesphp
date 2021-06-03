@@ -20,7 +20,7 @@
             width: 100%;
             height: 2px;
             display: block;
-            border-bottom: 1.8px solid var(--emphasis-color);
+            border-bottom: 1.8px solid var(--mark-color);
         }
 
         &.small {
@@ -34,7 +34,7 @@
 
                 position: relative;
                 font-size: 1.3rem;
-                color: var(--emphasis-color);
+                color: var(--mark-color);
                 display: block;
                 margin-top: 0.5rem;
 
@@ -46,7 +46,7 @@
                     width: 100%;
                     height: 2px;
                     display: block;
-                    border-bottom: 1.8px solid var(--emphasis-color);
+                    border-bottom: 1.8px solid var(--mark-color);
                 }
 
             }
@@ -56,16 +56,6 @@
             }
         }
 
-    }
-
-    .title-list {
-        @include titlezone();
-    }
-
-    .title-form {
-        @include titlezone();
-        font-size: 1.8rem;
-        margin-bottom: 3.5rem;
     }
 
     .container-table-standard-list {
@@ -98,6 +88,132 @@
         }
     }
 
+    .container-standard-options {
+
+        justify-content: center;
+
+        .card {
+
+            &.option {
+
+                margin: 4rem 2rem 0rem 2rem;
+                text-align: center;
+
+                >.content {
+
+                    margin-bottom: 1rem;
+
+                    .image-container {
+
+                        margin-top: -4rem;
+                        margin-bottom: 1.5rem;
+
+                        >.icon {
+
+                            position: relative;
+                            display: block;
+                            margin: 0 auto;
+                            width: 100px;
+                            height: 100px;
+                            border-radius: 100%;
+                            background-color: var(--emphasis-color);
+
+                            i.icon {
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                margin: 0;
+                                padding: 0;
+                                font-size: 3rem;
+                                color: var(--over-emphasis-color);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+    &.with-banner {
+
+        padding: 2rem 5rem 8rem 10rem;
+
+        .banner-zone {
+            position: relative;
+            z-index: 1;
+            margin: -2rem -5rem 0rem -10rem;
+            background-image: url(../../../statics/images/dashboard/banner.jpg);
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            padding: 10px;
+            width: 100vw;
+            height: 19vw;
+        }
+
+        .info-card {
+            position: relative;
+            z-index: 2;
+            top: 0;
+            transform: translateY(-50%);
+        }
+
+        @media (max-width: 800px) {
+            padding: 1rem 1rem 0rem 1rem;
+
+            .banner-zone {
+                margin: -1rem -1rem 0rem -1rem;
+            }
+
+            .info-card {
+                transform: translateY(-15%);
+            }
+
+        }
+
+
+    }
+
+    .title-list {
+        @include titlezone();
+    }
+
+    .title-form {
+        @include titlezone();
+        font-size: 1.8rem;
+        margin-bottom: 3.5rem;
+    }
+
+    .mw-800 {
+        max-width: 800px;
+    }
+
+    .b-center {
+        margin: 0 auto;
+    }
+
+    .bg-grey,
+    &.bg-grey {
+        background-color: #E5E5E5;
+    }
+
+    .clearfix {
+
+        &::before,
+        &::after {
+            display: block;
+            content: ' ';
+            clear: both;
+        }
+    }
+
     .ui {
 
         &.button {
@@ -121,6 +237,120 @@
             &.standard-form {
                 max-width: 1920px;
             }
+        }
+
+        &.card {
+            .content {
+                >.header {
+                    color: var(--emphasis-color);
+                }
+            }
+
+            &.content-form-card {
+                max-width: 800px;
+
+                &.wide {
+                    max-width: 1900px;
+                }
+            }
+
+        }
+
+    }
+}
+
+.ui-pcs.container-sidebar>.content.with-standard-sidebar {
+
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    padding-bottom: 0px !important;
+    padding-top: 0rem !important;
+
+    .container-standard-sidebar-content {
+
+        display: grid;
+        grid-template-columns: auto;
+        grid-template-rows: auto auto;
+        max-height: 100vh;
+        height: 100%;
+        overflow: auto;
+
+        >.sidebar {
+
+            padding: 2rem 0.5rem 0.5rem 0.5rem;
+            background-color: var(--mark-color);
+            overflow: auto;
+
+            >.title {
+                font-size: 2rem;
+                font-weight: 600;
+                text-align: center;
+                color: var(--over-emphasis-color);
+            }
+
+            >.content {
+
+                padding: 2rem 0.5rem 0.5rem 0.5rem;
+
+                p,
+                span,
+                div,
+                article,
+                a:hover,
+                a:active,
+                a:visited,
+                a {
+                    &:not(.button) {
+                        color: var(--over-emphasis-color);
+                    }
+                }
+
+                .ui {
+
+                    &.accordion {
+
+                        padding-left: 2rem;
+
+                        >.content {
+                            padding-left: 1rem;
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        >.content {
+            padding: 3.5rem 1rem 1rem 1rem;
+            overflow: auto;
+        }
+
+        @media (min-width: 1025px) {
+
+            grid-template-rows: auto;
+            grid-template-columns: 250px auto;
+
+            >.sidebar {
+                padding-top: 5rem;
+
+                >.content {
+
+                    .items-dropdowns {
+                        display: block;
+
+                        .field {
+                            display: block;
+                            width: 100%;
+                        }
+                    }
+
+                }
+
+            }
+
         }
 
     }

@@ -1,23 +1,17 @@
 site_name: Documentación de desarrollo
 nav:
     - Home: index.md
-    - LAMP:
-        - Contenido: lamp/index.md
-        - Apache2: lamp/content/Apache.md
-        - PHP: lamp/content/PHP.md
-        - MariaDB: lamp/content/MariaDB.md
-        - Extras:
-            - PHPMyAdmin: lamp/content/PHPMyAdmin.md
-            - Adminer: lamp/content/Adminer.md
-            - SSL con Lets Encrypt: lamp/content/SSL con Lets Encrypt.md
-            - Virtual Hosts - Soporte para dominios: lamp/content/Virtual Hosts.md
-    - HestiaCP:
-        - Contenido: hestiacp/index.md 
-    - PiecesPHP:
-        - Contenido: piecesphp/index.md 
-    - Tomcat 8:
-        - Contenido: tomcat/index.md 
-theme: readthedocs
+    - lamp/index.md
+    - hestiacp/index.md 
+    - piecesphp/index.md
+    - tomcat/index.md 
+theme:
+    name: material
+    language: es
+    palette:
+        scheme: slate
+        primary: black
+        accent: red
 site_dir: ../../docs
 
 

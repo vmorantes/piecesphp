@@ -163,6 +163,7 @@ class MetaProperty
 
         $valid = true;
         $existsOnMapper = true;
+        $originalInputValue = $value;
 
         if ($this->type == self::TYPE_MAPPER) {
 
@@ -264,8 +265,10 @@ class MetaProperty
 
         if ($this->nullable) {
 
-            if (is_null($value)) {
+            if (is_null($value) || is_null($originalInputValue)) {
                 $valid = true;
+                $existsOnMapper = true;
+                $value = null;
             }
 
         }

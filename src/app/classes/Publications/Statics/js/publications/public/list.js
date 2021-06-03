@@ -15,7 +15,7 @@ window.addEventListener('load', function (e) {
 		containerSelector: '[publications-js]',
 		loadMoreTriggerSelector: '[publications-load-more-js]',
 		onDraw: (item, parsed) => {
-			parsed.addClass('horizontal')
+			parsed.addClass('horizontal fluid centered')
 			return parsed
 		},
 		onEmpty: (container) => {

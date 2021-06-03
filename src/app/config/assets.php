@@ -21,6 +21,9 @@ $assets['semantic']['css'] = [
 $assets['semantic']['js'] = [
     'statics/plugins/semantic/semantic.min.js',
 ];
+$assets['semantic']['font'] = [
+    'statics/fonts/lato/lato.css',
+];
 $assets['semantic']['plugins'] = [
 ];
 
@@ -213,6 +216,18 @@ $assets['dialgo_pcs']['css'] = [];
 $assets['dialgo_pcs']['plugins'] = [];
 
 /**
+ * Simple Upload Placeholder
+ * Manejador de comportamiento genérico de un formulario de subida de archivos con vista previa
+ */
+$assets['simple_upload_placeholder']['js'] = [
+    'statics/core/own-plugins/SimpleUploadPlaceholder.js',
+];
+$assets['simple_upload_placeholder']['css'] = [
+    'statics/core/own-plugins/css/simple-upload-placeholder.css',
+];
+$assets['simple_upload_placeholder']['plugins'] = [];
+
+/**
  * fancyBox v3.5.7
  * https://fancyapps.com/fancybox/3/
  */
@@ -271,9 +286,7 @@ $assets['app_libraries']['css'] = [
     'statics/core/css/helpers.css',
 ];
 $assets['app_libraries']['js'] = [
-    'statics/core/js/util-pieces.js',
-    'statics/core/js/helpers.js',
-    'statics/core/js/configurations.js',
+    'statics/core/js/configurations.min.js',
 ];
 $assets['app_libraries']['plugins'] = [
     'adminStyle' => [
@@ -300,15 +313,18 @@ $assets['app_front_libraries']['plugins'] = [
 set_config('global_assets', [
     'js' => [],
     'css' => [],
+    'font' => [],
 ]);
 set_config('custom_assets', [
     'js' => [],
     'css' => [],
+    'font' => [],
 ]);
 set_config('default_assets', $assets);
 set_config('global_requireds_assets', [
     'css' => [],
     'js' => [],
+    'font' => [],
 ]);
 set_config('imported_assets', []);
 set_config('lock_assets', false);

@@ -21,7 +21,7 @@
     </If>
 
     # Configurar política de contenido
-    Header set Content-Security-Policy "default-src https: data: 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://api.mapbox.com https://twemoji.maxcdn.com; script-src https: 'self' 'unsafe-inline' https://twemoji.maxcdn.com; object-src 'none'"
+    Header set Content-Security-Policy "default-src https: data: blob: 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://api.mapbox.com https://twemoji.maxcdn.com; script-src https: 'self' 'unsafe-inline' https://twemoji.maxcdn.com; object-src 'none'"
 
 </IfModule>
 
@@ -52,7 +52,7 @@ RewriteRule . index.php [L]
 #Servido personalizado de archivos estáticos y manejo de caché
 #Para activar el manejo de caché del archivos estáticos de PiecesPHP mantenga descomentadas las
 #siguientes dos líneas, de lo contrario coméntelas
-RewriteCond %{REQUEST_URI} \.(js|js|css|ico|png|jpg|jpeg|webp|gif|swf|mp3|mp4|csv|pdf)$
+RewriteCond %{REQUEST_URI} \.(js|js|css|ico|png|jpg|jpeg|webp|gif|swf|mp3|mp4|csv|pdf|woff2|woff|ttf|eot)$
 RewriteRule . index.php [L]
 
 ##### REESCRITURA - FIN #####
@@ -63,7 +63,7 @@ RewriteRule . index.php [L]
 Options -Indexes
 
 #Prohibir acceso a algunos archivos
-<FilesMatch "\.(sass|scss|htaccess|php|gitignore)$">
+<FilesMatch "\.(sass|scss|htaccess|php|gitignore|zip|ts)$">
 	<IfVersion > 2.4>
 		Deny from All
 	</IfVersion>

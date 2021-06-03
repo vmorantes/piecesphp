@@ -106,7 +106,9 @@ class MenuItem
     public function __construct($options = [])
     {
         $this->structureOptions['current']['default'] = function () {
-            return $this->href == get_current_url();
+            $href = preg_replace('/#.*/', '', $this->href);
+            $href = is_string($href) ? $href : $this->href;
+            return $href == get_current_url(true);
         };
 
         foreach ($this->structureOptions as $name => $config) {
@@ -222,6 +224,14 @@ class MenuItem
     public function getText()
     {
         return $this->text;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHref()
+    {
+        return $this->href;
     }
 
     /**

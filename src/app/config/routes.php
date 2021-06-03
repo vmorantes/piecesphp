@@ -52,7 +52,9 @@ use App\Controller\PublicAreaController;
 use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
+use Components\ComponentProviderRoutes;
 use FileManager\FileManagerRoutes;
+use ImagesRepository\ImagesRepositoryRoutes;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
@@ -71,6 +73,7 @@ PiecesRouteGroup::setRouter($slim_app);
 //Nota: Declarar de más específico a menos específico, tanto los grupos como las rutas independientes dentro de los grupos
 
 $terminalGroup = new PiecesRouteGroup($prefix_lang . '/terminal'); //Zona administrativa
+$componentsProvider = new PiecesRouteGroup($prefix_lang . '/components-provider'); //Zona administrativa
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
 $configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Zona administrativa
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
@@ -89,6 +92,9 @@ $zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 //Rutas para solicitudes desde la terminal
 TerminalController::routes($terminalGroup);
+
+//Proveedor de componentes HTML
+ComponentProviderRoutes::routes($componentsProvider, $componentsProvider);
 
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
@@ -164,6 +170,9 @@ PublicationsRoutes::routes($zona_administrativa, $zona_publica);
 
 //Newsletter
 NewsletterRoutes::routes($zona_administrativa, $zona_publica);
+
+//Registro fotográfico
+ImagesRepositoryRoutes::routes($zona_administrativa);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

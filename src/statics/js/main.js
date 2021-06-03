@@ -53,6 +53,9 @@ window.addEventListener('load', function (e) {
 			}
 		})
 	}
+
+	//Activar ejemplo de slideshow estático
+	CustomNamespace.slideshow('.slideshow-static')
 })
 
 function configurateNavigation() {
@@ -98,8 +101,49 @@ function configurateNavigation() {
 
 			if (!that.hasClass('active')) {
 				that.addClass('active')
+				navSubMenus.not(that).removeClass('active')
 			} else {
 				that.removeClass('active')
+			}
+
+			let subContainer = that.find('.subitems')
+
+			//Verificar si el submenú se desborda
+			if (subContainer.length > 0) {
+				/**
+				 * @property {HTMLElement}
+				 */
+				const element = subContainer.get(0)
+				const bounding = element.getBoundingClientRect() // {top: Number, left: Number, right: Number, bottom: Number}
+				const viewportMeasuresH = (window.innerHeight || document.documentElement.clientHeight)
+				const viewportMeasuresW = (window.innerWidth || document.documentElement.clientWidth)
+				console.log(bounding)
+
+				if (bounding.top < 0) {
+					//Se sale por arriba
+				}
+
+				if (bounding.left < 0) {
+					//Se sale por la izquierda
+				}
+
+				if (bounding.bottom > viewportMeasuresH) {
+					//Se sale por abajo
+				}
+
+				if (bounding.right > viewportMeasuresW) {
+					//Se sale por la derecha
+					subContainer.css({
+						left: 'initial',
+						right: '0',
+					})
+				} else {
+					setTimeout(() => {
+						if (subContainer.closest('.item').not('.active').length > 0) {
+							subContainer.removeAttr('style')
+						}
+					}, 750)
+				}
 			}
 
 		}

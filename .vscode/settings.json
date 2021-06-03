@@ -13,7 +13,8 @@
 		"**/.git/objects/**": true,
 		"**/.git/subtree-cache/**": true,
 		"**/node_modules/**": true,
-		"tasks/output": true
+		"tasks/output": true,
+		"src/bundle": true
 	},
 	"html.format.wrapLineLength": 300,
 	"phpfmt.indent_with_space": 4,

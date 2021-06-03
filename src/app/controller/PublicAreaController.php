@@ -65,6 +65,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         import_semantic();
         import_app_libraries();
         import_app_front_libraries();
+        add_global_asset('statics/fonts/abhaya/abhaya.css', 'font');
     }
 
     /**
@@ -91,7 +92,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         $data = [
             'ajaxArticlesURL' => PublicationsController::routeName('ajax-all'),
             'sliderAjax' => HeroController::routeName('ajax-all'),
-            'addSuscriberURL' => NewsletterController::routeName('add'),
+            'addSuscriberURL' => NewsletterController::routeName('add', [], true),
             'suscriberEnable' => NewsletterRoutes::ENABLE,
             'langGroup' => LANG_GROUP,
         ];
@@ -256,6 +257,45 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     }
 
     /**
+     * Verificar si una ruta es permitida
+     *
+     * @param string $name
+     * @param array $params
+     * @return bool
+     */
+    public static function allowedRoute(string $name, array $params = [])
+    {
+        $route = self::routeName($name, $params, true);
+        $allow = strlen($route) > 0;
+        return $allow;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    private static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+
+        $allow = strlen($route) > 0;
+
+        if ($allow) {
+
+            if ($name == 'SAMPLE') { //do something
+            }
+
+        }
+
+        return $allow;
+    }
+
+    /**
+     * Obtener URL de una ruta
+     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -263,6 +303,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
      */
     public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
+
+        $simpleName = $name;
+
         if (!is_null($name)) {
             $name = trim($name);
             $name = mb_strlen($name) > 0 ? "-{$name}" : '';
@@ -279,15 +322,20 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             $allowed = true;
         }
 
+        $route = '';
+
         if ($allowed) {
-            return get_route(
+            $route = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
-        } else {
-            return '';
+            $route = !is_string($route) ? '' : $route;
         }
+
+        $allow = self::_allowedRoute($simpleName, $route, $params);
+
+        return $allow ? $route : '';
     }
 
     /**

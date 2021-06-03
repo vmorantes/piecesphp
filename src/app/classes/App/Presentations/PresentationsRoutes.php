@@ -17,6 +17,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
 use PiecesPHP\Core\ServerStatics;
+use PiecesPHP\CSSVariables;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -159,34 +160,10 @@ class PresentationsRoutes
             return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics');
         };
 
-        /**
-         * @param Request $request
-         * @param Response $response
-         * @param array $args
-         * @return Response
-         */
         $cssGlobalVariables = function (Request $request, Response $response, array $args) {
-
-            $css = [
-                "--readable-color:" . 'white' . ";",
-            ];
-
-            $css = implode("\n", $css);
-
-            $css = ":root {\n{$css}\n}";
-
-            $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '29-04-2021 12:20 PM');
-            $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $css);
-
-            foreach ($headersAndStatus['headers'] as $header => $value) {
-                $response = $response->withHeader($header, $value);
-            }
-
-            return $response
-                ->write($css)
-                ->withStatus($headersAndStatus['status'])
-                ->withHeader('Content-Type', 'text/css');
-
+            $css = CSSVariables::instance('global');
+            $css->setVariable('readable-color', 'white', false);
+            return $css->toResponse($request, $response, false);
         };
 
         $routeStatics = [

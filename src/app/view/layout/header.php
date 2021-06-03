@@ -12,13 +12,33 @@ $alternativesURL = Config::get_config('alternatives_url');
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <base href="<?=baseurl();?>">
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph(); ?>
     <link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
-    <?php load_css(['base_url' => "", 'custom_url' => ""]) ?>
+    <?php load_font() ?>
+    <?php load_css([
+        'base_url' => "", 
+        'custom_url' => "",
+        'attr' => [
+            'is-preload-custom' => 'yes',
+            'rel' => 'preload',
+            'as' => 'style',
+        ],
+        'attrApplyTo' => [
+            'is-preload-custom' => [
+                '(.+(?<!style\.css))$',
+            ],
+            'rel' => [
+                '(.+(?<!style\.css))$',
+            ],
+            'as' => [
+                '(.+(?<!style\.css))$',
+            ],
+        ],
+    ]) ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScripts(); ?>
 </head>
 
