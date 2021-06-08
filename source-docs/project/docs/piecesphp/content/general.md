@@ -45,12 +45,13 @@ node --version ##v12.18.4
 npm --version ##6.14.6
 ```
 
-#### Gulp CLI
+#### Gulp CLI y Typescript
 ```bash
-#Instalar globalmente
-sudo npm install -g gulp-cli
+#Instalar globalmente (sudo es solo para paquetes globales)
+sudo npm install -g gulp-cli typescript
 #Verificar versión
 gulp --version ##CLI version: 2.3.0
+tsc --version ##Version 4.3.2
 ```
 
 ### Desplegar PiecesPHP
@@ -87,6 +88,8 @@ sudo chmod -Rf 0777 src
 
 #Instalar gulp para desarrollo
 cd $RAIZ_DESPLIEGUE/$CARPETA
+rm -Rf node_modules package-lock* ##Si hay algún proyecto NPM desplegado ya
+npm cache clean --force ##Para actualizar los repositorios
 npm install ##NO USAR sudo
 
 #Instalar paquetes de composer
