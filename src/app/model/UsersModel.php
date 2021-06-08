@@ -183,7 +183,7 @@ class UsersModel extends BaseEntityMapper
             $this->firstname,
             $this->secondname,
             $this->first_lastname,
-            $this->secondname,
+            $this->second_lastname,
         ];
 
         $fullname = implode(' ', array_filter($fullname, function ($e) {
@@ -706,5 +706,4 @@ class UsersModel extends BaseEntityMapper
     {
         return (new static())->getModel();
     }
-
 }
