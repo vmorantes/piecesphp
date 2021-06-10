@@ -56,49 +56,59 @@ tsc --version ##Version 4.3.2
 
 ### Desplegar PiecesPHP
 
+#### Paso 1: Definir variables útiles
+
 ```bash
+#Variable con la carpeta del proyecto, si no existe debe crearse antes
+export FOLDER="/var/www/html/pcsphp_project"
+```
 
-#Variables
-export RAIZ_DESPLIEGUE="/var/www/html"
-export CARPETA="pcsphp-project"
+O, en caso de que se quiera hacer en el directorio actual (donde está abierta la terminal):
 
-#Moverse a la carpeta raíz
-cd $RAIZ_DESPLIEGUE
+```bash
+export FOLDER=$(pwd)
+```
 
-#Descargar
-wget -O $CARPETA.zip https://bitbucket.org/piecesphp/piecesphp/get/last-stable.zip
+#### Paso 2: Descargar y descomprimir
 
-#Descomprimir
-unzip $CARPETA.zip -d $CARPETA
+```bash
+cd $FOLDER
+wget https://bitbucket.org/piecesphp/piecesphp/get/last-stable.zip
+unzip last-stable.zip -d . && rm last-stable.zip
+```
 
-#Moverse a la carpeta del proyecto
-cd $RAIZ_DESPLIEGUE/$CARPETA
+#### Paso 3: Mover a la raíz, eliminar archivos innecesarios y ajustar permisos
 
-#Renombrar carpeta
+Nota: En la eliminación se obtendrá una advertencia por los meta archivos . y .., no es importante.
+
+##### Mover
+
+```bash
 find . -depth -type d -name * -execdir mv {} tmp \;
-cd $RAIZ_DESPLIEGUE/$CARPETA/tmp
-sudo mv ./{*,.*} ../ ##Se obtendrá un error por los meta archivos . y .., no es importante.
+sudo mv ./tmp/{*,.*} ./;
+```
+##### Eliminar
 
-#Borrar elementos innecesarios
-cd $RAIZ_DESPLIEGUE/$CARPETA
-sudo rm -Rf tmp CHANGELOG.md README.md TODO TODO.md guides source-docs
+```bash
+sudo rm -Rf tmp CHANGELOG.md README.md TODO TODO.md guides source-docs src/adminer;
+sudo chmod -Rf 0777 src;
+```
 
-#Ajustar permisos
-sudo chmod -Rf 0777 src
+#### Paso 4: Composer y Gulp
 
+```bash
 #Instalar gulp para desarrollo
-cd $RAIZ_DESPLIEGUE/$CARPETA
+cd $FOLDER
 rm -Rf node_modules package-lock* ##Si hay algún proyecto NPM desplegado ya
 npm cache clean --force ##Para actualizar los repositorios
 npm install ##NO USAR sudo
 
 #Instalar paquetes de composer
-cd $RAIZ_DESPLIEGUE/$CARPETA/src
+cd $FOLDER/src
 composer install ##NO USAR sudo
-
 ```
 
-#### Activación de módulos apache necesarios
+#### Paso 5: Activación de módulos apache necesarios
 ```bash
 sudo a2enmod rewrite headers ssl
 ```
