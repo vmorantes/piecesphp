@@ -47,6 +47,10 @@ class MenuGroup
      */
     protected $href;
     /**
+     * @var string
+     */
+    protected $hrefTarget;
+    /**
      * @var array
      */
     protected $attributes;
@@ -91,6 +95,10 @@ class MenuGroup
             'rules' => ['is_string'],
             'default' => '',
         ],
+        'hrefTarget' => [
+            'rules' => ['is_string'],
+            'default' => '',
+        ],
         'attributes' => [
             'rules' => [
                 'is_array',
@@ -123,6 +131,7 @@ class MenuGroup
      * @param bool $options['visible']
      * @param bool $options['asLink']
      * @param string $options['href']
+     * @param string $options['hrefTarget']
      * @param array $options['attributes']
      * @param MenuItem[] $options['items']
      * @param MenuGroup[] $options['groups']
@@ -363,6 +372,7 @@ class MenuGroup
         $group_name = $this->name;
         $group_as_link = $this->asLink;
         $group_href = !is_null($this->href) ? $this->href : '';
+        $group_href_target = $this->hrefTarget;
         $group_icon = $this->icon;
         $group_visible = $this->visible;
         $group_attributes = $this->attributes;
@@ -405,6 +415,9 @@ class MenuGroup
                 $group_title_container = new HtmlElement('a', $group_name);
                 $group_title_container->setAttribute('class', 'title-group');
                 $group_title_container->setAttribute('href', $group_href);
+                if (mb_strlen($group_href_target) > 0) {
+                    $group_title_container->setAttribute('target', $group_href_target);
+                }
 
             }
 
