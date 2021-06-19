@@ -698,9 +698,10 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
  * @param {Number} perPage 
  * @param {Object} options
  * @param {Function} options.initComplete
+ * @param {function($):void} options.initCompleteEnd
  * @param {Function} options.preDrawCallback
  * @param {Function} options.drawCallback
- * @param {Function} options.drawCallbackEnd
+ * @param {function($):void} options.drawCallbackEnd
  * @returns {Object}
  */
 function dataTablesServerProccesingOnCards(containerSelector, perPage, options) {
@@ -724,6 +725,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 		let processURL = table.attr('url')
 
 		let initComplete = typeof options.initComplete == 'function' ? options.initComplete : () => { }
+		let initCompleteEnd = typeof options.initCompleteEnd == 'function' ? options.initCompleteEnd : () => { }
 		let preDrawCallback = typeof options.preDrawCallback == 'function' ? options.preDrawCallback : () => { }
 		let drawCallback = typeof options.drawCallback == 'function' ? options.drawCallback : () => { }
 		let drawCallbackEnd = typeof options.drawCallbackEnd == 'function' ? options.drawCallbackEnd : () => { }
@@ -760,7 +762,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 				//──── Controles ─────────────────────────────────────────────────────────────────────────
 				let controls = container.find('.component-controls')
 				let selectionOrder = controls.find('select[options-order]')
-				let selectionOrderType = controls.find('select[options-order-type]')
+				let selectionOrderType = controls.find('.ui.dropdown[options-order-type]')
 				let search = controls.find(`[type="search"]`)
 				let lengthPagination = controls.find(`[type="number"][length-pagination]`)
 
@@ -773,13 +775,10 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 
 				})
 
-				selectionOrder.dropdown()
-				selectionOrderType.dropdown()
-
 				let orderEvent = function () {
 
 					let orderColumn = columns[selectionOrder.val()]
-					let orderType = selectionOrderType.val()
+					let orderType = selectionOrderType.dropdown('get value')
 
 					orderType = typeof orderType == 'string' && orderType.trim().length > 0 ? orderType.trim() : 'asc'
 					orderType = orderType.toLowerCase()
@@ -789,8 +788,12 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 
 				}
 
-				selectionOrder.change(orderEvent)
-				selectionOrderType.change(orderEvent)
+				selectionOrder.dropdown({
+					onChange: orderEvent,
+				})
+				selectionOrderType.dropdown({
+					onChange: orderEvent,
+				})
 
 				//Buscador
 				search.on('keyup', function () {
@@ -810,6 +813,8 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 				})
 
 				thisDataTable.draw()
+
+				initCompleteEnd(wrapper)
 
 				removeGenericLoader(nameLoader)
 

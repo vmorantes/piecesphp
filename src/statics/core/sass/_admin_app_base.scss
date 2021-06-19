@@ -92,6 +92,18 @@
 
         justify-content: center;
 
+        &.align-left {
+            justify-content: flex-start;
+        }
+
+        &.is-child {
+            .card {
+                &.option {
+                    margin: 4rem 0.5rem 0rem 0.5rem;
+                }
+            }
+        }
+
         .card {
 
             &.option {
@@ -129,6 +141,27 @@
                                 color: var(--over-emphasis-color);
                             }
 
+                        }
+
+                        >img {
+                            position: relative;
+                            display: block;
+                            margin: 0 auto;
+                            width: 100px;
+                            height: 100px;
+                            border-radius: 100%;
+                        }
+
+                        >.image-bg {
+                            position: relative;
+                            display: block;
+                            margin: 0 auto;
+                            width: 100px;
+                            height: 100px;
+                            border-radius: 100%;
+                            background-repeat: no-repeat;
+                            background-size: cover;
+                            background-position: center center;
                         }
 
                     }
