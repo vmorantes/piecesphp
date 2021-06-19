@@ -37,6 +37,7 @@ class UsersModel extends BaseEntityMapper
     //Constantes de status de usuario
     const STATUS_USER_ACTIVE = 1;
     const STATUS_USER_INACTIVE = 0;
+    const STATUS_USER_ATTEMPTS_BLOCK = 2;
 
     //Constantes de tipos de usuario
     const TYPE_USER_ROOT = 0;
