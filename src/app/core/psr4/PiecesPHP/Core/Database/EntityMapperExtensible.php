@@ -239,9 +239,21 @@ class EntityMapperExtensible extends BaseEntityMapper
 
                 $metaColumnValue[$name] = $value;
 
+                if ($value !== 0 && $value !== '0' && $value !== 0.0 && $value !== '0.0') {
+                    if ($value == null) {
+                        unset($metaColumnValue[$name]);
+                    }
+                }
+
             } else {
 
                 $metaColumnValue->$name = $value;
+
+                if ($value !== 0 && $value !== '0' && $value !== 0.0 && $value !== '0.0') {
+                    if ($value == null) {
+                        unset($metaColumnValue->$name);
+                    }
+                }
 
             }
 
