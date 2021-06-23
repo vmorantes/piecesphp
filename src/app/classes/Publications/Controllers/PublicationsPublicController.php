@@ -306,14 +306,6 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             //HTML
             new Route( //Vista del listado
-                "{$startRoute}/single/{slug}[/]",
-                $classname . ':singleView',
-                self::$baseRouteName . '-single',
-                'GET',
-                false
-            ),
-            //HTML
-            new Route( //Vista del listado
                 "{$startRoute}/list[/]",
                 $classname . ':listView',
                 self::$baseRouteName . '-list',
@@ -331,6 +323,14 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
                 'GET'
+            ),
+            //HTML
+            new Route( //Vista del listado
+                "{$startRoute}/{slug}[/]",
+                $classname . ':singleView',
+                self::$baseRouteName . '-single',
+                'GET',
+                false
             ),
 
         ];
