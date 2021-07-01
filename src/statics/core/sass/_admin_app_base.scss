@@ -494,3 +494,28 @@
         @include titlezone();
     }
 }
+
+.global-clearfix {
+
+    &::before,
+    &::after {
+        display: block;
+        content: ' ';
+        clear: both;
+    }
+}
+
+.ui.button {
+    &.custom-main-color {
+
+        background-color: var(--emphasis-color);
+        color: var(--over-emphasis-color);
+
+        &:hover,
+        &:active,
+        &:focus {
+            opacity: 0.8;
+        }
+
+    }
+}
