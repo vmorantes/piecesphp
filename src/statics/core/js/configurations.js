@@ -448,21 +448,29 @@ function configCalendars() {
 }
 
 /**
+ * @param {Object} options
  * @returns {void}
  */
-function configSinglesCalendar(selectorAttr, selectorAttrName) {
+function configSinglesCalendar(selectorAttr, options = {}) {
 
 	selectorAttr = typeof selectorAttr == 'string' && selectorAttr.length > 0 ? selectorAttr : null
-	selectorAttrName = typeof selectorAttrName == 'string' && selectorAttrName.length > 0 ? selectorAttrName : selectorAttr
 	let calendars = $(`[${selectorAttr}]`).toArray()
 
 	for (let calendar of calendars) {
 		calendar = $(calendar)
 		let calendarType = calendar.attr('calendar-type')
 		calendarType = typeof calendarType == 'string' && calendarType.trim().length > 0 ? calendarType.trim() : 'date'
-		calendarType = calendarType == 'datetime' || calendarType == 'date' ? calendarType : 'datetime'
+		calendarType = [
+			'date',
+			'datetime',
+			'month',
+		].indexOf(calendarType) !== -1 ? calendarType : 'datetime'
 		let calendarOptions = Object.assign({}, pcsphpGlobals.configCalendar)
 		calendarOptions.type = calendarType
+
+		for (const customOption in options) {
+			calendarOptions[customOption] = options[customOption]
+		}
 		$(calendar).calendar(calendarOptions)
 	}
 
