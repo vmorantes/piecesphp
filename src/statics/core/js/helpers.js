@@ -1915,8 +1915,20 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 
 		let onChange = function (value, text, $selectedItem) {
 			let selectValidator = document.querySelector(`select[simulator="${uniqueID}"]`)
-			if (typeof value == 'string' && value.length > 0 && selectValidator !== null) {
-				selectValidator.innerHTML = `<option value="${value}" selected></option>`
+
+			if (Array.isArray(value)) {
+
+				selectValidator.innerHTML = ''
+				for (let i of value) {
+					if (typeof i == 'string' && i.length > 0 && selectValidator !== null) {
+						selectValidator.innerHTML += `<option value="${i}" selected></option>`
+					}
+				}
+
+			} else {
+				if (typeof value == 'string' && value.length > 0 && selectValidator !== null) {
+					selectValidator.innerHTML = `<option value="${value}" selected></option>`
+				}
 			}
 		}
 
