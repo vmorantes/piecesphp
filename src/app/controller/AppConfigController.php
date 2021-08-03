@@ -1000,7 +1000,7 @@ class AppConfigController extends AdminPanelController
                     function ($value) {
                         return is_string($value);
                     },
-                    true,
+                    true
                 ),
             ]);
 
