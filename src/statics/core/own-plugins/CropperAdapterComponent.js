@@ -4,7 +4,7 @@
  * @param {AdapterOptions} configurations  
  * @param {Boolean} prepareOnCreation  
  */
-function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) {
+ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) {
 
 	const LANG_GROUP = 'cropper'
 
@@ -149,6 +149,14 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		},
 		save: {
 			event: new Event(`${eventsPrefix}-save`),
+			data: {},
+			wasDispatch: false,
+			canDispatch: function (element) {
+				return element.wasDispatch
+			},
+		},
+		selectImage: {
+			event: new Event(`${eventsPrefix}-selectImage`),
 			data: {},
 			wasDispatch: false,
 			canDispatch: function (element) {
@@ -676,6 +684,9 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 						img.onload = function () {
 
 							let inputWidth = img.width
+
+							events.selectImage.data['image'] = img
+							eventer.dispatchEvent(events.selectImage.event)
 
 							if (inputWidth < adapterOptions.minWidth) {
 								errorMessage(_i18n(LANG_GROUP, 'Error'), formatStr(
