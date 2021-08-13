@@ -4,7 +4,7 @@
  * @param {AdapterOptions} configurations  
  * @param {Boolean} prepareOnCreation  
  */
- function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) {
+function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) {
 
 	const LANG_GROUP = 'cropper'
 
@@ -141,7 +141,9 @@
 	/** @type {Event[]} */ let events = {
 		prepare: {
 			event: new Event(`${eventsPrefix}-prepare`),
-			data: {},
+			data: {
+				promise: Promise.resolve(true),
+			},
 			wasDispatch: false,
 			canDispatch: function (element) {
 				return element.wasDispatch
@@ -149,7 +151,9 @@
 		},
 		save: {
 			event: new Event(`${eventsPrefix}-save`),
-			data: {},
+			data: {
+				promise: Promise.resolve(true),
+			},
 			wasDispatch: false,
 			canDispatch: function (element) {
 				return element.wasDispatch
@@ -157,7 +161,9 @@
 		},
 		selectImage: {
 			event: new Event(`${eventsPrefix}-selectImage`),
-			data: {},
+			data: {
+				promise: Promise.resolve(true),
+			},
 			wasDispatch: false,
 			canDispatch: function (element) {
 				return element.wasDispatch
@@ -688,26 +694,38 @@
 							events.selectImage.data['image'] = img
 							eventer.dispatchEvent(events.selectImage.event)
 
-							if (inputWidth < adapterOptions.minWidth) {
-								errorMessage(_i18n(LANG_GROUP, 'Error'), formatStr(
-									_i18n(LANG_GROUP, `El ancho mínimo de la imagen debe ser: %rpx`),
-									[
-										adapterOptions.minWidth,
-									]
-								))
-								return
-							}
+							events.selectImage.data.promise.then(function (value) {
 
-							toEditStep()
-							configCanvasDimensions()
+								if (value === true || typeof value != 'boolean') {
 
-							cropper.replace(dataURIImg)
-							hasImage = true
-							wasChanged = true
-							isOnEdit = true
-							unSaveImage = true
-							enableElement(saveButton)
-							fileInput.val('')
+									if (inputWidth < adapterOptions.minWidth) {
+										errorMessage(_i18n(LANG_GROUP, 'Error'), formatStr(
+											_i18n(LANG_GROUP, `El ancho mínimo de la imagen debe ser: %rpx`),
+											[
+												adapterOptions.minWidth,
+											]
+										))
+										fileInput.val('')
+										return
+									}
+
+									toEditStep()
+									configCanvasDimensions()
+
+									cropper.replace(dataURIImg)
+									hasImage = true
+									wasChanged = true
+									isOnEdit = true
+									unSaveImage = true
+									enableElement(saveButton)
+									fileInput.val('')
+
+								} else {
+									fileInput.val('')
+									return
+								}
+
+							})
 
 						}
 
