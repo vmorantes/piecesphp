@@ -141,7 +141,9 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 	/** @type {Event[]} */ let events = {
 		prepare: {
 			event: new Event(`${eventsPrefix}-prepare`),
-			data: {},
+			data: {
+				promise: Promise.resolve(true),
+			},
 			wasDispatch: false,
 			canDispatch: function (element) {
 				return element.wasDispatch
@@ -149,7 +151,19 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 		},
 		save: {
 			event: new Event(`${eventsPrefix}-save`),
-			data: {},
+			data: {
+				promise: Promise.resolve(true),
+			},
+			wasDispatch: false,
+			canDispatch: function (element) {
+				return element.wasDispatch
+			},
+		},
+		selectImage: {
+			event: new Event(`${eventsPrefix}-selectImage`),
+			data: {
+				promise: Promise.resolve(true),
+			},
 			wasDispatch: false,
 			canDispatch: function (element) {
 				return element.wasDispatch
@@ -677,26 +691,41 @@ function CropperAdapterComponent(configurations = {}, prepareOnCreation = true) 
 
 							let inputWidth = img.width
 
-							if (inputWidth < adapterOptions.minWidth) {
-								errorMessage(_i18n(LANG_GROUP, 'Error'), formatStr(
-									_i18n(LANG_GROUP, `El ancho mínimo de la imagen debe ser: %rpx`),
-									[
-										adapterOptions.minWidth,
-									]
-								))
-								return
-							}
+							events.selectImage.data['image'] = img
+							eventer.dispatchEvent(events.selectImage.event)
 
-							toEditStep()
-							configCanvasDimensions()
+							events.selectImage.data.promise.then(function (value) {
 
-							cropper.replace(dataURIImg)
-							hasImage = true
-							wasChanged = true
-							isOnEdit = true
-							unSaveImage = true
-							enableElement(saveButton)
-							fileInput.val('')
+								if (value === true || typeof value != 'boolean') {
+
+									if (inputWidth < adapterOptions.minWidth) {
+										errorMessage(_i18n(LANG_GROUP, 'Error'), formatStr(
+											_i18n(LANG_GROUP, `El ancho mínimo de la imagen debe ser: %rpx`),
+											[
+												adapterOptions.minWidth,
+											]
+										))
+										fileInput.val('')
+										return
+									}
+
+									toEditStep()
+									configCanvasDimensions()
+
+									cropper.replace(dataURIImg)
+									hasImage = true
+									wasChanged = true
+									isOnEdit = true
+									unSaveImage = true
+									enableElement(saveButton)
+									fileInput.val('')
+
+								} else {
+									fileInput.val('')
+									return
+								}
+
+							})
 
 						}
 

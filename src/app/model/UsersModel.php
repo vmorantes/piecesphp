@@ -37,6 +37,7 @@ class UsersModel extends BaseEntityMapper
     //Constantes de status de usuario
     const STATUS_USER_ACTIVE = 1;
     const STATUS_USER_INACTIVE = 0;
+    const STATUS_USER_ATTEMPTS_BLOCK = 2;
 
     //Constantes de tipos de usuario
     const TYPE_USER_ROOT = 0;
@@ -183,7 +184,7 @@ class UsersModel extends BaseEntityMapper
             $this->firstname,
             $this->secondname,
             $this->first_lastname,
-            $this->secondname,
+            $this->second_lastname,
         ];
 
         $fullname = implode(' ', array_filter($fullname, function ($e) {
@@ -706,5 +707,4 @@ class UsersModel extends BaseEntityMapper
     {
         return (new static())->getModel();
     }
-
 }

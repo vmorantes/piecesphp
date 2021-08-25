@@ -448,30 +448,39 @@ function configCalendars() {
 }
 
 /**
+ * @param {Object} options
  * @returns {void}
  */
-function configSinglesCalendar(selectorAttr, selectorAttrName) {
+function configSinglesCalendar(selectorAttr, options = {}) {
 
 	selectorAttr = typeof selectorAttr == 'string' && selectorAttr.length > 0 ? selectorAttr : null
-	selectorAttrName = typeof selectorAttrName == 'string' && selectorAttrName.length > 0 ? selectorAttrName : selectorAttr
 	let calendars = $(`[${selectorAttr}]`).toArray()
 
 	for (let calendar of calendars) {
 		calendar = $(calendar)
 		let calendarType = calendar.attr('calendar-type')
 		calendarType = typeof calendarType == 'string' && calendarType.trim().length > 0 ? calendarType.trim() : 'date'
-		calendarType = calendarType == 'datetime' || calendarType == 'date' ? calendarType : 'datetime'
+		calendarType = [
+			'date',
+			'datetime',
+			'month',
+		].indexOf(calendarType) !== -1 ? calendarType : 'datetime'
 		let calendarOptions = Object.assign({}, pcsphpGlobals.configCalendar)
 		calendarOptions.type = calendarType
+
+		for (const customOption in options) {
+			calendarOptions[customOption] = options[customOption]
+		}
 		$(calendar).calendar(calendarOptions)
 	}
 
 }
 
 /**
+ * @param {Object} options
  * @returns {void}
  */
-function configGroupCalendar(selectorAttr, selectorAttrName) {
+function configGroupCalendar(selectorAttr, selectorAttrName, options = {}) {
 
 	selectorAttr = typeof selectorAttr == 'string' && selectorAttr.length > 0 ? selectorAttr : null
 	selectorAttrName = typeof selectorAttrName == 'string' && selectorAttrName.length > 0 ? selectorAttrName : selectorAttr
@@ -515,14 +524,18 @@ function configGroupCalendar(selectorAttr, selectorAttrName) {
 
 		let startType = start.attr('calendar-type')
 		startType = typeof startType == 'string' && startType.trim().length > 0 ? startType.trim() : 'datetime'
-		startType = startType == 'datetime' || startType == 'date' ? startType : 'datetime'
 
 		let endType = end.attr('calendar-type')
 		endType = typeof endType == 'string' && endType.trim().length > 0 ? endType.trim() : 'datetime'
-		endType = endType == 'datetime' || endType == 'date' ? endType : 'datetime'
 
-		let optStart = Object.assign({}, pcsphpGlobals.configCalendar)
-		let optEnd = Object.assign({}, pcsphpGlobals.configCalendar)
+		let baseConfig = Object.assign({}, pcsphpGlobals.configCalendar)
+
+		for (const customOption in options) {
+			baseConfig[customOption] = options[customOption]
+		}
+
+		let optStart = Object.assign({}, baseConfig)
+		let optEnd = Object.assign({}, baseConfig)
 
 		optStart.type = startType
 		optStart.minDate = minDate

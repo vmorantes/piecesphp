@@ -308,8 +308,66 @@ class ServerStatics
                     $scss = new ScssCompiler();
                     $fileContent = file_get_contents($filePathSass);
 
+                    $importPaths = [];
+                    $replaceOnImport = [];
+
+                    try {
+
+                        $importsMatchs = [];
+                        preg_match_all('/\@import\s{0,1}("|\').*("|\')\;/mi', $fileContent, $importsMatchs);
+
+                        if (isset($importsMatchs[0])) {
+                            $importsMatchs = $importsMatchs[0];
+                            foreach ($importsMatchs as $k => $i) {
+                                $parts = explode('@import', $i);
+                                foreach ($parts as $j) {
+                                    $j = str_replace([
+                                        "'",
+                                        '"',
+                                        ' ',
+                                        ';',
+                                    ], '', $j);
+                                    $j = trim($j);
+                                    if (mb_strlen($j) > 0) {
+                                        $referencePath = str_replace(basename($filePathSass), '', $filePathSass);
+                                        $_importPath = realpath(append_to_url($referencePath, str_replace(basename($j), '', $j)));
+                                        $_importFile = append_to_url($_importPath, basename($j));
+                                        $_importFileVersions = [
+                                            append_to_url($_importPath, basename($j)) . '.sass',
+                                            append_to_url($_importPath, basename($j)) . '.scss',
+                                            append_to_url($_importPath, '_' . basename($j)) . '.sass',
+                                            append_to_url($_importPath, '_' . basename($j)) . '.scss',
+                                        ];
+                                        $existsFileImport = false;
+                                        foreach ($_importFileVersions as $_iv) {
+                                            if (file_exists($_iv)) {
+                                                $existsFileImport = true;
+                                                $_importFile = $_iv;
+                                                break;
+                                            }
+                                        }
+                                        if (is_string($_importPath) && mb_strlen(trim($_importPath)) > 0 && file_exists($_importPath) && $existsFileImport) {
+                                            if (!in_array($_importPath, $importPaths)) {
+                                                $replaceOnImport[$j] = basename($_importFile);
+                                                $importPaths[] = $_importPath;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    } catch (\Throwable $e) {}
+
                     foreach ($replacement as $toReplace => $replacement) {
                         $fileContent = str_replace($toReplace, $replacement, $fileContent);
+                    }
+
+                    if (count($importPaths) > 0) {
+                        foreach ($replaceOnImport as $toReplace => $replacement) {
+                            $fileContent = str_replace($toReplace, $replacement, $fileContent);
+                        }
+                        $scss->setImportPaths($importPaths);
                     }
 
                     $compiledCss = $scss->compile($fileContent);
