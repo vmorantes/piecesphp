@@ -105,8 +105,8 @@ class ImagesRepositoryRoutes
                             'visible' => ImagesRepositoryController::allowedRoute('filter-view'),
                             'href' => ImagesRepositoryController::routeName('filter-view'),
                         ]),
-                    ]
-                ],
+                    ],
+                ]
             ));
 
         }

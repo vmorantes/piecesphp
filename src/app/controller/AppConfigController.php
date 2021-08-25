@@ -1004,7 +1004,7 @@ class AppConfigController extends AdminPanelController
                     function ($value) {
                         return is_string($value);
                     },
-                    true,
+                    true
                 ),
             ]);
 
@@ -1509,7 +1509,7 @@ class AppConfigController extends AdminPanelController
 
         $routes = array_merge(
             get_routes_by_controller(PublicationsPublicController::class),
-            get_routes_by_controller(PublicAreaController::class),
+            get_routes_by_controller(PublicAreaController::class)
         );
 
         foreach ($routes as $routeInfo) {

@@ -354,7 +354,7 @@ class UserProblemsController extends UsersController
                             $problems->getModel()->delete("id = '$problems->id'")->execute();
                         } elseif ($problems->type == self::TYPE_USER_BLOCKED && $type == self::TYPE_USER_BLOCKED) {
 
-                            $is_block = $user->status == UsersModel::STATUS_USER_INACTIVE;
+                            $is_block = $user->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK;
                             $blocked_by_attempts = $user->failed_attempts >= UsersController::MAX_ATTEMPTS;
 
                             if ($blocked_by_attempts) {

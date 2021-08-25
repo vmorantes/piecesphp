@@ -111,6 +111,7 @@ class UsersController extends AdminPanelController
     const UNEXPECTED_ACTION = 'UNEXPECTED_ACTION';
     const ACTIVE_SESSION = 'ACTIVE_SESSION';
     const BLOCKED_FOR_ATTEMPTS = 'BLOCKED_FOR_ATTEMPTS';
+    const INACTIVE_USER = 'INACTIVE_USER';
     const EXPIRED_OR_NOT_EXIST_CODE = 'EXPIRED_OR_NOT_EXIST_CODE';
     const NOT_MATCH_PASSWORDS = 'NOT_MATCH_PASSWORDS';
 
@@ -192,13 +193,19 @@ class UsersController extends AdminPanelController
             $edit_button->setAttribute('class', 'ui green button');
             $edit_button->setAttribute('href', get_route('users-form-edit', ['id' => $element->id]));
 
+            $statusText = $element->status == UsersModel::STATUS_USER_ACTIVE ? __(self::LANG_GROUP, 'Sí') : __(self::LANG_GROUP, 'No');
+
+            if ($element->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+                $statusText = __(self::LANG_GROUP, 'Bloqueado por intentos fallidos');
+            }
+
             return [
                 $element->id,
                 stripslashes($element->firstname . ' ' . $element->secondname),
                 stripslashes($element->first_lastname . ' ' . $element->second_lastname),
                 $element->email,
                 stripslashes($element->username),
-                $element->status == UsersModel::STATUS_USER_ACTIVE ? __(self::LANG_GROUP, 'Sí') : __(self::LANG_GROUP, 'No'),
+                $statusText,
                 UsersModel::getTypesUser()[$element->type],
                 '' . $edit_button,
             ];
@@ -494,6 +501,10 @@ class UsersController extends AdminPanelController
                     __(self::LANG_GROUP, 'inactive') => UsersModel::STATUS_USER_INACTIVE,
                 ];
 
+                if ($user->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+                    $status_options[__(self::LANG_GROUP, 'Bloqueado por intentos fallidos')] = UsersModel::STATUS_USER_ATTEMPTS_BLOCK;
+                }
+
                 $data_form = [];
                 $data_form['status_options'] = $status_options;
                 $data_form['edit_user'] = $user;
@@ -701,7 +712,7 @@ class UsersController extends AdminPanelController
                     $user->status = (int) $user->status;
 
                     //Verificar status
-                    if ($user->status !== UsersModel::STATUS_USER_INACTIVE) {
+                    if ($user->status == UsersModel::STATUS_USER_ACTIVE) {
 
                         if (password_verify($password, $user->password)) {
 
@@ -737,7 +748,7 @@ class UsersController extends AdminPanelController
 
                             if ($user->failed_attempts >= self::MAX_ATTEMPTS) {
 
-                                $this->mapper->changeStatus(UsersModel::STATUS_USER_INACTIVE, $user->id);
+                                $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
                                 $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
                                 $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
 
@@ -747,7 +758,7 @@ class UsersController extends AdminPanelController
 
                                 if ($attempts >= self::MAX_ATTEMPTS) {
 
-                                    $this->mapper->changeStatus(UsersModel::STATUS_USER_INACTIVE, $user->id);
+                                    $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
                                     $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
                                     $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
 
@@ -758,8 +769,21 @@ class UsersController extends AdminPanelController
 
                     } else {
 
-                        $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
-                        $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
+                        if ($user->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+
+                            $errorType = self::BLOCKED_FOR_ATTEMPTS;
+                            $errorTypeMessage = vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]);
+
+                        } else {
+
+                            $errorType = self::INACTIVE_USER;
+                            $errorTypeMessage = vsprintf($this->getMessage(self::INACTIVE_USER), [$user->username]);
+
+                        }
+
+                        $resultOperation->setValue('error', $errorType);
+                        $resultOperation->setValue('message', $errorTypeMessage);
+
                         LoginAttemptsModel::addLogin(
                             null,
                             $username,
@@ -1100,7 +1124,7 @@ class UsersController extends AdminPanelController
                 function ($value) {
                     return is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
                     return mb_strtolower($value);
                 }
@@ -1111,7 +1135,7 @@ class UsersController extends AdminPanelController
                 function ($value) {
                     return is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
                     return mb_strtolower($value);
                 }
@@ -1157,7 +1181,7 @@ class UsersController extends AdminPanelController
                 function ($value) {
                     return is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
                     return ucwords($value);
                 }
@@ -1179,7 +1203,7 @@ class UsersController extends AdminPanelController
                 function ($value) {
                     return is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
                     return ucwords($value);
                 }
@@ -1200,7 +1224,8 @@ class UsersController extends AdminPanelController
                 null,
                 function ($value) {
                     return is_string($value) && ctype_digit($value);
-                }
+                },
+                true
             ),
         ]);
 
@@ -1218,10 +1243,19 @@ class UsersController extends AdminPanelController
 
             $parametersExcepted->validate();
 
+            $isProfile = $parametersExcepted->getValue('is_profile');
+
+            $parametersExcepted->getParameter('username')->setOptional($isProfile);
+            $parametersExcepted->getParameter('email')->setOptional($isProfile);
+            $parametersExcepted->getParameter('firstname')->setOptional($isProfile);
+            $parametersExcepted->getParameter('first_lastname')->setOptional($isProfile);
+            $parametersExcepted->getParameter('status')->setOptional($isProfile);
+
+            $parametersExcepted->validate();
+
             $id = $parametersExcepted->getValue('id');
             $username = $parametersExcepted->getValue('username');
             $email = $parametersExcepted->getValue('email');
-            $isProfile = $parametersExcepted->getValue('is_profile');
             $currentPassword = $parametersExcepted->getValue('current-password');
             $password = $parametersExcepted->getValue('password');
             $password2 = $parametersExcepted->getValue('password2');
@@ -1231,14 +1265,19 @@ class UsersController extends AdminPanelController
             $second_lastname = $parametersExcepted->getValue('second_lastname');
             $status = $parametersExcepted->getValue('status');
 
+            $userMapper = new UsersModel($id);
+            if ($username === null) {
+                $username = $userMapper->username;
+            }
+            if ($email === null) {
+                $email = $userMapper->email;
+            }
             $username_duplicate = UsersModel::isDuplicateUsername($username, $id);
             $email_duplicate = UsersModel::isDuplicateEmail($email, $id);
 
             $change_password = !is_null($password);
             $password_match = $change_password ? $password == $password2 : true;
             $password_ok = true;
-
-            $userMapper = new UsersModel($id);
 
             if ($userMapper->id !== null) {
 
@@ -1250,11 +1289,22 @@ class UsersController extends AdminPanelController
 
                     $userMapper->username = $username;
                     $userMapper->email = $email;
-                    $userMapper->firstname = $firstname;
-                    $userMapper->secondname = $secondname;
-                    $userMapper->first_lastname = $first_lastname;
-                    $userMapper->second_lastname = $second_lastname;
-                    $userMapper->status = $status;
+
+                    if ($firstname !== null) {
+                        $userMapper->firstname = $firstname;
+                    }
+                    if ($secondname !== null) {
+                        $userMapper->secondname = $secondname;
+                    }
+                    if ($first_lastname !== null) {
+                        $userMapper->first_lastname = $first_lastname;
+                    }
+                    if ($second_lastname !== null) {
+                        $userMapper->second_lastname = $second_lastname;
+                    }
+                    if ($status !== null) {
+                        $userMapper->status = $status;
+                    }
                     $userMapper->modified_at = new \DateTime();
 
                     if ($change_password) {

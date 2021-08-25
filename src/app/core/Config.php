@@ -848,11 +848,14 @@ class Config
      * Obtiene Config::app_url() y lo une a $resource
      *
      * @param string $resource
+     * @param bool $withLang
      * @return string
      */
-    public static function baseurl(string $resource = "")
+    public static function baseurl(string $resource = "", bool $withLang = false)
     {
         $app_url = Config::app_url();
+        $defaultLang = Config::get_default_lang();
+        $currentLang = Config::get_lang();
 
         if (mb_strlen($resource > 0) && $resource[0] == "/") {
             $resource = remove_first_char($resource);
@@ -860,6 +863,10 @@ class Config
 
         if (last_char($app_url) == "/") {
             $app_url = remove_last_char($app_url);
+        }
+
+        if ($withLang && $currentLang !== $defaultLang) {
+            $app_url .= '/' . $currentLang;
         }
 
         $url = $app_url . '/' . $resource;

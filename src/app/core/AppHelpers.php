@@ -113,11 +113,12 @@ function get_default_format_date()
 
 /**
  * @param string $resource
+ * @param bool $withLang
  * @return string
  */
-function baseurl(string $resource = "")
+function baseurl(string $resource = "", bool $withLang = false)
 {
-    return Config::baseurl($resource);
+    return Config::baseurl($resource, $withLang);
 }
 
 /**

@@ -190,7 +190,7 @@ class ContactFormsController extends PublicAreaController
                     'message' => $message,
                     'updates' => $updates,
                 ], false);
-                $bodyMessage = utf8_decode($bodyMessage);
+                $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
 
                 $mailer = new Mailer();
                 $mailConfig = new MailConfig;
@@ -205,7 +205,7 @@ class ContactFormsController extends PublicAreaController
                     $mailer->addAddress($recipient);
                 }
 
-                $mailer->Subject = utf8_decode(__(LANG_GROUP, 'Contacto') . ': ' . $subject);
+                $mailer->Subject = mb_convert_encoding(__(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8');
                 $mailer->Body = $bodyMessage;
 
                 if (!$mailer->checkSettedSMTP() && !is_local()) {
