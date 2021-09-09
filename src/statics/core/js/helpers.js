@@ -1943,6 +1943,18 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 		}
 
 		dropdown = $(select).dropdown(options)
+		dropdown.setValue = function (value, text = null) {
+			if (text !== null) {
+				dropdown.dropdown('set value', value)
+				dropdown.dropdown('set text', text)
+				dropdown.dropdown('set selected', value)
+				dropdown.dropdown('refresh')
+			} else {
+				dropdown.dropdown('set selected', value)
+				dropdown.dropdown('refresh')
+			}
+			onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
+		}
 
 		//Añadir input para simular el error de validación
 		dropdown.parent().get(0).insertBefore(selectSimulator, dropdown.get(0))
