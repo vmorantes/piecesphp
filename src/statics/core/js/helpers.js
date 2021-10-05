@@ -1892,7 +1892,9 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 
 		if (searchURL) {
 			let apiSettings = typeof options.apiSettings == 'object' ? options.apiSettings : {}
-			apiSettings.url = searchURL
+			const URLSearch = new URL(searchURL)
+			URLSearch.searchParams.set('search', 'SEARCH_QUERY')
+			apiSettings.url = URLSearch.href.replace('SEARCH_QUERY', '{query}')
 			options.apiSettings = apiSettings
 			options.apiSettings.cache = cacheOnAPI === true ? true : false
 		}
