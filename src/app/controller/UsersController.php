@@ -1481,7 +1481,7 @@ class UsersController extends AdminPanelController
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $type = $expectedParameters->getValue('type');
-        $type = $type == 'ANY' ? null : $type;
+        $type = $type === 'ANY' ? null : $type;
         $ignore = $expectedParameters->getValue('ignore');
 
         $result = self::_all($page, $perPage, $type, $ignore);
