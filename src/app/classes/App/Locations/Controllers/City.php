@@ -183,6 +183,8 @@ class City extends AdminPanelController
     public function cities(Request $request, Response $response, array $args)
     {
         $state = $request->getQueryParam('state', null);
+        $ids = $request->getQueryParam('ids', []);
+        $ids = is_array($ids) && count($ids) > 0 ? implode(',', $ids) : null;
 
         if ($state != null) {
             if (ctype_digit($state)) {
@@ -198,10 +200,24 @@ class City extends AdminPanelController
 
             $query = $this->model->select();
 
+            $where = [];
+            $whereString = null;
+
             if (!is_null($state)) {
-                $query->where([
-                    'state' => $state,
-                ]);
+                $operator = count($where) > 0 ? ' AND ' : '';
+                $critery = "{$operator} (state = {$state})";
+                $where[] = $critery;
+            }
+
+            if (!is_null($ids)) {
+                $operator = count($where) > 0 ? ' AND ' : '';
+                $critery = "{$operator} (id IN ({$ids}))";
+                $where[] = $critery;
+            }
+
+            if (count($where) > 0) {
+                $whereString = implode(' ', $where);
+                $query->where($whereString);
             }
 
             $query->execute();

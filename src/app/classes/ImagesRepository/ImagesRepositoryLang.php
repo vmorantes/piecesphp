@@ -13,7 +13,6 @@ use PiecesPHP\LangInjector;
  * ImagesRepositoryLang.
  *
  * @package     ImagesRepository
- * @author      Tejido Digital S.A.S.
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
  */

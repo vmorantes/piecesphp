@@ -2,8 +2,25 @@
 /// <reference path="../../../core/js/helpers.js" />
 window.addEventListener('load', function (e) {
 
+	showGenericLoader('Maps')
+
 	let locations = new Locations()
 	let mapBoxAdapter = new MapBoxAdapter()
+	let dataElementLocation = $('[element-location-module-data]')
+
+	if (dataElementLocation.length > 0) {
+
+		let onlyCountries = dataElementLocation.data('only-countries')
+		onlyCountries = typeof onlyCountries !== 'undefined' && onlyCountries.trim().length > 0 ? atob(onlyCountries).split(',') : []
+		let onlyStates = dataElementLocation.data('only-states')
+		onlyStates = typeof onlyStates !== 'undefined' && onlyStates.trim().length > 0 ? atob(onlyStates).split(',') : []
+		let onlyCities = dataElementLocation.data('only-cities')
+		onlyCities = typeof onlyCities !== 'undefined' && onlyCities.trim().length > 0 ? atob(onlyCities).split(',') : []
+
+		Locations.dataToFilter.onlyCountries = onlyCountries
+		Locations.dataToFilter.onlyStates = onlyStates
+		Locations.dataToFilter.onlyCities = onlyCities
+	}
 
 	locations.fillSelectWithCountries()
 
@@ -18,18 +35,28 @@ window.addEventListener('load', function (e) {
 		triggerCenterView: $(`[set-center-view]`),
 	}
 
-	mapBoxAdapter
-		.setKey('pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q')
-		.configurateWhitForm(
-			controlsMapBox,
-			{
-				defaultLongitude: -74.8065913846496,
-				defaultLatitude: 11.0021516003209,
-			},
-			{
-				zoom: 14,
-			}
-		)
+	new Promise(function (resolve) {
+
+		fetch('configurations/mapbox-key')
+			.then(response => response.text())
+			.then(key => resolve(key))
+
+	}).then(function (key) {
+		mapBoxAdapter
+			.setKey(key)
+			.configurateWhitForm(
+				controlsMapBox,
+				{
+					defaultLongitude: -74.8065913846496,
+					defaultLatitude: 11.0021516003209,
+				},
+				{
+					zoom: 3,
+				}
+			)
+	}).finally(function () {
+		removeGenericLoader('Maps')
+	})
 
 })
 
@@ -646,9 +673,13 @@ function Locations() {
 	   */
 	this.getCountries = () => {
 		let countries = []
+		let url = new URL(countriesURL, document.baseURI)
+		Locations.dataToFilter.onlyCountries.map(function (i) {
+			url.searchParams.append('ids[]', i)
+		})
 		$.ajax({
 			async: false,
-			url: countriesURL,
+			url: url,
 			dataType: 'json',
 		}).done(function (res) {
 			countries = res
@@ -664,9 +695,14 @@ function Locations() {
 	   */
 	this.getStates = (country) => {
 		let states = []
+		let url = new URL(statesURL, document.baseURI)
+		url.searchParams.set('country', country)
+		Locations.dataToFilter.onlyStates.map(function (i) {
+			url.searchParams.append('ids[]', i)
+		})
 		$.ajax({
 			async: false,
-			url: `${statesURL}?country=${country}`,
+			url: url,
 			dataType: 'json',
 		}).done(function (res) {
 			states = res
@@ -682,9 +718,14 @@ function Locations() {
 	   */
 	this.getCities = (state) => {
 		let cities = []
+		let url = new URL(citiesURL, document.baseURI)
+		url.searchParams.set('state', state)
+		Locations.dataToFilter.onlyCities.map(function (i) {
+			url.searchParams.append('ids[]', i)
+		})
 		$.ajax({
 			async: false,
-			url: `${citiesURL}?state=${state}`,
+			url: url,
 			dataType: 'json',
 		}).done(function (res) {
 			cities = res
@@ -710,6 +751,11 @@ function Locations() {
 		return points
 	}
 
+}
+Locations.dataToFilter = {
+	onlyCountries: [],
+	onlyStates: [],
+	onlyCities: [],
 }
 
 function MapBoxAdapter() {

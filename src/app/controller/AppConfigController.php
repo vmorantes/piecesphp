@@ -1528,6 +1528,17 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return Response
+     */
+    public function mapboxKey(Request $req, Response $res, array $args)
+    {
+        return is_local() ? "pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q" : "pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q";
+    }
+
+    /**
      * @return array
      */
     public static function getSEOConfigValues()
@@ -1982,6 +1993,14 @@ class AppConfigController extends AdminPanelController
                 true,
                 null,
                 self::ROLES_SSL_ACTION
+            ),
+
+            //Mapbox Key
+            new Route(
+                "{$startRoute}/mapbox-key[/]",
+                $classname . ':mapboxKey',
+                self::$baseRouteName . '-' . 'mapbox-key',
+                'GET'
             ),
 
             //──── Mixtas ────────────────────────────────────────────────────────────────────────────
