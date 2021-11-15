@@ -4,7 +4,29 @@ window.addEventListener('load', function (e) {
 
 	let formSelector = '[contact-form]'
 
+	let captchaResponse = {}
+	let captchaResult = false
+	let captchaMessage = ''
+	let captchaAdapter = new GoogleCaptchaV3Adapter({
+		key: '6Lc9cTgdAAAAAMVBHJIk3i0XBOnNtyAV0Ijl6ZBv',
+	})
+	captchaAdapter.on('prepare', function () {
+		captchaAdapter.execute(function (response, success, message) {
+			captchaResponse = response
+			captchaResult = success
+			captchaMessage = message
+		})
+	})
+
 	let form = genericFormHandler(formSelector, {
+		validate: function (form) {
+			let valid = true
+			if (!captchaResult) {
+				valid = false
+				errorMessage(`<strong>${captchaMessage}</strong>`, '')
+			}
+			return valid
+		},
 		onSuccess: function () {
 			form[0].reset()
 		},

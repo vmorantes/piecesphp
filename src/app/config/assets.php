@@ -268,6 +268,17 @@ $assets['jqueryui']['css'] = [
 $assets['jqueryui']['plugins'] = [];
 
 /**
+ * GoogleCaptchaV3Adapter
+ * https://developers.google.com/recaptcha/docs/v3
+ */
+$assets['google_captcha_v3_adapter']['css'] = [
+];
+$assets['google_captcha_v3_adapter']['js'] = [
+    'statics/core/own-plugins/GoogleCaptchaV3Adapter.js',
+];
+$assets['google_captcha_v3_adapter']['plugins'] = [];
+
+/**
  * JQuery
  * https://jquery.com/
  */
