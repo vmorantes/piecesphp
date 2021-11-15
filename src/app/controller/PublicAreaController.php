@@ -65,6 +65,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         import_semantic();
         import_app_libraries();
         import_app_front_libraries();
+        import_google_captcha_v3_adapter();
         add_global_asset('statics/fonts/abhaya/abhaya.css', 'font');
     }
 
