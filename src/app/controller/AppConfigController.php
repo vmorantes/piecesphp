@@ -1535,7 +1535,9 @@ class AppConfigController extends AdminPanelController
      */
     public function mapboxKey(Request $req, Response $res, array $args)
     {
-        return is_local() ? "pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q" : "pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q";
+        $keyLocal = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q';
+        $keyDomain = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjanV1MGRuYm8wZHBtM3lyejJ3MzQ5bnFnIn0.udY9ENFrQDuXESogeaI19Q"';
+        return is_local() ? $keyLocal : $keyDomain;
     }
 
     /**
