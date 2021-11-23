@@ -183,6 +183,8 @@ class State extends AdminPanelController
     public function states(Request $request, Response $response, array $args)
     {
         $country = $request->getQueryParam('country', null);
+        $ids = $request->getQueryParam('ids', []);
+        $ids = is_array($ids) && count($ids) > 0 ? implode(',', $ids) : null;
 
         if ($country != null) {
             if (ctype_digit($country)) {
@@ -198,10 +200,24 @@ class State extends AdminPanelController
 
             $query = $this->model->select();
 
+            $where = [];
+            $whereString = null;
+
             if (!is_null($country)) {
-                $query->where([
-                    'country' => $country,
-                ]);
+                $operator = count($where) > 0 ? ' AND ' : '';
+                $critery = "{$operator} (country = {$country})";
+                $where[] = $critery;
+            }
+
+            if (!is_null($ids)) {
+                $operator = count($where) > 0 ? ' AND ' : '';
+                $critery = "{$operator} (id IN ({$ids}))";
+                $where[] = $critery;
+            }
+
+            if (count($where) > 0) {
+                $whereString = implode(' ', $where);
+                $query->where($whereString);
             }
 
             $query->execute();

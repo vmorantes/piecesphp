@@ -1774,6 +1774,18 @@ function import_elfinder(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra google_captcha_v3_adapter como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_google_captcha_v3_adapter(array $plugins = [], bool $all = true)
+{
+    import_front_library('google_captcha_v3_adapter', $plugins, $all);
+}
+
+/**
  * Registra una ruta o un conjunto de rutas
  *
  * @param array $routes Rutas

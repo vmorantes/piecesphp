@@ -1,25 +1,25 @@
 <?php
 
 /**
- * ImagesRepositoryLang.php
+ * GoogleReCaptchaV3Lang.php
  */
 
-namespace ImagesRepository;
+namespace GoogleReCaptchaV3;
 
 use PiecesPHP\Core\Config;
 use PiecesPHP\LangInjector;
 
 /**
- * ImagesRepositoryLang.
+ * GoogleReCaptchaV3Lang.
  *
- * @package     ImagesRepository
+ * @package     GoogleReCaptchaV3
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
  */
-class ImagesRepositoryLang extends LangInjector
+class GoogleReCaptchaV3Lang extends LangInjector
 {
 
-    const LANG_GROUP = 'images-repository-lang';
+    const LANG_GROUP = 'app-google-recaptcha-v3-lang';
 
     public static function injectLang()
     {
