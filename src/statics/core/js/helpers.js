@@ -1870,9 +1870,10 @@ function configMirrorScrollX() {
  * Configura un dropdown
  * @param {String} selectSelector 
  * @param {Object} defaultOptions 
+ * @param {Booloan} cacheOnAPI
  * @returns {$[]} 
  */
-function configFomanticDropdown(selectSelector, defaultOptions = {}) {
+function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI = true) {
 	selectSelector = typeof selectSelector == 'string' ? selectSelector : 'NONE_SELECTOR'
 	defaultOptions = typeof defaultOptions == 'object' ? defaultOptions : {}
 
@@ -1881,6 +1882,8 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 
 	for (let select of selects) {
 
+
+		const originalSelectHTML = select.outerHTML
 		select = $(select)
 		let searchURL = select.data('search-url')
 		searchURL = typeof searchURL == 'string' && searchURL.trim().length > 0 ? searchURL.trim() : null
@@ -1889,8 +1892,11 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 
 		if (searchURL) {
 			let apiSettings = typeof options.apiSettings == 'object' ? options.apiSettings : {}
-			apiSettings.url = searchURL
+			const URLSearch = new URL(searchURL)
+			URLSearch.searchParams.set('search', 'SEARCH_QUERY')
+			apiSettings.url = URLSearch.href.replace('SEARCH_QUERY', '{query}')
 			options.apiSettings = apiSettings
+			options.apiSettings.cache = cacheOnAPI === true ? true : false
 		}
 
 		let dropdown = null
@@ -1943,9 +1949,63 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}) {
 		}
 
 		dropdown = $(select).dropdown(options)
+		dropdown.getText = function (value, text = null) {
+			return dropdown.dropdown('get text')
+		}
+		dropdown.getValue = function (value, text = null) {
+			return dropdown.dropdown('get value')
+		}
+		dropdown.setValue = function (value, text = null) {
+			if (text !== null) {
+				dropdown.dropdown('set value', value)
+				dropdown.dropdown('set text', text)
+				dropdown.dropdown('set selected', value)
+				dropdown.dropdown('refresh')
+			} else {
+				dropdown.dropdown('set selected', value)
+				dropdown.dropdown('refresh')
+			}
+			onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
+		}
+		dropdown.recreate = function (removeItems = false, searchURL = null, options = {}) {
+
+			dropdown.simulatorNode.remove()
+			const recreated = $(originalSelectHTML)
+
+			if (searchURL !== null) {
+				recreated.attr('data-search-url', searchURL)
+			}
+
+			if (removeItems) {
+				recreated.find('option').remove()
+			}
+
+			dropdown.replaceWith(recreated)
+
+			const optionsRecreate = Object.assign({}, defaultOptions)
+
+			for (const option in options) {
+				optionsRecreate[option] = options[option]
+			}
+
+			dropdown = configFomanticDropdown(selectSelector, optionsRecreate)[0]
+
+		}
+		dropdown.getOriginalSelect = function () {
+			return $(originalSelectHTML)
+		}
+
+		//Duplicar los atributos data-* en el dropdown
+		const originalSelect = $(originalSelectHTML)
+		const originalDataSet = originalSelect.get(0).dataset
+
+		for (const dataName in originalDataSet) {
+			const dataValue = originalDataSet[dataName]
+			dropdown.get(0).dataset[dataName] = dataValue
+		}
 
 		//Añadir input para simular el error de validación
-		dropdown.parent().get(0).insertBefore(selectSimulator, dropdown.get(0))
+		dropdown.simulatorNode = dropdown.parent().get(0).insertBefore(selectSimulator, dropdown.get(0))
 		dropdowns.push(dropdown)
 		onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
 

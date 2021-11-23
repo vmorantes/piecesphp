@@ -478,7 +478,7 @@ function configSinglesCalendar(selectorAttr, options = {}) {
 
 /**
  * @param {Object} options
- * @returns {void}
+ * @returns {Object[]}
  */
 function configGroupCalendar(selectorAttr, selectorAttrName, options = {}) {
 
@@ -486,6 +486,7 @@ function configGroupCalendar(selectorAttr, selectorAttrName, options = {}) {
 	selectorAttrName = typeof selectorAttrName == 'string' && selectorAttrName.length > 0 ? selectorAttrName : selectorAttr
 	let groupCalendars = $(`[${selectorAttr}]`).toArray()
 
+	const result = []
 	let groups = []
 
 	for (let groupCalendar of groupCalendars) {
@@ -499,6 +500,9 @@ function configGroupCalendar(selectorAttr, selectorAttrName, options = {}) {
 
 		let start = $($(`[${selectorAttrName}='${group}'][start]`)[0])
 		let end = $($(`[${selectorAttrName}='${group}'][end]`)[0])
+
+		const originalStartHTML = start.get(0).outerHTML
+		const originalEndHTML = end.get(0).outerHTML
 
 		let minDate = start.attr('min')
 		minDate = typeof minDate == 'string' && minDate.trim().length > 0 ? minDate.trim() : null
@@ -546,9 +550,20 @@ function configGroupCalendar(selectorAttr, selectorAttrName, options = {}) {
 		optStart.endCalendar = end
 		optEnd.startCalendar = start
 
-		start.calendar(optStart)
-		end.calendar(optEnd)
+
+		result[group] = {
+			originalStartHTML: originalStartHTML,
+			originalEndHTML: originalEndHTML,
+			start: start.calendar(optStart),
+			end: end.calendar(optEnd),
+		}
+		result[group].restart = function () {
+			result[group].start.calendar('clear')
+			result[group].end.calendar('clear')
+		}
 	}
+
+	return result
 
 }
 

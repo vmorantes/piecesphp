@@ -54,6 +54,7 @@ use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
 use Components\ComponentProviderRoutes;
 use FileManager\FileManagerRoutes;
+use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use ImagesRepository\ImagesRepositoryRoutes;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
@@ -134,6 +135,9 @@ GenericTokenController::routes($token_handler);
 
 //Imágenes
 DynamicImagesRoutes::routes($zona_administrativa);
+
+//Google ReCaptcha V3
+GoogleReCaptchaV3Routes::routes(new PiecesRouteGroup($prefix_lang . '/recaptcha'));
 
 $sistema_avatares->register(
     [
