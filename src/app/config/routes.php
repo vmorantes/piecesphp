@@ -53,6 +53,7 @@ use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
 use Components\ComponentProviderRoutes;
+use EventsLog\LogsRoutes;
 use FileManager\FileManagerRoutes;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use ImagesRepository\ImagesRepositoryRoutes;
@@ -73,20 +74,20 @@ PiecesRouteGroup::setRouter($slim_app);
 
 //Nota: Declarar de más específico a menos específico, tanto los grupos como las rutas independientes dentro de los grupos
 
-$terminalGroup = new PiecesRouteGroup($prefix_lang . '/terminal'); //Zona administrativa
-$componentsProvider = new PiecesRouteGroup($prefix_lang . '/components-provider'); //Zona administrativa
+$terminalGroup = new PiecesRouteGroup($prefix_lang . '/terminal'); //Rutas de terminal
+$componentsProvider = new PiecesRouteGroup($prefix_lang . '/components-provider'); //Componentes HTML
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
-$configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Zona administrativa
+$configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Configuraciones
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
 $tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
 $timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
 $mensajeria = new PiecesRouteGroup($prefix_lang . '/messages'); //Mensajería
 $locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
-$sistema_tablero_noticias = new PiecesRouteGroup($prefix_lang . '/blackboard-news/'); //Servido personalizado de archivos estáticos
+$sistema_tablero_noticias = new PiecesRouteGroup($prefix_lang . '/blackboard-news/'); //Tablero de noticias
 $importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadores
-$sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios
+$sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios-avatares
 $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
-$token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Servido personalizado de archivos estáticos
+$token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Sistema de tokens
 $zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
@@ -177,6 +178,9 @@ NewsletterRoutes::routes($zona_administrativa, $zona_publica);
 
 //Registro fotográfico
 ImagesRepositoryRoutes::routes($zona_administrativa);
+
+//Log de acciones
+LogsRoutes::routes($zona_administrativa);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

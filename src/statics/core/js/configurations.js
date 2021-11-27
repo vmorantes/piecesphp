@@ -262,16 +262,6 @@ pcsphpGlobals.messages.en = {
 		am: 'AM',
 		pm: 'PM',
 	},
-	location: {
-		'Seleccione una opción': 'Select an option',
-		'Atención': 'Attention',
-		'No hay departamentos registrados.': 'There are no registered departments.',
-		'No hay ciudades registradas en el/los departamento(s) seleccionado(s).': 'There are no cities registered in the selected state/states.',
-		'No hay locaciones registradas en la(s) ciudad(es) seleccionada(s).': 'There are no localities registered in the selected city(ies).',
-		'Información': 'Information',
-		'La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.': 'The location "%r" was not found on the map, an approximate position will be used.',
-		'La ubicación "%r" no se encontró en el mapa.': 'The location "%r" was not found on the map.',
-	},
 	messenger: {
 		'Error': 'Error',
 		'Ha ocurrido un error desconocido.': 'An unknown error has occurred.',
