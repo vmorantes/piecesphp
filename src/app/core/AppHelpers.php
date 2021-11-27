@@ -1227,6 +1227,53 @@ function remove_global_required_asset(string $asset, string $type)
 }
 
 /**
+ * Remueve un asset importado
+ *
+ * @param string $assetName
+ * @return void
+ */
+function remove_imported_asset(string $assetName)
+{
+
+    $importedAssets = get_config('imported_assets');
+    $defaultAssets = get_config('default_assets');
+    if (array_key_exists($assetName, $defaultAssets) && array_key_exists($assetName, $importedAssets)) {
+
+        $assetsSources = $defaultAssets[$assetName];
+        $extractScalar = function ($array) use (&$extractScalar) {
+            $scalars = [];
+            foreach ($array as $element) {
+
+                if (is_array($element)) {
+                    $subScalars = ($extractScalar)($element);
+                    foreach ($subScalars as $subElement) {
+                        $scalars[] = $subElement;
+                    }
+                } else {
+                    $scalars[] = $element;
+                }
+
+            }
+            return $scalars;
+        };
+
+        $sourcesToRemove = array_unique(($extractScalar)($assetsSources));
+
+        foreach ($sourcesToRemove as $source) {
+            remove_global_required_asset($source, 'css');
+            remove_global_required_asset($source, 'js');
+            remove_global_required_asset($source, 'font');
+            remove_global_asset($source, 'css');
+            remove_global_asset($source, 'js');
+            remove_global_asset($source, 'font');
+        }
+        unset($importedAssets[$assetName]);
+        set_config('imported_assets', $importedAssets);
+    }
+
+}
+
+/**
  * Define la lista de assets no globales, segun el tipo que corresponda.
  * Es una definición por fuerza bruta, cuide de pasar los valores adecuados.
  *
@@ -1783,6 +1830,37 @@ function import_elfinder(array $plugins = [], bool $all = true)
 function import_google_captcha_v3_adapter(array $plugins = [], bool $all = true)
 {
     import_front_library('google_captcha_v3_adapter', $plugins, $all);
+}
+
+/**
+ * Registra locations como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins Plugins disponibles: autoInit
+ * @param bool $all
+ * @param bool $locationsPointBehavior Usa import_mapbox y statics/features/locations/js/locations-config.js
+ * @return void
+ */
+function import_locations(array $plugins = [], bool $all = false, bool $locationsPointBehavior = false)
+{
+    if ($all || in_array('autoInit', $plugins)) {
+        $locationsPointBehavior = true;
+    }
+    if ($locationsPointBehavior) {
+        import_mapbox([], true);
+    }
+    import_front_library('locations', $plugins, $all);
+}
+
+/**
+ * Registra mapbox como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins Plugins disponibles: mapBoxAdapter
+ * @param bool $all
+ * @return void
+ */
+function import_mapbox(array $plugins = [], bool $all = true)
+{
+    import_front_library('mapbox', $plugins, $all);
 }
 
 /**
@@ -2517,6 +2595,31 @@ function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
     }
 
     return $controller->_render('panel/built-in/utilities/cropper/workspace.php', $data, $echo);
+}
+
+/**
+ * Devuelve el HTML del adaptador de SimpleUploadPlaceholder integrado
+ *
+ * @param array $data
+ * @param bool $echo
+ * @return string|void
+ */
+function simpleUploadPlaceholderWorkSpace(array $data = [], bool $echo = true)
+{
+
+    $lockAssets = get_config('lock_assets');
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', true);
+    }
+
+    $controller = new BaseController();
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', false);
+    }
+
+    return $controller->_render('panel/built-in/utilities/simple-upload-placeholder/workspace.php', $data, $echo);
 }
 
 /**

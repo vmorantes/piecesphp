@@ -42,7 +42,6 @@ define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
 //Ubicaciones
 define('LOCATIONS_ENABLED', false);
 define('LOCATIONS_LANG_GROUP', 'locationBackend');
-define('LOCATIONS_PATH_JS', 'statics/features/locations/js');
 
 //Temporizadores
 define('ACTIVE_TIMER', false);

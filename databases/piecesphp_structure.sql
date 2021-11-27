@@ -1,9 +1,26 @@
--- Adminer 4.7.7 MySQL dump
+-- Adminer 4.8.1 MySQL 5.5.5-10.5.12-MariaDB-1:10.5.12+maria~focal dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
 SET foreign_key_checks = 0;
 SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
+
+DROP TABLE IF EXISTS `actions_log`;
+CREATE TABLE `actions_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `textMessage` text COLLATE utf8_bin NOT NULL,
+  `textMessageVariables` longtext COLLATE utf8_bin NOT NULL,
+  `referenceColumn` text COLLATE utf8_bin DEFAULT NULL,
+  `referenceValue` text COLLATE utf8_bin DEFAULT NULL,
+  `referenceSource` text COLLATE utf8_bin DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  CONSTRAINT `actions_log_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
 
 DROP TABLE IF EXISTS `app_presentations`;
 CREATE TABLE `app_presentations` (
@@ -273,6 +290,7 @@ CREATE TABLE `pcsphp_user_problems` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+
 DROP TABLE IF EXISTS `publications_categories`;
 CREATE TABLE `publications_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -329,4 +347,5 @@ CREATE TABLE `time_on_platform` (
   CONSTRAINT `time_on_platform_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
--- 2021-05-30 01:59:26
+
+-- 2021-11-27 21:39:54

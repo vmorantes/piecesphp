@@ -279,6 +279,46 @@ $assets['google_captcha_v3_adapter']['js'] = [
 $assets['google_captcha_v3_adapter']['plugins'] = [];
 
 /**
+ * MapBox
+ * https://docs.mapbox.com/
+ */
+$assets['mapbox']['css'] = [
+    'statics/plugins/mapbox/v2.6.0/mapbox-gl.css',
+    'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.css',
+];
+$assets['mapbox']['js'] = [
+    'statics/plugins/mapbox/v2.6.0/mapbox-gl.js',
+    'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.min.js',
+];
+$assets['mapbox']['plugins'] = [
+    'mapBoxAdapter' => [
+        'css' => [],
+        'js' => [
+            'statics/core/own-plugins/MapBoxAdapter.js',
+        ],
+    ],
+];
+
+/**
+ * LocationsAdapter
+ * Adaptador para el módulo integrado de ubicación
+ */
+$assets['locations']['css'] = [];
+$assets['locations']['js'] = [
+    'statics/core/own-plugins/LocationsAdapter.js',
+];
+$assets['locations']['plugins'] = [
+    //Un comportamiento general predeterminado, útil para replicar el comportamiento
+    //que tiene el módulo de ubicaciones en Puntos en otras partes de la aplicación
+    'autoInit' => [
+        'css' => [],
+        'js' => [
+            'statics/features/locations/js/locations-config.js',
+        ],
+    ],
+];
+
+/**
  * JQuery
  * https://jquery.com/
  */
