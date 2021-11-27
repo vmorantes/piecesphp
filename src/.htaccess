@@ -21,7 +21,7 @@
     </If>
 
     # Configurar política de contenido
-    Header set Content-Security-Policy "default-src https: data: blob: 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://api.mapbox.com https://twemoji.maxcdn.com; script-src https: 'self' 'unsafe-inline' https://twemoji.maxcdn.com; object-src 'none'"
+    Header set Content-Security-Policy "default-src https: data: blob: 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://api.mapbox.com https://twemoji.maxcdn.com; script-src https: 'self' 'unsafe-inline' https://twemoji.maxcdn.com; object-src 'none'; worker-src blob:"
 
 </IfModule>
 
