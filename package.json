@@ -6,6 +6,8 @@
     "version": "0.0.1",
     "devDependencies": {
         "@types/jquery": "^3.3.31",
+        "@types/mapbox__mapbox-gl-geocoder": "^4.7.1",
+        "@types/mapbox-gl": "^2.4.2",
         "gulp": "^4.0.2",
         "gulp-concat": "^2.6.1",
         "gulp-rename": "^2.0.0",
