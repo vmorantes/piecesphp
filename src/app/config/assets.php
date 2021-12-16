@@ -90,6 +90,10 @@ $assets['cropper']['css'] = [
 $assets['cropper']['js'] = [
     'statics/plugins/cropper/cropper.min.js',
 ];
+/**
+ * @link project://src/statics/core/own-plugins/CropperAdapterComponent.js
+ * @link project://src/statics/core/own-plugins/sass/cropper-adapter.scss
+ */
 $assets['cropper']['plugins'] = [
     'cropperAdapter' => [
         'css' => [
@@ -129,6 +133,9 @@ $assets['quilljs']['js'] = [
 $assets['quilljs']['css'] = [
     'statics/plugins/quilljs/quill.snow.css',
 ];
+/**
+ * @link project://src/statics/core/own-plugins/QuillAdapterComponent.js
+ */
 $assets['quilljs']['plugins'] = [
     'imageResize' => [
         'js' => [
@@ -156,6 +163,10 @@ $assets['ckeditor']['js'] = [
     'statics/plugins/ckeditor/ckeditor.js',
 ];
 $assets['ckeditor']['css'] = [];
+/**
+ * @link project://src/statics/core/own-plugins/RichEditorAdapterComponent.js
+ * @link project://src/statics/core/own-plugins/sass/rich-editor-adapter.scss
+ */
 $assets['ckeditor']['plugins'] = [
     'ckfinder' => [
         'css' => [],
@@ -208,6 +219,7 @@ $assets['spectrum']['plugins'] = [];
 /**
  * Dialog PCS
  * Es una modal con comportamiento de ventana (arrastrable)
+ * @link project://src/statics/core/own-plugins/DialogPCS.js
  */
 $assets['dialgo_pcs']['js'] = [
     'statics/core/own-plugins/DialogPCS.js',
@@ -218,6 +230,8 @@ $assets['dialgo_pcs']['plugins'] = [];
 /**
  * Simple Upload Placeholder
  * Manejador de comportamiento genérico de un formulario de subida de archivos con vista previa
+ * @link project://src/statics/core/own-plugins/SimpleUploadPlaceholder.js
+ * @link project://src/statics/core/own-plugins/sass/simple-upload-placeholder.scss
  */
 $assets['simple_upload_placeholder']['js'] = [
     'statics/core/own-plugins/SimpleUploadPlaceholder.js',
@@ -270,6 +284,7 @@ $assets['jqueryui']['plugins'] = [];
 /**
  * GoogleCaptchaV3Adapter
  * https://developers.google.com/recaptcha/docs/v3
+ * @link project://src/statics/core/own-plugins/GoogleCaptchaV3Adapter.js
  */
 $assets['google_captcha_v3_adapter']['css'] = [
 ];
@@ -290,6 +305,9 @@ $assets['mapbox']['js'] = [
     'statics/plugins/mapbox/v2.6.0/mapbox-gl.js',
     'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.min.js',
 ];
+/**
+ * @link project://src/statics/core/own-plugins/MapBoxAdapter.js
+ */
 $assets['mapbox']['plugins'] = [
     'mapBoxAdapter' => [
         'css' => [],
@@ -300,8 +318,20 @@ $assets['mapbox']['plugins'] = [
 ];
 
 /**
+ * IndexedDBAdapter
+ * @link project://src/statics/core/own-plugins/IndexedDBAdapter.js
+ */
+$assets['indexeDB_adapter']['css'] = [
+];
+$assets['indexeDB_adapter']['js'] = [
+    'statics/core/own-plugins/IndexedDBAdapter.js',
+];
+$assets['indexeDB_adapter']['plugins'] = [];
+
+/**
  * LocationsAdapter
  * Adaptador para el módulo integrado de ubicación
+ * @link project://src/statics/core/own-plugins/LocationsAdapter.js
  */
 $assets['locations']['css'] = [];
 $assets['locations']['js'] = [

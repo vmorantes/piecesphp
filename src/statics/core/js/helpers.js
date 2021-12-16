@@ -1,25 +1,42 @@
 /**
- * @method successMessage
- * @description Mensaje modal con tipo success (iziToast|alert)
+ * @description Mensaje modal con tipo success (toast fomantic|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
  */
-function successMessage(title, message, onClose = null) {
-	title = title !== undefined ? title : ''
-	message = message !== undefined ? message : ''
+function successMessage(title, message, onClose = null, options) {
 
-	if (typeof iziToast !== 'undefined') {
-		iziToast.success({
-			title: title,
-			message: message,
-			position: 'topCenter',
-			onClosed: () => {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-		})
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'success'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
@@ -30,93 +47,147 @@ function successMessage(title, message, onClose = null) {
 }
 
 /**
- * @method warningMessage
- * @description Mensaje modal con tipo warning (iziToast|alert)
+ * @description Mensaje modal con tipo warning (toast fomantic|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
  */
-function warningMessage(title, message, onClose = null) {
-	title = title !== undefined ? title : ''
-	message = message !== undefined ? message : ''
+function warningMessage(title, message, onClose = null, options) {
 
-	if (typeof iziToast !== 'undefined') {
-		iziToast.warning({
-			title: title,
-			message: message,
-			position: 'topCenter',
-			onClosed: () => {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-		})
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'warning'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
 			onClose()
 		}
 	}
+
 }
 
 /**
- * @method infoMessage
- * @description Mensaje modal con tipo info (iziToast|alert)
+ * @description Mensaje modal con tipo info (toast fomantic|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
  */
-function infoMessage(title, message, onClose = null) {
-	title = title !== undefined ? title : ''
-	message = message !== undefined ? message : ''
+function infoMessage(title, message, onClose = null, options) {
 
-	if (typeof iziToast !== 'undefined') {
-		iziToast.info({
-			title: title,
-			message: message,
-			position: 'topCenter',
-			onClosed: () => {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-		})
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'info'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
 			onClose()
 		}
 	}
+
 }
 
 /**
- * @method errorMessage
- * @description Mensaje modal con tipo error (iziToast|alert)
+ * @description Mensaje modal con tipo error (toast fomantic|alert)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
+ * @param {Object} options Opciones
+ * @see https://fomantic-ui.com/modules/toast.html#/settings
  */
-function errorMessage(title, message, onClose = null) {
-	title = title !== undefined ? title : ''
-	message = message !== undefined ? message : ''
+function errorMessage(title, message, onClose = null, options) {
 
-	if (typeof iziToast !== 'undefined') {
-		iziToast.error({
-			title: title,
-			message: message,
-			position: 'topCenter',
-			onClosed: () => {
-				if (typeof onClose == 'function') {
-					onClose()
-				}
-			},
-		})
+	title = typeof title == 'string' ? title : ''
+	message = typeof message == 'string' ? message : ''
+	options = typeof options === 'object' ? options : {}
+
+	const typeMessage = 'error'
+	const defaultOptions = {
+		class: typeMessage,
+		title: title,
+		message: message,
+		onHidden: () => {
+			if (typeof onClose == 'function') {
+				onClose()
+			}
+		},
+	}
+
+	if (typeof $ !== 'undefined' && typeof $('body').toast !== 'undefined') {
+
+		for (const property in defaultOptions) {
+			const defaultValue = defaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'top center'
+		}
+
+		$('body').toast(options)
+
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
 			onClose()
 		}
 	}
+
 }
 
 /**
@@ -393,9 +464,7 @@ function getRequest(url, data, headers = {}, options = {}) {
 function formatNumberString(input, thousandsSeparator = '.', decimalsSeparator = ',', inverse = false) {
 
 	if (typeof input == 'number') {
-		console.log(input)
 		input = input.toString().replace('.', ',')
-		console.log(input)
 	}
 
 	if (!inverse) {
@@ -2127,4 +2196,51 @@ function visibleInViewPort(element) {
 	const viewportTop = $(window).scrollTop()
 	const viewportBottom = viewportTop + $(window).height()
 	return elementBottom > viewportTop && elementTop < viewportBottom
+}
+
+/**
+ * @param {Date} date
+ * @return {String}
+ */
+function formatDateAlternative(date = new Date(), format = '%d/%m/%Y %H:%i:%s') {
+
+	let year = date.getFullYear()
+	let month = (date.getMonth() + 1).toString()
+	let day = date.getDate().toString()
+	let hour = date.getHours().toString()
+	let minutes = date.getMinutes().toString()
+	let seconds = date.getSeconds().toString()
+
+	month = month.length == 1 ? `0${month}` : month
+	day = day.length == 1 ? `0${day}` : day
+	hour = hour.length == 1 ? `0${hour}` : hour
+	minutes = minutes.length == 1 ? `0${minutes}` : minutes
+	seconds = seconds.length == 1 ? `0${seconds}` : seconds
+
+	let monthFullName = date.toLocaleString('es-CO', {
+		timeZone: 'America/Bogota',
+		month: 'long',
+	})
+
+	monthFullName = monthFullName.split('')
+	monthFullName[0] = monthFullName[0].toUpperCase()
+	monthFullName = monthFullName.join('')
+
+	let formats = {
+		'Y': year,
+		'm': month,
+		'd': day,
+		'H': hour,
+		'i': minutes,
+		's': seconds,
+		'F': monthFullName,
+	}
+
+	for (let i in formats) {
+		let value = formats[i]
+		format = format.replace(new RegExp(`\%${i}`, 'gim'), value)
+	}
+
+	return date != 'Invalid Date' ? format : null
+
 }

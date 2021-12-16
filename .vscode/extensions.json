@@ -21,6 +21,7 @@
         "mrmlnc.vscode-scss",
         "ms-ceintl.vscode-language-pack-es",
         "fabiospampinato.vscode-todo-plus",
-        "xshrim.txt-syntax"
+        "xshrim.txt-syntax",
+        "kyledavide.vscode-project-links"
     ]
 }

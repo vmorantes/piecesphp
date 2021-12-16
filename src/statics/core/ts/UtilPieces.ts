@@ -411,14 +411,11 @@ class UtilPieces {
 			var bytesDec = []
 			var bytesHex = []
 
-			if (verbose) console.log('============')
 			for (var i = 0; i < lengthString; i++) {
 				var charCode = string.charCodeAt(i)
 				bytesDec[i] = charCode
 				bytesHex[i] = charCode.toString(16)
-				if (verbose) console.log(string[i] + '===' + charCode + '===' + bytesHex[i])
 			}
-			if (verbose) console.log('============')
 			return { dec: bytesDec, hex: bytesHex }
 		}
 
@@ -444,14 +441,11 @@ class UtilPieces {
 			var bytesDec = []
 			var bytesHex = []
 
-			if (verbose) console.log('============')
 			for (var i = 0; i < lengthString; i++) {
 				var charCode = string.charCodeAt(i)
 				bytesDec[i] = charCode
 				bytesHex[i] = charCode.toString(16)
-				if (verbose) console.log(string[i] + '===' + charCode + '===' + bytesHex[i])
 			}
-			if (verbose) console.log('============')
 			return { dec: bytesDec, hex: bytesHex }
 		}
 
@@ -471,14 +465,11 @@ class UtilPieces {
 			var bytesDec = []
 			var bytesHex = []
 
-			if (verbose) console.log('============')
 			for (var i = 0; i < lengthString; i++) {
 				var charCode = string.charCodeAt(i)
 				bytesDec[i] = charCode
 				bytesHex[i] = charCode.toString(16)
-				if (verbose) console.log(string[i] + '===' + charCode + '===' + bytesHex[i])
 			}
-			if (verbose) console.log('============')
 			return { dec: bytesDec, hex: bytesHex }
 		}
 
@@ -596,7 +587,6 @@ class UtilPieces {
 
 						verboseStrings[2] = 'Valid: ' + (header == signature && data.mime == mime.string)
 
-						console.log(verboseStrings)
 					}
 					if (header == signature && data.mime == mime.string) {
 						if (allowed.indexOf(i) > -1) {
