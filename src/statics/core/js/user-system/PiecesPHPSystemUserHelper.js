@@ -225,7 +225,7 @@ class PiecesPHPSystemUserHelper {
 		let cookies = this.getCookies()
 		let value = null
 
-		if (typeof name == 'string' && typeof cookies[name] != 'undefined') {
+		if (cookies !== null && typeof name == 'string' && typeof cookies[name] != 'undefined') {
 			value = cookies[name]
 		}
 

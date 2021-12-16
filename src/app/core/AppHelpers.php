@@ -1864,6 +1864,18 @@ function import_mapbox(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra indexeDB_adapter como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_indexeDB_adapter(array $plugins = [], bool $all = true)
+{
+    import_front_library('indexeDB_adapter', $plugins, $all);
+}
+
+/**
  * Registra una ruta o un conjunto de rutas
  *
  * @param array $routes Rutas
