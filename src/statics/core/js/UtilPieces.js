@@ -391,17 +391,11 @@ var UtilPieces = /** @class */ (function () {
                 var lengthString = string.length;
                 var bytesDec = [];
                 var bytesHex = [];
-                if (verbose)
-                    console.log('============');
                 for (var i = 0; i < lengthString; i++) {
                     var charCode = string.charCodeAt(i);
                     bytesDec[i] = charCode;
                     bytesHex[i] = charCode.toString(16);
-                    if (verbose)
-                        console.log(string[i] + '===' + charCode + '===' + bytesHex[i]);
                 }
-                if (verbose)
-                    console.log('============');
                 return { dec: bytesDec, hex: bytesHex };
             };
             /**
@@ -425,17 +419,11 @@ var UtilPieces = /** @class */ (function () {
                 var lengthString = string.length;
                 var bytesDec = [];
                 var bytesHex = [];
-                if (verbose)
-                    console.log('============');
                 for (var i = 0; i < lengthString; i++) {
                     var charCode = string.charCodeAt(i);
                     bytesDec[i] = charCode;
                     bytesHex[i] = charCode.toString(16);
-                    if (verbose)
-                        console.log(string[i] + '===' + charCode + '===' + bytesHex[i]);
                 }
-                if (verbose)
-                    console.log('============');
                 return { dec: bytesDec, hex: bytesHex };
             };
             /**
@@ -453,17 +441,11 @@ var UtilPieces = /** @class */ (function () {
                 var lengthString = string.length;
                 var bytesDec = [];
                 var bytesHex = [];
-                if (verbose)
-                    console.log('============');
                 for (var i = 0; i < lengthString; i++) {
                     var charCode = string.charCodeAt(i);
                     bytesDec[i] = charCode;
                     bytesHex[i] = charCode.toString(16);
-                    if (verbose)
-                        console.log(string[i] + '===' + charCode + '===' + bytesHex[i]);
                 }
-                if (verbose)
-                    console.log('============');
                 return { dec: bytesDec, hex: bytesHex };
             };
             /**
@@ -574,7 +556,6 @@ var UtilPieces = /** @class */ (function () {
                             verboseStrings[1] = "Comparing mime type '${data.mime}' == ${mime.string} result: " + (data.mime == mime.string);
                             verboseStrings[1] = verboseStrings[1].replace('${data.mime}', data.mime).replace('${mime.string}', mime.string);
                             verboseStrings[2] = 'Valid: ' + (header == signature && data.mime == mime.string);
-                            console.log(verboseStrings);
                         }
                         if (header == signature && data.mime == mime.string) {
                             if (allowed.indexOf(i) > -1) {
