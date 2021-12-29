@@ -44,7 +44,7 @@ mysql
 -- Crear general (el usuario y la contraseña son de ejemplo):
 CREATE USER 'admin_general'@'localhost' IDENTIFIED BY 'pPz_afcad6464e_lr_m646464am';
 -- Otorgar permisos globales al usuario
-GRANT ALL PRIVILEGES ON *.* TO 'admin_general'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'admin_general'@'localhost' WITH GRANT OPTION;
 -- Refrescar privilegios:
 FLUSH PRIVILEGES;
 -- Salir de la consola de mariadb
@@ -53,4 +53,26 @@ exit;
 ```bash
 #Salir del modo de super usuario
 exit
+```
+### Caso en que el usuario root carece de permisos
+
+```bash
+#Detener servidor mariadb
+sudo systemctl stop mysql
+
+#Desactivar verificación de permisos
+sudo mysqld_safe --skip-grant-tables &
+
+#Conectar
+mysql -uroot
+
+#Otorgar permisos
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+#Salir
+exit;
+
+#Activar servidor mariadb
+sudo systemctl start mysql
 ```
