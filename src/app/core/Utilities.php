@@ -1144,6 +1144,7 @@ function generateCachingHeadersAndStatus(\Slim\Http\Request $request, \DateTime 
 
 /**
  * Toma un fichero, lo recorta y redimensiona.
+ * Si alguna dimensión ingresada es mayor a la original se usará la original.
  * Dependiendo de $outputPath lo guarda o simplemente lo muestra.
  * El resultado es una imagen JPG
  *
@@ -1152,9 +1153,10 @@ function generateCachingHeadersAndStatus(\Slim\Http\Request $request, \DateTime 
  * @param int $thumbHeight
  * @param float $quality
  * @param string $outputPath
+ * @param bool $withAspectRatio Si es true, la redimensión respetará la relación de aspecto original y tomará de referencia solo el ancho ingresado
  * @return void
  */
-function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, string $outputPath = null)
+function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, string $outputPath = null, bool $withAspectRatio = false)
 {
 
     if (file_exists($imagePath)) {
@@ -1163,16 +1165,29 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
         $width = imagesx($imageResource);
         $height = imagesy($imageResource);
 
+        if ($thumbHeight > $height) {
+            $thumbHeight = $height;
+        }
+        if ($thumbWidth > $width) {
+            $thumbWidth = $width;
+        }
+
         $aspectRatioOriginal = $width / $height;
         $aspectRatioThumb = $thumbWidth / $thumbHeight;
 
-        //Se toma la mayor relación de aspecto
-        if ($aspectRatioOriginal >= $aspectRatioThumb) {
-            $newHeight = $thumbHeight;
-            $newWidth = $width / ($height / $thumbHeight);
+        if (!$withAspectRatio) {
+            //Se toma la mayor relación de aspecto
+            if ($aspectRatioOriginal >= $aspectRatioThumb) {
+                $newHeight = $thumbHeight;
+                $newWidth = $width / ($height / $thumbHeight);
+            } else {
+                $newWidth = $thumbWidth;
+                $newHeight = $height / ($width / $thumbWidth);
+            }
         } else {
             $newWidth = $thumbWidth;
-            $newHeight = $height / ($width / $thumbWidth);
+            $newHeight = ($height / $width) * $newWidth;
+            $thumbHeight = $newHeight;
         }
 
         $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
