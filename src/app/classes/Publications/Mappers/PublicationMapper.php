@@ -926,22 +926,28 @@ class PublicationMapper extends EntityMapperExtensible
      * Verifica si existe algún registro igual
      *
      * @param string $title
-     * @param integer $categoryID
-     * @param integer $ignoreID
+     * @param int $categoryID
+     * @param int $ignoreID
+     * @param bool $onlyActives
      * @return bool
      */
-    public static function existsByTitle(string $title, int $categoryID, int $ignoreID = -1)
+    public static function existsByTitle(string $title, int $categoryID, int $ignoreID = -1, bool $onlyActives = true)
     {
 
         $model = self::model();
 
         $title = escapeString($title);
+        $statusActive = self::ACTIVE;
 
         $where = [
             "title = '{$title}' AND",
             "category = {$categoryID} AND",
             "id != {$ignoreID}",
         ];
+
+        if ($onlyActives) {
+            $where[] = "AND status = {$statusActive}";
+        }
 
         $model->select()->where(implode(' ', $where));
 
