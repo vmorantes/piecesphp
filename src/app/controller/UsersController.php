@@ -624,7 +624,7 @@ class UsersController extends AdminPanelController
      * Este método espera recibir por POST: [username,password]
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
+     * @param Response $response Respuesta
      * @param array $args Argumentos pasados por GET
      * @return void
      */
@@ -868,7 +868,7 @@ class UsersController extends AdminPanelController
      * Registra un usuario nuevo
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
+     * @param Response $response Respuesta
      * @param array $args Argumentos pasados por GET
      * @return Response
      */
@@ -1097,7 +1097,7 @@ class UsersController extends AdminPanelController
      * Edita un usuario
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
+     * @param Response $response Respuesta
      * @param array $args Argumentos pasados por GET
      * @return Response
      */

@@ -43,6 +43,10 @@ $container_configurations = [
 
             $response = $response->withStatus(404);
 
+            //if ($request->getMethod() == 'OPTIONS') {
+            //    return $response->withStatus(200);
+            //}
+
             if (!$request->isXhr()) {
                 $controller = new PiecesPHP\Core\BaseController(false);
                 $controller->render('pages/404');
