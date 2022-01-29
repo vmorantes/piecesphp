@@ -121,6 +121,27 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
+     * Prueba del adaptador de CropperJS
+     *
+     * @param Request $req
+     * @param Response $res
+     * @param array $args
+     * @return void
+     */
+    public function cropperAdapterTestingView(Request $req, Response $res, array $args)
+    {
+        import_cropper();
+
+        $data = [];
+
+        $this->render('panel/layout/header');
+        $this->render('panel/pages/test-cropper', $data);
+        $this->render('panel/layout/footer');
+
+        return $res;
+    }
+
+    /**
      * sendTicket
      *
      * Enviar mensaje al soporte
@@ -221,6 +242,17 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'admin',
                 'GET',
                 true
+            ),
+            new Route(
+                "{$startRoute}cropper-testing[/]",
+                self::class . ':cropperAdapterTestingView',
+                'cropper-testing',
+                'GET',
+                true,
+                null,
+                [
+                    UsersModel::TYPE_USER_ROOT,
+                ]
             ),
         ]);
 
