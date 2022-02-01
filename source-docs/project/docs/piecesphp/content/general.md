@@ -5,14 +5,12 @@
 - Requerimientos
     - PiecesPHP
     - Composer
-    - NodeJS 12.x LTS
+    - NodeJS 12.x LTS con NVM
     - NPM
     - Gulp CLI
 
 ### Actualizar repositorios
 ```bash
-#Integrar respositorio
-curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 #Actualizar
 sudo apt update
 ```
@@ -38,8 +36,12 @@ mv composer.phar /usr/local/bin/composer ##Para que esté disponible globalmente
 
 #### NodeJS y NPM
 ```bash
-#Instalar
-sudo apt install nodejs
+#Instalar NVM
+cd ~
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+source ~/.bashrc
+#Instalar Node
+nvm install v12.18.4
 #Verificar versiones
 node --version ##v12.18.4
 npm --version ##6.14.6
