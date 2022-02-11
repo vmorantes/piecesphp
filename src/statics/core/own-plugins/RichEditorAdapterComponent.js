@@ -205,8 +205,10 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 				image: {
 					toolbar: [
 						'imageTextAlternative',
-						'imageStyle:full',
+						'imageStyle:alignLeft',
 						'imageStyle:alignCenter',
+						'imageStyle:alignRight',
+						'imageStyle:full',
 						'linkImage',
 						'resizeImage:original',
 					],
@@ -220,7 +222,9 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 					],
 					styles: [
 						'full',
+						'alignLeft',
 						'alignCenter',
+						'alignRight',
 					],
 				},
 				table: {
@@ -231,6 +235,9 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 						'tableCellProperties',
 						'tableProperties'
 					]
+				},
+				mediaEmbed: {
+					previewsInData: true,
 				},
 				licenseKey: '',
 			})
