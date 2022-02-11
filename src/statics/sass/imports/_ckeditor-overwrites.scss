@@ -1,0 +1,149 @@
+//También se debe modificar src/statics/core/own-plugins/sass/rich-editor-adapter.scss para que en el editor se observe la previsualización
+figure {
+
+    &.image {
+
+        display: block;
+        max-width: 100%;
+        margin: 1rem 0rem;
+
+        img {
+            display: block;
+            margin: 0 auto;
+            min-width: 50px;
+        }
+
+        &.image_resized {
+            max-width: 100%;
+            display: block;
+            box-sizing: border-box;
+
+            img {
+                width: 100%;
+            }
+
+            >figcaption {
+                display: block;
+            }
+        }
+
+        &.image-style-align-left {
+            float: left;
+
+            &+* {
+
+                &::before,
+                &::after {
+                    display: block;
+                    content: ' ';
+                    clear: both;
+                }
+            }
+        }
+
+        &.image-style-align-center {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        &.image-style-align-right {
+            float: right;
+
+            &+* {
+
+                &::before,
+                &::after {
+                    display: block;
+                    content: ' ';
+                    clear: both;
+                }
+            }
+        }
+
+    }
+
+}
+
+img {
+    max-width: 100%;
+}
+
+a {
+
+    &::before,
+    &::after {
+        content: ' ';
+    }
+}
+
+blockquote {
+    overflow: hidden;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic;
+    border-left: 5px solid #ccc
+}
+
+code {
+    background-color: hsla(0, 0%, 78%, .3);
+    padding: 0.15rem;
+    border-radius: 2px
+}
+
+pre {
+    padding: 1em;
+    color: #353535;
+    background: hsla(0, 0%, 78%, .3);
+    border: 1px solid #c4c4c4;
+    border-radius: 2px;
+    text-align: left;
+    direction: ltr;
+    tab-size: 4;
+    white-space: pre-wrap;
+    font-style: normal;
+    min-width: 200px;
+
+    code {
+        background: unset;
+        padding: 0;
+        border-radius: 0
+    }
+}
+
+.text-tiny {
+    font-size: 0.7em;
+}
+
+.text-small {
+    font-size: 0.85em;
+}
+
+.text-big {
+    font-size: 1.4em;
+}
+
+.text-huge {
+    font-size: 1.8em;
+}
+
+hr {
+    margin: 15px 0;
+    height: 4px;
+    background: #dedede;
+    border: 0;
+}
+
+.raw-html-embed {
+    margin: 1em auto;
+    min-width: 15em;
+    font-style: normal
+}
+
+.media {
+    clear: both;
+    margin: 1em 0;
+    display: block;
+    min-width: 15em
+}
