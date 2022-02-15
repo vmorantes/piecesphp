@@ -193,7 +193,7 @@ class UserProblemsController extends UsersController
      * Este método espera recibir por POST: [username,type]
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
+     * @param Response $response Respuesta
      * @param array $args Argumentos pasados por GET
      * @return void
      */
@@ -408,7 +408,7 @@ class UserProblemsController extends UsersController
      * Este método espera recibir por POST: [name,email,message]
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
+     * @param Response $response Respuesta
      * @param array $args Argumentos pasados por GET
      * @return void
      */
