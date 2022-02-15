@@ -164,14 +164,12 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * dataTablesRequestUsers
-     *
-     * @param Request $req
-     * @param Response $res
+     * @param Request $request
+     * @param Response $response
      * @param array $args
      * @return Response
      */
-    public function dataTablesRequestUsers(Request $req, Response $res, array $args)
+    public function dataTablesRequestUsers(Request $request, Response $response, array $args)
     {
 
         $currentUser = new UsersModel($this->user->id);
@@ -185,51 +183,55 @@ class UsersController extends AdminPanelController
             $where[] = " AND type != " . implode(' AND type != ', $disallowedTypes);
         }
 
-        $where = trim(implode(' ', $where));
+        $whereString = trim(implode(' ', $where));
 
-        $on_set_data = function ($element) {
+        $selectFields = UsersModel::fieldsToSelect();
 
-            $edit_button = new HtmlElement('a', '<i class="icon edit"></i>' . __(self::LANG_GROUP, 'Editar'));
-            $edit_button->setAttribute('class', 'ui green button');
-            $edit_button->setAttribute('href', get_route('users-form-edit', ['id' => $element->id]));
-
-            $statusText = $element->status == UsersModel::STATUS_USER_ACTIVE ? __(self::LANG_GROUP, 'Sí') : __(self::LANG_GROUP, 'No');
-
-            if ($element->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
-                $statusText = __(self::LANG_GROUP, 'Bloqueado por intentos fallidos');
-            }
-
-            return [
-                $element->id,
-                stripslashes($element->firstname . ' ' . $element->secondname),
-                stripslashes($element->first_lastname . ' ' . $element->second_lastname),
-                $element->email,
-                stripslashes($element->username),
-                $statusText,
-                UsersModel::getTypesUser()[$element->type],
-                '' . $edit_button,
-            ];
-        };
-
-        $columns = [
-            'id',
-            ['firstname', 'secondname'],
-            ['first_lastname', 'second_lastname'],
+        $columnsOrder = [
+            'idPadding',
+            'names',
+            'lastNames',
             'email',
             'username',
-            'status',
-            'type',
+            'statusText',
+            'typeName',
+        ];
+        $customOrder = [
+            'idPadding' => 'DESC',
         ];
 
-        $options = [
-            'request' => $req,
+        DataTablesHelper::setTablePrefixOnOrder(false);
+        DataTablesHelper::setTablePrefixOnSearch(false);
+
+        $result = DataTablesHelper::process([
+            'where_string' => $whereString,
+            'select_fields' => $selectFields,
+            'columns_order' => $columnsOrder,
+            'custom_order' => $customOrder,
             'mapper' => new UsersModel(),
-            'columns_order' => $columns,
-            'on_set_data' => $on_set_data,
-            'where_string' => $where,
-        ];
+            'request' => $request,
+            'on_set_data' => function ($element) {
 
-        return $res->withJson(DataTablesHelper::process($options)->getValues());
+                $edit_button = new HtmlElement('a', '<i class="icon edit"></i>' . __(self::LANG_GROUP, 'Editar'));
+                $edit_button->setAttribute('class', 'ui green button');
+                $edit_button->setAttribute('href', get_route('users-form-edit', ['id' => $element->id]));
+
+                $columns = [];
+
+                $columns[] = $element->idPadding;
+                $columns[] = stripslashes($element->names);
+                $columns[] = stripslashes($element->lastNames);
+                $columns[] = $element->email;
+                $columns[] = stripslashes($element->username);
+                $columns[] = $element->statusText;
+                $columns[] = $element->typeName;
+                $columns[] = '' . $edit_button;
+
+                return $columns;
+            },
+        ]);
+
+        return $response->withJson($result->getValues());
     }
 
     /**
