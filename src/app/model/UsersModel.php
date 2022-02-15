@@ -673,6 +673,13 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
+     * Campos extra:
+     *  - idPadding
+     *  - fullname
+     *  - names
+     *  - lastNames
+     *  - typeName
+     *  - statusText
      * @return string[]
      */
     public static function fieldsToSelect()
@@ -681,6 +688,13 @@ class UsersModel extends BaseEntityMapper
         $table = self::TABLE;
         $secondNameSegment = "IF({$table}.secondname IS NOT NULL, CONCAT(' ', {$table}.secondname), '')";
         $secondLastNameSegment = "IF({$table}.second_lastname IS NOT NULL, CONCAT(' ', {$table}.second_lastname), '')";
+        $typesJSON = json_encode((object) self::TYPES_USERS, \JSON_UNESCAPED_UNICODE);
+        $statusDisplay = [
+            UsersModel::STATUS_USER_ACTIVE => __(self::LANG_GROUP, 'Sí'),
+            UsersModel::STATUS_USER_INACTIVE => __(self::LANG_GROUP, 'No'),
+            UsersModel::STATUS_USER_ATTEMPTS_BLOCK => __(self::LANG_GROUP, 'Bloqueado por intentos fallidos'),
+        ];
+        $statusDisplayJSON = json_encode((object) $statusDisplay, \JSON_UNESCAPED_UNICODE);
 
         $fields = array_map(function ($f) use ($table) {
             return "{$table}.{$f}";
@@ -688,6 +702,10 @@ class UsersModel extends BaseEntityMapper
         $fieldsToAdd = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "TRIM(CONCAT(TRIM({$table}.firstname), {$secondNameSegment}, ' ', {$table}.first_lastname, {$secondLastNameSegment})) AS fullname",
+            "TRIM(CONCAT(TRIM({$table}.firstname), {$secondNameSegment})) AS names",
+            "TRIM(CONCAT({$table}.first_lastname, {$secondLastNameSegment})) AS lastNames",
+            "JSON_UNQUOTE(JSON_EXTRACT('{$typesJSON}', CONCAT('$.', {$table}.type))) AS typeName",
+            "JSON_UNQUOTE(JSON_EXTRACT('{$statusDisplayJSON}', CONCAT('$.', {$table}.status))) AS statusText",
         ];
 
         foreach ($fieldsToAdd as $fieldToAdd) {
