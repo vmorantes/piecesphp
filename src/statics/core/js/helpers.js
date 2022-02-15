@@ -6,7 +6,7 @@
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
  */
-function successMessage(title, message, onClose = null, options) {
+ function successMessage(title, message, onClose = null, options) {
 
 	title = typeof title == 'string' ? title : ''
 	message = typeof message == 'string' ? message : ''
@@ -970,6 +970,8 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	 * @property {Function} [onError]
 	 * @property {Function} [onInvalidEvent]
 	 * @property {Boolean} [toast]
+	 * @property {Boolean} [ignoreRedirection]
+	 * @property {Boolean} [ignoreReload]
 	 */
 	/**
 	 * @typedef genericFormHandler.Options.ConfirmationOption
@@ -1138,6 +1140,8 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	onInvalidEvent = defaultInvalidHandler ? onInvalidEvent : function (event) {
 	}
 	let toast = true
+	let ignoreRedirection = false
+	let ignoreReload = false
 
 	if (typeof options == 'object') {
 		if (typeof options.confirmation == 'object') {
@@ -1190,7 +1194,14 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		if (typeof options.toast == 'boolean') {
 			toast = options.toast
 		}
+		if (typeof options.ignoreRedirection == 'boolean') {
+			ignoreRedirection = options.ignoreRedirection
+		}
+		if (typeof options.ignoreReload == 'boolean') {
+			ignoreReload = options.ignoreReload
+		}
 	}
+
 
 	if (form.length > 0) {
 
@@ -1257,7 +1268,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	function submit(form) {
 
 		let formData = new FormData(form[0])
-		form.find('button[submit]').attr('disabled', true)
+		form.find('button[type="submit"]').attr('disabled', true)
 
 		let action = form.attr('action')
 		let method = form.attr('method')
@@ -1415,29 +1426,45 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 				let hasRedirection = typeof resposeValues.redirect != 'undefined' && resposeValues.redirect == true
 				let validRedirection = typeof resposeValues.redirect_to == 'string' && resposeValues.redirect_to.trim().length > 0
 
-				if (hasRedirection && validRedirection) {
-
-					setTimeout(function (e) {
-
-						window.location = resposeValues.redirect_to
-
-					}, 1500)
-
-				} else if (hasReload) {
-
-					setTimeout(function (e) {
-
-						window.location.reload()
-
-					}, 1500)
-
-				} else {
-
-					form.find('button').attr('disabled', false)
-
+				if (ignoreRedirection) {
+					hasRedirection = false
 				}
 
-				onSuccess(formProcess, formData, response)
+				if (ignoreReload) {
+					hasReload = false
+				}
+
+				let promiseOnSuccess = onSuccess(formProcess, formData, response)
+
+				if (!(promiseOnSuccess instanceof Promise)) {
+					promiseOnSuccess = Promise.resolve()
+				}
+
+				promiseOnSuccess.finally(function () {
+
+					if (hasRedirection && validRedirection) {
+
+						setTimeout(function (e) {
+
+							window.location = resposeValues.redirect_to
+
+						}, 1500)
+
+					} else if (hasReload) {
+
+						setTimeout(function (e) {
+
+							window.location.reload()
+
+						}, 1500)
+
+					} else {
+
+						form.find('button').attr('disabled', false)
+
+					}
+
+				})
 
 			} else {
 
