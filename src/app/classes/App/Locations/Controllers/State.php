@@ -186,7 +186,7 @@ class State extends AdminPanelController
         $ids = $request->getQueryParam('ids', []);
         $ids = is_array($ids) && count($ids) > 0 ? implode(',', $ids) : null;
 
-        if ($country != null) {
+        if ($country !== null) {
             if (ctype_digit($country)) {
                 $country = (int) $country;
             } else {
@@ -194,46 +194,39 @@ class State extends AdminPanelController
             }
         }
 
-        $valid = $country !== -1;
+        $query = $this->model->select();
 
-        if ($valid) {
+        $where = [];
+        $whereString = null;
 
-            $query = $this->model->select();
-
-            $where = [];
-            $whereString = null;
-
-            if (!is_null($country)) {
-                $operator = count($where) > 0 ? ' AND ' : '';
-                $critery = "{$operator} (country = {$country})";
-                $where[] = $critery;
-            }
-
-            if (!is_null($ids)) {
-                $operator = count($where) > 0 ? ' AND ' : '';
-                $critery = "{$operator} (id IN ({$ids}))";
-                $where[] = $critery;
-            }
-
-            if (count($where) > 0) {
-                $whereString = implode(' ', $where);
-                $query->where($whereString);
-            }
-
-            $query->execute();
-
-            $result = $query->result();
-
-            foreach ($result as $key => $value) {
-                $value->name = htmlentities(stripslashes($value->name));
-                $result[$key] = $value;
-            }
-
-            return $response->withJson($result);
-
-        } else {
-            throw new NotFoundException($request, $response);
+        if (!is_null($country)) {
+            $operator = count($where) > 0 ? ' AND ' : '';
+            $critery = "{$operator} (country = {$country})";
+            $where[] = $critery;
         }
+
+        if (!is_null($ids)) {
+            $operator = count($where) > 0 ? ' AND ' : '';
+            $critery = "{$operator} (id IN ({$ids}))";
+            $where[] = $critery;
+        }
+
+        if (count($where) > 0) {
+            $whereString = implode(' ', $where);
+            $query->where($whereString);
+        }
+
+        $query->execute();
+
+        $result = $query->result();
+
+        foreach ($result as $key => $value) {
+            $value->name = htmlentities(stripslashes($value->name));
+            $result[$key] = $value;
+        }
+
+        return $response->withJson($result);
+
     }
 
     /**
@@ -248,7 +241,7 @@ class State extends AdminPanelController
     {
         $country = $request->getQueryParam('country', null);
 
-        if ($country != null) {
+        if ($country !== null) {
             if (ctype_digit($country)) {
                 $country = (int) $country;
             } else {
@@ -256,9 +249,7 @@ class State extends AdminPanelController
             }
         }
 
-        $valid = $country !== -1;
-
-        if ($request->isXhr() && $valid) {
+        if ($request->isXhr()) {
 
             $columns_order = [
                 'id',

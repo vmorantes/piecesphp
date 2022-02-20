@@ -30,6 +30,16 @@ function LocationsAdapter() {
 	let lastCitiesSelected = []
 	let lastPointsSelected = []
 
+	let currentCountryDropdown = null
+	let currentStateDropdown = null
+	let currentCityDropdown = null
+	let currentPointDropdown = null
+
+	let onChangeCountryDropdown = () => { }
+	let onChangeStateDropdown = () => { }
+	let onChangeCityDropdown = () => { }
+	let onChangePointDropdown = () => { }
+
 	/**
 	 * @method fillSelectWithCountries
 	 * @description Rellena un select con los países
@@ -113,12 +123,16 @@ function LocationsAdapter() {
 
 			if (typeof countriesSelect.attr('with-dropdown') == 'string') {
 
-				countriesSelect.dropdown()
+				const dropdown = configFomanticDropdown(`[${selectAutoFilledCountryAttr}]`, {
+					onChange: onChangeCountryDropdown,
+				})[0]
+				currentCountryDropdown = dropdown
+
 				if (!hasDefault) {
 					instance.fillSelectWithStates(null)
-					countriesSelect.dropdown('clear')
+					dropdown.dropdown('clear')
 				} else {
-					countriesSelect.dropdown('refresh')
+					dropdown.dropdown('refresh')
 				}
 
 			}
@@ -144,6 +158,7 @@ function LocationsAdapter() {
 
 		if (statesSelect.length > 0) {
 
+			country = typeof country == 'undefined' ? null : country
 			states = country !== null ? this.getStates(country) : []
 
 			has = states.length > 0
@@ -205,11 +220,11 @@ function LocationsAdapter() {
 
 				lastStatesSelected = Array.isArray(statesSelect.val()) ? statesSelect.val() : [statesSelect.val()]
 
-				if (statesSelect.parents('.ui.dropdown').length > 0) {
-					let field = statesSelect.parents('.field')
+				if (statesSelect.closest('.ui.dropdown').length > 0) {
+					let field = statesSelect.closest('.field')
 					let htmlSelect = statesSelect.get(0).outerHTML
-					statesSelect.parents('.ui.dropdown').remove()
-					field.append($(htmlSelect).get(0))
+					field.find('*:not(label)').remove()
+					field.append(htmlSelect)
 					statesSelect = field.find('select')
 				}
 
@@ -270,21 +285,24 @@ function LocationsAdapter() {
 
 			if (typeof statesSelect.attr('with-dropdown') == 'string') {
 
-				statesSelect.dropdown()
+				const dropdown = configFomanticDropdown(`[${selectAutoFilledStateAttr}]`, {
+					onChange: onChangeStateDropdown,
+				})[0]
+				currentStateDropdown = dropdown
 
 				if (!hasDefault) {
 
 					instance.fillSelectWithCities(null)
 
 					if (lastStatesSelected.length > 0) {
-						statesSelect.dropdown('refresh')
+						dropdown.dropdown('refresh')
 						instance.fillSelectWithCities(lastStatesSelected)
 					} else {
-						statesSelect.dropdown('clear')
+						dropdown.dropdown('clear')
 					}
 
 				} else {
-					statesSelect.dropdown('refresh')
+					dropdown.dropdown('refresh')
 				}
 
 			}
@@ -315,7 +333,7 @@ function LocationsAdapter() {
 				state = Array.isArray(state) ? state : [state]
 
 				for (let i of state) {
-
+					i = typeof i == 'undefined' ? null : i
 					let _cities = this.getCities(i)
 
 					for (let j of _cities) {
@@ -385,11 +403,11 @@ function LocationsAdapter() {
 
 				lastCitiesSelected = Array.isArray(citiesSelect.val()) ? citiesSelect.val() : [citiesSelect.val()]
 
-				if (citiesSelect.parents('.ui.dropdown').length > 0) {
-					let field = citiesSelect.parents('.field')
+				if (citiesSelect.closest('.ui.dropdown').length > 0) {
+					let field = citiesSelect.closest('.field')
 					let htmlSelect = citiesSelect.get(0).outerHTML
-					citiesSelect.parents('.ui.dropdown').remove()
-					field.append($(htmlSelect).get(0))
+					field.find('*:not(label)').remove()
+					field.append(htmlSelect)
 					citiesSelect = field.find('select')
 				}
 
@@ -450,21 +468,24 @@ function LocationsAdapter() {
 
 			if (typeof citiesSelect.attr('with-dropdown') == 'string') {
 
-				citiesSelect.dropdown()
+				const dropdown = configFomanticDropdown(`[${selectAutoFilledCityAttr}]`, {
+					onChange: onChangeCityDropdown,
+				})[0]
+				currentCityDropdown = dropdown
 
 				if (!hasDefault) {
 
 					instance.fillSelectWithPoints(null)
 
 					if (lastCitiesSelected.length > 0 && state != null) {
-						citiesSelect.dropdown('refresh')
+						dropdown.dropdown('refresh')
 						instance.fillSelectWithPoints(lastCitiesSelected)
 					} else {
-						citiesSelect.dropdown('clear')
+						dropdown.dropdown('clear')
 					}
 
 				} else {
-					citiesSelect.dropdown('refresh')
+					dropdown.dropdown('refresh')
 				}
 
 			}
@@ -473,7 +494,6 @@ function LocationsAdapter() {
 
 		return has
 	}
-
 
 	/**
 	 * @method fillSelectWithPoints
@@ -496,7 +516,7 @@ function LocationsAdapter() {
 				city = Array.isArray(city) ? city : [city]
 
 				for (let i of city) {
-
+					i = typeof i == 'undefined' ? null : i
 					let _points = this.getPoints(i)
 
 					for (let j of _points) {
@@ -566,11 +586,11 @@ function LocationsAdapter() {
 
 				lastPointsSelected = Array.isArray(pointsSelect.val()) ? pointsSelect.val() : [pointsSelect.val()]
 
-				if (pointsSelect.parents('.ui.dropdown').length > 0) {
-					let field = pointsSelect.parents('.field')
+				if (pointsSelect.closest('.ui.dropdown').length > 0) {
+					let field = pointsSelect.closest('.field')
 					let htmlSelect = pointsSelect.get(0).outerHTML
-					pointsSelect.parents('.ui.dropdown').remove()
-					field.append($(htmlSelect).get(0))
+					field.find('*:not(label)').remove()
+					field.append(htmlSelect)
 					pointsSelect = field.find('select')
 				}
 
@@ -590,18 +610,21 @@ function LocationsAdapter() {
 
 			if (typeof pointsSelect.attr('with-dropdown') == 'string') {
 
-				pointsSelect.dropdown()
+				const dropdown = configFomanticDropdown(`[${selectAutoFilledPointAttr}]`, {
+					onChange: onChangePointDropdown,
+				})[0]
+				currentPointDropdown = dropdown
 
 				if (!hasDefault) {
 
 					if (lastPointsSelected.length > 0 && city != null) {
-						pointsSelect.dropdown('refresh')
+						dropdown.dropdown('refresh')
 					} else {
-						pointsSelect.dropdown('clear')
+						dropdown.dropdown('clear')
 					}
 
 				} else {
-					pointsSelect.dropdown('refresh')
+					dropdown.dropdown('refresh')
 				}
 
 			}
@@ -609,6 +632,74 @@ function LocationsAdapter() {
 		}
 
 		return has
+	}
+
+	/**
+	 * @returns {$|null}
+	 */
+	this.getCurrentCountryDropdown = function () {
+		let element = currentCountryDropdown
+		return element instanceof $ ? element : null
+	}
+
+	/**
+	 * @returns {$|null}
+	 */
+	this.getCurrentStateDropdown = function () {
+		let element = currentStateDropdown
+		return element instanceof $ ? element : null
+	}
+
+	/**
+	 * @returns {$|null}
+	 */
+	this.getCurrentCityDropdown = function () {
+		let element = currentCityDropdown
+		return element instanceof $ ? element : null
+	}
+
+	/**
+	 * @returns {$|null}
+	 */
+	this.getCurrentPointDropdown = function () {
+		let element = currentPointDropdown
+		return element instanceof $ ? element : null
+	}
+
+	/**
+	 * @param {Function} callback 
+	 * @returns {LocationsAdapter}
+	 */
+	this.setOnChangeCountryDropdown = function (callback) {
+		onChangeCountryDropdown = typeof callback == 'function' ? callback : () => { }
+		return this
+	}
+
+	/**
+	 * @param {Function} callback 
+	 * @returns {LocationsAdapter}
+	 */
+	this.setOnChangeStateDropdown = function (callback) {
+		onChangeStateDropdown = typeof callback == 'function' ? callback : () => { }
+		return this
+	}
+
+	/**
+	 * @param {Function} callback 
+	 * @returns {LocationsAdapter}
+	 */
+	this.setOnChangeCityDropdown = function (callback) {
+		onChangeCityDropdown = typeof callback == 'function' ? callback : () => { }
+		return this
+	}
+
+	/**
+	 * @param {Function} callback 
+	 * @returns {LocationsAdapter}
+	 */
+	this.setOnChangePointDropdown = function (callback) {
+		onChangePointDropdown = typeof callback == 'function' ? callback : () => { }
+		return this
 	}
 
 	/**

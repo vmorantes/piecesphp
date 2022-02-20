@@ -23,7 +23,7 @@ window.addEventListener('load', function (e) {
 			let valid = true
 			if (!captchaResult) {
 				valid = false
-				errorMessage(`<strong>${captchaMessage}</strong>`, '')
+				errorMessage(`${captchaMessage}`, '')
 			}
 			return valid
 		},
