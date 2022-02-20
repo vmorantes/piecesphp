@@ -149,6 +149,85 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         }
     }
 
+    $getQualifiedRouteName = function ($classname, $simpleName) {
+
+        $name = $simpleName;
+
+        if (!is_null($name)) {
+            $name = trim($name);
+            $name = strlen($name) > 0 ? "-{$name}" : '';
+        }
+
+        $prefix = uniqid($classname);
+        if (property_exists($classname, 'baseRouteName')) {
+            $reflectionClass = new ReflectionClass($classname);
+            $reflectionProperty = $reflectionClass->getProperty('baseRouteName');
+            $reflectionProperty->setAccessible(true);
+            $prefix = $reflectionProperty->getValue();
+        }
+
+        $name = !is_null($name) ? $prefix . $name : $prefix;
+
+        return $name;
+    };
+
+    //Rutas que se reautentican si está desconectado (para consultas de terceros)
+    $ignoreExpiredForRoutesName = [
+        ($getQualifiedRouteName)('NOMBRE_CALIFICADO_DE_LA_CLASE', 'NOMBRE_SIMPLE_DE_LA_RUTA'),
+    ];
+
+    if (!$isActiveSession) {
+
+        $expiredUserData = (object) BaseToken::getData($JWT, null, null, true);
+
+        $expiredSessionsFolder = basepath('app/logs/expired-sessions');
+        if (!file_exists($expiredSessionsFolder)) {
+            @mkdir($expiredSessionsFolder, 0777, true);
+        }
+
+        $expiredSessionDataToJSON = [
+            'token' => $JWT,
+            'decodeToken' => BaseToken::decode($JWT, BaseToken::getSecretKey(), BaseToken::$encrypt, true),
+            'data' => $expiredUserData,
+        ];
+
+        $oldFilesExpiredSessions = file_exists($expiredSessionsFolder) ? array_diff(scandir($expiredSessionsFolder), array('..', '.')) : [];
+        array_map(function ($e) use ($expiredSessionsFolder) {
+
+            $fullPath = $expiredSessionsFolder . \DIRECTORY_SEPARATOR . $e;
+
+            $date = \DateTime::createFromFormat('d-m-Y_h-i-s-U.u_A', str_replace('.json', '', $e));
+            $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+
+            $date30Days = \DateTime::createFromFormat('d-m-Y H:i:s', (clone $date)->modify('+30 days')->format('d-m-Y 00:00:00'));
+            $date30Days->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+
+            $now = new \DateTime();
+
+            if ($date30Days < $now) {
+                @unlink($fullPath);
+            }
+
+        }, $oldFilesExpiredSessions);
+
+        @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
+
+        $ignoreExpired = in_array($route->getName(), $ignoreExpiredForRoutesName);
+
+        if ($ignoreExpired && is_object($expiredUserData) && isset($expiredUserData->id)) {
+            $expiredUser = new UsersModel((int) $expiredUserData->id);
+            if ($expiredUser->id !== null) {
+                $JWT = SessionToken::generateToken([
+                    'id' => $expiredUser->id,
+                    'type' => $expiredUser->type,
+                ]);
+                $_SERVER["HTTP_" . mb_strtoupper(SessionToken::TOKEN_NAME)] = $JWT;
+                $isActiveSession = SessionToken::isActiveSession($JWT);
+            }
+        }
+
+    }
+
     //Verifica la validez del usuario activo si hay una sesion activa
     if ($isActiveSession) {
 
@@ -295,6 +374,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
                         $referer = remove_last_char_on('/', $referer);
 
                         if ($referer != $url_login) {
+                            $response = $response->withStatus(403);
                             return $response->withJson([
                                 'error' => 'RESTRICTED_AREA',
                                 'message' => __('errors', 'RESTRICTED_AREA'),

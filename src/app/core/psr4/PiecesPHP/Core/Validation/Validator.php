@@ -25,8 +25,6 @@ class Validator
     const T_EMAIL = 'T_EMAIL';
 
     /**
-     * validate
-     *
      * @param string $type
      * @param mixed $value
      * @param bool $excel
@@ -60,19 +58,34 @@ class Validator
     }
 
     /**
-     * isInteger
-     *
      * @param mixed $value
      * @return bool
      */
     public static function isInteger($value)
     {
-        return is_scalar($value) && (ctype_digit((string) $value) || is_int($value));
+
+        $isScalar = is_scalar($value);
+        $isNumeric = is_numeric($value);
+        $isString = is_string($value);
+
+        if ($isScalar) {
+
+            if ($isNumeric && $isString) {
+                $minusSignIndex = strpos($value, '-');
+                $maybeItIsNegative = $minusSignIndex !== false;
+                if ($maybeItIsNegative) {
+                    $value = mb_strlen($value) >= 2 ? substr($value, $minusSignIndex + 1) : $value;
+                }
+            }
+
+            return ctype_digit((string) $value) || is_int($value);
+
+        } else {
+            return false;
+        }
     }
 
     /**
-     * isDouble
-     *
      * @param mixed $value
      * @return bool
      */
@@ -82,8 +95,6 @@ class Validator
     }
 
     /**
-     * isString
-     *
      * @param mixed $value
      * @return bool
      */
@@ -93,8 +104,6 @@ class Validator
     }
 
     /**
-     * isArrray
-     *
      * @param mixed $value
      * @return bool
      */
@@ -104,8 +113,6 @@ class Validator
     }
 
     /**
-     * isEmail
-     *
      * @param mixed $value
      * @return bool
      */
@@ -126,8 +133,6 @@ class Validator
     }
 
     /**
-     * isDate
-     *
      * @param mixed $value
      * @param string $format
      * @param bool $excel
