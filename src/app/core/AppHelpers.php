@@ -100,7 +100,6 @@ function set_title(string $title)
 
 /**
  * Obtiene el formato de fecha preferido para el idioma actual
- * @param int $type 1 = Sábado,
  * @return string
  */
 function get_default_format_date()

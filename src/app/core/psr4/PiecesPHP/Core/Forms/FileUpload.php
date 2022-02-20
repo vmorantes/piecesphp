@@ -455,6 +455,63 @@ class FileUpload
     }
 
     /**
+     * @param string $directory
+     * @param string $name
+     * @param string $extension
+     * @param bool $validate
+     * @param bool $overwrite
+     * @return string[] Rutas de los ficheros copiados (las rutas que no fueron movidas se mostrarán vacías)
+     * @throws Exception Si no hay directorio de destino definido
+     */
+    public function copyTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true)
+    {
+        $multiple = $this->isMultiple();
+
+        $files = $multiple ? $this->fileInformation : [$this->fileInformation];
+
+        $counterFiles = 0;
+
+        $moved_files = [];
+
+        $move = $validate ? $this->validate() : true;
+
+        if (is_null($directory)) {
+            if (!is_null($this->directoryMove)) {
+                $directory = $this->directoryMove;
+            } else {
+                throw new \Exception("No hay ningún directorio de destino definido");
+            }
+        }
+
+        $directory = is_null($directory) ? $this->directoryMove : $directory;
+        $name = is_null($name) ? $this->nameOnMove : $name;
+        $extension = is_null($extension) ? $this->extensionOnMove : $extension;
+
+        if ($move) {
+            foreach ($files as $file) {
+
+                $counterFiles++;
+                $newName = $name;
+                $newExtension = $extension;
+
+                if (!is_null($name) && $multiple) {
+                    $newName = pathinfo($newName, \PATHINFO_FILENAME);
+                    $newName = "{$newName}_{$counterFiles}";
+                }
+
+                if (is_null($extension)) {
+                    $newExtension = pathinfo($file['name'], \PATHINFO_EXTENSION);
+                }
+                $tmp = $file['tmp_name'];
+                $moved_files[] = self::copyFileTo($directory, $tmp, $newName, $newExtension, $overwrite);
+            }
+        }
+
+        return $moved_files;
+
+    }
+
+    /**
      * moveFileTo
      *
      * @param string $directory
@@ -492,6 +549,47 @@ class FileUpload
             }
         } else {
             $uploaded = move_uploaded_file($file, $filepath);
+        }
+
+        return $uploaded ? $filepath : '';
+    }
+
+    /**
+     * @param string $directory
+     * @param string $file
+     * @param string $basename
+     * @param string $extension
+     * @param bool $overwrite
+     * @return string La ruta a la que fue movido (string vacío si no fue movido)
+     */
+    public static function copyFileTo(string $directory, string $file, string $basename = null, string $extension = null, bool $overwrite = true)
+    {
+        if (!file_exists($directory)) {
+            mkdir($directory, 0777, true);
+        }
+
+        if (is_null($extension)) {
+            $extension = pathinfo($file, \PATHINFO_EXTENSION);
+        }
+
+        if (is_null($basename)) {
+            $basename = bin2hex(random_bytes(8)); // see http://php.net/manual/en/function.random-bytes.php
+        }
+
+        $filename = sprintf('%s.%0.8s', $basename, $extension);
+        $filepath = $directory . DIRECTORY_SEPARATOR . $filename;
+        $filepath = str_replace(['//', '\\\\'], ['/', '\\'], $filepath);
+
+        $exists = file_exists($filepath);
+        $uploaded = false;
+
+        if ($exists) {
+            if ($overwrite) {
+                unlink($filepath);
+                $uploaded = copy($file, $filepath);
+            }
+        } else {
+            $uploaded = copy($file, $filepath);
         }
 
         return $uploaded ? $filepath : '';

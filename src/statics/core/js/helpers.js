@@ -6,7 +6,7 @@
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
  */
- function successMessage(title, message, onClose = null, options) {
+function successMessage(title, message, onClose = null, options) {
 
 	title = typeof title == 'string' ? title : ''
 	message = typeof message == 'string' ? message : ''
@@ -1329,6 +1329,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 
 		} else {
 
+			form.find('button').attr('disabled', false)
 			console.error('No se ha definido ninguna acción')
 
 			if (toast) {
@@ -1388,6 +1389,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 			let responseIsObject = typeof response == 'object'
 
 			if (!responseIsObject) {
+				form.find('button').attr('disabled', false)
 				console.error(`La respuesta debe ser un objeto`)
 				return
 			}
@@ -1408,6 +1410,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 				} else if (optional) {
 					response[option] = value
 				} else {
+					form.find('button').attr('disabled', false)
 					console.error(`Falta la opción ${option} en el cuerpo de la respuesta.`)
 					return
 				}

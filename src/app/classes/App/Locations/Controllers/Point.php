@@ -183,7 +183,7 @@ class Point extends AdminPanelController
     {
         $city = $request->getQueryParam('city', null);
 
-        if ($city != null) {
+        if ($city !== null) {
             if (ctype_digit($city)) {
                 $city = (int) $city;
             } else {
@@ -191,32 +191,25 @@ class Point extends AdminPanelController
             }
         }
 
-        $valid = $city !== -1;
+        $query = $this->model->select();
 
-        if ($valid) {
-
-            $query = $this->model->select();
-
-            if (!is_null($city)) {
-                $query->where([
-                    'city' => $city,
-                ]);
-            }
-
-            $query->execute();
-
-            $result = $query->result();
-
-            foreach ($result as $key => $value) {
-                $value->name = htmlentities(stripslashes($value->name));
-                $result[$key] = $value;
-            }
-
-            return $response->withJson($result);
-
-        } else {
-            throw new NotFoundException($request, $response);
+        if (!is_null($city)) {
+            $query->where([
+                'city' => $city,
+            ]);
         }
+
+        $query->execute();
+
+        $result = $query->result();
+
+        foreach ($result as $key => $value) {
+            $value->name = htmlentities(stripslashes($value->name));
+            $result[$key] = $value;
+        }
+
+        return $response->withJson($result);
+
     }
 
     /**
@@ -231,7 +224,7 @@ class Point extends AdminPanelController
     {
         $city = $request->getQueryParam('city', null);
 
-        if ($city != null) {
+        if ($city !== null) {
             if (ctype_digit($city)) {
                 $city = (int) $city;
             } else {
@@ -239,9 +232,7 @@ class Point extends AdminPanelController
             }
         }
 
-        $valid = $city !== -1;
-
-        if ($request->isXhr() && $valid) {
+        if ($request->isXhr()) {
 
             $columns_order = [
                 'id',

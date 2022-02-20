@@ -436,14 +436,31 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 		let hasAccuracyInput = accuracyInput.length > 0
 
 		let hasData = false
+		let keepFailData = false
 
 		if (hasInputsControl) {
 
 			hasData = longitudeInput.val().length > 0 && latitudeInput.val().length > 0
 
 			if (hasData) {
-				longitudeSetted = longitudeInput.val()
-				latitudeSetted = latitudeInput.val()
+				let lng = longitudeInput.val()
+				let lat = latitudeInput.val()
+				if (lat > 90 || lat < -90) {
+					errorMessage(_i18n(langGroup, 'Información'), _i18n(langGroup, `La latitud debe ser un valor comprendido desde -90 hasta 90`), {
+						timeout: 6000,
+					})
+					hasData = false
+					keepFailData = true
+				}
+				if (lng > 180 || lng < -180) {
+					errorMessage(_i18n(langGroup, 'Información'), _i18n(langGroup, `La longitud debe ser un valor comprendido desde -180 hasta 180`), {
+						timeout: 6000,
+					})
+					hasData = false
+					keepFailData = true
+				}
+				longitudeSetted = lng
+				latitudeSetted = lat
 			}
 
 		}
@@ -497,8 +514,10 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 					let lng = coords.lng
 					let lat = coords.lat
 
-					longitudeInput.val(lng)
-					latitudeInput.val(lat)
+					if (!keepFailData) {
+						longitudeInput.val(lng)
+						latitudeInput.val(lat)
+					}
 
 					longitudeInput.off('change')
 					longitudeInput.on('change', function (e) {
@@ -625,15 +644,15 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 						if (!wasFound) {
 
 							if (findForCity || findForState) {
-								infoMessage(_i18n('location', 'Información'), formatStr(
-									_i18n('location', `La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.`),
+								infoMessage(_i18n(langGroup, 'Información'), formatStr(
+									_i18n(langGroup, `La ubicación "%r" no se encontró en el mapa, se usará una posición aproximada.`),
 									[
 										query,
 									]
 								))
 							} else {
-								infoMessage(_i18n('location', 'Información'), formatStr(
-									_i18n('location', `La ubicación "%r" no se encontró en el mapa.`),
+								infoMessage(_i18n(langGroup, 'Información'), formatStr(
+									_i18n(langGroup, `La ubicación "%r" no se encontró en el mapa.`),
 									[
 										query,
 									]
