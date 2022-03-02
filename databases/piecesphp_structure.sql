@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 5.5.5-10.5.12-MariaDB-1:10.5.12+maria~focal dump
+-- Adminer 4.8.1 MySQL 5.5.5-10.5.13-MariaDB-1:10.5.13+maria~focal dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -44,6 +44,26 @@ CREATE TABLE `app_presentations_categories` (
   `name` text COLLATE utf8_bin NOT NULL,
   `meta` longtext COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+DROP TABLE IF EXISTS `forms_categories`;
+CREATE TABLE `forms_categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `categoryName` text COLLATE utf8_bin NOT NULL,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `status` int(11) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `forms_categories_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `forms_categories_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
@@ -291,6 +311,55 @@ CREATE TABLE `pcsphp_user_problems` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `persons`;
+CREATE TABLE `persons` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `documentType` text COLLATE utf8_bin NOT NULL,
+  `documentNumber` text COLLATE utf8_bin NOT NULL,
+  `personName1` text COLLATE utf8_bin NOT NULL,
+  `personName2` text COLLATE utf8_bin NOT NULL,
+  `personLastName1` text COLLATE utf8_bin NOT NULL,
+  `personLastName2` text COLLATE utf8_bin NOT NULL,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `status` int(11) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `persons_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `persons_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+DROP TABLE IF EXISTS `publications_attachments`;
+CREATE TABLE `publications_attachments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `publication` int(11) NOT NULL,
+  `attachmentType` text COLLATE utf8_bin NOT NULL,
+  `fileLocation` text COLLATE utf8_bin NOT NULL,
+  `lang` text COLLATE utf8_bin NOT NULL,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `publication` (`publication`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `publications_attachments_ibfk_1` FOREIGN KEY (`publication`) REFERENCES `publications_elements` (`id`),
+  CONSTRAINT `publications_attachments_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `publications_attachments_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `publications_categories`;
 CREATE TABLE `publications_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -348,4 +417,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- 2021-11-27 21:39:54
+-- 2022-03-02 22:33:40
