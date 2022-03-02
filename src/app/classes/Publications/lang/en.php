@@ -54,4 +54,8 @@ return [
     "Imagen"                                                               => "Image",
     "Descripción"                                                          => "Description",
     "Cargar más"                                                           => "Load more",
+    "Anexos"                                                               => "Attachments",
+    "Anexo"                                                                => "Attachment",
+    "Anexo #"                                                              => "Attachment #",
+    "Copia en PDF"                                                         => "PDF Copy",
 ];

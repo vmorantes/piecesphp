@@ -8,7 +8,7 @@ window.addEventListener('load', () => {
 		let element = event.target
 		let validationMessage = element.validationMessage
 		let jElement = $(element)
-		let field = jElement.parents('.field')
+		let field = jElement.closest('.field')
 		let nameOnLabel = field.find('label').html()
 
 		errorMessage(`${nameOnLabel}: ${validationMessage}`)
