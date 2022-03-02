@@ -40,13 +40,13 @@ class FormsRoutes
      */
     public static function routes(RouteGroup $groupAdministration)
     {
+        if (self::ENABLE) {
+            CategoriesRoutes::routes($groupAdministration);
 
-        CategoriesRoutes::routes($groupAdministration);
-
-        RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
-            self::init();
-        });
-
+            RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
+                self::init();
+            });
+        }
         return [
             'groupAdministration' => $groupAdministration,
         ];
