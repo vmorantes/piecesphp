@@ -17,6 +17,9 @@ use PiecesPHP\CSSVariables;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
+use Publications\Mappers\AttachmentPublicationMapper;
+use Publications\Mappers\PublicationCategoryMapper;
+use Publications\Mappers\PublicationMapper;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
@@ -35,7 +38,7 @@ class PublicationsRoutes
      */
     private static $init = false;
 
-    const ENABLE = true;
+    const ENABLE = PUBLICATIONS_MODULE;
 
     /**
      * @param RouteGroup $groupAdministration
@@ -46,8 +49,21 @@ class PublicationsRoutes
     {
         if (self::ENABLE) {
 
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Publications\Mappers\PublicationCategoryMapper()))->getSQL();exit;
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Publications\Mappers\PublicationMapper()))->getSQL();exit;
+            $sqlCreate = [
+                (new \PiecesPHP\Core\Database\SchemeCreator(new PublicationCategoryMapper()))->getSQL(),
+                (new \PiecesPHP\Core\Database\SchemeCreator(new PublicationMapper()))->getSQL(),
+                (new \PiecesPHP\Core\Database\SchemeCreator(new AttachmentPublicationMapper()))->getSQL(),
+            ];
+            $showSQL = false;
+            //$showSQL = true;
+            if ($showSQL) {
+                header('Content-Type: text/sql');
+                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
+                    'createdBy` int' => 'createdBy` bigint',
+                    'modifiedBy` int' => 'modifiedBy` bigint',
+                ]);
+                exit;
+            }
 
             $groupAdministration = PublicationsController::routes($groupAdministration);
             $groupAdministration = PublicationsCategoryController::routes($groupAdministration);

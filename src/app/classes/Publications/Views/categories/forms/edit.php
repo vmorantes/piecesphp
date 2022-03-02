@@ -38,6 +38,7 @@ $action;
         <?= $title; ?>
     </h3>
 
+    <?php if($manyLangs): ?>
     <div class="ui form">
         <div class="field required">
             <label><?= __($langGroup, 'Idiomas'); ?></label>
@@ -46,6 +47,7 @@ $action;
             </select>
         </div>
     </div>
+    <?php endif; ?>
 
     <br><br>
 

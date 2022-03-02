@@ -2,6 +2,7 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/RichEditorAdapterComponent.js" />
+/// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
 showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('load', function () {
 
@@ -43,6 +44,34 @@ window.addEventListener('load', function () {
 		textareaTargetSelector: "textarea[name='content']",
 	})
 
+	const attachments = {}
+
+	let indexAttachment = 1
+	for (const attachmentElement of Array.from(document.querySelectorAll('[attachment-element]'))) {
+		attachmentElement.setAttribute(`attachment-${indexAttachment}`, '')
+		attachments[indexAttachment] = new SimpleUploadPlaceholder({
+			containerSelector: `[attachment-element][attachment-${indexAttachment}]`,
+			onReady: function () {
+			},
+			onChangeFile: (files, component, instance, event) => {
+				const fileInput = files[0]
+				if (isEdit) {
+					const previewContainer = $(`[attachment-element][attachment-${indexAttachment}] [preview]`)
+					if (fileInput.type.indexOf('image/') !== -1) {
+						const reader = new FileReader()
+						reader.readAsDataURL(fileInput)
+						reader.onload = function (e) {
+							previewContainer.html(`<img src="${e.target.result}"/>`)
+						}
+					} else {
+						previewContainer.html('')
+					}
+				}
+			},
+		})
+		indexAttachment++
+	}
+
 	configFomanticDropdown('.ui.dropdown:not(.langs)') //Debe inciarse antes de genericFormHandler para la validación
 
 	let form = genericFormHandler(formSelector, {
@@ -71,7 +100,7 @@ window.addEventListener('load', function () {
 			let element = event.target
 			let validationMessage = element.validationMessage
 			let jElement = $(element)
-			let field = jElement.parents('.field')
+			let field = jElement.closest('.field')
 			let nameOnLabel = field.find('label').html()
 
 			errorMessage(`${nameOnLabel}: ${validationMessage}`)

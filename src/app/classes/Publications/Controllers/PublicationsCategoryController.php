@@ -21,6 +21,8 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use Publications\Exceptions\DuplicateException;
+use Publications\Exceptions\SafeException;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
@@ -148,6 +150,7 @@ class PublicationsCategoryController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
+            $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $data = [];
@@ -159,6 +162,7 @@ class PublicationsCategoryController extends AdminPanelController
             $data['backLink'] = $backLink;
             $data['title'] = self::$title;
             $data['allowedLangs'] = $allowedLangs;
+            $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
 
             $this->helpController->render('panel/layout/header');
@@ -373,6 +377,10 @@ class PublicationsCategoryController extends AdminPanelController
 
                 }
 
+            } catch (SafeException | DuplicateException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+
             } catch (\Exception $e) {
 
                 $resultOperation->setMessage($e->getMessage());
@@ -380,22 +388,16 @@ class PublicationsCategoryController extends AdminPanelController
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (SafeException $e) {
 
             $resultOperation->setMessage($e->getMessage());
-            log_exception($e);
 
         } catch (ParsedValueException $e) {
 
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (InvalidParameterValueException $e) {
-
-            $resultOperation->setMessage($e->getMessage());
-            log_exception($e);
-
-        } catch (\Exception $e) {
+        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
