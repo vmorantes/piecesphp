@@ -1,10 +1,13 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use Publications\Mappers\PublicationMapper;
+use Publications\Util\AttachmentPackage;
+
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
+ * @var AttachmentPackage[] $attachmentGroup1
  */;
 $langGroup;
 $backLink;
@@ -32,6 +35,7 @@ $action;
         <div class="item active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
         <div class="item" data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
         <div class="item" data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
+        <div class="item" data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
         <div class="item" data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
     </div>
 
@@ -152,6 +156,48 @@ $action;
                 <label><?= __($langGroup, 'Descripción'); ?></label>
                 <textarea name="seoDescription"></textarea>
             </div>
+
+        </div>
+
+        <div class="ui tab" data-tab="attachments">
+
+            <h4 class="ui dividing header"><?= __($langGroup, 'Anexos'); ?></h4>
+
+            <div class="two fields">
+
+                <?php foreach($attachmentGroup1 as $attachmentElement): ?>
+
+                <div class="field" attachment-element>
+                    <label><?= $attachmentElement->getTypeText(); ?></label>
+                    <input type="hidden" name="<?= $attachmentElement->baseNameAppend('Type'); ?>" value="<?= $attachmentElement->getType(); ?>">
+                    <?php if($attachmentElement->hasAttachment()): ?>
+                    <div preview>
+                        <?php if(!$attachmentElement->getMapper()->fileIsImage()):?>
+                        <a target="_blank" href="<?= $attachmentElement->getMapper()->fileLocation; ?>" class="ui button icon labeled blue">
+                            <i class="ui icon download"></i>
+                            <?= __($langGroup, 'Ver documento'); ?>
+                        </a>
+                        <?php else: ?>
+                        <img src="<?= $attachmentElement->getMapper()->fileLocation; ?>">
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                    <?php simpleUploadPlaceholderWorkSpace([
+                        'onlyButton' => $attachmentElement->hasAttachment(),
+                        'inputNameAttr' => $attachmentElement->baseNameAppend('File'),
+                        'buttonText' => $attachmentElement->hasAttachment() ? __($langGroup, 'Cambiar anexo') :  __($langGroup, 'Agregar anexo'),
+                        'required' =>  $attachmentElement->isRequired(),
+                        'multiple' =>  $attachmentElement->isMultiple(),
+                        'icon' => 'image outline',
+                        'accept' => implode(',', $attachmentElement->getExtensions()),
+                    ]); ?>
+                    <br><br>
+                </div>
+
+                <?php endforeach; ?>
+
+            </div>
+
 
         </div>
 

@@ -27,10 +27,14 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use Publications\Exceptions\DuplicateException;
+use Publications\Exceptions\SafeException;
+use Publications\Mappers\AttachmentPublicationMapper;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
+use Publications\Util\AttachmentPackage;
 use Slim\Exception\NotFoundException;
 use Slim\Http\Request as Request;
 use Slim\Http\Response as Response;
@@ -139,6 +143,12 @@ class PublicationsController extends AdminPanelController
 
         import_cropper();
         import_default_rich_editor();
+        import_simple_upload_placeholder();
+
+        $attachmentGroup1 = [
+            new AttachmentPackage(-1, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
+            new AttachmentPackage(-1, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
+        ];
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
@@ -151,6 +161,7 @@ class PublicationsController extends AdminPanelController
         $data['backLink'] = $backLink;
         $data['title'] = self::$title;
         $data['allCategories'] = $allCategories;
+        $data['attachmentGroup1'] = $attachmentGroup1;
         $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
 
         $this->helpController->render('panel/layout/header');
@@ -193,9 +204,19 @@ class PublicationsController extends AdminPanelController
 
             import_cropper();
             import_default_rich_editor();
+            import_simple_upload_placeholder();
+
+            $attachmentGroup1 = [
+                new AttachmentPackage($element->id, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
+                new AttachmentPackage($element->id, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
+            ];
+            $attachmentGroup1 = array_map(function ($e) use ($lang) {
+                return $e->setLang($lang);
+            }, $attachmentGroup1);
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
+            $manyLangs = count($allowedLangs) > 1;
             $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category->id);
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
             $searchUsersURL = get_route('users-search-dropdown');
@@ -209,7 +230,9 @@ class PublicationsController extends AdminPanelController
             $data['backLink'] = $backLink;
             $data['title'] = self::$title;
             $data['allCategories'] = $allCategories;
+            $data['attachmentGroup1'] = $attachmentGroup1;
             $data['allowedLangs'] = $allowedLangs;
+            $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
             $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
 
@@ -429,6 +452,31 @@ class PublicationsController extends AdminPanelController
         $categoryNotExistsMessage = __(self::LANG_GROUP, 'No hay existe la categoría.');
         $notAllowedLangMessage = __(self::LANG_GROUP, 'El idioma "%s" no está permitido.');
 
+        //──── Anexos ────────────────────────────────────────────────────────────────────────────
+
+        $attachmentsConfigure = [
+            new AttachmentPackage(null, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
+            new AttachmentPackage(null, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
+        ];
+
+        $attachmentsExpectedParameters = [];
+
+        foreach ($attachmentsConfigure as $attachmentConfigure) {
+            $attachmentsExpectedParameters[] = new Parameter(
+                $attachmentConfigure->baseNameAppend('Type'),
+                null,
+                function ($value) {
+                    return is_string($value) && strlen(trim($value)) > 0;
+                },
+                false,
+                function ($value) {
+                    return clean_string($value);
+                }
+            );
+        }
+
+        $expectedParameters->addParameters($attachmentsExpectedParameters);
+
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
 
@@ -448,6 +496,7 @@ class PublicationsController extends AdminPanelController
              * @var \DateTime|null $startDate
              * @var \DateTime|null $endDate
              * @var int $featured
+             * @var array $attachmentsTypes
              */;
             $id = $expectedParameters->getValue('id');
             $author = $expectedParameters->getValue('author');
@@ -461,6 +510,15 @@ class PublicationsController extends AdminPanelController
             $endDate = $expectedParameters->getValue('endDate');
             $featured = $expectedParameters->getValue('featured') == PublicationMapper::FEATURED ? PublicationMapper::FEATURED : PublicationMapper::UNFEATURED;
 
+            $attachmentsTypes = [];
+            foreach ($attachmentsConfigure as $attachmentConfigure) {
+                if ($attachmentConfigure->getType() == $expectedParameters->getValue($attachmentConfigure->baseNameAppend('Type'))) {
+                    $attachmentConfigure->setPublicationID($id);
+                    $attachmentConfigure->setLang($lang);
+                    $attachmentsTypes[$attachmentConfigure->baseNameAppend('Type')] = $attachmentConfigure;
+                }
+            }
+
             //Se define si es edición o creación
             $isEdit = $id !== -1;
 
@@ -469,12 +527,12 @@ class PublicationsController extends AdminPanelController
                 $allowedLangs = Config::get_allowed_langs();
 
                 if (!PublicationCategoryMapper::existsByID($category)) {
-                    throw new \Exception($categoryNotExistsMessage);
+                    throw new SafeException($categoryNotExistsMessage);
                 }
 
                 if ($isEdit) {
                     if (!in_array($lang, $allowedLangs)) {
-                        throw new \Exception(vsprintf($notAllowedLangMessage, [$lang]));
+                        throw new SafeException(vsprintf($notAllowedLangMessage, [$lang]));
                     }
                 } else {
                     $lang = get_config('default_lang');
@@ -497,9 +555,9 @@ class PublicationsController extends AdminPanelController
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
                     $mapper->setLangData($lang, 'featured', $featured);
 
-                    $mainImage = self::handlerUploadImage('mainImage', $mapper->folder);
-                    $thumbImage = self::handlerUploadImage('thumbImage', $mapper->folder);
-                    $ogImage = self::handlerUploadImage('ogImage', $mapper->folder);
+                    $mainImage = self::handlerUpload('mainImage', $mapper->folder);
+                    $thumbImage = self::handlerUpload('thumbImage', $mapper->folder);
+                    $ogImage = self::handlerUpload('ogImage', $mapper->folder);
 
                     $mapper->setLangData($lang, 'mainImage', $mainImage);
                     $mapper->setLangData($lang, 'thumbImage', $thumbImage);
@@ -510,7 +568,31 @@ class PublicationsController extends AdminPanelController
 
                     if ($saved) {
 
-                        $mapper->id = $mapper->getInsertIDOnSave();
+                        /**
+                         * @var AttachmentPackage[] $attachmentsTypes
+                         */
+                        foreach ($attachmentsTypes as $attachmentConfig) {
+
+                            $attachBasename = $attachmentConfig->getBaseName();
+                            $attachMapper = $attachmentConfig->getMapper();
+                            $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
+                            $attachType = $attachmentConfig->getType();
+                            $attachValidTypes = $attachmentConfig->getValidTypes();
+                            $attachFileName = $attachmentConfig->getTypeFilename();
+
+                            $attachMapper->publication = $mapper->id;
+                            $attachMapper->attachmentType = $attachType;
+                            $attachMapper->lang = $lang;
+                            $attachMapper->folder = $mapper->folder . '/' . 'attachments';
+
+                            $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), $attachMapper->folder, null, $attachValidTypes, false, $attachFileName);
+
+                            if (mb_strlen($attachFile) > 0) {
+                                $attachMapper->fileLocation = $attachFile;
+                                $attachMapper->id !== null ? $attachMapper->update() : $attachMapper->save();
+                            }
+
+                        }
 
                         $resultOperation
                             ->setMessage($successCreateMessage)
@@ -550,21 +632,21 @@ class PublicationsController extends AdminPanelController
                         }
 
                         if ($mainImageSetted !== null) {
-                            $mainImage = self::handlerUploadImage('mainImage', '', $mainImageSetted);
+                            $mainImage = self::handlerUpload('mainImage', '', $mainImageSetted);
                         } else {
-                            $mainImage = self::handlerUploadImage('mainImage', $mapper->folder, null);
+                            $mainImage = self::handlerUpload('mainImage', $mapper->folder, null);
                         }
 
                         if ($thumbImageSetted !== null) {
-                            $thumbImage = self::handlerUploadImage('thumbImage', '', $thumbImageSetted);
+                            $thumbImage = self::handlerUpload('thumbImage', '', $thumbImageSetted);
                         } else {
-                            $thumbImage = self::handlerUploadImage('thumbImage', $mapper->folder, null);
+                            $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, null);
                         }
 
                         if ($ogImageSetted !== null) {
-                            $ogImage = self::handlerUploadImage('ogImage', '', $ogImageSetted);
+                            $ogImage = self::handlerUpload('ogImage', '', $ogImageSetted);
                         } else {
-                            $ogImage = self::handlerUploadImage('ogImage', $mapper->folder, null);
+                            $ogImage = self::handlerUpload('ogImage', $mapper->folder, null);
                         }
 
                         if (mb_strlen($mainImage) > 0) {
@@ -575,6 +657,39 @@ class PublicationsController extends AdminPanelController
                         }
                         if (mb_strlen($ogImage) > 0) {
                             $mapper->setLangData($lang, 'ogImage', $ogImage);
+                        }
+
+                        $defaultLang = Config::get_default_lang();
+
+                        /**
+                         * @var AttachmentPackage[] $attachmentsTypes
+                         */
+                        foreach ($attachmentsTypes as $attachmentConfig) {
+
+                            $attachBasename = $attachmentConfig->getBaseName();
+                            $attachMapper = $attachmentConfig->getMapper();
+                            $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
+                            $attachType = $attachmentConfig->getType();
+                            $attachValidTypes = $attachmentConfig->getValidTypes();
+                            $attachFileName = $attachmentConfig->getTypeFilename();
+                            $langSuffix = $defaultLang != $lang ? "_{$lang}" : '';
+
+                            $attachMapper->attachmentType = $attachType;
+                            $attachMapper->publication = $mapper->id;
+                            $attachMapper->lang = $lang;
+                            $attachMapper->folder = $mapper->folder . '/' . 'attachments';
+
+                            if ($attachMapper->id !== null) {
+                                $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), '', $attachMapper->fileLocation, $attachValidTypes, false, $attachFileName . $langSuffix);
+                            } else {
+                                $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), $attachMapper->folder, null, $attachValidTypes, false, $attachFileName . $langSuffix);
+                            }
+
+                            if (mb_strlen($attachFile) > 0) {
+                                $attachMapper->fileLocation = $attachFile;
+                                $attachMapper->id !== null ? $attachMapper->update() : $attachMapper->save();
+                            }
+
                         }
 
                         $updated = $mapper->update();
@@ -601,6 +716,10 @@ class PublicationsController extends AdminPanelController
 
                 }
 
+            } catch (SafeException | DuplicateException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+
             } catch (\Exception $e) {
 
                 $resultOperation->setMessage($e->getMessage());
@@ -608,22 +727,16 @@ class PublicationsController extends AdminPanelController
 
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+        } catch (SafeException $e) {
 
             $resultOperation->setMessage($e->getMessage());
-            log_exception($e);
 
         } catch (ParsedValueException $e) {
 
             $resultOperation->setMessage($unknowErrorWithValuesMessage);
             log_exception($e);
 
-        } catch (InvalidParameterValueException $e) {
-
-            $resultOperation->setMessage($e->getMessage());
-            log_exception($e);
-
-        } catch (\Exception $e) {
+        } catch (MissingRequiredParamaterException | InvalidParameterValueException | \Exception $e) {
 
             $resultOperation->setMessage($e->getMessage());
             log_exception($e);
@@ -1316,19 +1429,24 @@ class PublicationsController extends AdminPanelController
      * @param string $nameOnFiles
      * @param string $folder
      * @param string $currentRoute
+     * @param array $allowedTypes
      * @param bool $setNameByInput
+     * @param string $name
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUploadImage(string $nameOnFiles, string $folder, string $currentRoute = null, bool $setNameByInput = true)
+    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null)
     {
-        $handler = new FileUpload($nameOnFiles, [
-            FileValidator::TYPE_ALL_IMAGES,
-        ]);
+        if ($allowedTypes === null) {
+            $allowedTypes = [
+                FileValidator::TYPE_ALL_IMAGES,
+            ];
+        }
+        $handler = new FileUpload($nameOnFiles, $allowedTypes);
         $valid = false;
         $relativeURL = '';
 
-        $name = 'file_' . uniqid();
+        $name = $name !== null ? $name : 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {

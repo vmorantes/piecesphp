@@ -239,6 +239,17 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * @param bool $onlyCurrentLang
+     * @param bool $asMapper
+     * @return AttachmentPublicationMapper[]
+     */
+    public function getAttachments(bool $onlyCurrentLang = false, bool $asMapper = false)
+    {
+        $attachments = AttachmentPublicationMapper::allBy('publication', $this->id, $asMapper, $onlyCurrentLang);
+        return $attachments;
+    }
+
+    /**
      * @return string
      */
     public function authorFullName()
