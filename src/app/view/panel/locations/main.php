@@ -56,6 +56,9 @@ $elements = [
         },
     ],
 ];
+/**
+ * @var \stdClass[] $elements
+ */
 $elements = array_map(function ($e) {
     return (object) $e;
 }, $elements);

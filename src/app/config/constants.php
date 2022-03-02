@@ -49,6 +49,15 @@ define('ACTIVE_TIMER', false);
 //Gestor de archivos
 define('FILE_MANAGER_MODULE', true);
 
+//Publicaciones
+define('PUBLICATIONS_MODULE', true);
+
+//Formularios
+define('FORMS_MODULE_ENABLE', true);
+
+//Personas
+define('PERSONS_MODULE', true);
+
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 

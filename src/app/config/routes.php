@@ -55,9 +55,11 @@ use App\Presentations\PresentationsRoutes;
 use Components\ComponentProviderRoutes;
 use EventsLog\LogsRoutes;
 use FileManager\FileManagerRoutes;
+use Forms\FormsRoutes;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use ImagesRepository\ImagesRepositoryRoutes;
 use Newsletter\NewsletterRoutes;
+use Persons\PersonsRoutes;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
@@ -178,6 +180,12 @@ NewsletterRoutes::routes($zona_administrativa, $zona_publica);
 
 //Registro fotográfico
 ImagesRepositoryRoutes::routes($zona_administrativa);
+
+//Formularios
+FormsRoutes::routes($zona_administrativa);
+
+//Personas
+PersonsRoutes::routes($zona_administrativa);
 
 //Log de acciones
 LogsRoutes::routes($zona_administrativa);
