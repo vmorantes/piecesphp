@@ -54,6 +54,43 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <i class="icon arrow up"></i>
 </button>
 
+<!-- Floating Social Media bar Starts -->
+<div class="social-float">
+    <a target="_blank" href="https://wa.me/570000000000">
+        <div class="icon">
+            <i class="icon whatsapp"></i>
+        </div>
+        <div class="text">
+            <?= __(LANG_GROUP, 'WhatsApp'); ?>
+        </div>
+    </a>
+    <a target="_blank" href="https://www.facebook.com/USER/">
+        <div class="icon">
+            <i class="icon facebook"></i>
+        </div>
+        <div class="text">
+            <?= __(LANG_GROUP, 'Facebook'); ?>
+        </div>
+    </a>
+    <a target="_blank" href="https://www.instagram.com/USER">
+        <div class="icon">
+            <i class="icon instagram"></i>
+        </div>
+        <div class="text">
+            <?= __(LANG_GROUP, 'Instagram'); ?>
+        </div>
+    </a>
+    <a target="_blank" href="tel:+570000000000">
+        <div class="icon">
+            <i class="icon phone"></i>
+        </div>
+        <div class="text">
+            <?= __(LANG_GROUP, 'Teléfono'); ?>
+        </div>
+    </a>
+</div>
+<!-- Floating Social Media bar Ends -->
+
 <!-- Scripts -->
 <?php load_js([
     'base_url' => "",
