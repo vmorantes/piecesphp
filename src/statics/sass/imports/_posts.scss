@@ -17,9 +17,10 @@
 
 //Contenido de un artículo
 #{$parentSelector} .post-content {
-    max-width: 1440px;
+    max-width: 720px;
     padding: pxToRem(10) pxToRem(15);
     margin: 0 auto;
+
     //Sobreescritura de CKEditor
     @import 'ckeditor-overwrites';
 }
