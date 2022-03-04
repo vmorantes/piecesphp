@@ -18,7 +18,7 @@
         text-decoration: none;
         margin: 0px;
         padding: 0px;
-        padding-bottom: 120px;
+        padding-bottom: 30px;
         outline: none;
         border: none;
 
@@ -85,6 +85,13 @@
 
         @media screen and (min-width: $rsTablet) {
             padding-bottom: 0px;
+        }
+
+        @media screen and (max-width: $rsTablet) {
+            img{
+                object-fit: cover;
+                height: 300px;
+            }
         }
     }
 
