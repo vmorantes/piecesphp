@@ -54,6 +54,14 @@ class MailjetHandler
      */
     protected $bcc = [];
     /**
+     * @var array
+     */
+    protected $attachments = [];
+    /**
+     * @var array
+     */
+    protected $inlineAttachments = [];
+    /**
      * @var string
      */
     protected $subject = '';
@@ -79,6 +87,7 @@ class MailjetHandler
     {
         $this->customID = $customID;
         $this->client = new HttpClient("https://{$apiKey}:{$secretKey}@api.mailjet.com/v3.1/");
+
     }
 
     /**
@@ -205,6 +214,76 @@ class MailjetHandler
     }
 
     /**
+     * @param string $contentType
+     * @param string $filename
+     * @param string $base64Content
+     * @param string|null $uniqueID
+     * @return static
+     */
+    public function addAtachment(string $contentType, string $filename, string $base64Content, string $uniqueID = null)
+    {
+
+        $uniqueID = $uniqueID !== null ? $uniqueID : uniqid();
+
+        $attachment = [
+            'ContentType' => $contentType,
+            'Filename' => $filename,
+            'Base64Content' => $base64Content,
+        ];
+
+        $this->attachments[$uniqueID] = $attachment;
+        return $this;
+    }
+
+    /**
+     * @param string $uniqueID
+     * @return static
+     */
+    public function removeAttachmentByUniqueID(string $uniqueID)
+    {
+        if (array_key_exists($uniqueID, $this->attachments)) {
+            unset($this->attachments[$uniqueID]);
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $contentType
+     * @param string $filename
+     * @param string $base64Content
+     * @param string $contentID
+     * @param string|null $uniqueID
+     * @return static
+     */
+    public function addInlineAtachment(string $contentType, string $filename, string $base64Content, string $contentID, string $uniqueID = null)
+    {
+
+        $uniqueID = $uniqueID !== null ? $uniqueID : uniqid();
+
+        $attachment = [
+            'ContentType' => $contentType,
+            'Filename' => $filename,
+            'Base64Content' => $base64Content,
+            'ContentID' => $contentID,
+        ];
+
+        $this->inlineAttachments[$uniqueID] = $attachment;
+        return $this;
+    }
+
+    /**
+     * @param string $uniqueID
+     * @return static
+     */
+    public function removeInlineAttachmentByUniqueID(string $uniqueID)
+    {
+        if (array_key_exists($uniqueID, $this->inlineAttachments)) {
+            unset($this->inlineAttachments[$uniqueID]);
+        }
+        return $this;
+    }
+
+    /**
      * @return \stdClass
      */
     public function getResponse()
@@ -244,25 +323,41 @@ class MailjetHandler
             ];
         }
 
+        $messageConfig = [
+            'CustomID' => $this->customID,
+            'From' => [
+                'Email' => $this->from,
+                'Name' => $this->fromName,
+            ],
+            'ReplyTo' => [
+                'Email' => mb_strlen($this->replyTo) > 0 ? $this->replyTo : $this->from,
+                'Name' => mb_strlen($this->replyTo) > 0 ? $this->replyToName : $this->fromName,
+            ],
+            'To' => $to,
+            'Cc' => $cc,
+            'Bcc' => $bcc,
+            'Subject' => $this->subject,
+            'TextPart' => mb_strlen($this->bodyPlain) > 0 ? $this->bodyPlain : strip_tags($this->bodyHTML),
+            'HTMLPart' => $this->bodyHTML,
+        ];
+
+        if (count($this->attachments) > 0) {
+            $messageConfig['Attachments'] = [];
+            foreach ($this->attachments as $attachment) {
+                $messageConfig['Attachments'][] = $attachment;
+            }
+        }
+
+        if (count($this->inlineAttachments) > 0) {
+            $messageConfig['InlinedAttachments'] = [];
+            foreach ($this->inlineAttachments as $attachment) {
+                $messageConfig['InlinedAttachments'][] = $attachment;
+            }
+        }
+
         $bodyRequest = [
             'Messages' => [
-                [
-                    'CustomID' => $this->customID,
-                    'From' => [
-                        'Email' => $this->from,
-                        'Name' => $this->fromName,
-                    ],
-                    'ReplyTo' => [
-                        'Email' => mb_strlen($this->replyTo) > 0 ? $this->replyTo : $this->from,
-                        'Name' => mb_strlen($this->replyTo) > 0 ? $this->replyToName : $this->fromName,
-                    ],
-                    'To' => $to,
-                    'Cc' => $cc,
-                    'Bcc' => $bcc,
-                    'Subject' => $this->subject,
-                    'TextPart' => mb_strlen($this->bodyPlain) > 0 ? $this->bodyPlain : strip_tags($this->bodyHTML),
-                    'HTMLPart' => $this->bodyHTML,
-                ],
+                $messageConfig,
             ],
         ];
 
