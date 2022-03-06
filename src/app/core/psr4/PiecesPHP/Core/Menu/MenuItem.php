@@ -237,6 +237,32 @@ class MenuItem
     /**
      * @return string
      */
+    public function getClass()
+    {
+        return $this->class;
+    }
+
+    /**
+     * @param bool $asString
+     * @return array
+     */
+    public function getAttributes(bool $asString = false)
+    {
+        $attributes = $this->attributes;
+        $value = $attributes;
+        if ($asString) {
+            $value = [];
+            foreach ($attributes as $name => $attrName) {
+                $value[] = "{$name}=\"{$attrName}\"";
+            }
+            $value = implode(' ', $value);
+        }
+        return $value;
+    }
+
+    /**
+     * @return string
+     */
     public function getHtml()
     {
         return $this->getHtmlElement()->render(false);
@@ -258,7 +284,7 @@ class MenuItem
 
         $a = new HtmlElement($tag, $this->text, [], $attr);
         $a->setAttribute('class', $class);
-        $a->setAttribute('href', $this->href);
+        $a->setAttribute('href', $this->getHref());
 
         return $a;
     }
