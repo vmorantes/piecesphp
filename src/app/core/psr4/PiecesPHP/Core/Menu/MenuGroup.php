@@ -256,6 +256,24 @@ class MenuGroup
     }
 
     /**
+     * @param bool $asString
+     * @return array
+     */
+    public function getAttributes(bool $asString = false)
+    {
+        $attributes = $this->attributes;
+        $value = $attributes;
+        if ($asString) {
+            $value = [];
+            foreach ($attributes as $name => $attrName) {
+                $value[] = "{$name}=\"{$attrName}\"";
+            }
+            $value = implode(' ', $value);
+        }
+        return $value;
+    }
+
+    /**
      * @return MenuItem[]
      */
     public function getItems()
@@ -357,6 +375,17 @@ class MenuGroup
     }
 
     /**
+     * @param bool $asHTML
+     * @return string
+     */
+    public function getIcon(bool $asHTML = true)
+    {
+        $icon = $this->icon;
+        $result = $asHTML ? "<i class='icon {$icon}'></i>" : $icon;
+        return $result;
+    }
+
+    /**
      * @return string
      */
     public function getHref()
@@ -365,20 +394,28 @@ class MenuGroup
     }
 
     /**
+     * @return string
+     */
+    public function getHrefTarget()
+    {
+        return $this->hrefTarget;
+    }
+
+    /**
      * @return HtmlElement|null
      */
     public function getHtmlElement()
     {
-        $group_name = $this->name;
-        $group_as_link = $this->asLink;
-        $group_href = !is_null($this->href) ? $this->href : '';
-        $group_href_target = $this->hrefTarget;
-        $group_icon = $this->icon;
-        $group_visible = $this->visible;
-        $group_attributes = $this->attributes;
+        $group_name = $this->getName();
+        $group_as_link = $this->asLink();
+        $group_href = !is_null($this->getHref()) ? $this->getHref() : '';
+        $group_href_target = $this->getHrefTarget();
+        $group_icon = $this->getIcon(false);
+        $group_visible = $this->isVisible();
+        $group_attributes = $this->getAttributes();
         $group_current = $this->isCurrent();
         $group_items = $this->getItems();
-        $group_groups = $this->groups;
+        $group_groups = $this->getGroups();
 
         if ($group_visible) {
 
@@ -462,8 +499,8 @@ class MenuGroup
     {
         if (is_null($this->current)) {
             $current_url = get_current_url(true);
-            $href = preg_replace('/#.*/', '', $this->href);
-            $href = is_string($href) ? $href : $this->href;
+            $href = preg_replace('/#.*/', '', $this->getHref());
+            $href = is_string($href) ? $href : $this->getHref();
 
             while (last_char($current_url) == '/') {
                 $current_url = remove_last_char($current_url);
