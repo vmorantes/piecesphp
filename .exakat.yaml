@@ -1,0 +1,7 @@
+project_name: PiecesPHP
+ignore_dirs:
+    - /source-docs
+    - /databases
+    - /.vscode
+    - /src/adminer
+    - /src/vendor
