@@ -119,16 +119,18 @@ if (count($langs) > 0) {
         <div class="items">
 
             <?php foreach($publicMenu->getItems() as $element): ?>
+            <?php $elementAttributes = $element->getAttributes(); ?>
+            <?php $elementClasses = array_key_exists('class', $elementAttributes) ? ' ' . $elementAttributes['class'] : ''; ?>
 
             <?php if($element->asLink()): ?>
 
-            <a class="item <?= $element->isCurrent() ? 'current' : '' ?>" href="<?= $element->getHref(); ?>">
+            <a class="item<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>" href="<?= $element->getHref(); ?>" <?= $element->getAttributes(true); ?>>
                 <div class="text"><?= $element->getName(); ?></div>
             </a>
 
             <?php else: ?>
 
-            <span class="item menu <?= $element->isCurrent() ? 'current' : '' ?>">
+            <span class="item menu<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>" <?= $element->getAttributes(true); ?>>
 
                 <div class="text">
                     <?= $element->getName(); ?> <i class="icon angle down"></i>
@@ -137,8 +139,10 @@ if (count($langs) > 0) {
                 <div class="subitems">
 
                     <?php foreach($element->getItems() as $subElement): ?>
+                    <?php $subElementAttributes = $subElement->getAttributes(); ?>
+                    <?php $subElementClasses = array_key_exists('class', $subElementAttributes) ? ' ' . $subElementAttributes['class'] : ''; ?>
 
-                    <a class="item" href="<?= $subElement->getHref(); ?>">
+                    <a class="item<?= $subElementClasses; ?>" href="<?= $subElement->getHref(); ?>" <?= $subElement->getAttributes(true); ?>>
                         <?= $subElement->getText(); ?>
                     </a>
 
