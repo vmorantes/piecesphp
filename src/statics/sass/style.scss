@@ -62,8 +62,19 @@ body {
             }
         }
 
+        ul,
+        ol {
+            &.custom-list {
+                @include basic-custom-list;
+            }
+        }
+
         .text-center {
             text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
         }
 
         .hidden {
@@ -390,6 +401,5 @@ body {
     }
 
 }
-
 
 @import 'imports/posts';
