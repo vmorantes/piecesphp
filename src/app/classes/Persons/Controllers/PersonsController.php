@@ -58,7 +58,7 @@ class PersonsController extends AdminPanelController
     /**
      * @var string
      */
-    protected static $pluralTitle = 'Personas';
+    protected static $pluralTitle = 'Registro de personas';
 
     /**
      * @var string

@@ -185,6 +185,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                         'statics/js/generic-views/tabs.js',
                     ],
                 ],
+                'executeBeforeViews' => function () {},
+                'executeAfterViews' => function () {},
             ],
             'elements' => [
                 'title' => __(LANG_GROUP, 'Elementos'),
@@ -193,6 +195,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                         'statics/js/generic-views/elements.js',
                     ],
                 ],
+                'executeBeforeViews' => function () {},
+                'executeAfterViews' => function () {},
             ],
         ];
 
@@ -211,6 +215,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             $viewData = isset($viewConfig['data']) ? $viewConfig['data'] : [];
             $prependAssets = isset($viewConfig['prependAssets']) ? $viewConfig['prependAssets'] : [];
             $appendAssets = isset($viewConfig['appendAssets']) ? $viewConfig['appendAssets'] : [];
+            $executeBeforeViews = isset($viewConfig['executeBeforeViews']) && is_callable($viewConfig['executeBeforeViews']) ? $viewConfig['executeBeforeViews'] : function () {};
+            $executeAfterViews = isset($viewConfig['executeAfterViews']) && is_callable($viewConfig['executeAfterViews']) ? $viewConfig['executeAfterViews'] : function () {};
             $prependCss = isset($prependAssets['css']) ? $prependAssets['css'] : [];
             $prependJs = isset($prependAssets['js']) ? $prependAssets['js'] : [];
             $appendCss = isset($appendAssets['css']) ? $appendAssets['css'] : [];
@@ -245,10 +251,12 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         if (isset($file) && $file !== null) {
 
+            ($executeBeforeViews)();
             $this->render($viewHeader);
             $this->render($viewMenu);
             $this->render("pages/generic-views/{$file}");
             $this->render($viewFooter);
+            ($executeAfterViews)();
 
         } else {
             throw new NotFoundException($req, $res);
