@@ -70,7 +70,7 @@ $ignoreNames = [
 
         </div>
 
-        <div class="wrapper">
+        <div class="wrapper unbounds">
             <div class="post-content"><?= $element->currentLangData('content'); ?></div>
         </div>
 
