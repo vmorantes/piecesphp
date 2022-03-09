@@ -156,6 +156,32 @@ class PublicationMapper extends EntityMapperExtensible
 
     const ACTIVE = 1;
     const INACTIVE = 0;
+    const DRAFT = 2;
+
+    const STATUSES = [
+        self::ACTIVE => 'Activo',
+        self::INACTIVE => 'Inactivo',
+        self::DRAFT => 'Borrador',
+    ];
+
+    const VISIBILITY_VISIBLE = 1;
+    const VISIBILITY_DRAFT = 0;
+    const VISIBILITY_SCHEDULED = 2;
+    const VISIBILITY_INACTIVE = 3;
+
+    const VISIBILITIES = [
+        self::VISIBILITY_VISIBLE => 'Publicado',
+        self::VISIBILITY_DRAFT => 'Borrador',
+        self::VISIBILITY_SCHEDULED => 'Programado',
+        self::VISIBILITY_INACTIVE => 'Desactivado',
+    ];
+
+    const VISIBILITIES_COLORS = [
+        self::VISIBILITY_VISIBLE => 'green',
+        self::VISIBILITY_DRAFT => 'orange',
+        self::VISIBILITY_SCHEDULED => 'blue',
+        self::VISIBILITY_INACTIVE => 'red',
+    ];
 
     const FEATURED = 1;
     const UNFEATURED = 0;
@@ -163,6 +189,12 @@ class PublicationMapper extends EntityMapperExtensible
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
+    ];
+
+    const CAN_VIEW_DRAFT = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_GENERAL,
     ];
 
     const TABLE = 'publications_elements';
@@ -329,6 +361,14 @@ class PublicationMapper extends EntityMapperExtensible
     public function isFeatured()
     {
         return $this->featured == self::FEATURED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDraft()
+    {
+        return $this->status == self::DRAFT;
     }
 
     /**
@@ -590,6 +630,15 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Campos extra:
+     *  - idPadding
+     *  - categoryName
+     *  - authorUser
+     *  - featuredDisplay
+     *  - statusText
+     *  - isActiveByDate
+     *  - visibility
+     *  - visibilityText
      * @return string[]
      */
     public static function fieldsToSelect()
@@ -599,6 +648,7 @@ class PublicationMapper extends EntityMapperExtensible
         $model = $mapper->getModel();
         $table = $model->getTable();
 
+        $tableView = self::VIEW_ACTIVE_DATE;
         $tableCategory = PublicationCategoryMapper::TABLE;
         $tableUser = UsersModel::TABLE;
 
@@ -608,14 +658,45 @@ class PublicationMapper extends EntityMapperExtensible
         $categoryNameCurrentLang = PublicationCategoryMapper::fieldCurrentLangForSQL('name');
         $categoryNameSubQuery = "SELECT $categoryNameCurrentLang FROM {$tableCategory} WHERE {$tableCategory}.id = {$table}.category";
 
+        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
+        $visibilitiesJSON = json_encode((object) self::visibilities(), \JSON_UNESCAPED_UNICODE);
+
         $yesText = __(self::LANG_GROUP, 'Sí');
         $noText = __(self::LANG_GROUP, 'No');
+
+        $isActiveByDate = "(SELECT COUNT({$tableView}.id) > 0 FROM {$tableView} WHERE {$tableView}.id = {$table}.id)";
+
+        $statusActive = self::ACTIVE;
+        $statusInactive = self::INACTIVE;
+        $visibilitiyVisible = self::VISIBILITY_VISIBLE;
+        $visibilitiyInvisible = self::VISIBILITY_DRAFT;
+        $visibilitiySchedule = self::VISIBILITY_SCHEDULED;
+        $visibilitiyInactive = self::VISIBILITY_INACTIVE;
+
+        $visibilityConditions = "IF(
+            {$isActiveByDate},
+            IF(
+                {$statusActive} = {$table}.status,
+                {$visibilitiyVisible},
+                {$visibilitiyInvisible}
+            ),
+            IF(
+                {$statusActive} = {$table}.status,
+                {$visibilitiySchedule},
+                {$visibilitiyInvisible}
+            )
+        )";
+        $visibilityConditions = "IF({$statusInactive} = {$table}.status, {$visibilitiyInactive}, {$visibilityConditions})";
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "({$categoryNameSubQuery}) AS categoryName",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.author) AS authorUser",
             "IF({$table}.featured, '{$yesText}', '{$noText}') AS featuredDisplay",
+            "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
+            "{$isActiveByDate} AS isActiveByDate",
+            "$visibilityConditions AS visibility",
+            "JSON_UNQUOTE(JSON_EXTRACT('{$visibilitiesJSON}', CONCAT('$.', $visibilityConditions))) AS visibilityText",
             "{$table}.meta",
         ];
 
@@ -777,6 +858,30 @@ class PublicationMapper extends EntityMapperExtensible
         $uniqid = mb_strtolower(str_replace(['.', '-'], '', uniqid()));
         $uniqid = strtr(BaseHashEncryption::encrypt("{$id}-{$uniqid}", self::TABLE), '-_', '._');
         return $uniqid;
+    }
+
+    /**
+     * @return array
+     */
+    public static function statuses()
+    {
+        $options = [];
+        foreach (self::STATUSES as $value => $text) {
+            $options[$value] = __(self::LANG_GROUP, $text);
+        }
+        return $options;
+    }
+
+    /**
+     * @return array
+     */
+    public static function visibilities()
+    {
+        $options = [];
+        foreach (self::VISIBILITIES as $value => $text) {
+            $options[$value] = __(self::LANG_GROUP, $text);
+        }
+        return $options;
     }
 
     /**
@@ -948,7 +1053,7 @@ class PublicationMapper extends EntityMapperExtensible
         $model = self::model();
 
         $title = escapeString($title);
-        $statusActive = self::ACTIVE;
+        $statusInactive = self::INACTIVE;
 
         $where = [
             "title = '{$title}' AND",
@@ -957,7 +1062,7 @@ class PublicationMapper extends EntityMapperExtensible
         ];
 
         if ($onlyActives) {
-            $where[] = "AND status = {$statusActive}";
+            $where[] = "AND status != {$statusInactive}";
         }
 
         $model->select()->where(implode(' ', $where));

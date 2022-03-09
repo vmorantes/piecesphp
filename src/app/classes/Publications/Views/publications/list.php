@@ -59,7 +59,7 @@ $editLink;
                 <th><?= __($langGroup, 'Fecha'); ?></th>
                 <th><?= __($langGroup, 'Autor'); ?></th>
                 <th><?= __($langGroup, 'Destacado'); ?></th>
-                <th><?= __($langGroup, 'Acciones'); ?></th>
+                <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
             </tr>
 
         </thead>
