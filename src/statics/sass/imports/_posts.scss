@@ -21,6 +21,11 @@
     padding: pxToRem(10) pxToRem(15);
     margin: 0 auto;
 
+    &.wide{
+        max-width: initial;
+        padding: 0;
+    }
+
     //Sobreescritura de CKEditor
     @import 'ckeditor-overwrites';
 }
