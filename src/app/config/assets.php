@@ -256,6 +256,7 @@ $assets['fancybox3']['plugins'] = [];
 /**
  * ElFinder
  * https://github.com/Studio-42/elFinder
+ * @link project://src/statics/plugins/elfinder/js/elfinder.full.js
  */
 $assets['elfinder']['js'] = [
     'statics/plugins/jquery-ui/jquery-ui.min.js',
