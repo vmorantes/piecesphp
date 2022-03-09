@@ -62,10 +62,19 @@ $action;
                 <input type="text" name="publicDate" required autocomplete="off" value="<?= date('Y-m-d h:i:s A'); ?>">
             </div>
 
-            <div class="field">
-                <div class="ui toggle checkbox">
-                    <input type="checkbox" name="featured" value="<?= PublicationMapper::FEATURED; ?>">
-                    <label><?= __($langGroup, 'Destacado'); ?></label>
+            <div class="fields">
+                <div class="field">
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" name="featured" value="<?= PublicationMapper::FEATURED; ?>">
+                        <label><?= __($langGroup, 'Destacado'); ?></label>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" name="draft" value="yes">
+                        <label><?= __($langGroup, 'Borrador'); ?></label>
+                    </div>
                 </div>
             </div>
 

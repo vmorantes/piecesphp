@@ -424,6 +424,17 @@ class PublicationsController extends AdminPanelController
                     return (int) $value;
                 }
             ),
+            new Parameter(
+                'draft',
+                false,
+                function ($value) {
+                    return $value === 'yes' || $value === true;
+                },
+                true,
+                function ($value) {
+                    return $value === 'yes' || $value === true;
+                }
+            ),
         ]);
 
         //Obtención de datos
@@ -496,6 +507,7 @@ class PublicationsController extends AdminPanelController
              * @var \DateTime|null $startDate
              * @var \DateTime|null $endDate
              * @var int $featured
+             * @var int|null $draft
              * @var array $attachmentsTypes
              */;
             $id = $expectedParameters->getValue('id');
@@ -509,6 +521,7 @@ class PublicationsController extends AdminPanelController
             $startDate = $expectedParameters->getValue('startDate');
             $endDate = $expectedParameters->getValue('endDate');
             $featured = $expectedParameters->getValue('featured') == PublicationMapper::FEATURED ? PublicationMapper::FEATURED : PublicationMapper::UNFEATURED;
+            $draft = $expectedParameters->getValue('draft');
 
             $attachmentsTypes = [];
             foreach ($attachmentsConfigure as $attachmentConfigure) {
@@ -554,6 +567,10 @@ class PublicationsController extends AdminPanelController
                     $mapper->setLangData($lang, 'author', $author);
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
                     $mapper->setLangData($lang, 'featured', $featured);
+
+                    if ($draft) {
+                        $mapper->status = PublicationMapper::DRAFT;
+                    }
 
                     $mainImage = self::handlerUpload('mainImage', $mapper->folder);
                     $thumbImage = self::handlerUpload('thumbImage', $mapper->folder);
@@ -622,6 +639,12 @@ class PublicationsController extends AdminPanelController
                         $mapper->setLangData($lang, 'category', $category);
                         $mapper->setLangData($lang, 'featured', $featured);
                         $mapper->setLangData($lang, 'author', $author);
+
+                        if ($draft) {
+                            $mapper->status = PublicationMapper::DRAFT;
+                        } else {
+                            $mapper->status = PublicationMapper::ACTIVE;
+                        }
 
                         $mainImageSetted = $mapper->getLangData($lang, 'mainImage', false, null);
                         $thumbImageSetted = $mapper->getLangData($lang, 'thumbImage', false, null);
@@ -1082,10 +1105,10 @@ class PublicationsController extends AdminPanelController
 
         $whereString = null;
         $table = PublicationMapper::TABLE;
-        $active = PublicationMapper::ACTIVE;
+        $inactive = PublicationMapper::INACTIVE;
 
         $where = [
-            "{$table}.status = {$active}",
+            "{$table}.status != {$inactive}",
         ];
 
         if (count($where) > 0) {
@@ -1102,6 +1125,7 @@ class PublicationsController extends AdminPanelController
             'publicDate',
             'authorUser',
             'featuredDisplay',
+            'visibilityText',
         ];
 
         $customOrder = [
@@ -1131,25 +1155,39 @@ class PublicationsController extends AdminPanelController
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
+                $hasPreview = PublicationsPublicController::allowedRoute('single', ['slug' => $mapper->getSlug()]);
 
                 if ($hasEdit) {
                     $editLink = self::routeName('forms-edit', ['id' => $e->id]);
                     $editText = __(self::LANG_GROUP, 'Editar');
-                    $editButton = "<a href='{$editLink}' class='ui button green'>{$editText}</a>";
+                    $editIcon = "<i class='icon edit'></i>";
+                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button green icon'>{$editIcon}</a>";
                     $buttons[] = $editButton;
+                }
+                if ($hasPreview) {
+                    $previewLink = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
+                    $previewText = __(self::LANG_GROUP, 'Ver');
+                    $previewIcon = "<i class='icon external alternate'></i>";
+                    $previewButton = "<a target='_blank' title='{$previewText}' href='{$previewLink}' class='ui button blue icon'>{$previewIcon}</a>";
+                    $buttons[] = $previewButton;
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
                     $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button red' delete-publication-button>{$deleteText}</a>";
+                    $deleteIcon = "<i class='icon trash'></i>";
+                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button red icon' delete-publication-button>{$deleteIcon}</a>";
                     $buttons[] = $deleteButton;
                 }
 
                 $buttons = implode('', $buttons);
                 $columns = [];
 
+                $tagColor = PublicationMapper::VISIBILITIES_COLORS[$e->visibility];
+                $tag = "<span class='ui {$tagColor} label'>{$e->visibilityText}</span>";
+                $title = mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...';
+
                 $columns[] = $e->idPadding;
-                $columns[] = mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...';
+                $columns[] = "{$tag} {$title}";
                 $columns[] = $e->categoryName;
                 $columns[] = $e->visits;
                 $columns[] = $mapper->publicDate->format('d-m-Y');
