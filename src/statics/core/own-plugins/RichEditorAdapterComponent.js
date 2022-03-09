@@ -244,7 +244,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			.then(editor => {
 				editorInstance = editor
 				editorInstance.model.document.on('change:data', () => {
-					textareaTarget.html(editorInstance.getData())
+					textareaTarget.val(editorInstance.getData())
 				})
 
 				const CKFinder = editor.commands.get('ckfinder')
