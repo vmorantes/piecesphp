@@ -156,7 +156,28 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
         $element = new PublicationMapper($slugID);
         $currentLang = Config::get_lang();
 
-        if ($element->id !== null && $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates()) {
+        $exists = $element->id !== null;
+        $allowShow = false;
+
+        if ($element->isDraft()) {
+
+            if ($exists && $this->user instanceof \stdClass) {
+
+                if (in_array($this->user->type, PublicationMapper::CAN_VIEW_DRAFT)) {
+                    $allowShow = true;
+                } else {
+                    $allowShow = false;
+                }
+
+            } else {
+                $allowShow = false;
+            }
+
+        } else {
+            $allowShow = $exists && $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
+        }
+
+        if ($allowShow) {
 
             set_custom_assets([
                 'statics/css/style.css',
@@ -172,7 +193,9 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
             set_title($title);
 
             //Agregar visita
-            $element->addVisit();
+            if (!$element->isDraft()) {
+                $element->addVisit();
+            }
 
             //Configuraciones de SEO
             $seoDescription = $element->getLangData($currentLang, 'seoDescription', false, null);
