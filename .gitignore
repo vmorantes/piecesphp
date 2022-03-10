@@ -11,3 +11,4 @@ src/statics/features/avatars/css/*
 **/.sass-cache
 docs/code/phpdoc-cache-*
 tasks/output
+.scannerwork
