@@ -30,8 +30,6 @@ class RecoveryPasswordController extends UsersController
     const LANG_GROUP = 'revoveryPasswordModule';
 
     /**
-     * $userMapper
-     *
      * @var UsersModel
      */
     protected $userMapper = null;
@@ -44,16 +42,13 @@ class RecoveryPasswordController extends UsersController
     }
 
     /**
-     * recoveryPasswordForm
-     *
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Response $response Respuesta
      * @return void
      */
-    public function recoveryPasswordForm(Request $request, Response $response, array $args)
+    public function recoveryPasswordForm(Request $request, Response $response)
     {
 
         set_title(__(self::LANG_GROUP, 'Recuperación de contraseña'));
@@ -86,11 +81,10 @@ class RecoveryPasswordController extends UsersController
      * Este método espera recibir por POST: [username|email]
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Response $response Respuesta
      * @return void
      */
-    public function recoveryPasswordRequest(Request $request, Response $response, array $args)
+    public function recoveryPasswordRequest(Request $request, Response $response)
     {
 
         //Parámetros
@@ -172,11 +166,10 @@ class RecoveryPasswordController extends UsersController
      * Este método espera recibir por POST: [username]
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Response $response Respuesta
      * @return void
      */
-    public function recoveryPasswordRequestCode(Request $request, Response $response, array $args)
+    public function recoveryPasswordRequestCode(Request $request, Response $response)
     {
 
         //Parámetros
@@ -220,7 +213,7 @@ class RecoveryPasswordController extends UsersController
 
                 //Datos de recuperación
                 $recoveryPassword = new RecoveryPasswordModel();
-                $recoveryPassword->created = date('Y-m-d h:i:s');
+                $recoveryPassword->created = new \DateTime();
                 $recoveryPassword->expired = $recoveryPassword->created->modify('+24 hour');
                 $recoveryPassword->email = $usuario->email;
                 $recoveryPassword->code = generate_code(6);
@@ -258,8 +251,7 @@ class RecoveryPasswordController extends UsersController
      * Envía un correo con la nueva contraseña.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET. Espera $args['url_token]
+     * @param Response $response Respuesta. Espera $args['url_token]
      * @return void
      */
     public function newPasswordCreate(Request $request, Response $response, array $args)
@@ -353,8 +345,7 @@ class RecoveryPasswordController extends UsersController
      * Envía un correo con la nueva contraseña con código.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET. Espera $args['code']
+     * @param Response $response Respuesta. Espera $args['code']
      * @return void
      */
     public function newPasswordCreateCode(Request $request, Response $response, array $args)
@@ -448,7 +439,7 @@ class RecoveryPasswordController extends UsersController
      * Verifica la existencia del código
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
+     * @param Response $response Respuesta
      * @param array $args
      * @return void
      */

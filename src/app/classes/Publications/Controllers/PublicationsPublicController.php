@@ -33,15 +33,11 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 {
 
     /**
-     * $URLDirectory
-     *
      * @var string
      */
     protected static $URLDirectory = 'publications';
 
     /**
-     * $baseRouteName
-     *
      * @var string
      */
     protected static $baseRouteName = 'publications';
@@ -86,10 +82,9 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView(Request $request, Response $response)
     {
 
         try {
@@ -145,10 +140,9 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function singleView(Request $request, Response $response, array $args)
+    public function singleView(Request $request, Response $response)
     {
 
         $slug = $request->getAttribute('slug', '');
@@ -231,12 +225,11 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
-        return (new PublicationsController)->all($request, $response, $args);
+        return (new PublicationsController)->all($request, $response);
     }
 
     /**

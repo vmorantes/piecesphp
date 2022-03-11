@@ -1,5 +1,4 @@
 <?php
-
 /**
  * GenericTokenController.php
  */
@@ -23,8 +22,6 @@ use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
 /**
- * GenericTokenController.
- *
  * GenericTokenController.
  *
  * @package     PiecesPHP\Core
@@ -200,10 +197,9 @@ class GenericTokenController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function commentary(Request $req, Response $res, array $args)
+    public function commentary(Request $req, Response $res)
     {
         $method = $req->getMethod();
 

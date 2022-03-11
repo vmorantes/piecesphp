@@ -2665,3 +2665,21 @@ function echoTerminal(string $text, bool $newLine = true, string $newLineChars =
     fwrite(STDOUT, $text . ($newLine ? $newLineChars : ''));
     flush();
 }
+
+/**
+ * @return string
+ */
+function getCurrentProcessOwnerUser()
+{
+    $userInfo = posix_getpwuid(posix_getuid());
+    return $userInfo['name'];
+}
+
+/**
+ * @return string
+ */
+function getCurrentProcessOwnerGroup()
+{
+    $groupInfo = posix_getgrgid(posix_getgid());
+    return $groupInfo['name'];
+}

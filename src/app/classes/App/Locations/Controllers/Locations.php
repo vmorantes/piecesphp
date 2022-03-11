@@ -25,22 +25,16 @@ use \Slim\Http\Response as Response;
 class Locations extends AdminPanelController
 {
     /**
-     * $prefixEntity
-     *
      * @var string
      */
     protected static $prefixEntity = 'locations';
 
     /**
-     * $title
-     *
      * @var string
      */
     public static $title = 'Ubicaciones';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -51,7 +45,12 @@ class Locations extends AdminPanelController
         set_title(self::$title);
     }
 
-    public function indexView(Request $request, Response $response, array $args)
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function indexView(Request $request, Response $response)
     {
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixEntity . '/main');
@@ -59,8 +58,6 @@ class Locations extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -122,8 +119,6 @@ class Locations extends AdminPanelController
     }
 
     /**
-     * genericManageRoutes
-     *
      * @param string $startRoute
      * @param string $namePrefix
      * @param string $handler

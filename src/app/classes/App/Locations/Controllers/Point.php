@@ -34,39 +34,27 @@ class Point extends AdminPanelController
 {
 
     /**
-     * $prefixParentEntity
-     *
      * @var string
      */
     protected static $prefixParentEntity = 'locations';
     /**
-     * $prefixEntity
-     *
      * @var string
      */
     protected static $prefixEntity = 'points';
     /**
-     * $prefixSingularEntity
-     *
      * @var string
      */
     protected static $prefixSingularEntity = 'point';
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = 'Localidad';
     /**
-     * $pluralTitle
-     *
      * @var string
      */
     protected static $pluralTitle = 'Localidades';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -81,14 +69,9 @@ class Point extends AdminPanelController
     }
 
     /**
-     * addForm
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm()
     {
 
         $action = self::routeName('actions-add');
@@ -108,14 +91,11 @@ class Point extends AdminPanelController
     }
 
     /**
-     * editForm
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -146,14 +126,9 @@ class Point extends AdminPanelController
     }
 
     /**
-     * list
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    function list(Request $request, Response $response, array $args) {
+    function list() {
 
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();
@@ -172,14 +147,11 @@ class Point extends AdminPanelController
     }
 
     /**
-     * points
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function points(Request $request, Response $response, array $args)
+    public function points(Request $request, Response $response)
     {
         $city = $request->getQueryParam('city', null);
 
@@ -213,14 +185,11 @@ class Point extends AdminPanelController
     }
 
     /**
-     * pointsDataTables
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function pointsDataTables(Request $request, Response $response, array $args)
+    public function pointsDataTables(Request $request, Response $response)
     {
         $city = $request->getQueryParam('city', null);
 
@@ -288,16 +257,13 @@ class Point extends AdminPanelController
     }
 
     /**
-     * action
-     *
      * Creación/Edición de estados
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         $id = $request->getParsedBodyParam('id', -1);
@@ -418,10 +384,9 @@ class Point extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -557,8 +522,6 @@ class Point extends AdminPanelController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists

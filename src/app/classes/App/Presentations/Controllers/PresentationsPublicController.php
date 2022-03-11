@@ -34,28 +34,20 @@ class PresentationsPublicController extends AdminPanelController
 {
 
     /**
-     * $URLDirectory
-     *
      * @var string
      */
     protected static $URLDirectory = 'presentations';
 
     /**
-     * $baseRouteName
-     *
      * @var string
      */
     protected static $baseRouteName = 'app-presentations';
 
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = 'Presentación';
     /**
-     * $pluralTitle
-     *
      * @var string
      */
     protected static $pluralTitle = 'Presentaciones';
@@ -109,10 +101,9 @@ class PresentationsPublicController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView(Request $request, Response $response)
     {
 
         try {
@@ -166,10 +157,9 @@ class PresentationsPublicController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function singleView(Request $request, Response $response, array $args)
+    public function singleView(Request $request, Response $response)
     {
 
         $slug = $request->getAttribute('slug', '');
@@ -218,10 +208,9 @@ class PresentationsPublicController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([

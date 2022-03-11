@@ -8,7 +8,6 @@ namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Locations\Mappers\StateMapper;
-use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -17,6 +16,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
@@ -34,39 +34,27 @@ class State extends AdminPanelController
 {
 
     /**
-     * $prefixParentEntity
-     *
      * @var string
      */
     protected static $prefixParentEntity = 'locations';
     /**
-     * $prefixEntity
-     *
      * @var string
      */
     protected static $prefixEntity = 'states';
     /**
-     * $prefixSingularEntity
-     *
      * @var string
      */
     protected static $prefixSingularEntity = 'state';
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = 'Departamento';
     /**
-     * $pluralTitle
-     *
      * @var string
      */
     protected static $pluralTitle = 'Departamentos';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -81,14 +69,9 @@ class State extends AdminPanelController
     }
 
     /**
-     * addForm
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm()
     {
 
         $action = self::routeName('actions-add');
@@ -108,14 +91,11 @@ class State extends AdminPanelController
     }
 
     /**
-     * editForm
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -147,14 +127,9 @@ class State extends AdminPanelController
     }
 
     /**
-     * list
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    function list(Request $request, Response $response, array $args) {
+    function list() {
 
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();
@@ -173,14 +148,11 @@ class State extends AdminPanelController
     }
 
     /**
-     * states
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function states(Request $request, Response $response, array $args)
+    public function states(Request $request, Response $response)
     {
         $country = $request->getQueryParam('country', null);
         $ids = $request->getQueryParam('ids', []);
@@ -230,87 +202,68 @@ class State extends AdminPanelController
     }
 
     /**
-     * statesDataTables
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function statesDataTables(Request $request, Response $response, array $args)
+    public function statesDataTables(Request $request, Response $response)
     {
         $country = $request->getQueryParam('country', null);
-
         if ($country !== null) {
-            if (ctype_digit($country)) {
-                $country = (int) $country;
-            } else {
-                $country = -1;
-            }
+            $country = Validator::isInteger($country) ? (int) $country : -1;
         }
 
-        if ($request->isXhr()) {
+        $columns_order = [
+            'id',
+            'code',
+            'name',
+            'country',
+            'active',
+        ];
 
-            $columns_order = [
-                'id',
-                'code',
-                'name',
-                'country',
-                'active',
-            ];
+        $result = DataTablesHelper::process([
+            'columns_order' => $columns_order,
+            'mapper' => new StateMapper(),
+            'request' => $request,
+            'on_set_data' => function ($e) {
 
-            $result = DataTablesHelper::process([
-                'columns_order' => $columns_order,
-                'mapper' => new StateMapper(),
-                'request' => $request,
-                'on_set_data' => function ($e) {
+                $editButton = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
+                $editLink = self::routeName('forms-edit', [
+                    'id' => $e->id,
+                ]);
 
-                    $buttonEdit = new HtmlElement('a', __(LOCATIONS_LANG_GROUP, 'Editar'));
-                    $buttonEdit->setAttribute('class', "ui button green");
-                    $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
-                        'id' => $e->id,
-                    ]));
+                if (mb_strlen($editLink) > 0) {
+                    $editText = __(LOCATIONS_LANG_GROUP, 'Editar');
+                    $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
+                }
 
-                    if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
-                        $href = $buttonEdit->getAttributes(false)->offsetGet('href');
-                        if (mb_strlen(trim($href->getValue())) < 1) {
-                            $buttonEdit = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
-                        }
-                    }
+                $mapper = new StateMapper($e->id);
 
-                    $mapper = new StateMapper($e->id);
+                return [
+                    $e->id,
+                    !is_null($e->code) ? $e->code : '-',
+                    stripslashes($e->name),
+                    $mapper->country->name,
+                    __(LOCATIONS_LANG_GROUP, StateMapper::STATUS[$e->active]),
+                    $editButton,
+                ];
 
-                    return [
-                        $e->id,
-                        !is_null($e->code) ? $e->code : '-',
-                        stripslashes($e->name),
-                        $mapper->country->name,
-                        __(LOCATIONS_LANG_GROUP, StateMapper::STATUS[$e->active]),
-                        (string) $buttonEdit,
-                    ];
+            },
+            'where_string' => is_null($country) ? null : "country = $country",
+        ]);
 
-                },
-                'where_string' => is_null($country) ? null : "country = $country",
-            ]);
+        return $response->withJson($result->getValues());
 
-            return $response->withJson($result->getValues());
-
-        } else {
-            throw new NotFoundException($request, $response);
-        }
     }
 
     /**
-     * action
-     *
      * Creación/Edición de estados
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         $id = $request->getParsedBodyParam('id', -1);
@@ -442,10 +395,9 @@ class State extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -580,8 +532,6 @@ class State extends AdminPanelController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists

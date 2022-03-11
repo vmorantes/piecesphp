@@ -38,11 +38,10 @@ class AvatarController extends BaseController
      * FILES:  [image]
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Response $response Respuesta Argumentos pasados por GET
      * @return void
      */
-    public function register(Request $request, Response $response, array $args)
+    public function register(Request $request, Response $response)
     {
 
         $user_id = $request->getParsedBodyParam('user_id', null);
@@ -74,16 +73,13 @@ class AvatarController extends BaseController
     }
 
     /**
-     * avatar
-     *
      * Avatars JSON
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Response $response Respuesta Argumentos pasados por GET
      * @return void
      */
-    public function avatar(Request $request, Response $response, array $args)
+    public function avatar(Request $request, Response $response)
     {
         $baseFolder = 'statics/images/avatares';
         $categories = [
@@ -232,10 +228,8 @@ class AvatarController extends BaseController
     }
 
     /**
-     * listFiles
-     *
      * @param string $folderRelativePath
-     * @return void
+     * @return array
      */
     public function listFiles(string $folderRelativePath)
     {

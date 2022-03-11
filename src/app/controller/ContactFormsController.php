@@ -49,10 +49,9 @@ class ContactFormsController extends PublicAreaController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function contactMessage(Request $req, Response $res, array $args)
+    public function contactMessage(Request $req, Response $res)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -260,8 +259,6 @@ class ContactFormsController extends PublicAreaController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -297,8 +294,6 @@ class ContactFormsController extends PublicAreaController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

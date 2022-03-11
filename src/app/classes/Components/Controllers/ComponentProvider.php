@@ -59,10 +59,9 @@ class ComponentProvider extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function provide(Request $request, Response $response, array $args)
+    public function provide(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────

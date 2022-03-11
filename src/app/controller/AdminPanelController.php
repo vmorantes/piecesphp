@@ -34,8 +34,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 {
 
     /**
-     * $user
-     *
      * Usuario logueado
      *
      * @var \stdClass
@@ -43,8 +41,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     protected $user = null;
 
     /**
-     * $modelUsers
-     *
      * @var \PiecesPHP\Core\BaseModel
      */
     protected $modelUsers;
@@ -52,8 +48,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     const LANG_GROUP = 'adminZone';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -64,16 +58,13 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * indexView
-     *
      * Vista principal
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function indexView(Request $req, Response $res, array $args)
+    public function indexView(Request $req, Response $res)
     {
         if (BLACKBOARD_NEWS_ENABLED) {
             add_global_asset(BLACKBOARD_NEWS_PATH_JS . '/main.js', 'js');
@@ -102,14 +93,11 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * errorLog
-     *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function errorLog(Request $req, Response $res, array $args)
+    public function errorLog(Request $req, Response $res)
     {
         $file = LOG_ERRORS_PATH . '/error.log.json';
         $log = file_exists($file) ? file_get_contents($file) : '';
@@ -125,10 +113,9 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function cropperAdapterTestingView(Request $req, Response $res, array $args)
+    public function cropperAdapterTestingView(Request $req, Response $res)
     {
         import_cropper();
 
@@ -142,16 +129,13 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * sendTicket
-     *
      * Enviar mensaje al soporte
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function sendTicket(Request $req, Response $res, array $args)
+    public function sendTicket(Request $req, Response $res)
     {
         $name = $req->getParsedBodyParam('name', null);
         $email = $req->getParsedBodyParam('email', null);
@@ -220,8 +204,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -268,7 +250,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         ]);
 
         //Variables css globales
-        $cssGlobalVariables = function (Request $request, Response $response, array $args) {
+        $cssGlobalVariables = function (Request $request, Response $response) {
             $css = CSSVariables::instance('global');
             return $css->toResponse($request, $response, false);
         };
@@ -289,8 +271,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * usersRoutes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -300,8 +280,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * ticketsRoutes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
@@ -333,8 +311,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * init
-     *
      * @return void
      */
     protected function init()
@@ -386,8 +362,6 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
-     * showPermissionsRoles
-     *
      * @return void
      */
     private function showPermissionsRoles()

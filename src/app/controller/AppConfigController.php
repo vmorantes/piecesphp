@@ -136,10 +136,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function backgrounds(Request $req, Response $res, array $args)
+    public function backgrounds(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
         $requestMethod = mb_strtoupper($req->getMethod());
@@ -268,10 +267,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function faviconsAndLogos(Request $req, Response $res, array $args)
+    public function faviconsAndLogos(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
         $requestMethod = mb_strtoupper($req->getMethod());
@@ -395,10 +393,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function seo(Request $req, Response $res, array $args)
+    public function seo(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
@@ -698,10 +695,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function email(Request $req, Response $res, array $args)
+    public function email(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
@@ -940,10 +936,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function osTicket(Request $req, Response $res, array $args)
+    public function osTicket(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
@@ -1080,10 +1075,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function routesView(Request $req, Response $res, array $args)
+    public function routesView(Request $req, Response $res)
     {
         $this->render('panel/layout/header');
         $this->render('panel/pages/app_configurations/routes', [
@@ -1097,10 +1091,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function configurationsView(Request $req, Response $res, array $args)
+    public function configurationsView(Request $req, Response $res)
     {
         import_spectrum();
 
@@ -1164,10 +1157,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function actionGeneric(Request $req, Response $res, array $args)
+    public function actionGeneric(Request $req, Response $res)
     {
         $operation_name = __(self::LANG_GROUP, 'Configuración');
 
@@ -1310,10 +1302,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function createSitemap(Request $req, Response $res, array $args)
+    public function createSitemap(Request $req, Response $res)
     {
 
         $startTime = microtime(true);
@@ -1436,10 +1427,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function sslGenerator(Request $req, Response $res, array $args)
+    public function sslGenerator(Request $req, Response $res)
     {
         $sslMessages = 'config-ssl';
 
@@ -1530,10 +1520,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function mapboxKey(Request $req, Response $res, array $args)
+    public function mapboxKey(Request $req, Response $res)
     {
         $keyLocal = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjamt1YjBzeXEwZWlvM3FxbDBuZDZmZWFtIn0.jv_5-3mX1kWLrk1ffvV2zQ';
         $keyDomain = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjamt1YjBzeXEwZWlvM3FxbDBuZDZmZWFtIn0.jv_5-3mX1kWLrk1ffvV2zQ';

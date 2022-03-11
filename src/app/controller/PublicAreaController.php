@@ -72,10 +72,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function indexView(Request $req, Response $res, array $args)
+    public function indexView(Request $req, Response $res)
     {
 
         set_title(__(LANG_GROUP, 'Home'));
@@ -111,10 +110,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function contactView(Request $req, Response $res, array $args)
+    public function contactView(Request $req, Response $res)
     {
 
         set_title(__(LANG_GROUP, 'Contacto'));

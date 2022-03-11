@@ -119,10 +119,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function previewImage(Request $request, Response $response, array $args)
+    public function previewImage(Request $request, Response $response)
     {
         $id = $request->getAttribute('id', null);
         $id = is_int($id) || (is_string($id) && ctype_digit($id)) ? (int) $id : null;
@@ -167,10 +166,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function friendlyImageName(Request $request, Response $response, array $args)
+    public function friendlyImageName(Request $request, Response $response)
     {
         $image = null;
         $maskNameInput = $request->getAttribute('name', null);
@@ -225,10 +223,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function friendlyAuthorizationName(Request $request, Response $response, array $args)
+    public function friendlyAuthorizationName(Request $request, Response $response)
     {
         $image = null;
         $maskNameInput = $request->getAttribute('name', null);
@@ -283,10 +280,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView(Request $request, Response $response)
     {
 
         $backLink = get_route('admin');
@@ -328,10 +324,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function filterView(Request $request, Response $response, array $args)
+    public function filterView(Request $request, Response $response)
     {
         $year = $request->getQueryParam('year', null);
         $search = $request->getQueryParam('searchText', null);
@@ -399,10 +394,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm(Request $request, Response $response)
     {
 
         import_simple_upload_placeholder();
@@ -433,10 +427,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -493,10 +486,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function singleView(Request $request, Response $response, array $args)
+    public function singleView(Request $request, Response $response)
     {
 
         $slug = $request->getAttribute('slug', '');
@@ -551,10 +543,9 @@ class ImagesRepositoryController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -996,10 +987,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -1058,10 +1048,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTables(Request $request, Response $response, array $args)
+    public function dataTables(Request $request, Response $response)
     {
         $table = ImagesRepositoryMapper::TABLE;
 
@@ -1140,10 +1129,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTablesFilterView(Request $request, Response $response, array $args)
+    public function dataTablesFilterView(Request $request, Response $response)
     {
 
         //──── Parámetros ────────────────────────────────────────────────────────────────────────
