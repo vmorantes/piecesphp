@@ -334,7 +334,7 @@ class CategoriesController extends AdminPanelController
              * @var string $lang
              * @var int $id
              * @var string $categoryName
-             */;
+             */
             $lang = $expectedParameters->getValue('lang');
             $id = $expectedParameters->getValue('id');
             $categoryName = $expectedParameters->getValue('categoryName');
@@ -504,7 +504,7 @@ class CategoriesController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -631,9 +631,9 @@ class CategoriesController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
 
@@ -1069,7 +1069,7 @@ class CategoriesController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

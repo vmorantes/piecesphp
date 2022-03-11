@@ -1426,11 +1426,11 @@ class UsersController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var int $type
          * @var int[] $ignore
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $type = $expectedParameters->getValue('type');

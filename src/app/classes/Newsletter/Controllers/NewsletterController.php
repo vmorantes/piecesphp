@@ -286,7 +286,7 @@ class NewsletterController extends AdminPanelController
              * @var string $name
              * @var string $email
              * @var bool $acceptUpdates
-             */;
+             */
             $id = $expectedParameters->getValue('id');
             $name = $expectedParameters->getValue('name');
             $email = $expectedParameters->getValue('email');
@@ -446,7 +446,7 @@ class NewsletterController extends AdminPanelController
             //Información del formulario
             /**
              * @var string $email
-             */;
+             */
             $email = $expectedParameters->getValue('email');
 
             try {
@@ -562,7 +562,7 @@ class NewsletterController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -685,9 +685,9 @@ class NewsletterController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
 
@@ -915,7 +915,7 @@ class NewsletterController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

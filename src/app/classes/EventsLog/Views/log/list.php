@@ -6,7 +6,7 @@ use App\Model\UsersModel;
 /**
  * @var string $langGroup
  * @var string $title
- */;
+ */
 $langGroup;
 $title;
 $user = new UsersModel(get_config('current_user')->id);

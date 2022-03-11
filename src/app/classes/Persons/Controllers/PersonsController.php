@@ -406,7 +406,7 @@ class PersonsController extends AdminPanelController
              * @var string $personName2
              * @var string $personLastName1
              * @var string $personLastName2
-             */;
+             */
             $lang = $expectedParameters->getValue('lang');
             $id = $expectedParameters->getValue('id');
             $documentType = $expectedParameters->getValue('documentType');
@@ -591,7 +591,7 @@ class PersonsController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -729,10 +729,10 @@ class PersonsController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var int $id
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $id = $expectedParameters->getValue('id');
@@ -1227,7 +1227,7 @@ class PersonsController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

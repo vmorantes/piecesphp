@@ -3,11 +3,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use Persons\Controllers\PersonsController;
 /**
  * @var PersonsController $this
- */;
+ */
 /**
  * @var string $langGroup
  * @var string $editLink
- */;
+ */
 $langGroup;
 $editLink;
 $langGroupDatatables = 'datatables';

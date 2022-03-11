@@ -3,10 +3,10 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use ImagesRepository\Controllers\ImagesRepositoryController;
 /**
  * @var ImagesRepositoryController $this
- */;
+ */
 /**
  * @var string $langGroup
- */;
+ */
 $langGroup;
 $langGroupDatatables = 'datatables';
 

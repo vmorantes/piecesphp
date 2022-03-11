@@ -660,7 +660,7 @@ class ImagesRepositoryController extends AdminPanelController
              * @var string $description
              * @var string $resolution
              * @var \DateTime $captureDate
-             */;
+             */
             $lang = $expectedParameters->getValue('lang');
             $id = $expectedParameters->getValue('id');
             $author = $expectedParameters->getValue('author');
@@ -891,7 +891,7 @@ class ImagesRepositoryController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -1032,10 +1032,10 @@ class ImagesRepositoryController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var string $description
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $description = $expectedParameters->getValue('description');
@@ -1598,7 +1598,7 @@ class ImagesRepositoryController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

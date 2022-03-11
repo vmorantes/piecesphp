@@ -366,7 +366,7 @@ class PresentationsController extends AdminPanelController
              * @var int $order
              * @var int $category
              * @var string[] $imagesToDelete
-             */;
+             */
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
             $name = $expectedParameters->getValue('name');
@@ -591,7 +591,7 @@ class PresentationsController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -729,10 +729,10 @@ class PresentationsController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var int $category
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $category = $expectedParameters->getValue('category');
@@ -1061,7 +1061,7 @@ class PresentationsController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

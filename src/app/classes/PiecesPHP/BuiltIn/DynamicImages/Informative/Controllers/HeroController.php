@@ -403,7 +403,7 @@ class HeroController extends AdminPanelController
              * @var \DateTime|null $start_date
              * @var \DateTime|null $end_date
              * @var int $order
-             */;
+             */
             $id = $expectedParameters->getValue('id');
             $title = $expectedParameters->getValue('title');
             $description = $expectedParameters->getValue('description');
@@ -682,7 +682,7 @@ class HeroController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             //Dirección de redirección en cadso de creación
@@ -812,9 +812,9 @@ class HeroController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
 
@@ -1202,7 +1202,7 @@ class HeroController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

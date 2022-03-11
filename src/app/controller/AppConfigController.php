@@ -569,7 +569,7 @@ class AppConfigController extends AdminPanelController
                  * @var string $description
                  * @var string[] $keywords
                  * @var string $extraScripts
-                 */;
+                 */
                 $lang = $expectedParameters->getValue('lang');
                 $titleApp = $expectedParameters->getValue('titleApp');
                 $owner = $expectedParameters->getValue('owner');
@@ -861,7 +861,7 @@ class AppConfigController extends AdminPanelController
                  * @var string $user
                  * @var string $password
                  * @var string $name
-                 */;
+                 */
                 $autoTLS = $expectedParameters->getValue('auto_tls');
                 $auth = $expectedParameters->getValue('auth');
                 $host = $expectedParameters->getValue('host');
@@ -1897,7 +1897,7 @@ class AppConfigController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

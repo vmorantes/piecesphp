@@ -162,7 +162,7 @@ class ContactFormsController extends PublicAreaController
              * @var string $subject
              * @var string $message
              * @var bool $updates
-             */;
+             */
             $from = $expectedParameters->getValue('from');
             $name = $expectedParameters->getValue('name');
             $email = $expectedParameters->getValue('email');
@@ -276,7 +276,7 @@ class ContactFormsController extends PublicAreaController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;
