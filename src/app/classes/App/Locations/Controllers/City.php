@@ -479,7 +479,7 @@ class City extends AdminPanelController
          * @var int $perPage
          * @var int $state
          * @var int[] $ignore
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $state = $expectedParameters->getValue('state');
@@ -555,7 +555,7 @@ class City extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

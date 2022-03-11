@@ -7,7 +7,7 @@ use ImagesRepository\Controllers\ImagesRepositoryController;
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
- */;
+ */
 $langGroup;
 $backLink;
 $action;

@@ -6,13 +6,13 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
 /**
  * @var ImagesRepositoryMapper $element
  * @var ImagesRepositoryController $this
- */;
+ */
  $element;
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
- */;
+ */
 $langGroup;
 $backLink;
 $action;

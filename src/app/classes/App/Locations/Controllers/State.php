@@ -474,7 +474,7 @@ class State extends AdminPanelController
          * @var int $perPage
          * @var int $country
          * @var int[] $ignore
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $country = $expectedParameters->getValue('country');
@@ -549,7 +549,7 @@ class State extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

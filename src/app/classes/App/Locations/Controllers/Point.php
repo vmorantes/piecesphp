@@ -463,7 +463,7 @@ class Point extends AdminPanelController
          * @var int $perPage
          * @var int $city
          * @var int[] $ignore
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $city = $expectedParameters->getValue('city');
@@ -539,7 +539,7 @@ class Point extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

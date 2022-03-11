@@ -293,7 +293,7 @@ class PublicationsCategoryController extends AdminPanelController
              * @var int $id
              * @var string $lang
              * @var string $name
-             */;
+             */
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
             $name = $expectedParameters->getValue('name');
@@ -467,7 +467,7 @@ class PublicationsCategoryController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -604,10 +604,9 @@ class PublicationsCategoryController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
-         * @var int $category
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
 
@@ -855,7 +854,7 @@ class PublicationsCategoryController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

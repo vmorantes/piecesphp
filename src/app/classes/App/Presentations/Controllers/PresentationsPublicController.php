@@ -268,7 +268,7 @@ class PresentationsPublicController extends AdminPanelController
          * @var int $perPage
          * @var int $category
          * @var int $ignore
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $category = $expectedParameters->getValue('category');
@@ -378,7 +378,7 @@ class PresentationsPublicController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;
