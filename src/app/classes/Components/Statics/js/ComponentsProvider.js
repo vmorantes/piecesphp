@@ -48,6 +48,7 @@ function ComponentsProvider(file) {
 
 			}
 
+			return componentsElement
 		})
 
 		isLoad = true

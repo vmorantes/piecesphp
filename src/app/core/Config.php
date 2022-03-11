@@ -6,6 +6,7 @@
 namespace PiecesPHP\Core;
 
 use PiecesPHP\LangInjector;
+use ReflectionClass;
 
 /**
  * Config - Clase para manejar las configuraciones de la aplicación.
@@ -85,6 +86,9 @@ class Config
 
     /** @var Config Instancia */
     protected static $instance = null;
+
+    /** @var ReflectionClass */
+    protected static $reflectedClass = null;
 
     /**
      * @ignore
@@ -622,10 +626,16 @@ class Config
             'locale_langs' => 'appLocaleLangs',
         ];
 
+        if (self::$reflectedClass === null) {
+            self::$reflectedClass = new ReflectionClass(self::class);
+        }
+
         if (array_key_exists($name, $namesOnStatic)) {
 
             $propertyToSet = $namesOnStatic[$name];
-            self::$$propertyToSet = $value;
+            $reflectedProperty = self::$reflectedClass->getProperty($propertyToSet);
+            $reflectedProperty->setAccessible(true);
+            $reflectedProperty->setValue($value);
 
         } elseif (self::$instance !== null) {
 
