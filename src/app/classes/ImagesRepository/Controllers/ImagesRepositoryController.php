@@ -347,8 +347,8 @@ class ImagesRepositoryController extends AdminPanelController
             return $params;
         })($urlQuery);
 
-        $urlQuery = count($urlQuery) > 0 ? implode('&', $urlQuery) : null;
-        $urlQueryNoYear = count($urlQueryNoYear) > 0 ? implode('&', $urlQueryNoYear) : null;
+        $urlQuery = !empty($urlQuery) ? implode('&', $urlQuery) : null;
+        $urlQueryNoYear = !empty($urlQueryNoYear) ? implode('&', $urlQueryNoYear) : null;
 
         if ($urlQuery !== null) {
             $processTableLink .= "?{$urlQuery}";
@@ -1057,7 +1057,7 @@ class ImagesRepositoryController extends AdminPanelController
         $whereString = null;
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -1152,25 +1152,25 @@ class ImagesRepositoryController extends AdminPanelController
 
         $whereString = null;
         $where = [];
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
         $havingString = null;
         $having = [];
         if ($year !== null) {
-            $operator = count($having) > 0 ? ' AND ' : '';
+            $operator = !empty($having) ? ' AND ' : '';
             $critery = "imageYear = {$year}";
             $having[] = "{$operator}({$critery})";
         }
         if ($search != null) {
 
-            $operator = count($having) > 0 ? ' AND ' : '';
+            $operator = !empty($having) ? ' AND ' : '';
             $critery = "({$table}.description LIKE '{$search}%' LIKE '{$search}%' OR {$table}.author LIKE '{$search}%')";
             $having[] = "{$operator}({$critery})";
 
         }
-        if (count($having) > 0) {
+        if (!empty($having)) {
             $havingString = trim(implode(' ', $having));
         }
 
@@ -1253,7 +1253,7 @@ class ImagesRepositoryController extends AdminPanelController
 
         if ($description !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? 'AND' : '';
             $descriptionField = ImagesRepositoryMapper::fieldCurrentLangForSQL('description');
             $critery = "UPPER({$descriptionField}) LIKE UPPER('{$description}%')";
             $where[] = "{$beforeOperator} ({$critery})";
@@ -1267,18 +1267,18 @@ class ImagesRepositoryController extends AdminPanelController
         if ($currentLang != $defaultLang) {
 
             if ($jsonExtractExists) {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
                 $where[] = "{$beforeOperator} ({$critery})";
             } else {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
                 $where[] = "{$beforeOperator} ({$critery})";
             }
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 
@@ -1536,7 +1536,7 @@ class ImagesRepositoryController extends AdminPanelController
 
                     $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
 
-                    if (count($locations) > 0) {
+                    if (!empty($locations)) {
 
                         $url = $locations[0];
                         $nameCurrent = basename($url);

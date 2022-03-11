@@ -658,14 +658,14 @@ class CategoriesController extends AdminPanelController
 
         if ($status !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? 'AND' : '';
             $field = "{$table}.status";
             $critery = "{$field} = {$status}";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -747,18 +747,18 @@ class CategoriesController extends AdminPanelController
         if ($currentLang != $defaultLang) {
 
             if ($jsonExtractExists) {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
                 $where[] = "{$beforeOperator} ({$critery})";
             } else {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
                 $where[] = "{$beforeOperator} ({$critery})";
             }
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 
@@ -1007,7 +1007,7 @@ class CategoriesController extends AdminPanelController
 
                     $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
 
-                    if (count($locations) > 0) {
+                    if (!empty($locations)) {
 
                         $url = $locations[0];
                         $nameCurrent = basename($url);

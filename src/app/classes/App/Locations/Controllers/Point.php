@@ -493,15 +493,15 @@ class Point extends AdminPanelController
         ];
 
         if ($city !== null) {
-            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.city = ($city)";
+            $where[] = (!empty($where) ? ' AND ' : '') . "{$table}.city = ($city)";
         }
 
-        if (count($ignore) > 0) {
+        if (!empty($ignore)) {
             $ignore = implode(', ', $ignore);
-            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
+            $where[] = (!empty($where) ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 

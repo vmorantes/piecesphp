@@ -231,7 +231,7 @@ class PersonsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $manyLangs = count($allowedLangs) > 1 && count($element->getTranslatableProperties()) > 0;
+            $manyLangs = !empty($allowedLangs) > 1 && count($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $optionsDocumentTypes = array_to_html_options(PersonsMapper::idDocumentTypesForSelect(), $element->documentType);
@@ -758,14 +758,14 @@ class PersonsController extends AdminPanelController
 
         if ($status !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? 'AND' : '';
             $field = "{$table}.status";
             $critery = "{$field} = {$status}";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -890,6 +890,7 @@ class PersonsController extends AdminPanelController
 
         $whereString = null;
         $where = [];
+        $and = 'AND';
 
         //Verificación de idioma
         $defaultLang = Config::get_default_lang();
@@ -898,11 +899,11 @@ class PersonsController extends AdminPanelController
         if ($currentLang != $defaultLang) {
 
             if ($jsonExtractExists) {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? $and : '';
                 $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
                 $where[] = "{$beforeOperator} ({$critery})";
             } else {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? $and : '';
                 $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
                 $where[] = "{$beforeOperator} ({$critery})";
             }
@@ -910,12 +911,12 @@ class PersonsController extends AdminPanelController
         }
 
         if ($id != null) {
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.id = {$id}";
             $where[] = "{$beforeOperator} ({$critery})";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 
@@ -1164,7 +1165,7 @@ class PersonsController extends AdminPanelController
 
                     $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
 
-                    if (count($locations) > 0) {
+                    if (!empty($locations)) {
 
                         $url = $locations[0];
                         $nameCurrent = basename($url);

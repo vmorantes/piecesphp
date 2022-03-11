@@ -25,22 +25,16 @@ class Parameters implements \JsonSerializable
 {
 
     /**
-     * $parameters
-     *
      * @var Parameter[]
      */
     protected $parameters = [];
 
     /**
-     * $inputValues
-     *
      * @var array
      */
     protected $inputValues = [];
 
     /**
-     * __construct
-     *
      * @param string $name
      * @param mixed $default
      * @param callable $validate
@@ -55,8 +49,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * setInputValues
-     *
      * @param array $inputValues Array con clave=>valor que correponde al nombre del parámetro y al valor
      * @return static
      */
@@ -71,8 +63,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * addParamater
-     *
      * @param Parameter $parameter
      * @return static
      */
@@ -83,8 +73,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * addParameters
-     *
      * @param Parameter[] $parameters
      * @return static
      */
@@ -97,8 +85,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * setParameters
-     *
      * @param Parameter[] $parameters
      * @return static
      */
@@ -110,8 +96,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * getParameter
-     *
      * @param string $name
      * @return Parameter
      * @throws ParamaterNotExistsException
@@ -126,8 +110,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * getParameters
-     *
      * @return Parameter[]
      */
     public function getParameters()
@@ -136,8 +118,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * getValue
-     *
      * @param string $name
      * @return mixed
      * @throws ParsedValueException en caso de que el resultado de parse no sea válido
@@ -157,8 +137,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * getValues
-     *
      * @return array
      * @throws MissingRequiredParamaterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
      * @throws ParsedValueException en caso de que el resultado de parse no sea válido
@@ -180,8 +158,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * validate
-     *
      * @return bool
      * @throws MissingRequiredParamaterException En caso de que falte algún parámetro obligatorio en la lista de parámetros
      * @throws ParsedValueException en caso de que el resultado de parse no sea válido
@@ -207,7 +183,7 @@ class Parameters implements \JsonSerializable
             }
         }
 
-        if (count($parameters_errors) > 0) {
+        if (!empty($parameters_errors)) {
             throw new MissingRequiredParamaterException("Los parámetros " . implode(', ', $parameters_errors) . " son obligatorios");
         }
 
@@ -219,8 +195,6 @@ class Parameters implements \JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return mixed
      */
     public function jsonSerialize()

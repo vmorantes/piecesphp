@@ -156,7 +156,7 @@ class State extends AdminPanelController
     {
         $country = $request->getQueryParam('country', null);
         $ids = $request->getQueryParam('ids', []);
-        $ids = is_array($ids) && count($ids) > 0 ? implode(',', $ids) : null;
+        $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
 
         if ($country !== null) {
             if (ctype_digit($country)) {
@@ -172,18 +172,18 @@ class State extends AdminPanelController
         $whereString = null;
 
         if (!is_null($country)) {
-            $operator = count($where) > 0 ? ' AND ' : '';
+            $operator = !empty($where) ? ' AND ' : '';
             $critery = "{$operator} (country = {$country})";
             $where[] = $critery;
         }
 
         if (!is_null($ids)) {
-            $operator = count($where) > 0 ? ' AND ' : '';
+            $operator = !empty($where) ? ' AND ' : '';
             $critery = "{$operator} (id IN ({$ids}))";
             $where[] = $critery;
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
             $query->where($whereString);
         }
@@ -506,12 +506,12 @@ class State extends AdminPanelController
 
         $where = array_filter($where, function ($i) {return mb_strlen($i) > 0;});
 
-        if (count($ignore) > 0) {
+        if (!empty($ignore)) {
             $ignore = implode(', ', $ignore);
-            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
+            $where[] = (!empty($where) ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 

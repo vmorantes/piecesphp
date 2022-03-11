@@ -89,7 +89,7 @@ class GenericTokenController extends AdminPanelController
             ]);
             $tokenModel->execute();
             $tokenElement = $tokenModel->result();
-            $tokenElement = count($tokenElement) > 0 ? $tokenElement[0] : null;
+            $tokenElement = !empty($tokenElement) ? $tokenElement[0] : null;
 
             if ($tokenElement !== null) {
                 $token = $tokenElement->token;
@@ -293,7 +293,7 @@ class GenericTokenController extends AdminPanelController
                 ]);
                 $tokenModel->execute();
                 $tokenElement = $tokenModel->result();
-                $tokenElement = count($tokenElement) > 0 ? $tokenElement[0] : null;
+                $tokenElement = !empty($tokenElement) ? $tokenElement[0] : null;
 
                 if ($tokenElement !== null) {
 

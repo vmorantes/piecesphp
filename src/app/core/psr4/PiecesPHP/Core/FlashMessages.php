@@ -17,8 +17,6 @@ class FlashMessages
     const MESSAGE_NOT_EXISTS = 'MESSAGE_NOT_EXISTS';
 
     /**
-     * addMessage
-     *
      * @param string $name Nombre del mensaje
      * @param mixed $value Valor del mensaje
      * @return void
@@ -32,13 +30,11 @@ class FlashMessages
     }
 
     /**
-     * getMessages
-     *
      * @return array
      */
     public static function getMessages()
     {
-        if (self::sessionExists() && count($_SESSION[self::NAME_SESSION]) > 0) {
+        if (self::sessionExists() && !empty($_SESSION[self::NAME_SESSION])) {
             $messages = $_SESSION[self::NAME_SESSION];
             unset($_SESSION[self::NAME_SESSION]);
             return $messages;
@@ -48,13 +44,11 @@ class FlashMessages
     }
 
     /**
-     * hasMessages
-     *
      * @return bool
      */
     public static function hasMessages()
     {
-        if (self::sessionExists() && count($_SESSION[self::NAME_SESSION]) > 0) {
+        if (self::sessionExists() && !empty($_SESSION[self::NAME_SESSION])) {
             return true;
         } else {
             return false;
@@ -62,8 +56,6 @@ class FlashMessages
     }
 
     /**
-     * initSession
-     *
      * @return void
      */
     private static function initSession()
@@ -75,8 +67,6 @@ class FlashMessages
     }
 
     /**
-     * sessionExists
-     *
      * @return bool
      */
     private static function sessionExists()

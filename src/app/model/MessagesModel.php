@@ -71,15 +71,11 @@ class MessagesModel extends BaseEntityMapper
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::MESSAGES_TABLE;
 
     /**
-     * __construct
-     *
      * @param int $value
      * @param string $field_compare
      * @return static
@@ -90,8 +86,6 @@ class MessagesModel extends BaseEntityMapper
     }
 
     /**
-     * getMessages
-     *
      * @param array|string $where
      * @param bool $humanReadable
      * @param int $page
@@ -110,8 +104,6 @@ class MessagesModel extends BaseEntityMapper
     }
 
     /**
-     * getMessagesResponsesByMessage
-     *
      * @param int $messageID
      * @param bool $humanReadable
      * @param bool $process
@@ -132,8 +124,6 @@ class MessagesModel extends BaseEntityMapper
     }
 
     /**
-     * getTotalMessages
-     *
      * @return int
      */
     public static function getTotalMessages()
@@ -144,8 +134,6 @@ class MessagesModel extends BaseEntityMapper
     }
 
     /**
-     * messagesResponseMapper
-     *
      * @param int $value
      * @param string $field_compare
      * @return BaseEntityMapper
@@ -205,8 +193,6 @@ class MessagesModel extends BaseEntityMapper
     }
 
     /**
-     * verirfyThreadStatus
-     *
      * @param array|string $where
      * @param UsersModel $user
      * @return array
@@ -265,8 +251,6 @@ class MessagesModel extends BaseEntityMapper
     }
 
     /**
-     * hasUnreadMessagesOnThread
-     *
      * @param int $message_id
      * @return bool
      */
@@ -281,12 +265,10 @@ class MessagesModel extends BaseEntityMapper
 
         $responses = $queryBuilder->result();
 
-        return count($responses) > 0;
+        return !empty($responses);
     }
 
     /**
-     * processMessages
-     *
      * @param array $messages
      * @param bool $humanReadable
      * @param bool $isSubMessage
@@ -321,8 +303,6 @@ class MessagesModel extends BaseEntityMapper
     }
 
     /**
-     * processDataMessage
-     *
      * @param BaseEntityMapper $mapper
      * @param bool $humanReadable
      * @return mixed
@@ -362,8 +342,8 @@ class MessagesModel extends BaseEntityMapper
 
                 if ($field == 'message_from') {
                     $avatar = AvatarModel::getAvatar($value_field->id);
-					$message['avatar'] = !is_null($avatar) ? $avatar : baseurl('statics/images/default-avatar.png');
-					$message['rol'] = UsersModel::getTypesUser()[$value_field->type];
+                    $message['avatar'] = !is_null($avatar) ? $avatar : baseurl('statics/images/default-avatar.png');
+                    $message['rol'] = UsersModel::getTypesUser()[$value_field->type];
                 }
 
                 if (is_subclass_of($value_field, BaseEntityMapper::class)) {

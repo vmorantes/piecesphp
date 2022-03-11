@@ -106,7 +106,7 @@ class ImporterUsers extends Importer
                 );
             }
 
-            if (count($messageDuplicated) > 0) {
+            if (!empty($messageDuplicated)) {
                 $messageDuplicated = implode('<br>', $messageDuplicated);
                 throw new \Exception($messageDuplicated);
             }

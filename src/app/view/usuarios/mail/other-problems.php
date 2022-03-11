@@ -8,7 +8,7 @@ $langGroup = MAIL_TEMPLATES_LANG_GROUP;
 <p><strong><?= __($langGroup, 'E-mail'); ?>: <?= $mail; ?></strong></p>
 <p><strong><?= __($langGroup, 'Nombre'); ?>: <?= $name; ?></strong></p>
 <p><strong><?= __($langGroup, 'Mensaje'); ?>: <?= $message; ?></strong></p>
-<?php if(isset($extra) && is_array($extra) && count($extra) > 0):?>
+<?php if(isset($extra) && is_array($extra) && !empty($extra)):?>
 <h2><?= __($langGroup, 'Extra'); ?>:</h2>
 <?php foreach($extra as $content):?>
 <p><strong><?= $content['display']; ?>: <?= $content['text']; ?></strong></p>

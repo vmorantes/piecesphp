@@ -32,7 +32,7 @@ if (is_array($autoloads)) {
 
             if ($psr4) {
 
-                if (count($namespaces) > 0) {
+                if (!empty($namespaces)) {
                     foreach ($namespaces as $index => $namespace) {
 
                         $namespace = str_replace('\\', '/', $namespace);

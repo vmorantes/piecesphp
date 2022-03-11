@@ -63,8 +63,6 @@ class LoginAttemptsModel extends BaseEntityMapper
     ];
 
     /**
-     * __construct
-     *
      * @param mixed int
      * @param mixed string
      * @return static
@@ -76,7 +74,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         $pStmt = $model->prepare("SHOW COLUMNS FROM {$this->table} WHERE Field LIKE 'extra_data'");
         $pStmt->execute();
         $result = $pStmt->fetchAll();
-        $exist_field = count($result) > 0;
+        $exist_field = !empty($result);
         if ($exist_field) {
             $this->fields['extra_data'] = [
                 'type' => 'json',
@@ -93,8 +91,6 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
-     * addLogin
-     *
      * @param int $user_id
      * @param string $username
      * @param bool $success
@@ -121,8 +117,6 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
-     * lastLogin
-     *
      * @param int $user_id
      * @return null|\DateTime
      */
@@ -136,12 +130,10 @@ class LoginAttemptsModel extends BaseEntityMapper
         $model->orderBy('date DESC');
         $model->execute();
         $result = $model->result();
-        return count($result) > 0 ? new \DateTime($result[0]->date) : null;
+        return !empty($result) ? new \DateTime($result[0]->date) : null;
     }
 
     /**
-     * getAttempts
-     *
      * @param Request $request
      * @return PiecesPHP\Core\Utilities\ReturnTypes\ResultOperation
      */
@@ -182,8 +174,6 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
-     * getLoggedUsers
-     *
      * @param Request $request
      * @return PiecesPHP\Core\Utilities\ReturnTypes\ResultOperation
      */
@@ -241,8 +231,6 @@ class LoginAttemptsModel extends BaseEntityMapper
     }
 
     /**
-     * getNotLoggedUsers
-     *
      * @param Request $request
      * @return PiecesPHP\Core\Utilities\ReturnTypes\ResultOperation
      */
