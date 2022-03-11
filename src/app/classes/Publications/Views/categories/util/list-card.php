@@ -10,7 +10,7 @@ $mapper;
 /**
  * @var string $langGroup
  * @var string $editLink
- */;
+ */
 $langGroup;
 $editLink;
 

@@ -30,39 +30,27 @@ class Country extends AdminPanelController
 {
 
     /**
-     * $prefixParentEntity
-     *
      * @var string
      */
     protected static $prefixParentEntity = 'locations';
     /**
-     * $prefixEntity
-     *
      * @var string
      */
     protected static $prefixEntity = 'countries';
     /**
-     * $prefixSingularEntity
-     *
      * @var string
      */
     protected static $prefixSingularEntity = 'country';
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = 'País';
     /**
-     * $pluralTitle
-     *
      * @var string
      */
     protected static $pluralTitle = 'Países';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -79,14 +67,9 @@ class Country extends AdminPanelController
     }
 
     /**
-     * addForm
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm()
     {
 
         $action = self::routeName('actions-add');
@@ -106,14 +89,11 @@ class Country extends AdminPanelController
     }
 
     /**
-     * editForm
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -145,14 +125,9 @@ class Country extends AdminPanelController
     }
 
     /**
-     * list
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    function list(Request $request, Response $response, array $args) {
+    function list() {
 
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();
@@ -171,17 +146,14 @@ class Country extends AdminPanelController
     }
 
     /**
-     * countries
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function countries(Request $request, Response $response, array $args)
+    public function countries(Request $request, Response $response)
     {
         $ids = $request->getQueryParam('ids', []);
-        $ids = is_array($ids) && count($ids) > 0 ? implode(',', $ids) : null;
+        $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
 
         $this->model->select()->execute();
 
@@ -189,12 +161,12 @@ class Country extends AdminPanelController
         $whereString = null;
 
         if (!is_null($ids)) {
-            $operator = count($where) > 0 ? ' AND ' : '';
+            $operator = !empty($where) ? ' AND ' : '';
             $critery = "{$operator} (id IN ({$ids}))";
             $where[] = $critery;
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
             $this->model->where($whereString);
         }
@@ -212,14 +184,11 @@ class Country extends AdminPanelController
     }
 
     /**
-     * countriesDataTables
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function countriesDataTables(Request $request, Response $response, array $args)
+    public function countriesDataTables(Request $request, Response $response)
     {
 
         $columns_order = [
@@ -264,16 +233,13 @@ class Country extends AdminPanelController
     }
 
     /**
-     * action
-     *
      * Creación/Edición de estados
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         $id = $request->getParsedBodyParam('id', -1);
@@ -395,8 +361,6 @@ class Country extends AdminPanelController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -414,7 +378,7 @@ class Country extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

@@ -6,7 +6,7 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
- */;
+ */
 $langGroup;
 $backLink;
 $action;

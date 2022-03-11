@@ -49,10 +49,9 @@ class ContactFormsController extends PublicAreaController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function contactMessage(Request $req, Response $res, array $args)
+    public function contactMessage(Request $req, Response $res)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -163,7 +162,7 @@ class ContactFormsController extends PublicAreaController
              * @var string $subject
              * @var string $message
              * @var bool $updates
-             */;
+             */
             $from = $expectedParameters->getValue('from');
             $name = $expectedParameters->getValue('name');
             $email = $expectedParameters->getValue('email');
@@ -260,8 +259,6 @@ class ContactFormsController extends PublicAreaController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -279,7 +276,7 @@ class ContactFormsController extends PublicAreaController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;
@@ -297,8 +294,6 @@ class ContactFormsController extends PublicAreaController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

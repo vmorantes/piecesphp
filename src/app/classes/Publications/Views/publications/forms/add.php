@@ -8,7 +8,7 @@ use Publications\Util\AttachmentPackage;
  * @var string $backLink
  * @var string $action
  * @var AttachmentPackage[] $attachmentGroup1
- */;
+ */
 $langGroup;
 $backLink;
 $action;

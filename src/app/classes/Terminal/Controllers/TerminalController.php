@@ -54,10 +54,9 @@ class TerminalController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dbBackup(Request $request, Response $response, array $args)
+    public function dbBackup(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -94,7 +93,7 @@ class TerminalController extends AdminPanelController
             //Información de los parámetros
             /**
              * @var string $table
-             */;
+             */
             $gz = $expectedParameters->getValue('gz');
 
             $db = $this->model->getDatabase();
@@ -177,10 +176,9 @@ class TerminalController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function bundle(Request $request, Response $response, array $args)
+    public function bundle(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -253,7 +251,7 @@ class TerminalController extends AdminPanelController
              * @var bool $statics
              * @var bool $all
              * @var bool $all
-             */;
+             */
             $app = $expectedParameters->getValue('app');
             $statics = $expectedParameters->getValue('statics');
             $all = $expectedParameters->getValue('all');
@@ -404,7 +402,7 @@ class TerminalController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

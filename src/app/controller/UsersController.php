@@ -41,22 +41,16 @@ class UsersController extends AdminPanelController
 {
 
     /**
-     * $password
-     *
      * @var string
      */
     private $password = "NDG3iIk43xMlo5OKpCZ6Buyu0pC99v9qef9du5tncHoCbgZnHY";
 
     /**
-     * $ofuscate
-     *
      * @var string
      */
     private $ofuscate = "NDG3iIk43xMlo5OKpCZ6Buyu0pC99v9qef9du5tncHoCbgZnHY";
 
     /**
-     * $token_controller
-     *
      * Controlador de Tokens
      *
      * @var TokenController
@@ -64,26 +58,16 @@ class UsersController extends AdminPanelController
     protected $token_controller = null;
 
     /**
-     * $model
-     *
-     * Modelo
-     *
      * @var \PiecesPHP\Core\BaseModel
      */
     protected $model = null;
 
     /**
-     * $model
-     *
-     * Modelo
-     *
      * @var UsersModel
      */
     protected $mapper = null;
 
     /**
-     * $url_recovery
-     *
      * URL para recuperación de contraseña
      *
      * @var string
@@ -91,8 +75,6 @@ class UsersController extends AdminPanelController
     public $url_recovery = 'users/recovery/';
 
     /**
-     * $requested_uri
-     *
      * URL para recuperación de contraseña
      *
      * @var string
@@ -139,16 +121,13 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * usersList
-     *
      * Vista del listado de todos los usuarios
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function usersList(Request $req, Response $res, array $args)
+    public function usersList(Request $req, Response $res)
     {
         set_custom_assets([
             base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
@@ -166,10 +145,9 @@ class UsersController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTablesRequestUsers(Request $request, Response $response, array $args)
+    public function dataTablesRequestUsers(Request $request, Response $response)
     {
 
         $currentUser = new UsersModel($this->user->id);
@@ -179,7 +157,7 @@ class UsersController extends AdminPanelController
             "id != {$this->user->id}",
         ];
 
-        if (is_array($disallowedTypes) && count($disallowedTypes) > 0) {
+        if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
             $where[] = " AND type != " . implode(' AND type != ', $disallowedTypes);
         }
 
@@ -237,10 +215,9 @@ class UsersController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function searchDropdown(Request $request, Response $response, array $args)
+    public function searchDropdown(Request $request, Response $response)
     {
 
         $search = $request->getQueryParam('search', null);
@@ -288,16 +265,13 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * loginForm
-     *
      * No espera parámetros.
      *
      * @param Request $request Petición
      * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
      * @return void
      */
-    public function loginForm(Request $request, Response $response, array $args)
+    public function loginForm(Request $request, Response $response)
     {
 
         set_title(str_replace('.', '', __('general', 'loging')));
@@ -327,16 +301,11 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * selectionTypeToCreate
-     *
      * Vista de selección de tipo de usuario para crear
      *
-     * @param Request $req
-     * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function selectionTypeToCreate(Request $req, Response $res, array $args)
+    public function selectionTypeToCreate()
     {
         $types = UsersModel::getTypesUser();
         $currentUser = new UsersModel($this->user->id);
@@ -371,16 +340,13 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * formCreateByType
-     *
      * Vista de creación de usuario por tipo
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function formCreateByType(Request $req, Response $res, array $args)
+    public function formCreateByType(Request $req, Response $res)
     {
         set_custom_assets([
             base_url('statics/features/avatars/js/canvg.min.js'),
@@ -450,16 +416,13 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * formEditByType
-     *
      * Vista de edición de usuario por tipo
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function formEditByType(Request $req, Response $res, array $args)
+    public function formEditByType(Request $req, Response $res)
     {
 
         import_cropper();
@@ -550,16 +513,13 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * formProfileByType
-     *
      * Vista de perfil de usuario por tipo
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function formProfileByType(Request $req, Response $res, array $args)
+    public function formProfileByType(Request $req, Response $res)
     {
 
         $onlyProfile = $req->getQueryParam('onlyProfile', 'no') === 'yes';
@@ -621,16 +581,13 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * Inicia sesión.
-     *
      * Este método espera recibir por POST: [username,password]
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
-     * @param array $args Argumentos pasados por GET
      * @return void
      */
-    public function login(Request $request, Response $response, array $args)
+    public function login(Request $request, Response $response)
     {
 
         $usernameParameter = new Parameter(
@@ -844,14 +801,11 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * verifySession
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function verifySession(Request $request, Response $response, array $args)
+    public function verifySession(Request $request, Response $response)
     {
         $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Verificar sesión'), '');
         $resultOperation->setSingleOperation(true);
@@ -871,10 +825,9 @@ class UsersController extends AdminPanelController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
-     * @param array $args Argumentos pasados por GET
      * @return Response
      */
-    public function register(Request $request, Response $response, array $args)
+    public function register(Request $request, Response $response)
     {
 
         $operation_name = __(self::LANG_GROUP, 'Creación de usuario');
@@ -1100,10 +1053,9 @@ class UsersController extends AdminPanelController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
-     * @param array $args Argumentos pasados por GET
      * @return Response
      */
-    public function edit(Request $request, Response $response, array $args)
+    public function edit(Request $request, Response $response)
     {
 
         $operation_name = __(self::LANG_GROUP, 'Edición de usuario');
@@ -1399,10 +1351,9 @@ class UsersController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -1475,11 +1426,11 @@ class UsersController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var int $type
          * @var int[] $ignore
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $type = $expectedParameters->getValue('type');
@@ -1512,12 +1463,12 @@ class UsersController extends AdminPanelController
 
         $where = array_filter($where, function ($i) {return mb_strlen($i) > 0;});
 
-        if (count($ignore) > 0) {
+        if (!empty($ignore)) {
             $ignore = implode(', ', $ignore);
-            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
+            $where[] = (!empty($where) ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 
@@ -1538,8 +1489,6 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * encodeURL
-     *
      * @param mixed $data
      * @return string
      */
@@ -1549,8 +1498,6 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * decodeURL
-     *
      * @param string $url
      * @return mixed
      */
@@ -1560,8 +1507,6 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * getMessage
-     *
      * Devuelve el mensaje asociado del grupo 'users' configurado en el archivo lang/*.php
      *
      * @param mixed $message
@@ -1573,8 +1518,6 @@ class UsersController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

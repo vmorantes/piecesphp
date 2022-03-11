@@ -94,7 +94,7 @@ class CountryMapper extends BaseEntityMapper
 
         $result = $model->result();
 
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
             $result = new static($result->id);
@@ -124,7 +124,7 @@ class CountryMapper extends BaseEntityMapper
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
     }
 
     /**
@@ -151,7 +151,7 @@ class CountryMapper extends BaseEntityMapper
 
             $result = $model->result();
 
-            return count($result) > 0;
+            return !empty($result);
 
         } else {
             return false;

@@ -33,8 +33,6 @@ class UserProblemsController extends UsersController
     const EMAIL_ON_FAILED_OS_TICKET = 'sir.vamb@gmail.com';
 
     /**
-     * $userMapper
-     *
      * @var UsersModel
      */
     protected $userMapper = null;
@@ -47,16 +45,13 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * userProblemsList
-     *
      * Vista del listado de problemas de usuario
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function userProblemsList(Request $request, Response $response, array $args)
+    public function userProblemsList(Request $request, Response $response)
     {
 
         set_title(__(self::LANG_GROUP, 'Solución a problemas de ingreso'));
@@ -77,16 +72,13 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * userForgetForm
-     *
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Request $response Respuesta Argumentos pasados por GET
      * @return void
      */
-    public function userForgetForm(Request $request, Response $response, array $args)
+    public function userForgetForm(Request $request, Response $response)
     {
 
         set_title(__(self::LANG_GROUP, 'No recuerdo mi usuario'));
@@ -114,16 +106,13 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * userBlockedForm
-     *
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Request $response Respuesta Argumentos pasados por GET
      * @return void
      */
-    public function userBlockedForm(Request $request, Response $response, array $args)
+    public function userBlockedForm(Request $request, Response $response)
     {
 
         set_title(__(self::LANG_GROUP, 'Desbloquear mi usuario'));
@@ -151,16 +140,13 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * otherProblemsForm
-     *
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Request $response Respuesta Argumentos pasados por GET
      * @return void
      */
-    public function otherProblemsForm(Request $request, Response $response, array $args)
+    public function otherProblemsForm(Request $request, Response $response)
     {
 
         set_title(__(self::LANG_GROUP, 'Creación de solicitud de soporte'));
@@ -193,11 +179,10 @@ class UserProblemsController extends UsersController
      * Este método espera recibir por POST: [username,type]
      *
      * @param Request $request Petición
-     * @param Response $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Response $response Respuesta Argumentos pasados por GET
      * @return void
      */
-    public function generateCode(Request $request, Response $response, array $args)
+    public function generateCode(Request $request, Response $response)
     {
 
         //Parámetros
@@ -246,7 +231,7 @@ class UserProblemsController extends UsersController
 
                     //Datos de recuperación
                     $problems = new UserProblemsModel();
-                    $problems->created = date('Y-m-d h:i:s');
+                    $problems->created = new \DateTime();
                     $problems->expired = $problems->created->modify('+24 hour');
                     $problems->email = $usuario->email;
                     $problems->code = generate_code(6);
@@ -290,16 +275,13 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * resolveProblem
-     *
      * Verifica el código y devuelve el usuario en caso de ser correcto
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function resolveProblem(Request $request, Response $response, array $args)
+    public function resolveProblem(Request $request, Response $response)
     {
         //Cuerpo de respuesta
         $json_response = [
@@ -408,11 +390,10 @@ class UserProblemsController extends UsersController
      * Este método espera recibir por POST: [name,email,message]
      *
      * @param Request $request Petición
-     * @param Response $response Respuesta
-     * @param array $args Argumentos pasados por GET
+     * @param Response $response Respuesta Argumentos pasados por GET
      * @return void
      */
-    public function sendMailOtherProblems(Request $request, Response $response, array $args)
+    public function sendMailOtherProblems(Request $request, Response $response)
     {
 
         //Parámetros
@@ -540,8 +521,6 @@ class UserProblemsController extends UsersController
     }
 
     /**
-     * sendMessageOtherProblems
-     *
      * Envía un mensaje
      *
      * @param string $email

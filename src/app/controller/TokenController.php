@@ -11,8 +11,6 @@ use PiecesPHP\Core\BaseController;
 /**
  * TokenController.
  *
- * TokenController.
- *
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
@@ -39,7 +37,7 @@ class TokenController extends BaseController
             ->where("token = '" . $token . "'")
             ->execute();
         $result = $this->model->result();
-        return ($result !== false && count($result) > 0);
+        return ($result !== false && !empty($result));
     }
     public function tokenExistsByType($code)
     {
@@ -48,7 +46,7 @@ class TokenController extends BaseController
             ->where("type = '" . $code . "'")
             ->execute();
         $result = $this->model->result();
-        return ($result !== false && count($result) > 0);
+        return ($result !== false && !empty($result));
     }
     public static function tokenExistsByID($id)
     {
@@ -58,7 +56,7 @@ class TokenController extends BaseController
             ->where("id = '" . $id . "'")
             ->execute();
         $result = $controller->model->result();
-        return ($result !== false && count($result) > 0);
+        return ($result !== false && !empty($result));
     }
     public function deleteToken($token)
     {

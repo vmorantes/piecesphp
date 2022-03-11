@@ -1,3 +1,3 @@
 #!/bin/bash
-export SONAR_TOKEN="2f886a410d9b2e21b9d041cd5a0f7412faf70676"
+export SONAR_TOKEN="17fc254547abfff6c001fd64c9322a4fc7778432"
 /home/vmorantes/sonar-cloud/bin/sonar-scanner

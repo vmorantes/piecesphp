@@ -227,7 +227,7 @@ function PublicationsAdapter(options) {
 	function registerDynamicMessages(name) {
 
 		if (typeof pcsphpGlobals != 'object') {
-			pcsphpGlobals = {}
+			window.pcsphpGlobals = {}
 		}
 		if (typeof pcsphpGlobals.messages != 'object') {
 			pcsphpGlobals.messages = {}

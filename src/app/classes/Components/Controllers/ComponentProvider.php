@@ -59,10 +59,9 @@ class ComponentProvider extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function provide(Request $request, Response $response, array $args)
+    public function provide(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -97,7 +96,7 @@ class ComponentProvider extends AdminPanelController
             //Información del formulario
             /**
              * @var string $group
-             */;
+             */
             $group = $expectedParameters->getValue('group');
 
             $componentPath = "{$group}/components";
@@ -204,7 +203,7 @@ class ComponentProvider extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

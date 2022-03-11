@@ -22,7 +22,7 @@ use Slim\Http\Response;
  *
  * @package     Persons
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @copyright   Copyright (c) 2021
+ * @copyright   Copyright (c) 2022
  */
 class PersonsRoutes
 {
@@ -135,10 +135,9 @@ class PersonsRoutes
         /**
          * @param Request $request
          * @param Response $response
-         * @param array $args
          * @return Response
          */
-        $cssGlobalVariables = function (Request $request, Response $response, array $args) {
+        $cssGlobalVariables = function (Request $request, Response $response) {
             $css = CSSVariables::instance('global');
             return $css->toResponse($request, $response, false);
         };

@@ -65,12 +65,9 @@ class FileManagerController extends AdminPanelController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function fileManager(Request $request, Response $response, array $args)
+    public function fileManager()
     {
 
         $backLink = get_route('admin');
@@ -100,10 +97,9 @@ class FileManagerController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function fileManagerConfiguration(Request $request, Response $response, array $args)
+    public function fileManagerConfiguration(Request $request, Response $response)
     {
 
         $dirs = [
@@ -117,6 +113,7 @@ class FileManagerController extends AdminPanelController
                 'trashHash' => 't2_Lw',
                 'uploadDeny' => array('all'),
                 'uploadAllow' => array('image'),
+                'permissions' => 0777,
             ],
             [
                 'alias' => 'Cargas',
@@ -159,10 +156,9 @@ class FileManagerController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function fileManagerConfigurationRichEditor(Request $request, Response $response, array $args)
+    public function fileManagerConfigurationRichEditor(Request $request, Response $response)
     {
 
         $dirs = [
@@ -248,7 +244,10 @@ class FileManagerController extends AdminPanelController
 
             $createOrder[] = $i['path'];
             if ($permissions !== null) {
-                $permissionsOrder[] = $i['path'];
+                $permissionsOrder[] = [
+                    'path' => $i['path'],
+                    'permissions' => $permissions,
+                ];
             }
 
             $options[] = $i;
@@ -285,7 +284,10 @@ class FileManagerController extends AdminPanelController
 
             $createOrder[] = $i['path'];
             if ($permissions !== null) {
-                $permissionsOrder[] = $i['path'];
+                $permissionsOrder[] = [
+                    'path' => $i['path'],
+                    'permissions' => $permissions,
+                ];
             }
 
             $options[] = $i;
@@ -310,9 +312,15 @@ class FileManagerController extends AdminPanelController
             }
         }
 
-        foreach ($permissionsOrder as $iPath) {
-            if (decoct(fileperms($iPath) & 0777) != 777) {
-                @chmod($iPath, 0777);
+        foreach ($permissionsOrder as $iPathData) {
+            $iPath = $iPathData['path'];
+            $iToPermissionsOctal = $iPathData['permissions'];
+            $iToPermissionsDecimalRepresentation = decoct($iToPermissionsOctal & 0777);
+            $iCurrentPermissions = fileperms($iPath);
+            $iCurrentPermissionsDecimalRepresentation = decoct($iCurrentPermissions & 0777);
+
+            if ($iCurrentPermissionsDecimalRepresentation != $iToPermissionsDecimalRepresentation) {
+                @chmod($iPath, $iToPermissionsDecimalRepresentation);
             }
         }
 
@@ -393,7 +401,7 @@ class FileManagerController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

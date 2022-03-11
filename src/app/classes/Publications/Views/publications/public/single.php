@@ -8,7 +8,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 /**
  * @var string $langGroup
  * @var PublicationMapper $element
- */;
+ */
 $langGroup;
 $element;
 $iconByExtension = function (string $extension, string $mimeType = null) {

@@ -224,7 +224,7 @@ class Route
             $params = [];
             preg_match_all('/\{[a-z|A-Z|0-9|_|-]*\}/', $this->route, $params);
             $this->params = [];
-            if (count($params) > 0) {
+            if (!empty($params)) {
                 foreach ($params[0] as $param) {
                     $param = str_replace(['{', '}'], '', $param);
                     $this->params[$param] = null;

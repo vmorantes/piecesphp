@@ -85,7 +85,7 @@ $menuLangGroup = new MenuGroup([
 
 $langs = \PiecesPHP\Core\Config::get_config('alternatives_url');
 
-if (count($langs) > 0) {
+if (!empty($langs)) {
 
     foreach ($langs as $lang => $url) {
 

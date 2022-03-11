@@ -14,6 +14,12 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
+ * @property int $id
+ * @property string $email
+ * @property string $code
+ * @property \DateTime|string $created
+ * @property \DateTime|string $expired
+ * @property string $type
  */
 class UserProblemsModel extends BaseEntityMapper
 {
@@ -41,8 +47,6 @@ class UserProblemsModel extends BaseEntityMapper
     protected $table = 'pcsphp_user_problems';
 
     /**
-     * __construct
-     *
      * @param integer $id
      * @return static
      */
@@ -52,8 +56,6 @@ class UserProblemsModel extends BaseEntityMapper
     }
 
     /**
-     * exist
-     *
      * @param mixed $code
      * @return bool
      */
@@ -70,8 +72,6 @@ class UserProblemsModel extends BaseEntityMapper
     }
 
     /**
-     * instanceByCode
-     *
      * @param mixed $code
      * @return static|null
      */

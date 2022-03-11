@@ -116,10 +116,9 @@ class PresentationsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm(Request $request, Response $response)
     {
 
         set_custom_assets([
@@ -150,10 +149,9 @@ class PresentationsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -209,12 +207,9 @@ class PresentationsController extends AdminPanelController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView()
     {
 
         $backLink = get_route('admin');
@@ -253,10 +248,9 @@ class PresentationsController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -372,7 +366,7 @@ class PresentationsController extends AdminPanelController
              * @var int $order
              * @var int $category
              * @var string[] $imagesToDelete
-             */;
+             */
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
             $name = $expectedParameters->getValue('name');
@@ -412,7 +406,7 @@ class PresentationsController extends AdminPanelController
                     $imagesToAdd = self::handlerUploadImages('images_to_add', $folder, $imagesToDelete, 1, null, Config::get_default_lang());
                     $mapper->setLangData($lang, 'images', array_values((array) $imagesToAdd));
 
-                    if (count($imagesToAdd) > 0) {
+                    if (!empty($imagesToAdd)) {
 
                         $saved = $mapper->save();
 
@@ -453,7 +447,7 @@ class PresentationsController extends AdminPanelController
 
                         //Obtener directorio de imágenes
                         $uploadDirRelativeURL = $this->uploadDirURL;
-                        $directoryReferencePath = count($currentImages) > 0 ? $currentImages[0] : array_values((array) $mapper->images)[0];
+                        $directoryReferencePath = !empty($currentImages) ? $currentImages[0] : array_values((array) $mapper->images)[0];
                         $folder = str_replace($uploadDirRelativeURL, '', $directoryReferencePath);
                         $folder = str_replace(basename($directoryReferencePath), '', $folder);
                         $folder = trim($folder, '/');
@@ -474,7 +468,7 @@ class PresentationsController extends AdminPanelController
 
                         $mapper->setLangData($lang, 'images', array_values((array) $currentImages));
 
-                        if (count($currentImages) > 0) {
+                        if (!empty($currentImages)) {
 
                             $updated = $mapper->update();
 
@@ -597,7 +591,7 @@ class PresentationsController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -690,10 +684,9 @@ class PresentationsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -736,10 +729,10 @@ class PresentationsController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var int $category
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $category = $expectedParameters->getValue('category');
@@ -752,10 +745,9 @@ class PresentationsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTables(Request $request, Response $response, array $args)
+    public function dataTables(Request $request, Response $response)
     {
 
         $whereString = null;
@@ -839,7 +831,7 @@ class PresentationsController extends AdminPanelController
             $where[] = "category = {$category}";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 
@@ -1069,7 +1061,7 @@ class PresentationsController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

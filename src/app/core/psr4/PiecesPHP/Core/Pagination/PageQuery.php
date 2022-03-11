@@ -147,7 +147,7 @@ class PageQuery
         $prepared->execute();
         $result = $prepared->fetchAll(\PDO::FETCH_OBJ);
         $totalName = $this->fieldTotalName;
-        $total = count($result) > 0 ? (int) $result[0]->$totalName : 0;
+        $total = !empty($result) ? (int) $result[0]->$totalName : 0;
 
         return $total;
     }

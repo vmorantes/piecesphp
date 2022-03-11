@@ -126,10 +126,10 @@ class FileFormsManage
         ])->execute();
         $result = $this->model->result();
         $column = $this->fileColumnName;
-        $has_record = count($result) > 0;
+        $has_record = !empty($result);
         if ($has_record) {
             $files = json_decode($result[0]->$column, true);
-            $has_files = count($files) > 0;
+            $has_files = !empty($files);
             if ($has_files) {
                 $result = (object) $files;
             } else {

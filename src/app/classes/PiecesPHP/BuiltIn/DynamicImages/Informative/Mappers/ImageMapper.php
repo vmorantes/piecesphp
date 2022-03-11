@@ -23,8 +23,8 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @property string $link
  * @property string $image
  * @property \stdClass|string|null $meta
- * @property \DateTime|null $start_date
- * @property \DateTime|null $end_date
+ * @property \DateTime|string|null $start_date
+ * @property \DateTime|string|null $end_date
  * @property int $order
  * @property \stdClass|null $lang_data
  */
@@ -63,15 +63,11 @@ class ImageMapper extends EntityMapperExtensible
     const LANG_GROUP = 'bi-dynamic-images-hero';
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::TABLE;
 
     /**
-     * __construct
-     *
      * @param int $value
      * @param string $fieldCompare
      * @return static
@@ -133,8 +129,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * setLangData
-     *
      * @param string $lang
      * @param string $property
      * @param mixed $data
@@ -152,8 +146,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * getLangData
-     *
      * @param string $lang
      * @param string $property
      * @return mixed Siempre que no exista se intentará tomar de las propiedades comúnes, de lo contrario devolverá null
@@ -179,8 +171,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * currentLangData
-     *
      * @param string $property
      * @return mixed
      */
@@ -191,8 +181,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * hasDescription
-     *
      * @return bool
      */
     public function hasDescription()
@@ -201,8 +189,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * hasLink
-     *
      * @return bool
      */
     public function hasLink()
@@ -211,8 +197,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * all
-     *
      * @param bool $asMapper
      *
      * @return static[]|array
@@ -247,8 +231,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * allBy
-     *
      * @param string $column
      * @param int $value
      * @param bool $asMapper
@@ -275,8 +257,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * getBy
-     *
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
@@ -296,7 +276,7 @@ class ImageMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
             $result = new static($result->id);
@@ -306,8 +286,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * allForSelect
-     *
      * @param string $defaultLabel
      * @param string $defaultValue
      * @return array
@@ -329,8 +307,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * existsByID
-     *
      * @param int $id
      * @return bool
      */
@@ -349,12 +325,10 @@ class ImageMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
     }
 
     /**
-     * jsonExtractExistsMySQL
-     *
      * @return bool
      */
     public static function jsonExtractExistsMySQL()
@@ -384,8 +358,6 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * model
-     *
      * @return BaseModel
      */
     public static function model()

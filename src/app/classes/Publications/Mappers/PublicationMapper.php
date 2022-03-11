@@ -956,7 +956,7 @@ class PublicationMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
             $result = self::objectToMapper($result);
@@ -984,7 +984,7 @@ class PublicationMapper extends EntityMapperExtensible
         $model->execute(false, 1, 1);
 
         $result = $model->result();
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if ($asMapper && $result !== null) {
             $result = self::objectToMapper($result);
@@ -1011,7 +1011,7 @@ class PublicationMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
-        $result = count($result) > 0 ? $result[0]->ids : null;
+        $result = !empty($result) ? $result[0]->ids : null;
 
         return $result;
     }
@@ -1035,7 +1035,7 @@ class PublicationMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
     }
 
     /**
@@ -1071,7 +1071,7 @@ class PublicationMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
 
     }
 
