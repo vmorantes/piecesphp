@@ -39,41 +39,29 @@ class HeroController extends AdminPanelController
 {
 
     /**
-     * $URLDirectory
-     *
      * @var string
      */
     protected static $URLDirectory = 'dynamic-images/private/hero';
 
     /**
-     * $baseRouteName
-     *
      * @var string
      */
     protected static $baseRouteName = 'built-in-dynamic-images-private-hero';
 
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = 'Imagen';
     /**
-     * $pluralTitle
-     *
      * @var string
      */
     protected static $pluralTitle = 'Imágenes';
 
     /**
-     * $uploadDir
-     *
      * @var string
      */
     protected $uploadDir = '';
     /**
-     * $uploadDirURL
-     *
      * @var string
      */
     protected $uploadDirURL = '';
@@ -84,8 +72,6 @@ class HeroController extends AdminPanelController
     const LANG_GROUP = 'bi-dynamic-images-hero';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -107,14 +93,9 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * addForm
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm()
     {
 
         set_custom_assets([
@@ -139,14 +120,11 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * editForm
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -186,14 +164,9 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * listView
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView()
     {
 
         $backLink = EntryPointController::routeName('options');
@@ -223,16 +196,13 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * action
-     *
      * Creación/Edición
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -653,8 +623,6 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * toDelete
-     *
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -808,14 +776,11 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * all
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
         $expectedParameters = new Parameters([
             new Parameter(
@@ -947,14 +912,11 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * dataTables
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTables(Request $request, Response $response, array $args)
+    public function dataTables(Request $request, Response $response)
     {
 
         $whereString = null;
@@ -1023,8 +985,6 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * parseURL
-     *
      * @param string $value
      * @param bool $autoSchema
      * @return string
@@ -1093,8 +1053,6 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * view
-     *
      * @param string $name
      * @param array $data
      * @param bool $mode
@@ -1107,8 +1065,6 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * allowedRoute
-     *
      * @param string $name
      * @param array $params
      * @return bool
@@ -1130,8 +1086,6 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * handlerUploadImage
-     *
      * @param string $nameOnFiles
      * @param string $folder
      * @param string $currentRoute
@@ -1231,8 +1185,6 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -1268,8 +1220,6 @@ class HeroController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

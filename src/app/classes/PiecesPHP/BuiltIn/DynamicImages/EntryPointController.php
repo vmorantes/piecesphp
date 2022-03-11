@@ -12,8 +12,6 @@ use PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * EntryPointController.
@@ -26,29 +24,21 @@ class EntryPointController extends AdminPanelController
 {
 
     /**
-     * $URLDirectory
-     *
      * @var string
      */
     protected static $URLDirectory = 'dynamic-images/private';
 
     /**
-     * $baseRouteName
-     *
      * @var string
      */
     protected static $baseRouteName = 'built-in-dynamic-images-private-entry';
 
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = 'Opciones';
 
     /**
-     * $options
-     *
      * @var array
      */
     private $options = [];
@@ -58,8 +48,6 @@ class EntryPointController extends AdminPanelController
     const LANG_GROUP = 'bi-dynamic-images';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -78,14 +66,9 @@ class EntryPointController extends AdminPanelController
     }
 
     /**
-     * optionsView
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function optionsView(Request $request, Response $response, array $args)
+    public function optionsView()
     {
 
         $backLink = get_route('admin');
@@ -105,8 +88,6 @@ class EntryPointController extends AdminPanelController
     }
 
     /**
-     * getAllowedOptions
-     *
      * @return \stdClass[]
      */
     protected function getAllowedOptions()
@@ -128,8 +109,6 @@ class EntryPointController extends AdminPanelController
     }
 
     /**
-     * view
-     *
      * @param string $name
      * @param array $data
      * @param bool $mode
@@ -142,8 +121,6 @@ class EntryPointController extends AdminPanelController
     }
 
     /**
-     * allowedRoute
-     *
      * @param string $name
      * @param array $params
      * @return bool
@@ -168,8 +145,6 @@ class EntryPointController extends AdminPanelController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists
@@ -205,8 +180,6 @@ class EntryPointController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

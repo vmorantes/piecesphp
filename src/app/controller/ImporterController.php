@@ -29,29 +29,21 @@ class ImporterController extends AdminPanelController
 {
 
     /**
-     * $importers
-     *
      * @var ImporterCollection
      */
     protected $importers = null;
 
     /**
-     * $views
-     *
      * @var array
      */
     protected $views = [];
 
     /**
-     * $texts
-     *
      * @var array
      */
     protected $texts = [];
 
     /**
-     * $defaultView
-     *
      * @var string
      */
     protected $defaultView = 'panel/pages/importador/generic';
@@ -78,8 +70,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * importForm
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -125,8 +115,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * import
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -175,8 +163,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * templates
-     *
      * @param Request $req
      * @param Response $res
      * @param array $args
@@ -212,8 +198,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * getImporter
-     *
      * @param string $type
      * @param array $data
      * @return Importer
@@ -229,8 +213,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * getView
-     *
      * @param string $type
      * @return string
      */
@@ -246,8 +228,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * getText
-     *
      * @param string $type
      * @return string
      */
@@ -263,8 +243,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * existsImporter
-     *
      * @param string $type
      * @return bool
      */
@@ -274,8 +252,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * isValidImporter
-     *
      * @param string $type
      * @return bool
      */
@@ -331,8 +307,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * processFile
-     *
      * @param array $files
      * @return array|null
      */
@@ -356,8 +330,6 @@ class ImporterController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

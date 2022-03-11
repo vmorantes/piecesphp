@@ -160,7 +160,7 @@ class PresentationsRoutes
             return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics');
         };
 
-        $cssGlobalVariables = function (Request $request, Response $response, array $args) {
+        $cssGlobalVariables = function (Request $request, Response $response) {
             $css = CSSVariables::instance('global');
             $css->setVariable('readable-color', 'white', false);
             return $css->toResponse($request, $response, false);

@@ -8,7 +8,6 @@ namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Locations\Mappers\CityMapper;
-use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -17,6 +16,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use Slim\Exception\NotFoundException;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
@@ -34,39 +34,27 @@ class City extends AdminPanelController
 {
 
     /**
-     * $prefixParentEntity
-     *
      * @var string
      */
     protected static $prefixParentEntity = 'locations';
     /**
-     * $prefixEntity
-     *
      * @var string
      */
     protected static $prefixEntity = 'cities';
     /**
-     * $prefixSingularEntity
-     *
      * @var string
      */
     protected static $prefixSingularEntity = 'city';
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = 'Ciudad';
     /**
-     * $pluralTitle
-     *
      * @var string
      */
     protected static $pluralTitle = 'Ciudades';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -81,14 +69,9 @@ class City extends AdminPanelController
     }
 
     /**
-     * addForm
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm()
     {
 
         $action = self::routeName('actions-add');
@@ -108,14 +91,11 @@ class City extends AdminPanelController
     }
 
     /**
-     * editForm
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -147,14 +127,9 @@ class City extends AdminPanelController
     }
 
     /**
-     * list
-     *
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    function list(Request $request, Response $response, array $args) {
+    function list() {
 
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();
@@ -173,14 +148,11 @@ class City extends AdminPanelController
     }
 
     /**
-     * cities
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function cities(Request $request, Response $response, array $args)
+    public function cities(Request $request, Response $response)
     {
         $state = $request->getQueryParam('state', null);
         $ids = $request->getQueryParam('ids', []);
@@ -230,88 +202,69 @@ class City extends AdminPanelController
     }
 
     /**
-     * citiesDataTables
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function citiesDataTables(Request $request, Response $response, array $args)
+    public function citiesDataTables(Request $request, Response $response)
     {
         $state = $request->getQueryParam('state', null);
-
         if ($state !== null) {
-            if (ctype_digit($state)) {
-                $state = (int) $state;
-            } else {
-                $state = -1;
-            }
+            $state = Validator::isInteger($state) ? (int) $state : -1;
         }
 
-        if ($request->isXhr()) {
+        $columns_order = [
+            'id',
+            'code',
+            'name',
+            'state',
+            'active',
+        ];
 
-            $columns_order = [
-                'id',
-                'code',
-                'name',
-                'state',
-                'active',
-            ];
+        $result = DataTablesHelper::process([
+            'columns_order' => $columns_order,
+            'mapper' => new CityMapper(),
+            'request' => $request,
+            'on_set_data' => function ($e) {
 
-            $result = DataTablesHelper::process([
-                'columns_order' => $columns_order,
-                'mapper' => new CityMapper(),
-                'request' => $request,
-                'on_set_data' => function ($e) {
+                $editButton = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
+                $editLink = self::routeName('forms-edit', [
+                    'id' => $e->id,
+                ]);
 
-                    $buttonEdit = new HtmlElement('a', __(LOCATIONS_LANG_GROUP, 'Editar'));
-                    $buttonEdit->setAttribute('class', "ui button green");
-                    $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
-                        'id' => $e->id,
-                    ]));
+                if (mb_strlen($editLink) > 0) {
+                    $editText = __(LOCATIONS_LANG_GROUP, 'Editar');
+                    $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
+                }
 
-                    if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
-                        $href = $buttonEdit->getAttributes(false)->offsetGet('href');
-                        if (mb_strlen(trim($href->getValue())) < 1) {
-                            $buttonEdit = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
-                        }
-                    }
+                $e_mapper = new CityMapper($e->id);
 
-                    $e_mapper = new CityMapper($e->id);
+                return [
+                    $e->id,
+                    !is_null($e->code) ? $e->code : '-',
+                    stripslashes($e->name),
+                    $e_mapper->state->country->name,
+                    $e_mapper->state->name,
+                    __(LOCATIONS_LANG_GROUP, CityMapper::STATUS[$e->active]),
+                    $editButton,
+                ];
 
-                    return [
-                        $e->id,
-                        !is_null($e->code) ? $e->code : '-',
-                        stripslashes($e->name),
-                        $e_mapper->state->country->name,
-                        $e_mapper->state->name,
-                        __(LOCATIONS_LANG_GROUP, CityMapper::STATUS[$e->active]),
-                        (string) $buttonEdit,
-                    ];
+            },
+            'where' => is_null($state) ? null : "state = $state",
+        ]);
 
-                },
-                'where' => is_null($state) ? null : "state = $state",
-            ]);
+        return $response->withJson($result->getValues());
 
-            return $response->withJson($result->getValues());
-
-        } else {
-            throw new NotFoundException($request, $response);
-        }
     }
 
     /**
-     * action
-     *
      * Creación/Edición de estados
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         $id = $request->getParsedBodyParam('id', -1);
@@ -443,10 +396,9 @@ class City extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -581,8 +533,6 @@ class City extends AdminPanelController
     }
 
     /**
-     * routeName
-     *
      * @param string $name
      * @param array $params
      * @param bool $silentOnNotExists

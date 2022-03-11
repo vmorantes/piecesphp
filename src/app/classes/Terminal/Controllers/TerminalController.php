@@ -54,10 +54,9 @@ class TerminalController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dbBackup(Request $request, Response $response, array $args)
+    public function dbBackup(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -177,10 +176,9 @@ class TerminalController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function bundle(Request $request, Response $response, array $args)
+    public function bundle(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────

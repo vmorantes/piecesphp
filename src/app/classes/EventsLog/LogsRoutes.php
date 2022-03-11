@@ -128,10 +128,9 @@ class LogsRoutes
         /**
          * @param Request $request
          * @param Response $response
-         * @param array $args
          * @return Response
          */
-        $cssGlobalVariables = function (Request $request, Response $response, array $args) {
+        $cssGlobalVariables = function (Request $request, Response $response) {
 
             $css = [
                 "--emphasis-color:" . '#282828' . ";",

@@ -47,8 +47,6 @@ class MessagesController extends AdminPanelController
     const LANG_GROUP = 'messenger';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -59,8 +57,6 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * inbox
-     *
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -158,14 +154,11 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * sendMessage
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function sendMessage(Request $request, Response $response, array $args)
+    public function sendMessage(Request $request, Response $response)
     {
 
         $from = $request->getParsedBodyParam('from', null);
@@ -204,14 +197,11 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * sendResponse
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function sendResponse(Request $request, Response $response, array $args)
+    public function sendResponse(Request $request, Response $response)
     {
 
         $message_id = $request->getParsedBodyParam('message_id', null);
@@ -248,8 +238,6 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * markAsRead
-     *
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -303,14 +291,11 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * verirfyThreadsStatus
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function verirfyThreadsStatus(Request $request, Response $response, array $args)
+    public function verirfyThreadsStatus(Request $request, Response $response)
     {
 
         $user_id = $this->user->id;
@@ -348,8 +333,6 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * isAllowed
-     *
      * @param int $type
      * @param string $typeRequest
      * @return bool
@@ -360,8 +343,6 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * getWhereByUserType
-     *
      * @param UsersModel $user
      * @return string|array
      */
@@ -392,8 +373,6 @@ class MessagesController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
