@@ -121,10 +121,9 @@ class PersonsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView(Request $request, Response $response)
     {
 
         $backLink = get_route('admin');
@@ -168,10 +167,9 @@ class PersonsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm(Request $request, Response $response)
     {
 
         set_custom_assets([
@@ -204,10 +202,9 @@ class PersonsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -234,7 +231,7 @@ class PersonsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $manyLangs = count($allowedLangs) > 1 && count($element->getTranslatableProperties()) > 0;
+            $manyLangs = !empty($allowedLangs) > 1 && count($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $optionsDocumentTypes = array_to_html_options(PersonsMapper::idDocumentTypesForSelect(), $element->documentType);
@@ -269,10 +266,9 @@ class PersonsController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -410,7 +406,7 @@ class PersonsController extends AdminPanelController
              * @var string $personName2
              * @var string $personLastName1
              * @var string $personLastName2
-             */;
+             */
             $lang = $expectedParameters->getValue('lang');
             $id = $expectedParameters->getValue('id');
             $documentType = $expectedParameters->getValue('documentType');
@@ -595,7 +591,7 @@ class PersonsController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -688,10 +684,9 @@ class PersonsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -734,10 +729,10 @@ class PersonsController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var int $id
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $id = $expectedParameters->getValue('id');
@@ -750,10 +745,9 @@ class PersonsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTables(Request $request, Response $response, array $args)
+    public function dataTables(Request $request, Response $response)
     {
         $status = PersonsMapper::STATUS_ACTIVE;
 
@@ -764,14 +758,14 @@ class PersonsController extends AdminPanelController
 
         if ($status !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? 'AND' : '';
             $field = "{$table}.status";
             $critery = "{$field} = {$status}";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -832,10 +826,9 @@ class PersonsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function searchDropdown(Request $request, Response $response, array $args)
+    public function searchDropdown(Request $request, Response $response)
     {
 
         $search = $request->getQueryParam('search', null);
@@ -897,6 +890,7 @@ class PersonsController extends AdminPanelController
 
         $whereString = null;
         $where = [];
+        $and = 'AND';
 
         //Verificación de idioma
         $defaultLang = Config::get_default_lang();
@@ -905,11 +899,11 @@ class PersonsController extends AdminPanelController
         if ($currentLang != $defaultLang) {
 
             if ($jsonExtractExists) {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? $and : '';
                 $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
                 $where[] = "{$beforeOperator} ({$critery})";
             } else {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? $and : '';
                 $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
                 $where[] = "{$beforeOperator} ({$critery})";
             }
@@ -917,12 +911,12 @@ class PersonsController extends AdminPanelController
         }
 
         if ($id != null) {
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.id = {$id}";
             $where[] = "{$beforeOperator} ({$critery})";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 
@@ -1171,7 +1165,7 @@ class PersonsController extends AdminPanelController
 
                     $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
 
-                    if (count($locations) > 0) {
+                    if (!empty($locations)) {
 
                         $url = $locations[0];
                         $nameCurrent = basename($url);
@@ -1233,7 +1227,7 @@ class PersonsController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

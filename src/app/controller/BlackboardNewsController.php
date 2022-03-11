@@ -33,14 +33,10 @@ class BlackboardNewsController extends AdminPanelController
     const FORMAT_DATETIME = 'd-m-Y h:i A';
 
     /**
-     * $uploadDir
-     *
      * @var string
      */
     protected $uploadDir = '';
     /**
-     * $uploadDirURL
-     *
      * @var string
      */
     protected $uploadDirURL = '';
@@ -48,8 +44,6 @@ class BlackboardNewsController extends AdminPanelController
     const LANG_GROUP = 'news';
 
     /**
-     * __construct
-     *
      * @return static
      */
     public function __construct()
@@ -62,16 +56,13 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * listView
-     *
      * Vista de listado de noticias
      *
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function listView(Request $req, Response $res, array $args)
+    public function listView(Request $req, Response $res)
     {
 
         $this->render('panel/layout/header');
@@ -82,14 +73,11 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * writeForm
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function writeForm(Request $request, Response $response, array $args)
+    public function writeForm(Request $request, Response $response)
     {
 
         $types = Roles::getRolesIdentifiers(true);
@@ -106,8 +94,6 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * editForm
-     *
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -139,8 +125,6 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * deleteNew
-     *
      * @param Request $request
      * @param Response $response
      * @param array $args
@@ -180,14 +164,11 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * registerNew
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function registerNew(Request $request, Response $response, array $args)
+    public function registerNew(Request $request, Response $response)
     {
 
         $type = $request->getParsedBodyParam('type', null);
@@ -243,14 +224,11 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * editNew
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function editNew(Request $request, Response $response, array $args)
+    public function editNew(Request $request, Response $response)
     {
 
         $id = $request->getParsedBodyParam('id', null);
@@ -303,14 +281,11 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * getNews
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function getNews(Request $request, Response $response, array $args)
+    public function getNews(Request $request, Response $response)
     {
         $page = (int) $request->getQueryParam('page', 1);
         $perPage = (int) $request->getQueryParam('per_page', 10);
@@ -388,8 +363,6 @@ class BlackboardNewsController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

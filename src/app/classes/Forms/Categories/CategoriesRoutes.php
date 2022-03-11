@@ -93,10 +93,9 @@ class CategoriesRoutes
         /**
          * @param Request $request
          * @param Response $response
-         * @param array $args
          * @return Response
          */
-        $cssGlobalVariables = function (Request $request, Response $response, array $args) {
+        $cssGlobalVariables = function (Request $request, Response $response) {
             $css = CSSVariables::instance('global');
             return $css->toResponse($request, $response, false);
         };

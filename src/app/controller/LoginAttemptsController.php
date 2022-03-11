@@ -32,14 +32,11 @@ class LoginAttemptsController extends AdminPanelController
     }
 
     /**
-     * reportsLogin
-     *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function reportsAccess(Request $request, Response $response, array $args)
+    public function reportsAccess(Request $request, Response $response)
     {
         if ($request->isXhr()) {
 
@@ -78,8 +75,6 @@ class LoginAttemptsController extends AdminPanelController
     }
 
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */

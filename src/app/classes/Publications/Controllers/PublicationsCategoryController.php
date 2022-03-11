@@ -91,10 +91,9 @@ class PublicationsCategoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm(Request $request, Response $response)
     {
 
         set_custom_assets([
@@ -121,10 +120,9 @@ class PublicationsCategoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -180,10 +178,9 @@ class PublicationsCategoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView(Request $request, Response $response)
     {
 
         $backLink = PublicationsController::routeName('list');
@@ -216,10 +213,9 @@ class PublicationsCategoryController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -297,7 +293,7 @@ class PublicationsCategoryController extends AdminPanelController
              * @var int $id
              * @var string $lang
              * @var string $name
-             */;
+             */
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
             $name = $expectedParameters->getValue('name');
@@ -471,7 +467,7 @@ class PublicationsCategoryController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -574,10 +570,9 @@ class PublicationsCategoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -609,10 +604,9 @@ class PublicationsCategoryController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
-         * @var int $category
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
 
@@ -624,10 +618,9 @@ class PublicationsCategoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTables(Request $request, Response $response, array $args)
+    public function dataTables(Request $request, Response $response)
     {
 
         $whereString = null;
@@ -709,18 +702,18 @@ class PublicationsCategoryController extends AdminPanelController
         if ($currentLang != $defaultLang) {
 
             if ($jsonExtractExists) {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
                 $where[] = "{$beforeOperator} ({$critery})";
             } else {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
                 $where[] = "{$beforeOperator} ({$critery})";
             }
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 
@@ -861,7 +854,7 @@ class PublicationsCategoryController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

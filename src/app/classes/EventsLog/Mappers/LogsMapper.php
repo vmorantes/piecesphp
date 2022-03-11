@@ -322,7 +322,7 @@ class LogsMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
             $result = self::objectToMapper($result);
@@ -350,7 +350,7 @@ class LogsMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
     }
 
     /**

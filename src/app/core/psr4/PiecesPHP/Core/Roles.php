@@ -30,27 +30,19 @@ class Roles
     const IDENTIFIER_TYPE_NAME = 'IDENTIFIER_TYPE_NAME';
     const IDENTIFIER_TYPE_CODE = 'IDENTIFIER_TYPE_CODE';
     /**
-     * $roles
-     *
      * @var array
      */
     protected static $roles = [];
     /**
-     * $currentRole
-     *
      * @var array
      */
     protected static $currentRole = null;
     /**
-     * $silentMode
-     *
      * @var array
      */
     protected static $silentMode = false;
 
     /**
-     * setCurrentRole
-     *
      * @param mixed $name_or_code
      * @return void
      * @throws RoleNotExistsException
@@ -78,8 +70,6 @@ class Roles
     }
 
     /**
-     * registerRole
-     *
      * Registra un nuevo rol
      *
      * @param string $name Nombre del rol
@@ -119,8 +109,6 @@ class Roles
     }
 
     /**
-     * registerRoles
-     *
      * Registra varios roles
      *
      * Cada rol debe ser:
@@ -156,8 +144,6 @@ class Roles
     }
 
     /**
-     * getCurrentRole
-     *
      * @return array
      */
     public static function getCurrentRole()
@@ -166,8 +152,6 @@ class Roles
     }
 
     /**
-     * getRolesIdentifiers
-     *
      * @param bool $i18n
      * Devuelve los roles registrados de la forma:
      *
@@ -190,8 +174,6 @@ class Roles
     }
 
     /**
-     * getRoles
-     *
      * Devuelve los roles registrados
      *
      * @return array
@@ -202,8 +184,6 @@ class Roles
     }
 
     /**
-     * getRole
-     *
      * Devuelve el role que coincida o null si no existe
      *
      * @return array|null
@@ -222,8 +202,6 @@ class Roles
     }
 
     /**
-     * getSilentMode
-     *
      * Si es true no lanzará RoleNotExistsException en hasPermissions
      *
      * @return bool
@@ -234,8 +212,6 @@ class Roles
     }
 
     /**
-     * addPermission
-     *
      * @param string $name_route
      * @param mixed $identifier
      * @param mixed $type
@@ -273,8 +249,6 @@ class Roles
     }
 
     /**
-     * addPermission
-     *
      * @param string[] $name_route
      * @param mixed $identifier
      * @param mixed $type
@@ -291,8 +265,6 @@ class Roles
     }
 
     /**
-     * setSilentMode
-     *
      * Si es true no lanzará RoleNotExistsException en hasPermissions
      *
      * @param bool $mode
@@ -304,8 +276,6 @@ class Roles
     }
 
     /**
-     * hasPermissions
-     *
      * Verifica los permisos de un rol
      *
      * @param \Slim\Http\Request|string $request_route La ruta solicita. Puede ser un objeto Request de slim o el
@@ -346,7 +316,7 @@ class Roles
             $name_route = $route['name'];
             $require_login = $route['require_login'];
             $roles_allowed = $route['roles_allowed'];
-            $require_login = !$require_login ? count($roles_allowed) > 0 : $require_login;
+            $require_login = !$require_login ? !empty($roles_allowed) : $require_login;
 
         } else {
 
@@ -441,13 +411,11 @@ class Roles
     }
 
     /**
-     * hasRoles
-     *
      * @return bool
      */
     public static function hasRoles(): bool
     {
-        return count(self::$roles) > 0;
+        return !empty(self::$roles);
     }
 
 }

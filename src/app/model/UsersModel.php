@@ -113,8 +113,6 @@ class UsersModel extends BaseEntityMapper
     ];
 
     /**
-     * __construct
-     *
      * @param integer $id
      * @return static
      */
@@ -124,8 +122,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * hasAuthorityOver
-     *
      * @param int $type
      * @return bool
      */
@@ -137,8 +133,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getHigherPriorityTypes
-     *
      * @return array
      */
     public function getHigherPriorityTypes()
@@ -173,8 +167,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getFullName
-     *
      * @return string
      */
     public function getFullName()
@@ -196,8 +188,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getPublicData
-     *
      * @return array
      */
     public function getPublicData()
@@ -212,8 +202,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getWhere
-     *
      * @param mixed $where
      * @return object|bool
      */
@@ -228,8 +216,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getByUsername
-     *
      * @param mixed $username
      * @return object|bool
      */
@@ -244,8 +230,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getByID
-     *
      * @param mixed $id
      * @return object|bool
      */
@@ -260,8 +244,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getByEmail
-     *
      * @param mixed $email
      * @return object|bool
      */
@@ -276,8 +258,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeUsername
-     *
      * @param mixed $username
      * @param mixed $id
      * @return bool
@@ -293,8 +273,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changePassword
-     *
      * @param mixed $criterio
      * @param mixed $password
      * @param mixed $isEmail
@@ -319,8 +297,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeFirstName
-     *
      * @param mixed $firstname
      * @param mixed $id
      * @return bool
@@ -336,8 +312,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeSecondName
-     *
      * @param mixed $secondname
      * @param mixed $id
      * @return bool
@@ -353,8 +327,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeFirstLastname
-     *
      * @param mixed $fristLastname
      * @param mixed $id
      * @return bool
@@ -370,8 +342,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeSecondLastname
-     *
      * @param mixed $second_lastname
      * @param mixed $id
      * @return bool
@@ -387,8 +357,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeEmail
-     *
      * @param mixed $email
      * @param mixed $id
      * @return bool
@@ -404,8 +372,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeType
-     *
      * @param mixed $type
      * @param mixed $id
      * @return bool
@@ -421,8 +387,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * changeStatus
-     *
      * @param mixed $status
      * @param mixed $id
      * @return bool
@@ -438,8 +402,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * updateAttempts
-     *
      * @param mixed $id
      * @return int Los intentos fallidos
      */
@@ -456,8 +418,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * updateModifiedAt
-     *
      * @param mixed $criterio
      * @return bool
      */
@@ -479,8 +439,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * resetAttempts
-     *
      * @param mixed $id
      * @return bool
      */
@@ -494,8 +452,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getUsersByType
-     *
      * @param int $type
      * @param int[] $ignoreIDs
      * @return \stdClass[]
@@ -509,7 +465,7 @@ class UsersModel extends BaseEntityMapper
             "type = {$type}",
         ];
 
-        if (count($ignoreIDs) > 0) {
+        if (!empty($ignoreIDs)) {
 
             $ignoreIDs = implode(', ', $ignoreIDs);
             $where[] = "AND id NOT IN ({$ignoreIDs})";
@@ -524,8 +480,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getUsersByTypes
-     *
      * @param int[] $types
      * @param int[] $ignoreIDs
      * @return \stdClass[]
@@ -539,7 +493,7 @@ class UsersModel extends BaseEntityMapper
             '(type = ' . implode(' OR type = ', $types) . ')',
         ];
 
-        if (count($ignoreIDs) > 0) {
+        if (!empty($ignoreIDs)) {
 
             $ignoreIDs = implode(', ', $ignoreIDs);
             $where[] = "AND id NOT IN ({$ignoreIDs})";
@@ -554,8 +508,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getUsersByIDs
-     *
      * @param int[] $ids
      * @return \stdClass[]
      */
@@ -564,7 +516,7 @@ class UsersModel extends BaseEntityMapper
 
         $model = (new static())->getModel();
 
-        $ids = count($ids) > 0 ? implode(', ', $ids) : -1;
+        $ids = !empty($ids) ? implode(', ', $ids) : -1;
         $where = [
             "id IN ({$ids})",
         ];
@@ -578,8 +530,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * getTypesUser
-     *
      * @return array
      */
     public static function getTypesUser()
@@ -598,8 +548,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * isDuplicate
-     *
      * @param string $username
      * @param string $email
      * @return bool
@@ -619,12 +567,10 @@ class UsersModel extends BaseEntityMapper
             ],
         ])->execute();
 
-        return count($model->result()) > 0;
+        return !empty($model->result());
     }
 
     /**
-     * isDuplicateEmail
-     *
      * @param string $email
      * @param int $id
      * @return bool
@@ -643,12 +589,10 @@ class UsersModel extends BaseEntityMapper
             ],
         ])->execute();
 
-        return count($model->result()) > 0;
+        return !empty($model->result());
     }
 
     /**
-     * isDuplicateUsername
-     *
      * @param string $username
      * @param int $id
      * @return bool
@@ -669,7 +613,7 @@ class UsersModel extends BaseEntityMapper
 
         $model->execute();
 
-        return count($model->result()) > 0;
+        return !empty($model->result());
     }
 
     /**
@@ -717,8 +661,6 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
-     * model
-     *
      * @return ActiveRecordModel
      */
     public static function model()

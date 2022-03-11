@@ -3,17 +3,17 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use ImagesRepository\Controllers\ImagesRepositoryController;
 /**
  * @var ImagesRepositoryController $this
- */;
+ */
 /**
  * @var string $langGroup
- */;
+ */
 $langGroup;
 $langGroupDatatables = 'datatables';
 
 $appendParamToURL = function (string $url, string $paramName, string $paramValue) {
 
     $parsedURL = parse_url($url);
-    $hasParams = isset($parsedURL['query']) ? count(explode('&', $parsedURL['query'])) > 0 : null;
+    $hasParams = isset($parsedURL['query']) ? !empty(explode('&', $parsedURL['query'])) : null;
     $queryTokenIndex = strpos($url, '?');
     $hasQueryToken = $queryTokenIndex !== false;
     $querySegment = $hasQueryToken ? substr($url, $queryTokenIndex) : null;
@@ -41,7 +41,7 @@ $params = [
 $params = array_filter($params, function ($e) use($validateParam){
     return ($validateParam)($e);
 });
-$hasParams = count($params) > 0 || ($validateParam)($search);
+$hasParams = !empty($params) || ($validateParam)($search);
 
 ?>
 
@@ -97,7 +97,7 @@ $hasParams = count($params) > 0 || ($validateParam)($search);
 
                 </div>
 
-                <?php if(count($params) > 0): ?>
+                <?php if(!empty($params)): ?>
                 <div class="field">
                     <strong><?= __($langGroup, 'Filtrando por:'); ?></strong>
                     <div class="ui horizontal list">

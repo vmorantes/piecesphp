@@ -410,7 +410,7 @@ class DataTablesHelper
                 }
 
                 $data[] = $data_process;
-                
+
             } else {
                 //Procesamiento de filas integrado
 
@@ -594,7 +594,7 @@ class DataTablesHelper
         $filterCountPrepared->execute();
         $filterCountResult = $filterCountPrepared->fetchAll(\PDO::FETCH_OBJ);
 
-        $filterCountTotal = count($filterCountResult) > 0 ? (int) $filterCountResult[0]->total : 0;
+        $filterCountTotal = !empty($filterCountResult) ? (int) $filterCountResult[0]->total : 0;
         $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCountSQL));
         $result->setValue('recordsFiltered', $filterCountTotal);
 
@@ -610,7 +610,7 @@ class DataTablesHelper
         $result->setValue('SQL_TOTAL_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $totalCount->getLastSQLExecuted()));
         $totalCount = $totalCount->result();
 
-        $result->setValue('recordsTotal', count($totalCount) > 0 ? $totalCount[0]->total : 0);
+        $result->setValue('recordsTotal', !empty($totalCount) ? $totalCount[0]->total : 0);
         //=============================================================
 
         return $result;
@@ -787,7 +787,7 @@ class DataTablesHelper
             }
         }
 
-        return count($order_by) > 0 ? implode(',', $order_by) : '';
+        return !empty($order_by) ? implode(',', $order_by) : '';
     }
 
     /**

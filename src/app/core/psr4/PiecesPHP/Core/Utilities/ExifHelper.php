@@ -20,15 +20,11 @@ class ExifHelper
     const GPS_TYPE_LATITUDE = 'LATITUDE';
 
     /**
-     * $exifData
-     *
      * @var array
      */
     protected $exifData = [];
 
     /**
-     * __construct
-     *
      * @param string $file
      * @return static
      */
@@ -38,8 +34,6 @@ class ExifHelper
     }
 
     /**
-     * getOriginalDate
-     *
      * @return \DateTime|null
      */
     public function getOriginalDate()
@@ -70,8 +64,6 @@ class ExifHelper
     }
 
     /**
-     * getDigitizedDate
-     *
      * @return \DateTime|null
      */
     public function getDigitizedDate()
@@ -101,8 +93,6 @@ class ExifHelper
     }
 
     /**
-     * getFileDate
-     *
      * @return \DateTime|null
      */
     public function getFileDate()
@@ -111,8 +101,6 @@ class ExifHelper
     }
 
     /**
-     * getGPSCoordinates
-     *
      * @return array|null [lng=>number, lat=>number] o null en caso de no tener la información
      */
     public function getGPSCoordinates()
@@ -134,8 +122,6 @@ class ExifHelper
     }
 
     /**
-     * getGPSLongitude
-     *
      * @return float|null
      */
     public function getGPSLongitude()
@@ -153,8 +139,6 @@ class ExifHelper
     }
 
     /**
-     * getGPSLatitude
-     *
      * @return float|null
      */
     public function getGPSLatitude()
@@ -172,8 +156,6 @@ class ExifHelper
     }
 
     /**
-     * getGPSSign
-     *
      * @param string $type Alguna de las constantes:
      * - GPS_TYPE_LONGITUDE
      * - GPS_TYPE_LATITUDE
@@ -226,8 +208,6 @@ class ExifHelper
     }
 
     /**
-     * getGPSDataToNumber
-     *
      * @param string $type Alguna de las constantes:
      * - GPS_TYPE_LONGITUDE
      * - GPS_TYPE_LATITUDE
@@ -250,7 +230,7 @@ class ExifHelper
         if ($value !== null) {
 
             $segments = [
-                'degrees' => count($value) > 0 ? $value[0] : 0,
+                'degrees' => !empty($value) ? $value[0] : 0,
                 'minutes' => count($value) > 1 ? $value[1] : 0,
                 'seconds' => count($value) > 2 ? $value[2] : 0,
             ];
@@ -278,8 +258,6 @@ class ExifHelper
     }
 
     /**
-     * convertArrayToUTF8
-     *
      * @param array $array
      * @return array
      */
@@ -304,8 +282,6 @@ class ExifHelper
     }
 
     /**
-     * getExifData
-     *
      * @return array
      */
     public function getExifData()

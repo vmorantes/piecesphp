@@ -87,10 +87,9 @@ class NewsletterController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm(Request $request, Response $response)
     {
 
         set_custom_assets([
@@ -117,10 +116,9 @@ class NewsletterController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -160,12 +158,9 @@ class NewsletterController extends AdminPanelController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView()
     {
 
         $backLink = get_route('admin');
@@ -198,10 +193,9 @@ class NewsletterController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -292,7 +286,7 @@ class NewsletterController extends AdminPanelController
              * @var string $name
              * @var string $email
              * @var bool $acceptUpdates
-             */;
+             */
             $id = $expectedParameters->getValue('id');
             $name = $expectedParameters->getValue('name');
             $email = $expectedParameters->getValue('email');
@@ -399,10 +393,9 @@ class NewsletterController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function addSuscriber(Request $request, Response $response, array $args)
+    public function addSuscriber(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -453,7 +446,7 @@ class NewsletterController extends AdminPanelController
             //Información del formulario
             /**
              * @var string $email
-             */;
+             */
             $email = $expectedParameters->getValue('email');
 
             try {
@@ -569,7 +562,7 @@ class NewsletterController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -658,10 +651,9 @@ class NewsletterController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -693,9 +685,9 @@ class NewsletterController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
 
@@ -707,17 +699,16 @@ class NewsletterController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTables(Request $request, Response $response, array $args)
+    public function dataTables(Request $request, Response $response)
     {
 
         $whereString = null;
         $table = NewsletterSuscriberMapper::TABLE;
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -797,7 +788,7 @@ class NewsletterController extends AdminPanelController
         $whereString = null;
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 
@@ -924,7 +915,7 @@ class NewsletterController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

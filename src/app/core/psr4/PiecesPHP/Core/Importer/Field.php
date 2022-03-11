@@ -191,11 +191,11 @@ class Field
                     $this->value = $this->parse($value);
                 } else {
                     throw new \Exception(
-						sprintf(
-							__(self::LANG_GROUP, 'El valor ingresado en %s no es válido.'),
-							"$this->name/$this->humanReadableName"
-						)
-					);
+                        sprintf(
+                            __(self::LANG_GROUP, 'El valor ingresado en %s no es válido.'),
+                            "$this->name/$this->humanReadableName"
+                        )
+                    );
                 }
             }
         }
@@ -385,7 +385,7 @@ class Field
      */
     public function hasMetaProperties()
     {
-        return count($this->metaPropertiesAllowed->getArrayCopy()) > 0;
+        return !empty($this->metaPropertiesAllowed->getArrayCopy());
     }
 
     /**

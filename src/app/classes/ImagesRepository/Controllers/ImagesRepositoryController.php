@@ -119,10 +119,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function previewImage(Request $request, Response $response, array $args)
+    public function previewImage(Request $request, Response $response)
     {
         $id = $request->getAttribute('id', null);
         $id = is_int($id) || (is_string($id) && ctype_digit($id)) ? (int) $id : null;
@@ -167,10 +166,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function friendlyImageName(Request $request, Response $response, array $args)
+    public function friendlyImageName(Request $request, Response $response)
     {
         $image = null;
         $maskNameInput = $request->getAttribute('name', null);
@@ -225,10 +223,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function friendlyAuthorizationName(Request $request, Response $response, array $args)
+    public function friendlyAuthorizationName(Request $request, Response $response)
     {
         $image = null;
         $maskNameInput = $request->getAttribute('name', null);
@@ -283,10 +280,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function listView(Request $request, Response $response, array $args)
+    public function listView(Request $request, Response $response)
     {
 
         $backLink = get_route('admin');
@@ -328,10 +324,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function filterView(Request $request, Response $response, array $args)
+    public function filterView(Request $request, Response $response)
     {
         $year = $request->getQueryParam('year', null);
         $search = $request->getQueryParam('searchText', null);
@@ -352,8 +347,8 @@ class ImagesRepositoryController extends AdminPanelController
             return $params;
         })($urlQuery);
 
-        $urlQuery = count($urlQuery) > 0 ? implode('&', $urlQuery) : null;
-        $urlQueryNoYear = count($urlQueryNoYear) > 0 ? implode('&', $urlQueryNoYear) : null;
+        $urlQuery = !empty($urlQuery) ? implode('&', $urlQuery) : null;
+        $urlQueryNoYear = !empty($urlQueryNoYear) ? implode('&', $urlQueryNoYear) : null;
 
         if ($urlQuery !== null) {
             $processTableLink .= "?{$urlQuery}";
@@ -399,10 +394,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function addForm(Request $request, Response $response, array $args)
+    public function addForm(Request $request, Response $response)
     {
 
         import_simple_upload_placeholder();
@@ -433,10 +427,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function editForm(Request $request, Response $response, array $args)
+    public function editForm(Request $request, Response $response)
     {
 
         $id = $request->getAttribute('id', null);
@@ -493,10 +486,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return void
      */
-    public function singleView(Request $request, Response $response, array $args)
+    public function singleView(Request $request, Response $response)
     {
 
         $slug = $request->getAttribute('slug', '');
@@ -551,10 +543,9 @@ class ImagesRepositoryController extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -669,7 +660,7 @@ class ImagesRepositoryController extends AdminPanelController
              * @var string $description
              * @var string $resolution
              * @var \DateTime $captureDate
-             */;
+             */
             $lang = $expectedParameters->getValue('lang');
             $id = $expectedParameters->getValue('id');
             $author = $expectedParameters->getValue('author');
@@ -900,7 +891,7 @@ class ImagesRepositoryController extends AdminPanelController
 
             /**
              * @var int $id
-             */;
+             */
             $id = $expectedParameters->getValue('id');
 
             try {
@@ -996,10 +987,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function all(Request $request, Response $response, array $args)
+    public function all(Request $request, Response $response)
     {
 
         $expectedParameters = new Parameters([
@@ -1042,10 +1032,10 @@ class ImagesRepositoryController extends AdminPanelController
         $expectedParameters->validate();
 
         /**
-         * @var int $id
+         * @var int $page
          * @var int $perPage
          * @var string $description
-         */;
+         */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $description = $expectedParameters->getValue('description');
@@ -1058,17 +1048,16 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTables(Request $request, Response $response, array $args)
+    public function dataTables(Request $request, Response $response)
     {
         $table = ImagesRepositoryMapper::TABLE;
 
         $whereString = null;
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -1140,10 +1129,9 @@ class ImagesRepositoryController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function dataTablesFilterView(Request $request, Response $response, array $args)
+    public function dataTablesFilterView(Request $request, Response $response)
     {
 
         //──── Parámetros ────────────────────────────────────────────────────────────────────────
@@ -1164,25 +1152,25 @@ class ImagesRepositoryController extends AdminPanelController
 
         $whereString = null;
         $where = [];
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
         $havingString = null;
         $having = [];
         if ($year !== null) {
-            $operator = count($having) > 0 ? ' AND ' : '';
+            $operator = !empty($having) ? ' AND ' : '';
             $critery = "imageYear = {$year}";
             $having[] = "{$operator}({$critery})";
         }
         if ($search != null) {
 
-            $operator = count($having) > 0 ? ' AND ' : '';
+            $operator = !empty($having) ? ' AND ' : '';
             $critery = "({$table}.description LIKE '{$search}%' LIKE '{$search}%' OR {$table}.author LIKE '{$search}%')";
             $having[] = "{$operator}({$critery})";
 
         }
-        if (count($having) > 0) {
+        if (!empty($having)) {
             $havingString = trim(implode(' ', $having));
         }
 
@@ -1265,7 +1253,7 @@ class ImagesRepositoryController extends AdminPanelController
 
         if ($description !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? 'AND' : '';
             $descriptionField = ImagesRepositoryMapper::fieldCurrentLangForSQL('description');
             $critery = "UPPER({$descriptionField}) LIKE UPPER('{$description}%')";
             $where[] = "{$beforeOperator} ({$critery})";
@@ -1279,18 +1267,18 @@ class ImagesRepositoryController extends AdminPanelController
         if ($currentLang != $defaultLang) {
 
             if ($jsonExtractExists) {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
                 $where[] = "{$beforeOperator} ({$critery})";
             } else {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? 'AND' : '';
                 $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
                 $where[] = "{$beforeOperator} ({$critery})";
             }
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 
@@ -1548,7 +1536,7 @@ class ImagesRepositoryController extends AdminPanelController
 
                     $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
 
-                    if (count($locations) > 0) {
+                    if (!empty($locations)) {
 
                         $url = $locations[0];
                         $nameCurrent = basename($url);
@@ -1610,7 +1598,7 @@ class ImagesRepositoryController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

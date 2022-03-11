@@ -55,10 +55,9 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
      *
      * @param Request $request
      * @param Response $response
-     * @param array $args
      * @return Response
      */
-    public function action(Request $request, Response $response, array $args)
+    public function action(Request $request, Response $response)
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -98,7 +97,7 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
             //Información del formulario
             /**
              * @var string $token
-             */;
+             */
             $token = $expectedParameters->getValue('token');
 
             $requestHTTP = new HttpClient('https://www.google.com/recaptcha/api/');
@@ -172,7 +171,7 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

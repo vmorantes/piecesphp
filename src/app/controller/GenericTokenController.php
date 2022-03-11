@@ -1,5 +1,4 @@
 <?php
-
 /**
  * GenericTokenController.php
  */
@@ -23,8 +22,6 @@ use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
 /**
- * GenericTokenController.
- *
  * GenericTokenController.
  *
  * @package     PiecesPHP\Core
@@ -92,7 +89,7 @@ class GenericTokenController extends AdminPanelController
             ]);
             $tokenModel->execute();
             $tokenElement = $tokenModel->result();
-            $tokenElement = count($tokenElement) > 0 ? $tokenElement[0] : null;
+            $tokenElement = !empty($tokenElement) ? $tokenElement[0] : null;
 
             if ($tokenElement !== null) {
                 $token = $tokenElement->token;
@@ -200,10 +197,9 @@ class GenericTokenController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function commentary(Request $req, Response $res, array $args)
+    public function commentary(Request $req, Response $res)
     {
         $method = $req->getMethod();
 
@@ -297,7 +293,7 @@ class GenericTokenController extends AdminPanelController
                 ]);
                 $tokenModel->execute();
                 $tokenElement = $tokenModel->result();
-                $tokenElement = count($tokenElement) > 0 ? $tokenElement[0] : null;
+                $tokenElement = !empty($tokenElement) ? $tokenElement[0] : null;
 
                 if ($tokenElement !== null) {
 

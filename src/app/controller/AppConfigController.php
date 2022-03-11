@@ -140,10 +140,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function backgrounds(Request $req, Response $res, array $args)
+    public function backgrounds(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
         $requestMethod = mb_strtoupper($req->getMethod());
@@ -238,7 +237,7 @@ class AppConfigController extends AdminPanelController
                         imagejpeg($img, basepath($relativePath), 70);
                     }
 
-                    if (count($route) > 0) {
+                    if (!empty($route)) {
 
                         $updated = $currentBackgroundConfigMapper->update();
 
@@ -272,10 +271,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function faviconsAndLogos(Request $req, Response $res, array $args)
+    public function faviconsAndLogos(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
         $requestMethod = mb_strtoupper($req->getMethod());
@@ -365,7 +363,7 @@ class AppConfigController extends AdminPanelController
                         imagejpeg($img, basepath($relativePath), 70);
                     }
 
-                    if (count($route) > 0) {
+                    if (!empty($route)) {
 
                         $updated = $logosAndFaviconsMapper->update();
 
@@ -399,10 +397,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function seo(Request $req, Response $res, array $args)
+    public function seo(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
@@ -435,7 +432,7 @@ class AppConfigController extends AdminPanelController
                         $keywordsToSelect = [];
 
                         $keywords = $value;
-                        if (is_array($keywords) && count($keywords) > 0) {
+                        if (is_array($keywords) && !empty($keywords)) {
 
                             foreach ($keywords as $keyword) {
                                 $keywordsToSelect[$keyword] = $keyword;
@@ -576,7 +573,7 @@ class AppConfigController extends AdminPanelController
                  * @var string $description
                  * @var string[] $keywords
                  * @var string $extraScripts
-                 */;
+                 */
                 $lang = $expectedParameters->getValue('lang');
                 $titleApp = $expectedParameters->getValue('titleApp');
                 $owner = $expectedParameters->getValue('owner');
@@ -646,7 +643,7 @@ class AppConfigController extends AdminPanelController
                             $img = imagecreatefromjpeg(basepath($relativePath));
                             imagejpeg($img, basepath($relativePath), 70);
 
-                            if (count($route) > 0) {
+                            if (!empty($route)) {
 
                                 if ($openGraphMapper->id !== null) {
                                     $success = $success && $openGraphMapper->update();
@@ -702,10 +699,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function email(Request $req, Response $res, array $args)
+    public function email(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
@@ -869,7 +865,7 @@ class AppConfigController extends AdminPanelController
                  * @var string $user
                  * @var string $password
                  * @var string $name
-                 */;
+                 */
                 $autoTLS = $expectedParameters->getValue('auto_tls');
                 $auth = $expectedParameters->getValue('auth');
                 $host = $expectedParameters->getValue('host');
@@ -944,10 +940,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function osTicket(Request $req, Response $res, array $args)
+    public function osTicket(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
@@ -1084,10 +1079,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function routesView(Request $req, Response $res, array $args)
+    public function routesView(Request $req, Response $res)
     {
         $this->render('panel/layout/header');
         $this->render('panel/pages/app_configurations/routes', [
@@ -1101,10 +1095,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function configurationsView(Request $req, Response $res, array $args)
+    public function configurationsView(Request $req, Response $res)
     {
         import_spectrum();
 
@@ -1168,10 +1161,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return void
      */
-    public function crontab(Request $req, Response $res, array $args)
+    public function crontab(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
@@ -1322,10 +1314,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function actionGeneric(Request $req, Response $res, array $args)
+    public function actionGeneric(Request $req, Response $res)
     {
         $operation_name = __(self::LANG_GROUP, 'Configuración');
 
@@ -1468,10 +1459,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function createSitemap(Request $req, Response $res, array $args)
+    public function createSitemap(Request $req, Response $res)
     {
 
         $startTime = microtime(true);
@@ -1594,10 +1584,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function sslGenerator(Request $req, Response $res, array $args)
+    public function sslGenerator(Request $req, Response $res)
     {
         $sslMessages = 'config-ssl';
 
@@ -1688,10 +1677,9 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @param array $args
      * @return Response
      */
-    public function mapboxKey(Request $req, Response $res, array $args)
+    public function mapboxKey(Request $req, Response $res)
     {
         $keyLocal = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjamt1YjBzeXEwZWlvM3FxbDBuZDZmZWFtIn0.jv_5-3mX1kWLrk1ffvV2zQ';
         $keyDomain = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjamt1YjBzeXEwZWlvM3FxbDBuZDZmZWFtIn0.jv_5-3mX1kWLrk1ffvV2zQ';
@@ -2066,7 +2054,7 @@ class AppConfigController extends AdminPanelController
         $allowed = false;
         $current_user = get_config('current_user');
 
-        if ($current_user != false) {
+        if ($current_user !== false) {
             $allowed = Roles::hasPermissions($name, (int) $current_user->type);
         } else {
             $allowed = true;

@@ -480,7 +480,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
             $result = self::objectToMapper($result);
@@ -512,7 +512,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $asMapper) {
             $result = new static($result->id);
@@ -540,7 +540,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $model->execute(false, 1, 1);
 
         $result = $model->result();
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if ($asMapper && $result !== null) {
             $result = self::objectToMapper($result);
@@ -568,7 +568,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
     }
 
     /**
@@ -601,7 +601,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
 
     }
 

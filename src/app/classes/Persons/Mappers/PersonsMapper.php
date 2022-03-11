@@ -786,7 +786,7 @@ class PersonsMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        $result = count($result) > 0 ? $result[0] : null;
+        $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
             $result = self::objectToMapper($result);
@@ -806,7 +806,7 @@ class PersonsMapper extends EntityMapperExtensible
         $model->where("id = {$id}");
         $model->execute();
         $result = $model->result();
-        return count($result) > 0 ? $result[0] : null;
+        return !empty($result) ? $result[0] : null;
     }
 
     /**
@@ -828,7 +828,7 @@ class PersonsMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
     }
 
     /**
@@ -864,7 +864,7 @@ class PersonsMapper extends EntityMapperExtensible
 
         $result = $model->result();
 
-        return count($result) > 0;
+        return !empty($result);
 
     }
 
