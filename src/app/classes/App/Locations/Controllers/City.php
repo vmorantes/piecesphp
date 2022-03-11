@@ -54,6 +54,9 @@ class City extends AdminPanelController
      */
     protected static $pluralTitle = 'Ciudades';
 
+    const DEFAULT_HEADER_LAYOUT = 'panel/layout/header';
+    const DEFAULT_FOOTER_LAYOUT = 'panel/layout/footer';
+
     /**
      * @return static
      */
@@ -85,9 +88,9 @@ class City extends AdminPanelController
         $data['back_link'] = $back_link;
         $data['title'] = self::$title;
 
-        $this->render('panel/layout/header');
+        $this->render(self::DEFAULT_HEADER_LAYOUT);
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
-        $this->render('panel/layout/footer');
+        $this->render(self::DEFAULT_FOOTER_LAYOUT);
     }
 
     /**
@@ -117,9 +120,9 @@ class City extends AdminPanelController
             $data['back_link'] = $back_link;
             $data['title'] = self::$title;
 
-            $this->render('panel/layout/header');
+            $this->render(self::DEFAULT_HEADER_LAYOUT);
             $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
-            $this->render('panel/layout/footer');
+            $this->render(self::DEFAULT_FOOTER_LAYOUT);
 
         } else {
             throw new NotFoundException($request, $response);
@@ -142,9 +145,9 @@ class City extends AdminPanelController
         $data['has_add_link_permissions'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
 
-        $this->render('panel/layout/header');
+        $this->render(self::DEFAULT_HEADER_LAYOUT);
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
-        $this->render('panel/layout/footer');
+        $this->render(self::DEFAULT_FOOTER_LAYOUT);
     }
 
     /**
@@ -156,7 +159,7 @@ class City extends AdminPanelController
     {
         $state = $request->getQueryParam('state', null);
         $ids = $request->getQueryParam('ids', []);
-        $ids = is_array($ids) && count($ids) > 0 ? implode(',', $ids) : null;
+        $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
 
         if ($state !== null) {
             if (ctype_digit($state)) {
@@ -170,20 +173,21 @@ class City extends AdminPanelController
 
         $where = [];
         $whereString = null;
+        $and = ' AND ';
 
         if (!is_null($state)) {
-            $operator = count($where) > 0 ? ' AND ' : '';
+            $operator = !empty($where) ? $and : '';
             $critery = "{$operator} (state = {$state})";
             $where[] = $critery;
         }
 
         if (!is_null($ids)) {
-            $operator = count($where) > 0 ? ' AND ' : '';
+            $operator = !empty($where) ? $and : '';
             $critery = "{$operator} (id IN ({$ids}))";
             $where[] = $critery;
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
             $query->where($whereString);
         }
@@ -502,17 +506,18 @@ class City extends AdminPanelController
 
         $whereString = null;
         $where = [];
+        $and = ' AND ';
 
         if ($state !== null) {
-            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.state = {$state}";
+            $where[] = (!empty($where) ? $and : '') . "{$table}.state = {$state}";
         }
 
-        if (count($ignore) > 0) {
+        if (!empty($ignore)) {
             $ignore = implode(', ', $ignore);
-            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
+            $where[] = (!empty($where) ? $and : '') . "{$table}.id NOT IN ($ignore)";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 

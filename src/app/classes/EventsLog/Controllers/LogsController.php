@@ -114,7 +114,7 @@ class LogsController extends AdminPanelController
 
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 

@@ -681,7 +681,7 @@ class PresentationsCategoryController extends AdminPanelController
         $whereString = null;
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 

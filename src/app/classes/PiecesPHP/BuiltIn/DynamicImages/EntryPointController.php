@@ -135,7 +135,7 @@ class EntryPointController extends AdminPanelController
 
             if ($name == 'options') {
 
-                $allow = count((new static )->getAllowedOptions()) > 0;
+                $allow = !empty((new static )->getAllowedOptions());
 
             }
 

@@ -64,7 +64,7 @@ class RequestResponsePiecesPHP implements InvocationStrategyInterface
 
         }
 
-        if (self::$beforeCallMethods !== null && is_array(self::$beforeCallMethods) && count(self::$beforeCallMethods) > 0) {
+        if (self::$beforeCallMethods !== null && is_array(self::$beforeCallMethods) && !empty(self::$beforeCallMethods)) {
 
             foreach (self::$beforeCallMethods as $beforeCallMethods) {
 
@@ -80,7 +80,7 @@ class RequestResponsePiecesPHP implements InvocationStrategyInterface
 
         $invokeResult = call_user_func($callable, $request, $response, $routeArguments);
 
-        if (self::$afterCallMethods !== null && is_array(self::$afterCallMethods) && count(self::$afterCallMethods) > 0) {
+        if (self::$afterCallMethods !== null && is_array(self::$afterCallMethods) && !empty(self::$afterCallMethods)) {
 
             foreach (self::$afterCallMethods as $afterCallMethods) {
 

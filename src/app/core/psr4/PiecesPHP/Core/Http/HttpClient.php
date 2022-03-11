@@ -31,43 +31,31 @@ class HttpClient
     const MODE_PARSED_TO_JSON = 'MODE_PARSED_TO_JSON';
 
     /**
-     * $baseURL
-     *
      * @var string
      */
     protected static $baseURL = '';
 
     /**
-     * $defaultHeaders
-     *
      * @var array
      */
     protected $defaultHeaders = [];
 
     /**
-     * $requestHeaders
-     *
      * @var array
      */
     protected $requestHeaders = [];
 
     /**
-     * $requestBody
-     *
-     * @var array
+     * @var array|object|string
      */
     protected $requestBody = [];
 
     /**
-     * $requestURI
-     *
      * @var string
      */
     protected $requestURI = '';
 
     /**
-     * $response
-     *
      * @var mixed
      */
     protected $response = [
@@ -77,8 +65,6 @@ class HttpClient
     ];
 
     /**
-     * __construct
-     *
      * @param string $baseURL Es la ruta a la que se añadirán todas las peticiones
      *
      */
@@ -91,8 +77,6 @@ class HttpClient
     }
 
     /**
-     * request
-     *
      * @param string $request_uri
      * @param string $method
      * @param array $contents
@@ -143,8 +127,6 @@ class HttpClient
     }
 
     /**
-     * cookiesToHeaderString
-     *
      * @return string
      */
     public function cookiesToHeaderString()
@@ -159,8 +141,6 @@ class HttpClient
     }
 
     /**
-     * headersArrayToString
-     *
      * @param array $headers Los headers como [HEADER_NAME=>VALOR], los valores puedes ser string
      * o array.
      * @return string
@@ -203,8 +183,6 @@ class HttpClient
     }
 
     /**
-     * setDefaultRequestHeaders
-     *
      * Define las cabeceras por defecto
      * @param array $headers Debe ser un array asociativo con los nombres de las cabeceras y su valor
      * en un string o valores en un array de strings, de lo contrario no surtirá efecto.
@@ -252,8 +230,6 @@ class HttpClient
     }
 
     /**
-     * getDefaultRequestHeaders
-     *
      * Devuelve las cabeceras por defecto
      *
      * @return array
@@ -264,8 +240,6 @@ class HttpClient
     }
 
     /**
-     * getRequestURI
-     *
      * @return array
      */
     public function getRequestURI()
@@ -274,8 +248,6 @@ class HttpClient
     }
 
     /**
-     * getRequestHeaders
-     *
      * @return array
      */
     public function getRequestHeaders()
@@ -284,8 +256,6 @@ class HttpClient
     }
 
     /**
-     * getRequestHeadersString
-     *
      * @return array
      */
     public function getRequestHeadersString()
@@ -294,8 +264,6 @@ class HttpClient
     }
 
     /**
-     * getRequestBody
-     *
      * @param bool $as_array
      *
      * @return string|array
@@ -316,8 +284,6 @@ class HttpClient
     }
 
     /**
-     * getResponseHeaders
-     *
      * @return array
      */
     public function getResponseHeaders()
@@ -326,8 +292,6 @@ class HttpClient
     }
 
     /**
-     * getResponseStatus
-     *
      * @return array
      */
     public function getResponseStatus()
@@ -336,8 +300,6 @@ class HttpClient
     }
 
     /**
-     * getResponseBody
-     *
      * @return string
      */
     public function getResponseBody()
@@ -347,8 +309,6 @@ class HttpClient
     }
 
     /**
-     * getResponseParsedBody
-     *
      * Devuelve el cuerpo analizado:
      *
      * Los modos disponibles son los de las constantes HttpClient::MODE_PARSER_*
@@ -363,8 +323,6 @@ class HttpClient
     }
 
     /**
-     * parse
-     *
      * Los modos disponibles son los de las constantes HttpClient::MODE_PARSER_*
      *
      * @param mixed $data
@@ -401,8 +359,6 @@ class HttpClient
     }
 
     /**
-     * parseReponseHeaders
-     *
      * Agrega el índice response_code
      *
      * @param array $response_headers
@@ -427,8 +383,6 @@ class HttpClient
     }
 
     /**
-     * processHeaders
-     *
      * Establece la propiedad requestHeaders a partir de la entrada y los headers por defecto
      *
      * @param array $headers
@@ -445,7 +399,7 @@ class HttpClient
         $cookieString = $this->parseNameHeader('Cookie');
 
         $defaultHeaders = $this->getDefaultRequestHeaders();
-        $headers = count($headers) > 0 ? $headers : $defaultHeaders;
+        $headers = !empty($headers) ? $headers : $defaultHeaders;
 
         foreach ($headers as $header => $value) {
 
@@ -480,8 +434,6 @@ class HttpClient
     }
 
     /**
-     * parseNameHeader
-     *
      * Normaliza el nombre del header, por ejemplo: content-type por Content-Type
      *
      * @param string $name

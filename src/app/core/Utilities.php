@@ -90,12 +90,12 @@ function get_part_request($part = 1)
 {
     $part = $part - 1;
     $part_uri = explode("/", get_request());
-    if (count($part_uri) > 0) {
+    if (!empty($part_uri)) {
         if (mb_strlen($part_uri[count($part_uri) - 1]) == 0) {
             unset($part_uri[count($part_uri) - 1]);
         }
 
-        if (count($part_uri) > 0) {
+        if (!empty($part_uri)) {
             return array_key_exists($part, $part_uri) ? $part_uri[$part] : "";
         } else {
             return "";
@@ -317,7 +317,7 @@ function require_keys(array $keys, array $array)
             $faltantes[] = $key;
         }
     }
-    if (count($faltantes) > 0) {
+    if (!empty($faltantes)) {
         return $faltantes;
     } else {
         return true;

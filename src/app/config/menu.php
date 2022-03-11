@@ -64,7 +64,7 @@ $sidebar = new MenuGroupCollection([
 
 //Idiomas
 $alternativesURL = Config::get_config('alternatives_url');
-$hasManyLangs = count($alternativesURL) > 0;
+$hasManyLangs = !empty($alternativesURL);
 
 if ($hasManyLangs) {
     $langsItem = new MenuGroup([

@@ -341,14 +341,14 @@ class MailjetHandler
             'HTMLPart' => $this->bodyHTML,
         ];
 
-        if (count($this->attachments) > 0) {
+        if (!empty($this->attachments)) {
             $messageConfig['Attachments'] = [];
             foreach ($this->attachments as $attachment) {
                 $messageConfig['Attachments'][] = $attachment;
             }
         }
 
-        if (count($this->inlineAttachments) > 0) {
+        if (!empty($this->inlineAttachments)) {
             $messageConfig['InlinedAttachments'] = [];
             foreach ($this->inlineAttachments as $attachment) {
                 $messageConfig['InlinedAttachments'][] = $attachment;
@@ -411,7 +411,7 @@ class MailjetHandler
 
                 $Messages = $response->$messagesPropertyName;
 
-                if (is_array($Messages) && count($Messages) > 0 && property_exists($Messages[0], $statusPropertyName)) {
+                if (is_array($Messages) && !empty($Messages) && property_exists($Messages[0], $statusPropertyName)) {
                     $success = mb_strtolower($Messages[0]->$statusPropertyName) == 'success';
                 }
 
@@ -454,7 +454,7 @@ class MailjetHandler
 
                 $Messages = $response->$messagesPropertyName;
 
-                if (is_array($Messages) && count($Messages) > 0 && property_exists($Messages[0], $statusPropertyName)) {
+                if (is_array($Messages) && !empty($Messages) && property_exists($Messages[0], $statusPropertyName)) {
                     $success = mb_strtolower($Messages[0]->$statusPropertyName) == 'success';
                 }
 

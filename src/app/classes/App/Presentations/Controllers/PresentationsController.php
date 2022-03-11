@@ -406,7 +406,7 @@ class PresentationsController extends AdminPanelController
                     $imagesToAdd = self::handlerUploadImages('images_to_add', $folder, $imagesToDelete, 1, null, Config::get_default_lang());
                     $mapper->setLangData($lang, 'images', array_values((array) $imagesToAdd));
 
-                    if (count($imagesToAdd) > 0) {
+                    if (!empty($imagesToAdd)) {
 
                         $saved = $mapper->save();
 
@@ -447,7 +447,7 @@ class PresentationsController extends AdminPanelController
 
                         //Obtener directorio de imágenes
                         $uploadDirRelativeURL = $this->uploadDirURL;
-                        $directoryReferencePath = count($currentImages) > 0 ? $currentImages[0] : array_values((array) $mapper->images)[0];
+                        $directoryReferencePath = !empty($currentImages) ? $currentImages[0] : array_values((array) $mapper->images)[0];
                         $folder = str_replace($uploadDirRelativeURL, '', $directoryReferencePath);
                         $folder = str_replace(basename($directoryReferencePath), '', $folder);
                         $folder = trim($folder, '/');
@@ -468,7 +468,7 @@ class PresentationsController extends AdminPanelController
 
                         $mapper->setLangData($lang, 'images', array_values((array) $currentImages));
 
-                        if (count($currentImages) > 0) {
+                        if (!empty($currentImages)) {
 
                             $updated = $mapper->update();
 
@@ -831,7 +831,7 @@ class PresentationsController extends AdminPanelController
             $where[] = "category = {$category}";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 

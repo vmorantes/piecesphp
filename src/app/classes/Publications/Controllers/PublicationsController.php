@@ -1105,7 +1105,7 @@ class PublicationsController extends AdminPanelController
             "{$table}.status != {$inactive}",
         ];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -1227,10 +1227,11 @@ class PublicationsController extends AdminPanelController
 
         $whereString = null;
         $where = [];
+        $and = 'AND';
 
         if ($category !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.category = {$category}";
             $where[] = "{$beforeOperator} ({$critery})";
 
@@ -1238,7 +1239,7 @@ class PublicationsController extends AdminPanelController
 
         if (!$ignoreStatus) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.status = {$status}";
             $where[] = "{$beforeOperator} ({$critery})";
 
@@ -1246,7 +1247,7 @@ class PublicationsController extends AdminPanelController
 
         if ($title !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $titleField = PublicationMapper::fieldCurrentLangForSQL('title');
             $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
             $where[] = "{$beforeOperator} ({$critery})";
@@ -1255,7 +1256,7 @@ class PublicationsController extends AdminPanelController
 
         if ($featured !== null) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.featured = {$featured}";
             $where[] = "{$beforeOperator} ({$critery})";
 
@@ -1269,11 +1270,11 @@ class PublicationsController extends AdminPanelController
 
         if (!$ignoreDateLimit) {
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$startDateSQL} <= {$unixNowDate} OR {$table}.startDate IS NULL";
             $where[] = "{$beforeOperator} ({$critery})";
 
-            $beforeOperator = count($where) > 0 ? 'AND' : '';
+            $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
             $where[] = "{$beforeOperator} ({$critery})";
 
@@ -1286,18 +1287,18 @@ class PublicationsController extends AdminPanelController
         if ($currentLang != $defaultLang) {
 
             if ($jsonExtractExists) {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? $and : '';
                 $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
                 $where[] = "{$beforeOperator} ({$critery})";
             } else {
-                $beforeOperator = count($where) > 0 ? 'AND' : '';
+                $beforeOperator = !empty($where) ? $and : '';
                 $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
                 $where[] = "{$beforeOperator} ({$critery})";
             }
 
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 
@@ -1522,7 +1523,7 @@ class PublicationsController extends AdminPanelController
 
                     $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
 
-                    if (count($locations) > 0) {
+                    if (!empty($locations)) {
 
                         $url = $locations[0];
                         $nameCurrent = basename($url);

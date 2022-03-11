@@ -24,8 +24,6 @@ use \Slim\Http\Response as Response;
 class ServerStatics
 {
     /**
-     * $static_path
-     *
      * @var string
      */
     public static $static_path = __DIR__ . '/../../statics';
@@ -363,7 +361,7 @@ class ServerStatics
                         $fileContent = str_replace($toReplace, $replacement, $fileContent);
                     }
 
-                    if (count($importPaths) > 0) {
+                    if (!empty($importPaths)) {
                         foreach ($replaceOnImport as $toReplace => $replacement) {
                             $fileContent = str_replace($toReplace, $replacement, $fileContent);
                         }

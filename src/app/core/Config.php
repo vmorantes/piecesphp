@@ -180,7 +180,7 @@ class Config
                 foreach ($configValue as $groupName => $groupConfig) {
 
                     $groupName = is_string($groupName) && mb_strlen($groupName) > 0 ? $groupName : null;
-                    $groupConfig = is_array($groupConfig) && count($groupConfig) > 0 ? $groupConfig : null;
+                    $groupConfig = is_array($groupConfig) && !empty($groupConfig) ? $groupConfig : null;
 
                     if ($groupName !== null && $groupConfig !== null) {
 

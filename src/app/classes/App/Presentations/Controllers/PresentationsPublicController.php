@@ -286,14 +286,14 @@ class PresentationsPublicController extends AdminPanelController
         }
 
         if ($ignore !== null) {
-            if (count($where) > 0) {
+            if (!empty($where)) {
                 $where[] = "AND id != {$ignore}";
             } else {
                 $where[] = "id != {$ignore}";
             }
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 

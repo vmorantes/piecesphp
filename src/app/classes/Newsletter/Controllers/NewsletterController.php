@@ -708,7 +708,7 @@ class NewsletterController extends AdminPanelController
         $table = NewsletterSuscriberMapper::TABLE;
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
         }
 
@@ -788,7 +788,7 @@ class NewsletterController extends AdminPanelController
         $whereString = null;
         $where = [];
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
 

@@ -153,7 +153,7 @@ class Country extends AdminPanelController
     public function countries(Request $request, Response $response)
     {
         $ids = $request->getQueryParam('ids', []);
-        $ids = is_array($ids) && count($ids) > 0 ? implode(',', $ids) : null;
+        $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
 
         $this->model->select()->execute();
 
@@ -161,12 +161,12 @@ class Country extends AdminPanelController
         $whereString = null;
 
         if (!is_null($ids)) {
-            $operator = count($where) > 0 ? ' AND ' : '';
+            $operator = !empty($where) ? ' AND ' : '';
             $critery = "{$operator} (id IN ({$ids}))";
             $where[] = $critery;
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode(' ', $where);
             $this->model->where($whereString);
         }

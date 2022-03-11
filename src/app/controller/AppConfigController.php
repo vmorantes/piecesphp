@@ -233,7 +233,7 @@ class AppConfigController extends AdminPanelController
                         imagejpeg($img, basepath($relativePath), 70);
                     }
 
-                    if (count($route) > 0) {
+                    if (!empty($route)) {
 
                         $updated = $currentBackgroundConfigMapper->update();
 
@@ -359,7 +359,7 @@ class AppConfigController extends AdminPanelController
                         imagejpeg($img, basepath($relativePath), 70);
                     }
 
-                    if (count($route) > 0) {
+                    if (!empty($route)) {
 
                         $updated = $logosAndFaviconsMapper->update();
 
@@ -428,7 +428,7 @@ class AppConfigController extends AdminPanelController
                         $keywordsToSelect = [];
 
                         $keywords = $value;
-                        if (is_array($keywords) && count($keywords) > 0) {
+                        if (is_array($keywords) && !empty($keywords)) {
 
                             foreach ($keywords as $keyword) {
                                 $keywordsToSelect[$keyword] = $keyword;
@@ -639,7 +639,7 @@ class AppConfigController extends AdminPanelController
                             $img = imagecreatefromjpeg(basepath($relativePath));
                             imagejpeg($img, basepath($relativePath), 70);
 
-                            if (count($route) > 0) {
+                            if (!empty($route)) {
 
                                 if ($openGraphMapper->id !== null) {
                                     $success = $success && $openGraphMapper->update();

@@ -37,8 +37,6 @@ class AppConfigModel extends BaseEntityMapper
     ];
 
     /**
-     * __construct
-     *
      * @param mixed $value
      * @param string $column
      * @return static
@@ -61,8 +59,6 @@ class AppConfigModel extends BaseEntityMapper
     }
 
     /**
-     * initializateConfigurations
-     *
      * Agrega las opciones definidas si no hay información en la tabla o si se selecciona $overwrite en true,
      * en tal caso se aplica TRUNCATE
      *
@@ -75,7 +71,7 @@ class AppConfigModel extends BaseEntityMapper
 
         $model->select()->execute();
 
-        $hasConfigurations = count($model->result()) > 0;
+        $hasConfigurations = !empty($model->result());
 
         $result = [
             'saved' => [],
@@ -113,8 +109,6 @@ class AppConfigModel extends BaseEntityMapper
     }
 
     /**
-     * getConfigurations
-     *
      * @return array
      */
     public static function getConfigurations()
@@ -133,8 +127,6 @@ class AppConfigModel extends BaseEntityMapper
     }
 
     /**
-     * getConfigValue
-     *
      * @param string $name
      * @param bool $staticConfig Si no existe en la base de datos intenta buscar en la configuración estática
      * @return mixed
@@ -160,8 +152,6 @@ class AppConfigModel extends BaseEntityMapper
     }
 
     /**
-     * optionExists
-     *
      * @param string $name
      * @return bool
      */
@@ -173,8 +163,6 @@ class AppConfigModel extends BaseEntityMapper
     }
 
     /**
-     * cleanAll
-     *
      * Aplica TRUNCATE a la tabla
      *
      * @return bool
@@ -190,8 +178,6 @@ class AppConfigModel extends BaseEntityMapper
     }
 
     /**
-     * model
-     *
      * @return ActiveRecordModel
      */
     public static function model()

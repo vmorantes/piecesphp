@@ -2085,7 +2085,7 @@ function get_routes_by_controller(string $name_controller = '', string $method =
 function get_route_by_controller(string $name_controller, string $method_controller, array $params = null, string $method_request = 'GET')
 {
     $route = get_routes_by_controller($name_controller, $method_controller, $params);
-    return (is_array($route) && count($route) > 0) ? $route['url'] : null;
+    return (is_array($route) && !empty($route)) ? $route['url'] : null;
 }
 
 /**

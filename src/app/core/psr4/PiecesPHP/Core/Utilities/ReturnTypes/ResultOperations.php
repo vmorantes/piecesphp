@@ -18,51 +18,35 @@ namespace PiecesPHP\Core\Utilities\ReturnTypes;
 class ResultOperations implements \JsonSerializable
 {
     /**
-     * $name
-     *
      * @var string
      */
     protected $name = '';
     /**
-     * $message
-     *
      * @var string
      */
     protected $message = '';
     /**
-     * $operations
-     *
      * @var Operation[]
      */
     protected $operations = [];
     /**
-     * $extras
-     *
      * @var array
      */
     protected $extras = [];
     /**
-     * $values
-     *
      * @var array
      */
     protected $values = [];
     /**
-     * $successOnSingleOperation
-     *
      * @var bool
      */
     protected $successOnSingleOperation = false;
     /**
-     * $singleOperation
-     *
      * @var bool
      */
     protected $singleOperation = false;
 
     /**
-     * __construct
-     *
      * @param Operation[] $operations
      * @param string $name
      * @param string $message
@@ -80,7 +64,7 @@ class ResultOperations implements \JsonSerializable
         $this->name = mb_strlen(trim($name)) > 0 ? $name : time();
         $this->message = $message;
 
-        if (count($this->operations) > 0) {
+        if (!empty($this->operations)) {
             $singleOperation = false;
         }
 
@@ -89,8 +73,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * success
-     *
      * @param bool $onlyMinimumRequired
      * @return bool
      */
@@ -122,8 +104,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * successOperations
-     *
      * @return bool
      */
     public function successOperations(): array
@@ -138,8 +118,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * fails
-     *
      * @return Operation[]
      */
     public function fails(): array
@@ -154,8 +132,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setSuccessOnSingleOperation
-     *
      * @param bool $success
      * @return static
      */
@@ -166,8 +142,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setSingleOperation
-     *
      * @param string $name
      * @return static
      */
@@ -178,8 +152,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setName
-     *
      * @param string $name
      * @return static
      */
@@ -190,8 +162,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setMessage
-     *
      * @param string $message
      * @return static
      */
@@ -202,8 +172,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * addOperation
-     *
      * @param Operation &$operation
      * @return static
      */
@@ -216,8 +184,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * operation
-     *
      * @param string $name
      * @return Operation|null
      */
@@ -237,8 +203,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setOperations
-     *
      * @param Operation[] &$operation
      * @return static
      */
@@ -252,8 +216,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * addExtra
-     *
      * @param mixed &$extra
      * @return static
      */
@@ -264,8 +226,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setdExtras
-     *
      * @param array &$extras
      * @return static
      */
@@ -276,8 +236,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setValue
-     *
      * @param string $name
      * @param mixed $value
      * @return static
@@ -289,8 +247,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * setValues
-     *
      * @param array $values
      * @return static
      */
@@ -303,8 +259,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * getSingleOperation
-     *
      * @return bool
      */
     public function getSingleOperation()
@@ -313,8 +267,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * getName
-     *
      * @return string
      */
     public function getName()
@@ -323,8 +275,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * getMessage
-     *
      * @return string
      */
     public function getMessage()
@@ -333,8 +283,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * getValue
-     *
      * @param string $name
      * @return mixed
      */
@@ -344,8 +292,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * getValues
-     *
      * @return array
      */
     public function getValues()
@@ -354,8 +300,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * result
-     *
      * @param array $operations
      * @param string $message
      * @return static
@@ -366,8 +310,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * resultInstance
-     *
      * @param array $operations
      * @param string $message
      * @return static
@@ -378,8 +320,6 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return mixed
      */
     public function jsonSerialize()

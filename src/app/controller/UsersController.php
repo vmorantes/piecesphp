@@ -157,7 +157,7 @@ class UsersController extends AdminPanelController
             "id != {$this->user->id}",
         ];
 
-        if (is_array($disallowedTypes) && count($disallowedTypes) > 0) {
+        if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
             $where[] = " AND type != " . implode(' AND type != ', $disallowedTypes);
         }
 
@@ -1463,12 +1463,12 @@ class UsersController extends AdminPanelController
 
         $where = array_filter($where, function ($i) {return mb_strlen($i) > 0;});
 
-        if (count($ignore) > 0) {
+        if (!empty($ignore)) {
             $ignore = implode(', ', $ignore);
-            $where[] = (count($where) > 0 ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
+            $where[] = (!empty($where) ? ' AND ' : '') . "{$table}.id NOT IN ($ignore)";
         }
 
-        if (count($where) > 0) {
+        if (!empty($where)) {
             $whereString = implode('', $where);
         }
 
