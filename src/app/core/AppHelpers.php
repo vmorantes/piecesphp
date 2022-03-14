@@ -290,7 +290,7 @@ function __(string $type, string $message = '', bool $echo = false)
  * Si $echo es false retorna un string correspondiente al mensaje.
  * Si $message es '' devuelve el array completo de mensajes en $type
  */
-function lang(string $type, string $message = '', string $lang, bool $echo = false)
+function lang(string $type, string $message, string $lang, bool $echo = false)
 {
     return Config::i18n($type, $message, $echo, $lang);
 }

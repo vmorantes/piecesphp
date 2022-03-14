@@ -20,5 +20,6 @@
 	"phpfmt.indent_with_space": 4,
 	"phpfmt.psr2": true,
 	"editor.wordWrap": "on",
-	"editor.multiCursorModifier": "ctrlCmd"
+	"editor.multiCursorModifier": "ctrlCmd",
+	"intelephense.environment.phpVersion": "7.3.0"
 }

@@ -22,51 +22,40 @@ class Parameter implements \JsonSerializable
 {
 
     /**
-     * $name
-     *
      * @var string
      */
     protected $name = '';
     /**
-     * $optional
-     *
      * @var bool
      */
     protected $optional = false;
     /**
-     * $default
-     *
      * @var mixed
      */
     protected $default = null;
     /**
-     * $value
-     *
      * @var mixed
      */
     protected $value = null;
     /**
-     * $validate
-     *
      * @var callable
      */
     protected $validate = null;
     /**
-     * $parse
-     *
      * @var callable
      */
     protected $parse = null;
     /**
-     * $onError
-     *
      * @var callable
      */
     protected $onError = null;
 
     /**
-     * __construct
-     *
+     * @var string
+     */
+    protected static $NOT_SETTED_VALUE = null;
+
+    /**
      * @param string $name
      * @param mixed $default
      * @param callable $validate
@@ -76,18 +65,19 @@ class Parameter implements \JsonSerializable
      */
     public function __construct(string $name = null, $default = null, callable $validate = null, bool $optional = false, callable $parse = null)
     {
+        if (self::$NOT_SETTED_VALUE === null) {
+            self::$NOT_SETTED_VALUE = uniqid('NOT_SETTED_VALUE_', true);
+        }
         $this->name = !is_null($name) ? $name : uniqid();
         $this->default = $default;
         $this->validate = is_callable($validate) ? $validate : true;
         $this->optional = $optional;
         $this->parse = is_callable($parse) ? $parse : function ($value) {return $value;};
-        $this->value = null;
+        $this->value = self::$NOT_SETTED_VALUE;
 
     }
 
     /**
-     * validate
-     *
      * Valida la entrada y establece el valor si es válido
      *
      * @param mixed $value
@@ -98,8 +88,9 @@ class Parameter implements \JsonSerializable
     public function validate($value)
     {
         $success = true;
+        $value = self::nullable($value) ? null : $value;
 
-        if ($value != $this->getDefaultValue() && $this->isValid($value)) {
+        if ($value !== $this->getDefaultValue() && $this->isValid($value)) {
 
             $this->value = $value;
 
@@ -122,50 +113,46 @@ class Parameter implements \JsonSerializable
     }
 
     /**
-     * getName
-     *
      * @return string
      */
     public function getName()
     {
         return $this->name;
     }
+
     /**
-     * getDefaultValue
-     *
      * @return mixed
      */
     public function getDefaultValue()
     {
         return $this->default;
     }
+
     /**
-     * isOptional
-     *
      * @return bool
      */
     public function isOptional()
     {
         return $this->optional;
     }
+
     /**
-     * getValue
-     *
      * @param bool $raw
      * @return mixed
      * @throws InvalidParameterValueException en caso de que el valor que está almacenado no sea válido
      */
     public function getValue(bool $raw = false)
     {
-        if ($this->validate($this->value)) {
-            $parsed = $raw ? $this->value : $this->parse($this->value);
+        $isNotSettedValue = $this->value === self::$NOT_SETTED_VALUE;
+        $valueToAnalyze = !$isNotSettedValue ? $this->value : $this->getDefaultValue();
+        $valueRawOnNotSetted = $isNotSettedValue ? null : $this->value;
+        if ($this->validate($valueToAnalyze)) {
+            $parsed = $raw ? $valueRawOnNotSetted : $this->parse($valueToAnalyze);
             return $parsed;
         }
     }
 
     /**
-     * setName
-     *
      * @param string $name
      * @return static
      */
@@ -174,9 +161,8 @@ class Parameter implements \JsonSerializable
         $this->name = $name;
         return $this;
     }
+
     /**
-     * setDefaultValue
-     *
      * @param mixed $default
      * @return static
      */
@@ -185,9 +171,8 @@ class Parameter implements \JsonSerializable
         $this->default = $default;
         return $this;
     }
+
     /**
-     * setValue
-     *
      * @param mixed $value
      * @return static
      */
@@ -196,9 +181,8 @@ class Parameter implements \JsonSerializable
         $this->value = $value;
         return $this;
     }
+
     /**
-     * setOptional
-     *
      * @param bool $optional
      * @return static
      */
@@ -207,9 +191,8 @@ class Parameter implements \JsonSerializable
         $this->optional = $optional;
         return $this;
     }
+
     /**
-     * setValidator
-     *
      * @param callable $validator
      * @return static
      */
@@ -218,9 +201,8 @@ class Parameter implements \JsonSerializable
         $this->validate = $validator;
         return $this;
     }
+
     /**
-     * setParser
-     *
      * @param callable $parser
      * @return static
      */
@@ -231,8 +213,23 @@ class Parameter implements \JsonSerializable
     }
 
     /**
-     * isValid
-     *
+     * @param mixed $value
+     * @return bool
+     */
+    public static function nullable($value)
+    {
+        $nullableValues = [
+            '',
+        ];
+        foreach ($nullableValues as $i) {
+            if ($value === $i) {
+                return true;
+            }
+        }
+        return $value === null;
+    }
+
+    /**
      * @param mixed $value
      * @return bool
      */
@@ -251,8 +248,6 @@ class Parameter implements \JsonSerializable
     }
 
     /**
-     * parse
-     *
      * @param mixed $value
      * @return mixed
      * @throws ParsedValueException en caso de que el resultado no sea válido
@@ -260,7 +255,7 @@ class Parameter implements \JsonSerializable
     protected function parse($value)
     {
 
-        if (is_callable($this->parse) && $value != $this->getDefaultValue()) {
+        if (is_callable($this->parse) && $value !== $this->getDefaultValue()) {
             $parsed_value = ($this->parse)($value);
             if ($this->isValid($parsed_value)) {
                 return $parsed_value;
@@ -274,8 +269,6 @@ class Parameter implements \JsonSerializable
     }
 
     /**
-     * onError
-     *
      * @param string $typeReceived
      * @return void
      * @throws InvalidParameterValueException
@@ -286,8 +279,6 @@ class Parameter implements \JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return mixed
      */
     public function jsonSerialize()

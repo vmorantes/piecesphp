@@ -34,6 +34,8 @@ class Parameters implements \JsonSerializable
      */
     protected $inputValues = [];
 
+    const LANG_GROUP = 'PiecesPHP\Core\Validation\Parameters';
+
     /**
      * @param string $name
      * @param mixed $default
@@ -169,7 +171,12 @@ class Parameters implements \JsonSerializable
         $to_validate = [];
         foreach ($this->parameters as $name => $parameter) {
             if (array_key_exists($name, $this->inputValues)) {
-                $to_validate[$name] = $this->inputValues[$name];
+                $nullable = Parameter::nullable($this->inputValues[$name]);
+                if (!$nullable) {
+                    $to_validate[$name] = $this->inputValues[$name];
+                } else {
+                    $missing[] = $name;
+                }
             } else {
                 $missing[] = $name;
             }
@@ -184,7 +191,16 @@ class Parameters implements \JsonSerializable
         }
 
         if (!empty($parameters_errors)) {
-            throw new MissingRequiredParamaterException("Los parámetros " . implode(', ', $parameters_errors) . " son obligatorios");
+
+            $isMany = count($parameters_errors) > 1;
+            if ($isMany) {
+                $text = __(self::LANG_GROUP, 'Los parámetros %PARAMS% son obligatorios');
+            } else {
+                $text = __(self::LANG_GROUP, 'El parámetro %PARAMS% es obligatorio');
+            }
+            throw new MissingRequiredParamaterException(strReplaceTemplate($text, [
+                '%PARAMS%' => implode(', ', $parameters_errors),
+            ]));
         }
 
         foreach ($to_validate as $name => $value) {

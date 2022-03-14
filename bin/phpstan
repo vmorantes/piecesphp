@@ -1,0 +1,4 @@
+#!/bin/bash
+SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+cd $SCRIPT_DIR/..
+src/vendor/bin/phpstan analyse -c bin/phpstan.neon > PHPStanResult.txt
