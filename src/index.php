@@ -10,6 +10,7 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
+use Terminal\Controllers\TerminalController;
 
 require __DIR__ . '/app/core/bootstrap.php';
 
@@ -497,7 +498,7 @@ RouteGroup::initRoutes(false);
 if (TerminalData::getInstance()->isTerminal()) {
 
     $terminalDataInstance = TerminalData::getInstance();
-    $routeName = $terminalDataInstance->route();
+    $routeName = TerminalController::routeID($terminalDataInstance->route());
     $routeInformation = get_route_info($routeName, [], true);
     $_SERVER['REQUEST_URI'] = '';
 

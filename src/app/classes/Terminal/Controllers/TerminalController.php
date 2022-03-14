@@ -21,8 +21,6 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\TerminalData;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * TerminalController.
@@ -52,11 +50,9 @@ class TerminalController extends AdminPanelController
     /**
      * Respaldar toda la base de datos
      *
-     * @param Request $request
-     * @param Response $response
-     * @return Response
+     * @return string
      */
-    public function dbBackup(Request $request, Response $response)
+    public function dbBackup()
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -174,11 +170,9 @@ class TerminalController extends AdminPanelController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     * @return Response
+     * @return string
      */
-    public function bundle(Request $request, Response $response)
+    public function bundle()
     {
 
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
@@ -346,12 +340,11 @@ class TerminalController extends AdminPanelController
      * Verificar si una ruta es permitida
      *
      * @param string $name
-     * @param array $params
      * @return bool
      */
-    public static function allowedRoute(string $name, array $params = [])
+    public static function allowedRoute(string $name)
     {
-        $route = self::routeName($name, $params, true);
+        $route = self::routeName($name, true);
         $allow = strlen($route) > 0;
         return $allow;
     }
@@ -361,10 +354,9 @@ class TerminalController extends AdminPanelController
      *
      * @param string $name
      * @param string $route
-     * @param array $params
      * @return bool
      */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
+    private static function _allowedRoute(string $name, string $route)
     {
 
         $allow = strlen($route) > 0;
@@ -383,21 +375,14 @@ class TerminalController extends AdminPanelController
      * Obtener URL de una ruta
      *
      * @param string $name
-     * @param array $params
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(string $name = null, bool $silentOnNotExists)
     {
 
         $simpleName = $name;
-
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
+        $name = self::routeID($name);
 
         $allowed = false;
         $current_user = get_config('current_user');
@@ -413,15 +398,29 @@ class TerminalController extends AdminPanelController
         if ($allowed) {
             $route = get_route(
                 $name,
-                $params,
+                [],
                 $silentOnNotExists
             );
             $route = !is_string($route) ? '' : $route;
         }
 
-        $allow = self::_allowedRoute($simpleName, $route, $params);
+        $allow = self::_allowedRoute($simpleName, $route);
 
         return $allow ? $route : '';
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    public static function routeID(string $name)
+    {
+        if (!is_null($name)) {
+            $name = trim($name);
+            $name = strlen($name) > 0 ? "-{$name}" : '';
+        }
+
+        return !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
     }
 
     /**

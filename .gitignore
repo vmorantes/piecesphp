@@ -12,3 +12,4 @@ src/statics/features/avatars/css/*
 docs/code/phpdoc-cache-*
 tasks/output
 .scannerwork
+vendor/**
