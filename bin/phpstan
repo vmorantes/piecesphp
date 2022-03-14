@@ -1,4 +1,7 @@
 #!/bin/bash
 SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 cd $SCRIPT_DIR/..
-src/vendor/bin/phpstan analyse -c bin/phpstan.neon > PHPStanResult.txt
+REPORT_FILE=PHPStanResult.txt
+echo $'Recordatorio:\n'  > $REPORT_FILE
+echo $'\tReemplazar en el resultado el siguiente patrón \'(  )Line   (.*)\' por \'$1project://src/app/$2\'\n' >> $REPORT_FILE
+src/vendor/bin/phpstan analyse -c bin/phpstan.neon >> $REPORT_FILE
