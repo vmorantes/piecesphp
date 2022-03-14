@@ -40,6 +40,9 @@
         "piecesphp/database": "^2.0",
         "ifsnop/mysqldump-php": "^2.9"
     },
+    "require-dev": {
+        "phpstan/phpstan": "^1.4"
+    },
     "suggest": {
         "ext-zlib": ">=1.2.0.4",
         "ext-mongodb": "^1.4.0",

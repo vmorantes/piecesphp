@@ -20,6 +20,18 @@ $_SERVER['argc'] = isset($_SERVER['argc']) ? $_SERVER['argc'] : count($_SERVER['
 if (!isset($_SERVER['HTTP_HOST'])) {
 
     $fileEntry = basename($_SERVER['PHP_SELF']);
+    /**
+     * Genera una salida en la terminal
+     *
+     * @param string $text
+     * @param boolean $newLine
+     * @param string $newLineChars
+     * @return void
+     */
+    $echoStd = function (string $text, bool $newLine = true, string $newLineChars = "\r\n") {
+        fwrite(STDOUT, $text . ($newLine ? $newLineChars : ''));
+        flush();
+    };
 
     if ($fileEntry == 'index.php') {
 
@@ -29,14 +41,24 @@ if (!isset($_SERVER['HTTP_HOST'])) {
         $firstArgument = $argc > 0 ? basename($argv[0]) : null;
         $firstArgumentValid = $firstArgument == $fileEntry;
 
+        $secondArgumentRequired = 'cli';
+        $secondArgument = $argc > 1 ? $argv[1] : null;
+        $secondArgumentValid = $secondArgumentRequired === $secondArgument;
+
         if ($firstArgument !== null && $firstArgument) {
             unset($argv[0]);
             $argc--;
         }
+        if ($secondArgumentValid) {
+            unset($argv[1]);
+            $argc--;
+        }
 
-        if ($argc > 0 && $firstArgumentValid) {
+        if ($argc > 0 && $firstArgumentValid && $secondArgumentValid) {
 
             $terminalData = $_SERVER['PCSPHP_TERMINAL_DATA'];
+            $actionName = $argv[2];
+            unset($argv[2]);
 
             foreach ($argv as $i) {
 
@@ -54,17 +76,15 @@ if (!isset($_SERVER['HTTP_HOST'])) {
 
             }
 
-            $arguments = $terminalData['arguments'];
-            $routeArgument = isset($arguments['route']) ? $arguments['route'] : null;
-
-            if ($routeArgument !== null) {
-                $terminalData['route'] = $routeArgument;
-            }
+            $terminalData['route'] = $actionName;
 
             $_SERVER['HTTP_HOST'] = 'localhost';
             $_SERVER['REQUEST_URI'] = '';
             $_SERVER['PCSPHP_TERMINAL_DATA'] = $terminalData;
 
+        } else {
+            $echoStd('No se ha especificado ninguna acción.');
+            exit;
         }
     }
 }
