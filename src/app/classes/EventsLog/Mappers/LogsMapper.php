@@ -224,6 +224,11 @@ class LogsMapper extends EntityMapperExtensible
     }
 
     /**
+     * Campos adicionales:
+     * - idPadding
+     * - createdByUser
+     * - textMessageReplacement
+     * - createdAtFormat
      * @return string[]
      */
     public static function fieldsToSelect()
@@ -235,9 +240,15 @@ class LogsMapper extends EntityMapperExtensible
 
         $tableUser = UsersModel::TABLE;
 
+        $createdAtFormatReplacements = json_encode([
+            '{1}' => __(self::LANG_GROUP, 'de'),
+        ], \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.createdBy) AS createdByUser",
+            "strTemplateReplace({$table}.textMessage, {$table}.textMessageVariables) AS textMessageReplacement",
+            "strTemplateReplace(DATE_FORMAT({$table}.createdAt, '%M %d {1} %Y'), '{$createdAtFormatReplacements}') AS createdAtFormat",
         ];
 
         $allFields = array_keys(self::getFields());

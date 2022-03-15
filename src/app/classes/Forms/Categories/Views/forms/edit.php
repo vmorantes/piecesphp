@@ -7,15 +7,11 @@ use Forms\Categories\Mappers\CategoriesMapper;
  * @var CategoriesMapper $element
  * @var CategoriesController $this
  */
- $element;
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
 ?>
 
 <div class="ui buttons">

@@ -137,7 +137,6 @@ class Schema
             /**
              * @var \PiecesPHP\Core\Importer\Field $field
              */
-            $field;
 
             $data[$field->getName()] = $field->getValue();
 
@@ -175,7 +174,6 @@ class Schema
             /**
              * @var \PiecesPHP\Core\Importer\Field $field
              */
-            $field;
 
             $data[$field->getName()] = $field->getValue();
 
@@ -207,7 +205,6 @@ class Schema
             /**
              * @var BaseModel $model
              */
-            $model;
 
             if (is_callable($this->beforeExecuteUpdate)) {
                 $model = ($this->beforeExecuteUpdate)($this->model, $where);

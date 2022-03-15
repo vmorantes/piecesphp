@@ -3,7 +3,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 /**
  * @var \App\Locations\Mappers\PointMapper $element
  */
-$element;
 ?>
 
 <div style="max-width:850px;">

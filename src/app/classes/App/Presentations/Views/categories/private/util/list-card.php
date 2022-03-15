@@ -6,14 +6,11 @@ use App\Presentations\Mappers\PresentationMapper;
 /**
  * @var PresentationMapper $mapper
  */
-$mapper;
 
 /**
  * @var string $langGroup
  * @var string $editLink
  */
-$langGroup;
-$editLink;
 
 ?>
 
