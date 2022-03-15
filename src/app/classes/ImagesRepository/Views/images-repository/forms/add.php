@@ -1,16 +1,10 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-use ImagesRepository\Controllers\ImagesRepositoryController;
-/**
- * @var ImagesRepositoryCo
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
 $standalone = isset($standalone) && is_bool($standalone) ? $standalone : true;
 $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup, 'Guardar');
 ?>

@@ -8,8 +8,6 @@ use ImagesRepository\Controllers\ImagesRepositoryController;
  * @var string $langGroup
  * @var string $editLink
  */
-$langGroup;
-$editLink;
 $langGroupDatatables = 'datatables';
 ?>
 

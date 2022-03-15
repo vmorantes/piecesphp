@@ -7,7 +7,6 @@ use ImagesRepository\Controllers\ImagesRepositoryController;
 /**
  * @var string $langGroup
  */
-$langGroup;
 $langGroupDatatables = 'datatables';
 
 $appendParamToURL = function (string $url, string $paramName, string $paramValue) {

@@ -33,6 +33,14 @@ set_config('locale_langs', [
 ]);
 
 /**
+ * Array con los códigos de localidad para las conexiones a base de datos
+ */
+set_config('lc_time_names_mysql', [
+    'es' => 'es_ES',
+    'en' => 'en_US',
+]);
+
+/**
  * Formatos de fechas según idioma
  */
 set_config('format_date_lang', [

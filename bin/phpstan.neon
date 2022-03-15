@@ -1,5 +1,5 @@
 parameters:
-    level: 6
+    level: 8
     phpVersion: 80000
     paths:
         - ../src/app

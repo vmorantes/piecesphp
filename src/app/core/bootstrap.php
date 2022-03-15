@@ -92,7 +92,7 @@ if (!isset($_SERVER['HTTP_HOST'])) {
 //Manejo de errores
 error_reporting(E_ALL);
 ini_set('display_errors', isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost');
-set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line, $array_context) {
+set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line) {
     if (error_reporting() & $int_error_type) {
         throw new \ErrorException($string_error_message, 0, $int_error_type, $string_error_file, $int_error_line);
     }

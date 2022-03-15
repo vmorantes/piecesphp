@@ -7,15 +7,11 @@ use Persons\Mappers\PersonsMapper;
  * @var PersonsMapper $element
  * @var PersonsController $this
  */
- $element;
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
 ?>
 
 <div class="ui buttons">
