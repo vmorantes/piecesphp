@@ -5,14 +5,11 @@ use Publications\Mappers\PublicationCategoryMapper;
 /**
  * @var PublicationCategoryMapper $mapper
  */
-$mapper;
 
 /**
  * @var string $langGroup
  * @var string $editLink
  */
-$langGroup;
-$editLink;
 
 ?>
 

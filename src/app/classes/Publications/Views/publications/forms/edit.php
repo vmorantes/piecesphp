@@ -6,7 +6,6 @@ use Publications\Util\AttachmentPackage;
 /**
  * @var PublicationMapper $element
  */
-$element;
 
 /**
  * @var string $langGroup
@@ -14,9 +13,6 @@ $element;
  * @var string $action
  * @var AttachmentPackage[] $attachmentGroup1
  */
-$langGroup;
-$backLink;
-$action;
 ?>
 
 <div>

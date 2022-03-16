@@ -7,6 +7,7 @@ namespace PiecesPHP\Core;
 
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Database\Database;
 
 /**
  * BaseModel - Implementación básica de modelo ActiveRecord.
@@ -21,6 +22,11 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  */
 class BaseModel extends ActiveRecordModel
 {
+    /**
+     * @var bool
+     */
+    protected static $localeSetted = false;
+
     /**
      * Configuración del modelo.
      *
@@ -72,6 +78,23 @@ class BaseModel extends ActiveRecordModel
             if (is_null($this->fields) && is_string($this->table)) {
                 $this->configFields();
             }
+        }
+
+        if (!self::$localeSetted) {
+            $lcTimeNameOptions = get_config('lc_time_names_mysql');
+            if (is_array($lcTimeNameOptions) && !empty($lcTimeNameOptions)) {
+                $currentLang = Config::get_lang();
+                $lcTimeName = array_key_exists($currentLang, $lcTimeNameOptions) ? $lcTimeNameOptions[$currentLang] : null;
+                if (is_string($lcTimeName) && mb_strlen($lcTimeName) > 0) {
+                    $databaseInstance = $this->getDatabase();
+                    if ($databaseInstance instanceof Database) {
+                        $prepareStatement = $databaseInstance->prepare("SET lc_time_names = '{$lcTimeName}';");
+                        $prepareStatement->execute();
+                        $prepareStatement->closeCursor();
+                    }
+                }
+            }
+            self::$localeSetted = true;
         }
     }
 }

@@ -4,7 +4,6 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
 /**
  * @var MailConfig $element
  */
-$element;
 ?>
 
 <div class="ui header"><?=  __($langGroup, 'Configuración de emails'); ?></div>

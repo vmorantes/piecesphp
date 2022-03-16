@@ -59,7 +59,7 @@ class Country extends AdminPanelController
         self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
         self::$pluralTitle = __(LOCATIONS_LANG_GROUP, self::$pluralTitle);
 
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
         $this->model = (new CountryMapper())->getModel();
 
         set_title(self::$pluralTitle);

@@ -3,7 +3,13 @@
  * custom-autoloads-config.php
  */
 
-$autoloads = include $directories['custom_autoloads'];
+/**
+ * @var array|null
+ */
+$autoloads = null;
+if (isset($directories)) {
+    $autoloads = include $directories['custom_autoloads'];
+}
 
 if (is_array($autoloads)) {
 

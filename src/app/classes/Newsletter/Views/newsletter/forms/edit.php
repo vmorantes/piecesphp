@@ -5,17 +5,12 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
 /**
  * @var NewsletterSuscriberMapper $element
  */
-$element;
 
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
-
 ?>
 
 <div>

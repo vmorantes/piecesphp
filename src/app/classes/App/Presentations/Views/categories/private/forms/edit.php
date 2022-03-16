@@ -7,17 +7,12 @@ use PiecesPHP\Core\Config;
 /**
  * @var PresentationCategoryMapper $element
  */
-$element;
 
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
-
 ?>
 
 <div style="max-width:500px;">

@@ -90,7 +90,7 @@ class PersonsController extends AdminPanelController
 
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
 
         self::$title = __(self::LANG_GROUP, self::$title);
         self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);

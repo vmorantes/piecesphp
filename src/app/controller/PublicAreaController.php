@@ -240,21 +240,23 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 set_title($viewTitle);
             }
 
-        }
+            if (isset($file) && $file !== null) {
 
-        set_custom_assets($css, 'css');
-        set_custom_assets($js, 'js');
+                set_custom_assets($css, 'css');
+                set_custom_assets($js, 'js');
 
-        $this->setVariables($data);
+                $this->setVariables($data);
 
-        if (isset($file) && $file !== null) {
+                ($executeBeforeViews)();
+                $this->render($viewHeader);
+                $this->render($viewMenu);
+                $this->render("pages/generic-views/{$file}");
+                $this->render($viewFooter);
+                ($executeAfterViews)();
 
-            ($executeBeforeViews)();
-            $this->render($viewHeader);
-            $this->render($viewMenu);
-            $this->render("pages/generic-views/{$file}");
-            $this->render($viewFooter);
-            ($executeAfterViews)();
+            } else {
+                throw new NotFoundException($req, $res);
+            }
 
         } else {
             throw new NotFoundException($req, $res);

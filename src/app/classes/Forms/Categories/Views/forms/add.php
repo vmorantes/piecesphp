@@ -6,9 +6,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
 $standalone = isset($standalone) && is_bool($standalone) ? $standalone : true;
 $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup, 'Guardar');
 ?>

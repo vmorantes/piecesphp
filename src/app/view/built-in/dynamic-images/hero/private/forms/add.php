@@ -6,10 +6,6 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
-
 ?>
 
 <div style="max-width:850px;">

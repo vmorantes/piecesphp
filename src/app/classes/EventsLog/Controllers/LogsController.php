@@ -57,7 +57,7 @@ class LogsController extends AdminPanelController
 
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
 
         self::$title = __(self::LANG_GROUP, self::$title);
         self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
@@ -75,11 +75,9 @@ class LogsController extends AdminPanelController
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
      * @return void
      */
-    public function listView(Request $request, Response $response)
+    public function listView()
     {
 
         $processTableLink = self::routeName('datatables');
@@ -121,13 +119,13 @@ class LogsController extends AdminPanelController
         $selectFields = LogsMapper::fieldsToSelect();
 
         $columnsOrder = [
-            'textMessage',
-            'createdAt',
+            'textMessageReplacement',
+            'createdAtFormat',
         ];
 
         $customOrder = [
             'createdAt' => 'DESC',
-            'textMessage' => 'ASC',
+            'textMessageReplacement' => 'ASC',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -143,12 +141,12 @@ class LogsController extends AdminPanelController
             'request' => $request,
             'on_set_data' => function ($e) {
 
-                $mapper = LogsMapper::objectToMapper($e);
+                //$mapper = LogsMapper::objectToMapper($e);
 
                 $columns = [];
 
-                $columns[] = $mapper->getMessage();
-                $columns[] = $mapper->createdAtFormat();
+                $columns[] = $e->textMessageReplacement;
+                $columns[] = ucfirst($e->createdAtFormat);
                 return $columns;
             },
 

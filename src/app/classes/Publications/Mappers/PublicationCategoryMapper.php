@@ -7,8 +7,8 @@
 namespace Publications\Mappers;
 
 use PiecesPHP\Core\BaseHashEncryption;
-use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\StringManipulate;
@@ -730,7 +730,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {
