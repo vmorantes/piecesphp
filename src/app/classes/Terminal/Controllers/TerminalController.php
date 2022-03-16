@@ -43,7 +43,7 @@ class TerminalController extends AdminPanelController
 
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
         $this->model = new BaseModel();
     }
 

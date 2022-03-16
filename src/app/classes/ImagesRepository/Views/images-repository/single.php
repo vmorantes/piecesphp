@@ -7,13 +7,10 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
  * @var ImagesRepositoryMapper $element
  * @var ImagesRepositoryController $this
  */
- $element;
 /**
  * @var string $langGroup
  * @var string $action
  */
-$langGroup;
-$action;
 ?>
 
 <?php if(mb_strlen($toListLink) > 0 || mb_strlen($toManageLink) > 0): ?>

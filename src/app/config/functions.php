@@ -102,7 +102,7 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
     }
 
     if (!$key_as_value) {
-        $values = array_flip($value);
+        $values = array_flip($values);
     }
 
     $selected_values = is_array($selected_values) && !is_null($selected_values) ? $selected_values : [$selected_values];

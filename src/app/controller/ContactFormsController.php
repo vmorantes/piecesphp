@@ -204,7 +204,7 @@ class ContactFormsController extends PublicAreaController
                     $mailer->addAddress($recipient);
                 }
 
-                $mailer->Subject = mb_convert_encoding(__(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8');
+                $mailer->Subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8');
                 $mailer->Body = $bodyMessage;
 
                 if (!$mailer->checkSettedSMTP() && !is_local()) {

@@ -7,10 +7,6 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
  * @var string $backLink
  * @var string $action
  */
-$langGroup;
-$backLink;
-$action;
-
 ?>
 
 <div>

@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Core;
 
+use PiecesPHP\Core\Database\Database;
 use PiecesPHP\Core\Database\EntityMapper;
 
 /**
@@ -22,8 +23,11 @@ use PiecesPHP\Core\Database\EntityMapper;
 class BaseEntityMapper extends EntityMapper
 {
     /**
-     * __construct
-     *
+     * @var bool
+     */
+    protected static $localeSetted = false;
+
+    /**
      * @param mixed $value_compare (Debe ser de tipo escalar)
      * @param string $field_compare
      * @param array $options Las opciones de configuración
@@ -63,5 +67,21 @@ class BaseEntityMapper extends EntityMapper
             parent::__construct($value_compare, $field_compare, $options);
         }
 
+        if (!self::$localeSetted) {
+            $lcTimeNameOptions = get_config('lc_time_names_mysql');
+            if (is_array($lcTimeNameOptions) && !empty($lcTimeNameOptions)) {
+                $currentLang = Config::get_lang();
+                $lcTimeName = array_key_exists($currentLang, $lcTimeNameOptions) ? $lcTimeNameOptions[$currentLang] : null;
+                if (is_string($lcTimeName) && mb_strlen($lcTimeName) > 0) {
+                    $databaseInstance = $this->getModel()->getDatabase();
+                    if ($databaseInstance instanceof Database) {
+                        $prepareStatement = $databaseInstance->prepare("SET lc_time_names = '{$lcTimeName}';");
+                        $prepareStatement->execute();
+                        $prepareStatement->closeCursor();
+                    }
+                }
+            }
+            self::$localeSetted = true;
+        }
     }
 }
