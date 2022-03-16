@@ -102,6 +102,10 @@ class BaseController
         $output = ob_get_contents();
         ob_end_clean();
 
+        if (!is_string($output)) {
+            $output = '';
+        }
+
         if (class_exists('\\PiecesPHP\\Core\\HTML\\FormatHtml') && $format) {
             $output = \PiecesPHP\Core\HTML\FormatHtml::format($output);
         }
@@ -133,6 +137,10 @@ class BaseController
         require $this->getInstanceViewDir() . $pcs_php__name_view__;
         $output = ob_get_contents();
         ob_end_clean();
+
+        if (!is_string($output)) {
+            $output = '';
+        }
 
         if (class_exists('\\PiecesPHP\\Core\\HTML\\FormatHtml') && $format) {
             $output = \PiecesPHP\Core\HTML\FormatHtml::format($output);

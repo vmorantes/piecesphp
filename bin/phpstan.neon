@@ -6,6 +6,7 @@ parameters:
     scanFiles:
         - ../src/app/config/constants.php
     treatPhpDocTypesAsCertain: false
+    checkMissingIterableValueType: false
     ignoreErrors:
         - 
             message: '#Variable \$(.*) might not be defined\.#'

@@ -172,7 +172,7 @@ class MenuGroupCollection
         $elements = $this->getHtmlElements();
         $html = '';
         foreach ($elements as $element) {
-            $html .= !is_null($element) ? $element->render(false) . "\n" : '';
+            $html .= $element->render(false) . "\n";
         }
         return $html;
     }
@@ -186,7 +186,10 @@ class MenuGroupCollection
         $items = $this->getItems();
 
         foreach ($items as $group) {
-            $groups[] = $group->getHtmlElement();
+            $groupHTMLElement = $group->getHtmlElement();
+            if ($groupHTMLElement !== null) {
+                $groups[] = $groupHTMLElement;
+            }
         }
 
         return $groups;
