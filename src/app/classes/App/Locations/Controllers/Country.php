@@ -8,7 +8,6 @@ namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Locations\Mappers\CountryMapper;
-use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
@@ -204,17 +203,14 @@ class Country extends AdminPanelController
             'request' => $request,
             'on_set_data' => function ($e) {
 
-                $buttonEdit = new HtmlElement('a', __(LOCATIONS_LANG_GROUP, 'Editar'));
-                $buttonEdit->setAttribute('class', "ui button green");
-                $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
+                $editButton = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
+                $editLink = self::routeName('forms-edit', [
                     'id' => $e->id,
-                ]));
+                ]);
 
-                if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
-                    $href = $buttonEdit->getAttributes(false)->offsetGet('href');
-                    if (mb_strlen(trim($href->getValue())) < 1) {
-                        $buttonEdit = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
-                    }
+                if (mb_strlen($editLink) > 0) {
+                    $editText = __(LOCATIONS_LANG_GROUP, 'Editar');
+                    $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
                 }
 
                 return [
@@ -222,7 +218,7 @@ class Country extends AdminPanelController
                     !is_null($e->code) ? $e->code : '-',
                     stripslashes($e->name),
                     __(LOCATIONS_LANG_GROUP, CountryMapper::STATUS[$e->active]),
-                    (string) $buttonEdit,
+                    $editButton,
                 ];
 
             },

@@ -8,7 +8,6 @@ namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Locations\Mappers\PointMapper;
-use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -219,17 +218,14 @@ class Point extends AdminPanelController
                 'request' => $request,
                 'on_set_data' => function ($e) {
 
-                    $buttonEdit = new HtmlElement('a', __(LOCATIONS_LANG_GROUP, 'Editar'));
-                    $buttonEdit->setAttribute('class', "ui button green");
-                    $buttonEdit->setAttribute('href', self::routeName('forms-edit', [
+                    $editButton = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
+                    $editLink = self::routeName('forms-edit', [
                         'id' => $e->id,
-                    ]));
+                    ]);
 
-                    if ($buttonEdit->getAttributes(false)->offsetExists('href')) {
-                        $href = $buttonEdit->getAttributes(false)->offsetGet('href');
-                        if (mb_strlen(trim($href->getValue())) < 1) {
-                            $buttonEdit = __(LOCATIONS_LANG_GROUP, 'Sin acciones');
-                        }
+                    if (mb_strlen($editLink) > 0) {
+                        $editText = __(LOCATIONS_LANG_GROUP, 'Editar');
+                        $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
                     }
 
                     $e_mapper = new PointMapper($e->id);
@@ -243,7 +239,7 @@ class Point extends AdminPanelController
                         $e_mapper->address,
                         "$e->longitude, $e->latitude",
                         __(LOCATIONS_LANG_GROUP, PointMapper::STATUS[$e->active]),
-                        (string) $buttonEdit,
+                        $editButton,
                     ];
                 },
                 'where' => is_null($city) ? null : "city = $city",
