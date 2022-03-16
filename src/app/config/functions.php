@@ -120,22 +120,27 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
 
     foreach ($values as $value => $display) {
 
-        $option = new \PiecesPHP\Core\HTML\HtmlElement('option', $display);
-
-        $option->setAttribute('value', (string) $value);
+        $optionValue = (string) $value;
+        $optionText = $display;
+        $optionTag = "<option%selected%value='{$optionValue}'>{$optionText}</option>";
 
         if ($has_selected_values && in_array($value, $selected_values)) {
 
             if (!$selected_setted || $multiple) {
-
-                $option->setAttribute('selected', '');
+                $optionTag = strReplaceTemplate($optionTag, [
+                    '%selected%' => ' selected ',
+                ]);
                 $selected_setted = true;
 
             }
 
         }
 
-        $options[] = (string) $option;
+        $optionTag = strReplaceTemplate($optionTag, [
+            '%selected%' => ' ',
+        ]);
+
+        $options[] = $optionTag;
     }
 
     return trim(implode("\r\n", $options));

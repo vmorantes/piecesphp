@@ -11,7 +11,6 @@ use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Database\ActiveRecordModel;
-use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -191,9 +190,16 @@ class UsersController extends AdminPanelController
             'request' => $request,
             'on_set_data' => function ($element) {
 
-                $edit_button = new HtmlElement('a', '<i class="icon edit"></i>' . __(self::LANG_GROUP, 'Editar'));
-                $edit_button->setAttribute('class', 'ui green button');
-                $edit_button->setAttribute('href', get_route('users-form-edit', ['id' => $element->id]));
+                $buttons = [];
+
+                $editLink = get_route('users-form-edit', ['id' => $element->id]);
+                $editLink = is_string($editLink) ? $editLink : '';
+
+                if (mb_strlen($editLink) > 0) {
+                    $editText = '<i class="icon edit"></i>' . __(self::LANG_GROUP, 'Editar');
+                    $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
+                    $buttons[] = $editButton;
+                }
 
                 $columns = [];
 
@@ -204,7 +210,7 @@ class UsersController extends AdminPanelController
                 $columns[] = stripslashes($element->username);
                 $columns[] = $element->statusText;
                 $columns[] = $element->typeName;
-                $columns[] = '' . $edit_button;
+                $columns[] = implode(' ', $buttons);
 
                 return $columns;
             },

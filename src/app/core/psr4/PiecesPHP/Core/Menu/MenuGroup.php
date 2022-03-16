@@ -477,8 +477,10 @@ class MenuGroup
 
                 if ($group_groups !== false) {
                     foreach ($group_groups as $group) {
-
-                        $group_items_container->appendChild($group->getHtmlElement());
+                        $groupHTMLElement = $group->getHtmlElement();
+                        if ($groupHTMLElement !== null) {
+                            $group_items_container->appendChild($groupHTMLElement);
+                        }
                     }
                 }
 
