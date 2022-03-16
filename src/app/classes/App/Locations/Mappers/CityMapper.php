@@ -17,7 +17,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @package     App\Locations\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
- * @property int $id
+ * @property int|null $id
  * @property string|null $code
  * @property int|StateMapper $state
  * @property string $name
@@ -106,7 +106,7 @@ class CityMapper extends BaseEntityMapper
         $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
-            $result = new static($result->id);
+            $result = new CityMapper($result->id);
         }
 
         return $result;
@@ -134,7 +134,7 @@ class CityMapper extends BaseEntityMapper
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
-                return new static($i->id);
+                return new CityMapper($i->id);
             }, $result);
         }
 
@@ -170,7 +170,7 @@ class CityMapper extends BaseEntityMapper
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
-                return new static($i->id);
+                return new CityMapper($i->id);
             }, $result);
         }
 
@@ -246,7 +246,7 @@ class CityMapper extends BaseEntityMapper
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new CityMapper )->getModel();
     }
 
 }

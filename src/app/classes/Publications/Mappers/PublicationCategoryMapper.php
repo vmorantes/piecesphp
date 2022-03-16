@@ -21,7 +21,7 @@ use Publications\PublicationsLang;
  * @package     Publications\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
- * @property int $id
+ * @property int|null $id
  * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
  * @property string $name
  * @property \stdClass|string|null $meta
@@ -278,7 +278,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = (new static );
+        $mapper = new PublicationCategoryMapper;
         $model = $mapper->getModel();
         $table = $model->getTable();
 
@@ -629,7 +629,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new PublicationCategoryMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -686,7 +686,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     public static function uncategorizedCategory()
     {
 
-        $category = new static(self::UNCATEGORIZED_ID);
+        $category = new PublicationCategoryMapper(self::UNCATEGORIZED_ID);
 
         if ($category->id == null) {
             $category->setLangData('es', 'name', 'Sin categoría');
@@ -734,6 +734,6 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new PublicationCategoryMapper)->getModel();
     }
 }

@@ -21,7 +21,7 @@ use PiecesPHP\Core\StringManipulate;
  * @package     App\Presentations\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
- * @property int $id
+ * @property int|null $id
  * @property string|null $preferSlug
  * @property string $name
  * @property int $order
@@ -284,7 +284,7 @@ class PresentationMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = (new static );
+        $mapper = (new PresentationMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
 
@@ -586,7 +586,7 @@ class PresentationMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new PresentationMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -670,6 +670,6 @@ class PresentationMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new PresentationMapper)->getModel();
     }
 }

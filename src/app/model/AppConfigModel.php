@@ -14,7 +14,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @package     App\Model
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c)
- * @property int $id
+ * @property int|null $id
  * @property string $name
  * @property string|array|\stdClass $value
  */
@@ -88,7 +88,7 @@ class AppConfigModel extends BaseEntityMapper
 
                 if (is_scalar($name)) {
 
-                    $instance = new static;
+                    $instance = new AppConfigModel;
                     $instance->name = $name;
                     $instance->value = $value;
 
@@ -119,7 +119,7 @@ class AppConfigModel extends BaseEntityMapper
         $data = [];
 
         foreach ($rows as $row) {
-            $mapper = new static($row->name);
+            $mapper = new AppConfigModel($row->name);
             $data[$mapper->name] = $mapper->value;
         }
 
@@ -136,7 +136,7 @@ class AppConfigModel extends BaseEntityMapper
 
         if (self::optionExists($name)) {
 
-            $option = new static($name);
+            $option = new AppConfigModel($name);
 
             if ($option->id !== null) {
                 return $option->value;
@@ -182,7 +182,7 @@ class AppConfigModel extends BaseEntityMapper
      */
     public static function model()
     {
-        return (new static())->getModel();
+        return (new AppConfigModel())->getModel();
     }
 
 }

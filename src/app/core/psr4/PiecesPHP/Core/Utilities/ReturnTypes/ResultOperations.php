@@ -316,7 +316,7 @@ class ResultOperations implements \JsonSerializable
      */
     public static function resultInstance(array $operations, string $message = '')
     {
-        return (new static($operations, $message));
+        return (new ResultOperations($operations, $message));
     }
 
     /**

@@ -66,7 +66,7 @@ class Route
      * @param string $method
      * @param bool $requireLogin
      * @param string $alias
-     * @param string[] $rolesAllowed
+     * @param array<string>|array<int> $rolesAllowed
      * @param array $defaultParamsValues
      * @param array<callable>|array<string> $middlewares
      */

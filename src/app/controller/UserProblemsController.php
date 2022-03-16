@@ -227,7 +227,7 @@ class UserProblemsController extends UsersController
                 ]);
 
                 //Verificación de existencia
-                if ($usuario !== -1) {
+                if ($usuario !== null) {
 
                     //Datos de recuperación
                     $problems = new UserProblemsModel();
@@ -314,9 +314,9 @@ class UserProblemsController extends UsersController
                 $problems = UserProblemsModel::instanceByCode($code);
 
                 $user = new UsersModel();
-                $user = $user->getByEmail($problems->email);
+                $user = $problems !== null ? $user->getByEmail($problems->email) : null;
 
-                $exist_user = $user !== -1;
+                $exist_user = $user !== null && $problems !== null;
 
                 //Verificar que el usuario existe
                 if ($exist_user) {

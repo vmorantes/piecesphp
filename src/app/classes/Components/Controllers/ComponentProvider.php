@@ -240,6 +240,9 @@ class ComponentProvider extends AdminPanelController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos

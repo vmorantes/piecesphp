@@ -124,7 +124,7 @@ class RecoveryPasswordController extends UsersController
             ]);
 
             //Verificación de existencia
-            if ($usuario !== -1) {
+            if ($usuario !== null) {
 
                 //Datos del toke de recuperación
                 $created_at = time(); //Fecha de creación del token
@@ -209,7 +209,7 @@ class RecoveryPasswordController extends UsersController
             ]);
 
             //Verificación de existencia
-            if ($usuario !== -1) {
+            if ($usuario !== null) {
 
                 //Datos de recuperación
                 $recoveryPassword = new RecoveryPasswordModel();
@@ -386,9 +386,9 @@ class RecoveryPasswordController extends UsersController
                     $recoveryPassword = RecoveryPasswordModel::instanceByCode($code);
 
                     $user = new UsersModel();
-                    $user = $user->getByEmail($recoveryPassword->email);
+                    $user = $recoveryPassword !== null ? $user->getByEmail($recoveryPassword->email) : null;
 
-                    $exist_user = $user !== -1;
+                    $exist_user = $user !== null && $recoveryPassword !== null;
 
                     //Verificar que el usuario existe
                     if ($exist_user) {

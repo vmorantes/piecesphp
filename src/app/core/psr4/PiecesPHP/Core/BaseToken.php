@@ -171,10 +171,13 @@ class BaseToken
                 $key,
                 self::$encrypt,
                 $ignore_expired
-            )->data;
+            );
 
-            $data = BaseHashEncryption::decrypt($data, $key);
-            $data = json_decode($data);
+            if (is_object($data)) {
+                $data = $data->data;
+                $data = BaseHashEncryption::decrypt($data, $key);
+                $data = json_decode($data);
+            }
 
         } else {
             if ($expired === true) {
@@ -217,7 +220,11 @@ class BaseToken
                 $key,
                 self::$encrypt,
                 $ignore_expired
-            )->exp;
+            );
+
+            if (is_object($data)) {
+                $data = $data->exp;
+            }
 
         } else {
             if ($expired === true) {
@@ -260,7 +267,11 @@ class BaseToken
                 $key,
                 self::$encrypt,
                 $ignore_expired
-            )->iat;
+            );
+
+            if (is_object($data)) {
+                $data = $data->iat;
+            }
 
         } else {
             if ($expired === true) {

@@ -227,7 +227,7 @@ class BaseController
     protected $global_variables = [];
 
     /**
-     * @var BaseModel|ActiveRecordModel|BaseEntityMapper
+     * @var BaseModel|ActiveRecordModel
      */
     protected $model = null;
 

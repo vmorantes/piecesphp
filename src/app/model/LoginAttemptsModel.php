@@ -100,7 +100,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public static function addLogin(int $user_id = null, string $username, bool $success, string $message = '', array $extraData = [])
     {
-        $mapper = new static();
+        $mapper = new LoginAttemptsModel();
         $mapper->user_id = $user_id;
         $mapper->username_attempt = $username;
         $mapper->success = $success ? self::SUCCESS_ATTEMPT : self::FAIL_ATTEMPT;
@@ -122,7 +122,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public static function lastLogin(int $user_id)
     {
-        $model = (new static())->getModel();
+        $model = (new LoginAttemptsModel())->getModel();
         $model->select()->where([
             'user_id' => $user_id,
             'success' => self::SUCCESS_ATTEMPT,
@@ -141,7 +141,7 @@ class LoginAttemptsModel extends BaseEntityMapper
     {
         $success = self::SUCCESS_ATTEMPT;
         $on_set_data = function ($element) use ($success) {
-            $attempt = new static($element->id);
+            $attempt = new LoginAttemptsModel($element->id);
             $data = [];
             $data[] = $attempt->username_attempt;
             $data[] = $attempt->success == $success ? 'Sí' : 'No';
@@ -162,7 +162,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
         $options = [
             'request' => $request,
-            'mapper' => new static(),
+            'mapper' => new LoginAttemptsModel(),
             'columns_order' => $columns,
             'custom_order' => [
                 'date' => 'DESC',

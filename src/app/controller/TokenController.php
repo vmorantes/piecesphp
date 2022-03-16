@@ -50,7 +50,7 @@ class TokenController extends BaseController
     }
     public static function tokenExistsByID($id)
     {
-        $controller = new static();
+        $controller = new TokenController();
         $result = $controller->model
             ->select()
             ->where("id = '" . $id . "'")

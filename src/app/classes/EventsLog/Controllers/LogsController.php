@@ -164,7 +164,7 @@ class LogsController extends AdminPanelController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return (new LogsController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -241,6 +241,7 @@ class LogsController extends AdminPanelController
                 $params,
                 $silentOnNotExists
             );
+            $route = is_string($route) ? $route : '';
         }
 
         $allow = self::_allowedRoute($simpleName, $route, $params);
@@ -263,6 +264,9 @@ class LogsController extends AdminPanelController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         $permisos_listado = [

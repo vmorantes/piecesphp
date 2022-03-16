@@ -289,6 +289,9 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
         $classname = self::class;
+        /**
+         * @var array<string>
+         */
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
