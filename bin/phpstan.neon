@@ -5,3 +5,38 @@ parameters:
         - ../src/app
     scanFiles:
         - ../src/app/config/constants.php
+    ignoreErrors:
+        - 
+            message: '#Variable \$(.*) might not be defined\.#'
+            paths:
+                - ../src/app/classes/**/Views/*
+                - ../src/app/view/*
+        - 
+            message: '#Parameter \#1 \(array<string>\|string\) of echo cannot be converted to string\.#'
+            paths:
+                - ../src/app/classes/**/Views/*
+                - ../src/app/view/*
+        -
+            message: '#(Static property (.*)::\$(title|pluralTitle) \(string\) does not accept array<string>\|string)#'
+            paths:
+                - ../src/app/classes/**/Controllers/*
+                - ../src/app/classes/PiecesPHP/*
+        -
+            message: '#(Parameter \#[0-9] (.*) expects string, array<string>\|string given\.)#'
+            paths:
+                - ../src/app/classes/**/Controllers/*
+                - ../src/app/classes/**/Mappers/*
+                - ../src/app/classes/**/Exceptions/*
+                - ../src/app/classes/PiecesPHP/*
+                - ../src/app/classes/Importers/*
+                - ../src/app/view/*
+                - ../src/app/controller/*
+                - ../src/app/core/psr4/*
+        -
+            message: '#Parameter \#3 \$defaultText of class PiecesPHP\\Core\\HTML\\Select constructor expects string, array<string>\|string given\.#'
+            paths:
+                - ../src/app/core/AppHelpers.php
+        - '#\#1 \$name of class PiecesPHP\\Core\\Utilities\\ReturnTypes\\Operation constructor expects string\|null, array<string>\|string given\.#'
+        - '#\#2 \$name of class PiecesPHP\\Core\\Utilities\\ReturnTypes\\ResultOperations constructor expects string, array<string>\|string given\.#'
+        - '#\#1 \$message of method PiecesPHP\\Core\\Utilities\\ReturnTypes\\ResultOperations::setMessage\(\) expects string, array<string>\|string given\.#'
+        - '#\#1 \$name of method PiecesPHP\\Core\\Utilities\\ReturnTypes\\ResultOperations::operation\(\) expects string, array<string>\|string given\.#'

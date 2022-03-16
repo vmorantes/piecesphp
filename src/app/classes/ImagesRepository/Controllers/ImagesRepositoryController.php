@@ -90,7 +90,7 @@ class ImagesRepositoryController extends AdminPanelController
 
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
 
         self::$title = __(self::LANG_GROUP, self::$title);
         self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
@@ -227,7 +227,6 @@ class ImagesRepositoryController extends AdminPanelController
      */
     public function friendlyAuthorizationName(Request $request, Response $response)
     {
-        $image = null;
         $maskNameInput = $request->getAttribute('name', null);
         $maskName = is_string($maskNameInput) ? trim($maskNameInput) : null;
         $maskName = $maskName !== null && mb_strlen($maskName) > 0 ? explode('_', $maskName) : null;
@@ -235,6 +234,7 @@ class ImagesRepositoryController extends AdminPanelController
 
         $pointIndex = strpos($maskName, '.');
 
+        $element = null;
         if ($pointIndex !== false) {
             $maskName = substr($maskName, 0, $pointIndex);
             $elementID = is_int($maskName) || (is_string($maskName) && ctype_digit($maskName)) ? (int) $maskName : null;

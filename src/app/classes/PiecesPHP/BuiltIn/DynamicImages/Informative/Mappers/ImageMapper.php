@@ -6,8 +6,8 @@
 
 namespace PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers;
 
-use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 
@@ -358,7 +358,7 @@ class ImageMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {

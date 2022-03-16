@@ -1,25 +1,28 @@
 {
-	"files.exclude": {
-		"**/.git": true,
-		"**/.svn": true,
-		"**/.hg": true,
-		"**/CVS": true,
-		"**/.DS_Store": true,
-		"src/vendor": false,
-		"**/node_modules": true,
-		"tasks/output": true
-	},
-	"files.watcherExclude": {
-		"**/.git/objects/**": true,
-		"**/.git/subtree-cache/**": true,
-		"**/node_modules/**": true,
-		"tasks/output": true,
-		"src/bundle": true
-	},
-	"html.format.wrapLineLength": 300,
-	"phpfmt.indent_with_space": 4,
-	"phpfmt.psr2": true,
-	"editor.wordWrap": "on",
-	"editor.multiCursorModifier": "ctrlCmd",
-	"intelephense.environment.phpVersion": "7.3.0"
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "src/vendor": false,
+        "**/node_modules": true,
+        "tasks/output": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "tasks/output": true,
+        "src/bundle": true
+    },
+    "files.associations": {
+        "*.neon": "yaml"
+    },
+    "html.format.wrapLineLength": 300,
+    "phpfmt.indent_with_space": 4,
+    "phpfmt.psr2": true,
+    "editor.wordWrap": "on",
+    "editor.multiCursorModifier": "ctrlCmd",
+    "intelephense.environment.phpVersion": "7.3.0"
 }

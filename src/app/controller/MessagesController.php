@@ -51,7 +51,7 @@ class MessagesController extends AdminPanelController
      */
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
         add_global_asset(MESSAGES_PATH_JS . '/component.js', 'js');
         add_global_asset(MESSAGES_PATH_JS . '/main.js', 'js');
     }

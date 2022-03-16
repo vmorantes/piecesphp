@@ -8,7 +8,7 @@ namespace EventsLog\Mappers;
 
 use App\Model\UsersModel;
 use EventsLog\LogsLang;
-use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 
 /**
@@ -443,7 +443,7 @@ class LogsMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {

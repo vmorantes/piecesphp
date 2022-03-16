@@ -308,7 +308,7 @@ class GenericTokenController extends AdminPanelController
                     $mailer->setFrom($mailConfig->user(), $mailConfig->name());
                     $mailer->addAddress($mailConfig->user(), $mailConfig->name());
                     $mailer->isHTML(true);
-                    $mailer->Subject = mb_convert_encoding($subject->getValue(), 'UTF-8');
+                    $mailer->Subject = mb_convert_encoding((string) $subject->getValue(), 'UTF-8');
 
                     $data = [];
 

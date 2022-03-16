@@ -231,7 +231,7 @@ class RecoveryPasswordController extends UsersController
                     'email_sended' => $json_response['send_mail'],
                     'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
                 ];
-                $logRequest->type = __(self::LANG_GROUP, 'Solicitud de restablecimiento de contraseña.');
+                $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de restablecimiento de contraseña.');
                 $logRequest->save();
             } else {
 
@@ -512,7 +512,7 @@ class RecoveryPasswordController extends UsersController
         $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
-        $mail->Subject = $subject;
+        $mail->Subject = (string) $subject;
         $mail->Body = $message;
         $mail->AltBody = strip_tags($message);
 
@@ -551,7 +551,7 @@ class RecoveryPasswordController extends UsersController
         $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
-        $mail->Subject = $subject;
+        $mail->Subject = (string) $subject;
         $mail->Body = $message;
         $mail->AltBody = strip_tags($message);
 
@@ -586,7 +586,7 @@ class RecoveryPasswordController extends UsersController
         $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
-        $mail->Subject = $subject;
+        $mail->Subject = (string) $subject;
         $mail->Body = $message;
         $mail->AltBody = strip_tags($message);
 
