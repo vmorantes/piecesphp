@@ -747,7 +747,7 @@ class PresentationsCategoryController extends AdminPanelController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return (new PresentationsCategoryController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -796,11 +796,12 @@ class PresentationsCategoryController extends AdminPanelController
         }
 
         if ($allowed) {
-            return get_route(
+            $routeResult = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
+            return is_string($routeResult) ? $routeResult : '';
         } else {
             return '';
         }
@@ -821,6 +822,9 @@ class PresentationsCategoryController extends AdminPanelController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
         $permisos_listado = $all_roles;

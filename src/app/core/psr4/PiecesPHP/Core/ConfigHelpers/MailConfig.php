@@ -330,7 +330,7 @@ class MailConfig
     public static function getValue(string $name)
     {
 
-        $mailConfig = new static;
+        $mailConfig = new MailConfig;
 
         $data = [];
 

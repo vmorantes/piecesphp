@@ -946,7 +946,7 @@ class PresentationsController extends AdminPanelController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return (new PresentationsController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -989,8 +989,9 @@ class PresentationsController extends AdminPanelController
         $name = $namePrefrix . '_' . str_replace('.', '', uniqid());
         $relativeURLs = [];
 
-        $uploadDirPath = (new static )->uploadDir;
-        $uploadDirRelativeURL = (new static )->uploadDirURL;
+        $instance = new PresentationsController;
+        $uploadDirPath = $instance->uploadDir;
+        $uploadDirRelativeURL = $instance->uploadDirURL;
 
         $uploadDirPath = append_to_url($uploadDirPath, $folder);
         $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
@@ -1029,11 +1030,11 @@ class PresentationsController extends AdminPanelController
                 }
 
                 if ($readyToDelete) {
-                    ($deleteImages)($imagesToDelete, (new static )->uploadDirURL);
+                    ($deleteImages)($imagesToDelete, (new PresentationsController)->uploadDirURL);
                 }
 
             } else {
-                ($deleteImages)($imagesToDelete, (new static )->uploadDirURL);
+                ($deleteImages)($imagesToDelete, (new PresentationsController)->uploadDirURL);
             }
 
         } catch (\Exception $e) {
@@ -1068,11 +1069,12 @@ class PresentationsController extends AdminPanelController
         }
 
         if ($allowed) {
-            return get_route(
+            $routeResult = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
+            return is_string($routeResult) ? $routeResult : '';
         } else {
             return '';
         }
@@ -1093,6 +1095,9 @@ class PresentationsController extends AdminPanelController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
         $permisos_listado = $all_roles;

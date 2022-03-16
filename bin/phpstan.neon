@@ -5,6 +5,7 @@ parameters:
         - ../src/app
     scanFiles:
         - ../src/app/config/constants.php
+    treatPhpDocTypesAsCertain: false
     ignoreErrors:
         - 
             message: '#Variable \$(.*) might not be defined\.#'
@@ -21,6 +22,18 @@ parameters:
             paths:
                 - ../src/app/classes/**/Controllers/*
                 - ../src/app/classes/PiecesPHP/*
+        -
+            message: '#(Variable \$where in empty\(\) always exists and is always falsy\.|Cannot access property \$(.*) on ((.*)Mapper\|null.*|int\|(.*)Mapper|(.*)Mapper\|int.*)\.)#'
+            paths:
+                - ../src/app/classes/**/Controllers/*
+                - ../src/app/controller/*
+                - ../src/app/view/*
+        -
+            message: '#Variable \$(.*) in PHPDoc tag @var does not exist\.#'
+            paths:
+                - ../src/app/classes/*
+                - ../src/app/controller/*
+                - ../src/app/core/psr4/*
         -
             message: '#(Parameter \#[0-9] (.*) expects string, array<string>\|string given\.)#'
             paths:

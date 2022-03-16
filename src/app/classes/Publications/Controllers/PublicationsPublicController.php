@@ -241,7 +241,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return (new PublicationsPublicController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -290,11 +290,12 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
         }
 
         if ($allowed) {
-            return get_route(
+            $routeResult = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
+            return is_string($routeResult) ? $routeResult : '';
         } else {
             return '';
         }
@@ -315,6 +316,9 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
         $routes = [

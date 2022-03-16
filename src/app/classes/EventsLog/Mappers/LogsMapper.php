@@ -17,7 +17,7 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
  * @package     EventsLog\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
- * @property int $id
+ * @property int|null $id
  * @property string $textMessage
  * @property \stdClass|string $textMessageVariables
  * @property string|null $referenceColumn
@@ -195,7 +195,7 @@ class LogsMapper extends EntityMapperExtensible
      */
     public static function addLog(string $messageType, array $variables = [], string $referenceColumn = null, string $referenceValue = null, string $referenceSource = null)
     {
-        $mapper = new static;
+        $mapper = new LogsMapper;
         $notExistsMessage = true;
 
         foreach (self::MESSAGES as $type => $text) {
@@ -234,7 +234,7 @@ class LogsMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = (new static );
+        $mapper = (new LogsMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
 
@@ -374,7 +374,7 @@ class LogsMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new LogsMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -447,6 +447,6 @@ class LogsMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new LogsMapper)->getModel();
     }
 }
