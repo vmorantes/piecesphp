@@ -385,11 +385,12 @@ class Country extends AdminPanelController
         }
 
         if ($allowed) {
-            return get_route(
+            $routeResult = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
+            return is_string($routeResult) ? $routeResult : '';
         } else {
             return '';
         }

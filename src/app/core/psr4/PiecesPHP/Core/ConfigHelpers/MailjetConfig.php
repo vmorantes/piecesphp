@@ -215,7 +215,7 @@ class MailjetConfig
      */
     public static function getValue(string $name)
     {
-        $mailConfig = new static;
+        $mailConfig = new MailjetConfig;
         $data = [];
         $data['email'] = $mailConfig->email();
         $data['name'] = $mailConfig->name();

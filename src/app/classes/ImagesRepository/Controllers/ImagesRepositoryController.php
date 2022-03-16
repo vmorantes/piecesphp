@@ -1342,7 +1342,7 @@ class ImagesRepositoryController extends AdminPanelController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return (new ImagesRepositoryController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -1501,8 +1501,9 @@ class ImagesRepositoryController extends AdminPanelController
 
                 $valid = $handler->validate();
 
-                $uploadDirPath = (new static )->uploadDir;
-                $uploadDirRelativeURL = (new static )->uploadDirURL;
+                $instance = new ImagesRepositoryController;
+                $uploadDirPath = $instance->uploadDir;
+                $uploadDirRelativeURL = $instance->uploadDirURL;
 
                 if ($setNameByInput && $valid) {
 
@@ -1635,6 +1636,9 @@ class ImagesRepositoryController extends AdminPanelController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos

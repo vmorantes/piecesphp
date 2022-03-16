@@ -383,6 +383,9 @@ class MessagesController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = MessagesController::class;
         $routes = [];
+        /**
+         * @var array<string>
+         */
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
         //──── GET ─────────────────────────────────────────────────────────────────────────

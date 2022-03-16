@@ -9,7 +9,6 @@ namespace App\Presentations\Mappers;
 use App\Presentations\Exceptions\DuplicateException;
 use App\Presentations\PresentationsLang;
 use PiecesPHP\Core\BaseHashEncryption;
-use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -22,7 +21,7 @@ use PiecesPHP\Core\StringManipulate;
  * @package     App\Presentations\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
- * @property int $id
+ * @property int|null $id
  * @property string $name
  * @property string|null $preferSlug
  * @property \stdClass|string|null $meta
@@ -263,7 +262,7 @@ class PresentationCategoryMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = (new static );
+        $mapper = (new PresentationCategoryMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
 
@@ -587,7 +586,7 @@ class PresentationCategoryMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new PresentationCategoryMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -671,6 +670,6 @@ class PresentationCategoryMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new PresentationCategoryMapper)->getModel();
     }
 }

@@ -14,7 +14,7 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
- * @property int $id
+ * @property int|null $id
  * @property string $email
  * @property string $code
  * @property \DateTime|string $created
@@ -57,7 +57,7 @@ class RecoveryPasswordModel extends BaseEntityMapper
      */
     public static function exist($code)
     {
-        $instance = new static();
+        $instance = new RecoveryPasswordModel();
 
         return $instance->getModel()
             ->select()
@@ -73,12 +73,12 @@ class RecoveryPasswordModel extends BaseEntityMapper
      */
     public static function instanceByCode($code)
     {
-        $instance = new static();
+        $instance = new RecoveryPasswordModel();
 
         $data = $instance->getModel()->select()->where([
             'code' => $code,
         ])->row();
 
-        return new static($data->id);
+        return is_object($data) ? new RecoveryPasswordModel($data->id) : null;
     }
 }

@@ -23,7 +23,7 @@ use Publications\PublicationsLang;
  * @package     Publications\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
- * @property int $id
+ * @property int|null $id
  * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
  * @property string $title
  * @property string $content
@@ -644,7 +644,7 @@ class PublicationMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = (new static );
+        $mapper = (new PublicationMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
 
@@ -1085,7 +1085,7 @@ class PublicationMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new PublicationMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -1189,6 +1189,6 @@ class PublicationMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new PublicationMapper)->getModel();
     }
 }

@@ -1377,7 +1377,7 @@ class PublicationsController extends AdminPanelController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new static )->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return (new PublicationsController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -1488,8 +1488,9 @@ class PublicationsController extends AdminPanelController
 
                 $valid = $handler->validate();
 
-                $uploadDirPath = (new static )->uploadDir;
-                $uploadDirRelativeURL = (new static )->uploadDirURL;
+                $instance = new PublicationsController;
+                $uploadDirPath = $instance->uploadDir;
+                $uploadDirRelativeURL = $instance->uploadDirURL;
 
                 if ($setNameByInput && $valid) {
 
@@ -1622,6 +1623,9 @@ class PublicationsController extends AdminPanelController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos

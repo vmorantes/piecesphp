@@ -17,7 +17,7 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @package     PiecesPHP\BuiltIn\DynamicImages\Informative\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
- * @property int $id
+ * @property int|null $id
  * @property string $title
  * @property string $description
  * @property string $link
@@ -223,7 +223,7 @@ class ImageMapper extends EntityMapperExtensible
 
         if ($asMapper) {
             $result = array_map(function ($e) {
-                return new static($e->id);
+                return new ImageMapper($e->id);
             }, $result);
         }
 
@@ -249,7 +249,7 @@ class ImageMapper extends EntityMapperExtensible
 
         if ($asMapper) {
             $result = array_map(function ($e) {
-                return new static($e->id);
+                return new ImageMapper($e->id);
             }, $result);
         }
 
@@ -279,7 +279,7 @@ class ImageMapper extends EntityMapperExtensible
         $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
-            $result = new static($result->id);
+            $result = new ImageMapper($result->id);
         }
 
         return $result;
@@ -362,6 +362,6 @@ class ImageMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new ImageMapper)->getModel();
     }
 }

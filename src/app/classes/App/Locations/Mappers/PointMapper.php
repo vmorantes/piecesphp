@@ -17,7 +17,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @package     App\Locations\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
- * @property int $id
+ * @property int|null $id
  * @property int|CityMapper $city
  * @property string $address
  * @property string $name
@@ -108,7 +108,7 @@ class PointMapper extends BaseEntityMapper
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
-                return new static($i->id);
+                return new PointMapper($i->id);
             }, $result);
         }
 
@@ -132,7 +132,7 @@ class PointMapper extends BaseEntityMapper
 
         if ($as_mapper) {
             $result = array_map(function ($e) {
-                return new static($e->id);
+                return new PointMapper($e->id);
             }, $result);
         }
 
@@ -184,7 +184,7 @@ class PointMapper extends BaseEntityMapper
         $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $as_mapper) {
-            $result = new static($result->id);
+            $result = new PointMapper($result->id);
         }
 
         return $result;
@@ -211,7 +211,7 @@ class PointMapper extends BaseEntityMapper
 
         if ($as_mapper) {
             $result = array_map(function ($e) {
-                return new static($e->id);
+                return new PointMapper($e->id);
             }, $result);
         }
 
@@ -247,7 +247,7 @@ class PointMapper extends BaseEntityMapper
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
-                return new static($i->id);
+                return new PointMapper($i->id);
             }, $result);
         }
 
@@ -287,7 +287,7 @@ class PointMapper extends BaseEntityMapper
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new PointMapper )->getModel();
     }
 
 }

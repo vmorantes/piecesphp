@@ -7,7 +7,6 @@
 namespace Publications\Mappers;
 
 use App\Model\UsersModel;
-use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
@@ -21,7 +20,7 @@ use Publications\PublicationsLang;
  * @package     Publications\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2022
- * @property int $id
+ * @property int|null $id
  * @property int|PublicationMapper $publication
  * @property string $attachmentType
  * @property string $fileLocation
@@ -321,7 +320,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = (new static );
+        $mapper = new AttachmentPublicationMapper;
         $model = $mapper->getModel();
         $table = $model->getTable();
 
@@ -516,7 +515,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $result = !empty($result) ? $result[0] : null;
 
         if (!is_null($result) && $asMapper) {
-            $result = new static($result->id);
+            $result = new AttachmentPublicationMapper($result->id);
         }
 
         return $result;
@@ -616,7 +615,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new AttachmentPublicationMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -669,6 +668,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new AttachmentPublicationMapper)->getModel();
     }
 }

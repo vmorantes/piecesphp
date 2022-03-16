@@ -12,7 +12,7 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
- * @property int $id
+ * @property int|null $id
  * @property string $name
  * @property string $email
  * @property string $message

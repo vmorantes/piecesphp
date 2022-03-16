@@ -17,7 +17,7 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
  * @package     Newsletter\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
- * @property int $id
+ * @property int|null $id
  * @property string $name
  * @property string $email
  * @property int $acceptUpdates
@@ -204,7 +204,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = (new static );
+        $mapper = (new NewsletterSuscriberMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
 
@@ -361,7 +361,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new NewsletterSuscriberMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -405,6 +405,6 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new NewsletterSuscriberMapper)->getModel();
     }
 }
