@@ -10,6 +10,7 @@ use App\Model\AvatarModel;
 use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\HTML\HtmlElement;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Route;
@@ -58,7 +59,7 @@ class UsersController extends AdminPanelController
     protected $token_controller = null;
 
     /**
-     * @var \PiecesPHP\Core\BaseModel
+     * @var ActiveRecordModel
      */
     protected $model = null;
 

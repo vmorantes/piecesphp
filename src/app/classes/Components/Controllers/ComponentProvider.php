@@ -51,7 +51,7 @@ class ComponentProvider extends AdminPanelController
 
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
     }
@@ -100,7 +100,7 @@ class ComponentProvider extends AdminPanelController
             $group = $expectedParameters->getValue('group');
 
             $componentPath = "{$group}/components";
-            $componentFullPath = $this->getInstanceViewDir($componentPath);
+            $componentFullPath = $this->getInstanceViewDir();
             $componentExists = file_exists($componentFullPath);
 
             if ($componentExists) {

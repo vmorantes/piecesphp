@@ -48,7 +48,7 @@ class BlackboardNewsController extends AdminPanelController
      */
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
         add_global_asset(BLACKBOARD_NEWS_PATH_JS . '/main.js', 'js');
 
         $this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);

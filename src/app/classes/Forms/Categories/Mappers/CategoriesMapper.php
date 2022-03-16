@@ -11,8 +11,8 @@ use Forms\Categories\CategoriesLang;
 use Forms\Categories\Controllers\CategoriesController;
 use Forms\Categories\Exceptions\DuplicateException;
 use PiecesPHP\Core\BaseHashEncryption;
-use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 
@@ -859,7 +859,7 @@ class CategoriesMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {

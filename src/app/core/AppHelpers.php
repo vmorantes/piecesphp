@@ -2498,6 +2498,7 @@ function num_month_to_text(string $date)
     $date_array = explode('-', $date);
 
     $langGroup = 'calendar';
+    $month = '';
 
     if ($date_array[1] == "01") {
         $month = __($langGroup, 'Enero');

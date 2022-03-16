@@ -251,9 +251,9 @@ class UserProblemsController extends UsersController
                         'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
                     ];
                     if ($type == self::TYPE_USER_FORGET) {
-                        $logRequest->type = __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
+                        $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
                     } elseif ($type == self::TYPE_USER_BLOCKED) {
-                        $logRequest->type = __(self::LANG_GROUP, 'Solicitud de desbloqueo de usuario.');
+                        $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de desbloqueo de usuario.');
                     }
                     $logRequest->save();
                 } else {
@@ -453,7 +453,7 @@ class UserProblemsController extends UsersController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            $logRequest->type = __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
+            $logRequest->type = (string) __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
             $logRequest->save();
 
             if ($success) {
@@ -489,6 +489,7 @@ class UserProblemsController extends UsersController
         $to_name = $usuario->username;
 
         $subject = __(self::LANG_GROUP, 'Código de verificación');
+        $message = '';
 
         if ($type == self::TYPE_USER_FORGET) {
             $url = get_route('user-forget-form') . '?code=' . $code;
@@ -509,7 +510,7 @@ class UserProblemsController extends UsersController
         $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
-        $mail->Subject = $subject;
+        $mail->Subject = (string) $subject;
         $mail->Body = $message;
         $mail->AltBody = strip_tags($message);
 
@@ -561,7 +562,7 @@ class UserProblemsController extends UsersController
             $mail->addReplyTo($email, $name);
             $mail->addAddress(self::EMAIL_ON_FAILED_OS_TICKET);
             $mail->isHTML(true);
-            $mail->Subject = $subject;
+            $mail->Subject = (string) $subject;
             $mail->Body = $message;
             $mail->AltBody = strip_tags($message);
 

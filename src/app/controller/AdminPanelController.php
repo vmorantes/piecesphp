@@ -180,7 +180,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            $logRequest->type = __(self::LANG_GROUP, 'Ticket soporte dentro del panel administrativo (osTicket).');
+            $logRequest->type = (string) __(self::LANG_GROUP, 'Ticket soporte dentro del panel administrativo (osTicket).');
             $logRequest->save();
 
             if ($success) {

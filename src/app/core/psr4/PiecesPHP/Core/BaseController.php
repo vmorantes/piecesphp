@@ -6,6 +6,7 @@
 namespace PiecesPHP\Core;
 
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 
 /**
  * BaseController - Implementación básica de controlador.
@@ -226,7 +227,7 @@ class BaseController
     protected $global_variables = [];
 
     /**
-     * @var BaseModel
+     * @var BaseModel|ActiveRecordModel|BaseEntityMapper
      */
     protected $model = null;
 

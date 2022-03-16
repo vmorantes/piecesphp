@@ -41,7 +41,7 @@ class Locations extends AdminPanelController
     {
         self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
 
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
         set_title(self::$title);
     }
 

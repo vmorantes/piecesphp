@@ -9,6 +9,7 @@ namespace Publications\Mappers;
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use Publications\Exceptions\DuplicateException;
 use Publications\Mappers\PublicationMapper;
@@ -664,7 +665,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {

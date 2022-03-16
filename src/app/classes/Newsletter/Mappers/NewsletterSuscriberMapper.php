@@ -8,6 +8,7 @@ namespace Newsletter\Mappers;
 
 use App\Model\UsersModel;
 use Newsletter\NewsletterLang;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 
 /**
@@ -400,7 +401,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {
