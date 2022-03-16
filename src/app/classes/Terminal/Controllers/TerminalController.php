@@ -88,7 +88,7 @@ class TerminalController extends AdminPanelController
 
             //Información de los parámetros
             /**
-             * @var string $table
+             * @var string $gz
              */
             $gz = $expectedParameters->getValue('gz');
 

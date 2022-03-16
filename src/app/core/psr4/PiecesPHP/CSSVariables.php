@@ -51,7 +51,7 @@ class CSSVariables
         if ($exists) {
             $instance = self::$instances[$code];
         } else {
-            self::$instances[$code] = new static;
+            self::$instances[$code] = new CSSVariables;
             $instance = self::$instances[$code];
         }
 

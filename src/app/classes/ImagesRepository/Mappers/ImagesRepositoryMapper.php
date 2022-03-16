@@ -21,7 +21,7 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @package     ImagesRepository\Mappers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
- * @property int $id
+ * @property int|null $id
  * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
  * @property string $author
  * @property string $description
@@ -705,7 +705,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     public static function fieldsToSelect()
     {
 
-        $mapper = new static;
+        $mapper = new ImagesRepositoryMapper;
 
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
@@ -1031,7 +1031,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     {
 
         $element = (array) $element;
-        $mapper = new static;
+        $mapper = new ImagesRepositoryMapper;
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
@@ -1134,6 +1134,6 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new ImagesRepositoryMapper)->getModel();
     }
 }

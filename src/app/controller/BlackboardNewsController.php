@@ -373,6 +373,9 @@ class BlackboardNewsController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = BlackboardNewsController::class;
         $routes = [];
+        /**
+         * @var array<string>
+         */
         $all_roles = array_keys(UsersModel::TYPES_USERS);
         $edition_permissions = [
             UsersModel::TYPE_USER_ROOT,

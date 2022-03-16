@@ -16,7 +16,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
- * @property int $id
+ * @property int|null $id
  * @property string $password
  * @property string $username
  * @property string $firstname
@@ -44,6 +44,9 @@ class UsersModel extends BaseEntityMapper
     const TYPE_USER_ADMIN = 1;
     const TYPE_USER_GENERAL = 2;
 
+    /**
+     * @var array<int,string>
+     */
     const TYPES_USERS = [
         self::TYPE_USER_ROOT => 'Usuario principal',
         self::TYPE_USER_ADMIN => 'Usuario administrador',
@@ -203,58 +206,62 @@ class UsersModel extends BaseEntityMapper
 
     /**
      * @param mixed $where
-     * @return object|bool
+     * @return object|null
      */
     public function getWhere($where)
     {
         $model = $this->getModel();
         $model->resetAll();
-        return $model
+        $result = $model
             ->select()
             ->where($where)
             ->row();
+        return is_object($result) ? $result : null;
     }
 
     /**
      * @param mixed $username
-     * @return object|bool
+     * @return object|null
      */
     public function getByUsername($username)
     {
         $model = $this->getModel();
         $model->resetAll();
-        return $model
+        $result = $model
             ->select()
             ->where(['username' => $username])
             ->row();
+        return is_object($result) ? $result : null;
     }
 
     /**
      * @param mixed $id
-     * @return object|bool
+     * @return object|null
      */
     public function getByID($id)
     {
         $model = $this->getModel();
         $model->resetAll();
-        return $model
+        $result = $model
             ->select()
             ->where("id = '" . $id . "'")
             ->row();
+        return is_object($result) ? $result : null;
     }
 
     /**
      * @param mixed $email
-     * @return object|bool
+     * @return object|null
      */
     public function getByEmail($email)
     {
         $model = $this->getModel();
         $model->resetAll();
-        return $model
+        $result = $model
             ->select()
             ->where(['email' => $email])
             ->row();
+        return is_object($result) ? $result : null;
     }
 
     /**
@@ -408,13 +415,17 @@ class UsersModel extends BaseEntityMapper
     public function updateAttempts($id)
     {
         $user = $this->getByID($id);
-        $model = $this->getModel();
-        $model->resetAll();
-        $model->update([
-            'failed_attempts' => ($user->failed_attempts + 1),
-        ])->where(['id' => $id])->execute();
-        $user = $this->getByID($id);
-        return $user->failed_attempts;
+        if (is_object($user)) {
+            $model = $this->getModel();
+            $model->resetAll();
+            $model->update([
+                'failed_attempts' => ($user->failed_attempts + 1),
+            ])->where(['id' => $id])->execute();
+            $user = $this->getByID($id);
+            return is_object($user) ? $user->failed_attempts : 0;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -459,7 +470,7 @@ class UsersModel extends BaseEntityMapper
     public static function getUsersByType(int $type, array $ignoreIDs = [])
     {
 
-        $model = (new static())->getModel();
+        $model = self::model();
 
         $where = [
             "type = {$type}",
@@ -487,7 +498,7 @@ class UsersModel extends BaseEntityMapper
     public static function getUsersByTypes(array $types, array $ignoreIDs = [])
     {
 
-        $model = (new static())->getModel();
+        $model = self::model();
 
         $where = [
             '(type = ' . implode(' OR type = ', $types) . ')',
@@ -514,7 +525,7 @@ class UsersModel extends BaseEntityMapper
     public static function getUsersByIDs(array $ids = [])
     {
 
-        $model = (new static())->getModel();
+        $model = self::model();
 
         $ids = !empty($ids) ? implode(', ', $ids) : -1;
         $where = [
@@ -554,7 +565,7 @@ class UsersModel extends BaseEntityMapper
      */
     public static function isDuplicate(string $username, string $email)
     {
-        $model = (new static())->getModel();
+        $model = self::model();
         $model->resetAll();
 
         $model->select()->where([
@@ -577,7 +588,7 @@ class UsersModel extends BaseEntityMapper
      */
     public static function isDuplicateEmail(string $email, int $id = -1)
     {
-        $model = (new static())->getModel();
+        $model = self::model();
         $model->resetAll();
 
         $model->select()->where([
@@ -599,7 +610,7 @@ class UsersModel extends BaseEntityMapper
      */
     public static function isDuplicateUsername(string $username, int $id = -1)
     {
-        $model = (new static())->getModel();
+        $model = self::model();
         $model->resetAll();
 
         $model->select()->where([
@@ -642,7 +653,7 @@ class UsersModel extends BaseEntityMapper
 
         $fields = array_map(function ($f) use ($table) {
             return "{$table}.{$f}";
-        }, array_keys((new static )->getFields()));
+        }, array_keys((new UsersModel)->getFields()));
         $fieldsToAdd = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "TRIM(CONCAT(TRIM({$table}.firstname), {$secondNameSegment}, ' ', {$table}.first_lastname, {$secondLastNameSegment})) AS fullname",
@@ -665,6 +676,6 @@ class UsersModel extends BaseEntityMapper
      */
     public static function model()
     {
-        return (new static())->getModel();
+        return (new UsersModel())->getModel();
     }
 }

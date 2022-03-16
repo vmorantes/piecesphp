@@ -94,7 +94,7 @@ class MessagesModel extends BaseEntityMapper
      */
     public static function getMessages($where, bool $humanReadable = false, int $page = null, int $perPage = null)
     {
-        $queryBuilder = (new static())->getModel();
+        $queryBuilder = (new MessagesModel())->getModel();
         self::$where = $where;
 
         $queryBuilder->select()->where(self::$where)->orderBy("readed ASC, date DESC")->execute(false, $page, $perPage);
@@ -128,7 +128,7 @@ class MessagesModel extends BaseEntityMapper
      */
     public static function getTotalMessages()
     {
-        $queryBuilder = (new static())->getModel();
+        $queryBuilder = (new MessagesModel())->getModel();
         $queryBuilder->select()->where(self::$where)->execute();
         return count($queryBuilder->result());
     }
@@ -201,7 +201,7 @@ class MessagesModel extends BaseEntityMapper
     {
         $hasUnread = false;
 
-        $queryBuilder = (new static())->getModel();
+        $queryBuilder = (new MessagesModel())->getModel();
         self::$where = $where;
 
         $queryBuilder->select()->where(self::$where)->execute();
@@ -282,7 +282,7 @@ class MessagesModel extends BaseEntityMapper
 
             if (!$isSubMessage) {
 
-                $mapper = new static($element->id, 'id');
+                $mapper = new MessagesModel($element->id, 'id');
                 $message = self::processDataMessage($mapper, $humanReadable);
 
                 $elements[] = [

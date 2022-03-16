@@ -45,8 +45,6 @@ class TimeOnPlatformModel extends BaseEntityMapper
     ];
 
     /**
-     * __construct
-     *
      * @param mixed int
      * @param mixed string
      * @return static
@@ -57,57 +55,58 @@ class TimeOnPlatformModel extends BaseEntityMapper
     }
 
     /**
-     * addTime
-     *
      * @param int $user_id
      * @param float $minutes
      * @return bool
      */
     public static function addTime(int $user_id, float $minutes)
     {
+        $result = false;
         if (self::existsUser($user_id)) {
             $mapper = self::getRecordByUser($user_id);
-            $mapper->minutes += $minutes;
-            $mapper->minutes = round($mapper->minutes, 3);
-            return $mapper->update();
+
+            if ($mapper !== null) {
+                $mapper->minutes += $minutes;
+                $mapper->minutes = round($mapper->minutes, 3);
+                $result = $mapper->update();
+            }
 
         } else {
 
-            $mapper = new static();
+            $mapper = new TimeOnPlatformModel();
             $mapper->user_id = $user_id;
             $mapper->minutes += $minutes;
             $mapper->minutes = round($mapper->minutes, 3);
 
-            return $mapper->save();
+            $result = $mapper->save();
         }
+
+        return $result;
     }
 
     /**
-     * existsUser
-     *
      * @param int $user_id
      * @return bool
      */
     public static function existsUser(int $user_id)
     {
-        $model = (new static())->getModel();
+        $model = (new TimeOnPlatformModel())->getModel();
         $row = $model->select()->where([
             'user_id' => $user_id,
         ])->row();
         return $row !== false && $row !== -1;
     }
+
     /**
-     * getRecordByUser
-     *
      * @param int $user_id
      * @return static|null
      */
     public static function getRecordByUser(int $user_id)
     {
-        $model = (new static())->getModel();
+        $model = (new TimeOnPlatformModel())->getModel();
         $row = $model->select()->where([
             'user_id' => $user_id,
         ])->row();
-        return $row !== false && $row !== -1 ? new static($row->id) : null;
+        return is_object($row) ? new TimeOnPlatformModel($row->id) : null;
     }
 }

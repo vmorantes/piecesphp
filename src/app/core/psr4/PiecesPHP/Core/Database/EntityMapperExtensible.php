@@ -334,6 +334,6 @@ class EntityMapperExtensible extends BaseEntityMapper
      */
     public static function model()
     {
-        return (new static )->getModel();
+        return (new EntityMapperExtensible)->getModel();
     }
 }

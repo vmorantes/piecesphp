@@ -359,7 +359,7 @@ class FileManagerController extends AdminPanelController
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
         $name = trim(self::BASE_VIEW_DIR . '/' . trim($name, '/'), '/');
-        return (new static )->render($name, $data, $mode, $format);
+        return (new FileManagerController)->render($name, $data, $mode, $format);
     }
 
     /**
@@ -408,11 +408,12 @@ class FileManagerController extends AdminPanelController
         }
 
         if ($allowed) {
-            return get_route(
+            $routeResult = get_route(
                 $name,
                 $params,
                 $silentOnNotExists
             );
+            return is_string($routeResult) ? $routeResult : '';
         } else {
             return '';
         }
@@ -433,6 +434,9 @@ class FileManagerController extends AdminPanelController
 
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
         $all_roles = array_keys(UsersModel::TYPES_USERS);
 
         $permisos_estados_gestion = [
