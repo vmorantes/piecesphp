@@ -652,7 +652,7 @@ class HeroController extends AdminPanelController
         $inputData = $args;
 
         //Asignación de datos para procesar
-        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+        $expectedParameters->setInputValues($inputData);
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
@@ -808,7 +808,7 @@ class HeroController extends AdminPanelController
         ]);
 
         $inputData = $request->getQueryParams();
-        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+        $expectedParameters->setInputValues($inputData);
         $expectedParameters->validate();
 
         /**
@@ -879,6 +879,7 @@ class HeroController extends AdminPanelController
             $model->execute(false, $page, $perPage);
 
             $result = $model->result();
+            $result = is_array($result) ? $result : [];
 
             foreach ($result as $k => $i) {
 

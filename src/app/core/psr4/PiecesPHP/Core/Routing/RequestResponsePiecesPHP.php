@@ -21,11 +21,11 @@ class RequestResponsePiecesPHP implements InvocationStrategyInterface
 {
 
     /**
-     * @var callable[]
+     * @var callable[]|null
      */
     protected static $beforeCallMethods = null;
     /**
-     * @var callable[]
+     * @var callable[]|null
      */
     protected static $afterCallMethods = null;
 

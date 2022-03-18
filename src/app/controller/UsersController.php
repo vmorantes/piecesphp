@@ -260,6 +260,7 @@ class UsersController extends AdminPanelController
         }
 
         $resultsQuery = $model->result();
+        $resultsQuery = is_array($resultsQuery) ? $resultsQuery : [];
 
         foreach ($resultsQuery as $element) {
             $results->results[] = [

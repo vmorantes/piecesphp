@@ -91,11 +91,11 @@ function get_title(bool $appendTitleApp = false, string $separator = null, bool 
  * Establece el valor de $config['title]
  *
  * @param string $title
- * @return bool
+ * @return void
  */
 function set_title(string $title)
 {
-    return mb_strlen($title) > 0 ? set_config('title', $title) : set_config('title', false);
+    mb_strlen($title) > 0 ? set_config('title', $title) : set_config('title', false);
 }
 
 /**

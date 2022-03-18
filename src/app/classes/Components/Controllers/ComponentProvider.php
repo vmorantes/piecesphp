@@ -85,7 +85,7 @@ class ComponentProvider extends AdminPanelController
         $inputData = $request->getAttributes();
 
         //Asignación de datos para procesar
-        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+        $expectedParameters->setInputValues($inputData);
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {

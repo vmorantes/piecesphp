@@ -311,7 +311,6 @@ class PersonsMapper extends EntityMapperExtensible
     {
         if (self::existsByDocument($this->documentType, $this->documentNumber, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe una persona con el documento '{$this->documentNumber}' (" . self::idDocumentTypes()[$this->documentType] . ")."));
-            return false;
         }
 
         $this->createdAt = new \DateTime();
@@ -337,7 +336,6 @@ class PersonsMapper extends EntityMapperExtensible
     {
         if (self::existsByDocument($this->documentType, $this->documentNumber, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe una persona con el documento '{$this->documentNumber}' (" . self::idDocumentTypes()[$this->documentType] . ")."));
-            return false;
         }
         if (!$noDateUpdate) {
             $this->modifiedBy = get_config('current_user')->id;
@@ -646,7 +644,7 @@ class PersonsMapper extends EntityMapperExtensible
      */
     public static function extractIDFromSlug(string $slug)
     {
-        $slug = is_string($slug) ? explode('-', $slug) : null;
+        $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
@@ -730,6 +728,7 @@ class PersonsMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -756,6 +755,7 @@ class PersonsMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

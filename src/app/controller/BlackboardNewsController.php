@@ -318,6 +318,8 @@ class BlackboardNewsController extends AdminPanelController
         $query->execute(false, $page, $perPage);
 
         $result = $query->result();
+        $result = is_array($result) ? $result : [];
+
         $total = count($queryTotal->result());
 
         $filtered = [];

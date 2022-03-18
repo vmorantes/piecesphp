@@ -277,6 +277,7 @@ class LogsMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -303,6 +304,7 @@ class LogsMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
