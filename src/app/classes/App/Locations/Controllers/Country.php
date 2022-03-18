@@ -173,6 +173,7 @@ class Country extends AdminPanelController
         $this->model->execute();
 
         $result = $this->model->result();
+        $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
             $value->name = htmlentities(stripslashes($value->name));

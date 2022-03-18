@@ -1698,8 +1698,6 @@ class AppConfigController extends AdminPanelController
                 }
                 return $value;
 
-                break;
-
             case self::PARSE_TYPE_BOOL:
 
                 if (is_scalar($value)) {
@@ -1721,16 +1719,12 @@ class AppConfigController extends AdminPanelController
                 }
                 return $value;
 
-                break;
-
             case self::PARSE_TYPE_INT:
 
                 if (is_scalar($value) && is_numeric($value)) {
                     return (int) $value;
                 }
                 return $value;
-
-                break;
 
             case self::PARSE_TYPE_FLOAT:
             case self::PARSE_TYPE_DOUBLE:
@@ -1740,8 +1734,6 @@ class AppConfigController extends AdminPanelController
                 }
                 return $value;
 
-                break;
-
             case self::PARSE_TYPE_JSON_ENCODE:
                 $parsedValue = json_encode($value);
                 if (json_last_error() == \JSON_ERROR_NONE) {
@@ -1749,7 +1741,6 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             case self::PARSE_TYPE_JSON_DECODE:
                 $parsedValue = json_decode($value);
@@ -1758,7 +1749,6 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             case self::PARSE_TYPE_UPPERCASE:
                 if (is_string($value)) {
@@ -1766,7 +1756,6 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             case self::PARSE_TYPE_LOWERCASE:
                 if (is_string($value)) {
@@ -1774,13 +1763,10 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             default:
 
                 return $value;
-
-                break;
         }
     }
 

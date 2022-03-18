@@ -257,8 +257,6 @@ class ServerStatics
     ];
 
     /**
-     * __construct
-     *
      * @param mixed $static_path
      * @return void
      */
@@ -275,7 +273,7 @@ class ServerStatics
      * @param array $args
      * @param string $path
      * @param array $replacement
-     * @return void
+     * @return Response
      */
     public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [])
     {
@@ -296,8 +294,10 @@ class ServerStatics
                 if (!file_exists($filePathCss)) {
                     $toCompile = true;
                 } else {
-                    $lastModificationCss = (new \DateTime)->setTimestamp(filemtime($filePathCss));
-                    $lastModificationScss = (new \DateTime)->setTimestamp(filemtime($filePathSass));
+                    $fileModificationDateCss = filemtime($filePathCss);
+                    $fileModificationDateSass = filemtime($filePathSass);
+                    $lastModificationCss = (new \DateTime)->setTimestamp(is_int($fileModificationDateCss) ? $fileModificationDateCss : 0);
+                    $lastModificationScss = (new \DateTime)->setTimestamp(is_int($fileModificationDateSass) ? $fileModificationDateSass : 0);
                     $toCompile = $lastModificationCss < $lastModificationScss;
                 }
 
@@ -306,79 +306,82 @@ class ServerStatics
                     $scss = new ScssCompiler();
                     $fileContent = file_get_contents($filePathSass);
 
-                    $importPaths = [];
-                    $replaceOnImport = [];
+                    if (is_string($fileContent)) {
+                        $importPaths = [];
+                        $replaceOnImport = [];
 
-                    try {
+                        try {
 
-                        $importsMatchs = [];
-                        preg_match_all('/\@import\s{0,1}("|\').*("|\')\;/mi', $fileContent, $importsMatchs);
+                            $importsMatchs = [];
+                            preg_match_all('/\@import\s{0,1}("|\').*("|\')\;/mi', $fileContent, $importsMatchs);
 
-                        if (isset($importsMatchs[0])) {
-                            $importsMatchs = $importsMatchs[0];
-                            foreach ($importsMatchs as $k => $i) {
-                                $parts = explode('@import', $i);
-                                foreach ($parts as $j) {
-                                    $j = str_replace([
-                                        "'",
-                                        '"',
-                                        ' ',
-                                        ';',
-                                    ], '', $j);
-                                    $j = trim($j);
-                                    if (mb_strlen($j) > 0) {
-                                        $referencePath = str_replace(basename($filePathSass), '', $filePathSass);
-                                        $_importPath = realpath(append_to_url($referencePath, str_replace(basename($j), '', $j)));
-                                        $_importFile = append_to_url($_importPath, basename($j));
-                                        $_importFileVersions = [
-                                            append_to_url($_importPath, basename($j)) . '.sass',
-                                            append_to_url($_importPath, basename($j)) . '.scss',
-                                            append_to_url($_importPath, '_' . basename($j)) . '.sass',
-                                            append_to_url($_importPath, '_' . basename($j)) . '.scss',
-                                        ];
-                                        $existsFileImport = false;
-                                        foreach ($_importFileVersions as $_iv) {
-                                            if (file_exists($_iv)) {
-                                                $existsFileImport = true;
-                                                $_importFile = $_iv;
-                                                break;
+                            if (isset($importsMatchs[0])) {
+                                $importsMatchs = $importsMatchs[0];
+                                foreach ($importsMatchs as $k => $i) {
+                                    $parts = explode('@import', $i);
+                                    foreach ($parts as $j) {
+                                        $j = str_replace([
+                                            "'",
+                                            '"',
+                                            ' ',
+                                            ';',
+                                        ], '', $j);
+                                        $j = trim($j);
+                                        if (mb_strlen($j) > 0) {
+                                            $referencePath = str_replace(basename($filePathSass), '', $filePathSass);
+                                            $_importPath = realpath(append_to_url($referencePath, str_replace(basename($j), '', $j)));
+                                            $_importPath = is_string($_importPath) ? $_importPath : '';
+                                            $_importFile = append_to_url($_importPath, basename($j));
+                                            $_importFileVersions = [
+                                                append_to_url($_importPath, basename($j)) . '.sass',
+                                                append_to_url($_importPath, basename($j)) . '.scss',
+                                                append_to_url($_importPath, '_' . basename($j)) . '.sass',
+                                                append_to_url($_importPath, '_' . basename($j)) . '.scss',
+                                            ];
+                                            $existsFileImport = false;
+                                            foreach ($_importFileVersions as $_iv) {
+                                                if (file_exists($_iv)) {
+                                                    $existsFileImport = true;
+                                                    $_importFile = $_iv;
+                                                    break;
+                                                }
                                             }
-                                        }
-                                        if (is_string($_importPath) && mb_strlen(trim($_importPath)) > 0 && file_exists($_importPath) && $existsFileImport) {
-                                            if (!in_array($_importPath, $importPaths)) {
-                                                $replaceOnImport[$j] = basename($_importFile);
-                                                $importPaths[] = $_importPath;
+                                            if (is_string($_importPath) && mb_strlen(trim($_importPath)) > 0 && file_exists($_importPath) && $existsFileImport) {
+                                                if (!in_array($_importPath, $importPaths)) {
+                                                    $replaceOnImport[$j] = basename($_importFile);
+                                                    $importPaths[] = $_importPath;
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                    } catch (\Throwable $e) {}
+                        } catch (\Throwable $e) {}
 
-                    foreach ($replacement as $toReplace => $replacement) {
-                        $fileContent = str_replace($toReplace, $replacement, $fileContent);
-                    }
-
-                    if (!empty($importPaths)) {
-                        foreach ($replaceOnImport as $toReplace => $replacement) {
+                        foreach ($replacement as $toReplace => $replacement) {
                             $fileContent = str_replace($toReplace, $replacement, $fileContent);
                         }
-                        $scss->setImportPaths($importPaths);
+
+                        if (!empty($importPaths)) {
+                            foreach ($replaceOnImport as $toReplace => $replacement) {
+                                $fileContent = str_replace($toReplace, $replacement, $fileContent);
+                            }
+                            $scss->setImportPaths($importPaths);
+                        }
+
+                        $compiledCss = $scss->compile($fileContent);
+
+                        $cssBasename = basename($filePathCss);
+                        $cssFolderDes = str_replace(DIRECTORY_SEPARATOR . $cssBasename, '', $filePathCss);
+
+                        if (!file_exists($cssFolderDes)) {
+                            mkdir($cssFolderDes, 0777, true);
+                        }
+
+                        file_put_contents($filePathCss, $compiledCss);
+                        chmod($filePathCss, 0777);
                     }
-
-                    $compiledCss = $scss->compile($fileContent);
-
-                    $cssBasename = basename($filePathCss);
-                    $cssFolderDes = str_replace(DIRECTORY_SEPARATOR . $cssBasename, '', $filePathCss);
-
-                    if (!file_exists($cssFolderDes)) {
-                        mkdir($cssFolderDes, 0777, true);
-                    }
-
-                    file_put_contents($filePathCss, $compiledCss);
-                    chmod($filePathCss, 0777);
                 }
 
             }
@@ -393,7 +396,7 @@ class ServerStatics
      * @param Response $response
      * @param array $args
      * @param string $path
-     * @return void
+     * @return Response
      */
     public function serve(Request $request, Response $response, array $args, string $path = null)
     {
@@ -402,6 +405,10 @@ class ServerStatics
         return self::verifyFile($resource, $request, $response, $path);
     }
 
+    /**
+     * @param string $path
+     * @return void
+     */
     public static function setStaticPath(string $path)
     {
         if (string_compare(last_char($path), ['/', '\\'])) {
@@ -409,15 +416,16 @@ class ServerStatics
         }
 
         if (file_exists($path)) {
-            self::$static_path = realpath($path);
+            $realPath = realpath($path);
+            if (is_string($realPath)) {
+                self::$static_path = $realPath;
+            }
         } else {
             self::$static_path = $path;
         }
     }
 
     /**
-     * getStaticPath
-     *
      * @return string
      */
     public static function getStaticPath()
@@ -426,13 +434,11 @@ class ServerStatics
     }
 
     /**
-     * verifyFile
-     *
      * @param string $resource
      * @param Request $request
      * @param Response $response
      * @param string $path
-     * @return array|false
+     * @return Response
      */
     private static function verifyFile(string $resource, Request $request, Response $response, string $path = null)
     {
@@ -441,7 +447,7 @@ class ServerStatics
 
         $filePath = $path === null ? self::getStaticPath() . "/$resource" : rtrim(rtrim($path, '\\'), '/') . "/$resource";
 
-        if (file_exists($filePath) && is_string($resource)) {
+        if (file_exists($filePath) && is_string($resource) && is_resource($fileInformation)) {
 
             $extension = pathinfo($filePath, PATHINFO_EXTENSION);
             $mimeType = finfo_file($fileInformation, $filePath);
@@ -491,9 +497,9 @@ class ServerStatics
                 $ifNoneMatch = $request->getHeaderLine('If-None-Match');
 
                 $lastModification = filemtime($filePath);
-                $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification);
+                $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification !== false ? $lastModification : null);
 
-                $eTag = sha1($lastModification);
+                $eTag = 'PCSPHP_' . sha1($lastModification !== false ? (string) $lastModification : '...');
 
                 $headers['Cache-Control'] = "no-cache";
                 $headers['Last-Modified'] = $lastModificationGMT;
@@ -503,7 +509,7 @@ class ServerStatics
 
                     try {
 
-                        $lastModificationDateTime = (new \DateTime)->setTimestamp($lastModification);
+                        $lastModificationDateTime = (new \DateTime)->setTimestamp(is_int($lastModification) ? $lastModification : 0);
                         $ifModifiedSinceDateTime = new \DateTime($ifModifiedSince);
 
                         if ($lastModificationDateTime <= $ifModifiedSinceDateTime) {
@@ -554,6 +560,10 @@ class ServerStatics
                 $status = 200;
             }
 
+            /**
+             * @var string $name
+             * @var string|string[] $values
+             */
             foreach ($headers as $name => $values) {
                 $response = $response->withHeader($name, $values);
             }
@@ -574,8 +584,6 @@ class ServerStatics
     }
 
     /**
-     * readFile
-     *
      * @param string $path
      * @param int $status
      * @param string $extension
@@ -611,10 +619,12 @@ class ServerStatics
 
                                 $resourceImage = imagecreatefromjpeg($path);
 
-                                ob_start();
-                                imagewebp($resourceImage);
-                                $fileData = ob_get_contents();
-                                ob_end_clean();
+                                if ($resourceImage !== false) {
+                                    ob_start();
+                                    imagewebp($resourceImage);
+                                    $fileData = ob_get_contents();
+                                    ob_end_clean();
+                                }
 
                                 $headers['Content-Type'] = [
                                     self::CONTENT_TYPE_WEBP,
@@ -632,7 +642,7 @@ class ServerStatics
             if (self::allowCompression($extension) && is_string($acceptEncoding) && strlen($acceptEncoding) > 0) {
 
                 $acceptEncoding = explode(',', str_replace(' ', '', trim($acceptEncoding)));
-                $acceptEncoding = is_array($acceptEncoding) ? $acceptEncoding : [];
+                $acceptEncoding = $acceptEncoding;
 
                 $supportCompressionAlgorithms = [ //A mayor índice, mayor preferencia
                     'deflate',
@@ -660,7 +670,7 @@ class ServerStatics
 
                 }
 
-                if ($compressionAlgorithm !== null) {
+                if ($compressionAlgorithm !== null && $fileData !== false) {
 
                     $encodingName = '';
 
@@ -693,8 +703,6 @@ class ServerStatics
     }
 
     /**
-     * getMimeTypeByExtension
-     *
      * @param string $extension
      * @return string|null
      */
@@ -731,7 +739,6 @@ class ServerStatics
             $extensions = $config['extensions'];
             if (in_array($extension, $extensions)) {
                 return $config;
-                break;
             }
         }
 
@@ -740,8 +747,6 @@ class ServerStatics
     }
 
     /**
-     * allowCaching
-     *
      * @param string $extension
      * @return bool
      */
@@ -766,8 +771,6 @@ class ServerStatics
     }
 
     /**
-     * allowCompression
-     *
      * @param string $extension
      * @return bool
      */
@@ -824,7 +827,7 @@ class ServerStatics
     {
         $dataType = isset(self::DATA_TYPES[$typeCode]) ? self::DATA_TYPES[$typeCode] : null;
 
-        if ($dataType !== null) {
+        if ($dataType !== null && isset($dataType['contentType']) && is_string($dataType['contentType'])) {
             $acceptTypes = $request->getHeaderLine('Accept');
             if (mb_strpos($acceptTypes, $dataType['contentType']) !== false) {
                 return true;
@@ -835,10 +838,8 @@ class ServerStatics
     }
 
     /**
-     * extensionExists
-     *
      * @param string $extension
-     * @return void
+     * @return bool
      */
     private static function extensionExists(string $extension)
     {

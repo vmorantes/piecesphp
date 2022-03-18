@@ -35,7 +35,7 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @property string|\DateTime $createdAt
  * @property string|\DateTime|null $updatedAt
  * @property int|UsersModel $createdBy
- * @property int|UsersModel $modifiedBy
+ * @property int|UsersModel|null $modifiedBy
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
  */
@@ -858,7 +858,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public static function extractIDFromSlug(string $slug)
     {
-        $slug = is_string($slug) ? explode('-', $slug) : null;
+        $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
@@ -895,6 +895,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -921,6 +922,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

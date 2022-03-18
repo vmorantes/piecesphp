@@ -517,7 +517,6 @@ function is_uploaded_all_files(array $data)
     foreach ($data as $key => $value) {
         if (!is_uploaded_file($data[$key]['tmp_name'])) {
             return false;
-            break;
         }
     }
     return true;

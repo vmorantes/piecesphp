@@ -861,7 +861,7 @@ class ImagesRepositoryController extends AdminPanelController
         $inputData = $args;
 
         //Asignación de datos para procesar
-        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+        $expectedParameters->setInputValues($inputData);
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 

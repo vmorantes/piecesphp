@@ -116,6 +116,7 @@ class AppConfigModel extends BaseEntityMapper
         $model = self::model();
         $model->select()->execute();
         $rows = $model->result();
+        $rows = is_array($rows) ? $rows : [];
         $data = [];
 
         foreach ($rows as $row) {

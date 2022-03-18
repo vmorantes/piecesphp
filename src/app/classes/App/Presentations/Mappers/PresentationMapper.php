@@ -135,7 +135,6 @@ class PresentationMapper extends EntityMapperExtensible
     {
         if (self::existsByName($this->name, is_object($this->category) ? $this->category->id : $this->category, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la presentación.'));
-            return false;
         }
 
         $saveResult = parent::save();
@@ -158,7 +157,6 @@ class PresentationMapper extends EntityMapperExtensible
     {
         if (self::existsByName($this->name, is_object($this->category) ? $this->category->id : $this->category, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la presentación.'));
-            return false;
         }
         return parent::update();
     }
@@ -421,7 +419,7 @@ class PresentationMapper extends EntityMapperExtensible
      */
     public static function extractIDFromSlug(string $slug)
     {
-        $slug = is_string($slug) ? explode('-', $slug) : null;
+        $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
@@ -458,6 +456,7 @@ class PresentationMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -484,6 +483,7 @@ class PresentationMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

@@ -18,74 +18,50 @@ use PiecesPHP\Core\Importer\Collections\FieldCollection;
 class Field
 {
     /**
-     * $name
-     *
      * @var string
      */
     protected $name = null;
     /**
-     * $humanReadableName
-     *
      * @var string
      */
     protected $humanReadableName = null;
     /**
-     * $defaultValue
-     *
      * @var mixed
      */
     protected $defaultValue = null;
     /**
-     * $sampleValue
-     *
      * @var mixed
      */
     protected $sampleValue = null;
     /**
-     * $value
-     *
      * @var mixed
      */
     protected $value = null;
     /**
-     * $optional
-     *
      * @var bool
      */
     protected $optional = true;
     /**
-     * $validator
-     *
-     * @var callable
+     * @var callable|null
      */
     protected $validator = null;
     /**
-     * $parser
-     *
-     * @var callable
+     * @var callable|null
      */
     protected $parser = null;
     /**
-     * $encodeJson
-     *
      * @var bool
      */
     protected $encodeJson = false;
     /**
-     * $metaPropertiesAllowed
-     *
      * @var FieldCollection
      */
     protected $metaPropertiesAllowed = null;
     /**
-     * $parent
-     *
      * @var string
      */
     protected $parent = null;
     /**
-     * $showInTemplate
-     *
      * @var bool
      */
     protected $showInTemplate = true;
@@ -93,8 +69,6 @@ class Field
     const LANG_GROUP = 'importerModule';
 
     /**
-     * __construct
-     *
      * @param string $name
      * @param string $humanReadableName
      * @param mixed $defaultValue
@@ -118,8 +92,6 @@ class Field
     }
 
     /**
-     * setMetaProperty
-     *
      * @param Field $property
      * @return static
      */
@@ -131,8 +103,6 @@ class Field
     }
 
     /**
-     * setMetaProperties
-     *
      * @param FieldCollection $properties
      * @return static
      */
@@ -147,8 +117,6 @@ class Field
     }
 
     /**
-     * setValueMetaProperty
-     *
      * @param string $name
      * @param mixed $value
      * @return static
@@ -168,8 +136,6 @@ class Field
     }
 
     /**
-     * setValue
-     *
      * @param mixed $value
      * @param string $metaName
      * @return static
@@ -204,8 +170,6 @@ class Field
     }
 
     /**
-     * setValidator
-     *
      * @param callable $validator
      * @return static
      */
@@ -216,8 +180,6 @@ class Field
     }
 
     /**
-     * setParser
-     *
      * @param callable $parser
      * @return static
      */
@@ -228,8 +190,6 @@ class Field
     }
 
     /**
-     * setEncodeToJson
-     *
      * @param bool $encodeJson
      * @return static
      */
@@ -241,8 +201,6 @@ class Field
     }
 
     /**
-     * setSampleValue
-     *
      * @param mixed $value
      * @return static
      * @throws TypeError
@@ -258,8 +216,6 @@ class Field
     }
 
     /**
-     * getValue
-     *
      * @return mixed
      */
     public function getValue()
@@ -284,8 +240,6 @@ class Field
     }
 
     /**
-     * getSampleValue
-     *
      * @return mixed
      */
     public function getSampleValue()
@@ -294,8 +248,6 @@ class Field
     }
 
     /**
-     * getDefaultValue
-     *
      * @return mixed
      */
     public function getDefaultValue()
@@ -304,8 +256,6 @@ class Field
     }
 
     /**
-     * getHumanReadable
-     *
      * @return string
      */
     public function getHumanReadable()
@@ -314,8 +264,6 @@ class Field
     }
 
     /**
-     * getMetaPropertyByName
-     *
      * @param string $name
      * @return Field|null
      */
@@ -325,8 +273,6 @@ class Field
     }
 
     /**
-     * getMetaProperties
-     *
      * @return FieldCollection
      */
     public function getMetaProperties()
@@ -335,8 +281,6 @@ class Field
     }
 
     /**
-     * getMetaPropertiesNames
-     *
      * @return string[]
      */
     public function getMetaPropertiesNames()
@@ -349,8 +293,6 @@ class Field
     }
 
     /**
-     * validate
-     *
      * @param mixed $value
      * @return bool
      */
@@ -364,8 +306,6 @@ class Field
     }
 
     /**
-     * parse
-     *
      * @param mixed $value
      * @return mixed
      */
@@ -379,8 +319,6 @@ class Field
     }
 
     /**
-     * hasMetaProperties
-     *
      * @return bool
      */
     public function hasMetaProperties()
@@ -389,8 +327,6 @@ class Field
     }
 
     /**
-     * isOptional
-     *
      * @return bool
      */
     public function isOptional()
@@ -399,8 +335,6 @@ class Field
     }
 
     /**
-     * getName
-     *
      * @return string
      */
     public function getName()
@@ -409,8 +343,6 @@ class Field
     }
 
     /**
-     * setParentName
-     *
      * @param string $name
      * @return static
      */
@@ -421,8 +353,6 @@ class Field
     }
 
     /**
-     * getParentName
-     *
      * @return string|null
      */
     public function getParentName()
@@ -431,8 +361,6 @@ class Field
     }
 
     /**
-     * hasParent
-     *
      * @return bool
      */
     public function hasParent()
@@ -441,8 +369,6 @@ class Field
     }
 
     /**
-     * getShowInTemplate
-     *
      * @return bool
      */
     public function getShowInTemplate()

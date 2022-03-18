@@ -29,7 +29,7 @@ use Publications\PublicationsLang;
  * @property string|\DateTime $createdAt
  * @property string|\DateTime $updatedAt
  * @property int|UsersModel $createdBy
- * @property int|UsersModel $modifiedBy
+ * @property int|UsersModel|null $modifiedBy
  * @property int $status
  * @property \stdClass|string|null $meta
  */
@@ -277,7 +277,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     {
         if (self::existsByPublication(is_object($this->publication) ? $this->publication->id : $this->publication, $this->attachmentType, $this->lang, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe este anexo en esta publicación."));
-            return false;
         }
 
         $this->createdAt = new \DateTime();
@@ -303,7 +302,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     {
         if (self::existsByPublication(is_object($this->publication) ? $this->publication->id : $this->publication, $this->attachmentType, $this->lang, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe este anexo en esta publicación."));
-            return false;
         }
         if (!$noDateUpdate) {
             $this->modifiedBy = get_config('current_user')->id;
@@ -417,6 +415,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -450,6 +449,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $model->select()->where($where)->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

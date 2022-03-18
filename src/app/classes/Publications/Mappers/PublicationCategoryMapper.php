@@ -122,7 +122,6 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     {
         if (self::existsByName($this->name, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la categoría.'));
-            return false;
         }
 
         $saveResult = parent::save();
@@ -145,7 +144,6 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     {
         if (self::existsByName($this->name, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la categoría.'));
-            return false;
         }
         return parent::update();
     }
@@ -430,7 +428,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     public static function extractIDFromSlug(string $slug)
     {
         $isUncategorized = false;
-        $slug = is_string($slug) ? explode('-', $slug) : null;
+        $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
 
@@ -503,6 +501,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -529,6 +528,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

@@ -112,10 +112,25 @@ class GenericTokenController extends AdminPanelController
 
         if ($exists) {
 
+            /**
+             * @var array<string,mixed> $handler
+             */
             $handler = self::TYPES_HANDLER[$handler];
+            /**
+             * @var bool $validate_session
+             */
             $validate_session = $handler['validate_session'];
+            /**
+             * @var array|null $roles
+             */
             $roles = $handler['roles'];
+            /**
+             * @var string $method
+             */
             $method = $handler['method'];
+            /**
+             * @var bool $has_post_route
+             */
             $has_post_route = $handler['has_post_route'];
 
             $valid_user = false;
