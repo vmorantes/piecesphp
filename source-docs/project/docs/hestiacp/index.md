@@ -16,7 +16,14 @@ sudo apt-get install language-pack-es
 export HESTIA_DOMAIN="sample.com"
 export HESTIA_EMAIL="admin@sample.com"
 export HESTIA_PASSWORD="hestiacp8083pass"
-export HESTIA_PHP_VERSION_MODULES="*"
+export HESTIA_PHP_VERSION_MODULES_5=5.6
+export HESTIA_PHP_VERSION_MODULES_70_71={7.0,7.1}
+export HESTIA_PHP_VERSION_MODULES_72_74={7.2,7.3,7.4}
+export HESTIA_PHP_VERSION_MODULES_80_81={8.0,8.1}
+export HESTIA_PHP_MODULES_5={common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,mcrypt}
+export HESTIA_PHP_MODULES_70_71={common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,mcrypt}
+export HESTIA_PHP_MODULES_72_74={common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
+export HESTIA_PHP_MODULES_80_81={common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl}
 ```
 
 ## Instalación
@@ -31,7 +38,10 @@ _Nota: Puede ver las opciones en la [documentación de HestiaCP](https://docs.he
 ## Módulos PHP y Apache
 ```bash
 #Instalar módulos
-sudo apt install php$HESTIA_PHP_VERSION_MODULES-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,mcrypt}
+sudo apt install -y php$HESTIA_PHP_VERSION_MODULES_5-$HESTIA_PHP_MODULES_5
+sudo apt install -y php$HESTIA_PHP_VERSION_MODULES_70_71-$HESTIA_PHP_MODULES_70_71
+sudo apt install -y php$HESTIA_PHP_VERSION_MODULES_72_74-$HESTIA_PHP_MODULES_72_74
+sudo apt install -y php$HESTIA_PHP_VERSION_MODULES_80_81-$HESTIA_PHP_MODULES_80_81
 #Módulos apache
 sudo a2enmod rewrite headers ssl
 #Reiniciar apache

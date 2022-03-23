@@ -126,7 +126,7 @@ class LetsEncryptHandler implements LoggerInterface
         $this->client = new LEClient(
             [$this->email()],
             $apiURL,
-            $this,
+            LEClient::LOG_OFF,
             $certificateKeys,
             $accountKeys
         );
@@ -211,7 +211,6 @@ class LetsEncryptHandler implements LoggerInterface
 
     /**
      * Crea u obtiene la orden si existe
-     * @param int $logMode
      * @return static
      */
     public function order()

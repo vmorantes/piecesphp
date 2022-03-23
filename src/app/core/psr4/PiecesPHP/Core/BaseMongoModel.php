@@ -5,6 +5,8 @@
 namespace PiecesPHP\Core;
 
 use MongoDB\Client as MongoClient;
+use MongoDB\Collection;
+use MongoDB\Database;
 
 /**
  * BaseMongoModel - Implementación básica de modelo ActiveRecord con MongoDB.
@@ -12,7 +14,7 @@ use MongoDB\Client as MongoClient;
  * Constituye una abstracción de la interacción con base de datos.
  *
  * Los modelos que heredan de este deben tener el nombre NombreModel.
- * 
+ *
  * Nota: Necesita la librería de composer mongodb/mongodb
  *
  * @package     PiecesPHP\Core
@@ -23,8 +25,6 @@ class BaseMongoModel
 {
     /**
      * Configuración del modelo.
-     *
-     * Usa MongoDB\Client para la conexión.
      *
      * @param string $server_host El string te la conexión con el servidor, por defecto: "mongodb://localhost:27017"
      * @param string $db Nombre de la base de datos
@@ -83,6 +83,9 @@ class BaseMongoModel
      */
     public function getAll()
     {
+        /**
+         * @var \Iterator<\MongoDB\Driver\Cursor>
+         */
         $result = $this->collection->find([]);
         $result = iterator_to_array($result);
         return $result;
@@ -90,7 +93,7 @@ class BaseMongoModel
 
     /**
      * Establece la propiedad con.
-     * @param \MongoDB\Client $database Instancia de \MongoDB\Client
+     * @param MongoClient $database
      * @return void
      */
     protected function setCon(MongoClient $server_host)
@@ -100,7 +103,7 @@ class BaseMongoModel
 
     /**
      * Devuelve el valor de la propiedad con.
-     * @return \MongoDB\Client
+     * @return MongoClient
      */
     public function getCon()
     {
@@ -138,7 +141,7 @@ class BaseMongoModel
 
     /**
      * Devuelve la colección del modelo.
-     * @return MongoCo
+     * @return Collection
      */
     public function getCollection()
     {
@@ -163,13 +166,13 @@ class BaseMongoModel
         return $this->fields;
     }
 
-    /** @var \MongoDB\Client Instancia de \MongoDB\Client */
+    /** @var MongoClient */
     protected $con = null;
 
-    /** @var MongoDB\Database Base de datos */
+    /** @var Database Base de datos */
     protected $db = null;
 
-    /** @var MongoDB\Collection Colección */
+    /** @var Collection Colección */
     protected $collection = null;
 
     /** @var string Nombre de la base de datos */

@@ -1,7 +1,7 @@
 # LAMP
 - Ubuntu 20
 - Apache2
-- PHP 7.3
+- PHP
 - MariaDB 10.5
 
 ## [Apache2](./content/Apache.md)

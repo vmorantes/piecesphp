@@ -131,10 +131,11 @@ class LogsMapper extends EntityMapperExtensible
         $createdBy = $this->createdBy;
 
         if (!is_object($createdBy)) {
-            $this->createdBy = new UsersModel($this->createdBy);
+            $this->createdBy = new UsersModel($createdBy);
+            $createdBy = $this->createdBy;
         }
 
-        return $this->createdBy->getFullName();
+        return $createdBy->getFullName();
     }
 
     /**
@@ -246,7 +247,7 @@ class LogsMapper extends EntityMapperExtensible
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.createdBy) AS createdByUser",
             "strTemplateReplace({$table}.textMessage, {$table}.textMessageVariables) AS textMessageReplacement",
-            "strTemplateReplace(DATE_FORMAT({$table}.createdAt, '%M %d {1} %Y'), '{$createdAtFormatReplacements}') AS createdAtFormat",
+            "strTemplateReplace(DATE_FORMAT({$table}.createdAt, '%M %d {1} %Y %h:%i:%s %p'), '{$createdAtFormatReplacements}') AS createdAtFormat",
         ];
 
         $allFields = array_keys(self::getFields());

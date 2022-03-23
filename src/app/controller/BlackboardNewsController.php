@@ -60,7 +60,7 @@ class BlackboardNewsController extends AdminPanelController
      *
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function listView(Request $req, Response $res)
     {

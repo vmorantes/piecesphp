@@ -46,7 +46,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
-     * @return void
+     * @return Response
      */
     public function recoveryPasswordForm(Request $request, Response $response)
     {
@@ -82,7 +82,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
-     * @return void
+     * @return Response
      */
     public function recoveryPasswordRequest(Request $request, Response $response)
     {
@@ -167,7 +167,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
-     * @return void
+     * @return Response
      */
     public function recoveryPasswordRequestCode(Request $request, Response $response)
     {
@@ -252,7 +252,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta. Espera $args['url_token]
-     * @return void
+     * @return Response
      */
     public function newPasswordCreate(Request $request, Response $response, array $args)
     {
@@ -346,7 +346,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta. Espera $args['code']
-     * @return void
+     * @return Response
      */
     public function newPasswordCreateCode(Request $request, Response $response, array $args)
     {
@@ -441,7 +441,7 @@ class RecoveryPasswordController extends UsersController
      * @param Request $request Petición
      * @param Response $response Respuesta
      * @param array $args
-     * @return void
+     * @return Response
      */
     public function verifyCode(Request $request, Response $response, array $args)
     {

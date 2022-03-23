@@ -447,6 +447,9 @@ class PresentationsController extends AdminPanelController
 
                         //Obtener directorio de imágenes
                         $uploadDirRelativeURL = $this->uploadDirURL;
+                        /**
+                         * @var string
+                         */
                         $directoryReferencePath = !empty($currentImages) ? $currentImages[0] : array_values((array) $mapper->images)[0];
                         $folder = str_replace($uploadDirRelativeURL, '', $directoryReferencePath);
                         $folder = str_replace(basename($directoryReferencePath), '', $folder);
@@ -634,7 +637,9 @@ class PresentationsController extends AdminPanelController
 
                         $pdo->commit();
 
-                        self::deletePresentationImages($mapper);
+                        if ($mapper instanceof PresentationMapper) {
+                            self::deletePresentationImages($mapper);
+                        }
 
                         $resultOperation->setSuccessOnSingleOperation(true);
 
@@ -977,7 +982,7 @@ class PresentationsController extends AdminPanelController
      * @param int $minImages
      * @param int $currentTotal
      * @param string $namePrefrix
-     * @return array[]
+     * @return array
      * @throws \Exception
      */
     protected static function handlerUploadImages(string $nameOnFiles, string $folder, array $imagesToDelete = [], int $minImages = 1, int $currentTotal = null, string $namePrefrix = 'file')

@@ -28,7 +28,7 @@ class LoginAttemptsController extends AdminPanelController
     /** @ignore */
     public function __construct()
     {
-        parent::__construct(false);
+        parent::__construct();
     }
 
     /**
@@ -72,6 +72,8 @@ class LoginAttemptsController extends AdminPanelController
 
             $this->render('panel/layout/footer');
         }
+
+        return $response;
     }
 
     /**

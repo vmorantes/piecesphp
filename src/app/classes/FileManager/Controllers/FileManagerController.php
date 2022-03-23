@@ -97,7 +97,7 @@ class FileManagerController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function fileManagerConfiguration(Request $request, Response $response)
     {
@@ -156,7 +156,7 @@ class FileManagerController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function fileManagerConfigurationRichEditor(Request $request, Response $response)
     {
