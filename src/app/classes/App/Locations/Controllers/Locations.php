@@ -48,13 +48,14 @@ class Locations extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function indexView(Request $request, Response $response)
     {
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixEntity . '/main');
         $this->render('panel/layout/footer');
+        return $response;
     }
 
     /**

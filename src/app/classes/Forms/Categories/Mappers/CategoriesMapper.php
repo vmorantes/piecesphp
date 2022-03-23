@@ -30,7 +30,7 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @property string|\DateTime $createdAt
  * @property string|\DateTime|null $updatedAt
  * @property int|UsersModel $createdBy
- * @property int|UsersModel $modifiedBy
+ * @property int|UsersModel|null $modifiedBy
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
  */
@@ -139,8 +139,6 @@ class CategoriesMapper extends EntityMapperExtensible
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::TABLE;
@@ -186,10 +184,11 @@ class CategoriesMapper extends EntityMapperExtensible
         $createdBy = $this->createdBy;
 
         if (!is_object($createdBy)) {
-            $this->createdBy = new UsersModel($this->createdBy);
+            $this->createdBy = new UsersModel($createdBy);
+            $createdBy = $this->createdBy;
         }
 
-        return $this->createdBy->getFullName();
+        return $createdBy->getFullName();
     }
 
     /**
@@ -200,10 +199,11 @@ class CategoriesMapper extends EntityMapperExtensible
         $modifiedBy = $this->modifiedBy;
 
         if (!is_object($modifiedBy) && $modifiedBy !== null) {
-            $this->modifiedBy = new UsersModel($this->modifiedBy);
+            $this->modifiedBy = new UsersModel($modifiedBy);
+            $modifiedBy = $this->modifiedBy;
         }
 
-        return $modifiedBy !== null ? $this->modifiedBy->getFullName() : null;
+        return $modifiedBy !== null ? $modifiedBy->getFullName() : null;
     }
 
     /**
@@ -248,7 +248,6 @@ class CategoriesMapper extends EntityMapperExtensible
     {
         if (self::existsByName($this->categoryName, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe una categoría con el nombre '{$this->categoryName}'."));
-            return false;
         }
 
         $this->createdAt = new \DateTime();
@@ -274,7 +273,6 @@ class CategoriesMapper extends EntityMapperExtensible
     {
         if (self::existsByName($this->categoryName, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe una categoría con el nombre '{$this->categoryName}'."));
-            return false;
         }
 
         if (!$noDateUpdate) {
@@ -563,7 +561,7 @@ class CategoriesMapper extends EntityMapperExtensible
      */
     public static function extractIDFromSlug(string $slug)
     {
-        $slug = is_string($slug) ? explode('-', $slug) : null;
+        $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
@@ -625,6 +623,7 @@ class CategoriesMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -651,6 +650,7 @@ class CategoriesMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

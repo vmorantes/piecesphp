@@ -19,8 +19,6 @@ use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
 class TasksManager
 {
     /**
-     * task
-     *
      * @param Event $event
      * @return void
      */
@@ -88,8 +86,6 @@ class TasksManager
     }
 
     /**
-     * langsToExcels
-     *
      * @param array $args
      * @return void
      */
@@ -171,8 +167,6 @@ class TasksManager
     }
 
     /**
-     * bundle
-     *
      * @param array $args
      * @return void
      */
@@ -213,8 +207,6 @@ class TasksManager
     }
 
     /**
-     * srcChmod
-     *
      * @param array $args
      * @return void
      */

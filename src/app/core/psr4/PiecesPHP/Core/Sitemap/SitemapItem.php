@@ -34,33 +34,23 @@ class SitemapItem
     ];
 
     /**
-     * $location
-     *
      * @var string
      */
     protected $location = "";
     /**
-     * $lastModification
-     *
      * @var \DateTime|null
      */
     protected $lastModification = null;
     /**
-     * $changeFrequency
-     *
      * @var string|null
      */
     protected $changeFrequency = null;
     /**
-     * $priority
-     *
      * @var double|null
      */
     protected $priority = null;
 
     /**
-     * __construct
-     *
      * @param string $location
      * @param \DateTime $lastMod
      * @param string $changeFreq
@@ -78,8 +68,6 @@ class SitemapItem
     }
 
     /**
-     * getLocation
-     *
      * @return string
      */
     public function getLocation()
@@ -88,8 +76,6 @@ class SitemapItem
     }
 
     /**
-     * getXML
-     *
      * @return string
      */
     public function getXML()

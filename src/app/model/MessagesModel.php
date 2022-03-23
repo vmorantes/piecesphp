@@ -206,6 +206,7 @@ class MessagesModel extends BaseEntityMapper
 
         $queryBuilder->select()->where(self::$where)->execute();
         $messages = $queryBuilder->result();
+        $messages = is_array($messages) ? $messages : [];
 
         $unreadsThreads = 0;
         $readsThreads = 0;

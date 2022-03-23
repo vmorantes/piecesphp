@@ -16,8 +16,6 @@ namespace PiecesPHP\Core\Validation\Parameters\Exceptions;
 class ParamaterNotExistsException extends \Exception
 {
     /**
-     * __construct
-     *
      * @param string $message
      * @param mixed $code
      * @param mixed \Throwable $previous
@@ -28,8 +26,6 @@ class ParamaterNotExistsException extends \Exception
     }
 
     /**
-     * setMessage
-     *
      * @param string $message
      * @return void
      */

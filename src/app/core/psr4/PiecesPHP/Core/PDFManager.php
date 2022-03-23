@@ -18,10 +18,6 @@ use Spipu\Html2Pdf\Html2Pdf as PDF;
 class PDFManager extends PDF
 {
     /**
-     * __construct
-     *
-     * Constructor
-     *
      * @return void
      */
     public function __construct(

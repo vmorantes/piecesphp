@@ -195,6 +195,7 @@ class City extends AdminPanelController
         $query->execute();
 
         $result = $query->result();
+        $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
             $value->name = htmlentities(stripslashes($value->name));

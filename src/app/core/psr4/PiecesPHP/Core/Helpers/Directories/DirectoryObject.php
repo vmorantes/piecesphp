@@ -15,57 +15,41 @@ namespace PiecesPHP\Core\Helpers\Directories;
 class DirectoryObject implements \JsonSerializable
 {
     /**
-     * $root
-     *
      * @var string
      */
     protected $root = '';
 
     /**
-     * $rawPath
-     *
      * @var string
      */
     protected $rawPath = '';
 
     /**
-     * $path
-     *
      * @var string
      */
     protected $path = '';
 
     /**
-     * $basename
-     *
      * @var string
      */
     protected $basename = '';
 
     /**
-     * $exists
-     *
      * @var bool
      */
     protected $exists = false;
 
     /**
-     * $directories
-     *
      * @var DirectoryObject[]
      */
     protected $directories = [];
 
     /**
-     * $files
-     *
      * @var FileObject[]
      */
     protected $files = [];
 
     /**
-     * $ignoreDefault
-     *
      * @var string[]
      */
     protected $ignoreDefault = [
@@ -77,8 +61,6 @@ class DirectoryObject implements \JsonSerializable
     const CHMOD_LEVEL_CONTENT = 1;
 
     /**
-     * __construct
-     *
      * @param string $path
      * @param string $root
      * @return static
@@ -97,8 +79,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * process
-     *
      * @param FilesIgnore $filesIgnore
      * @param array $ignored_files
      * @return $this
@@ -142,8 +122,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * copyTo
-     *
      * @param string $destination
      * @param bool $compress
      * @return array
@@ -259,8 +237,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * delete
-     *
      * @param mixed bool
      * @return array
      */
@@ -322,8 +298,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * chmod
-     *
      * @param int $mode
      * @param int $levels Profundidad del cambio (-1 para recursividad total)
      * @param bool $onlyDirectories
@@ -385,8 +359,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * directoryExists
-     *
      * @return bool
      */
     public function directoryExists()
@@ -396,8 +368,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * getPath
-     *
      * @return string
      */
     public function getPath()
@@ -406,8 +376,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * getBasename
-     *
      * @return string
      */
     public function getBasename()
@@ -416,8 +384,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * getDirectories
-     *
      * @return DirectoryObject[]
      */
     public function getDirectories()
@@ -426,8 +392,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * getFiles
-     *
      * @return FileObject[]
      */
     public function getFiles()
@@ -524,8 +488,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * fillZip
-     *
      * @param \ZipArchive &$zip
      * @param array &$logger
      * @param string $directoryBasename
@@ -554,8 +516,6 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return array
      */
     public function jsonSerialize()

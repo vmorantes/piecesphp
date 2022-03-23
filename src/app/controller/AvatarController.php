@@ -39,7 +39,7 @@ class AvatarController extends BaseController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta Argumentos pasados por GET
-     * @return void
+     * @return Response
      */
     public function register(Request $request, Response $response)
     {
@@ -77,7 +77,7 @@ class AvatarController extends BaseController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta Argumentos pasados por GET
-     * @return void
+     * @return Response
      */
     public function avatar(Request $request, Response $response)
     {

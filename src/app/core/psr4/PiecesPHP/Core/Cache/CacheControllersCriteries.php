@@ -23,15 +23,11 @@ class CacheControllersCriteries implements Serializable, JsonSerializable
     const LANG_GROUP = 'cache_manager_messages';
 
     /**
-     * $criteries
-     *
      * @var ArrayObject
      */
     protected $criteries = null;
 
     /**
-     * __construct
-     *
      * @param CacheControllersCritery[] $criteries
      * @return static
      */
@@ -44,8 +40,6 @@ class CacheControllersCriteries implements Serializable, JsonSerializable
     }
 
     /**
-     * addCritery
-     *
      * @param CacheControllersCritery $critery
      * @param bool $silentOnDuplicate
      * @return static
@@ -66,8 +60,6 @@ class CacheControllersCriteries implements Serializable, JsonSerializable
     }
 
     /**
-     * criteries
-     *
      * @param CacheControllersCritery[] $criteries
      * @return CacheControllersCritery[|static
      */
@@ -116,8 +108,6 @@ class CacheControllersCriteries implements Serializable, JsonSerializable
     }
 
     /**
-     * serialize
-     *
      * @return string
      */
     public function serialize()
@@ -126,8 +116,6 @@ class CacheControllersCriteries implements Serializable, JsonSerializable
     }
 
     /**
-     * unserialize
-     *
      * @param mixed $serialized
      * @return void
      */
@@ -153,8 +141,6 @@ class CacheControllersCriteries implements Serializable, JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return array
      */
     public function jsonSerialize()

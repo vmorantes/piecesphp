@@ -12,6 +12,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -96,6 +97,10 @@ class AppConfigController extends AdminPanelController
     const ROLES_SSL_ACTION = [
         UsersModel::TYPE_USER_ROOT,
     ];
+    const ROLES_CLEAN_CACHE_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
 
     const SEO_OPTION_TITLE_APP = 'title_app';
     const SEO_OPTION_OWNER = 'owner';
@@ -140,7 +145,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function backgrounds(Request $req, Response $res)
     {
@@ -215,7 +220,8 @@ class AppConfigController extends AdminPanelController
 
             $currentBackgroundConfigMapper->value = $currentBackgroundConfigValues;
 
-            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'), true);
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
+            $result->setSingleOperation(true);
 
             $createMessage = __(self::LANG_GROUP, 'Imagen guardada.');
             $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
@@ -271,7 +277,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function faviconsAndLogos(Request $req, Response $res)
     {
@@ -339,7 +345,8 @@ class AppConfigController extends AdminPanelController
             $oldImage = $logosAndFaviconsMapper->value;
             $logosAndFaviconsMapper->value = $relativePath;
 
-            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'), true);
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
+            $result->setSingleOperation(true);
 
             $createMessage = __(self::LANG_GROUP, 'Imagen guardada.');
             $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
@@ -397,7 +404,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function seo(Request $req, Response $res)
     {
@@ -699,7 +706,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function email(Request $req, Response $res)
     {
@@ -940,7 +947,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function osTicket(Request $req, Response $res)
     {
@@ -1079,7 +1086,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function routesView(Request $req, Response $res)
     {
@@ -1095,7 +1102,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function configurationsView(Request $req, Response $res)
     {
@@ -1504,7 +1511,7 @@ class AppConfigController extends AdminPanelController
 
         foreach ($routes as $routeInfo) {
             $url = get_route_sample($routeInfo['name']);
-            if (mb_strpos($url, '{') === false) {
+            if (is_string($url) && mb_strpos($url, '{') === false) {
                 $somesURLs[] = $url;
             }
         }
@@ -1687,6 +1694,55 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function recreateStaticCacheStamp(Request $req, Response $res)
+    {
+
+        $startTime = microtime(true);
+
+        $result = new ResultOperations([], __(self::LANG_GROUP, 'Limpiar caché'), '', true);
+
+        try {
+
+            $result->setMessage(__(self::LANG_GROUP, 'Memoria caché restaurada'));
+
+            $endTime = microtime(true);
+
+            //Actualizar marca de caché de estáticos js/css
+            static_files_cache_stamp(true);
+
+            $publicationsCache = new DirectoryObject(basepath('app/cache/Publications'));
+            $publicationsCache->process();
+            $publicationsCache->delete();
+
+            $result->setValue('Rendimiento', [
+                'Memory peak usage' => number_format(memory_get_peak_usage() / (1024 * 1024), 4) . "MB",
+                'Execution time' => number_format($endTime - $startTime, 10) . "s",
+            ]);
+
+            $result->setSuccessOnSingleOperation(true);
+
+        } catch (\Exception $e) {
+
+            $result->setMessage($e->getMessage());
+
+            $result->setValue('exception', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'code' => $e->getCode(),
+            ]);
+            log_exception($e);
+
+        }
+
+        return $res->withJson($result);
+    }
+
+    /**
      * @return array
      */
     public static function getSEOConfigValues()
@@ -1855,8 +1911,6 @@ class AppConfigController extends AdminPanelController
                 }
                 return $value;
 
-                break;
-
             case self::PARSE_TYPE_BOOL:
 
                 if (is_scalar($value)) {
@@ -1878,16 +1932,12 @@ class AppConfigController extends AdminPanelController
                 }
                 return $value;
 
-                break;
-
             case self::PARSE_TYPE_INT:
 
                 if (is_scalar($value) && is_numeric($value)) {
                     return (int) $value;
                 }
                 return $value;
-
-                break;
 
             case self::PARSE_TYPE_FLOAT:
             case self::PARSE_TYPE_DOUBLE:
@@ -1897,8 +1947,6 @@ class AppConfigController extends AdminPanelController
                 }
                 return $value;
 
-                break;
-
             case self::PARSE_TYPE_JSON_ENCODE:
                 $parsedValue = json_encode($value);
                 if (json_last_error() == \JSON_ERROR_NONE) {
@@ -1906,7 +1954,6 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             case self::PARSE_TYPE_JSON_DECODE:
                 $parsedValue = json_decode($value);
@@ -1915,7 +1962,6 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             case self::PARSE_TYPE_UPPERCASE:
                 if (is_string($value)) {
@@ -1923,7 +1969,6 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             case self::PARSE_TYPE_LOWERCASE:
                 if (is_string($value)) {
@@ -1931,13 +1976,10 @@ class AppConfigController extends AdminPanelController
                 } else {
                     return $value;
                 }
-                break;
 
             default:
 
                 return $value;
-
-                break;
         }
     }
 
@@ -2150,6 +2192,17 @@ class AppConfigController extends AdminPanelController
                 $classname . ':mapboxKey',
                 self::$baseRouteName . '-' . 'mapbox-key',
                 'GET'
+            ),
+
+            //Limpiar caché
+            new Route(
+                "{$startRoute}cache-clean[/]",
+                $classname . ':recreateStaticCacheStamp',
+                'configurations-generals-cache-clean',
+                'POST',
+                true,
+                null,
+                self::ROLES_CLEAN_CACHE_ACTION
             ),
 
             //──── Mixtas ────────────────────────────────────────────────────────────────────────────

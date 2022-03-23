@@ -20,45 +20,31 @@ use PiecesPHP\Core\Forms\FilesHandler;
 class FileFormsManage
 {
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = '';
     /**
-     * $fileColumnName
-     *
      * @var string
      */
     protected $fileColumnName = '';
     /**
-     * $identifierColumunName
-     *
      * @var string
      */
     protected $identifierColumunName = '';
     /**
-     * $handler
-     *
      * @var FilesHandler
      */
     protected $handler;
     /**
-     * $directory
-     *
      * @var string
      */
     protected $directory = '';
     /**
-     * $model
-     *
      * @var BaseModel
      */
     protected $model;
 
     /**
-     * __construct
-     *
      * @param string $table
      * @param string $fileColumnName
      * @param FilesHandler $handler
@@ -78,8 +64,6 @@ class FileFormsManage
     }
 
     /**
-     * set
-     *
      * @param mixed $identifierValue
      * @param array $otherColumnsValues
      * @param bool $overwrite
@@ -114,8 +98,6 @@ class FileFormsManage
 
     }
     /**
-     * get
-     *
      * @param mixed $identifierValue
      * @return stdClass
      */
@@ -142,8 +124,6 @@ class FileFormsManage
     }
 
     /**
-     * delete
-     *
      * @param string $fileIdentifier
      * @param mixed $identifierValue
      * @return bool
@@ -181,8 +161,6 @@ class FileFormsManage
     }
 
     /**
-     * setDirectory
-     *
      * @param string $directory
      * @return static
      */
@@ -193,8 +171,6 @@ class FileFormsManage
     }
 
     /**
-     * setHandler
-     *
      * @param FilesHandler $handler
      * @return static
      */
@@ -205,8 +181,6 @@ class FileFormsManage
     }
 
     /**
-     * formattingUploadFiles
-     *
      * @param array $group_files
      * @return array
      */
@@ -225,8 +199,6 @@ class FileFormsManage
     }
 
     /**
-     * formattingUploadFilesUpdate
-     *
      * @param array $group_files
      * @param array $new_group_files
      * @return array

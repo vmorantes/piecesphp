@@ -63,15 +63,11 @@ class StateMapper extends BaseEntityMapper
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::PREFIX_TABLE . self::TABLE;
 
     /**
-     * __construct
-     *
      * @param int $value
      * @param string $field_compare
      * @return static
@@ -82,8 +78,6 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
-     * getBy
-     *
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
@@ -113,8 +107,6 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
-     * getByCountry
-     *
      * @param int $country_id
      * @param bool $as_mapper
      * @return array|static[]
@@ -131,6 +123,7 @@ class StateMapper extends BaseEntityMapper
         $query->execute();
 
         $result = $query->result();
+        $result = is_array($result) ? $result : [];
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
@@ -142,8 +135,6 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
-     * getByName
-     *
      * @param string $name
      * @param bool $as_mapper
      * @param int $country_id
@@ -167,6 +158,7 @@ class StateMapper extends BaseEntityMapper
         $query->execute();
 
         $result = $query->result();
+        $result = is_array($result) ? $result : [];
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
@@ -178,8 +170,6 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
-     * isDuplicateName
-     *
      * @param string $name
      * @param int $country_id
      * @param int $ignore_id
@@ -204,8 +194,6 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
-     * isDuplicateCode
-     *
      * @param string $code
      * @param int $country_id
      * @param int $ignore_id
@@ -240,13 +228,11 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
-     * model
-     *
      * @return ActiveRecordModel
      */
     public static function model()
     {
-        return (new StateMapper )->getModel();
+        return (new StateMapper)->getModel();
     }
 
 }

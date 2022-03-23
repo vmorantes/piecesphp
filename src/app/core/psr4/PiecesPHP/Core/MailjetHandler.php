@@ -284,7 +284,7 @@ class MailjetHandler
     }
 
     /**
-     * @return \stdClass
+     * @return \stdClass|mixed
      */
     public function getResponse()
     {

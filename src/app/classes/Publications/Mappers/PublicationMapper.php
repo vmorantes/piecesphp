@@ -41,7 +41,7 @@ use Publications\PublicationsLang;
  * @property string|\DateTime $createdAt
  * @property string|\DateTime $updatedAt
  * @property int|UsersModel $createdBy
- * @property int|UsersModel $modifiedBy
+ * @property int|UsersModel|null $modifiedBy
  * @property int $status
  * @property int $featured
  * @property \stdClass|string|null $meta
@@ -231,8 +231,6 @@ class PublicationMapper extends EntityMapperExtensible
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::TABLE;
@@ -289,10 +287,11 @@ class PublicationMapper extends EntityMapperExtensible
         $author = $this->author;
 
         if (!is_object($author)) {
-            $this->author = new UsersModel($this->author);
+            $this->author = new UsersModel($author);
+            $author = $this->author;
         }
 
-        return $this->author->getFullName();
+        return $author->getFullName();
     }
 
     /**
@@ -303,10 +302,11 @@ class PublicationMapper extends EntityMapperExtensible
         $createdBy = $this->createdBy;
 
         if (!is_object($createdBy)) {
-            $this->createdBy = new UsersModel($this->createdBy);
+            $this->createdBy = new UsersModel($createdBy);
+            $createdBy = $this->createdBy;
         }
 
-        return $this->createdBy->getFullName();
+        return $createdBy->getFullName();
     }
 
     /**
@@ -317,10 +317,11 @@ class PublicationMapper extends EntityMapperExtensible
         $modifiedBy = $this->modifiedBy;
 
         if (!is_object($modifiedBy) && $modifiedBy !== null) {
-            $this->modifiedBy = new UsersModel($this->modifiedBy);
+            $this->modifiedBy = new UsersModel($modifiedBy);
+            $modifiedBy = $this->modifiedBy;
         }
 
-        return $modifiedBy !== null ? $this->modifiedBy->getFullName() : null;
+        return $modifiedBy !== null ? $modifiedBy->getFullName() : null;
     }
 
     /**
@@ -472,7 +473,6 @@ class PublicationMapper extends EntityMapperExtensible
     {
         if (self::existsByTitle($this->title, is_object($this->category) ? $this->category->id : $this->category, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
-            return false;
         }
 
         $this->createdAt = new \DateTime();
@@ -498,7 +498,6 @@ class PublicationMapper extends EntityMapperExtensible
     {
         if (self::existsByTitle($this->title, is_object($this->category) ? $this->category->id : $this->category, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
-            return false;
         }
         if (!$noDateUpdate) {
             $this->modifiedBy = get_config('current_user')->id;
@@ -839,7 +838,7 @@ class PublicationMapper extends EntityMapperExtensible
      */
     public static function extractIDFromSlug(string $slug)
     {
-        $slug = is_string($slug) ? explode('-', $slug) : null;
+        $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
@@ -900,6 +899,7 @@ class PublicationMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -926,6 +926,7 @@ class PublicationMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

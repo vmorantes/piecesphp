@@ -49,7 +49,7 @@ class UserProblemsController extends UsersController
      *
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function userProblemsList(Request $request, Response $response)
     {
@@ -75,8 +75,8 @@ class UserProblemsController extends UsersController
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta Argumentos pasados por GET
-     * @return void
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
      */
     public function userForgetForm(Request $request, Response $response)
     {
@@ -109,8 +109,8 @@ class UserProblemsController extends UsersController
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta Argumentos pasados por GET
-     * @return void
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
      */
     public function userBlockedForm(Request $request, Response $response)
     {
@@ -143,8 +143,8 @@ class UserProblemsController extends UsersController
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta Argumentos pasados por GET
-     * @return void
+     * @param Response $response Respuesta Argumentos pasados por GET
+     * @return Response
      */
     public function otherProblemsForm(Request $request, Response $response)
     {
@@ -180,7 +180,7 @@ class UserProblemsController extends UsersController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta Argumentos pasados por GET
-     * @return void
+     * @return Response
      */
     public function generateCode(Request $request, Response $response)
     {
@@ -391,7 +391,7 @@ class UserProblemsController extends UsersController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta Argumentos pasados por GET
-     * @return void
+     * @return Response
      */
     public function sendMailOtherProblems(Request $request, Response $response)
     {

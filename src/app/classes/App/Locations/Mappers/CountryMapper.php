@@ -54,15 +54,11 @@ class CountryMapper extends BaseEntityMapper
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::PREFIX_TABLE . self::TABLE;
 
     /**
-     * __construct
-     *
      * @param int $value
      * @param string $field_compare
      * @return static
@@ -73,8 +69,6 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * getBy
-     *
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
@@ -104,8 +98,6 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * isDuplicateName
-     *
      * @param string $name
      * @param int $ignore_id
      * @return bool
@@ -128,8 +120,6 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * isDuplicateCode
-     *
      * @param string $code
      * @param int $ignore_id
      * @return bool
@@ -160,13 +150,11 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * model
-     *
      * @return ActiveRecordModel
      */
     public static function model()
     {
-        return (new CountryMapper )->getModel();
+        return (new CountryMapper)->getModel();
     }
 
 }

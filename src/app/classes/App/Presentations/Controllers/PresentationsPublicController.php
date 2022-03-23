@@ -77,7 +77,10 @@ class PresentationsPublicController extends AdminPanelController
             $c = new class extends BaseController
             {
 
-                public $user;
+                /**
+                 * @var \stdClass|null
+                 */
+                public $user = null;
 
                 public function __construct()
                 {

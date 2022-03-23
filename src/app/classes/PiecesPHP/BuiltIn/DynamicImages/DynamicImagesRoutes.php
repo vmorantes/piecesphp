@@ -19,8 +19,6 @@ use PiecesPHP\Core\RouteGroup;
 class DynamicImagesRoutes
 {
     /**
-     * routes
-     *
      * @param RouteGroup $group
      * @return RouteGroup
      */
