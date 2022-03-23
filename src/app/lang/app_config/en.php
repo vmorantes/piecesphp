@@ -60,4 +60,6 @@ return [
     "https://api.dominio.com/"                                                        => "https://api.domain.com/",
     'Nombre del remitente'                                                            => "Sender's name",
     'Información adicional'                                                           => 'Additional Information',
+    'Limpiar caché'                                                                   => 'Clear cache',
+    'Memoria caché restaurada'                                                        => 'Cache memory restored',
 ];

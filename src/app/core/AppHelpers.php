@@ -17,6 +17,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\StringManipulate;
+use Spatie\Url\Url as URLManager;
 
 /**
  * Obtiene el valor de la configuración solicitada.
@@ -296,6 +297,25 @@ function lang(string $type, string $message, string $lang, bool $echo = false)
 }
 
 /**
+ * @param bool $update
+ * @return string
+ */
+function static_files_cache_stamp(bool $update = false)
+{
+    $stamp = 'none';
+    $fileCache = basepath('app/cache/statics-files-stamp.txt');
+
+    if (file_exists($fileCache) && !$update) {
+        $stamp = file_get_contents($fileCache);
+        $stamp = substr($stamp, 0, 40);
+    } else {
+        $stamp = sha1(uniqid());
+        file_put_contents($fileCache, $stamp);
+    }
+    return $stamp;
+}
+
+/**
  * Imprime los scripts js cargados con las funciones auxiliares de assets
  *
  * @param array $config
@@ -513,7 +533,11 @@ function load_js(array $config = array())
 
     };
 
+    $stamp = static_files_cache_stamp();
     foreach ($jsGlobal as $script) {
+        $url = URLManager::fromString($script);
+        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
+        $script = $url->__toString();
         $tag = ($processElement)($config, $script, [
             'custom_url',
         ]);
@@ -521,6 +545,9 @@ function load_js(array $config = array())
     }
 
     foreach ($jsCustom as $script) {
+        $url = URLManager::fromString($script);
+        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
+        $script = $url->__toString();
         $tag = ($processElement)($config, $script);
         echo $tag . "\n";
     }
@@ -750,7 +777,11 @@ function load_css(array $config = array())
 
     };
 
+    $stamp = static_files_cache_stamp();
     foreach ($cssGlobal as $stylesheet) {
+        $url = URLManager::fromString($stylesheet);
+        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
+        $stylesheet = $url->__toString();
         $tag = ($processElement)($config, $stylesheet, [
             'custom_url',
         ]);
@@ -758,6 +789,9 @@ function load_css(array $config = array())
     }
 
     foreach ($cssCustom as $stylesheet) {
+        $url = URLManager::fromString($stylesheet);
+        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
+        $stylesheet = $url->__toString();
         $tag = ($processElement)($config, $stylesheet);
         echo $tag . "\n";
     }
@@ -984,7 +1018,11 @@ function load_font(array $config = array())
 
     };
 
+    $stamp = static_files_cache_stamp();
     foreach ($fontGlobal as $stylesheet) {
+        $url = URLManager::fromString($stylesheet);
+        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
+        $stylesheet = $url->__toString();
         $tag = ($processElement)($config, $stylesheet, [
             'custom_url',
         ]);
@@ -992,6 +1030,9 @@ function load_font(array $config = array())
     }
 
     foreach ($fontCustom as $stylesheet) {
+        $url = URLManager::fromString($stylesheet);
+        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
+        $stylesheet = $url->__toString();
         $tag = ($processElement)($config, $stylesheet);
         echo $tag . "\n";
     }

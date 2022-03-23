@@ -5,6 +5,7 @@
 
 ## Algunos paquetes
 ```bash
+sudo apt update
 sudo apt install curl zip unzip openssl git wget
 # Soporte de español, pueden revisarse los idiomas disponibles con locale -a
 sudo apt-get install language-pack-es
@@ -23,7 +24,7 @@ export HESTIA_PHP_VERSION_MODULES="*"
 #Descargar
 wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh
 #Instalar
-bash hst-install.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mysql yes --postgresql no --exim yes --dovecot yes --clamav yes --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --lang en --interactive yes --hostname $HESTIA_DOMAIN --email $HESTIA_EMAIL --password $HESTIA_PASSWORD 
+bash hst-install.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mysql yes --postgresql no --exim yes --dovecot yes --clamav yes --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --lang en --interactive yes --hostname $HESTIA_DOMAIN --email $HESTIA_EMAIL --password $HESTIA_PASSWORD -f
 ```
 _Nota: Puede ver las opciones en la [documentación de HestiaCP](https://docs.hestiacp.com/getting_started.html#all-available-options-of-install-script)_
 

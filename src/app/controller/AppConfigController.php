@@ -12,6 +12,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -91,6 +92,10 @@ class AppConfigController extends AdminPanelController
     ];
     const ROLES_SSL_ACTION = [
         UsersModel::TYPE_USER_ROOT,
+    ];
+    const ROLES_CLEAN_CACHE_ACTION = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
     ];
 
     const SEO_OPTION_TITLE_APP = 'title_app';
@@ -1530,6 +1535,55 @@ class AppConfigController extends AdminPanelController
     }
 
     /**
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function recreateStaticCacheStamp(Request $req, Response $res)
+    {
+
+        $startTime = microtime(true);
+
+        $result = new ResultOperations([], __(self::LANG_GROUP, 'Limpiar caché'), '', true);
+
+        try {
+
+            $result->setMessage(__(self::LANG_GROUP, 'Memoria caché restaurada'));
+
+            $endTime = microtime(true);
+
+            //Actualizar marca de caché de estáticos js/css
+            static_files_cache_stamp(true);
+
+            $publicationsCache = new DirectoryObject(basepath('app/cache/Publications'));
+            $publicationsCache->process();
+            $publicationsCache->delete();
+
+            $result->setValue('Rendimiento', [
+                'Memory peak usage' => number_format(memory_get_peak_usage() / (1024 * 1024), 4) . "MB",
+                'Execution time' => number_format($endTime - $startTime, 10) . "s",
+            ]);
+
+            $result->setSuccessOnSingleOperation(true);
+
+        } catch (\Exception $e) {
+
+            $result->setMessage($e->getMessage());
+
+            $result->setValue('exception', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'code' => $e->getCode(),
+            ]);
+            log_exception($e);
+
+        }
+
+        return $res->withJson($result);
+    }
+
+    /**
      * @return array
      */
     public static function getSEOConfigValues()
@@ -1979,6 +2033,17 @@ class AppConfigController extends AdminPanelController
                 $classname . ':mapboxKey',
                 self::$baseRouteName . '-' . 'mapbox-key',
                 'GET'
+            ),
+
+            //Limpiar caché
+            new Route(
+                "{$startRoute}cache-clean[/]",
+                $classname . ':recreateStaticCacheStamp',
+                'configurations-generals-cache-clean',
+                'POST',
+                true,
+                null,
+                self::ROLES_CLEAN_CACHE_ACTION
             ),
 
             //──── Mixtas ────────────────────────────────────────────────────────────────────────────

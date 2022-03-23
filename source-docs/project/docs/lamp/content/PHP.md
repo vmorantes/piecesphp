@@ -14,7 +14,7 @@ sudo apt -y install software-properties-common
 sudo add-apt-repository ppa:ondrej/php
 sudo apt-get update
 ```
-## Intalación
+## Instalación
 
 ```bash
 #Moverse al directorio de usuario

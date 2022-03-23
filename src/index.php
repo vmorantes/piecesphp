@@ -190,18 +190,38 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
             'token' => $JWT,
             'decodeToken' => BaseToken::decode($JWT, BaseToken::getSecretKey(), BaseToken::$encrypt, true),
             'data' => $expiredUserData,
+            'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
         ];
+        if (is_object($expiredSessionDataToJSON['decodeToken'])) {
+            $tokenCreatedDate = (new \DateTime());
+            $tokenCreatedDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $tokenCreatedDate->setTimestamp($expiredSessionDataToJSON['decodeToken']->iat);
+            $expiredSessionDataToJSON['tokenCreatedDate'] = $tokenCreatedDate->format('d-m-Y h:i:s A P');
+        }
 
         $oldFilesExpiredSessions = file_exists($expiredSessionsFolder) ? array_diff(scandir($expiredSessionsFolder), array('..', '.')) : [];
         array_map(function ($e) use ($expiredSessionsFolder) {
 
             $fullPath = $expiredSessionsFolder . \DIRECTORY_SEPARATOR . $e;
 
-            $date = \DateTime::createFromFormat('d-m-Y_h-i-s-U.u_A', str_replace('.json', '', $e));
-            $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $fullDateSegments = explode('_', str_replace('.json', '', $e));
+            $dateSegments = explode('-', $fullDateSegments[0]);
+            $timeSegments = explode('-', $fullDateSegments[1]);
+            $amPm = $fullDateSegments[2];
+            $day = $dateSegments[0];
+            $month = $dateSegments[1];
+            $year = $dateSegments[2];
+            $hour = $timeSegments[0];
+            $minute = $timeSegments[1];
+            $second = $timeSegments[2];
+            $milisecond = $timeSegments[3];
+            $dateString = "{$day}-{$month}-{$year} {$hour}:{$minute}:{$second} {$amPm}";
 
-            $date30Days = \DateTime::createFromFormat('d-m-Y H:i:s', (clone $date)->modify('+30 days')->format('d-m-Y 00:00:00'));
+            $date = \DateTime::createFromFormat('d-m-Y h:i:s A', $dateString);
+            $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $date30Days = \DateTime::createFromFormat('d-m-Y h:i:s A', $dateString);
             $date30Days->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            $date30Days->modify('+30 days');
 
             $now = new \DateTime();
 
