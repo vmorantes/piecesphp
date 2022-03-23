@@ -146,10 +146,11 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $createdBy = $this->createdBy;
 
         if (!is_object($createdBy)) {
-            $this->createdBy = new UsersModel($this->createdBy);
+            $this->createdBy = new UsersModel($createdBy);
+            $createdBy = $this->createdBy;
         }
 
-        return $this->createdBy->getFullName();
+        return $createdBy->getFullName();
     }
 
     /**
@@ -160,10 +161,11 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $modifiedBy = $this->modifiedBy;
 
         if (!is_object($modifiedBy) && $modifiedBy !== null) {
-            $this->modifiedBy = new UsersModel($this->modifiedBy);
+            $this->modifiedBy = new UsersModel($modifiedBy);
+            $modifiedBy = $this->modifiedBy;
         }
 
-        return $modifiedBy !== null ? $this->modifiedBy->getFullName() : null;
+        return $modifiedBy !== null ? $modifiedBy->getFullName() : null;
     }
 
     /**

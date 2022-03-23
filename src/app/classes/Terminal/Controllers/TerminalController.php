@@ -97,6 +97,7 @@ class TerminalController extends AdminPanelController
             $dbHost = $db->getHost();
             $dbUser = $db->getUsername();
             $dbPassword = $db->getPassword();
+            $dbPassword = $dbPassword !== null ? $dbPassword : '';
 
             $dumpSettingsDefault = array(
                 'compress' => $gz ? Mysqldump::GZIP : Mysqldump::NONE,
@@ -108,40 +109,46 @@ class TerminalController extends AdminPanelController
                 'disable-foreign-keys-check' => true,
             );
 
-            $dump = new Mysqldump("mysql:host={$dbHost};dbname={$dbName}", $dbUser, $dbPassword, $dumpSettingsDefault);
-            $fileName = date('d-m-Y_H-i-s-A') . ($gz ? '.sql.gz' : '.sql');
-            $dumpDirectory = basepath("dumps");
-            $htaccess = "{$dumpDirectory}/.htaccess";
+            if ($dbUser !== null) {
 
-            if (!file_exists($dumpDirectory)) {
-                mkdir($dumpDirectory, 0777, true);
-            }
+                $dump = new Mysqldump("mysql:host={$dbHost};dbname={$dbName}", $dbUser, $dbPassword, $dumpSettingsDefault);
+                $fileName = date('d-m-Y_H-i-s-A') . ($gz ? '.sql.gz' : '.sql');
+                $dumpDirectory = basepath("dumps");
+                $htaccess = "{$dumpDirectory}/.htaccess";
 
-            if (!file_exists($htaccess)) {
-                $htaccessContent = "<IfVersion > 2.4>\r\n";
-                $htaccessContent .= "\tDeny from All\r\n";
-                $htaccessContent .= "</IfVersion>\r\n";
-                $htaccessContent .= "<IfVersion <= 2.4>\r\n";
-                $htaccessContent .= "\tRequire all denied\r\n";
-                $htaccessContent .= "</IfVersion>";
-                @file_put_contents($htaccess, $htaccessContent);
-            }
-
-            try {
-
-                $output = "{$dumpDirectory}/{$fileName}";
-                $changePermissions = !file_exists($output);
-                $dump->start($output);
-
-                if ($changePermissions) {
-                    chmod($output, 0777);
+                if (!file_exists($dumpDirectory)) {
+                    mkdir($dumpDirectory, 0777, true);
                 }
 
-                $responseText = "Operación exitosa\r\n";
+                if (!file_exists($htaccess)) {
+                    $htaccessContent = "<IfVersion > 2.4>\r\n";
+                    $htaccessContent .= "\tDeny from All\r\n";
+                    $htaccessContent .= "</IfVersion>\r\n";
+                    $htaccessContent .= "<IfVersion <= 2.4>\r\n";
+                    $htaccessContent .= "\tRequire all denied\r\n";
+                    $htaccessContent .= "</IfVersion>";
+                    @file_put_contents($htaccess, $htaccessContent);
+                }
 
-            } catch (\Exception $e) {
-                $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-                log_exception($e);
+                try {
+
+                    $output = "{$dumpDirectory}/{$fileName}";
+                    $changePermissions = !file_exists($output);
+                    $dump->start($output);
+
+                    if ($changePermissions) {
+                        chmod($output, 0777);
+                    }
+
+                    $responseText = "Operación exitosa\r\n";
+
+                } catch (\Exception $e) {
+                    $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+                    log_exception($e);
+                }
+
+            } else {
+                $responseText = "No se pudo seleccionar ningún usuario para la conexión a la base de datos.\r\n";
             }
 
         } catch (MissingRequiredParamaterException $e) {

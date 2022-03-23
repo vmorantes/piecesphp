@@ -7,6 +7,8 @@ namespace PiecesPHP\Core\CustomErrorsHandlers;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Http\Request as RequestSlim;
+use Slim\Http\Response as ResponseSlim;
 
 /**
  * CustomSlimErrorHandler - ....
@@ -33,9 +35,9 @@ class CustomSlimErrorHandler
     }
 
     /**
-     * @param Request $request
-     * @param Response $response
-     * @param Exception $exception
+     * @param Request|RequestSlim $request
+     * @param Response|ResponseSlim $response
+     * @param \Exception $exception
      */
     public function __invoke($request, $response, $exception)
     {

@@ -141,7 +141,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function backgrounds(Request $req, Response $res)
     {
@@ -216,7 +216,8 @@ class AppConfigController extends AdminPanelController
 
             $currentBackgroundConfigMapper->value = $currentBackgroundConfigValues;
 
-            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'), true);
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
+            $result->setSingleOperation(true);
 
             $createMessage = __(self::LANG_GROUP, 'Imagen guardada.');
             $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
@@ -272,7 +273,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function faviconsAndLogos(Request $req, Response $res)
     {
@@ -340,7 +341,8 @@ class AppConfigController extends AdminPanelController
             $oldImage = $logosAndFaviconsMapper->value;
             $logosAndFaviconsMapper->value = $relativePath;
 
-            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'), true);
+            $result = new ResultOperations([], __(self::LANG_GROUP, 'Guardar imagen'));
+            $result->setSingleOperation(true);
 
             $createMessage = __(self::LANG_GROUP, 'Imagen guardada.');
             $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
@@ -398,7 +400,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function seo(Request $req, Response $res)
     {
@@ -700,7 +702,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function email(Request $req, Response $res)
     {
@@ -941,7 +943,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function osTicket(Request $req, Response $res)
     {
@@ -1080,7 +1082,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function routesView(Request $req, Response $res)
     {
@@ -1096,7 +1098,7 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function configurationsView(Request $req, Response $res)
     {
@@ -1352,7 +1354,7 @@ class AppConfigController extends AdminPanelController
 
         foreach ($routes as $routeInfo) {
             $url = get_route_sample($routeInfo['name']);
-            if (mb_strpos($url, '{') === false) {
+            if (is_string($url) && mb_strpos($url, '{') === false) {
                 $somesURLs[] = $url;
             }
         }

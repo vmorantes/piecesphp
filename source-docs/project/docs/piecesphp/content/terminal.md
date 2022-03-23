@@ -10,7 +10,7 @@ php index.php cli <ACCIÓN> [param=1[...]]
 ```
 i.e.:
 ```bash 
-php index.php bundle bundle app=yes zip=yes
+php index.php cli bundle app=yes zip=yes
 ```
 
 ##### Acciones

@@ -119,7 +119,7 @@ class CategoriesController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function listView(Request $request, Response $response)
     {

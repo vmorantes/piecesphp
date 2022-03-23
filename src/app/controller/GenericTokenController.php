@@ -63,7 +63,7 @@ class GenericTokenController extends AdminPanelController
      * @param Request $req
      * @param Response $res
      * @param array $args
-     * @return void
+     * @return Response
      */
     public function entryPoint(Request $req, Response $res, array $args)
     {
@@ -212,7 +212,7 @@ class GenericTokenController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function commentary(Request $req, Response $res)
     {

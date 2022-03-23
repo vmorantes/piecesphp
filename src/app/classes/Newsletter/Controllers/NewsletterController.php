@@ -771,11 +771,6 @@ class NewsletterController extends AdminPanelController
     /**
      * @param int $page =1
      * @param int $perPage =10
-     * @param int $type =null
-     * @param int $status =NewsletterSuscriberMapper::ACTIVE
-     * @param bool $ignoreStatus =false
-     * @param string $name =null
-     * @param bool $ignoreDateLimit =false
      * @return PaginationResult
      */
     public static function _all(int $page = null, int $perPage = null)
