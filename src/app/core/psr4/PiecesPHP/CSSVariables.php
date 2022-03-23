@@ -112,9 +112,10 @@ class CSSVariables
      * @param Request $request
      * @param Response $response
      * @param bool $overwriteCache
+     * @param string $cacheControl Max-age de 2 meses por defecto y must-revalidate
      * @return Response
      */
-    public function toResponse(Request $request, Response $response, bool $overwriteCache = false)
+    public function toResponse(Request $request, Response $response, bool $overwriteCache = false, string $cacheControl = 'max-age=5256000, must-revalidate')
     {
 
         $css = $this->__toString();
@@ -126,6 +127,10 @@ class CSSVariables
 
         $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '01-01-1990 12:00 AM');
         $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $contentETag);
+
+        if (mb_strlen($cacheControl) > 0) {
+            $headersAndStatus['headers']['Cache-Control'] = $cacheControl;
+        }
 
         foreach ($headersAndStatus['headers'] as $header => $value) {
             $response = $response->withHeader($header, $value);

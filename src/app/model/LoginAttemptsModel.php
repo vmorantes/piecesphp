@@ -9,6 +9,7 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\Enums\CodeStringExceptionsEnum;
 use PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
+use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use \Slim\Http\Request as Request;
 
 /**
@@ -135,7 +136,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
     /**
      * @param Request $request
-     * @return PiecesPHP\Core\Utilities\ReturnTypes\ResultOperation
+     * @return ResultOperations
      */
     public static function getAttempts(Request $request)
     {
@@ -175,7 +176,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
     /**
      * @param Request $request
-     * @return PiecesPHP\Core\Utilities\ReturnTypes\ResultOperation
+     * @return ResultOperations
      */
     public static function getLoggedUsers(Request $request)
     {
@@ -232,7 +233,7 @@ class LoginAttemptsModel extends BaseEntityMapper
 
     /**
      * @param Request $request
-     * @return PiecesPHP\Core\Utilities\ReturnTypes\ResultOperation
+     * @return ResultOperations
      */
     public static function getNotLoggedUsers(Request $request)
     {

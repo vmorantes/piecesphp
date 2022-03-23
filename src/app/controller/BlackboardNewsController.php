@@ -60,7 +60,7 @@ class BlackboardNewsController extends AdminPanelController
      *
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function listView(Request $req, Response $res)
     {
@@ -318,6 +318,8 @@ class BlackboardNewsController extends AdminPanelController
         $query->execute(false, $page, $perPage);
 
         $result = $query->result();
+        $result = is_array($result) ? $result : [];
+
         $total = count($queryTotal->result());
 
         $filtered = [];

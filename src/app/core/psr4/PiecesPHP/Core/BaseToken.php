@@ -164,7 +164,7 @@ class BaseToken
 
         $data = null;
 
-        if ($expired === false) {
+        if ($expired === false || $ignore_expired) {
 
             $data = self::decode(
                 $token,
@@ -354,7 +354,7 @@ class BaseToken
      *                                      Los algoritmos son 'HS256', 'HS384', 'HS512' y 'RS256'
      * @param string        $ignore_expired Si es true decodifica el token aunque haya expirado
      *
-     * @return object|int El payload del JWT como un objeto PHP o un int que representa un error.
+     * @return object|int|string El payload del JWT como un objeto PHP o un int que representa un error.
      *
      * @use self::jsonDecode
      * @use self::urlsafeB64Decode

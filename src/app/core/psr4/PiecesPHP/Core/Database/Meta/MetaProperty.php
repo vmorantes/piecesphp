@@ -92,8 +92,6 @@ class MetaProperty
     protected $settedValue = false;
 
     /**
-     * __construct
-     *
      * @param string $type
      * @param mixed $defaultValue
      * @param bool $nullable
@@ -150,8 +148,6 @@ class MetaProperty
     }
 
     /**
-     * setValue
-     *
      * @param mixed $value
      * @return static
      * @throws \Exception
@@ -300,8 +296,6 @@ class MetaProperty
     }
 
     /**
-     * getValue
-     *
      * @return mixed
      */
     public function getValue()
@@ -316,8 +310,6 @@ class MetaProperty
     }
 
     /**
-     * getValueHuman
-     *
      * @return mixed
      */
     public function getValueHuman()
@@ -362,8 +354,6 @@ class MetaProperty
     }
 
     /**
-     * getValueToSQL
-     *
      * @return mixed
      */
     public function getValueToSQL()
@@ -470,8 +460,6 @@ class MetaProperty
     }
 
     /**
-     * setCustomSetMapper
-     *
      * @param callable $custom
      * @return static
      */
@@ -482,8 +470,6 @@ class MetaProperty
     }
 
     /**
-     * setCustomValidMapper
-     *
      * @param callable $custom
      * @return static
      */
@@ -494,8 +480,6 @@ class MetaProperty
     }
 
     /**
-     * setCustomGetValueToSQL
-     *
      * @param callable $custom
      * @return static
      */
@@ -506,8 +490,6 @@ class MetaProperty
     }
 
     /**
-     * validateData
-     *
      * @param mixed $value
      * @return bool
      */
@@ -574,8 +556,6 @@ class MetaProperty
     }
 
     /**
-     * recursiveHumanization
-     *
      * @param EntityMapper $mapper
      * @return array
      */

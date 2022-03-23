@@ -124,8 +124,7 @@ class LogsController extends AdminPanelController
         ];
 
         $customOrder = [
-            'createdAt' => 'DESC',
-            'textMessageReplacement' => 'ASC',
+            'id' => 'DESC',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);

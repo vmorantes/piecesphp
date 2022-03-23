@@ -126,7 +126,7 @@ class FileManagerRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics');
+            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
         };
 
         $routeStatics = new Route('filemanager/statics-resolver/[{params:.*}]', $callableHandler, FileManagerRoutes::class);

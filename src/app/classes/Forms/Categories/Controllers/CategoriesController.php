@@ -119,7 +119,7 @@ class CategoriesController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function listView(Request $request, Response $response)
     {
@@ -474,7 +474,7 @@ class CategoriesController extends AdminPanelController
         $inputData = $args;
 
         //Asignación de datos para procesar
-        $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+        $expectedParameters->setInputValues($inputData);
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 

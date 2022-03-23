@@ -118,7 +118,7 @@ class BaseHashEncryption
                     return false;
                 }
                 // returns 1 en exito, 0 en fallo, -1 en error.
-                throw new DomainException(
+                throw new \DomainException(
                     'OpenSSL error: ' . openssl_error_string()
                 );
             case 'hash_hmac':

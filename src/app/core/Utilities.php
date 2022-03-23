@@ -517,7 +517,6 @@ function is_uploaded_all_files(array $data)
     foreach ($data as $key => $value) {
         if (!is_uploaded_file($data[$key]['tmp_name'])) {
             return false;
-            break;
         }
     }
     return true;
@@ -1079,7 +1078,7 @@ function generateCachingHeadersAndStatus(\Slim\Http\Request $request, \DateTime 
     $status = 0;
 
     $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification);
-    $eTag = $eTagContent === null ? sha1($lastModification) : sha1($eTagContent);
+    $eTag = $eTagContent === null ? 'PCSPHP_' . sha1($lastModification) : 'PCSPHP_' . sha1($eTagContent);
 
     $headers['Cache-Control'] = "no-cache";
     $headers['Last-Modified'] = $lastModificationGMT;

@@ -18,50 +18,34 @@ use PiecesPHP\Core\Importer\Collections\ResponseCollection;
 class Importer
 {
     /**
-     * $schema
-     *
      * @var Schema
      */
     protected $schema;
     /**
-     * $update
-     *
      * @var bool
      */
     protected $update = false;
     /**
-     * $data
-     *
      * @var array
      */
     protected $data = [];
     /**
-     * $response
-     *
      * @var ResponseCollection
      */
     protected $responses = null;
     /**
-     * $totalImported
-     *
      * @var int
      */
     protected $totalImported = 0;
     /**
-     * $totalProcessed
-     *
      * @var int
      */
     protected $totalProcessed = 0;
     /**
-     * $title
-     *
      * @var string
      */
     protected $title = 'Importador';
     /**
-     * $description
-     *
      * @var string
      */
     protected $description = '';
@@ -69,8 +53,6 @@ class Importer
     const LANG_GROUP = 'importerModule';
 
     /**
-     * __construct
-     *
      * @param Schema $schema
      * @param array $data
      * @param string $title
@@ -89,8 +71,6 @@ class Importer
     }
 
     /**
-     * import
-     *
      * @return ResponseCollection
      */
     public function import()
@@ -253,8 +233,6 @@ class Importer
     }
 
     /**
-     * existsHasEntryAndProcess
-     *
      * @param array $input
      * @param array $names
      * @param mixed &$value
@@ -281,8 +259,6 @@ class Importer
     }
 
     /**
-     * processValueAndResponse
-     *
      * @param Field $field
      * @param mixed $value
      * @param bool $hasInput
@@ -328,8 +304,6 @@ class Importer
     }
 
     /**
-     * setUpdate
-     *
      * @param bool $yes
      * @return static
      */
@@ -340,8 +314,6 @@ class Importer
     }
 
     /**
-     * setDescription
-     *
      * @param string $description
      * @return static
      */
@@ -352,8 +324,6 @@ class Importer
     }
 
     /**
-     * setTitle
-     *
      * @param string $title
      * @return static
      */
@@ -364,8 +334,6 @@ class Importer
     }
 
     /**
-     * getTitle
-     *
      * @return string
      */
     public function getTitle()
@@ -374,8 +342,6 @@ class Importer
     }
 
     /**
-     * getDescription
-     *
      * @return string
      */
     public function getDescription()
@@ -384,8 +350,6 @@ class Importer
     }
 
     /**
-     * getSchema
-     *
      * @return Schema
      */
     public function getSchema()
@@ -394,8 +358,6 @@ class Importer
     }
 
     /**
-     * getResponses
-     *
      * @return Response[]
      */
     public function getResponses()
@@ -406,8 +368,6 @@ class Importer
     }
 
     /**
-     * getTotalImported
-     *
      * @return int
      */
     public function getTotalImported()
@@ -418,8 +378,6 @@ class Importer
     }
 
     /**
-     * getTotalProcessed
-     *
      * @return int
      */
     public function getTotalProcessed()
@@ -430,8 +388,6 @@ class Importer
     }
 
     /**
-     * resetResponses
-     *
      * @return void
      */
     protected function resetResponses()
@@ -440,8 +396,6 @@ class Importer
     }
 
     /**
-     * resetTotalImported
-     *
      * @return void
      */
     protected function resetTotalImported()
@@ -450,8 +404,6 @@ class Importer
     }
 
     /**
-     * resetTotalProcessed
-     *
      * @return void
      */
     protected function resetTotalProcessed()

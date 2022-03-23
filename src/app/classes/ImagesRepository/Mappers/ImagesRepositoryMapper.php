@@ -35,7 +35,7 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @property string|\DateTime $createdAt
  * @property string|\DateTime|null $updatedAt
  * @property int|UsersModel $createdBy
- * @property int|UsersModel $modifiedBy
+ * @property int|UsersModel|null $modifiedBy
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
  */
@@ -160,8 +160,6 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::TABLE;
@@ -189,11 +187,11 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return string|null
+     * @return string Una cadena vacía en caso de no estar definido
      */
     public function imageFullPath()
     {
-        return $this->image !== null ? basepath($this->image) : null;
+        return $this->image !== null ? basepath($this->image) : '';
     }
 
     /**
@@ -201,7 +199,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public function imageExists()
     {
-        return $this->imageFullPath() !== null ? file_exists($this->imageFullPath()) : false;
+        return mb_strlen($this->imageFullPath()) > 0 ? file_exists($this->imageFullPath()) : false;
     }
 
     /**
@@ -217,11 +215,11 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return string|null
+     * @return string Una cadena vacía en caso de no estar definido
      */
     public function authorizationFullPath()
     {
-        return $this->authorization !== null ? basepath($this->authorization) : null;
+        return $this->authorization !== null ? basepath($this->authorization) : '';
     }
 
     /**
@@ -229,7 +227,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public function authorizationExists()
     {
-        return $this->authorizationFullPath() !== null ? file_exists($this->authorizationFullPath()) : false;
+        return mb_strlen($this->authorizationFullPath()) > 0 ? file_exists($this->authorizationFullPath()) : false;
     }
 
     /**
@@ -271,10 +269,11 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $createdBy = $this->createdBy;
 
         if (!is_object($createdBy)) {
-            $this->createdBy = new UsersModel($this->createdBy);
+            $this->createdBy = new UsersModel($createdBy);
+            $createdBy = $this->createdBy;
         }
 
-        return $this->createdBy->getFullName();
+        return $createdBy->getFullName();
     }
 
     /**
@@ -285,10 +284,11 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $modifiedBy = $this->modifiedBy;
 
         if (!is_object($modifiedBy) && $modifiedBy !== null) {
-            $this->modifiedBy = new UsersModel($this->modifiedBy);
+            $this->modifiedBy = new UsersModel($modifiedBy);
+            $modifiedBy = $this->modifiedBy;
         }
 
-        return $modifiedBy !== null ? $this->modifiedBy->getFullName() : null;
+        return $modifiedBy !== null ? $modifiedBy->getFullName() : null;
     }
 
     /**
@@ -298,8 +298,9 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public function captureDateFormat(string $format = null, array $replaceTemplate = [])
     {
+        $captureDate = is_object($this->captureDate) ? $this->captureDate : new \DateTime($this->captureDate);
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = localeDateFormat($format, $this->captureDate, $replaceTemplate);
+        $formated = localeDateFormat($format, $captureDate, $replaceTemplate);
         return $formated;
     }
 
@@ -310,8 +311,9 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public function createdAtFormat(string $format = null, array $replaceTemplate = [])
     {
+        $createdAt = is_object($this->createdAt) ? $this->createdAt : new \DateTime($this->createdAt);
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
+        $formated = localeDateFormat($format, $createdAt, $replaceTemplate);
         return $formated;
     }
 
@@ -373,9 +375,11 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
-            $this->id = $idInserted;
-            $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update(true);
+            if ($idInserted !== null) {
+                $this->id = $idInserted;
+                $this->preferSlug = self::getEncryptIDForSlug($idInserted);
+                $this->update(true);
+            }
         }
 
         return $saveResult;
@@ -440,7 +444,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     public function getFriendlyImageName(bool $withExtension = true)
     {
         $firstSegment = 'IMG';
-        $idPadding = str_pad($this->id, 5, '0', \STR_PAD_LEFT);
+        $idPadding = str_pad((string) (!is_null($this->id) ? $this->id : -1), 5, '0', \STR_PAD_LEFT);
         $extension = $this->imageExtension();
         $name = "{$firstSegment}_{$idPadding}";
         if ($withExtension) {
@@ -467,7 +471,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     public function getFriendlyAuthorizationName(bool $withExtension = true)
     {
         $firtsSegment = 'AUT';
-        $idPadding = str_pad($this->id, 5, '0', \STR_PAD_LEFT);
+        $idPadding = str_pad((string) (!is_null($this->id) ? $this->id : -1), 5, '0', \STR_PAD_LEFT);
         $extension = $this->authorizationExtension();
         $name = "{$firtsSegment}_{$idPadding}";
         if ($withExtension) {
@@ -481,7 +485,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public function getAuthorizationPublicURL()
     {
-        $authorizationPath = null;
+        $authorizationPath = '';
 
         if ($this->hasAuthorization()) {
             $authorizationPath = ImagesRepositoryController::routeName('authorization-friendly', [
@@ -858,7 +862,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      */
     public static function extractIDFromSlug(string $slug)
     {
-        $slug = is_string($slug) ? explode('-', $slug) : null;
+        $slug = explode('-', $slug);
         $slug = is_array($slug) && count($slug) > 1 ? $slug[count($slug) - 1] : null;
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
@@ -895,6 +899,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -921,6 +926,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -977,6 +983,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         $result = array_map(function ($e) {
             return (int) $e->imageYear;
@@ -1025,7 +1032,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return ImagesRepositoryMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {
@@ -1088,7 +1095,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->title !== null) {
+                if ($mapper->preferSlug === null && $mapper->id !== null) {
                     $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
                     $mapper->update();
                 }

@@ -260,6 +260,7 @@ class UsersController extends AdminPanelController
         }
 
         $resultsQuery = $model->result();
+        $resultsQuery = is_array($resultsQuery) ? $resultsQuery : [];
 
         foreach ($resultsQuery as $element) {
             $results->results[] = [
@@ -275,8 +276,8 @@ class UsersController extends AdminPanelController
      * No espera parámetros.
      *
      * @param Request $request Petición
-     * @param Request $response Respuesta
-     * @return void
+     * @param Response $response Respuesta
+     * @return Response
      */
     public function loginForm(Request $request, Response $response)
     {
@@ -592,7 +593,7 @@ class UsersController extends AdminPanelController
      *
      * @param Request $request Petición
      * @param Response $response Respuesta
-     * @return void
+     * @return Response
      */
     public function login(Request $request, Response $response)
     {

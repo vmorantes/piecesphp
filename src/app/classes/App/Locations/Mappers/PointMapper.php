@@ -70,15 +70,11 @@ class PointMapper extends BaseEntityMapper
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::PREFIX_TABLE . self::TABLE;
 
     /**
-     * __construct
-     *
      * @param int $value
      * @param string $field_compare
      * @return static
@@ -89,8 +85,6 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * getByState
-     *
      * @param int $city_id
      * @param bool $as_mapper
      * @return array|static[]
@@ -105,6 +99,7 @@ class PointMapper extends BaseEntityMapper
         ]);
 
         $result = $query->result();
+        $result = is_array($result) ? $result : [];
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
@@ -116,8 +111,6 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * all
-     *
      * @param bool $as_mapper
      *
      * @return static[]|array
@@ -129,6 +122,7 @@ class PointMapper extends BaseEntityMapper
         $model->select()->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($as_mapper) {
             $result = array_map(function ($e) {
@@ -140,8 +134,6 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * allForSelect
-     *
      * @param string $defaultLabel
      * @param string $defaultValue
      * @return array
@@ -160,8 +152,6 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * getBy
-     *
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
@@ -191,8 +181,6 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * getByID
-     *
      * @param int $id
      * @param bool $as_mapper
      * @return static|array|null
@@ -208,6 +196,7 @@ class PointMapper extends BaseEntityMapper
         $model->select()->where($where)->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($as_mapper) {
             $result = array_map(function ($e) {
@@ -219,8 +208,6 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * getByName
-     *
      * @param string $name
      * @param bool $as_mapper
      * @param int $city_id
@@ -244,6 +231,7 @@ class PointMapper extends BaseEntityMapper
         $query->execute();
 
         $result = $query->result();
+        $result = is_array($result) ? $result : [];
 
         if ($as_mapper) {
             $result = array_map(function ($i) {
@@ -255,8 +243,6 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * isDuplicate
-     *
      * @param string $name
      * @param int $city_id
      * @param int $ignore_id
@@ -281,13 +267,11 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
-     * model
-     *
      * @return ActiveRecordModel
      */
     public static function model()
     {
-        return (new PointMapper )->getModel();
+        return (new PointMapper)->getModel();
     }
 
 }

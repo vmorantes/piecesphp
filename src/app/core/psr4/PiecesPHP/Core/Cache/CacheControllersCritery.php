@@ -22,36 +22,26 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     const LANG_GROUP = 'cache_manager_messages';
 
     /**
-     * $name
-     *
      * @var string
      */
     protected $name = '';
 
     /**
-     * $value
-     *
      * @var mixed
      */
     protected $value = null;
 
     /**
-     * $valueValidation
-     *
      * @var callable
      */
     protected $valueValidation = null;
 
     /**
-     * $valueParsePostValidation
-     *
      * @var callable
      */
     protected $valueParsePostValidation = null;
 
     /**
-     * __construct
-     *
      * @param string $name
      * @param mixed $value
      * @return static
@@ -69,8 +59,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * name
-     *
      * @param string $criteries
      * @return string|static
      */
@@ -92,8 +80,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * value
-     *
      * @param string $criteries
      * @param bool $modeSet
      * @return mixed|static
@@ -120,8 +106,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * setValueValidation
-     *
      * @param callable $callable
      * @return static
      */
@@ -132,8 +116,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * setValueParsePostValidation
-     *
      * @param callable $callable
      * @return static
      */
@@ -144,8 +126,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * validateValue
-     *
      * @param mixed $value
      * @return bool
      */
@@ -167,8 +147,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * serialize
-     *
      * @return string
      */
     public function serialize()
@@ -177,8 +155,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * unserialize
-     *
      * @param mixed $serialized
      * @return void
      */
@@ -203,8 +179,6 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return array
      */
     public function jsonSerialize()

@@ -62,7 +62,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      *
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function indexView(Request $req, Response $res)
     {
@@ -113,7 +113,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      *
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function cropperAdapterTestingView(Request $req, Response $res)
     {

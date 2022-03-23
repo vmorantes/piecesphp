@@ -84,8 +84,6 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::TABLE;
@@ -242,6 +240,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
         $model->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {
@@ -268,6 +267,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
         ])->execute();
 
         $result = $model->result();
+        $result = is_array($result) ? $result : [];
 
         if ($asMapper) {
             foreach ($result as $key => $value) {

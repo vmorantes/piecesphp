@@ -38,8 +38,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     protected $insertIdOnSave = null;
 
     /**
-     * __construct
-     *
      * @param int $value
      * @param string $field_compare
      * @return static
@@ -68,8 +66,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * addMetaProperty
-     *
      * @param MetaProperty $property
      * @param string $name
      * @return static
@@ -89,8 +85,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * getMetaProperty
-     *
      * @param string $name
      * @return MetaProperty
      * @throws \Exception
@@ -107,8 +101,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * getMetaProperties
-     *
      * @return MetaProperty[]
      */
     public function getMetaProperties()
@@ -119,8 +111,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * hasMetaProperty
-     *
      * @return bool
      */
     public function hasMetaProperty(string $name)
@@ -131,8 +121,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * __set
-     *
      * @param string $name
      * @param mixed $value
      * @return void
@@ -153,8 +141,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * __get
-     *
      * @param string $name
      * @return mixed
      */
@@ -302,8 +288,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * recursiveHumanization
-     *
      * @param EntityMapper $mapper
      * @return array
      */
@@ -328,8 +312,6 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * model
-     *
      * @return BaseModel
      */
     public static function model()

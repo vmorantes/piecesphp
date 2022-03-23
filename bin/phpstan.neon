@@ -7,10 +7,21 @@ parameters:
         - ../src/app/config/constants.php
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
-        - 
-            message: '#Variable \$(.*) might not be defined\.#'
+        -
+            message: '#.*#'
             paths:
+                - ../src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php   
+        - 
+            message: '#(Variable \$(.*) might not be defined\.)#'
+            paths:
+                - ../src/app/classes/**/Views/*
+                - ../src/app/view/*
+        - 
+            message: '#(Access to property \$.* on an unknown class .*(Mapper|Controller)\.|Call to method .*\(\) on an unknown class .*(Mapper|Controller)\.|Call to method .*\(\) on an unknown class AttachmentPackage\.)#'
+            paths:
+                - ../src/app/classes/**/Controllers/*
                 - ../src/app/classes/**/Views/*
                 - ../src/app/view/*
         - 
@@ -47,10 +58,30 @@ parameters:
                 - ../src/app/controller/*
                 - ../src/app/core/psr4/*
         -
-            message: '#Parameter \#3 \$defaultText of class PiecesPHP\\Core\\HTML\\Select constructor expects string, array<string>\|string given\.#'
+            message: '#(Parameter \#3 \$defaultText of class PiecesPHP\\Core\\HTML\\Select constructor expects string, array<string>\|string given\.|Offset .baseURL. does not exist on array\{\}\|array\{baseURL\: mixed\}|Else branch is unreachable because ternary operator condition is always true\.)#'
             paths:
                 - ../src/app/core/AppHelpers.php
+        -
+            message: '#(Cannot call method setSuccess\(\) on PiecesPHP\\Core\\Utilities\\ReturnTypes\\Operation\|null|Part \$editText \(array<string>\|string\) of encapsed string cannot be cast to string\.)#'
+            paths:
+                - ../src/app/classes/**/Controllers/*
+        -
+            message: '#Offset .caching. does not exist on array.*#'
+            paths:
+                - ../src/app/core/**/ServerStatics.php
+        -
+            message: '#(Strict comparison using !== between null and null will always evaluate to false\.)#'
+            paths:
+                - ../src/app/classes/App/Presentations/Controllers/PresentationsCategoryController.php
+                - ../src/app/classes/Newsletter/Controllers/NewsletterController.php
         - '#\#1 \$name of class PiecesPHP\\Core\\Utilities\\ReturnTypes\\Operation constructor expects string\|null, array<string>\|string given\.#'
         - '#\#2 \$name of class PiecesPHP\\Core\\Utilities\\ReturnTypes\\ResultOperations constructor expects string, array<string>\|string given\.#'
         - '#\#1 \$message of method PiecesPHP\\Core\\Utilities\\ReturnTypes\\ResultOperations::setMessage\(\) expects string, array<string>\|string given\.#'
         - '#\#1 \$name of method PiecesPHP\\Core\\Utilities\\ReturnTypes\\ResultOperations::operation\(\) expects string, array<string>\|string given\.#'
+        - '#PHPDoc tag @param references.*#'
+        - '#PHPDoc tag @var above a function has no effect\.#'
+        - '#PHPDoc tag @use has invalid value.*#'
+        - '#Empty array passed to foreach\.#'
+        - '#Argument of an invalid type stdClass supplied for foreach, only iterables are supported\.#'
+        - '#(Parameter \#1 \$options of class PiecesPHP\\Core\\Menu\\Menu.* constructor expects.*)#'
+        - '#Parameter \#.* \$.* of class LEClient\\LEClient constructor expects.*\.#'

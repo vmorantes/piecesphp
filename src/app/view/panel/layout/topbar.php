@@ -36,9 +36,10 @@ $canViewConfigsOption = array_reduce([
     AppConfigController::allowedRoute('seo'),
     Roles::hasPermissions('admin-error-log', $currenUserType),
     Roles::hasPermissions('configurations-routes', $currenUserType),
-    AppConfigController::allowedRoute('generals-sitemap-create'),
     AppConfigController::allowedRoute('email'),
     AppConfigController::allowedRoute('os-ticket'),
+    AppConfigController::allowedRoute('generals-sitemap-create'),
+    AppConfigController::allowedRoute('generals-cache-clean'),
     AppConfigController::allowedRoute('crontab'),
 ], function($a, $b){
     return $a || $b;
@@ -145,13 +146,6 @@ $canViewConfigsOption = array_reduce([
                 </a>
                 <?php endif; ?>
 
-                <?php if(AppConfigController::allowedRoute('generals-sitemap-create')): ?>
-                <span class="item" data-url="<?= AppConfigController::routeName('generals-sitemap-create'); ?>" sitemap-update-trigger>
-                    <div class="figure"> <i class="icon sitemap"></i></div>
-                    <div class="text"><?= __(AppConfigController::LANG_GROUP, 'Actualizar sitemap'); ?></div>
-                </span>
-                <?php endif; ?>
-
                 <?php if(AppConfigController::allowedRoute('email')): ?>
                 <a class="item" href="<?= AppConfigController::routeName('email'); ?>">
                     <div class="figure"> <i class="icon envelope outline"></i></div>
@@ -164,6 +158,20 @@ $canViewConfigsOption = array_reduce([
                     <div class="figure"> <i class="icon cog"></i></div>
                     <div class="text"><?= __(AppConfigController::LANG_GROUP, 'OsTicket'); ?></div>
                 </a>
+                <?php endif; ?>
+
+                <?php if(AppConfigController::allowedRoute('generals-sitemap-create')): ?>
+                <span class="item" data-url="<?= AppConfigController::routeName('generals-sitemap-create'); ?>" sitemap-update-trigger>
+                    <div class="figure"> <i class="icon sitemap"></i></div>
+                    <div class="text"><?= __(AppConfigController::LANG_GROUP, 'Actualizar sitemap'); ?></div>
+                </span>
+                <?php endif; ?>
+
+                <?php if(AppConfigController::allowedRoute('generals-cache-clean')): ?>
+                <span class="item" data-url="<?= AppConfigController::routeName('generals-cache-clean'); ?>" clear-cache-update-trigger>
+                    <div class="figure"> <i class="icon eraser"></i></div>
+                    <div class="text"><?= __(AppConfigController::LANG_GROUP, 'Limpiar caché'); ?></div>
+                </span>
                 <?php endif; ?>
 
                 <?php if(Roles::hasPermissions('admin-error-log', $currenUserType)): ?>

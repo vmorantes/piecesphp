@@ -35,25 +35,18 @@ class Validator
         switch ($type) {
             case self::T_INTEGER:
                 return self::isInteger($value);
-                break;
             case self::T_DOUBLE:
                 return self::isDouble($value);
-                break;
             case self::T_STRING:
                 return self::isString($value);
-                break;
             case self::T_ARRAY:
                 return self::isArrray($value);
-                break;
             case self::T_DATE:
                 return self::isDate($value, $format, $excel);
-                break;
             case self::T_EMAIL:
                 return self::isEmail($value);
-                break;
             default:
                 return false;
-                break;
         }
     }
 

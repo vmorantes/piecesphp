@@ -20,7 +20,7 @@ class HelperController extends BaseController
 
     /**
      *
-     * @var \stdClass Usuario logueado
+     * @var \stdClass|null Usuario logueado
      */
     protected $user = null;
 
@@ -28,7 +28,7 @@ class HelperController extends BaseController
      * @param \stdClass $user Usuario logueado
      * @param array $globalVariables
      */
-    public function __construct($user = null, array $globalVariables)
+    public function __construct($user = null, array $globalVariables = [])
     {
         set_config('lock_assets', true);
         parent::__construct(false);

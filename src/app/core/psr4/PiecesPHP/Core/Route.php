@@ -366,15 +366,15 @@ class Route
 
     /**
      * @param array $route
-     * @param string $route[route]
-     * @param string|callable $route[controller]
-     * @param string|string[] $route[method]
-     * @param string|null $route[name]
-     * @param string|null $route[route_alias]
-     * @param bool $route[require_login]
-     * @param array $route[roles_allowed]
-     * @param array $route[parameters]
-     * @param array<string|callable> $route[middlewares]
+     *      string                 $route[route]
+     *      string|callable        $route[controller]
+     *      string|string[]        $route[method]
+     *      string|null            $route[name]
+     *      string|null            $route[route_alias]
+     *      bool                   $route[require_login]
+     *      array                  $route[roles_allowed]
+     *      array                  $route[parameters]
+     *      array<string|callable> $route[middlewares]
      * @return static
      */
     public static function instanceFromArray(array $route)

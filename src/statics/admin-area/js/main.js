@@ -4,6 +4,7 @@ window.addEventListener('load', function (e) {
 	timeOnPlatform()
 	adminZoneSupportForm()
 	adminSitemapUpdate()
+	adminClearCache()
 })
 
 function timeOnPlatform() {
@@ -74,6 +75,27 @@ function adminSitemapUpdate() {
 
 		button.addEventListener('click', function () {
 			formSitemap.submit()
+		})
+
+	}
+
+}
+
+function adminClearCache() {
+
+	let button = document.querySelector('[clear-cache-update-trigger]')
+
+	if (button !== null) {
+
+		let formClearCache = document.createElement('form')
+		formClearCache.method = 'POST'
+		formClearCache.action = button.dataset.url
+		formClearCache = $(formClearCache)
+
+		genericFormHandler(formClearCache)
+
+		button.addEventListener('click', function () {
+			formClearCache.submit()
 		})
 
 	}

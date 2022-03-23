@@ -32,19 +32,19 @@ class Schema
     ];
 
     /**
-     * @var callable
+     * @var callable|null
      */
     protected $before = null;
     /**
-     * @var callable
+     * @var callable|null
      */
     protected $insertMethod = null;
     /**
-     * @var callable
+     * @var callable|null
      */
     protected $updateMethod = null;
     /**
-     * @var callable
+     * @var callable|null
      */
     protected $beforeExecuteUpdate = null;
     /**
@@ -91,8 +91,6 @@ class Schema
     const LANG_GROUP = 'importerModule';
 
     /**
-     * __construct
-     *
      * @param FieldCollection $fields
      * @param string $table
      * @param callable $before
@@ -121,8 +119,6 @@ class Schema
     }
 
     /**
-     * insert
-     *
      * @return bool
      * @throws Exception
      */
@@ -158,8 +154,6 @@ class Schema
     }
 
     /**
-     * update
-     *
      * @return bool
      * @throws Exception
      */
@@ -249,8 +243,6 @@ class Schema
     }
 
     /**
-     * setAlternativeInsert
-     *
      * @param callable $insertMethod
      * @return void
      */
@@ -260,8 +252,6 @@ class Schema
     }
 
     /**
-     * setAlternativeUpdate
-     *
      * @param callable $updateMethod
      * @return void
      */
@@ -271,8 +261,6 @@ class Schema
     }
 
     /**
-     * setFieldValue
-     *
      * @param string $name
      * @param mixed $value
      * @return void
@@ -290,8 +278,6 @@ class Schema
     }
 
     /**
-     * setSubFieldValue
-     *
      * @param string $fieldName
      * @param string $subFieldName
      * @param mixed $value
@@ -315,8 +301,6 @@ class Schema
     }
 
     /**
-     * setTemplateWithHumanReadable
-     *
      * @param bool $set
      * @return static
      */
@@ -327,8 +311,6 @@ class Schema
     }
 
     /**
-     * getPrimaryKey
-     *
      * @return string
      */
     public function getPrimaryKey()
@@ -337,8 +319,6 @@ class Schema
     }
 
     /**
-     * getPrimaryKeyValue
-     *
      * @return string|null
      */
     public function getPrimaryKeyValue()
@@ -366,8 +346,6 @@ class Schema
     }
 
     /**
-     * getFieldByName
-     *
      * @param string $name
      * @return Field|null
      */
@@ -377,8 +355,6 @@ class Schema
     }
 
     /**
-     * getSubFieldByName
-     *
      * @param string $fieldName
      * @param string $subFieldName
      * @return Field|null
@@ -396,8 +372,6 @@ class Schema
     }
 
     /**
-     * getModel
-     *
      * @return BaseModel
      */
     public function getModel()
@@ -406,8 +380,6 @@ class Schema
     }
 
     /**
-     * getFields
-     *
      * @return FieldCollection
      */
     public function getFields()
@@ -416,8 +388,6 @@ class Schema
     }
 
     /**
-     * getFieldNames
-     *
      * @return string[]
      */
     public function getFieldNames()
@@ -426,8 +396,6 @@ class Schema
     }
 
     /**
-     * getRequiredNames
-     *
      * @return string[]
      */
     public function getRequiredNames()
@@ -436,8 +404,6 @@ class Schema
     }
 
     /**
-     * getSubFieldsNames
-     *
      * @return array
      */
     public function getSubFieldsNames()
@@ -452,8 +418,6 @@ class Schema
     }
 
     /**
-     * getTemplateWithHumanReadable
-     *
      * @return bool
      */
     public function getTemplateWithHumanReadable()
@@ -462,8 +426,6 @@ class Schema
     }
 
     /**
-     * hasSubFields
-     *
      * @return bool
      */
     public function hasSubFields()
@@ -477,8 +439,6 @@ class Schema
     }
 
     /**
-     * setBeforeExecuteUpdate
-     *
      * @param callable $callable
      * @return static
      */
@@ -489,8 +449,6 @@ class Schema
     }
 
     /**
-     * runBefore
-     *
      * @return void
      */
     public function runBefore()
@@ -501,8 +459,6 @@ class Schema
     }
 
     /**
-     * isBefore
-     *
      * @return bool
      */
     public function isBefore()
@@ -511,8 +467,6 @@ class Schema
     }
 
     /**
-     * template
-     *
      * @return XlsxWriter
      */
     public function template(): XlsxWriter

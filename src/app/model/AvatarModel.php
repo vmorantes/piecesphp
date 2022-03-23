@@ -32,8 +32,6 @@ class AvatarModel
     const EXTENSION_AVATAR = 'jpg';
 
     /**
-     * getAvatar
-     *
      * @param int $id
      * @return string|null
      */
@@ -49,8 +47,6 @@ class AvatarModel
     }
 
     /**
-     * save
-     *
      * @param int $id
      * @param UploadedFile $file
      * @return bool
@@ -68,8 +64,6 @@ class AvatarModel
     }
 
     /**
-     * getFolderUser
-     *
      * @param int $id
      * @return string
      */
@@ -79,8 +73,6 @@ class AvatarModel
     }
 
     /**
-     * getFolderUser
-     *
      * @param int $id
      * @return string
      */
@@ -90,39 +82,33 @@ class AvatarModel
     }
 
     /**
-     * getUserAvatarName
-     *
      * @param int $id
      * @return string
      */
     public static function getUserAvatarName(int $id)
     {
         $filename = self::getFolderUser($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
-		return $filename;
+        return $filename;
     }
 
     /**
-     * getUserAvatarNameURL
-     *
      * @param int $id
      * @return string
      */
     public static function getUserAvatarNameURL(int $id)
     {
-		$route = self::getFolderUserURL($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
-		return $route;
+        $route = self::getFolderUserURL($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
+        return $route;
     }
 
     /**
-     * hasUserAvatar
-     *
      * @param int $id
      * @return bool
      */
     public static function hasUserAvatar(int $id)
     {
-		$filename = self::getUserAvatarName($id);
-		$exists = file_exists($filename);
-		return $exists;
+        $filename = self::getUserAvatarName($id);
+        $exists = file_exists($filename);
+        return $exists;
     }
 }

@@ -21,6 +21,9 @@ class CategoriesLang extends LangInjector
 
     const LANG_GROUP = 'categories-lang';
 
+    /**
+     * @return void
+     */
     public static function injectLang()
     {
         $injector = new LangInjector(__DIR__ . '/lang', Config::get_allowed_langs());

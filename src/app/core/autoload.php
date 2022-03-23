@@ -46,7 +46,6 @@ function loader_classes($class)
     foreach ($scheme as $element) {
         $psr4 = isset($element['psr4']) ? $element['psr4'] : false;
         $namespaces = isset($element['namespaces']) ? $element['namespaces'] : [];
-        $ignore_namespace = isset($element['ignore_namespace']) ? $element['ignore_namespace'] : false;
         $namespaces = is_array($namespaces) ? $namespaces : [$namespaces];
 
         foreach ($namespaces as $index => $namespace) {
@@ -87,14 +86,7 @@ function loader_classes($class)
                 $namespace = implode('\\', $class_path_parts) . '\\';
                 $namespace = str_replace('\\', '/', $namespace);
 
-                if ($ignore_namespace !== true) {
-
-                    $path = $element['path'] . '/' . $namespace . $file_name;
-
-                } else {
-
-                    $path = $element['path'] . '/' . $namespace . $file_name;
-                }
+                $path = $element['path'] . '/' . $namespace . $file_name;
 
                 if (file_exists($path)) {
                     require_once $path;

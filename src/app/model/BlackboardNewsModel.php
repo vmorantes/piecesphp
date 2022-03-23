@@ -59,15 +59,11 @@ class BlackboardNewsModel extends BaseEntityMapper
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::TABLE;
 
     /**
-     * __construct
-     *
      * @param int $value
      * @param string $field_compare
      * @return static

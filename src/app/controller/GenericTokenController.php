@@ -63,7 +63,7 @@ class GenericTokenController extends AdminPanelController
      * @param Request $req
      * @param Response $res
      * @param array $args
-     * @return void
+     * @return Response
      */
     public function entryPoint(Request $req, Response $res, array $args)
     {
@@ -112,10 +112,25 @@ class GenericTokenController extends AdminPanelController
 
         if ($exists) {
 
+            /**
+             * @var array<string,mixed> $handler
+             */
             $handler = self::TYPES_HANDLER[$handler];
+            /**
+             * @var bool $validate_session
+             */
             $validate_session = $handler['validate_session'];
+            /**
+             * @var array|null $roles
+             */
             $roles = $handler['roles'];
+            /**
+             * @var string $method
+             */
             $method = $handler['method'];
+            /**
+             * @var bool $has_post_route
+             */
             $has_post_route = $handler['has_post_route'];
 
             $valid_user = false;
@@ -197,7 +212,7 @@ class GenericTokenController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
-     * @return void
+     * @return Response
      */
     public function commentary(Request $req, Response $res)
     {

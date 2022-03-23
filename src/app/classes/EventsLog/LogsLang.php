@@ -21,6 +21,9 @@ class LogsLang extends LangInjector
 
     const LANG_GROUP = 'logs-lang';
 
+    /**
+     * @return void
+     */
     public static function injectLang()
     {
         $injector = new LangInjector(__DIR__ . '/lang', Config::get_allowed_langs());
