@@ -19,15 +19,11 @@ use PiecesPHP\Core\HTML\HtmlElement;
 class MenuItemCollection
 {
     /**
-     * $items
-     *
      * @var MenuItem[]
      */
     protected $items;
 
     /**
-     * $structureOptions
-     *
      * @var array
      */
     protected $structureOptions = [
@@ -38,8 +34,6 @@ class MenuItemCollection
     ];
 
     /**
-     * __construct
-     *
      * @param mixed $options
      * @return static
      */
@@ -87,8 +81,6 @@ class MenuItemCollection
     }
 
     /**
-     * getHtml
-     *
      * @return string
      */
     public function getHtml()
@@ -102,8 +94,6 @@ class MenuItemCollection
     }
 
     /**
-     * getHtmlElements
-     *
      * @return HtmlElement[]
      */
     public function getHtmlElements()

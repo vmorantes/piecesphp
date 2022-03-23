@@ -18,29 +18,21 @@ class Sitemap
 {
 
     /**
-     * $file
-     *
      * @var string
      */
     protected $file = 'sitemap.xml';
 
     /**
-     * $locations
-     *
      * @var string[]
      */
     protected $locations = [];
 
     /**
-     * $items
-     *
      * @var SitemapItem[]
      */
     protected $items = [];
 
     /**
-     * __construct
-     *
      * @param string $file
      * @param bool $load
      * @return static
@@ -103,8 +95,6 @@ class Sitemap
     }
 
     /**
-     * save
-     *
      * @return bool
      */
     public function save()
@@ -115,8 +105,6 @@ class Sitemap
     }
 
     /**
-     * addItems
-     *
      * @param SitemapItem[] $items
      * @return static
      */
@@ -134,8 +122,6 @@ class Sitemap
     }
 
     /**
-     * addItem
-     *
      * @param SitemapItem $item
      * @return static
      */
@@ -154,8 +140,6 @@ class Sitemap
     }
 
     /**
-     * getLocations
-     *
      * @return string[]
      */
     public function getLocations()
@@ -164,8 +148,6 @@ class Sitemap
     }
 
     /**
-     * getXML
-     *
      * @return string
      */
     public function getXML()

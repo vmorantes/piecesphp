@@ -16,51 +16,35 @@ namespace PiecesPHP\Core\CustomErrorsHandlers;
 class GenericHandler
 {
     /**
-     * $exception
-     *
      * @var \Exception|\Error
      */
     protected $exception;
     /**
-     * $maxSizeMB
-     *
      * @var int
      */
     protected $maxSizeMB = 1;
     /**
-     * $date
-     *
      * @var \DateTime
      */
     protected $date = null;
     /**
-     * $fileLocation
-     *
      * @var string
      */
     protected $fileLocation = '';
     /**
-     * $oldFileLocation
-     *
      * @var string
      */
     protected $oldFileLocation = '';
     /**
-     * $directory
-     *
      * @var string
      */
     protected $directory = '';
     /**
-     * $directoryBackup
-     *
      * @var string
      */
     protected $directoryBackup = '';
 
     /**
-     * __construct
-     *
      * @param \Exception|\Error $e
      * @return static
      * @throws \TypeError
@@ -94,8 +78,6 @@ class GenericHandler
     }
 
     /**
-     * logging
-     *
      * @return void
      */
     public function logging()

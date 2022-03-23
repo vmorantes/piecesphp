@@ -19,75 +19,51 @@ class MetaTags
 {
 
     /**
-     * $owner
-     *
      * @var string
      */
     protected static $owner = null;
     /**
-     * $sitename
-     *
      * @var string
      */
     protected static $sitename = null;
     /**
-     * $title
-     *
      * @var string
      */
     protected static $title = null;
     /**
-     * $description
-     *
      * @var string
      */
     protected static $description = null;
     /**
-     * $keywords
-     *
      * @var string
      */
     protected static $keywords = null;
     /**
-     * $image
-     *
      * @var string
      */
     protected static $image = null;
     /**
-     * $url
-     *
      * @var string
      */
     protected static $url = null;
     /**
-     * $themeColor
-     *
      * @var string
      */
     protected static $themeColor = null;
     /**
-     * $locale
-     *
      * @var string
      */
     protected static $locale = null;
     /**
-     * $localeAlternate
-     *
      * @var string
      */
     protected static $localeAlternate = null;
     /**
-     * $type
-     *
      * @var string
      */
     protected static $type = null;
 
     /**
-     * initialValues
-     *
      * @return void
      */
     private static function initialValues()
@@ -198,8 +174,6 @@ class MetaTags
     }
 
     /**
-     * setOwner
-     *
      * @param string $value
      * @return void
      */
@@ -209,8 +183,6 @@ class MetaTags
     }
 
     /**
-     * setSitename
-     *
      * @param string $value
      * @return void
      */
@@ -220,8 +192,6 @@ class MetaTags
     }
 
     /**
-     * setTitle
-     *
      * @param string $value
      * @return void
      */
@@ -231,8 +201,6 @@ class MetaTags
     }
 
     /**
-     * setDescription
-     *
      * @param string $value
      * @param int $maxLength
      * @param int $fromIndex
@@ -249,8 +217,6 @@ class MetaTags
     }
 
     /**
-     * setKeywords
-     *
      * @param string $value
      * @return void
      */
@@ -260,8 +226,6 @@ class MetaTags
     }
 
     /**
-     * setImage
-     *
      * @param string $value
      * @return void
      */
@@ -271,8 +235,6 @@ class MetaTags
     }
 
     /**
-     * setURL
-     *
      * @param string $value
      * @return void
      */
@@ -282,8 +244,6 @@ class MetaTags
     }
 
     /**
-     * setThemeColor
-     *
      * @param string $value
      * @return void
      */
@@ -293,8 +253,6 @@ class MetaTags
     }
 
     /**
-     * setLocale
-     *
      * @param string $value
      * @return void
      */
@@ -304,8 +262,6 @@ class MetaTags
     }
 
     /**
-     * setLocaleAlternate
-     *
      * @param string $value
      * @return void
      */
@@ -315,8 +271,6 @@ class MetaTags
     }
 
     /**
-     * setType
-     *
      * @param string $value
      * @return void
      */
@@ -326,8 +280,6 @@ class MetaTags
     }
 
     /**
-     * getMetaTagsGeneric
-     *
      * @return string
      */
     public static function getMetaTagsGeneric()
@@ -365,9 +317,8 @@ class MetaTags
             }
         }
 
-        
         $html = implode("\r\n", $html);
-        
+
         $html .= "\r\n\t<!-- Close Meta tags basic -->\r\n";
 
         $htmlResult .= $html;
@@ -376,8 +327,6 @@ class MetaTags
     }
 
     /**
-     * getMetaTagsOpenGraph
-     *
      * @return string
      */
     public static function getMetaTagsOpenGraph()

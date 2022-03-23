@@ -16,43 +16,31 @@ class FileObject implements \JsonSerializable
 {
 
     /**
-     * $rawPath
-     *
      * @var string
      */
     protected $rawPath = '';
 
     /**
-     * $path
-     *
      * @var string
      */
     protected $path = '';
 
     /**
-     * $basename
-     *
      * @var string
      */
     protected $basename = '';
 
     /**
-     * $parent
-     *
      * @var string
      */
     protected $parent = '';
 
     /**
-     * $exists
-     *
      * @var bool
      */
     protected $exists = false;
 
     /**
-     * __construct
-     *
      * @param string $path
      * @return static
      */
@@ -66,8 +54,6 @@ class FileObject implements \JsonSerializable
     }
 
     /**
-     * getRawPath
-     *
      * @return string
      */
     public function getRawPath()
@@ -76,8 +62,6 @@ class FileObject implements \JsonSerializable
     }
 
     /**
-     * getExists
-     *
      * @return bool
      */
     public function getExists()
@@ -86,8 +70,6 @@ class FileObject implements \JsonSerializable
     }
 
     /**
-     * getPath
-     *
      * @return string
      */
     public function getPath()
@@ -96,8 +78,6 @@ class FileObject implements \JsonSerializable
     }
 
     /**
-     * getBasename
-     *
      * @return string
      */
     public function getBasename()
@@ -106,8 +86,6 @@ class FileObject implements \JsonSerializable
     }
 
     /**
-     * getParent
-     *
      * @return string
      */
     public function getParent()
@@ -116,8 +94,6 @@ class FileObject implements \JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return array
      */
     public function jsonSerialize()

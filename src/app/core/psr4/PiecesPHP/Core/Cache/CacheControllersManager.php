@@ -32,78 +32,56 @@ class CacheControllersManager implements Serializable, JsonSerializable
     ];
 
     /**
-     * $hash
-     *
      * @var string
      */
     private $hash = '';
 
     /**
-     * $ownConfigurationFileName
-     *
      * @var string
      */
     private $ownConfigurationFileName = '';
 
     /**
-     * $folderCache
-     *
      * @var string
      */
     private $folderCache = '';
 
     /**
-     * $globalConfigurationFile
-     *
      * @var string
      */
     private $globalConfigurationFile = '';
 
     /**
-     * $className
-     *
      * @var string
      */
     protected $className = '';
 
     /**
-     * $methodName
-     *
      * @var string
      */
     protected $methodName = '';
 
     /**
-     * $contentType
-     *
      * @var string
      */
     protected $contentType = '';
 
     /**
-     * $duration
-     *
      * @var int
      */
     protected $duration = 0;
 
     /**
-     * $creationTime
-     *
      * @var int
      */
     protected $creationTime = 0;
 
     /**
-     * $criteries
-     *
      * @var \ArrayObject
      */
     protected $criteries = null;
 
     /**
-     * $globalOptions
-     *
      * @var array
      */
     protected $globalOptions = [
@@ -111,8 +89,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     ];
 
     /**
-     * __construct
-     *
      * @param string $className
      * @param string $methodName
      * @param int $validTimeOnSeconds
@@ -147,8 +123,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * process
-     *
      * @return static
      */
     public function process()
@@ -232,8 +206,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * setOwnConfigurationProperty
-     *
      * @param string $name
      * @param mixed $value
      * @return static
@@ -258,8 +230,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * isExpired
-     *
      * @return bool
      */
     public function isExpired()
@@ -268,8 +238,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * setDataCache
-     *
      * @param string $data
      * @param string $contentType
      * @return static
@@ -287,8 +255,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * getCachedData
-     *
      * @param bool $parse
      * @return string|\stdClass|array
      */
@@ -313,8 +279,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * hasCachedData
-     *
      * @return bool
      */
     public function hasCachedData()
@@ -323,8 +287,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * getCachedDataFileName
-     *
      * @param bool $fullPath
      * @return string
      */
@@ -336,8 +298,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * getContentType
-     *
      * @return string
      */
     public function getContentType()
@@ -346,8 +306,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * setCriteries
-     *
      * @param CacheControllersCriteries $criteries
      * @return static
      */
@@ -358,8 +316,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * getCriteries
-     *
      * @return CacheControllersCriteries
      */
     public function getCriteries()
@@ -368,8 +324,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * configFolderCache
-     *
      * @return void
      */
     public function init()
@@ -391,8 +345,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * globalTouch
-     *
      * @param string $className
      * @param string $methodName
      * @return void
@@ -403,8 +355,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * setGlobalConfigurationProperty
-     *
      * @param string $className
      * @param string $methodName
      * @param string $property
@@ -423,8 +373,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * globalFolderName
-     *
      * @param string $className
      * @param string $methodName
      * @return string
@@ -436,8 +384,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * globalExists
-     *
      * @param string $className
      * @param string $methodName
      * @return bool
@@ -459,8 +405,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * serialize
-     *
      * @return string
      */
     public function serialize()
@@ -469,8 +413,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * unserialize
-     *
      * @param mixed $serialized
      * @return void
      */
@@ -497,8 +439,6 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return array
      */
     public function jsonSerialize()

@@ -19,15 +19,11 @@ class ExtraScripts
 {
 
     /**
-     * $scripts
-     *
      * @var string
      */
     protected static $scripts = null;
 
     /**
-     * initialValues
-     *
      * @return void
      */
     private static function initialValues()
@@ -54,8 +50,6 @@ class ExtraScripts
     }
 
     /**
-     * setScripts
-     *
      * @param string $value
      * @return void
      */
@@ -65,8 +59,6 @@ class ExtraScripts
     }
 
     /**
-     * getScripts
-     *
      * @return string
      */
     public static function getScripts()

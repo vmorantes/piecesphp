@@ -36,8 +36,6 @@ class RouteGroup
      */
     protected $routeGroup = '';
     /**
-     * $routes
-     *
      * @var Route[]
      */
     protected $routes = [];
