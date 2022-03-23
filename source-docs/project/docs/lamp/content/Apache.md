@@ -3,7 +3,7 @@
 - Ubuntu 20
 - Apache2
 
-## Intalación
+## Instalación
 
 ```bash
 #Moverse al directorio de usuario

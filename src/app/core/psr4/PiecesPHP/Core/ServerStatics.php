@@ -6,7 +6,7 @@
 
 namespace PiecesPHP\Core;
 
-use Leafo\ScssPhp\Compiler as ScssCompiler;
+use ScssPhp\ScssPhp\Compiler as ScssCompiler;
 use \Slim\Http\Request as Request;
 use \Slim\Http\Response as Response;
 
@@ -273,9 +273,10 @@ class ServerStatics
      * @param array $args
      * @param string $path
      * @param array $replacement
+     * @param string $baseStaticURL
      * @return Response
      */
-    public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [])
+    public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [], string $baseStaticURL = '')
     {
 
         $resource = $args['params'];
@@ -304,6 +305,21 @@ class ServerStatics
                 if ($toCompile) {
 
                     $scss = new ScssCompiler();
+                    $scss->setSourceMap(ScssCompiler::SOURCE_MAP_FILE);
+                    $filePathMap = $filePathCss . '.map';
+
+                    if (mb_strlen($baseStaticURL) > 0) {
+                        $sourceMapURL = trim($baseStaticURL, '/') . '/' . basename($filePathMap);
+                        $sourceMapFilename = trim($baseStaticURL, '/') . '/' . basename($filePathCss);
+                    } else {
+                        $sourceMapURL = baseurl(trim(str_replace(basepath(), '', $filePathMap), '/'));
+                        $sourceMapFilename = baseurl(trim(str_replace(basepath(), '', $filePathCss), '/'));
+                    }
+
+                    $scss->setSourceMapOptions([
+                        'sourceMapURL' => $sourceMapURL,
+                        'sourceMapFilename' => $sourceMapFilename,
+                    ]);
                     $fileContent = file_get_contents($filePathSass);
 
                     if (is_string($fileContent)) {
@@ -370,7 +386,7 @@ class ServerStatics
                             $scss->setImportPaths($importPaths);
                         }
 
-                        $compiledCss = $scss->compile($fileContent);
+                        $compilatorResult = $scss->compileString($fileContent);
 
                         $cssBasename = basename($filePathCss);
                         $cssFolderDes = str_replace(DIRECTORY_SEPARATOR . $cssBasename, '', $filePathCss);
@@ -379,7 +395,8 @@ class ServerStatics
                             mkdir($cssFolderDes, 0777, true);
                         }
 
-                        file_put_contents($filePathCss, $compiledCss);
+                        file_put_contents($filePathCss, $compilatorResult->getCss());
+                        file_put_contents($filePathMap, $compilatorResult->getSourceMap());
                         chmod($filePathCss, 0777);
                     }
                 }
@@ -501,7 +518,15 @@ class ServerStatics
 
                 $eTag = 'PCSPHP_' . sha1($lastModification !== false ? (string) $lastModification : '...');
 
-                $headers['Cache-Control'] = "no-cache";
+                $mustRevalidateExtensions = [
+                    'css',
+                    'js',
+                ];
+                if (in_array($extension, $mustRevalidateExtensions)) {
+                    $headers['Cache-Control'] = "max-age=5256000, must-revalidate"; //Max-age de 2 meses
+                } else {
+                    $headers['Cache-Control'] = "no-cache";
+                }
                 $headers['Last-Modified'] = $lastModificationGMT;
                 $headers['ETag'] = $eTag;
 

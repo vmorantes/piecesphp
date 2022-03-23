@@ -7,6 +7,7 @@ parameters:
         - ../src/app/config/constants.php
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
         - 
             message: '#Variable \$(.*) might not be defined\.#'
@@ -64,3 +65,4 @@ parameters:
         - '#\#1 \$name of method PiecesPHP\\Core\\Utilities\\ReturnTypes\\ResultOperations::operation\(\) expects string, array<string>\|string given\.#'
         - '#PHPDoc tag @param references.*#'
         - '#PHPDoc tag @var above a function has no effect\.#'
+        - '#PHPDoc tag @use has invalid value.*#'

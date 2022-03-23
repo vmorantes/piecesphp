@@ -122,7 +122,7 @@ class LogsRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics');
+            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
         };
 
         /**
