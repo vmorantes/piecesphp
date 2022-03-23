@@ -21,49 +21,35 @@ class OsTicketAPI
 {
 
     /**
-     * $url
-     *
      * @var string
      */
     protected $url = '';
     /**
-     * $apiKey
-     *
      * @var string
      */
     protected $apiKey = '';
 
     /**
-     * $httpClient
-     *
      * @var HttpClient
      */
     protected $httpClient;
 
     /**
-     * $baseURL
-     *
      * @var string
      */
     protected static $baseURL = '';
 
     /**
-     * $baseAPIKey
-     *
      * @var string
      */
     protected static $baseAPIKey = '';
 
     /**
-     * $createTicketsQuery
-     *
      * @var string
      */
     protected static $createTicketsQuery = 'tickets.json';
 
     /**
-     * __construct
-     *
      * @param string $apiKey
      * @param string $url
      *@return static
@@ -84,8 +70,6 @@ class OsTicketAPI
     }
 
     /**
-     * createTicket
-     *
      * @param string $name
      * @param string $email
      * @param string $subject
@@ -109,8 +93,6 @@ class OsTicketAPI
     }
 
     /**
-     * getHttpClient
-     *
      * @return HttpClient
      */
     public function getHttpClient()
@@ -119,8 +101,6 @@ class OsTicketAPI
     }
 
     /**
-     * setBaseURL
-     *
      * @param string $url
      * @return void
      */
@@ -131,8 +111,6 @@ class OsTicketAPI
     }
 
     /**
-     * setBaseAPIKey
-     *
      * @param string $apiKey
      * @return void
      */

@@ -18,39 +18,27 @@ namespace PiecesPHP\Core\Utilities\ReturnTypes;
 class Operation implements \JsonSerializable
 {
     /**
-     * $name
-     *
      * @var string
      */
     protected $name = '';
     /**
-     * $success
-     *
      * @var boolean
      */
     protected $success = false;
     /**
-     * $required
-     *
      * @var boolean
      */
     protected $required = true;
     /**
-     * $message
-     *
      * @var string
      */
     protected $message = '';
     /**
-     * $time
-     *
      * @var \DateTime
      */
     protected $time = null;
 
     /**
-     * __construct
-     *
      * @param string $name
      * @param string $message
      * @param bool $success
@@ -60,15 +48,13 @@ class Operation implements \JsonSerializable
     public function __construct(string $name = null, string $message = '', bool $success = false, bool $required = true)
     {
         $this->time = new \DateTime();
-        $this->name = is_null($name) ? uniqid(): $name;
+        $this->name = is_null($name) ? uniqid() : $name;
         $this->message = $message;
         $this->success = $success;
         $this->required = $required;
     }
 
     /**
-     * setName
-     *
      * @param string $name
      * @return static
      */
@@ -79,8 +65,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * setMessage
-     *
      * @param string $message
      * @return static
      */
@@ -91,8 +75,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * setSuccess
-     *
      * @param bool $success
      * @return static
      */
@@ -103,8 +85,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * setRequired
-     *
      * @param bool $required
      * @return static
      */
@@ -115,8 +95,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * getName
-     *
      * @return string
      */
     public function getName(): string
@@ -125,8 +103,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * getSuccess
-     *
      * @return bool
      */
     public function getSuccess(): bool
@@ -135,8 +111,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * getRequired
-     *
      * @return bool
      */
     public function getRequired(): bool
@@ -145,8 +119,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * getMessage
-     *
      * @return string
      */
     public function getMessage(): string
@@ -155,8 +127,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * getTime
-     *
      * @return \DateTime
      */
     public function getTime(): \DateTime
@@ -165,8 +135,6 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * jsonSerialize
-     *
      * @return mixed
      */
     public function jsonSerialize()

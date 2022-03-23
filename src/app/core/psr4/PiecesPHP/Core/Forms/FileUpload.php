@@ -17,56 +17,38 @@ namespace PiecesPHP\Core\Forms;
 class FileUpload
 {
     /**
-     * $validator
-     *
      * @var FileValidator
      */
     protected $validator;
     /**
-     * $quantity
-     *
      * @var int
      */
     protected $quantity = 0;
     /**
-     * $fileInformation
-     *
      * @var array
      */
     protected $fileInformation;
     /**
-     * $multiple
-     *
      * @var bool
      */
     protected $multiple = false;
     /**
-     * $errorMessages
-     *
      * @var string[]
      */
     protected $errorMessages = [];
     /**
-     * $name
-     *
      * @var string
      */
     protected $name = '';
     /**
-     * $directoryMove
-     *
      * @var string
      */
     protected $directoryMove = null;
     /**
-     * $nameOnMove
-     *
      * @var string
      */
     protected $nameOnMove = null;
     /**
-     * $extensionOnMove
-     *
      * @var string
      */
     protected $extensionOnMove = null;
@@ -78,8 +60,6 @@ class FileUpload
     const NOT_UPLOAD_FAKE_ERROR = 'FAKE_ERROR';
 
     /**
-     * __construct
-     *
      * @param string $name
      * @param array $types
      * @param int $max_size_mb
@@ -190,8 +170,6 @@ class FileUpload
     }
 
     /**
-     * validate
-     *
      * @return bool
      * @throws \Exception en caso de no ser un archivo subido mediante formulario
      */
@@ -281,8 +259,6 @@ class FileUpload
     }
 
     /**
-     * getQuantity
-     *
      * @return int
      */
     public function getQuantity()
@@ -293,8 +269,6 @@ class FileUpload
     }
 
     /**
-     * hasInput
-     *
      * @return bool
      */
     public function hasInput()
@@ -320,8 +294,6 @@ class FileUpload
     }
 
     /**
-     * setNameOnMove
-     *
      * @param string $name
      * @return static
      */
@@ -332,8 +304,6 @@ class FileUpload
     }
 
     /**
-     * setExtensionOnMove
-     *
      * @param string $extension
      * @return static
      */
@@ -344,8 +314,6 @@ class FileUpload
     }
 
     /**
-     * setDirectoryMove
-     *
      * @param string $directory
      * @return static
      */
@@ -356,8 +324,6 @@ class FileUpload
     }
 
     /**
-     * getErrorMessages
-     *
      * @return array
      */
     public function getErrorMessages()
@@ -366,8 +332,6 @@ class FileUpload
     }
 
     /**
-     * getFileInformation
-     *
      * @return array
      */
     public function getFileInformation()
@@ -376,8 +340,6 @@ class FileUpload
     }
 
     /**
-     * getName
-     *
      * @return string
      */
     public function getName()
@@ -386,8 +348,6 @@ class FileUpload
     }
 
     /**
-     * isMultiple
-     *
      * @return bool
      */
     public function isMultiple()
@@ -396,8 +356,6 @@ class FileUpload
     }
 
     /**
-     * moveTo
-     *
      * @param string $directory
      * @param string $name
      * @param string $extension
@@ -512,8 +470,6 @@ class FileUpload
     }
 
     /**
-     * moveFileTo
-     *
      * @param string $directory
      * @param string $file
      * @param string $basename

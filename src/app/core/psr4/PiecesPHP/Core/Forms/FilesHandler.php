@@ -17,21 +17,15 @@ namespace PiecesPHP\Core\Forms;
 class FilesHandler
 {
     /**
-     * $files
-     *
      * @var FileUpload[]
      */
     protected $files = [];
     /**
-     * $errorMessages
-     *
      * @var array
      */
     protected $errorMessages = [];
 
     /**
-     * __construct
-     *
      * @param FileUpload[] $files
      * @return static
      */
@@ -46,8 +40,6 @@ class FilesHandler
     }
 
     /**
-     * moveFilesTo
-     *
      * @param string $directory
      * @param bool $validate
      * @param bool $overwrite
@@ -63,8 +55,6 @@ class FilesHandler
     }
 
     /**
-     * validate
-     *
      * @return bool
      */
     public function validate()
@@ -83,8 +73,6 @@ class FilesHandler
     }
 
     /**
-     * getErrorMessages
-     *
      * @return array
      */
     public function getErrorMessages()
@@ -93,8 +81,6 @@ class FilesHandler
     }
 
     /**
-     * getFile
-     *
      * @param string $name
      * @return FileUpload|null
      */
@@ -104,8 +90,6 @@ class FilesHandler
     }
 
     /**
-     * getFiles
-     *
      * @return FileUpload[]
      */
     public function getFiles()
@@ -114,8 +98,6 @@ class FilesHandler
     }
 
     /**
-     * isArrayFileUpload
-     *
      * @param array $files
      * @return bool
      */

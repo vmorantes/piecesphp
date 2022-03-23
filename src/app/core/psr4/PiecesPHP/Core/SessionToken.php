@@ -23,8 +23,6 @@ class SessionToken
     const DEFAULT_MINIMUM_DATE_CREATED = '1990-01-01';
 
     /**
-     * $minimumDateCreated
-     *
      * @var \DateTime
      */
     private static $minimumDateCreated = null;
@@ -51,8 +49,6 @@ class SessionToken
     }
 
     /**
-     * isActiveSession
-     *
      * @param string $token
      * @param string $key
      * @return bool
@@ -87,8 +83,6 @@ class SessionToken
     }
 
     /**
-     * getJWTReceived
-     *
      * @return string
      */
     public static function getJWTReceived()
@@ -112,8 +106,6 @@ class SessionToken
     }
 
     /**
-     * setMinimumDateCreated
-     *
      * @param \DateTime $minimumDateCreated
      * @return void
      */

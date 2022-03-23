@@ -84,8 +84,6 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
     ];
 
     /**
-     * $table
-     *
      * @var string
      */
     protected $table = self::TABLE;

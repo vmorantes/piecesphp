@@ -33,7 +33,6 @@ class LetsEncryptHandler implements LoggerInterface
     private $directoryRootNotSetMessage = 'El directorio raíz no ha sido configurado';
 
     /**
-     * Configuraciones
      * @var array $configurations
      * @var string $configurations['domain']
      * @var string $configurations['email']
@@ -55,22 +54,16 @@ class LetsEncryptHandler implements LoggerInterface
     protected $testMode = false;
 
     /**
-     * Cliente
-     *
      * @var LEClient
      */
     protected $client = null;
 
     /**
-     * Orden
-     *
      * @var LEOrder
      */
     protected $order = null;
 
     /**
-     * Logs
-     *
      * @var array
      */
     protected $logs = [

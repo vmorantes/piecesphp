@@ -19,14 +19,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class CustomSlimErrorHandler
 {
     /**
-     * $container
-     *
      * @var \Slim\Container
      */
     protected $container;
     /**
-     * $handler
-     *
      * @var GenericHandler
      */
     protected $handler = null;

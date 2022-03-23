@@ -22,8 +22,6 @@ class FilesIgnore
     protected $exclude_regexprs = [];
 
     /**
-     * __construct
-     *
      * @param string[] $regexprs
      * @return static
      */
@@ -36,8 +34,6 @@ class FilesIgnore
     }
 
     /**
-     * addRegExpr
-     *
      * @param string $regexpr
      * @return $this
      */
@@ -48,8 +44,6 @@ class FilesIgnore
     }
 
     /**
-     * addRegExprs
-     *
      * @param string[] $regexprs
      * @return $this
      */
@@ -67,8 +61,6 @@ class FilesIgnore
     }
 
     /**
-     * setRegExprs
-     *
      * @param string[] $regexprs
      * @return $this
      */
@@ -85,8 +77,6 @@ class FilesIgnore
     }
 
     /**
-     * ignore
-     *
      * @param string $path
      * @return bool
      */

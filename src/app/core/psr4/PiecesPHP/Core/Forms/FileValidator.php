@@ -210,33 +210,23 @@ class FileValidator
     ];
 
     /**
-     * $acceptedTypes
-     *
      * @var array
      */
     protected $acceptedTypes = [];
     /**
-     * $message
-     *
      * @var string
      */
     protected $message = '';
     /**
-     * $maxFileSize
-     *
      * @var int
      */
     protected $maxFileSizeMB = 0;
     /**
-     * $ignoreMimeType
-     *
      * @var bool
      */
     public static $ignoreMimeType = false;
 
     /**
-     * __construct
-     *
      * @param string[] $accepted_types
      * @return static
      */
@@ -270,8 +260,6 @@ class FileValidator
     }
 
     /**
-     * validate
-     *
      * @param string $file
      * @param string $basename
      * @return bool
@@ -336,8 +324,6 @@ class FileValidator
     }
 
     /**
-     * getAcceptedTypes
-     *
      * @return array
      */
     public function getAcceptedTypes()
@@ -346,8 +332,6 @@ class FileValidator
     }
 
     /**
-     * getMessage
-     *
      * @return string
      */
     public function getMessage()
