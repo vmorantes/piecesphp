@@ -319,9 +319,11 @@ class PersonsMapper extends EntityMapperExtensible
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
-            $this->id = $idInserted;
-            $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update(true);
+            if ($idInserted !== null) {
+                $this->id = $idInserted;
+                $this->preferSlug = self::getEncryptIDForSlug($idInserted);
+                $this->update(true);
+            }
         }
 
         return $saveResult;
@@ -840,9 +842,10 @@ class PersonsMapper extends EntityMapperExtensible
      * @param bool $onlyActives
      * @return bool
      */
-    public static function existsByDocument(string $documentType, string $documentNumber, int $ignoreID = -1, bool $onlyActives = true)
+    public static function existsByDocument(string $documentType, string $documentNumber, int $ignoreID = null, bool $onlyActives = true)
     {
 
+        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
         $model = self::model();
 
         $documentNumber = escapeString($documentNumber);
@@ -872,7 +875,7 @@ class PersonsMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return PersonsMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {

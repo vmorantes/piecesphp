@@ -2394,12 +2394,11 @@ function num_month_to_text(string $date)
  * Una cadena para url amigables
  * @param string $string Cadena para formatear
  * @param int $maxWords Cantidad máxima de palabras
- * @param bool $legacy
  * @return string Cadena formateada
  */
-function friendly_url(string $string, int $maxWords = null, bool $legacy = false)
+function friendly_url(string $string, int $maxWords = null)
 {
-    return $legacy ? StringManipulate::friendlyURLStringLegacy($string, $maxWords) : StringManipulate::friendlyURLString($string, $maxWords);
+    return StringManipulate::friendlyURLString($string, $maxWords);
 }
 
 /**

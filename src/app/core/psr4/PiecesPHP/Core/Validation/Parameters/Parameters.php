@@ -52,7 +52,7 @@ class Parameters implements \JsonSerializable
 
     /**
      * @param array $inputValues Array con clave=>valor que correponde al nombre del parámetro y al valor
-     * @return static
+     * @return Parameters
      */
     public function setInputValues(array $inputValues)
     {
