@@ -99,7 +99,7 @@ class TimeOnPlatformModel extends BaseEntityMapper
 
     /**
      * @param int $user_id
-     * @return static|null
+     * @return TimeOnPlatformModel|null
      */
     public static function getRecordByUser(int $user_id)
     {

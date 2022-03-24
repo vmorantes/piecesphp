@@ -375,7 +375,7 @@ class Route
      *      array                  $route[roles_allowed]
      *      array                  $route[parameters]
      *      array<string|callable> $route[middlewares]
-     * @return static
+     * @return Route
      */
     public static function instanceFromArray(array $route)
     {

@@ -117,9 +117,11 @@ class PresentationCategoryMapper extends EntityMapperExtensible
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
-            $this->id = $idInserted;
-            $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update();
+            if ($idInserted !== null) {
+                $this->id = $idInserted;
+                $this->preferSlug = self::getEncryptIDForSlug($idInserted);
+                $this->update();
+            }
         }
 
         return $saveResult;
@@ -552,9 +554,10 @@ class PresentationCategoryMapper extends EntityMapperExtensible
      * @param integer $ignoreID
      * @return bool
      */
-    public static function existsByName(string $name, int $ignoreID = -1)
+    public static function existsByName(string $name, int $ignoreID = null)
     {
 
+        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
         $model = self::model();
 
         $name = escapeString($name);
@@ -578,7 +581,7 @@ class PresentationCategoryMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return PresentationCategoryMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {

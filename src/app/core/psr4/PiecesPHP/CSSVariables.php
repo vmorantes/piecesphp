@@ -39,7 +39,7 @@ class CSSVariables
      * Crea y devuelve una instancia con el identificador $code, si ya existe devuelve la existente
      *
      * @param string $code El código siempre es convertido a mayúsculas y sin espacios
-     * @return static
+     * @return CSSVariables
      */
     public static function instance(string $code)
     {

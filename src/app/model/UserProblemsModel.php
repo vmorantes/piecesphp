@@ -73,7 +73,7 @@ class UserProblemsModel extends BaseEntityMapper
 
     /**
      * @param mixed $code
-     * @return static|null
+     * @return UserProblemsModel|null
      */
     public static function instanceByCode($code)
     {

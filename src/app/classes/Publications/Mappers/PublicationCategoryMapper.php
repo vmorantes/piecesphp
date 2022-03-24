@@ -126,9 +126,11 @@ class PublicationCategoryMapper extends EntityMapperExtensible
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
-            $this->id = $idInserted;
-            $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update();
+            if ($idInserted !== null) {
+                $this->id = $idInserted;
+                $this->preferSlug = self::getEncryptIDForSlug($idInserted);
+                $this->update();
+            }
         }
 
         return $saveResult;
@@ -595,9 +597,10 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * @param integer $ignoreID
      * @return bool
      */
-    public static function existsByName(string $name, int $ignoreID = -1)
+    public static function existsByName(string $name, int $ignoreID = null)
     {
 
+        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
         $model = self::model();
 
         $name = escapeString($name);
@@ -621,7 +624,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return PublicationCategoryMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {
@@ -679,7 +682,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     /**
      * Crea u obtiene la categoría genérica para las publicaciones huérfanas por la eliminación
      *
-     * @return static Devuelve la categoría
+     * @return PublicationCategoryMapper Devuelve la categoría
      */
     public static function uncategorizedCategory()
     {
