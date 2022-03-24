@@ -266,7 +266,7 @@ class Importer
      * @param bool $isMeta
      * @return void
      */
-    private function processValueAndResponse(Field $field, $value, bool $hasInput = false, Response &$response, bool $isMeta = false)
+    private function processValueAndResponse(Field $field, $value, bool $hasInput, Response &$response, bool $isMeta = false)
     {
         $name = $field->getName();
         $humanName = $field->getHumanReadable();

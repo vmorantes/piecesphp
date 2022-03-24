@@ -117,68 +117,6 @@ class StringManipulate
     }
 
     /**
-     * @ignore
-     */
-    public static function friendlyURLStringLegacy(string $string, int $maxWords)
-    {
-
-        $string = trim($string);
-        $diccionario = [
-            'á', 'à', 'ä', 'â', 'ª', 'Á', 'À', 'Â', 'Ä', 'Ã',
-            'é', 'è', 'ë', 'ê', 'É', 'È', 'Ê', 'Ë',
-            'í', 'ì', 'ï', 'î', 'Í', 'Ì', 'Ï', 'Î',
-            'ó', 'ò', 'ö', 'ô', 'Ó', 'Ò', 'Ö', 'Ô',
-            'ú', 'ù', 'ü', 'û', 'Ú', 'Ù', 'Û', 'Ü',
-            'ñ', 'Ñ', 'ç', 'Ç',
-            '  ', ' ',
-        ];
-        $diccionario_remplazo = [
-            'a', 'a', 'a', 'a', 'a', 'A', 'A', 'A', 'A', 'A',
-            'e', 'e', 'e', 'e', 'E', 'E', 'E', 'E',
-            'i', 'i', 'i', 'i', 'I', 'I', 'I', 'I',
-            'o', 'o', 'o', 'o', 'O', 'O', 'O', 'O',
-            'u', 'u', 'u', 'u', 'U', 'U', 'U', 'U',
-            'nn', 'NN', 'c', 'C',
-            ' ', '-',
-        ];
-        $otros_caracteres = [
-            "\\", "¨", "º", "~", '±',
-            "#", "@", "|", "!", "\"",
-            "·", "$", "%", "&", "/",
-            "(", ")", "?", "'", "¡",
-            "¿", "[", "^", "`", "]",
-            "+", "}", "{", "¨", "´",
-            ">", "<", ";", ",", ":",
-            ".", 'º',
-        ];
-
-        $string = preg_replace("/(\t|\r\n|\r|\n){1,}/", '', $string);
-        $string = preg_replace("/(\x{00A0}){1,}/u", ' ', $string);
-        $string = str_replace($diccionario, $diccionario_remplazo, $string);
-        $string = str_replace($otros_caracteres, '', $string);
-        $string = preg_replace("/-{2,}/", '-', $string);
-        $string = mb_strtolower($string);
-
-        if (is_int($maxWords)) {
-
-            $words = explode('-', $string);
-
-            $wordsLimitied = [];
-            $countWords = count($words);
-
-            for ($i = 0; $i < $maxWords && $i < $countWords; $i++) {
-                $word = $words[$i];
-                $wordsLimitied[] = $word;
-            }
-
-            $string = implode('-', $wordsLimitied);
-
-        }
-
-        return $string;
-    }
-
-    /**
      * Devuelve un string con caracteres seguros para URL
      *
      * @param string $string

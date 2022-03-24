@@ -275,7 +275,9 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      */
     public function save()
     {
-        if (self::existsByPublication(is_object($this->publication) ? $this->publication->id : $this->publication, $this->attachmentType, $this->lang, -1)) {
+        $publicationID = is_object($this->publication) ? $this->publication->id : $this->publication;
+        $publicationID = $publicationID !== null ? $publicationID : -1;
+        if (self::existsByPublication($publicationID, $this->attachmentType, $this->lang, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe este anexo en esta publicación."));
         }
 
@@ -300,7 +302,9 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      */
     public function update(bool $noDateUpdate = false)
     {
-        if (self::existsByPublication(is_object($this->publication) ? $this->publication->id : $this->publication, $this->attachmentType, $this->lang, $this->id)) {
+        $publicationID = is_object($this->publication) ? $this->publication->id : $this->publication;
+        $publicationID = $publicationID !== null ? $publicationID : -1;
+        if (self::existsByPublication($publicationID, $this->attachmentType, $this->lang, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe este anexo en esta publicación."));
         }
         if (!$noDateUpdate) {
@@ -428,7 +432,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
     /**
      * @param string $column
-     * @param int $value
+     * @param mixed $value
      * @param bool $asMapper
      * @param bool $currentLang
      *
@@ -580,9 +584,10 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param int $ignoreID
      * @return bool
      */
-    public static function existsByPublication(int $publicationID, string $attachmentType, string $lang = null, int $ignoreID = -1)
+    public static function existsByPublication(int $publicationID, string $attachmentType, string $lang = null, int $ignoreID = null)
     {
 
+        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
         $model = self::model();
 
         $where = [
@@ -609,7 +614,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return AttachmentPublicationMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {

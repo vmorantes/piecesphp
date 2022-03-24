@@ -256,9 +256,11 @@ class CategoriesMapper extends EntityMapperExtensible
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
-            $this->id = $idInserted;
-            $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update(true);
+            if ($idInserted !== null) {
+                $this->id = $idInserted;
+                $this->preferSlug = self::getEncryptIDForSlug($idInserted);
+                $this->update(true);
+            }
         }
 
         return $saveResult;
@@ -731,8 +733,10 @@ class CategoriesMapper extends EntityMapperExtensible
      * @param int $ignoreID
      * @return bool
      */
-    public static function existsByName(string $name, int $ignoreID = -1)
+    public static function existsByName(string $name, int $ignoreID = null)
     {
+
+        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
         $model = self::model();
 
         $where = [
@@ -754,7 +758,7 @@ class CategoriesMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return CategoriesMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {

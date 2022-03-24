@@ -240,7 +240,7 @@ class CacheControllersManager implements Serializable, JsonSerializable
     /**
      * @param string $data
      * @param string $contentType
-     * @return static
+     * @return CacheControllersManager
      */
     public function setDataCache(string $data, string $contentType)
     {

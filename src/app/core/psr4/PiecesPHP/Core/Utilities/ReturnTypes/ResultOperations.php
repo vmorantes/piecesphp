@@ -302,7 +302,7 @@ class ResultOperations implements \JsonSerializable
     /**
      * @param array $operations
      * @param string $message
-     * @return static
+     * @return ResultOperations
      */
     public function result(array $operations, string $message = '')
     {
@@ -312,7 +312,7 @@ class ResultOperations implements \JsonSerializable
     /**
      * @param array $operations
      * @param string $message
-     * @return static
+     * @return ResultOperations
      */
     public static function resultInstance(array $operations, string $message = '')
     {

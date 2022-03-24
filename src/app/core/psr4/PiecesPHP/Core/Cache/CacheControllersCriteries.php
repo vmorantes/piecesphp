@@ -42,7 +42,7 @@ class CacheControllersCriteries implements Serializable, JsonSerializable
     /**
      * @param CacheControllersCritery $critery
      * @param bool $silentOnDuplicate
-     * @return static
+     * @return CacheControllersCriteries
      */
     public function addCritery(CacheControllersCritery $critery, bool $silentOnDuplicate = false)
     {
