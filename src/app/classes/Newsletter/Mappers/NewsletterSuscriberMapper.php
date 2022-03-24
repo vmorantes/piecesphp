@@ -355,7 +355,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return NewsletterSuscriberMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {

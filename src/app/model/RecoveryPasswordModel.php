@@ -69,7 +69,7 @@ class RecoveryPasswordModel extends BaseEntityMapper
 
     /**
      * @param mixed $code
-     * @return static|null
+     * @return RecoveryPasswordModel|null
      */
     public static function instanceByCode($code)
     {

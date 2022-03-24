@@ -1,14 +1,15 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\Validation\Validator;
+
 /**
  * @var string $langGroup
  * @var string $title
  */
 $user = new UsersModel(get_config('current_user')->id);
-$avatar = AvatarModel::getAvatar($user->id);
+$avatar = AvatarModel::getAvatar(Validator::isInteger($user->id) ? (int) $user->id : -1);
 ?>
 
 <div class="person-title">

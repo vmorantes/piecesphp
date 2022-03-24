@@ -190,7 +190,7 @@ class LogsMapper extends EntityMapperExtensible
      * @param string $referenceColumn
      * @param string $referenceValue
      * @param string $referenceSource
-     * @return static
+     * @return LogsMapper
      */
     public static function addLog(string $messageType, array $variables = [], string $referenceColumn = null, string $referenceValue = null, string $referenceSource = null)
     {
@@ -369,7 +369,7 @@ class LogsMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return LogsMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {

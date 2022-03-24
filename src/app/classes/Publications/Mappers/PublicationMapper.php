@@ -471,7 +471,9 @@ class PublicationMapper extends EntityMapperExtensible
      */
     public function save()
     {
-        if (self::existsByTitle($this->title, is_object($this->category) ? $this->category->id : $this->category, -1)) {
+        $categoryID = is_object($this->category) ? $this->category->id : $this->category;
+        $categoryID = $categoryID !== null ? $categoryID : -1;
+        if (self::existsByTitle($this->title, $categoryID, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
         }
 
@@ -481,9 +483,11 @@ class PublicationMapper extends EntityMapperExtensible
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
-            $this->id = $idInserted;
-            $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update(true);
+            if ($idInserted !== null) {
+                $this->id = $idInserted;
+                $this->preferSlug = self::getEncryptIDForSlug($idInserted);
+                $this->update(true);
+            }
         }
 
         return $saveResult;
@@ -496,7 +500,9 @@ class PublicationMapper extends EntityMapperExtensible
      */
     public function update(bool $noDateUpdate = false)
     {
-        if (self::existsByTitle($this->title, is_object($this->category) ? $this->category->id : $this->category, $this->id)) {
+        $categoryID = is_object($this->category) ? $this->category->id : $this->category;
+        $categoryID = $categoryID !== null ? $categoryID : -1;
+        if (self::existsByTitle($this->title, $categoryID, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
         }
         if (!$noDateUpdate) {
@@ -1048,9 +1054,10 @@ class PublicationMapper extends EntityMapperExtensible
      * @param bool $onlyActives
      * @return bool
      */
-    public static function existsByTitle(string $title, int $categoryID, int $ignoreID = -1, bool $onlyActives = true)
+    public static function existsByTitle(string $title, int $categoryID, int $ignoreID = null, bool $onlyActives = true)
     {
 
+        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
         $model = self::model();
 
         $title = escapeString($title);
@@ -1080,7 +1087,7 @@ class PublicationMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return PublicationMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {

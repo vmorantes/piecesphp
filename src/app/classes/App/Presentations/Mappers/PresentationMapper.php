@@ -131,7 +131,9 @@ class PresentationMapper extends EntityMapperExtensible
      */
     public function save()
     {
-        if (self::existsByName($this->name, is_object($this->category) ? $this->category->id : $this->category, -1)) {
+        $categoryID = is_object($this->category) ? $this->category->id : $this->category;
+        $categoryID = $categoryID !== null ? $categoryID : -1;
+        if (self::existsByName($this->name, $categoryID, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la presentación.'));
         }
 
@@ -139,9 +141,11 @@ class PresentationMapper extends EntityMapperExtensible
 
         if ($saveResult) {
             $idInserted = $this->getInsertIDOnSave();
-            $this->id = $idInserted;
-            $this->preferSlug = self::getEncryptIDForSlug($idInserted);
-            $this->update();
+            if ($idInserted !== null) {
+                $this->id = $idInserted;
+                $this->preferSlug = self::getEncryptIDForSlug($idInserted);
+                $this->update();
+            }
         }
 
         return $saveResult;
@@ -153,7 +157,9 @@ class PresentationMapper extends EntityMapperExtensible
      */
     public function update()
     {
-        if (self::existsByName($this->name, is_object($this->category) ? $this->category->id : $this->category, $this->id)) {
+        $categoryID = is_object($this->category) ? $this->category->id : $this->category;
+        $categoryID = $categoryID !== null ? $categoryID : -1;
+        if (self::existsByName($this->name, $categoryID, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la presentación.'));
         }
         return parent::update();
@@ -551,9 +557,10 @@ class PresentationMapper extends EntityMapperExtensible
      * @param integer $ignoreID
      * @return bool
      */
-    public static function existsByName(string $name, int $categoryID, int $ignoreID = -1)
+    public static function existsByName(string $name, int $categoryID, int $ignoreID = null)
     {
 
+        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
         $model = self::model();
 
         $name = escapeString($name);
@@ -578,7 +585,7 @@ class PresentationMapper extends EntityMapperExtensible
      * Devuelve el mapeador desde un objeto
      *
      * @param \stdClass $element
-     * @return static|null
+     * @return PresentationMapper|null
      */
     public static function objectToMapper(\stdClass $element)
     {
