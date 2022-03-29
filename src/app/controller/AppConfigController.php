@@ -233,10 +233,14 @@ class AppConfigController extends AdminPanelController
 
                     if ($extension == 'webp') {
                         $img = imagecreatefromwebp(basepath($relativePath));
-                        imagewebp($img, basepath($relativePath), 70);
+                        if ($img !== false) {
+                            imagewebp($img, basepath($relativePath), 70);
+                        }
                     } elseif ($extension == 'jpg' || $extension == 'jpeg') {
                         $img = imagecreatefromjpeg(basepath($relativePath));
-                        imagejpeg($img, basepath($relativePath), 70);
+                        if ($img !== false) {
+                            imagejpeg($img, basepath($relativePath), 70);
+                        }
                     }
 
                     if (!empty($route)) {
@@ -358,12 +362,16 @@ class AppConfigController extends AdminPanelController
 
                     if ($extension == 'png') {
                         $img = imagecreatefrompng(basepath($relativePath));
-                        imagealphablending($img, false);
-                        imagesavealpha($img, true);
-                        imagepng($img, basepath($relativePath), 9);
+                        if ($img !== false) {
+                            imagealphablending($img, false);
+                            imagesavealpha($img, true);
+                            imagepng($img, basepath($relativePath), 9);
+                        }
                     } elseif ($extension == 'jpg' || $extension == 'jpeg') {
                         $img = imagecreatefromjpeg(basepath($relativePath));
-                        imagejpeg($img, basepath($relativePath), 70);
+                        if ($img !== false) {
+                            imagejpeg($img, basepath($relativePath), 70);
+                        }
                     }
 
                     if (!empty($route)) {
@@ -644,7 +652,9 @@ class AppConfigController extends AdminPanelController
 
                             $route = $fileHandler->moveTo(basepath($folder), $nameImage, $extension);
                             $img = imagecreatefromjpeg(basepath($relativePath));
-                            imagejpeg($img, basepath($relativePath), 70);
+                            if ($img !== false) {
+                                imagejpeg($img, basepath($relativePath), 70);
+                            }
 
                             if (!empty($route)) {
 

@@ -88,3 +88,4 @@ parameters:
         - '#Binary operation "\." between array<string>\|string and .* results in an error\.#'
         - '#Binary operation "\." between .* and array<string>\|string results in an error\.#'
         - '#Binary operation .* array<string>\|string .* results in an error#'
+        - '#.* should return stdClass.* but returns object.*#'

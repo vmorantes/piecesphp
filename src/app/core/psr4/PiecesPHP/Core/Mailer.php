@@ -15,7 +15,7 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
- * @extends <a target='blank' href='https://github.com/PHPMailer/PHPMailer'>\PHPMailer\PHPMailer\PHPMailer</a>
+ * @see <a target='blank' href='https://github.com/PHPMailer/PHPMailer'>\PHPMailer\PHPMailer\PHPMailer</a>
  */
 class Mailer extends PHPMailer
 {
@@ -39,15 +39,24 @@ class Mailer extends PHPMailer
 
         $mailConfig = new MailConfig;
 
-        $this->SMTPDebug = $mailConfig->smtpDebug();
-        $this->Host = $mailConfig->host();
-        $this->Port = $mailConfig->port();
-        $this->SMTPAutoTLS = $mailConfig->autoTls();
-        $this->SMTPSecure = $mailConfig->protocol();
-        $this->SMTPOptions = $mailConfig->smtpOptions();
-        $this->SMTPAuth = $mailConfig->auth();
-        $this->Username = $mailConfig->user();
-        $this->Password = $mailConfig->password();
+        /**
+         * @var array<string,int|string|bool|mixed[]>
+         */
+        $PHPMailerProperties = [
+            'SMTPDebug' => $mailConfig->smtpDebug(),
+            'Host' => $mailConfig->host(),
+            'Port' => $mailConfig->port(),
+            'SMTPAutoTLS' => $mailConfig->autoTls(),
+            'SMTPSecure' => $mailConfig->protocol(),
+            'SMTPOptions' => $mailConfig->smtpOptions(),
+            'SMTPAuth' => $mailConfig->auth(),
+            'Username' => $mailConfig->user(),
+            'Password' => $mailConfig->password(),
+        ];
+
+        foreach ($PHPMailerProperties as $PHPMailerProperty => $PHPMailerPropertyValue) {
+            $this->$PHPMailerProperty = $PHPMailerPropertyValue;
+        }
 
         if ($mailConfig->isSmtp()) {
             $this->isSMTP();

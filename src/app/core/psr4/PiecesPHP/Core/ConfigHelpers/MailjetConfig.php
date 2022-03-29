@@ -49,10 +49,10 @@ class MailjetConfig
     }
 
     /**
-     * @param int $value
+     * @param string $value
      * @return string|static
      */
-    public function email(int $value = null)
+    public function email(string $value = null)
     {
         $name = 'email';
         if ($value !== null) {
@@ -65,10 +65,10 @@ class MailjetConfig
     }
 
     /**
-     * @param int $value
+     * @param string $value
      * @return string|static
      */
-    public function name(int $value = null)
+    public function name(string $value = null)
     {
         $name = 'name';
         if ($value !== null) {
@@ -81,10 +81,10 @@ class MailjetConfig
     }
 
     /**
-     * @param int $value
+     * @param string $value
      * @return string|static
      */
-    public function apiKey(int $value = null)
+    public function apiKey(string $value = null)
     {
         $name = 'apiKey';
         if ($value !== null) {
@@ -97,10 +97,10 @@ class MailjetConfig
     }
 
     /**
-     * @param int $value
+     * @param string $value
      * @return string|static
      */
-    public function secretKey(int $value = null)
+    public function secretKey(string $value = null)
     {
         $name = 'secretKey';
         if ($value !== null) {
@@ -113,10 +113,10 @@ class MailjetConfig
     }
 
     /**
-     * @param int $value
+     * @param string $value
      * @return string|static
      */
-    public function smtpHost(int $value = null)
+    public function smtpHost(string $value = null)
     {
         $name = 'smtpHost';
         if ($value !== null) {
@@ -153,10 +153,17 @@ class MailjetConfig
         $mailConfig = get_config('mailjet');
 
         if (is_string($mailConfig)) {
-            $mailConfig = json_decode(gzuncompress(self::decrypt($mailConfig)), true);
+            $decryptData = self::decrypt($mailConfig);
+            $uncompressData = gzuncompress($decryptData);
+            $jsonDecodedData = is_string($uncompressData) ? json_decode($uncompressData, true) : null;
+            if (is_array($jsonDecodedData)) {
+                $mailConfig = $jsonDecodedData;
+            } else {
+                $mailConfig = [];
+            }
+        } else {
+            $mailConfig = [];
         }
-
-        $mailConfig = $mailConfig instanceof \stdClass || is_array($mailConfig) ? (array) $mailConfig : [];
 
         $defaultConfig = [
             'email' => 'correo@correo.com',
@@ -203,10 +210,16 @@ class MailjetConfig
 
     /**
      * @return string
+     * @throws \Exception Si la información falla al intentar encriptarse
      */
     public function toSave()
     {
-        return self::encrypt(gzcompress(json_encode($this->toArray())));
+        $jsonEncodedData = json_encode($this->toArray());
+        $compressData = is_string($jsonEncodedData) ? gzcompress($jsonEncodedData) : null;
+        if (!is_string($compressData)) {
+            throw new \Exception('La información no pude ser encriptada.');
+        }
+        return self::encrypt($compressData);
     }
 
     /**

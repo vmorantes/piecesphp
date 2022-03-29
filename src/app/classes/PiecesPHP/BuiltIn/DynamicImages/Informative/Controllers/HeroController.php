@@ -1022,6 +1022,7 @@ class HeroController extends AdminPanelController
             }
 
             $urlSegments = parse_url($value);
+            $urlSegments = is_array($urlSegments) ? $urlSegments : [];
 
             $scheme = array_key_exists('scheme', $urlSegments) ? $urlSegments['scheme'] : null;
             $host = array_key_exists('host', $urlSegments) ? $urlSegments['host'] : null;

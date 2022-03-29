@@ -20,7 +20,7 @@ class HelperController extends BaseController
 
     /**
      *
-     * @var \stdClass Usuario logueado
+     * @var \stdClass|null Usuario logueado
      */
     protected $user = null;
 

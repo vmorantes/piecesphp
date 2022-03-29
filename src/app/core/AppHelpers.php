@@ -217,7 +217,10 @@ function get_current_langs_urls(string $url = null, bool $short_lang = false)
 
     foreach ($langs as $lang) {
 
-        $urls[__($short_lang ? 'langShort' : 'lang', $lang)] = convert_lang_url($url, get_config('app_lang'), $lang);
+        $langShort = __($short_lang ? 'langShort' : 'lang', $lang);
+        if (is_string($langShort)) {
+            $urls[$langShort] = convert_lang_url($url, get_config('app_lang'), $lang);
+        }
 
     }
 
@@ -307,7 +310,11 @@ function static_files_cache_stamp(bool $update = false)
 
     if (file_exists($fileCache) && !$update) {
         $stamp = file_get_contents($fileCache);
-        $stamp = substr($stamp, 0, 40);
+        if (is_string($stamp)) {
+            $stamp = substr($stamp, 0, 40);
+        } else {
+            $stamp = 'none';
+        }
     } else {
         $stamp = sha1(uniqid());
         file_put_contents($fileCache, $stamp);
@@ -1963,15 +1970,27 @@ function register_route(array $route, \Slim\App &$router)
 
     $instanceRoute = \PiecesPHP\Core\Route::instanceFromArray($route);
 
+    /**
+     * @var string
+     */
     $routeSegment = $instanceRoute->routeSegment();
+    /**
+     * @var string[]
+     */
     $methods = $instanceRoute->method(null, true);
     $name = $instanceRoute->name();
+    /**
+     * @var string|callable
+     */
     $alias = $instanceRoute->alias();
+    /**
+     * @var string|callable
+     */
     $controller = $instanceRoute->controller();
     $rolesAllowed = $instanceRoute->rolesAllowed();
     $middlewares = array_reverse($instanceRoute->middlewares());
 
-    if (array_key_exists($name, $routesSetted)) {
+    if (is_string($name) && array_key_exists($name, $routesSetted)) {
         throw new RouteDuplicateNameException();
     }
 
@@ -1999,8 +2018,10 @@ function register_route(array $route, \Slim\App &$router)
 
         $routesSetted[$name] = $instanceRoute->toArray();
 
-        foreach ($rolesAllowed as $role) {
-            Roles::addPermission($name, $role);
+        if (is_array($rolesAllowed)) {
+            foreach ($rolesAllowed as $role) {
+                Roles::addPermission($name, $role);
+            }
         }
 
         set_config('_routes_', $routesSetted);
@@ -2289,7 +2310,13 @@ function move_uploaded_file_to($directory, \Slim\Http\UploadedFile $uploadedFile
         }
 
         if (is_null($extension)) {
-            $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
+            $fileName = $uploadedFile->getClientFilename();
+            if (is_string($fileName)) {
+                $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+            }
+            if (!is_string($extension)) {
+                $extension = 'no-ext';
+            }
         }
 
         if (is_null($basename)) {
@@ -2304,7 +2331,7 @@ function move_uploaded_file_to($directory, \Slim\Http\UploadedFile $uploadedFile
     } catch (\Exception $e) {
         $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
         $handler->logging();
-        return false;
+        return '';
     }
 }
 
@@ -2332,7 +2359,8 @@ function log_exception($e)
  */
 function num_month_to_text(string $date)
 {
-    $date = date_format(date_create($date), 'd-m-Y');
+    $date = date_create($date);
+    $date = $date !== false ? date_format($date, 'd-m-Y') : '00-00-0000';
 
     $date_array = explode('-', $date);
 
@@ -2387,7 +2415,7 @@ function num_month_to_text(string $date)
         $month = __($langGroup, 'Diciembre');
     }
 
-    return $month;
+    return is_string($month) ? $month : '';
 }
 
 /**
@@ -2511,7 +2539,7 @@ function echoTerminal(string $text, bool $newLine = true, string $newLineChars =
 function getCurrentProcessOwnerUser()
 {
     $userInfo = posix_getpwuid(posix_getuid());
-    return $userInfo['name'];
+    return is_array($userInfo) ? $userInfo['name'] : '';
 }
 
 /**
@@ -2520,5 +2548,5 @@ function getCurrentProcessOwnerUser()
 function getCurrentProcessOwnerGroup()
 {
     $groupInfo = posix_getgrgid(posix_getgid());
-    return $groupInfo['name'];
+    return is_array($groupInfo) ? $groupInfo['name'] : '';
 }

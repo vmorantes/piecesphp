@@ -56,7 +56,6 @@ return [
     'Contraseña'                                                                      => 'Password',
     'URL'                                                                             => 'URL',
     'Key'                                                                             => 'Key',
-    "<script src='ejemplo.js'></script>"                                              => "<script src='sample.js'></script>",
     "https://api.dominio.com/"                                                        => "https://api.domain.com/",
     'Nombre del remitente'                                                            => "Sender's name",
     'Información adicional'                                                           => 'Additional Information',
