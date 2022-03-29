@@ -132,7 +132,7 @@ class PersonsMapper extends EntityMapperExtensible
     const STATUS_INACTIVE = 0;
     const STATUS = [
         self::STATUS_ACTIVE => 'Activo',
-        self::STATUS_ACTIVE => 'Inactivo',
+        self::STATUS_INACTIVE => 'Inactivo',
     ];
 
     const TABLE = 'persons';

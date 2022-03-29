@@ -53,7 +53,7 @@ class FormsRoutes
     }
 
     /**
-     * @return void
+     * @return void|null
      */
     public static function init()
     {

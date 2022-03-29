@@ -195,7 +195,7 @@ class UserProblemsController extends UsersController
         ];
 
         //Verificar que el grupo de datos para solicitados esté completo
-        $parametros_ok = require_keys($requerido, $params) === true && count($requerido) === count($params);
+        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true && count($requerido) === count($params);
 
         //Cuerpo de la respuesta
         $json_response = [
@@ -251,8 +251,10 @@ class UserProblemsController extends UsersController
                         'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
                     ];
                     if ($type == self::TYPE_USER_FORGET) {
+                        //@phpstan-ignore-next-line
                         $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
                     } elseif ($type == self::TYPE_USER_BLOCKED) {
+                        //@phpstan-ignore-next-line
                         $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de desbloqueo de usuario.');
                     }
                     $logRequest->save();
@@ -299,7 +301,7 @@ class UserProblemsController extends UsersController
         $args = $request->getParsedBody();
 
         //Verificar que el grupo de datos para autenticación sea válido
-        $parametros_ok = require_keys($requerido, $args) === true && count($requerido) === count($args);
+        $parametros_ok = is_array($args) && require_keys($requerido, $args) === true && count($requerido) === count($args);
 
         if ($parametros_ok) {
 
@@ -316,10 +318,8 @@ class UserProblemsController extends UsersController
                 $user = new UsersModel();
                 $user = $problems !== null ? $user->getByEmail($problems->email) : null;
 
-                $exist_user = $user !== null && $problems !== null;
-
                 //Verificar que el usuario existe
-                if ($exist_user) {
+                if ($user !== null && $problems !== null) {
 
                     $now = new \DateTime();
                     $expired = $problems->expired <= $now;
@@ -407,7 +407,7 @@ class UserProblemsController extends UsersController
         ];
 
         //Verificar que el grupo de datos para solicitados esté completo
-        $parametros_ok = require_keys($requerido, $params) === true;
+        $parametros_ok = is_array($params) && require_keys($requerido, $params) === true;
 
         //Cuerpo de la respuesta
         $json_response = [
@@ -426,9 +426,7 @@ class UserProblemsController extends UsersController
 
             //Envío de ticket
             /**
-             * @var array $result
-             * @var bool $result['success']
-             * @var OsTicketAPI $result['instance']
+             * @var array<string,bool|OsTicketAPI>
              */
             $result = $this->sendMessageOtherProblems($email, $name, $message, $extra);
 
@@ -453,7 +451,8 @@ class UserProblemsController extends UsersController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            $logRequest->type = (string) __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
+            //@phpstan-ignore-next-line
+            $logRequest->type = __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
             $logRequest->save();
 
             if ($success) {
@@ -475,11 +474,12 @@ class UserProblemsController extends UsersController
      * Envía un correo con el código
      *
      * @param string $code
-     * @param stdClass $usuario
+     * @param \stdClass $usuario
+     * @param string $type
      *
      * @return bool true si se envió, false si no
      */
-    private function sendCode(string $code, \stdClass $usuario, $type = 'TYPE_USER_FORGET')
+    private function sendCode(string $code, \stdClass $usuario, string $type = 'TYPE_USER_FORGET')
     {
         $mail = new Mailer();
         $mailConfig = new MailConfig;
@@ -488,11 +488,17 @@ class UserProblemsController extends UsersController
 
         $to_name = $usuario->username;
 
+        /**
+         * @var string
+         */
         $subject = __(self::LANG_GROUP, 'Código de verificación');
         $message = '';
 
         if ($type == self::TYPE_USER_FORGET) {
             $url = get_route('user-forget-form') . '?code=' . $code;
+            /**
+             * @var string
+             */
             $message = $this->render('usuarios/mail/user_forget_code', [
                 'code' => $code,
                 'url' => $url,
@@ -500,6 +506,9 @@ class UserProblemsController extends UsersController
             ], false);
         } elseif ($type == self::TYPE_USER_BLOCKED) {
             $url = get_route('user-blocked-form') . '?code=' . $code;
+            /**
+             * @var string
+             */
             $message = $this->render('usuarios/mail/user_blocked_code', [
                 'code' => $code,
                 'url' => $url,
@@ -507,10 +516,19 @@ class UserProblemsController extends UsersController
             ], false);
         }
 
-        $mail->setFrom($mailConfig->user(), $mailConfig->name());
+        /**
+         * @var string
+         */
+        $fromAddress = $mailConfig->user();
+        /**
+         * @var string
+         */
+        $nameAddress = $mailConfig->name();
+
+        $mail->setFrom($fromAddress, $nameAddress);
         $mail->addAddress($to, $to_name);
         $mail->isHTML(true);
-        $mail->Subject = (string) $subject;
+        $mail->Subject = $subject;
         $mail->Body = $message;
         $mail->AltBody = strip_tags($message);
 
@@ -534,6 +552,9 @@ class UserProblemsController extends UsersController
     {
         $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . get_title();
 
+        /**
+         * @var string
+         */
         $message = $this->render('usuarios/mail/other-problems', [
             'originURL' => baseurl(),
             'subject' => $subject,
@@ -558,7 +579,16 @@ class UserProblemsController extends UsersController
             $mail = new Mailer();
             $mailConfig = new MailConfig;
 
-            $mail->setFrom($mailConfig->user(), $mailConfig->name());
+            /**
+             * @var string
+             */
+            $fromAddress = $mailConfig->user();
+            /**
+             * @var string
+             */
+            $nameAddress = $mailConfig->name();
+
+            $mail->setFrom($fromAddress, $nameAddress);
             $mail->addReplyTo($email, $name);
             $mail->addAddress(self::EMAIL_ON_FAILED_OS_TICKET);
             $mail->isHTML(true);

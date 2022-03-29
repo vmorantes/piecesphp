@@ -140,7 +140,11 @@ class ImagesRepositoryController extends AdminPanelController
                     imageToThumbnail($imagePath, 300, 225, 70);
 
                     $lastModification = filemtime($imagePath);
-                    $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', date('d-m-Y H:i:s', $lastModification));
+                    $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
+                    $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', $lastModification);
+                    if ($lastModification === false) {
+                        $lastModification = new \DateTime;
+                    }
                     $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification);
 
                     foreach ($headersAndStatus['headers'] as $header => $value) {
@@ -174,13 +178,13 @@ class ImagesRepositoryController extends AdminPanelController
         $maskNameInput = $request->getAttribute('name', null);
         $maskName = is_string($maskNameInput) ? trim($maskNameInput) : null;
         $maskName = $maskName !== null && mb_strlen($maskName) > 0 ? explode('_', $maskName) : null;
-        $maskName = count($maskName) == 2 ? $maskName[1] : null;
+        $maskName = is_array($maskName) && count($maskName) == 2 ? $maskName[1] : null;
 
-        $pointIndex = strpos($maskName, '.');
+        $pointIndex = is_string($maskName) ? strpos($maskName, '.') : false;
 
-        if ($pointIndex !== false) {
+        if ($pointIndex !== false && is_string($maskName)) {
             $maskName = substr($maskName, 0, $pointIndex);
-            $imageID = is_int($maskName) || (is_string($maskName) && ctype_digit($maskName)) ? (int) $maskName : null;
+            $imageID = Validator::isInteger($maskName) ? (int) $maskName : null;
             $image = $imageID !== null ? ImagesRepositoryMapper::getByID($imageID) : null;
         }
 
@@ -195,14 +199,20 @@ class ImagesRepositoryController extends AdminPanelController
                 if (file_exists($imagePath)) {
 
                     $lastModification = filemtime($imagePath);
-                    $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', date('d-m-Y H:i:s', $lastModification));
+                    $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
+                    $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', $lastModification);
+                    if ($lastModification === false) {
+                        $lastModification = new \DateTime;
+                    }
                     $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification);
 
                     foreach ($headersAndStatus['headers'] as $header => $value) {
                         $response = $response->withHeader($header, $value);
                     }
 
-                    $response = $response->withHeader('Content-Type', mime_content_type($imagePath));
+                    $mimeType = mime_content_type($imagePath);
+                    $mimeType = is_string($mimeType) ? $mimeType : 'image/*';
+                    $response = $response->withHeader('Content-Type', $mimeType);
                     $response = $response->withHeader('Content-Disposition', "filename=\"{$maskNameInput}\"");
                     $response = $response->withStatus($headersAndStatus['status']);
 
@@ -230,14 +240,14 @@ class ImagesRepositoryController extends AdminPanelController
         $maskNameInput = $request->getAttribute('name', null);
         $maskName = is_string($maskNameInput) ? trim($maskNameInput) : null;
         $maskName = $maskName !== null && mb_strlen($maskName) > 0 ? explode('_', $maskName) : null;
-        $maskName = count($maskName) == 2 ? $maskName[1] : null;
+        $maskName = is_array($maskName) && count($maskName) == 2 ? $maskName[1] : null;
 
-        $pointIndex = strpos($maskName, '.');
+        $pointIndex = is_string($maskName) ? strpos($maskName, '.') : false;
 
         $element = null;
-        if ($pointIndex !== false) {
+        if ($pointIndex !== false && is_string($maskName)) {
             $maskName = substr($maskName, 0, $pointIndex);
-            $elementID = is_int($maskName) || (is_string($maskName) && ctype_digit($maskName)) ? (int) $maskName : null;
+            $elementID = Validator::isInteger($maskName) ? (int) $maskName : null;
             $element = $elementID !== null ? ImagesRepositoryMapper::getByID($elementID) : null;
         }
 
@@ -252,14 +262,20 @@ class ImagesRepositoryController extends AdminPanelController
                 if (file_exists($path)) {
 
                     $lastModification = filemtime($path);
-                    $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', date('d-m-Y H:i:s', $lastModification));
+                    $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
+                    $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', $lastModification);
+                    if ($lastModification === false) {
+                        $lastModification = new \DateTime;
+                    }
                     $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification);
 
                     foreach ($headersAndStatus['headers'] as $header => $value) {
                         $response = $response->withHeader($header, $value);
                     }
 
-                    $response = $response->withHeader('Content-Type', mime_content_type($path));
+                    $mimeType = mime_content_type($path);
+                    $mimeType = is_string($mimeType) ? $mimeType : 'image/*';
+                    $response = $response->withHeader('Content-Type', $mimeType);
                     $response = $response->withHeader('Content-Disposition', "filename=\"{$maskNameInput}\"");
                     $response = $response->withStatus($headersAndStatus['status']);
 
@@ -700,7 +716,9 @@ class ImagesRepositoryController extends AdminPanelController
                     ]);
                     $authorization = self::handlerUpload('authorization', $mapper->folder);
                     $mapper->image = mb_strlen($image) > 0 ? $image : '';
-                    $mapper->authorization = mb_strlen($authorization) > 0 ? $authorization : null;
+                    if (mb_strlen($authorization) > 0) {
+                        $mapper->authorization = $authorization;
+                    }
 
                     $saved = false;
 
@@ -711,7 +729,8 @@ class ImagesRepositoryController extends AdminPanelController
 
                         if (@exif_read_data($imagePath, null) !== false) {
                             $exifData = new ExifHelper($imagePath);
-                            $mapper->coordinates = $exifData->getGPSCoordinates();
+                            $coordinates = $exifData->getGPSCoordinates();
+                            $mapper->coordinates = $coordinates !== null ? (object) $coordinates : null;
                         }
 
                         $saved = $mapper->save();
@@ -766,7 +785,8 @@ class ImagesRepositoryController extends AdminPanelController
 
                                 if (@exif_read_data($imagePath, null) !== false) {
                                     $exifData = new ExifHelper($imagePath);
-                                    $mapper->coordinates = $exifData->getGPSCoordinates();
+                                    $coordinates = $exifData->getGPSCoordinates();
+                                    $mapper->coordinates = $coordinates !== null ? (object) $coordinates : null;
                                 }
                             }
 
@@ -1587,7 +1607,7 @@ class ImagesRepositoryController extends AdminPanelController
     public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = $name;
+        $simpleName = !is_null($name) ? $name : '';
 
         if (!is_null($name)) {
             $name = trim($name);

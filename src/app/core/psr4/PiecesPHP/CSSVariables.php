@@ -24,7 +24,7 @@ class CSSVariables
     protected $variables = [];
 
     /**
-     * @var static[]
+     * @var CSSVariables[]
      */
     protected static $instances = [];
 
@@ -125,7 +125,7 @@ class CSSVariables
             $contentETag .= uniqid();
         }
 
-        $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '01-01-1990 12:00 AM');
+        $lastModification = new \DateTime('1990-01-01 00:00:00');
         $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $contentETag);
 
         if (mb_strlen($cacheControl) > 0) {
