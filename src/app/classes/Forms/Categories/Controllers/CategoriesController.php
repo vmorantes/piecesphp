@@ -1058,7 +1058,7 @@ class CategoriesController extends AdminPanelController
     public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = $name;
+        $simpleName = !is_null($name) ? $name : '';
 
         if (!is_null($name)) {
             $name = trim($name);

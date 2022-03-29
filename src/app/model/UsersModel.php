@@ -206,7 +206,7 @@ class UsersModel extends BaseEntityMapper
 
     /**
      * @param mixed $where
-     * @return object|null
+     * @return \stdClass|null
      */
     public function getWhere($where)
     {
@@ -221,7 +221,7 @@ class UsersModel extends BaseEntityMapper
 
     /**
      * @param mixed $username
-     * @return object|null
+     * @return \stdClass|null
      */
     public function getByUsername($username)
     {
@@ -236,7 +236,7 @@ class UsersModel extends BaseEntityMapper
 
     /**
      * @param mixed $id
-     * @return object|null
+     * @return \stdClass|null
      */
     public function getByID($id)
     {
@@ -251,7 +251,7 @@ class UsersModel extends BaseEntityMapper
 
     /**
      * @param mixed $email
-     * @return object|null
+     * @return \stdClass|null
      */
     public function getByEmail($email)
     {

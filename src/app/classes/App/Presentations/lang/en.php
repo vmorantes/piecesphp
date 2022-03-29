@@ -46,7 +46,6 @@ return [
     'Idiomas'                                                              => 'Languages',
     'Categorías de presentaciones'                                         => 'Presentation categories',
     'Categoría de presentación'                                            => 'Presentation category',
-    'Categoría'                                                            => 'Category',
     'La categoría que intenta modificar no existe.'                        => 'The category you are trying to modify does not exist.',
     'Categoría creada.'                                                    => 'Category created.',
     'Eliminar categoría'                                                   => 'Remove category',

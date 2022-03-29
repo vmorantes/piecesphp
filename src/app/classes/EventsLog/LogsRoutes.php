@@ -64,7 +64,7 @@ class LogsRoutes
     }
 
     /**
-     * @return void
+     * @return void|null
      */
     public static function init()
     {
@@ -104,7 +104,8 @@ class LogsRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        return append_to_url(str_replace('/[{params:.*}]', '', get_route(self::class)), $segment);
+        $route = get_route(self::class);
+        return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
     }
 
     /**
@@ -141,7 +142,7 @@ class LogsRoutes
 
             $css = ":root {\n{$css}\n}";
 
-            $lastModification = \DateTime::createFromFormat('d-m-Y h:i A', '01-05-2021 04:22 PM');
+            $lastModification = new \DateTime('2022-01-01 00:00:00');
             $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $css);
 
             foreach ($headersAndStatus['headers'] as $header => $value) {

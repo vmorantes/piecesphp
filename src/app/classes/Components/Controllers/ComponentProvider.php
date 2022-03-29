@@ -104,7 +104,8 @@ class ComponentProvider extends AdminPanelController
             $componentExists = file_exists($componentFullPath);
 
             if ($componentExists) {
-                $response = $response->write($this->render($componentPath, [], false));
+                $output = $this->render($componentPath, [], false);
+                $response = $response->write(is_string($output) ? $output : '');
             } else {
                 throw new NotFoundException($request, $response);
             }
@@ -191,7 +192,7 @@ class ComponentProvider extends AdminPanelController
     public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = $name;
+        $simpleName = !is_null($name) ? $name : '';
 
         if (!is_null($name)) {
             $name = trim($name);

@@ -38,13 +38,13 @@ function menu_sidebar_items(\stdClass $user): string
 
 /**
  * @param array $options
- * @var $options[request] \Slim\Http\Request, required
- * @var $options[mapper] \PiecesPHP\Core\Database\EntityMapper, required
- * @var $options[columns_order] array, required
- * @var $options[where_string] string
- * @var $options[on_set_data] callable Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
- * @var $options[as_mapper] bool
- * @var $options[on_set_model] callable
+ * @var \Slim\Http\Request $options['request'], required
+ * @var \PiecesPHP\Core\Database\EntityMapper $options['mapper'], required
+ * @var array $options['columns_order'], required
+ * @var string $options['where_string']
+ * @var callable $options['on_set_data'] Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
+ * @var bool $options['as_mapper']
+ * @var callable $options['on_set_model']
  * @return \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations
  */
 function datatables_proccessing_with_options(array $options)
@@ -105,14 +105,15 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
         $values = array_flip($values);
     }
 
-    $selected_values = is_array($selected_values) && !is_null($selected_values) ? $selected_values : [$selected_values];
-    $has_selected_values = !is_null($selected_values);
+    $selected_values = is_array($selected_values) ? $selected_values : [$selected_values];
 
     foreach ($selected_values as $key => $value) {
         if (!is_scalar($key) || !is_scalar($value)) {
             unset($selected_values[$key]);
         }
     }
+
+    $has_selected_values = !empty($selected_values);
 
     $options = [];
 

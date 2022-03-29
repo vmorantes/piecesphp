@@ -388,7 +388,7 @@ class TerminalController extends AdminPanelController
     public static function routeName(string $name = null, bool $silentOnNotExists)
     {
 
-        $simpleName = $name;
+        $simpleName = !is_null($name) ? $name : '';
         $name = self::routeID($name);
 
         $allowed = false;

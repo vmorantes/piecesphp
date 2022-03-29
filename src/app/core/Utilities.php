@@ -90,19 +90,19 @@ function get_part_request($part = 1)
 {
     $part = $part - 1;
     $part_uri = explode("/", get_request());
-    if (!empty($part_uri)) {
+    $result = '';
+    if (is_array($part_uri)) {
+
         if (mb_strlen($part_uri[count($part_uri) - 1]) == 0) {
             unset($part_uri[count($part_uri) - 1]);
         }
 
         if (!empty($part_uri)) {
-            return array_key_exists($part, $part_uri) ? $part_uri[$part] : "";
-        } else {
-            return "";
+            $result = array_key_exists($part, $part_uri) ? $part_uri[$part] : "";
         }
-    } else {
-        return "";
+
     }
+    return $result;
 }
 
 /**
@@ -116,6 +116,9 @@ function get_part_request($part = 1)
 function append_to_url(string $url, string $segment, bool $complete = false)
 {
 
+    /**
+     * @var string[]
+     */
     $parts = [
         'scheme' => parse_url($url, \PHP_URL_SCHEME),
         'user' => parse_url($url, \PHP_URL_USER),
@@ -124,17 +127,18 @@ function append_to_url(string $url, string $segment, bool $complete = false)
         'port' => parse_url($url, \PHP_URL_PORT),
         'path' => parse_url($url, \PHP_URL_PATH),
     ];
+    foreach ($parts as $partName => $partValue) {
+        if (!is_string($partValue)) {
+            $parts[$partName] = '';
+        }
+    }
 
-    $getKeyValue = function (string $key) use ($parts) {
-        return isset($parts[$key]) && $parts[$key] !== null ? $parts[$key] : '';
-    };
-
-    $scheme = ($getKeyValue)('scheme');
-    $user = ($getKeyValue)('user');
-    $pass = ($getKeyValue)('pass');
-    $host = ($getKeyValue)('host');
-    $port = ($getKeyValue)('port');
-    $path = ($getKeyValue)('path');
+    $scheme = $parts['scheme'];
+    $user = $parts['user'];
+    $pass = $parts['pass'];
+    $host = $parts['host'];
+    $port = $parts['port'];
+    $path = $parts['path'];
 
     if ($complete) {
 
@@ -220,6 +224,7 @@ function generate_pass(int $length = 5)
  *
  * @param int $length Tamaño de la cadena
  * @param bool $only_numeric Generar solo números
+ * @return string
  */
 function generate_code(int $length = 6, bool $only_numeric = true)
 {
@@ -286,10 +291,20 @@ function url_safe_base64_encode(string $input)
  */
 function clean_string(string $string)
 {
+    $outputString = $string;
     $string = preg_replace("/(\t|\r\n|\r|\n){1,}/", '', $string);
-    $string = preg_replace("/(\x{00A0}){1,}/u", ' ', $string);
-    $string = preg_replace("/(\s){2,}/", ' ', $string);
-    return $string;
+    if (is_string($string)) {
+        $outputString = $string;
+        $string = preg_replace("/(\x{00A0}){1,}/u", ' ', $string);
+    }
+    if (is_string($string)) {
+        $outputString = $string;
+        $string = preg_replace("/(\s){2,}/", ' ', $string);
+    }
+    if (is_string($string)) {
+        $outputString = $string;
+    }
+    return $outputString;
 }
 
 /**
@@ -337,12 +352,14 @@ function get_youtube_id(string $url)
 
     $id = "";
 
-    $query_string = array();
+    $queryString = array();
+    $urlQuery = parse_url($url, PHP_URL_QUERY);
+    if (is_string($urlQuery)) {
+        parse_str($urlQuery, $queryString);
+    }
 
-    parse_str(parse_url($url, PHP_URL_QUERY), $query_string);
-
-    if (array_key_exists("v", $query_string)) {
-        $id = $query_string["v"];
+    if (array_key_exists("v", $queryString)) {
+        $id = $queryString["v"];
     }
 
     return $id;
@@ -460,11 +477,10 @@ function string_compare(string $str1, $compare)
 {
     if (is_string($compare)) {
         $cmp = strcmp($str1, $compare);
-        return ($cmp === 0);
+        return $cmp === 0;
     }
     if (is_array($compare)) {
         foreach ($compare as $string) {
-            $coincidencia = false;
             if (is_string($string)) {
                 $cmp = strcmp($str1, $string);
                 if ($cmp === 0) {
@@ -476,6 +492,7 @@ function string_compare(string $str1, $compare)
         }
         return false;
     }
+    return false;
 }
 
 /**
@@ -690,40 +707,44 @@ function directory_to_zip(string $root, string $output_directory = null, string 
 
         $handler = opendir($root);
 
-        $ignore = ['.', '..'];
-        $file = readdir($handler);
+        if (is_resource($handler)) {
 
-        while ($file !== false) {
+            $ignore = ['.', '..'];
+            $file = readdir($handler);
 
-            if (!in_array($file, $ignore)) {
+            while ($file !== false) {
 
-                $path_file = $root . '/' . $file;
-                $skip = false;
+                if (!in_array($file, $ignore)) {
 
-                foreach ($exclude as $regexp) {
+                    $path_file = $root . '/' . $file;
+                    $skip = false;
 
-                    $matchs = preg_match_all("|$regexp|", $file);
-                    if ($matchs !== false && $matchs > 0) {
-                        $skip = true;
+                    foreach ($exclude as $regexp) {
+
+                        $matchs = preg_match_all("|$regexp|", $file);
+                        if ($matchs !== false && $matchs > 0) {
+                            $skip = true;
+                        }
+                    }
+
+                    if (!$skip) {
+
+                        if (is_dir($path_file)) {
+
+                            directory_to_zip($path_file, $output_directory, $output_name, true, $exclude, $base, $zip);
+                        } else {
+                            $filename = $base . '/' . $file;
+                            $zip->addFile($path_file, $filename);
+                        }
                     }
                 }
 
-                if (!$skip) {
-
-                    if (is_dir($path_file)) {
-
-                        directory_to_zip($path_file, $output_directory, $output_name, true, $exclude, $base, $zip);
-                    } else {
-                        $filename = $base . '/' . $file;
-                        $zip->addFile($path_file, $filename);
-                    }
-                }
+                $file = readdir($handler);
             }
 
-            $file = readdir($handler);
-        }
+            closedir($handler);
 
-        closedir($handler);
+        }
 
         if ($zipInstance === null) {
             $zip->close();
@@ -772,9 +793,10 @@ function directory_mapper(string $path, string $base_path = null, int $mode = nu
         $base_path = realpath($base_path);
     }
 
-    if (file_exists($path) && is_dir($path)) {
+    if (is_string($base_path) && is_string($path) && file_exists($path) && is_dir($path)) {
 
-        $map['path'] = str_replace($base_path, '', realpath($path));
+        $realPath = realpath($path);
+        $map['path'] = str_replace($base_path, '', $realPath);
         $map['path'] = str_replace([
             '//',
             "\\\\",
@@ -785,50 +807,52 @@ function directory_mapper(string $path, string $base_path = null, int $mode = nu
         $map['name'] = basename($path);
 
         $handler = opendir($path);
-        $ignore = ['.', '..'];
-        $file = readdir($handler);
+        if (is_resource($handler)) {
+            $ignore = ['.', '..'];
+            $file = readdir($handler);
 
-        while ($file !== false) {
+            while ($file !== false) {
 
-            if (!in_array($file, $ignore)) {
+                if (!in_array($file, $ignore)) {
 
-                $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . $file;
-                $file_path = realpath($file_path);
+                    $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . $file;
+                    $file_path = realpath($file_path);
 
-                if (file_exists($file_path)) {
-                    if (is_dir($file_path)) {
+                    if (is_string($file_path) && file_exists($file_path)) {
+                        if (is_dir($file_path)) {
 
-                        if ($mode == 1) {
+                            if ($mode == 1) {
 
-                            $result = directory_mapper($file_path, $base_path, $mode);
-                            $map['content']['directories'][] = $file_path;
-                            $map['content']['directories'] = array_merge($map['content']['directories'], $result['content']['directories']);
-                            $map['content']['files'] = array_merge($map['content']['files'], $result['content']['files']);
+                                $result = directory_mapper($file_path, $base_path, $mode);
+                                $map['content']['directories'][] = $file_path;
+                                $map['content']['directories'] = array_merge($map['content']['directories'], $result['content']['directories']);
+                                $map['content']['files'] = array_merge($map['content']['files'], $result['content']['files']);
+                            } else {
+
+                                $map['content'][] = directory_mapper($file_path, $base_path);
+                            }
                         } else {
 
-                            $map['content'][] = directory_mapper($file_path, $base_path);
-                        }
-                    } else {
+                            if ($mode == 1) {
 
-                        if ($mode == 1) {
+                                $map['content']['files'][] = str_replace($base_path, '', $file_path);
+                            } else {
 
-                            $map['content']['files'][] = str_replace($base_path, '', $file_path);
-                        } else {
-
-                            $map['content'][] = [
-                                'type' => 'file',
-                                'path' => str_replace($base_path, '', $file_path),
-                                'name' => basename($file_path),
-                            ];
+                                $map['content'][] = [
+                                    'type' => 'file',
+                                    'path' => str_replace($base_path, '', $file_path),
+                                    'name' => basename($file_path),
+                                ];
+                            }
                         }
                     }
                 }
+
+                $file = readdir($handler);
             }
 
-            $file = readdir($handler);
+            closedir($handler);
         }
-
-        closedir($handler);
     }
 
     return $map;

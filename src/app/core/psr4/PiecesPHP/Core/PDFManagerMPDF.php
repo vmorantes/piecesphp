@@ -53,7 +53,6 @@ class PDFManagerMPDF extends PDF
             'margin_bottom' => $marginBottom,
             'margin_header' => $marginHeader,
             'margin_footer' => $marginFooter,
-            'mode' => $mode,
             'tempDir' => basepath('tmp'),
         ];
 

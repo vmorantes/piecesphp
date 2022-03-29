@@ -19,7 +19,7 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
  * @copyright   Copyright (c) 2021
  * @property int|null $id
  * @property string $textMessage
- * @property \stdClass|string $textMessageVariables
+ * @property \stdClass|array|string $textMessageVariables
  * @property string|null $referenceColumn
  * @property string|null $referenceValue
  * @property string|null $referenceSource
@@ -146,10 +146,11 @@ class LogsMapper extends EntityMapperExtensible
     {
 
         $formatDefault = __(self::LANG_GROUP, "F d {1} Y");
+        $createdAt = $this->createdAt instanceof \DateTime ? $this->createdAt : null;
         if ($format !== null) {
-            $formated = localeDateFormat($format, $this->createdAt);
+            $formated = localeDateFormat($format, $createdAt);
         } else {
-            $formated = localeDateFormat($formatDefault, $this->createdAt);
+            $formated = localeDateFormat($formatDefault, $createdAt);
             $formated = strReplaceTemplate($formated, [
                 '{1}' => __(self::LANG_GROUP, 'de'),
             ]);
