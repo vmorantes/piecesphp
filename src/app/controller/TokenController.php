@@ -23,13 +23,24 @@ class TokenController extends BaseController
         parent::__construct();
     }
 
+    /**
+     * @param mixed $token
+     * @param mixed $type
+     * @return bool
+     */
     public function newToken($token, $type)
     {
-        return $this->model->insert([
+        $result = $this->model->insert([
             'token' => $token,
             'type' => $type,
         ])->execute();
+        return $result === true;
     }
+
+    /**
+     * @param mixed $token
+     * @return bool
+     */
     public function tokenExists($token)
     {
         $result = $this->model
@@ -39,6 +50,11 @@ class TokenController extends BaseController
         $result = $this->model->result();
         return ($result !== false && !empty($result));
     }
+
+    /**
+     * @param mixed $code
+     * @return bool
+     */
     public function tokenExistsByType($code)
     {
         $result = $this->model
@@ -48,6 +64,11 @@ class TokenController extends BaseController
         $result = $this->model->result();
         return ($result !== false && !empty($result));
     }
+
+    /**
+     * @param mixed $id
+     * @return bool
+     */
     public static function tokenExistsByID($id)
     {
         $controller = new TokenController();
@@ -58,12 +79,22 @@ class TokenController extends BaseController
         $result = $controller->model->result();
         return ($result !== false && !empty($result));
     }
+
+    /**
+     * @param mixed $token
+     * @return void
+     */
     public function deleteToken($token)
     {
         $this->model
             ->delete("token = '" . $token . "'")
             ->execute();
     }
+
+    /**
+     * @param mixed $tokenID
+     * @return void
+     */
     public function deleteTokenByID($tokenID)
     {
         $this->model

@@ -18,7 +18,6 @@ return [
     "La publicación que intenta modificar no existe."                      => "The publication you are trying to modify does not exist.",
     "Publicación creada."                                                  => "Publication created.",
     "No hay existe la categoría."                                          => "The category does not exist.",
-    "El idioma \"%s\" no está permitido."                                  => "The language \"%s\" is not allowed.",
     "Eliminar publicación"                                                 => "Delete publication",
     "La publicación que intenta eliminar no existe."                       => "The publication you are trying to delete does not exist.",
     "Publicación eliminada."                                               => "Publication deleted.",

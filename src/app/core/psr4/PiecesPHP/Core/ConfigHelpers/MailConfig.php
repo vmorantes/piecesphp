@@ -252,10 +252,17 @@ class MailConfig
         $mailConfig = get_config('mail');
 
         if (is_string($mailConfig)) {
-            $mailConfig = json_decode(gzuncompress(self::decrypt($mailConfig)));
+            $decryptData = self::decrypt($mailConfig);
+            $uncompressData = gzuncompress($decryptData);
+            $jsonDecodedData = is_string($uncompressData) ? json_decode($uncompressData) : null;
+            if (is_array($jsonDecodedData)) {
+                $mailConfig = $jsonDecodedData;
+            } else {
+                $mailConfig = [];
+            }
+        } else {
+            $mailConfig = [];
         }
-
-        $mailConfig = $mailConfig instanceof \stdClass || is_array($mailConfig) ? (array) $mailConfig : [];
 
         $defaultConfig = [
             'smtp_debug' => 0,
@@ -317,10 +324,16 @@ class MailConfig
 
     /**
      * @return string
+     * @throws \Exception Si la información falla al intentar encriptarse
      */
     public function toSave()
     {
-        return self::encrypt(gzcompress(json_encode($this->toArray())));
+        $jsonEncodedData = json_encode($this->toArray());
+        $compressData = is_string($jsonEncodedData) ? gzcompress($jsonEncodedData) : null;
+        if (!is_string($compressData)) {
+            throw new \Exception('La información no pude ser encriptada.');
+        }
+        return self::encrypt($compressData);
     }
 
     /**

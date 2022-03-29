@@ -73,7 +73,7 @@ class PresentationsRoutes
     }
 
     /**
-     * @return void
+     * @return void|null
      */
     public static function init()
     {
@@ -139,7 +139,8 @@ class PresentationsRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        return append_to_url(str_replace('/[{params:.*}]', '', get_route(self::class)), $segment);
+        $route = get_route(self::class);
+        return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
     }
 
     /**
