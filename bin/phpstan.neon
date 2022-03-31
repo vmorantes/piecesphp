@@ -89,3 +89,5 @@ parameters:
         - '#Binary operation "\." between .* and array<string>\|string results in an error\.#'
         - '#Binary operation .* array<string>\|string .* results in an error#'
         - '#.* should return stdClass.* but returns object.*#'
+        - '#Cannot access property \$.* on PiecesPHP\\UserSystem\\UserDataPackage\|null#'
+        - '#Access to an undefined property object::\$.*#'

@@ -71,9 +71,9 @@ class LogsRoutes
 
         if (!self::$init) {
 
-            $currentUser = get_config('current_user');
+            $currentUser = getLoggedFrameworkUser();
 
-            if (!($currentUser instanceof \stdClass)) {
+            if ($currentUser === null) {
                 return null;
             }
 

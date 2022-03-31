@@ -251,7 +251,7 @@ class CategoriesMapper extends EntityMapperExtensible
         }
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = get_config('current_user')->id;
+        $this->createdBy = getLoggedFrameworkUser()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -278,7 +278,7 @@ class CategoriesMapper extends EntityMapperExtensible
         }
 
         if (!$noDateUpdate) {
-            $this->modifiedBy = get_config('current_user')->id;
+            $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();

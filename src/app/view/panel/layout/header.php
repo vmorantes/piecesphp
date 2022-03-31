@@ -43,6 +43,7 @@
         ],
     ]) ?>
 </head>
+<?php $currentUserLogged = getLoggedFrameworkUser(); ?>
 
 <body>
 
@@ -50,8 +51,8 @@
         <div class="header"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Soporte técnico'); ?></div>
         <div class="content">
             <form action="<?=get_route('tickets-create');?>" class="ui form">
-                <input type="hidden" name="name" value="<?=htmlentities(stripslashes(get_config('current_user')->firstname . ' ' . get_config('current_user')->first_lastname));?>">
-                <input type="hidden" name="email" value="<?= htmlentities(stripslashes(get_config('current_user')->email)); ?>">
+                <input type="hidden" name="name" value="<?=htmlentities(stripslashes($currentUserLogged->firstname . ' ' . $currentUserLogged->firstLastname));?>">
+                <input type="hidden" name="email" value="<?= htmlentities(stripslashes($currentUserLogged->email)); ?>">
                 <div class="field">
                     <label><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Asunto'); ?></label>
                     <input type="text" name="subject">
@@ -68,7 +69,7 @@
     </div>
 
     <?php if(ACTIVE_TIMER): ?>
-    <div timer-platform-js="<?=base64_encode(json_encode(['user_id' => get_config('current_user')->id, 'url' => get_route('timing-add')]));?>">
+    <div timer-platform-js="<?=base64_encode(json_encode(['user_id' => $currentUserLogged->id, 'url' => get_route('timing-add')]));?>">
     </div>
     <?php endif;?>
 

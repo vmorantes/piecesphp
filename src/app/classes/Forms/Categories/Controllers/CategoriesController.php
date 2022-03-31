@@ -854,12 +854,12 @@ class CategoriesController extends AdminPanelController
 
         if ($allow) {
 
-            $currentUser = get_config('current_user');
+            $currentUser = getLoggedFrameworkUser();
 
-            if (is_object($currentUser)) {
+            if ($currentUser !== null) {
 
-                $currentUserType = (int) $currentUser->type;
-                $currentUserID = (int) $currentUser->id;
+                $currentUserType = $currentUser->type;
+                $currentUserID = $currentUser->id;
                 $canViewAll = in_array($currentUserType, CategoriesMapper::CAN_VIEW_ALL);
                 $candAddAll = in_array($currentUserType, CategoriesMapper::CAN_ADD_ALL);
 
@@ -868,7 +868,6 @@ class CategoriesController extends AdminPanelController
                     $allow = false;
                     $id = $params['id'];
                     $element = CategoriesMapper::getBy($id, 'id');
-                    $currentUser = get_config('current_user');
 
                     if ($element !== null) {
 
@@ -890,7 +889,6 @@ class CategoriesController extends AdminPanelController
                     if ($id !== null) {
 
                         $element = CategoriesMapper::getBy($id, 'id');
-                        $currentUser = get_config('current_user');
 
                         if ($element !== null) {
 
@@ -1068,10 +1066,10 @@ class CategoriesController extends AdminPanelController
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
 
         $allowed = false;
-        $current_user = get_config('current_user');
+        $current_user = getLoggedFrameworkUser();
 
-        if ($current_user !== false) {
-            $allowed = Roles::hasPermissions($name, (int) $current_user->type);
+        if ($current_user !== null) {
+            $allowed = Roles::hasPermissions($name, $current_user->type);
         } else {
             $allowed = true;
         }
