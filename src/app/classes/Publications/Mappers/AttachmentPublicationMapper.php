@@ -283,7 +283,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $this->createdAt = new \DateTime();
         if ($this->createdBy === null) {
-            $this->createdBy = get_config('current_user')->id;
+            $this->createdBy = getLoggedFrameworkUser()->id;
         }
         $saveResult = parent::save();
 
@@ -308,7 +308,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe este anexo en esta publicación."));
         }
         if (!$noDateUpdate) {
-            $this->modifiedBy = get_config('current_user')->id;
+            $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();

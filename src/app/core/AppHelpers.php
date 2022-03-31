@@ -17,6 +17,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\UserSystem\UserDataPackage;
 use Spatie\Url\Url as URLManager;
 
 /**
@@ -2549,4 +2550,34 @@ function getCurrentProcessOwnerGroup()
 {
     $groupInfo = posix_getgrgid(posix_getgid());
     return is_array($groupInfo) ? $groupInfo['name'] : '';
+}
+
+/**
+ * Devuelve el usuario que está conectado en el sistema de usuario actualmente
+ * @param bool $reload Si es true consultará nuevamente la base de datos, si no recogerá el valor almacenado
+ * @return UserDataPackage|null
+ */
+function getLoggedFrameworkUser(bool $reload = false)
+{
+    $currentUser = get_config('current_user');
+    $storedCurrentUserKey = 'pcsphp_current_user_stored';
+    $storedCurrentUser = get_config($storedCurrentUserKey);
+    $hasStored = $storedCurrentUser instanceof UserDataPackage;
+
+    if ($reload || !$hasStored) {
+        if ($currentUser instanceof \stdClass) {
+            try {
+                $currentUser = new UserDataPackage($currentUser->id);
+            } catch (\Exception $e) {
+                $currentUser = null;
+            }
+        } else {
+            $currentUser = null;
+        }
+        set_config($storedCurrentUserKey, $currentUser);
+    } else {
+        $currentUser = $storedCurrentUser;
+    }
+
+    return $currentUser;
 }

@@ -8,7 +8,7 @@ use PiecesPHP\Core\Validation\Validator;
  * @var string $langGroup
  * @var string $title
  */
-$user = new UsersModel(get_config('current_user')->id);
+$user = getLoggedFrameworkUser(true)->userMapper;
 $avatar = AvatarModel::getAvatar(Validator::isInteger($user->id) ? (int) $user->id : -1);
 ?>
 

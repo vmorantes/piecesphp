@@ -1418,21 +1418,20 @@ class PublicationsController extends AdminPanelController
 
         if ($allow) {
 
-            $currentUser = get_config('current_user');
+            $currentUser = getLoggedFrameworkUser();
 
-            if (is_object($currentUser)) {
+            if ($currentUser !== null) {
 
-                $currentUserType = (int) $currentUser->type;
-                $currentUserID = (int) $currentUser->id;
+                $currentUserType = $currentUser->type;
+                $currentUserID = $currentUser->id;
 
                 if ($name == 'actions-delete') {
 
                     $allow = false;
                     $id = ($getParam)('id');
                     $publication = PublicationMapper::getBy($id, 'id');
-                    $currentUser = get_config('current_user');
 
-                    if ($publication !== null && is_object($currentUser)) {
+                    if ($publication !== null) {
 
                         $createdByID = (int) $publication->createdBy;
                         $authorID = (int) $publication->author;
@@ -1584,10 +1583,10 @@ class PublicationsController extends AdminPanelController
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
 
         $allowed = false;
-        $current_user = get_config('current_user');
+        $current_user = getLoggedFrameworkUser();
 
-        if ($current_user !== false) {
-            $allowed = Roles::hasPermissions($name, (int) $current_user->type);
+        if ($current_user !== null) {
+            $allowed = Roles::hasPermissions($name, $current_user->type);
         } else {
             $allowed = true;
         }

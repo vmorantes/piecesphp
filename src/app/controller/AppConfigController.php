@@ -1119,7 +1119,7 @@ class AppConfigController extends AdminPanelController
         $tabsTitles = [];
         $tabsItems = [];
 
-        $currentUser = get_config('current_user');
+        $currentUser = getLoggedFrameworkUser();
         $baseViewDir = 'panel/pages/app_configurations';
 
         if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {
@@ -1947,10 +1947,10 @@ class AppConfigController extends AdminPanelController
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
 
         $allowed = false;
-        $current_user = get_config('current_user');
+        $current_user = getLoggedFrameworkUser();
 
-        if ($current_user !== false) {
-            $allowed = Roles::hasPermissions($name, (int) $current_user->type);
+        if ($current_user !== null) {
+            $allowed = Roles::hasPermissions($name, $current_user->type);
         } else {
             $allowed = true;
         }

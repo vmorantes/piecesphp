@@ -164,7 +164,7 @@ class LogsMapper extends EntityMapperExtensible
     public function save()
     {
         $this->createdAt = new \DateTime();
-        $this->createdBy = new UsersModel(get_config('current_user')->id);
+        $this->createdBy = getLoggedFrameworkUser(true)->userMapper;
         $saveResult = parent::save();
 
         if ($saveResult) {
