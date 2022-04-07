@@ -254,7 +254,7 @@ class MailConfig
         if (is_string($mailConfig)) {
             $decryptData = self::decrypt($mailConfig);
             $uncompressData = gzuncompress($decryptData);
-            $jsonDecodedData = is_string($uncompressData) ? json_decode($uncompressData) : null;
+            $jsonDecodedData = is_string($uncompressData) ? json_decode($uncompressData, true) : null;
             if (is_array($jsonDecodedData)) {
                 $mailConfig = $jsonDecodedData;
             } else {
