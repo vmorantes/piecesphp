@@ -484,7 +484,7 @@ class Config
     public static function init()
     {
         if (self::$instance === null) {
-            self::$instance = new Config();
+            self::$instance = new static();
             self::set_lang_by_url();
             self::set_locale_from_current_lang();
         }
@@ -935,12 +935,12 @@ class Config
 
     /**
      * Devuelve una instancia de Config
-     * @return Config
+     * @return static
      */
     private static function get_instance()
     {
         if (self::$instance === null) {
-            self::$instance = new Config();
+            self::$instance = new static();
         }
 
         return self::$instance;

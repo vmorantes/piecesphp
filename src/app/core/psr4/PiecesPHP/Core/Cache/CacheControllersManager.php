@@ -8,7 +8,6 @@ namespace PiecesPHP\Core\Cache;
 use PiecesPHP\Core\StringManipulate;
 use \ArrayObject;
 use \JsonSerializable;
-use \Serializable;
 
 /**
  * CacheControllersManager
@@ -18,7 +17,7 @@ use \Serializable;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
  */
-class CacheControllersManager implements Serializable, JsonSerializable
+class CacheControllersManager implements JsonSerializable
 {
 
     const LANG_GROUP = 'cache_manager_messages';
@@ -128,7 +127,7 @@ class CacheControllersManager implements Serializable, JsonSerializable
     public function process()
     {
 
-        $serialized = StringManipulate::urlSafeB64Encode(serialize($this));
+        $serialized = StringManipulate::urlSafeB64Encode(json_encode($this));
         $this->hash = sha1($serialized);
         $this->ownConfigurationFileName = $this->hash . '.json';
         $this->creationTime = time();
@@ -198,7 +197,7 @@ class CacheControllersManager implements Serializable, JsonSerializable
             file_put_contents($fileConfig, json_encode($this));
             chmod($fileConfig, 0777);
         } else {
-            $this->unserialize(file_get_contents($fileConfig));
+            $this->jsonUnserialize(json_decode(file_get_contents($fileConfig), true));
         }
 
         return $this;
@@ -405,20 +404,11 @@ class CacheControllersManager implements Serializable, JsonSerializable
     }
 
     /**
-     * @return string
-     */
-    public function serialize()
-    {
-        return json_encode($this);
-    }
-
-    /**
-     * @param mixed $serialized
+     * @param array $data
      * @return void
      */
-    public function unserialize($serialized)
+    public function jsonUnserialize(array $data)
     {
-        $data = json_decode($serialized);
 
         foreach ($data as $propertyName => $value) {
 
@@ -441,6 +431,7 @@ class CacheControllersManager implements Serializable, JsonSerializable
     /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $data = [];

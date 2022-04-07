@@ -281,10 +281,10 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
 
         $allowed = false;
-        $current_user = get_config('current_user');
+        $current_user = getLoggedFrameworkUser();
 
-        if ($current_user !== false) {
-            $allowed = Roles::hasPermissions($name, (int) $current_user->type);
+        if ($current_user !== null) {
+            $allowed = Roles::hasPermissions($name, $current_user->type);
         } else {
             $allowed = true;
         }
@@ -372,7 +372,10 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
         OsTicketAPI::setBaseAPIKey($api_key);
 
         $view_data = [];
-        $this->user = get_config('current_user');
+        $currentUser = getLoggedFrameworkUser();
+        if ($currentUser !== null) {
+            $this->user = $currentUser->userStdClass;
+        }
 
         if ($this->user instanceof \stdClass) {
             $view_data['user'] = $this->user;

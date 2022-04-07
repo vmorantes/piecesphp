@@ -314,7 +314,7 @@ class PersonsMapper extends EntityMapperExtensible
         }
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = get_config('current_user')->id;
+        $this->createdBy = getLoggedFrameworkUser()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -340,7 +340,7 @@ class PersonsMapper extends EntityMapperExtensible
             throw new DuplicateException(__(self::LANG_GROUP, "Ya existe una persona con el documento '{$this->documentNumber}' (" . self::idDocumentTypes()[$this->documentType] . ")."));
         }
         if (!$noDateUpdate) {
-            $this->modifiedBy = get_config('current_user')->id;
+            $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();

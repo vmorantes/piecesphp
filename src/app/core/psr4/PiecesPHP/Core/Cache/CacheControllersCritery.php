@@ -6,7 +6,6 @@
 namespace PiecesPHP\Core\Cache;
 
 use JsonSerializable;
-use Serializable;
 
 /**
  * CacheControllersCritery
@@ -16,7 +15,7 @@ use Serializable;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2020
  */
-class CacheControllersCritery implements Serializable, JsonSerializable
+class CacheControllersCritery implements JsonSerializable
 {
 
     const LANG_GROUP = 'cache_manager_messages';
@@ -147,40 +146,9 @@ class CacheControllersCritery implements Serializable, JsonSerializable
     }
 
     /**
-     * @return string
-     */
-    public function serialize()
-    {
-        return json_encode($this);
-    }
-
-    /**
-     * @param mixed $serialized
-     * @return void
-     */
-    public function unserialize($serialized)
-    {
-        $data = json_decode($serialized);
-
-        foreach ($data as $propertyName => $value) {
-
-            if ($propertyName == 'OTHER_STRATEGY') {
-
-                $this->$propertyName = $value;
-
-            } else {
-
-                $this->$propertyName = $value;
-
-            }
-
-        }
-
-    }
-
-    /**
      * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $data = [];

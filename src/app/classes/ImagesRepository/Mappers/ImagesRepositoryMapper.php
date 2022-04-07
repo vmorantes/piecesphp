@@ -370,7 +370,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     {
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = get_config('current_user')->id;
+        $this->createdBy = getLoggedFrameworkUser()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -393,7 +393,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         if (!$noDateUpdate) {
-            $this->modifiedBy = get_config('current_user')->id;
+            $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();

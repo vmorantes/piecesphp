@@ -11,18 +11,17 @@ $langGroup = UsersController::LANG_GROUP;
     </h3>
 
     <div class="ui buttons">
-        <?php if(\PiecesPHP\Core\Roles::hasPermissions('users-selection-create', (int)get_config('current_user')->type, true)):?>
+        <?php if(\PiecesPHP\Core\Roles::hasPermissions('users-selection-create', getLoggedFrameworkUser()->type, true)):?>
         <a href="<?= get_route('users-selection-create'); ?>" class="ui button green"><?= __($langGroup, 'Agregar'); ?></a>
         <?php endif;?>
     </div>
-	<br>
-	<br>
-	<br>
+    <br>
+    <br>
+    <br>
 </div>
 
 
-<table process="<?=$process_table;?>" class="ui table stripped celled inverted grey users"
-    style="max-width:100%;width:100%;">
+<table process="<?=$process_table;?>" class="ui table stripped celled inverted grey users" style="max-width:100%;width:100%;">
     <thead>
         <tr>
             <th><?= __($langGroup, '#'); ?></th>

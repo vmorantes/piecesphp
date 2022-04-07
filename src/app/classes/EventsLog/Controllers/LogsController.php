@@ -120,7 +120,7 @@ class LogsController extends AdminPanelController
 
         $columnsOrder = [
             'textMessageReplacement',
-            'createdAtFormat',
+            'createdAt',
         ];
 
         $customOrder = [
@@ -224,10 +224,10 @@ class LogsController extends AdminPanelController
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
 
         $allowed = false;
-        $current_user = get_config('current_user');
+        $current_user = getLoggedFrameworkUser();
 
-        if ($current_user !== false) {
-            $allowed = Roles::hasPermissions($name, (int) $current_user->type);
+        if ($current_user !== null) {
+            $allowed = Roles::hasPermissions($name, $current_user->type);
         } else {
             $allowed = true;
         }
