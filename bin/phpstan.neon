@@ -91,3 +91,4 @@ parameters:
         - '#.* should return stdClass.* but returns object.*#'
         - '#Cannot access property \$.* on PiecesPHP\\UserSystem\\UserDataPackage\|null#'
         - '#Access to an undefined property object::\$.*#'
+        - '#.*Unsafe usage of new static.*#'

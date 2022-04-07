@@ -66,7 +66,7 @@ class UsersModel extends BaseEntityMapper
 
     protected $fields = [
         'id' => [
-            'type' => 'int',
+            'type' => 'bigint',
             'primary_key' => true,
         ],
         'password' => [

@@ -21,12 +21,15 @@ class ResponseCollection extends ArrayOf implements \JsonSerializable
     public function __construct($input = [])
     {
         parent::__construct($input, self::TYPE_OBJECT, Response::class);
-	}
-	
+    }
 
-	public function jsonSerialize()
-	{
-		return $this->getArrayCopy();
-	}
+    /**
+     * @return array
+     */
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
+    {
+        return $this->getArrayCopy();
+    }
 
 }

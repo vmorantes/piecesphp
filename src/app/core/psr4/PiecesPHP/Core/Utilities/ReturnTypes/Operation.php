@@ -135,8 +135,9 @@ class Operation implements \JsonSerializable
     }
 
     /**
-     * @return mixed
+     * @return array
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return [

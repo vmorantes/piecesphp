@@ -32,11 +32,11 @@
         "phpoffice/phpspreadsheet": "^1.6",
         "piecesphp/datastructures": "~1",
         "piecesphp/html": "~1",
+        "piecesphp/database": "2.2",
         "yourivw/leclient": "^1.2",
         "psr/log": "^1.1",
         "mpdf/mpdf": "^8.0",
         "studio-42/elfinder": "^2.1",
-        "piecesphp/database": "^2.0",
         "ifsnop/mysqldump-php": "^2.9",
         "scssphp/scssphp": "^1.10",
         "spatie/url": "^1.3"
