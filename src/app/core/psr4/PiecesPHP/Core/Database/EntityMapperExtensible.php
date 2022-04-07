@@ -160,9 +160,9 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * @inheritDoc
+     * @return \stdClass
      */
-    public function save()
+    public function metaValueToSave()
     {
         $metaColumnName = $this->metaColumnName;
         $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : new \stdClass();
@@ -196,10 +196,17 @@ class EntityMapperExtensible extends BaseEntityMapper
 
         }
 
-        $this->$metaColumnName = $metaColumnValue;
+        return $metaColumnValue;
+    }
 
+    /**
+     * @inheritDoc
+     */
+    public function save()
+    {
+        $metaColumnName = $this->metaColumnName;
+        $this->$metaColumnName = $this->metaValueToSave();
         $saveResult = parent::save();
-
         if ($saveResult) {
             $this->insertIdOnSave = $this->getLastInsertID();
         }
@@ -209,9 +216,9 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * @inheritDoc
+     * @return \stdClass
      */
-    public function update()
+    public function metaValueToUpdate()
     {
         $metaColumnName = $this->metaColumnName;
         $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : new \stdClass();
@@ -245,10 +252,17 @@ class EntityMapperExtensible extends BaseEntityMapper
 
         }
 
-        $this->$metaColumnName = $metaColumnValue;
+        return $metaColumnValue;
+    }
 
+    /**
+     * @inheritDoc
+     */
+    public function update()
+    {
+        $metaColumnName = $this->metaColumnName;
+        $this->$metaColumnName = $this->metaValueToUpdate();
         return parent::update();
-
     }
 
     /**
