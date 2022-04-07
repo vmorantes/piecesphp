@@ -478,7 +478,7 @@ class PublicationMapper extends EntityMapperExtensible
         }
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = get_config('current_user')->id;
+        $this->createdBy = getLoggedFrameworkUser()->id;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -506,7 +506,7 @@ class PublicationMapper extends EntityMapperExtensible
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
         }
         if (!$noDateUpdate) {
-            $this->modifiedBy = get_config('current_user')->id;
+            $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();

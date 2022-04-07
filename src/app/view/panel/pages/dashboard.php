@@ -2,7 +2,7 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Model\UsersModel;
 use Publications\PublicationsLang;
-$user = new UsersModel(get_config('current_user')->id);
+$user = getLoggedFrameworkUser(true)->userMapper;
 ?>
 <div class="banner-zone"></div>
 

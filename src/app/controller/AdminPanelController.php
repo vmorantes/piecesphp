@@ -326,7 +326,10 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 
         $view_data = [];
 
-        $this->user = get_config('current_user');
+        $currentUser = getLoggedFrameworkUser();
+        if ($currentUser !== null) {
+            $this->user = $currentUser->userStdClass;
+        }
 
         if ($this->user instanceof \stdClass) {
             $view_data['user'] = $this->user;

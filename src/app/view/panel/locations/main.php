@@ -1,7 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use PiecesPHP\Core\Roles;
-$type_user = (int) get_config('current_user')->type;
+$type_user = getLoggedFrameworkUser()->type;
 $elements = [
     [
         'title' => __(LOCATIONS_LANG_GROUP, 'Países'),
@@ -65,7 +65,7 @@ $elements = array_map(function ($e) {
 ?>
 
 <div container-cards-locations>
-	
+
     <div class="ui cards">
 
         <?php foreach ($elements as $element): ?>
@@ -81,7 +81,7 @@ $elements = array_map(function ($e) {
                     <?=$element->title;?>
                 </div>
                 <div class="meta">
-					<?= $element->description; ?>
+                    <?= $element->description; ?>
                 </div>
             </div>
             <div class="extra content">
@@ -98,7 +98,7 @@ $elements = array_map(function ($e) {
         <?php endif;?>
         <?php endforeach;?>
 
-	</div>
+    </div>
 
 </div>
 
