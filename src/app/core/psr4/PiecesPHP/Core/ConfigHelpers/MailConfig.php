@@ -343,7 +343,7 @@ class MailConfig
     public static function getValue(string $name)
     {
 
-        $mailConfig = new MailConfig;
+        $mailConfig = new static;
 
         $data = [];
 

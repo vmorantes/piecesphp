@@ -156,7 +156,7 @@ class TerminalData
     {
 
         if (self::$instance === null) {
-            self::$instance = new TerminalData();
+            self::$instance = new static();
         }
 
         return self::$instance;

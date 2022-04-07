@@ -21,12 +21,12 @@ class EntityMapperExtensible extends BaseEntityMapper
 {
 
     /**
-     * @var string $metaColumnName
+     * @var string
      */
     protected $metaColumnName = 'meta';
 
     /**
-     * @var MetaProperty[] $metaProperties
+     * @var MetaProperty[]
      */
     private $metaProperties = [];
 
@@ -312,10 +312,10 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * @return BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {
-        return (new EntityMapperExtensible)->getModel();
+        return (new static )->getModel();
     }
 }

@@ -198,6 +198,10 @@ class PaginationResult implements JsonSerializable
         return $this->totalPages;
     }
 
+    /**
+     * @return array
+     */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $data = [

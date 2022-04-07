@@ -120,7 +120,7 @@ class LogsController extends AdminPanelController
 
         $columnsOrder = [
             'textMessageReplacement',
-            'createdAtFormat',
+            'createdAt',
         ];
 
         $customOrder = [

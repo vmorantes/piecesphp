@@ -32,16 +32,11 @@ window.addEventListener('load', function (e) {
 			})
 	}
 
-	//Configurar barra de navegación
-	configurateNavigation()
-
 	//Configurar botón de "ir arriba"
 	let toTopButton = $('button.to-top')
 	toTopButton.on('click', function () {
 		$("html, body").animate({ scrollTop: 0 }, 350);
 	})
-
-	CustomNamespace.loader(null, false)
 
 	//Formulario de suscriptor
 	let formSuscriber = $('.ui.form.add-suscriber')
@@ -56,6 +51,11 @@ window.addEventListener('load', function (e) {
 
 	//Activar ejemplo de slideshow estático
 	CustomNamespace.slideshow('.slideshow-static')
+
+	//Configurar barra de navegación
+	configurateNavigation()
+
+	CustomNamespace.loader(null, false)
 })
 
 function configurateNavigation() {
@@ -65,9 +65,16 @@ function configurateNavigation() {
 	let nav = $('body > .navigation')
 	let navSubMenus = nav.find('.items .item.menu')
 
-	let navH = nav.height()
-
-	body.css('padding-top', `${navH}px`)
+	body.css('padding-top', `70px`)
+	let repeatedNumber = 0
+	let navHInterval = setInterval(function () {
+		repeatedNumber++
+		let navH = nav.height()
+		body.css('padding-top', `${navH}px`)
+		if (repeatedNumber >= 4) {
+			clearInterval(navHInterval)
+		}
+	}, 1000)
 
 	let toggleNav = function (onlyClose = false) {
 		if (!nav.hasClass('active') && !onlyClose) {
