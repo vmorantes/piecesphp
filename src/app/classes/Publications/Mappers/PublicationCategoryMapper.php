@@ -692,9 +692,11 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         if ($category->id == null) {
             $category->setLangData('es', 'name', 'Sin categoría');
             $category->setLangData('en', 'name', 'Uncategorized');
-            $category->id = self::UNCATEGORIZED_ID;
-            $category->primaryKey = 'ALGO';
-            $category->save();
+            $category->meta = $category->metaValueToSave();
+            //$category->id = self::UNCATEGORIZED_ID;
+            $dataToInsert = $category->dataToInsert()->getData();
+            $dataToInsert['id'] = self::UNCATEGORIZED_ID;
+            PublicationCategoryMapper::model()->insert($dataToInsert)->execute();
         }
 
         return $category;
