@@ -40,7 +40,7 @@ class Validator
             case self::T_STRING:
                 return self::isString($value);
             case self::T_ARRAY:
-                return self::isArrray($value);
+                return self::isArray($value);
             case self::T_DATE:
                 return self::isDate($value, $format, $excel);
             case self::T_EMAIL:
@@ -100,7 +100,7 @@ class Validator
      * @param mixed $value
      * @return bool
      */
-    public static function isArrray($value)
+    public static function isArray($value)
     {
         return is_array($value);
     }
