@@ -69,7 +69,7 @@ class AvatarModel
      */
     public static function getFolderUser(int $id)
     {
-        return get_config('upload_dir') . '/' . self::AVATAR_DIR . '/' . $id;
+        return append_to_path_system(get_config('upload_dir'), self::AVATAR_DIR . '/' . $id);
     }
 
     /**
@@ -78,7 +78,7 @@ class AvatarModel
      */
     public static function getFolderUserURL(int $id)
     {
-        return get_config('upload_dir_url') . '/' . self::AVATAR_DIR . '/' . $id;
+        return append_to_url(get_config('upload_dir_url'), self::AVATAR_DIR . '/' . $id);
     }
 
     /**
@@ -87,7 +87,7 @@ class AvatarModel
      */
     public static function getUserAvatarName(int $id)
     {
-        $filename = self::getFolderUser($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
+        $filename = append_to_path_system(self::getFolderUser($id), self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR);
         return $filename;
     }
 
@@ -97,7 +97,7 @@ class AvatarModel
      */
     public static function getUserAvatarNameURL(int $id)
     {
-        $route = self::getFolderUserURL($id) . '/' . self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR;
+        $route = append_to_url(self::getFolderUserURL($id), self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR);
         return $route;
     }
 
