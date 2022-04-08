@@ -110,7 +110,7 @@ function get_part_request($part = 1)
  *
  * @param string $url La URL
  * @param string $segment El segmento que se añadirá
- * @param bool $complete Si la URL podría incluir user, pass y port
+ * @param bool $complete Si la URL podría incluir user, pass (el puerto, si está definido, siempre se incluye)
  * @return string La URL
  */
 function append_to_url(string $url, string $segment, bool $complete = false)
@@ -128,7 +128,7 @@ function append_to_url(string $url, string $segment, bool $complete = false)
         'path' => parse_url($url, \PHP_URL_PATH),
     ];
     foreach ($parts as $partName => $partValue) {
-        if (!is_string($partValue)) {
+        if (!is_string($partValue) && !is_int($partValue)) {
             $parts[$partName] = '';
         }
     }
@@ -158,26 +158,150 @@ function append_to_url(string $url, string $segment, bool $complete = false)
 
         }
 
-        $url[] = "{$host}";
-
         if (mb_strlen($port) > 0) {
-            $url[] = ":{$port}";
+            $host .= ":{$port}";
         }
 
-        $url[] = "/{$path}/$segment";
+        $url[] = "{$host}";
+
+        $url[] = "/{$path}/{$segment}";
         $url = implode('', $url);
 
     } else {
-        $url = "$host/$path/$segment";
+        if (mb_strlen($port) > 0) {
+            $host .= ":{$port}";
+        }
+        $url = "{$host}/{$path}/{$segment}";
     }
 
     $url = preg_replace('|\/{2,}|', '/', $url);
 
     if (mb_strlen($scheme) > 0) {
-        $url = "$scheme://$url";
+        $url = "{$scheme}://{$url}";
     } else {
-        $url = "$url";
+        $url = "{$url}";
     }
+
+    return $url;
+}
+
+/**
+ * Une un segmento a una ruta
+ *
+ * @param string $locationPath La ruta
+ * @param string $segment El segmento que se añadirá
+ * @param string $directorySeparator por defecto \DIRECTORY_SEPARATOR;
+ * @param bool $complete Si la URL podría incluir user, pass (el puerto, si está definido, siempre se incluye)
+ * @return string La URL
+ */
+function append_to_path_system(string $locationPath, string $segment, string $directorySeparator = null, bool $complete = false)
+{
+    $url = $locationPath;
+    if ($directorySeparator === null) {
+        $directorySeparator = \DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * @var string[]
+     */
+    $parts = [
+        'scheme' => parse_url($url, \PHP_URL_SCHEME),
+        'user' => parse_url($url, \PHP_URL_USER),
+        'pass' => parse_url($url, \PHP_URL_PASS),
+        'host' => parse_url($url, \PHP_URL_HOST),
+        'port' => parse_url($url, \PHP_URL_PORT),
+        'path' => parse_url($url, \PHP_URL_PATH),
+    ];
+    foreach ($parts as $partName => $partValue) {
+        if (!is_string($partValue) && !is_int($partValue)) {
+            $parts[$partName] = '';
+        }
+    }
+
+    $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    $systemDirectorySeparator = $directorySeparator;
+    $systemDirectorySeparatorX2 = $systemDirectorySeparator . $systemDirectorySeparator;
+    $trimBars = function ($str) {
+        $lastResultStr = '';
+        while (strcmp($str, $lastResultStr) !== 0) {
+            $lastResultStr = $str;
+            $str = trim($str, '/');
+            $str = trim($str, "\\");
+        }
+        return $str;
+    };
+    $rtrimBars = function ($str) {
+        $lastResultStr = '';
+        while (strcmp($str, $lastResultStr) !== 0) {
+            $lastResultStr = $str;
+            $str = rtrim($str, '/');
+            $str = rtrim($str, "\\");
+        }
+        return $str;
+    };
+
+    $scheme = $parts['scheme'];
+    $user = $parts['user'];
+    $pass = $parts['pass'];
+    $host = $parts['host'];
+    $port = $parts['port'];
+    $path = $parts['path'];
+
+    $path = ($trimBars)($path);
+    $segment = ($trimBars)($segment);
+
+    if ($complete) {
+
+        $url = [];
+
+        if (mb_strlen($user) > 0) {
+
+            $authString = "{$user}";
+
+            if (mb_strlen($pass) > 0) {
+                $authString .= ":{$pass}";
+            }
+
+            $authString .= '@';
+
+            $url[] = $authString;
+
+        }
+
+        if (mb_strlen($port) > 0) {
+            $host .= ":{$port}";
+        }
+
+        $url[] = "{$host}";
+        $url[] = "{$systemDirectorySeparator}{$path}";
+
+        $url = implode('', $url);
+        $url = ($rtrimBars)($url);
+        $url .= "{$systemDirectorySeparator}{$segment}";
+
+    } else {
+        if (mb_strlen($port) > 0) {
+            $host .= ":{$port}";
+        }
+        $url = "{$host}{$systemDirectorySeparator}{$path}";
+        $url = ($rtrimBars)($url);
+        $url .= "{$systemDirectorySeparator}$segment";
+    }
+
+    if ($isWindows) {
+        $url = ($trimBars)($url);
+    }
+
+    if (mb_strlen($scheme) > 0) {
+        $url = "{$scheme}:{$systemDirectorySeparatorX2}{$url}";
+    } else {
+        $url = "{$url}";
+    }
+
+    $url = str_replace([
+        '/',
+        "\\",
+    ], $systemDirectorySeparator, $url);
 
     return $url;
 }

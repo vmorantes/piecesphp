@@ -51,7 +51,7 @@ class BlackboardNewsController extends AdminPanelController
         parent::__construct();
         add_global_asset(BLACKBOARD_NEWS_PATH_JS . '/main.js', 'js');
 
-        $this->uploadDir = append_to_url(get_config('upload_dir'), self::UPLOAD_DIR);
+        $this->uploadDir = append_to_path_system(get_config('upload_dir'), self::UPLOAD_DIR);
         $this->uploadDirURL = append_to_url(get_config('upload_dir_url'), self::UPLOAD_DIR);
     }
 
@@ -148,7 +148,7 @@ class BlackboardNewsController extends AdminPanelController
             ])->execute();
 
             if ($deleted) {
-                $directory = append_to_url($this->uploadDir, (string) $id);
+                $directory = append_to_path_system($this->uploadDir, (string) $id);
                 remove_directory($directory);
             }
 
