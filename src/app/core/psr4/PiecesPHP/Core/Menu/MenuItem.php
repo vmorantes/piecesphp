@@ -5,7 +5,6 @@
  */
 namespace PiecesPHP\Core\Menu;
 
-use Form\Validator;
 use PiecesPHP\Core\HTML\HtmlElement;
 
 /**
@@ -56,54 +55,52 @@ class MenuItem
      */
     protected $structureOptions = [
         'text' => [
-            'rules' => ['is_string'],
+            'rule' => 'is_string',
             'default' => 'No text...',
         ],
         'href' => [
-            'rules' => ['is_string'],
+            'rule' => 'is_string',
             'default' => '#',
         ],
         'class' => [
-            'rules' => ['is_string'],
+            'rule' => 'is_string',
             'default' => 'item',
         ],
         'attributes' => [
-            'rules' => [
-                'is_array',
-            ],
+            'rule' => 'is_array',
             'default' => [],
         ],
         'current' => [
-            'rules' => ['bool'],
+            'rule' => 'bool',
             'default' => false,
         ],
         'visible' => [
-            'rules' => ['bool'],
+            'rule' => 'bool',
             'default' => true,
         ],
         'routeName' => [
-            'rules' => ['is_string'],
+            'rule' => 'is_string',
             'default' => null,
         ],
         'position' => [
-            'rules' => ['integer'],
+            'rule' => 'integer',
             'default' => -1,
         ],
     ];
 
     /**
      * @param array $options
-     * @param string $options['text']
-     * @param string $options['href']
-     * @param string $options['class']
-     * @param array $options['attributes']
-     * @param bool $options['current']
-     * @param bool $options['visible']
-     * @param string $options['routeName']
-     * @param int $options['position']
+     *     string      $options[text]
+     *     string      $options[href]
+     *     string      $options[class]
+     *     array       $options[attributes]
+     *     bool        $options[current]
+     *     bool        $options[visible]
+     *     string      $options[routeName]
+     *     int         $options[position]
      * @return static
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
         $this->structureOptions['current']['default'] = function () {
             $href = preg_replace('/#.*/', '', $this->href);
@@ -117,13 +114,11 @@ class MenuItem
             if ($defined_in_options) {
 
                 $value_on_option = $options[$name];
-                $pattern_validation = [
-                    $name => $config['rules'],
-                ];
-                $validator = new Validator($pattern_validation);
-                $valid = $validator->validate([$name => $value_on_option]);
+                $valid = Validator::validate($config['rule'], $value_on_option);
 
                 if ($valid) {
+
+                    $value_on_option = Validator::parse($config['rule'], $value_on_option);
 
                     if ($name == 'attributes') {
                         foreach ($value_on_option as $key => $value) {
