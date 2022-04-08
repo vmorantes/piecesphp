@@ -5,7 +5,6 @@
  */
 namespace PiecesPHP\Core\Menu;
 
-use Form\Validator;
 use PiecesPHP\Core\HTML\HtmlElement;
 
 /**
@@ -28,16 +27,16 @@ class MenuItemCollection
      */
     protected $structureOptions = [
         'items' => [
-            'rules' => ['is_array'],
+            'rule' => 'is_array',
             'default' => [],
         ],
     ];
 
     /**
-     * @param mixed $options
+     * @param mixed[] $options
      * @return static
      */
-    public function __construct($options = [])
+    public function __construct(array $options = [])
     {
         foreach ($this->structureOptions as $name => $config) {
 
@@ -46,14 +45,11 @@ class MenuItemCollection
             if ($defined_in_options) {
 
                 $value_on_option = $options[$name];
-                $pattern_validation = [
-                    $name => $config['rules'],
-                ];
-                $validator = new Validator($pattern_validation);
-                $valid = $validator->validate([$name => $value_on_option]);
+                $valid = Validator::validate($config['rule'], $value_on_option);
 
                 if ($valid) {
 
+                    $value_on_option = Validator::parse($config['rule'], $value_on_option);
                     if ($name == 'items') {
                         foreach ($value_on_option as $key => $value) {
                             $valid_item = $value instanceof MenuItem;
