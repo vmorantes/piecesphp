@@ -88,7 +88,7 @@ class HeroController extends AdminPanelController
         $pcsUploadDir = get_config('upload_dir');
         $pcsUploadDirURL = get_config('upload_dir_url');
 
-        $this->uploadDir = append_to_url($pcsUploadDir, self::UPLOAD_DIR);
+        $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
     }
 
@@ -1141,7 +1141,7 @@ class HeroController extends AdminPanelController
 
                 }
 
-                $uploadDirPath = append_to_url($uploadDirPath, $folder);
+                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
                 $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
 
                 if ($valid) {

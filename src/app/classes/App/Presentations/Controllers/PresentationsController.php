@@ -100,8 +100,8 @@ class PresentationsController extends AdminPanelController
         $pcsUploadDir = get_config('upload_dir');
         $pcsUploadDirURL = get_config('upload_dir_url');
 
-        $this->uploadDir = append_to_url($pcsUploadDir, self::UPLOAD_DIR);
-        $this->uploadTmpDir = append_to_url($pcsUploadDir, self::UPLOAD_DIR_TMP);
+        $this->uploadDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR);
+        $this->uploadTmpDir = append_to_path_system($pcsUploadDir, self::UPLOAD_DIR_TMP);
         $this->uploadDirURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR));
         $this->uploadDirTmpURL = str_replace($baseURL, '', append_to_url($pcsUploadDirURL, self::UPLOAD_DIR_TMP));
 
@@ -998,7 +998,7 @@ class PresentationsController extends AdminPanelController
         $uploadDirPath = $instance->uploadDir;
         $uploadDirRelativeURL = $instance->uploadDirURL;
 
-        $uploadDirPath = append_to_url($uploadDirPath, $folder);
+        $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
         $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
 
         $deleteImages = function (array $images, string $uploadDirRelativeURL) {

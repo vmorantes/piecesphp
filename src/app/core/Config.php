@@ -147,7 +147,8 @@ class Config
     public function initAppPathConfig()
     {
 
-        $this->appPath = __DIR__ . "/../../";
+        $directoySeparator = \DIRECTORY_SEPARATOR;
+        $this->appPath = __DIR__ . "{$directoySeparator}..{$directoySeparator}..{$directoySeparator}";
 
     }
 
