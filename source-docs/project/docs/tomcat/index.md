@@ -1,97 +1,81 @@
-# Instalación de Tomcat 8 con SSL
+# Instalación de Tomcat 9 con SSL
 
-- Probado en Debian 9
-
+## Paquetes generales
 ```bash
-# Crear directorio
-mkdir /tomcat
-cd /tomcat
+sudo apt update
 
-# Descargar tomcat 8
-wget https://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.50/bin/apache-tomcat-8.5.50.tar.gz
-tar xvzf apache-tomcat-8.5.50.tar.gz
-rm apache-tomcat-8.5.50.tar.gz
-cd apache-tomcat-8.5.50
-mv * ../
-cd ..
+# Soporte de español, pueden revisarse los idiomas disponibles con locale -a
+sudo apt-get install language-pack-es
 
-#Verificar o instalar java
-java -version
-apt install default-jdk default-jre
-
-#Verificar el JAVA_HOME
-update-alternatives --config java
-
-# Configurar variables de entorno
-nano ~/.bashrc
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-export CATALINA_HOME=/tomcat
-
-# Activar tomcat
-/tomcat/bin/startup.sh
-
-#Cambiar a puerto 80: <Connector port="8080" a "80" y <Connector ... redirectPort="8443" a "443"
-nano /tomcat/conf/server.xml
-
-##Descomentar/Agregar AUTHBIND=yes
-nano /etc/default/tomcat7
-
-##Configurar authbind
-apt install authbind
-touch /etc/authbind/byport/80
-chmod 500 /etc/authbind/byport/80
-chown root /etc/authbind/byport/80
-touch /etc/authbind/byport/443
-chmod 500 /etc/authbind/byport/443
-chown root /etc/authbind/byport/443
-/tomcat/bin/shutdown.sh
-/tomcat/bin/startup.sh
+sudo apt install -y ufw openssl letsencrypt nano unzip zip
 ```
 
-## Configurar Let´s Encrypt
+## Tomcat
 ```bash
-#Paquetes
-apt install openssl letsencrypt certbot
-wget https://dl.eff.org/certbot-auto -P /usr/local/bin
-chmod a+x /usr/local/bin/certbot-auto
+sudo apt install -y tomcat9
+```
 
-#Configurar variable útiles
-export DOMAIN_TOMCAT_I="DOMINIO.COM"
-export EMAIL_ALERT_TOMCAT_I="admin@webmaster"
-export PASS_SSL_TOMCAT_I="CONTRASENNA"
-export ALIAS_SSL_TOMCAT_I="tomcat_let"
-
-#Crear certificado
-certbot-auto certonly --standalone -d $DOMAIN_TOMCAT_I  --preferred-challenges http --agree-tos -n -m  $EMAIL_ALERT_TOMCAT_I --keep-until-expiring
-
-certbot-auto renew
-
-openssl pkcs12 -export -out /etc/letsencrypt/fullchain.p12 -in /etc/letsencrypt/live/$DOMAIN_TOMCAT_I/fullchain.pem -inkey /etc/letsencrypt/live/$DOMAIN_TOMCAT_I/privkey.pem -name $ALIAS_SSL_TOMCAT_I
-
-keytool -importkeystore -deststorepass $PASS_SSL_TOMCAT_I -destkeypass $PASS_SSL_TOMCAT_I -destkeystore /etc/letsencrypt/$DOMAIN_TOMCAT_I.jks -srckeystore /etc/letsencrypt/fullchain.p12  -srcstoretype PKCS12 -srcstorepass $PASS_SSL_TOMCAT_I -alias $ALIAS_SSL_TOMCAT_I
-
-#Configurar servidor
+## Cambiar puerto de Tomcat (opcional)
+```bash
+# Cambiar a puerto 80: <Connector port="8080" a "80" y <Connector ... redirectPort="8443" a "443"
 nano /tomcat/conf/server.xml
 ```
+
+## Certificado SSL
+
+### Instalación
+```bash
+export DOMAIN=domain.tld
+
+#Instalar certbot
+sudo apt install -y certbot 
+
+## Crear certificado
+certbot certonly --standalone -d $DOMAIN
+
+# Verificar
+ls /etc/letsencrypt/live/$DOMAIN/ 
+
+# Copiar archivos pertinentes
+cd /etc/letsencrypt/live/$DOMAIN/
+
+cp {cert,chain,privkey}.pem /var/lib/tomcat9/conf/
+
+## Permisos
+sudo chown tomcat:tomcat /var/lib/tomcat9/conf/*.pem
+```
+
+### Configuración
+
+```bash
+# Archivo de configuración
+sudo nano /var/lib/tomcat9/conf/server.xml
+```
+
 ```xml
-<Connector executor="tomcatThreadPool" ... />
-...
-<Connector port="443" protocol="org.apache.coyote.http11.Http11Protocol"
-            maxThreads="150" SSLEnabled="true" scheme="https" secure="true"
-            keystoreFile="/etc/letsencrypt/DOMINIO.COM.jks"
-            keystorePass="CONTRASENNA"
-            clientAuth="false" sslProtocol="TLS" />
+<!-- Agregar configuraciones (el puerto por defecto es 8443) -->
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+    maxThreads="150" SSLEnabled="true">
+    <SSLHostConfig>
+        <Certificate certificateFile="/var/lib/tomcat9/conf/cert.pem"
+            certificateKeyFile="/var/lib/tomcat9/conf/privkey.pem"
+            certificateChainFile="/var/lib/tomcat9/conf/chain.pem" 
+            type="RSA" />
+    </SSLHostConfig>
+</Connector>
 ```
+
 ```bash
-#Reiniciar servidor
-/tomcat/bin/shutdown.sh
-/tomcat/bin/startup.sh
+# Reiniciar servicio
+sudo service tomcat9 restart
 ```
 
 ## Habilitar CORS
+
 ```bash
-nano /tomcat/conf/web.xml
+sudo nano /var/lib/tomcat9/conf/web.xml
 ```
+
 ```xml
 <filter>
 	<filter-name>CorsFilter</filter-name>
@@ -106,18 +90,17 @@ nano /tomcat/conf/web.xml
 	<url-pattern>/*</url-pattern>
 </filter-mapping>
 ```
+
 ```bash
-#Reiniciar servidor
-/tomcat/bin/shutdown.sh
-/tomcat/bin/startup.sh
+# Reiniciar servicio
+sudo service tomcat9 restart
 ```
 
 ## Asignar más memoria 
 ```bash
 #Añadir export JAVA_OPTS="-Djava.awt.headless=true -Xms1024m -Xmx1024m"
-nano /tomcat/bin/setenv.sh
+nano /usr/share/tomcat9/bin/setenv.sh
 
-#Reiniciar servidor
-/tomcat/bin/shutdown.sh
-/tomcat/bin/startup.sh
+# Reiniciar servicio
+sudo service tomcat9 restart
 ```
