@@ -45,11 +45,11 @@ class BlackboardNewsModel extends BaseEntityMapper
             'type' => 'int',
         ],
         'start_date' => [
-            'type' => 'date',
+            'type' => 'datetime',
             'null' => true,
         ],
         'end_date' => [
-            'type' => 'date',
+            'type' => 'datetime',
             'null' => true,
         ],
         'created_date' => [
