@@ -80,7 +80,13 @@ class BlackboardNewsController extends AdminPanelController
     public function writeForm(Request $request, Response $response)
     {
 
-        $types = Roles::getRolesIdentifiers(true);
+        $types = [
+            'Todos' => -1,
+        ];
+        $roles = Roles::getRolesIdentifiers(true);
+        foreach ($roles as $k => $v) {
+            $types[$k] = $v;
+        }
 
         import_default_rich_editor();
 
@@ -104,7 +110,13 @@ class BlackboardNewsController extends AdminPanelController
 
         $id = isset($args['id']) ? $args['id'] : null;
         $id = ctype_digit($id) ? (int) $id : null;
-        $types = Roles::getRolesIdentifiers(true);
+        $types = [
+            'Todos' => -1,
+        ];
+        $roles = Roles::getRolesIdentifiers(true);
+        foreach ($roles as $k => $v) {
+            $types[$k] = $v;
+        }
         $new = new BlackboardNewsModel($id);
 
         if (!is_null($new->id)) {
@@ -293,20 +305,18 @@ class BlackboardNewsController extends AdminPanelController
 
         $model = (new BlackboardNewsModel())->getModel();
 
-        $now = (new \DateTime())->format('Y-m-d h:s:i');
+        $now = (new \DateTime())->format('Y-m-d H:i:00');
 
+        $userID = $this->user->id;
+        $userType = $this->user->type;
         if ($isList) {
             $where = trim(implode(' ', [
-                " author = " . $this->user->id . ' OR ',
-                " type = " . $this->user->type . ' AND ',
-                " (start_date <= '$now' AND end_date > '$now') OR ",
-                " (start_date IS NULL AND end_date IS NULL) ",
+                "( author = {$userID} OR ( type = -1 OR type = {$userType} ) )",
             ]));
         } else {
             $where = trim(implode(' ', [
-                " type = " . $this->user->type . ' AND ',
-                " (start_date <= '$now' AND end_date > '$now') OR ",
-                " (start_date IS NULL AND end_date IS NULL) ",
+                "( type = -1 OR type = {$userType} ) AND",
+                "( ( start_date <= '$now' OR start_date IS NULL ) AND ( end_date > '$now' OR end_date IS NULL ) )",
             ]));
         }
 
@@ -327,6 +337,7 @@ class BlackboardNewsController extends AdminPanelController
         foreach ($result as $element) {
 
             $mapper = new BlackboardNewsModel($element->id);
+            $type = (int) $element->type;
             $element->author = [
                 'id' => $mapper->author->id,
                 'username' => $mapper->author->username,
@@ -339,13 +350,11 @@ class BlackboardNewsController extends AdminPanelController
             ];
             $element->type = [
                 'code' => $element->type,
-                'label' => UsersModel::getTypesUser()[$element->type],
+                'label' => $type !== -1 ? UsersModel::getTypesUser()[$type] : 'Todos',
             ];
 
-            if (!is_null($element->start_date) && !is_null($element->end_date)) {
-                $element->start_date = $mapper->start_date->format('d-m-Y h:i A');
-                $element->end_date = $mapper->end_date->format('d-m-Y h:i A');
-            }
+            $element->start_date = $mapper->start_date !== null ? $mapper->start_date->format('d-m-Y h:i A') : '';
+            $element->end_date = $mapper->end_date !== null ? $mapper->end_date->format('d-m-Y h:i A') : '';
 
             $element->title = $mapper->title;
             $element->text = $mapper->text;
