@@ -31,11 +31,11 @@ $langGroup = BlackboardNewsController::LANG_GROUP;
     <div class="two fields">
         <div class="field" calendar-group-js="test" start>
             <label><?= __($langGroup, 'Fecha de inicio'); ?></label>
-            <input type="text" name="start_date" value="<?= !is_null($new->start_date) ? $new->start_date->format('Y-m-d H:i:s') : '';?>">
+            <input type="text" name="start_date" value="<?= !is_null($new->start_date) ? $new->start_date->format('Y-m-d H:i A') : '';?>">
         </div>
         <div class="field" calendar-group-js="test" end>
             <label><?= __($langGroup, 'Fecha final'); ?></label>
-            <input type="text" name="end_date" value="<?= !is_null($new->end_date) ? $new->end_date->format('Y-m-d H:i:s') : '';?>">
+            <input type="text" name="end_date" value="<?= !is_null($new->end_date) ? $new->end_date->format('Y-m-d H:i A') : '';?>">
         </div>
     </div>
     <div class="field">
