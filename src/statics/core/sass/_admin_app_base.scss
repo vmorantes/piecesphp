@@ -10,6 +10,14 @@
     width: max-content;
     max-width: 100%;
 
+    &.w-800 {
+        width: 800px;
+    }
+
+    &.inline-block {
+        display: inline-block;
+    }
+
     &.no-center {
         margin-left: initial;
         margin-right: initial;
@@ -29,6 +37,12 @@
         height: 2px;
         display: block;
         border-bottom: 1.8px solid var(--mark-color);
+    }
+
+    &.no-underline {
+        &::after {
+            display: none;
+        }
     }
 
     &.left {
@@ -584,4 +598,9 @@
         }
 
     }
+}
+
+.ui.dividing.header {
+    color: var(--emphasis-color);
+    border-color: var(--emphasis-color);
 }
