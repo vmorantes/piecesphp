@@ -8,7 +8,8 @@ $multiple = isset($multiple) && is_bool($multiple) ? $multiple : true;
 $accept = isset($accept) && is_string($accept) ? $accept : null;
 $icon = isset($icon) && is_string($icon) ? $icon : 'file outline';
 $onlyButton = isset($onlyButton) && is_bool($onlyButton) ? $onlyButton : false;
-$imagePreview = isset($imagePreview) && is_string($imagePreview) ? $imagePreview : null;
+$imagePreview = isset($imagePreview) && is_string($imagePreview) ? "'{$imagePreview}'" : null;
+$classesButton = isset($classesButton) && is_string($classesButton) ? $classesButton : null;
 
 ?>
 
@@ -21,7 +22,7 @@ $imagePreview = isset($imagePreview) && is_string($imagePreview) ? $imagePreview
     </div>
     <label file-label><?= $buttonText; ?></label>
     <input type="file" name="<?= $inputNameAttr; ?>" <?= $required ? 'required' : ''; ?> <?= $multiple ? 'multiple' : ''; ?> <?= $accept !== null ? "accept='{$accept}'" : ''; ?>>
-    <button class="ui button trigger-file icon labeled">
+    <button class="ui button trigger-file icon labeled<?= $classesButton !== null ? " $classesButton" : ''; ?>">
         <i class="icon upload"></i>
         <span class="text"><?= $buttonText; ?></span>
     </button>
