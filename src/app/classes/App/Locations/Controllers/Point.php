@@ -383,6 +383,71 @@ class Point extends AdminPanelController
      * @param Response $response
      * @return Response
      */
+    public function search(Request $request, Response $response)
+    {
+
+        $expectedParameters = new Parameters([
+            new Parameter(
+                'query',
+                '-1',
+                function ($value) {
+                    return is_string($value);
+                },
+                false,
+                function ($value) {
+                    return clean_string(trim($value));
+                }
+            ),
+        ]);
+
+        $expectedParameters->setInputValues($request->getQueryParams());
+        $expectedParameters->validate();
+
+        /**
+         * @var string $query
+         */
+        $query = $expectedParameters->getValue('query');
+
+        $result = [];
+
+        $where = [];
+        $whereString = null;
+
+        $and = 'AND';
+
+        $table = PointMapper::PREFIX_TABLE . PointMapper::TABLE;
+        $beforeOperator = !empty($where) ? $and : '';
+        $critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')";
+        $where[] = "{$beforeOperator} ({$critery})";
+
+        if (!empty($where)) {
+            $whereString = implode(' ', $where);
+        }
+
+        if (is_string($whereString)) {
+
+            $model = PointMapper::model();
+            $model->select()->where($whereString);
+            $model->execute(false, 1, 15);
+            $queryResult = $model->result();
+
+            foreach ($queryResult as $row) {
+                $result[] = [
+                    'id' => $row->id,
+                    'title' => $row->name,
+                ];
+            }
+
+        }
+
+        return $response->withJson($result);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public function all(Request $request, Response $response)
     {
 

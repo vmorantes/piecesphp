@@ -67,13 +67,16 @@
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background-color: var(--emphasis-color);
-        color: var(--over-emphasis-color);
 
-        &:hover,
-        &:active,
-        &:focus {
-            opacity: 0.8;
+        &:not(.fomantic) {
+            background-color: var(--emphasis-color);
+            color: var(--over-emphasis-color);
+
+            &:hover,
+            &:active,
+            &:focus {
+                opacity: 0.8;
+            }
         }
     }
 

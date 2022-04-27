@@ -170,6 +170,47 @@ class CityMapper extends BaseEntityMapper
     }
 
     /**
+     * @return static[]|array
+     */
+    public static function all()
+    {
+        $model = self::model();
+
+        $selectFields = [];
+
+        $model->select($selectFields);
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        return $result;
+    }
+
+    /**
+     * Un array listo para ser usado en array_to_html_options
+     * @param string $defaultLabel
+     * @param string $defaultValue
+     * @return array
+     */
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
+    {
+        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Ciudades');
+        $options = [];
+        $options[$defaultValue] = $defaultLabel;
+
+        array_map(function ($e) use (&$options) {
+
+            $value = $e->name;
+            $options[$e->id] = $value;
+
+        }, self::all());
+
+        return $options;
+    }
+
+    /**
      * @param string $name
      * @param int $state_id
      * @param int $ignore_id
