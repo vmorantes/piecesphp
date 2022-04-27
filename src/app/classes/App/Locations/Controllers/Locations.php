@@ -203,6 +203,12 @@ class Locations extends AdminPanelController
                 "{$namePrefix}-ajax-all2",
                 'GET'
             ),
+            new Route( //Búsqueda
+                "{$startRoute}/search[/]",
+                "{$handler}:search",
+                "{$namePrefix}-ajax-search",
+                'GET'
+            ),
         ];
     }
 

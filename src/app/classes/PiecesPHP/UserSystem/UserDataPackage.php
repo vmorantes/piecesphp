@@ -166,8 +166,7 @@ class UserDataPackage
         if ($userStdClass instanceof \stdClass) {
             $this->userStdClass = $userStdClass;
         }
-
-        if ($this->userMapper->id === null && $this->userStdClass instanceof \stdClass) {
+        if ($this->userMapper->id === null) {
             throw new \Exception(__(self::LANG_GROUP, "El usuario no existe."));
         }
 

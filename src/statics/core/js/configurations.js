@@ -105,6 +105,21 @@ pcsphpGlobals.messages.es = {
 			maxCount: '{name} Debe tener {ruleValue} o menos elecciones'
 		}
 	},
+	semantic_search: {
+		error: {
+			logging: "Error en el registro de depuración, saliendo.",
+			maxResults: "Los resultados deben ser una matriz para usar la configuración maxResults",
+			method: "El método al que llamó no está definido.",
+			noEndpoint: "No se especificó ningún punto final de búsqueda",
+			noNormalize: "Se ignorará la configuración \"ignoreDiacritics\". El navegador no es compatible con String().normalize(). Puede considerar incluir <https://cdn.jsdelivr.net/npm/unorm@1.4.1/lib/unorm.min.js> como un polyfill.",
+			noResults: "Su búsqueda no produjo resultados",
+			noResultsHeader: "No hay resultados",
+			noTemplate: "No se especificó un nombre de plantilla válido.",
+			oldSearchSyntax: "La configuración de searchFullText se ha renombrado como fullTextSearch para mantener la coherencia, ajuste su configuración.",
+			serverError: "Hubo un problema al consultar el servidor.",
+			source: "No se puede buscar. No se usó ninguna fuente y no se incluyó el módulo API semantic",
+		},
+	},
 	datatables: {
 		lang: {
 			"decimal": "",
@@ -190,40 +205,6 @@ pcsphpGlobals.messages.en = {
 		now: 'Now',
 		am: 'AM',
 		pm: 'PM',
-	},
-	semantic_form: {
-		text: {
-			unspecifiedRule: 'Please enter a valid value',
-			unspecifiedField: 'This field',
-		},
-		prompt: {
-			empty: `{name} must have a value`,
-			checked: `{name} must be marked`,
-			email: `{name} must be a valid email`,
-			url: `{name} must be a valid url`,
-			regExp: `{name} does not have the correct format`,
-			integer: `{name} must be an integer`,
-			decimal: `{name} must be a decimal number`,
-			number: `{name} must be a number`,
-			is: `{name} must be '{ruleValue}'`,
-			isExactly: `{name} must be exactly '{ruleValue}'`,
-			not: `{name} Cannot be '{ruleValue}'`,
-			notExactly: `{name} It can't be exactly '{ruleValue}'`,
-			contain: `{name} Cannot contain '{ruleValue}'`,
-			containExactly: `{name} Cannot contain exactly '{ruleValue}'`,
-			doesntContain: `{name} must contain '{ruleValue}'`,
-			doesntContainExactly: `{name} must contain exactly '{ruleValue}'`,
-			minLength: `{name} must contain at least {ruleValue} characters`,
-			length: `{name} must contain at least {ruleValue} characters`,
-			exactLength: `{name} must contain exactly {ruleValue} characters`,
-			maxLength: `{name} cannot contain more than {ruleValue} characters`,
-			match: `{name} must match the {ruleValue} field`,
-			different: `{name} must have a different value than the {ruleValue} field`,
-			creditCard: `{name} must be a valid credit card number`,
-			minCount: `{name} You must have at least {ruleValue} choices`,
-			exactCount: `{name} You must have exactly {ruleValue} choices`,
-			maxCount: `{name} You must have {ruleValue} or less choose`,
-		}
 	},
 	datatables: {
 		lang: {
@@ -369,7 +350,7 @@ if (typeof $ !== 'undefined') {
 	window.addEventListener('load', function (e) {
 
 		configCalendars()
-		configMessagesValidationsSemanticForm()
+		configMessagesSemantic()
 		configDataTables()
 		configColorPickers()
 		pcsAdminSideBar('.ui-pcs.sidebar')
@@ -558,21 +539,49 @@ function configGroupCalendar(selectorAttr, selectorAttrName, options = {}) {
 }
 
 /**
- * configMessagesValidationsSemanticForm
  * @returns {void}
  */
-function configMessagesValidationsSemanticForm() {
-	if (
-		$ !== undefined &&
-		$.fn !== undefined &&
-		$.fn.form !== undefined &&
-		$.fn.form.settings !== undefined &&
-		$.fn.form.settings.prompt !== undefined &&
-		$.fn.form.settings.text !== undefined
-	) {
-		$.fn.form.settings.prompt = pcsphpGlobals.messages.es.semantic_form.prompt
-		$.fn.form.settings.text = pcsphpGlobals.messages.es.semantic_form.text
+function configMessagesSemantic() {
+
+	const lang = pcsphpGlobals.lang
+	const messages = pcsphpGlobals.messages
+
+	if (typeof messages[lang] != 'undefined') {
+
+		if (
+			$ !== undefined &&
+			$.fn !== undefined
+		) {
+
+			if (
+				$.fn.form !== undefined &&
+				$.fn.form.settings !== undefined &&
+				$.fn.form.settings.prompt !== undefined &&
+				$.fn.form.settings.text !== undefined
+			) {
+				pcsphpGlobals.messages.en.semantic_form = {
+					prompt: $.fn.form.settings.prompt,
+					text: $.fn.form.settings.text,
+				}
+
+				$.fn.form.settings.prompt = messages[lang].semantic_form.prompt
+				$.fn.form.settings.text = messages[lang].semantic_form.text
+
+			}
+			if (
+				$.fn.search !== undefined &&
+				$.fn.search.settings !== undefined &&
+				$.fn.search.settings.error !== undefined
+			) {
+				pcsphpGlobals.messages.en.semantic_search = {
+					error: $.fn.search.settings.error,
+				}
+				$.fn.search.settings.error = messages[lang].semantic_search.error
+			}
+
+		}
 	}
+
 }
 
 /**
