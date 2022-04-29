@@ -134,8 +134,8 @@ class LogsRoutes
         $cssGlobalVariables = function (Request $request, Response $response) {
 
             $css = [
-                "--emphasis-color:" . '#282828' . ";",
-                "--over-emphasis-color:" . 'white' . ";",
+                "--main-brand-color:" . '#282828' . ";",
+                "--color-text-over-main-brand-color:" . 'white' . ";",
             ];
 
             $css = implode("\n", $css);

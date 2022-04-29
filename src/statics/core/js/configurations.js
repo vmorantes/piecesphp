@@ -737,14 +737,14 @@ function pcsAdminSideBar(selector) {
 
 		if (toggle.length > 0) {
 
-			let bgColor = menu.css('--bg-color')
+			let bgColor = menu.css('--admin-menu-bg-color')
 
 			toggle.on('click', function (e) {
 
 				if (menu.is(':visible')) {
 
 					menu.fadeOut(500, function () {
-						menu.attr('style', `--bg-color:${bgColor};`)
+						menu.attr('style', `--admin-menu-bg-color:${bgColor};`)
 						$(menu).removeClass('overlay')
 					})
 

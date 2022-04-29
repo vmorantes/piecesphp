@@ -25,8 +25,8 @@ use App\Model\AppConfigModel;
 
     <div class="field">
         <label><?= __($langGroup, 'Color del menú'); ?></label>
-        <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('admin_menu_color'));?>" color-picker-js>
-        <input type="hidden" name="name" value="admin_menu_color">
+        <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('admin_menu_bg_color'));?>" color-picker-js>
+        <input type="hidden" name="name" value="admin_menu_bg_color">
         <input type="hidden" name="parse" value="uppercase">
     </div>
 
@@ -45,9 +45,9 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="field">
 
             <div class="field">
-                <label><?= __($langGroup, 'Color de énfasis'); ?></label>
-                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('emphasis_color_admin_area', true));?>" color-picker-js>
-                <input type="hidden" name="name" value="emphasis_color_admin_area">
+                <label><?= __($langGroup, 'Color de marca #1'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('main_brand_color', true));?>" color-picker-js>
+                <input type="hidden" name="name" value="main_brand_color">
                 <input type="hidden" name="parse" value="uppercase">
             </div>
 
@@ -62,9 +62,9 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="field">
 
             <div class="field">
-                <label><?= __($langGroup, 'Color de contraste con énfasis'); ?></label>
-                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('emphasis_over_color_admin_area', true));?>" color-picker-js>
-                <input type="hidden" name="name" value="emphasis_over_color_admin_area">
+                <label><?= __($langGroup, 'Color de marca #2'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('second_brand_color', true));?>" color-picker-js>
+                <input type="hidden" name="name" value="second_brand_color">
                 <input type="hidden" name="parse" value="uppercase">
             </div>
 
@@ -79,9 +79,9 @@ use App\Model\AppConfigModel;
         <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="field">
 
             <div class="field">
-                <label><?= __($langGroup, 'Color de resaltado'); ?></label>
-                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('modules_mark_color', true));?>" color-picker-js>
-                <input type="hidden" name="name" value="modules_mark_color">
+                <label><?= __($langGroup, 'Color de texto sobre color #1'); ?></label>
+                <input type="text" name="value" value="<?=htmlentities(AppConfigModel::getConfigValue('color_text_over_main_brand_color', true));?>" color-picker-js>
+                <input type="hidden" name="name" value="color_text_over_main_brand_color">
                 <input type="hidden" name="parse" value="uppercase">
             </div>
 
@@ -95,8 +95,8 @@ use App\Model\AppConfigModel;
 
         <div class="field">
             <label><?= __($langGroup, 'Muestra'); ?></label>
-            <div style="background-color: var(--emphasis-color); padding: 10px;">
-                <p style="color: var(--over-emphasis-color); border-bottom: 1px solid var(--mark-color);">Lorem ipsum dolor sit.</p>
+            <div style="background-color: var(--main-brand-color); padding: 10px;">
+                <p style="color: var(--color-text-over-main-brand-color); border-bottom: 1px solid var(--second-brand-color);">Lorem ipsum dolor sit.</p>
             </div>
         </div>
 
