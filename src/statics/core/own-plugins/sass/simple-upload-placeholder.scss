@@ -69,8 +69,8 @@
         transform: translate(-50%, -50%);
 
         &:not(.fomantic) {
-            background-color: var(--emphasis-color);
-            color: var(--over-emphasis-color);
+            background-color: var(--main-brand-color);
+            color: var(--color-text-over-main-brand-color);
 
             &:hover,
             &:active,

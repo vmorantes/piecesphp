@@ -1,6 +1,11 @@
 @import '../../fonts/lato/lato.css';
 @import 'import/variables';
 @import 'import/reset';
+@import '../../fonts/public_sans/public_sans.css';
+
+body {
+    font-family: $fontPublicSans;
+}
 
 .container {
 
@@ -11,10 +16,6 @@
     .topbar {
 
         position: relative;
-        background-position: center center;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-image: url('../images/problems/bg.jpg');
 
         &:not(.one) {
             display: none;
@@ -55,11 +56,31 @@
             .back {
 
                 .ui.button {
+                    font-family: $fontPublicSans;
                     font-size: 95%;
+                }
+
+                .ui.button.custom-color {
+                    font-family: $fontPublicSans;
+                    background-color: $problem-color-button;
+                    color: $problem-color-text-button;
                 }
 
             }
 
+            .ui.button.back-color {
+                padding-left: 20px;
+                padding-right: 20px;
+                font-size: 95%;
+                background-color: $problem-back-color;
+                color: $problem-color-text-button;
+                font-family: $fontPublicSans;
+            }
+
+        }
+
+        .ml-8 {
+            margin-left: 8px;
         }
 
         >.content {
@@ -76,12 +97,24 @@
                     img {
                         &.default {
                             display: inline-block;
+                            height: $height-image-header-topbar;
+                            width: auto;
                         }
 
                         &.alt {
                             display: none;
+                            height: $height-image-header-topbar;
+                            width: auto;
                         }
                     }
+                }
+
+                >.title-step {
+                    font-size: 1.5rem;
+                    line-height: 2rem;
+                    font-weight: 550;
+                    text-transform: uppercase;
+                    text-align: center;
                 }
 
                 >.text {
@@ -90,7 +123,7 @@
                     line-height: 2.6rem;
                     text-transform: uppercase;
                     text-align: center;
-                    color: white;
+                    color: #3C3C3C;
                     margin: 2.5rem 0rem 0rem 0rem;
                 }
 
@@ -188,7 +221,6 @@
             }
 
             .content {
-                background-color: #FBBD08;
                 padding: 0.8rem 1rem;
                 border-radius: 3px;
                 color: black;
@@ -218,6 +250,51 @@
         text-align: center;
         color: $problem-primary-color;
 
+        .number-step {
+            color: $color-text-steps;
+            font-size: 1.5rem;
+            line-height: 2rem;
+            font-weight: 550;
+            text-transform: uppercase;
+            margin-right: 7%;
+        }
+
+        .horizontal-section-form {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            .field {
+                text-align: start;
+                width: 80%;
+            }
+        }
+
+        .horizontal-section-buttons {
+            margin-top: 2%;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 5%;
+        }
+
+        .ui.button.back-color {
+            font-family: $fontPublicSans;
+            background-color: $back-button-color;
+            color: $color-text-button-back-form;
+            margin-right: 20px;
+        }
+
+        .ui.button.custom-color {
+            font-family: $fontPublicSans;
+            background-color: $next-button-color;
+            color: $color-text-next;
+        }
+
+        .link-mailto {
+            color: $color-text-mailto;
+        }
+
         >.message {
             padding: 0rem 0rem 2rem;
             font-size: 1.5rem;
@@ -231,7 +308,10 @@
         }
 
         .ui.button {
-            border-radius: 0;
+            font-family: $fontPublicSans;
+            font-size: $font-size-buttons;
+            font-weight: $font-weight-buttons;
+            border-radius: $border-radius-buttons;
         }
 
         .ui.form {
@@ -242,11 +322,32 @@
                     flex: 0 0 auto;
                     flex-wrap: wrap;
                     justify-content: space-evenly;
+                    font-family: $fontPublicSans;
                 }
             }
 
         }
 
+    }
+
+    .line-footer {
+        margin-top: 3%;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 90%;
+        text-align: center;
+        height: 1px;
+        background-color: $line-footer-color;
+    }
+
+    .img-logo-footer {
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+
+        img {
+            width: $width-logo-footer;
+        }
     }
 
     @media screen and (max-width: 620px) {
@@ -262,7 +363,7 @@
                     .ui.button {
                         border: 0px solid transparent !important;
                         box-shadow: none !important;
-                        font-size: 120%;
+                        font-size: 100%;
 
                         span {
                             display: none;
@@ -284,6 +385,44 @@
 
                     >.text {
                         margin-top: 1.8rem;
+                    }
+                }
+            }
+
+        }
+
+        .form-container {
+
+            .horizontal-section-form {
+                flex-direction: column;
+            }
+
+            .horizontal-section-buttons {
+
+                .ui.button.back-color {
+                    margin-right: 4px;
+                }
+
+                .field.buttons {
+                    display: flex;
+                    flex-direction: column-reverse !important;
+                    margin-left: auto;
+                    margin-right: auto;
+                    align-items: center;
+
+                    a {
+                        width: 100%;
+                        margin-top: 5px;
+                    }
+
+                    button {
+                        width: 100%;
+                        margin-top: 5px;
+                    }
+
+                    .field {
+                        display: flex;
+                        flex-direction: column-reverse !important;
                     }
                 }
             }
@@ -340,6 +479,28 @@
                 }
 
             }
+        }
+
+        .line-footer {
+            margin-top: 3%;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 70%;
+            text-align: center;
+            height: 1px;
+            background-color: $line-footer-color;
+        }
+
+        .img-logo-footer {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            margin-bottom: 3%;
+
+            img {
+                width: $width-logo-footer-mobile;
+            }
+
         }
 
     }

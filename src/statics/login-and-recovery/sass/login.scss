@@ -1,4 +1,5 @@
 @import '../../fonts/lato/lato.css';
+@import '../../fonts/public_sans/public_sans.css';
 @import 'import/variables';
 @import 'import/reset';
 
@@ -6,22 +7,47 @@
     box-sizing: border-box;
 }
 
+body {
+    font-family: $fontPublicSans;
+}
+
 .container {
 
     position: relative;
-    width: 100%;
     min-height: 100%;
     background-position: center center;
     background-size: cover;
     background-repeat: no-repeat;
+    max-width: 1920px;
+    margin: 0 auto;
 
     >.overlay {
         position: absolute;
+        z-index: 11;
         top: 0px;
         left: 0px;
         width: 100%;
         height: 100%;
         background-color: $login-overlay-color;
+        clip-path: polygon(0 0, 60% 0, 43% 100%, 0% 100%);
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        overflow: hidden;
+    }
+
+    >.overlay-two {
+        position: absolute;
+        z-index: 5;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: $login-overlay-two-color;
+        clip-path: polygon(0 0, 63% 0, 46% 100%, 0% 100%);
+        background-position: center center;
+        background-size: cover;
+        background-repeat: no-repeat;
     }
 
     .text-center {
@@ -29,20 +55,19 @@
     }
 
     .form-container {
-
         position: absolute;
         z-index: 10;
         top: 50%;
-        left: 50%;
+        left: 62%;
         transform: translate(-50%, -50%);
-        display: block;
-        height: 70%;
-        max-height: 800px;
-        max-width: 480px;
-        margin-top: 55px;
-        padding: 15px 75px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 550px;
+        border-radius: 32px;
+        box-shadow: 0px 3px 30px #7070704D;
         background-color: $login-form-bg-color;
-        border: 1px solid $login-form-border-color;
 
         .caption {
 
@@ -60,7 +85,7 @@
             height: 220px;
             background-color: $login-form-caption-bg-color;
 
-            &.round{
+            &.round {
                 border-radius: 100%;
                 overflow: hidden;
             }
@@ -71,20 +96,47 @@
 
         }
 
-        >.content {
+        .block-caption {
+            z-index: 10;
+        }
 
-            display: grid;
-            justify-content: center;
-            align-items: flex-end;
-            grid-template-columns: 100%;
-            height: 100%;
-            width: 100%;
-            max-width: 320px;
+        .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
+            margin: auto;
+            text-align: center;
+
+            .title-bold {
+                font-weight: bold;
+                font-size: x-large;
+                color: $login-overlay-two-color;
+            }
+
+            .title-app {
+                font-weight: 400;
+                font-size: large;
+                color: $login-overlay-two-color;
+                margin-bottom: 40px;
+            }
+
+            .text-left {
+                text-align: left;
+            }
 
             .problems-button {
+                margin-top: 12px;
                 position: relative;
-                top: -25px;
                 text-align: center;
+
+                a {
+                    color: red;
+                }
+            }
+
+            .logo-footer {
+                margin-top: 5px;
+
+                .img-logo-footer {
+                    width: $width-image-footer;
+                }
             }
 
         }
@@ -106,23 +158,24 @@
             width: 100%;
             height: 100%;
             background-color: $login-form-problems-bg-color;
+            backdrop-filter: blur(2px);
+            border-radius: 20px;
+            margin: 0 auto;
+            text-align: center;
 
-            .content {
-
+            .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
+                margin-top: 30%;
                 display: grid;
                 justify-content: center;
                 align-items: center;
                 grid-template-columns: 100%;
                 height: 100%;
                 width: 100%;
-                margin: 0 auto;
-                padding: 6rem 2rem;
                 text-align: center;
                 color: $login-form-problems-font-color;
                 font-size: 1.1rem;
 
                 .title {
-                    padding: 1.5rem 0rem;
                     font-size: 1.2rem;
                     text-transform: uppercase;
 
@@ -146,17 +199,6 @@
 
     }
 
-    >.footer {
-        position: absolute;
-        bottom: 10px;
-        left: 0px;
-        width: 100%;
-        height: 30px;
-        text-align: center;
-        color: $login-footer-font-color;
-        font-size: 0.75rem;
-    }
-
     img {
         max-width: 100%;
     }
@@ -164,19 +206,38 @@
     .ui.button,
     input,
     select {
-        border-radius: 0px !important;
+        border-radius: $border-radius-buttons;
+        font-family: $fontPublicSans;
+        font-weight: 400;
+        font-size: 18;
     }
 
-    @media screen and (max-width:500px) {
+    @media screen and (max-width:600px) {
+
+        .overlay {
+            clip-path: inset(0 0 0 0) !important;
+        }
+
+        .overlay-two {
+            clip-path: inset(0 0 0 0) !important;
+        }
 
         .form-container {
-
+            z-index: 20;
+            top: 50%;
+            left: 50%;
             width: 400px;
             max-width: 90%;
             height: 600px;
             max-height: 80%;
             margin-top: 37.5px;
             padding: 15px 30px;
+
+            .problems-message-container {
+                .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
+                    margin-top: 50%;
+                }
+            }
 
             >.content {
                 grid-template-rows: 80% 20%;
@@ -185,7 +246,7 @@
                 position: absolute;
                 width: 100%;
                 max-width: 92%;
-                top: 50%;
+                top: 45%;
                 left: 50%;
                 transform: translate(-50%, -50%);
                 height: auto;
@@ -203,11 +264,112 @@
 
         }
 
+        .problems-message-container {
+            .content {
+                padding-left: 0% !important;
+                padding-right: 0% !important;
+            }
+        }
+
         >.footer {
             height: 20px;
             bottom: 1px;
         }
 
+    }
+
+    @media screen and (max-width:1000px) {
+
+        .overlay {
+            clip-path: polygon(0 0, 60% 0, 43% 100%, 0% 100%);
+        }
+
+        .overlay-two {
+            clip-path: polygon(0 0, 63% 0, 46% 100%, 0% 100%);
+        }
+
+        .form-container {
+            z-index: 20;
+            top: 50%;
+            left: 50%;
+            width: 400px;
+            max-width: 90%;
+            height: 600px;
+            max-height: 80%;
+            margin-top: 37.5px;
+            padding: 15px 30px;
+
+            .problems-message-container {
+                .ui.centered.middle.aligned.grid>.centered.row>.computer.only.four.wide.column {
+                    display: none;
+                }
+                .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
+                    margin-top: 50%;
+                }
+            }
+
+            >.content {
+                grid-template-rows: 80% 20%;
+                align-items: baseline;
+                row-gap: 8px;
+                position: absolute;
+                width: 100%;
+                max-width: 92%;
+                top: 45%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                height: auto;
+
+                .problems-button {
+                    top: 0px;
+                }
+
+            }
+
+            .caption {
+                width: 150px;
+                height: 150px;
+            }
+
+        }
+
+        .problems-message-container {
+            .content {
+                padding-left: 0% !important;
+                padding-right: 0% !important;
+            }
+        }
+
+        >.footer {
+            height: 20px;
+            bottom: 1px;
+        }
+
+
+
+    }
+
+    @media screen and (min-width:1920px) {
+        .form-container {
+            left: 60%;
+            min-height: 650px;
+
+            .problems-message-container {
+                .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
+                    margin-top: 40%;
+                }
+            }
+        }
+
+        .form-container .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
+            transform: scale(1.1);
+        }
+    }
+
+    @media screen and (min-width:2560px) {
+        .form-container {
+            left: 60%;
+        }
     }
 
 }
