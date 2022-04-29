@@ -1,19 +1,55 @@
 //Colors
+$mainBrandColor: var(--main-brand-color);
+$secondBrandColor: var(--second-brand-color);
+
 $login-overlay-color: rgba(0, 0, 0, 0.55);
-$login-form-bg-color: rgba(255, 255, 255, 0.77);
+$login-form-bg-color: white;
 $login-form-border-color: rgba(112, 112, 112, 0.77);
 $login-form-label-color:rgba(51, 51, 51, 0.87);
 $login-form-caption-bg-color: white;
-$login-form-problems-bg-color: rgba(0, 0, 0, 0.97);
+$login-form-problems-bg-color: rgba(0, 0, 0, 0.8);
 $login-form-problems-font-color: white;
 $login-form-problems-title-mark-color: red;
 $login-footer-font-color: white;
-
+$login-overlay-two-color: $mainBrandColor;
 
 $problem-overlay-color: rgba(0, 0, 0, 0.55);
 $problem-primary-color: rgb(60, 60, 60);
 $problem-secondary-color: rgb(88, 88, 87);
-$problem-title-color: rgba(0, 0, 0, 0.6);
+$problem-title-color: #1B1C1D;
+$problem-color-button: $mainBrandColor;
+$problem-color-text-button: white;
+$width-image-footer: 120px;
+$height-imagen-footer: 120px;
+$problem-size-text-footer: 12px;
+$problem-back-color: #707070;
+$problem-card-hover: $secondBrandColor;
+$problem-title-card: $mainBrandColor;
+$problem-background-modal: rgba(112, 112, 112, .4);
+$card-modal-title: $mainBrandColor;
+$card-modal-title-danger: #DB2828;
+$color-name-company: $secondBrandColor;
+$card-button-help-desk: #2185D0;
+$card-button-new-code: #21BA45;
+$card-button-login: #2185D0;
+$card-button-color-text: white;
+$color-text-steps: $mainBrandColor;
+$height-image-header-topbar: 62px;
+$border-radius-buttons: 8px;
+$next-button-color: $mainBrandColor;
+$font-size-buttons: 5;
+$font-weight-buttons: 400;
+$line-footer-color: $mainBrandColor;
+$color-text-next: white;
+$back-button-color: #707070;
+$color-text-button-back-form: white;
+$width-logo-footer: 120px;
+$height-logo-footer: 120px;
+$width-logo-footer-mobile: 120px;
+$height-logo-footer-mobile: 120px;
+$color-text-mailto: $mainBrandColor;
+
+$fontPublicSans: 'Public Sans';
 
 //Font
 $fsize: 16;

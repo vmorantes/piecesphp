@@ -66,6 +66,11 @@ class UserProblemsController extends UsersController
         set_custom_assets([
             base_url('statics/login-and-recovery/css/problems.css'),
         ], 'css');
+
+        set_custom_assets([
+            baseurl('statics/login-and-recovery/js/user-problem-list.js'),
+        ], 'js');
+
         $this->render('usuarios/problems/problems-list');
 
         return $response;

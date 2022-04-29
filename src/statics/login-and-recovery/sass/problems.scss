@@ -1,6 +1,11 @@
 @import '../../fonts/lato/lato.css';
 @import 'import/variables';
 @import 'import/reset';
+@import '../../fonts/public_sans/public_sans.css';
+
+body {
+    font-family: $fontPublicSans;
+}
 
 .container {
 
@@ -11,10 +16,6 @@
     .topbar {
 
         position: relative;
-        background-position: center center;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-image: url('../images/problems/bg.jpg');
 
         >.overlay {
             position: absolute;
@@ -54,13 +55,31 @@
                     font-size: 95%;
                 }
 
+                .ui.button.custom-color {
+                    background-color: $problem-color-button;
+                    color: $problem-color-text-button;
+                }
+
+            }
+
+            .ui.button.back-color {
+                padding-left: 20px;
+                padding-right: 20px;
+                font-size: 95%;
+                background-color: $problem-back-color;
+                color: $problem-color-text-button;
+                display: none;
             }
 
         }
 
+        .ml-8 {
+            margin-left: 8px;
+        }
+
         >.content {
 
-            padding: 0px 50px 30px 50px;
+            padding: 0px 50px 0px 50px;
 
             >.caption {
 
@@ -72,12 +91,24 @@
                     img {
                         &.default {
                             display: inline-block;
+                            height: $height-image-header-topbar;
+                            width: auto;
                         }
 
                         &.alt {
                             display: none;
+                            height: $height-image-header-topbar;
+                            width: auto;
                         }
                     }
+                }
+
+                >.title-step {
+                    font-size: 1.5rem;
+                    line-height: 2rem;
+                    font-weight: 550;
+                    text-transform: uppercase;
+                    text-align: center;
                 }
 
                 >.text {
@@ -136,25 +167,116 @@
         color: $problem-title-color;
         margin-top: 2rem;
         padding: 0px 15px;
-        font-size: 2rem;
-        line-height: 2.2rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        text-align: center;
+
+        .img-header-problems {
+            height: 50px;
+            width: auto;
+        }
     }
 
     >.options {
-
         display: flex;
         flex: 0 0 auto;
         flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: center;
+        column-gap: 5rem;
         max-width: 1200px;
-        margin: 4rem auto 0rem auto;
+        margin: 1rem auto 0rem auto;
         text-align: center;
         outline: none;
         text-decoration: none;
         padding: 0px 15px;
+
+        .option-alt {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-content: center;
+            align-items: center;
+            background-color: white;
+            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 0px 15px;
+            height: 150px;
+            width: 280px;
+            padding-left: 20px;
+            padding-right: 20px;
+            gap: 20px;
+
+            .image {
+
+                display: grid;
+                justify-content: center;
+                justify-items: center;
+                align-items: center;
+                grid-template-columns: 100%;
+                margin: 0 auto;
+                position: relative;
+                width: 80px;
+                height: 80px;
+
+                img {
+                    display: block;
+                }
+
+            }
+
+            .content {
+                min-height: 147px;
+                max-width: 140px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                justify-items: center;
+                align-items: flex-start;
+
+
+                .title {
+                    font-size: 1.1rem;
+                    color: $problem-title-card;
+                    text-align: left;
+                    font-weight: 600;
+                }
+
+                .text {
+                    margin-top: 7px;
+                    font-weight: 400;
+                    font-size: 0.8rem;
+                    text-align: left;
+                    color: #1B1C1D;
+                    font-size: 12px;
+                    line-height: 10px;
+                }
+
+                .text:first-letter {
+                    text-transform: capitalize;
+                }
+
+            }
+
+        }
+
+        .option-alt:hover {
+            background-color: $problem-card-hover;
+
+            .content {
+                .title {
+                    color: white;
+                }
+
+                .text {
+                    color: white;
+                }
+            }
+
+            .image {
+                img {
+                    filter: invert(1) brightness(0) grayscale(100%) invert(1);
+                }
+            }
+        }
 
         .option {
 
@@ -188,7 +310,7 @@
                 padding: 0.8rem 1rem;
                 border-radius: 3px;
                 color: black;
-                font-weight: 600;
+                font-weight: 400;
                 font-size: 0.8rem;
                 min-height: 64px;
                 min-width: 240px;
@@ -201,6 +323,25 @@
 
             }
 
+        }
+    }
+
+    >.footer-div {
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        padding-bottom: 5%;
+        display: flex;
+        flex-direction: column;
+
+        img {
+            width: $width-image-footer;
+            height: $height-imagen-footer;
+        }
+
+        .text-footer {
+            font-size: $problem-size-text-footer;
+            margin-top: -10px;
         }
     }
 
@@ -295,7 +436,159 @@
                 }
 
             }
+
+            .option-alt {
+                margin-left: auto;
+                margin-right: auto;
+
+                .image {
+
+                    display: grid;
+                    justify-content: center;
+                    justify-items: center;
+                    align-items: center;
+                    grid-template-columns: 100%;
+                    margin: 0 auto;
+                    position: relative;
+                    width: 80px;
+                    height: 80px;
+
+                    img {
+                        display: block;
+                    }
+
+                }
+
+                .content {
+                    min-height: 147px;
+                    max-width: 140px;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    justify-items: center;
+                    align-items: center;
+
+
+                    .title {
+                        font-size: 1.1rem;
+                        color: $problem-title-card;
+                        text-align: left;
+                        text-transform: capitalize;
+                        font-weight: 600;
+                    }
+
+                    .text {
+                        margin-top: 7px;
+                        font-weight: 400;
+                        font-size: 0.8rem;
+                        text-align: left;
+                        color: #1B1C1D;
+                        font-size: 12px;
+                        line-height: 10px;
+                        text-align: start;
+                    }
+
+                    .text:first-letter {
+                        text-transform: capitalize;
+                    }
+
+                }
+            }
         }
 
+    }
+}
+
+.modal-no-user {
+    display: none;
+}
+
+.container-modals {
+    position: fixed;
+    z-index: 22;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: $problem-background-modal;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .card-ui-center {
+        max-width: 40%;
+        max-height: auto;
+        padding: 5% 7% 3% 7%;
+        background-color: white;
+        border-radius: 36px;
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+        text-align: center;
+        align-items: center;
+
+        .title {
+            color: $card-modal-title;
+            text-transform: uppercase;
+            margin-bottom: 5%;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .title-danger {
+            color: $card-modal-title-danger;
+            text-transform: uppercase;
+            margin-bottom: 5%;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .description {
+            .name {
+                color: $color-name-company;
+                text-transform: uppercase;
+            }
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            margin-top: 8%;
+
+            div {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
+            .btn-help-desk {
+                cursor: pointer;
+
+                a {
+                    padding: 10px;
+                    border-radius: 8px;
+                    background-color: $card-button-help-desk;
+                    color: $card-button-color-text;
+                }
+            }
+
+            .btn-new-code {
+                a {
+                    padding: 10px;
+                    border-radius: 8px;
+                    background-color: $card-button-new-code;
+                    color: $card-button-color-text;
+                }
+            }
+
+            .btn-login {
+                a {
+                    padding: 10px;
+                    border-radius: 8px;
+                    background-color: $card-button-login;
+                    color: $card-button-color-text;
+                }
+            }
+        }
     }
 }

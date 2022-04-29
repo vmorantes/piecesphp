@@ -17,48 +17,51 @@
     <section class="container">
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
-            'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Paso') . ' 2',
+            'defaultImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'altImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'headerText' => 'No recuerdo mi contraseña',
             'classesCSS' => "one",
             'active' => false,
         ]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
-            'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Paso') . ' 3',
+            'defaultImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'altImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'headerText' => 'No recuerdo mi contraseña',
             'classesCSS' => "two",
             'active' => false,
         ]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
-            'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Paso') . ' 4',
+            'defaultImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'altImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'headerText' => 'No recuerdo mi contraseña',
             'classesCSS' => "two-two",
             'active' => false,
         ]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
+            'defaultImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'altImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'headerText' => 'No recuerdo mi contraseña',
             'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Correo no registrado'),
             'classesCSS' => "three",
             'active' => true,
         ]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
+            'defaultImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'altImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'headerText' => 'No recuerdo mi contraseña',
             'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Código incorrecto'),
             'classesCSS' => "four",
             'active' => true,
         ]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
+            'defaultImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'altImage' => baseurl('statics/login-and-recovery/images/problems/forms/u-error-user.svg'),
+            'headerText' => 'No recuerdo mi contraseña',
             'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Su contraseña ha sido cambiada'),
             'classesCSS' => "five",
             'active' => true,
@@ -72,24 +75,26 @@
 
                 <form class="ui form">
 
+                <div class="horizontal-section-form">
+                    <div class="number-step">PASO 1</div>
                     <div class="field">
                         <label><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingrese su correo electrónico')?></label>
                         <input required type="email" name="username" placeholder="<?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'name@domain.com')?>">
                     </div>
+                </div>
 
+                <div class="horizontal-section-buttons">
                     <div class="field buttons">
-                        <a href="<?= get_route('user-problems-list'); ?>" class="ui button">
+                        <a href="#" class="ui button" has-code><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ya tengo un código')?></a>
+                        <a href="<?= get_route('user-problems-list'); ?>" class="ui button back-color">
                             <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Atrás')?>
                         </a>
-                        <button type="submit" class="ui button blue">
+                        <button type="submit" class="ui button custom-color">
                             <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Siguiente')?>
                         </button>
                     </div>
-                    <p>
-                        <strong>
-                            <a href="#" class="ui mini button" has-code><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ya tengo un código')?></a>
-                        </strong>
                     </p>
+                </div>
                 </form>
 
             </div>
@@ -97,15 +102,23 @@
             <div code>
 
                 <form class="ui form">
-                    <div class="field required">
-                        <input required type="text" name="code" placeholder="######">
+
+                <div class="horizontal-section-form">
+                    <div class="number-step">PASO 2</div>
+                    <div class="field">
+                        <input required type="text" name="code" placeholder="Ingrese el código">
                     </div>
-                    <div class="field"><button type="submit" class="ui button blue fluid"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Enviar')?></button></div>
-                    <p>
-                        <strong>
-                            <a href="#" class="ui mini button" repeat><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Introducir un email diferente')?></a>
-                        </strong>
-                    </p>
+                </div>
+
+                <div class="horizontal-section-buttons">
+                    <div class="field buttons">
+                        <div class="field">
+                            <a href="#" class="ui button back-color" repeat><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Introducir un email diferente')?></a>
+                            <button type="submit" class="ui button custom-color"><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Enviar')?></button>
+                        </div>
+                    </div>
+                </div>
+
                 </form>
 
             </div>
@@ -121,7 +134,7 @@
                         <input required type="password" name="repassword" placeholder="<?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Confirme su nueva contraseña'); ?>">
                     </div>
                     <div class="field">
-                        <button type="submit" class="ui button blue fluid">
+                        <button type="submit" class="ui button custom-color">
                             <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Restablecer contraseña'); ?>
                         </button>
                     </div>
@@ -134,10 +147,10 @@
                 <form class="ui form">
                     <div class="two fields">
                         <div class="field">
-                            <a href="#" class="ui button" repeat><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Atrás')?></a>
+                            <a href="#" class="ui button back-color" repeat><?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Atrás')?></a>
                         </div>
                         <div class="field">
-                            <a href="<?= get_route('other-problems-form'); ?>" class="ui button blue">
+                            <a href="<?= get_route('other-problems-form'); ?>" class="ui button custom-color">
                                 <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Solicitud de soporte')?>
                             </a>
                         </div>
@@ -150,7 +163,7 @@
 
                 <form class="ui form">
                     <div class="field">
-                        <a href="<?= get_route('users-form-login'); ?>" class="ui button blue fuid">
+                        <a href="<?= get_route('users-form-login'); ?>" class="ui button custom-color">
                             <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingresar')?>
                         </a>
                     </div>
@@ -158,6 +171,11 @@
 
             </div>
 
+        </div>
+
+        <div class="line-footer"></div>
+        <div class="img-logo-footer">
+            <img src="<?=get_config('logo');?>" alt="">
         </div>
 
     </section>

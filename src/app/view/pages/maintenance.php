@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= __('page404', '404 - Página no encontrada'); ?></title>
+    <title><?= __('page503', '503 - En mantenimiento'); ?></title>
     <base href="<?= base_url(); ?>">
     <link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?= get_route('admin-global-variables-css'); ?>">
     <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
-    <link rel="stylesheet" href="statics/css/404.css">
+    <link rel="stylesheet" href="statics/css/maintenance.css">
 </head>
 
 <body>
@@ -26,26 +26,22 @@
                     <div class="computer only twelve wide column"></div>
 
                     <div class="three wide column">
-                        <div class="content-404">
+                        <div class="content-503">
 
                             <div class="panel">
-                                <p class="mega-title-404">Ups !</p>
-                                <div class="img404">
-                                    <img src="<?= base_url('statics/images/404.png'); ?>">
+                                <p class="mega-title-503">Ups !</p>
+                                <div class="img503">
+                                    <img src="<?= base_url('statics/images/maintenance.svg'); ?>">
                                 </div>
-                                <p class="title-404"><?= __('page404', 'Algo está mal aquí'); ?></p>
-                                <p class="text-404"><?= __('page404', 'El enlace al que intenta ingresar ya no existe o fue cambiado.'); ?></p>
-                                <div class="action">
-                                    <a class="bt-404" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
-                                </div>
-                                <div class="action">
-                                    <a class="bt-report" href="<?= get_route("other-problems-form"); ?>">Reportar problema</a>
-                                </div>
+                                <p class="title-503"><?= __('page503', 'Mantenimiento'); ?></p>
+                                <p class="text-503"><?= __('page503', 'en curso, no es posible usar la plataforma en un tiempo.'); ?></p>
+                                <p class="data-time"><?= date('d/m/y / h:i A'); ?></p>
                             </div>
 
                             <div class="logo-footer">
                                 <img class="img-logo-footer" src="<?=get_config('logo');?>">
                             </div>
+
                         </div>
                     </div>
 
@@ -56,9 +52,8 @@
         </div>
 
         <div class="overlay-one">
-            <img class="img-404" src="<?= base_url('statics/images/404.png'); ?>">
+            <img class="img-503" src="<?= base_url('statics/images/maintenance.svg'); ?>">
         </div>
-
     </div>
 </body>
 

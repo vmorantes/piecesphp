@@ -204,6 +204,11 @@ $lang = [
         'El enlace al que intenta ingresar no está disponible para su acceso.' => 'The link you are trying to enter is not available for access.',
         'Ir a Inicio'                                                          => 'Go to home',
     ],
+    'page503' => [
+        '503 - En mantenimiento'                                   => '503 - In maintenance',
+        'Mantenimiento'                                            => 'Maintenance',
+        'En curso, no es posible usar la plataforma en un tiempo.' => 'In progress, it is not possible to use the platform for some time.',
+    ],
     'routesViewAdminZone' => [
         'Rutas y permisos'          => 'Routes and permissions',
         'Nombre'                    => 'Name',
