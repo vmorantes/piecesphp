@@ -72,13 +72,32 @@ if (APP_CONFIGURATION_MODULE) {
         $default_configurations_values['osTicketAPIKey'] = get_config('osTicketAPIKey');
     }
     $default_configurations_values['meta_theme_color'] = get_config('meta_theme_color') !== false ? get_config('meta_theme_color') : '#13436C';
-    $default_configurations_values['admin_menu_color'] = get_config('admin_menu_color') !== false ? get_config('admin_menu_color') : '#111213';
+    $default_configurations_values['admin_menu_bg_color'] = get_config('admin_menu_bg_color') !== false ? get_config('admin_menu_bg_color') : '#111213';
     $default_configurations_values['keywords'] = get_config('keywords') !== false ? get_config('keywords') : [
         'Website',
     ];
 
     ksort($default_configurations_values);
     AppConfigModel::initializateConfigurations($default_configurations_values);
+}
+
+if (APP_CONFIGURATION_MODULE) {
+    //Configuraciones de la aplicación tomadas desde la base de datos
+    $configurations = AppConfigModel::getConfigurations();
+
+    foreach ($configurations as $name => $value) {
+        set_config($name, $value);
+    }
+
+    (function ($config) {
+        if (!is_scalar($config)) {
+            set_config('mail', (new MailConfig)->toArray());
+        }
+    })(get_config('mail'));
+
+    if (mb_strlen(get_title()) == 0) {
+        set_title(AppConfigModel::getConfigValue('title_app'));
+    }
 }
 
 $app = new \Slim\App(get_config('slim_container'));
@@ -479,25 +498,6 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         set_config('menus', $config['menus']);
     }
     Roles::setSilentMode($silentModeRolesSetted);
-
-    if (APP_CONFIGURATION_MODULE) {
-        //Configuraciones de la aplicación tomadas desde la base de datos
-        $configurations = AppConfigModel::getConfigurations();
-
-        foreach ($configurations as $name => $value) {
-            set_config($name, $value);
-        }
-
-        (function ($config) {
-            if (!is_scalar($config)) {
-                set_config('mail', (new MailConfig)->toArray());
-            }
-        })(get_config('mail'));
-
-        if (mb_strlen(get_title()) == 0) {
-            set_title(AppConfigModel::getConfigValue('title_app'));
-        }
-    }
 
     return $next($request, $response);
 });

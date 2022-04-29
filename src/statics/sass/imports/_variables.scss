@@ -40,6 +40,8 @@ $genericBGColor1: #EBEBEB;
 //──── Fonts ─────────────────────────────────────────────────────────────────────────────
 $fontAbhaya: 'Abhaya Libre';
 $fontLato: 'Lato';
+$fontPublicSans: 'Public Sans',
+sans-serif;
 
 // Weights
 $fwHairLine: 100;
@@ -49,3 +51,23 @@ $fwMedium: 500;
 $fwSemiBold: 600;
 $fwBold: 700;
 $fwExtraBold: 800;
+
+
+
+//──── Vistas especiales: 404, 403 y mantenimiento ───────────────────────────────────────
+
+// Colores
+$mainBrandColor: var(--main-brand-color);
+$secondBrandColor: var(--second-brand-color);
+$color-bg: $mainBrandColor;
+$color-mega-title: $secondBrandColor;
+$border-radius-buttons: 10px;
+$background-color-body: white;
+$margin-body: 0;
+$card-background-color: white;
+// Colores para el gradiente
+$color-gradient-1: $mainBrandColor;
+$color-gradient-2: $secondBrandColor;
+// Imagen footer
+$width-image-footer: 120px;
+$height-imagen-footer: 120px;

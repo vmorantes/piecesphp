@@ -17,16 +17,16 @@
     <section class="container">
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
-            'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Solicitud de soporte'),
+            'defaultImage' => base_url('statics/login-and-recovery/images/problems/forms/u-error-other.svg'),
+            'altImage' => base_url('statics/login-and-recovery/images/problems/forms/u-error-other.svg'),
+            'headerText' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Solicitud de soporte'),
             'classesCSS' => "one",
             'active' => false,
         ]); ?>
 
         <?= $this->render('usuarios/problems/inc/topbar', [
-            'defaultImage' => base_url('statics/login-and-recovery/images/problems/problems.svg'),
-            'altImage' => base_url('statics/login-and-recovery/images/problems/problems-alt.svg'),
+            'defaultImage' => base_url('statics/login-and-recovery/images/problems/forms/u-error-other.svg'),
+            'altImage' => base_url('statics/login-and-recovery/images/problems/forms/u-error-other.svg'),
             'text' => __(\App\Controller\UserProblemsController::LANG_GROUP, 'Su solicitud de soporte <br> ha sido creada'),
             'classesCSS' => "two",
             'active' => true,
@@ -56,13 +56,17 @@
                         <textarea required name="message" placeholder="<?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Problema presentado'); ?>"></textarea>
                     </div>
 
-                    <div class="field buttons">
-                        <a href="<?= get_route('user-problems-list'); ?>" class="ui button">
-                            <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Atrás')?>
-                        </a>
-                        <button type="submit" class="ui button blue">
-                            <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Enviar')?>
-                        </button>
+                    <div class="horizontal-section-buttons">
+                        <div class="field buttons">
+                            <div class="field">
+                                <a href="<?= get_route('user-problems-list'); ?>" class="ui button back-color">
+                                    <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Atrás')?>
+                                </a>
+                                <button type="submit" class="ui button custom-color">
+                                    <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Enviar')?>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                 </form>
@@ -73,7 +77,7 @@
 
                 <form class="ui form">
                     <div class="field">
-                        <a href="<?= get_route('users-form-login'); ?>" class="ui button blue fuid">
+                        <a href="<?= get_route('users-form-login'); ?>" class="ui button custom-color">
                             <?= __(\App\Controller\UserProblemsController::LANG_GROUP, 'Ingresar')?>
                         </a>
                     </div>
@@ -81,6 +85,11 @@
 
             </div>
 
+        </div>
+
+        <div class="line-footer"></div>
+        <div class="img-logo-footer">
+            <img src="<?=get_config('logo');?>" alt="">
         </div>
 
     </section>

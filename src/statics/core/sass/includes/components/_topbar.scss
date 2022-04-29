@@ -6,7 +6,7 @@
     left: 0px;
     width: 100%;
     z-index: 4;
-    background-color: var(--bg-color);
+    background-color: var(--admin-menu-bg-color);
     display: grid;
     grid-template-columns: 300px 280px auto;
     justify-content: flex-end;
@@ -95,7 +95,7 @@
                     align-items: center;
                     cursor: pointer;
                     text-decoration: none;
-                    background-color: var(--bg-color);
+                    background-color: var(--admin-menu-bg-color);
                     transition: 0.5s background-color ease;
 
                     &:not(:first-child) {
@@ -238,7 +238,7 @@
                 align-items: center;
                 cursor: pointer;
                 text-decoration: none;
-                background-color: var(--bg-color);
+                background-color: var(--admin-menu-bg-color);
                 transition: 0.5s background-color ease;
 
                 &:not(:first-child) {

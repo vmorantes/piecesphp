@@ -12,10 +12,11 @@ $container_configurations = [
 
         //Variables CSS globales
         $cssGlobalVariables = CSSVariables::instance('global');
-        $cssGlobalVariables->setVariable('bg-color', get_config('admin_menu_color'));
-        $cssGlobalVariables->setVariable('emphasis-color', get_config('emphasis_color_admin_area'));
-        $cssGlobalVariables->setVariable('over-emphasis-color', get_config('emphasis_over_color_admin_area'));
-        $cssGlobalVariables->setVariable('mark-color', get_config('modules_mark_color'));
+        $cssGlobalVariables->setVariable('meta-theme-color', get_config('meta_theme_color'));
+        $cssGlobalVariables->setVariable('admin-menu-bg-color', get_config('admin_menu_bg_color'));
+        $cssGlobalVariables->setVariable('main-brand-color', get_config('main_brand_color'));
+        $cssGlobalVariables->setVariable('second-brand-color', get_config('second_brand_color'));
+        $cssGlobalVariables->setVariable('color-text-over-main-brand-color', get_config('color_text_over_main_brand_color'));
 
         //CSS de variables globales del área administrativa
         add_global_required_asset(get_route('admin-global-variables-css'), 'css');
