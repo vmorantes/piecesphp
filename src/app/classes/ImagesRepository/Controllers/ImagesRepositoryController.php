@@ -397,7 +397,8 @@ class ImagesRepositoryController extends AdminPanelController
 
         $this->helpController->render('panel/layout/header', [
             'containerClasses' => [
-                'with-standard-sidebar',
+                'no-scroll-y',
+                'no-any-padding',
             ],
         ]);
         self::view('filter-view', $data);

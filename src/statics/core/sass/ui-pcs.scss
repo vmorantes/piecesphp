@@ -1,5 +1,6 @@
 @import 'includes/variables';
 @import 'includes/components';
+@import '../../fonts/public-sans/public-sans.css';
 
 * {
     box-sizing: border-box;
@@ -14,6 +15,7 @@ body {
     height: 100%;
     width: 100%;
     overflow: hidden;
+    background-color: #FCFCFC;
 }
 
 .#{$globalClassPcs} {
@@ -252,71 +254,114 @@ footer.#{$globalClassPcs} {
     }
 }
 
-.mw-800{
+//Útil
+.mw-400 {
+    max-width: 400px !important;
+}
+
+.mw-800 {
     max-width: 800px !important;
 }
 
-.mw-900{
+.mw-900 {
     max-width: 900px !important;
 }
 
-.mw-1200{
+.mw-1200 {
     max-width: 1200px !important;
 }
 
-.mw-1440{
+.mw-1440 {
     max-width: 1440px !important;
 }
 
-//Correcciones a los estilos semantic
+.text-center {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        text-align: center;
+    }
+
+}
+
+//──── Sobreescritura de fomantic ────────────────────────────────────────────────────────
 a.ui.button {
     text-decoration: none !important;
 }
 
-.ui.button {
-    border-radius: 0px !important;
-}
+.ui {
 
-.ui.form {
+    &.button {
 
-    .field {
+        border-radius: 0px !important;
 
-        input,
-        select,
-        textarea {
+        &.brand-color,
+        &.custom-main-color {
+
+            background-color: var(--main-brand-color);
+            color: var(--color-text-over-main-brand-color);
+
+            &:hover,
+            &:active,
+            &:focus {
+                opacity: 0.8;
+            }
+
+            &.alt {
+
+                background-color: var(--second-brand-color);
+
+            }
+
+            &.alt2 {
+
+                background-color: var(--third-brand-color-text);
+
+            }
+
+        }
+
+    }
+
+    &.dividing.header {
+        color: var(--second-brand-color);
+        border-color: var(--second-brand-color);
+    }
+
+    &.form {
+
+        .field {
+
+            input,
+            select,
+            textarea {
+                border-radius: 0px !important;
+            }
+        }
+
+    }
+
+    &.dropdown {
+        border-radius: 0px !important;
+
+        .menu {
             border-radius: 0px !important;
         }
     }
 
-}
-
-.ui.dropdown {
-    border-radius: 0px !important;
-
-    .menu {
-        border-radius: 0px !important;
+    &.tabular.menu {
+        .item:not(.active) {
+            cursor: pointer;
+        }
     }
-}
 
-.ui.tabular.menu {
-    .item:not(.active) {
-        cursor: pointer;
-    }
-}
-
-.ui.card, .ui.cards{
-    border-radius: 0px;
-    .card{
+    &.card,
+    &.cards {
         border-radius: 0px;
-    }
-}
 
-.text-center{
-
-    .#{$globalClassPcs} &,
-    &.#{$globalClassPcs}
-    {
-        text-align: center;
+        .card {
+            border-radius: 0px;
+        }
     }
-   
+
 }

@@ -12,7 +12,7 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
 </div>
 
 <div class="ui tab active" data-tab="not-logged">
-    <table process="<?=get_route('informes-acceso-ajax');?>" class="ui table stripped celled not-logged"
+    <table process="<?=get_route('informes-acceso-ajax');?>" class="ui table striped celled not-logged"
         style="max-width:100%;width:100%;">
         <thead>
             <tr>

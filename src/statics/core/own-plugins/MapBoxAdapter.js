@@ -36,16 +36,21 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 */
 	/**
 	 * @typedef {Object} ConfigurationMapBox
-	 * @property {boolean} withMarker 
-	 * @property {boolean} withGeolocator 
+	 * @property {boolean} [withMarker=true] 
+	 * @property {boolean} [withGeolocator=true] 
+	 * @property {boolean} [withNav=true] 
+	 * @property {boolean} [withScale=true] 
+	 * @property {boolean} [withGeocoder=true] 
+	 * @property {boolean} [withFullscreen=true] 
 	 * @property {Number} [zoom=7] 
+	 * @property {boolean} [doubleClickZoom=false] 
 	 */
 	let ignore;
 
 	/**
 	 * @property {string} key
 	 */
-	let instanceKey = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjamt1YjBzeXEwZWlvM3FxbDBuZDZmZWFtIn0.jv_5-3mX1kWLrk1ffvV2zQ'
+	let instanceKey = 'pk.eyJ1Ijoic2lkcnVzIiwiYSI6ImNsMzFzN3A0ZzAwYXEzZnF3Mmp2ZnQ0M2oifQ.pKKuh1h2sJ2cG8qFpU7wtQ'
 
 	/**
 	 * @property {string} style
@@ -194,17 +199,23 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 * @method configurate
 	 * @description Configura los parámetros iniciales de MapBox
 	 * @param {ConfigurationObject} configurations
-	 * @param {ConfigurationMapBox} config
+	 * @param {ConfigurationMapBox} inputOptionsMapbox
 	 * @returns {Promise<ResponseConfigurate>}
 	 */
-	this.configurate = function (configurations = {}, config = {}) {
+	this.configurate = function (configurations = {}, inputOptionsMapbox = {}) {
 
 		return new Promise(function (resolve, reject) {
 
-			let options = {
+			let mapboxOptions = {
 				withMarker: true,
 				withGeolocator: true,
+				withNav: true,
+				withScale: true,
+				withGeocoder: true,
+				withFullscreen: true,
 				zoom: 7,
+				doubleClickZoom: false,
+				style: instanceStyle,
 			}
 
 			let defaultLongitude = typeof configurations.defaultLongitude != 'undefined' ? configurations.defaultLongitude : null
@@ -216,11 +227,13 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 			mapID = typeof mapID != 'undefined' && mapID !== null ? mapID.toString() : null
 			mapID = mapID !== null && mapID.length > 0 ? mapID : null
 
-			for (let property in options) {
-				if (config[property] !== undefined) {
-					options[property] = config[property]
-				}
+			//Configurar opciones entrantex
+			for (let property in inputOptionsMapbox) {
+				mapboxOptions[property] = inputOptionsMapbox[property]
 			}
+
+			//Opciones fijas
+			mapboxOptions.container = idContainer
 
 			container.parent().css({
 				position: 'relative',
@@ -242,15 +255,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 				let longitude = defaultLongitude === null ? -74.8199524 : defaultLongitude
 				let latitude = defaultLatitude === null ? 4.6854957 : defaultLatitude
 
-				let style = instanceStyle
-				let zoom = options.zoom
-
-				let mapboxInstance = new mapboxgl.Map({
-					container: idContainer,
-					style: style,
-					doubleClickZoom: false,
-					zoom: zoom
-				})
+				let mapboxInstance = new mapboxgl.Map(mapboxOptions)
 
 				let marker = new mapboxgl.Marker({
 					draggable: true
@@ -318,23 +323,31 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 
 						return geocodes;
 					},
-					zoom: zoom,
+					zoom: mapboxOptions.zoom,
 					placeholder: "Ej.: El Prado, Barranquilla, Colombia"
 				}
 
 				let geocoder = new MapboxGeocoder(geocoderOptions)
 
-				mapboxInstance.addControl(nav, 'top-left')
-				mapboxInstance.addControl(scale)
-				mapboxInstance.addControl(geocoder)
-				if (options.withGeolocator) {
+				if (mapboxOptions.withNav) {
+					mapboxInstance.addControl(nav, 'top-left')
+				}
+				if (mapboxOptions.withScale) {
+					mapboxInstance.addControl(scale)
+				}
+				if (mapboxOptions.withGeocoder) {
+					mapboxInstance.addControl(geocoder)
+				}
+				if (mapboxOptions.withGeolocator) {
 					mapboxInstance.addControl(geolocator)
 				}
-				mapboxInstance.addControl(fullscreen)
+				if (mapboxOptions.withFullscreen) {
+					mapboxInstance.addControl(fullscreen)
+				}
 
 				mapboxInstance.setCenter([longitude, latitude])
 
-				if (options.withMarker) {
+				if (mapboxOptions.withMarker) {
 					marker.setLngLat([longitude, latitude]).addTo(mapboxInstance)
 					instance.dispatch(MapBoxAdapter.events.ChangeMarkerPosition)
 				}
@@ -342,14 +355,14 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 				mapboxInstance.on('load', (e) => {
 					if (defaultLatitude == null && defaultLongitude == null) {
 
-						if (options.withGeolocator) {
+						if (mapboxOptions.withGeolocator) {
 							geolocator.trigger()
 						}
 
 					}
 				})
 
-				if (options.withGeolocator) {
+				if (mapboxOptions.withGeolocator) {
 					geolocator.on('geolocate', (pos) => {
 						let coordinates = pos.coords
 						let lat = coordinates.latitude

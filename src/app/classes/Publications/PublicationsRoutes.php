@@ -113,6 +113,7 @@ class PublicationsRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(PublicationsLang::LANG_GROUP, 'Publicaciones'),
+                'icon' => 'newspaper',
                 'items' => [
                     new MenuItem([
                         'text' => __(PublicationsLang::LANG_GROUP, 'Publicaciones'),

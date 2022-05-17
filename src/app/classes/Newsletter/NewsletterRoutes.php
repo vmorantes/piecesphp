@@ -32,7 +32,7 @@ class NewsletterRoutes
      */
     private static $init = false;
 
-    const ENABLE = false;
+    const ENABLE = NEWSLETTER_MODULE;
 
     /**
      * @param RouteGroup $groupAdministration
@@ -91,6 +91,7 @@ class NewsletterRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(NewsletterLang::LANG_GROUP, 'Suscriptores'),
+                'icon' => 'bell',
                 'asLink' => true,
                 'href' => NewsletterController::routeName('list'),
                 'visible' => NewsletterController::allowedRoute('list'),

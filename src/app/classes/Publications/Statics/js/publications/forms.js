@@ -112,7 +112,7 @@ window.addEventListener('load', function () {
 
 	form.find('input, select, textarea').attr('autocomplete', 'off')
 	form.find('.checkbox').checkbox()
-	$('.tabular.menu .item').tab()
+	$('.tabs-menu-items .item').tab()
 	$('.ui.accordion').accordion()
 
 	isEdit = form.find(`[name="id"]`).length > 0

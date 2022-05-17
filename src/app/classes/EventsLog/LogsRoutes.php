@@ -31,7 +31,7 @@ class LogsRoutes
      */
     private static $init = false;
 
-    const ENABLE = false;
+    const ENABLE = EVENTS_LOG_MODULE;
 
     /**
      * @param RouteGroup $group
@@ -86,6 +86,7 @@ class LogsRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(LogsLang::LANG_GROUP, 'Últimos movimientos'),
+                'icon' => 'history',
                 'asLink' => true,
                 'visible' => LogsController::allowedRoute('list'),
                 'href' => LogsController::routeName('list'),

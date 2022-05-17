@@ -85,10 +85,13 @@ class LogsController extends AdminPanelController
         $title = __(self::LANG_GROUP, "Últimos eventos");
         set_title($title);
 
+        $backLink = get_route('admin');
+
         $data = [];
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
+        $data['backLink'] = $backLink;
 
         set_custom_assets([
             LogsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),

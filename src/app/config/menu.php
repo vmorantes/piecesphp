@@ -15,9 +15,11 @@ use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Menu\MenuItemCollection;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\UserSystem\UserDataPackage;
 
 $role = Roles::getCurrentRole();
 $current_type_user = !is_null($role) ? $role['code'] : null;
+$user = getLoggedFrameworkUser();
 
 $headerDropdown = new MenuItemCollection([
     'items' => [
@@ -31,18 +33,21 @@ $sidebar = new MenuGroupCollection([
             'visible' => Roles::hasPermissions('admin', $current_type_user),
             'asLink' => true,
             'href' => get_route('admin'),
+            'icon' => 'home',
         ]),
         new MenuGroup([
             'name' => __('bi-dynamic-images', 'Imágenes'),
             'visible' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::allowedRoute('options'),
             'asLink' => true,
             'href' => \PiecesPHP\BuiltIn\DynamicImages\EntryPointController::routeName('options', [], true),
+            'icon' => 'images',
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),
             'visible' => Roles::hasPermissions('locations', $current_type_user),
             'asLink' => true,
             'href' => get_route('locations', [], true),
+            'icon' => 'map marker alternate',
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Noticias'),
@@ -70,6 +75,7 @@ if ($hasManyLangs) {
     $langsItem = new MenuGroup([
         'name' => __(ADMIN_MENU_LANG_GROUP, 'Idiomas'),
         'position' => 300,
+        'icon' => 'language',
     ]);
 
     foreach ($alternativesURL as $lang => $url) {
@@ -88,5 +94,4 @@ if ($hasManyLangs) {
 }
 
 //Añadir menús a la configuración global
-$config['menus']['header_dropdown'] = $headerDropdown;
 $config['menus']['sidebar'] = $sidebar;

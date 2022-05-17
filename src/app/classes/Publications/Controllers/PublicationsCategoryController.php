@@ -52,11 +52,11 @@ class PublicationsCategoryController extends AdminPanelController
     /**
      * @var string
      */
-    protected static $title = 'Categorías de publicaciones';
+    protected static $title = 'Categoría de publicación';
     /**
      * @var string
      */
-    protected static $pluralTitle = 'Categoría de publicación';
+    protected static $pluralTitle = 'Categorías de publicaciones';
 
     /**
      * @var HelperController
@@ -107,7 +107,7 @@ class PublicationsCategoryController extends AdminPanelController
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
-        $data['title'] = self::$title;
+        $data['title'] = __(self::LANG_GROUP, 'Gestión de categoría');
 
         $this->helpController->render('panel/layout/header');
         self::view('forms/add', $data);
@@ -158,7 +158,7 @@ class PublicationsCategoryController extends AdminPanelController
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['backLink'] = $backLink;
-            $data['title'] = self::$title;
+            $data['title'] = __(self::LANG_GROUP, 'Gestión de categoría');
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;

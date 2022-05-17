@@ -699,12 +699,12 @@ class CategoriesController extends AdminPanelController
 
                 if ($hasEdit) {
                     $editLink = self::routeName('forms-edit', ['id' => $e->id]);
-                    $editButton = "<a href='{$editLink}' class='ui button green icon'><i class='edit outline icon'></i></a>";
+                    $editButton = "<a href='{$editLink}' class='ui button brand-color icon'><i class='edit outline icon'></i></a>";
                     $buttons[] = $editButton;
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
-                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button red icon' delete-categories-button><i class='trash icon'></i></a>";
+                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-categories-button><i class='trash icon'></i></a>";
                     $buttons[] = $deleteButton;
                 }
 

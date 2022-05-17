@@ -21,7 +21,7 @@ $langGroup = UsersController::LANG_GROUP;
 </div>
 
 
-<table process="<?=$process_table;?>" class="ui table stripped celled inverted grey users" style="max-width:100%;width:100%;">
+<table process="<?=$process_table;?>" class="ui table striped celled inverted grey users" style="max-width:100%;width:100%;">
     <thead>
         <tr>
             <th><?= __($langGroup, '#'); ?></th>
