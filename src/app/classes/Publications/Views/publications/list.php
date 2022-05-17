@@ -7,61 +7,75 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  */
 
 ?>
-<div class="header-list">
+<section class="module-view-container">
 
-    <h3 class="title-list">
-        <strong><?= $title; ?></strong>
-    </h3>
+    <div class="header-options">
 
-    <div class="container-buttons">
+        <div class="main-options">
 
-        <a href="<?= $backLink; ?>" class="ui labeled icon button custom-color">
-            <i class="icon left arrow"></i>
-            <?= __($langGroup, 'Regresar'); ?>
-        </a>
+            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
+                <i class="icon left arrow"></i>
+            </a>
 
-        <?php if ($hasPermissionsAdd):  ?>
-        <a href="<?= $addLink; ?>" class="ui button custom-color"><?= __($langGroup, 'Agregar publicación'); ?></a>
-        <?php endif; ?>
+        </div>
 
-        <?php if ($hasPermissionsListCategories):  ?>
-        <a href="<?= $listCategoriesLink; ?>" class="ui button custom-color"><?= __($langGroup, 'Categorías'); ?></a>
-        <?php endif; ?>
+        <div class="columns two">
 
-        <?php if ($hasPermissionsAddCategory):  ?>
-        <a href="<?= $addCategoryLink; ?>" class="ui button custom-color"><?= __($langGroup, 'Agregar categoría'); ?></a>
-        <?php endif; ?>
+            <div class="column">
+
+                <div class="section-title">
+                    <div class="title"><?= $title; ?></div>
+                    <div class="subtitle"><?= __($langGroup, 'Listado'); ?></div>
+                </div>
+
+            </div>
+
+            <div class="column bottom right">
+
+                <?php if ($hasPermissionsAdd):  ?>
+                <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar publicación'); ?></a>
+                <?php endif; ?>
+
+                <?php if ($hasPermissionsListCategories):  ?>
+                <a href="<?= $listCategoriesLink; ?>" class="ui button brand-color"><?= __($langGroup, 'Categorías'); ?></a>
+                <?php endif; ?>
+
+                <?php if ($hasPermissionsAddCategory):  ?>
+                <a href="<?= $addCategoryLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar categoría'); ?></a>
+                <?php endif; ?>
+
+            </div>
+
+        </div>
 
     </div>
 
-</div>
+    <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
+        <div class="mirror-scroll-x-content"></div>
+    </div>
 
-<br>
-<br>
+    <div class="container-standard-table">
 
-<div class="mirror-scroll-x" mirror-scroll-target=".container-table-standard-list">
-    <div class="mirror-scroll-x-content"></div>
-</div>
+        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
+            
+            <thead>
 
-<div class="container-table-standard-list">
+                <tr>
+                    <th><?= __($langGroup, '#'); ?></th>
+                    <th><?= __($langGroup, 'Título'); ?></th>
+                    <th><?= __($langGroup, 'Categoría'); ?></th>
+                    <th><?= __($langGroup, 'Visitas'); ?></th>
+                    <th><?= __($langGroup, 'Fecha'); ?></th>
+                    <th><?= __($langGroup, 'Autor'); ?></th>
+                    <th><?= __($langGroup, 'Estado'); ?></th>
+                    <th><?= __($langGroup, 'Destacado'); ?></th>
+                    <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                </tr>
 
-    <table url="<?= $processTableLink; ?>" class="ui table stripped celled">
+            </thead>
 
-        <thead>
+        </table>
 
-            <tr>
-                <th><?= __($langGroup, '#'); ?></th>
-                <th><?= __($langGroup, 'Título'); ?></th>
-                <th><?= __($langGroup, 'Categoría'); ?></th>
-                <th><?= __($langGroup, 'Visitas'); ?></th>
-                <th><?= __($langGroup, 'Fecha'); ?></th>
-                <th><?= __($langGroup, 'Autor'); ?></th>
-                <th><?= __($langGroup, 'Destacado'); ?></th>
-                <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
-            </tr>
+    </div>
 
-        </thead>
-
-    </table>
-
-</div>
+</section>

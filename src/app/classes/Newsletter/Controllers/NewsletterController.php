@@ -742,13 +742,13 @@ class NewsletterController extends AdminPanelController
                 if ($hasEdit) {
                     $editLink = self::routeName('forms-edit', ['id' => $e->id]);
                     $editText = __(self::LANG_GROUP, 'Editar');
-                    $editButton = "<a href='{$editLink}' class='ui button green'>{$editText}</a>";
+                    $editButton = "<a href='{$editLink}' class='ui button brand-color'>{$editText}</a>";
                     $buttons[] = $editButton;
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
                     $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button red' delete-newsletter-suscriber-button>{$deleteText}</a>";
+                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button brand-color alt2' delete-newsletter-suscriber-button>{$deleteText}</a>";
                     $buttons[] = $deleteButton;
                 }
 

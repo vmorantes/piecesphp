@@ -14,235 +14,245 @@ use Publications\Util\AttachmentPackage;
  * @var AttachmentPackage[] $attachmentGroup1
  */
 ?>
+<section class="module-view-container">
 
-<div>
+    <div class="header-options">
 
-    <div class="ui buttons">
+        <div class="main-options">
 
-        <a href="<?= $backLink; ?>" class="ui labeled icon button">
-            <i class="icon left arrow"></i>
-            <?= __($langGroup, 'Regresar'); ?>
-        </a>
+            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
+                <i class="icon left arrow"></i>
+            </a>
 
-    </div>
-
-    <br>
-    <br>
-
-    <h3 class="title-form"><?= __($langGroup, 'Editar'); ?>
-        <?= $title; ?>
-    </h3>
-
-    <?php if($manyLangs): ?>
-    <div class="ui form">
-        <div class="field required">
-            <label><?= __($langGroup, 'Idiomas'); ?></label>
-            <select required class="ui dropdown search langs">
-                <?= $allowedLangs; ?>
-            </select>
         </div>
-    </div>
-    <?php endif; ?>
 
-    <br>
+        <div class="columns">
 
-    <div class="ui tabular menu">
-        <div class="item active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
-        <div class="item" data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
-        <div class="item" data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
-        <div class="item" data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
-        <div class="item" data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
-    </div>
+            <div class="column">
 
-    <form method='POST' action="<?= $action; ?>" class="ui form publications standard-form">
+                <div class="section-title">
+                    <div class="title"><?= $title; ?></div>
+                    <div class="subtitle"><?= __($langGroup, 'Editar'); ?></div>
+                </div>
 
-        <input type="hidden" name="id" value="<?= $element->id; ?>">
-        <input type="hidden" name="lang" value="<?= $lang; ?>">
-
-        <div class="ui tab active" data-tab="basic">
-
-            <div class="field required">
-                <label><?= __($langGroup, 'Nombre'); ?></label>
-                <input required type="text" name="title" maxlength="300" value="<?= $element->getLangData($lang, 'title', false, ''); ?>">
             </div>
 
+        </div>
+
+    </div>
+
+    <div class="container-standard-form">
+
+        <?php if($manyLangs): ?>
+        <div class="ui form">
             <div class="field required">
-                <label><?= __($langGroup, 'Autor'); ?></label>
-                <select class="ui dropdown search" name="author" data-search-url="<?= $searchUsersURL; ?>" required>
-                    <option value="<?= $element->author->id; ?>"><?= $element->author->getFullName(); ?></option>
+                <label><?= __($langGroup, 'Idiomas'); ?></label>
+                <select required class="ui dropdown search langs">
+                    <?= $allowedLangs; ?>
                 </select>
             </div>
+        </div>
+        <?php endif; ?>
 
-            <div class="field" calendar-js calendar-type="date">
-                <label><?= __($langGroup, 'Fecha'); ?></label>
-                <input type="text" name="publicDate" required autocomplete="off" value="<?= $element->publicDate->format('Y-m-d h:i:s A'); ?>">
-            </div>
+        <div class="ui pointing secondary menu tabs-menu-items">
+            <div class="item active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
+            <div class="item" data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
+            <div class="item" data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
+            <div class="item" data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
+            <div class="item" data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
+        </div>
 
-            <div class="fields">
-                <div class="field">
-                    <div class="ui toggle checkbox">
-                        <input type="checkbox" name="featured" value="<?= PublicationMapper::FEATURED; ?>" <?= $element->isFeatured() ? 'checked' : ''; ?>>
-                        <label><?= __($langGroup, 'Destacado'); ?></label>
+
+        <form method='POST' action="<?= $action; ?>" class="ui form publications">
+
+            <input type="hidden" name="id" value="<?= $element->id; ?>">
+            <input type="hidden" name="lang" value="<?= $lang; ?>">
+
+            <div class="ui tab active" data-tab="basic">
+
+                <div class="field required">
+                    <label><?= __($langGroup, 'Nombre'); ?></label>
+                    <input required type="text" name="title" maxlength="300" value="<?= $element->getLangData($lang, 'title', false, ''); ?>">
+                </div>
+
+                <div class="field required">
+                    <label><?= __($langGroup, 'Autor'); ?></label>
+                    <select class="ui dropdown search" name="author" data-search-url="<?= $searchUsersURL; ?>" required>
+                        <option value="<?= $element->author->id; ?>"><?= $element->author->getFullName(); ?></option>
+                    </select>
+                </div>
+
+                <div class="field" calendar-js calendar-type="date">
+                    <label><?= __($langGroup, 'Fecha'); ?></label>
+                    <input type="text" name="publicDate" required autocomplete="off" value="<?= $element->publicDate->format('Y-m-d h:i:s A'); ?>">
+                </div>
+
+                <div class="fields">
+                    <div class="field">
+                        <div class="ui toggle checkbox">
+                            <input type="checkbox" name="featured" value="<?= PublicationMapper::FEATURED; ?>" <?= $element->isFeatured() ? 'checked' : ''; ?>>
+                            <label><?= __($langGroup, 'Destacado'); ?></label>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="ui toggle checkbox">
+                            <input type="checkbox" name="draft" value="yes" <?= $element->isDraft() ? 'checked' : ''; ?>>
+                            <label><?= __($langGroup, 'Borrador'); ?></label>
+                        </div>
                     </div>
                 </div>
 
-                <div class="field">
-                    <div class="ui toggle checkbox">
-                        <input type="checkbox" name="draft" value="yes" <?= $element->isDraft() ? 'checked' : ''; ?>>
-                        <label><?= __($langGroup, 'Borrador'); ?></label>
+                <div class="field required">
+                    <label><?= __($langGroup, 'Contenido'); ?></label>
+                    <div rich-editor-adapter-component></div>
+                    <textarea name="content" required><?= $element->getLangData($lang, 'content', false, ''); ?></textarea>
+                </div>
+
+            </div>
+
+            <div class="ui tab" data-tab="images">
+
+                <div class="ui form cropper-adapter" cropper-image-main>
+
+                    <div class="field required">
+                        <label><?= __($langGroup, 'Imagen principal'); ?></label>
+                        <input type="file" accept="image/*">
                     </div>
+
+                    <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
+                        'referenceW'=> '800',
+                        'referenceH'=> '600',
+                        'image' => $element->getLangData($lang, 'mainImage'),
+                        'imageName' => $element->getLangData($lang, 'mainImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
+                    ]); ?>
+
                 </div>
+
+                <div class="ui form cropper-adapter" cropper-image-thumb>
+
+                    <div class="field required">
+                        <label><?= __($langGroup, 'Imagen miniatura'); ?></label>
+                        <input type="file" accept="image/*">
+                    </div>
+
+                    <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
+                        'referenceW'=> '400',
+                        'referenceH'=> '300',
+                        'image' => $element->getLangData($lang, 'thumbImage'),
+                        'imageName' => $element->getLangData($lang, 'thumbImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
+                    ]); ?>
+
+                </div>
+
             </div>
 
-            <div class="field required">
-                <label><?= __($langGroup, 'Contenido'); ?></label>
-                <div rich-editor-adapter-component></div>
-                <textarea name="content" required><?= $element->getLangData($lang, 'content', false, ''); ?></textarea>
-            </div>
-
-        </div>
-
-        <div class="ui tab" data-tab="images">
-
-            <div class="ui form cropper-adapter" cropper-image-main>
+            <div class="ui tab" data-tab="details">
 
                 <div class="field required">
-                    <label><?= __($langGroup, 'Imagen principal'); ?></label>
-                    <input type="file" accept="image/*">
+                    <label><?= __($langGroup, 'Categorías'); ?></label>
+                    <select class="ui dropdown" name="category" required>
+                        <?= $allCategories; ?>
+                    </select>
                 </div>
 
-                <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                    'referenceW'=> '800',
-                    'referenceH'=> '600',
-                    'image' => $element->getLangData($lang, 'mainImage'),
-                    'imageName' => $element->getLangData($lang, 'mainImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-                ]); ?>
+                <div class="two fields">
 
-            </div>
+                    <div class="field" calendar-group-js='periodo' start>
+                        <label><?= __($langGroup, 'Iniciar'); ?></label>
+                        <input type="text" name="startDate" autocomplete="off" value="<?= $element->startDate !== null ? $element->startDate->format('Y-m-d h:i:s A') : ''; ?>">
+                    </div>
 
-            <div class="ui form cropper-adapter" cropper-image-thumb>
+                    <div class="field" calendar-group-js='periodo' end>
+                        <label><?= __($langGroup, 'Finalizar'); ?></label>
+                        <input type="text" name="endDate" autocomplete="off" value="<?= $element->endDate !== null ? $element->endDate->format('Y-m-d h:i:s A') : ''; ?>">
+                    </div>
 
-                <div class="field required">
-                    <label><?= __($langGroup, 'Imagen miniatura'); ?></label>
-                    <input type="file" accept="image/*">
-                </div>
-
-                <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                    'referenceW'=> '400',
-                    'referenceH'=> '300',
-                    'image' => $element->getLangData($lang, 'thumbImage'),
-                    'imageName' => $element->getLangData($lang, 'thumbImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-                ]); ?>
-
-            </div>
-
-        </div>
-
-        <div class="ui tab" data-tab="details">
-
-            <div class="field required">
-                <label><?= __($langGroup, 'Categorías'); ?></label>
-                <select class="ui dropdown" name="category" required>
-                    <?= $allCategories; ?>
-                </select>
-            </div>
-
-            <div class="two fields">
-
-                <div class="field" calendar-group-js='periodo' start>
-                    <label><?= __($langGroup, 'Iniciar'); ?></label>
-                    <input type="text" name="startDate" autocomplete="off" value="<?= $element->startDate !== null ? $element->startDate->format('Y-m-d h:i:s A') : ''; ?>">
-                </div>
-
-                <div class="field" calendar-group-js='periodo' end>
-                    <label><?= __($langGroup, 'Finalizar'); ?></label>
-                    <input type="text" name="endDate" autocomplete="off" value="<?= $element->endDate !== null ? $element->endDate->format('Y-m-d h:i:s A') : ''; ?>">
                 </div>
 
             </div>
 
-        </div>
+            <div class="ui tab" data-tab="seo">
 
-        <div class="ui tab" data-tab="seo">
+                <div class="ui form cropper-adapter" cropper-image-og>
 
-            <div class="ui form cropper-adapter" cropper-image-og>
+                    <div class="field">
+                        <label><?= __($langGroup, 'Imagen'); ?></label>
+                        <input type="file" accept="image/*">
+                    </div>
+
+                    <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
+                        'referenceW'=> '1200',
+                        'referenceH'=> '600',
+                        'image' => $element->getLangData($lang, 'ogImage', true, ''),
+                        'imageName' => $element->getLangData($lang, 'ogImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
+                    ]); ?>
+
+                </div>
+
+                <br>
 
                 <div class="field">
-                    <label><?= __($langGroup, 'Imagen'); ?></label>
-                    <input type="file" accept="image/*">
+                    <label><?= __($langGroup, 'Descripción'); ?></label>
+                    <textarea name="seoDescription"><?= $element->getLangData($lang, 'seoDescription', true, ''); ?></textarea>
                 </div>
-
-                <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                    'referenceW'=> '1200',
-                    'referenceH'=> '600',
-                    'image' => $element->getLangData($lang, 'ogImage', true, ''),
-                    'imageName' => $element->getLangData($lang, 'ogImage', false, null) === null ? 'image_' . str_replace('.', '', uniqid('', true)) : '',
-                ]); ?>
 
             </div>
 
-            <br>
+            <div class="ui tab" data-tab="attachments">
+
+                <h4 class="ui dividing header"><?= __($langGroup, 'Anexos'); ?></h4>
+
+                <div class="two fields">
+
+                    <?php foreach($attachmentGroup1 as $attachmentElement): ?>
+
+                    <div class="field" attachment-element>
+                        <label><?= $attachmentElement->getTypeText(); ?></label>
+                        <input type="hidden" name="<?= $attachmentElement->baseNameAppend('Type'); ?>" value="<?= $attachmentElement->getType(); ?>">
+                        <?php if($attachmentElement->hasAttachment()): ?>
+                        <div preview>
+                            <?php if(!$attachmentElement->getMapper()->fileIsImage()):?>
+                            <a target="_blank" href="<?= $attachmentElement->getMapper()->fileLocation; ?>" class="ui button icon labeled blue">
+                                <i class="ui icon download"></i>
+                                <?= __($langGroup, 'Ver documento'); ?>
+                            </a>
+                            <?php else: ?>
+                            <img src="<?= $attachmentElement->getMapper()->fileLocation; ?>">
+                            <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                        <?php simpleUploadPlaceholderWorkSpace([
+                            'onlyButton' => $attachmentElement->hasAttachment(),
+                            'inputNameAttr' => $attachmentElement->baseNameAppend('File'),
+                            'buttonText' => $attachmentElement->hasAttachment() ? __($langGroup, 'Cambiar anexo') :  __($langGroup, 'Agregar anexo'),
+                            'required' =>  $attachmentElement->isRequired() && !$attachmentElement->hasAttachment(),
+                            'multiple' =>  $attachmentElement->isMultiple(),
+                            'icon' => 'image outline',
+                            'accept' => implode(',', $attachmentElement->getExtensions()),
+                        ]); ?>
+                        <br><br>
+                    </div>
+
+                    <?php endforeach; ?>
+
+                </div>
+
+
+            </div>
+
+            <br><br>
 
             <div class="field">
-                <label><?= __($langGroup, 'Descripción'); ?></label>
-                <textarea name="seoDescription"><?= $element->getLangData($lang, 'seoDescription', true, ''); ?></textarea>
-            </div>
-
-        </div>
-
-        <div class="ui tab" data-tab="attachments">
-
-            <h4 class="ui dividing header"><?= __($langGroup, 'Anexos'); ?></h4>
-
-            <div class="two fields">
-
-                <?php foreach($attachmentGroup1 as $attachmentElement): ?>
-
-                <div class="field" attachment-element>
-                    <label><?= $attachmentElement->getTypeText(); ?></label>
-                    <input type="hidden" name="<?= $attachmentElement->baseNameAppend('Type'); ?>" value="<?= $attachmentElement->getType(); ?>">
-                    <?php if($attachmentElement->hasAttachment()): ?>
-                    <div preview>
-                        <?php if(!$attachmentElement->getMapper()->fileIsImage()):?>
-                        <a target="_blank" href="<?= $attachmentElement->getMapper()->fileLocation; ?>" class="ui button icon labeled blue">
-                            <i class="ui icon download"></i>
-                            <?= __($langGroup, 'Ver documento'); ?>
-                        </a>
-                        <?php else: ?>
-                        <img src="<?= $attachmentElement->getMapper()->fileLocation; ?>">
-                        <?php endif; ?>
-                    </div>
+                <div class="ui buttons">
+                    <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
+                    <?php if($allowDelete): ?>
+                    <button type="submit" class="ui button brand-color alt2" delete-publication-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
                     <?php endif; ?>
-                    <?php simpleUploadPlaceholderWorkSpace([
-                        'onlyButton' => $attachmentElement->hasAttachment(),
-                        'inputNameAttr' => $attachmentElement->baseNameAppend('File'),
-                        'buttonText' => $attachmentElement->hasAttachment() ? __($langGroup, 'Cambiar anexo') :  __($langGroup, 'Agregar anexo'),
-                        'required' =>  $attachmentElement->isRequired() && !$attachmentElement->hasAttachment(),
-                        'multiple' =>  $attachmentElement->isMultiple(),
-                        'icon' => 'image outline',
-                        'accept' => implode(',', $attachmentElement->getExtensions()),
-                    ]); ?>
-                    <br><br>
                 </div>
-
-                <?php endforeach; ?>
-
             </div>
 
+        </form>
+    </div>
 
-        </div>
-
-        <br><br>
-
-        <div class="field">
-            <div class="ui buttons">
-                <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
-                <?php if($allowDelete): ?>
-                <button type="submit" class="ui button red" delete-publication-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                <?php endif; ?>
-            </div>
-        </div>
-
-    </form>
-
-</div>
+</section>

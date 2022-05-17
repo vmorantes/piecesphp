@@ -92,6 +92,7 @@ class FileManagerRoutes
                         'href' => FileManagerController::routeName('filemanager'),
                         'asLink' => true,
                         'position' => 300,
+                        'icon' => 'folder open',
                     ]
                 ));
 

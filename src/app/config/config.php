@@ -49,6 +49,7 @@ $config['admin_menu_bg_color'] = "#285f94";
 $config['main_brand_color'] = "#285f94";
 $config['color_text_over_main_brand_color'] = "white";
 $config['second_brand_color'] = "#2887bf";
+$config['third_brand_color_text'] = "#707070";
 
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";

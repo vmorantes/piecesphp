@@ -33,7 +33,7 @@ class ImagesRepositoryRoutes
      */
     private static $init = false;
 
-    const ENABLE = false;
+    const ENABLE = IMAGES_REPOSITORY;
 
     /**
      * @param RouteGroup $groupAdministration
@@ -92,6 +92,7 @@ class ImagesRepositoryRoutes
             $sidebar->addItem(new MenuGroup(
                 [
                     'name' => __(ImagesRepositoryLang::LANG_GROUP, 'Registro fotográfico'),
+                    'icon' => 'images',
                     'position' => 4,
                     'items' => [
                         new MenuItem([

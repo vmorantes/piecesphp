@@ -13,7 +13,7 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
 
 <div class="ui tab active" data-tab="attempts">
     <table process="<?=get_route('informes-acceso-ajax',['type'=>'attempts']);?>"
-        class="ui table stripped celled attempts" style="max-width:100%;width:100%;">
+        class="ui table striped celled attempts" style="max-width:100%;width:100%;">
         <thead>
             <tr>
                 <th><?= __($langGroup, 'Usuario ingresado'); ?></th>

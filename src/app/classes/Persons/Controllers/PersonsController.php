@@ -231,7 +231,7 @@ class PersonsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $manyLangs = !empty($allowedLangs) > 1 && count($element->getTranslatableProperties());
+            $manyLangs = !empty($allowedLangs) && !empty($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $optionsDocumentTypes = array_to_html_options(PersonsMapper::idDocumentTypesForSelect(), $element->documentType);
@@ -800,13 +800,13 @@ class PersonsController extends AdminPanelController
                 if ($hasEdit) {
                     $editLink = self::routeName('forms-edit', ['id' => $e->id]);
                     $editText = __(self::LANG_GROUP, 'Editar');
-                    $editButton = "<a href='{$editLink}' class='ui button green icon labeled'><i class='edit outline icon'></i> {$editText}</a>";
+                    $editButton = "<a href='{$editLink}' class='ui button brand-color icon labeled'><i class='edit outline icon'></i> {$editText}</a>";
                     $buttons[] = $editButton;
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
                     $deleteText = __(self::LANG_GROUP, 'Eliminar');
-                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button red icon labeled' delete-persons-button><i class='trash icon'></i> {$deleteText}</a>";
+                    $deleteButton = "<a data-route='{$deleteLink}' class='ui button brand-color alt2 icon labeled' delete-persons-button><i class='trash icon'></i> {$deleteText}</a>";
                     $buttons[] = $deleteButton;
                 }
 

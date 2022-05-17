@@ -12,39 +12,63 @@ $user = getLoggedFrameworkUser(true)->userMapper;
 $avatar = AvatarModel::getAvatar(Validator::isInteger($user->id) ? (int) $user->id : -1);
 ?>
 
-<div class="person-title">
-    <?php if($avatar !== null):?>
-    <div class="image">
-        <img src="<?= $avatar; ?>" alt="<?= $user->getFullName(); ?>">
+<section class="module-view-container mw-800">
+
+    <div class="header-options">
+
+        <div class="main-options">
+
+            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
+                <i class="icon left arrow"></i>
+            </a>
+
+        </div>
+
+        <div class="columns">
+
+            <div class="column">
+
+                <div class="section-title">
+                    <div class="title"><?= $title; ?></div>
+                    <div class="subtitle"><?= __($langGroup, 'Listado'); ?></div>
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
-    <?php endif; ?>
-    <div class="text">
-        <span class="mark"><?= __($langGroup, 'Hola'); ?>,&nbsp;</span> <?= $user->getFullName(); ?>
+
+    <div class="person-title">
+        <?php if($avatar !== null):?>
+        <div class="image">
+            <img src="<?= $avatar; ?>" alt="<?= $user->getFullName(); ?>">
+        </div>
+        <?php endif; ?>
+        <div class="text">
+            <span class="mark"><?= __($langGroup, 'Hola'); ?>,&nbsp;</span> <?= $user->getFullName(); ?>
+        </div>
     </div>
-</div>
 
-<br>
-<br>
+    <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
+        <div class="mirror-scroll-x-content"></div>
+    </div>
 
-<div class="mirror-scroll-x" mirror-scroll-target=".container-table-standard-list">
-    <div class="mirror-scroll-x-content"></div>
-</div>
+    <div class="container-standard-table">
 
-<div class="container-table-standard-list">
+        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
 
-    <div class="table-title"><?= $title; ?></div>
+            <thead>
 
-    <table url="<?= $processTableLink; ?>" class="ui table stripped celled">
+                <tr>
+                    <th><?= __($langGroup, 'Evento'); ?></th>
+                    <th><?= __($langGroup, 'Fecha'); ?></th>
+                </tr>
 
-        <thead>
+            </thead>
 
-            <tr>
-                <th><?= __($langGroup, 'Evento'); ?></th>
-                <th><?= __($langGroup, 'Fecha'); ?></th>
-            </tr>
+        </table>
 
-        </thead>
+    </div>
 
-    </table>
-
-</div>
+</section>
