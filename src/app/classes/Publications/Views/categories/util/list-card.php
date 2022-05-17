@@ -28,13 +28,13 @@ use Publications\Mappers\PublicationCategoryMapper;
             <div>
 
                 <?php if($hasEdit): ?>
-                <a class="fluid ui olive button icon" href="<?= $editLink; ?>">
+                <a class="fluid ui brand-color button icon" href="<?= $editLink; ?>">
                     <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Editar'); ?>
                 </a>
                 <?php endif;?>
 
                 <?php if($hasDelete): ?>
-                <a class="fluid ui red button icon" delete-publication-category-button data-route="<?= $deleteRoute; ?>">
+                <a class="fluid ui brand-color alt button icon" delete-publication-category-button data-route="<?= $deleteRoute; ?>">
                     <i class="icon trash"></i> &nbsp; <?= __($langGroup, 'Eliminar'); ?>
                 </a>
                 <?php endif;?>

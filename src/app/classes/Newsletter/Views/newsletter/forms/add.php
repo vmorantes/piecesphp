@@ -8,48 +8,62 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
  * @var string $action
  */
 ?>
+<section class="module-view-container">
 
-<div>
+    <div class="header-options">
 
-    <div class="ui buttons">
+        <div class="main-options">
 
-        <a href="<?= $backLink; ?>" class="ui labeled icon button">
-            <i class="icon left arrow"></i>
-            <?= __($langGroup, 'Regresar'); ?>
-        </a>
+            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
+                <i class="icon left arrow"></i>
+            </a>
+
+        </div>
+
+        <div class="columns">
+
+            <div class="column">
+
+                <div class="section-title">
+                    <div class="title"><?= $title; ?></div>
+                    <div class="subtitle"><?= __($langGroup, 'Agregar'); ?></div>
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
-    <br><br>
+    <div class="container-standard-form">
 
-    <h3 class="title-form"><?= __($langGroup, 'Agregar'); ?>
-        <?= $title; ?>
-    </h3>
+        <form method='POST' action="<?= $action; ?>" class="ui form newsletter">
 
-    <form method='POST' action="<?= $action; ?>" class="ui form newsletter standard-form">
-
-        <div class="field required">
-            <label><?= __($langGroup, 'Nombre'); ?></label>
-            <input required type="text" name="name" maxlength="200">
-        </div>
-
-        <div class="field required">
-            <label><?= __($langGroup, 'Email'); ?></label>
-            <input required type="email" name="email" maxlength="200">
-        </div>
-
-        <div class="field">
-            <div class="ui toggle checkbox">
-                <input type="checkbox" name="acceptUpdates" value="<?= NewsletterSuscriberMapper::ACCEPT_UPDATES_YES; ?>" checked>
-                <label><?= __($langGroup, 'Acepta recibir correos'); ?></label>
+            <div class="field required">
+                <label><?= __($langGroup, 'Nombre'); ?></label>
+                <input required type="text" name="name" maxlength="200">
             </div>
-        </div>
 
-        <br><br>
+            <div class="field required">
+                <label><?= __($langGroup, 'Email'); ?></label>
+                <input required type="email" name="email" maxlength="200">
+            </div>
 
-        <div class="field">
-            <button type="submit" class="ui button green"><?= __($langGroup, 'Guardar'); ?></button>
-        </div>
+            <div class="field">
+                <div class="ui toggle checkbox">
+                    <input type="checkbox" name="acceptUpdates" value="<?= NewsletterSuscriberMapper::ACCEPT_UPDATES_YES; ?>" checked>
+                    <label><?= __($langGroup, 'Acepta recibir correos'); ?></label>
+                </div>
+            </div>
 
-    </form>
-</div>
+            <br><br>
+
+            <div class="field">
+                <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
+            </div>
+
+        </form>
+
+    </div>
+
+</section>

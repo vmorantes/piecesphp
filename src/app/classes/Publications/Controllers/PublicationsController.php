@@ -158,7 +158,7 @@ class PublicationsController extends AdminPanelController
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['backLink'] = $backLink;
-        $data['title'] = self::$title;
+        $data['title'] = __(self::LANG_GROUP, 'Gestión de publicaciones');
         $data['allCategories'] = $allCategories;
         $data['attachmentGroup1'] = $attachmentGroup1;
         $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
@@ -226,7 +226,7 @@ class PublicationsController extends AdminPanelController
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['backLink'] = $backLink;
-            $data['title'] = self::$title;
+            $data['title'] = __(self::LANG_GROUP, 'Gestión de publicaciones');
             $data['allCategories'] = $allCategories;
             $data['attachmentGroup1'] = $attachmentGroup1;
             $data['allowedLangs'] = $allowedLangs;
@@ -1118,8 +1118,8 @@ class PublicationsController extends AdminPanelController
             'visits',
             'publicDate',
             'authorUser',
-            'featuredDisplay',
             'visibilityText',
+            'featuredDisplay',
         ];
 
         $customOrder = [
@@ -1155,21 +1155,21 @@ class PublicationsController extends AdminPanelController
                     $editLink = self::routeName('forms-edit', ['id' => $e->id]);
                     $editText = __(self::LANG_GROUP, 'Editar');
                     $editIcon = "<i class='icon edit'></i>";
-                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button green icon'>{$editIcon}</a>";
+                    $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button brand-color icon'>{$editIcon}</a>";
                     $buttons[] = $editButton;
                 }
                 if ($hasPreview) {
                     $previewLink = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
                     $previewText = __(self::LANG_GROUP, 'Ver');
                     $previewIcon = "<i class='icon external alternate'></i>";
-                    $previewButton = "<a target='_blank' title='{$previewText}' href='{$previewLink}' class='ui button blue icon'>{$previewIcon}</a>";
+                    $previewButton = "<a target='_blank' title='{$previewText}' href='{$previewLink}' class='ui button brand-color alt icon'>{$previewIcon}</a>";
                     $buttons[] = $previewButton;
                 }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
                     $deleteText = __(self::LANG_GROUP, 'Eliminar');
                     $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button red icon' delete-publication-button>{$deleteIcon}</a>";
+                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-publication-button>{$deleteIcon}</a>";
                     $buttons[] = $deleteButton;
                 }
 
@@ -1177,15 +1177,16 @@ class PublicationsController extends AdminPanelController
                 $columns = [];
 
                 $tagColor = PublicationMapper::VISIBILITIES_COLORS[$e->visibility];
-                $tag = "<span class='ui {$tagColor} label'>{$e->visibilityText}</span>";
+                $tag = "<span class='ui {$tagColor} tag label'>{$e->visibilityText}</span>";
                 $title = mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...';
 
                 $columns[] = $e->idPadding;
-                $columns[] = "{$tag} {$title}";
+                $columns[] = $title;
                 $columns[] = $e->categoryName;
                 $columns[] = $e->visits;
                 $columns[] = $mapper->publicDate->format('d-m-Y');
                 $columns[] = $e->authorUser;
+                $columns[] = $tag;
                 $columns[] = $e->featuredDisplay;
                 $columns[] = $buttons;
                 return $columns;

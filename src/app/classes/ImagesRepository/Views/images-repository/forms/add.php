@@ -25,7 +25,7 @@ $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup
     <?= $title; ?>
 </h3>
 <?php endif; ?>
-<form method='POST' action="<?= $action; ?>" class="ui form <?= $standalone ? 'standard-form' : ''; ?>" add-image-repository>
+<form method='POST' action="<?= $action; ?>" class="ui form <?= $standalone ? 'mw-800' : ''; ?>" add-image-repository>
 
     <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
 

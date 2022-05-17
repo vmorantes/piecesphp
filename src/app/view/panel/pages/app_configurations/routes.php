@@ -11,7 +11,7 @@ $langGroup = 'routesViewAdminZone';
 
     <div class="ui bottom attached tab segment active" data-tab="general">
 
-        <table class="ui table stripped celled roles" style="max-width:100%;">
+        <table class="ui table striped celled roles" style="max-width:100%;">
             <thead>
                 <tr>
                     <th><?= __($langGroup, 'Nombre'); ?></th>

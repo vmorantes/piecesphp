@@ -48,7 +48,7 @@ $langGroupDatatables = 'datatables';
 <br>
 <?php endif; ?>
 
-<div class="container-cards-standard-list">
+<div class="container-cards-images-list">
 
     <div class="table-to-cards">
 

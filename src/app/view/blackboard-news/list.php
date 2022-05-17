@@ -11,7 +11,7 @@ $langGroup = BlackboardNewsController::LANG_GROUP;
 <br>
 <br>
 <div table blackboard-list='<?=get_route('blackboard-news-get');?>'>
-    <table content edit-route='<?=get_route('blackboard-news-edit-form', ['id' => '{{ID}}']);?>' delete-route='<?=get_route('blackboard-news-delete', ['id' => '{{ID}}']);?>' class="ui table stripped celled">
+    <table content edit-route='<?=get_route('blackboard-news-edit-form', ['id' => '{{ID}}']);?>' delete-route='<?=get_route('blackboard-news-delete', ['id' => '{{ID}}']);?>' class="ui table striped celled">
 		<thead></thead>
 		<tbody></tbody>
 	</table>

@@ -5,24 +5,13 @@
  */
 
 use App\Controller\PublicAreaController;
+use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
  * Funciones adicionales.
  * En este este archivo se puede añadir cualquier función adicional.
  * Puede hacerse uso de todas las funciones del sistema.
  */
-
-/**
- * Devuelve un string con los ítems del menú desplegable del header
- *
- * @param \stdClass $user
- * @return string
- */
-function menu_header_items(\stdClass $user): string
-{
-    $items = get_config('menus')['header_dropdown'];
-    return $items->getHtml();
-}
 
 /**
  * Devuelve un string con los ítems del menú lateral
@@ -145,6 +134,49 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
     }
 
     return trim(implode("\r\n", $options));
+}
+
+/**
+ * Agrega un elemento en la posición indicada (solo asociativos)
+ *
+ * @param array $array
+ * @param string|int $key Si el valor no es escalar se generará una llave aleatoriamente, si ya existe será sobreescrito
+ * @param mixed $element
+ * @param int $position Empezando desde 0
+ * @return array
+ */
+function addElementInPosition(array $array, $key = null, $element, int $position)
+{
+    $currentPosition = 0;
+    $position = $position < 0 ? 0 : $position;
+
+    $added = false;
+    $result = [];
+
+    if ($key === null || !is_scalar($key)) {
+        $key = uniqid();
+    }
+
+    foreach ($array as $k => $i) {
+
+        $add = $currentPosition == $position;
+        $currentPosition++;
+
+        if ($add && !$added) {
+            $result[$key] = $element;
+            $added = true;
+        }
+
+        $result[$k] = $i;
+
+    }
+
+    if (!$added) {
+        $result[$key] = $element;
+        $added = true;
+    }
+
+    return $result;
 }
 
 /**

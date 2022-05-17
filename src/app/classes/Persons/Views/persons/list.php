@@ -10,58 +10,60 @@ use Persons\Controllers\PersonsController;
  */
 $langGroupDatatables = 'datatables';
 ?>
+<section class="module-view-container">
 
-<div class="header-list">
+    <div class="header-options">
 
-    <div class="global-clearfix">
+        <div class="main-options">
 
-        <a href="<?=$backLink;?>" class="ui labeled icon button">
-            <i class="icon left arrow"></i>
-            <?=__($langGroup, 'Regresar');?>
-        </a>
+            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
+                <i class="icon left arrow"></i>
+            </a>
+
+        </div>
+
+        <div class="columns">
+
+            <div class="column">
+
+                <div class="section-title">
+                    <div class="title"><?= $title; ?></div>
+                    <div class="subtitle"><?= $subtitle; ?></div>
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
-    <h3 class="title-list subtitle small">
-        <?=$title;?>
-        <span class="subtitle"><?= $subtitle; ?></span>
-    </h3>
+    <?php if(mb_strlen($formVariables['action']) > 0): ?>
+    <?php $this->render($this::BASE_VIEW_DIR . '/forms/add', $formVariables); ?>
+    <br>
+    <br>
+    <?php endif; ?>
 
-</div>
 
-<br>
-
-<?php if(mb_strlen($formVariables['action']) > 0): ?>
-<div class="ui card fluid content-form-card wide">
-
-    <div class="content">
-        <?php $this->render($this::BASE_VIEW_DIR . '/forms/add', $formVariables); ?>
+    <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
+        <div class="mirror-scroll-x-content"></div>
     </div>
 
-</div>
+    <div class="container-standard-table">
 
-<br>
-<br>
-<?php endif; ?>
+        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
 
-<div class="mirror-scroll-x" mirror-scroll-target=".container-table-standard-list">
-    <div class="mirror-scroll-x-content"></div>
-</div>
+            <thead>
 
-<div class="container-table-standard-list">
+                <tr>
+                    <th><?= __($langGroup, 'Identificación'); ?></th>
+                    <th><?= __($langGroup, 'Nombres y apellidos'); ?></th>
+                    <th><?= __($langGroup, 'Acciones'); ?></th>
+                </tr>
 
-    <table url="<?= $processTableLink; ?>" class="ui table stripped celled">
+            </thead>
 
-        <thead>
+        </table>
 
-            <tr>
-                <th><?= __($langGroup, 'Identificación'); ?></th>
-                <th><?= __($langGroup, 'Nombres y apellidos'); ?></th>
-                <th><?= __($langGroup, 'Acciones'); ?></th>
-            </tr>
+    </div>
 
-        </thead>
-
-    </table>
-
-</div>
+</section>
