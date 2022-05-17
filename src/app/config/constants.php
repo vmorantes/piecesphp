@@ -52,11 +52,20 @@ define('FILE_MANAGER_MODULE', true);
 //Publicaciones
 define('PUBLICATIONS_MODULE', true);
 
+//Repositorio de imágenes
+define('IMAGES_REPOSITORY', false);
+
 //Formularios
 define('FORMS_MODULE_ENABLE', true);
 
 //Personas
 define('PERSONS_MODULE', true);
+
+//Registro de eventos
+define('EVENTS_LOG_MODULE', false);
+
+//Listado de suscriptores
+define('NEWSLETTER_MODULE', false);
 
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');

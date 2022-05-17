@@ -1,21 +1,8 @@
 @import '../../../../../statics/core/sass/admin_app_base';
 $gray: #4D525A;
 
-.ui-pcs.container-sidebar>.content {
-    padding: 6rem 5rem 8rem 10rem;
-}
-
-.container-table-standard-list {
-
+.container-standard-table {
     max-width: 800px;
-
-    .table-title {
-        font-size: 1.3rem;
-        font-weight: bold;
-        color: var(--main-brand-color);
-        margin-bottom: 1.3rem;
-    }
-
 }
 
 .person-title {
@@ -24,8 +11,8 @@ $gray: #4D525A;
     flex: 0 0 auto;
     flex-wrap: wrap;
     align-items: center;
-    margin-top: -60px;
-    margin-left: -4rem;
+    flex-direction: row-reverse;
+    margin-bottom: 3rem;
 
     .image {
         width: 150px;
@@ -53,12 +40,13 @@ $gray: #4D525A;
 
 @media (max-width: 800px) {
 
-    .ui-pcs.container-sidebar>.content {
-        padding: 8rem 1rem 0rem 1rem;
-    }
-
     .person-title {
         margin-left: 0rem;
+        flex-direction: initial;
+
+        .text {
+            margin-top: 1rem;
+        }
     }
 
 }

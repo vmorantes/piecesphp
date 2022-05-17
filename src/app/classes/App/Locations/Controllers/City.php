@@ -409,11 +409,11 @@ class City extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'query',
-                '-1',
+                '',
                 function ($value) {
                     return is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
                     return clean_string(trim($value));
                 }
@@ -436,6 +436,7 @@ class City extends AdminPanelController
         $and = 'AND';
 
         $table = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
+
         $beforeOperator = !empty($where) ? $and : '';
         $critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')";
         $where[] = "{$beforeOperator} ({$critery})";
@@ -447,8 +448,8 @@ class City extends AdminPanelController
         if (is_string($whereString)) {
 
             $model = CityMapper::model();
-            $model->select()->where($whereString);
-            $model->execute(false, 1, 15);
+            $model->select()->where($whereString)->orderBy("{$table}.name ASC");
+            $model->execute(false, 1, 50);
             $queryResult = $model->result();
 
             foreach ($queryResult as $row) {

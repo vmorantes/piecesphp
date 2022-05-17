@@ -97,6 +97,7 @@ class PersonsRoutes
                 'href' => PersonsController::routeName('list'),
                 'visible' => PersonsController::allowedRoute('list'),
                 'position' => 2,
+                'icon' => 'users',
             ]));
 
         }

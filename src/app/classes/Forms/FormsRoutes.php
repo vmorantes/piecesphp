@@ -75,6 +75,7 @@ class FormsRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Formularios'),
+                'icon' => 'edit',
                 'items' => [
                     new MenuItem([
                         'text' => __(CategoriesLang::LANG_GROUP, 'Categorías'),
