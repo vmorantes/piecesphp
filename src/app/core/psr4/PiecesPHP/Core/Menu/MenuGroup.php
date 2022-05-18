@@ -398,6 +398,14 @@ class MenuGroup
     }
 
     /**
+     * @return bool
+     */
+    public function hasIcon()
+    {
+        return mb_strlen(trim($this->icon)) > 0;
+    }
+
+    /**
      * @return HtmlElement|null
      */
     public function getHtmlElement()

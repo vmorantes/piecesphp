@@ -20,4 +20,6 @@
 
 <body>
 
+    <?php if(!isset($noTopBar) || $noTopBar === false): ?>
     <?php $this->render('panel/layout/topbar'); ?>
+    <?php endif; ?>

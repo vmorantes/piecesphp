@@ -1,10 +1,10 @@
 .#{$globalClassPcs}.sidebar-toggle {
+
     display: none;
-    font-family: $fontFamilyFirst;
 
     i.icon {
-        font-size: 30px;
-        line-height: 30px;
+        font-size: 35px;
+        line-height: 40px;
         padding: 0px;
         margin: 0px;
     }
@@ -16,16 +16,15 @@
         left: 5px;
         z-index: 200;
         font-size: 2.5rem;
-        color: $toggleMenuColor;
+        padding: 1px 0px 5px 0px;
+        background-color: var(--main-brand-color);
+        color: var(--color-text-over-main-brand-color);
         cursor: pointer;
         transition: 0.5s ease color, 1s ease top, 1s ease left;
 
-        &:hover {
-            color: transparentize($toggleMenuColor, 0.5);
-        }
-
         &.active {
-            color: $toggleMenuColorActive;
+            background-color: var(--second-brand-color);
+            color: var(--color-text-over-main-brand-color);
             z-index: 400;
         }
 
@@ -35,68 +34,20 @@
     }
 }
 
-.#{$globalClassPcs}.logo-sidebar-desktop {
-
-    position: fixed;
-    top: 10px;
-    left: 0px;
-    width: 300px;
-    height: 200px;
-    z-index: 6;
-    background-color: var(--admin-menu-bg-color);
-
-    .image {
-        display: flex;
-        flex: 0 0 auto;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        align-content: center;
-        text-align: center;
-        width: 150px;
-        height: 150px;
-        margin: 0 auto 1rem auto;
-        background-color: white;
-
-        &.round {
-            border-radius: 100%;
-            overflow: hidden;
-        }
-
-        img {
-            max-width: 80%;
-        }
-    }
-
-    .text {
-        text-transform: uppercase;
-        max-width: 90%;
-        font-size: 0.8rem;
-        text-align: center;
-        margin: 0 auto 1rem auto;
-        color: white;
-    }
-
-    @media (max-width: 800px) {
-        display: none;
-    }
-}
-
-
 .#{$globalClassPcs}.sidebar {
 
-    display: block;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: max-content auto auto;
+    justify-content: center;
     margin: 0px 0px 0px 0px;
-    padding: 140px 0px 0px 0px;
-    border-right: 1px rgba(0, 0, 0, 0.14) solid;
-    box-shadow: 5px 0px 10px rgba(0, 0, 0, 0.2);
-    background-color: var(--admin-menu-bg-color);
+    padding: 0px 0px 0px 0px;
+    box-shadow: 0px 3px 6px white;
+    background-color: $sidebarBackgroundColor;
     overflow-y: auto;
     overflow-x: hidden;
 
     .logo {
-
-        display: none;
 
         .image {
             display: flex;
@@ -106,42 +57,46 @@
             align-items: center;
             align-content: center;
             text-align: center;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 1rem auto;
-            background-color: white;
+            width: 160px;
+            height: 160px;
+            margin: 1rem auto 0.5rem auto;
 
             &.round {
                 border-radius: 100%;
                 overflow: hidden;
             }
-
-            img {
-                max-width: 80%;
-            }
         }
 
         .text {
-            text-transform: uppercase;
             max-width: 90%;
-            font-size: 0.8rem;
+            margin: 0 auto pxToRem(24) auto;
+            font-family: $fontPublicSans;
+            font-weight: $fwMedium;
+            font-size: pxToRem(11);
+            line-height: pxToRem(11+5);
+            text-transform: uppercase;
             text-align: center;
-            margin: 0 auto 1rem auto;
-            color: white;
+            color: var(--main-brand-color);
         }
     }
 
     .links {
 
-        font-family: $fontFamilyFirst;
-
         >.group {
 
-            font-family: $fontFamilyFirst;
             margin: 0px 0px 5px 0px;
             padding: 0px;
             list-style: none;
             transition: 0.8s height ease;
+
+            &.active,
+            &[current] {
+                .title-group {
+                    background-color: $sidebarBackgroundItemHover;
+                    color: $sidebarColorActive;
+                    border-left-color: var(--main-brand-color);
+                }
+            }
 
             .title-group {
 
@@ -149,16 +104,22 @@
                 grid-template-columns: 3.8rem auto;
                 align-items: center;
                 margin-top: 0;
+                margin-left: 2px;
                 margin-bottom: 0;
                 padding: 0.5rem;
-                padding-left: 2.5em;
+                padding-left: 1.5em;
                 padding-right: 0px;
-                transition: 0.8s color ease, 0.8s background-color ease;
+                min-height: 50px;
+                transition: 0.8s color ease, 0.8s background-color ease, 0.5s border-color ease;
+                font-family: $fontPublicSans;
+                font-size: pxToRem(18);
+                font-weight: $fwMedium;
+                line-height: pxToRem(18+5);
                 text-decoration: none;
-                cursor: pointer;
                 color: $sidebarColor;
-                text-decoration: none;
-                background-color: rgba(255, 255, 255, 0.1);
+                cursor: pointer;
+                background-color: transparent;
+                border-left: transparent solid 4px;
 
                 &.current {
                     &.as-link {
@@ -168,11 +129,9 @@
                 }
 
                 &:hover {
-                    background-color: transparent;
-
-                    a {
-                        color: transparentize($sidebarColor, 0.6) !important;
-                    }
+                    background-color: $sidebarBackgroundItemHover;
+                    color: $sidebarColorActive;
+                    border-left-color: var(--main-brand-color);
                 }
 
                 i {
@@ -186,8 +145,7 @@
                 >a span {
                     display: inline-block;
                     width: 100%;
-                    padding: 0px 5px;
-                    font-size: 1rem;
+                    padding: 0px 5px
                 }
 
                 a:active {
@@ -199,7 +157,6 @@
                 }
 
                 a:visited {
-                    color: $colorFourth;
                     font-weight: 900;
                 }
             }
@@ -215,7 +172,6 @@
                     padding-left: 4rem;
                 }
 
-
                 ul {
                     margin: 0px;
                     padding: 0px;
@@ -225,51 +181,60 @@
                 }
 
                 li {
+
+                    position: relative;
                     margin: 0px;
-                    padding: 5px 0px 5px 50px;
+                    padding: 0px;
                     list-style: none;
-                    background-color: rgba(255, 255, 255, 0.1);
 
-                    &:first-child {
-                        border-top: 1px white solid;
-                    }
-
-                    &:last-child {
-                        border-bottom: 1px white solid;
-                    }
-
-                    &:nth-child(even) {
-                        background-color: transparent;
+                    &::before {
+                        position: absolute;
+                        top: 0px;
+                        left: 0px;
+                        z-index: 1;
+                        display: block;
+                        content: ' ';
+                        width: 0px;
+                        height: 100%;
+                        background-color: var(--main-brand-color);
+                        transition: 0.5s width ease;
                     }
 
                     .item {
 
+                        position: relative;
+                        z-index: 2;
                         display: block;
                         padding: 0px 5px;
-                        font-size: 1rem;
+                        font-family: $fontPublicSans;
+                        font-size: pxToRem(15);
+                        font-weight: $fwMedium;
+                        line-height: pxToRem(15+5);
                         color: $sidebarColor;
+                        padding: 1rem 0px 1rem 50px;
+                        transition: 0.5s all ease;
 
                         &:active {
                             font-weight: 900;
                         }
 
-                        &:hover {
-                            text-decoration: none;
-                            color: transparentize($sidebarColor, 0.6);
-                        }
-
-                        &:visited {
-                            color: $sidebarColor;
-                            font-weight: 900;
-                        }
-
+                        &:hover,
                         &.current,
                         &.active {
-                            border-bottom: 0.5px dashed;
-                            padding-bottom: 0.5px;
-                            max-width: max-content;
+                            text-decoration: none;
+                            color: white;
                         }
 
+                        &.current {
+                            background-color: var(--main-brand-color);
+                        }
+
+                    }
+
+                    &:hover {
+                        &::before {
+                            width: 100%;
+                        }
                     }
                 }
             }
@@ -282,26 +247,32 @@
                 }
 
             }
-
-            &.active,
-            &[current] {
-                .title-group {
-                    background-color: transparent;
-                    color: $sidebarColor;
-                }
-            }
         }
     }
 
-    .logo-developed {
+    .footer-sidebar {
+
         text-align: center;
-        width: 150px;
-        height: 200px;
-        margin: 80px auto 20px auto;
-        color: $sidebarColorLogoDeveloped;
+        width: 250px;
+        margin: 4rem auto 20px auto;
+        align-self: flex-end;
+        text-align: center;
+
+        >span {
+            display: block;
+            font-family: $fontPublicSans;
+            font-weight: $fwBold;
+            font-size: pxToRem(11);
+            line-height: pxToRem(11+5);
+            color: #1B1C1D;
+        }
+
+        img {
+            width: 120px;
+        }
     }
 
-    @media (max-width: 800px) {
+    @media (max-width: $sidebarBreakPoint) {
         @keyframes crecer {
             0% {
                 height: 0%;
@@ -325,15 +296,13 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: 100;
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: var(--admin-menu-bg-color);
             z-index: 300;
             padding-bottom: 10px;
 
-            .logo-developed {
+            .footer-sidebar {
                 position: static;
                 bottom: initial;
                 left: initial;

@@ -73,17 +73,9 @@
     </div>
     <?php endif;?>
 
+    <?php if(!isset($noTopBar) || $noTopBar === false): ?>
     <?php $this->render('panel/layout/topbar'); ?>
-
-    <div class="ui-pcs logo-sidebar-desktop">
-
-        <div class="image">
-            <img src="<?= get_config('logo'); ?>">
-        </div>
-
-        <div class="text"><?= strReplaceTemplate(__('general', 'Versión {ver}'), ['{ver}' => APP_VERSION,])?></div>
-
-    </div>
+    <?php endif; ?>
 
     <div class="ui-pcs container-sidebar">
 

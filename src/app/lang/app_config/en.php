@@ -61,4 +61,9 @@ return [
     'Información adicional'                                                           => 'Additional Information',
     'Limpiar caché'                                                                   => 'Clear cache',
     'Memoria caché restaurada'                                                        => 'Cache memory restored',
+    'Imágenes'                                                                        => 'Images',
+    'Colores'                                                                         => 'Colors',
+    'SEO'                                                                             => 'SEO',
+    'SSL'                                                                             => 'SSL',
+    'Email SMPT'                                                                      => 'Email SMPT',
 ];
