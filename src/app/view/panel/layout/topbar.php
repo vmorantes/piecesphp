@@ -168,7 +168,7 @@ $adminOptionsGroups = [
                     'name' => __(AppConfigController::LANG_GROUP, 'SSL'),
                     'icon' => 'expeditedssl',
                     'href' => AppConfigController::routeName('generals'),
-                    'visible' => AppConfigController::allowedRoute('generals') && AppConfigController::routeName('ssl'),
+                    'visible' => AppConfigController::allowedRoute('generals') && AppConfigController::allowedRoute('ssl'),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
