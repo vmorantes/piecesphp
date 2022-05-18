@@ -4,6 +4,7 @@
  */
 namespace PiecesPHP\UserSystem;
 
+use App\Model\AvatarModel;
 use App\Model\UsersModel;
 
 /**
@@ -32,6 +33,8 @@ use App\Model\UsersModel;
  * @property-read string $createdAtString
  * @property-read string $modifiedAtString
  * @property-read \DateTime $dateInstantiated
+ * @property-read string $avatar
+ * @property-read bool $hasAvatar
  */
 class UserDataPackage
 {
@@ -115,6 +118,14 @@ class UserDataPackage
      * @var \DateTime
      */
     protected $dateInstantiated = null;
+    /**
+     * @var string
+     */
+    protected $avatar = null;
+    /**
+     * @var bool
+     */
+    protected $hasAvatar = false;
 
     /**
      * @var array<string,string>
@@ -192,6 +203,10 @@ class UserDataPackage
         }
         $this->createdAtString = $this->createdAt->format('Y-m-d H:i:s');
         $this->modifiedAtString = $this->modifiedAt !== null ? $this->modifiedAt->format('Y-m-d H:i:s') : '';
+        $avatar = AvatarModel::getAvatar($userID);
+        $avatar = !is_null($avatar) ? $avatar : '';
+        $this->avatar = $avatar;
+        $this->hasAvatar = mb_strlen($avatar) > 0;
 
         $fromInstanceToStdClass = [
             'firstLastname',
@@ -209,5 +224,22 @@ class UserDataPackage
         }
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeText()
+    {
+        $types = UsersModel::getTypesUser();
+        $type = $this->type;
+
+        $typeText = '-';
+
+        if ($type !== null && isset($types[$type])) {
+            $typeText = $types[$type];
+        }
+
+        return $typeText;
     }
 }

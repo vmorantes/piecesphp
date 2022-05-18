@@ -1,6 +1,8 @@
+@import 'includes/functions';
 @import 'includes/variables';
 @import 'includes/components';
 @import '../../fonts/public-sans/public-sans.css';
+@import '../../fonts/lato/lato.css';
 
 * {
     box-sizing: border-box;
@@ -20,7 +22,7 @@ body {
 
 .#{$globalClassPcs} {
     font-size: $htmlFontSize;
-    color: $colorFourth;
+    color: $colorThird;
 }
 
 .dev-css-mode {
@@ -38,7 +40,7 @@ a {
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
         display: inline-block;
-        color: $colorFourth;
+        color: $colorThird;
         transition: 0.5s all ease;
 
         &:hover,
@@ -111,7 +113,7 @@ p {
         text-align: left;
         font-size: $pFontSize;
         line-height: $pLineHeight;
-        color: $colorFourth;
+        color: $colorThird;
         margin: $pMargin;
         max-width: $pMaxWidth;
     }
@@ -127,7 +129,7 @@ ol {
         text-align: left;
         font-size: $listFontSize;
         line-height: $listLineHeight;
-        color: $colorFourth;
+        color: $colorThird;
         margin: $listMargin;
         padding: $listPadding;
         max-width: $listMaxWidth;

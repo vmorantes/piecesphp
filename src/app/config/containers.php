@@ -15,6 +15,7 @@ $container_configurations = [
         $cssGlobalVariables->setVariable('meta-theme-color', get_config('meta_theme_color'));
         $cssGlobalVariables->setVariable('admin-menu-bg-color', get_config('admin_menu_bg_color'));
         $cssGlobalVariables->setVariable('main-brand-color', get_config('main_brand_color'));
+        $cssGlobalVariables->setVariable('main-brand-color-opacity', get_config('main_brand_color') . '13');
         $cssGlobalVariables->setVariable('second-brand-color', get_config('second_brand_color'));
         $cssGlobalVariables->setVariable('third-brand-color-text', get_config('third_brand_color_text'));
         $cssGlobalVariables->setVariable('color-text-over-main-brand-color', get_config('color_text_over_main_brand_color'));

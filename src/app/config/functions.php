@@ -5,6 +5,7 @@
  */
 
 use App\Controller\PublicAreaController;
+use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -23,6 +24,14 @@ function menu_sidebar_items(\stdClass $user): string
 {
     $groups = get_config('menus')['sidebar'];
     return $groups->getHtml();
+}
+
+/**
+ * @return MenuGroupCollection
+ */
+function sidebar_menu()
+{
+    return get_config('menus')['sidebar'];
 }
 
 /**

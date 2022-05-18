@@ -1,5 +1,18 @@
-//========FONTS
-@import '../../fonts/lato/lato.css';
+$globalClassPcs: 'ui-pcs';
+
+//──── Media queries ─────────────────────────────────────────────────────────────────────
+$rsLarge: 1550px;
+$rsLarge2: 1250px;
+$rsLarge3: 1200px;
+$rsMedium: 1000px;
+$rsTablet: 780px;
+$rsMobile: 480px;
+
+//──── Fonts ─────────────────────────────────────────────────────────────────────────────
+$fontPublicSans: 'Public Sans',
+sans-serif;
+$fontOpenSans: 'Open Sans',
+sans-serif;
 $fontFamilyFirst: 'Lato',
 'Helvetica Neue',
 Arial,
@@ -8,41 +21,37 @@ sans-serif;
 $fontFamilySecond: Arial,
 Helvetica,
 sans-serif;
-//Paragraph
 $pFontFamily:$fontFamilySecond;
 $listFontFamily:$fontFamilySecond;
-//========COLORS
-//Generales
-$colorFirst: rgb(0, 146, 208);
-$colorSecond: rgb(40, 100, 133);
-$colorThird: rgb(150, 150, 150);
-$colorFourth: rgb(70, 70, 70);
-$colorFirstOver: white;
-$textHeader1Color: #1e1e1e;
-$textHeader2Color: #286485;
-$textHeader3Color: #464646;
+
+// Weights
+$fwHairLine: 100;
+$fwLight: 300;
+$fwRegular: 400;
+$fwMedium: 500;
+$fwSemiBold: 600;
+$fwBold: 700;
+$fwExtraBold: 800;
+
+//──── Colors ────────────────────────────────────────────────────────────────────────────
+$colorFirst: var(--main-brand-color);
+$colorSecond: var(--second-brand-color);
+$colorThird: var(--third-brand-color-text);
+$colorFirstOver: var(--color-text-over-main-brand-color);
+
+$textHeader1Color: $colorFirst;
+$textHeader2Color: $colorSecond;
+$textHeader3Color: $colorThird;
 $textQuoteColor: $colorThird;
 
-//Sidebar
-$sidebarColor: rgb(220, 220, 220);
-$sidebarColorLogoDeveloped: rgb(200, 200, 200);
-$toggleMenuColor: rgb(146, 146, 146);
-$toggleMenuColorActive: white;
+//──── Sizes ─────────────────────────────────────────────────────────────────────────────
 
-//Topbar
-$topbarColorUserInfoMain: rgb(240, 240, 240);
-$topbarColorUserInfoSecond: rgb(200, 200, 200);
-$topbarHeight: 70px;
-$topbarHeightMobile: 70px;
+//Referencia para pxToRem
+$fontSizeHTML: 14;
 
-//Colors by names
-$gray-light:#959595;
-$green:#1bc256;
-$gray:#5f5f5f;
-
-//========SIZES
 //General
 $htmlFontSize: 14px;
+
 //Header
 $h1FontSize:2.3rem;
 $h2FontSize:2rem;
@@ -52,11 +61,13 @@ $h1Margin: 0 0 1.5rem 0;
 $h2Margin: 0 0 1rem 0;
 $h3Margin: 0 0 1rem 0;
 $h4Margin: 0 0 1rem 0;
+
 //Paragraph
 $pFontSize:1.15rem;
 $pLineHeight:1.8rem;
 $pMargin:0.5rem 0 0.5rem 0;
 $pMaxWidth: 58rem;
+
 //List
 $listFontSize:1.15rem;
 $listLineHeight:1.8rem;
@@ -64,6 +75,7 @@ $listMargin:1.5rem 0 1rem 0;
 $listPadding:0 0 0 4rem;
 $listMaxWidth: 54rem;
 $listItemPadding:0 0 0 0;
+
 //Quotes
 $quoteFontSize:1.15rem;
 $quoteLineHeight:1.8rem;
@@ -73,5 +85,9 @@ $quoteMaxWidth: 54rem;
 $quoteBorderTop: 1px solid $colorFirst;
 $quoteBorderBottom: 1px solid $colorFirst;
 
-//========MISC
-$globalClassPcs: 'ui-pcs';
+//──── Sidebar ───────────────────────────────────────────────────────────────────────────
+$sidebarBreakPoint: 800px;
+$sidebarBackgroundColor: rgb(255, 255, 255);
+$sidebarColor: #1B1C1D;
+$sidebarColorActive: var(--main-brand-color);
+$sidebarBackgroundItemHover: var(--main-brand-color-opacity);

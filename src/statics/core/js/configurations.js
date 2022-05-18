@@ -354,6 +354,7 @@ if (typeof $ !== 'undefined') {
 		configDataTables()
 		configColorPickers()
 		pcsAdminSideBar('.ui-pcs.sidebar')
+		pcsAdminTopbars()
 		genericFormHandler()
 		configRichEditor()
 
@@ -685,8 +686,6 @@ function configColorPickers() {
 }
 
 /**
- * pcsAdminSideBar
- * 
  * Configura la barra lateral de PiecesPHP
  * 
  * @param {HTMLElement|JQuery|string} selector Selector o elemento de la barra
@@ -759,6 +758,82 @@ function pcsAdminSideBar(selector) {
 			})
 		}
 	}
+}
+
+/**
+ * Configura los menús de configuraciones
+ * 
+ * @returns {void}
+ */
+function pcsAdminTopbars() {
+
+	const userOptionsMenu = $('.ui-pcs.topbar-options.user-options')
+	const adminOptionsMenu = $('.ui-pcs.topbar-options.admin-options')
+
+	const userOptionsMenuCloseButton = userOptionsMenu.find('>.close')
+	const adminOptionsMenuCloseButton = adminOptionsMenu.find('>.close')
+
+	const userOptionsToggles = $('.ui-pcs.topbar-toggle.user-options')
+	const adminOptionsToggles = $('.ui-pcs.topbar-toggle.admin-options')
+
+	userOptionsToggles.on('click', function (e) {
+		e.preventDefault()
+		if (!isOpen(userOptionsMenu)) {
+			open(userOptionsMenu)
+		} else {
+			close(userOptionsMenu)
+		}
+	})
+
+	userOptionsMenuCloseButton.on('click', function (e) {
+		e.preventDefault()
+		close(userOptionsMenu)
+	})
+
+	adminOptionsToggles.on('click', function (e) {
+		e.preventDefault()
+		if (!isOpen(adminOptionsMenu)) {
+			open(adminOptionsMenu)
+		} else {
+			close(adminOptionsMenu)
+		}
+	})
+
+	adminOptionsMenuCloseButton.on('click', function (e) {
+		e.preventDefault()
+		close(adminOptionsMenu)
+	})
+
+	window.addEventListener('click', function (e) {
+
+		const isUserToggle = userOptionsToggles[0] == e.target || userOptionsToggles[0].contains(e.target)
+		const isAdminToggle = adminOptionsToggles[0] == e.target || adminOptionsToggles[0].contains(e.target)
+
+		if (!userOptionsMenu[0].contains(e.target) && !isUserToggle) {
+			close(userOptionsMenu)
+		}
+		if (!adminOptionsMenu[0].contains(e.target) && !isAdminToggle) {
+			close(adminOptionsMenu)
+		}
+	})
+
+	function open(menu) {
+		menu.addClass('active')
+	}
+
+	function close(menu) {
+		if (isOpen(menu)) {
+			menu.removeClass('active')
+			if (!menu.hasClass('deactive')) {
+				menu.addClass('deactive')
+			}
+		}
+	}
+
+	function isOpen(menu) {
+		return menu.hasClass('active')
+	}
+
 }
 
 /**
