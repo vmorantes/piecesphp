@@ -61,7 +61,7 @@ $canViewConfiguration = array_reduce([
     AppConfigController::allowedRoute('os-ticket'),
     AppConfigController::allowedRoute('generals-cache-clean'),
     Roles::hasPermissions('configurations-routes', $currentUserType),
-    AppConfigController::allowedRoute('generals') && AppConfigController::routeName('ssl'),
+    AppConfigController::allowedRoute('generals') && AppConfigController::allowedRoute('ssl'),
 ], function ($a, $b) {
     return $a || $b;
 }, false);
