@@ -161,7 +161,7 @@ class MailjetConfig
             } else {
                 $mailConfig = [];
             }
-        } else {
+        } elseif (!is_array($mailConfig)) {
             $mailConfig = [];
         }
 
