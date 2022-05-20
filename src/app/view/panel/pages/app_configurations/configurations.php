@@ -49,17 +49,6 @@ window.addEventListener('load', function(e) {
     genericFormHandler(
         'form[ssl-configuration-form]', {
             onSetFormData: (formData, form) => {
-
-                formData.set(
-                    'value[auto_tls]',
-                    form.find(`[name="value[auto_tls]"]`).parent().checkbox('is checked') ? true :
-                    false
-                )
-                formData.set(
-                    'value[auth]',
-                    form.find(`[name="value[auth]"]`).parent().checkbox('is checked') ? true : false
-                )
-
                 return formData
             },
         }

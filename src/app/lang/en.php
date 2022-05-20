@@ -137,7 +137,6 @@ $lang = [
         'Inicio'          => 'Home',
         'Categorías'      => 'Categories',
         'Ubicaciones'     => 'Locations',
-        'Noticias'        => 'News',
         'Soporte técnico' => 'Technical support',
         'Mensajes'        => 'Messages',
         'Cerrar sesión'   => 'Logout',

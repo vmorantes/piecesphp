@@ -1,0 +1,270 @@
+<?php
+
+/**
+ * MySpaceController.php
+ */
+
+namespace MySpace\Controllers;
+
+use App\Controller\AdminPanelController;
+use App\Model\UsersModel;
+use MySpace\MySpaceLang;
+use MySpace\MySpaceRoutes;
+use News\Controllers\NewsController;
+use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Route;
+use PiecesPHP\Core\RouteGroup;
+use Slim\Http\Request as Request;
+use Slim\Http\Response as Response;
+
+/**
+ * MySpaceController.
+ *
+ * @package     MySpace\Controllers
+ * @author      Vicsen Morantes <sir.vamb@gmail.com>
+ * @copyright   Copyright (c) 2022
+ */
+class MySpaceController extends AdminPanelController
+{
+
+    /**
+     * @var string
+     */
+    protected static $URLDirectory = 'my-space';
+    /**
+     * @var string
+     */
+    protected static $baseRouteName = 'my-space-admin';
+
+    /**
+     * @var HelperController
+     */
+    protected $helpController = null;
+
+    const BASE_JS_DIR = 'js';
+    const BASE_CSS_DIR = 'css';
+    const LANG_GROUP = MySpaceLang::LANG_GROUP;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
+
+        $this->setInstanceViewDir(__DIR__ . '/../Views/');
+
+        add_global_asset(MySpaceRoutes::staticRoute('globals-vars.css'), 'css');
+        add_global_asset(MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'), 'css');
+
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function mySpaceView(Request $request, Response $response)
+    {
+
+        set_title(__(self::LANG_GROUP, 'Mi espacio'));
+
+        set_custom_assets([
+            NewsController::pathFrontNewsAdapter(),
+            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-space.js'),
+        ], 'js');
+
+        set_custom_assets([
+            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'),
+        ], 'css');
+
+        $currentUser = getLoggedFrameworkUser();
+
+        $data = [];
+        $data['langGroup'] = self::LANG_GROUP;
+        $data['subtitle'] = $currentUser->fullName;
+        $data['newsAjaxURL'] = NewsController::routeName('ajax-all');
+
+        $this->helpController->render('panel/layout/header', [
+            'containerClasses' => [
+                'no-t-padding',
+                'no-r-padding',
+                'no-l-padding',
+            ],
+        ]);
+        self::view('my-space', $data);
+        $this->helpController->render('panel/layout/footer');
+
+    }
+
+    /**
+     * @param string $name
+     * @param array $data
+     * @param bool $mode
+     * @param bool $format
+     * @return void|string
+     */
+    public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
+    {
+        return (new MySpaceController)->render(trim($name, '/'), $data, $mode, $format);
+    }
+
+    /**
+     * Verificar si una ruta es permitida
+     *
+     * @param string $name
+     * @param array $params
+     * @return bool
+     */
+    public static function allowedRoute(string $name, array $params = [])
+    {
+        $route = self::routeName($name, $params, true);
+        $allow = strlen($route) > 0;
+        return $allow;
+    }
+
+    /**
+     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
+     *
+     * @param string $name
+     * @param string $route
+     * @param array $params
+     * @return bool
+     */
+    private static function _allowedRoute(string $name, string $route, array $params = [])
+    {
+
+        $getParam = function ($paramName) use ($params) {
+            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
+            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
+            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
+            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
+            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            return $paramValue;
+        };
+
+        $allow = strlen($route) > 0;
+
+        if ($allow) {
+
+            $currentUser = getLoggedFrameworkUser();
+
+            if ($currentUser !== null) {
+
+                $currentUserType = $currentUser->type;
+                $currentUserID = $currentUser->id;
+
+            }
+
+        }
+
+        return $allow;
+    }
+
+    /**
+     * Obtener URL de una ruta
+     *
+     * @param string $name
+     * @param array $params
+     * @param bool $silentOnNotExists
+     * @return string
+     */
+    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    {
+
+        $simpleName = !is_null($name) ? $name : '';
+
+        if (!is_null($name)) {
+            $name = trim($name);
+            $name = strlen($name) > 0 ? "-{$name}" : '';
+        }
+
+        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
+
+        $allowed = false;
+        $current_user = getLoggedFrameworkUser();
+
+        if ($current_user !== null) {
+            $allowed = Roles::hasPermissions($name, $current_user->type);
+        } else {
+            $allowed = true;
+        }
+
+        $route = '';
+
+        if ($allowed) {
+            $route = get_route(
+                $name,
+                $params,
+                $silentOnNotExists
+            );
+            $route = !is_string($route) ? '' : $route;
+        }
+
+        $allow = self::_allowedRoute($simpleName, $route, $params);
+
+        return $allow ? $route : '';
+    }
+
+    /**
+     * @param RouteGroup $group
+     * @return RouteGroup
+     */
+    public static function routes(RouteGroup $group)
+    {
+        $routes = [];
+
+        $groupSegmentURL = $group->getGroupSegment();
+
+        $lastIsBar = last_char($groupSegmentURL) == '/';
+        $startRoute = ($lastIsBar ? '' : '/') . self::$URLDirectory;
+
+        $classname = self::class;
+
+        /**
+         * @var array<string>
+         */
+        $allRoles = array_keys(UsersModel::TYPES_USERS);
+
+        $routes = [
+
+            //──── GET ───────────────────────────────────────────────────────────────────────────────
+            //HTML
+            new Route(
+                "{$startRoute}[/]",
+                $classname . ':mySpaceView',
+                self::$baseRouteName . '-my-space',
+                'GET',
+                true,
+                null,
+                $allRoles
+            ),
+
+        ];
+
+        $group->register($routes);
+
+        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
+
+            $route = $request->getAttribute('route');
+            $routeName = $route->getName();
+            $routeArguments = $route->getArguments();
+            $routeArguments = is_array($routeArguments) ? $routeArguments : [];
+            $basenameRoute = self::$baseRouteName . '-';
+
+            if (strpos($routeName, $basenameRoute) !== false) {
+
+                $simpleName = str_replace($basenameRoute, '', $routeName);
+                $routeURL = self::routeName($simpleName, $routeArguments);
+                $allowed = mb_strlen($routeURL) > 0;
+
+                if (!$allowed) {
+                    return throw403($request, $response);
+                }
+
+            }
+            return $next($request, $response);
+        });
+
+        return $group;
+    }
+}

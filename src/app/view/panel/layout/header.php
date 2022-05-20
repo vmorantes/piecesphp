@@ -14,33 +14,6 @@
     <?php load_css([
         'base_url' => "", 
         'custom_url' => "",
-        'attr' => [
-            'is-preload-custom' => 'yes',
-            'rel' => 'preload',
-            'as' => 'style',
-        ],
-        'attrApplyTo' => [
-            'is-preload-custom' => [
-                '.*$',
-            ],
-            'rel' => [
-                '.*$',
-            ],
-            'as' => [
-                '.*$',
-            ],
-        ],
-        'attrNoApplyTo' => [
-            'is-preload-custom' => [
-                '.*(helpers|semantic\.min|variables|ui-pcs)\.css/?$',
-            ],
-            'rel' => [
-                '.*(helpers|semantic\.min|variables|ui-pcs)\.css/?$',
-            ],
-            'as' => [
-                '.*(helpers|semantic\.min|variables|ui-pcs)\.css/?$',
-            ],
-        ],
     ]) ?>
 </head>
 <?php $currentUserLogged = getLoggedFrameworkUser(); ?>

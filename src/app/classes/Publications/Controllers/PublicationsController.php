@@ -1116,7 +1116,7 @@ class PublicationsController extends AdminPanelController
             'title',
             'categoryName',
             'visits',
-            'publicDate',
+            'publicDateFormat',
             'authorUser',
             'visibilityText',
             'featuredDisplay',
@@ -1184,7 +1184,7 @@ class PublicationsController extends AdminPanelController
                 $columns[] = $title;
                 $columns[] = $e->categoryName;
                 $columns[] = $e->visits;
-                $columns[] = $mapper->publicDate->format('d-m-Y');
+                $columns[] = $e->publicDateFormat;
                 $columns[] = $e->authorUser;
                 $columns[] = $tag;
                 $columns[] = $e->featuredDisplay;

@@ -559,6 +559,27 @@ class UsersModel extends BaseEntityMapper
     }
 
     /**
+     * Un array listo para ser usado en array_to_html_options
+     * @param string $defaultLabel
+     * @param string $defaultValue
+     * @return array
+     */
+    public static function typesUserForSelect(string $defaultLabel = '', string $defaultValue = '')
+    {
+        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tipos de usuario');
+        $options = [];
+        $options[$defaultValue] = $defaultLabel;
+
+        $types = self::getTypesUser();
+
+        foreach ($types as $k => $i) {
+            $options[$k] = $i;
+        }
+
+        return $options;
+    }
+
+    /**
      * @param string $username
      * @param string $email
      * @return bool
