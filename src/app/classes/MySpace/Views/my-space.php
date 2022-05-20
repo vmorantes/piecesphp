@@ -14,7 +14,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 <div class="my-space-content">
     <div class="column-medium-6"></div>
-    <div class="column-medium-6 news-content" data-news-url="<?= $newsAjaxURL; ?>" news-js>
+    <div class="column-medium-6 news-content" data-url="<?= $newsAjaxURL; ?>">
 
         <div class="title">
             <?= __($langGroup, 'Noticias'); ?>
