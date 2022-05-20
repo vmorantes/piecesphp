@@ -14,6 +14,19 @@ CREATE VIEW publications_active_date_elements AS (
         (UNIX_TIMESTAMP(pe.startDate) <= nowDate OR pe.startDate IS NULL) AND
         (UNIX_TIMESTAMP(pe.endDate) > nowDate OR pe.endDate IS NULL)
 );
+DROP VIEW IF EXISTS news_active_date_elements;
+CREATE VIEW news_active_date_elements AS (
+    SELECT
+        pe.id,
+        pe.startDate,
+        pe.endDate,
+        pe.status,
+        UNIX_TIMESTAMP(NOW()) AS nowDate
+    FROM news_elements AS pe
+    HAVING
+        (UNIX_TIMESTAMP(pe.startDate) <= nowDate OR pe.startDate IS NULL) AND
+        (UNIX_TIMESTAMP(pe.endDate) > nowDate OR pe.endDate IS NULL)
+);
 DROP VIEW IF EXISTS image_repository_images_view;
 CREATE VIEW image_repository_images_view AS (
     SELECT

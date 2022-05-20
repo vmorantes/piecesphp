@@ -13,7 +13,6 @@ $container_configurations = [
         //Variables CSS globales
         $cssGlobalVariables = CSSVariables::instance('global');
         $cssGlobalVariables->setVariable('meta-theme-color', get_config('meta_theme_color'));
-        $cssGlobalVariables->setVariable('admin-menu-bg-color', get_config('admin_menu_bg_color'));
         $cssGlobalVariables->setVariable('main-brand-color', get_config('main_brand_color'));
         $cssGlobalVariables->setVariable('main-brand-color-opacity', get_config('main_brand_color') . '13');
         $cssGlobalVariables->setVariable('second-brand-color', get_config('second_brand_color'));

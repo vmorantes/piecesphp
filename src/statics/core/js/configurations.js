@@ -387,12 +387,6 @@ if (typeof $ !== 'undefined') {
 			toggleDevCSSMode.click()
 		}
 
-		//Cargar CSS diferidos
-		let preloadLinkTagsCSS = document.querySelectorAll(`link[is-preload-custom="yes"]`)
-		preloadLinkTagsCSS.forEach(function (element) {
-			element.setAttribute('rel', 'stylesheet')
-		})
-
 		//Poner etiqueta alt a imágenes que no la tengan
 		let notAltImages = document.querySelectorAll(`img:not([alt])`)
 		notAltImages.forEach(function (element) {
@@ -645,7 +639,7 @@ function configColorPickers() {
 
 	try {
 
-		colorPickers.spectrum({
+		const defaultConfigPicker = {
 			color: null,
 			preferredFormat: 'hex',
 			showInput: true,
@@ -676,7 +670,30 @@ function configColorPickers() {
 				"pink",
 				"coral",
 			],
-		})
+		}
+		const validFormats = [
+			'hex',
+			'hex3',
+			'hsl',
+			'rgb',
+			'name',
+		]
+		const pickersSize = colorPickers.length
+
+		for (let i = 0; i < pickersSize; i++) {
+			const picker = $(colorPickers.get(i))
+			const configPicker = Object.assign({}, defaultConfigPicker)
+
+			const withAlpha = picker.data('color-picker-alpha') === 'yes'
+			const format = picker.data('color-picker-format')
+
+			if (typeof format !== 'undefined' && validFormats.indexOf(format) !== -1) {
+				configPicker.preferredFormat = format
+			}
+			configPicker.showAlpha = withAlpha
+
+			picker.spectrum(configPicker)
+		}
 
 	} catch (error) {
 		if (colorPickers.spectrum !== undefined) {
@@ -776,46 +793,60 @@ function pcsAdminTopbars() {
 	const userOptionsToggles = $('.ui-pcs.topbar-toggle.user-options')
 	const adminOptionsToggles = $('.ui-pcs.topbar-toggle.admin-options')
 
-	userOptionsToggles.on('click', function (e) {
-		e.preventDefault()
-		if (!isOpen(userOptionsMenu)) {
-			open(userOptionsMenu)
-		} else {
+	const hasUserOptions = userOptionsMenu.length > 0 && userOptionsToggles.length > 0
+	const hasAdminOptions = adminOptionsMenu.length > 0 && adminOptionsToggles.length > 0
+
+	if (hasUserOptions) {
+		userOptionsToggles.on('click', function (e) {
+			e.preventDefault()
+			if (!isOpen(userOptionsMenu)) {
+				open(userOptionsMenu)
+			} else {
+				close(userOptionsMenu)
+			}
+		})
+
+		userOptionsMenuCloseButton.on('click', function (e) {
+			e.preventDefault()
 			close(userOptionsMenu)
-		}
-	})
+		})
+	}
 
-	userOptionsMenuCloseButton.on('click', function (e) {
-		e.preventDefault()
-		close(userOptionsMenu)
-	})
+	if (hasAdminOptions) {
+		adminOptionsToggles.on('click', function (e) {
+			e.preventDefault()
+			if (!isOpen(adminOptionsMenu)) {
+				open(adminOptionsMenu)
+			} else {
+				close(adminOptionsMenu)
+			}
+		})
 
-	adminOptionsToggles.on('click', function (e) {
-		e.preventDefault()
-		if (!isOpen(adminOptionsMenu)) {
-			open(adminOptionsMenu)
-		} else {
+		adminOptionsMenuCloseButton.on('click', function (e) {
+			e.preventDefault()
 			close(adminOptionsMenu)
-		}
-	})
+		})
+	}
 
-	adminOptionsMenuCloseButton.on('click', function (e) {
-		e.preventDefault()
-		close(adminOptionsMenu)
-	})
+	if (hasUserOptions || hasAdminOptions) {
+		window.addEventListener('click', function (e) {
 
-	window.addEventListener('click', function (e) {
+			if (hasUserOptions) {
+				const isUserToggle = userOptionsToggles[0] == e.target || userOptionsToggles[0].contains(e.target)
+				if (!userOptionsMenu[0].contains(e.target) && !isUserToggle) {
+					close(userOptionsMenu)
+				}
+			}
 
-		const isUserToggle = userOptionsToggles[0] == e.target || userOptionsToggles[0].contains(e.target)
-		const isAdminToggle = adminOptionsToggles[0] == e.target || adminOptionsToggles[0].contains(e.target)
+			if (hasAdminOptions) {
+				const isAdminToggle = adminOptionsToggles[0] == e.target || adminOptionsToggles[0].contains(e.target)
+				if (!adminOptionsMenu[0].contains(e.target) && !isAdminToggle) {
+					close(adminOptionsMenu)
+				}
+			}
 
-		if (!userOptionsMenu[0].contains(e.target) && !isUserToggle) {
-			close(userOptionsMenu)
-		}
-		if (!adminOptionsMenu[0].contains(e.target) && !isAdminToggle) {
-			close(adminOptionsMenu)
-		}
-	})
+		})
+	}
 
 	function open(menu) {
 		menu.addClass('active')

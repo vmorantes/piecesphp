@@ -208,6 +208,45 @@ CREATE TABLE `newsletter_sucribers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `news_categories`;
+CREATE TABLE `news_categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `name` text COLLATE utf8_bin NOT NULL,
+  `iconImage` text COLLATE utf8_bin NOT NULL,
+  `color` text COLLATE utf8_bin NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+DROP TABLE IF EXISTS `news_elements`;
+CREATE TABLE `news_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `newsTitle` text COLLATE utf8_bin NOT NULL,
+  `profilesTarget` longtext COLLATE utf8_bin NOT NULL,
+  `content` text COLLATE utf8_bin NOT NULL,
+  `category` int(11) NOT NULL,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `startDate` datetime DEFAULT NULL,
+  `endDate` datetime DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `category` (`category`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `news_elements_ibfk_1` FOREIGN KEY (`category`) REFERENCES `news_categories` (`id`),
+  CONSTRAINT `news_elements_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `news_elements_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `pcsphp_app_config`;
 CREATE TABLE `pcsphp_app_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -215,22 +254,6 @@ CREATE TABLE `pcsphp_app_config` (
   `value` longtext COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
-
-DROP TABLE IF EXISTS `pcsphp_blackboard_news_messages`;
-CREATE TABLE `pcsphp_blackboard_news_messages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `author` bigint(20) NOT NULL,
-  `title` varchar(255) COLLATE utf8_bin NOT NULL,
-  `text` longtext COLLATE utf8_bin NOT NULL,
-  `type` bigint(20) NOT NULL,
-  `start_date` datetime DEFAULT NULL,
-  `end_date` datetime DEFAULT NULL,
-  `created_date` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `author` (`author`),
-  CONSTRAINT `pcsphp_blackboard_news_messages_ibfk_1` FOREIGN KEY (`author`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
@@ -417,4 +440,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- 2022-03-02 22:33:40
+-- 2022-05-20 01:25:39
