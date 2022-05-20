@@ -1,7 +1,9 @@
 $globalClassPcs: 'ui-pcs';
 
 //──── Media queries ─────────────────────────────────────────────────────────────────────
+$rsXLarge: 1700px;
 $rsLarge: 1550px;
+$rsLarge1: 1400px;
 $rsLarge2: 1250px;
 $rsLarge3: 1200px;
 $rsMedium: 1000px;
@@ -89,5 +91,14 @@ $quoteBorderBottom: 1px solid $colorFirst;
 $sidebarBreakPoint: 800px;
 $sidebarBackgroundColor: rgb(255, 255, 255);
 $sidebarColor: #1B1C1D;
+$sidebarColor2: #707070;
 $sidebarColorActive: var(--main-brand-color);
 $sidebarBackgroundItemHover: var(--main-brand-color-opacity);
+$containerAsideContentPaddingT: 6rem;
+$containerAsideContentPaddingR: 3rem;
+$containerAsideContentPaddingB: 8rem;
+$containerAsideContentPaddingL: 5rem;
+$containerAsideContentPaddingTRs: 1rem;
+$containerAsideContentPaddingRRs: 1rem;
+$containerAsideContentPaddingBRs: 0rem;
+$containerAsideContentPaddingLRs: 1rem;

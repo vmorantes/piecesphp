@@ -644,9 +644,12 @@ class PublicationMapper extends EntityMapperExtensible
      *  - isActiveByDate
      *  - visibility
      *  - visibilityText
+     *  - publicDateFormat
+     *  - startDateFormat
+     *  - endDateFormat
      * @return string[]
      */
-    public static function fieldsToSelect()
+    public static function fieldsToSelect(string $formatDate = '%d-%m-%Y')
     {
 
         $mapper = (new PublicationMapper);
@@ -702,6 +705,9 @@ class PublicationMapper extends EntityMapperExtensible
             "{$isActiveByDate} AS isActiveByDate",
             "$visibilityConditions AS visibility",
             "JSON_UNQUOTE(JSON_EXTRACT('{$visibilitiesJSON}', CONCAT('$.', $visibilityConditions))) AS visibilityText",
+            "DATE_FORMAT({$table}.publicDate, '{$formatDate}') AS publicDateFormat",
+            "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
+            "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
             "{$table}.meta",
         ];
 

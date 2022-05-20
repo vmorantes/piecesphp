@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'Mi espacio'                          => 'My space',
+    'Inicio'                              => 'Home',
+    'Noticias'                            => 'News',
+    'Cargar más'                          => 'Load more',
+    'Ups!'                                => 'Oops!',
+    'En este momento no tenemos noticias' => 'Select the corresponding filters',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+    'NAME'                                => 'NAME',
+];

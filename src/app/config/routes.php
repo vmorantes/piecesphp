@@ -43,7 +43,6 @@
 use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
 use App\Controller\AvatarController;
-use App\Controller\BlackboardNewsController;
 use App\Controller\GenericTokenController;
 use App\Controller\ImporterController;
 use App\Controller\LoginAttemptsController;
@@ -58,7 +57,9 @@ use FileManager\FileManagerRoutes;
 use Forms\FormsRoutes;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use ImagesRepository\ImagesRepositoryRoutes;
+use MySpace\MySpaceRoutes;
 use Newsletter\NewsletterRoutes;
+use News\NewsRoutes;
 use Persons\PersonsRoutes;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
@@ -85,7 +86,6 @@ $tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
 $timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
 $mensajeria = new PiecesRouteGroup($prefix_lang . '/messages'); //Mensajería
 $locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
-$sistema_tablero_noticias = new PiecesRouteGroup($prefix_lang . '/blackboard-news/'); //Tablero de noticias
 $importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadores
 $sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios-avatares
 $servidor_estaticos = new PiecesRouteGroup($prefix_lang . '/statics/'); //Servido personalizado de archivos estáticos
@@ -126,9 +126,6 @@ MessagesController::routes($mensajeria);
 
 //Ubicaciones
 Locations::routes($locations);
-
-//Tablero de noticias
-BlackboardNewsController::routes($sistema_tablero_noticias);
 
 //Importadores
 ImporterController::routes($importadores);
@@ -178,6 +175,9 @@ PublicationsRoutes::routes($zona_administrativa, $zona_publica);
 //Newsletter
 NewsletterRoutes::routes($zona_administrativa, $zona_publica);
 
+//Noticias internas
+NewsRoutes::routes($zona_administrativa);
+
 //Registro fotográfico
 ImagesRepositoryRoutes::routes($zona_administrativa);
 
@@ -189,6 +189,9 @@ PersonsRoutes::routes($zona_administrativa);
 
 //Log de acciones
 LogsRoutes::routes($zona_administrativa);
+
+//Mi espacio
+MySpaceRoutes::routes($zona_administrativa);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

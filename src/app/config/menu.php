@@ -33,7 +33,7 @@ $sidebar = new MenuGroupCollection([
             'visible' => Roles::hasPermissions('admin', $current_type_user),
             'asLink' => true,
             'href' => get_route('admin'),
-            'icon' => 'home',
+            'icon' => 'address card outline',
         ]),
         new MenuGroup([
             'name' => __('bi-dynamic-images', 'Imágenes'),

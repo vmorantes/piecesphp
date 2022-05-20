@@ -45,7 +45,6 @@ $config['description'] = "Descripción de la página.";
 
 //Colors
 $config['meta_theme_color'] = "#285f94";
-$config['admin_menu_bg_color'] = "#285f94";
 $config['main_brand_color'] = "#285f94";
 $config['color_text_over_main_brand_color'] = "white";
 $config['second_brand_color'] = "#2887bf";

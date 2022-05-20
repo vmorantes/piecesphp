@@ -435,10 +435,26 @@
 //──── Utilidades ────────────────────────────────────────────────────────────────────────
 
 .no-any-padding {
-    padding-left: 0px !important;
+    padding-top: 0rem !important;
     padding-right: 0px !important;
     padding-bottom: 0px !important;
-    padding-top: 0rem !important;
+    padding-left: 0px !important;
+}
+
+.no-t-padding {
+    padding-top: 0px !important;
+}
+
+.no-r-padding {
+    padding-right: 0px !important;
+}
+
+.no-b-padding {
+    padding-bottom: 0px !important;
+}
+
+.no-l-padding {
+    padding-left: 0px !important;
 }
 
 .no-scroll-y {
@@ -638,6 +654,10 @@
         max-width: 1440px;
     }
 
+    &.fluid {
+        max-width: 100%;
+    }
+
     .title {
         font-size: pxToRem(36);
         line-height: pxToRem(36+5);
@@ -698,12 +718,16 @@
 
     position: relative;
     width: max-content;
-    min-width: 100%;
-    max-width: 100%;
+    width: 100%;
+    max-width: 1920px;
     padding: pxToRem(80) 0px 0px 200px;
-    margin-top: -6rem;
-    margin-left: -5rem;
+    margin: 0;
     margin-bottom: 5rem;
+
+    &:not(.no-negative) {
+        margin-top: $containerAsideContentPaddingT*-1;
+        margin-left: $containerAsideContentPaddingL*-1;
+    }
 
     &::before {
         position: absolute;
@@ -714,6 +738,7 @@
         content: ' ';
         z-index: 0;
         width: 450px;
+        max-width: 50%;
         height: 100%;
         background-color: var(--second-brand-color);
         clip-path: polygon(0 0, 99% 0, 90% 100%, 0% 100%);
@@ -728,10 +753,24 @@
         content: ' ';
         z-index: 2;
         width: 400px;
+        max-width: 45%;
         height: 100%;
         background: transparent linear-gradient(180deg, var(--second-brand-color) 0%, var(--main-brand-color) 100%) 0% 0% no-repeat padding-box;
         clip-path: polygon(0 0, 99% 0, 90% 100%, 0% 100%);
     }
+
+    &.wide {
+
+        &::before {
+            width: 850px;
+        }
+
+        &::after {
+            width: 800px;
+        }
+    }
+
+    &.fluid {}
 
     @media screen and (max-width: $rsMedium) {
         padding-left: 20%;
@@ -746,7 +785,9 @@
     }
 
     @media (max-width: $sidebarBreakPoint) {
-        margin-top: -1rem;
-        margin-left: -1rem;
+        &:not(.no-negative) {
+            margin-top: $containerAsideContentPaddingTRs*-1;
+            margin-left: $containerAsideContentPaddingLRs*-1;
+        }
     }
 }
