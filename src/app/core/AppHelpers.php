@@ -1007,8 +1007,6 @@ function load_font(array $config = array())
 
         $path = $configValues['baseURL'] . $src;
         $attributes['href'] = $path;
-        $attributes['is-preload-custom'] = 'yes';
-        $attributes['rel'] = 'preload';
         $attributes['as'] = 'style';
 
         $attributes = ($processAttr)($config, $attributes, $src);

@@ -30,6 +30,8 @@ $sidebarMenu = sidebar_menu();
 
         <ul <?= $isCurrent ? ' current' : '' ?> class="group <?= !$hasIcon ? 'no-icon' : ''; ?> <?= $elementClasses; ?>" <?= $element->getAttributes(true); ?>>
 
+            <?php if($element->isVisible() && (!$element->asLink() ? count($element->getItems()) > 0 : true)): ?>
+
             <?php if($element->asLink()): ?>
 
             <a class="title-group as-link <?= $isCurrent ? ' current' : '' ?>" href="<?= $element->getHref(); ?>" <?= mb_strlen($hrefTarget) > 0 ? "target='$hrefTarget'" : ''; ?>>
@@ -76,6 +78,7 @@ $sidebarMenu = sidebar_menu();
 
             <?php endif; ?>
 
+            <?php endif; ?>
         </ul>
 
         <?php endforeach; ?>

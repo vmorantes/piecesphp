@@ -30,12 +30,6 @@ define('MESSAGES_PATH_STATICS', 'statics/features/messages');
 define('MESSAGES_PATH_JS', MESSAGES_PATH_STATICS . '/js');
 define('REFRESH_MESSAGES_STATUS', false);
 
-//Tablero de noticias
-define('BLACKBOARD_NEWS_ENABLED', false);
-define('BLACKBOARD_NEWS_PATH_VIEWS', 'blackboard-news');
-define('BLACKBOARD_NEWS_PATH_STATICS', 'statics/features/blackboard-news');
-define('BLACKBOARD_NEWS_PATH_JS', BLACKBOARD_NEWS_PATH_STATICS . '/js');
-
 //Módulo de imágenes integrado
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
 
@@ -51,6 +45,9 @@ define('FILE_MANAGER_MODULE', true);
 
 //Publicaciones
 define('PUBLICATIONS_MODULE', true);
+
+//Noticias
+define('NEWS_MODULE', true);
 
 //Repositorio de imágenes
 define('IMAGES_REPOSITORY', false);

@@ -366,4 +366,29 @@ a.ui.button {
         }
     }
 
+
+    &.tag {
+
+        &.brand-color {
+
+            background-color: var(--main-brand-color);
+            color: var(--color-text-over-main-brand-color);
+
+
+            &.alt {
+
+                background-color: var(--second-brand-color);
+
+            }
+
+            &.alt2 {
+
+                background-color: var(--third-brand-color-text);
+
+            }
+
+        }
+
+    }
+
 }

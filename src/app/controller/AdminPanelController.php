@@ -10,6 +10,8 @@ use App\Controller\UsersController;
 use App\Model\AvatarModel;
 use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
+use MySpace\Controllers\MySpaceController;
+use MySpace\MySpaceRoutes;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -66,11 +68,8 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      */
     public function indexView(Request $req, Response $res)
     {
-        if (BLACKBOARD_NEWS_ENABLED) {
-            add_global_asset(BLACKBOARD_NEWS_PATH_JS . '/main.js', 'js');
-            $this->render('panel/layout/header');
-            $this->render('panel/pages/main');
-            $this->render('panel/layout/footer');
+        if (MySpaceRoutes::ENABLE) {
+            return $res->withRedirect(MySpaceController::routeName('my-space'));
         } else {
 
             add_global_asset('statics/core/css/dashboard.css', 'css');
