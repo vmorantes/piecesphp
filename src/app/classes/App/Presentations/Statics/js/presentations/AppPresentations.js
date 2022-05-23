@@ -66,7 +66,8 @@ function AppPresentations(options) {
 			processOptions(options)
 
 			//Acciones inciales
-			loadMoreTrigger.click(function (e) {
+			loadMoreTrigger.off('click')
+			loadMoreTrigger.on('click', function (e) {
 				page = nextPage
 				instance.loadItems()
 			})
@@ -109,7 +110,11 @@ function AppPresentations(options) {
 				perPage = res.perPage
 
 				if (isFinal) {
-					loadMoreTrigger.remove()
+					loadMoreTrigger.hide()
+				} else {
+					if (!loadMoreTrigger.is(':visible')) {
+						loadMoreTrigger.show()
+					}
 				}
 
 				if (totalElements == 0) {
@@ -134,7 +139,7 @@ function AppPresentations(options) {
 
 				resolve(res)
 
-			}).fail(function (erro) {
+			}).fail(function (error) {
 
 				errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Ha ocurrido un error al cargar los elementos.'))
 				console.log(error)
