@@ -771,10 +771,10 @@ class NewsMapper extends EntityMapperExtensible
 
     /**
      * @param bool $asMapper
-     *
+     * @param bool $onlyActives
      * @return \stdClass|static|null
      */
-    public static function lastModifiedElement(bool $asMapper = false)
+    public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {
         $table = self::TABLE;
         $model = self::model();
@@ -784,6 +784,41 @@ class NewsMapper extends EntityMapperExtensible
         $model->select($selectFields);
 
         $model->orderBy("{$table}.updatedAt DESC, {$table}.createdAt DESC");
+
+        $whereString = null;
+        $where = [];
+        $and = 'AND';
+
+        if ($onlyActives) {
+
+            $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
+            $now = $now->getTimestamp();
+            $unixNowDate = "FROM_UNIXTIME({$now})";
+            $startDateSQL = "{$table}.startDate";
+            $endDateSQL = "{$table}.endDate";
+
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$startDateSQL} <= {$unixNowDate} OR {$table}.startDate IS NULL";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+            $statusActive = self::ACTIVE;
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$table}.status = {$statusActive}";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        if (!empty($where)) {
+            $whereString = implode(' ', $where);
+        }
+
+        if ($whereString !== null) {
+            $model->where($whereString);
+        }
 
         $model->execute(false, 1, 1);
 

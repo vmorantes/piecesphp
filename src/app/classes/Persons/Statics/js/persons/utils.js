@@ -10,37 +10,12 @@ Persons.configPersonForm = function (onSuccess = null, ignoreRedirection = false
 	let formSelector = `.ui.form[person-form]`
 	let langGroup = 'appPersonsLang'
 	let isEdit = false
-	const storagesIDToDelete = new Set()
 
 	configFomanticDropdown('.ui.dropdown.auto') //Debe inciarse antes de genericFormHandler para la validación
-
-	let dropdownStorages = configFomanticDropdown('.ui.dropdown.storages', {
-		onAdd: function (value, text, $selectedItem) {
-			if (storagesIDToDelete.has(value)) {
-				storagesIDToDelete.delete(value)
-			}
-		},
-		onRemove: function (value, text, $selectedItem) {
-			storagesIDToDelete.add(value)
-		},
-	})[0]
-
-	let locations = new LocationsAdapter()
-
-	locations.setOnChangeCityDropdown(function (value, text, $selectedItem) {
-		value = parseInt(value)
-		value = !isNaN(value) && Number.isFinite(value) ? value : -1
-		const searchStorageURL = new URL(dropdownStorages.data('search-url'))
-		searchStorageURL.searchParams.set('city', value)
-		dropdownStorages.recreate(true, searchStorageURL.href)
-	})
-
-	locations.fillSelectWithStates(1)
 
 	let form = genericFormHandler(formSelector, {
 		onSuccess: typeof onSuccess == 'function' ? onSuccess : () => { },
 		onSetFormData: function (formData) {
-			formData.set('storagesToDelete[]', Array.from(storagesIDToDelete.values()))
 			return formData
 		},
 		onInvalidEvent: function (event) {
