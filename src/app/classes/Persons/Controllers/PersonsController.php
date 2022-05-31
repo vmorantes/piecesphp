@@ -114,8 +114,6 @@ class PersonsController extends AdminPanelController
         add_global_asset(PersonsRoutes::staticRoute('globals-vars.css'), 'css');
         add_global_asset(PersonsRoutes::staticRoute(self::BASE_CSS_DIR . '/persons-style.css'), 'css');
 
-        import_locations([], false, false);
-
     }
 
     /**
