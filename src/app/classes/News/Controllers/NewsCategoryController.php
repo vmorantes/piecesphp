@@ -120,7 +120,8 @@ class NewsCategoryController extends AdminPanelController
         import_spectrum();
 
         set_custom_assets([
-            NewsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+            NewsRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
+            NewsRoutes::staticRoute(self::BASE_JS_DIR . '/add-form.js'),
         ], 'js');
 
         $action = self::routeName('actions-add');
@@ -169,7 +170,8 @@ class NewsCategoryController extends AdminPanelController
 
             set_custom_assets([
                 NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
-                NewsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+                NewsRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
+                NewsRoutes::staticRoute(self::BASE_JS_DIR . '/edit-form.js'),
             ], 'js');
 
             $action = self::routeName('actions-edit');
@@ -234,6 +236,7 @@ class NewsCategoryController extends AdminPanelController
         import_spectrum();
         set_custom_assets([
             NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
+            NewsRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
             NewsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
         ], 'js');
 
