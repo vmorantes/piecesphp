@@ -4,7 +4,7 @@
  * @param {OptionsConfiguration} options
  * @returns {NewsAdapter}
  */
-function NewsAdapter(options) {
+ function NewsAdapter(options) {
 	/**
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL

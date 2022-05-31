@@ -78,6 +78,9 @@ class Config
         'es' => 'es_CO.utf8',
     ];
 
+    /** @var string Valor de localidad establecida */
+    protected static $appSettedLocale = 'es_CO.utf8';
+
     /** @var array Configuraciones */
     protected static $configurations = [];
 
@@ -330,6 +333,7 @@ class Config
     {
         $defaultLangConfigName = 'default_lang';
         $appLocaleLangsConfigName = 'locale_langs';
+        $appSettedLocaleConfigName = 'current_locale';
 
         $defaultAppLang = get_config($defaultLangConfigName);
         $appLocaleLangs = get_config($appLocaleLangsConfigName);
@@ -350,6 +354,7 @@ class Config
         });
 
         set_config($appLocaleLangsConfigName, self::$appLocaleLangs);
+        set_config($appSettedLocaleConfigName, self::$appSettedLocale);
 
     }
 
@@ -625,6 +630,7 @@ class Config
             'app_lang' => 'appLang',
             'prefix_lang' => 'prefixLang',
             'locale_langs' => 'appLocaleLangs',
+            'current_locale' => 'appSettedLocale',
         ];
 
         if (self::$reflectedClass === null) {
@@ -728,7 +734,7 @@ class Config
                 if (in_array($category, $allowedCategories)) {
 
                     if (!in_array($category, $usedCategories)) {
-                        setlocale($category, $localeLang);
+                        self::$appSettedLocale = setlocale($category, $localeLang);
                     }
 
                 }
@@ -787,6 +793,24 @@ class Config
     public static function get_allowed_langs()
     {
         return self::$appAllowedLangs;
+    }
+
+    /**
+     * Códigos de localidad según lenguaje
+     * @return array
+     */
+    public static function get_locale_langs()
+    {
+        return self::$appLocaleLangs;
+    }
+
+    /**
+     * Valor de localidad establecida
+     * @return string
+     */
+    public static function get_current_locale()
+    {
+        return self::$appSettedLocale;
     }
 
     /**
