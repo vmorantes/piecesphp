@@ -41,8 +41,8 @@ window.addEventListener('load', function () {
 				return parsed
 			},
 			onEmpty: (container) => {
-				mainContainer.addClass('gradient non-results')
-				mainContainer.find('>.title').hide()
+				mainContainer.classList.add('gradient', 'non-results')
+				$(mainContainer).find('>.title').hide()
 			},
 		})
 
