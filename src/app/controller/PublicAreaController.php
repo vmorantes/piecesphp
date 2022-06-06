@@ -90,7 +90,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         ], 'js');
 
         $data = [
-            'ajaxArticlesURL' => PublicationsController::routeName('ajax-all'),
+            'ajaxArticlesURL' => PublicationsController::routeName('ajax-all', [], true),
             'sliderAjax' => HeroController::routeName('ajax-all'),
             'addSuscriberURL' => NewsletterController::routeName('add', [], true),
             'suscriberEnable' => NewsletterRoutes::ENABLE,

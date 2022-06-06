@@ -1,6 +1,6 @@
 <?php
 use Publications\Controllers\PublicationsPublicController;
-
+use Publications\PublicationsRoutes;
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 
@@ -24,19 +24,23 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 <section class="body">
 
+    <?php if(PublicationsRoutes::ENABLE): ?>
     <div class="content bg-1 overlay-effect">
 
         <div class="wrapper no-padding-top-mobile">
 
             <h2 class="segment-title text-center"><?= __(LANG_GROUP, 'Publicaciones'); ?></h2>
 
-            <section class="ui cards centered posts-list" articles-container data-route="<?= $ajaxArticlesURL; ?>"></section>
+            <section class="ui cards centered posts-list" articles-container data-route="<?= $ajaxArticlesURL; ?>">
+            </section>
 
-            <a href="<?= PublicationsPublicController::routeName('list'); ?>" class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
+            <a href="<?= PublicationsPublicController::routeName('list', [], true); ?>"
+                class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
 
         </div>
 
     </div>
+    <?php endif; ?>
 
     <div class="content">
 
