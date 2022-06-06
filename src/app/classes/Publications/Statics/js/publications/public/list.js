@@ -8,20 +8,22 @@ window.addEventListener('load', function (e) {
 
 	let requestURL = $('[data-publication-url]').attr('data-publication-url')
 
-	let articleManager = new PublicationsAdapter({
-		requestURL: requestURL,
-		page: 1,
-		perPage: 10,
-		containerSelector: '[publications-js]',
-		loadMoreTriggerSelector: '[publications-load-more-js]',
-		onDraw: (item, parsed) => {
-			parsed.addClass('horizontal fluid centered')
-			return parsed
-		},
-		onEmpty: (container) => {
-			container.closest('.posts-list').html(`<h2>............</h2>`)
-		},
-	})
+	if (requestURL.length > 0) {
+		let articleManager = new PublicationsAdapter({
+			requestURL: requestURL,
+			page: 1,
+			perPage: 10,
+			containerSelector: '[publications-js]',
+			loadMoreTriggerSelector: '[publications-load-more-js]',
+			onDraw: (item, parsed) => {
+				parsed.addClass('horizontal fluid centered')
+				return parsed
+			},
+			onEmpty: (container) => {
+				container.closest('.posts-list').html(`<h2>............</h2>`)
+			},
+		})
 
-	articleManager.loadItems()
+		articleManager.loadItems()
+	}
 })

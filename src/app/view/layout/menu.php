@@ -7,6 +7,8 @@ use PiecesPHP\Core\Menu\MenuItem;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsPublicController;
 use Publications\Mappers\PublicationCategoryMapper;
+use Publications\PublicationsRoutes;
+
 /**
  * @var MenuGroupCollection $publicMenu
  */
@@ -42,40 +44,41 @@ $publicMenu = new MenuGroupCollection([
 
 //Menú para el blog
 
-$menuBlogGroup = new MenuGroup([
-    'name' => __(LANG_GROUP, 'Blog') . '&nbsp;&nbsp;',
-    'visible' => true,
-    'items' => [
-        new MenuItem([
-            'text' => __(LANG_GROUP, 'Todas las categorías'),
-            'visible' => true,
-            'href' => PublicationsPublicController::routeName('list'),
-        ]),
-    ],
-]);
+if (PublicationsRoutes::ENABLE) {
+    $menuBlogGroup = new MenuGroup([
+        'name' => __(LANG_GROUP, 'Blog') . '&nbsp;&nbsp;',
+        'visible' => true,
+        'items' => [
+            new MenuItem([
+                'text' => __(LANG_GROUP, 'Todas las categorías'),
+                'visible' => true,
+                'href' => PublicationsPublicController::routeName('list'),
+            ]),
+        ],
+    ]);
 
-$categories = PublicationsCategoryController::_all()->elements();
+    $categories = PublicationsCategoryController::_all()->elements();
 
-foreach ($categories as $k => $i) {
+    foreach ($categories as $k => $i) {
 
-    $categoryMapper = PublicationCategoryMapper::objectToMapper($i);
+        $categoryMapper = PublicationCategoryMapper::objectToMapper($i);
 
-    if ($categoryMapper->id != PublicationCategoryMapper::UNCATEGORIZED_ID) {
+        if ($categoryMapper->id != PublicationCategoryMapper::UNCATEGORIZED_ID) {
 
-        $menuBlogGroup->addItem(new MenuItem([
-            'text' => $categoryMapper->currentLangData('name'),
-            'visible' => true,
-            'href' => PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $categoryMapper->getSlug()]),
-        ]));
+            $menuBlogGroup->addItem(new MenuItem([
+                'text' => $categoryMapper->currentLangData('name'),
+                'visible' => true,
+                'href' => PublicationsPublicController::routeName('list-by-category', ['categorySlug' => $categoryMapper->getSlug()]),
+            ]));
+
+        }
 
     }
 
+    $publicMenu->addItem($menuBlogGroup);
 }
 
-$publicMenu->addItem($menuBlogGroup);
-
 //Menú de idiomas
-
 $menuLangGroup = new MenuGroup([
     'name' => __(LANG_GROUP, 'Idiomas') . '&nbsp;&nbsp;',
     'visible' => true,
@@ -124,13 +127,15 @@ if (!empty($langs)) {
 
             <?php if($element->asLink()): ?>
 
-            <a class="item<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>" href="<?= $element->getHref(); ?>" <?= $element->getAttributes(true); ?>>
+            <a class="item<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>"
+                href="<?= $element->getHref(); ?>" <?= $element->getAttributes(true); ?>>
                 <div class="text"><?= $element->getName(); ?></div>
             </a>
 
             <?php else: ?>
 
-            <span class="item menu<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>" <?= $element->getAttributes(true); ?>>
+            <span class="item menu<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>"
+                <?= $element->getAttributes(true); ?>>
 
                 <div class="text">
                     <?= $element->getName(); ?> <i class="icon angle down"></i>
@@ -142,7 +147,8 @@ if (!empty($langs)) {
                     <?php $subElementAttributes = $subElement->getAttributes(); ?>
                     <?php $subElementClasses = array_key_exists('class', $subElementAttributes) ? ' ' . $subElementAttributes['class'] : ''; ?>
 
-                    <a class="item<?= $subElementClasses; ?>" href="<?= $subElement->getHref(); ?>" <?= $subElement->getAttributes(true); ?>>
+                    <a class="item<?= $subElementClasses; ?>" href="<?= $subElement->getHref(); ?>"
+                        <?= $subElement->getAttributes(true); ?>>
                         <?= $subElement->getText(); ?>
                     </a>
 
