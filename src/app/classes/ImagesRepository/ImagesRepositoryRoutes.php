@@ -121,8 +121,12 @@ class ImagesRepositoryRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        $route = get_route(self::class);
-        return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
+        if (self::ENABLE) {
+            $route = get_route(self::class);
+            return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
+        } else {
+            return '';
+        }
     }
 
     /**
