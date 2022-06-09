@@ -532,15 +532,14 @@ function configGroupCalendar(selectorAttr, selectorAttrName, options = {}) {
 		let optStart = Object.assign({}, baseConfig)
 		let optEnd = Object.assign({}, baseConfig)
 
-		optStart.type = startType
+		optStart.type = typeof options.type == 'string' ? options.type : startType
 		optStart.minDate = minDate
 		optStart.maxDate = maxDate
-		optEnd.type = endType
+		optEnd.type = typeof options.type == 'string' ? options.type : endType
 		optEnd.maxDate = maxDate
 
 		optStart.endCalendar = end
 		optEnd.startCalendar = start
-
 
 		result[group] = {
 			originalStartHTML: originalStartHTML,
