@@ -277,6 +277,10 @@ footer.#{$globalClassPcs} {
     max-width: 1440px !important;
 }
 
+.mw-1920 {
+    max-width: 1920px !important;
+}
+
 .text-center {
 
     .#{$globalClassPcs} &,
@@ -328,6 +332,20 @@ a.ui.button {
     &.dividing.header {
         color: var(--second-brand-color);
         border-color: var(--second-brand-color);
+
+        &.no-border {
+            border: none;
+        }
+
+        &.alt {
+            color: var(--main-brand-color);
+            border-color: var(--main-brand-color);
+        }
+
+        &.alt2 {
+            color: var(--third-brand-color-text);
+            border-color: var(--third-brand-color-text);
+        }
     }
 
     &.form {
@@ -341,6 +359,16 @@ a.ui.button {
             }
         }
 
+        .intertitle {
+            font-family: $fontPublicSans;
+            font-weight: $fwSemiBold;
+            font-size: pxToRem(15);
+            line-height: pxToRem(15+5);
+            color: #4D525A;
+            margin: 0px 0px;
+            padding: 18px 10px 10px 0px;
+        }
+
     }
 
     &.dropdown {
@@ -352,6 +380,12 @@ a.ui.button {
     }
 
     &.tabular.menu {
+        .item:not(.active) {
+            cursor: pointer;
+        }
+    }
+
+    &.secondary.menu {
         .item:not(.active) {
             cursor: pointer;
         }
