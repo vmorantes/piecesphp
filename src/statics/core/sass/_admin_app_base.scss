@@ -457,6 +457,22 @@
     padding-left: 0px !important;
 }
 
+.no-t-margin {
+    margin-top: 0px !important;
+}
+
+.no-r-margin {
+    margin-right: 0px !important;
+}
+
+.no-b-margin {
+    margin-bottom: 0px !important;
+}
+
+.no-l-margin {
+    margin-left: 0px !important;
+}
+
 .no-scroll-y {
     overflow-y: hidden !important;
 }
@@ -485,6 +501,10 @@
         column-gap: 1rem;
         padding-bottom: 2rem;
 
+        &.only-columns {
+            grid-template-columns: 100%;
+        }
+
         >.main-options {}
 
         >.columns {
@@ -504,6 +524,10 @@
 
                 &.right {
                     justify-self: flex-end;
+                }
+
+                &.horizontal-middle {
+                    align-self: center;
                 }
             }
         }

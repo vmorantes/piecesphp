@@ -2066,6 +2066,25 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 			}
 			onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
 		}
+		dropdown.removeValues = function () {
+			const defaultPlaceholder = dropdown.dropdown("get placeholder text")
+			dropdown.dropdown("clear")
+			dropdown.find('select').html("")
+			dropdown.find('select').append(`<option value="">${defaultPlaceholder}</option>`)
+			dropdown.dropdown("refresh")
+			selectSimulator.innerHTML = ''
+		}
+		dropdown.addValue = function (value, text, selected = false) {
+			if (selected) {
+				dropdown.find('select').append(`<option selected value="${value}">${text}</option>`)
+			} else {
+				dropdown.find('select').append(`<option value="${value}">${text}</option>`)
+			}
+			dropdown.dropdown("refresh")
+		}
+		dropdown.setRequired = function (required = false) {
+			toggleRequiredSemanticDropdown(dropdown, required)
+		}
 		dropdown.recreate = function (removeItems = false, searchURL = null, options = {}) {
 
 			dropdown.simulatorNode.remove()
