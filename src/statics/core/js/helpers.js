@@ -2077,6 +2077,7 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 		dropdown.addValue = function (value, text, selected = false) {
 			if (selected) {
 				dropdown.find('select').append(`<option selected value="${value}">${text}</option>`)
+				onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
 			} else {
 				dropdown.find('select').append(`<option value="${value}">${text}</option>`)
 			}

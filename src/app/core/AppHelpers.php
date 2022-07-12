@@ -1910,6 +1910,18 @@ function import_mapbox(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra openlayers como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins Plugins disponibles: openLayersAdapter
+ * @param bool $all
+ * @return void
+ */
+function import_openlayers(array $plugins = [], bool $all = true)
+{
+    import_front_library('openlayers', $plugins, $all);
+}
+
+/**
  * Registra indexeDB_adapter como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins

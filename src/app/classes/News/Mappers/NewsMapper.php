@@ -478,6 +478,8 @@ class NewsMapper extends EntityMapperExtensible
      *  - activeText
      *  - startDateFormat
      *  - endDateFormat
+     *  - endDateExtention
+     *  - endDateExtentionFormat
      * @return string[]
      */
     public static function fieldsToSelect(string $formatDate = '%d-%m-%Y')
@@ -502,6 +504,7 @@ class NewsMapper extends EntityMapperExtensible
         $active = self::ACTIVE;
         $inactive = self::INACTIVE;
 
+        $endDateExtention = "DATE_ADD({$table}.endDate, INTERVAL 15 DAY)";
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "({$categoryNameSubQuery}) AS categoryName",
@@ -511,6 +514,8 @@ class NewsMapper extends EntityMapperExtensible
             "(SELECT JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', activeStatus)))) AS activeText",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
+            "{$endDateExtention} AS endDateExtention",
+            "IF({$endDateExtention} IS NOT NULL, DATE_FORMAT({$endDateExtention}, '{$formatDate}'), '-') AS endDateExtentionFormat",
             "{$table}.meta",
         ];
 
