@@ -5,6 +5,7 @@
  */
 
 use App\Controller\PublicAreaController;
+use App\Model\UsersModel;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\UserSystem\UserDataPackage;
 
@@ -210,4 +211,59 @@ function genericView2Route(string $folder, string $name)
         'folder' => $folder,
         'name' => $name,
     ]);
+}
+
+/**
+ * @param int[] $ignoreTypes
+ * @return array
+ */
+function getAllUsers(array $ignoreTypes = [])
+{
+
+    $model = UsersModel::model();
+
+    $model->select(UsersModel::fieldsToSelect());
+
+    if (!empty($ignoreTypes)) {
+        $ignoreTypes = implode(', ', $ignoreTypes);
+        $model->where("type NOT IN ({$ignoreTypes})");
+    }
+
+    $model->execute();
+
+    return $model->result();
+}
+
+/**
+ * Un array listo para ser usado en array_to_html_options
+ * @param string $defaultLabel
+ * @param string $defaultValue
+ * @param int[] $ignoreTypes
+ * @param callable $elementStrategy
+ * @return array
+ */
+function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = '', array $ignoreTypes = [], $elementStrategy = null)
+{
+    $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(LANG_GROUP, 'Usuarios');
+    $options = [];
+    $options[$defaultValue] = $defaultLabel;
+
+    if (!is_callable($elementStrategy)) {
+        $elementStrategy = function ($e) {
+            return (object) [
+                'value' => $e->id,
+                'text' => "{$e->fullname} ({$e->username})",
+            ];
+        };
+    }
+
+    /**
+     * @param ProductMapper $e
+     */
+    array_map(function ($e) use (&$options, $elementStrategy) {
+        $e = ($elementStrategy)($e);
+        $options[$e->value] = $e->text;
+    }, getAllUsers($ignoreTypes));
+
+    return $options;
 }

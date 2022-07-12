@@ -597,6 +597,16 @@
                 cursor: pointer;
             }
         }
+
+        &.brand-color {
+            color: white;
+
+            background-color: var(--main-brand-color);
+
+            &.alt {
+                background-color: var(--second-brand-color);
+            }
+        }
     }
 
     //Contenedor de tarjetas

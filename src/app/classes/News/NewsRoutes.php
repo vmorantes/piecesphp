@@ -106,7 +106,7 @@ class NewsRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(NewsLang::LANG_GROUP, 'Noticias'),
-                'icon' => 'file alternate outline',
+                'icon' => 'file alternate',
                 'href' => NewsController::routeName('list'),
                 'visible' => NewsController::allowedRoute('list'),
                 'asLink' => true,

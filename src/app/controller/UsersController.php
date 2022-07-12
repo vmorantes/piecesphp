@@ -227,8 +227,19 @@ class UsersController extends AdminPanelController
     public function searchDropdown(Request $request, Response $response)
     {
 
+        $RESULT_FULLNAME = 'RESULT_FULLNAME';
+        $RESULT_FULLNAME_USERNAME = 'RESULT_FULLNAME_USERNAME';
+        $RESULT_USERNAME = 'RESULT_USERNAME';
+
+        $typeResult = $request->getQueryParam('typeResult', null);
+        $typeResult = is_string($typeResult) && mb_strlen(trim($typeResult)) > 0 ? trim($typeResult) : $RESULT_FULLNAME;
+
         $search = $request->getQueryParam('search', null);
         $search = is_string($search) && mb_strlen(trim($search)) > 0 ? trim($search) : null;
+
+        $ignoreTypes = $request->getQueryParam('ignoreTypes', null);
+        $ignoreTypes = is_string($ignoreTypes) && mb_strlen(trim($ignoreTypes)) > 0 ? trim($ignoreTypes) : null;
+        $ignoreTypes = is_string($ignoreTypes) ? explode(',', $ignoreTypes) : [];
 
         $results = new \stdClass;
         $results->success = true;
@@ -237,6 +248,11 @@ class UsersController extends AdminPanelController
         $model = UsersModel::model();
         $model->select(UsersModel::fieldsToSelect());
         $model->orderBy('fullname ASC, username ASC, id DESC');
+
+        if (!empty($ignoreTypes)) {
+            $ignoreTypes = implode(', ', $ignoreTypes);
+            $model->where("type NOT IN ({$ignoreTypes})");
+        }
 
         if ($search !== null) {
 
@@ -263,10 +279,36 @@ class UsersController extends AdminPanelController
         $resultsQuery = is_array($resultsQuery) ? $resultsQuery : [];
 
         foreach ($resultsQuery as $element) {
-            $results->results[] = [
+
+            $elementResult = [
                 'value' => $element->id,
                 'name' => $element->fullname,
             ];
+
+            if ($typeResult == $RESULT_FULLNAME) {
+
+                $elementResult = [
+                    'value' => $element->id,
+                    'name' => $element->fullname,
+                ];
+
+            } elseif ($typeResult == $RESULT_FULLNAME_USERNAME) {
+
+                $elementResult = [
+                    'value' => $element->id,
+                    'name' => "{$element->fullname} ({$element->username})",
+                ];
+
+            }if ($typeResult == $RESULT_USERNAME) {
+
+                $elementResult = [
+                    'value' => $element->id,
+                    'name' => $element->username,
+                ];
+
+            }
+
+            $results->results[] = $elementResult;
         }
 
         return $response->withJson($results);

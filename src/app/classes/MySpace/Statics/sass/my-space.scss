@@ -126,6 +126,24 @@ $totalColumns: 12;
             }
 
             >.footer {}
+
+            &.finished {
+
+                background: #70707026;
+
+                >.header {
+
+                    >.text {
+                        >.title {
+                            color: #1B1C1D;
+                        }
+                    }
+
+                    >.image {
+                        filter: invert(44%) sepia(14%) saturate(17%) hue-rotate(321deg) brightness(95%) contrast(92%);
+                    }
+                }
+            }
         }
 
         >.non-results-content {
@@ -160,6 +178,8 @@ $totalColumns: 12;
         }
 
         &.non-results {
+            overflow: hidden;
+
             >.non-results-content {
                 display: block;
             }

@@ -891,7 +891,6 @@ class NewsController extends AdminPanelController
         $now = $now->getTimestamp();
         $unixNowDate = "FROM_UNIXTIME({$now})";
         $startDateSQL = "{$table}.startDate";
-        $endDateSQL = "{$table}.endDate";
 
         if (!$ignoreDateLimit) {
 
@@ -900,7 +899,7 @@ class NewsController extends AdminPanelController
             $where[] = "{$beforeOperator} ({$critery})";
 
             $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
+            $critery = "DATE_ADD({$table}.endDate, INTERVAL 15 DAY) > {$unixNowDate} OR {$table}.endDate IS NULL";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
