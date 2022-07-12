@@ -319,6 +319,34 @@ $assets['mapbox']['plugins'] = [
 ];
 
 /**
+ * OpenLayers
+ * https://openlayers.org/
+ */
+$assets['openlayers']['css'] = [
+    'statics/plugins/open-layers/6.14.1/ol.css',
+    'statics/plugins/open-layers/ol-ext/3.2.26/ol-ext.min.css',
+];
+$assets['openlayers']['js'] = [
+    'statics/plugins/open-layers/6.14.1/ol.js',
+    'statics/plugins/open-layers/ol-ext/3.2.26/ol-ext.min.js',
+];
+/**
+ * @link project://src/statics/core/own-plugins/MapBoxAdapter.js
+ */
+$assets['openlayers']['plugins'] = [
+    'openLayersAdapter' => [
+        'css' => [],
+        'js' => [
+            'statics/core/own-plugins/OpenLayersAdapter/olImports.js',
+            'statics/core/own-plugins/OpenLayersAdapter/GeoJSONVectorLayer.js',
+            'statics/core/own-plugins/OpenLayersAdapter/WMSTileLayer.js',
+            'statics/core/own-plugins/OpenLayersAdapter/MapManager.js',
+            'statics/core/own-plugins/OpenLayersAdapter/OpenLayersAdapter.js',
+        ],
+    ],
+];
+
+/**
  * IndexedDBAdapter
  * @link project://src/statics/core/own-plugins/IndexedDBAdapter.js
  */

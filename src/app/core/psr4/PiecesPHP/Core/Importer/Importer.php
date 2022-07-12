@@ -49,6 +49,10 @@ class Importer
      * @var string
      */
     protected $description = '';
+    /**
+     * @var Callable|null
+     */
+    protected $preImport = null;
 
     const LANG_GROUP = 'importerModule';
 
@@ -75,6 +79,11 @@ class Importer
      */
     public function import()
     {
+
+        $preImport = $this->preImport;
+        if ($preImport !== null) {
+            ($preImport)();
+        }
 
         foreach ($this->data as $index => $data) {
 
@@ -320,6 +329,16 @@ class Importer
     public function setDescription(string $description)
     {
         $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * @param callable $preImport
+     * @return static
+     */
+    public function setPreImport($preImport)
+    {
+        $this->preImport = is_callable($preImport) ? $preImport : null;
         return $this;
     }
 

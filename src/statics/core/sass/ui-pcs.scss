@@ -346,6 +346,11 @@ a.ui.button {
             color: var(--third-brand-color-text);
             border-color: var(--third-brand-color-text);
         }
+
+        &.white {
+            color: white;
+            border-color: white;
+        }
     }
 
     &.form {

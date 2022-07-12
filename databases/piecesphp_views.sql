@@ -19,13 +19,14 @@ CREATE VIEW news_active_date_elements AS (
     SELECT
         pe.id,
         pe.startDate,
-        pe.endDate,
+        DATE_ADD(pe.endDate, INTERVAL 15 DAY) AS endDate,
+        pe.endDate AS realEndDate,
         pe.status,
         UNIX_TIMESTAMP(NOW()) AS nowDate
     FROM news_elements AS pe
     HAVING
         (UNIX_TIMESTAMP(pe.startDate) <= nowDate OR pe.startDate IS NULL) AND
-        (UNIX_TIMESTAMP(pe.endDate) > nowDate OR pe.endDate IS NULL)
+        (UNIX_TIMESTAMP(DATE_ADD(pe.endDate, INTERVAL 15 DAY)) > nowDate OR pe.endDate IS NULL)
 );
 DROP VIEW IF EXISTS image_repository_images_view;
 CREATE VIEW image_repository_images_view AS (
