@@ -33,7 +33,7 @@ $sidebar = new MenuGroupCollection([
             'visible' => Roles::hasPermissions('admin', $current_type_user),
             'asLink' => true,
             'href' => get_route('admin'),
-            'icon' => 'address card outline',
+            'icon' => 'address card',
         ]),
         new MenuGroup([
             'name' => __('bi-dynamic-images', 'Imágenes'),
@@ -48,12 +48,6 @@ $sidebar = new MenuGroupCollection([
             'asLink' => true,
             'href' => get_route('locations', [], true),
             'icon' => 'map marker alternate',
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Noticias'),
-            'visible' => Roles::hasPermissions('blackboard-news-list', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('blackboard-news-list', [], true),
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Mensajes'),
