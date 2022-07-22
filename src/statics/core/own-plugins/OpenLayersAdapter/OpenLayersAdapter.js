@@ -231,8 +231,8 @@ function OpenLayersAdapter(parameters) {
 		objectLayer.setVisible(true)
 
 		//Añadir
-		if (typeof layer.getName == 'function' && typeof layer.getLayer == 'function') {
-			namespace.mapManager.addLayer(layer.getName(), layer.getLayer())
+		if (typeof layer.getLayerName == 'function' && typeof layer.getLayer == 'function') {
+			namespace.mapManager.addLayer(layer.getLayerName(), layer.getLayer())
 		} else {
 			namespace.mapManager.addLayer(index, layer)
 		}
