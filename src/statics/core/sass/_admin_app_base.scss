@@ -806,6 +806,76 @@
 
     &.fluid {}
 
+    &.flag {
+
+        &::after {
+            width: 381px;
+            clip-path: polygon(0 0, 100% 0, 82% 100%, 0% 100%);
+        }
+
+        .flag {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            z-index: 5;
+        }
+    }
+
+    &.flag-wide {
+
+        &::before {
+            width: 900px;
+            max-width: initial;
+        }
+
+        &::after {
+            width: 859px;
+            max-width: initial;
+            clip-path: polygon(0 0, 100% 0, 82% 100%, 0% 100%);
+            max-width: 50%;
+        }
+
+        .flag {
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            z-index: 5;
+            max-width: 48%;
+        }
+    }
+
+    @media screen and (max-width: $rsLarge3) {
+        &.flag {
+            &::before {
+                z-index: 2;
+            }
+
+            &::after {
+                display: none;
+            }
+
+            .flag {
+                display: none;
+            }
+        }
+
+        &.flag-wide {
+            padding-left: 0px;
+
+            .header-area {
+                padding-left: 0px;
+            }
+
+            &::after {
+                display: none;
+            }
+
+            .flag {
+                display: none;
+            }
+        }
+    }
+
     @media screen and (max-width: $rsMedium) {
         padding-left: 20%;
 

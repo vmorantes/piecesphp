@@ -111,7 +111,13 @@ class NewsController extends AdminPanelController
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
         $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), null);
-        $allUsersTypes = array_to_html_options(UsersModel::typesUserForSelect(), null, true);
+        $ignoreUserTypes = [
+            UsersModel::TYPE_USER_ROOT,
+        ];
+        $userTypesForSelect = array_filter(UsersModel::typesUserForSelect(), function ($key) use ($ignoreUserTypes) {
+            return !in_array($key, $ignoreUserTypes);
+        }, \ARRAY_FILTER_USE_KEY);
+        $allUsersTypes = array_to_html_options($userTypesForSelect, null, true);
 
         $data = [];
         $data['action'] = $action;
@@ -164,7 +170,13 @@ class NewsController extends AdminPanelController
             $backLink = self::routeName('list');
             $manyLangs = count($allowedLangs) > 1;
             $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), $element->category->id);
-            $allUsersTypes = array_to_html_options(UsersModel::typesUserForSelect(), $element->profilesTarget, true);
+            $ignoreUserTypes = [
+                UsersModel::TYPE_USER_ROOT,
+            ];
+            $userTypesForSelect = array_filter(UsersModel::typesUserForSelect(), function ($key) use ($ignoreUserTypes) {
+                return !in_array($key, $ignoreUserTypes);
+            }, \ARRAY_FILTER_USE_KEY);
+            $allUsersTypes = array_to_html_options($userTypesForSelect, $element->profilesTarget, true);
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $data = [];
@@ -867,9 +879,11 @@ class NewsController extends AdminPanelController
         $currentUser = getLoggedFrameworkUser();
         $currentTypeUser = $currentUser !== null ? $currentUser->type : -1;
 
-        $beforeOperator = !empty($where) ? $and : '';
-        $critery = "JSON_CONTAINS({$table}.profilesTarget, {$currentTypeUser}, '$')";
-        $where[] = "{$beforeOperator} ({$critery})";
+        if (!in_array($currentTypeUser, NewsMapper::CAN_VIEW_TARGET_ALL)) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "JSON_CONTAINS({$table}.profilesTarget, {$currentTypeUser}, '$')";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
 
         if ($category !== null) {
 
