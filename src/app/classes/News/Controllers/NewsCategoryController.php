@@ -778,10 +778,12 @@ class NewsCategoryController extends AdminPanelController
                 $buttons = implode('', $buttons);
                 $columns = [];
                 $sampleColor = "<span style='display:inline-block; width: 40px; height: 40px; background-color: {$e->color};'></span>";
+                $iconImage = "<div style='text-align:center;'><img style='max-width: 100%; width: 90px' src='{$e->iconImage}'/></div>";
 
                 $columns[] = $e->idPadding;
                 $columns[] = $e->name;
                 $columns[] = $sampleColor;
+                $columns[] = $iconImage;
                 $columns[] = $buttons;
                 return $columns;
             },

@@ -133,13 +133,17 @@ class NewsMapper extends EntityMapperExtensible
         UsersModel::TYPE_USER_ADMIN,
     ];
 
+    const CAN_VIEW_TARGET_ALL = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+
     const TABLE = 'news_elements';
     const VIEW_ACTIVE_DATE = 'news_active_date_elements';
     const LANG_GROUP = NewsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
-        '`category` ASC',
-        '`startDate` ASC',
-        '`endDate` ASC',
+        '`startDate` DESC',
+        '`newsTitle` ASC',
+        '`categoryName` ASC',
     ];
 
     /**
