@@ -38,7 +38,7 @@ $sidebar = new MenuGroupCollection([
         ]),
         new MenuGroup([
             'name' => __(EntryPointController::LANG_GROUP, 'Banner'),
-            'visible' => \PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController::routeName('list'),
+            'visible' => \PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController::allowedRoute('list'),
             'asLink' => true,
             'href' => \PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController::routeName('list', [], true),
             'icon' => 'images',
