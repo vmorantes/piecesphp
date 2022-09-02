@@ -105,12 +105,12 @@ class NewsRoutes
             $sidebar = get_config('menus')['sidebar'];
 
             $sidebar->addItem(new MenuGroup([
-                'name' => __(NewsLang::LANG_GROUP, 'Noticias'),
-                'icon' => 'file alternate',
+                'name' => __(NewsLang::LANG_GROUP, 'Noticias internas'),
+                'icon' => 'bell',
                 'href' => NewsController::routeName('list'),
                 'visible' => NewsController::allowedRoute('list'),
                 'asLink' => true,
-                'position' => 3,
+                'position' => 5,
             ]));
 
         }

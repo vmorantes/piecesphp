@@ -9,6 +9,7 @@ namespace Forms;
 use Forms\Categories\CategoriesLang;
 use Forms\Categories\CategoriesRoutes;
 use Forms\Categories\Controllers\CategoriesController;
+use Forms\DocumentTypes\DocumentTypesRoutes;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
@@ -42,6 +43,7 @@ class FormsRoutes
     {
         if (self::ENABLE) {
             CategoriesRoutes::routes($groupAdministration);
+            DocumentTypesRoutes::routes($groupAdministration);
 
             RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
                 self::init();

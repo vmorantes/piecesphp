@@ -56,7 +56,7 @@ window.addEventListener('load', function () {
 			onChangeFile: (files, component, instance, event) => {
 				const fileInput = files[0]
 				if (isEdit) {
-					const previewContainer = $(`[attachment-element][attachment-${indexAttachment}] [preview]`)
+					const previewContainer = $(attachmentElement).find('[preview]')
 					if (fileInput.type.indexOf('image/') !== -1) {
 						const reader = new FileReader()
 						reader.readAsDataURL(fileInput)

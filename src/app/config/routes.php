@@ -52,6 +52,7 @@ use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
 use Components\ComponentProviderRoutes;
+use Documents\DocumentsRoutes;
 use EventsLog\LogsRoutes;
 use FileManager\FileManagerRoutes;
 use Forms\FormsRoutes;
@@ -189,6 +190,9 @@ PersonsRoutes::routes($zona_administrativa);
 
 //Log de acciones
 LogsRoutes::routes($zona_administrativa);
+
+//Documentos
+DocumentsRoutes::routes($zona_administrativa);
 
 //Mi espacio
 MySpaceRoutes::routes($zona_administrativa);
