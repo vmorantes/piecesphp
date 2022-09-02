@@ -1,6 +1,9 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
+use App\Locations\Mappers\StateMapper;
 use ImagesRepository\Controllers\ImagesRepositoryController;
+
 /**
  * @var ImagesRepositoryController $this
  */
@@ -31,11 +34,20 @@ foreach($years as $yearFilter){
     $yearsItems .= "<a href='{$yearURL}' class='item'>{$yearFilter}</a>";
 }
 
+$statesItems = '';
+foreach($states as $stateFilterValue => $stateFilterText){
+    $stateURL = ($appendParamToURL)($filterURLNoState, 'state', $stateFilterValue);
+    $statesItems .= "<a href='{$stateURL}' class='item'>{$stateFilterText}</a>";
+}
+
 $validateParam = function ($e) {
     return is_scalar($e) && is_string($e) && mb_strlen(trim($e)) > 0;
 };
+
+$stateMapper = ctype_digit($state) || is_int($state) ? new StateMapper($state) : new StateMapper(-1);
 $params = [
     __($langGroup, 'Año') => $year,
+    __($langGroup, 'Departamento') => $stateMapper->id !== null ? $stateMapper->name : null,
 ];
 $params = array_filter($params, function ($e) use($validateParam){
     return ($validateParam)($e);
@@ -43,6 +55,13 @@ $params = array_filter($params, function ($e) use($validateParam){
 $hasParams = !empty($params) || ($validateParam)($search);
 
 ?>
+
+<div class="custom-ribbon no-negative no-margin-bottom mw-1200">
+    <img src="statics/images/dashboard/decoration-ribbon.png" class="decoration">
+    <div class="header-area center fluid">
+        <div class="title"><?= $title; ?></div>
+    </div>
+</div>
 
 <section class="module-view-container">
 
@@ -92,6 +111,20 @@ $hasParams = !empty($params) || ($validateParam)($search);
 
                                 </div>
 
+                                <div class="title">
+                                    <i class="dropdown icon"></i>
+                                    <?= __($langGroup, 'Departamentos'); ?>
+                                </div>
+
+                                <div class="content">
+
+                                    <div class="transition hidden ui list">
+                                        <a href="<?= $filterURLNoState; ?>" class="item"><?= __($langGroup, 'Todos'); ?></a>
+                                        <?= $statesItems; ?>
+                                    </div>
+
+                                </div>
+
                             </div>
 
                         </div>
@@ -122,34 +155,11 @@ $hasParams = !empty($params) || ($validateParam)($search);
 
         <div class="content">
 
-            <div class="header-options">
-
-                <div class="main-options">
-
-                    <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                        <i class="icon left arrow"></i>
-                    </a>
-
-                </div>
-
-                <div class="columns">
-
-                    <div class="column">
-
-                        <div class="section-title">
-                            <div class="title"><?= $title; ?></div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-
             <div class="cards-container-standard">
 
                 <div class="table-to-cards">
 
-                    <div class="ui form component-controls">
+                    <div class="ui form component-controls" style="display: none;">
 
                         <div class="fields">
 

@@ -69,6 +69,32 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
+     * Campos extra:
+     *  - idPadding
+     * @return string[]
+     */
+    public static function fieldsToSelect()
+    {
+
+        $mapper = new CountryMapper();
+
+        $table = self::PREFIX_TABLE . self::TABLE;
+
+        $fields = [
+            "LPAD({$table}.id, 5, 0) AS idPadding",
+        ];
+
+        $allFields = array_keys($mapper->getFields());
+
+        foreach ($allFields as $field) {
+            $fields[] = "{$table}.{$field}";
+        }
+
+        return $fields;
+
+    }
+
+    /**
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
@@ -95,6 +121,55 @@ class CountryMapper extends BaseEntityMapper
         }
 
         return $result;
+    }
+
+    /**
+     * @param bool $as_mapper
+     * @param bool $onlyActives
+     * @return static[]|array
+     */
+    public static function all(bool $as_mapper = false, bool $onlyActives = false)
+    {
+        $model = self::model();
+
+        $model->select(self::fieldsToSelect());
+
+        if ($onlyActives) {
+            $model->where([
+                'active' => self::ACTIVE,
+            ]);
+        }
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        if ($as_mapper) {
+            $result = array_map(function ($e) {
+                return new CountryMapper($e->id);
+            }, $result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $defaultLabel
+     * @param string $defaultValue
+     * @return array
+     */
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
+    {
+        $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Países');
+        $options = [];
+        $options[$defaultValue] = $defaultLabel;
+
+        array_map(function ($e) use (&$options) {
+            $options[$e->id] = $e->name;
+        }, self::all(false, true));
+
+        return $options;
     }
 
     /**

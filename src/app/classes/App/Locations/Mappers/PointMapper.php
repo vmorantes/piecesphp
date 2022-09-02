@@ -85,6 +85,51 @@ class PointMapper extends BaseEntityMapper
     }
 
     /**
+     * Campos extra:
+     *  - idPadding
+     *  - cityName
+     *  - stateID
+     *  - stateName
+     *  - countryID
+     *  - countryName
+     * @return string[]
+     */
+    public static function fieldsToSelect()
+    {
+
+        $mapper = new PointMapper();
+
+        $table = self::PREFIX_TABLE . self::TABLE;
+        $tableCity = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
+        $tableState = StateMapper::PREFIX_TABLE . StateMapper::TABLE;
+        $tableCountry = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
+
+        $cityNameQuery = "(SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city)";
+        $stateIDQuery = "(SELECT {$tableCity}.state FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city)";
+        $stateNameQuery = "(SELECT {$tableState}.name FROM {$tableState} WHERE {$tableState}.id = stateID)";
+        $countryIDQuery = "(SELECT {$tableState}.country FROM {$tableState} WHERE {$tableState}.id = stateID)";
+        $countryNameQuery = "(SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = countryID)";
+
+        $fields = [
+            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "{$cityNameQuery} AS cityName",
+            "{$stateIDQuery} AS stateID",
+            "{$stateNameQuery} AS stateName",
+            "{$countryIDQuery} AS countryID",
+            "{$countryNameQuery} AS countryName",
+        ];
+
+        $allFields = array_keys($mapper->getFields());
+
+        foreach ($allFields as $field) {
+            $fields[] = "{$table}.{$field}";
+        }
+
+        return $fields;
+
+    }
+
+    /**
      * @param int $city_id
      * @param bool $as_mapper
      * @return array|static[]
@@ -112,14 +157,41 @@ class PointMapper extends BaseEntityMapper
 
     /**
      * @param bool $as_mapper
-     *
+     * @param bool $onlyActives
+     * @param int $cityID
      * @return static[]|array
      */
-    public static function all(bool $as_mapper = false)
+    public static function all(bool $as_mapper = false, bool $onlyActives = false, int $cityID = null)
     {
-        $model = self::model();
 
-        $model->select()->execute();
+        $model = self::model();
+        $table = self::PREFIX_TABLE . self::TABLE;
+
+        $model->select(self::fieldsToSelect());
+
+        $whereString = null;
+        $where = [];
+        $and = 'AND';
+
+        if ($cityID != null) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$table}.city = {$cityID}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
+        if ($onlyActives != null) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $activeValue = self::ACTIVE;
+            $critery = "{$table}.active = {$activeValue}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
+        if (!empty($where)) {
+            $whereString = trim(implode(' ', $where));
+            $model->where($whereString);
+        }
+
+        $model->execute();
 
         $result = $model->result();
         $result = is_array($result) ? $result : [];
@@ -136,9 +208,10 @@ class PointMapper extends BaseEntityMapper
     /**
      * @param string $defaultLabel
      * @param string $defaultValue
+     * @param int $cityID
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', int $cityID = null)
     {
         $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Localidades');
         $options = [];
@@ -146,7 +219,7 @@ class PointMapper extends BaseEntityMapper
 
         array_map(function ($e) use (&$options) {
             $options[$e->id] = $e->name;
-        }, self::all());
+        }, self::all(false, true, $cityID));
 
         return $options;
     }

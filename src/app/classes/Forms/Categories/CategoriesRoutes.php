@@ -7,7 +7,6 @@
 namespace Forms\Categories;
 
 use Forms\Categories\Controllers\CategoriesController;
-use Forms\FormsRoutes;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
@@ -26,7 +25,7 @@ use Slim\Http\Response;
 class CategoriesRoutes
 {
 
-    const ENABLE = true;
+    const ENABLE = FORMS_MODULE_CATEGORIES_ENABLE && FORMS_MODULE_ENABLE;
 
     /**
      * @param RouteGroup $groupAdministration
@@ -35,7 +34,7 @@ class CategoriesRoutes
      */
     public static function routes(RouteGroup $groupAdministration)
     {
-        if (self::ENABLE && FormsRoutes::ENABLE) {
+        if (self::ENABLE) {
 
             $sqlCreate = [
                 (new \PiecesPHP\Core\Database\SchemeCreator(new \Forms\Categories\Mappers\CategoriesMapper()))->getSQL(),
