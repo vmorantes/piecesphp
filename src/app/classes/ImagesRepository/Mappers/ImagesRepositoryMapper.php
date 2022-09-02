@@ -6,6 +6,7 @@
 
 namespace ImagesRepository\Mappers;
 
+use App\Locations\Mappers\CityMapper;
 use App\Model\UsersModel;
 use ImagesRepository\Controllers\ImagesRepositoryController;
 use ImagesRepository\ImagesRepositoryLang;
@@ -23,6 +24,7 @@ use PiecesPHP\Core\Database\Meta\MetaProperty;
  * @copyright   Copyright (c) 2021
  * @property int|null $id
  * @property string|null $preferSlug Es un token usado para acceso individual sin exponer el ID
+ * @property int|CityMapper $city
  * @property string $author
  * @property string $description
  * @property string $image
@@ -50,6 +52,14 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         'preferSlug' => [
             'type' => 'text',
             'null' => true,
+        ],
+        'city' => [
+            'type' => 'int',
+            'reference_table' => CityMapper::PREFIX_TABLE . CityMapper::TABLE,
+            'reference_field' => 'id',
+            'reference_primary_key' => 'id',
+            'human_readable_reference_field' => 'name',
+            'mapper' => CityMapper::class,
         ],
         'author' => [
             'type' => 'text',
@@ -720,6 +730,9 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
             "(SELECT {$view}.imageYear FROM {$view} WHERE {$view}.id = {$table}.id) AS imageYear",
+            "(SELECT lc.name FROM locations_cities AS lc WHERE lc.id = {$table}.city) AS cityName",
+            "(SELECT lc.state FROM locations_cities AS lc WHERE lc.id = {$table}.city) AS stateID",
+            "(SELECT ls.name FROM locations_states AS ls WHERE ls.id = stateID) AS stateName",
             "{$table}.meta",
         ];
 
@@ -884,6 +897,22 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     }
 
     /**
+     * @return int
+     */
+    public static function countAll()
+    {
+        $model = self::model();
+        $model->select("COUNT(id) AS total");
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+        $result = !empty($result) ? (int) $result[0]->total : 0;
+        return $result;
+    }
+
+    /**
      * @param bool $asMapper
      *
      * @return static[]|array
@@ -990,6 +1019,33 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         }, $result);
 
         return $result;
+    }
+
+    /**
+     * @param int $userID
+     * @return int[]
+     */
+    public static function getStates()
+    {
+        $model = self::model();
+
+        $imagesView = self::VIEW_NAME;
+        $model->setTable($imagesView);
+        $model->select("stateID, stateName");
+        $model->groupBy('stateID');
+        $model->orderBy('stateID DESC');
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+        $resultToReturn = [];
+
+        foreach ($result as $element) {
+            $resultToReturn[(int) $element->stateID] = $element->stateName;
+        }
+
+        return $resultToReturn;
     }
 
     /**

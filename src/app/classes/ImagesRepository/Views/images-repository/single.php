@@ -35,13 +35,14 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
 <br>
 <?php endif;?>
 
-<h3 class="title-form">
+<h3 class="title-form subtitle">
     <?= $title; ?>
+    <div class="subtitle"><?= $element->city->state->name; ?>, <?= $element->city->name; ?></div>
 </h3>
 
 <br>
 
-<div class="ui form">
+<div class="ui form mw-800 block-centered">
 
     <div class="ui grid stackable">
 
@@ -107,7 +108,7 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
 
                 <div class="field">
                     <?php if($element->hasAuthorization()): ?>
-                    <a href="<?= $element->getAuthorizationPublicURL(); ?>" download="<?= $element->authorizationName(false); ?>" target="_blank" class="ui button custom-color labeled icon">
+                    <a href="<?= $element->getAuthorizationPublicURL(); ?>" download="<?= $element->authorizationName(false); ?>" target="_blank">
                         <i class="icon <?= $element->authorizationIconByExtension(); ?>"></i>
                         <?= __($langGroup, 'Descargar consentimiento'); ?>
                     </a>

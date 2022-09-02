@@ -78,6 +78,37 @@ class StateMapper extends BaseEntityMapper
     }
 
     /**
+     * Campos extra:
+     *  - idPadding
+     *  - countryName
+     * @return string[]
+     */
+    public static function fieldsToSelect()
+    {
+
+        $mapper = new StateMapper();
+
+        $table = self::PREFIX_TABLE . self::TABLE;
+        $tableCountry = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
+
+        $countryNameQuery = "(SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country)";
+
+        $fields = [
+            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "{$countryNameQuery} AS countryName",
+        ];
+
+        $allFields = array_keys($mapper->getFields());
+
+        foreach ($allFields as $field) {
+            $fields[] = "{$table}.{$field}";
+        }
+
+        return $fields;
+
+    }
+
+    /**
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
@@ -167,6 +198,75 @@ class StateMapper extends BaseEntityMapper
         }
 
         return $result;
+    }
+
+    /**
+     * @param bool $as_mapper
+     * @param bool $onlyActives
+     * @param int $countryID
+     * @return static[]|array
+     */
+    public static function all(bool $as_mapper = false, bool $onlyActives = false, int $countryID = null)
+    {
+
+        $model = self::model();
+        $table = self::PREFIX_TABLE . self::TABLE;
+
+        $model->select(self::fieldsToSelect());
+
+        $whereString = null;
+        $where = [];
+        $and = 'AND';
+
+        if ($countryID != null) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$table}.country = {$countryID}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
+        if ($onlyActives != null) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $activeValue = self::ACTIVE;
+            $critery = "{$table}.active = {$activeValue}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
+        if (!empty($where)) {
+            $whereString = trim(implode(' ', $where));
+            $model->where($whereString);
+        }
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        if ($as_mapper) {
+            $result = array_map(function ($e) {
+                return new StateMapper($e->id);
+            }, $result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $defaultLabel
+     * @param string $defaultValue
+     * @param int $countryID
+     * @return array
+     */
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', int $countryID = null)
+    {
+        $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Departamentos');
+        $options = [];
+        $options[$defaultValue] = $defaultLabel;
+
+        array_map(function ($e) use (&$options) {
+            $options[$e->id] = $e->name;
+        }, self::all(false, true, $countryID));
+
+        return $options;
     }
 
     /**

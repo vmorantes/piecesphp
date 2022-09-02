@@ -793,6 +793,14 @@
         clip-path: polygon(0 0, 99% 0, 90% 100%, 0% 100%);
     }
 
+
+    .decoration {
+        position: absolute;
+        bottom: 0px;
+        left: 18%;
+        z-index: 4;
+    }
+
     &.wide {
 
         &::before {
@@ -801,6 +809,10 @@
 
         &::after {
             width: 800px;
+        }
+
+        .decoration {
+            left: 30%;
         }
     }
 
@@ -842,6 +854,10 @@
             z-index: 5;
             max-width: 48%;
         }
+    }
+
+    &.no-margin-bottom {
+        margin-bottom: 0px !important;
     }
 
     @media screen and (max-width: $rsLarge3) {
@@ -894,4 +910,44 @@
             margin-left: $containerAsideContentPaddingLRs*-1;
         }
     }
+}
+
+@media screen and (max-width: 1460px) {
+
+    .custom-ribbon {
+
+        &.wide {
+
+            .decoration {
+                left: 20%;
+            }
+        }
+
+    }
+
+}
+
+@media screen and (max-width: 1000px) {
+
+    .custom-ribbon {
+        .decoration {
+            left: 0%;
+        }
+    }
+
+}
+
+@media screen and (max-width: 600px) {
+
+    .custom-ribbon {
+
+        &.wide {
+
+            .decoration {
+                left: 0%;
+            }
+        }
+
+    }
+
 }

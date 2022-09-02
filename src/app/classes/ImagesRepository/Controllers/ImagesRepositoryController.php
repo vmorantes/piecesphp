@@ -322,6 +322,7 @@ class ImagesRepositoryController extends AdminPanelController
             'submitButtonText' => __(self::LANG_GROUP, 'Guardar Imagen'),
         ];
 
+        import_locations();
         import_simple_upload_placeholder();
         set_custom_assets([
             ImagesRepositoryRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
@@ -345,31 +346,39 @@ class ImagesRepositoryController extends AdminPanelController
     public function filterView(Request $request, Response $response)
     {
         $year = $request->getQueryParam('year', null);
+        $state = $request->getQueryParam('state', null);
         $search = $request->getQueryParam('searchText', null);
-
-        $backLink = get_route('admin');
 
         $filterURLWhitoutParams = self::routeName('filter-view');
         $filterURL = $filterURLWhitoutParams;
         $filterURLNoYear = $filterURLWhitoutParams;
+        $filterURLNoState = $filterURLWhitoutParams;
         $processTableLink = self::routeName('datatables-filter-view');
 
         $urlQuery = array_filter([
             is_scalar($year) ? "year={$year}" : null,
+            is_scalar($state) ? "state={$state}" : null,
             is_scalar($search) ? "searchText={$search}" : null,
         ], function ($e) {return is_string($e);});
+
         $urlQueryNoYear = (function ($params) {
             unset($params[0]);
+            return $params;
+        })($urlQuery);
+        $urlQueryNoState = (function ($params) {
+            unset($params[1]);
             return $params;
         })($urlQuery);
 
         $urlQuery = !empty($urlQuery) ? implode('&', $urlQuery) : null;
         $urlQueryNoYear = !empty($urlQueryNoYear) ? implode('&', $urlQueryNoYear) : null;
+        $urlQueryNoState = !empty($urlQueryNoState) ? implode('&', $urlQueryNoState) : null;
 
         if ($urlQuery !== null) {
             $processTableLink .= "?{$urlQuery}";
             $filterURL .= "?{$urlQuery}";
             $filterURLNoYear .= "?{$urlQueryNoYear}";
+            $filterURLNoState .= "?{$urlQueryNoState}";
         }
 
         $title = self::$pluralTitle;
@@ -382,13 +391,15 @@ class ImagesRepositoryController extends AdminPanelController
         $data = [];
         $data['langGroup'] = self::LANG_GROUP;
         $data['processTableLink'] = $processTableLink;
-        $data['backLink'] = $backLink;
         $data['title'] = $title;
         $data['years'] = ImagesRepositoryMapper::getYears();
+        $data['states'] = ImagesRepositoryMapper::getStates();
         $data['filterURLWhitoutParams'] = $filterURLWhitoutParams;
         $data['filterURL'] = $filterURL;
         $data['filterURLNoYear'] = $filterURLNoYear;
+        $data['filterURLNoState'] = $filterURLNoState;
         $data['year'] = is_string($year) ? $year : '';
+        $data['state'] = is_string($state) ? $state : '';
         $data['search'] = is_string($search) ? $search : '';
 
         set_custom_assets([
@@ -416,6 +427,7 @@ class ImagesRepositoryController extends AdminPanelController
     public function addForm(Request $request, Response $response)
     {
 
+        import_locations();
         import_simple_upload_placeholder();
         set_custom_assets([
             ImagesRepositoryRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
@@ -465,6 +477,7 @@ class ImagesRepositoryController extends AdminPanelController
 
         if ($element->id !== null && ImagesRepositoryMapper::existsByID($element->id)) {
 
+            import_locations();
             import_simple_upload_placeholder();
             set_custom_assets([
                 ImagesRepositoryRoutes::staticRoute(self::BASE_JS_DIR . '/utils.js'),
@@ -592,6 +605,17 @@ class ImagesRepositoryController extends AdminPanelController
                 }
             ),
             new Parameter(
+                'city',
+                null,
+                function ($value) {
+                    return Validator::isInteger($value);
+                },
+                false,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+            new Parameter(
                 'author',
                 null,
                 function ($value) {
@@ -673,6 +697,7 @@ class ImagesRepositoryController extends AdminPanelController
             /**
              * @var string $lang
              * @var int $id
+             * @var int $city
              * @var string $author
              * @var string $description
              * @var string $resolution
@@ -680,6 +705,7 @@ class ImagesRepositoryController extends AdminPanelController
              */
             $lang = $expectedParameters->getValue('lang');
             $id = $expectedParameters->getValue('id');
+            $city = $expectedParameters->getValue('city');
             $author = $expectedParameters->getValue('author');
             $description = $expectedParameters->getValue('description');
             $resolution = $expectedParameters->getValue('resolution');
@@ -705,7 +731,7 @@ class ImagesRepositoryController extends AdminPanelController
 
                     $mapper = new ImagesRepositoryMapper();
 
-                    $mapper->id = $id;
+                    $mapper->city = $city;
                     $mapper->author = $author;
                     $mapper->setLangData($lang, 'description', $description);
                     $mapper->resolution = $resolution;
@@ -764,6 +790,7 @@ class ImagesRepositoryController extends AdminPanelController
                     if ($exists) {
 
                         $mapper->id = $id;
+                        $mapper->city = $city;
                         $mapper->author = $author;
                         $mapper->setLangData($lang, 'description', $description);
                         $mapper->resolution = $resolution;
@@ -1159,6 +1186,9 @@ class ImagesRepositoryController extends AdminPanelController
         $year = $request->getQueryParam('year', null);
         $year = is_int($year) || ctype_digit($year) ? (int) $year : null;
 
+        $state = $request->getQueryParam('state', null);
+        $state = is_int($state) || ctype_digit($state) ? (int) $state : null;
+
         $search = $request->getQueryParam('searchText', null);
         $search = is_string($search) && mb_strlen(trim($search)) > 0 ? trim($search) : null;
 
@@ -1182,6 +1212,11 @@ class ImagesRepositoryController extends AdminPanelController
         if ($year !== null) {
             $operator = !empty($having) ? ' AND ' : '';
             $critery = "imageYear = {$year}";
+            $having[] = "{$operator}({$critery})";
+        }
+        if ($state !== null) {
+            $operator = !empty($having) ? ' AND ' : '';
+            $critery = "stateID = {$state}";
             $having[] = "{$operator}({$critery})";
         }
         if ($search != null) {
