@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 5.5.5-10.5.13-MariaDB-1:10.5.13+maria~focal dump
+-- Adminer 4.8.1 MySQL 5.5.5-10.5.16-MariaDB-1:10.5.16+maria~focal dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -47,6 +47,32 @@ CREATE TABLE `app_presentations_categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `documents_elements`;
+CREATE TABLE `documents_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `documentType` int(11) NOT NULL,
+  `documentName` text COLLATE utf8_bin NOT NULL,
+  `description` text COLLATE utf8_bin NOT NULL,
+  `document` text COLLATE utf8_bin NOT NULL,
+  `documentImage` text COLLATE utf8_bin NOT NULL,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `status` int(11) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `documentType` (`documentType`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `documents_elements_ibfk_1` FOREIGN KEY (`documentType`) REFERENCES `forms_document_types` (`id`),
+  CONSTRAINT `documents_elements_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `documents_elements_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `forms_categories`;
 CREATE TABLE `forms_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -67,10 +93,31 @@ CREATE TABLE `forms_categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `forms_document_types`;
+CREATE TABLE `forms_document_types` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `documentTypeName` text COLLATE utf8_bin NOT NULL,
+  `folder` text COLLATE utf8_bin NOT NULL,
+  `status` int(11) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `forms_document_types_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `forms_document_types_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `image_repository_images`;
 CREATE TABLE `image_repository_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `city` int(11) NOT NULL,
   `author` text COLLATE utf8_bin NOT NULL,
   `description` text COLLATE utf8_bin NOT NULL,
   `image` text COLLATE utf8_bin NOT NULL,
@@ -88,8 +135,10 @@ CREATE TABLE `image_repository_images` (
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   KEY `modifiedBy` (`modifiedBy`),
+  KEY `city` (`city`),
   CONSTRAINT `image_repository_images_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `image_repository_images_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+  CONSTRAINT `image_repository_images_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `image_repository_images_ibfk_5` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
@@ -440,4 +489,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- 2022-05-20 01:25:39
+-- 2022-09-02 04:30:51

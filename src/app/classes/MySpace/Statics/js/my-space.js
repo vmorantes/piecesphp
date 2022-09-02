@@ -65,6 +65,34 @@ window.addEventListener('load', function () {
 
 	}
 
+
+	const directsAccess = document.querySelector('.my-space-content .direct-access')
+	const resizeObserverDirectsAccess = new ResizeObserver(/** @type {ResizeObserverEntry[]} */function (entries) {
+		const width = directsAccess.offsetWidth
+		const allClasses = [
+			'size1',
+			'size2',
+			'size3',
+		]
+		const size1 = 800
+		const size2 = 620
+		const size3 = 600
+
+		for (const classToRemove of allClasses) {
+			directsAccess.classList.remove(classToRemove)
+		}
+
+		if (width <= size1 && width > size2) {
+			directsAccess.classList.add('size1')
+		} else if (width <= size2 && width > size3) {
+			directsAccess.classList.add('size2')
+		} else if (width <= size3) {
+			directsAccess.classList.add('size3')
+		}
+
+	})
+	resizeObserverDirectsAccess.observe(directsAccess)
+
 	/**
 	*  Base64 encode / decode
 	*  http://www.webtoolkit.info/

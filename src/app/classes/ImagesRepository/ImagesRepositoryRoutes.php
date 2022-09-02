@@ -33,7 +33,7 @@ class ImagesRepositoryRoutes
      */
     private static $init = false;
 
-    const ENABLE = IMAGES_REPOSITORY;
+    const ENABLE = IMAGES_REPOSITORY && LOCATIONS_ENABLED;
 
     /**
      * @param RouteGroup $groupAdministration

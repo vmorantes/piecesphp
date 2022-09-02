@@ -32,6 +32,9 @@ DROP VIEW IF EXISTS image_repository_images_view;
 CREATE VIEW image_repository_images_view AS (
     SELECT
         YEAR(img.captureDate) AS imageYear,
+        (SELECT lc.name FROM locations_cities AS lc WHERE lc.id = img.city) AS cityName,
+        (SELECT lc.state FROM locations_cities AS lc WHERE lc.id = img.city) AS stateID,
+        (SELECT ls.name FROM locations_states AS ls WHERE ls.id = stateID) AS stateName,
         img.*
     FROM image_repository_images AS img
 );

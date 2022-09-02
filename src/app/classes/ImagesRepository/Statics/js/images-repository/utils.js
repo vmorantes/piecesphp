@@ -1,6 +1,7 @@
 /// <reference path="../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
+/// <reference path="../../../../../../statics/core/own-plugins/LocationsAdapter.js" />
 var ImagesRepository = {}
 
 ImagesRepository.configAddImageRepository = function () {
@@ -11,29 +12,21 @@ ImagesRepository.configAddImageRepository = function () {
 	let langGroup = 'appImagesRepositoryLang'
 	let isEdit = false
 
-	configFomanticDropdown('.ui.dropdown') //Debe inciarse antes de genericFormHandler para la validación
+	configFomanticDropdown('.ui.dropdown.auto') //Debe inciarse antes de genericFormHandler para la validación
 
+	let locations = new LocationsAdapter()
+
+	locations.fillSelectWithStates(1)
+
+	locations.setOnChangeStateDropdown(function (value, text, $element) {
+		configForm()
+	})
+
+	let form = null
 	let placeholderImage = null
 	let placeholderFile = null
 
-	let form = genericFormHandler(formSelector, {
-		onSetFormData: function (formData) {
-			return formData
-		},
-		onInvalidEvent: function (event) {
-
-			let element = event.target
-			let validationMessage = element.validationMessage
-			let jElement = $(element)
-			let field = jElement.closest('.field')
-			let nameOnLabel = field.find('label').html()
-
-			errorMessage(`${nameOnLabel}: ${validationMessage}`)
-
-			event.preventDefault()
-
-		}
-	})
+	configForm()
 
 	if (form.length > 0) {
 
@@ -90,6 +83,27 @@ ImagesRepository.configAddImageRepository = function () {
 	$('.tabular.menu .item').tab()
 
 	configLangChange('.ui.dropdown.langs')
+
+	function configForm() {
+		form = genericFormHandler(formSelector, {
+			onSetFormData: function (formData) {
+				return formData
+			},
+			onInvalidEvent: function (event) {
+
+				let element = event.target
+				let validationMessage = element.validationMessage
+				let jElement = $(element)
+				let field = jElement.closest('.field')
+				let nameOnLabel = field.find('label').html()
+
+				errorMessage(`${nameOnLabel}: ${validationMessage}`)
+
+				event.preventDefault()
+
+			}
+		})
+	}
 
 	function configLangChange(dropdownSelector) {
 

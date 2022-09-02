@@ -34,7 +34,7 @@ define('REFRESH_MESSAGES_STATUS', false);
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
 
 //Ubicaciones
-define('LOCATIONS_ENABLED', false);
+define('LOCATIONS_ENABLED', true);
 define('LOCATIONS_LANG_GROUP', 'locationBackend');
 
 //Temporizadores
@@ -50,10 +50,15 @@ define('PUBLICATIONS_MODULE', true);
 define('NEWS_MODULE', true);
 
 //Repositorio de imágenes
-define('IMAGES_REPOSITORY', false);
+define('IMAGES_REPOSITORY', true);
+
+//Módulo de documentos
+define('DOCUMENTS_MODULE_ENABLE', true);
 
 //Formularios
 define('FORMS_MODULE_ENABLE', true);
+define('FORMS_MODULE_CATEGORIES_ENABLE', true);
+define('FORMS_MODULE_DOCUMENTS_TYPES_ENABLE', true);
 
 //Personas
 define('PERSONS_MODULE', true);
