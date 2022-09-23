@@ -88,6 +88,13 @@ class ImagesRepositoryController extends AdminPanelController
     const UPLOAD_DIR_TMP = 'images-repository/tmp';
     const LANG_GROUP = ImagesRepositoryLang::LANG_GROUP;
 
+    const MODE_PUBLIC_IMAGE_PERCENT = 'PERCENT';
+    const MODE_PUBLIC_IMAGE_FIXED = 'FIXED';
+    const MODES_PUBLIC_IMAGE = [
+        self::MODE_PUBLIC_IMAGE_PERCENT,
+        self::MODE_PUBLIC_IMAGE_FIXED,
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -179,6 +186,15 @@ class ImagesRepositoryController extends AdminPanelController
         $maskName = is_string($maskNameInput) ? trim($maskNameInput) : null;
         $maskName = $maskName !== null && mb_strlen($maskName) > 0 ? explode('_', $maskName) : null;
         $maskName = is_array($maskName) && count($maskName) == 2 ? $maskName[1] : null;
+        $mode = $request->getQueryParam('mode', null);
+        $modes = self::MODES_PUBLIC_IMAGE;
+        $mode = in_array($mode, $modes) ? $mode : null;
+        $modeValue = $request->getQueryParam('modeValue', null);
+        $modeValue = Validator::isDouble($modeValue) ? (double) $modeValue : null;
+        $defaultModeValues = [
+            self::MODE_PUBLIC_IMAGE_FIXED => 1200,
+            self::MODE_PUBLIC_IMAGE_PERCENT => 100,
+        ];
 
         $pointIndex = is_string($maskName) ? strpos($maskName, '.') : false;
 
@@ -216,7 +232,36 @@ class ImagesRepositoryController extends AdminPanelController
                     $response = $response->withHeader('Content-Disposition', "filename=\"{$maskNameInput}\"");
                     $response = $response->withStatus($headersAndStatus['status']);
 
-                    readfile($imagePath);
+                    if ($mode !== null) {
+
+                        $modeValue = $modeValue !== null ? $modeValue : $defaultModeValues[$mode];
+
+                        if ($mode == self::MODE_PUBLIC_IMAGE_FIXED) {
+                            imageToThumbnail($imagePath, $modeValue, 1, 70, null, true);
+                        } elseif ($mode == self::MODE_PUBLIC_IMAGE_PERCENT) {
+                            $imageResource = imagecreatefromstring(file_get_contents($imagePath));
+                            $width = imagesx($imageResource);
+                            $adjustPercent = $width / 100 * $modeValue;
+                            imageToThumbnail($imagePath, $adjustPercent, 1, 70, null, true);
+                        }
+
+                        $lastModification = filemtime($imagePath);
+                        $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
+                        $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', $lastModification);
+                        if ($lastModification === false) {
+                            $lastModification = new \DateTime;
+                        }
+                        $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification);
+
+                        foreach ($headersAndStatus['headers'] as $header => $value) {
+                            $response = $response->withHeader($header, $value);
+                        }
+
+                        $response = $response->withHeader('Content-Type', 'image/jpg');
+
+                    } else {
+                        readfile($imagePath);
+                    }
 
                     return $response;
 
