@@ -464,13 +464,29 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     }
 
     /**
+     * @param string $mode
+     * @param int $modeValue
      * @return string
      */
-    public function getImagePublicURL()
+    public function getImagePublicURL(string $mode = null, int $modeValue = null)
     {
         $imagePath = ImagesRepositoryController::routeName('image-friendly', [
             'name' => $this->getFriendlyImageName(),
         ]);
+
+        $params = [];
+
+        if ($mode !== null) {
+            $params[] = "mode={$mode}";
+            if ($modeValue !== null) {
+                $params[] = "modeValue={$modeValue}";
+            }
+        }
+
+        if (!empty($params)) {
+            $imagePath .= "?" . implode('&', $params);
+        }
+
         return rtrim($imagePath, '/');
     }
 
