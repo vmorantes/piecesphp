@@ -49,7 +49,7 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
         <div class="two column row">
 
             <div class="column">
-                <img class="ui fluid image" src="<?= $element->getImagePublicURL(); ?>" alt="<?= $element->getFriendlyImageName(false); ?>">
+                <img class="ui fluid image" src="<?= $element->getImagePublicURL(ImagesRepositoryController::MODE_PUBLIC_IMAGE_FIXED, 400); ?>" alt="<?= $element->getFriendlyImageName(false); ?>">
             </div>
 
             <div class="column">
@@ -116,9 +116,18 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
                 </div>
 
                 <div class="field clearfix">
-                    <a href="<?= $element->getImagePublicURL(); ?>" download="<?= $element->getFriendlyImageName(false); ?>" class="ui button green labeled icon right floated">
+                    <label><?= __($langGroup, 'Descargar fotografía'); ?></label>
+                    <a href="<?= $element->getImagePublicURL(); ?>" download="<?= $element->getFriendlyImageName(false); ?>" class="ui button green labeled icon">
                         <i class="icon download"></i>
-                        <?= __($langGroup, 'Descargar fotografía'); ?>
+                        100%
+                    </a>
+                    <a href="<?= $element->getImagePublicURL(ImagesRepositoryController::MODE_PUBLIC_IMAGE_PERCENT, 75); ?>" download="<?= $element->getFriendlyImageName(false); ?>" class="ui button green labeled icon">
+                        <i class="icon download"></i>
+                        75%
+                    </a>
+                    <a href="<?= $element->getImagePublicURL(ImagesRepositoryController::MODE_PUBLIC_IMAGE_PERCENT, 50); ?>" download="<?= $element->getFriendlyImageName(false); ?>" class="ui button green labeled icon">
+                        <i class="icon download"></i>
+                        50%
                     </a>
                 </div>
 
