@@ -287,6 +287,17 @@ if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined') {
 
 //────────────────────────────────────────────────────────────────────────────────────────
 
+pcsphpGlobals.cacheStamp = (function () {
+	let cacheStamp = document.querySelector('html head meta[name="cache-stamp"]')
+	if(cacheStamp !== null){
+		cacheStamp = cacheStamp.getAttribute('value')
+	}
+	if(cacheStamp === null){
+		cacheStamp = 'none'
+	}
+	return cacheStamp
+})()
+
 /**
  * Configuración de los calendarios
  * 
