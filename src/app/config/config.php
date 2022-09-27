@@ -32,6 +32,7 @@ $config['base_url'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVE
 $config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . "/" . mb_substr($config['base_url'], 1);
 
 $config['default_lang'] = "es";
+$config['cache_stamp_render_files'] = true;
 
 $config['title_app'] = "Nombre Plataforma";
 $config['owner'] = "Nombre Plataforma";

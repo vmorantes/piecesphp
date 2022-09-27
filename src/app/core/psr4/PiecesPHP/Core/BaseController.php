@@ -7,6 +7,7 @@ namespace PiecesPHP\Core;
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use Spatie\Url\Url as URLManager;
 
 /**
  * BaseController - Implementación básica de controlador.
@@ -110,6 +111,62 @@ class BaseController
             $output = \PiecesPHP\Core\HTML\FormatHtml::format($output);
         }
 
+        $cache_stamp_render_files = get_config('cache_stamp_render_files');
+        $stamp = get_config('cacheStamp');
+
+        if ($cache_stamp_render_files === true) {
+
+            $outputBase = $output;
+
+            try {
+
+                $dom = new \DOMDocument();
+                $dom->preserveWhiteSpace = true;
+                $dom->formatOutput = false;
+                $temporalDivID = "TEMPORA_" . uniqid() . "_ID";
+
+                libxml_use_internal_errors(true);
+                $dom->loadHTML("<div id='{$temporalDivID}'>{$output}</div>");
+                libxml_clear_errors();
+
+                $imgs = $dom->getElementsByTagName("img");
+
+                $imagesSRCs = [];
+
+                /**
+                 * @var \DOMElement $img
+                 */
+                foreach ($imgs as $img) {
+                    $baseSrc = $img->getAttribute('src');
+                    $src = $baseSrc;
+                    $src = URLManager::fromString($src);
+                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $url;
+                    $src = $src->__toString();
+                    $img->setAttribute('src', $src);
+                    $imagesSRCs[$baseSrc] = $src;
+                }
+
+                if (!empty($imagesSRCs)) {
+
+                    $changedSRCs = [];
+
+                    foreach ($imagesSRCs as $from => $to) {
+
+                        if (!in_array($from, $changedSRCs)) {
+                            $output = str_replace($from, $to, $output);
+                            $changedSRCs[] = $from;
+                        }
+
+                    }
+
+                }
+
+            } catch (\Exception $e) {
+                $output = $outputBase;
+            }
+
+        }
+
         if ($mode === true) {
             echo $output;
         } else {
@@ -144,6 +201,62 @@ class BaseController
 
         if (class_exists('\\PiecesPHP\\Core\\HTML\\FormatHtml') && $format) {
             $output = \PiecesPHP\Core\HTML\FormatHtml::format($output);
+        }
+
+        $cache_stamp_render_files = get_config('cache_stamp_render_files');
+        $stamp = get_config('cacheStamp');
+
+        if ($cache_stamp_render_files === true) {
+
+            $outputBase = $output;
+
+            try {
+
+                $dom = new \DOMDocument();
+                $dom->preserveWhiteSpace = true;
+                $dom->formatOutput = false;
+                $temporalDivID = "TEMPORA_" . uniqid() . "_ID";
+
+                libxml_use_internal_errors(true);
+                $dom->loadHTML("<div id='{$temporalDivID}'>{$output}</div>");
+                libxml_clear_errors();
+
+                $imgs = $dom->getElementsByTagName("img");
+
+                $imagesSRCs = [];
+
+                /**
+                 * @var \DOMElement $img
+                 */
+                foreach ($imgs as $img) {
+                    $baseSrc = $img->getAttribute('src');
+                    $src = $baseSrc;
+                    $src = URLManager::fromString($src);
+                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $url;
+                    $src = $src->__toString();
+                    $img->setAttribute('src', $src);
+                    $imagesSRCs[$baseSrc] = $src;
+                }
+
+                if (!empty($imagesSRCs)) {
+
+                    $changedSRCs = [];
+
+                    foreach ($imagesSRCs as $from => $to) {
+
+                        if (!in_array($from, $changedSRCs)) {
+                            $output = str_replace($from, $to, $output);
+                            $changedSRCs[] = $from;
+                        }
+
+                    }
+
+                }
+
+            } catch (\Exception $e) {
+                $output = $outputBase;
+            }
+
         }
 
         if ($mode === true) {
