@@ -37,7 +37,15 @@ function get_config(string $name)
             $name .= "_{$currentLang}";
         }
 
+    } else if ($name === 'cacheStamp') {
+        $value = Config::get_config($name);
+        if (is_string($value)) {
+            return $value;
+        } else {
+            return static_files_cache_stamp();
+        }
     }
+
     return Config::get_config($name);
 }
 
@@ -320,6 +328,7 @@ function static_files_cache_stamp(bool $update = false)
         $stamp = sha1(uniqid());
         file_put_contents($fileCache, $stamp);
     }
+    set_config('cacheStamp', $stamp);
     return $stamp;
 }
 
