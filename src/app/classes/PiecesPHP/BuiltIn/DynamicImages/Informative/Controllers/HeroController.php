@@ -296,16 +296,22 @@ class HeroController extends AdminPanelController
 
                     if (is_array($value)) {
 
+                        $valid = true;
+
                         foreach ($value as $lang => $text) {
 
-                            if (in_array($lang, $allowedLangs) && is_string($text) && mb_strlen(trim($text)) > 0) {
+                            if (in_array($lang, $allowedLangs) && is_string($text)) {
 
-                                $originalInput = $text;
-                                $text = HeroController::parseURL($text);
-                                $valid = filter_var($text, \FILTER_VALIDATE_URL, \FILTER_FLAG_PATH_REQUIRED) !== false;
+                                if (mb_strlen(trim($text)) > 0) {
 
-                                if (!$valid) {
-                                    throw new \Exception(__(self::LANG_GROUP, 'La URL del enlace tiene un formato inválido') . "({$originalInput})");
+                                    $originalInput = $text;
+                                    $text = HeroController::parseURL($text);
+                                    $valid = filter_var($text, \FILTER_VALIDATE_URL, \FILTER_FLAG_PATH_REQUIRED) !== false;
+
+                                    if (!$valid) {
+                                        throw new \Exception(__(self::LANG_GROUP, 'La URL del enlace tiene un formato inválido') . "({$originalInput})");
+                                    }
+
                                 }
 
                             } else {
