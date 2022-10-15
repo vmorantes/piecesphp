@@ -139,6 +139,7 @@ class BaseController
                 foreach ($imgs as $img) {
                     $baseSrc = $img->getAttribute('src');
                     $src = $baseSrc;
+                    $src = rtrim($src, '/');
                     $src = URLManager::fromString($src);
                     $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $url;
                     $src = $src->__toString();
@@ -231,6 +232,7 @@ class BaseController
                 foreach ($imgs as $img) {
                     $baseSrc = $img->getAttribute('src');
                     $src = $baseSrc;
+                    $src = rtrim($src, '/');
                     $src = URLManager::fromString($src);
                     $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $url;
                     $src = $src->__toString();
