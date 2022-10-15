@@ -552,6 +552,7 @@ function load_js(array $config = array())
 
     $stamp = static_files_cache_stamp();
     foreach ($jsGlobal as $script) {
+        $script = rtrim($script, '/');
         $url = URLManager::fromString($script);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $script = $url->__toString();
@@ -562,6 +563,7 @@ function load_js(array $config = array())
     }
 
     foreach ($jsCustom as $script) {
+        $script = rtrim($script, '/');
         $url = URLManager::fromString($script);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $script = $url->__toString();
@@ -796,6 +798,7 @@ function load_css(array $config = array())
 
     $stamp = static_files_cache_stamp();
     foreach ($cssGlobal as $stylesheet) {
+        $stylesheet = rtrim($stylesheet, '/');
         $url = URLManager::fromString($stylesheet);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $stylesheet = $url->__toString();
@@ -806,6 +809,7 @@ function load_css(array $config = array())
     }
 
     foreach ($cssCustom as $stylesheet) {
+        $stylesheet = rtrim($stylesheet, '/');
         $url = URLManager::fromString($stylesheet);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $stylesheet = $url->__toString();
@@ -1035,6 +1039,7 @@ function load_font(array $config = array())
 
     $stamp = static_files_cache_stamp();
     foreach ($fontGlobal as $stylesheet) {
+        $stylesheet = rtrim($stylesheet, '/');
         $url = URLManager::fromString($stylesheet);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $stylesheet = $url->__toString();
@@ -1045,6 +1050,7 @@ function load_font(array $config = array())
     }
 
     foreach ($fontCustom as $stylesheet) {
+        $stylesheet = rtrim($stylesheet, '/');
         $url = URLManager::fromString($stylesheet);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $stylesheet = $url->__toString();
