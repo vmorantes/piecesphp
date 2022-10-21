@@ -356,6 +356,26 @@ $totalColumns: 12;
     }
 }
 
+.ui.form {
+
+    .field {
+
+        &.disabled.special-disabled,
+        &.special-disabled {
+
+            &,
+            label,
+            .dropdown,
+            .search,
+            .ui.checkbox input~label {
+                opacity: 1;
+            }
+        }
+
+    }
+
+}
+
 @media screen and (max-width: $rsXLarge) {}
 
 @media screen and (max-width: $rsLarge) {}
