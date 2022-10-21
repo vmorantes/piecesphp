@@ -10,15 +10,24 @@ use Documents\Mappers\DocumentsMapper;
 ?>
 
 <a class="card" target="_blank" href="<?= $mapper->currentLangData('document'); ?>">
+    <?php if(mb_strlen($mapper->currentLangData('documentImage')) > 0): ?>
     <div class="image">
         <img src="<?= $mapper->currentLangData('documentImage'); ?>">
     </div>
+    <?php else: ?>
+    <div class="image">
+        <img src="statics/images/document-placeholder.png">
+    </div>
+    <?php endif; ?>
     <div class="content">
         <div class="header"><?= $mapper->currentLangData('documentName'); ?></div>
         <div class="meta">
-            <span>
+            <div>
+                <?= basename($mapper->currentLangData('document')); ?>
+            </div>
+            <div>
                 <?= $mapper->createdAtFormat(); ?>
-            </span>
+            </div>
         </div>
         <div class="description">
             <?= $mapper->currentLangData('description'); ?>

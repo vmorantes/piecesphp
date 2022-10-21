@@ -883,6 +883,13 @@ class DocumentsController extends AdminPanelController
         $and = 'AND';
         $table = DocumentsMapper::TABLE;
 
+        $status = DocumentsMapper::STATUS_ACTIVE;
+        if ($status !== null && $status !== -1) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$table}.status = {$status}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
         if ($FIELD !== null && $FIELD !== -1) {
             $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.FIELD_SAMPLE_FILTER = {$FIELD}";
@@ -897,6 +904,7 @@ class DocumentsController extends AdminPanelController
 
         $columnsOrder = [
             'documentName',
+            'description',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -911,6 +919,7 @@ class DocumentsController extends AdminPanelController
             'request' => $request,
             'on_set_data' => function ($e) {
                 return [
+                    '',
                     '',
                 ];
             },
@@ -957,6 +966,7 @@ class DocumentsController extends AdminPanelController
         $model = DocumentsMapper::model();
         $model->select(DocumentsMapper::fieldsToSelect());
         $model->orderBy('documentName ASC');
+        $model->where("status = " . DocumentsMapper::STATUS_ACTIVE);
 
         if ($search !== null) {
 
@@ -1006,7 +1016,9 @@ class DocumentsController extends AdminPanelController
         $jsonExtractExists = DocumentsMapper::jsonExtractExistsMySQL();
 
         $whereString = null;
-        $where = [];
+        $where = [
+            "{$table}.status" => DocumentsMapper::STATUS_ACTIVE,
+        ];
         $and = 'AND';
 
         //Verificación de idioma
