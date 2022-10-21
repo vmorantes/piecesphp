@@ -123,6 +123,7 @@ function LocationsAdapter() {
 
 			if (typeof countriesSelect.attr('with-dropdown') == 'string') {
 
+				$(`[${selectAutoFilledCountryAttr}]`).addClass('search')
 				const dropdown = configFomanticDropdown(`[${selectAutoFilledCountryAttr}]`, {
 					onChange: function (value, text, $element) {
 						onChangeCountryDropdown(value, text, $element)
@@ -287,6 +288,7 @@ function LocationsAdapter() {
 
 			if (typeof statesSelect.attr('with-dropdown') == 'string') {
 
+				$(`[${selectAutoFilledStateAttr}]`).addClass('search')
 				const dropdown = configFomanticDropdown(`[${selectAutoFilledStateAttr}]`, {
 					onChange: function (value, text, $element) {
 						onChangeStateDropdown(value, text, $element)
@@ -472,6 +474,7 @@ function LocationsAdapter() {
 
 			if (typeof citiesSelect.attr('with-dropdown') == 'string') {
 
+				$(`[${selectAutoFilledCityAttr}]`).addClass('search')
 				const dropdown = configFomanticDropdown(`[${selectAutoFilledCityAttr}]`, {
 					onChange: function (value, text, $element) {
 						onChangeCityDropdown(value, text, $element)
@@ -616,6 +619,7 @@ function LocationsAdapter() {
 
 			if (typeof pointsSelect.attr('with-dropdown') == 'string') {
 
+				$(`[${selectAutoFilledPointAttr}]`).addClass('search')
 				const dropdown = configFomanticDropdown(`[${selectAutoFilledPointAttr}]`, {
 					onChange: function (value, text, $element) {
 						onChangePointDropdown(value, text, $element)

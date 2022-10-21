@@ -46,7 +46,8 @@ $langGroupDatatables = 'datatables';
                 <thead>
 
                     <tr>
-                        <th><?= __($langGroup, 'Nombre'); ?></th>
+                        <th><?= __($langGroup, '-'); ?></th>
+                        <th><?= __($langGroup, '-'); ?></th>
                     </tr>
 
                 </thead>

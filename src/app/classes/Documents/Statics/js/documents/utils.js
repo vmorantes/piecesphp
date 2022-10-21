@@ -102,4 +102,5 @@ Documents.configDocumentForm = function (onSuccess = null, ignoreRedirection = f
 
 	removeGenericLoader('configDocumentForm')
 
+	return form
 }
