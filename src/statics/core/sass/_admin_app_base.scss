@@ -598,6 +598,14 @@
             }
         }
 
+        &.no-bg {
+            background-color: transparent;
+        }
+
+        &.no-border {
+            border: none;
+        }
+
         &.brand-color {
             color: white;
 
@@ -703,6 +711,11 @@
         &.big {
             font-size: pxToRem(64);
             line-height: pxToRem(64+5);
+        }
+
+        &.mini {
+            font-size: pxToRem(24);
+            line-height: pxToRem(24+5);
         }
     }
 

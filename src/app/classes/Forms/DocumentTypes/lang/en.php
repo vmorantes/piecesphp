@@ -1,5 +1,27 @@
 <?php
 
 return [
-    'KEY' => 'VALUE ES',
+	"Gestión de"                                                           => "Management of",
+	"Guardar"                                                              => "Save",
+	"Tipo de documento"                                                    => "Document Type",
+	"El tipo de documento que intenta modificar no existe."                => "The document type you are trying to modify does not exist.",
+	"Tipo de documento creado."                                            => "Document type created.",
+	"Datos guardados."                                                     => "Data saved.",
+	"Ha ocurrido un error desconocido."                                    => "An unknown error has occurred.",
+	"Ha ocurrido un error desconocido al procesar los valores ingresados." => "An unknown error occurred while processing the entered values.",
+	"El idioma \"%s\" no está permitido."                                  => "The language \"%s\" is not allowed.",
+	"Eliminar tipo de documento"                                           => "Delete document type",
+	"El tipo de documento que intenta eliminar no existe."                 => "The document type you are trying to delete does not exist.",
+	"Tipo de documento eliminado."                                         => "Document type deleted.",
+	"Tipos de documentos"                                                  => "Document types",
+	"Regresar"                                                             => "Return to",
+	"N°"                                                                   => "N°",
+	"Nombre de tipo"                                                       => "Type name",
+	"Acciones"                                                             => "Actions",
+	"Agregar"                                                              => "Add",
+	"Nombre"                                                               => "Name",
+	"Editar"                                                               => "Edit",
+	"Idiomas"                                                              => "Languages",
+	"Eliminar"                                                             => "Delete",
+	"Nombre del tipo de documento"                                         => "Name of document type",
 ];

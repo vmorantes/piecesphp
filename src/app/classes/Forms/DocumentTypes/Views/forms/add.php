@@ -48,7 +48,7 @@ $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup
 
                 <div class="field required">
                     <label><?= __($langGroup, 'Nombre'); ?></label>
-                    <input type="text" name="documentTypeName" required placeholder="Nombre del tipo de documento">
+                    <input type="text" name="documentTypeName" required placeholder="<?= __($langGroup, 'Nombre del tipo de documento'); ?>">
                 </div>
 
                 <div class="field">

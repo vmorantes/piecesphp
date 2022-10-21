@@ -14,14 +14,26 @@ window.addEventListener('load', function () {
 		},
 	}).DataTable()
 
-	Documents.configDocumentForm(function (formProcess) {
+	let cropperPreviewImage = null
+	let cropperPreviewImageDefaultSrc = null
+	let form = Documents.configDocumentForm(function (formProcess) {
 		return new Promise(function (resolve) {
 			formProcess[0].reset()
 			formProcess.find('.ui.dropdown').dropdown('clear')
 			formProcess.find('.ui.dropdown').dropdown('refresh')
+
+			if (cropperPreviewImage !== null) {
+				cropperPreviewImage.attr('src', cropperPreviewImageDefaultSrc)
+			}
+
+			let overlayImageSimpleUploadPlaceholder = formProcess.find('.simple-upload-placeholder .overlay-element.image')
+			overlayImageSimpleUploadPlaceholder.removeClass('image')
+			overlayImageSimpleUploadPlaceholder.attr('style', '')
 			dataTable.draw()
 			resolve()
 		})
 	}, true, true)
+	cropperPreviewImage = form.find('.ui.form.cropper-adapter .preview img')
+	cropperPreviewImageDefaultSrc = cropperPreviewImage.attr('src')
 
 })

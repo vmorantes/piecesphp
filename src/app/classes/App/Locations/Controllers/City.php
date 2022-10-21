@@ -408,7 +408,7 @@ class City extends AdminPanelController
 
         $expectedParameters = new Parameters([
             new Parameter(
-                'query',
+                'search',
                 '',
                 function ($value) {
                     return is_string($value);
@@ -418,6 +418,39 @@ class City extends AdminPanelController
                     return clean_string(trim($value));
                 }
             ),
+            new Parameter(
+                'country',
+                -10,
+                function ($value) {
+                    return true;
+                },
+                true,
+                function ($value) {
+                    return Validator::isInteger($value) ? (int) $value : -10;
+                }
+            ),
+            new Parameter(
+                'state',
+                -10,
+                function ($value) {
+                    return true;
+                },
+                true,
+                function ($value) {
+                    return Validator::isInteger($value) ? (int) $value : -10;
+                }
+            ),
+            new Parameter(
+                'mode',
+                'normal',
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return clean_string(trim(mb_strtolower($value)));
+                }
+            ),
         ]);
 
         $expectedParameters->setInputValues($request->getQueryParams());
@@ -425,8 +458,19 @@ class City extends AdminPanelController
 
         /**
          * @var string $query
+         * @var int $country
+         * @var int $state
+         * @var string $mode
          */
-        $query = $expectedParameters->getValue('query');
+        $query = $expectedParameters->getValue('search');
+        $country = $expectedParameters->getValue('country');
+        $state = $expectedParameters->getValue('state');
+        $mode = $expectedParameters->getValue('mode');
+        $allowedModes = [
+            'normal',
+            'dropdown',
+        ];
+        $mode = in_array($mode, $allowedModes) ? $mode : 'normal';
 
         $result = [];
 
@@ -441,6 +485,18 @@ class City extends AdminPanelController
         $critery = "UPPER({$table}.name) LIKE UPPER('{$query}%')";
         $where[] = "{$beforeOperator} ({$critery})";
 
+        if ($country !== -10) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "countryID = {$country}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
+        if ($state !== -10) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$table}.state = {$state}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
         if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
@@ -448,20 +504,36 @@ class City extends AdminPanelController
         if (is_string($whereString)) {
 
             $model = CityMapper::model();
-            $model->select()->where($whereString)->orderBy("{$table}.name ASC");
+            $model->select(CityMapper::fieldsToSelect())->having($whereString)->orderBy("{$table}.name ASC");
             $model->execute(false, 1, 50);
             $queryResult = $model->result();
 
             foreach ($queryResult as $row) {
-                $result[] = [
-                    'id' => $row->id,
-                    'title' => $row->name,
-                ];
+                if ($mode == 'normal') {
+                    $element = [
+                        'id' => $row->id,
+                        'title' => $row->name,
+                    ];
+                } else {
+                    $element = [
+                        'value' => $row->id,
+                        'name' => $row->name,
+                    ];
+                }
+                $result[] = $element;
             }
 
         }
 
-        return $response->withJson($result);
+        $resultReturn = $result;
+
+        if ($mode == 'dropdown') {
+            $resultReturn = new \stdClass;
+            $resultReturn->success = true;
+            $resultReturn->results = $result;
+        }
+
+        return $response->withJson($resultReturn);
     }
 
     /**
