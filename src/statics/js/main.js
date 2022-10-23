@@ -55,6 +55,21 @@ window.addEventListener('load', function (e) {
 	//Configurar barra de navegación
 	configurateNavigation()
 
+	//Cambio de hash URL	
+	$('[smooth-to-trigger]').on('click', function (e) {
+		e.preventDefault()
+		const href = e.currentTarget.href
+		if (typeof href == 'string' && href.length > 0) {
+			try {
+				const hash = new URL(href).hash
+				const target = $(`[smooth-scroll]${hash}`)
+				CustomNamespace.scrollTo(target)
+			} catch {
+
+			}
+		}
+	})
+
 	CustomNamespace.loader(null, false)
 })
 

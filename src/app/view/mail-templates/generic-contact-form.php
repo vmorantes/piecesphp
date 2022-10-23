@@ -4,7 +4,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 <div style="max-width: 800px; margin: 0 auto;">
 
-    <img src="<?= $logo ?>" style="display: inline-block; margin: 30px auto; max-width: 100%;">
+    <img src="<?= $logo ?>" style="display: inline-block; margin: 30px auto; max-width: 100%; width: 150px;">
 
     <h1><?= $title; ?></h1>
 
@@ -21,9 +21,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <strong><?= __(LANG_GROUP, 'Acepta que le envíen actualizaciones'); ?>:</strong> <?= $updates ? __(LANG_GROUP, 'Sí') : __(LANG_GROUP, 'No'); ?>
         <br>
 
-		<strong><?= __(LANG_GROUP, 'Mensaje'); ?>:</strong> 
-		<br>
-		<?= $message; ?>
+        <strong><?= __(LANG_GROUP, 'Mensaje'); ?>:</strong>
+        <br>
+        <?= $message; ?>
     </p>
 
 </div>

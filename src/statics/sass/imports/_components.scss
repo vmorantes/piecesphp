@@ -382,6 +382,13 @@ body>.navigation {
             display: none;
         }
 
+        &.no-logo {
+            >.content {
+                grid-template-columns: auto;
+                justify-content: center !important;
+            }
+        }
+
         &.inverted {
 
             .items {
@@ -412,6 +419,76 @@ body>.navigation {
 
         }
 
+    }
+
+}
+
+.button:not(.ui) {
+    display: inline-block;
+    min-width: 160px;
+    max-width: 100%;
+    padding: 15px 15px;
+    font-size: pxToRem(16);
+    text-align: center;
+    border: 0px solid transparent;
+    transition: 0.5s ease background-color, 0.5s ease border-color, 0.5s ease color;
+    cursor: pointer;
+
+    &.fluid {
+        width: 100%;
+    }
+
+    &,
+    &:visited,
+    &:active {
+        background-color: $primaryColor;
+        border: 3px solid transparent;
+        color: white;
+        text-decoration: none;
+        outline: none;
+    }
+
+    &:hover {
+        background-color: white;
+        border-color: $primaryColor;
+        color: $primaryColor;
+    }
+
+    &.white {
+
+        &,
+        &:visited,
+        &:active {
+            background-color: white;
+            color: $primaryColor;
+        }
+
+        &:hover {
+            background-color: $primaryColor;
+            border-color: white;
+            color: white;
+        }
+
+    }
+
+    &.upper {
+        text-transform: uppercase;
+    }
+
+    &.rounded {
+        border-radius: 60px;
+    }
+
+    &.centered {
+        display: block;
+        width: 100%;
+        max-width: max-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    &.last:last-child {
+        margin-top: 1rem;
     }
 
 }

@@ -8,8 +8,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     <div class="content bg-1">
 
-        <div class="wrapper unbounds">
-
+        <div class="wrapper oversize unbounds blured">
+            <div class="blur"></div>
             <div class="slideshow slideshow-main-home text-center" data-url="<?= $sliderAjax; ?>">
                 <span class="prev">&#10094;</span>
                 <span class="next">&#10095;</span>
@@ -34,8 +34,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             <section class="ui cards centered posts-list" articles-container data-route="<?= $ajaxArticlesURL; ?>">
             </section>
 
-            <a href="<?= PublicationsPublicController::routeName('list', [], true); ?>"
-                class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
+            <a href="<?= PublicationsPublicController::routeName('list', [], true); ?>" class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
 
         </div>
 
