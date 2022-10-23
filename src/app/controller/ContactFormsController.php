@@ -6,6 +6,8 @@
 
 namespace App\Controller;
 
+use GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
+use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Mappers\NewsletterSuscriberMapper;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
@@ -124,6 +126,17 @@ class ContactFormsController extends PublicAreaController
                     return $value === true ? true : ($value === 'yes');
                 }
             ),
+            new Parameter(
+                'tokenCaptcha',
+                '',
+                function ($value) {
+                    return is_null($value) || (is_string($value) && mb_strlen(trim($value)) > 0);
+                },
+                true,
+                function ($value) {
+                    return !is_null($value) ? clean_string($value) : '';
+                }
+            ),
         ]);
 
         //Obtención de datos
@@ -147,6 +160,7 @@ class ContactFormsController extends PublicAreaController
         $successMessage = __(LANG_GROUP, 'El mensaje ha sido enviado.');
         $unknowErrorMessage = __(LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
         $unknowErrorWithValuesMessage = __(LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+        $captchaFailErrorMessage = __(LANG_GROUP, 'CAPTCHA_FAIL');
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -162,6 +176,7 @@ class ContactFormsController extends PublicAreaController
              * @var string $subject
              * @var string $message
              * @var bool $updates
+             * @var string $tokenCaptcha
              */
             $from = $expectedParameters->getValue('from');
             $name = $expectedParameters->getValue('name');
@@ -169,55 +184,66 @@ class ContactFormsController extends PublicAreaController
             $subject = $expectedParameters->getValue('subject');
             $message = $expectedParameters->getValue('message');
             $updates = $expectedParameters->getValue('updates');
+            $tokenCaptcha = $expectedParameters->getValue('tokenCaptcha');
 
             try {
 
-                $title = get_config('title_app');
-                $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
-                    baseurl(),
-                    $title,
-                ]);
-                $logo = baseurl(get_config('logo'));
-
-                $bodyMessage = $this->render('mail-templates/generic-contact-form', [
-                    'from' => $from,
-                    'title' => $title,
-                    'logo' => $logo,
-                    'name' => $name,
-                    'email' => $email,
-                    'subject' => $subject,
-                    'message' => $message,
-                    'updates' => $updates,
-                ], false);
-                $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
-
-                $mailer = new Mailer();
-                $mailConfig = new MailConfig;
-
-                $mailer->SMTPDebug = 2;
-                $mailer->isHTML(true);
-
-                $mailer->setFrom($mailConfig->user());
-                $mailer->addReplyTo($email, $name);
-
-                foreach ($this->recipientsMessages as $recipient) {
-                    $mailer->addAddress($recipient);
+                //Verificar token si GoogleReCaptchaV3Controller está activo
+                $captchaSuccess = true;
+                if (GoogleReCaptchaV3Routes::ENABLE) {
+                    $captchaSuccess = GoogleReCaptchaV3Controller::verifyTokenCaptcha($tokenCaptcha);
                 }
 
-                $mailer->Subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8');
-                $mailer->Body = $bodyMessage;
+                if ($captchaSuccess) {
+                    $title = get_config('title_app');
+                    $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
+                        baseurl(),
+                        $title,
+                    ]);
+                    $logo = baseurl(get_config('logo'));
 
-                if (!$mailer->checkSettedSMTP() && !is_local()) {
-                    $mailer->asGoDaddy(true);
-                }
+                    $bodyMessage = $this->render('mail-templates/generic-contact-form', [
+                        'from' => $from,
+                        'title' => $title,
+                        'logo' => $logo,
+                        'name' => $name,
+                        'email' => $email,
+                        'subject' => $subject,
+                        'message' => $message,
+                        'updates' => $updates,
+                    ], false);
+                    $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
 
-                $success = $mailer->send();
+                    $mailer = new Mailer();
+                    $mailConfig = new MailConfig;
 
-                if ($success) {
-                    $resultOperation->setMessage($successMessage);
-                    $resultOperation->setSuccessOnSingleOperation($success);
+                    $mailer->SMTPDebug = 2;
+                    $mailer->isHTML(true);
+
+                    $mailer->setFrom($mailConfig->user());
+                    $mailer->addReplyTo($email, $name);
+
+                    foreach ($this->recipientsMessages as $recipient) {
+                        $mailer->addAddress($recipient);
+                    }
+
+                    $mailer->Subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8');
+                    $mailer->Body = $bodyMessage;
+
+                    if (!$mailer->checkSettedSMTP() && !is_local()) {
+                        $mailer->asGoDaddy(true);
+                    }
+
+                    $success = $mailer->send();
+
+                    if ($success) {
+                        $resultOperation->setMessage($successMessage);
+                        $resultOperation->setSuccessOnSingleOperation($success);
+                    } else {
+                        $resultOperation->setMessage($unknowErrorMessage);
+                    }
                 } else {
-                    $resultOperation->setMessage($unknowErrorMessage);
+                    $resultOperation->setMessage($captchaFailErrorMessage);
                 }
 
                 if (NewsletterRoutes::ENABLE) {

@@ -30,4 +30,5 @@ return [
     'Todas las categorías'                                                 => 'Of all categories',
     'Elementos'                                                            => 'Elements',
     'Idiomas'                                                              => 'Languages',
+    'CAPTCHA_FAIL'                                                         => 'Failed the anti-spam captcha test, try again by refreshing the page.',
 ];
