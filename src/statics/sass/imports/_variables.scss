@@ -24,10 +24,10 @@ $rsMobile: 480px;
 //──── Colors ────────────────────────────────────────────────────────────────────────────
 $defaultTextColor: #676767;
 
-$primaryColor: #3B414D;
-$primaryColorOver: white;
+$primaryColor: var(--main-brand-color);
+$primaryColorOver: var(--color-text-over-main-brand-color);
 
-$secondaryColor: #E7746F;
+$secondaryColor: var(--second-brand-color);
 
 $footerColor: white;
 $footerSocialIconsOnHoverColor: $secondaryColor;

@@ -49,7 +49,7 @@ function GoogleCaptchaV3Adapter(configurations = {}) {
 
 	/**
 	 * @method execute
-	 * @param {Function(response:Object, success:Boolean, message:String)} callback
+	 * @param {Function(response:Object, success:Boolean, message:String, token:String)} callback
 	 * @returns {void}
 	 */
 	this.execute = (callback) => {
@@ -75,8 +75,9 @@ function GoogleCaptchaV3Adapter(configurations = {}) {
 						.then(res => res.json())
 						.then(function (res) {
 							const success = res.verify.success
+							const token = res.verify.token
 							let message = !success ? _i18n(LANG_GROUP, 'No ha pasado la prueba captcha anti-spam, intente nuevamente refrescando la página.') : 'OK'
-							callback(res, success, message)
+							callback(res, success, message, token)
 						})
 						.finally(function () {
 							removeGenericLoader('grecaptcha-execute-GoogleCaptchaV3Adapter')

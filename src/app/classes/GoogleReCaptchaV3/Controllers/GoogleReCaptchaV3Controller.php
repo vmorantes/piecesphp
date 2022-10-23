@@ -7,6 +7,7 @@
 namespace GoogleReCaptchaV3\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Model\AppConfigModel;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Lang;
 use PiecesPHP\Core\Http\HttpClient;
 use PiecesPHP\Core\Roles;
@@ -100,12 +101,60 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
              */
             $token = $expectedParameters->getValue('token');
 
+            $now = new \DateTime();
+            $nowLess1Hour = (clone $now)->modify('-1 hour');
             $requestHTTP = new HttpClient('https://www.google.com/recaptcha/api/');
             $requestHTTP->request('siteverify', 'POST', [
                 'secret' => self::$secretKey,
                 'response' => $token,
             ]);
-            $responseJSON['verify'] = $requestHTTP->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
+            $defaultResult = (object) [
+                'success' => false,
+                'challenge_ts' => $now->format('c'),
+                'hostname' => $_SERVER['HTTP_HOST'],
+                'score' => 0.0,
+                'action' => 'submit',
+            ];
+            $recaptchaResult = $requestHTTP->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
+            $recaptchaResult = $recaptchaResult instanceof \stdClass ? $recaptchaResult : (is_array($recaptchaResult) ? (object) $recaptchaResult : null);
+            $recaptchaResult = $recaptchaResult !== null ? $recaptchaResult : $defaultResult;
+            if (array_key_exists('error-codes', (array) $recaptchaResult)) {
+                $captchaErrorCodes = ((array) $recaptchaResult)['error-codes'];
+                if (is_array($captchaErrorCodes) && !empty($captchaErrorCodes)) {
+                    $recaptchaResult = $defaultResult;
+                }
+            }
+            $recaptchaResult->token = $token;
+            //Verificar validez
+            $recaptchaResult->success = $recaptchaResult->score >= 0.5;
+
+            $configElement = new AppConfigModel('GoogleReCaptchaV3Controller');
+            if ($configElement->id === null) {
+                $configElement->name = 'GoogleReCaptchaV3Controller';
+                $configElement->value = [];
+                $configElement->save();
+                $configElement->id = $configElement->getLastInsertID();
+            }
+            $tokens = $configElement->value;
+
+            if ($recaptchaResult->success) {
+                $tokens[] = [
+                    'date' => $now->format('Y-m-d H:i:s'),
+                    'token' => $token,
+                ];
+            }
+
+            foreach ($tokens as $indexToken => $valueToken) {
+                $valueToken = (array) $valueToken;
+                $dateAddedToken = new \DateTime($valueToken['date']);
+                if ($dateAddedToken < $nowLess1Hour) {
+                    unset($tokens[$indexToken]);
+                }
+            }
+
+            $configElement->value = $tokens;
+            $configElement->update();
+            $responseJSON['verify'] = $recaptchaResult;
 
         } catch (MissingRequiredParamaterException $e) {
 
@@ -130,6 +179,36 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
         }
 
         return $response->withJson($responseJSON);
+    }
+
+    /**
+     * @param string $token
+     * @return bool
+     */
+    public static function verifyTokenCaptcha(string $token)
+    {
+        $configElement = new AppConfigModel('GoogleReCaptchaV3Controller');
+        if ($configElement->id === null) {
+            $configElement->name = 'GoogleReCaptchaV3Controller';
+            $configElement->value = [];
+            $configElement->save();
+            $configElement->id = $configElement->getLastInsertID();
+        }
+        $tokens = $configElement->value;
+        $existsToken = false;
+        foreach ($tokens as $indexToken => $valueToken) {
+            $valueToken = (array) $valueToken;
+            if ($valueToken['token'] === $token) {
+                $existsToken = true;
+                unset($tokens[$indexToken]);
+                break;
+            }
+        }
+        if ($existsToken) {
+            $configElement->value = $tokens;
+            $configElement->update();
+        }
+        return $existsToken;
     }
 
     /**
