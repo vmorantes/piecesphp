@@ -5,6 +5,8 @@ window.addEventListener('load', function (e) {
 
 	if (sliderAjaxURL !== null) {
 
+		let bluredParent = slidershow.closest('.blured')
+
 		getRequest(sliderAjaxURL).done(function (images) {
 
 			if (Array.isArray(images) && images.length > 0) {
@@ -72,7 +74,11 @@ window.addEventListener('load', function (e) {
 
 				}
 
-				CustomNamespace.slideshow('.slideshow-main-home')
+				CustomNamespace.slideshow('.slideshow-main-home', 5, function (src) {
+					if (bluredParent !== null) {
+						bluredParent.style.backgroundImage = `url("${src}")`
+					}
+				})
 
 			}
 

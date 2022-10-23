@@ -3,7 +3,7 @@
 /**
  * Clase para evitar colisiones
  */
- function CustomNamespace() {
+function CustomNamespace() {
 }
 
 /**
@@ -178,13 +178,15 @@ CustomNamespace.tabs = function (activeClass) {
  * 
  * @param {String} selector
  * @param {Number} delay 0 = No se pasa automáticamente (segundos)
+ * @param {Function} onChangeImage
  * @returns {HTMLElement}
  */
-CustomNamespace.slideshow = function (selector, delay = 5) {
+CustomNamespace.slideshow = function (selector, delay = 5, onChangeImage) {
 
 	selector = validString(selector) ? selector : '.vm-slideshow'
 	delay = typeof delay == 'number' ? parseFloat(delay) : null
 	delay = delay !== null && delay > 0 ? delay * 1000 : null
+	onChangeImage = typeof onChangeImage == 'function' ? onChangeImage : () => { }
 
 	/**
 	 * @type {HTMLElement}
@@ -310,6 +312,8 @@ CustomNamespace.slideshow = function (selector, delay = 5) {
 				dot.classList.add('active')
 				activeItem = item
 			}
+
+			onChangeImage(activeItem.querySelector('img').src)
 
 		}
 
