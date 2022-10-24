@@ -135,7 +135,7 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
                 $configElement->save();
                 $configElement->id = $configElement->getLastInsertID();
             }
-            $tokens = $configElement->value;
+            $tokens = (array) $configElement->value;
 
             if ($recaptchaResult->success) {
                 $tokens[] = [
@@ -194,7 +194,7 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
             $configElement->save();
             $configElement->id = $configElement->getLastInsertID();
         }
-        $tokens = $configElement->value;
+        $tokens = (array) $configElement->value;
         $existsToken = false;
         foreach ($tokens as $indexToken => $valueToken) {
             $valueToken = (array) $valueToken;
