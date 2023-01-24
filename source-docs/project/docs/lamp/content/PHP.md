@@ -17,11 +17,6 @@ sudo apt-get update
 #Moverse al directorio de usuario
 cd ~
 
-export PHP_VERSION_MODULES_5=5.6
-export PHP_VERSION_MODULES_70_71={7.0,7.1}
-export PHP_VERSION_MODULES_72_74={7.2,7.3,7.4}
-export PHP_VERSION_MODULES_80_81={8.0,8.1}
-
 #Instalar php
 sudo apt install -y php5.6
 sudo apt install -y php7.0
@@ -39,10 +34,8 @@ sudo service apache2 restart
 sudo update-alternatives --config php
 
 #Instalar extensiones PHP
-sudo apt install -y php$PHP_VERSION_MODULES_5-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,intl,mcrypt}
-sudo apt install -y php$PHP_VERSION_MODULES_70_71-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,intl,mcrypt}
-sudo apt install -y php$PHP_VERSION_MODULES_72_74-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,intl}
-sudo apt install -y php$PHP_VERSION_MODULES_80_81-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,intl}
+sudo apt install -y php{5.6,7.0,7.1}-mcrypt
+sudo apt install -y php*-{common,pdo,xml,ctype,mbstring,fileinfo,gd,mysqli,sqlite3,zip,xsl,xmlwriter,xmlreader,curl,intl}
 ```
 ## Activación
 
