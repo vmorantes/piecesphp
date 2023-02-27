@@ -46,6 +46,7 @@ class FileValidator
             'image/jpeg',
             'image/x-icon',
             'image/svg+xml',
+            'image/svg',
             'image/tiff',
             'image/webp',
             'image/png',
@@ -73,6 +74,7 @@ class FileValidator
         ],
         self::TYPE_SVG => [
             'image/svg+xml',
+            'image/svg',
         ],
         self::TYPE_XLSX => [
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
