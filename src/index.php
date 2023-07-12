@@ -41,7 +41,6 @@ if (APP_CONFIGURATION_MODULE) {
         'favicon' => 'statics/images/favicon.png',
         'favicon-back' => 'statics/images/favicon-back.png',
         'logo' => 'statics/images/logo.png',
-        'white-logo' => 'statics/images/white-logo.png',
         'backgrounds' => [
             'statics/login-and-recovery/images/login/bg1.jpg',
             'statics/login-and-recovery/images/login/bg2.jpg',

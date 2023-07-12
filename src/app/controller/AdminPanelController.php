@@ -92,6 +92,32 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     }
 
     /**
+     * Acerca de
+     *
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function aboutFramework(Request $req, Response $res)
+    {
+
+        add_global_asset('statics/core/css/about-framework.css', 'css');
+
+        set_title(__(AdminPanelController::LANG_GROUP, 'Acerca de'));
+
+        $publicationsListLink = PublicationsController::routeName('list');
+
+        $data = [];
+        $data['publicationsListLink'] = $publicationsListLink;
+
+        $this->render('panel/layout/header');
+        $this->render('panel/pages/about-framework', $data);
+        $this->render('panel/layout/footer');
+
+        return $res;
+    }
+
+    /**
      * @param Request $req
      * @param Response $res
      * @return Response
@@ -212,6 +238,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
         $classname = self::class;
+        $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
 
@@ -223,6 +250,15 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'admin',
                 'GET',
                 true
+            ),
+            new Route(
+                "{$startRoute}about[/]",
+                self::class . ':aboutFramework',
+                'about-framework',
+                'GET',
+                true,
+                null,
+                $allRoles
             ),
             new Route(
                 "{$startRoute}cropper-testing[/]",
