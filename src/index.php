@@ -75,6 +75,7 @@ if (APP_CONFIGURATION_MODULE) {
     $default_configurations_values['keywords'] = get_config('keywords') !== false ? get_config('keywords') : [
         'Website',
     ];
+    $default_configurations_values['check_aud_on_auth'] = get_config('check_aud_on_auth') !== false ? get_config('check_aud_on_auth') : true;
 
     ksort($default_configurations_values);
     AppConfigModel::initializateConfigurations($default_configurations_values);
