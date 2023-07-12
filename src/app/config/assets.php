@@ -11,9 +11,8 @@
 $assets = [];
 
 /**
- * Semantic UI
- * https://semantic-ui.com/
- * Aquí está incluido Semantic Calendar
+ * Fomantic UI v2.9.2
+ * https://fomantic-ui.com/
  */
 $assets['semantic']['css'] = [
     'statics/plugins/semantic/semantic.min.css',
@@ -21,16 +20,16 @@ $assets['semantic']['css'] = [
 $assets['semantic']['js'] = [
     'statics/plugins/semantic/semantic.min.js',
 ];
-$assets['semantic']['font'] = [
-    'statics/fonts/lato/lato.css',
-];
 $assets['semantic']['plugins'] = [
 ];
 
 /**
- * DataTables
+ * DataTables v1.13.5
  * https://datatables.net/
- * Con algunos plugins
+ * Con algunos plugins:
+ * RowReorder v1.4.0
+ * ColReorder v1.7.0
+ * Responsive v2.5.0
  */
 $assets['datatables']['css'] = [
     'statics/plugins/datatables/dataTables.semanticui.min.css',
@@ -42,7 +41,7 @@ $assets['datatables']['js'] = [
 $assets['datatables']['plugins'] = [
     'rowReorder' => [
         'css' => [
-            'statics/plugins/datatables/rowReorder.dataTables.min.css',
+            'statics/plugins/datatables/rowReorder.semanticui.min.css',
         ],
         'js' => [
             'statics/plugins/datatables/dataTables.rowReorder.min.js',
@@ -50,7 +49,7 @@ $assets['datatables']['plugins'] = [
     ],
     'colReorder' => [
         'css' => [
-            'statics/plugins/datatables/colReorder.dataTables.min.css',
+            'statics/plugins/datatables/colReorder.semanticui.min.css',
         ],
         'js' => [
             'statics/plugins/datatables/dataTables.colReorder.min.js',
@@ -61,7 +60,6 @@ $assets['datatables']['plugins'] = [
             'statics/plugins/datatables/responsive.semanticui.min.css',
         ],
         'js' => [
-            'statics/plugins/datatables/dataTables.colReorder.min.js',
             'statics/plugins/datatables/dataTables.responsive.min.js',
             'statics/plugins/datatables/responsive.semanticui.min.js',
         ],
@@ -378,11 +376,11 @@ $assets['locations']['plugins'] = [
 ];
 
 /**
- * JQuery
+ * JQuery v3.7.0
  * https://jquery.com/
  */
 $assets['jquery']['js'] = [
-    'statics/plugins/jquery/jquery-3.5.1.min.js',
+    'statics/plugins/jquery/jquery.min.js',
 ];
 $assets['jquery']['plugins'] = [];
 
