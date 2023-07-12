@@ -2291,7 +2291,7 @@ class AppConfigController extends AdminPanelController
                 self::ROLES_OS_TICKET
             ),
 
-            //Email
+            //Seguridad
             new Route(
                 "{$startRoute}/security[/]",
                 $classname . ':security',
