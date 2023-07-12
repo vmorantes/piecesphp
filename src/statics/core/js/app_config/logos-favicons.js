@@ -59,13 +59,6 @@ window.addEventListener('load', () => {
 		onInvalidEvent: onInvalidHandler,
 	})
 
-
-	let cropperWhiteLogo = instantiateCropper(`form.white-logo .cropper-adapter`)
-	genericFormHandler(`form.white-logo`, {
-		onSetFormData: (formData) => onSetFormData(formData, cropperWhiteLogo, `white-logo`),
-		onInvalidEvent: onInvalidHandler,
-	})
-
 	removeGenericLoader('logos-favicon')
 
 })

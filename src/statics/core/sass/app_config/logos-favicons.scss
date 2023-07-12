@@ -42,33 +42,6 @@
             }
         }
 
-        &.white-logo {
-
-            .ui.card {
-
-                background-color: #1B1C1D;
-
-                .content {
-
-                    .header,
-                    .meta {
-                        color: white;
-                    }
-                }
-
-            }
-
-            .cropper-adapter {
-
-                >.preview,
-                >.workspace .steps *,
-                >.workspace .controls * {
-                    color: white !important;
-                }
-            }
-
-        }
-
     }
 
     @media screen and (max-width: 900px) {

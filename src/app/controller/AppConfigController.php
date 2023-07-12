@@ -309,7 +309,6 @@ class AppConfigController extends AdminPanelController
                 'publicFavicon' => get_config('favicon'),
                 'backFavicon' => get_config('favicon-back'),
                 'logo' => get_config('logo'),
-                'whiteLogo' => get_config('white-logo'),
             ];
 
             $baseViewDir = 'panel/pages/app_configurations';
@@ -323,7 +322,6 @@ class AppConfigController extends AdminPanelController
                 'favicon' => 'favicon',
                 'favicon-back' => 'favicon-back',
                 'logo' => 'logo',
-                'white-logo' => 'white-logo',
             ];
 
             $nameCurrentAllowedImage = '';
