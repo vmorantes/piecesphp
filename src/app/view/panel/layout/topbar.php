@@ -147,6 +147,13 @@ $adminOptionsGroups = [
                     'asLink' => true,
                 ]),
                 new MenuGroup([
+                    'name' => __(AppConfigController::LANG_GROUP, 'Seguridad'),
+                    'icon' => 'lock',
+                    'href' => AppConfigController::routeName('security'),
+                    'visible' => AppConfigController::allowedRoute('security'),
+                    'asLink' => true,
+                ]),
+                new MenuGroup([
                     'name' => __(AppConfigController::LANG_GROUP, 'Limpiar caché'),
                     'icon' => 'eraser',
                     'href' => '#',
