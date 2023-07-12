@@ -25,6 +25,13 @@ $userOptions = new MenuGroupCollection([
             'asLink' => true,
         ]),
         new MenuGroup([
+            'name' => __(AdminPanelController::LANG_GROUP, 'Acerca de'),
+            'icon' => 'desktop',
+            'href' => get_route('about-framework'),
+            'visible' => Roles::hasPermissions('about-framework', $currentUserType),
+            'asLink' => true,
+        ]),
+        new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Soporte técnico'),
             'icon' => 'question',
             'href' => '#',
