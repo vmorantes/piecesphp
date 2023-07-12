@@ -128,6 +128,7 @@ $lang = [
         'Log de errores'                                             => 'Errors log',
         'Rutas y permisos'                                           => 'Routes and permissions',
         'Importar usuarios'                                          => 'Users import',
+        'Acerca de'                                                  => 'About',
     ],
     'avatarModule' => [
         'Ha ocurrido un error desconocido, intente más tarde.' => 'An unknown error has occurred, try later.',
