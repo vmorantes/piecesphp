@@ -57,6 +57,7 @@ $config['osTicketAPIKey'] = "";
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 
 $config['app_key'] = 'secret';
+$config['check_aud_on_auth'] = true;
 
 //──── Statics ───────────────────────────────────────────────────────────────────────────
 $config['statics_path'] = __DIR__ . '/../../statics';
