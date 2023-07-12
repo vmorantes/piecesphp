@@ -79,6 +79,10 @@ class AppConfigController extends AdminPanelController
     const ROLES_OS_TICKET = [
         UsersModel::TYPE_USER_ROOT,
     ];
+    const ROLES_SECURITY = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN,
+    ];
     const ROLES_VIEW_CONFIGURATIONS_VIEW = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
@@ -1056,6 +1060,178 @@ class AppConfigController extends AdminPanelController
                     $successUrl = $url->id !== null ? $url->update() : $url->save();
                     $successKey = $key->id !== null ? $key->update() : $key->save();
                     $success = $successUrl || $successKey;
+
+                    if ($success) {
+                        $resultOperation->setMessage($successMessage);
+                        $resultOperation->setSuccessOnSingleOperation($success);
+                    } else {
+                        $resultOperation->setMessage($unknowErrorMessage);
+                    }
+
+                } catch (\Exception $e) {
+                    $resultOperation->setMessage($e->getMessage());
+                    log_exception($e);
+                }
+
+            } catch (MissingRequiredParamaterException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            } catch (ParsedValueException $e) {
+
+                $resultOperation->setMessage($unknowErrorWithValuesMessage);
+                log_exception($e);
+
+            } catch (InvalidParameterValueException $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            }
+
+            return $res->withJson($resultOperation);
+
+        }
+
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function security(Request $req, Response $res)
+    {
+        $langGroup = self::LANG_GROUP;
+
+        $requestMethod = mb_strtoupper($req->getMethod());
+
+        set_title(__(self::LANG_GROUP, 'Seguridad'));
+
+        if ($requestMethod == 'GET') {
+
+            set_custom_assets([
+                'statics/core/js/app_config/security.js',
+            ], 'js');
+
+            set_custom_assets([
+                'statics/core/css/app_config/security.css',
+            ], 'css');
+
+            $actionURL = self::routeName('security');
+
+            $data = [
+                'langGroup' => $langGroup,
+                'actionURL' => $actionURL,
+            ];
+
+            $baseViewDir = 'panel/pages/app_configurations';
+            $this->render('panel/layout/header');
+            $this->render("{$baseViewDir}/security", $data);
+            $this->render('panel/layout/footer');
+
+        } elseif ($requestMethod == 'POST') {
+
+            //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+            //Definición de validaciones y procesamiento
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'check_aud_on_auth',
+                    null,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value) || is_bool($value) || is_null($value);
+                    },
+                    true,
+                    function ($value) {
+                        return ($value === 1 || $value == '1' || $value === true);
+                    }
+                ),
+            ]);
+
+            //Obtención de datos
+            $inputData = $req->getParsedBody();
+
+            //Asignación de datos para procesar
+            $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
+
+            //──── Estructura de respuesta ───────────────────────────────────────────────────────────
+
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Seguridad'));
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+
+            //Valores iniciales de la respuesta
+            $resultOperation->setSuccessOnSingleOperation(false);
+
+            //Mensajes de respuesta
+            $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
+            $errorSomesOptions = __(self::LANG_GROUP, 'Ha ocurrido un error al guardar algunos de los datos, es posible que algunas opciones no hayan sido actualizadas.');
+            $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+
+            //──── Acciones ──────────────────────────────────────────────────────────────────────────
+            try {
+
+                //Intenta validar, si todo sale bien el código continúa
+                $expectedParameters->validate();
+
+                //Información del formulario
+                /**
+                 * @var bool $checkAudOnAuth
+                 */
+                $checkAudOnAuth = $expectedParameters->getValue('check_aud_on_auth');
+
+                try {
+
+                    $configurationsToSave = [
+                        'check_aud_on_auth' => $checkAudOnAuth,
+                    ];
+                    $messagesOnSave = [
+                        'check_aud_on_auth' => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
+                            '%s' => __(self::LANG_GROUP, 'Usar IP del usuario para encriptar el token de sesión'),
+                        ]),
+                    ];
+
+                    $success = true;
+                    $successMessage = __(self::LANG_GROUP, 'No ha habido ninguna modificación.');
+                    $changesMessages = [];
+
+                    foreach ($configurationsToSave as $configName => $configValue) {
+
+                        if ($configValue !== null) {
+
+                            $isSameValue = get_config($configName) === $configValue;
+
+                            if (!$isSameValue) {
+
+                                $optionMapper = new AppConfigModel($configName);
+                                $optionMapper->value = $configValue;
+
+                                if ($optionMapper->id !== null) {
+                                    $configSuccess = $optionMapper->update();
+                                } else {
+                                    $optionMapper->name = $configName;
+                                    $configSuccess = $optionMapper->save();
+                                }
+
+                                $success = $success && $configSuccess;
+
+                                if ($configSuccess) {
+                                    $changesMessages[] = $messagesOnSave[$configName];
+                                } else {
+                                    $unknowErrorMessage = $errorSomesOptions;
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    if (count($changesMessages) > 0) {
+                        $successMessage = implode('<br>', $changesMessages);
+                    }
 
                     if ($success) {
                         $resultOperation->setMessage($successMessage);
@@ -2270,6 +2446,17 @@ class AppConfigController extends AdminPanelController
                 true,
                 null,
                 self::ROLES_OS_TICKET
+            ),
+
+            //Email
+            new Route(
+                "{$startRoute}/security[/]",
+                $classname . ':security',
+                self::$baseRouteName . '-' . 'security',
+                'GET|POST',
+                true,
+                null,
+                self::ROLES_SECURITY
             ),
 
             //Crontab

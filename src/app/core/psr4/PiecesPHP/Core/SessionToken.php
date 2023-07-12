@@ -31,9 +31,10 @@ class SessionToken
      * @param mixed $data Información que se almacenará en el token
      * @param string $key Llave
      * @param int $expire_time Duración en segundos
+     * @param bool $aud Validar token con ip
      * @return string El token generado
      */
-    public static function generateToken($data, string $key = null, int $expire_time = null)
+    public static function generateToken($data, string $key = null, int $expire_time = null, bool $aud = true)
     {
         $time = time();
 
@@ -43,7 +44,7 @@ class SessionToken
             $expire_time += $time;
         }
 
-        $token = BaseToken::setToken($data, $key, $time, $expire_time, true);
+        $token = BaseToken::setToken($data, $key, $time, $expire_time, $aud);
 
         return $token;
     }

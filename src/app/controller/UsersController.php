@@ -731,7 +731,7 @@ class UsersController extends AdminPanelController
                             $resultOperation->setValue('token', SessionToken::generateToken([
                                 'id' => $user->id,
                                 'type' => $user->type,
-                            ]));
+                            ], null, null, get_config('check_aud_on_auth')));
 
                             $this->mapper->resetAttempts($user->id);
 
