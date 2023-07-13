@@ -964,3 +964,27 @@
     }
 
 }
+
+//──── IMPRESIÓN ─────────────────────────────────────────────────────────────────────────
+@media print {
+    @page {
+        size: letter portrait;
+    }
+
+    body {
+        overflow: visible !important;
+    }
+
+    .#{$globalClassPcs}.container-sidebar {
+        grid-template-columns: 100%;
+        overflow: visible !important;
+    }
+
+    .#{$globalClassPcs}.topbar-toggle {
+        display: none;
+    }
+
+    .#{$globalClassPcs}.sidebar-toggle {
+        display: none;
+    }
+}
