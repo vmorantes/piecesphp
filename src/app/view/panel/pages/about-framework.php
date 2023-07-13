@@ -11,7 +11,7 @@ $user = getLoggedFrameworkUser(true)->userMapper;
 
         <h3 class="title-list subtitle small">
             <?= __(AdminPanelController::LANG_GROUP, 'Acerca de'); ?>
-            <span class="subtitle">PicesPHP v<?= APP_VERSION; ?></span>
+            <span class="subtitle">PiecesPHP v<?= APP_VERSION; ?></span>
         </h3>
 
     </div>
