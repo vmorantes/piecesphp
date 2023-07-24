@@ -1,0 +1,16 @@
+site_name: Framework API
+nav:
+    - ./modules/Publications.md
+    - ./modules/Ubicaciones.md
+    - ./modules/Usuarios.md
+theme:
+    name: readthedocs
+    language: es
+    palette:
+        scheme: slate
+        primary: black
+        accent: red
+site_dir: ./docs-dist
+
+
+
