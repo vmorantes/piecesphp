@@ -1,0 +1,534 @@
+{
+	"info": {
+		"_postman_id": "ff5730b4-89ce-4010-85db-84add6b31e74",
+		"name": "PiecesPHP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19715295"
+	},
+	"item": [
+		{
+			"name": "Publications",
+			"item": [
+				{
+					"name": "Publications list",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/core/api/publications/publications/list/?page=1&perPage=10&category=-10",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"core",
+								"api",
+								"publications",
+								"publications",
+								"list",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								},
+								{
+									"key": "category",
+									"value": "-10"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Publication detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/core/api/publications/publications/detail/?id=1",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"core",
+								"api",
+								"publications",
+								"publications",
+								"detail",
+								""
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Categories list",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/core/api/publications/categories/list/?page=1&perPage=10",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"core",
+								"api",
+								"publications",
+								"categories",
+								"list",
+								""
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "perPage",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Requested-With",
+						"value": "XMLHttpRequest",
+						"type": "text"
+					},
+					{
+						"key": "isWebApp",
+						"value": "yes",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "general",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "overwriteSession",
+							"value": "no",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/users/login/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"users",
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User registration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Requested-With",
+						"value": "XMLHttpRequest",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "usuarioa",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "usuario@localhosta",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "password2",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "firstname",
+							"value": "Nombre",
+							"type": "text"
+						},
+						{
+							"key": "first_lastname",
+							"value": "Apellido",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/core/api/users/register/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"core",
+						"api",
+						"users",
+						"register",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User edit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Requested-With",
+						"value": "XMLHttpRequest",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "general",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "general123456",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "current-password",
+							"value": "123456",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "password2",
+							"value": "general123456",
+							"type": "text",
+							"disabled": true
+						},
+						{
+							"key": "houseArea",
+							"value": "654",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/core/api/users/edit/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"core",
+						"api",
+						"users",
+						"edit",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User edit profile image",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Requested-With",
+						"value": "XMLHttpRequest",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "3",
+							"type": "text"
+						},
+						{
+							"key": "image",
+							"type": "file",
+							"src": "/C:/Users/sirva/Pictures/Puesto-2.jpg"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/core/api/users/profile-image/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"core",
+						"api",
+						"users",
+						"profile-image",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User get data",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Requested-With",
+						"value": "XMLHttpRequest",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{baseURL}}/core/api/users/get-data-user/?id=3",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"core",
+						"api",
+						"users",
+						"get-data-user",
+						""
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User pass recovery",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Requested-With",
+						"value": "XMLHttpRequest",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "root",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/core/api/users/recovery-password/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"core",
+						"api",
+						"users",
+						"recovery-password",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User pass change with code",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Requested-With",
+						"value": "XMLHttpRequest",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "code",
+							"value": "120435",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "123456",
+							"type": "text"
+						},
+						{
+							"key": "repassword",
+							"value": "123456",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseURL}}/core/api/users/change-password-code/",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"core",
+						"api",
+						"users",
+						"change-password-code",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2OTAyMjU4MDIsImV4cCI6MTY5MjkwNDIwMiwiYXVkIjoiMDZlOWNiZWY4Njg1Y2FlOTMxOWUzMGIyYmYwNmJlNjhlYjc5NzQxNCIsImRhdGEiOiI3NVhPeDVTZmxxYUhqNVRaN2VQS2hheUhwcFhpIn0.7q0fGB6oPoQ5hEqukY_Gs85HxOrpKKIATxMIPyWRvno",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "JWTAuth",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "http://localhost/vicsen/piecesphp/src",
+			"type": "string"
+		}
+	]
+}
