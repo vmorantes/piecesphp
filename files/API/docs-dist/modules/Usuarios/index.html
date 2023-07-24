@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Usuarios - Framework API</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../../css/theme.css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Usuarios";
+    var mkdocs_page_input_path = "modules/Usuarios.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Framework API</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../Publications/">Publications</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../Ubicaciones/">Ubicaciones</a>
+                    </li>
+                </ul>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Usuarios</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#get">GET</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapiusersget-data-user">{{baseURL}}/core/api/users/get-data-user/</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#post">POST</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurluserslogin">{{baseURL}}/users/login/</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapiusersregister">{{baseURL}}/core/api/users/register/</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapiusersedit">{{baseURL}}/core/api/users/edit/</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapiusersprofile-image">{{baseURL}}/core/api/users/profile-image/</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapiusersrecovery-password">{{baseURL}}/core/api/users/recovery-password/</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapiuserschange-password-code">{{baseURL}}/core/api/users/change-password-code/</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Framework API</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Usuarios</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="usuarios">Usuarios</h1>
+<h2 id="get">GET</h2>
+<h3 id="baseurlcoreapiusersget-data-user">{{baseURL}}/core/api/users/get-data-user/</h3>
+<ul>
+<li>Autorización: Sí</li>
+<li>Descripción: Ruta que devuelve los datos de usuario</li>
+<li>Parámetros:<ul>
+<li>id: int (requerido) ID del usuario</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>userData: JSON Datos del usuario</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var data = new FormData();
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+var requestURL = new URL(&quot;https://domain.tld/core/api/users/get-data-user&quot;);
+
+requestURL.searchParams.set('id', 50);
+
+xhr.open(&quot;GET&quot;, requestURL.href);
+
+xhr.send(data);
+
+//Respuesta
+{
+    &quot;userData&quot;: {
+        &quot;id&quot;: 50,
+        &quot;username&quot;: ...,
+        &quot;firstname&quot;: ...,
+        &quot;secondname&quot;: ...,
+        &quot;first_lastname&quot;: ...,
+        &quot;second_lastname&quot;: ...,
+        &quot;email&quot;: ...,
+        &quot;type&quot;: ...,
+        &quot;status&quot;: ...,
+        &quot;failed_attempts&quot;: ...,
+        &quot;created_at&quot;: ...,
+        &quot;modified_at&quot;: ...,
+        &quot;misc&quot;: {
+            &quot;avatar&quot;: ...,
+        }
+    }
+}
+</code></pre>
+<h2 id="post">POST</h2>
+<h3 id="baseurluserslogin">{{baseURL}}/users/login/</h3>
+<ul>
+<li>Autorización: No</li>
+<li>Descripción: Ruta para autenticación (devuelve un JWT para usarse en las solicitudes que requieran autorización)</li>
+<li>Parámetros:<ul>
+<li>username: text (requerido) Nombre de usuario</li>
+<li>password: text (requerido) Contraseña</li>
+<li>overwriteSession: text (opcional) Define si se sobreescribirá la sesión actual para generar un nuevo JWT<ul>
+<li>Valores:<ul>
+<li>yes</li>
+<li>no (opción por defecto)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>auth: bool Indica si la autenticación se llevó a cabo exitosamente o no</li>
+<li>isAuth: bool Indica si ya se estaba autenticado al momento de intentar autenticarse</li>
+<li>token: text El JWT</li>
+<li>error: text<ul>
+<li>NO_ERROR: No hay ningún error</li>
+<li>INCORRECT_PASSWORD: Contraseña equivocada</li>
+<li>BLOCKED_FOR_ATTEMPTS: Bloquado por intentos fallidos</li>
+<li>INACTIVE_USER: Usuario inactivo/bloqueado</li>
+<li>USER_NO_EXISTS: El usuario no existe</li>
+<li>ACTIVE_SESSION: Ya hay una sesión activa</li>
+<li>MISSING_OR_UNEXPECTED_PARAMS: No se recibieron los parámetros indicados</li>
+<li>GENERIC_ERROR: Puede ser indicador de varios errores, debe atenderse al mensaje</li>
+</ul>
+</li>
+<li>user: text Nombre de usuario que se autenticó</li>
+<li>message: text Mensaje de error, si corresponde</li>
+<li>extras: array Array con contenidos adicionales que pueden ser útiles en caso de errores</li>
+<li>userData: array Array con los datos del usuario conectado</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var data = new FormData();
+data.append(&quot;username&quot;, &quot;test_user&quot;);
+data.append(&quot;password&quot;, &quot;123456&quot;);
+data.append(&quot;overwriteSession&quot;, &quot;no&quot;);
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    //Something
+  }
+});
+
+xhr.open(&quot;POST&quot;, &quot;https://domain.tld/users/login/&quot;);
+
+xhr.send(data);
+
+//Respuesta
+{
+    'auth' =&gt; true,
+    'isAuth' =&gt; false,
+    'token' =&gt; 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE2NzY1Nzk3MTcsImV4cCI6MTcwODExNTcxNywiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoianJvY2tldEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.uTYf1Bga2DeeZfFYpt6tKGnq7sQPBASL5qx2qc13N9w',
+    'error' =&gt; 'NO_ERROR',
+    'user' =&gt; 'test_user',
+    'message' =&gt; '',
+    'extras' =&gt; [],
+    'userData' =&gt; [],
+}   
+</code></pre>
+<h3 id="baseurlcoreapiusersregister">{{baseURL}}/core/api/users/register/</h3>
+<ul>
+<li>Autorización: No</li>
+<li>Descripción: Ruta para registrar usuario</li>
+<li>Parámetros:<ul>
+<li>username: text (requerido) Nombre de usuario</li>
+<li>email: text (requerido) Correo electrónico</li>
+<li>password: text (requerido) Contraseña</li>
+<li>password2: text (requerido) Contraseña confirmación</li>
+<li>firstname: text (requerido) Nombre</li>
+<li>first_lastname: text (requerido) Apellido</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>name: text Nombre de la operación</li>
+<li>message: text Mensaje de resultado</li>
+<li>minimumRequiredSuccess: bool Indica si cumple o no los requisitos mínimos de parámetros esperados</li>
+<li>success: bool Indica si se creó o no el usuario</li>
+<li>extras: array Array con contenidos adicionales que pueden ser útiles en caso de errores</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var data = new FormData();
+data.append(&quot;username&quot;, &quot;usuario&quot;);
+data.append(&quot;email&quot;, &quot;usuario@localhost&quot;);
+data.append(&quot;password&quot;, &quot;123456&quot;);
+data.append(&quot;password2&quot;, &quot;123456&quot;);
+data.append(&quot;firstname&quot;, &quot;Nombre&quot;);
+data.append(&quot;first_lastname&quot;, &quot;Apellido&quot;);
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;POST&quot;, &quot;https://domain.tld/core/api/users/register/&quot;);
+
+xhr.send(data);
+
+//Respuesta
+{
+    &quot;name&quot;: &quot;User creation&quot;,
+    &quot;message&quot;: &quot;User created&quot;,
+    &quot;minimumRequiredSuccess&quot;: true,
+    &quot;success&quot;: true,
+    &quot;extras&quot;: [],
+}
+</code></pre>
+<h3 id="baseurlcoreapiusersedit">{{baseURL}}/core/api/users/edit/</h3>
+<ul>
+<li>Autorización: Sí</li>
+<li>Descripción: Ruta para editar el perfil de usuario</li>
+<li>Parámetros:<ul>
+<li>id: int (requerido) ID del usuario que se está editando</li>
+<li>username: text (opcional) Nombre de usuario</li>
+<li>email: text (opcional) Correo electrónico</li>
+<li>current-password: text (opcional) Contraseña actual, solo en caso de que se quiera hacer un cambio de contraseña (debe ir junto con password y password2)</li>
+<li>password: text (opcional) Contraseña nueva (debe ir junto con password2 y current-password)</li>
+<li>password2: text (opcional) Confirmación de contraseña nueva (debe ir junto con password y current-password)</li>
+<li>firstname: text (opcional) Nombre</li>
+<li>first_lastname: text (opcional) Apellido</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>name: text Nombre de la operación</li>
+<li>message: text Mensaje de resultado</li>
+<li>minimumRequiredSuccess: bool Indica si cumple o no los requisitos mínimos de parámetros esperados</li>
+<li>success: bool Indica si se creó o no el usuario</li>
+<li>extras: array Array con contenidos adicionales que pueden ser útiles en caso de errores</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var data = new FormData();
+data.append(&quot;id&quot;, &quot;3&quot;);
+data.append(&quot;username&quot;, &quot;username_new&quot;);
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;POST&quot;, &quot;https://domain.tld/core/api/users/edit/&quot;);
+
+xhr.send(data);
+
+//Respuesta
+{
+    &quot;name&quot;: &quot;User Edition&quot;,
+    &quot;message&quot;: &quot;User edited&quot;,
+    &quot;minimumRequiredSuccess&quot;: true,
+    &quot;success&quot;: true,
+    &quot;extras&quot;: [],
+}
+</code></pre>
+<h3 id="baseurlcoreapiusersprofile-image">{{baseURL}}/core/api/users/profile-image/</h3>
+<ul>
+<li>Autorización: Sí</li>
+<li>Descripción: Ruta para editar la foto de perfil</li>
+<li>Parámetros:<ul>
+<li>id: int (requerido) ID del usuario que se está editando</li>
+<li>image: File (requerido) Imagen.</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>success: bool Indica si se cargo la imagen</li>
+<li>error: text Informa de algún error</li>
+<li>message: text Mensaje de resultado</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var data = new FormData();
+data.append(&quot;id&quot;, &quot;3&quot;);
+data.append(&quot;image&quot;, fileInput.files[0], &quot;profile-image.jpg&quot;);
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;POST&quot;, &quot;https://domain.tld/core/api/users/profile-image/&quot;);
+
+xhr.send(data);
+
+//Respuesta
+{
+    &quot;success&quot;: true,
+    &quot;error&quot;: &quot;NO_ERROR&quot;,
+    &quot;message&quot;: &quot;Profile image updated&quot;
+}
+</code></pre>
+<h3 id="baseurlcoreapiusersrecovery-password">{{baseURL}}/core/api/users/recovery-password/</h3>
+<ul>
+<li>Autorización: No</li>
+<li>Descripción: Ruta para recuperar contraseña, envía un correo con un código para la recuperación</li>
+<li>Parámetros:<ul>
+<li>username: string (requerido) El email del usuario</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>send_mail: bool Indica si el correo fue enviado o no</li>
+<li>error: text Código de error</li>
+<li>message: text Mensaje de resultado</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var data = new FormData();
+data.append(&quot;username&quot;, &quot;mail@domain.tld&quot;);
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;POST&quot;, &quot;https://domain.tld/core/api/users/recovery-password/&quot;);
+
+xhr.send(data);
+
+//Respuesta
+{
+    &quot;send_mail&quot;: true,
+    &quot;error&quot;: &quot;NO_ERROR&quot;,
+    &quot;message&quot;: &quot;A message has been sent to the email provided.&quot;
+}
+</code></pre>
+<h3 id="baseurlcoreapiuserschange-password-code">{{baseURL}}/core/api/users/change-password-code/</h3>
+<ul>
+<li>Autorización: No</li>
+<li>Descripción: Ruta para cambiar la contraseña usando un código de recuperación</li>
+<li>Parámetros:<ul>
+<li>code: string (requerido) El código</li>
+<li>password: string (requerido) Contraseña</li>
+<li>repassword: string (requerido) Contraseña confirmación</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>success: bool Indica si la solicitud tuvo éxito</li>
+<li>error: text Código de error</li>
+<li>message: text Mensaje de resultado</li>
+<li>updated: (opcional) bool Informa si la contraseña fue cambiada o no.</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var data = new FormData();
+data.append(&quot;code&quot;, &quot;45678&quot;);
+data.append(&quot;password&quot;, &quot;123456&quot;);
+data.append(&quot;repassword&quot;, &quot;123456&quot;);
+
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;POST&quot;, &quot;https://domain.tld/core/api/users/change-password-code/&quot;);
+
+xhr.send(data);
+
+//Respuesta
+{
+    &quot;success&quot;: true,
+    &quot;error&quot;: &quot;NO_ERROR&quot;,
+    &quot;message&quot;: &quot;Password changed.&quot;,
+    &quot;updated&quot;: true
+}
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../Ubicaciones/" class="btn btn-neutral" title="Ubicaciones"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../Ubicaciones/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
