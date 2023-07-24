@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Publications - Framework API</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+
+  <link rel="stylesheet" href="../../css/theme.css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Publications";
+    var mkdocs_page_input_path = "modules/Publications.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Framework API</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Publications</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#get">GET</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapipublicationspublicationslist">{{baseURL}}/core/api/publications/publications/list/</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapipublicationspublicationsdetail">{{baseURL}}/core/api/publications/publications/detail/</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapipublicationscategorieslist">{{baseURL}}/core/api/publications/categories/list/</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../Ubicaciones/">Ubicaciones</a>
+                    </li>
+                </ul>
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../Usuarios/">Usuarios</a>
+                    </li>
+                </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Framework API</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Publications</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  
+  <hr/>
+</div>
+
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="publications">Publications</h1>
+<p><em>Solo si está activo el módulo</em></p>
+<h2 id="get">GET</h2>
+<h3 id="baseurlcoreapipublicationspublicationslist">{{baseURL}}/core/api/publications/publications/list/</h3>
+<ul>
+<li>Autorización: Sí</li>
+<li>Descripción: Ruta que devuelve el listado de las publicaciones</li>
+<li>Parámetros:<ul>
+<li>page: integer (opcional) El avance dentro de la paginación de los resultados</li>
+<li>perPage: integer (opcional) Cantidad de elementos por página</li>
+<li>category: integer (opcional) Identificador de la categoría</li>
+<li>title: text (opcional) Título (total o parcial)</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>elements: array<JSON> Los elementos</li>
+<li>isFinal: bool Informa si la página actual es la última</li>
+<li>nextPage: int Siguiente página</li>
+<li>page: int Página actual</li>
+<li>parsedElements: mixed Elementos modificados, puede variar</li>
+<li>perPage: int Cantidad de elemento por pagina</li>
+<li>prevPage: int Página anterior</li>
+<li>totalElements: int Elementos totales</li>
+<li>totalPages: int Cantidad total de páginas</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/publications/publications/list/?page=1&amp;perPage=10&quot;);
+
+xhr.send();
+
+//Respuesta
+{
+    &quot;elements&quot;: [],
+    &quot;isFinal&quot;: true,
+    &quot;nextPage&quot;: 1,
+    &quot;page&quot;: 1,
+    &quot;parsedElements&quot;: [],
+    &quot;perPage&quot;: 10,
+    &quot;prevPage&quot;: 1,
+    &quot;totalElements&quot;: 0,
+    &quot;totalPages&quot;: 1
+}
+</code></pre>
+<h3 id="baseurlcoreapipublicationspublicationsdetail">{{baseURL}}/core/api/publications/publications/detail/</h3>
+<ul>
+<li>Autorización: Sí</li>
+<li>Descripción: Datos de un elemento</li>
+<li>Parámetros:<ul>
+<li>id: integer (requerido) El ID del elemento</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades:<ul>
+<li>publicationData: JSON|null La información del elemento o null en caso de no encontrar coincidencias</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/publications/publications/detail/?id=1&quot;);
+
+xhr.send();
+
+//Respuesta
+{
+    &quot;publicationData&quot;: {
+        &quot;id&quot;: ...,
+        &quot;preferSlug&quot;: ...,
+        &quot;title&quot;: ...,
+        &quot;content&quot;: ...,
+        &quot;seoDescription&quot;: ..,
+        &quot;author&quot;: {
+            ...,
+            ...,
+            ...,
+        },
+        &quot;category&quot;: {
+            ...,
+            ...,
+            ...,
+        },
+        &quot;mainImage&quot;: ...,
+        &quot;thumbImage&quot;: ...,
+        &quot;ogImage&quot;: ...,
+        &quot;folder&quot;: ...,
+        &quot;visits&quot;: ...,
+        &quot;publicDate&quot;: ...,
+        &quot;startDate&quot;: ...,
+        &quot;endDate&quot;: ...,
+        &quot;createdAt&quot;: ...,
+        &quot;updatedAt&quot;: ...,
+        &quot;createdBy&quot;: ...,
+        &quot;modifiedBy&quot;: ...,
+        &quot;status&quot;: ...,
+        &quot;featured&quot;: ...
+    }
+}
+</code></pre>
+<h3 id="baseurlcoreapipublicationscategorieslist">{{baseURL}}/core/api/publications/categories/list/</h3>
+<ul>
+<li>Autorización: Sí</li>
+<li>Descripción: Ruta que devuelve el listado de las categorías</li>
+<li>Parámetros:<ul>
+<li>page: integer (opcional) El avance dentro de la paginación de los resultados</li>
+<li>perPage: integer (opcional) Cantidad de elementos por página</li>
+</ul>
+</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+<li>Propiedades: <ul>
+<li>elements: array<JSON> Los elementos</li>
+<li>isFinal: bool Informa si la página actual es la última</li>
+<li>nextPage: int Siguiente página</li>
+<li>page: int Página actual</li>
+<li>parsedElements: mixed Elementos modificados, puede variar</li>
+<li>perPage: int Cantidad de elemento por pagina</li>
+<li>prevPage: int Página anterior</li>
+<li>totalElements: int Elementos totales</li>
+<li>totalPages: int Cantidad total de páginas</li>
+</ul>
+</li>
+<li>Ejemplo:</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-js">//Solicitud
+var xhr = new XMLHttpRequest();
+xhr.withCredentials = true;
+
+xhr.addEventListener(&quot;readystatechange&quot;, function() {
+  if(this.readyState === 4) {
+    console.log(this.responseText);
+  }
+});
+
+xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/publications/categories/list/?page=1&amp;perPage=10&quot;);
+
+xhr.send();
+
+//Respuesta
+{
+    &quot;elements&quot;: [],
+    &quot;isFinal&quot;: true,
+    &quot;nextPage&quot;: 1,
+    &quot;page&quot;: 1,
+    &quot;parsedElements&quot;: [],
+    &quot;perPage&quot;: 10,
+    &quot;prevPage&quot;: 1,
+    &quot;totalElements&quot;: 0,
+    &quot;totalPages&quot;: 1
+}
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Ubicaciones/" class="btn btn-neutral float-right" title="Ubicaciones">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="../Ubicaciones/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>

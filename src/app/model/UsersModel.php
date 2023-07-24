@@ -3,10 +3,11 @@
 /**
  * UsersModel.php
  */
+
 namespace App\Model;
 
-use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Database\EntityMapperExtensible;
 
 /**
  * UsersModel.
@@ -31,7 +32,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @property string|\DateTime $created_at
  * @property string|\DateTime $modified_at
  */
-class UsersModel extends BaseEntityMapper
+class UsersModel extends EntityMapperExtensible
 {
 
     //Constantes de status de usuario

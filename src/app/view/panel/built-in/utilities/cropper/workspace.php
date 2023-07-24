@@ -2,6 +2,7 @@
 
 $image = isset($image) && is_string($image) ? $image : '';
 $imageName = isset($imageName) && is_string($imageName) ? $imageName : '';
+$hideStartButton = isset($hideStartButton) && $hideStartButton === true;
 
 if (isset($withTitle)) {
     $withTitle = $withTitle === true;
@@ -28,7 +29,7 @@ $referenceH = !is_int($referenceH) ? 1080 : $referenceH;
 
 <div class="preview" w="<?=$referenceW;?>">
     <img src="<?="img-gen/$referenceW/$referenceH";?>">
-    <button class="ui button blue" type="button" start></button>
+    <button <?= $hideStartButton ? "style='display:none;'" : ''; ?> class="ui button blue" type="button" start></button>
 </div>
 
 <div class="workspace">

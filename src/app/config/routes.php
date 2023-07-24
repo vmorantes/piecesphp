@@ -40,6 +40,8 @@
  * $grupo->register([$ruta, ...])
  *
  */
+
+use API\APIRoutes;
 use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
 use App\Controller\AvatarController;
@@ -79,6 +81,7 @@ PiecesRouteGroup::setRouter($slim_app);
 //Nota: Declarar de más específico a menos específico, tanto los grupos como las rutas independientes dentro de los grupos
 
 $terminalGroup = new PiecesRouteGroup($prefix_lang . '/terminal'); //Rutas de terminal
+$coreGroup = new PiecesRouteGroup($prefix_lang . '/core'); //Varias
 $componentsProvider = new PiecesRouteGroup($prefix_lang . '/components-provider'); //Componentes HTML
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
 $configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Configuraciones
@@ -139,6 +142,9 @@ DynamicImagesRoutes::routes($zona_administrativa);
 
 //Google ReCaptcha V3
 GoogleReCaptchaV3Routes::routes(new PiecesRouteGroup($prefix_lang . '/recaptcha'));
+
+//API
+APIRoutes::routes($coreGroup);
 
 $sistema_avatares->register(
     [

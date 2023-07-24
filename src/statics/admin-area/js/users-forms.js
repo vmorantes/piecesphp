@@ -27,17 +27,46 @@ $(document).ready(function (e) {
 	configAvatar()
 	configProfilePhoto()
 
-	genericFormHandler('form.users.create.root')
-	genericFormHandler('form.users.create.admin')
-	genericFormHandler('form.users.create.general')
+	const formConfiguration = {
+		onSetFormData: function (formData) {
+			return formData
+		},
+		onInvalidEvent: function (event) {
 
-	genericFormHandler('form.users.edit.root')
-	genericFormHandler('form.users.edit.admin')
-	genericFormHandler('form.users.edit.general')
+			let element = event.target
+			let validationMessage = element.validationMessage
+			let jElement = $(element)
+			let field = jElement.closest('.field')
+			let label = field.find('label')
+			let altLabel = field.find('.ui.label')
+			let placeholder = jElement.attr('placeholder')
+			let nameOnLabel = ''
 
-	genericFormHandler('form.users.profile.root')
-	genericFormHandler('form.users.profile.admin')
-	genericFormHandler('form.users.profile.general')
+			if (typeof placeholder == 'string' && placeholder.length > 0) {
+				nameOnLabel = placeholder
+			} else if (label.length > 0) {
+				nameOnLabel = label.html()
+			} else if (altLabel.length > 0) {
+				nameOnLabel = altLabel.text()
+			}
+
+			errorMessage(`${nameOnLabel}`, validationMessage)
+
+			event.preventDefault()
+
+		},
+	}
+	genericFormHandler('form.users.create.root', formConfiguration)
+	genericFormHandler('form.users.create.admin', formConfiguration)
+	genericFormHandler('form.users.create.general', formConfiguration)
+
+	genericFormHandler('form.users.edit.root', formConfiguration)
+	genericFormHandler('form.users.edit.admin', formConfiguration)
+	genericFormHandler('form.users.edit.general', formConfiguration)
+
+	genericFormHandler('form.users.profile.root', formConfiguration)
+	genericFormHandler('form.users.profile.admin', formConfiguration)
+	genericFormHandler('form.users.profile.general', formConfiguration)
 
 	function configAvatar() {
 
