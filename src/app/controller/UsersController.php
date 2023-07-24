@@ -96,6 +96,7 @@ class UsersController extends AdminPanelController
     const INACTIVE_USER = 'INACTIVE_USER';
     const EXPIRED_OR_NOT_EXIST_CODE = 'EXPIRED_OR_NOT_EXIST_CODE';
     const NOT_MATCH_PASSWORDS = 'NOT_MATCH_PASSWORDS';
+    const NO_EXTERNAL_LOGIN_AVAILABLE = 'NO_EXTERNAL_LOGIN_AVAILABLE';
 
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
@@ -671,15 +672,28 @@ class UsersController extends AdminPanelController
             'userAgent' => !is_null($userAgent) ? base64_decode($userAgent) : (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null),
         ];
 
+        $isExternalLogin = $request->getHeaderLine('isExternalLogin') === 'yes';
+
         $expectedParameters = new Parameters([
             $usernameParameter,
             $passwordParameter,
+            new Parameter(
+                'overwriteSession',
+                false,
+                function ($value) {
+                    return is_bool($value) || $value === 'yes';
+                },
+                true,
+                function ($value) {
+                    return $value === true || $value === 'yes';
+                }
+            ),
         ]);
 
         $inputData = $request->getParsedBody();
         $expectedParameters->setInputValues(is_array($inputData) ? $inputData : []);
 
-        $resultOperation = new ResultOperations([], 'Incio de sesión', '');
+        $resultOperation = new ResultOperations([], 'Login', '');
         $resultOperation->setSingleOperation(true);
         $resultOperation->setValues([
             'auth' => false,
@@ -689,16 +703,19 @@ class UsersController extends AdminPanelController
             'user' => '',
             'message' => '',
             'extras' => [],
+            'userData' => [],
         ]);
 
         //Se verifica si ya existe una sesión activa
         $JWT = SessionToken::getJWTReceived();
 
-        if (!SessionToken::isActiveSession($JWT)) {
+        try {
 
-            try {
+            $expectedParameters->validate();
 
-                $expectedParameters->validate();
+            $overwriteSession = $expectedParameters->getValue('overwriteSession');
+
+            if (!SessionToken::isActiveSession($JWT) || $overwriteSession) {
 
                 //Se selecciona un elemento que concuerde con el usuario
                 $username = escapeString($usernameParameter->getValue());
@@ -719,9 +736,18 @@ class UsersController extends AdminPanelController
                 if ($user instanceof \stdClass) {
 
                     $user->status = (int) $user->status;
+                    $userMapper = new UsersModel($user->id);
 
                     //Verificar status
                     if ($user->status == UsersModel::STATUS_USER_ACTIVE) {
+
+                        if ($isExternalLogin) {
+                            if ($user->type != UsersModel::TYPE_USER_GENERAL) {
+                                $resultOperation->setValue('error', self::NO_EXTERNAL_LOGIN_AVAILABLE);
+                                $resultOperation->setValue('message', __(self::LANG_GROUP, 'El usuario no está habilitado para usar la este método de inicio de sesión'));
+                                return $response->withJson($resultOperation->getValues());
+                            }
+                        }
 
                         if (password_verify($password, $user->password)) {
 
@@ -732,6 +758,23 @@ class UsersController extends AdminPanelController
                                 'id' => $user->id,
                                 'type' => $user->type,
                             ], null, null, get_config('check_aud_on_auth')));
+
+                            //Valores de usuario devueltos
+                            $userLoginData = $userMapper->humanReadable();
+                            $userLoginData['misc'] = [
+                                'avatar' => AvatarModel::getAvatar($userMapper->id),
+                            ];
+                            unset($userLoginData['password']);
+                            unset($userLoginData['meta']);
+
+                            foreach ($userLoginData as $k => $i) {
+                                if (strpos($k, 'META:') !== false) {
+                                    unset($userLoginData[$k]);
+                                    $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
+                                }
+                            }
+
+                            $resultOperation->setValue('userData', $userLoginData);
 
                             $this->mapper->resetAttempts($user->id);
 
@@ -816,35 +859,31 @@ class UsersController extends AdminPanelController
                     );
 
                 }
-
-            } catch (MissingRequiredParamaterException $e) {
-
-                $resultOperation->setValue('error', self::MISSING_OR_UNEXPECTED_PARAMS);
-                $resultOperation->setValue('message', $e->getMessage());
-                log_exception($e);
-
-            } catch (ParsedValueException $e) {
-
-                $resultOperation->setValue('error', self::GENERIC_ERROR);
-                $resultOperation->setValue('message', __(self::LANG_GROUP, 'Ha ocurrido un error desconocido con los valores ingresados.'));
-                $resultOperation->setValue('extras', [
-                    'exception' => $e->getMessage(),
-                ]);
-                log_exception($e);
-
-            } catch (InvalidParameterValueException $e) {
-
-                $resultOperation->setValue('error', self::GENERIC_ERROR);
-                $resultOperation->setValue('message', $e->getMessage());
-                log_exception($e);
-
+            } else {
+                $resultOperation->setValue('auth', false);
+                $resultOperation->setValue('isAuth', true);
+                $resultOperation->setValue('error', self::ACTIVE_SESSION);
+                $resultOperation->setValue('message', $this->getMessage(self::ACTIVE_SESSION));
             }
 
-        } else {
-            $resultOperation->setValue('auth', false);
-            $resultOperation->setValue('isAuth', true);
-            $resultOperation->setValue('error', self::ACTIVE_SESSION);
-            $resultOperation->setValue('message', $this->getMessage(self::ACTIVE_SESSION));
+        } catch (MissingRequiredParamaterException $e) {
+
+            $resultOperation->setValue('error', self::MISSING_OR_UNEXPECTED_PARAMS);
+            $resultOperation->setValue('message', $e->getMessage());
+            log_exception($e);
+        } catch (ParsedValueException $e) {
+
+            $resultOperation->setValue('error', self::GENERIC_ERROR);
+            $resultOperation->setValue('message', __(self::LANG_GROUP, 'Ha ocurrido un error desconocido con los valores ingresados.'));
+            $resultOperation->setValue('extras', [
+                'exception' => $e->getMessage(),
+            ]);
+            log_exception($e);
+        } catch (InvalidParameterValueException $e) {
+
+            $resultOperation->setValue('error', self::GENERIC_ERROR);
+            $resultOperation->setValue('message', $e->getMessage());
+            log_exception($e);
         }
 
         return $response->withJson($resultOperation->getValues());
@@ -1511,7 +1550,9 @@ class UsersController extends AdminPanelController
             $type !== null ? "{$table}.type = {$type}" : '',
         ];
 
-        $where = array_filter($where, function ($i) {return mb_strlen($i) > 0;});
+        $where = array_filter($where, function ($i) {
+            return mb_strlen($i) > 0;
+        });
 
         if (!empty($ignore)) {
             $ignore = implode(', ', $ignore);

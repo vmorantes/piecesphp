@@ -32,7 +32,7 @@ class RecoveryPasswordController extends UsersController
     /**
      * @var UsersModel
      */
-    protected $userMapper = null;
+    public $userMapper = null;
 
     /** @ignore */
     public function __construct()
@@ -529,10 +529,11 @@ class RecoveryPasswordController extends UsersController
      *
      * @param string $code
      * @param stdClass $usuario
+     * @param bool $onlyCode
      *
      * @return bool true si se envió, false si no
      */
-    private function mailRecoveryPasswordCode(string $code, \stdClass $usuario)
+    public function mailRecoveryPasswordCode(string $code, \stdClass $usuario, bool $onlyCode = false)
     {
         $mail = new Mailer();
         $mailConfig = new MailConfig;
@@ -543,10 +544,19 @@ class RecoveryPasswordController extends UsersController
 
         $subject = __(self::LANG_GROUP, 'Recuperación de contraseña');
 
-        $message = $this->render('usuarios/mail/recovery_password_code', [
-            'code' => $code,
-            'url' => get_route('recovery-form') . "?code=$code",
-        ], false);
+        if (!$onlyCode) {
+            $message = $this->render('usuarios/mail/recovery_password_code', [
+                'code' => $code,
+                'url' => get_route('recovery-form') . "?code=$code",
+            ], false);
+        } else {
+            $message = $this->render('usuarios/mail/recovery_password_code_only', [
+                'code' => $code,
+                'text' => __(MAIL_TEMPLATES_LANG_GROUP, 'Recuperación de contraseña') . ':',
+                'text_button' => __(MAIL_TEMPLATES_LANG_GROUP, 'Ingresar el código'),
+                'note' => __(MAIL_TEMPLATES_LANG_GROUP, 'MENSAJE_DE_VALIDEZ'),
+            ], false);
+        }
 
         $mail->setFrom($mailConfig->user(), $mailConfig->name());
         $mail->addAddress($to, $to_name);

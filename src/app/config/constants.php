@@ -69,6 +69,9 @@ define('EVENTS_LOG_MODULE', false);
 //Listado de suscriptores
 define('NEWSLETTER_MODULE', false);
 
+//API
+define('API_MODULE', false);
+
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 

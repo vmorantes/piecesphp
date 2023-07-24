@@ -61,6 +61,8 @@ class AvatarController extends BaseController
 
             if ($uploaded) {
                 $json_response['success'] = $uploaded;
+                $json_response['message'] = __(self::LANG_GROUP, 'Imagen de perfil modificada');
+            }else{                
                 $json_response['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido, intente más tarde.');
             }
 
