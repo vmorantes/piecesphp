@@ -313,7 +313,7 @@ pcsphpGlobals.configCalendar = {
 		},
 		datetime: function (date, settings) {
 			if (!(date instanceof Date)) return ''
-			return formatDate(date, 'd-m-Y H:i A')
+			return formatDate(date, 'd-m-Y h:i A')
 		},
 		month: 'MMMM YYYY',
 		monthHeader: 'YYYY',
