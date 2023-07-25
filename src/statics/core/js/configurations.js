@@ -289,10 +289,10 @@ if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined') {
 
 pcsphpGlobals.cacheStamp = (function () {
 	let cacheStamp = document.querySelector('html head meta[name="cache-stamp"]')
-	if(cacheStamp !== null){
+	if (cacheStamp !== null) {
 		cacheStamp = cacheStamp.getAttribute('value')
 	}
-	if(cacheStamp === null){
+	if (cacheStamp === null) {
 		cacheStamp = 'none'
 	}
 	return cacheStamp
@@ -310,7 +310,15 @@ pcsphpGlobals.configCalendar = {
 		date: function (date, settings) {
 			if (!(date instanceof Date)) return ''
 			return formatDate(date, 'd-m-Y')
-		}
+		},
+		datetime: function (date, settings) {
+			if (!(date instanceof Date)) return ''
+			return formatDate(date, 'd-m-Y H:i A')
+		},
+		month: 'MMMM YYYY',
+		monthHeader: 'YYYY',
+		time: 'h:mm A',
+		year: 'YYYY',
 	},
 	text: {
 		days: _i18n('semantic_calendar', 'days'),
