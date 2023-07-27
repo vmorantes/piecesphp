@@ -52,7 +52,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     <div class="container-standard-table">
 
-        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
+        <table style="max-width: 100%;" url="<?= $processTableLink; ?>" class="ui table striped celled">
 
             <thead>
 
