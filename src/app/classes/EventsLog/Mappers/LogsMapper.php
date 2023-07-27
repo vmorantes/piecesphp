@@ -82,15 +82,11 @@ class LogsMapper extends EntityMapperExtensible
     ];
 
     const MSG_GENERIC = 'GENERIC';
-
-    const MSG_ADD_POLL = 'CREATE_POLL';
-
-    const MSG_EDIT_POLL = 'EDIT_POLL';
+    const MSG_ACTION_EXAMPLE = 'ACTION_EXAMPLE';
 
     const MESSAGES = [
         self::MSG_GENERIC => '%message%',
-        self::MSG_ADD_POLL => 'Encuesta agregada (#%pollID%)',
-        self::MSG_EDIT_POLL => 'Encuesta #%pollID% modificada (formulario(s): %formTypeText%)',
+        self::MSG_ACTION_EXAMPLE => 'Acción de ejemplo realizada (#%actionID%) por %username%',
     ];
 
     /**

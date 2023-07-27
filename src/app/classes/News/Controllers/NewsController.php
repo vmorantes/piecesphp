@@ -966,8 +966,17 @@ class NewsController extends AdminPanelController
             $element = NewsMapper::translateEntityObject($element);
             return $element;
         } : function ($element) {
-            $mapper = NewsMapper::objectToMapper($element);
-            return $element;
+            $mapper = new NewsMapper($element->id);
+            $elementData = $mapper->humanReadable();
+            $elementData['profilesTarget'] = (array) $mapper->profilesTarget;
+            $elementData['createdBy'] = $mapper->createdBy->id;
+            $elementData['modifiedBy'] = $mapper->modifiedBy !== null ? $mapper->modifiedBy->id : null;
+            $elementData['category']['iconImage'] = baseurl($elementData['category']['iconImage']);
+            unset($elementData['category']['meta']);
+            unset($elementData['category']['META:langData']);
+            unset($elementData['meta']);
+            unset($elementData['META:langData']);
+            return $elementData;
         };
 
         $pagination = $pageQuery->getPagination($parser, $each);

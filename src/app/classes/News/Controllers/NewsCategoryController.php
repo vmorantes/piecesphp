@@ -796,10 +796,10 @@ class NewsCategoryController extends AdminPanelController
     /**
      * @param int $page
      * @param int $perPage
-     * @param int $category
+     * @param bool $absolutePathUrl
      * @return PaginationResult
      */
-    public static function _all(int $page = 1, int $perPage = 10)
+    public static function _all(int $page = 1, int $perPage = 10, bool $absolutePathUrl = false)
     {
         $table = NewsCategoryMapper::TABLE;
         $fields = NewsCategoryMapper::fieldsToSelect();
@@ -843,11 +843,18 @@ class NewsCategoryController extends AdminPanelController
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
-        $parser = null;
-        $each = !$jsonExtractExists ? function ($element) {
+        $parser = function ($element) {
+            return $element->id;
+        };
+        $each = !$jsonExtractExists ? function ($element) use ($absolutePathUrl) {
             $element = NewsCategoryMapper::translateEntityObject($element);
+            $element->iconImage = $absolutePathUrl ? baseurl($element->iconImage) : $element->iconImage;
             return $element;
-        } : null;
+        } : function ($element) use ($absolutePathUrl) {
+            $element = NewsCategoryMapper::translateEntityObject($element);
+            $element->iconImage = $absolutePathUrl ? baseurl($element->iconImage) : $element->iconImage;
+            return $element;
+        };
 
         $pagination = $pageQuery->getPagination($parser, $each);
 
