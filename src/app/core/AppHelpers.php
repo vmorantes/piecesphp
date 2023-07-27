@@ -2595,6 +2595,7 @@ function getLoggedFrameworkUser(bool $reload = false)
                 $currentUser = new UserDataPackage($currentUser->id);
             } catch (\Exception $e) {
                 $currentUser = null;
+                log_exception($e);
             }
         } else {
             $currentUser = null;

@@ -19,6 +19,7 @@ window.addEventListener('load', function () {
 			formProcess[0].reset()
 			formProcess.find('.ui.dropdown').dropdown('clear')
 			formProcess.find('.ui.dropdown').dropdown('refresh')
+			formProcess.find('[image-element]').get(0).PiecesPHPComponents.SimpleUploadPlaceholder.restoreOverlay()
 			dataTable.draw()
 			resolve()
 		})
