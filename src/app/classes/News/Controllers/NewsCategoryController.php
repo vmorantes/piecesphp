@@ -771,7 +771,7 @@ class NewsCategoryController extends AdminPanelController
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
                     $deleteText = __(self::LANG_GROUP, 'Eliminar');
                     $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-news-button>{$deleteIcon}</a>";
+                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-news-category-button>{$deleteIcon}</a>";
                     $buttons[] = $deleteButton;
                 }
 
