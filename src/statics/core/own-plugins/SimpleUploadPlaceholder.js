@@ -89,6 +89,17 @@ function SimpleUploadPlaceholder(configurations = {}) {
 
 	}
 
+	/**
+	 * @method restoreOverlay Deja la vista previa sin imagen
+	 * @returns {void}
+	 */
+	this.restoreOverlay = () => {
+		if (overlayElement.hasClass('image')) {
+			overlayElement.removeClass('image')
+			overlayElement.removeAttr('style')
+		}
+	}
+
 	prepare(configurations)
 
 	/**
@@ -100,6 +111,10 @@ function SimpleUploadPlaceholder(configurations = {}) {
 		try {
 
 			configOptions(configurations)
+
+			container[0].PiecesPHPComponents = {
+				SimpleUploadPlaceholder: instance,
+			}
 
 			triggerButton.on('click', function (e) {
 
@@ -116,17 +131,10 @@ function SimpleUploadPlaceholder(configurations = {}) {
 
 				SimpleUploadPlaceholderOptions.onChangeFile(files, container, instance, e)
 
-				let restoreOverlay = () => {
-					if (overlayElement.hasClass('image')) {
-						overlayElement.removeClass('image')
-						overlayElement.removeAttr('style')
-					}
-				}
-
 				if (files.length > 0) {
 
 					let file = files[0]
-					restoreOverlay()
+					instance.restoreOverlay()
 
 					if (fileInputIsMultiple) {
 						triggerButton.find('.text').text(formatStr(_i18n(LANG_GROUP, '%r Archivo(s) seleccionado(s)'), [files.length]))
@@ -159,7 +167,7 @@ function SimpleUploadPlaceholder(configurations = {}) {
 				} else {
 					fileInput.val('')
 					triggerButton.find('.text').text(triggerButtonDefaultText)
-					restoreOverlay()
+					instance.restoreOverlay()
 				}
 
 				triggerButton.blur()

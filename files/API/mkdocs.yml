@@ -1,8 +1,9 @@
 site_name: Framework API
 nav:
     - ./modules/Publications.md
-    - ./modules/Ubicaciones.md
+    - ./modules/News.md
     - ./modules/Usuarios.md
+    - ./modules/Ubicaciones.md
 theme:
     name: readthedocs
     language: es

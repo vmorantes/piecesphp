@@ -49,7 +49,7 @@ $langGroupDatatables = 'datatables';
 
     <div class="container-standard-table">
 
-        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
+        <table style="max-width: 100%;" url="<?= $processTableLink; ?>" class="ui table striped celled">
 
             <thead>
 
