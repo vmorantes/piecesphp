@@ -17,6 +17,9 @@ use App\Model\AvatarModel;
 use App\Model\RecoveryPasswordModel;
 use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
+use News\Controllers\NewsCategoryController;
+use News\Controllers\NewsController;
+use News\Mappers\NewsMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -264,6 +267,181 @@ class APIController extends AdminPanelController
             } else {
                 throw new NotFoundException($request, $response);
             }
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function news(Request $request, Response $response)
+    {
+        $actionType = $request->getAttribute('actionType');
+        $method = mb_strtoupper($request->getMethod());
+
+        if ($actionType == 'list') {
+
+            if ($method !== 'GET') {
+                throw new NotFoundException($request, $response);
+            }
+
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'page',
+                    1,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value);
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value;
+                    }
+                ),
+                new Parameter(
+                    'perPage',
+                    10,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value);
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value;
+                    }
+                ),
+                new Parameter(
+                    'category',
+                    null,
+                    function ($value) {
+                        return (ctype_digit($value) || is_int($value)) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value;
+                    }
+                ),
+            ]);
+
+            $expectedParameters->setInputValues($request->getQueryParams());
+            $expectedParameters->validate();
+
+            /**
+             * @var int $page
+             * @var int $perPage
+             * @var int $category
+             */
+            $page = $expectedParameters->getValue('page');
+            $perPage = $expectedParameters->getValue('perPage');
+            $category = $expectedParameters->getValue('category');
+
+            $controller = new NewsController();
+            $all = $controller->_all($page, $perPage, $category);
+
+            $response = $response->withJson($all);
+
+        } elseif ($actionType == 'detail') {
+
+            if ($method !== 'GET') {
+                throw new NotFoundException($request, $response);
+            }
+
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'id',
+                    null,
+                    function ($value) {
+                        return Validator::isInteger($value);
+                    },
+                    false,
+                    function ($value) {
+                        return (int) $value;
+                    }
+                ),
+            ]);
+
+            $expectedParameters->setInputValues($request->getQueryParams());
+            $expectedParameters->validate();
+
+            /**
+             * @var int $page
+             */
+            $id = $expectedParameters->getValue('id');
+
+            $elementData = [];
+
+            $newsMapper = new NewsMapper($id);
+
+            if ($newsMapper->id !== null) {
+
+                $elementData = $newsMapper->humanReadable();
+                $elementData['profilesTarget'] = (array) $newsMapper->profilesTarget;
+                $elementData['createdBy'] = $newsMapper->createdBy->id;
+                $elementData['modifiedBy'] = $newsMapper->modifiedBy !== null ? $newsMapper->modifiedBy->id : null;
+                $elementData['category']['iconImage'] = baseurl($elementData['category']['iconImage']);
+                unset($elementData['category']['meta']);
+                unset($elementData['category']['META:langData']);
+                unset($elementData['meta']);
+                unset($elementData['META:langData']);
+
+            } else {
+                $elementData = null;
+            }
+
+            $response = $response->withJson([
+                'newsData' => $elementData,
+            ]);
+
+        } elseif ($actionType == 'categories') {
+
+            if ($method !== 'GET') {
+                throw new NotFoundException($request, $response);
+            }
+
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'page',
+                    1,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value);
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value;
+                    }
+                ),
+                new Parameter(
+                    'perPage',
+                    10,
+                    function ($value) {
+                        return ctype_digit($value) || is_int($value);
+                    },
+                    true,
+                    function ($value) {
+                        return (int) $value;
+                    }
+                ),
+            ]);
+
+            $expectedParameters->setInputValues($request->getQueryParams());
+            $expectedParameters->validate();
+
+            /**
+             * @var int $page
+             * @var int $perPage
+             */
+            $page = $expectedParameters->getValue('page');
+            $perPage = $expectedParameters->getValue('perPage');
+
+            $controller = new NewsCategoryController();
+            $all = $controller->_all($page, $perPage, true);
+
+            $response = $response->withJson($all);
+
+            return $response;
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -728,6 +906,8 @@ class APIController extends AdminPanelController
 
         $publications = $allRoles;
 
+        $news = $allRoles;
+
         $usersActions = $allRoles;
 
         $externalActions = $allRoles;
@@ -750,6 +930,15 @@ class APIController extends AdminPanelController
                 true,
                 null,
                 $publications,
+            ),
+            new Route( //Rutas de noticias
+                "{$startRoute}/news/{actionType}[/]",
+                $classname . ':news',
+                self::$baseRouteName . '-news-actions',
+                'GET',
+                true,
+                null,
+                $news,
             ),
             new Route( //Acciones sobre el módulo de usuarios
                 "{$startRoute}/users/{actionType}[/]",

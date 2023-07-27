@@ -9,7 +9,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>Publications - Framework API</title>
+  <title>News - Framework API</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="../../css/theme.css" />
@@ -18,8 +18,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Publications";
-    var mkdocs_page_input_path = "modules/Publications.md";
+    var mkdocs_page_name = "News";
+    var mkdocs_page_input_path = "modules/News.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -46,24 +46,24 @@
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+                <ul>
+                    <li class="toctree-l1"><a class="reference internal" href="../Publications/">Publications</a>
+                    </li>
+                </ul>
                 <ul class="current">
-                    <li class="toctree-l1 current"><a class="reference internal current" href="./">Publications</a>
+                    <li class="toctree-l1 current"><a class="reference internal current" href="./">News</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#get">GET</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapipublicationspublicationslist">{{baseURL}}/core/api/publications/publications/list/</a>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapinewslist">{{baseURL}}/core/api/news/list/</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapipublicationspublicationsdetail">{{baseURL}}/core/api/publications/publications/detail/</a>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapinewsdetail">{{baseURL}}/core/api/news/detail/</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapipublicationscategorieslist">{{baseURL}}/core/api/publications/categories/list/</a>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurlcoreapinewscategories">{{baseURL}}/core/api/news/categories/</a>
     </li>
         </ul>
     </li>
     </ul>
-                    </li>
-                </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="../News/">News</a>
                     </li>
                 </ul>
                 <ul>
@@ -95,7 +95,7 @@
     
       
     
-    <li>Publications</li>
+    <li>News</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -107,18 +107,17 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="publications">Publications</h1>
+                <h1 id="news">News</h1>
 <p><em>Solo si está activo el módulo</em></p>
 <h2 id="get">GET</h2>
-<h3 id="baseurlcoreapipublicationspublicationslist">{{baseURL}}/core/api/publications/publications/list/</h3>
+<h3 id="baseurlcoreapinewslist">{{baseURL}}/core/api/news/list/</h3>
 <ul>
 <li>Autorización: Sí</li>
-<li>Descripción: Ruta que devuelve el listado de las publicaciones</li>
+<li>Descripción: Ruta que devuelve el listado de las noticias</li>
 <li>Parámetros:<ul>
 <li>page: integer (opcional) El avance dentro de la paginación de los resultados</li>
 <li>perPage: integer (opcional) Cantidad de elementos por página</li>
 <li>category: integer (opcional) Identificador de la categoría</li>
-<li>title: text (opcional) Título (total o parcial)</li>
 </ul>
 </li>
 <li>Devolución:<ul>
@@ -149,7 +148,7 @@ xhr.addEventListener(&quot;readystatechange&quot;, function() {
   }
 });
 
-xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/publications/publications/list/?page=1&amp;perPage=10&quot;);
+xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/news/list/?page=1&amp;perPage=10&quot;);
 
 xhr.send();
 
@@ -166,7 +165,7 @@ xhr.send();
     &quot;totalPages&quot;: 1
 }
 </code></pre>
-<h3 id="baseurlcoreapipublicationspublicationsdetail">{{baseURL}}/core/api/publications/publications/detail/</h3>
+<h3 id="baseurlcoreapinewsdetail">{{baseURL}}/core/api/news/detail/</h3>
 <ul>
 <li>Autorización: Sí</li>
 <li>Descripción: Datos de un elemento</li>
@@ -177,7 +176,7 @@ xhr.send();
 <li>Devolución:<ul>
 <li>Tipo: JSON</li>
 <li>Propiedades:<ul>
-<li>publicationData: JSON|null La información del elemento o null en caso de no encontrar coincidencias</li>
+<li>newsData: JSON|null La información del elemento o null en caso de no encontrar coincidencias</li>
 </ul>
 </li>
 <li>Ejemplo:</li>
@@ -194,46 +193,39 @@ xhr.addEventListener(&quot;readystatechange&quot;, function() {
   }
 });
 
-xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/publications/publications/detail/?id=1&quot;);
+xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/news/detail/?id=1&quot;);
 
 xhr.send();
 
 //Respuesta
 {
-    &quot;publicationData&quot;: {
+    &quot;newsData&quot;: {
         &quot;id&quot;: ...,
         &quot;preferSlug&quot;: ...,
-        &quot;title&quot;: ...,
+        &quot;newsTitle&quot;: ...,
+        &quot;profilesTarget&quot;: [
+            ...
+        ],
         &quot;content&quot;: ...,
-        &quot;seoDescription&quot;: ..,
-        &quot;author&quot;: {
-            ...,
-            ...,
-            ...,
-        },
         &quot;category&quot;: {
-            ...,
-            ...,
-            ...,
+            &quot;id&quot;: ...,
+            &quot;preferSlug&quot;: ...,
+            &quot;name&quot;: ...,
+            &quot;iconImage&quot;: ...,
+            &quot;color&quot;: ...
         },
-        &quot;mainImage&quot;: ...,
-        &quot;thumbImage&quot;: ...,
-        &quot;ogImage&quot;: ...,
         &quot;folder&quot;: ...,
-        &quot;visits&quot;: ...,
-        &quot;publicDate&quot;: ...,
         &quot;startDate&quot;: ...,
         &quot;endDate&quot;: ...,
         &quot;createdAt&quot;: ...,
         &quot;updatedAt&quot;: ...,
         &quot;createdBy&quot;: ...,
         &quot;modifiedBy&quot;: ...,
-        &quot;status&quot;: ...,
-        &quot;featured&quot;: ...
+        &quot;status&quot;: ...
     }
 }
 </code></pre>
-<h3 id="baseurlcoreapipublicationscategorieslist">{{baseURL}}/core/api/publications/categories/list/</h3>
+<h3 id="baseurlcoreapinewscategories">{{baseURL}}/core/api/news/categories/</h3>
 <ul>
 <li>Autorización: Sí</li>
 <li>Descripción: Ruta que devuelve el listado de las categorías</li>
@@ -270,7 +262,7 @@ xhr.addEventListener(&quot;readystatechange&quot;, function() {
   }
 });
 
-xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/publications/categories/list/?page=1&amp;perPage=10&quot;);
+xhr.open(&quot;GET&quot;, &quot;https://domain.tld/core/api/news/categories/?page=1&amp;perPage=10&quot;);
 
 xhr.send();
 
@@ -294,8 +286,10 @@ xhr.send();
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../News/" class="btn btn-neutral float-right" title="News">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../Usuarios/" class="btn btn-neutral float-right" title="Usuarios">Next <span class="icon icon-circle-arrow-right"></span></a>
       
+      
+        <a href="../Publications/" class="btn btn-neutral" title="Publications"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -321,8 +315,10 @@ xhr.send();
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
+      <span><a href="../Publications/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-      <span><a href="../News/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+      <span><a href="../Usuarios/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
