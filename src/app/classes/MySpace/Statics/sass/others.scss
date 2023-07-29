@@ -1,0 +1,134 @@
+@import '../../../../../statics/core/sass/admin_app_base';
+
+.direct-access {
+
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 800px;
+    max-width: 100%;
+    gap: 1.2rem;
+
+    a:hover {
+        color: white;
+        opacity: 0.5;
+    }
+
+    .item {
+
+        display: grid;
+        grid-template-columns: auto;
+        justify-content: center;
+        align-items: center;
+        width: 330px;
+        max-width: 100%;
+        min-height: 190px;
+        border-radius: 20px;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        color: white;
+        text-decoration: none !important;
+
+        &.tall {
+            min-height: 400px;
+        }
+
+        &.bg-1 {
+            background-color: var(--main-brand-color);
+        }
+
+        &.bg-2 {
+            background-color: var(--second-brand-color);
+        }
+
+        &.border-bg {
+            background-size: 65%;
+            background-position: bottom right;
+        }
+
+        &.border-bg-2 {
+            background-size: 65%;
+            background-position: bottom right;
+        }
+
+        .number {
+            font-family: $fontPublicSans;
+            font-weight: $fwBold;
+            font-size: pxToRem(150);
+            line-height: pxToRem(150+5);
+            text-align: center;
+        }
+
+        .title {
+            font-family: $fontPublicSans;
+            font-weight: $fwBold;
+            font-size: pxToRem(32);
+            line-height: pxToRem(32+5);
+            text-shadow: 1px 5px 20px #000000A6;
+        }
+
+        .subtitle {
+            font-family: $fontPublicSans;
+            font-weight: $fwRegular;
+            font-size: pxToRem(32);
+            line-height: pxToRem(32+5);
+            text-shadow: 1px 5px 20px #000000A6;
+        }
+
+    }
+
+    &.size1 {
+        .item {
+            width: 300px;
+        }
+    }
+
+    &.size2 {
+        .item {
+            width: 280px;
+
+            .number {
+                font-size: pxToRem(130);
+                line-height: pxToRem(130+5);
+            }
+
+            .title,
+            .subtitle {
+                font-size: pxToRem(28);
+                line-height: pxToRem(28+5);
+            }
+        }
+    }
+
+    &.size3 {
+        .item {
+            width: 260px;
+
+            .number {
+                font-size: pxToRem(110);
+                line-height: pxToRem(110+5);
+            }
+
+            .title,
+            .subtitle {
+                font-size: pxToRem(24);
+                line-height: pxToRem(24+5);
+            }
+        }
+    }
+
+    &.size4 {
+        .item {
+            width: 100%;
+            padding-bottom: 1rem;
+            background-size: cover;
+
+            &.tall {
+                min-height: initial;
+            }
+        }
+    }
+
+}

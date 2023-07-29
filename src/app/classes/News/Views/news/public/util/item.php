@@ -15,7 +15,7 @@ $contentLength = mb_strlen(strip_tags($element->currentLangData('content')));
 
     <div class="header">
         <div class="text">
-            <div class="title"><?= $element->currentLangData('newsTitle'); ?></div>
+            <div class="title"><?= $element->excerptTitle(); ?></div>
             <div class="meta">
                 <span><?= $element->startDateFormat('d/m/Y - h:i A'); ?></span>
                 <span><?= $element->category->currentLangData('name'); ?></span>
