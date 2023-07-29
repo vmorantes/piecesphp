@@ -193,6 +193,17 @@ class NewsMapper extends EntityMapperExtensible
      * @param int $maxLength
      * @return string
      */
+    public function excerptTitle(int $maxLength = 45)
+    {
+        $title = $this->currentLangData('newsTitle');
+        $titleLength = mb_strlen($title);
+        return $titleLength <= $maxLength ? $title : substr($title, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
+    }
+
+    /**
+     * @param int $maxLength
+     * @return string
+     */
     public function excerpt(int $maxLength = 300)
     {
         $content = strip_tags($this->currentLangData('content'));

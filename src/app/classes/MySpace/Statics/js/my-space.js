@@ -49,17 +49,8 @@ window.addEventListener('load', function () {
 			},
 		})
 
-		const resizeObserver = new ResizeObserver(/** @type {ResizeObserverEntry[]} */function (entries) {
-
-			const width = mainContainer.offsetWidth
-
-			if (width <= pcsphpGlobals.responsive.sizes.rsTablet) {
-				mainContainer.classList.add(pcsphpGlobals.responsive.class.rsTablet)
-			} else {
-				mainContainer.classList.remove(pcsphpGlobals.responsive.class.rsTablet)
-			}
+		responsiveObserver(mainContainer, function (element, width) {
 		})
-		resizeObserver.observe(mainContainer)
 
 		newsManager.loadItems()
 
@@ -67,31 +58,24 @@ window.addEventListener('load', function () {
 
 
 	const directsAccess = document.querySelector('.my-space-content .direct-access')
-	const resizeObserverDirectsAccess = new ResizeObserver(/** @type {ResizeObserverEntry[]} */function (entries) {
-		const width = directsAccess.offsetWidth
-		const allClasses = [
-			'size1',
-			'size2',
-			'size3',
-		]
-		const size1 = 800
-		const size2 = 620
-		const size3 = 600
-
-		for (const classToRemove of allClasses) {
-			directsAccess.classList.remove(classToRemove)
-		}
-
-		if (width <= size1 && width > size2) {
-			directsAccess.classList.add('size1')
-		} else if (width <= size2 && width > size3) {
-			directsAccess.classList.add('size2')
-		} else if (width <= size3) {
-			directsAccess.classList.add('size3')
-		}
-
-	})
-	resizeObserverDirectsAccess.observe(directsAccess)
+	responsiveObserver(directsAccess, () => { }, [
+		{
+			size: 800,
+			class: 'size1',
+		},
+		{
+			size: 620,
+			class: 'size2',
+		},
+		{
+			size: 600,
+			class: 'size3',
+		},
+		{
+			size: 537,
+			class: 'size4',
+		},
+	])
 
 	/**
 	*  Base64 encode / decode

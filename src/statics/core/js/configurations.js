@@ -376,6 +376,7 @@ pcsphpGlobals.responsive = {
 		rsLarge3: 1200,
 		rsMedium: 1000,
 		rsTablet: 780,
+		rsMobileMedium: 540,
 		rsMobile: 480,
 	},
 	class: {
@@ -386,6 +387,7 @@ pcsphpGlobals.responsive = {
 		rsLarge3: 'rs-large3',
 		rsMedium: 'rs-medium',
 		rsTablet: 'rs-tablet',
+		rsMobileMedium: 'rs-mobile-medium',
 		rsMobile: 'rs-mobile',
 	},
 }
