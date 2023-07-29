@@ -165,6 +165,14 @@ class UserDataPackage
     }
 
     /**
+     * @return UsersModel
+     */
+    public function getMapper()
+    {
+        return $this->userMapper;
+    }
+
+    /**
      * @param integer $userID
      * @return UserDataPackage
      * @throws \Exception Si el usuario no existe
