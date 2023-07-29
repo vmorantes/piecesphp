@@ -76,6 +76,9 @@ class MySpaceController extends AdminPanelController
         ], 'js');
 
         set_custom_assets([
+            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/base.css'),
+            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/others.css'),
+            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'),
             MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'),
         ], 'css');
 

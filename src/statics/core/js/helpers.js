@@ -2294,3 +2294,84 @@ function formatDateAlternative(date = new Date(), format = '%d/%m/%Y %H:%i:%s') 
 	return date != 'Invalid Date' ? format : null
 
 }
+
+/**
+ * Observa los cambios en el tamaño de un elemento y le agrega las clases
+ * según corresponda por el ancho. Si el ancho es menor o igual que los dispuestos
+ * en pcsphpGlobals.responsive.sizes agregará la clase del más pequeño, las clases
+ * pueden verse en pcsphpGlobals.responsive.class
+ * @param {HTMLElement} observedElement 
+ * @param { (element: HTMLElement,elementOffsetWidth: Number) => void } onChange 
+ * @param { Array<{size:Number, class:String}> } [customSizes] Si se quiere que las dimensiones y clases sean
+ * personalizadas debe definirse este array de objetos siguiendo la estructura adecuada
+ */
+function responsiveObserver(observedElement, onChange, customSizes = []) {
+
+	if (observedElement instanceof HTMLElement) {
+
+		const resizeObserver = new ResizeObserver(/** @type {ResizeObserverEntry[]} */function (entries) {
+
+			const width = observedElement.offsetWidth
+			let sizes = pcsphpGlobals.responsive.sizes
+			let sizesClasses = pcsphpGlobals.responsive.class
+
+			//Validar tamaños personalizados
+			if(Array.isArray(customSizes)){
+				const validatedCustomSizes = {
+					sizes: {},
+					class: {},
+				}
+				for(const customSize of customSizes){
+					const size = typeof customSize.size == 'number' && !isNaN(customSize.size) ? customSize.size : null
+					const classSize = typeof customSize.class == 'string' && customSize.class.trim().length > 0 ? customSize.class : null
+					if(size !== null && classSize !== null){
+						const sizeID = generateUniqueID()
+						validatedCustomSizes.sizes[sizeID] = size
+						validatedCustomSizes.class[sizeID] = classSize
+					}
+				}
+				
+				if(Array.from(Object.values(validatedCustomSizes.sizes)).length > 0){
+					sizes = validatedCustomSizes.sizes
+					sizesClasses = validatedCustomSizes.class
+				}
+			}
+
+			const sizeClassesValues = Array.from(Object.values(sizesClasses))
+			const activesClassesBySize = new Map()
+
+			for (const sizeName in sizes) {
+
+				const size = sizes[sizeName]
+				const sizeClass = sizesClasses[sizeName]
+
+				if (width <= size) {
+					activesClassesBySize.set(size, sizeClass)
+				} else {
+					activesClassesBySize.delete(size)
+				}
+
+			}
+
+			const classToAdd = Array.from(activesClassesBySize.entries()).reduce(function (a, b) {
+				return a[0] < b[0] ? a : b
+			})
+
+			observedElement.classList.add(classToAdd[1])
+			for (const classToDelete of sizeClassesValues) {
+				if (classToDelete != classToAdd[1]) {
+					observedElement.classList.remove(classToDelete)
+				}
+			}
+
+			if(typeof onChange == 'function'){
+				onChange(observedElement, width)
+			}
+
+		})
+
+		resizeObserver.observe(observedElement)
+
+	}
+
+}

@@ -1,0 +1,113 @@
+@import '../../../../../statics/core/sass/admin_app_base';
+
+$totalColumns: 12;
+
+.col-system {
+
+    container-type: inline-size;
+    container-name: col-system;
+    display: flex;
+    flex: 0 1 auto;
+    flex-wrap: wrap;
+    width: 1920px;
+    padding: 0px pxToRem(70) 0px pxToRem(70);
+    max-width: 100%;
+
+    &.no-padding {
+        padding: 0px;
+    }
+
+    >[class^="col-"] {
+        display: block;
+        width: max-content;
+        max-width: 100%;
+        padding: 10px 15px;
+        width: 100%;
+    }
+
+    //Extra small
+    @for $i from 1 through $totalColumns {
+
+        $percent: 100%/$totalColumns*$i;
+
+        >.col-#{$i} {
+            width: #{$percent};
+        }
+
+    }
+
+    //md
+    @for $i from 1 through $totalColumns {
+
+        $percent: 100%/$totalColumns*$i;
+
+        @container col-system (min-width: #{$rsMedium}) {
+            >.col-md-#{$i} {
+                width: #{$percent};
+            }
+
+        }
+
+    }
+
+    //lg
+    @for $i from 1 through $totalColumns {
+
+        $percent: 100%/$totalColumns*$i;
+
+        @container col-system (min-width: #{$rsLarge3}) {
+            >.col-lg-#{$i} {
+                width: #{$percent};
+            }
+        }
+
+    }
+
+    //x-lg
+    @for $i from 1 through $totalColumns {
+
+        $percent: 100%/$totalColumns*$i;
+
+        @container col-system (min-width: #{$rsXLarge}) {
+            >.col-x-lg-#{$i} {
+                width: #{$percent};
+            }
+        }
+
+    }
+
+}
+
+.ui.form {
+
+    .field {
+
+        &.disabled.special-disabled,
+        &.special-disabled {
+
+            &,
+            label,
+            .dropdown,
+            .search,
+            .ui.checkbox input~label {
+                opacity: 1;
+            }
+        }
+
+    }
+
+}
+
+@media screen and (max-width: $rsXLarge) {}
+
+@media screen and (max-width: $rsLarge) {}
+
+@media screen and (max-width: $rsLarge2) {}
+
+@media screen and (max-width: $rsLarge3) {}
+
+@media screen and (max-width: $rsTablet) {
+    .col-system {
+        padding: 0px pxToRem(10) 0px pxToRem(10);
+    }
+}
