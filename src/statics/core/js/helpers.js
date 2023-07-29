@@ -2316,22 +2316,22 @@ function responsiveObserver(observedElement, onChange, customSizes = []) {
 			let sizesClasses = pcsphpGlobals.responsive.class
 
 			//Validar tamaños personalizados
-			if(Array.isArray(customSizes)){
+			if (Array.isArray(customSizes)) {
 				const validatedCustomSizes = {
 					sizes: {},
 					class: {},
 				}
-				for(const customSize of customSizes){
+				for (const customSize of customSizes) {
 					const size = typeof customSize.size == 'number' && !isNaN(customSize.size) ? customSize.size : null
 					const classSize = typeof customSize.class == 'string' && customSize.class.trim().length > 0 ? customSize.class : null
-					if(size !== null && classSize !== null){
+					if (size !== null && classSize !== null) {
 						const sizeID = generateUniqueID()
 						validatedCustomSizes.sizes[sizeID] = size
 						validatedCustomSizes.class[sizeID] = classSize
 					}
 				}
-				
-				if(Array.from(Object.values(validatedCustomSizes.sizes)).length > 0){
+
+				if (Array.from(Object.values(validatedCustomSizes.sizes)).length > 0) {
 					sizes = validatedCustomSizes.sizes
 					sizesClasses = validatedCustomSizes.class
 				}
@@ -2353,18 +2353,22 @@ function responsiveObserver(observedElement, onChange, customSizes = []) {
 
 			}
 
-			const classToAdd = Array.from(activesClassesBySize.entries()).reduce(function (a, b) {
+			const classArrayToReduce = Array.from(activesClassesBySize.entries())
+			const classToAdd = classArrayToReduce.length > 0 ? classArrayToReduce.reduce(function (a, b) {
 				return a[0] < b[0] ? a : b
-			})
+			}) : []
 
-			observedElement.classList.add(classToAdd[1])
+			if (classToAdd.length > 0) {
+				observedElement.classList.add(classToAdd[1])
+			}
+
 			for (const classToDelete of sizeClassesValues) {
 				if (classToDelete != classToAdd[1]) {
 					observedElement.classList.remove(classToDelete)
 				}
 			}
 
-			if(typeof onChange == 'function'){
+			if (typeof onChange == 'function') {
 				onChange(observedElement, width)
 			}
 
