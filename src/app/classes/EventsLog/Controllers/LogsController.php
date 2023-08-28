@@ -123,6 +123,8 @@ class LogsController extends AdminPanelController
 
         $columnsOrder = [
             'textMessageReplacement',
+            'ip',
+            'geolocationByIp',
             'createdAt',
         ];
 
@@ -148,6 +150,8 @@ class LogsController extends AdminPanelController
                 $columns = [];
 
                 $columns[] = $e->textMessageReplacement;
+                $columns[] = $e->ip;
+                $columns[] = $e->geolocationByIp;
                 $columns[] = ucfirst($e->createdAtFormat);
                 return $columns;
             },

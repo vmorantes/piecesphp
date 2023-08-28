@@ -17,6 +17,7 @@ use App\Model\AvatarModel;
 use App\Model\RecoveryPasswordModel;
 use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
+use EventsLog\Mappers\LogsMapper;
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;
 use News\Mappers\NewsMapper;
@@ -514,6 +515,7 @@ class APIController extends AdminPanelController
                 ];
 
                 $isSameUser = $userID == $currentUser->id;
+                $userMapper = null;
 
                 if ($isSameUser) {
 
@@ -546,6 +548,14 @@ class APIController extends AdminPanelController
                     $controller = new UsersController();
                     $response = $controller->edit($request, $response);
 
+                    $arrayBodyResponse = json_decode($response->getBody()->__toString(), true);
+
+                    if ($arrayBodyResponse['success'] && $userMapper !== null && $userMapper->id !== null) {
+                        LogsMapper::addLog(LogsMapper::MSG_UPDATE_PROFILE, [
+                            '%username%' => $userMapper->username,
+                        ], 'id', $userMapper->id, UsersModel::TABLE);
+                    }
+
                 } else {
                     return throw403($request, $response);
                 }
@@ -569,6 +579,7 @@ class APIController extends AdminPanelController
                 $userID = (int) $request->getParsedBodyParam('id', null);
 
                 $isSameUser = $userID == $currentUser->id;
+                $userMapper = null;
 
                 if ($isSameUser) {
 
@@ -590,6 +601,15 @@ class APIController extends AdminPanelController
 
                     $controller = new AvatarController();
                     $response = $controller->register($request, $response);
+
+                    $arrayBodyResponse = json_decode($response->getBody()->__toString(), true);
+
+                    if ($arrayBodyResponse['success'] && $userMapper !== null && $userMapper->id !== null) {
+                        LogsMapper::addLog(LogsMapper::MSG_UPDATE_PROFILE_IMAGE, [
+                            '%username%' => $userMapper->username,
+                        ], 'id', $userMapper->id, UsersModel::TABLE);
+                    }
+
                 } else {
                     return throw403($request, $response);
                 }
@@ -672,13 +692,12 @@ class APIController extends AdminPanelController
                 'error' => UserProblemsController::NO_ERROR,
                 'message' => '',
             ];
+            $usuario = null;
 
             //Si los parámetros son válidos en nombre y en cantidad se inicia el proceso de recuperación
             if ($parametros_ok) {
 
                 //Se selecciona un elemento que concuerde con el usuario
-                $usuario = null;
-
                 $username = $params['username'];
 
                 $usuario = $controller->userMapper->getWhere([
@@ -728,6 +747,13 @@ class APIController extends AdminPanelController
             }
 
             $response = $response->withJson($json_response);
+
+            if ($usuario !== null) {
+                LogsMapper::addLog(LogsMapper::MSG_REQUEST_PASSWORD_RECOVERY, [
+                    '%username%' => $usuario->username,
+                ], 'id', $usuario->id, UsersModel::TABLE);
+            }
+
         } elseif ($actionType == 'change-password-code') {
 
             if ($method !== 'POST') {
@@ -742,6 +768,14 @@ class APIController extends AdminPanelController
 
             $controller = new RecoveryPasswordController();
             $response = $controller->newPasswordCreateCode($request, $response, []);
+
+            $arrayBodyResponse = json_decode($response->getBody()->__toString(), true);
+
+            if ($arrayBodyResponse['success'] && $arrayBodyResponse['user'] !== null) {
+                LogsMapper::addLog(LogsMapper::MSG_PASSWORD_RECOVERY_BY_CODE, [
+                    '%username%' => $arrayBodyResponse['user']['username'],
+                ], 'id', $arrayBodyResponse['user']['id'], UsersModel::TABLE);
+            }
         }
 
         return $response;

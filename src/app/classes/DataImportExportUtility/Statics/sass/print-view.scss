@@ -1,0 +1,72 @@
+@import '../../../../../statics/core/sass/admin_app_base';
+
+html,
+body {
+    overflow-x: initial;
+    overflow-y: initial;
+}
+
+body {
+    width: max-content;
+    margin: 0 auto;
+}
+
+.select-data-imported-generated {
+    padding: 25px;
+}
+
+.print-view {
+
+    width: 22cm;
+    height: 28cm;
+    margin: 15px;
+
+    >.content {
+        display: grid;
+        grid-template-columns: auto auto;
+        column-gap: 15px;
+        row-gap: 15px;
+
+        >.card {
+            width: 408px;
+            max-width: 100%;
+            padding: 15px;
+            border: 2px dashed black;
+
+            .link{
+                text-align: center;
+            }
+            
+            .image {
+                text-align: center;
+
+                img {
+                    width: 200px;
+                }
+            }
+
+            .info {
+                font-size: 1.2rem;
+            }
+        }
+    }
+
+
+}
+
+@media print {
+    .select-data-imported-generated {
+        display: none;
+    }
+
+    .tag.check-pass{
+        display: none;
+    }
+
+    .print-view {
+        >.content {
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+    }
+}

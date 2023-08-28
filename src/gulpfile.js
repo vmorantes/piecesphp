@@ -110,6 +110,9 @@ var watchingPiecesPHPSassFiles = {
 	users: [
 		'./statics/login-and-recovery/sass/**/*.scss',
 	],
+	users2: [
+		'./statics/admin-area/sass/**/*.scss',
+	],
 	avatars: [
 		'./statics/features/avatars/sass/**/*.scss',
 	],
@@ -126,6 +129,9 @@ var compilePiecesPHPSassFiles = {
 	users: [
 		'./statics/login-and-recovery/sass/**/*.scss',
 	],
+	users2: [
+		'./statics/admin-area/sass/**/*.scss',
+	],
 	avatars: [
 		'./statics/features/avatars/sass/**/*.scss',
 	],
@@ -133,6 +139,7 @@ var compilePiecesPHPSassFiles = {
 
 var destsPiecesPHP = {
 	users: './statics/login-and-recovery/css',
+	users2: './statics/admin-area/css',
 	ownPlugins: './statics/core/own-plugins/css',
 	general: './statics/core/css',
 	avatars: './statics/features/avatars/css',
@@ -166,6 +173,15 @@ function sassCompileUsers() {
 		.pipe(dest(destsPiecesPHP.users))
 }
 
+//Compilación usuarios 2
+function sassCompileUsers2() {
+	return src(compilePiecesPHPSassFiles.users2)
+		.pipe(sourcemaps.init())
+		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(sourcemaps.write('./'))
+		.pipe(dest(destsPiecesPHP.users2))
+}
+
 //Compilación avatars
 function sassCompileAvatars() {
 	return src(compilePiecesPHPSassFiles.avatars)
@@ -188,6 +204,11 @@ task("sass-compile-users", (done) => {
 	sassCompileUsers()
 	done()
 })
+task("sass-compile-users2", (done) => {
+	sassCompileUsers2()
+	done()
+})
+sassCompileUsers2
 task("sass-compile-avatars", (done) => {
 	sassCompileAvatars()
 	done()
@@ -198,6 +219,7 @@ task("sass-vendor:watch", (done) => {
 	watch(watchingPiecesPHPSassFiles.ownPlugins, series("sass-compile-own-plugins"))
 	watch(watchingPiecesPHPSassFiles.general, series("sass-compile-general"))
 	watch(watchingPiecesPHPSassFiles.users, series("sass-compile-users"))
+	watch(watchingPiecesPHPSassFiles.users2, series("sass-compile-users2"))
 	watch(watchingPiecesPHPSassFiles.avatars, series("sass-compile-avatars"))
 	done()
 })
@@ -207,6 +229,7 @@ task("sass-vendor:init", (done) => {
 	sassCompileOwnPlugins()
 	sassCompileGeneral()
 	sassCompileUsers()
+	sassCompileUsers2()
 	sassCompileAvatars()
 	done()
 })
@@ -286,6 +309,7 @@ task("sass-all", (done) => {
 	sassCompileOwnPlugins()
 	sassCompileGeneral()
 	sassCompileUsers()
+	sassCompileUsers2()
 	sassCompileAvatars()
 
 	sassCompileGeneric()
@@ -306,7 +330,7 @@ task("sass-all:watch", (done) => {
 })
 
 //General
-task("init-project", (done) => {	
+task("init-project", (done) => {
 	tsTask()
 	jsTask()
 	parallel(
