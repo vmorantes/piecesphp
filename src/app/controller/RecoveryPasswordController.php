@@ -355,6 +355,7 @@ class RecoveryPasswordController extends UsersController
             'success' => false,
             'error' => self::NO_ERROR,
             'message' => '',
+            'user' => null,
         ];
 
         //Conjunto posible de datos para autenticación
@@ -402,6 +403,7 @@ class RecoveryPasswordController extends UsersController
                             //Actualizar contraseña
                             $updated = $this->userMapper->changePassword($recoveryPassword->email, password_hash($password, \PASSWORD_DEFAULT));
 
+                            $json_response['user'] = $user;
                             $json_response['updated'] = $updated;
 
                             //Verificar si la contraseña fue actualizada

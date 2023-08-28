@@ -54,6 +54,7 @@ use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
 use Components\ComponentProviderRoutes;
+use DataImportExportUtility\DataImportExportUtilityRoutes;
 use Documents\DocumentsRoutes;
 use EventsLog\LogsRoutes;
 use FileManager\FileManagerRoutes;
@@ -142,6 +143,9 @@ DynamicImagesRoutes::routes($zona_administrativa);
 
 //Google ReCaptcha V3
 GoogleReCaptchaV3Routes::routes(new PiecesRouteGroup($prefix_lang . '/recaptcha'));
+
+//Utilidad de importación y exportación
+DataImportExportUtilityRoutes::routes($zona_administrativa);
 
 //API
 APIRoutes::routes($coreGroup);
