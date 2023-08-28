@@ -131,6 +131,9 @@ class UsersController extends AdminPanelController
     public function usersList(Request $req, Response $res)
     {
         set_custom_assets([
+            base_url('statics/admin-area/css/users-list.css'),
+        ], 'css');
+        set_custom_assets([
             base_url(ADMIN_AREA_PATH_JS . '/users-forms.js'),
         ], 'js');
 
@@ -300,7 +303,7 @@ class UsersController extends AdminPanelController
                     'name' => "{$element->fullname} ({$element->username})",
                 ];
 
-            }if ($typeResult == $RESULT_USERNAME) {
+            } elseif ($typeResult == $RESULT_USERNAME) {
 
                 $elementResult = [
                     'value' => $element->id,
