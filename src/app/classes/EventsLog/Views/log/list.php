@@ -62,6 +62,8 @@ $avatar = AvatarModel::getAvatar(Validator::isInteger($user->id) ? (int) $user->
 
                 <tr>
                     <th><?= __($langGroup, 'Evento'); ?></th>
+                    <th><?= __($langGroup, 'IP'); ?></th>
+                    <th><?= __($langGroup, 'País'); ?></th>
                     <th><?= __($langGroup, 'Fecha'); ?></th>
                 </tr>
 

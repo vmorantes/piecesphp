@@ -10,6 +10,7 @@ use App\Model\UsersModel;
 use EventsLog\LogsLang;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\Core\Database\Meta\MetaProperty;
 
 /**
  * LogsMapper.
@@ -25,6 +26,8 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
  * @property string|null $referenceSource
  * @property int|UsersModel $createdBy
  * @property string|\DateTime $createdAt
+ * @property string|null $ip
+ * @property string|null $geolocationByIp
  * @property \stdClass|string|null $meta
  */
 class LogsMapper extends EntityMapperExtensible
@@ -82,11 +85,17 @@ class LogsMapper extends EntityMapperExtensible
     ];
 
     const MSG_GENERIC = 'GENERIC';
-    const MSG_ACTION_EXAMPLE = 'ACTION_EXAMPLE';
+    const MSG_UPDATE_PROFILE = 'UPDATE_PROFILE';
+    const MSG_UPDATE_PROFILE_IMAGE = 'UPDATE_PROFILE_IMAGE';
+    const MSG_REQUEST_PASSWORD_RECOVERY = 'REQUEST_PASSWORD_RECOVERY';
+    const MSG_PASSWORD_RECOVERY_BY_CODE = 'PASSWORD_RECOVERY_BY_CODE';
 
     const MESSAGES = [
         self::MSG_GENERIC => '%message%',
-        self::MSG_ACTION_EXAMPLE => 'Acción de ejemplo realizada (#%actionID%) por %username%',
+        self::MSG_UPDATE_PROFILE => 'El usuario %username% ha actualizado su perfil',
+        self::MSG_UPDATE_PROFILE_IMAGE => 'El usuario %username% ha actualizado su imagen de perfil',
+        self::MSG_REQUEST_PASSWORD_RECOVERY => 'El usuario %username% ha solicitado recuperar su contraseña',
+        self::MSG_PASSWORD_RECOVERY_BY_CODE => 'El usuario %username% ha recuperado su contraseña mediante un código',
     ];
 
     /**
@@ -101,6 +110,8 @@ class LogsMapper extends EntityMapperExtensible
      */
     public function __construct(int $value = null, string $fieldCompare = 'primary_key')
     {
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, null, true), 'ip');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, null, true), 'geolocationByIp');
         parent::__construct($value, $fieldCompare);
     }
 
@@ -159,8 +170,9 @@ class LogsMapper extends EntityMapperExtensible
      */
     public function save()
     {
+        $loggedUser = getLoggedFrameworkUser(true);
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser(true)->userMapper;
+        $this->createdBy = $loggedUser !== null ? $loggedUser->userMapper : 1;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -194,6 +206,17 @@ class LogsMapper extends EntityMapperExtensible
         $mapper = new LogsMapper;
         $notExistsMessage = true;
 
+        if (function_exists('geoip_record_by_name')) {
+            $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+            $geoIP = @geoip_record_by_name($ip);
+            $geoIP = is_array($geoIP) ? $geoIP : [
+                'country_name' => 'Sin especificar',
+            ];
+            $geolocationByIp = array_key_exists('country_name', $geoIP) ? $geoIP['country_name'] : 'Sin especificar';
+            $mapper->geolocationByIp = $geolocationByIp;
+            $mapper->ip = $ip;
+        }
+
         foreach (self::MESSAGES as $type => $text) {
 
             if ($type == $messageType) {
@@ -225,6 +248,8 @@ class LogsMapper extends EntityMapperExtensible
      * - createdByUser
      * - textMessageReplacement
      * - createdAtFormat
+     * - ip
+     * - geolocationByIp
      * @return string[]
      */
     public static function fieldsToSelect()
@@ -245,6 +270,8 @@ class LogsMapper extends EntityMapperExtensible
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.createdBy) AS createdByUser",
             "strTemplateReplace({$table}.textMessage, {$table}.textMessageVariables) AS textMessageReplacement",
             "strTemplateReplace(DATE_FORMAT({$table}.createdAt, '%M %d {1} %Y %h:%i:%s %p'), '{$createdAtFormatReplacements}') AS createdAtFormat",
+            "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.ip')) AS ip",
+            "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.geolocationByIp')) AS geolocationByIp",
         ];
 
         $allFields = array_keys(self::getFields());

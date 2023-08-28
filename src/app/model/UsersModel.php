@@ -55,8 +55,8 @@ class UsersModel extends EntityMapperExtensible
     ];
 
     const TYPES_USER_PRIORITY = [
-        self::TYPE_USER_ROOT => 3,
-        self::TYPE_USER_ADMIN => 2,
+        self::TYPE_USER_ROOT => 100,
+        self::TYPE_USER_ADMIN => 90,
         self::TYPE_USER_GENERAL => 1,
     ];
 
@@ -123,6 +123,36 @@ class UsersModel extends EntityMapperExtensible
     public function __construct(int $id = null)
     {
         parent::__construct($id);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function save()
+    {
+
+        if (self::isDuplicateUsername($this->username, -1)) {
+            throw new \Exception(__(self::LANG_GROUP, "Ya existe el nombre de usuario."));
+        }
+
+        $saveResult = parent::save();
+
+        return $saveResult;
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update()
+    {
+
+        if (self::isDuplicateUsername($this->username, $this->id)) {
+            throw new \Exception(__(self::LANG_GROUP, "Ya existe el nombre de usuario."));
+        }
+
+        return parent::update();
+
     }
 
     /**

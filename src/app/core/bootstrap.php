@@ -136,7 +136,7 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '5.20.0');
+    define('APP_VERSION', '5.20.1');
 }
 
 require $directories['utilities'];
