@@ -16,8 +16,8 @@ use News\Controllers\NewsController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
+use PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
+use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
 
 /**
  * MySpaceController.
@@ -252,9 +252,11 @@ class MySpaceController extends AdminPanelController
 
         $group->register($routes);
 
-        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
+        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, $handler) {
 
-            $route = $request->getAttribute('route');
+            $response = $handler->handle($request);
+
+            $route = $request->getRoute();
             $routeName = $route->getName();
             $routeArguments = $route->getArguments();
             $routeArguments = is_array($routeArguments) ? $routeArguments : [];
@@ -271,7 +273,7 @@ class MySpaceController extends AdminPanelController
                 }
 
             }
-            return $next($request, $response);
+            return $response;
         });
 
         return $group;

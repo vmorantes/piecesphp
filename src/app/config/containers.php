@@ -1,14 +1,15 @@
 <?php
 
-use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
+use PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP;
+use PiecesPHP\Core\Routing\RequestRoutePiecesPHP;
+use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\CSSVariables;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpNotFoundException;
 
 $container_configurations = [
-    'settings' => [
-        'displayErrorDetails' => true,
-        'determineRouteBeforeAppMiddleware' => true,
-    ],
-    'foundHandler' => function ($c) {
+    'foundHandler' => function (RequestRoutePiecesPHP $request, RequestHandlerInterface $handler) {
 
         //Variables CSS globales
         $cssGlobalVariables = CSSVariables::instance('global');
@@ -26,41 +27,52 @@ $container_configurations = [
         add_global_required_asset(get_route('admin-global-variables-css'), 'css');
 
         //Antes de ejecutar el método de la ruta
-        RequestResponsePiecesPHP::appendBeforeCallMethod(function ($name) {
+        InvocationStrategyPiecesPHP::appendBeforeCallMethod(function () {
             set_config('lock_assets', true);
         });
 
         //Después de ejecutar el método de la ruta
-        RequestResponsePiecesPHP::appendAfterCallMethod(function () {
+        InvocationStrategyPiecesPHP::appendAfterCallMethod(function () {
             set_config('lock_assets', false);
         });
 
-        return new \PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
-    },
-    'errorHandler' => function ($c) {
-        return new \PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler($c);
-    },
-    'phpErrorHandler' => function ($c) {
-        return new \PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler($c);
-    },
-    'notFoundHandler' => function ($c) {
-        return function ($request, $response) use ($c) {
+        $response = null;
 
-            $response = $response->withStatus(404);
-
-            //if ($request->getMethod() == 'OPTIONS') {
-            //    return $response->withStatus(200);
-            //}
-
-            if (!$request->isXhr()) {
-                $controller = new PiecesPHP\Core\BaseController(false);
-                $controller->render('pages/404');
-            } else {
-                $response = $response->withJson("404 Not Found");
+        try {
+            $response = $handler->handle($request);
+        } catch (\Error $e) {
+            if ($response instanceof ResponseRoutePiecesPHP) {
+                throw $e;
             }
+        }
 
-            return $response;
+        if (!($response instanceof ResponseRoutePiecesPHP)) {
+            $response = new ResponseRoutePiecesPHP();
+        }
 
-        };
+        return $response;
+    },
+    'notFoundHandler' => function (HttpNotFoundException $notFoundError) {
+
+        /**
+         * @var RequestRoutePiecesPHP $request
+         */
+        $request = $notFoundError->getRequest();
+        $response = new ResponseRoutePiecesPHP(StatusCode::HTTP_NOT_FOUND);
+
+        $response = $response->withStatus(404);
+
+        //if ($request->getMethod() == 'OPTIONS') {
+        //    return $response->withStatus(200);
+        //}
+
+        if (!$request->isXhr()) {
+            $controller = new PiecesPHP\Core\BaseController(false);
+            $controller->render('pages/404');
+        } else {
+            $response = $response->withJson("404 Not Found");
+        }
+
+        return $response;
     },
 ];

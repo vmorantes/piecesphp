@@ -10,7 +10,7 @@ use App\Controller\UsersController;
 use PiecesPHP\Core\Exceptions\RoleDuplicateException;
 use PiecesPHP\Core\Exceptions\RoleMalformedException;
 use PiecesPHP\Core\Exceptions\RoleNotExistsException;
-use \Slim\Http\Request as Request;
+use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
 
 /**
  * Roles.
@@ -278,12 +278,12 @@ class Roles
     /**
      * Verifica los permisos de un rol
      *
-     * @param \Slim\Http\Request|string $request_route La ruta solicita. Puede ser un objeto Request de slim o el
+     * @param \PiecesPHP\Core\Routing\RequestRoutePiecesPHP|string $request_route La ruta solicita. Puede ser un objeto Request de slim o el
      * nombre de la ruta como string
      * @param mixed $id_role El code o name del rol a examinar
      * @param bool $silent_mode Si lanza RoleNotExistsException o no
      * @return bool true si tiene permisos, false si no
-     * @throws TypeError Además de las razones comunes, puede lanzar esta exepción si $request_route no es \Slim\Http\Request|string
+     * @throws TypeError Además de las razones comunes, puede lanzar esta exepción si $request_route no es \PiecesPHP\Core\Routing\RequestRoutePiecesPHP|string
      * @throws RoleNotExistsException Si el role no existe
      */
     public static function hasPermissions($request_route, $id_role, bool $silent_mode = false): bool
@@ -297,9 +297,9 @@ class Roles
 
         $name_route = '';
 
-        if ($request_route instanceof \Slim\Http\Request) {
+        if ($request_route instanceof \PiecesPHP\Core\Routing\RequestRoutePiecesPHP) {
 
-            $request_route = $request_route->getAttribute('route')->getName();
+            $request_route = $request_route->getRoute()->getName();
 
         } else if (!is_string($request_route)) {
 

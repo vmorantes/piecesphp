@@ -1209,13 +1209,13 @@ function decimalCoordinatesToDMS(string $value, string $type = 'longitude', stri
 /**
  * Según la información provista devuelve las cabeceras y el estado adecuado para el uso de caché
  *
- * @param \Slim\Http\Request $request
+ * @param \PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request
  * @param \DateTime $lastModification
  * @param string $eTagContent
  * @return array
  * Un array con dos índices: headers (array asociativo Cabecera => Valor) y status (número entero que representa el estado de la solicitud)
  */
-function generateCachingHeadersAndStatus(\Slim\Http\Request $request, \DateTime $lastModification, string $eTagContent = null)
+function generateCachingHeadersAndStatus(\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, \DateTime $lastModification, string $eTagContent = null)
 {
 
     $lastModification = $lastModification->getTimestamp();
