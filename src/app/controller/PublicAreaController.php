@@ -14,11 +14,11 @@ use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use Publications\Controllers\PublicationsController;
-use Slim\Exception\NotFoundException;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
+use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
 
 /**
  * PublicAreaController.

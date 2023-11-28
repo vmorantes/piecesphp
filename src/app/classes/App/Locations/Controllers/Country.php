@@ -9,14 +9,14 @@ namespace App\Locations\Controllers;
 use App\Controller\AdminPanelController;
 use App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use Slim\Exception\NotFoundException;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
+use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
 
 /**
  * Country.
@@ -128,7 +128,8 @@ class Country extends AdminPanelController
     /**
      * @return void
      */
-    function list() {
+    public function list()
+    {
 
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();

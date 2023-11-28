@@ -78,6 +78,14 @@ class GenericHandler
     }
 
     /**
+     * @return \Exception
+     */
+    public function getException()
+    {
+        return $this->exception;
+    }
+
+    /**
      * @return void
      */
     public function logging()

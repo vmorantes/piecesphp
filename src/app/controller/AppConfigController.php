@@ -32,8 +32,8 @@ use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
+use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
 
 /**
  * AppConfigController.
@@ -1717,7 +1717,9 @@ class AppConfigController extends AdminPanelController
     {
         $keyLocal = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjamt1YjBzeXEwZWlvM3FxbDBuZDZmZWFtIn0.jv_5-3mX1kWLrk1ffvV2zQ';
         $keyDomain = 'pk.eyJ1Ijoic2lydmFtYiIsImEiOiJjamt1YjBzeXEwZWlvM3FxbDBuZDZmZWFtIn0.jv_5-3mX1kWLrk1ffvV2zQ';
-        return is_local() ? $keyLocal : $keyDomain;
+        $key = is_local() ? $keyLocal : $keyDomain;
+        $res->write($key);
+        return $res;
     }
 
     /**

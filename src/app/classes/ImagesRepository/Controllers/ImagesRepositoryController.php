@@ -20,6 +20,9 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
+use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\ExifHelper;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
@@ -29,9 +32,6 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
-use Slim\Exception\NotFoundException;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * ImagesRepositoryController.
@@ -1898,9 +1898,11 @@ class ImagesRepositoryController extends AdminPanelController
 
         $group->register($routes);
 
-        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
+        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, $handler) {
 
-            $route = $request->getAttribute('route');
+            $response = $handler->handle($request);
+
+            $route = $request->getRoute();
             $routeName = $route->getName();
             $routeArguments = $route->getArguments();
             $routeArguments = is_array($routeArguments) ? $routeArguments : [];
@@ -1917,7 +1919,7 @@ class ImagesRepositoryController extends AdminPanelController
                 }
 
             }
-            return $next($request, $response);
+            return $response;
         });
 
         return $group;

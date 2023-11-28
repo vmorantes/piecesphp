@@ -17,9 +17,9 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use Slim\Exception\NotFoundException;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
+use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
 
 /**
  * GenericTokenController.
