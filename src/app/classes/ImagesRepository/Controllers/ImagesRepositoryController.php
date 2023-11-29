@@ -144,7 +144,10 @@ class ImagesRepositoryController extends AdminPanelController
 
                 if (file_exists($imagePath)) {
 
+                    ob_start();
                     imageToThumbnail($imagePath, 300, 225, 70);
+                    $output = ob_get_contents();
+                    ob_end_clean();
 
                     $lastModification = filemtime($imagePath);
                     $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
@@ -162,7 +165,7 @@ class ImagesRepositoryController extends AdminPanelController
                     $response = $response->withHeader('Content-Disposition', "filename=\"image_{$id}.jpg\"");
                     $response = $response->withStatus($headersAndStatus['status']);
 
-                    return $response;
+                    return $response->write($output);
 
                 }
 
@@ -236,6 +239,7 @@ class ImagesRepositoryController extends AdminPanelController
 
                         $modeValue = $modeValue !== null ? $modeValue : $defaultModeValues[$mode];
 
+                        ob_start();
                         if ($mode == self::MODE_PUBLIC_IMAGE_FIXED) {
                             imageToThumbnail($imagePath, $modeValue, 1, 70, null, true);
                         } elseif ($mode == self::MODE_PUBLIC_IMAGE_PERCENT) {
@@ -244,6 +248,8 @@ class ImagesRepositoryController extends AdminPanelController
                             $adjustPercent = $width / 100 * $modeValue;
                             imageToThumbnail($imagePath, $adjustPercent, 1, 70, null, true);
                         }
+                        $output = ob_get_contents();
+                        ob_end_clean();
 
                         $lastModification = filemtime($imagePath);
                         $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
@@ -257,10 +263,14 @@ class ImagesRepositoryController extends AdminPanelController
                             $response = $response->withHeader($header, $value);
                         }
 
-                        $response = $response->withHeader('Content-Type', 'image/jpg');
+                        $response = $response->withHeader('Content-Type', 'image/jpg')->write($output);
 
                     } else {
+                        ob_start();
                         readfile($imagePath);
+                        $output = ob_get_contents();
+                        ob_end_clean();
+                        $response = $response->write($output);
                     }
 
                     return $response;
@@ -321,12 +331,16 @@ class ImagesRepositoryController extends AdminPanelController
                     $mimeType = mime_content_type($path);
                     $mimeType = is_string($mimeType) ? $mimeType : 'image/*';
                     $response = $response->withHeader('Content-Type', $mimeType);
+                    $response = $response->withHeader('afasfasfasf', $mimeType);
                     $response = $response->withHeader('Content-Disposition', "filename=\"{$maskNameInput}\"");
                     $response = $response->withStatus($headersAndStatus['status']);
 
+                    ob_start();
                     readfile($path);
+                    $output = ob_get_contents();
+                    ob_end_clean();
 
-                    return $response;
+                    return $response->write($output);
 
                 }
 
