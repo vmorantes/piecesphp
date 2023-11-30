@@ -487,9 +487,14 @@ class DataImportExportUtilityController extends AdminPanelController
         //Envolver texto y centrar vertical/horizontalmente - FIN
 
         $fileName = "Usuarios - Exportado el " . date('d-m-Y h i A') . '.xlsx';
+
+        ob_start();
         $writer->save('php://output');
+        $fileData = ob_get_contents();
+        ob_end_clean();
 
         return $response
+            ->write($fileData)
             ->withHeader('Content-Type', 'application/vnd.ms-excel')
             ->withHeader('Content-Disposition', "attachment;filename={$fileName}")
             ->withHeader('Cache-Control', 'max-age=0');

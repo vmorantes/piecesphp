@@ -53,16 +53,14 @@ $user = getLoggedFrameworkUser(true)->userMapper;
         <li>Open-layers Ver. 6.14.1 Licencia BSD</li>
         <li>Fomantic Ver 2.9.2 Licencia MIT</li>
         <li>Spectrum Ver. 1.8 Licencia MIT</li>
-        <li>Slim Ver. 3.0 Licencia MIT</li>
-        <li>phpmailer Ver. 6.6 Licencia GNU</li>
-        <li>html2pdf Ver. 5.2 Licencia OSL 3.0</li>
-        <li>monolog Ver. 1.23 Licencia MIT</li>
-        <li>phpspreadsheet Ver. 1.22 Licencia MIT</li>
+        <li>Slim Ver. 4.* Licencia MIT</li>
+        <li>phpmailer Ver. 6.* Licencia GNU</li>
+        <li>phpspreadsheet Ver. 1.29.* Licencia MIT</li>
         <li>leclient Ver. 1.2 Licencia MIT</li>
-        <li>psr log Ver. 1.1 Licencia MIT</li>
-        <li>mpdf Ver. 8.0 Licencia GNU</li>
-        <li>mysqldump-php Ver. 2.9 Licencia GNU</li>
-        <li>scssphp Ver. 1.10 Licencia MIT</li>
-        <li>spatie url Ver. 1.3 Licencia MI</li>
+        <li>psr/log Ver. 1.1 Licencia MIT</li>
+        <li>mpdf Ver. 8.2.* Licencia GNU</li>
+        <li>mysqldump-php Ver. 2.12.* Licencia GNU</li>
+        <li>scssphp Ver. 1.12.* Licencia MIT</li>
+        <li>spatie/url Ver. 1.3.* Licencia MI</li>
     </ul>
 </div>
