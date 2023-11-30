@@ -36,18 +36,18 @@ class ResponseRoutePiecesPHP extends Response
      */
     public function withJson($data, $status = null, $encodingOptions = 0)
     {
-        $response = $this->withBody(new Body(fopen('php://temp', 'r+')));
-        $response->body->write($json = json_encode($data, $encodingOptions));
+        $json = json_encode($data, $encodingOptions);
 
-        // Ensure that the json encoding passed successfully
         if ($json === false) {
             throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
-        $responseWithJson = $response->withHeader('Content-Type', 'application/json');
+        $responseWithJson = $this->write($json);
+        $responseWithJson = $responseWithJson->withHeader('Content-Type', 'application/json');
         if (isset($status)) {
-            return $responseWithJson->withStatus($status);
+            $responseWithJson = $responseWithJson->withStatus($status);
         }
+
         return $responseWithJson;
     }
 
