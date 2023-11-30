@@ -12,12 +12,12 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
 use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
 
@@ -195,9 +195,7 @@ class GenericTokenController extends AdminPanelController
 
                 $tokenController->deleteTokenByID($this->tokenID);
 
-                $controller = new \PiecesPHP\Core\BaseController(false);
-                $controller->render('pages/403');
-                return $res->withStatus(403);
+                return throw403($req, []);
             }
 
         } else {

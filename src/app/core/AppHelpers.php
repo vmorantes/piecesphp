@@ -21,6 +21,7 @@ use PiecesPHP\Core\Routing\RouterPiecesPHP;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Psr\Http\Message\UploadedFileInterface;
+use Slim\Exception\HttpForbiddenException;
 use Slim\Routing\RouteCollectorProxy;
 use Spatie\Url\Url as URLManager;
 
@@ -2551,21 +2552,13 @@ function simpleUploadPlaceholderWorkSpace(array $data = [], bool $echo = true)
 
 /**
  * @param \PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request
- * @param \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP $response
- * @return \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP
+ * @param array $extraData
+ * @return void
  */
-function throw403(\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP $response)
+function throw403(\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, array $extraData = [])
 {
-    $response = $response->withStatus(403);
-
-    if (!$request->isXhr()) {
-        $controller = new PiecesPHP\Core\BaseController(false);
-        $controller->render('pages/403');
-    } else {
-        $response = $response->withJson("403 Forbidden");
-    }
-
-    return $response;
+    $request = $request->withAttribute('information403', $extraData);
+    throw new HttpForbiddenException($request);
 }
 
 /**

@@ -32,6 +32,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 
 /**
  * ImagesRepositoryController.
@@ -1913,27 +1914,9 @@ class ImagesRepositoryController extends AdminPanelController
         $group->register($routes);
 
         $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, $handler) {
-
-            $response = $handler->handle($request);
-
-            $route = $request->getRoute();
-            $routeName = $route->getName();
-            $routeArguments = $route->getArguments();
-            $routeArguments = is_array($routeArguments) ? $routeArguments : [];
-            $basenameRoute = self::$baseRouteName . '-';
-
-            if (strpos($routeName, $basenameRoute) !== false) {
-
-                $simpleName = str_replace($basenameRoute, '', $routeName);
-                $routeURL = self::routeName($simpleName, $routeArguments);
-                $allowed = mb_strlen($routeURL) > 0;
-
-                if (!$allowed) {
-                    return throw403($request, $response);
-                }
-
-            }
-            return $response;
+            return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
+                return self::routeName($name, $params);
+            }))->getResponse($request, $handler);
         });
 
         return $group;

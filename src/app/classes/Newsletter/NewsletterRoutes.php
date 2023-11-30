@@ -50,11 +50,6 @@ class NewsletterRoutes
 
             NewsletterLang::injectLang();
 
-            $groupAdministration->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, $handler) {
-                $response = $handler->handle($request);
-                return $response;
-            });
-
             \PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP::appendBeforeCallMethod(function () {
                 self::init();
             });

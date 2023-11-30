@@ -19,6 +19,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
 use Terminal\Controllers\TerminalController;
 
@@ -483,20 +484,9 @@ $app->add(function (RequestRoutePiecesPHP $request, RequestHandlerInterface $han
 
         //Acciones en caso de no tener permisos
         if ($has_permissions !== null && !$has_permissions && $info_route['require_login']) {
-            return (function ($request, $response) {
-
-                $response = $response->withStatus(403);
-
-                if (!$request->isXhr()) {
-                    $controller = new PiecesPHP\Core\BaseController(false);
-                    $controller->render('pages/403');
-                } else {
-                    $response = $response->withJson("403 Forbidden");
-                }
-
-                return $response;
-
-            })($request, $emptyResponse);
+            return (function ($request) {
+                return throw403($request, []);
+            })($request);
         }
 
     }
@@ -587,11 +577,17 @@ $handle404 = function (RequestRoutePiecesPHP $request, Throwable $exception, boo
         return get_config('slim_app')->getContainer()->get('notFoundHandler')($exception);
     }
 };
+$handle403 = function (RequestRoutePiecesPHP $request, Throwable $exception, bool $displayErrorDetails) {
+    if ($exception instanceof HttpForbiddenException) {
+        return get_config('slim_app')->getContainer()->get('forbiddenHandler')($exception);
+    }
+};
 $handleError = function (RequestRoutePiecesPHP $request, Throwable $exception, bool $displayErrorDetails) {
     $customErrorHandler = new CustomSlimErrorHandler($exception);
     return $customErrorHandler->getResponse($request);
 };
 $errorMiddleware->setErrorHandler(HttpNotFoundException::class, $handle404);
+$errorMiddleware->setErrorHandler(HttpForbiddenException::class, $handle403);
 $errorMiddleware->setErrorHandler(NotFoundException::class, $handle404);
 $errorMiddleware->setErrorHandler(ErrorException::class, $handleError);
 $errorMiddleware->setErrorHandler(Error::class, $handleError);
