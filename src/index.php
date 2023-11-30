@@ -11,8 +11,8 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\InvocationStrategy;
-use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
@@ -116,11 +116,18 @@ $app->setBasePath("/" . trim(appbase(), '/'));
 //Acciones antes de mostrar una ruta
 $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
+    $flashMessages = get_flash_messages();
+    $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessages) ? $flashMessages['render_exception'] : null;
+
     $emptyResponse = new ResponseRoute();
     $route = $request->getRoute();
 
     if (empty($route)) {
         throw new NotFoundException($request, $emptyResponse);
+    }
+
+    if ($flashMessagesExceptionRender !== null) {
+        throw $flashMessagesExceptionRender;
     }
 
     //──── Idiomas ───────────────────────────────────────────────────────────────────────────
@@ -592,5 +599,6 @@ $errorMiddleware->setErrorHandler(NotFoundException::class, $handle404);
 $errorMiddleware->setErrorHandler(ErrorException::class, $handleError);
 $errorMiddleware->setErrorHandler(Error::class, $handleError);
 $errorMiddleware->setErrorHandler(TypeError::class, $handleError);
+$errorMiddleware->setErrorHandler(Throwable::class, $handleError);
 
 $app->run(RequestRouteFactory::createFromGlobals());

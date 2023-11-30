@@ -7,6 +7,7 @@ namespace PiecesPHP\Core\CustomErrorsHandlers;
 
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use Throwable;
 
 /**
  * CustomSlimErrorHandler - ....
@@ -24,9 +25,9 @@ class CustomSlimErrorHandler
     protected $handler = null;
 
     /**
-     * @param \Exception $exception
+     * @param Throwable $exception
      */
-    public function __construct($exception)
+    public function __construct(Throwable $exception)
     {
         $this->handler = new GenericHandler($exception);
         $this->handler->logging();

@@ -7,6 +7,7 @@ namespace PiecesPHP\Core\Routing;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
+use Throwable;
 
 /**
  * InvocationStrategy
@@ -58,7 +59,14 @@ class InvocationStrategy implements InvocationStrategyInterface
 
         }
 
-        $invokeResult = $callable($request, $response, $routeArguments);
+        ob_start();
+        try {
+            $invokeResult = $callable($request, $response, $routeArguments);
+        } catch (Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
+        ob_end_flush();
 
         if (self::$afterCallMethods !== null && is_array(self::$afterCallMethods) && !empty(self::$afterCallMethods)) {
 
