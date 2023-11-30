@@ -45,7 +45,7 @@ class FormsRoutes
             CategoriesRoutes::routes($groupAdministration);
             DocumentTypesRoutes::routes($groupAdministration);
 
-            \PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP::appendBeforeCallMethod(function () {
+            \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
 

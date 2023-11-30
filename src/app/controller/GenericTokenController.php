@@ -18,8 +18,8 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
-use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * GenericTokenController.

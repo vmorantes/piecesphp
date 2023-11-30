@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RequestRouteFactoryPiecesPHP.php
+ * RequestRouteFactory.php
  */
 namespace PiecesPHP\Core\Routing;
 
@@ -17,13 +17,13 @@ use Slim\Psr7\Stream;
 use Slim\Psr7\UploadedFile;
 
 /**
- * RequestRouteFactoryPiecesPHP
+ * RequestRouteFactory
  *
- * @package     PiecesPHP\Core
+ * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2023
  */
-class RequestRouteFactoryPiecesPHP extends ServerRequestFactory
+class RequestRouteFactory extends ServerRequestFactory
 {
 
     /**
@@ -48,7 +48,7 @@ class RequestRouteFactoryPiecesPHP extends ServerRequestFactory
             $cookies = Cookies::parseHeader($headers->getHeader('Cookie', []));
         }
 
-        return new RequestRoutePiecesPHP($method, $uri, $headers, $cookies, $serverParams, $body);
+        return new RequestRoute($method, $uri, $headers, $cookies, $serverParams, $body);
     }
 
     /**
@@ -56,9 +56,9 @@ class RequestRouteFactoryPiecesPHP extends ServerRequestFactory
      *
      * @internal This method is not part of PSR-17
      *
-     * @return RequestRoutePiecesPHP
+     * @return RequestRoute
      */
-    public static function createFromGlobals(): RequestRoutePiecesPHP
+    public static function createFromGlobals(): RequestRoute
     {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         $uri = (new UriFactory())->createFromGlobals($_SERVER);
@@ -73,7 +73,7 @@ class RequestRouteFactoryPiecesPHP extends ServerRequestFactory
         $body = (new StreamFactory())->createStreamFromFile('php://input', 'r', $cache);
         $uploadedFiles = UploadedFile::createFromGlobals($_SERVER);
 
-        $request = new RequestRoutePiecesPHP($method, $uri, $headers, $cookies, $_SERVER, $body, $uploadedFiles);
+        $request = new RequestRoute($method, $uri, $headers, $cookies, $_SERVER, $body, $uploadedFiles);
         $contentTypes = $request->getHeader('Content-Type');
 
         $parsedContentType = '';

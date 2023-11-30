@@ -11,8 +11,8 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Validation\Validator;
-use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
-use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * MessagesController.

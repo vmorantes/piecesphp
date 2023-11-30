@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RequestRoutePiecesPHP.php
+ * RequestRoute.php
  */
 namespace PiecesPHP\Core\Routing;
 
@@ -10,13 +10,13 @@ use Slim\Psr7\Request;
 use Slim\Routing\Route;
 
 /**
- * RequestRoutePiecesPHP
+ * RequestRoute
  *
- * @package     PiecesPHP\Core
+ * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2023
  */
-class RequestRoutePiecesPHP extends Request
+class RequestRoute extends Request
 {
 
     /**

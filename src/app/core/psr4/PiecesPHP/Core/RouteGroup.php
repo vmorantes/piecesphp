@@ -5,7 +5,7 @@
  */
 namespace PiecesPHP\Core;
 
-use PiecesPHP\Core\Routing\RouteGroupPiecesPHP;
+use PiecesPHP\Core\Routing\RouteGroupAdapter;
 
 /**
  * RouteGroup
@@ -14,5 +14,5 @@ use PiecesPHP\Core\Routing\RouteGroupPiecesPHP;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
-class RouteGroup extends RouteGroupPiecesPHP
+class RouteGroup extends RouteGroupAdapter
 {}

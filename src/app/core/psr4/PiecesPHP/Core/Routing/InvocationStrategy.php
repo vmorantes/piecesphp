@@ -1,6 +1,6 @@
 <?php
 /**
- * InvocationStrategyPiecesPHP.php
+ * InvocationStrategy.php
  */
 namespace PiecesPHP\Core\Routing;
 
@@ -9,13 +9,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 
 /**
- * InvocationStrategyPiecesPHP
+ * InvocationStrategy
  *
  * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2023
  */
-class InvocationStrategyPiecesPHP implements InvocationStrategyInterface
+class InvocationStrategy implements InvocationStrategyInterface
 {
 
     /**

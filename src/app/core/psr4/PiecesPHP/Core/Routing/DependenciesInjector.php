@@ -1,20 +1,20 @@
 <?php
 
 /**
- * DependenciesInjectorPiecesPHP.php
+ * DependenciesInjector.php
  */
 namespace PiecesPHP\Core\Routing;
 
 use Psr\Container\ContainerInterface;
 
 /**
- * DependenciesInjectorPiecesPHP
+ * DependenciesInjector
  *
- * @package     PiecesPHP\Core
+ * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2023
  */
-class DependenciesInjectorPiecesPHP implements ContainerInterface
+class DependenciesInjector implements ContainerInterface
 {
 
     /**
@@ -38,7 +38,7 @@ class DependenciesInjectorPiecesPHP implements ContainerInterface
     /**
      * @param string $name
      * @param mixed $value
-     * @return DependenciesInjectorPiecesPHP
+     * @return DependenciesInjector
      */
     public function add(string $name, $value)
     {
@@ -70,7 +70,7 @@ class DependenciesInjectorPiecesPHP implements ContainerInterface
 
     /**
      * @param string $name
-     * @return DependenciesInjectorPiecesPHP
+     * @return DependenciesInjector
      */
     public function remove(string $name)
     {

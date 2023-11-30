@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RouteGroupPiecesPHP.php
+ * RouteGroupAdapter.php
  */
 namespace PiecesPHP\Core\Routing;
 
@@ -10,17 +10,17 @@ use PiecesPHP\Core\Route;
 use Slim\Routing\RouteCollectorProxy;
 
 /**
- * RouteGroupPiecesPHP - Esquema de grupo de rutas
+ * RouteGroupAdapter - Esquema de grupo de rutas
  *
  * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
-class RouteGroupPiecesPHP
+class RouteGroupAdapter
 {
 
     /**
-     * @var RouterPiecesPHP
+     * @var Router
      */
     protected static $router = null;
     /**
@@ -40,7 +40,7 @@ class RouteGroupPiecesPHP
      */
     protected $routes = [];
     /**
-     * @var RouterPiecesPHP
+     * @var Router
      */
     protected $instanceRouter = null;
     /**
@@ -54,10 +54,10 @@ class RouteGroupPiecesPHP
 
     /**
      * @param string $routeGroup
-     * @param RouterPiecesPHP $router
+     * @param Router $router
      * @param bool $useClassRouter
      */
-    public function __construct(string $routeGroup, RouterPiecesPHP $router = null, bool $useClassRouter = true)
+    public function __construct(string $routeGroup, Router $router = null, bool $useClassRouter = true)
     {
         $routerDefined = false;
 
@@ -66,14 +66,14 @@ class RouteGroupPiecesPHP
 
         if ($useClassRouter) {
 
-            if (self::$router instanceof RouterPiecesPHP) {
+            if (self::$router instanceof Router) {
                 $this->instanceRouter = self::$router;
                 $routerDefined = true;
             }
 
         } else {
 
-            if ($router instanceof RouterPiecesPHP) {
+            if ($router instanceof Router) {
                 $this->instanceRouter = $router;
                 $routerDefined = true;
             }
@@ -88,7 +88,7 @@ class RouteGroupPiecesPHP
 
     /**
      * @param Route[] $routes
-     * @param RouterPiecesPHP $router
+     * @param Router $router
      * @return static
      */
     public function register($routes)
@@ -249,10 +249,10 @@ class RouteGroupPiecesPHP
     }
 
     /**
-     * @param RouterPiecesPHP $router
+     * @param Router $router
      * @return void
      */
-    public static function setRouter(RouterPiecesPHP $router)
+    public static function setRouter(Router $router)
     {
         self::$router = $router;
     }

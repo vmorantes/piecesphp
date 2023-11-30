@@ -4,8 +4,8 @@
  */
 namespace PiecesPHP\RoutingUtils;
 
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
@@ -34,11 +34,11 @@ class DefaultAccessControlModules
     }
 
     /**
-     * @param  RequestRoutePiecesPHP $request PSR-7 request
+     * @param  RequestRoute $request PSR-7 request
      * @param  RequestHandlerInterface $handler PSR-15 request handler
-     * @return ResponseRoutePiecesPHP
+     * @return ResponseRoute
      */
-    public function getResponse(RequestRoutePiecesPHP $request, RequestHandlerInterface $handler): ResponseRoutePiecesPHP
+    public function getResponse(RequestRoute $request, RequestHandlerInterface $handler): ResponseRoute
     {
         $route = $request->getRoute();
         $routeName = $route->getName();

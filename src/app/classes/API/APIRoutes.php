@@ -39,7 +39,7 @@ class APIRoutes
 
             APILang::injectLang();
 
-            \PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP::appendBeforeCallMethod(function () {
+            \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
 

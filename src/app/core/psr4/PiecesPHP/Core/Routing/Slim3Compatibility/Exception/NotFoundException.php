@@ -7,8 +7,8 @@
 
 namespace PiecesPHP\Core\Routing\Slim3Compatibility\Exception;
 
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpNotFoundException;
 use Throwable;
@@ -21,22 +21,22 @@ class NotFoundException extends HttpNotFoundException
     protected ServerRequestInterface $request;
 
     /**
-     * @var ResponseRoutePiecesPHP
+     * @var ResponseRoute
      */
     protected $response;
 
     /**
-     * @param RequestRoutePiecesPHP $request
-     * @param ResponseRoutePiecesPHP $response
+     * @param RequestRoute $request
+     * @param ResponseRoute $response
      */
-    public function __construct(RequestRoutePiecesPHP $request, ?ResponseRoutePiecesPHP $response = null, ?string $message = null, ?Throwable $previous = null)
+    public function __construct(RequestRoute $request, ?ResponseRoute $response = null, ?string $message = null, ?Throwable $previous = null)
     {
         parent::__construct($request, $message, $previous);
         $this->response = $response;
     }
 
     /**
-     * @return ResponseRoutePiecesPHP
+     * @return ResponseRoute
      */
     public function getResponse()
     {

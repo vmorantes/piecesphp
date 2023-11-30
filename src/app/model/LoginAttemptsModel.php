@@ -11,7 +11,7 @@ use PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Validator;
-use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
 
 /**
  * LoginAttemptsModel.

@@ -12,8 +12,8 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
-use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
-use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * UserProblemsController.

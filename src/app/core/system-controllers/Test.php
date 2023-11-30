@@ -6,8 +6,8 @@
 
 namespace PiecesPHP\Core;
 
-use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
-use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * Test.

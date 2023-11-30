@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RoutePiecesPHP.php
+ * RouteAdapter.php
  */
 namespace PiecesPHP\Core\Routing;
 
@@ -9,17 +9,17 @@ use Slim\Routing\RouteCollectorProxy;
 use TypeError;
 
 /**
- * RoutePiecesPHP - Esquema de ruta
+ * RouteAdapter - Esquema de ruta
  *
- * @package     PiecesPHP\Core
+ * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
-class RoutePiecesPHP
+class RouteAdapter
 {
 
     /**
-     * @var RouterPiecesPHP
+     * @var Router
      */
     public static $router = null;
     /**
@@ -328,14 +328,14 @@ class RoutePiecesPHP
     }
 
     /**
-     * @param RouterPiecesPHP|RouteCollectorProxy $router
+     * @param Router|RouteCollectorProxy $router
      * @return void
      */
     public function register($router = null)
     {
 
         $validInstancesRoutes = array_reduce([
-            $router instanceof RouterPiecesPHP,
+            $router instanceof Router,
             $router instanceof RouteCollectorProxy,
         ], function ($a, $b) {
             return $a || $b;
@@ -343,7 +343,7 @@ class RoutePiecesPHP
 
         if (!$validInstancesRoutes) {
             throw new TypeError("\$router debe ser instancia de alguna de las siguientes clases: " . implode(', ', [
-                RouterPiecesPHP::class,
+                Router::class,
                 RouteCollectorProxy::class,
             ]));
         }
@@ -420,7 +420,7 @@ class RoutePiecesPHP
         $middlewares = isset($route['middlewares']) ? $route['middlewares'] : [];
         $middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
 
-        $instance = new RoutePiecesPHP($routeSegment, $controller);
+        $instance = new RouteAdapter($routeSegment, $controller);
 
         if (is_array($method)) {
             $instance->methodFromArray($method);
@@ -443,10 +443,10 @@ class RoutePiecesPHP
     }
 
     /**
-     * @param RouterPiecesPHP $router
+     * @param Router $router
      * @return void
      */
-    public static function setRouter(RouterPiecesPHP $router)
+    public static function setRouter(Router $router)
     {
         self::$router = $router;
     }

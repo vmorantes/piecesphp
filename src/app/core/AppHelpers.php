@@ -16,8 +16,8 @@ use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
-use PiecesPHP\Core\Routing\DependenciesInjectorPiecesPHP;
-use PiecesPHP\Core\Routing\RouterPiecesPHP;
+use PiecesPHP\Core\Routing\DependenciesInjector;
+use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Psr\Http\Message\UploadedFileInterface;
@@ -1986,13 +1986,13 @@ function register_routes($routes, &$router)
  * @param array $route[roles_allowed]
  * @param array $route[parameters]
  * @param array<string|callable> $route[middlewares]
- * @param RouterPiecesPHP|RouteCollectorProxy $router
+ * @param Router|RouteCollectorProxy $router
  * @return void
  */
 function register_route(array $route, &$router)
 {
     /**
-     * @var DependenciesInjectorPiecesPHP|null $container
+     * @var DependenciesInjector|null $container
      */
     $container = $router->getContainer();
 
@@ -2220,7 +2220,7 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
 {
 
     /**
-     * @var RouterPiecesPHP $app
+     * @var Router $app
      */
     $app = get_config('slim_app');
     $exists = isset(get_routes()[$name]);
@@ -2551,11 +2551,11 @@ function simpleUploadPlaceholderWorkSpace(array $data = [], bool $echo = true)
 }
 
 /**
- * @param \PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request
+ * @param \PiecesPHP\Core\Routing\RequestRoute $request
  * @param array $extraData
  * @return void
  */
-function throw403(\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, array $extraData = [])
+function throw403(\PiecesPHP\Core\Routing\RequestRoute $request, array $extraData = [])
 {
     $request = $request->withAttribute('information403', $extraData);
     throw new HttpForbiddenException($request);

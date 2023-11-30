@@ -9,12 +9,12 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\DependenciesInjectorPiecesPHP;
-use PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP;
-use PiecesPHP\Core\Routing\RequestRouteFactoryPiecesPHP;
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP;
-use PiecesPHP\Core\Routing\RouterPiecesPHP;
+use PiecesPHP\Core\Routing\DependenciesInjector;
+use PiecesPHP\Core\Routing\InvocationStrategy;
+use PiecesPHP\Core\Routing\RequestRouteFactory;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
@@ -36,7 +36,7 @@ require_once basepath("app/config/containers.php");
 //Instancia del enrutador
 set_config(
     'slim_container',
-    new DependenciesInjectorPiecesPHP($container_configurations)
+    new DependenciesInjector($container_configurations)
 );
 
 if (get_config('control_access_login') === true) {
@@ -110,13 +110,13 @@ if (APP_CONFIGURATION_MODULE) {
     }
 }
 
-$app = RouterPiecesPHP::createRouter(get_config('slim_container'));
+$app = Router::createRouter(get_config('slim_container'));
 $app->setBasePath("/" . trim(appbase(), '/'));
 
 //Acciones antes de mostrar una ruta
-$app->add(function (RequestRoutePiecesPHP $request, RequestHandlerInterface $handler) {
+$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
-    $emptyResponse = new ResponseRoutePiecesPHP();
+    $emptyResponse = new ResponseRoute();
     $route = $request->getRoute();
 
     if (empty($route)) {
@@ -501,7 +501,7 @@ $app->add(function (RequestRoutePiecesPHP $request, RequestHandlerInterface $han
     Roles::setSilentMode($silentModeRolesSetted);
 
     /**
-     * @var ResponseRoutePiecesPHP $response
+     * @var ResponseRoute $response
      */
     $response = $handler->handle($request);
     return $response;
@@ -523,10 +523,10 @@ $errorMiddleware = $app->addErrorMiddleware(is_local(), false, false);
 
 //Definir estrategia personalizada
 $routeCollector = $app->getRouteCollector();
-$routeCollector->setDefaultInvocationStrategy(new InvocationStrategyPiecesPHP());
+$routeCollector->setDefaultInvocationStrategy(new InvocationStrategy());
 
 //Llamadas antes y después de ejecutar rutas
-$app->add(function (RequestRoutePiecesPHP $request, RequestHandlerInterface $handler) {
+$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     $response = $handler->handle($request);
     return $response;
 });
@@ -550,7 +550,7 @@ if (TerminalData::getInstance()->isTerminal()) {
         ], '', get_route($routeName));
 
         /**
-         * @var DependenciesInjectorPiecesPHP $container
+         * @var DependenciesInjector $container
          */
         $container = $app->getContainer();
 
@@ -572,17 +572,17 @@ if (TerminalData::getInstance()->isTerminal()) {
 }
 
 //Manejar errores
-$handle404 = function (RequestRoutePiecesPHP $request, Throwable $exception, bool $displayErrorDetails) {
+$handle404 = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
     if ($exception instanceof HttpNotFoundException) {
         return get_config('slim_app')->getContainer()->get('notFoundHandler')($exception);
     }
 };
-$handle403 = function (RequestRoutePiecesPHP $request, Throwable $exception, bool $displayErrorDetails) {
+$handle403 = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
     if ($exception instanceof HttpForbiddenException) {
         return get_config('slim_app')->getContainer()->get('forbiddenHandler')($exception);
     }
 };
-$handleError = function (RequestRoutePiecesPHP $request, Throwable $exception, bool $displayErrorDetails) {
+$handleError = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
     $customErrorHandler = new CustomSlimErrorHandler($exception);
     return $customErrorHandler->getResponse($request);
 };
@@ -593,4 +593,4 @@ $errorMiddleware->setErrorHandler(ErrorException::class, $handleError);
 $errorMiddleware->setErrorHandler(Error::class, $handleError);
 $errorMiddleware->setErrorHandler(TypeError::class, $handleError);
 
-$app->run(RequestRouteFactoryPiecesPHP::createFromGlobals());
+$app->run(RequestRouteFactory::createFromGlobals());

@@ -37,7 +37,7 @@ function sidebar_menu()
 
 /**
  * @param array $options
- * @var \PiecesPHP\Core\Routing\RequestRoutePiecesPHP $options['request'], required
+ * @var \PiecesPHP\Core\Routing\RequestRoute $options['request'], required
  * @var \PiecesPHP\Core\Database\EntityMapper $options['mapper'], required
  * @var array $options['columns_order'], required
  * @var string $options['where_string']
@@ -54,7 +54,7 @@ function datatables_proccessing_with_options(array $options)
 /**
  * Devuelve un string con la estructura de un orderBy para un EntityMapper
  *
- * @param \PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request
+ * @param \PiecesPHP\Core\Routing\RequestRoute $request
  * @param \PiecesPHP\Core\Database\EntityMapper $mapper
  * @param array $columns_order
  * @param string $where_string
@@ -64,7 +64,7 @@ function datatables_proccessing_with_options(array $options)
  * @return \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations
  */
 function datatables_proccessing(
-    \PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request,
+    \PiecesPHP\Core\Routing\RequestRoute $request,
     \PiecesPHP\Core\Database\EntityMapper $mapper,
     array $columns_order,
     string $where_string = null,
