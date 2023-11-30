@@ -5,7 +5,7 @@
  */
 namespace PiecesPHP\Core;
 
-use PiecesPHP\Core\Routing\RoutePiecesPHP;
+use PiecesPHP\Core\Routing\RouteAdapter;
 
 /**
  * Route
@@ -14,5 +14,5 @@ use PiecesPHP\Core\Routing\RoutePiecesPHP;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
-class Route extends RoutePiecesPHP
+class Route extends RouteAdapter
 {}

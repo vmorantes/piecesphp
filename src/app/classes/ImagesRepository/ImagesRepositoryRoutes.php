@@ -12,8 +12,8 @@ use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
 
@@ -51,7 +51,7 @@ class ImagesRepositoryRoutes
 
             ImagesRepositoryLang::injectLang();
 
-            \PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP::appendBeforeCallMethod(function () {
+            \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
 

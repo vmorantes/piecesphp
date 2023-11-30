@@ -5,8 +5,8 @@
  */
 namespace PiecesPHP\Core\CustomErrorsHandlers;
 
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 
 /**
  * CustomSlimErrorHandler - ....
@@ -33,13 +33,13 @@ class CustomSlimErrorHandler
     }
 
     /**
-     * @param RequestRoutePiecesPHP $request
-     * @return ResponseRoutePiecesPHP
+     * @param RequestRoute $request
+     * @return ResponseRoute
      */
-    public function getResponse(RequestRoutePiecesPHP $request)
+    public function getResponse(RequestRoute $request)
     {
 
-        $response = new ResponseRoutePiecesPHP();
+        $response = new ResponseRoute();
         $exception = $this->handler->getException();
         $class_exception = get_class($exception);
         $trace = $exception->getTrace();

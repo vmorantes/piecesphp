@@ -1,8 +1,8 @@
 <?php
 
-use PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP;
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP;
+use PiecesPHP\Core\Routing\InvocationStrategy;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\CSSVariables;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -10,7 +10,7 @@ use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
 
 $container_configurations = [
-    'foundHandler' => function (RequestRoutePiecesPHP $request, RequestHandlerInterface $handler) {
+    'foundHandler' => function (RequestRoute $request, RequestHandlerInterface $handler) {
 
         //Variables CSS globales
         $cssGlobalVariables = CSSVariables::instance('global');
@@ -28,12 +28,12 @@ $container_configurations = [
         add_global_required_asset(get_route('admin-global-variables-css'), 'css');
 
         //Antes de ejecutar el método de la ruta
-        InvocationStrategyPiecesPHP::appendBeforeCallMethod(function () {
+        InvocationStrategy::appendBeforeCallMethod(function () {
             set_config('lock_assets', true);
         });
 
         //Después de ejecutar el método de la ruta
-        InvocationStrategyPiecesPHP::appendAfterCallMethod(function () {
+        InvocationStrategy::appendAfterCallMethod(function () {
             set_config('lock_assets', false);
         });
 
@@ -42,13 +42,13 @@ $container_configurations = [
         try {
             $response = $handler->handle($request);
         } catch (\Error $e) {
-            if ($response instanceof ResponseRoutePiecesPHP) {
+            if ($response instanceof ResponseRoute) {
                 throw $e;
             }
         }
 
-        if (!($response instanceof ResponseRoutePiecesPHP)) {
-            $response = new ResponseRoutePiecesPHP();
+        if (!($response instanceof ResponseRoute)) {
+            $response = new ResponseRoute();
         }
 
         return $response;
@@ -56,10 +56,10 @@ $container_configurations = [
     'notFoundHandler' => function (HttpNotFoundException $notFoundError) {
 
         /**
-         * @var RequestRoutePiecesPHP $request
+         * @var RequestRoute $request
          */
         $request = $notFoundError->getRequest();
-        $response = new ResponseRoutePiecesPHP(StatusCode::HTTP_NOT_FOUND);
+        $response = new ResponseRoute(StatusCode::HTTP_NOT_FOUND);
 
         //if ($request->getMethod() == 'OPTIONS') {
         //    return $response->withStatus(200);
@@ -77,10 +77,10 @@ $container_configurations = [
     'forbiddenHandler' => function (HttpForbiddenException $forbiddenError) {
 
         /**
-         * @var RequestRoutePiecesPHP $request
+         * @var RequestRoute $request
          */
         $request = $forbiddenError->getRequest();
-        $response = new ResponseRoutePiecesPHP(StatusCode::HTTP_FORBIDDEN);
+        $response = new ResponseRoute(StatusCode::HTTP_FORBIDDEN);
         $extraData = $request->getAttribute('information403', []);
         $extraData = is_array($extraData) ? $extraData : [];
 

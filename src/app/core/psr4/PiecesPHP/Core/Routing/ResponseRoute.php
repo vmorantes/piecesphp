@@ -1,21 +1,20 @@
 <?php
 
 /**
- * ResponseRoutePiecesPHP.php
+ * ResponseRoute.php
  */
 namespace PiecesPHP\Core\Routing;
 
-use PiecesPHP\Core\Routing\Slim3Compatibility\Http\Body;
 use Slim\Psr7\Response;
 
 /**
- * ResponseRoutePiecesPHP
+ * ResponseRoute
  *
- * @package     PiecesPHP\Core
+ * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2023
  */
-class ResponseRoutePiecesPHP extends Response
+class ResponseRoute extends Response
 {
 
     /**

@@ -9,8 +9,8 @@ namespace MySpace;
 use MySpace\Controllers\MySpaceController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
 
@@ -45,7 +45,7 @@ class MySpaceRoutes
 
             MySpaceLang::injectLang();
 
-            \PiecesPHP\Core\Routing\InvocationStrategyPiecesPHP::appendBeforeCallMethod(function () {
+            \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
 

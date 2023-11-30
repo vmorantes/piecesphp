@@ -16,8 +16,8 @@ use News\Controllers\NewsController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
-use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 
 /**
@@ -253,7 +253,7 @@ class MySpaceController extends AdminPanelController
 
         $group->register($routes);
 
-        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, $handler) {
+        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
             return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
                 return self::routeName($name, $params);
             }))->getResponse($request, $handler);
