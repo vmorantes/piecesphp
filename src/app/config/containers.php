@@ -6,6 +6,7 @@ use PiecesPHP\Core\Routing\ResponseRoutePiecesPHP;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\CSSVariables;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
 
 $container_configurations = [
@@ -60,8 +61,6 @@ $container_configurations = [
         $request = $notFoundError->getRequest();
         $response = new ResponseRoutePiecesPHP(StatusCode::HTTP_NOT_FOUND);
 
-        $response = $response->withStatus(404);
-
         //if ($request->getMethod() == 'OPTIONS') {
         //    return $response->withStatus(200);
         //}
@@ -74,5 +73,36 @@ $container_configurations = [
         }
 
         return $response;
+    },
+    'forbiddenHandler' => function (HttpForbiddenException $forbiddenError) {
+
+        /**
+         * @var RequestRoutePiecesPHP $request
+         */
+        $request = $forbiddenError->getRequest();
+        $response = new ResponseRoutePiecesPHP(StatusCode::HTTP_FORBIDDEN);
+        $extraData = $request->getAttribute('information403', []);
+        $extraData = is_array($extraData) ? $extraData : [];
+
+        $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
+        $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
+        $line = array_key_exists('line', $extraData) ? $extraData['line'] : null;
+        $file = array_key_exists('file', $extraData) ? $extraData['file'] : null;
+
+        if (!$request->isXhr()) {
+
+            $dataController = [
+                'url' => $url,
+            ];
+
+            $controller = new PiecesPHP\Core\BaseController(false);
+            $controller->render('pages/403', $dataController);
+
+        } else {
+            $response = $response->withJson("403 Forbidden");
+        }
+
+        return $response;
+
     },
 ];

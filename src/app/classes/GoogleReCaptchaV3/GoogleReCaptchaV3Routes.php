@@ -33,11 +33,6 @@ class GoogleReCaptchaV3Routes
 
             GoogleReCaptchaV3Lang::injectLang();
 
-            $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoutePiecesPHP $request, $handler) {
-                $response = $handler->handle($request);
-                return $response;
-            });
-
         }
 
         return $group;

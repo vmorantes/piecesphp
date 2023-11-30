@@ -14,6 +14,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
@@ -24,7 +25,6 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use \PiecesPHP\Core\Routing\RequestRoutePiecesPHP as Request;
 use \PiecesPHP\Core\Routing\ResponseRoutePiecesPHP as Response;
 
@@ -423,11 +423,9 @@ class UsersController extends AdminPanelController
         $hasAuthority = $currentUser->hasAuthorityOver($type);
 
         if (!$hasAuthority) {
-            $controller = new \PiecesPHP\Core\BaseController(false);
-            $controller->render('pages/403', [
+            return throw403($req, [
                 'url' => get_route('users-selection-create'),
             ]);
-            return $res->withStatus(403);
         }
 
         if (isset(UsersModel::getTypesUser()[$type])) {
@@ -502,11 +500,9 @@ class UsersController extends AdminPanelController
         if (!is_null($user->id)) {
 
             if (!$hasAuthority) {
-                $controller = new \PiecesPHP\Core\BaseController(false);
-                $controller->render('pages/403', [
+                return throw403($req, [
                     'url' => get_route('users-list'),
                 ]);
-                return $res->withStatus(403);
             }
 
             $is_same = $user->id == $this->user->id;
