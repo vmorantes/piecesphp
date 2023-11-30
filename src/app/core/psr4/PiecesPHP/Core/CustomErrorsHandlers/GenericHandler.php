@@ -5,6 +5,8 @@
  */
 namespace PiecesPHP\Core\CustomErrorsHandlers;
 
+use Throwable;
+
 /**
  * GenericHandler - ....
  *
@@ -16,7 +18,7 @@ namespace PiecesPHP\Core\CustomErrorsHandlers;
 class GenericHandler
 {
     /**
-     * @var \Exception|\Error
+     * @var Throwable
      */
     protected $exception;
     /**
@@ -45,15 +47,12 @@ class GenericHandler
     protected $directoryBackup = '';
 
     /**
-     * @param \Exception|\Error $e
+     * @param Throwable $e
      * @return static
      * @throws \TypeError
      */
-    public function __construct($e)
+    public function __construct(Throwable $e)
     {
-        if (!$e instanceof \Exception && !$e instanceof \Error) {
-            throw new \TypeError('Error type unexpected.');
-        }
 
         $this->exception = $e;
 
@@ -78,7 +77,7 @@ class GenericHandler
     }
 
     /**
-     * @return \Exception
+     * @return Throwable
      */
     public function getException()
     {

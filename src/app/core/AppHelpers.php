@@ -2378,7 +2378,7 @@ function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, 
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
 
         return $filename;
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
         $handler->logging();
         return '';
@@ -2386,14 +2386,11 @@ function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, 
 }
 
 /**
- * @param \Exception|\Error $e
+ * @param Throwable $e
  * @return void
  */
-function log_exception($e)
+function log_exception(Throwable $e)
 {
-    if (!$e instanceof \Exception && !$e instanceof \Error) {
-        throw new \TypeError('Error type unexpected.');
-    }
 
     $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
     $handler->logging();
