@@ -16,12 +16,12 @@ use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
-use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Psr\Http\Message\UploadedFileInterface;
 use Slim\Exception\HttpForbiddenException;
+use Slim\Middleware\ErrorMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 use Spatie\Url\Url as URLManager;
 
@@ -1991,10 +1991,8 @@ function register_routes($routes, &$router)
  */
 function register_route(array $route, &$router)
 {
-    /**
-     * @var DependenciesInjector|null $container
-     */
-    $container = $router->getContainer();
+
+    $container = get_router()->getDI();
 
     $routesSetted = get_config('_routes_');
 
@@ -2219,10 +2217,7 @@ function get_route_info(string $name)
 function get_route(string $name, array $params = [], bool $silentOnNotExists = false)
 {
 
-    /**
-     * @var Router $app
-     */
-    $app = get_config('slim_app');
+    $app = get_router();
     $exists = isset(get_routes()[$name]);
     if ($exists || !$silentOnNotExists) {
 
@@ -2279,6 +2274,22 @@ function get_route_sample(string $name, bool $silentOnNotExists = false)
         $parameters[$name] = "{" . $name . "}";
     }
     return get_route($information['name'], $parameters, $silentOnNotExists);
+}
+
+/**
+ * @return Router
+ */
+function get_router()
+{
+    return get_config('slim_app');
+}
+
+/**
+ * @return ErrorMiddleware
+ */
+function get_error_middleware()
+{
+    return get_config('errorMiddleware');
 }
 
 /**

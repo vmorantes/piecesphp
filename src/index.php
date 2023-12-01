@@ -527,6 +527,7 @@ require_once basepath("app/config/final-configurations.php");
 /** Activar enrutador */
 $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(is_local(), false, false);
+set_config('errorMiddleware', $errorMiddleware);
 
 //Definir estrategia personalizada
 $routeCollector = $app->getRouteCollector();
@@ -556,10 +557,7 @@ if (TerminalData::getInstance()->isTerminal()) {
             'localhost',
         ], '', get_route($routeName));
 
-        /**
-         * @var DependenciesInjector $container
-         */
-        $container = $app->getContainer();
+        $container = $app->getDI();
 
         $basicServerVariables = $terminalDataInstance->basicServerVariables();
 
@@ -581,12 +579,12 @@ if (TerminalData::getInstance()->isTerminal()) {
 //Manejar errores
 $handle404 = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
     if ($exception instanceof HttpNotFoundException) {
-        return get_config('slim_app')->getContainer()->get('notFoundHandler')($exception);
+        return get_router()->getDI()->get('notFoundHandler')($exception);
     }
 };
 $handle403 = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
     if ($exception instanceof HttpForbiddenException) {
-        return get_config('slim_app')->getContainer()->get('forbiddenHandler')($exception);
+        return get_router()->getDI()->get('forbiddenHandler')($exception);
     }
 };
 $handleError = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
@@ -596,9 +594,9 @@ $handleError = function (RequestRoute $request, Throwable $exception, bool $disp
 $errorMiddleware->setErrorHandler(HttpNotFoundException::class, $handle404);
 $errorMiddleware->setErrorHandler(HttpForbiddenException::class, $handle403);
 $errorMiddleware->setErrorHandler(NotFoundException::class, $handle404);
-$errorMiddleware->setErrorHandler(ErrorException::class, $handleError);
-$errorMiddleware->setErrorHandler(Error::class, $handleError);
-$errorMiddleware->setErrorHandler(TypeError::class, $handleError);
-$errorMiddleware->setErrorHandler(Throwable::class, $handleError);
+$errorMiddleware->setErrorHandler(\ErrorException::class, $handleError);
+$errorMiddleware->setErrorHandler(\Error::class, $handleError);
+$errorMiddleware->setErrorHandler(\TypeError::class, $handleError);
+$errorMiddleware->setErrorHandler(\Throwable::class, $handleError);
 
 $app->run(RequestRouteFactory::createFromGlobals());

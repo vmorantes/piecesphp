@@ -26,7 +26,6 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\LangInjector;
-use PiecesPHP\LetsEncryptHandler;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
@@ -92,9 +91,6 @@ class AppConfigController extends AdminPanelController
         UsersModel::TYPE_USER_ADMIN,
     ];
     const ROLES_ROUTES_VIEWS = [
-        UsersModel::TYPE_USER_ROOT,
-    ];
-    const ROLES_SSL_ACTION = [
         UsersModel::TYPE_USER_ROOT,
     ];
     const ROLES_CLEAN_CACHE_ACTION = [
@@ -1299,12 +1295,10 @@ class AppConfigController extends AdminPanelController
         if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {
 
             $actionGenericURL = AppConfigController::routeName('generals-generic-action');
-            $actionSSLURL = AppConfigController::routeName('ssl');
 
             $hasPermissionsGenerals = count(array_filter([
                 $actionGenericURL,
             ], function ($e) {return mb_strlen(trim($e)) > 0;})) > 0;
-            $hasPermissionsSSL = mb_strlen(trim($actionSSLURL)) > 0;
 
             if ($hasPermissionsGenerals) {
 
@@ -1315,18 +1309,6 @@ class AppConfigController extends AdminPanelController
 
                 $tabsTitles['general'] = __($langGroup, 'Generales');
                 $tabsItems['general'] = $this->render("{$baseViewDir}/inc/configuration-tabs/general", $data, false, false);
-
-            }
-
-            if ($hasPermissionsSSL) {
-
-                $data = [
-                    'langGroup' => $langGroup,
-                    'actionSSLURL' => $actionSSLURL,
-                ];
-
-                $tabsTitles['ssl'] = __($langGroup, 'SSL');
-                $tabsItems['ssl'] = $this->render("{$baseViewDir}/inc/configuration-tabs/ssl", $data, false, false);
 
             }
 
@@ -1608,99 +1590,6 @@ class AppConfigController extends AdminPanelController
                 'line' => $e->getLine(),
                 'code' => $e->getCode(),
             ]);
-            log_exception($e);
-
-        }
-
-        return $res->withJson($result);
-    }
-
-    /**
-     * @param Request $req
-     * @param Response $res
-     * @return Response
-     */
-    public function sslGenerator(Request $req, Response $res)
-    {
-        $sslMessages = 'config-ssl';
-
-        $result = new ResultOperations([], 'SSL', '', true);
-
-        $sslCreatedMessage = __($sslMessages, 'SSL creado.');
-        $tryLaterMessage = __($sslMessages, 'El SSL no pudo ser creado, intente más tarde.');
-        $unknowErrorMessage = __($sslMessages, 'Ha ocurrido un error inesperado.');
-
-        $parametersExcepted = new Parameters([
-            new Parameter(
-                'domain',
-                null,
-                function ($value) {
-                    return is_string($value);
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            ),
-            new Parameter(
-                'folder',
-                null,
-                function ($value) {
-                    return is_string($value);
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            ),
-            new Parameter(
-                'email',
-                null,
-                function ($value) {
-                    return is_string($value);
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            ),
-        ]);
-
-        $parametersExcepted->setInputValues($req->getParsedBody());
-
-        try {
-
-            $parametersExcepted->validate();
-
-            ini_set('max_execution_time', 120);
-
-            $domain = $parametersExcepted->getValue('domain');
-            $folder = $parametersExcepted->getValue('folder');
-            $email = $parametersExcepted->getValue('email');
-
-            $client = new LetsEncryptHandler($domain, $email, $folder);
-            $client->testMode(false);
-            $client->init();
-            $client->order();
-            $success = $client->certify();
-
-            $result->setSuccessOnSingleOperation($success);
-
-            if ($success) {
-
-                $result->setMessage($sslCreatedMessage);
-
-            } else {
-
-                $result->setMessage($tryLaterMessage);
-
-            }
-
-        } catch (\Exception $e) {
-
-            $result
-                ->setMessage($unknowErrorMessage)
-                ->setValue('errorMessage', $e->getMessage());
             log_exception($e);
 
         }
@@ -2202,17 +2091,6 @@ class AppConfigController extends AdminPanelController
                 true,
                 null,
                 self::ROLES_SITEMAP_ACTION
-            ),
-
-            //Generar ssl
-            new Route(
-                "{$startRoute}ssl[/]",
-                $classname . ':sslGenerator',
-                'configurations-ssl',
-                'POST',
-                true,
-                null,
-                self::ROLES_SSL_ACTION
             ),
 
             //Mapbox Key

@@ -74,7 +74,7 @@ use Publications\PublicationsRoutes;
 use Terminal\Controllers\TerminalController;
 
 $prefix_lang = get_config('prefix_lang');
-$slim_app = get_config('slim_app');
+$slim_app = get_router();
 PiecesRouteGroup::setRouter($slim_app);
 
 //──── GRUPOS DE RUTAS ───────────────────────────────────────────────────────────────────

@@ -24,4 +24,13 @@ class Router extends RouterDependency
     {
         return new Router(new ResponseRouteFactory(), $container);
     }
+
+    /**
+     * @return ?DependenciesInjector
+     */
+    public function getDI()
+    {
+        return $this->getContainer();
+    }
+
 }
