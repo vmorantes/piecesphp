@@ -68,7 +68,7 @@ $canViewConfiguration = array_reduce([
     AppConfigController::allowedRoute('os-ticket'),
     AppConfigController::allowedRoute('generals-cache-clean'),
     Roles::hasPermissions('configurations-routes', $currentUserType),
-    AppConfigController::allowedRoute('generals') && AppConfigController::allowedRoute('ssl'),
+    AppConfigController::allowedRoute('generals'),
 ], function ($a, $b) {
     return $a || $b;
 }, false);
@@ -175,13 +175,6 @@ $adminOptionsGroups = [
                     'icon' => 'shield alternate',
                     'href' => get_route('configurations-routes', [], true),
                     'visible' => Roles::hasPermissions('configurations-routes', $currentUserType),
-                    'asLink' => true,
-                ]),
-                new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'SSL'),
-                    'icon' => 'expeditedssl',
-                    'href' => AppConfigController::routeName('generals'),
-                    'visible' => AppConfigController::allowedRoute('generals') && AppConfigController::allowedRoute('ssl'),
                     'asLink' => true,
                 ]),
             ],

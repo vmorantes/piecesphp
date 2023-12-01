@@ -88,7 +88,7 @@ class Parameter implements \JsonSerializable
     public function validate($value)
     {
         $success = true;
-        $value = self::nullable($value) ? null : $value;
+        $value = $this->isNullable($value) ? null : $value;
 
         if ($value !== $this->getDefaultValue() && $this->isValid($value)) {
 
@@ -216,17 +216,11 @@ class Parameter implements \JsonSerializable
      * @param mixed $value
      * @return bool
      */
-    public static function nullable($value)
+    public function isNullable($value)
     {
-        $nullableValues = [
-            '',
-        ];
-        foreach ($nullableValues as $i) {
-            if ($value === $i) {
-                return true;
-            }
-        }
-        return $value === null;
+        $nullable = self::nullable($value);
+        $defaulValue = $this->getDefaultValue();
+        return $nullable && !($value === $defaulValue);
     }
 
     /**
@@ -276,6 +270,23 @@ class Parameter implements \JsonSerializable
     protected function onError(string $typeReceived)
     {
         throw new InvalidParameterValueException("El parámetro {$this->name} ha recibido un tipo no permitido ($typeReceived)");
+    }
+
+    /**
+     * @param mixed $value
+     * @return bool
+     */
+    protected static function nullable($value)
+    {
+        $nullableValues = [
+            '',
+        ];
+        foreach ($nullableValues as $i) {
+            if ($value === $i) {
+                return true;
+            }
+        }
+        return $value === null;
     }
 
     /**

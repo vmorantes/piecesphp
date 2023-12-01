@@ -171,7 +171,7 @@ class Parameters implements \JsonSerializable
         $to_validate = [];
         foreach ($this->parameters as $name => $parameter) {
             if (array_key_exists($name, $this->inputValues)) {
-                $nullable = Parameter::nullable($this->inputValues[$name]);
+                $nullable = $parameter->isNullable($this->inputValues[$name]);
                 if (!$nullable) {
                     $to_validate[$name] = $this->inputValues[$name];
                 } else {

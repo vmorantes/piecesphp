@@ -50,14 +50,12 @@ $user = getLoggedFrameworkUser(true)->userMapper;
         <li>izitoast Ver. 1.4.0 Licencia APACHE</li>
         <li>jquery Ver. 3.7.0 Licencia MIT</li>
         <li>jquery-ui Ver. 1.12.1 Licencia MIT</li>
-        <li>Open-layers Ver. 6.14.1 Licencia BSD</li>
+        <li style="display: none;">Open-layers Ver. 6.14.1 Licencia BSD</li>
         <li>Fomantic Ver 2.9.2 Licencia MIT</li>
         <li>Spectrum Ver. 1.8 Licencia MIT</li>
         <li>Slim Ver. 4.* Licencia MIT</li>
         <li>phpmailer Ver. 6.* Licencia GNU</li>
         <li>phpspreadsheet Ver. 1.29.* Licencia MIT</li>
-        <li>leclient Ver. 1.2 Licencia MIT</li>
-        <li>psr/log Ver. 1.1 Licencia MIT</li>
         <li>mpdf Ver. 8.2.* Licencia GNU</li>
         <li>mysqldump-php Ver. 2.12.* Licencia GNU</li>
         <li>scssphp Ver. 1.12.* Licencia MIT</li>

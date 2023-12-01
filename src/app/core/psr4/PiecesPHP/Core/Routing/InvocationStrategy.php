@@ -59,14 +59,25 @@ class InvocationStrategy implements InvocationStrategyInterface
 
         }
 
-        ob_start();
         try {
+            ob_start();
             $invokeResult = $callable($request, $response, $routeArguments);
+            ob_end_flush();
         } catch (Throwable $e) {
-            ob_end_clean();
-            throw $e;
+            $errorType = get_class($e);
+            $errorsTypes = [
+                \ErrorException::class,
+                \Error::class,
+                \TypeError::class,
+                \Throwable::class,
+            ];
+            if (in_array($errorType, $errorsTypes)) {
+                $errorMiddleware = get_error_middleware();
+                return $errorMiddleware->getErrorHandler($errorType)($request, $e, true);
+            } else {
+                throw $e;
+            }
         }
-        ob_end_flush();
 
         if (self::$afterCallMethods !== null && is_array(self::$afterCallMethods) && !empty(self::$afterCallMethods)) {
 
