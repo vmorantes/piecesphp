@@ -16,14 +16,15 @@ use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RecursiveRegexIterator;
 use RegexIterator;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * DataImportExportUtilityController.
@@ -486,9 +487,14 @@ class DataImportExportUtilityController extends AdminPanelController
         //Envolver texto y centrar vertical/horizontalmente - FIN
 
         $fileName = "Usuarios - Exportado el " . date('d-m-Y h i A') . '.xlsx';
+
+        ob_start();
         $writer->save('php://output');
+        $fileData = ob_get_contents();
+        ob_end_clean();
 
         return $response
+            ->write($fileData)
             ->withHeader('Content-Type', 'application/vnd.ms-excel')
             ->withHeader('Content-Disposition', "attachment;filename={$fileName}")
             ->withHeader('Cache-Control', 'max-age=0');
@@ -687,26 +693,10 @@ class DataImportExportUtilityController extends AdminPanelController
 
         $group->register($routes);
 
-        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
-
-            $route = $request->getAttribute('route');
-            $routeName = $route->getName();
-            $routeArguments = $route->getArguments();
-            $routeArguments = is_array($routeArguments) ? $routeArguments : [];
-            $basenameRoute = self::$baseRouteName . '-';
-
-            if (strpos($routeName, $basenameRoute) !== false) {
-
-                $simpleName = str_replace($basenameRoute, '', $routeName);
-                $routeURL = self::routeName($simpleName, $routeArguments);
-                $allowed = mb_strlen($routeURL) > 0;
-
-                if (!$allowed) {
-                    return throw403($request, $response);
-                }
-
-            }
-            return $next($request, $response);
+        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
+            return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
+                return self::routeName($name, $params);
+            }))->getResponse($request, $handler);
         });
 
         return $group;

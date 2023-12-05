@@ -24,16 +24,17 @@ use News\Mappers\NewsMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
-use Slim\Exception\NotFoundException;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * APIController.
@@ -540,7 +541,10 @@ class APIController extends AdminPanelController
                             }
                         }
                     } else {
-                        return throw403($request, $response);
+                        return throw403($request, [
+                            'line' => __LINE__,
+                            'file' => __FILE__,
+                        ]);
                     }
 
                     $request = $request->withParsedBody($parsedBody);
@@ -557,11 +561,17 @@ class APIController extends AdminPanelController
                     }
 
                 } else {
-                    return throw403($request, $response);
+                    return throw403($request, [
+                        'line' => __LINE__,
+                        'file' => __FILE__,
+                    ]);
                 }
 
             } else {
-                return throw403($request, $response);
+                return throw403($request, [
+                    'line' => __LINE__,
+                    'file' => __FILE__,
+                ]);
             }
         } elseif ($actionType == 'profile-image') {
 
@@ -591,10 +601,16 @@ class APIController extends AdminPanelController
 
                             $parsedBody['user_id'] = $userID;
                         } else {
-                            return throw403($request, $response);
+                            return throw403($request, [
+                                'line' => __LINE__,
+                                'file' => __FILE__,
+                            ]);
                         }
                     } else {
-                        return throw403($request, $response);
+                        return throw403($request, [
+                            'line' => __LINE__,
+                            'file' => __FILE__,
+                        ]);
                     }
 
                     $request = $request->withParsedBody($parsedBody);
@@ -611,10 +627,16 @@ class APIController extends AdminPanelController
                     }
 
                 } else {
-                    return throw403($request, $response);
+                    return throw403($request, [
+                        'line' => __LINE__,
+                        'file' => __FILE__,
+                    ]);
                 }
             } else {
-                return throw403($request, $response);
+                return throw403($request, [
+                    'line' => __LINE__,
+                    'file' => __FILE__,
+                ]);
             }
         } elseif ($actionType == 'get-data-user') {
 
@@ -659,13 +681,22 @@ class APIController extends AdminPanelController
                             'userData' => $userLoginData,
                         ]);
                     } else {
-                        return throw403($request, $response);
+                        return throw403($request, [
+                            'line' => __LINE__,
+                            'file' => __FILE__,
+                        ]);
                     }
                 } else {
-                    return throw403($request, $response);
+                    return throw403($request, [
+                        'line' => __LINE__,
+                        'file' => __FILE__,
+                    ]);
                 }
             } else {
-                return throw403($request, $response);
+                return throw403($request, [
+                    'line' => __LINE__,
+                    'file' => __FILE__,
+                ]);
             }
         } elseif ($actionType == 'recovery-password') {
 
@@ -997,25 +1028,10 @@ class APIController extends AdminPanelController
 
         $group->register($routes);
 
-        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
-
-            $route = $request->getAttribute('route');
-            $routeName = $route->getName();
-            $routeArguments = $route->getArguments();
-            $routeArguments = is_array($routeArguments) ? $routeArguments : [];
-            $basenameRoute = self::$baseRouteName . '-';
-
-            if (strpos($routeName, $basenameRoute) !== false) {
-
-                $simpleName = str_replace($basenameRoute, '', $routeName);
-                $routeURL = self::routeName($simpleName, $routeArguments);
-                $allowed = mb_strlen($routeURL) > 0;
-
-                if (!$allowed) {
-                    return throw403($request, $response);
-                }
-            }
-            return $next($request, $response);
+        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
+            return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
+                return self::routeName($name, $params);
+            }))->getResponse($request, $handler);
         });
 
         return $group;

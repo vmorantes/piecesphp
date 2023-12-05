@@ -8,8 +8,8 @@ namespace App\Controller;
 
 use App\Model\AvatarModel;
 use PiecesPHP\Core\BaseController;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * AvatarController.

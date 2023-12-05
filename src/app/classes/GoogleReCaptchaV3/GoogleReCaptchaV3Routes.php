@@ -8,7 +8,6 @@ namespace GoogleReCaptchaV3;
 
 use GoogleReCaptchaV3\Controllers\GoogleReCaptchaV3Controller;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
 
 /**
  * GoogleReCaptchaV3Routes.
@@ -33,14 +32,6 @@ class GoogleReCaptchaV3Routes
             $group = GoogleReCaptchaV3Controller::routes($group);
 
             GoogleReCaptchaV3Lang::injectLang();
-
-            $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
-
-                return $next($request, $response);
-            });
-
-            RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
-            });
 
         }
 

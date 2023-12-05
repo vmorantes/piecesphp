@@ -5,6 +5,7 @@
  */
 namespace App\Model;
 
+use Psr\Http\Message\UploadedFileInterface;
 use Slim\Http\UploadedFile;
 
 /**
@@ -48,10 +49,10 @@ class AvatarModel
 
     /**
      * @param int $id
-     * @param UploadedFile $file
+     * @param UploadedFileInterface  $file
      * @return bool
      */
-    public static function save(int $id, UploadedFile $file)
+    public static function save(int $id, UploadedFileInterface $file)
     {
         $upload_dir = self::getFolderUser($id);
 

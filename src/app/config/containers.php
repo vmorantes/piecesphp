@@ -1,14 +1,16 @@
 <?php
 
-use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
+use PiecesPHP\Core\Routing\InvocationStrategy;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\CSSVariables;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpForbiddenException;
+use Slim\Exception\HttpNotFoundException;
 
 $container_configurations = [
-    'settings' => [
-        'displayErrorDetails' => true,
-        'determineRouteBeforeAppMiddleware' => true,
-    ],
-    'foundHandler' => function ($c) {
+    'foundHandler' => function (RequestRoute $request, RequestHandlerInterface $handler) {
 
         //Variables CSS globales
         $cssGlobalVariables = CSSVariables::instance('global');
@@ -26,41 +28,81 @@ $container_configurations = [
         add_global_required_asset(get_route('admin-global-variables-css'), 'css');
 
         //Antes de ejecutar el método de la ruta
-        RequestResponsePiecesPHP::appendBeforeCallMethod(function ($name) {
+        InvocationStrategy::appendBeforeCallMethod(function () {
             set_config('lock_assets', true);
         });
 
         //Después de ejecutar el método de la ruta
-        RequestResponsePiecesPHP::appendAfterCallMethod(function () {
+        InvocationStrategy::appendAfterCallMethod(function () {
             set_config('lock_assets', false);
         });
 
-        return new \PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
-    },
-    'errorHandler' => function ($c) {
-        return new \PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler($c);
-    },
-    'phpErrorHandler' => function ($c) {
-        return new \PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler($c);
-    },
-    'notFoundHandler' => function ($c) {
-        return function ($request, $response) use ($c) {
+        $response = null;
 
-            $response = $response->withStatus(404);
-
-            //if ($request->getMethod() == 'OPTIONS') {
-            //    return $response->withStatus(200);
-            //}
-
-            if (!$request->isXhr()) {
-                $controller = new PiecesPHP\Core\BaseController(false);
-                $controller->render('pages/404');
-            } else {
-                $response = $response->withJson("404 Not Found");
+        try {
+            $response = $handler->handle($request);
+        } catch (\Error $e) {
+            if ($response instanceof ResponseRoute) {
+                throw $e;
             }
+        }
 
-            return $response;
+        if (!($response instanceof ResponseRoute)) {
+            $response = new ResponseRoute();
+        }
 
-        };
+        return $response;
+    },
+    'notFoundHandler' => function (HttpNotFoundException $notFoundError) {
+
+        /**
+         * @var RequestRoute $request
+         */
+        $request = $notFoundError->getRequest();
+        $response = new ResponseRoute(StatusCode::HTTP_NOT_FOUND);
+
+        //if ($request->getMethod() == 'OPTIONS') {
+        //    return $response->withStatus(200);
+        //}
+
+        if (!$request->isXhr()) {
+            $controller = new PiecesPHP\Core\BaseController(false);
+            $controller->render('pages/404');
+        } else {
+            $response = $response->withJson("404 Not Found");
+        }
+
+        return $response;
+    },
+    'forbiddenHandler' => function (HttpForbiddenException $forbiddenError) {
+
+        /**
+         * @var RequestRoute $request
+         */
+        $request = $forbiddenError->getRequest();
+        $response = new ResponseRoute(StatusCode::HTTP_FORBIDDEN);
+        $extraData = $request->getAttribute('information403', []);
+        $extraData = is_array($extraData) ? $extraData : [];
+
+        $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
+        $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
+        $line = array_key_exists('line', $extraData) ? $extraData['line'] : null;
+        $file = array_key_exists('file', $extraData) ? $extraData['file'] : null;
+
+        if (!$request->isXhr()) {
+
+            $dataController = [
+                'url' => $url,
+            ];
+
+            $controller = new PiecesPHP\Core\BaseController(false);
+            $controller->render('pages/403', $dataController);
+
+        } else {
+            $response = $response->withJson("403 Forbidden");
+        }
+
+        return $response;
+
     },
 ];

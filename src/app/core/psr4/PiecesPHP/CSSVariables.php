@@ -5,8 +5,8 @@
 
 namespace PiecesPHP;
 
-use Slim\Http\Request;
-use Slim\Http\Response;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * CSSVariables.

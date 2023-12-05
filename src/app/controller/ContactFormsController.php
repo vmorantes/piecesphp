@@ -21,8 +21,8 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * ContactFormsController.

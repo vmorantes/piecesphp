@@ -9,11 +9,10 @@ namespace Forms\DocumentTypes;
 use Forms\DocumentTypes\Controllers\DocumentTypesController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
-use Slim\Http\Request;
-use Slim\Http\Response;
 
 /**
  * DocumentTypesRoutes.
@@ -45,14 +44,6 @@ class DocumentTypesRoutes
             self::staticResolver($groupAdministration);
 
             DocumentTypesLang::injectLang();
-
-            $groupAdministration->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
-
-                return $next($request, $response);
-            });
-
-            RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
-            });
 
         }
 

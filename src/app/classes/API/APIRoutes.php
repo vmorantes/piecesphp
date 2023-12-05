@@ -9,9 +9,6 @@ namespace API;
 use API\Controllers\APIController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
-use Slim\Http\Request;
-use Slim\Http\Response;
 
 /**
  * APIRoutes.
@@ -42,12 +39,7 @@ class APIRoutes
 
             APILang::injectLang();
 
-            $groupAdministration->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
-
-                return $next($request, $response);
-            });
-
-            RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
+            \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
 

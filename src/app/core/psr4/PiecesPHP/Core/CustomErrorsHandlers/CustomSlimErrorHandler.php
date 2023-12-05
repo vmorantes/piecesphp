@@ -5,10 +5,9 @@
  */
 namespace PiecesPHP\Core\CustomErrorsHandlers;
 
-use Psr\Http\Message\ResponseInterface as Response;
-use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Http\Request as RequestSlim;
-use Slim\Http\Response as ResponseSlim;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\ResponseRoute;
+use Throwable;
 
 /**
  * CustomSlimErrorHandler - ....
@@ -21,30 +20,28 @@ use Slim\Http\Response as ResponseSlim;
 class CustomSlimErrorHandler
 {
     /**
-     * @var \Slim\Container
-     */
-    protected $container;
-    /**
      * @var GenericHandler
      */
     protected $handler = null;
 
-    public function __construct($c)
+    /**
+     * @param Throwable $exception
+     */
+    public function __construct(Throwable $exception)
     {
-        $this->container = $c;
+        $this->handler = new GenericHandler($exception);
+        $this->handler->logging();
     }
 
     /**
-     * @param Request|RequestSlim $request
-     * @param Response|ResponseSlim $response
-     * @param \Exception $exception
+     * @param RequestRoute $request
+     * @return ResponseRoute
      */
-    public function __invoke($request, $response, $exception)
+    public function getResponse(RequestRoute $request)
     {
 
-        $this->handler = new GenericHandler($exception);
-        $this->handler->logging();
-
+        $response = new ResponseRoute();
+        $exception = $this->handler->getException();
         $class_exception = get_class($exception);
         $trace = $exception->getTrace();
 

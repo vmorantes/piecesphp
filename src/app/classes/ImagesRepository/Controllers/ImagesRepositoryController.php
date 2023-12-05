@@ -20,6 +20,9 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\ExifHelper;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
@@ -29,9 +32,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
-use Slim\Exception\NotFoundException;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
+use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 
 /**
  * ImagesRepositoryController.
@@ -144,7 +145,10 @@ class ImagesRepositoryController extends AdminPanelController
 
                 if (file_exists($imagePath)) {
 
+                    ob_start();
                     imageToThumbnail($imagePath, 300, 225, 70);
+                    $output = ob_get_contents();
+                    ob_end_clean();
 
                     $lastModification = filemtime($imagePath);
                     $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
@@ -162,7 +166,7 @@ class ImagesRepositoryController extends AdminPanelController
                     $response = $response->withHeader('Content-Disposition', "filename=\"image_{$id}.jpg\"");
                     $response = $response->withStatus($headersAndStatus['status']);
 
-                    return $response;
+                    return $response->write($output);
 
                 }
 
@@ -236,6 +240,7 @@ class ImagesRepositoryController extends AdminPanelController
 
                         $modeValue = $modeValue !== null ? $modeValue : $defaultModeValues[$mode];
 
+                        ob_start();
                         if ($mode == self::MODE_PUBLIC_IMAGE_FIXED) {
                             imageToThumbnail($imagePath, $modeValue, 1, 70, null, true);
                         } elseif ($mode == self::MODE_PUBLIC_IMAGE_PERCENT) {
@@ -244,6 +249,8 @@ class ImagesRepositoryController extends AdminPanelController
                             $adjustPercent = $width / 100 * $modeValue;
                             imageToThumbnail($imagePath, $adjustPercent, 1, 70, null, true);
                         }
+                        $output = ob_get_contents();
+                        ob_end_clean();
 
                         $lastModification = filemtime($imagePath);
                         $lastModification = date('d-m-Y H:i:s', $lastModification !== false ? $lastModification : null);
@@ -257,10 +264,14 @@ class ImagesRepositoryController extends AdminPanelController
                             $response = $response->withHeader($header, $value);
                         }
 
-                        $response = $response->withHeader('Content-Type', 'image/jpg');
+                        $response = $response->withHeader('Content-Type', 'image/jpg')->write($output);
 
                     } else {
+                        ob_start();
                         readfile($imagePath);
+                        $output = ob_get_contents();
+                        ob_end_clean();
+                        $response = $response->write($output);
                     }
 
                     return $response;
@@ -321,12 +332,16 @@ class ImagesRepositoryController extends AdminPanelController
                     $mimeType = mime_content_type($path);
                     $mimeType = is_string($mimeType) ? $mimeType : 'image/*';
                     $response = $response->withHeader('Content-Type', $mimeType);
+                    $response = $response->withHeader('afasfasfasf', $mimeType);
                     $response = $response->withHeader('Content-Disposition', "filename=\"{$maskNameInput}\"");
                     $response = $response->withStatus($headersAndStatus['status']);
 
+                    ob_start();
                     readfile($path);
+                    $output = ob_get_contents();
+                    ob_end_clean();
 
-                    return $response;
+                    return $response->write($output);
 
                 }
 
@@ -1898,26 +1913,10 @@ class ImagesRepositoryController extends AdminPanelController
 
         $group->register($routes);
 
-        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
-
-            $route = $request->getAttribute('route');
-            $routeName = $route->getName();
-            $routeArguments = $route->getArguments();
-            $routeArguments = is_array($routeArguments) ? $routeArguments : [];
-            $basenameRoute = self::$baseRouteName . '-';
-
-            if (strpos($routeName, $basenameRoute) !== false) {
-
-                $simpleName = str_replace($basenameRoute, '', $routeName);
-                $routeURL = self::routeName($simpleName, $routeArguments);
-                $allowed = mb_strlen($routeURL) > 0;
-
-                if (!$allowed) {
-                    return throw403($request, $response);
-                }
-
-            }
-            return $next($request, $response);
+        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
+            return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
+                return self::routeName($name, $params);
+            }))->getResponse($request, $handler);
         });
 
         return $group;

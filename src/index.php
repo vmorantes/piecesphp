@@ -6,10 +6,21 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\DependenciesInjector;
+use PiecesPHP\Core\Routing\InvocationStrategy;
+use PiecesPHP\Core\Routing\RequestRoute;
+use PiecesPHP\Core\Routing\RequestRouteFactory;
+use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Core\Routing\Router;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Exception\HttpForbiddenException;
+use Slim\Exception\HttpNotFoundException;
 use Terminal\Controllers\TerminalController;
 
 require __DIR__ . '/app/core/bootstrap.php';
@@ -25,7 +36,7 @@ require_once basepath("app/config/containers.php");
 //Instancia del enrutador
 set_config(
     'slim_container',
-    new \Slim\Container($container_configurations)
+    new DependenciesInjector($container_configurations)
 );
 
 if (get_config('control_access_login') === true) {
@@ -99,15 +110,24 @@ if (APP_CONFIGURATION_MODULE) {
     }
 }
 
-$app = new \Slim\App(get_config('slim_container'));
+$app = Router::createRouter(get_config('slim_container'));
+$app->setBasePath("/" . trim(appbase(), '/'));
 
 //Acciones antes de mostrar una ruta
-$app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
+$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
-    $route = $request->getAttribute('route');
+    $flashMessages = get_flash_messages();
+    $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessages) ? $flashMessages['render_exception'] : null;
+
+    $emptyResponse = new ResponseRoute();
+    $route = $request->getRoute();
 
     if (empty($route)) {
-        throw new \Slim\Exception\NotFoundException($request, $response);
+        throw new NotFoundException($request, $emptyResponse);
+    }
+
+    if ($flashMessagesExceptionRender !== null) {
+        throw $flashMessagesExceptionRender;
     }
 
     //──── Idiomas ───────────────────────────────────────────────────────────────────────────
@@ -413,8 +433,8 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
                         $referer = remove_last_char_on('/', $referer);
 
                         if ($referer != $url_login) {
-                            $response = $response->withStatus(403);
-                            return $response->withJson([
+                            $emptyResponse = $emptyResponse->withStatus(403);
+                            return $emptyResponse->withJson([
                                 'error' => 'RESTRICTED_AREA',
                                 'message' => __('errors', 'RESTRICTED_AREA'),
                             ]);
@@ -424,9 +444,9 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
 
                         if (!TerminalData::getInstance()->isTerminal()) {
                             set_flash_message('requested_uri', get_current_url());
-                            return $response->withRedirect(get_route('users-form-login'));
+                            return $emptyResponse->withRedirect(get_route('users-form-login'));
                         } else {
-                            return $response->write("Esta ruta necesita autenticación \r\n");
+                            return $emptyResponse->write("Esta ruta necesita autenticación \r\n");
                         }
 
                     }
@@ -451,7 +471,7 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
         if ($isActiveSession) {
 
             if ($name_route == 'users-form-login') {
-                return $response->withRedirect($admin_url);
+                return $emptyResponse->withRedirect($admin_url);
             }
 
         }
@@ -471,20 +491,9 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
 
         //Acciones en caso de no tener permisos
         if ($has_permissions !== null && !$has_permissions && $info_route['require_login']) {
-            return (function ($request, $response) {
-
-                $response = $response->withStatus(403);
-
-                if (!$request->isXhr()) {
-                    $controller = new PiecesPHP\Core\BaseController(false);
-                    $controller->render('pages/403');
-                } else {
-                    $response = $response->withJson("403 Forbidden");
-                }
-
-                return $response;
-
-            })($request, $response);
+            return (function ($request) {
+                return throw403($request, []);
+            })($request);
         }
 
     }
@@ -498,7 +507,11 @@ $app->add(function (\Slim\Http\Request $request, \Slim\Http\Response $response, 
     }
     Roles::setSilentMode($silentModeRolesSetted);
 
-    return $next($request, $response);
+    /**
+     * @var ResponseRoute $response
+     */
+    $response = $handler->handle($request);
+    return $response;
 });
 
 set_config('upload_dir', basepath('statics/uploads'));
@@ -512,8 +525,23 @@ require_once basepath("app/config/routes.php");
 require_once basepath("app/config/final-configurations.php");
 
 /** Activar enrutador */
+$app->addRoutingMiddleware();
+$errorMiddleware = $app->addErrorMiddleware(is_local(), false, false);
+set_config('errorMiddleware', $errorMiddleware);
+
+//Definir estrategia personalizada
+$routeCollector = $app->getRouteCollector();
+$routeCollector->setDefaultInvocationStrategy(new InvocationStrategy());
+
+//Llamadas antes y después de ejecutar rutas
+$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
+    $response = $handler->handle($request);
+    return $response;
+});
+
 RouteGroup::initRoutes(false);
 
+/** Ajustes terminal */
 if (TerminalData::getInstance()->isTerminal()) {
 
     $terminalDataInstance = TerminalData::getInstance();
@@ -529,7 +557,7 @@ if (TerminalData::getInstance()->isTerminal()) {
             'localhost',
         ], '', get_route($routeName));
 
-        $container = $app->getContainer();
+        $container = $app->getDI();
 
         $basicServerVariables = $terminalDataInstance->basicServerVariables();
 
@@ -539,7 +567,7 @@ if (TerminalData::getInstance()->isTerminal()) {
             $_SERVER[$key] = $value;
         }
 
-        $container['environment'] = \Slim\Http\Environment::mock($basicServerVariables);
+        $container->add('environment', \PiecesPHP\Core\Routing\Slim3Compatibility\Http\Environment::mock($basicServerVariables));
 
     } else {
         echo "La ruta solicitada no existe\r\n";
@@ -548,4 +576,27 @@ if (TerminalData::getInstance()->isTerminal()) {
 
 }
 
-get_config('slim_app')->run();
+//Manejar errores
+$handle404 = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
+    if ($exception instanceof HttpNotFoundException) {
+        return get_router()->getDI()->get('notFoundHandler')($exception);
+    }
+};
+$handle403 = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
+    if ($exception instanceof HttpForbiddenException) {
+        return get_router()->getDI()->get('forbiddenHandler')($exception);
+    }
+};
+$handleError = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
+    $customErrorHandler = new CustomSlimErrorHandler($exception);
+    return $customErrorHandler->getResponse($request);
+};
+$errorMiddleware->setErrorHandler(HttpNotFoundException::class, $handle404);
+$errorMiddleware->setErrorHandler(HttpForbiddenException::class, $handle403);
+$errorMiddleware->setErrorHandler(NotFoundException::class, $handle404);
+$errorMiddleware->setErrorHandler(\ErrorException::class, $handleError);
+$errorMiddleware->setErrorHandler(\Error::class, $handleError);
+$errorMiddleware->setErrorHandler(\TypeError::class, $handleError);
+$errorMiddleware->setErrorHandler(\Throwable::class, $handleError);
+
+$app->run(RequestRouteFactory::createFromGlobals());

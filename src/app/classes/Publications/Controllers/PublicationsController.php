@@ -19,6 +19,9 @@ use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
@@ -27,6 +30,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use Publications\Exceptions\DuplicateException;
 use Publications\Exceptions\SafeException;
 use Publications\Mappers\AttachmentPublicationMapper;
@@ -35,9 +39,6 @@ use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
 use Publications\Util\AttachmentPackage;
-use Slim\Exception\NotFoundException;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * PublicationsController.
@@ -1731,26 +1732,10 @@ class PublicationsController extends AdminPanelController
 
         $group->register($routes);
 
-        $group->addMiddleware(function (\Slim\Http\Request $request, \Slim\Http\Response $response, callable $next) {
-
-            $route = $request->getAttribute('route');
-            $routeName = $route->getName();
-            $routeArguments = $route->getArguments();
-            $routeArguments = is_array($routeArguments) ? $routeArguments : [];
-            $basenameRoute = self::$baseRouteName . '-';
-
-            if (strpos($routeName, $basenameRoute) !== false) {
-
-                $simpleName = str_replace($basenameRoute, '', $routeName);
-                $routeURL = self::routeName($simpleName, $routeArguments);
-                $allowed = mb_strlen($routeURL) > 0;
-
-                if (!$allowed) {
-                    return throw403($request, $response);
-                }
-
-            }
-            return $next($request, $response);
+        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
+            return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
+                return self::routeName($name, $params);
+            }))->getResponse($request, $handler);
         });
 
         return $group;
