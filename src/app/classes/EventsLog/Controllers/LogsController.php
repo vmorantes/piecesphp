@@ -14,9 +14,9 @@ use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * LogsController.

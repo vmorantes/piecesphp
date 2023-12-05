@@ -15,7 +15,6 @@ use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RequestResponsePiecesPHP;
 
 /**
  * FormsRoutes.
@@ -42,12 +41,14 @@ class FormsRoutes
     public static function routes(RouteGroup $groupAdministration)
     {
         if (self::ENABLE) {
+
             CategoriesRoutes::routes($groupAdministration);
             DocumentTypesRoutes::routes($groupAdministration);
 
-            RequestResponsePiecesPHP::appendBeforeCallMethod(function () {
+            \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
+
         }
         return [
             'groupAdministration' => $groupAdministration,

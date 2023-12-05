@@ -20,8 +20,8 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\CSSVariables;
 use Publications\Controllers\PublicationsController;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * AdminPanelController.

@@ -8,6 +8,7 @@ namespace PiecesPHP\Core;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use Spatie\Url\Url as URLManager;
+use Throwable;
 
 /**
  * BaseController - Implementación básica de controlador.
@@ -98,10 +99,18 @@ class BaseController
         extract($data);
         extract($this->global_variables);
 
+        $output = '';
         ob_start();
-        require $this->getInstanceViewDir() . $pcs_php__name_view__ . $this->config['extension'];
-        $output = ob_get_contents();
-        ob_end_clean();
+        try {
+            require $this->getInstanceViewDir() . $pcs_php__name_view__ . $this->config['extension'];
+            $output = ob_get_contents();
+            ob_end_clean();
+        } catch (Throwable $e) {
+            ob_end_clean();
+            set_flash_message('render_exception', $e);
+            header('Location: ' . get_current_url());
+            die;
+        }
 
         if (!is_string($output)) {
             $output = '';
@@ -191,10 +200,18 @@ class BaseController
         extract($data);
         extract($this->global_variables);
 
+        $output = '';
         ob_start();
-        require $this->getInstanceViewDir() . $pcs_php__name_view__;
-        $output = ob_get_contents();
-        ob_end_clean();
+        try {
+            require $this->getInstanceViewDir() . $pcs_php__name_view__;
+            $output = ob_get_contents();
+            ob_end_clean();
+        } catch (Throwable $e) {
+            ob_end_clean();
+            set_flash_message('render_exception', $e);
+            header('Location: ' . get_current_url());
+            die;
+        }
 
         if (!is_string($output)) {
             $output = '';

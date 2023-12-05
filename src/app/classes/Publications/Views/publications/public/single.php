@@ -9,7 +9,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $langGroup
  * @var PublicationMapper $element
  */
-$iconByExtension = function (string $extension, string $mimeType = null) {
+$iconByExtension = function (?string $extension, ?string $mimeType = null) {
+
+    $extension = !is_null($extension) ? 'none' : '';
+    $mimeType = !is_null($mimeType) ? 'text/plain' : '';
+
     $icon = 'file';
     $finded = false;
     $extension = trim(mb_strtolower($extension));
@@ -42,7 +46,7 @@ $iconByExtension = function (string $extension, string $mimeType = null) {
             }
         }
     }
-    return  $icon;
+    return $icon;
 };
 $ignoreNames = [
     AttachmentPublicationMapper::ATTACHMENT_TYPE_1,
@@ -79,6 +83,7 @@ $ignoreNames = [
                         <?php $attachments = $element->getAttachments(true, true); ?>
                         <?php $order = 0; ?>
                         <?php foreach ($attachments as $attachment): ?>
+                        <?php if(!$attachment->fileExists()){continue;} ?>
                         <?php $order++; ?>
                         <a href="<?= $attachment->fileLocation; ?>" target="_blank" class="item">
                             <i class="large <?= ($iconByExtension)($attachment->getExtension(), $attachment->getMimeType()); ?> middle aligned icon"></i>

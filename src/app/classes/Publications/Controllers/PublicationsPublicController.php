@@ -12,15 +12,15 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\MetaTags;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
-use Slim\Exception\NotFoundException;
-use Slim\Http\Request as Request;
-use Slim\Http\Response as Response;
 
 /**
  * PublicationsPublicController.

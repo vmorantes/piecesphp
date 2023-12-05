@@ -16,8 +16,13 @@ use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\UserSystem\UserDataPackage;
+use Psr\Http\Message\UploadedFileInterface;
+use Slim\Exception\HttpForbiddenException;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Routing\RouteCollectorProxy;
 use Spatie\Url\Url as URLManager;
 
 /**
@@ -1981,11 +1986,13 @@ function register_routes($routes, &$router)
  * @param array $route[roles_allowed]
  * @param array $route[parameters]
  * @param array<string|callable> $route[middlewares]
- * @param \Slim\App $router
+ * @param Router|RouteCollectorProxy $router
  * @return void
  */
-function register_route(array $route, \Slim\App &$router)
+function register_route(array $route, &$router)
 {
+
+    $container = get_router()->getDI();
 
     $routesSetted = get_config('_routes_');
 
@@ -2031,6 +2038,16 @@ function register_route(array $route, \Slim\App &$router)
 
     if ($alias !== null) {
         $settedRouteAlias = $router->map($methods, $alias, $controller);
+    }
+
+    if ($container !== null) {
+        $foundHandler = $container->get('foundHandler');
+        if (is_callable($foundHandler)) {
+            $settedRoute->add($foundHandler);
+            if ($settedRouteAlias != null) {
+                $settedRouteAlias->add($foundHandler);
+            }
+        }
     }
 
     foreach ($middlewares as $mw) {
@@ -2199,6 +2216,8 @@ function get_route_info(string $name)
  */
 function get_route(string $name, array $params = [], bool $silentOnNotExists = false)
 {
+
+    $app = get_router();
     $exists = isset(get_routes()[$name]);
     if ($exists || !$silentOnNotExists) {
 
@@ -2216,7 +2235,7 @@ function get_route(string $name, array $params = [], bool $silentOnNotExists = f
             }
         }
 
-        $route = get_config('slim_app')->getContainer()->get('router')->pathFor($name, $params);
+        $route = $app->getRouteCollector()->getRouteParser()->urlFor($name, $params);
 
         $app_base = appbase();
         $app_base_position = mb_strlen($app_base) > 0 ? mb_strpos($route, $app_base) : false;
@@ -2255,6 +2274,22 @@ function get_route_sample(string $name, bool $silentOnNotExists = false)
         $parameters[$name] = "{" . $name . "}";
     }
     return get_route($information['name'], $parameters, $silentOnNotExists);
+}
+
+/**
+ * @return Router
+ */
+function get_router()
+{
+    return get_config('slim_app');
+}
+
+/**
+ * @return ErrorMiddleware
+ */
+function get_error_middleware()
+{
+    return get_config('errorMiddleware');
 }
 
 /**
@@ -2324,10 +2359,10 @@ function get_flash_messages()
  * to avoid overwriting an existing uploaded file.
  *
  * @param string $directory directory to which the file is moved
- * @param \Slim\Http\UploadedFile $uploaded file uploaded file to move
+ * @param UploadedFileInterface $uploaded file uploaded file to move
  * @return string filename of moved file
  */
-function move_uploaded_file_to($directory, \Slim\Http\UploadedFile $uploadedFile, string $basename = null, string $extension = null)
+function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, string $basename = null, string $extension = null)
 {
     try {
 
@@ -2354,7 +2389,7 @@ function move_uploaded_file_to($directory, \Slim\Http\UploadedFile $uploadedFile
         $uploadedFile->moveTo($directory . DIRECTORY_SEPARATOR . $filename);
 
         return $filename;
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
         $handler->logging();
         return '';
@@ -2362,14 +2397,11 @@ function move_uploaded_file_to($directory, \Slim\Http\UploadedFile $uploadedFile
 }
 
 /**
- * @param \Exception|\Error $e
+ * @param Throwable $e
  * @return void
  */
-function log_exception($e)
+function log_exception(Throwable $e)
 {
-    if (!$e instanceof \Exception && !$e instanceof \Error) {
-        throw new \TypeError('Error type unexpected.');
-    }
 
     $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
     $handler->logging();
@@ -2527,22 +2559,14 @@ function simpleUploadPlaceholderWorkSpace(array $data = [], bool $echo = true)
 }
 
 /**
- * @param \Slim\Http\Request $request
- * @param \Slim\Http\Response $response
- * @return \Slim\Http\Response
+ * @param \PiecesPHP\Core\Routing\RequestRoute $request
+ * @param array $extraData
+ * @return void
  */
-function throw403(\Slim\Http\Request $request, \Slim\Http\Response $response)
+function throw403(\PiecesPHP\Core\Routing\RequestRoute $request, array $extraData = [])
 {
-    $response = $response->withStatus(403);
-
-    if (!$request->isXhr()) {
-        $controller = new PiecesPHP\Core\BaseController(false);
-        $controller->render('pages/403');
-    } else {
-        $response = $response->withJson("403 Forbidden");
-    }
-
-    return $response;
+    $request = $request->withAttribute('information403', $extraData);
+    throw new HttpForbiddenException($request);
 }
 
 /**

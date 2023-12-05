@@ -11,15 +11,15 @@ use App\Locations\Mappers\StateMapper;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
-use Slim\Exception\NotFoundException;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * State.
@@ -129,7 +129,8 @@ class State extends AdminPanelController
     /**
      * @return void
      */
-    function list() {
+    public function list()
+    {
 
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();

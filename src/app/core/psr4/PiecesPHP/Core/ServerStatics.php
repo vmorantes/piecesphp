@@ -7,8 +7,8 @@
 namespace PiecesPHP\Core;
 
 use ScssPhp\ScssPhp\Compiler as ScssCompiler;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * ServerStatics - Implementación básica de un servidor de archivos.
@@ -593,10 +593,16 @@ class ServerStatics
                 $response = $response->withHeader($name, $values);
             }
 
-            $newHeaders = self::readFile($filePath, $status, $extension, $request);
+            $readingResult = self::readFile($filePath, $status, $extension, $request);
+            $newHeaders = $readingResult['headers'];
+            $fileData = $readingResult['fileData'];
 
             foreach ($newHeaders as $name => $values) {
                 $response = $response->withHeader($name, $values);
+            }
+
+            if ($fileData !== null) {
+                $response = $response->write($fileData);
             }
 
             return $response->withStatus($status);
@@ -619,6 +625,7 @@ class ServerStatics
     {
 
         $headers = [];
+        $fileData = null;
 
         if ($status != 304) {
 
@@ -719,11 +726,12 @@ class ServerStatics
 
             }
 
-            echo $fileData;
-
         }
 
-        return $headers;
+        return [
+            'headers' => $headers,
+            'fileData' => $fileData,
+        ];
 
     }
 

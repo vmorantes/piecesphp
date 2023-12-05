@@ -11,7 +11,7 @@ use PiecesPHP\Core\Database\ORM\ORM;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
-use \Slim\Http\Request as Request;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
 
 /**
  * DataTablesHelper

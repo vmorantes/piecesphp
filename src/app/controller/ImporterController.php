@@ -14,9 +14,9 @@ use PiecesPHP\Core\Importer\Collections\ImporterCollection;
 use PiecesPHP\Core\Importer\Importer;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use Slim\Exception\NotFoundException;
-use \Slim\Http\Request as Request;
-use \Slim\Http\Response as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use \PiecesPHP\Core\Routing\RequestRoute as Request;
+use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
 /**
  * ImporterController.
