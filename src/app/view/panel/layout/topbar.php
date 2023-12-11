@@ -140,7 +140,7 @@ $adminOptionsGroups = [
                     'asLink' => true,
                 ]),
                 new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Email SMPT'),
+                    'name' => __(AppConfigController::LANG_GROUP, 'Email SMTP'),
                     'icon' => 'envelope outline',
                     'href' => AppConfigController::routeName('email'),
                     'visible' => AppConfigController::allowedRoute('email'),
