@@ -65,7 +65,7 @@ return [
     'Colores'                                                                                                           => 'Colors',
     'SEO'                                                                                                               => 'SEO',
     'SSL'                                                                                                               => 'SSL',
-    'Email SMPT'                                                                                                        => 'Email SMPT',
+    'Email SMTP'                                                                                                        => 'Email SMTP',
     'Seguridad'                                                                                                         => 'Security',
     '"%s" fue guardado'                                                                                                 => '"%s" was saved',
     'No ha habido ninguna modificación.'                                                                                => 'There have been no modifications.',

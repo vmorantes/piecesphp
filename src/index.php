@@ -111,7 +111,11 @@ if (APP_CONFIGURATION_MODULE) {
 }
 
 $app = Router::createRouter(get_config('slim_container'));
-$app->setBasePath("/" . trim(appbase(), '/'));
+$routerBasePath = appbase();
+$routerBasePath = trim($routerBasePath, '/');
+$routerBasePath = "/" . $routerBasePath;
+$routerBasePath = $routerBasePath == '/' ? '' : $routerBasePath;
+$app->setBasePath($routerBasePath);
 
 //Acciones antes de mostrar una ruta
 $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
