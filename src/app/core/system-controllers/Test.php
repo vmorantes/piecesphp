@@ -29,6 +29,7 @@ class Test
     {
         if (isset($args['w']) && isset($args['h'])) {
 
+            ob_start();
             $ancho = $args['w'];
             $alto = $args['h'];
 
@@ -47,8 +48,9 @@ class Test
             $text_imagen = imagettftext($imagen, $font_size, $angle, $x, $y, $color_negro, $font, $texto);
             imagejpeg($imagen);
             imagedestroy($imagen);
-
-            return $response->withHeader('Content-type', 'image/jpg');
+            $output = ob_get_contents();
+            ob_end_clean();
+            return $response->write($output)->withHeader('Content-type', 'image/jpg');
         } else {
             return $response->withStatus(404)->write('<h1>Recurso inexistente.</h1>');
         }

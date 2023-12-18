@@ -40,8 +40,9 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 	 * @property {Number} [autoCropArea=1] Area de corte automática
 	 * @property {Boolean} [zoomOnTouch=false] Activa el zoom con touch
 	 * @property {Boolean} [zoomOnWheel=false] Activa el zoom con rueda del mouse
-	 * @property {Boolean} [toggleDragModeOnDblclick=false] Cambian entre modo mover o modo cortar al doble clic
+	 * @property {Boolean} [toggleDragModeOnDblclick=true] Cambian entre modo mover o modo cortar al doble clic
 	 * @property {Boolean} [cropBoxResizable=true] Define si el recuadro puede variar de tamaño
+	 * @property {Boolean} [movable=true] Define si puede moverse
 	 */
 
 	/**
@@ -201,12 +202,15 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 		autoCropArea: 1,
 		zoomOnTouch: false,
 		zoomOnWheel: false,
-		toggleDragModeOnDblclick: false,
+		toggleDragModeOnDblclick: true,
 		cropBoxResizable: true,
+		movable: true,
 	}
 	options = processByDefaultValues(defaultOptions, options)
-
-	let cropper = new Cropper(preview, options)
+	if(typeof options.minCropBoxWidth == 'undefined'){
+		options.minCropBoxWidth = options.outputWidth
+	}
+	let cropper = new Cropper(preview, Object.assign(options, {}))
 	let blobImage = null
 	let settedImage = preview.hasAttribute('is-final') ? preview.src : ''
 	let settedPreviewImage = !preview.hasAttribute('is-final') ? preview.src : ''
@@ -279,7 +283,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 		let reader = new FileReader()
 
 		reader.onload = function (e) {
-			cropper.replace(e.target.result, true)
+			cropper.replace(e.target.result, false)
 			fileInput.value = ''
 		}
 
@@ -311,7 +315,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 				settedImage = res.blobURL
 				cropper.reset()
 				cropper.zoomTo(0)
-				cropper.replace(settedImage, true)
+				cropper.replace(settedImage, false)
 				wasChange = true
 				if (fileInput.hasAttribute('required')) {
 					fileInput.removeAttribute('required')
