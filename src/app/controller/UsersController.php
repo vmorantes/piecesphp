@@ -220,6 +220,25 @@ class UsersController extends AdminPanelController
             },
         ]);
 
+        $rawData = $result->getValue('rawData');
+
+        foreach ($rawData as $index => $element) {
+
+            $mapper = new UsersModel($element->id);
+
+            $rawData[$index] = $this->render(
+                'usuarios/utils/user-card',
+                [
+                    'mapper' => $mapper,
+                    'data' => $result->getValue('data')[$index],
+                    'langGroup' => self::LANG_GROUP,
+                ],
+                false
+            );
+        }
+
+        $result->setValue('rawData', $rawData);
+
         return $response->withJson($result->getValues());
     }
 
@@ -363,6 +382,12 @@ class UsersController extends AdminPanelController
     {
         $types = UsersModel::getTypesUser();
         $currentUser = new UsersModel($this->user->id);
+
+        set_custom_assets([
+            baseurl('statics/login-and-recovery/css/select-type-user.css'),
+        ], 'css');
+
+        set_title(__(self::LANG_GROUP, 'Agregar usuario'));
 
         foreach ($types as $key => $display) {
 

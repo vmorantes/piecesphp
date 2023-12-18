@@ -1,0 +1,437 @@
+<section class="problems-container" style="background-image: url(${backgroundURL});">
+    <a href="${loginLink}" class="back-action">
+        <i class="arrow left icon"></i>
+        Back
+    </a>
+    <main class="body">
+        <div class="header">
+            <h2>
+                HELP TO ENTER
+            </h2>
+        </div>
+        <section class="options">
+            <div recovery-user-name class="item">
+                <div class="image-container">
+                    <img src="statics/login-and-recovery/images/problems/icons/remove-user.svg">
+                </div>
+                <span>
+                    Recover user
+                </span>
+            </div>
+            <div recovery-user-pass class="item">
+                <div class="image-container">
+                    <img src="statics/login-and-recovery/images/problems/icons/user-unlock.svg">
+                </div>
+                <span>
+                    Restore password
+                </span>
+            </div>
+            <div user-blocked class="item">
+                <div class="image-container">
+                    <img src="statics/login-and-recovery/images/problems/icons/delete-user.svg">
+                </div>
+                <span>
+                    User blocked
+                </span>
+            </div>
+            <div class="item" id="modalNoUserButton">
+                <div class="image-container">
+                    <img src="statics/login-and-recovery/images/problems/icons/user-slash.svg"">
+                </div>
+                <span>
+                    I don't have a user
+                </span>
+            </div>
+            <div other-problem-item class=" item">
+                    <div class="image-container">
+                        <img src="statics/login-and-recovery/images/problems/icons/user-gear.svg">
+                    </div>
+                    <span>
+                        Another problem
+                    </span>
+                </div>
+                <a href="${loginLink}" class="item">
+                    <div class="image-container">
+                        <img src="statics/login-and-recovery/images/problems/icons/address-card.svg">
+                    </div>
+                    <span>
+                        Log in
+                    </span>
+                </a>
+        </section>
+        <div class="footer">
+            <img src="${partnersImageURL}">
+        </div>
+    </main>
+</section>
+
+<div class="modal-no-user" id="modalNoUser">
+    <div class="container-modals" id="backgrodund-modal">
+        <div class="card-ui-center" id="cardModal">
+            <div class="title">I don't have a user</div>
+            <div class="description">
+                <p>User assignment is carried out only by <span class="name">
+                        ${owner}
+                    </span>, Please contact the area in charge directly and present your case. If you do not remember any of your login information, but are sure you have a user, please send your name, email, and title to support.
+                </p>
+            </div>
+            <div class="actions">
+                <button class="btn support" other-problem-item>Request support</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div modal-password class="ui modal user-and-pass">
+
+    <div class="content">
+
+        <div class="head-modal">
+
+            <div class="exit-modal">
+                <i close-modal class="times icon"></i>
+            </div>
+
+            <div class="titles">
+                <h2>
+                    Recover
+                </h2>
+                <span>
+                    my password
+                </span>
+            </div>
+
+        </div>
+
+        <div class="body-modal">
+            <div class="content">
+                <h2>
+                    STEP <span steps>1</span>
+                </h2>
+
+                <form steps-form class="ui form">
+
+                    <section class="steps">
+
+                        <div class="step-1">
+                            <div class="field">
+                                <label>
+                                    Enter your email
+                                </label>
+                                <input type="email" name="email" placeholder="name@domain.com">
+                            </div>
+                        </div>
+
+                        <div class="step-2">
+                            <p>
+                                Enter the code sent to your email, the email may be in Junk, please check your Spam folder. The sender of the email is <span>${valueMailUser}</span>
+                            </p>
+                            <div class="field">
+                                <input type="text" name="code" placeholder="Ingrese el código">
+                            </div>
+                        </div>
+
+                        <div class="step-3">
+                            <p>
+                                Its users are: <span user-name></span>
+                            </p>
+                            <div class="field">
+                                <input type="password" name="password" placeholder="Ingrese su nueva contraseña">
+                            </div>
+                            <div class="field">
+                                <input type="password" name="password2" placeholder="Confirme su nueva contraseña">
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <div class="buttons-action-area">
+                        <button only-start has-code type="button">
+                            I already have a code
+                        </button>
+                        <button type="button" class="back">
+                            Back
+                        </button>
+                        <button type="submit" class="next">
+                            Next
+                        </button>
+                    </div>
+                </form>
+
+                <div class="logo">
+                    <img src="${logoURL}">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div modal-user-name class="ui modal user-and-pass">
+
+    <div class="content">
+
+        <div class="head-modal">
+
+            <div class="exit-modal">
+                <i close-modal class="times icon"></i>
+            </div>
+
+            <div class="titles">
+                <h2>
+                    Recover
+                </h2>
+                <span>
+                    my user
+                </span>
+            </div>
+
+        </div>
+
+        <div class="body-modal">
+            <div class="content">
+
+                <h2>
+                    STEP <span steps>1</span>
+                </h2>
+
+                <form class="ui form">
+
+                    <section class="steps">
+
+                        <div class="step-1">
+                            <div class="field">
+                                <label>
+                                    Enter your email
+                                </label>
+                                <input type="email" name="email" placeholder="name@domain.com">
+                            </div>
+                        </div>
+
+                        <div class="step-2">
+                            <p>
+                                Enter the code sent to your email, the email may be in Junk, please check your Spam folder. The sender of the email is <span>${valueMailUser}</span>
+                            </p>
+                            <div class="field">
+                                <input type="text" name="code" placeholder="Ingrese el código">
+                            </div>
+                        </div>
+
+                        <div class="step-3">
+                            <h3></h3>
+                        </div>
+
+                    </section>
+
+                    <div class="buttons-action-area">
+                        <button only-start has-code type="button">
+                            I already have a code
+                        </button>
+                        <button type="button" class="back">
+                            Back
+                        </button>
+                        <button type="submit" class="next">
+                            Next
+                        </button>
+                    </div>
+                </form>
+
+                <div class="logo">
+                    <img src="${logoURL}">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div modal-user-blocked class="ui modal user-and-pass">
+
+    <div class="content">
+
+        <div class="head-modal">
+
+            <div class="exit-modal">
+                <i close-modal class="times icon"></i>
+            </div>
+
+            <div class="titles">
+                <h2>
+                    Unlock
+                </h2>
+                <span>
+                    my user
+                </span>
+            </div>
+
+        </div>
+
+        <div class="body-modal">
+            <div class="content">
+
+                <h2>
+                    STEP <span steps>1</span>
+                </h2>
+
+                <form class="ui form">
+
+                    <section class="steps">
+
+                        <div class="step-1">
+                            <div class="field">
+                                <label>
+                                    Enter your email
+                                </label>
+                                <input type="email" name="email" placeholder="name@domain.com">
+                            </div>
+                        </div>
+
+                        <div class="step-2">
+                            <p>
+                                Enter the code sent to your email, the email may be in Junk, please check your Spam folder. The sender of the email is <span>${valueMailUser}</span>
+                            </p>
+                            <div class="field">
+                                <input type="text" name="code" placeholder="Ingrese el código">
+                            </div>
+                        </div>
+
+                        <div class="step-3">
+                            <h3></h3>
+                        </div>
+
+                    </section>
+
+                    <div class="buttons-action-area">
+                        <button only-start has-code type="button">
+                            I already have a code
+                        </button>
+                        <button type="button" class="back">
+                            Back
+                        </button>
+                        <button type="submit" class="next">
+                            Next
+                        </button>
+                    </div>
+                </form>
+
+                <div class="logo">
+                    <img src="${logoURL}">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div modal-user-support class="ui modal user-and-pass">
+
+    <div class="content">
+
+        <div class="head-modal">
+
+            <div class="exit-modal">
+                <i close-modal class="times icon"></i>
+            </div>
+
+            <div class="titles">
+                <h2>
+                    Support
+                </h2>
+                <span>
+                    Request
+                </span>
+            </div>
+
+        </div>
+
+        <div class="body-modal">
+            <div class="content">
+
+                <form class="ui form">
+
+                    <section class="steps">
+
+                        <div class="step-1">
+                            <div class="field">
+                                <label>
+                                    Enter your names
+                                </label>
+                                <input type="text" name="name" placeholder="Names">
+                            </div>
+                            <div class="field">
+                                <label>
+                                    Enter your last name
+                                </label>
+                                <input type="text" name="lastname" placeholder="Last names">
+                            </div>
+                            <div class="field">
+                                <label>
+                                    Enter your email
+                                </label>
+                                <input type="email" name="email" placeholder="name@domain.com">
+                            </div>
+                            <div class="field">
+                                <label>
+                                    Problem
+                                </label>
+                                <textarea type="email" name="message" placeholder="Problem"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="step-2">
+                            <h3>YOUR SUPPORT REQUEST HAS BEEN CREATED</h3>
+                            <hr>
+                            <p>
+                                It will be resolved very soon, please check your email in the next few hours. The email may be in "Junk", please check your Spam folder. The sender of the email is ${mailSystem}
+                            </p>
+                        </div>
+
+                    </section>
+
+                    <div class="buttons-action-area">
+                        <div></div>
+                        <div></div>
+                        <button type="submit" class="next">
+                            Send
+                        </button>
+                    </div>
+                </form>
+
+                <div class="logo">
+                    <img src="${logoURL}">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal-no-user" notifications-modal>
+    <div class="container-modals">
+        <div class="card-ui-center">
+            <div class="title"></div>
+            <div class="description">
+                <p></p>
+            </div>
+            <div class="alert-modal-options"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const OTHER_PROBLEMS_FORM = "${loginLink}";
+    const USER_FORM_LOGIN = "${otherProblemsFormLink}";
+</script>

@@ -1,8 +1,8 @@
 <?php
-    $withImage = false;
+$withImage = true;
 ?>
 <form class="ui form" test-cropper>
-    <div class="ui form cropper-adapter" cropper-image-main data-edit="<?= $withImage ? 'yes' : 'no'; ?>">
+    <div class="ui form cropper-adapter" cropper-image-main data-edit="<?=$withImage ? 'yes' : 'no';?>">
 
         <div class="field required">
             <label>Test</label>
@@ -13,7 +13,7 @@
             'referenceW' => '400',
             'referenceH' => '300',
             'image' => $withImage ? 'statics/images/logo.png' : '',
-        ]); ?>
+        ]);?>
 
     </div>
     <br>
@@ -21,6 +21,27 @@
         <button type="submit" class="ui button green">Probar</button>
     </div>
 </form>
+
+<?php simpleCropperAdapterWorkSpace([
+    'selectorAttr' => 'simple-cropper',
+    'referenceW' => '400',
+    'referenceH' => '300',
+    'image' => $withImage ? 'statics/images/logo.png' : '',
+]);?>
+
+<div class="ui modal cropper-test">
+    <div class="content">
+        <?php simpleCropperAdapterWorkSpace([
+            'selectorAttr' => 'simple-cropper-modal',
+            'referenceW' => '400',
+            'referenceH' => '300',
+            'image' => $withImage ? 'statics/images/logo.png' : '',
+        ]);?>
+    </div>
+</div>
+
+<button class="ui button red" open-modal>ABRIR MODAL</button>
+
 <script>
 let loader = document.createElement('div')
 loader.innerHTML = "<div></div>"
@@ -52,6 +73,45 @@ window.addEventListener('load', function() {
         }
         console.log(dataImage)
     })
+
+    const simpleCropperAdapter = new SimpleCropperAdapter(null, {
+        aspectRatio: 1 / 1,
+        format: 'image/jpeg',
+        quality: 0.8,
+        fillColor: 'red',
+        outputWidth: '350',
+    })
+
+    simpleCropperAdapter.onCropped(function(blob, url) {
+        console.log(blob)
+        console.log(url)
+    })
+
+    setInterval(function() {
+        if (simpleCropperAdapter.wasChange()) {
+            //Obtener archivo
+            console.log(simpleCropperAdapter.getFile())
+        }
+    }, 1000)
+
+//EJEMPLO MODAL INICIO
+    const simpleCropperAdapterModal = new SimpleCropperAdapter('[simple-cropper-modal]', {
+        aspectRatio: 1 / 1,
+        format: 'image/jpeg',
+        quality: 0.8,
+        fillColor: 'red',
+        outputWidth: '350',
+    })
+    simpleCropperAdapterModal.onCropped(function(blob, url) {
+        console.log(blob)
+        console.log(url)
+    })
+
+    $('.ui.modal.cropper-test').modal('show')
+    $('[open-modal]').click(function(){
+        $('.ui.modal.cropper-test').modal('show')
+    })
+    //EJEMPLO MODAL FIN
 
     removeGenericLoader(loaderName)
 

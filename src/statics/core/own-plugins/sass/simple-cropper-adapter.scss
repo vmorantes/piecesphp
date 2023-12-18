@@ -1,0 +1,117 @@
+@import "../../sass/includes/functions";
+@import "../../sass/includes/variables";
+
+.simple-cropper {
+
+    width: 500px;
+    max-width: 100%;
+
+    &.centered {
+        margin: 0 auto;
+    }
+
+    >.container {
+
+        >input[type="file"] {
+            display: none;
+        }
+
+        .image-container .preview {
+            visibility: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+
+            .crop-buttons {
+                display: flex;
+            }
+
+            &.edition {
+                >.rotate-buttons {
+                    display: grid;
+                    grid-template-columns: 24px 24px;
+                    grid-column-gap: 10px;
+                    justify-content: center;
+                    align-items: center;
+
+                    >span {
+                        cursor: pointer;
+
+                        i.icon {
+                            font-size: 20px;
+                            padding: 0px;
+                            margin: 0px;
+                        }
+                    }
+                }
+
+                >.resize-slider {
+                    display: flex;
+                    align-items: center;
+                    column-gap: 15px;
+                    width: 100%;
+                    max-width: 250px;
+
+                    i.icon {
+                        padding: 0px;
+                        margin: 0px;
+
+                        &.out {
+                            font-size: 12px;
+                        }
+
+                        &.in {
+                            font-size: 24px;
+                        }
+                    }
+                }
+            }
+
+            &.finalize {
+
+                border-top: 1px solid #e1e1e1;
+                padding-top: 30px;
+
+                >a {
+                    display: grid;
+                    grid-template-columns: auto auto;
+                    justify-content: center;
+                    align-items: center;
+                    font-family: $fontPoppins;
+                    font-size: pxToRem(16);
+                    font-weight: $fwMedium;
+                    text-decoration: 1px solid var(--main-brand-color);
+                    border: none;
+                    color: var(--main-brand-color);
+
+                    i.icon {
+                        font-size: 24px;
+                        padding: 0px;
+                        margin: 0px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* Cropper */
+
+.cropper-modal {
+    background-color: white;
+}
+
+.cropper-point {
+    background-color: white;
+    height: 8px;
+    opacity: .85;
+    width: 8px;
+}
+
+.cropper-view-box {
+    outline: 1.5px solid;
+    outline-color: white;
+}

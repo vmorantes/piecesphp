@@ -1,63 +1,45 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
 use App\Controller\AppConfigController;
+
 $langGroup = AppConfigController::LANG_GROUP;
 $isFirstTitle = true;
 $isFirstItem = true;
+
+$view = $tabsItems['general'];
+$tittle = $tabsTitles['general'];
 ?>
 
-<div class="container-medium">
+<main class="colors-view">
 
-    <div class="ui top attached tabular menu">
-        <?php foreach($tabsTitles as $name => $text): ?>
-        <?php if($isFirstTitle): $isFirstTitle = false;?>
-        <a class="item active" data-tab="<?= $name; ?>"><?= $text; ?></a>
-        <?php else: ?>
-        <a class="item" data-tab="<?= $name; ?>"><?= $text; ?></a>
-        <?php endif;?>
-        <?php endforeach;?>
-    </div>
+    <section class="main-body-header">
+        <div class="head">
+            <h2 class="tittle"><?= __($langGroup, $tittle); ?></h2>
+            <span class="sub-tittle"><?= __($langGroup, 'Personalización de Plataforma'); ?></span>
+        </div>
+        <div class="body-card trasparent no-padding">
+            <?= $view; ?>
+        </div>
+    </section>
 
-    <?php foreach($tabsItems as $name => $content): ?>
-    <?php if($isFirstItem): $isFirstItem = false;?>
-    <div class="ui bottom attached tab segment active" data-tab="<?= $name; ?>">
-        <?= $content; ?>
-    </div>
-    <?php else: ?>
-    <div class="ui bottom attached tab segment" data-tab="<?= $name; ?>">
-        <?= $content; ?>
-    </div>
-    <?php endif;?>
-    <?php endforeach;?>
-
-</div>
+</main>
 
 <script>
-window.addEventListener('load', function(e) {
+    window.addEventListener('load', function(e) {
 
-    //Inicializaciones generales
-    $('.ui.top.menu .item').tab()
-    $('.ui.checkbox').checkbox()
-    $('.ui.dropdown.additions')
-        .dropdown({
-            allowAdditions: true
-        })
+        //Inicializaciones generales
+        $('.ui.top.menu .item').tab()
+        $('.ui.checkbox').checkbox()
+        $('.ui.dropdown.additions')
+            .dropdown({
+                allowAdditions: true
+            })
 
-    //Eventos
-
-    //Formulario ssl
-    genericFormHandler(
-        'form[ssl-configuration-form]', {
-            onSetFormData: (formData, form) => {
-                return formData
-            },
-        }
-    )
-
-})
+    })
 </script>
 <style>
-.ui.form {
-    max-width: 800px;
-}
+    .ui.form {
+        max-width: 800px;
+    }
 </style>

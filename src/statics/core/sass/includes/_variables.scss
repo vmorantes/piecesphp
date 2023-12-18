@@ -13,6 +13,8 @@ $rsMobile: 480px;
 //──── Fonts ─────────────────────────────────────────────────────────────────────────────
 $fontPublicSans: 'Public Sans',
 sans-serif;
+$fontPoppins: 'Poppins',
+sans-serif;
 $fontOpenSans: 'Open Sans',
 sans-serif;
 $fontFamilyFirst: 'Lato',
@@ -38,8 +40,8 @@ $fwExtraBold: 800;
 //──── Colors ────────────────────────────────────────────────────────────────────────────
 $colorFirst: var(--main-brand-color);
 $colorSecond: var(--second-brand-color);
-$colorThird: var(--third-brand-color-text);
-$colorFirstOver: var(--color-text-over-main-brand-color);
+$colorThird: var(--font-color-one);
+$colorFirstOver: var(--font-color-two);
 
 $textHeader1Color: $colorFirst;
 $textHeader2Color: $colorSecond;
@@ -55,10 +57,6 @@ $fontSizeHTML: 14;
 $htmlFontSize: 14px;
 
 //Header
-$h1FontSize:2.3rem;
-$h2FontSize:2rem;
-$h3FontSize:1.6rem;
-$h4FontSize:1.3rem;
 $h1Margin: 0 0 1.5rem 0;
 $h2Margin: 0 0 1rem 0;
 $h3Margin: 0 0 1rem 0;
@@ -89,11 +87,11 @@ $quoteBorderBottom: 1px solid $colorFirst;
 
 //──── Sidebar ───────────────────────────────────────────────────────────────────────────
 $sidebarBreakPoint: 800px;
-$sidebarBackgroundColor: rgb(255, 255, 255);
-$sidebarColor: #1B1C1D;
-$sidebarColor2: #707070;
-$sidebarColorActive: var(--main-brand-color);
-$sidebarBackgroundItemHover: var(--main-brand-color-opacity);
+$sidebarBackgroundColor: var(--menu-color-background);
+$sidebarColor: var(--menu-color-font);
+$sidebarColor2: var(--menu-color-font);
+$sidebarColorActive: rgb(220, 220, 220);
+$sidebarBackgroundItemHover: var(--menu-color-mark);
 $containerAsideContentPaddingT: 6rem;
 $containerAsideContentPaddingR: 3rem;
 $containerAsideContentPaddingB: 8rem;
