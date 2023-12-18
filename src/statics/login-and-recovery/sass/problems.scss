@@ -1,500 +1,399 @@
 @import 'import/variables';
 @import 'import/reset';
 @import '../../fonts/public-sans/public-sans.css';
+@import '../../fonts/poppins/poppins.css';
 
 body {
     font-family: $fontPublicSans;
 }
 
-.container {
+.problems-container {
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(180deg, $mainBrandColor 0%, transparent 100%);
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    display: grid;
+    place-content: center;
+    overflow: hidden;
 
-    img {
-        max-width: 100%;
-    }
-
-    .topbar {
-
-        position: relative;
-
-        >.overlay {
-            position: absolute;
-            z-index: 1;
-            top: 0px;
-            left: 0px;
-            width: 100%;
-            height: 100%;
-            background-color: $problem-overlay-color;
-        }
-
-        >.content,
-        >.header {
-            position: relative;
-            z-index: 2;
-        }
-
-        >.header {
-
-            display: grid;
-            grid-template-columns: auto auto;
-            justify-content: space-between;
-            padding: 30px 50px 0px 50px;
-
-            .logo {
-
-
-                img {
-                    width: 150px;
-                }
-
-            }
-
-            .back {
-
-                .ui.button {
-                    font-size: 95%;
-                }
-
-                .ui.button.custom-color {
-                    background-color: $problem-color-button;
-                    color: $problem-color-text-button;
-                }
-
-            }
-
-            .ui.button.back-color {
-                padding-left: 20px;
-                padding-right: 20px;
-                font-size: 95%;
-                background-color: $problem-back-color;
-                color: $problem-color-text-button;
-                display: none;
-            }
-
-        }
-
-        .ml-8 {
-            margin-left: 8px;
-        }
-
-        >.content {
-
-            padding: 0px 50px 0px 50px;
-
-            >.caption {
-
-                text-align: center;
-
-                >.image {
-                    text-align: center;
-
-                    img {
-                        &.default {
-                            display: inline-block;
-                            height: $height-image-header-topbar;
-                            width: auto;
-                        }
-
-                        &.alt {
-                            display: none;
-                            height: $height-image-header-topbar;
-                            width: auto;
-                        }
-                    }
-                }
-
-                >.title-step {
-                    font-size: 1.5rem;
-                    line-height: 2rem;
-                    font-weight: 550;
-                    text-transform: uppercase;
-                    text-align: center;
-                }
-
-                >.text {
-                    font-size: 2.5rem;
-                    font-weight: bold;
-                    line-height: 2.6rem;
-                    text-transform: uppercase;
-                    text-align: center;
-                    color: white;
-                    margin: 2.5rem 0rem 0rem 0rem;
-                }
-
-            }
-
-            &.active {
-
-                background-color: white;
-                margin-top: 2rem;
-                padding-top: 3rem;
-
-                >.caption {
-
-                    margin: 0 auto;
-                    max-width: 1200px;
-                    padding-bottom: 3rem;
-                    border-bottom: 1px transparentize($problem-secondary-color, 0.8) solid;
-
-                    >.image {
-
-                        img {
-                            &.default {
-                                display: none;
-                            }
-
-                            &.alt {
-                                display: inline-block;
-                            }
-                        }
-
-                    }
-
-                    >.text {
-                        color: black;
-                        margin-top: 1rem;
-                    }
-
-                }
-
-            }
-
-        }
-
-    }
-
-    >.header {
-        color: $problem-title-color;
-        margin-top: 2rem;
-        padding: 0px 15px;
-
-        .img-header-problems {
-            height: 50px;
-            width: auto;
-        }
-    }
-
-    >.options {
+    .back-action {
+        position: absolute;
+        color: white;
+        width: 90px;
+        height: 35px;
+        border: 1px solid white;
+        border-radius: 5px;
+        cursor: pointer;
         display: flex;
-        flex: 0 0 auto;
-        flex-wrap: wrap;
         justify-content: center;
-        column-gap: 5rem;
-        max-width: 1200px;
-        margin: 1rem auto 0rem auto;
-        text-align: center;
-        outline: none;
-        text-decoration: none;
-        padding: 0px 15px;
+        align-items: center;
+        transition: .5s;
+        top: 30px;
+        left: 30px;
 
-        .option-alt {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-content: center;
-            align-items: center;
+        &:hover {
             background-color: white;
-            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-            border-radius: 15px;
-            position: relative;
-            margin-bottom: 2rem;
-            padding: 0px 15px;
-            height: 150px;
-            width: 280px;
-            padding-left: 20px;
-            padding-right: 20px;
-            gap: 20px;
+            color: $mainBrandColor;
+        }
+    }
 
-            .image {
+    >.body {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 50px;
 
-                display: grid;
-                justify-content: center;
-                justify-items: center;
-                align-items: center;
-                grid-template-columns: 100%;
-                margin: 0 auto;
-                position: relative;
-                width: 80px;
-                height: 80px;
+        >.header {
+            color: white;
+            text-align: center;
+        }
 
-                img {
-                    display: block;
-                }
+        >section.options {
+            width: 100%;
+            display: grid;
+            grid-template-columns: auto auto auto;
+            gap: 30px;
 
-            }
-
-            .content {
-                min-height: 147px;
-                max-width: 140px;
+            >.item {
+                width: 350px;
+                height: 300px;
+                background-color: white;
+                border-radius: 15px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                justify-items: center;
-                align-items: flex-start;
+                align-items: center;
+                text-align: center;
+                gap: 20px;
+                cursor: pointer;
+                transition: .5s;
 
-
-                .title {
-                    font-size: 1.1rem;
-                    color: $problem-title-card;
-                    text-align: left;
-                    font-weight: 600;
+                >.image-container {
+                    width: 130px;
+                    height: 130px;
+                    border-radius: 50%;
+                    background-color: $mainBrandColor;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    transition: .5s;
                 }
 
-                .text {
-                    margin-top: 7px;
-                    font-weight: 400;
-                    font-size: 0.8rem;
-                    text-align: left;
-                    color: #1B1C1D;
-                    font-size: 12px;
-                    line-height: 10px;
+                >span {
+                    color: $mainBrandColor;
+                    font-size: 21px;
+                    transition: .5s;
                 }
 
-                .text:first-letter {
-                    text-transform: capitalize;
+                &:hover {
+                    background-color: $mainBrandColor;
+
+                    >.image-container {
+                        background-color: rgba(255, 255, 255, 0.39);
+                    }
+
+                    >span {
+                        color: white;
+                    }
                 }
 
-            }
-
-        }
-
-        .option-alt:hover {
-            background-color: $problem-card-hover;
-
-            .content {
-                .title {
-                    color: white;
-                }
-
-                .text {
-                    color: white;
-                }
-            }
-
-            .image {
-                img {
-                    filter: invert(1) brightness(0) grayscale(100%) invert(1);
-                }
             }
         }
 
-        .option {
+        >.footer {
+            width: 280px;
+            height: 60px;
+            max-width: 100%;
+            background-color: white;
+            border-radius: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
-            position: relative;
-            margin-bottom: 2rem;
-            padding: 0px 15px;
-
-            .image {
-
-                display: grid;
-                justify-content: center;
-                justify-items: center;
-                align-items: center;
-                grid-template-columns: 100%;
-                margin: 0 auto;
-                margin-bottom: 1rem;
-                position: relative;
-                width: 130px;
-                height: 130px;
-                border-radius: 100%;
-                border: 1px solid black;
-
-                img {
-                    display: block;
-                }
-
+            >img {
+                max-width: 80%;
             }
-
-            .content {
-                background-color: #FBBD08;
-                padding: 0.8rem 1rem;
-                border-radius: 3px;
-                color: black;
-                font-weight: 400;
-                font-size: 0.8rem;
-                min-height: 64px;
-                min-width: 240px;
-                display: grid;
-                align-items: center;
-
-                .title {
-                    text-transform: uppercase;
-                }
-
-            }
-
         }
     }
 
-    >.footer-div {
-        text-align: center;
-        margin-left: auto;
-        margin-right: auto;
-        padding-bottom: 5%;
-        display: flex;
-        flex-direction: column;
+    @media screen and (max-height: 750px) {
 
-        img {
-            width: $width-image-footer;
-            height: $height-imagen-footer;
-        }
+        >.body {
+            >section.options {
+                >.item {
+                    width: 250px;
+                    height: 210px;
 
-        .text-footer {
-            font-size: $problem-size-text-footer;
-            margin-top: -10px;
+                    >.image-container {
+                        width: 90px;
+                        height: 90px;
+                    }
+
+                    >span {
+                        font-size: 17px;
+                    }
+                }
+            }
         }
     }
 
-    @media screen and (max-width: 620px) {
+    @media screen and (max-width: 870px) {
+        >.body {
+            padding-block: 80px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            overflow-y: scroll;
 
-        .topbar {
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            >section.options {
+                grid-template-columns: auto auto;
+            }
+        }
+    }
+
+    @media screen and (max-width: 1150px) {
+
+        >.body {
+            >section.options {
+                >.item {
+                    width: 250px;
+                    height: 210px;
+
+                    >.image-container {
+                        width: 90px;
+                        height: 90px;
+                    }
+
+                    >span {
+                        font-size: 17px;
+                    }
+                }
+            }
+        }
+    }
+
+    @media screen and (max-width: 560px) {
+        >.body {
+            padding-block: 100px;
 
             >.header {
+                h2 {
+                    font-size: 20px;
+                }
+            }
 
-                padding: 20px 30px 0px 30px;
+            >section.options {
+                justify-content: center;
+                grid-template-columns: auto;
+            }
+        }
+    }
+}
 
-                .back {
+.ui.modal.user-and-pass {
+    border-radius: 25px !important;
+    width: 640px;
+    max-height: 800px;
+    padding: 0 !important;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    overflow-y: scroll;
 
-                    .ui.button {
-                        border: 0px solid transparent !important;
-                        box-shadow: none !important;
-                        font-size: 120%;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 
-                        span {
+    @media screen and (max-width: 700px) {
+        width: 95%;
+        height: calc(100% - 100px);
+    }
+
+    >.content {
+        background-color: white;
+        border-radius: 25px !important;
+        width: 100%;
+        height: 100%;
+        padding: 0 !important;
+
+        >.head-modal {
+            width: 100%;
+            height: 150px;
+            background-color: $mainBrandColor;
+            border-radius: 25px 25px 0 0;
+
+            >.exit-modal {
+                width: 100%;
+                display: flex;
+                justify-content: end;
+                padding-right: 50px;
+                padding-top: 34px;
+
+                >i {
+                    margin: 0;
+                    padding: 0;
+                    color: white;
+                    cursor: pointer;
+                }
+            }
+
+            >.titles {
+                width: 100%;
+                text-align: center;
+
+                >h2 {
+                    color: white;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 30px;
+                }
+
+                >span {
+                    color: white;
+                    font-size: 20px;
+
+                }
+            }
+        }
+
+
+        >.body-modal {
+            width: 100%;
+            height: calc(100% - 150px);
+            padding-block: 20px;
+            padding-inline: 20px;
+            display: flex;
+            justify-content: center;
+
+            >.content {
+                width: 100%;
+                height: 100%;
+                max-width: 500px;
+                padding-block: 40px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+
+                >h2 {
+                    width: 100%;
+                    text-align: center;
+                    color: $mainBrandColor;
+                    font-size: 45px;
+                    font-weight: bold;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                >form {
+
+                    >.steps {
+                        padding-bottom: 80px;
+
+                        >.step-2,
+                        .step-3 {
                             display: none;
+
+                            >p {
+                                >span {
+                                    color: $mainBrandColor;
+                                    font-weight: bold;
+                                }
+                            }
                         }
                     }
 
-                }
+                    >.buttons-action-area {
+                        width: 100%;
+                        display: grid;
+                        grid-template-columns: 49% 24% 24%;
+                        gap: 7px;
 
-            }
+                        >button {
+                            width: 100%;
+                            padding-block: 12px;
+                            border: 1px solid gray;
+                            background-color: rgba(128, 128, 128, 0.194);
+                            border-radius: 8px;
+                            cursor: pointer;
+                            color: gray;
 
-            >.content {
-                margin-top: 2rem;
 
-                >.caption {
-                    >.image {
-                        max-width: 220px;
-                        margin: 0 auto;
+                            &.back {
+                                background-color: transparent;
+                            }
+
+                            &.next {
+                                background-color: $mainBrandColor;
+                                color: white;
+                            }
+                        }
                     }
-
-                    >.text {
-                        margin-top: 1.8rem;
-                    }
-                }
-            }
-
-        }
-
-        >.header {
-            color: $problem-title-color;
-            font-size: 1.6rem;
-            line-height: 2rem;
-        }
-
-        >.options {
-
-            display: block;
-            flex: initial;
-            flex-wrap: initial;
-            justify-content: initial;
-            margin-top: 2rem;
-
-            .option {
-
-                display: block;
-                flex: initial;
-                flex-wrap: initial;
-                justify-content: initial;
-                max-width: 100%;
-                margin: 0rem auto;
-                padding: 0px 0px 0px 30px;
-                max-width: max-content;
-                position: relative;
-
-                &:not(:first-child) {
-                    margin-top: 2rem;
                 }
 
-                .image {
-                    position: absolute;
-                    top: 50%;
-                    left: 0px;
-                    transform: translateY(-50%);
-                    width: 60px;
-                    height: 60px;
-                    background-color: white;
-                    margin: 0px;
-                    grid-template-columns: 70%;
-                }
-
-                .content {
-                    font-size: 0.7rem;
-                    grid-template-rows: auto;
-                    min-height: 52px;
-                    padding: 0.4rem 0.5rem;
-                }
-
-            }
-
-            .option-alt {
-                margin-left: auto;
-                margin-right: auto;
-
-                .image {
-
-                    display: grid;
-                    justify-content: center;
-                    justify-items: center;
-                    align-items: center;
-                    grid-template-columns: 100%;
-                    margin: 0 auto;
-                    position: relative;
-                    width: 80px;
-                    height: 80px;
-
-                    img {
-                        display: block;
-                    }
-
-                }
-
-                .content {
-                    min-height: 147px;
-                    max-width: 140px;
+                >.logo {
+                    width: 100%;
                     display: flex;
-                    flex-direction: column;
                     justify-content: center;
-                    justify-items: center;
-                    align-items: center;
 
-
-                    .title {
-                        font-size: 1.1rem;
-                        color: $problem-title-card;
-                        text-align: left;
-                        text-transform: capitalize;
-                        font-weight: 600;
+                    >img {
+                        width: 120px;
+                        height: 120px;
                     }
-
-                    .text {
-                        margin-top: 7px;
-                        font-weight: 400;
-                        font-size: 0.8rem;
-                        text-align: left;
-                        color: #1B1C1D;
-                        font-size: 12px;
-                        line-height: 10px;
-                        text-align: start;
-                    }
-
-                    .text:first-letter {
-                        text-transform: capitalize;
-                    }
-
                 }
             }
+
         }
 
+        @media screen and (max-width: 450px) {
+            >.head-modal {
+                height: 100px;
+
+                >.exit-modal {
+                    padding-right: 20px;
+                    padding-top: 24px;
+                }
+
+                >.titles {
+
+                    >h2 {
+
+                        font-size: 20px;
+                    }
+
+                    >span {
+                        font-size: 15px;
+
+                    }
+                }
+            }
+
+            >.body-modal {
+
+                >.content {
+
+                    >h2 {
+                        font-size: 25px;
+                    }
+
+                    >form {
+
+                        >.buttons-action-area {
+                            grid-template-rows: auto 1fr 1fr;
+                            grid-template-columns: 1fr;
+                        }
+                    }
+
+
+                }
+
+            }
+        }
     }
 }
 
@@ -504,7 +403,7 @@ body {
 
 .container-modals {
     position: fixed;
-    z-index: 22;
+    z-index: 1002;
     top: 0;
     left: 0;
     right: 0;
@@ -517,13 +416,15 @@ body {
     align-items: center;
 
     .card-ui-center {
-        max-width: 40%;
-        max-height: auto;
-        padding: 5% 7% 3% 7%;
+        width: 600px;
+        height: 400px;
+        padding: 10px;
         background-color: white;
-        border-radius: 36px;
+        border-radius: 25px;
         box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         align-items: center;
 
         .title {
@@ -535,16 +436,21 @@ body {
         }
 
         .title-danger {
-            color: $card-modal-title-danger;
+            color: $mainBrandColor;
             text-transform: uppercase;
             margin-bottom: 5%;
-            font-weight: 500;
-            font-size: 1.1rem;
+            font-weight: bold;
+            font-size: 27px;
         }
 
         .description {
+            p {
+                text-align: center;
+                max-width: 400px;
+            }
+
             .name {
-                color: $color-name-company;
+                color: $mainBrandColor;
                 text-transform: uppercase;
             }
         }
@@ -553,6 +459,7 @@ body {
             display: flex;
             justify-content: center;
             flex-direction: row;
+            gap: 10px;
             margin-top: 8%;
 
             div {
@@ -560,13 +467,38 @@ body {
                 padding-right: 10px;
             }
 
+            .btn {
+                width: 200px;
+                height: 45px;
+                color: white;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+
+                &.support {
+                    background-color: $mainBrandColor;
+                }
+
+                &.gray {
+                    background-color: $back-button-color;
+                }
+
+                &.green {
+                    background-color: $card-button-new-code;
+                    cursor: pointer;
+                }
+            }
+
             .btn-help-desk {
                 cursor: pointer;
 
                 a {
-                    padding: 10px;
-                    border-radius: 8px;
-                    background-color: $card-button-help-desk;
+                    width: 200px;
+                    height: 45px;
+                    border-radius: 4px;
+                    background-color: $mainBrandColor;
                     color: $card-button-color-text;
                 }
             }
@@ -589,5 +521,26 @@ body {
                 }
             }
         }
+    }
+}
+
+[notifications-modal] {
+    .title {
+        max-width: 400px;
+        font-size: 20px !important;
+    }
+}
+
+
+[modal-type="USER_NO_EXISTS"],
+[modal-type="EXPIRED_OR_NOT_EXIST_CODE"] {
+    .title {
+        color: red !important;
+    }
+}
+
+[modal-type="SUCCESS_PASSWORD_CHANGE"] {
+    .title {
+        color: $mainBrandColor !important;
     }
 }

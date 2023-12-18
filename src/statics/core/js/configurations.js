@@ -749,13 +749,14 @@ function configColorPickers() {
 
 /**
  * Configura la barra lateral de PiecesPHP
- * 
+ *
  * @param {HTMLElement|JQuery|string} selector Selector o elemento de la barra
  * @returns {void}
  */
 function pcsAdminSideBar(selector) {
 
 	let menu = $(selector)
+	menu = menu.find(".content")
 
 	if (menu.length > 0) {
 
@@ -774,13 +775,23 @@ function pcsAdminSideBar(selector) {
 					let ancester = $(this).parent()
 					let items = ancester.find('> .items')
 
-					if (items.length > 0) {
-						if (ancester.hasClass('active')) {
-							ancester.removeClass('active')
-							items.hide(500)
-						} else {
-							ancester.addClass('active')
-							items.show(500)
+					if (!ancester.offsetParent().hasClass('contrack')) {
+						if (items.length > 0) {
+							if (ancester.hasClass('active')) {
+								ancester.removeClass('active')
+								items.hide(500)
+							} else {
+								ancester.addClass('active')
+								items.show(500)
+							}
+						}
+					} else {
+						const elementPress = $(e.target)
+						if (
+							elementPress.hasClass('tool-item') &&
+							elementPress[0].nodeName === 'A'
+						) {
+							window.location.href = elementPress.attr('href')
 						}
 					}
 
@@ -814,32 +825,119 @@ function pcsAdminSideBar(selector) {
 					menu.attr('style', '')
 					$(menu).addClass('overlay')
 					$(this).addClass('active')
-
 				}
-
 			})
+		}
+	}
+
+	const barController = $('[bar-controller]')
+
+	barController.on('click', function (evt) {
+		evt.stopPropagation()
+		evt.preventDefault()
+		transformAside()
+		const activeGroups = menu.find('.group.active, .group .active')
+		activeGroups.removeClass('active')
+		activeGroups.find('>.items').hide(500)
+	})
+
+	const transformAside = () => {
+		rotateLogo()
+
+		const mainAside = $('[main-aside]')
+
+		if (mainAside.hasClass('contrack')) {
+			mainAside.removeClass('contrack')
+			showOnexpand()
+			$('.ui-pcs.container-sidebar').removeClass('no-expanded')
+		} else {
+			hideOnTrack()
+			$('.ui-pcs.container-sidebar').addClass('no-expanded')
+			mainAside.addClass('contrack')
+		}
+	}
+
+	const hideOnTrack = () => {
+		const toHide = $('[only-expanded]')
+		toHide.addClass('inSide')
+		toHide.on('animationend', () => {
+			toHide.addClass('remove')
+			toHide.removeClass('inSide')
+		})
+	}
+
+	const showOnexpand = () => {
+		const toHide = $('[only-expanded]')
+		toHide.removeClass('remove')
+		toHide.addClass('outSide')
+		toHide.on('animationend', () => {
+			toHide.removeClass('outSide')
+			toHide.removeClass('remove')
+		})
+	}
+
+	const rotateLogo = () => {
+		const containerImage = $('[menu-footer-images]')
+
+		if (containerImage.hasClass('close')) {
+			containerImage.removeClass('close')
+		} else {
+			containerImage.addClass('close')
+		}
+	}
+
+	// Controlador de los tooltips
+
+	const menuItems = menu.find('.title-group')
+
+	menuItems.each((index, item) => {
+		$(item).on('mouseover', (e) => {
+			e = $(e.target)
+
+			const currentMenuItem = searchTitleGroup(e)
+
+			let tooltip = currentMenuItem.find('.tool-tip')
+
+			const rect = currentMenuItem[0].getBoundingClientRect()
+
+			tooltip[0].style.top = rect.top + 'px'
+		})
+	})
+
+	const searchTitleGroup = (e) => {
+		if (e.hasClass('title-group')) {
+			return e
+		} else {
+			return searchTitleGroup(e.parent())
 		}
 	}
 }
 
 /**
  * Configura los menús de configuraciones
- * 
+ *
  * @returns {void}
  */
 function pcsAdminTopbars() {
 
 	const userOptionsMenu = $('.ui-pcs.topbar-options.user-options')
 	const adminOptionsMenu = $('.ui-pcs.topbar-options.admin-options')
+	const notificationsOptionsMenu = $('.ui-pcs.topbar-options.notifications-options')
+	const profileContainer = $('.profile-content')
 
-	const userOptionsMenuCloseButton = userOptionsMenu.find('>.close')
-	const adminOptionsMenuCloseButton = adminOptionsMenu.find('>.close')
+	const userOptionsMenuCloseButton = userOptionsMenu.find('.close')
+	const adminOptionsMenuCloseButton = adminOptionsMenu.find('.close')
+	const notificationsOptionsMenuCloseButton = notificationsOptionsMenu.find('.close')
 
 	const userOptionsToggles = $('.ui-pcs.topbar-toggle.user-options')
 	const adminOptionsToggles = $('.ui-pcs.topbar-toggle.admin-options')
+	const notificationsOptionsToggles = $('.ui-pcs.topbar-toggle.notifications-options')
 
 	const hasUserOptions = userOptionsMenu.length > 0 && userOptionsToggles.length > 0
 	const hasAdminOptions = adminOptionsMenu.length > 0 && adminOptionsToggles.length > 0
+	const hasNotificationsOptions = notificationsOptionsMenu.length > 0 && notificationsOptionsToggles.length > 0
+
+	const hasProfile = profileContainer.length > 0
 
 	if (hasUserOptions) {
 		userOptionsToggles.on('click', function (e) {
@@ -854,6 +952,22 @@ function pcsAdminTopbars() {
 		userOptionsMenuCloseButton.on('click', function (e) {
 			e.preventDefault()
 			close(userOptionsMenu)
+		})
+	}
+
+	if (hasNotificationsOptions) {
+		notificationsOptionsToggles.on('click', function (e) {
+			e.preventDefault()
+			if (!isOpen(notificationsOptionsMenu)) {
+				open(notificationsOptionsMenu)
+			} else {
+				close(notificationsOptionsMenu)
+			}
+		})
+
+		notificationsOptionsMenuCloseButton.on('click', function (e) {
+			e.preventDefault()
+			close(notificationsOptionsMenu)
 		})
 	}
 
@@ -873,7 +987,21 @@ function pcsAdminTopbars() {
 		})
 	}
 
-	if (hasUserOptions || hasAdminOptions) {
+	userOptionsMenu.find('[edit-account]').on('click', () => {
+		close(userOptionsMenu)
+		profileContainer.addClass('activated')
+		tabsController('account')
+	})
+	userOptionsMenu.find('[change-password]').on('click', () => {
+		close(userOptionsMenu)
+		profileContainer.addClass('activated')
+		tabsController('password')
+	})
+	profileContainer.find('[close-profile]').on('click', closeProfile)
+
+	if (
+		hasUserOptions || hasAdminOptions || hasNotificationsOptions || hasProfile
+	) {
 		window.addEventListener('click', function (e) {
 
 			if (hasUserOptions) {
@@ -890,14 +1018,29 @@ function pcsAdminTopbars() {
 				}
 			}
 
+			if (hasNotificationsOptions) {
+				const isNotificationsToggle = notificationsOptionsToggles[0] == e.target || notificationsOptionsToggles[0].contains(e.target)
+				if (!notificationsOptionsMenu[0].contains(e.target) && !isNotificationsToggle
+				) {
+					close(notificationsOptionsMenu)
+				}
+			}
+
+			if (hasProfile) {
+				if (!profileContainer[0].contains(e.target) && !userOptionsMenu[0].contains(e.target) && profileContainer.hasClass('activated')) {
+					closeProfile()
+				}
+			}
 		})
 	}
 
 	function open(menu) {
+		menu.parent().removeClass('close')
 		menu.addClass('active')
 	}
 
 	function close(menu) {
+		menu.parent().addClass('close')
 		if (isOpen(menu)) {
 			menu.removeClass('active')
 			if (!menu.hasClass('deactive')) {
@@ -910,6 +1053,161 @@ function pcsAdminTopbars() {
 		return menu.hasClass('active')
 	}
 
+	function closeProfile() {
+		profileContainer.removeClass('activated')
+		profileContainer.addClass('desactivated')
+		profileContainer.on('animationend', () => {
+			profileContainer.removeClass('desactivated')
+		})
+	}
+
+	const tabsController = (strDefauld = '') => {
+		const tabs = profileContainer.find('[data-tab]')
+		const views = profileContainer.find('[data-view]')
+
+		tabs.on('click', (e) => {
+			var target = $(e.target)
+
+			if (target[0].nodeName === 'I' || target[0].nodeName === 'SPAN') {
+				target = target.parent()
+			}
+
+			const tab = target.data('tab')
+
+			views.each((index, view) => {
+				const $view = $(view)
+
+				if ($(tabs[index]).data('tab') === tab) {
+					$(tabs[index]).addClass('current')
+				} else {
+					$(tabs[index]).removeClass('current')
+				}
+
+				if ($view.data('view') === tab) {
+					$view.addClass('current')
+				} else {
+					$view.removeClass('current')
+				}
+			})
+		})
+
+		if (strDefauld != '') {
+			tabs.filter(`[data-tab='${strDefauld}']`).trigger('click')
+		}
+	}
+
+	const formAction = () => {
+		const LOADER_NAME = 'editUser'
+
+		const mainForm = $(".profile-content").find("form")
+
+		mainForm.on('submit', (e) => {
+			e.preventDefault()
+
+			showGenericLoader(LOADER_NAME)
+
+			const formData = new FormData(e.target)
+
+			formData.set('is_profile', 'yes')
+
+			postRequest('users/edit/', formData)
+				.done((res) => {
+					if (res.success) {
+						successMessage(res.message)
+						setTimeout(() => location.reload(), 2000)
+					} else {
+						errorMessage(res.message)
+					}
+				})
+				.always(() => {
+					removeGenericLoader(LOADER_NAME)
+				})
+		})
+	}
+
+	const loadNews = () => {
+		const mainContainer = '[news-toolbar-container]'
+		const newsModal = $('[news-modal]')
+		const url = $(mainContainer).parent().data('url')
+
+		const newsManager = new NewsAdapter({
+			requestURL: url,
+			page: 1,
+			perPage: 10,
+			containerSelector: mainContainer,
+			onDraw: (item, parsed) => {
+				parsed.on('click', () => {
+					newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)
+					newsModal.find('.content').html(item.content)
+					newsModal.modal('show')
+					closeProfile()
+				})
+				return parsed
+			},
+			onEmpty: (container) => {
+				container.html('...')
+			},
+		})
+
+		newsManager.loadItems()
+	}
+
+	const imageModalProfile = () => {
+		const actionModal = $("[action-image-profile]")
+		const modal = $("[profile-image-modal]")
+
+		actionModal.on('click', () => {
+			closeProfile()
+
+			const instantiateCropper = (selector, ow = 400, ar = 400 / 400) => {
+				return new SimpleCropperAdapter(selector, {
+					aspectRatio: ar,
+					format: 'image/jpeg',
+					quality: 0.8,
+					fillColor: 'white',
+					outputWidth: ow,
+				})
+			}
+
+			const cropper = instantiateCropper(`[simple-cropper-profile]`)
+
+			cropper.onCropped(() => {
+				const LOADER_NAME = 'updatePhotoLoader'
+				const formData = new FormData()
+				const userId = modal.find('.content').attr('user-id')
+				const url = modal.find('.content').attr('action-url')
+
+				formData.set('user_id', userId)
+				formData.set('image', cropper.getFile())
+
+				showGenericLoader(LOADER_NAME)
+
+				postRequest(url, formData)
+					.done((resp => {
+						if (resp.success) {
+							successMessage(resp.message)
+							setTimeout(() => location.reload(), 2000)
+						} else {
+							errorMessage(resp.message)
+						}
+					}))
+					.always(() => {
+						removeGenericLoader(LOADER_NAME)
+					})
+
+			})
+
+			cropper.onCancel(() => {
+				modal.modal('hide')
+			})
+
+			modal.modal('show')
+		})
+	}
+
+	imageModalProfile()
+	loadNews()
+	formAction()
 }
 
 /**

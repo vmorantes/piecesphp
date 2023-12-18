@@ -10,56 +10,46 @@
     <link rel="stylesheet" href="<?= get_route('admin-global-variables-css'); ?>">
     <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
     <link rel="stylesheet" href="statics/css/404.css">
+    <link rel="stylesheet" href="statics/css/errors.css">
 </head>
 
 <body>
-    <div class="container">
 
-        <div class="overlay-two"></div>
+    <main class="errors-main-container">
 
-        <div class="container-card">
+        <div></div>
 
-            <div class="ui centered middle aligned grid">
+        <div class="information-card">
 
-                <div class="centered row">
+            <div class="decored-card">
+                <span>Oops!</span>
+                <img src="statics/images/errors/404.svg" alt="">
+            </div>
 
-                    <div class="computer only twelve wide column"></div>
-
-                    <div class="three wide column">
-                        <div class="content-404">
-
-                            <div class="panel">
-                                <p class="mega-title-404">Ups !</p>
-                                <div class="img404">
-                                    <img src="<?= base_url('statics/images/404.png'); ?>">
-                                </div>
-                                <p class="title-404"><?= __('page404', 'Algo está mal aquí'); ?></p>
-                                <p class="text-404"><?= __('page404', 'El enlace al que intenta ingresar ya no existe o fue cambiado.'); ?></p>
-                                <div class="action">
-                                    <a class="bt-404" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
-                                </div>
-                                <div class="action">
-                                    <a class="bt-report" href="<?= get_route("other-problems-form"); ?>">Reportar problema</a>
-                                </div>
-                            </div>
-
-                            <div class="logo-footer">
-                                <img class="img-logo-footer" src="<?=get_config('logo');?>">
-                            </div>
-                        </div>
-                    </div>
-
+            <div class="content">
+                <div class="head">
+                    <p class="title"><?= __('page404', 'Algo está mal aquí'); ?></p>
+                    <p class="text"><?= __('page404', 'El enlace al que intenta ingresar ya no existe o fue cambiado.'); ?></p>
                 </div>
-
+                <img class="error-image" src="statics/images/errors/404.svg" alt="">
+                <div class="body">
+                    <a class="btn" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
+                    <a class="btn report" href="<?= get_route("other-problems-form"); ?>">Reportar problema</a>
+                </div>
+                <div class="logo-footer">
+                    <img class="img-logo-footer" src="<?= get_config('logo'); ?>">
+                </div>
             </div>
 
         </div>
 
-        <div class="overlay-one">
-            <img class="img-404" src="<?= base_url('statics/images/404.png'); ?>">
+        <div class="platform-name">
+            <span><?= mb_strtoupper(get_config('title_app'), 'UTF-8'); ?></span>
+            <p><?= __(USER_LOGIN_LANG_GROUP, 'Todos los derechos reservados') . date('Y'); ?></p>
         </div>
 
-    </div>
+    </main>
+
 </body>
 
 </html>

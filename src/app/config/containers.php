@@ -18,8 +18,12 @@ $container_configurations = [
         $cssGlobalVariables->setVariable('main-brand-color', get_config('main_brand_color'));
         $cssGlobalVariables->setVariable('main-brand-color-opacity', get_config('main_brand_color') . '13');
         $cssGlobalVariables->setVariable('second-brand-color', get_config('second_brand_color'));
-        $cssGlobalVariables->setVariable('third-brand-color-text', get_config('third_brand_color_text'));
-        $cssGlobalVariables->setVariable('color-text-over-main-brand-color', get_config('color_text_over_main_brand_color'));
+        $cssGlobalVariables->setVariable('font-color-one', get_config('font_color_one'));
+        $cssGlobalVariables->setVariable('font-color-two', get_config('font_color_two'));
+        $cssGlobalVariables->setVariable('menu-color-background', get_config('menu_color_background'));
+        $cssGlobalVariables->setVariable('menu-color-background-opacity', get_config('menu_color_background') . 'BD');
+        $cssGlobalVariables->setVariable('menu-color-mark', get_config('menu_color_mark'));
+        $cssGlobalVariables->setVariable('menu-color-font', get_config('menu_color_font'));
 
         $cssGlobalVariables->setVariable('main-brand-color-0-5', get_config('main_brand_color') . '80');
         $cssGlobalVariables->setVariable('main-brand-color-0-8', get_config('main_brand_color') . 'CC');

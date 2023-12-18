@@ -107,7 +107,7 @@ class BaseController
             ob_end_clean();
         } catch (Throwable $e) {
             ob_end_clean();
-            set_flash_message('render_exception', $e);
+            set_flash_message('render_exception', $e, BaseController::class);
             header('Location: ' . get_current_url());
             die;
         }
@@ -208,7 +208,7 @@ class BaseController
             ob_end_clean();
         } catch (Throwable $e) {
             ob_end_clean();
-            set_flash_message('render_exception', $e);
+            set_flash_message('render_exception', $e, BaseController::class);
             header('Location: ' . get_current_url());
             die;
         }

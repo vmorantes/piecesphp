@@ -69,6 +69,25 @@ class RecoveryPasswordModel extends BaseEntityMapper
 
     /**
      * @param mixed $code
+     * @return bool
+     */
+    public static function getUserNameByCode($code)
+    {
+        $instance = new RecoveryPasswordModel();
+
+        $query = $instance->getModel()
+            ->select()
+            ->where([
+                'code' => $code,
+            ])->row();
+
+        $userModel = new UsersModel();
+
+        return $userModel->getWhere(["email" => $query->email])->username;
+    }
+
+    /**
+     * @param mixed $code
      * @return RecoveryPasswordModel|null
      */
     public static function instanceByCode($code)

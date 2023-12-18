@@ -12,6 +12,7 @@ use App\Model\TicketsLogModel;
 use App\Model\UsersModel;
 use MySpace\Controllers\MySpaceController;
 use MySpace\MySpaceRoutes;
+use News\Controllers\NewsController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -384,11 +385,16 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         import_nprogress();
         /* izitoast */
         import_izitoast();
+        /* Cropper */
+        import_cropper();
+        /* Módulo de noticias */
+        if (NEWS_MODULE) {
+            add_global_asset(NewsController::pathFrontNewsAdapter(), 'js');
+        }
         /* Librerías de la aplicación */
         import_app_libraries([
             'adminStyle',
         ]);
-
         add_global_asset(base_url(ADMIN_AREA_PATH_JS . '/main.js'), 'js');
 
         if (MESSAGES_ENABLED) {
