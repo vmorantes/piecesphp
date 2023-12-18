@@ -473,6 +473,7 @@ class RecoveryPasswordController extends UsersController
 
             if ($exist) {
 
+                $json_response['userName'] = RecoveryPasswordModel::getUserNameByCode($code);
                 $json_response['success'] = true;
 
             } else {

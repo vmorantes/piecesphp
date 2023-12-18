@@ -31,6 +31,12 @@
         color: white;
         text-decoration: none !important;
 
+        &:active,
+        &:visited,
+        &:focus {
+            color: white;
+        }
+
         &.tall {
             min-height: 400px;
         }

@@ -45,11 +45,14 @@ $config['keywords'] = [
 $config['description'] = "Descripción de la página.";
 
 //Colors
-$config['meta_theme_color'] = "#285f94";
-$config['main_brand_color'] = "#285f94";
-$config['color_text_over_main_brand_color'] = "white";
-$config['second_brand_color'] = "#2887bf";
-$config['third_brand_color_text'] = "#707070";
+$config['main_brand_color'] = "#6435C9";
+$config['second_brand_color'] = "#A333C8";
+$config['font_color_one'] = "#1B1C1D";
+$config['font_color_two'] = "#FFFFFF";
+$config['menu_color_background'] = "#6435C9";
+$config['menu_color_mark'] = "rgba(255, 255, 255, 0.2)";
+$config['menu_color_font'] = "#FFFFFF";
+$config['meta_theme_color'] = "#6435C9";
 
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";

@@ -5,29 +5,29 @@ $langGroup = UsersController::LANG_GROUP;
 ?>
 
 
-<div container-cards>
-
-    <div class="ui cards">
-
-        <?php foreach ($types as $type): ?>
-        <div class="card">
-            <div class="content">
-                <div class="header">
-                    <?=$type['text'];?>
-                </div>
-            </div>
-            <div class="extra content">
-                <a href="<?= $type['link'];?>" class="ui blue button"><?= __($langGroup, 'Agregar'); ?></a>
+<main container-cards>
+    <section class="main-body-header">
+        <div class="head">
+            <h2 class="tittle"><?= __($langGroup, 'Agregar usuario'); ?></h2>
+        </div>
+        <div class="body-card trasparent no-padding max-width">
+            <div class="ui cards">
+                <?php foreach ($types as $type) : ?>
+                <a class="card" href="<?= $type['link']; ?>">
+                    <div class="content">
+                        <i class="list alternate outline icon"></i>
+                        <div class="tittle">
+                            <?= $type['text']; ?>
+                        </div>
+                        <p>
+                            <?= strReplaceTemplate(__($langGroup, 'Agregar nuevo usuario ${type}'), [
+                                '${type}' => $type['text'],
+                            ]); ?>
+                        </p>
+                    </div>
+                </a>
+                <?php endforeach; ?>
             </div>
         </div>
-        <?php endforeach;?>
-
-    </div>
-
-</div>
-
-<style>
-[container-cards] {
-    max-width: 700px;
-}
-</style>
+    </section>
+</main>

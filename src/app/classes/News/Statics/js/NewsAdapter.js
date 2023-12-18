@@ -4,7 +4,7 @@
  * @param {OptionsConfiguration} options
  * @returns {NewsAdapter}
  */
- function NewsAdapter(options) {
+function NewsAdapter(options) {
 	/**
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL
@@ -74,8 +74,10 @@
 
 		} catch (error) {
 
+			console.error('NewsAdapter-Error-Start')
+			console.error(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Ha ocurrido un error al cargar los elementos.'))
 			console.error(error)
-			errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Ha ocurrido un error al cargar los elementos.'))
+			console.error('NewsAdapter-Error-End')
 
 		}
 
@@ -89,6 +91,9 @@
 
 		return new Promise(function (resolve, reject) {
 
+			if (requestURL.length === 0) {
+				return Promise.resolve()
+			}
 			requestURL.searchParams.set('paginate', 'yes')
 			requestURL.searchParams.set('page', page)
 			requestURL.searchParams.set('per_page', perPage)

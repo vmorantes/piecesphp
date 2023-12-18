@@ -2534,6 +2534,56 @@ function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
 }
 
 /**
+ * Devuelve el HTML del adaptador de CropperJS integrado
+ *
+ * @param array $data
+ * @param bool $echo
+ * @return string|void
+ */
+function simpleCropperAdapterWorkSpace(array $data = [], bool $echo = true)
+{
+
+    $lockAssets = get_config('lock_assets');
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', true);
+    }
+
+    $controller = new BaseController();
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', false);
+    }
+
+    return $controller->_render('panel/built-in/utilities/simple-cropper/workspace.php', $data, $echo);
+}
+
+/**
+ * Devuelve el HTML de la ficha de carga de imágenes
+ *
+ * @param array $data
+ * @param bool $echo
+ * @return string|void
+ */
+function imageUploaderForCropperAdminViews(array $data = [], bool $echo = true)
+{
+
+    $lockAssets = get_config('lock_assets');
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', true);
+    }
+
+    $controller = new BaseController();
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', false);
+    }
+
+    return $controller->_render('panel/built-in/utilities/image-upload-card/workspace.php', $data, $echo);
+}
+
+/**
  * Devuelve el HTML del adaptador de SimpleUploadPlaceholder integrado
  *
  * @param array $data

@@ -9,127 +9,135 @@ $getName = function ($name, $lang) {
 };
 ?>
 
-<div class="ui header"><?=  __($langGroup, 'Ajustes SEO'); ?></div>
+<main class="seo-view">
+    <section class="main-body-header">
+        <div class="head">
+            <h2 class="tittle"><?= __($langGroup, 'Ajustes SEO'); ?></h2>
+            <span class="sub-tittle"><?= __($langGroup, 'Personalización de Plataforma'); ?></span>
+        </div>
+        <div class="body-card no-gap">
+            <div class="ui top attached tabular menu">
+                <?php $isFirstTab = true; ?>
+                <?php foreach ($SEOValues as $lang => $values) : ?>
+                <a class="<?= $isFirstTab ? 'active ' : ''; ?>item" data-tab="<?= $lang; ?>"><?= __('lang', $lang); ?></a>
+                <?php $isFirstTab = false; ?>
+                <?php endforeach; ?>
+            </div>
 
-<div class="container-seo">
 
-    <div class="ui top attached tabular menu">
-        <?php $isFirstTab = true; ?>
-        <?php foreach($SEOValues as $lang => $values): ?>
-        <a class="<?= $isFirstTab ? 'active ' : ''; ?>item" data-tab="<?= $lang; ?>"><?= __('lang', $lang); ?></a>
-        <?php $isFirstTab = false; ?>
-        <?php endforeach; ?>
-    </div>
+            <?php $isFirstTab = true; ?>
+            <?php foreach ($SEOValues as $lang => $values) : ?>
+            <div class="ui bottom attached<?= $isFirstTab ? ' active ' : ' '; ?>tab segment" data-tab="<?= $lang; ?>">
 
+                <form action="<?= $actionURL; ?>" method="POST" class="ui form seo" lang="<?= $lang; ?>">
 
-    <?php $isFirstTab = true; ?>
-    <?php foreach($SEOValues as $lang => $values): ?>
-    <div class="ui bottom attached<?= $isFirstTab ? ' active ' : ' '; ?>tab segment" data-tab="<?= $lang; ?>">
+                    <input type="hidden" name="lang" value="<?= $lang; ?>">
 
-        <form action="<?= $actionURL; ?>" method="POST" class="ui form seo" lang="<?= $lang; ?>">
+                    <div class="field">
 
-            <input type="hidden" name="lang" value="<?= $lang; ?>">
+                        <div class="two fields">
 
-            <div class="field">
+                            <div class="field required">
+                                <label><?= __($langGroup, 'Título del sitio'); ?></label>
+                                <?php $property = AppConfigController::SEO_OPTION_TITLE_APP_ON_FORM; ?>
+                                <?php $propertyLang = ($getName)($property, $lang); ?>
+                                <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Nombre'); ?>" required>
+                            </div>
 
-                <div class="two fields">
+                            <div class="field required">
+                                <label><?= __($langGroup, 'Propietario'); ?></label>
+                                <?php $property = AppConfigController::SEO_OPTION_OWNER_ON_FORM; ?>
+                                <?php $propertyLang = ($getName)($property, $lang); ?>
+                                <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Propietario'); ?>" required>
+                            </div>
 
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Título del sitio'); ?></label>
-                        <?php $property = AppConfigController::SEO_OPTION_TITLE_APP_ON_FORM; ?>
-                        <?php $propertyLang = ($getName)($property, $lang); ?>
-                        <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Nombre'); ?>" required>
+                        </div>
+
                     </div>
 
                     <div class="field required">
-                        <label><?= __($langGroup, 'Propietario'); ?></label>
-                        <?php $property = AppConfigController::SEO_OPTION_OWNER_ON_FORM; ?>
+                        <label><?= __($langGroup, 'Descripción'); ?></label>
+                        <?php $property = AppConfigController::SEO_OPTION_DESCRIPTION_ON_FORM; ?>
                         <?php $propertyLang = ($getName)($property, $lang); ?>
-                        <input type="text" name="<?= $property; ?>" value="<?= $values[$propertyLang]; ?>" placeholder="<?= __($langGroup, 'Propietario'); ?>" required>
+                        <textarea required name="<?= $property; ?>" placeholder="<?= __($langGroup, 'Descripción de la página.'); ?>" required><?= $values[$propertyLang]; ?></textarea>
                     </div>
 
-                </div>
+                    <div class="field">
+                        <label><?= __($langGroup, 'Palabras clave'); ?></label>
+                        <?php $property = AppConfigController::SEO_OPTION_KEYWORDS_ON_FORM; ?>
+                        <?php $propertyLang = ($getName)($property, $lang); ?>
+                        <select name="<?= $property; ?>[]" multiple class="ui dropdown multiple search selection keywords">
+                            <?= $values[$propertyLang]; ?>
+                        </select>
+                    </div>
 
-            </div>
+                    <div class="field">
+                        <label><?= __($langGroup, 'Scripts adicionales'); ?></label>
+                        <?php $property = AppConfigController::SEO_OPTION_EXTRA_SCRIPTS_ON_FORM; ?>
+                        <?php $propertyLang = ($getName)($property, $lang); ?>
+                        <textarea name="<?= $property; ?>" placeholder="<?= __($langGroup, "<script src='ejemplo.js'></script>"); ?>"><?= $values[$propertyLang]; ?></textarea>
+                    </div>
 
-            <div class="field required">
-                <label><?= __($langGroup, 'Descripción'); ?></label>
-                <?php $property = AppConfigController::SEO_OPTION_DESCRIPTION_ON_FORM; ?>
-                <?php $propertyLang = ($getName)($property, $lang); ?>
-                <textarea required name="<?= $property; ?>" placeholder="<?= __($langGroup, 'Descripción de la página.'); ?>" required><?= $values[$propertyLang]; ?></textarea>
-            </div>
-
-            <div class="field">
-                <label><?= __($langGroup, 'Palabras clave'); ?></label>
-                <?php $property = AppConfigController::SEO_OPTION_KEYWORDS_ON_FORM; ?>
-                <?php $propertyLang = ($getName)($property, $lang); ?>
-                <select name="<?= $property; ?>[]" multiple class="ui dropdown multiple search selection keywords">
-                    <?= $values[$propertyLang]; ?>
-                </select>
-            </div>
-
-            <div class="field">
-                <label><?= __($langGroup, 'Scripts adicionales'); ?></label>
-                <?php $property = AppConfigController::SEO_OPTION_EXTRA_SCRIPTS_ON_FORM; ?>
-                <?php $propertyLang = ($getName)($property, $lang); ?>
-                <textarea name="<?= $property; ?>" placeholder="<?= __($langGroup, "<script src='ejemplo.js'></script>"); ?>"><?= $values[$propertyLang]; ?></textarea>
-            </div>
-
-            <div class="field">
-
-                <div class="ui card fluid">
-
-                    <div class="content">
-
-                        <div class="ui form cropper-adapter">
-
+                    <div class="field">
+                        <div class="content">
                             <?php $property = AppConfigController::SEO_OPTION_OPEN_GRAPH_IMAGE_ON_FORM; ?>
                             <?php $propertyLang = ($getName)($property, $lang); ?>
-                            <input type="file" accept="image/*">
-                            <?php 
-                            cropperAdapterWorkSpace([
-                                'withTitle'=> false,
-                                'image'=> $values[$propertyLang],
-                                'referenceW'=> '1200',
-                                'referenceH'=> '630',
-                                'cancelButtonText' => null,
-                                'saveButtonText' => __($langGroup, 'Seleccionar imagen'),                            
-                                'controls' =>[
-                                    'rotate' => false, 
-                                    'flip' => false, 
-                                    'adjust' => false, 
-                                ],
-                            ]); 
-                        ?>
-                        </div>
 
+                            <?php
+                                imageUploaderForCropperAdminViews([
+                                    //Imagen de vista previa, string
+                                    'image' => $values[$propertyLang],
+                                    //Texto en alt de la etiqueta img, string
+                                    'imageAlt' => null,
+                                    // Por defecto tiene la clase image-action pueden añadirse más, string
+                                    'classes' => null, 
+                                    //Atributos que se añaden al contenedor .image-action, string
+                                    'imageActionAttrs' => "seo-logo-item-{$lang}",
+                                    //Texto que refiere al cambio de imagen, string
+                                    'changeImageText' => null,
+                                    //Título de la ficha, string
+                                    'title' => __($langGroup, "Imagen Open Graph"),
+                                    //Texto descriptivo de la ficha, string
+                                    'description' => null,
+                                    //Ancho de referencia, int
+                                    'width' => 1200,
+                                    //Alto de referencia, int
+                                    'height' => 630,
+                                ]);
+                            ?>
+                        </div>
                     </div>
 
-                    <div class="content">
-                        <label class="header"><?= __($langGroup, 'Imagen Open graph'); ?></label>
-
-                        <div class="meta">
-                            <span><?= strReplaceTemplate(__($langGroup, 'Tamaño de la imagen {dimensions}'), ['{dimensions}' => "1200x630px",])?></span>
-                        </div>
-
+                    <div class="save-button">
+                        <button class="ui button primary" type="submit">
+                            <?= __($langGroup, 'Guardar'); ?>
+                        </button>
                     </div>
 
-                </div>
+                    <?php //Modal edición de imagen de SEO ?>
+                    <div seo-logo-modal-<?= $lang; ?> class="ui tiny modal">
+                        <div class="content">
+                            <div class="cropper-info-content">
+                                <span><?= __($langGroup, "Editar imagen"); ?></span>
+                                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
+                            </div>
+                            <?php simpleCropperAdapterWorkSpace([
+                                'type' => 'image/*',
+                                'required' => false,
+                                'selectorAttr' => 'simple-cropper-seo',
+                                'referenceW' => '1200',
+                                'referenceH' => '630',
+                                'image' => $values[$propertyLang],
+                            ]); ?>
+                        </div>
+                    </div>
 
-                <div class="field">
-
-                    <button class="ui button green" type="submit">
-                        <?= __($langGroup, 'Guardar'); ?>
-                    </button>
-
-                </div>
+                </form>
 
             </div>
-
-        </form>
-
-    </div>
-    <?php $isFirstTab = false; ?>
-    <?php endforeach; ?>
-
-</div>
+            <?php $isFirstTab = false; ?>
+            <?php endforeach; ?>
+        </div>
+        <div class="divider"></div>
+    </section>
+</main>

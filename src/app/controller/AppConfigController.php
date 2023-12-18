@@ -181,6 +181,7 @@ class AppConfigController extends AdminPanelController
                 'background-3' => 'bg3',
                 'background-4' => 'bg4',
                 'background-5' => 'bg5',
+                'problems-background' => 'problems-background',
             ];
 
             $nameCurrentAllowedImage = '';
@@ -305,6 +306,8 @@ class AppConfigController extends AdminPanelController
                 'publicFavicon' => get_config('favicon'),
                 'backFavicon' => get_config('favicon-back'),
                 'logo' => get_config('logo'),
+                'partners' => get_config('partners'),
+                'partnersVertical' => get_config('partnersVertical'),
             ];
 
             $baseViewDir = 'panel/pages/app_configurations';
@@ -318,6 +321,8 @@ class AppConfigController extends AdminPanelController
                 'favicon' => 'favicon',
                 'favicon-back' => 'favicon-back',
                 'logo' => 'logo',
+                'partners' => 'partners',
+                'partnersVertical' => 'partners-vertical',
             ];
 
             $nameCurrentAllowedImage = '';
@@ -1269,6 +1274,7 @@ class AppConfigController extends AdminPanelController
         $this->render('panel/layout/header');
         $this->render('panel/pages/app_configurations/routes', [
             'routes' => get_routes(),
+            'backLink' => get_route('admin'),
         ]);
         $this->render('panel/layout/footer');
 
@@ -1282,7 +1288,17 @@ class AppConfigController extends AdminPanelController
      */
     public function configurationsView(Request $req, Response $res)
     {
+
+        set_title(__(self::LANG_GROUP, 'Configuraciones generales'));
+
         import_spectrum();
+
+        set_custom_assets([
+            'statics/core/css/app_config/configurations.css',
+        ], 'css');
+        set_custom_assets([
+            'statics/core/js/app_config/colors.js',
+        ], 'js');
 
         $langGroup = AppConfigController::LANG_GROUP;
 

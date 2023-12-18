@@ -1,0 +1,308 @@
+@import '../includes/variables';
+@import 'includes/base';
+
+.card-title {
+    color: $colorFirst;
+    font-weight: bold;
+    font-size: 21px;
+    margin-bottom: 20px;
+}
+
+.buttons-actions {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 7px;
+
+    button {
+        border-radius: 8px !important;
+    }
+}
+
+.card:not(i) {
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    padding-inline: 30px;
+    padding-block: 20px;
+
+}
+
+.spectrum-colorpicker-replacer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+
+    .spectrum-colorpicker-preview {
+        border-radius: 4px;
+        border: 1px solid gray;
+        min-width: 25px;
+    }
+}
+
+.marca-colors {
+    width: 100%;
+
+    .body {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+
+        @media screen and (max-width: 570px) {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        form {
+            max-width: 50%;
+
+            @media screen and (max-width: 570px) {
+                max-width: 100%;
+            }
+
+            .inputs {
+                margin-bottom: 20px;
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+
+                .field {
+                    display: flex !important;
+
+                    label {
+                        width: 70px !important;
+                        max-width: 70px !important;
+                        color: black !important;
+                    }
+                }
+            }
+        }
+
+        .colors-examples {
+
+            p {
+                font-weight: bold !important;
+            }
+
+            .first-example {
+                width: 200px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                padding-inline: 5px;
+                border-radius: 2px;
+
+                p {
+                    width: 100%;
+                }
+            }
+
+            label {
+                color: $colorSecond;
+                font-weight: bold;
+                font-size: 17px;
+                margin-bottom: 15px;
+            }
+        }
+    }
+
+}
+
+.menu-mobile-colors {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    @media screen and (max-width: 520px) {
+        justify-content: center;
+        gap: 40px;
+    }
+
+    form {
+        .color-selector {
+            display: flex;
+            margin-bottom: 20px;
+
+            label {
+                max-width: 103px;
+                font-size: 14px;
+                color: black;
+            }
+        }
+
+    }
+
+    .example {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 10px;
+        width: 200px;
+
+        label {
+            color: $colorSecond;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .mobil-example {
+            width: 142px;
+            height: 134px;
+            border-radius: 6px;
+            border: 1px solid gray;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            .head {
+                width: 100%;
+                height: 16px;
+                padding-inline: 7px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                i {
+                    color: white;
+                    margin: 0;
+                    padding: 0;
+                    font-size: 10px;
+                }
+            }
+
+
+            .footter {
+                width: 100%;
+                height: 20px;
+                display: flex;
+                gap: 7px;
+                justify-content: center;
+                align-items: center;
+
+                i {
+                    color: black;
+                    font-size: 10px;
+                    margin: 0;
+                    padding: 0;
+                }
+
+                img {
+                    width: 10px;
+                    height: 10px;
+                    user-select: none;
+                }
+            }
+        }
+    }
+}
+
+.menu-colors {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+
+    @media screen and (max-width: 1030px) {
+        flex-direction: column;
+        justify-content: center;
+        gap: 40px;
+    }
+
+    .item-color-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+        border-bottom: .5px solid gray;
+
+        @media screen and (max-width: 1030px) {
+            justify-content: space-between;
+        }
+
+
+        p {
+            max-width: 400px;
+            font-size: 16px;
+            line-height: 18px;
+            text-wrap: break-word;
+
+            span {
+                font-weight: bold;
+            }
+        }
+
+        .picker-color {
+            min-width: 50px;
+        }
+    }
+
+    .example {
+        width: 200px;
+
+        label {
+            color: $colorSecond;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .menu-example {
+            margin-top: 25px;
+            width: 100%;
+            height: 250px;
+            padding-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--menu-color-background);
+
+            .head-circle {
+                background-color: rgba(255, 255, 255, 0.379);
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                margin-bottom: 40px;
+            }
+
+            .item {
+                width: 100%;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+
+                &.mark {
+                    background-color: var(--menu-color-mark);
+                }
+
+                .element {
+                    width: 100px;
+                    height: 14px;
+                    background-color: white;
+                    margin-left: 20px;
+                    background-color: var(--menu-color-font);
+
+                    &::after {
+                        display: flex;
+                        content: "";
+                        width: 18px;
+                        height: 18px;
+                        border-radius: 50%;
+                        background-color: var(--menu-color-font);
+                        position: relative;
+                        left: -30px;
+                        top: -2px;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -59,6 +59,9 @@ if (APP_CONFIGURATION_MODULE) {
             'statics/login-and-recovery/images/login/bg4.jpg',
             'statics/login-and-recovery/images/login/bg5.jpg',
         ],
+        'backgoundProblems' => 'statics/login-and-recovery/images/login/problems-background.jpg',
+        'partners' => 'statics/images/partners.png',
+        'partnersVertical' => 'statics/images/partners-vertical.png',
         'open_graph_image' => 'statics/images/open_graph.jpg',
     ];
 

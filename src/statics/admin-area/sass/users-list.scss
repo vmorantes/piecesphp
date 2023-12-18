@@ -1,1 +1,200 @@
 @import '../../core/sass/admin_app_base';
+
+$mainColor : var(--main-brand-color);
+$second : var(--second-brand-color);
+
+.ui.card.user {
+    width: 350px !important;
+    height: 250px !important;
+    border-radius: 15px !important;
+
+    >.content {
+        padding: 20px;
+
+        >.head {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+
+            >.user-info {
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                position: relative;
+
+                >.image {
+                    position: relative;
+
+                    >.defauld {
+                        width: 60px;
+                        height: 60px;
+                        background-color: $mainColor;
+                        display: grid;
+                        place-content: center;
+                        border-radius: 50%;
+
+                        >i {
+                            margin: 0;
+                            padding: 0;
+                            font-size: 20px;
+                            color: white;
+                        }
+                    }
+
+                    >img {
+                        width: 60px;
+                        height: 60px;
+                        border-radius: 50%;
+                    }
+
+                    >.status {
+                        position: absolute;
+                        width: 15px;
+                        height: 15px;
+                        border-radius: 50%;
+                        right: 3px;
+                        bottom: 3px;
+                        background-color: gray;
+
+                        &.online {
+                            background-color: #21BA45;
+                        }
+
+                        &.blocked {
+                            background-color: red;
+                        }
+                    }
+
+                }
+
+                >.info {
+                    display: flex;
+                    flex-direction: column;
+
+                    >span {
+                        max-width: 190px;
+                        font-size: 17px;
+                        color: $mainColor;
+                        font-weight: bold;
+                    }
+
+                    >a {
+                        color: gray;
+                        font-size: 13px;
+                    }
+                }
+
+                >.place-status {
+                    opacity: 0;
+                }
+
+                &.blocked-staus {
+                    >.place-status {
+                        opacity: 0;
+                        position: absolute;
+                        background-color: white;
+                        padding: 3px;
+                        border-radius: 5px;
+                        bottom: -30px;
+                        border: 1px solid gray;
+                        width: 100px;
+                        max-width: 100px;
+                        text-align: center;
+
+                        &::before {
+                            content: "";
+                            display: block;
+                            width: 0;
+                            height: 0;
+                            border-left: 7px solid transparent;
+                            border-right: 7px solid transparent;
+                            border-bottom: 14px solid white;
+                            position: absolute;
+                            top: -15px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                        }
+                    }
+
+                    &:hover {
+                        >.place-status {
+                            animation: status-in 0.5s ease-in-out;
+                            opacity: 1;
+                        }
+                    }
+
+                    &:not(:hover) {
+                        >.place-status {
+                            animation: status-out 0.5s ease-in-out;
+                        }
+                    }
+
+                    @keyframes status-in {
+                        from {
+                            opacity: 0;
+                            transform: translateX(20%);
+                        }
+
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+
+                    @keyframes status-out {
+                        from {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+
+                        to {
+                            opacity: 0;
+                            transform: translateX(20%);
+                        }
+                    }
+
+                }
+            }
+
+            >a {
+                >i {
+                    margin: 0;
+                    padding: 0;
+                    cursor: pointer;
+                    font-size: 20px;
+                    color: $mainColor;
+                }
+            }
+        }
+
+        >.body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+
+            >.item {
+                display: flex;
+                align-items: center;
+
+                >span {
+                    font-size: 17px;
+                }
+
+                >i {
+                    font-size: 25px;
+                }
+
+                >img {
+                    width: 25px;
+                    margin-right: 10px;
+                }
+
+            }
+        }
+    }
+
+    &:hover {
+        background-color: var(--main-brand-color-opacity);
+    }
+}

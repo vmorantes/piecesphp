@@ -79,7 +79,7 @@ $assets['nprogress']['js'] = [
 $assets['nprogress']['plugins'] = [];
 
 /**
- * CropperJS
+ * CropperJS v1.6.1
  * https://github.com/fengyuanchen/cropperjs
  */
 $assets['cropper']['css'] = [
@@ -99,6 +99,14 @@ $assets['cropper']['plugins'] = [
         ],
         'js' => [
             'statics/core/own-plugins/CropperAdapterComponent.js',
+        ],
+    ],
+    'simpleCropperAdapter' => [
+        'css' => [
+            'statics/core/own-plugins/css/simple-cropper-adapter.css',
+        ],
+        'js' => [
+            'statics/core/own-plugins/SimpleCropperAdapter.js',
         ],
     ],
 ];

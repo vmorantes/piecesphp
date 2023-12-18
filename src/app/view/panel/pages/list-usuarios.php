@@ -4,6 +4,7 @@ use App\Controller\UsersController;
 $langGroup = UsersController::LANG_GROUP;
 $currentUser = getLoggedFrameworkUser();
 $title = __($langGroup, 'Usuarios');
+$langGroupDatatables = 'datatables';
 ?>
 
 
@@ -13,7 +14,7 @@ $title = __($langGroup, 'Usuarios');
 
         <div class="main-options">
 
-            <a href="<?= get_route('admin'); ?>" class="ui icon button brand-color alt2" title="<?=__($langGroup, 'Regresar');?>">
+            <a href="<?=get_route('admin');?>" class="ui icon button brand-color alt2" title="<?=__($langGroup, 'Regresar');?>">
                 <i class="icon left arrow"></i>
             </a>
 
@@ -24,16 +25,8 @@ $title = __($langGroup, 'Usuarios');
             <div class="column">
 
                 <div class="section-title">
-                    <div class="title"><?= $title;?></div>
+                    <div class="title"><?=$title;?></div>
                 </div>
-
-            </div>
-
-            <div class="column bottom right">
-
-                <?php if(\PiecesPHP\Core\Roles::hasPermissions('users-selection-create', getLoggedFrameworkUser()->type, true)):?>
-                <a href="<?= get_route('users-selection-create'); ?>" class="ui button green"><?= __($langGroup, 'Agregar'); ?></a>
-                <?php endif;?>
 
             </div>
 
@@ -46,32 +39,51 @@ $title = __($langGroup, 'Usuarios');
         <div class="mirror-scroll-x-content"></div>
     </div>
 
-    <div class="container-standard-table qualified">
+    <div class="cards-container-standard">
+        <div class="table-to-cards">
 
-        <table process="<?=$process_table;?>" class="ui table striped celled users" style="max-width:100%;width:100%;">
-            <thead>
-                <tr>
-                    <th><?= __($langGroup, '#'); ?></th>
-                    <th><?= __($langGroup, 'Nombres'); ?></th>
-                    <th><?= __($langGroup, 'Apellidos'); ?></th>
-                    <th><?= __($langGroup, 'Correo electrónico'); ?></th>
-                    <th><?= __($langGroup, 'Usuario'); ?></th>
-                    <th><?= __($langGroup, 'Activo/Inactivo'); ?></th>
-                    <th><?= __($langGroup, 'Tipo'); ?></th>
-                    <th order='false'><?= __($langGroup, 'Acciones'); ?></th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+            <div class="ui form component-controls">
+                <div class="fields">
+                    <div class="field">
+                        <label><?=__($langGroupDatatables, 'Buscador')?></label>
+                        <div class="ui icon input">
+                            <input type="search" placeholder="<?=__($langGroupDatatables, 'Buscar')?>">
+                            <i class="search icon"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label><?=__($langGroupDatatables, 'Resultados visibles')?></label>
+                        <input type="number" length-pagination placeholder="10">
+                    </div>
+                </div>
+            </div>
 
+            <table url="<?=$process_table;?>" style='display:none;'>
+
+                <thead>
+
+                    <tr>
+                        <th><?=__($langGroup, '#');?></th>
+                        <th><?=__($langGroup, 'Nombres');?></th>
+                        <th><?=__($langGroup, 'Apellidos');?></th>
+                        <th><?=__($langGroup, 'Correo electrónico');?></th>
+                        <th><?=__($langGroup, 'Usuario');?></th>
+                        <th><?=__($langGroup, 'Activo/Inactivo');?></th>
+                        <th><?=__($langGroup, 'Tipo');?></th>
+                        <th order='false'><?=__($langGroup, 'Acciones');?></th>
+                    </tr>
+
+                </thead>
+
+            </table>
+
+        </div>
     </div>
 
 </section>
 
 <script>
 window.onload = function(e) {
-    let table = $(`[process]`)
-    let processURL = table.attr('process')
-    dataTableServerProccesing(table, processURL, 25)
+    dataTablesServerProccesingOnCards(".table-to-cards", 20, {});
 }
 </script>

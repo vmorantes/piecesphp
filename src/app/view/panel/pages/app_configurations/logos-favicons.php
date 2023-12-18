@@ -1,166 +1,246 @@
 <?php
-    defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 ?>
 
-<div class="ui header"><?=  __($langGroup, 'Imágenes de marca'); ?></div>
+<main class="logos-favicons-view">
+    <section class="main-body-header">
+        <div class="head">
+            <h2 class="tittle"><?= __($langGroup, 'Imágenes de marca'); ?></h2>
+            <span class="sub-tittle"><?= __($langGroup, 'Personalización de Plataforma'); ?></span>
+        </div>
+        <div class="body-card max">
 
-<div class="ui header small"><?=  __($langGroup, 'Íconos de favoritos (favicon)'); ?></div>
+            <span class="card-tag">
+                <?= __($langGroup, 'Propios'); ?>
+            </span>
 
-<div class="container-logos-favicons">
+            <div class="cards-list">
+                <?php
+                    imageUploaderForCropperAdminViews([
+                        //Imagen de vista previa, string
+                        'image' => $logo,
+                        //Texto en alt de la etiqueta img, string
+                        'imageAlt' => null,
+                        // Por defecto tiene la clase image-action pueden añadirse más, string
+                        'classes' => null, 
+                        //Atributos que se añaden al contenedor .image-action, string
+                        'imageActionAttrs' => "card-logo",
+                        //Texto que refiere al cambio de imagen, string
+                        'changeImageText' => null,
+                        //Título de la ficha, string
+                        'title' => __($langGroup, "Logo"),
+                        //Texto descriptivo de la ficha, string
+                        'description' => null,
+                        //Ancho de referencia, int
+                        'width' => 400,
+                        //Alto de referencia, int
+                        'height' => 400,
+                    ]);
+                ?>
+                <?php
+                    imageUploaderForCropperAdminViews([
+                        //Imagen de vista previa, string
+                        'image' => $backFavicon,
+                        //Texto en alt de la etiqueta img, string
+                        'imageAlt' => null,
+                        // Por defecto tiene la clase image-action pueden añadirse más, string
+                        'classes' => null, 
+                        //Atributos que se añaden al contenedor .image-action, string
+                        'imageActionAttrs' => "admin-fav-card",
+                        //Texto que refiere al cambio de imagen, string
+                        'changeImageText' => null,
+                        //Título de la ficha, string
+                        'title' => __($langGroup, "Favicon en zona administrativa"),
+                        //Texto descriptivo de la ficha, string
+                        'description' => null,
+                        //Ancho de referencia, int
+                        'width' => 400,
+                        //Alto de referencia, int
+                        'height' => 400,
+                    ]);
+                ?>
+                <?php
+                    imageUploaderForCropperAdminViews([
+                        //Imagen de vista previa, string
+                        'image' => $publicFavicon,
+                        //Texto en alt de la etiqueta img, string
+                        'imageAlt' => null,
+                        // Por defecto tiene la clase image-action pueden añadirse más, string
+                        'classes' => null, 
+                        //Atributos que se añaden al contenedor .image-action, string
+                        'imageActionAttrs' => "fav-card",
+                        //Texto que refiere al cambio de imagen, string
+                        'changeImageText' => null,
+                        //Título de la ficha, string
+                        'title' => __($langGroup, "Favicon en zona pública"),
+                        //Texto descriptivo de la ficha, string
+                        'description' => null,
+                        //Ancho de referencia, int
+                        'width' => 400,
+                        //Alto de referencia, int
+                        'height' => 400,
+                    ]);
+                ?>
+            </div>
 
-    <form action="<?= $actionURL; ?>" method="POST" class="ui form public-favicon">
+            <span class="card-tag">
+                <?= __($langGroup, 'Terceros'); ?>
+            </span>
 
-        <div class="field required">
+            <div class="cards-list">
 
-            <div class="ui card">
+                <?php
+                    imageUploaderForCropperAdminViews([
+                        //Imagen de vista previa, string
+                        'image' => $partners,
+                        //Texto en alt de la etiqueta img, string
+                        'imageAlt' => null,
+                        // Por defecto tiene la clase image-action pueden añadirse más, string
+                        'classes' => 'fit-image', 
+                        //Atributos que se añaden al contenedor .image-action, string
+                        'imageActionAttrs' => "partners-card",
+                        //Texto que refiere al cambio de imagen, string
+                        'changeImageText' => null,
+                        //Título de la ficha, string
+                        'title' => __($langGroup, "Bandera horizontal"),
+                        //Texto descriptivo de la ficha, string
+                        'description' => null,
+                        //Ancho de referencia, int
+                        'width' => 280,
+                        //Alto de referencia, int
+                        'height' => 50,
+                    ]);
+                ?>
 
-                <div class="content">
-
-                    <div class="ui form cropper-adapter">
-
-                        <input type="file" accept="image/*" required>
-                        <?php 
-                            cropperAdapterWorkSpace([
-                                'withTitle'=> false,
-                                'image'=> $publicFavicon,
-                                'referenceW'=> '400',
-                                'referenceH'=> '400',
-                                'cancelButtonText' => null,
-                                'saveButtonText' => __($langGroup, 'Seleccionar imagen'),                            
-                                'controls' =>[
-                                    'rotate' => false, 
-                                    'flip' => false, 
-                                    'adjust' => false, 
-                                ],
-                            ]); 
-                        ?>
-                    </div>
-
-                </div>
-
-                <div class="content">
-                    <label class="header"><?= __($langGroup, 'Favicon en zona pública'); ?></label>
-
-                    <div class="meta">
-                        <span><?= strReplaceTemplate(__($langGroup, 'Imagen preferiblemente con fondo transparente. Tamaño de la imagen {dimensions}'), ['{dimensions}' => "400x400px",])?></span>
-                    </div>
-
-                </div>
-
-                <button class="ui bottom attached button green" type="submit">
-                    <?= __($langGroup, 'Guardar imagen'); ?>
-                </button>
+                <?php
+                    imageUploaderForCropperAdminViews([
+                        //Imagen de vista previa, string
+                        'image' => $partnersVertical,
+                        //Texto en alt de la etiqueta img, string
+                        'imageAlt' => null,
+                        // Por defecto tiene la clase image-action pueden añadirse más, string
+                        'classes' => 'fit-image', 
+                        //Atributos que se añaden al contenedor .image-action, string
+                        'imageActionAttrs' => "partners-vertical-card",
+                        //Texto que refiere al cambio de imagen, string
+                        'changeImageText' => null,
+                        //Título de la ficha, string
+                        'title' => __($langGroup, "Bandera vertical"),
+                        //Texto descriptivo de la ficha, string
+                        'description' => null,
+                        //Ancho de referencia, int
+                        'width' => 50,
+                        //Alto de referencia, int
+                        'height' => 280,
+                    ]);
+                ?>
 
             </div>
 
         </div>
 
-    </form>
+    </section>
 
-    <form action="<?= $actionURL; ?>" method="POST" class="ui form back-favicon">
-
-        <div class="field required">
-
-            <div class="ui card">
-
-                <div class="content">
-
-                    <div class="ui form cropper-adapter">
-
-                        <input type="file" accept="image/*" required>
-                        <?php 
-                            cropperAdapterWorkSpace([
-                                'withTitle'=> false,
-                                'image'=> $backFavicon,
-                                'referenceW'=> '400',
-                                'referenceH'=> '400',
-                                'cancelButtonText' => null,
-                                'saveButtonText' => __($langGroup, 'Seleccionar imagen'),                            
-                                'controls' =>[
-                                    'rotate' => false, 
-                                    'flip' => false, 
-                                    'adjust' => false, 
-                                ],
-                            ]); 
-                        ?>
-
-                    </div>
-
-                </div>
-
-                <div class="content">
-                    <label class="header"><?= __($langGroup, 'Favicon en zona administrativa'); ?></label>
-
-                    <div class="meta">
-                        <span><?= strReplaceTemplate(__($langGroup, 'Imagen preferiblemente con fondo transparente. Tamaño de la imagen {dimensions}'), ['{dimensions}' => "400x400px",])?></span>
-                    </div>
-
-                </div>
-
-                <button class="ui bottom attached button green" type="submit">
-                    <?= __($langGroup, 'Guardar imagen'); ?>
-                </button>
-
+    <?php //Modals edición de imagenes de marca ?>
+    <div logo-modal class="ui tiny modal">
+        <div class="content">
+            <div class="cropper-info-content">
+                <span><?= __($langGroup, "Editar imagen"); ?></span>
+                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
             </div>
 
+            <form action="<?= $actionURL; ?>" method="POST" class="ui form logo">
+                <?php simpleCropperAdapterWorkSpace([
+                    'type' => 'image/*',
+                    'required' => false,
+                    'selectorAttr' => 'logo-cropper',
+                    'referenceW' => '400',
+                    'referenceH' => '400',
+                    'image' => $logo,
+                ]); ?>
+            </form>
         </div>
+    </div>
 
-    </form>
-
-</div>
-
-<div class="ui header small"><?=  __($langGroup, 'Logos'); ?></div>
-
-<div class="container-logos-favicons">
-
-    <form action="<?= $actionURL; ?>" method="POST" class="ui form logo">
-
-        <div class="field required">
-
-            <div class="ui card">
-
-                <div class="content">
-
-                    <div class="ui form cropper-adapter">
-
-                        <input type="file" accept="image/*" required>
-                        <?php 
-                            cropperAdapterWorkSpace([
-                                'withTitle'=> false,
-                                'image'=> $logo,
-                                'referenceW'=> '400',
-                                'referenceH'=> '400',
-                                'cancelButtonText' => null,
-                                'saveButtonText' => __($langGroup, 'Seleccionar imagen'),                            
-                                'controls' =>[
-                                    'rotate' => false, 
-                                    'flip' => false, 
-                                    'adjust' => false, 
-                                ],
-                            ]); 
-                        ?>
-
-                    </div>
-
-                </div>
-
-                <div class="content">
-                    <label class="header"><?= __($langGroup, 'Logo'); ?></label>
-
-                    <div class="meta">
-                        <span><?= strReplaceTemplate(__($langGroup, 'Imagen preferiblemente con fondo transparente. Tamaño de la imagen {dimensions}'), ['{dimensions}' => "400x400px",])?></span>
-                    </div>
-
-                </div>
-
-                <button class="ui bottom attached button green" type="submit">
-                    <?= __($langGroup, 'Guardar imagen'); ?>
-                </button>
-
+    
+    <div admin-favicon-modal class="ui tiny modal">
+        <div class="content">
+            <div class="cropper-info-content">
+                <span><?= __($langGroup, "Editar imagen"); ?></span>
+                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
             </div>
 
+            <form action="<?= $actionURL; ?>" method="POST" class="ui form back-favicon">
+                <?php simpleCropperAdapterWorkSpace([
+                    'type' => 'image/*',
+                    'required' => false,
+                    'selectorAttr' => 'admin-fav-cropper',
+                    'referenceW' => '400',
+                    'referenceH' => '400',
+                    'image' => $backFavicon,
+                ]); ?>
+            </form>
         </div>
+    </div>
 
-    </form>
+    <div favicon-modal class="ui tiny modal">
+        <div class="content">
+            <div class="cropper-info-content">
+                <span><?= __($langGroup, "Editar imagen"); ?></span>
+                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
+            </div>
 
-</div>
+            <form action="<?= $actionURL; ?>" method="POST" class="ui form public-favicon">
+                <?php simpleCropperAdapterWorkSpace([
+                    'type' => 'image/*',
+                    'required' => false,
+                    'selectorAttr' => 'fav-cropper',
+                    'referenceW' => '400',
+                    'referenceH' => '400',
+                    'image' => $publicFavicon,
+                ]); ?>
+            </form>
+        </div>
+    </div>
+
+    <div partners-modal class="ui tiny modal">
+        <div class="content">
+            <div class="cropper-info-content">
+                <span><?= __($langGroup, "Editar imagen"); ?></span>
+                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
+            </div>
+
+            <form action="<?= $actionURL; ?>" method="POST" class="ui form partners">
+                <?php simpleCropperAdapterWorkSpace([
+                    'type' => 'image/*',
+                    'required' => false,
+                    'selectorAttr' => 'partners-cropper',
+                    'referenceW' => '250',
+                    'referenceH' => '80',
+                    'image' => $partners,
+                ]); ?>
+            </form>
+        </div>
+    </div>
+
+    <div partners-vertical-modal class="ui tiny modal">
+        <div class="content">
+            <div class="cropper-info-content">
+                <span><?= __($langGroup, "Editar imagen"); ?></span>
+                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
+            </div>
+
+            <form action="<?= $actionURL; ?>" method="POST" class="ui form partners-vertical">
+                <?php simpleCropperAdapterWorkSpace([
+                    'type' => 'image/*',
+                    'required' => false,
+                    'selectorAttr' => 'partners-vertical-cropper',
+                    'referenceW' => '50',
+                    'referenceH' => '280',
+                    'image' => $partnersVertical,
+                ]); ?>
+            </form>
+        </div>
+    </div>
+
+</main>

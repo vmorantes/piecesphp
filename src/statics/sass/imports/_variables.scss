@@ -25,7 +25,7 @@ $rsMobile: 480px;
 $defaultTextColor: #676767;
 
 $primaryColor: var(--main-brand-color);
-$primaryColorOver: var(--color-text-over-main-brand-color);
+$primaryColorOver: var(--font-color-two);
 
 $secondaryColor: var(--second-brand-color);
 
@@ -46,6 +46,8 @@ $genericBGColor1: #EBEBEB;
 $fontAbhaya: 'Abhaya Libre';
 $fontLato: 'Lato';
 $fontPublicSans: 'Public Sans',
+sans-serif;
+$fontPoppins: 'Poppins',
 sans-serif;
 
 // Weights

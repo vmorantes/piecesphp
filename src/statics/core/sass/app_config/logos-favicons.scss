@@ -1,3 +1,10 @@
+@import 'includes/base';
+
+$mainColor: var(--main-brand-color);
+$secondColor: var(--second-brand-color);
+$tertiaryColor: #707070;
+$blueColor: #2185D0;
+
 .ui.header.small {
     margin-top: 0.5rem;
     opacity: 0.5;
