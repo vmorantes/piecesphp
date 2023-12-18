@@ -1,6 +1,12 @@
 /// <reference path="../../core/js/helpers.js" />
 /// <reference path="../../core/js/user-system/main_system_user.js" />
 /// <reference path="../../core/js/user-system/PiecesPHPSystemUserHelper.js" />
+
+window.addEventListener('load', function (e) {
+	changeImageLogin()
+	configLoginForm()
+})
+
 /**
  * Selecciona una imagen de entre varias al azar
  */
@@ -39,32 +45,49 @@ function changeImageLogin() {
  */
 function configLoginForm() {
 
-	let form = $('[login-form-js]')
-
 	pcsphp.authenticator.verify(() => window.location.reload())
 
-	let problemsContainer = $('.problems-message-container')
-	let problemsContent = problemsContainer.find('.content')
-	let problemsTitle = problemsContent.find('.title .text')
-	let problemsTitleMark = problemsContent.find('.title .mark')
-	let problemsMessage = problemsContent.find('.message')
-	let problemsRetryButton = problemsContent.find('.ui.button.retry')
-	let problemsMessageBottom = problemsContent.find('.message-bottom')
+	const STORAGE_USER_NAME = 'user_name_storage'
+	const defaultView = $('[defauld-show]')
+	const errorView = $('[show-error]')
+	const onErrorTryAgainButton = $('[try-again]')
+	const userStorage = localStorage.getItem(STORAGE_USER_NAME)
 
-	problemsRetryButton.on('click', function (e) {
-		problemsContainer.hide()
+	let form = $('[login-form-js]')
+	let userNameInput = form.find("[name='username']")
+	let rememberCheckbox = form.find('.remember-me input[type=checkbox]')
+
+	onErrorTryAgainButton.on('click', () => {
+		errorView.hide()
+		defaultView.show()
 	})
+
+	if (userStorage) {
+		userNameInput.val(userStorage)
+		rememberCheckbox.prop('checked', true)
+	}
 
 	form.on('submit', function (e) {
 
 		e.preventDefault()
+
+		const rememberMe = rememberCheckbox.is(':checked')
+
+		if (rememberMe) {
+			localStorage.setItem(
+				STORAGE_USER_NAME,
+				userNameInput.val()
+			)
+		} else {
+			localStorage.removeItem(STORAGE_USER_NAME)
+		}
 
 		const LoaderName = 'login'
 
 		showGenericLoader(LoaderName)
 
 		let login = pcsphp.authenticator.authenticateWithUsernamePassword(
-			form.find("[name='username']").val(),
+			userNameInput.val(),
 			form.find("[name='password']").val()
 		)
 
@@ -88,9 +111,8 @@ function configLoginForm() {
 				}
 
 			} else {
-				problemsContainer.show()
-				problemsRetryButton.show()
-				problemsMessageBottom.show()
+				defaultView.hide()
+				errorView.show()
 				setMessageError(res.error, res)
 				removeGenericLoader(LoaderName)
 			}
@@ -106,66 +128,52 @@ function configLoginForm() {
 
 	function setMessageError(error, data) {
 
-		let problemsTitleContainer = problemsTitle.parent()
-		problemsTitleContainer.html(`<span class="text"></span> <span class="mark"></span>`)
-
-		problemsTitle = problemsContent.find('.title .text')
-		problemsTitleMark = problemsContent.find('.title .mark')
-
-		problemsMessageBottom.html(_i18n('loginForm', 'Si continua con problemas para ingresar, por favor utilice la ayuda.'))
+		let titleError = errorView.find('[title]')
+		let messageError = errorView.find('[message]')
+		let messageBottom = errorView.find('[bottom-message]')
+		messageBottom.html(_i18n('loginForm', 'Si continua con problemas para ingresar, por favor utilice la ayuda.'))
 
 		if ('INCORRECT_PASSWORD' == error) {
 
-			problemsTitleContainer.html(_i18n('loginForm', 'CONTRASEÑA_INVÁLIDA'))
-			problemsMessage.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
+			titleError.html(_i18n('loginForm', 'CONTRASEÑA_INVÁLIDA'))
+			messageError.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
 
 		} else if ('BLOCKED_FOR_ATTEMPTS' == error) {
 
-			problemsTitleContainer.html(_i18n('loginForm', 'USUARIO_BLOQUEADO'))
-			problemsMessage.html(_i18n('loginForm', 'Por favor, ingrese al siguiente enlace para desbloquear su usuario.'))
-			problemsRetryButton.hide()
-			problemsMessageBottom.hide()
+			titleError.html(_i18n('loginForm', 'USUARIO_BLOQUEADO'))
+			messageError.html(_i18n('loginForm', 'Por favor, ingrese al siguiente enlace para desbloquear su usuario.'))
+			onErrorTryAgainButton.hide()
+			messageBottom.hide()
 
 		} else if ('USER_NO_EXISTS' == error) {
 
-			problemsTitle
-				.parent()
-				.html(
-					formatStr(
-						_i18n('loginForm', 'USUARIO_INEXISTENTE'),
-						[
-							data.user,
-						]
-					)
+			titleError.html(
+				formatStr(
+					_i18n('loginForm', 'USUARIO_INEXISTENTE'),
+					[
+						data.user,
+					]
 				)
-			problemsMessage.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
+			)
+			messageError.html(_i18n('loginForm', 'Por favor, verifique los datos de ingreso y vuelva a intentar.'))
 
-			problemsTitle = problemsContent.find('.title .text')
-			problemsTitleMark = problemsContent.find('.title .mark')
 
 		} else if ('MISSING_OR_UNEXPECTED_PARAMS' == error) {
 
-			problemsTitle.html('Error')
-			problemsTitleMark.html('')
-			problemsTitle.html(data.message)
+			titleError.html('Error')
+			messageError.html(data.message)
 
 		} else if ('GENERIC_ERROR' == error) {
 
-			problemsTitleContainer.html(_i18n('loginForm', 'ERROR_AL_INGRESAR'))
-			problemsMessage.html(_i18n('loginForm', 'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.'))
+			titleError.html(_i18n('loginForm', 'ERROR_AL_INGRESAR'))
+			messageError.html(_i18n('loginForm', 'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.'))
 
 		} else {
 
-			problemsTitle.html('Error')
-			problemsTitleMark.html('')
-			problemsMessage.html(data.message)
+			titleError.html('Error')
+			messageError.html(data.message)
 
 		}
 
 	}
 }
-
-window.addEventListener('load', function (e) {
-	changeImageLogin()
-	configLoginForm()
-})

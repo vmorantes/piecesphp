@@ -1,22 +1,267 @@
 @import "admin_app_base";
+@import 'includes/variables';
+@import 'includes/functions';
 
-.container-about-framework{
-    width: 100%;
-    max-width: 800px;
-    margin-top: 4rem;
-    margin-left: auto;
-    margin-right: auto;
+.ui-pcs.container-sidebar>.content {
+    margin: 0 !important;
+    padding: 0 !important;
 
-    p{
-        font-family: $fontFamilyFirst;
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
-    }
-    ul{
-        font-family: $fontFamilyFirst;
-        font-size: 1.2rem;
-        li{
-            margin-bottom: 0.8rem;
+    .about-framework {
+        width: 100%;
+
+        .page-content {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            background-color: var(--main-brand-color-opacity);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .titles {
+                padding-top: 30px;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+
+                h2 {
+                    font-family: $fontPoppins;
+                    font-weight: $fwBold;
+                    font-size: pxToRem(34);
+                    line-height: pxToRem(34);
+                    color: $colorFirst;
+                    margin: 0;
+                }
+
+                span {
+                    font-family: $fontPoppins;
+                    font-weight: $fwMedium;
+                    font-size: pxToRem(18);
+                    line-height: pxToRem(18+5);
+                    color: black;
+                }
+            }
+
+            .main-card {
+                width: 800px;
+                background-color: white;
+                height: auto;
+                border-radius: 10px;
+                position: relative;
+                bottom: -20%;
+                box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+                padding-inline: 60px;
+                padding-block: 70px;
+                display: flex;
+                flex-direction: column;
+                gap: 40px;
+                margin-bottom: 100px;
+
+                .head {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 40px;
+
+                    .information {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 30px;
+
+                        >img {
+                            max-width: 300px;
+                        }
+
+                        .data-grup {
+                            display: flex;
+                            flex-wrap: wrap;
+                            justify-content: space-between;
+                            gap: 20px;
+
+
+                            .data {
+                                display: flex;
+                                flex-direction: column;
+
+                                small {
+                                    color: $colorFirst;
+                                    font-weight: bold;
+                                }
+
+                                span {
+                                    color: black;
+                                }
+                            }
+                        }
+                    }
+
+                    .decorated {
+                        >img {
+                            max-width: 340px;
+
+                        }
+                    }
+
+                    .git-button {
+
+                        >a,
+                        >a:visited,
+                        >a:hover {
+                            padding: 15px 15px;
+                            border-radius: 8px;
+                            background-color: white;
+                            color: black;
+                            border: 1px solid $colorThird;
+                            cursor: pointer;
+                        }
+                    }
+                }
+
+                .description {
+                    p {
+                        margin-top: 20px;
+                        color: black;
+                        text-align: justify;
+                        font-size: 17px;
+                    }
+                }
+
+                .own-bookstores {
+                    width: 100%;
+                    background-color: #70707026;
+                    border-radius: 10px;
+                    padding-block: 20px;
+                    padding-inline: 30px;
+
+                    .libraries {
+                        display: flex;
+                        justify-content: space-between;
+                        flex-wrap: wrap;
+                        gap: 20px;
+
+                        ul {
+                            list-style: none;
+                            font-size: 17px;
+                            color: black;
+                            padding: 0;
+                        }
+
+                        @media screen and (max-width: 657px) {
+                            gap: 10px;
+
+                            ul {
+                                margin: 0;
+                                margin-top: 10px;
+                            }
+                        }
+                    }
+                }
+
+                .dependencies {
+                    p {
+                        margin-block: 20px;
+                        color: black;
+                        text-align: justify;
+                        font-size: 17px;
+                    }
+
+                    ul {
+                        display: grid;
+                        grid-template-columns: repeat(2, 1fr);
+                        list-style: none;
+                        padding: 0;
+
+                        li {
+                            border: 1px solid #70707056;
+                            padding: 10px;
+                            font-size: 17px;
+                            color: black;
+                        }
+
+                        @media screen and (max-width:530px) {
+                            grid-template-columns: repeat(1, 1fr);
+                        }
+                    }
+
+                }
+
+                .decored-tittle {
+                    display: flex;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    padding-bottom: 4px;
+                    border-bottom: 1px solid $colorFirst;
+                    gap: 15px;
+
+                    .tittle {
+
+                        h3 {
+                            color: $colorFirst;
+                            margin: 0;
+                            font-size: 21px;
+                            font-weight: bold;
+                        }
+
+                        span {
+                            font-weight: 600;
+                            color: black;
+                            font-size: 15px;
+                        }
+                    }
+
+                    a {
+                        color: $colorFirst;
+                        font-size: 18px;
+                        text-decoration: none;
+                        border-bottom: 1px solid $colorFirst;
+
+                    }
+                }
+            }
+
+            section.footer {
+                width: 100%;
+                max-width: 660px;
+                min-height: 200px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 20px;
+
+                img {
+                    max-width: 290px;
+                }
+
+                span {
+                    font-size: 16px;
+                    color: black;
+                }
+            }
+
+            @media screen and (max-width: 1100px) {
+                .main-card {
+                    width: calc(100% - 40px);
+                    padding-inline: 30px;
+                    padding-block: 35px;
+
+                    .head {
+                        .decorated {
+                            display: none;
+                        }
+
+                        .information {
+                            >img {
+                                max-width: 100%;
+                            }
+                        }
+                    }
+                }
+            }
         }
+
     }
 }

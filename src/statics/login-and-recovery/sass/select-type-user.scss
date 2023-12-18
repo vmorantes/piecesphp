@@ -1,0 +1,60 @@
+@import '../../fonts/public-sans/public-sans.css';
+@import '../../fonts/poppins/poppins.css';
+@import 'import/variables';
+@import 'import/reset';
+
+* {
+    box-sizing: border-box;
+}
+
+.ui-pcs.container-sidebar>.content {
+    padding-top: 0px !important;
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+}
+
+body {
+    font-family: $fontPublicSans;
+}
+
+.ui.cards {
+    justify-content: center;
+
+    .card {
+        width: 350px;
+        height: 250px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: grid;
+        place-content: center;
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            gap: 14px;
+
+            i {
+                font-size: 40px;
+                margin: 0;
+                padding: 0;
+                color: $mainBrandColor;
+            }
+
+            .tittle {
+                text-align: center;
+                font-size: 27px;
+                font-weight: bold;
+                color: $mainBrandColor;
+            }
+
+            p {
+                text-align: center;
+                font-size: 15px;
+                max-width: 210px;
+                line-height: 17px;
+            }
+        }
+    }
+}

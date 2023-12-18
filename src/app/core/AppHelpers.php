@@ -2335,23 +2335,23 @@ function get_route_roles_allowed(string $name, string $type = 'code')
  *
  * @param string $name Nombre
  * @param mixed $value Valor
+ * @param ?string $context Categoría de sesión
  * @return void
  */
-function set_flash_message(string $name, $value)
+function set_flash_message(string $name, $value, ?string $context = null)
 {
-    \PiecesPHP\Core\FlashMessages::addMessage($name, $value);
+    \PiecesPHP\Core\FlashMessages::addMessage($name, $value, $context);
 }
 
 /**
  * Obtiene todos los mensajes flash
  *
- * @param string $name Nombre
- * @param mixed $value Valor
+ * @param ?string $context Categoría de sesión
  * @return array
  */
-function get_flash_messages()
+function get_flash_messages(?string $context = null)
 {
-    return \PiecesPHP\Core\FlashMessages::getMessages();
+    return \PiecesPHP\Core\FlashMessages::getMessages($context);
 }
 
 /**
@@ -2531,6 +2531,56 @@ function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
     }
 
     return $controller->_render('panel/built-in/utilities/cropper/workspace.php', $data, $echo);
+}
+
+/**
+ * Devuelve el HTML del adaptador de CropperJS integrado
+ *
+ * @param array $data
+ * @param bool $echo
+ * @return string|void
+ */
+function simpleCropperAdapterWorkSpace(array $data = [], bool $echo = true)
+{
+
+    $lockAssets = get_config('lock_assets');
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', true);
+    }
+
+    $controller = new BaseController();
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', false);
+    }
+
+    return $controller->_render('panel/built-in/utilities/simple-cropper/workspace.php', $data, $echo);
+}
+
+/**
+ * Devuelve el HTML de la ficha de carga de imágenes
+ *
+ * @param array $data
+ * @param bool $echo
+ * @return string|void
+ */
+function imageUploaderForCropperAdminViews(array $data = [], bool $echo = true)
+{
+
+    $lockAssets = get_config('lock_assets');
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', true);
+    }
+
+    $controller = new BaseController();
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', false);
+    }
+
+    return $controller->_render('panel/built-in/utilities/image-upload-card/workspace.php', $data, $echo);
 }
 
 /**

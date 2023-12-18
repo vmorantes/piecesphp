@@ -2,7 +2,6 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use Documents\Controllers\DocumentsController;
 use ImagesRepository\Controllers\ImagesRepositoryController;
-use News\NewsRoutes;
 
 /**
  * @var string $langGroup
@@ -64,37 +63,6 @@ use News\NewsRoutes;
                     <?php endif; ?>
 
                 </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-system no-padding">
-
-            <div class="col-12<?= NewsRoutes::ENABLE ? ' news-content' : ''; ?>" data-url="<?= $newsAjaxURL; ?>">
-
-                <?php if(NewsRoutes::ENABLE): ?>
-                <div class="title">
-                    <?= __($langGroup, 'Noticias'); ?>
-                </div>
-
-                <div class="non-results-content">
-                    <div class="title"><?= __($langGroup, 'Ups!'); ?></div>
-                    <div class="text"><?= __($langGroup, 'En este momento no tenemos noticias'); ?></div>
-                    <div class="image">
-                        <img src="statics/images/news/non-results.png" alt="<?= __($langGroup, 'En este momento no tenemos noticias'); ?>">
-                    </div>
-                </div>
-
-                <div class="content"></div>
-
-                <div class="footer">
-                    <div class="ui button brand-color alt" news-load-more-js>
-                        <?= __($langGroup, 'Cargar más'); ?>...
-                    </div>
-                </div>
-
-                <?php endif; ?>
 
             </div>
 

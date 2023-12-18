@@ -19,24 +19,28 @@ class FlashMessages
     /**
      * @param string $name Nombre del mensaje
      * @param mixed $value Valor del mensaje
+     * @param ?string $context Categoría de sesión
      * @return void
      */
-    public static function addMessage(string $name, $value)
+    public static function addMessage(string $name, $value, ?string $context = null)
     {
-        if (!self::sessionExists()) {
-            self::initSession();
+        $context = $context !== null ? $context : self::NAME_SESSION;
+        if (!self::sessionExists($context)) {
+            self::initSession($context);
         }
-        $_SESSION[self::NAME_SESSION][$name] = $value;
+        $_SESSION[$context][$name] = $value;
     }
 
     /**
+     * @param ?string $context Categoría de sesión
      * @return array
      */
-    public static function getMessages()
+    public static function getMessages(?string $context = null)
     {
-        if (self::sessionExists() && !empty($_SESSION[self::NAME_SESSION])) {
-            $messages = $_SESSION[self::NAME_SESSION];
-            unset($_SESSION[self::NAME_SESSION]);
+        $context = $context !== null ? $context : self::NAME_SESSION;
+        if (self::sessionExists($context) && !empty($_SESSION[$context])) {
+            $messages = $_SESSION[$context];
+            unset($_SESSION[$context]);
             return $messages;
         } else {
             return [];
@@ -44,11 +48,13 @@ class FlashMessages
     }
 
     /**
+     * @param ?string $context Categoría de sesión
      * @return bool
      */
-    public static function hasMessages()
+    public static function hasMessages(?string $context = null)
     {
-        if (self::sessionExists() && !empty($_SESSION[self::NAME_SESSION])) {
+        $context = $context !== null ? $context : self::NAME_SESSION;
+        if (self::sessionExists($context) && !empty($_SESSION[$context])) {
             return true;
         } else {
             return false;
@@ -56,24 +62,28 @@ class FlashMessages
     }
 
     /**
+     * @param ?string $context Categoría de sesión
      * @return void
      */
-    private static function initSession()
+    public static function initSession(?string $context = null)
     {
+        $context = $context !== null ? $context : self::NAME_SESSION;
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
-        $_SESSION[self::NAME_SESSION] = [];
+        $_SESSION[$context] = [];
     }
 
     /**
+     * @param ?string $context Categoría de sesión
      * @return bool
      */
-    private static function sessionExists()
+    public static function sessionExists(?string $context = null)
     {
+        $context = $context !== null ? $context : self::NAME_SESSION;
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
-        return isset($_SESSION[self::NAME_SESSION]) ? true : false;
+        return isset($_SESSION[$context]) ? true : false;
     }
 }

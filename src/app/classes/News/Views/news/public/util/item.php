@@ -11,29 +11,18 @@ $endDate = $element->endDate;
 $isFinish = $endDate < $now;
 $contentLength = mb_strlen(strip_tags($element->currentLangData('content')));
 ?>
-<article class="news-card<?= $isFinish ? ' finished' : ''; ?>" style="--category-color: <?= $element->category->currentLangData('color'); ?>;" data-content-b64="<?= base64_encode($element->currentLangData('content')); ?>">
-
-    <div class="header">
-        <div class="text">
-            <div class="title"><?= $element->excerptTitle(); ?></div>
-            <div class="meta">
-                <span><?= $element->startDateFormat('d/m/Y - h:i A'); ?></span>
-                <span><?= $element->category->currentLangData('name'); ?></span>
-            </div>
+<article class="notification-card <?= $isFinish ? ' finished' : ''; ?>" style="--category-color: <?= $element->category->currentLangData('color'); ?>;" data-content-b64="<?= base64_encode($element->currentLangData('content')); ?>">
+    <div class="head">
+        <div class="info">
+            <span><?= $element->excerptTitle(); ?></span>
+            <small><?= $element->startDateFormat('d/m/Y - h:i A'); ?></small>
         </div>
-        <div class="image">
+        <div class="icon">
             <img src="<?= $element->category->currentLangData('iconImage'); ?>" alt="<?= $element->category->currentLangData('name'); ?>">
         </div>
     </div>
-
-    <div class="content">
+    <div class="body">
         <?= $element->excerpt(120); ?>
-    </div>
-
-    <div class="footer">
-        <?php if($contentLength > 117): ?>
-        <div class="ui button brand-color<?= $isFinish ? ' alt2' : ''; ?>" see-more><?= __($langGroup, 'Ver más'); ?></div>
-        <?php endif; ?>
     </div>
 
 </article>

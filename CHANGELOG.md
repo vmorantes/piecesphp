@@ -20,3 +20,9 @@
 - Mejoramiento del sistema de traducciones.
 - Mejoramiento en el sistema de rutas.
 Nota: No hay nigún problema de retro-compatibilidad conocido.
+
+# V6
+
+- Cambio de versión de Slim a v4.
+    - Ya no es retrocompatible.
+- Verisión mínima de compatibilidad de PHP: 7.4

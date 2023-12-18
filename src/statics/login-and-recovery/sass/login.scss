@@ -1,4 +1,5 @@
 @import '../../fonts/public-sans/public-sans.css';
+@import '../../fonts/poppins/poppins.css';
 @import 'import/variables';
 @import 'import/reset';
 
@@ -6,383 +7,279 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: $fontPublicSans;
-}
-
-.container {
-
-    position: relative;
+.login-container {
     min-height: 100%;
-    background-position: center center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    max-width: 1920px;
-    margin: 0 auto;
+    background-color: $login-overlay-two-color;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-block: 20px;
 
-    >.overlay {
-        position: absolute;
-        z-index: 11;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-        background-color: $login-overlay-color;
-        clip-path: polygon(0 0, 60% 0, 43% 100%, 0% 100%);
-        background-position: center center;
-        background-size: cover;
-        background-repeat: no-repeat;
-        overflow: hidden;
-    }
 
-    >.overlay-two {
-        position: absolute;
-        z-index: 5;
-        top: 0px;
-        left: 0px;
-        width: 100%;
-        height: 100%;
-        background-color: $login-overlay-two-color;
-        clip-path: polygon(0 0, 63% 0, 46% 100%, 0% 100%);
-        background-position: center center;
-        background-size: cover;
-        background-repeat: no-repeat;
-    }
-
-    .text-center {
-        text-align: center;
-    }
-
-    .form-container {
-        position: absolute;
-        z-index: 10;
-        top: 50%;
-        left: 62%;
-        transform: translate(-50%, -50%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        min-height: 550px;
-        border-radius: 32px;
-        box-shadow: 0px 3px 30px #7070704D;
+    >.form-container {
+        width: 55vw;
+        height: 80vh;
         background-color: $login-form-bg-color;
+        border-radius: 41px;
+        box-shadow: 0px 3px 30px #7070704D;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
 
-        .caption {
-
-            position: absolute;
-            z-index: 10;
-            top: 0%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: grid;
-            grid-template-columns: auto;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            width: 220px;
-            height: 220px;
-            background-color: $login-form-caption-bg-color;
-
-            &.round {
-                border-radius: 100%;
-                overflow: hidden;
-            }
-
-            img {
-                max-width: 100%;
-            }
-
-        }
-
-        .block-caption {
-            z-index: 10;
-        }
-
-        .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
-            margin: auto;
-            text-align: center;
-
-            .title-bold {
-                font-weight: bold;
-                font-size: x-large;
-                color: $login-overlay-two-color;
-            }
-
-            .title-app {
-                font-weight: 400;
-                font-size: large;
-                color: $login-overlay-two-color;
-                margin-bottom: 40px;
-            }
-
-            .text-left {
-                text-align: left;
-            }
-
-            .problems-button {
-                margin-top: 12px;
-                position: relative;
-                text-align: center;
-
-                a {
-                    color: red;
-                }
-            }
-
-            .logo-footer {
-                margin-top: 5px;
-
-                .img-logo-footer {
-                    width: $width-image-footer;
-                }
-            }
-
-        }
-
-        .ui.form {
-            width: 600px;
-
-            label {
-                color: $login-form-label-color !important;
-            }
-        }
-
-        .problems-message-container {
-            display: none;
-            position: absolute;
+        >.overlay {
+            position: relative;
+            z-index: 1;
             top: 0px;
-            left: 0px;
-            z-index: 10;
-            width: 100%;
-            height: 100%;
-            background-color: $login-form-problems-bg-color;
-            backdrop-filter: blur(2px);
-            border-radius: 20px;
-            margin: 0 auto;
-            text-align: center;
+            left: -100px;
+            width: 45vw;
+            height: 70vh;
+            border-radius: 36px;
+            background-color: $login-overlay-color;
+            background-position: center center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            overflow: hidden;
 
-            .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
-                margin-top: 30%;
-                display: grid;
-                justify-content: center;
-                align-items: center;
-                grid-template-columns: 100%;
+            .welcome-msg {
+                width: 100%;
                 height: 100%;
+                display: flex;
+                flex-direction: column;
+                justify-content: end;
+                align-items: start;
+                color: white;
+                padding-inline: 50px;
+                padding-block: 80px;
+                text-transform: uppercase;
+
+                h1 {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 84px;
+                    margin-bottom: 20px;
+                }
+
+                span {
+                    font-size: 60px;
+                }
+
+                @media screen and (max-width:1640px) {
+                    h1 {
+                        font-size: 60px;
+                    }
+
+                    span {
+                        font-size: 40px;
+                    }
+
+                }
+            }
+        }
+
+        >.login-form {
+            width: 500px;
+            height: 100%;
+            padding-right: 100px;
+            padding-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+
+            >.logo-header {
                 width: 100%;
                 text-align: center;
-                color: $login-form-problems-font-color;
-                font-size: 1.1rem;
 
-                .title {
-                    font-size: 1.2rem;
-                    text-transform: uppercase;
+                img {
+                    width: 170px;
+                    height: 170px;
+                }
+            }
 
-                    /* .text {} */
+            >form {
+                >.remember-me {
+                    margin-block: 25px;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
 
-                    .mark {
-                        display: block;
-                        color: $login-form-problems-title-mark-color;
+                    >input {
+                        width: 22px;
+                        height: 22px;
+                        appearance: none;
+                        cursor: pointer;
+                        background-color: #fff;
+                        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+                        appearance: none;
+                        border: 1px solid #707070;
+                        border-radius: 5px;
+
+                        &:checked {
+                            border: none;
+                            background-color: $login-overlay-two-color;
+                        }
                     }
                 }
 
-                .message {
-                    line-height: 1.8rem;
-                }
-
-                .ui.button.problem {
-                    font-size: 0.8rem;
-                }
-            }
-        }
-
-    }
-
-    img {
-        max-width: 100%;
-    }
-
-    .ui.button,
-    input,
-    select {
-        border-radius: $border-radius-buttons;
-        font-family: $fontPublicSans;
-        font-weight: 400;
-        font-size: 18;
-    }
-
-    @media screen and (max-width:600px) {
-
-        .overlay {
-            clip-path: inset(0 0 0 0) !important;
-        }
-
-        .overlay-two {
-            clip-path: inset(0 0 0 0) !important;
-        }
-
-        .form-container {
-            z-index: 20;
-            top: 50%;
-            left: 50%;
-            width: 400px;
-            max-width: 90%;
-            height: 600px;
-            max-height: 80%;
-            margin-top: 37.5px;
-            padding: 15px 30px;
-
-            .problems-message-container {
-                .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
-                    margin-top: 50%;
+                >.field.text-center {
+                    >button {
+                        width: 100%;
+                        cursor: pointer;
+                        background-color: $login-overlay-two-color;
+                        color: white;
+                    }
                 }
             }
 
-            >.content {
-                grid-template-rows: 80% 20%;
-                align-items: baseline;
-                row-gap: 8px;
-                position: absolute;
+            >.error-container {
                 width: 100%;
-                max-width: 92%;
-                top: 45%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                height: auto;
+                text-align: center;
 
-                .problems-button {
-                    top: 0px;
+                >h2 {
+                    margin: 0;
+                    font-size: 30px;
+                    color: red;
+                    margin-bottom: 6px;
+                }
+
+                >span {
+                    font-size: 20px;
+                    font-weight: bold;
+                }
+
+                >p {
+                    margin-block: 50px;
+                    font-size: 16px;
+
+                    @media screen and (max-height:800px) {
+                        margin-block: 20px;
+                    }
+                }
+
+                >button {
+                    width: 100%;
+                    background-color: #2185D0;
+                    color: white;
+                    border-radius: 8px;
+                    border: none;
+                    cursor: pointer;
+                    padding-block: 12px;
+                }
+            }
+
+            >.partners {
+
+                width: 200px;
+                max-width: 100%;
+                margin-top: 10px;
+                margin-left: auto;
+                margin-right: auto;
+                text-align: center;
+
+                >img {
+                    max-width: 100%;
+                }
+
+                @media screen and (max-height:800px) {
+                    margin-top: 0;
                 }
 
             }
+        }
 
-            .caption {
-                width: 150px;
-                height: 150px;
+        .problems-button {
+            margin-top: 12px;
+            position: relative;
+            text-align: center;
+
+            a {
+                color: red;
             }
 
-        }
-
-        .problems-message-container {
-            .content {
-                padding-left: 0% !important;
-                padding-right: 0% !important;
+            >.logo {
+                img {
+                    width: 90px;
+                    height: 90px;
+                }
             }
         }
 
-        >.footer {
-            height: 20px;
-            bottom: 1px;
+        .ui.button,
+        input,
+        select {
+            border-radius: $border-radius-buttons;
+            font-family: $fontPublicSans;
+            font-weight: 400;
+            font-size: 18;
         }
-
     }
 
-    @media screen and (max-width:1000px) {
+    >.platform-name {
+        width: 100%;
+        text-align: center;
+        color: white;
 
-        .overlay {
-            clip-path: polygon(0 0, 60% 0, 43% 100%, 0% 100%);
+        >span {
+            font-size: 21px;
+            font-weight: 600;
         }
 
-        .overlay-two {
-            clip-path: polygon(0 0, 63% 0, 46% 100%, 0% 100%);
+        >p {
+            font-size: 16px;
         }
+    }
 
-        .form-container {
-            z-index: 20;
-            top: 50%;
-            left: 50%;
-            width: 400px;
-            max-width: 90%;
+    [show-error] {
+        display: none;
+    }
+
+    @media screen and (max-width:1500px) {
+        >.form-container {
+            width: 800px;
             height: 600px;
-            max-height: 80%;
-            margin-top: 37.5px;
-            padding: 15px 30px;
 
-            .problems-message-container {
-                .ui.centered.middle.aligned.grid>.centered.row>.computer.only.four.wide.column {
-                    display: none;
-                }
-                .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
-                    margin-top: 50%;
-                }
+            >.overlay {
+                left: -50px;
+                width: 600px;
+                height: 500px;
             }
 
-            >.content {
-                grid-template-rows: 80% 20%;
-                align-items: baseline;
-                row-gap: 8px;
-                position: absolute;
-                width: 100%;
-                max-width: 92%;
-                top: 45%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                height: auto;
+            >.login-form {
+                padding-right: 50px;
 
-                .problems-button {
-                    top: 0px;
-                }
+                >.logo-header {
 
-            }
-
-            .caption {
-                width: 150px;
-                height: 150px;
-            }
-
-        }
-
-        .problems-message-container {
-            .content {
-                padding-left: 0% !important;
-                padding-right: 0% !important;
-            }
-        }
-
-        >.footer {
-            height: 20px;
-            bottom: 1px;
-        }
-
-
-
-    }
-
-    @media screen and (min-width:1920px) {
-        .form-container {
-            left: 60%;
-            min-height: 650px;
-
-            .problems-message-container {
-                .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
-                    margin-top: 40%;
+                    img {
+                        width: 140px;
+                        height: 140px;
+                    }
                 }
             }
         }
+    }
 
-        .form-container .ui.centered.middle.aligned.grid>.centered.row>.eight.wide.column>.content {
-            transform: scale(1.1);
+    @media screen and (max-width:920px) {
+        >.form-container {
+            width: calc(100vw - 40px);
+            justify-content: center;
+            padding-inline: 20px;
+
+            >.overlay {
+                display: none;
+            }
+
+            >.login-form {
+                padding-right: 0;
+            }
         }
     }
 
-    @media screen and (min-width:2560px) {
-        .form-container {
-            left: 60%;
-        }
-    }
-
-}
-
-@media screen and (max-height:500px) {
-
-    html {
-        height: 600px;
-    }
-
-    .container {
-        >.footer {
-            bottom: 0px;
-            height: 25px;
+    @media screen and (max-width:420px) {
+        >.form-container {
+            width: calc(100vw - 20px);
         }
     }
 }

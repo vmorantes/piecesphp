@@ -134,7 +134,7 @@ class LogsRoutes
 
             $css = [
                 "--main-brand-color:" . '#282828' . ";",
-                "--color-text-over-main-brand-color:" . 'white' . ";",
+                "--font-color-two:" . 'white' . ";",
             ];
 
             $css = implode("\n", $css);

@@ -2,6 +2,7 @@
 @import 'includes/variables';
 @import 'includes/components';
 @import '../../fonts/public-sans/public-sans.css';
+@import '../../fonts/poppins/poppins.css';
 
 * {
     box-sizing: border-box;
@@ -60,8 +61,10 @@ h1 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-weight: 700;
-        font-size: $h1FontSize;
+        font-family: $fontPoppins;
+        font-weight: $fwBold;
+        font-size: pxToRem(48);
+        line-height: pxToRem(48+5);
         color: $textHeader1Color;
         margin: $h1Margin;
         text-transform: uppercase;
@@ -72,8 +75,10 @@ h2 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-weight: 700;
-        font-size: $h2FontSize;
+        font-family: $fontPoppins;
+        font-weight: $fwSemiBold;
+        font-size: pxToRem(36);
+        line-height: pxToRem(36+5);
         color: $textHeader2Color;
         margin: $h2Margin;
     }
@@ -83,21 +88,49 @@ h3 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-weight: 400;
-        font-size: $h3FontSize;
+        font-family: $fontPoppins;
+        font-weight: $fwBold;
+        font-size: pxToRem(32);
+        line-height: pxToRem(32+5);
         color: $textHeader3Color;
         margin: $h3Margin;
     }
 }
 
-h4,
-h5,
+h4 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontPoppins;
+        font-weight: $fwBold;
+        font-size: pxToRem(27);
+        line-height: pxToRem(27+5);
+        color: $textHeader3Color;
+        margin: $h4Margin;
+    }
+}
+
+h5 {
+
+    .#{$globalClassPcs} &,
+    &.#{$globalClassPcs} {
+        font-family: $fontPoppins;
+        font-weight: $fwMedium;
+        font-size: pxToRem(22);
+        line-height: pxToRem(22+5);
+        color: $textHeader3Color;
+        margin: $h4Margin;
+    }
+}
+
 h6 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-weight: 700;
-        font-size: $h4FontSize;
+        font-family: $fontPoppins;
+        font-weight: $fwBold;
+        font-size: pxToRem(18);
+        line-height: pxToRem(18+5);
         color: $textHeader3Color;
         margin: $h4Margin;
     }
@@ -304,7 +337,7 @@ a.ui.button {
         &.custom-main-color {
 
             background-color: var(--main-brand-color);
-            color: var(--color-text-over-main-brand-color);
+            color: var(--font-color-two);
 
             &:hover,
             &:active,
@@ -320,7 +353,7 @@ a.ui.button {
 
             &.alt2 {
 
-                background-color: var(--third-brand-color-text);
+                background-color: var(--font-color-one);
 
             }
 
@@ -342,8 +375,8 @@ a.ui.button {
         }
 
         &.alt2 {
-            color: var(--third-brand-color-text);
-            border-color: var(--third-brand-color-text);
+            color: var(--font-color-one);
+            border-color: var(--font-color-one);
         }
 
         &.white {
@@ -410,7 +443,7 @@ a.ui.button {
         &.brand-color {
 
             background-color: var(--main-brand-color);
-            color: var(--color-text-over-main-brand-color);
+            color: var(--font-color-two);
 
 
             &.alt {
@@ -421,7 +454,7 @@ a.ui.button {
 
             &.alt2 {
 
-                background-color: var(--third-brand-color-text);
+                background-color: var(--font-color-one);
 
             }
 
@@ -429,4 +462,257 @@ a.ui.button {
 
     }
 
+}
+
+// General views components
+.main-body-header {
+    width: 100%;
+    height: 300px;
+    background-color: var(--main-brand-color-opacity);
+    padding-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: $fontPoppins;
+
+    @media screen and (max-width:1050px) {
+        padding-top: 70px;
+    }
+
+    >.head {
+        text-align: center;
+
+        .tittle {
+            margin: 0;
+            padding: 0;
+            font-weight: bold;
+            color: $colorFirst;
+            font-size: 32px;
+        }
+
+        .sub-tittle {
+            color: black;
+            font-size: 15px;
+        }
+    }
+
+    >.body-card {
+        width: 800px;
+        height: auto;
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        margin-bottom: 100px;
+        position: relative;
+        bottom: -30%;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+
+        &.no-gap {
+            gap: 0;
+        }
+
+        span.card-tag {
+            color: $colorFirst;
+            font-size: 20px;
+            font-weight: $fwMedium;
+        }
+
+        &.max {
+            max-width: 1400px;
+            width: calc(100% - 40px);
+        }
+
+        @media screen and (max-width: 1100px) {
+            width: calc(100% - 40px);
+        }
+
+        &.trasparent {
+            background-color: transparent;
+            box-shadow: none;
+        }
+
+        &.no-padding {
+            padding: 0px;
+        }
+
+        &.max-width {
+            width: 80%;
+        }
+
+        &::after {
+            content: '';
+            display: block;
+            height: 100px;
+            width: 100px;
+            position: absolute;
+            bottom: -100px;
+        }
+
+    }
+
+    >.divider {
+        height: 100px;
+        width: 100%;
+        background-color: var(--main-brand-color);
+    }
+}
+/* Estilos para las inputs cards images */
+
+.cards-list {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.input-image-card {
+    width: 400px;
+    height: 150px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    display: flex;
+    gap: 15px;
+    padding: 0 10px 0 0;
+
+    @media screen and (max-width:500px) {
+        width: 100%;
+    }
+
+    >.image-action {
+        width: 150px;
+        height: 100px;
+        position: relative;
+
+        &.fit-image {
+            >img {
+                object-fit: contain;
+            }
+        }
+
+        >img {
+            width: 150px;
+            height: 150px;
+            max-width: 150px;
+            max-height: 150px;
+            cursor: pointer;
+            transition: .5s;
+            border-radius: 15px 0 0 15px;
+        }
+
+        >.hover-content {
+            transition: .5s;
+            display: none;
+        }
+
+        &:hover {
+            >img {
+                filter: blur(3px);
+            }
+
+            >.hover-content {
+                background-color: #7070700d;
+                border-radius: 15px;
+                width: 150px;
+                height: 150px;
+                position: absolute;
+                top: 0;
+                display: grid;
+                place-content: center;
+                justify-content: center;
+                cursor: pointer;
+                animation: inSide .5s ease-in-out;
+
+                >i {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 45px;
+                    color: #5b5b5b;
+                    margin: 0 auto;
+                }
+
+                >span {
+                    font-family: $fontPoppins;
+                    font-weight: $fwMedium;
+                    color: #5b5b5b;
+                    font-size: 12px;
+                    margin-top: 15px;
+                }
+            }
+
+            @keyframes inSide {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+
+    >.info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+
+        >span {
+            color: var(--main-brand-color);
+            font-size: 20px;
+            font-weight: $fwMedium;
+        }
+
+        >small {
+            color: var(--font-color-one);
+            font-size: 12px;
+        }
+
+        >p {
+            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 5px;
+            color: black;
+            text-wrap: wrap;
+        }
+    }
+}
+
+.cropper-info-content {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    >span {
+        color: var(--main-brand-color);
+        font-size: 27px;
+        font-weight: $fwSemiBold;
+    }
+
+    >p {
+        text-align: center;
+        max-width: 400px;
+        font-size: 15px;
+        font-weight: $fwRegular;
+    }
+}
+
+.pcs-header-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .section-title {
+        font-family: $fontPoppins;
+
+        .title {
+            font-weight: $fwBold;
+            font-size: 27px;
+            color: $colorFirst;
+        }
+    }
 }

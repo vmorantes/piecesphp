@@ -49,9 +49,9 @@ class UsersModel extends EntityMapperExtensible
      * @var array<int,string>
      */
     const TYPES_USERS = [
-        self::TYPE_USER_ROOT => 'Usuario principal',
-        self::TYPE_USER_ADMIN => 'Usuario administrador',
-        self::TYPE_USER_GENERAL => 'Usuario general',
+        self::TYPE_USER_ROOT => 'Principal',
+        self::TYPE_USER_ADMIN => 'Administrativo',
+        self::TYPE_USER_GENERAL => 'General',
     ];
 
     const TYPES_USER_PRIORITY = [
