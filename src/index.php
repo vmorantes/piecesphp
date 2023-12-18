@@ -3,6 +3,7 @@
 use App\Controller\PublicAreaController;
 use App\Model\AppConfigModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
@@ -123,8 +124,8 @@ $app->setBasePath($routerBasePath);
 //Acciones antes de mostrar una ruta
 $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
-    $flashMessages = get_flash_messages();
-    $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessages) ? $flashMessages['render_exception'] : null;
+    $flashMessagesExceptionRender = get_flash_messages(BaseController::class);
+    $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessagesExceptionRender) ? $flashMessagesExceptionRender['render_exception'] : null;
 
     $emptyResponse = new ResponseRoute();
     $route = $request->getRoute();

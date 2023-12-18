@@ -2335,23 +2335,23 @@ function get_route_roles_allowed(string $name, string $type = 'code')
  *
  * @param string $name Nombre
  * @param mixed $value Valor
+ * @param ?string $context Categoría de sesión
  * @return void
  */
-function set_flash_message(string $name, $value)
+function set_flash_message(string $name, $value, ?string $context = null)
 {
-    \PiecesPHP\Core\FlashMessages::addMessage($name, $value);
+    \PiecesPHP\Core\FlashMessages::addMessage($name, $value, $context);
 }
 
 /**
  * Obtiene todos los mensajes flash
  *
- * @param string $name Nombre
- * @param mixed $value Valor
+ * @param ?string $context Categoría de sesión
  * @return array
  */
-function get_flash_messages()
+function get_flash_messages(?string $context = null)
 {
-    return \PiecesPHP\Core\FlashMessages::getMessages();
+    return \PiecesPHP\Core\FlashMessages::getMessages($context);
 }
 
 /**
