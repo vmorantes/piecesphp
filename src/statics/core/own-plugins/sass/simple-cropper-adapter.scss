@@ -16,8 +16,14 @@
             display: none;
         }
 
-        .image-container .preview {
-            visibility: none;
+        .image-container {
+            max-height: 550px;
+            overflow: hidden;
+            padding: 15px 0px;
+
+            .preview {
+                visibility: none;
+            }
         }
 
         .controls {
@@ -105,13 +111,17 @@
 }
 
 .cropper-point {
-    background-color: white;
+    background-color: var(--main-brand-color);
     height: 8px;
     opacity: .85;
     width: 8px;
 }
 
+.cropper-dashed {
+    border: 0 dashed var(--main-brand-color);
+}
+
 .cropper-view-box {
     outline: 1.5px solid;
-    outline-color: white;
+    outline-color: var(--main-brand-color);
 }

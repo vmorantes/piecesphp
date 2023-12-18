@@ -98,7 +98,7 @@ window.addEventListener('load', function() {
     const simpleCropperAdapterModal = new SimpleCropperAdapter('[simple-cropper-modal]', {
         aspectRatio: 1 / 1,
         format: 'image/jpeg',
-        quality: 0.8,
+        quality: 1,
         fillColor: 'red',
         outputWidth: '350',
     })
