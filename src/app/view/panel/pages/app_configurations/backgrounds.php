@@ -18,9 +18,9 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
                 <?php foreach (get_config('backgrounds') as $index => $background) : ?>
 
-                <form bg="<?= ($index + 1); ?>" action="<?= $actionURL; ?>" method="POST" class="ui form">
+                <?php $modalIndex = $index + 1; ?>
+                <form bg="<?= $modalIndex; ?>" action="<?= $actionURL; ?>" method="POST" class="ui form">
                     <?php
-                        $modalIndex = $index + 1;
                         imageUploaderForCropperAdminViews([
                             //Imagen de vista previa, string
                             'image' => $background,
@@ -45,24 +45,33 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                         ]);
                     ?>
 
-                    <div modal="<?= ($index + 1); ?>" class="ui tiny modal">
-                        <div class="content">
-                            <div class="cropper-info-content">
-                                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-                            </div>
-
-                            <?php simpleCropperAdapterWorkSpace([
+                    <?php
+                        modalImageUploaderForCropperAdminViews([
+                            //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
+                            'content' => simpleCropperAdapterWorkSpace([
                                 'type' => 'image/*',
                                 'required' => false,
-                                'selectorAttr' => 'back-login-'.($index+1),
+                                'selectorAttr' => 'back-login-' . $modalIndex,
                                 'referenceW' => '650',
                                 'referenceH' => '730',
                                 'image' => $background,
-                            ]); ?>
-
-                        </div>
-                    </div>
+                            ], false),
+                            //Atributos que se asignarán al modal (el contenedor principal), string
+                            'modalContainerAttrs' => "modal='{$modalIndex}'",
+                            //Clases que se asignarán al modal (el contenedor principal), string
+                            'modalContainerClasses' => "ui tiny modal",
+                            //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
+                            'modalContentElementAttrs' => null,
+                            //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
+                            'informationContentMainClass' => null,
+                            //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
+                            'informationContentClasses' => null,
+                            //Título del modal, string
+                            'titleModal' => null,
+                            //Descripción del modal, string
+                            'descriptionModal' => null,
+                        ]);
+                    ?>
 
                 </form>
 
@@ -101,24 +110,33 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                         ]);
                     ?>
 
-                    <div modal="<?= $modalBgProblemsIndex; ?>" class="ui tiny modal">
-                        <div class="content">
-                            <div class="cropper-info-content">
-                                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-                            </div>
-
-                            <?php simpleCropperAdapterWorkSpace([
+                    <?php
+                        modalImageUploaderForCropperAdminViews([
+                            //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
+                            'content' => simpleCropperAdapterWorkSpace([
                                 'type' => 'image/*',
                                 'required' => false,
                                 'selectorAttr' => 'background-problems-cropper',
                                 'referenceW' => '1920',
                                 'referenceH' => '1080',
                                 'image' => get_config('backgoundProblems'),
-                            ]); ?>
-
-                        </div>
-                    </div>
+                            ], false),
+                            //Atributos que se asignarán al modal (el contenedor principal), string
+                            'modalContainerAttrs' => "modal='{$modalBgProblemsIndex}'",
+                            //Clases que se asignarán al modal (el contenedor principal), string
+                            'modalContainerClasses' => "ui tiny modal",
+                            //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
+                            'modalContentElementAttrs' => null,
+                            //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
+                            'informationContentMainClass' => null,
+                            //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
+                            'informationContentClasses' => null,
+                            //Título del modal, string
+                            'titleModal' => null,
+                            //Descripción del modal, string
+                            'descriptionModal' => null,
+                        ]);
+                    ?>
 
                 </form>
 

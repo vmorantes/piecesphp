@@ -35,7 +35,7 @@ $withImage = true;
             'selectorAttr' => 'simple-cropper-modal',
             'referenceW' => '400',
             'referenceH' => '300',
-            'image' => $withImage ? 'statics/images/logo.png' : '',
+            'image' => $withImage ? 'img-gen/1920/1080' : '',
         ]);?>
     </div>
 </div>
@@ -94,7 +94,16 @@ window.addEventListener('load', function() {
         }
     }, 1000)
 
-//EJEMPLO MODAL INICIO
+    //EJEMPLO MODAL INICIO
+    let firstDrawCropper = true
+    const modalCropper = $('.ui.modal.cropper-test').modal({
+        onVisible: function(){
+            if(firstDrawCropper){
+                simpleCropperAdapterModal.refresh()
+                firstDrawCropper = false
+            }
+        },
+    })
     const simpleCropperAdapterModal = new SimpleCropperAdapter('[simple-cropper-modal]', {
         aspectRatio: 1 / 1,
         format: 'image/jpeg',
@@ -106,8 +115,9 @@ window.addEventListener('load', function() {
         console.log(blob)
         console.log(url)
     })
-
-    $('.ui.modal.cropper-test').modal('show')
+    simpleCropperAdapterModal.onCancel(function() {
+        modalCropper.modal('hide')
+    })
     $('[open-modal]').click(function(){
         $('.ui.modal.cropper-test').modal('show')
     })

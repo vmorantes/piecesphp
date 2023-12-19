@@ -2514,6 +2514,7 @@ function strReplaceTemplate(string $str, array $template)
  * @param array $data
  * @param bool $echo
  * @return string|void
+ * @see project://src/app/view/panel/built-in/utilities/cropper/workspace.php
  */
 function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
 {
@@ -2539,6 +2540,7 @@ function cropperAdapterWorkSpace(array $data = [], bool $echo = true)
  * @param array $data
  * @param bool $echo
  * @return string|void
+ * @see project://src/app/view/panel/built-in/utilities/simple-cropper/workspace.php
  */
 function simpleCropperAdapterWorkSpace(array $data = [], bool $echo = true)
 {
@@ -2564,6 +2566,7 @@ function simpleCropperAdapterWorkSpace(array $data = [], bool $echo = true)
  * @param array $data
  * @param bool $echo
  * @return string|void
+ * @see project://src/app/view/panel/built-in/utilities/image-upload-card/workspace.php
  */
 function imageUploaderForCropperAdminViews(array $data = [], bool $echo = true)
 {
@@ -2584,11 +2587,38 @@ function imageUploaderForCropperAdminViews(array $data = [], bool $echo = true)
 }
 
 /**
+ * Devuelve el HTML del modal que se activa con la ficha de carga de imágenes
+ *
+ * @param array $data
+ * @param bool $echo
+ * @return string|void
+ * @see project://src/app/view/panel/built-in/utilities/modal-image-upload-card/workspace.php
+ */
+function modalImageUploaderForCropperAdminViews(array $data = [], bool $echo = true)
+{
+
+    $lockAssets = get_config('lock_assets');
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', true);
+    }
+
+    $controller = new BaseController();
+
+    if ($lockAssets == false) {
+        set_config('lock_assets', false);
+    }
+
+    return $controller->_render('panel/built-in/utilities/modal-image-upload-card/workspace.php', $data, $echo);
+}
+
+/**
  * Devuelve el HTML del adaptador de SimpleUploadPlaceholder integrado
  *
  * @param array $data
  * @param bool $echo
  * @return string|void
+ * @see project://src/app/view/panel/built-in/utilities/simple-upload-placeholder/workspace.php
  */
 function simpleUploadPlaceholderWorkSpace(array $data = [], bool $echo = true)
 {
