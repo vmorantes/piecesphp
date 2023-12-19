@@ -21,10 +21,10 @@ define('APP_CONFIGURATION_MODULE', true);
 define('ADMIN_PATH_VIEWS', 'panel');
 
 //Importadores
-define('IMPORTS_MODULE_ENABLED', false);
+define('IMPORTS_MODULE_ENABLED', true);
 
 //Mensajería
-define('MESSAGES_ENABLED', false);
+define('MESSAGES_ENABLED', true);
 define('MESSAGES_PATH_VIEWS', 'messages');
 define('MESSAGES_PATH_STATICS', 'statics/features/messages');
 define('MESSAGES_PATH_JS', MESSAGES_PATH_STATICS . '/js');
@@ -64,10 +64,10 @@ define('FORMS_MODULE_DOCUMENTS_TYPES_ENABLE', true);
 define('PERSONS_MODULE', true);
 
 //Registro de eventos
-define('EVENTS_LOG_MODULE', false);
+define('EVENTS_LOG_MODULE', true);
 
 //Listado de suscriptores
-define('NEWSLETTER_MODULE', false);
+define('NEWSLETTER_MODULE', true);
 
 //API
 define('API_MODULE', false);
