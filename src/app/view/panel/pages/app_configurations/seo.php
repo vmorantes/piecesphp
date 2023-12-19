@@ -114,24 +114,34 @@ $getName = function ($name, $lang) {
                         </button>
                     </div>
 
-                    <?php //Modal edición de imagen de SEO ?>
-                    <div seo-logo-modal-<?= $lang; ?> class="ui tiny modal">
-                        <div class="content">
-                            <div class="cropper-info-content">
-                                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-                            </div>
-                            <?php simpleCropperAdapterWorkSpace([
+                    <?php
+                        //Modal edición de imagen de SEO
+                        modalImageUploaderForCropperAdminViews([
+                            //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
+                            'content' => simpleCropperAdapterWorkSpace([
                                 'type' => 'image/*',
                                 'required' => false,
                                 'selectorAttr' => 'simple-cropper-seo',
                                 'referenceW' => '1200',
                                 'referenceH' => '630',
                                 'image' => $values[$propertyLang],
-                            ]); ?>
-                        </div>
-                    </div>
-
+                            ], false),
+                            //Atributos que se asignarán al modal (el contenedor principal), string
+                            'modalContainerAttrs' => "seo-logo-modal-{$lang}",
+                            //Clases que se asignarán al modal (el contenedor principal), string
+                            'modalContainerClasses' => "ui tiny modal",
+                            //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
+                            'modalContentElementAttrs' => null,
+                            //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
+                            'informationContentMainClass' => null,
+                            //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
+                            'informationContentClasses' => null,
+                            //Título del modal, string
+                            'titleModal' => null,
+                            //Descripción del modal, string
+                            'descriptionModal' => null,
+                        ]);
+                    ?>
                 </form>
 
             </div>

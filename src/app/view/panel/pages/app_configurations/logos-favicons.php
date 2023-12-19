@@ -141,106 +141,111 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     </section>
 
-    <?php //Modals edición de imagenes de marca ?>
-    <div logo-modal class="ui tiny modal">
-        <div class="content">
-            <div class="cropper-info-content">
-                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-            </div>
-
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form logo">
-                <?php simpleCropperAdapterWorkSpace([
-                    'type' => 'image/*',
-                    'required' => false,
-                    'selectorAttr' => 'logo-cropper',
-                    'referenceW' => '400',
-                    'referenceH' => '400',
-                    'image' => $logo,
-                ]); ?>
-            </form>
-        </div>
-    </div>
-
-    
-    <div admin-favicon-modal class="ui tiny modal">
-        <div class="content">
-            <div class="cropper-info-content">
-                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-            </div>
-
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form back-favicon">
-                <?php simpleCropperAdapterWorkSpace([
-                    'type' => 'image/*',
-                    'required' => false,
-                    'selectorAttr' => 'admin-fav-cropper',
-                    'referenceW' => '400',
-                    'referenceH' => '400',
-                    'image' => $backFavicon,
-                ]); ?>
-            </form>
-        </div>
-    </div>
-
-    <div favicon-modal class="ui tiny modal">
-        <div class="content">
-            <div class="cropper-info-content">
-                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-            </div>
-
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form public-favicon">
-                <?php simpleCropperAdapterWorkSpace([
-                    'type' => 'image/*',
-                    'required' => false,
-                    'selectorAttr' => 'fav-cropper',
-                    'referenceW' => '400',
-                    'referenceH' => '400',
-                    'image' => $publicFavicon,
-                ]); ?>
-            </form>
-        </div>
-    </div>
-
-    <div partners-modal class="ui tiny modal">
-        <div class="content">
-            <div class="cropper-info-content">
-                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-            </div>
-
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form partners">
-                <?php simpleCropperAdapterWorkSpace([
-                    'type' => 'image/*',
-                    'required' => false,
-                    'selectorAttr' => 'partners-cropper',
-                    'referenceW' => '250',
-                    'referenceH' => '80',
-                    'image' => $partners,
-                ]); ?>
-            </form>
-        </div>
-    </div>
-
-    <div partners-vertical-modal class="ui tiny modal">
-        <div class="content">
-            <div class="cropper-info-content">
-                <span><?= __($langGroup, "Editar imagen"); ?></span>
-                <p><?= __($langGroup, "Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección"); ?></p>
-            </div>
-
-            <form action="<?= $actionURL; ?>" method="POST" class="ui form partners-vertical">
-                <?php simpleCropperAdapterWorkSpace([
-                    'type' => 'image/*',
-                    'required' => false,
-                    'selectorAttr' => 'partners-vertical-cropper',
-                    'referenceW' => '50',
-                    'referenceH' => '280',
-                    'image' => $partnersVertical,
-                ]); ?>
-            </form>
-        </div>
-    </div>
+    <?php 
+        //Modals edición de imagenes de marca 
+        $modalsData = [
+            [
+                //Formulario y cropper
+                'actionURL' => $actionURL,
+                'classForm' => 'logo',
+                'selectorAttr' => 'logo-cropper',
+                'referenceW' => '400',
+                'referenceH' => '400',
+                'image' => $logo,
+                //Modal
+                'modalContainerAttrs' => 'logo-modal',
+                'modalContainerClasses' => 'ui tiny modal',
+                'titleModal' => null,
+                'descriptionModal' => null,
+            ],
+            [
+                //Formulario y cropper
+                'actionURL' => $actionURL,
+                'classForm' => 'back-favicon',
+                'selectorAttr' => 'admin-fav-cropper',
+                'referenceW' => '400',
+                'referenceH' => '400',
+                'image' => $backFavicon,
+                //Modal
+                'modalContainerAttrs' => 'admin-favicon-modal',
+                'modalContainerClasses' => 'ui tiny modal',
+                'titleModal' => null,
+                'descriptionModal' => null,
+            ],
+            [
+                //Formulario y cropper
+                'actionURL' => $actionURL,
+                'classForm' => 'public-favicon',
+                'selectorAttr' => 'fav-cropper',
+                'referenceW' => '400',
+                'referenceH' => '400',
+                'image' => $publicFavicon,
+                //Modal
+                'modalContainerAttrs' => 'favicon-modal',
+                'modalContainerClasses' => 'ui tiny modal',
+                'titleModal' => null,
+                'descriptionModal' => null,
+            ],
+            [
+                //Formulario y cropper
+                'actionURL' => $actionURL,
+                'classForm' => 'partners',
+                'selectorAttr' => 'partners-cropper',
+                'referenceW' => '250',
+                'referenceH' => '80',
+                'image' => $partners,
+                //Modal
+                'modalContainerAttrs' => 'partners-modal',
+                'modalContainerClasses' => 'ui tiny modal',
+                'titleModal' => null,
+                'descriptionModal' => null,
+            ],
+            [
+                //Formulario y cropper
+                'actionURL' => $actionURL,
+                'classForm' => 'partners-vertical',
+                'selectorAttr' => 'partners-vertical-cropper',
+                'referenceW' => '50',
+                'referenceH' => '280',
+                'image' => $partnersVertical,
+                //Modal
+                'modalContainerAttrs' => 'partners-vertical-modal',
+                'modalContainerClasses' => 'ui tiny modal',
+                'titleModal' => null,
+                'descriptionModal' => null,
+            ],
+        ];
+        foreach ($modalsData as $modalData) {
+            $modalData = (object) $modalData;
+            $contentModal = "<form action='{$modalData->actionURL}' method='POST' class='ui form {$modalData->classForm}'>";
+            $contentModal .= simpleCropperAdapterWorkSpace([
+                'type' => 'image/*',
+                'required' => false,
+                'selectorAttr' => $modalData->selectorAttr,
+                'referenceW' => $modalData->referenceW,
+                'referenceH' => $modalData->referenceH,
+                'image' => $modalData->image,
+            ], false);
+            $contentModal .= "</form>";
+            modalImageUploaderForCropperAdminViews([
+                //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
+                'content' => $contentModal,
+                //Atributos que se asignarán al modal (el contenedor principal), string
+                'modalContainerAttrs' => $modalData->modalContainerAttrs,
+                //Clases que se asignarán al modal (el contenedor principal), string
+                'modalContainerClasses' => $modalData->modalContainerClasses,
+                //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
+                'modalContentElementAttrs' => null,
+                //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
+                'informationContentMainClass' => null,
+                //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
+                'informationContentClasses' => null,
+                //Título del modal, string
+                'titleModal' => $modalData->titleModal,
+                //Descripción del modal, string
+                'descriptionModal' => $modalData->descriptionModal,
+            ]);
+        }
+    ?>
 
 </main>

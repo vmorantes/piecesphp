@@ -207,8 +207,8 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 		movable: true,
 	}
 	options = processByDefaultValues(defaultOptions, options)
-	if(typeof options.minCropBoxWidth == 'undefined'){
-		options.minCropBoxWidth = options.outputWidth
+	if (typeof options.minCropBoxWidth == 'undefined') {
+		options.minCropBoxWidth = options.outputWidth * 2
 	}
 	let cropper = new Cropper(preview, Object.assign(options, {}))
 	let blobImage = null
