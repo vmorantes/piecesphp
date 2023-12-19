@@ -74,7 +74,7 @@ return [
     'Tamaño ${w}x${h}px'                                                                                                => 'Size ${w}x${h}px',
     'Imagen preferiblemente de fondo transparente'                                                                      => 'Image preferably with transparent background',
     'Editar imagen'                                                                                                     => 'Edit image',
-    'Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección'             => 'Edit the photo by moving the image or resizing it. You can use the mouse or the arrow keys',
+    'Edite la imagen moviendo el recuadro de recorte, girándola o redimensionándola'                                    => 'Edit the image by moving the cropping frame, rotating or resizing it',
     'Cambiar imagen'                                                                                                    => 'Change image',
     'Imagen'                                                                                                            => 'Image',
     'Fondo login #${n}'                                                                                                 => 'Background login #${n}',

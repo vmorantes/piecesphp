@@ -537,22 +537,34 @@ $avatar = $currentUser->avatar;
 </div>
 <?php endif; ?>
 
-<?php //Modal edición de imagen de usuario ?>
-<div profile-image-modal class="ui tiny modal">
-    <div class="content" action-url="<?=get_route('push-avatars');?>" user-id="<?= getLoggedFrameworkUser()->id ?>">
-        <div class="info-content">
-            <span><?= __(AdminPanelController::LANG_GROUP, 'EDITAR IMAGEN'); ?></span>
-            <p><?= __(AdminPanelController::LANG_GROUP, 'Edite la foto moviendo la imagen o cambiando su tamaño. Puede usar el mouse o las teclas de dirección'); ?></p>
-        </div>
-        <?php 
-            simpleCropperAdapterWorkSpace([
-                'type' => 'image/*',
-                'required' => false,
-                'selectorAttr' => 'simple-cropper-profile',
-                'referenceW' => '400',
-                'referenceH' => '400',
-                'image' => $avatar,
-            ]); 
-        ?>
-    </div>
-</div>
+<?php
+    //Modal edición de imagen de usuario
+    modalImageUploaderForCropperAdminViews([
+        //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
+        'content' => simpleCropperAdapterWorkSpace([
+            'type' => 'image/*',
+            'required' => false,
+            'selectorAttr' => 'simple-cropper-profile',
+            'referenceW' => '400',
+            'referenceH' => '400',
+            'image' => $avatar,
+        ], false),
+        //Atributos que se asignarán al modal (el contenedor principal), string
+        'modalContainerAttrs' => "profile-image-modal",
+        //Clases que se asignarán al modal (el contenedor principal), string
+        'modalContainerClasses' => "ui tiny modal",
+        //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
+        'modalContentElementAttrs' => implode(' ', [
+            'action-url="' . get_route('push-avatars') . '"',
+            'user-id="' . getLoggedFrameworkUser()->id . '"',
+        ]),
+        //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
+        'informationContentMainClass' => 'info-content',
+        //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
+        'informationContentClasses' => null,
+        //Título del modal, string
+        'titleModal' => null,
+        //Descripción del modal, string
+        'descriptionModal' => null,
+    ]);
+?>
