@@ -1,0 +1,548 @@
+@import '../admin_app_base';
+@import '../includes/variables';
+
+.module-view-container {
+
+    .logged-cards {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+
+        .card-total-users {
+            width: 455px;
+            height: 175px;
+            background-color: white;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.224);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            .users-data {
+                >h2 {
+                    font-size: pxToRem(48);
+                    color: $colorFirst;
+                    font-weight: $fwBold;
+                    margin: 0;
+                    padding: 0;
+                    line-height: pxToRem(48+5);
+                }
+
+                >span {
+                    color: $colorFirst;
+                    font-size: pxToRem(18);
+                    font-weight: $fwMedium;
+                }
+            }
+        }
+
+        .two-cards {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+
+            .card {
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.224);
+                height: 97px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                padding: 20px;
+
+                &.time {
+                    width: 380px;
+                    background-color: white;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 10px;
+
+                    >span {
+                        max-width: 156px;
+                        font-size: 18px;
+                        color: $colorFirst;
+                        font-family: $fontPoppins;
+                        font-weight: $fwMedium;
+                    }
+
+                    .hour {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+
+                        >h3 {
+                            margin: 0;
+                            padding: 0;
+                            color: $colorFirst;
+                            font-size: 32px;
+                            line-height: 37px;
+                        }
+
+                        >small {
+                            line-height: 0;
+                            color: black;
+                        }
+                    }
+                }
+            }
+        }
+
+        @media screen and (max-width: 1486px) {
+            padding-bottom: 20px;
+            justify-content: center;
+
+            .card-total-users {
+                border-radius: 10px;
+            }
+        }
+
+        @media screen and (max-width: 1033px) {
+            .card-total-users {
+                width: 100%;
+            }
+
+            .two-cards {
+                width: 100%;
+
+                .card {
+                    &.time {
+                        width: 100%;
+                    }
+
+                    &.export {
+                        width: 100%;
+                    }
+                }
+            }
+        }
+    }
+
+    .attemps-cards {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        @media screen and (max-width:1700px) {
+            flex-direction: column;
+            gap: 20px;
+            justify-content: center;
+            padding-bottom: 20px;
+        }
+
+
+        .total-card {
+            width: 455px;
+            padding: 20px;
+            height: 140px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.224);
+            border-radius: 10px 10px 0 0;
+
+            >.info {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+
+                >span {
+                    font-family: $fontPoppins;
+                    font-weight: $fwSemiBold;
+                    font-size: pxToRem(18);
+                    color: $colorFirst;
+                }
+
+                >span.value {
+                    font-weight: $fwBold;
+                    font-size: pxToRem(45);
+                }
+
+            }
+        }
+
+        >.cards-grup {
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+
+            >.card:not(.export) {
+                background-color: white;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.224);
+                border-radius: 10px;
+                height: 97px;
+                width: 250px;
+                padding: 25px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+
+                >.info {
+                    display: flex;
+                    flex-direction: column;
+
+                    >span {
+                        color: #21BA45;
+                        font-size: pxToRem(32);
+                        font-family: $fontPoppins;
+                        font-weight: $fwBold;
+                    }
+
+                    >small {
+                        font-family: $fontPoppins;
+                        color: black;
+                        font-size: pxToRem(14);
+                    }
+                }
+
+                &.red {
+                    >.info {
+                        >span {
+                            color: #DB2828;
+                        }
+                    }
+                }
+            }
+        }
+
+        @media screen and (max-width:1160px) {
+            .total-card {
+                width: 100%;
+            }
+
+            .cards-grup {
+                width: 100%;
+                flex-direction: column;
+                gap: 20px;
+
+                .card {
+                    width: 100% !important;
+                }
+            }
+        }
+    }
+
+    .card-table {
+        width: 100%;
+        border-radius: 15px;
+        padding-inline: 30px;
+        padding-block: 40px;
+        box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.224);
+    }
+
+    .not-access-cards {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .user-report-card {
+            width: pxToRem(1000);
+            height: pxToRem(140);
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.224);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            .line-chart {
+                position: relative;
+
+                span {
+                    height: 15px;
+                    position: absolute;
+                    border-radius: 10px;
+                }
+
+                span.total {
+                    width: 100%;
+                    background-color: #70707026;
+                }
+
+                span.no-access {
+                    width: 0;
+                    background-color: #DB2828;
+                    right: 0;
+                    transition: .5s;
+                }
+            }
+
+            >.info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                >.titlle-info {
+                    display: flex;
+                    gap: 20px;
+                    align-items: center;
+
+                    >.icon-chart {
+                        width: 50px;
+                        height: 50px;
+                        display: grid;
+                        place-content: center;
+                        border-radius: 50%;
+                        background-color: var(--main-brand-color-opacity);
+
+                        >i {
+                            margin: 0;
+                            padding: 0;
+                            font-size: 23px;
+                            color: $colorFirst;
+                        }
+                    }
+
+                    >.tittle {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 10px;
+
+                        >span {
+                            font-size: pxToRem(27);
+                            font-family: $fontPoppins;
+                            color: $colorFirst;
+                            font-weight: $fwSemiBold;
+                        }
+
+                        >small {
+                            font-size: pxToRem(18);
+                            font-family: $fontPoppins;
+                            color: black;
+                            font-weight: $fwMedium;
+                        }
+                    }
+                }
+
+                >.chart-info {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 300px;
+                    max-width: 300px;
+                    gap: 10px;
+
+                    >.info {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 7px;
+                        position: relative;
+
+                        >small.tag {
+                            font-size: pxToRem(17);
+                            font-family: $fontPoppins;
+                        }
+
+                        >span.value {
+                            font-size: pxToRem(30);
+                            font-family: $fontPoppins;
+                            font-weight: $fwBold;
+                            color: $colorFirst;
+                        }
+
+                        &::before {
+                            display: block;
+                            content: '';
+                            width: 12px;
+                            height: 12px;
+                            background-color: #70707026;
+                            border-radius: 50%;
+                            position: absolute;
+                            top: 3px;
+                            left: -22px;
+                        }
+
+                        &.red {
+                            >span.value {
+                                color: #DB2828;
+                            }
+
+                            &::before {
+                                background-color: #DB2828;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @media screen and (max-width:1630px) {
+            flex-direction: column;
+            align-items: start;
+            gap: 20px;
+            padding-bottom: 20px;
+
+            .user-report-card {
+                border-radius: 10px;
+                width: 100%;
+            }
+        }
+
+        @media screen and (max-width:1130px) {
+            .user-report-card {
+                height: 200px;
+
+                >.info {
+                    flex-direction: column;
+                    align-items: first baseline;
+                    gap: 20px;
+                }
+            }
+
+            .card.export {
+                width: 100%;
+            }
+        }
+
+        @media screen and (max-width:440px) {
+            .user-report-card {
+                >.info {
+                    flex-direction: column;
+                    align-items: first baseline;
+                    gap: 20px;
+
+                    >.titlle-info {
+                        >.tittle {
+                            >span {
+                                font-size: pxToRem(20);
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    .rounded-chart {
+        --percentage: 0;
+        --fill: $colorFirst;
+        --fill2: #70707026;
+        --text: $colorSecond;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        box-sizing: border-box;
+
+        &.round {
+            $w: 153;
+            $h: $w;
+            width: unquote($w + "px");
+            height: unquote($h + "px");
+            align-items: center;
+        }
+
+        $w: 153;
+        $h: $w/2;
+        width: unquote($w + "px");
+        height: unquote($h + "px");
+        color: var(--text);
+        font-weight: $fwBold;
+        font-size: pxToRem(30);
+        line-height: pxToRem(30+5);
+
+        &:after {
+            content: '';
+            width: unquote($w + "px");
+            height: unquote($h*2 + "px");
+            border: 25px solid;
+            border-color: var(--fill) var(--fill) var(--fill2) var(--fill2);
+            position: absolute;
+            border-radius: 50%;
+            left: 0;
+            top: 0;
+            box-sizing: border-box;
+            transition: 1s;
+            transform: rotate(calc(1deg * (-45 + var(--percentage) * 1.8)));
+            animation: fillAnimation 1s ease-in;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+
+            >span {
+                font-size: pxToRem(18);
+                color: var(--text);
+                font-weight: $fwBold;
+                line-height: pxToRem(18+5);
+            }
+
+            >small {
+                color: var(--text);
+                line-height: 0;
+                font-size: pxToRem(14);
+                line-height: pxToRem(14+5);
+            }
+        }
+
+        @keyframes fillAnimation {
+            0% {
+                transform: rotate(-45deg);
+            }
+
+            50% {
+                transform: rotate(135deg);
+            }
+        }
+
+        @keyframes fillGraphAnimation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            50% {
+                transform: rotate(180deg);
+            }
+        }
+
+    }
+
+    .card.export {
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.224);
+        height: 97px;
+        border-radius: 10px;
+        padding: 20px;
+        width: 250px;
+        background-color: $colorFirst;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        cursor: pointer;
+
+        >span {
+            font-size: 18px;
+        }
+
+        >i {
+            margin: 0;
+            padding: 0;
+            font-size: 30px;
+        }
+    }
+
+    .check.circle.icon {
+        color: #21BA45;
+        margin: 0 50%;
+    }
+
+    .times.circle.icon {
+        color: #DB2828;
+        margin: 0 50%;
+    }
+
+
+
+}
