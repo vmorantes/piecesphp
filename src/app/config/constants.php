@@ -38,7 +38,7 @@ define('LOCATIONS_ENABLED', true);
 define('LOCATIONS_LANG_GROUP', 'locationBackend');
 
 //Temporizadores
-define('ACTIVE_TIMER', false);
+define('ACTIVE_TIMER', true);
 
 //Gestor de archivos
 define('FILE_MANAGER_MODULE', true);
@@ -82,4 +82,5 @@ define('CROPPER_ADAPTER_LANG_GROUP', 'cropper');
 define('LOGIN_REPORT_LANG_GROUP', 'loginReport');
 define('MAIL_TEMPLATES_LANG_GROUP', 'mailTemplates');
 define('USER_LOGIN_LANG_GROUP', 'userLogin');
+define('GENERAL_LANG_GROUP', 'general');
 define('LANG_GROUP', 'public');

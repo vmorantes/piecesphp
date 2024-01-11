@@ -86,6 +86,7 @@ $lang = [
         'Bienvenido(a)'              => 'Welcome',
         'Versión {ver}'              => 'Version {ver}',
         'V {ver}'                    => 'V {ver}',
+        'Home'                       => 'Home',
     ],
     'errors' => [
         'RESTRICTED_AREA'              => 'Try to access a restricted area. For which you do not have permissions.',
