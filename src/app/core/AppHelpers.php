@@ -2711,3 +2711,26 @@ function getLoggedFrameworkUser(bool $reload = false)
 
     return $currentUser;
 }
+
+/**
+ * Devuelve el html del breadcrumb a partir de un arreglo
+ *
+ * El arreglo puede contener una cadena de texto simple o una llave (que se usará para el título mostrado) con un arreglo asignado que contenga un elemento llamado 'url'
+ * @param array $breadcrumbs
+ * @return string
+ */
+function get_breadcrumbs(array $breadcrumbs)
+{
+    $breadHtml = [];
+
+    foreach ($breadcrumbs as $title => $bread) {
+        if (is_array($bread)) {
+            $url = $bread['url'];
+            $breadHtml[] = "<a href='{$url}' >{$title}</a>";
+        } else {
+            $breadHtml[] = $bread;
+        }
+    }
+
+    return implode('<i class="angle right icon"></i>', $breadHtml);
+}

@@ -109,4 +109,16 @@ class TimeOnPlatformModel extends BaseEntityMapper
         ])->row();
         return is_object($row) ? new TimeOnPlatformModel($row->id) : null;
     }
+
+    /**
+     * @return float
+     */
+    public static function getAllHoursOnPlatform()
+    {
+        $model = (new TimeOnPlatformModel())->getModel();
+        $rows = $model->select()->getAll();
+        $rows = array_sum(array_column($rows, 'minutes'));
+        $hours = $rows / 60;
+        return number_format($hours, 1);
+    }
 }

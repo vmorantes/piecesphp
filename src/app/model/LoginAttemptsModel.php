@@ -145,8 +145,8 @@ class LoginAttemptsModel extends BaseEntityMapper
         $on_set_data = function ($element) use ($success) {
             $attempt = new LoginAttemptsModel($element->id);
             $data = [];
+            $data[] = $attempt->success == $success ? '<i class="check circle icon" style="visibility: visible;"></i>' : '<i class="times circle icon"></i>';
             $data[] = $attempt->username_attempt;
-            $data[] = $attempt->success == $success ? 'Sí' : 'No';
             $data[] = $attempt->message;
             $data[] = $attempt->ip;
             $data[] = $attempt->date->format('d-m-Y H:i:s');
@@ -173,6 +173,16 @@ class LoginAttemptsModel extends BaseEntityMapper
         ];
 
         return DataTablesHelper::process($options);
+    }
+
+    /**
+     * @return Array
+     */
+    public static function attemptsViewData()
+    {
+        $model = new LoginAttemptsModel();
+
+        return $model->getAll();
     }
 
     /**

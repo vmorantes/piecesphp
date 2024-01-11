@@ -534,6 +534,30 @@
 
     }
 
+    // Siemple Breadcrumb
+    .breadcrumb {
+        color: var(--second-brand-color);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-family: $fontPoppins;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+
+        >i {
+            margin: 0;
+            padding: 0;
+        }
+
+        >a {
+            color: var(--second-brand-color);
+        }
+
+        @media screen and (max-width:800px) {
+            padding-top: 70px;
+        }
+    }
+
     //Título de secciones simple
     .section-title {
 
