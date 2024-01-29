@@ -7,6 +7,7 @@ const sass = require('gulp-sass')
 const sourcemaps = require('gulp-sourcemaps')
 const rename = require('gulp-rename')
 const concat = require('gulp-concat')
+const replace = require('gulp-replace')
 const uglifyJS = require('gulp-uglify')
 const typescript = require('gulp-typescript')
 //--------TS PiecesPHP
@@ -151,6 +152,7 @@ function sassCompileOwnPlugins() {
 	return src(compilePiecesPHPSassFiles.ownPlugins)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.ownPlugins))
 }
@@ -160,6 +162,7 @@ function sassCompileGeneral() {
 	return src(compilePiecesPHPSassFiles.general)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.general))
 }
@@ -169,6 +172,7 @@ function sassCompileUsers() {
 	return src(compilePiecesPHPSassFiles.users)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.users))
 }
@@ -178,6 +182,7 @@ function sassCompileUsers2() {
 	return src(compilePiecesPHPSassFiles.users2)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.users2))
 }
@@ -187,6 +192,7 @@ function sassCompileAvatars() {
 	return src(compilePiecesPHPSassFiles.avatars)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.avatars))
 }
@@ -248,6 +254,7 @@ function sassCompileGeneric() {
 	return src(compileSassFiles)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(cssDest))
 }
@@ -279,6 +286,7 @@ function sassCompileModules() {
 	return src(compileMonulesSassFiles)
 		.pipe(sourcemaps.init())
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(rename(function (path) {
 			return {

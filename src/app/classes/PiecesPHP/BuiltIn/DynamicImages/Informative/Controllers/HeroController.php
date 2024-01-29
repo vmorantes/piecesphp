@@ -837,6 +837,7 @@ class HeroController extends AdminPanelController
         $selects[] = "{$table}.meta";
 
         $jsonExtractExists = ImageMapper::jsonExtractExistsMySQL();
+        $cacheStamp = static_files_cache_stamp();
 
         if ($jsonExtractExists) {
 
@@ -844,12 +845,12 @@ class HeroController extends AdminPanelController
                 $selects[] = "{$table}.title";
                 $selects[] = "{$table}.description";
                 $selects[] = "{$table}.link";
-                $selects[] = "{$table}.image";
+                $selects[] = "CONCAT({$table}.image, '?chacheStamp={$cacheStamp}') AS image";
             } else {
                 $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.title') = 'null', {$table}.title, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.title'))) AS title";
                 $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.description') = 'null', {$table}.description, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.description'))) AS description";
                 $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.link') = 'null', {$table}.link, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.link'))) AS link";
-                $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.image') = 'null', {$table}.image, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.image'))) AS image";
+                $selects[] = "CONCAT(IF(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.image') = 'null', {$table}.image, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.lang_data.{$currentLang}.image'))), '?chacheStamp={$cacheStamp}') AS image";
             }
 
             $selects[] = "IF(JSON_EXTRACT({$table}.meta, '$.start_date') = 'null', NULL, JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.start_date'))) AS start_date";
@@ -878,7 +879,7 @@ class HeroController extends AdminPanelController
             $selects[] = "{$table}.title";
             $selects[] = "{$table}.description";
             $selects[] = "{$table}.link";
-            $selects[] = "{$table}.image";
+            $selects[] = "CONCAT({$table}.image, '?chacheStamp={$cacheStamp}') AS image";
 
             $model->select($selects);
 
@@ -906,7 +907,7 @@ class HeroController extends AdminPanelController
                         $result[$k]->title = isset($lang_data->title) ? $lang_data->title : '';
                         $result[$k]->description = isset($lang_data->description) ? $lang_data->description : '';
                         $result[$k]->link = isset($lang_data->link) ? $lang_data->link : '';
-                        $result[$k]->image = $lang_data->image;
+                        $result[$k]->image = $lang_data->image . "?chacheStamp={$cacheStamp}";
                     }
 
                 }
