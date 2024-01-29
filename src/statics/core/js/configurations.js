@@ -1126,30 +1126,33 @@ function pcsAdminTopbars() {
 	}
 
 	const loadNews = () => {
+
 		const mainContainer = '[news-toolbar-container]'
 		const newsModal = $('[news-modal]')
 		const url = $(mainContainer).parent().data('url')
 
-		const newsManager = new NewsAdapter({
-			requestURL: url,
-			page: 1,
-			perPage: 10,
-			containerSelector: mainContainer,
-			onDraw: (item, parsed) => {
-				parsed.on('click', () => {
-					newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)
-					newsModal.find('.content').html(item.content)
-					newsModal.modal('show')
-					closeProfile()
-				})
-				return parsed
-			},
-			onEmpty: (container) => {
-				container.html('...')
-			},
-		})
+		if (mainContainer.length > 0 && typeof NewsAdapter !== 'undefined') {
+			const newsManager = new NewsAdapter({
+				requestURL: url,
+				page: 1,
+				perPage: 10,
+				containerSelector: mainContainer,
+				onDraw: (item, parsed) => {
+					parsed.on('click', () => {
+						newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)
+						newsModal.find('.content').html(item.content)
+						newsModal.modal('show')
+						closeProfile()
+					})
+					return parsed
+				},
+				onEmpty: (container) => {
+					container.html('...')
+				},
+			})
 
-		newsManager.loadItems()
+			newsManager.loadItems()
+		}
 	}
 
 	const imageModalProfile = () => {

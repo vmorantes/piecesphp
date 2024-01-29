@@ -1,8 +1,8 @@
 @import 'includes/functions';
 @import 'includes/variables';
 @import 'includes/components';
-@import '../../fonts/public-sans/public-sans.css';
-@import '../../fonts/poppins/poppins.css';
+@import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
+@import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
 
 * {
     box-sizing: border-box;

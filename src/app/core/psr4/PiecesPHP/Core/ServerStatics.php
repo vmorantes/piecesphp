@@ -109,6 +109,7 @@ class ServerStatics
         'caching' => true,
         'compress' => true,
         'contentType' => self::CONTENT_TYPE_PNG,
+        'convertTo' => self::TYPE_WEBP,
         'extensions' => [
             'png',
         ],
@@ -141,6 +142,7 @@ class ServerStatics
         'caching' => true,
         'compress' => true,
         'contentType' => self::CONTENT_TYPE_GIF,
+        'convertTo' => self::TYPE_WEBP,
         'extensions' => [
             'gif',
         ],
@@ -274,9 +276,10 @@ class ServerStatics
      * @param string $path
      * @param array $replacement
      * @param string $baseStaticURL
+     * @param bool $mustValidate
      * @return Response
      */
-    public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [], string $baseStaticURL = '')
+    public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
     {
 
         $resource = $args['params'];
@@ -405,7 +408,7 @@ class ServerStatics
 
         }
 
-        return self::verifyFile($resource, $request, $response, $path);
+        return self::verifyFile($resource, $request, $response, $path, $mustValidate);
     }
 
     /**
@@ -413,13 +416,13 @@ class ServerStatics
      * @param Response $response
      * @param array $args
      * @param string $path
+     * @param bool $mustValidate
      * @return Response
      */
-    public function serve(Request $request, Response $response, array $args, string $path = null)
+    public function serve(Request $request, Response $response, array $args, string $path = null, bool $mustValidate = true)
     {
         $resource = $args['params'];
-
-        return self::verifyFile($resource, $request, $response, $path);
+        return self::verifyFile($resource, $request, $response, $path, $mustValidate);
     }
 
     /**
@@ -457,7 +460,7 @@ class ServerStatics
      * @param string $path
      * @return Response
      */
-    private static function verifyFile(string $resource, Request $request, Response $response, string $path = null)
+    private static function verifyFile(string $resource, Request $request, Response $response, string $path = null, bool $mustValidate = true)
     {
 
         $fileInformation = finfo_open(FILEINFO_MIME_TYPE);
@@ -515,20 +518,23 @@ class ServerStatics
 
                 $lastModification = filemtime($filePath);
                 $lastModificationGMT = gmdate('D, d M Y H:i:s \G\M\T', $lastModification !== false ? $lastModification : null);
+                $expiresGMT = gmdate('D, d M Y H:i:s', strtotime('+1 year')) . ' GMT';
 
                 $eTag = 'PCSPHP_' . sha1($lastModification !== false ? (string) $lastModification : '...');
 
                 $mustRevalidateExtensions = [
-                    'css',
-                    'js',
                 ];
+                if (!$mustValidate) {
+                    $mustRevalidateExtensions = [];
+                }
                 if (in_array($extension, $mustRevalidateExtensions)) {
-                    $headers['Cache-Control'] = "max-age=5256000, must-revalidate"; //Max-age de 2 meses
+                    $headers['Cache-Control'] = "max-age=5256000, public, must-revalidate"; //Max-age de 2 meses
                 } else {
-                    $headers['Cache-Control'] = "no-cache";
+                    $headers['Cache-Control'] = "max-age=5256000, public";
                 }
                 $headers['Last-Modified'] = $lastModificationGMT;
                 $headers['ETag'] = $eTag;
+                $headers['Expires'] = $expiresGMT;
 
                 if (is_string($ifModifiedSince) && strlen($ifModifiedSince) > 0) {
 
@@ -650,6 +656,62 @@ class ServerStatics
                             if ($convertTo == self::TYPE_WEBP) {
 
                                 $resourceImage = imagecreatefromjpeg($path);
+
+                                if ($resourceImage !== false) {
+                                    ob_start();
+                                    imagewebp($resourceImage);
+                                    $fileData = ob_get_contents();
+                                    ob_end_clean();
+                                }
+
+                                $headers['Content-Type'] = [
+                                    self::CONTENT_TYPE_WEBP,
+                                ];
+
+                            }
+
+                        }
+
+                    } elseif ($codeType == self::TYPE_PNG) {
+
+                        $acceptConvertType = self::typeIsAllowed($convertTo, $request);
+
+                        if ($acceptConvertType) {
+
+                            if ($convertTo == self::TYPE_WEBP) {
+
+                                $resourceImage = imagecreatefrompng($path);
+                                imagepalettetotruecolor($resourceImage);
+                                imagealphablending($resourceImage, true);
+                                imagesavealpha($resourceImage, true);
+
+                                if ($resourceImage !== false) {
+                                    ob_start();
+                                    imagewebp($resourceImage);
+                                    $fileData = ob_get_contents();
+                                    ob_end_clean();
+                                }
+
+                                $headers['Content-Type'] = [
+                                    self::CONTENT_TYPE_WEBP,
+                                ];
+
+                            }
+
+                        }
+
+                    } elseif ($codeType == self::TYPE_GIF) {
+
+                        $acceptConvertType = self::typeIsAllowed($convertTo, $request);
+
+                        if ($acceptConvertType) {
+
+                            if ($convertTo == self::TYPE_WEBP) {
+
+                                $resourceImage = imagecreatefromgif($path);
+                                imagepalettetotruecolor($resourceImage);
+                                imagealphablending($resourceImage, true);
+                                imagesavealpha($resourceImage, true);
 
                                 if ($resourceImage !== false) {
                                     ob_start();
