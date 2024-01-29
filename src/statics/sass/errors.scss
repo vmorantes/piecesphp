@@ -1,6 +1,6 @@
 @import 'imports/variables';
-@import '../fonts/public-sans/public-sans.css';
-@import '../../fonts/poppins/poppins.css';
+@import url('../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
+@import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
 
 body {
     background-color: $background-color-body;

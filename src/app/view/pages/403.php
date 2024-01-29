@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= __('page403', '403 - Acceso denegado'); ?></title>
     <base href="<?= base_url(); ?>">
-    <link rel="shortcut icon" href="<?= get_config('favicon'); ?>" type="image/x-icon">
+    <link rel="shortcut icon" href="<?= add_cache_stamp_to_url(get_config('favicon')); ?>" type="image/x-icon">
     <link rel="stylesheet" href="<?= get_route('admin-global-variables-css'); ?>">
     <link rel="stylesheet" href="statics/core/css/ui-pcs.css">
     <link rel="stylesheet" href="statics/css/errors.css">
