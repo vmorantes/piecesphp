@@ -22,7 +22,10 @@
 
     # Configurar política de contenido
     Header set Content-Security-Policy "default-src https: data: blob: 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://api.mapbox.com https://twemoji.maxcdn.com; script-src https: 'self' 'unsafe-inline' https://twemoji.maxcdn.com; object-src 'none'; worker-src blob:"
-
+    <IfModule mod_expires.c>
+        # Desactivar módulo Expires
+        ExpiresActive Off
+    </IfModule>
 </IfModule>
 
 ##### CABECERAS - FIN #####
@@ -47,12 +50,6 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule . index.php [L]
-
-#Servido personalizado de archivos estáticos y manejo de caché
-#Para activar el manejo de caché del archivos estáticos de PiecesPHP mantenga descomentadas las
-#siguientes dos líneas, de lo contrario coméntelas
-RewriteCond %{REQUEST_URI} \.(js|js|css|ico|png|jpg|jpeg|webp|gif|swf|mp3|mp4|csv|pdf|woff2|woff|ttf|eot)$
 RewriteRule . index.php [L]
 
 ##### REESCRITURA - FIN #####
@@ -85,20 +82,39 @@ Options -Indexes
 ##### CONTROL DE ACCESO - FIN #####
 
 ##### PROCESAMIENTO - INICIO #####
-
+## Compresión
 <IfModule mod_deflate.c>
-AddOutputFilterByType DEFLATE image/*
-AddOutputFilterByType DEFLATE text/plain
-AddOutputFilterByType DEFLATE text/html
-AddOutputFilterByType DEFLATE text/xml
-AddOutputFilterByType DEFLATE text/shtml
-AddOutputFilterByType DEFLATE text/css
-AddOutputFilterByType DEFLATE application/xml
-AddOutputFilterByType DEFLATE application/xhtml+xml
-AddOutputFilterByType DEFLATE application/rss+xml
-AddOutputFilterByType DEFLATE application/javascript
-AddOutputFilterByType DEFLATE application/x-javascript
-AddOutputFilterByType DEFLATE application/pdf
-</IfModule> 
-
+    # Activar la compresión
+    SetOutputFilter DEFLATE
+    # Comprimir archivos de texto
+    AddOutputFilterByType DEFLATE image/*
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/shtml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/pdf
+    # Comprimir archivos específicos por extensión
+    AddOutputFilterByType DEFLATE application/javascript "js"
+    AddOutputFilterByType DEFLATE text/css "css"
+    AddOutputFilterByType DEFLATE image/x-icon "ico"
+    AddOutputFilterByType DEFLATE application/x-shockwave-flash "swf"
+    AddOutputFilterByType DEFLATE audio/mpeg "mp3"
+    AddOutputFilterByType DEFLATE video/mp4 "mp4"
+    AddOutputFilterByType DEFLATE text/csv "csv"
+    AddOutputFilterByType DEFLATE application/pdf "pdf"
+    AddOutputFilterByType DEFLATE application/font-woff2 "woff2"
+    AddOutputFilterByType DEFLATE application/font-woff "woff"
+    AddOutputFilterByType DEFLATE application/x-font-ttf "ttf"
+    AddOutputFilterByType DEFLATE application/vnd.ms-fontobject "eot"
+    # Desactivar la compresión para navegadores antiguos que tienen problemas con Gzip
+    BrowserMatch ^Mozilla/4 gzip-only-text/html
+    BrowserMatch ^Mozilla/4\.0[678] no-gzip
+    BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+</IfModule>
 ##### PROCESAMIENTO - FIN #####

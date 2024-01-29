@@ -338,6 +338,24 @@ function static_files_cache_stamp(bool $update = false)
 }
 
 /**
+ * @param string $url
+ * @return string
+ */
+function add_cache_stamp_to_url(string $url)
+{
+    $cache_stamp_render_files = get_config('cache_stamp_render_files');
+    $stamp = get_config('cacheStamp');
+
+    if ($cache_stamp_render_files === true) {
+        $url = URLManager::fromString($url);
+        $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
+        $url = $url->__toString();
+    }
+
+    return $url;
+}
+
+/**
  * Imprime los scripts js cargados con las funciones auxiliares de assets
  *
  * @param array $config

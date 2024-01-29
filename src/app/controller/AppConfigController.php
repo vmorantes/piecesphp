@@ -307,7 +307,7 @@ class AppConfigController extends AdminPanelController
             $data = [
                 'langGroup' => $langGroup,
                 'actionURL' => $actionURL,
-                'publicFavicon' => get_config('favicon'),
+                'publicFavicon' => add_cache_stamp_to_url(get_config('favicon')),
                 'backFavicon' => get_config('favicon-back'),
                 'logo' => get_config('logo'),
                 'partners' => get_config('partners'),
