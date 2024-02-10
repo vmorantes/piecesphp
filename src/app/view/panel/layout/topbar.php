@@ -268,7 +268,7 @@ $hasAvatar = $currentUser->hasAvatar;
 $avatar = $currentUser->avatar;
 ?>
 
-<div class="ui-pcs topbar-toggle user-options <?= !$withAdminOptions && !$withNews ? 'is-unique' : ''; ?>">
+<div class="ui-pcs topbar-toggle user-options">
     <div class="current-user-info">
         <div class="image">
             <?php if ($hasAvatar) : ?>
@@ -291,7 +291,7 @@ $avatar = $currentUser->avatar;
 <?php endif; ?>
 
 <?php if($withAdminOptions): ?>
-<div class="ui-pcs topbar-toggle admin-options">
+<div class="ui-pcs topbar-toggle admin-options <?= $withAdminOptions && !$withNews ? 'is-unique' : ''; ?>">
     <div class="icon">
         <i class="cog icon"></i>
     </div>
