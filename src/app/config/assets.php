@@ -408,6 +408,7 @@ $assets['app_libraries']['plugins'] = [
     'adminStyle' => [
         'css' => [
             'statics/core/css/ui-pcs.css',
+            'statics/core/css/admin_app_base.css',
         ],
     ],
     'formJsonSchema' => [

@@ -275,7 +275,7 @@ task("sass:init", (done) => {
 //Modules
 var watchingModulesSassFiles = [
 	'./app/classes/**/sass/**/*.scss',
-	'./statics/core/sass/_admin_app_base.scss',
+	'./statics/core/sass/admin_app_base.scss',
 ]
 var compileMonulesSassFiles = [
 	'./app/classes/**/sass/**/*.scss',
