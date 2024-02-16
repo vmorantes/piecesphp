@@ -23,14 +23,20 @@ class CustomSlimErrorHandler
      * @var GenericHandler
      */
     protected $handler = null;
+    /**
+     * @var string
+     */
+    protected $contextDescription = null;
 
     /**
      * @param Throwable $exception
+     * @param string $contextDescription Información sobre el lugar de donde fue manejado
      */
-    public function __construct(Throwable $exception)
+    public function __construct(Throwable $exception, string $contextDescription = 'no_information')
     {
         $this->handler = new GenericHandler($exception);
         $this->handler->logging();
+        $this->contextDescription = $contextDescription;
     }
 
     /**
@@ -49,16 +55,16 @@ class CustomSlimErrorHandler
             $trace = [];
         }
 
-        $message = [
-            'success' => false,
-            'message' => $exception->getMessage(),
-            'detail' => [],
-        ];
+        $isLocal = is_local();
 
-        if (!is_local()) {
+        $file = $exception->getFile();
+        $line = $exception->getLine();
+
+        if (!$isLocal) {
+            $file = str_replace(basepath(), '{BASE_PATH}', $exception->getFile());
             foreach ($trace as $i => $t) {
                 if (isset($t['file'])) {
-                    $trace[$i]['file'] = str_replace(basepath(), '', $t['file']);
+                    $trace[$i]['file'] = str_replace(basepath(), '{BASE_PATH}', $t['file']);
                 }
                 if (isset($t['args'])) {
                     $trace[$i]['args'] = 'HIDDEN';
@@ -66,25 +72,58 @@ class CustomSlimErrorHandler
             }
         }
 
-        $file = is_local() ? $exception->getFile() : str_replace(basepath(), '', $exception->getFile());
-
-        $message['detail'] = [
-            'type' => $class_exception,
-            'code' => $exception->getCode(),
-            'line' => $exception->getLine(),
-            'file' => $file,
-            'trace' => $trace,
+        $jsonData = [
+            'success' => false,
+            'message' => $exception->getMessage(),
+            'handlerContext' => $this->contextDescription,
+            'detail' => [
+                'type' => $class_exception,
+                'code' => $exception->getCode(),
+                'line' => $exception->getLine(),
+                'file' => $file,
+                'trace' => $trace,
+            ],
         ];
 
         if ($request->isXhr()) {
-            return $response->withStatus(500)->withJson($message);
+            return $response->withStatus(500)->withJson($jsonData);
         } else {
-            $html = "";
-            $html .= "<div style='box-sizing: border-box;width:800px;text-align:center;max-width:100%;margin:0 auto;padding:0 0.5rem;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);word-break: break-word;'>";
-            $html .= "<h1>" . 'Error 500:' . "</h1>";
-            $html .= "<p>" . $message['message'] . "</p>";
-            $html .= "</div>";
+
+            unset($jsonData['detail']['line']);
+            unset($jsonData['detail']['file']);
+            $message = $exception->getMessage();
+            $html = var_dump_pretty([
+                $jsonData['detail'],
+            ], '', true);
+            $html = "
+                <html>
+                    <style>
+                        *{
+                            box-sizing:border-box;
+                        }
+                    </style>
+                    <body style='margin: 0px auto;'>
+                        <div style='min-height: 100vh; background-color: whitesmoke;'>
+                            <div style='width: 100%; max-width: 1200px; margin: 0px auto; padding:15px;'>
+                                <h2>Error summary</h2>
+                                <ul style='max-width: 100%; word-break: break-all;'>
+                                    <li>File: {$file}</li>
+                                    <li>Line: {$line}</li>
+                                    <li>Message: {$message}</li>
+                                    <li>Handler context: {$this->contextDescription}</li>
+                                </ul>
+                                <div style='overflow:auto;'>
+                                    $html
+                                </div>
+                            </div>
+                        </div>
+                    </body>
+                </html>
+            ";
+            $html = !$isLocal ? str_replace(basepath(), '{BASE_PATH}', $html) : $html;
+
             return $response->withStatus(500)->write($html);
+
         }
     }
 }

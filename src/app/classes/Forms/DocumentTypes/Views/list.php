@@ -1,6 +1,8 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+
 use Forms\DocumentTypes\Controllers\DocumentTypesController;
+
 /**
  * @var DocumentTypesController $this
  */
@@ -37,10 +39,10 @@ $langGroupDatatables = 'datatables';
 
     </div>
 
-    <?php if(mb_strlen($formVariables['action']) > 0): ?>
-    <?php $this->render($this::BASE_VIEW_DIR . '/forms/add', $formVariables); ?>
-    <br>
-    <br>
+    <?php if (mb_strlen($formVariables['action']) > 0) : ?>
+        <?php $this->render($this::BASE_VIEW_DIR . '/forms/add', $formVariables); ?>
+        <br>
+        <br>
     <?php endif; ?>
 
     <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
@@ -49,7 +51,7 @@ $langGroupDatatables = 'datatables';
 
     <div class="container-standard-table">
 
-        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
+        <table url="<?= $processTableLink; ?>" class="ui basic table">
 
             <thead>
 

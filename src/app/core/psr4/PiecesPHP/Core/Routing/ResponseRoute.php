@@ -16,6 +16,10 @@ use Slim\Psr7\Response;
  */
 class ResponseRoute extends Response
 {
+    /**
+     * @var string
+     */
+    protected $lastWriteBodyData = '';
 
     /**
      * Json.
@@ -83,8 +87,18 @@ class ResponseRoute extends Response
     public function write($data)
     {
         $this->getBody()->write($data);
+        $this->lastWriteBodyData = $data;
 
         return $this;
+    }
+
+    /**
+     * Devuelve lo último que haya sido introducido en la respuesta con el método write
+     * @return string
+     */
+    public function getLastWriteBodyData()
+    {
+        return $this->lastWriteBodyData;
     }
 
 }

@@ -1,4 +1,4 @@
-<?php 
+<?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 $langGroup = LOGIN_REPORT_LANG_GROUP;
 ?>
@@ -12,7 +12,7 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
         <div class="columns two">
             <div class="column">
                 <div class="section-title">
-                    <div class="title"><?=__($langGroup, $tittle);?></div>
+                    <div class="title"><?= __($langGroup, $tittle); ?></div>
                 </div>
             </div>
         </div>
@@ -26,17 +26,17 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
                         <i class="chart bar icon"></i>
                     </div>
                     <div class="tittle">
-                        <span><?=__($langGroup, 'Reporte de Usuarios');?></span>
-                        <small><?=__($langGroup, 'Sin ingreso');?></small>
+                        <span><?= __($langGroup, 'Reporte de Usuarios'); ?></span>
+                        <small><?= __($langGroup, 'Sin ingreso'); ?></small>
                     </div>
                 </div>
                 <div class="chart-info">
                     <div class="info">
-                        <span class="tag"><?=__($langGroup, 'Total Usuarios');?></span>
+                        <span class="tag"><?= __($langGroup, 'Total Usuarios'); ?></span>
                         <span total-users class="value">0</span>
                     </div>
                     <div class="info red">
-                        <span class="tag"><?=__($langGroup, 'Sin ingreso');?></span>
+                        <span class="tag"><?= __($langGroup, 'Sin ingreso'); ?></span>
                         <span users-not-logged class="value">0</span>
                     </div>
                 </div>
@@ -47,14 +47,13 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
             </div>
         </div>
         <a class="card export" href="<?= $exportUrl ?>">
-            <span><?=__($langGroup, 'Exportar datos');?></span>
+            <span><?= __($langGroup, 'Exportar datos'); ?></span>
             <i class="file export icon"></i>
         </a>
     </div>
 
     <div class="card-table">
-        <table process="<?=get_route('informes-acceso-ajax');?>" class="ui table striped celled not-logged"
-            style="max-width:100%;width:100%;">
+        <table process="<?= get_route('informes-acceso-ajax'); ?>" class="ui basic table not-logged no-border" style="max-width:100%;width:100%;">
             <thead>
                 <tr>
                     <th><?= __($langGroup, 'ID'); ?></th>
@@ -68,17 +67,24 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
 </section>
 
 <script>
-window.onload = function(e) {
-    $('.tabular.menu .item').tab()
-    let tableNotLogged = $('table.ui.table.not-logged')
-    dataTableServerProccesing(tableNotLogged, tableNotLogged.attr('process'), 25, {
-        drawCallback: function ({jqXHR}) {
-           const { responseJSON: {recordsFiltered, recordsTotal} } = jqXHR
-           $('[total-users]').text(recordsTotal)
-           $('[users-not-logged]').text(recordsFiltered)
-           $('[bar-chart-no-logged]').css('width',  (recordsFiltered * 100 / recordsTotal) + '%')
-        },
-    })
+    window.onload = function(e) {
+        $('.tabular.menu .item').tab()
+        let tableNotLogged = $('table.ui.table.not-logged')
+        dataTableServerProccesing(tableNotLogged, tableNotLogged.attr('process'), 25, {
+            drawCallback: function({
+                jqXHR
+            }) {
+                const {
+                    responseJSON: {
+                        recordsFiltered,
+                        recordsTotal
+                    }
+                } = jqXHR
+                $('[total-users]').text(recordsTotal)
+                $('[users-not-logged]').text(recordsFiltered)
+                $('[bar-chart-no-logged]').css('width', (recordsFiltered * 100 / recordsTotal) + '%')
+            },
+        })
 
-}
+    }
 </script>

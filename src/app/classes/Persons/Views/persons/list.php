@@ -37,10 +37,10 @@ $langGroupDatatables = 'datatables';
 
     </div>
 
-    <?php if(mb_strlen($formVariables['action']) > 0): ?>
-    <?php $this->render($this::BASE_VIEW_DIR . '/forms/add', $formVariables); ?>
-    <br>
-    <br>
+    <?php if (mb_strlen($formVariables['action']) > 0) : ?>
+        <?php $this->render($this::BASE_VIEW_DIR . '/forms/add', $formVariables); ?>
+        <br>
+        <br>
     <?php endif; ?>
 
 
@@ -50,7 +50,7 @@ $langGroupDatatables = 'datatables';
 
     <div class="container-standard-table">
 
-        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
+        <table url="<?= $processTableLink; ?>" class="ui basic table">
 
             <thead>
 

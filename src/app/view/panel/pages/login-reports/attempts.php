@@ -57,7 +57,7 @@ $percent =  intval(($successAttempts * 100) / $totalAttempts);
 
     <div class="card-table">
         <table process="<?=get_route('informes-acceso-ajax',['type'=>'attempts']);?>"
-            class="ui celled table attempts" style="max-width:100%;width:100%;">
+            class="ui basic table attempts no-border" style="max-width:100%;width:100%;">
             <thead>
                 <tr>
                     <th><?= __($langGroup, 'Indicador'); ?></th>
