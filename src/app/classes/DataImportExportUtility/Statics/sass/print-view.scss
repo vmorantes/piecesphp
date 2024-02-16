@@ -1,5 +1,5 @@
-@import '../../../../../statics/core/sass/admin_app_base';
-
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
 html,
 body {
     overflow-x: initial;
@@ -33,10 +33,10 @@ body {
             padding: 15px;
             border: 2px dashed black;
 
-            .link{
+            .link {
                 text-align: center;
             }
-            
+
             .image {
                 text-align: center;
 
@@ -59,7 +59,7 @@ body {
         display: none;
     }
 
-    .tag.check-pass{
+    .tag.check-pass {
         display: none;
     }
 

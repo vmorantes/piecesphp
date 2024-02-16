@@ -1,4 +1,5 @@
-@import '../../core/sass/admin_app_base';
+@import '../../core/sass/includes/variables_app_base';
+@import '../../core/sass/includes/functions_app_base';
 
 $mainColor : var(--main-brand-color);
 $second : var(--second-brand-color);
