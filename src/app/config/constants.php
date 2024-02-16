@@ -38,7 +38,7 @@ define('LOCATIONS_ENABLED', true);
 define('LOCATIONS_LANG_GROUP', 'locationBackend');
 
 //Temporizadores
-define('ACTIVE_TIMER', true);
+define('ACTIVE_TIMER', false);
 
 //Gestor de archivos
 define('FILE_MANAGER_MODULE', true);
