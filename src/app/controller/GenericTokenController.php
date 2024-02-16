@@ -104,13 +104,14 @@ class GenericTokenController extends AdminPanelController
         $exists = array_key_exists($handler, self::TYPES_HANDLER);
 
         $tokenData = BaseToken::getData($token, self::KEY_JWT, null, true);
+        $tokenExpired = BaseToken::isExpire($token, self::KEY_JWT, null);
         $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass ? (array) $tokenData : [];
 
         $tokenController = new TokenController();
 
         $exists_token = $tokenController->tokenExists($token);
 
-        if ($exists) {
+        if ($exists && !$tokenExpired) {
 
             /**
              * @var array<string,mixed> $handler
@@ -184,9 +185,9 @@ class GenericTokenController extends AdminPanelController
                             ->setSuccess(false);
 
                     } else {
-                        $this->render('layout/header');
+                        $this->render('layout/header-for-token');
                         $this->render('panel/pages/generic_token/token_invalid_or_unexists');
-                        $this->render('layout/footer');
+                        $this->render('layout/footer-for-token');
                     }
 
                 }
@@ -218,14 +219,14 @@ class GenericTokenController extends AdminPanelController
 
         if ($method == 'GET') {
 
-            $this->render('layout/header');
+            $this->render('layout/header-for-token');
             $this->render('panel/pages/generic_token/commentary', [
                 'action' => get_route('generic-token-action', ['handler' => 'commentary']),
                 'method_action' => 'POST',
                 'token' => $this->tokenID,
                 'tokenData' => $this->tokenData,
             ]);
-            $this->render('layout/footer');
+            $this->render('layout/footer-for-token');
 
         } elseif ($method == 'POST') {
 
