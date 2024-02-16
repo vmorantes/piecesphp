@@ -32,16 +32,16 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <div class="column bottom right">
 
-                <?php if ($hasPermissionsAdd):  ?>
-                <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar publicación'); ?></a>
+                <?php if ($hasPermissionsAdd) :  ?>
+                    <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar publicación'); ?></a>
                 <?php endif; ?>
 
-                <?php if ($hasPermissionsListCategories):  ?>
-                <a href="<?= $listCategoriesLink; ?>" class="ui button brand-color"><?= __($langGroup, 'Categorías'); ?></a>
+                <?php if ($hasPermissionsListCategories) :  ?>
+                    <a href="<?= $listCategoriesLink; ?>" class="ui button brand-color"><?= __($langGroup, 'Categorías'); ?></a>
                 <?php endif; ?>
 
-                <?php if ($hasPermissionsAddCategory):  ?>
-                <a href="<?= $addCategoryLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar categoría'); ?></a>
+                <?php if ($hasPermissionsAddCategory) :  ?>
+                    <a href="<?= $addCategoryLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar categoría'); ?></a>
                 <?php endif; ?>
 
             </div>
@@ -56,8 +56,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     <div class="container-standard-table">
 
-        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
-            
+        <table url="<?= $processTableLink; ?>" class="ui basic table">
+
             <thead>
 
                 <tr>

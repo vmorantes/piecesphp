@@ -93,7 +93,7 @@ $sidebarColor: var(--menu-color-font);
 $sidebarColor2: var(--menu-color-font);
 $sidebarColorActive: rgb(220, 220, 220);
 $sidebarBackgroundItemHover: var(--menu-color-mark);
-$containerAsideContentPaddingT: 6rem;
+$containerAsideContentPaddingT: pxToRem(15);
 $containerAsideContentPaddingR: 3rem;
 $containerAsideContentPaddingB: 8rem;
 $containerAsideContentPaddingL: 5rem;

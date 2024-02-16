@@ -766,6 +766,10 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
  * @param {String} containerSelector 
  * @param {Number} perPage 
  * @param {Object} options
+ * @param {Object} customClassesCards
+ * @param {String} customClassesCards.containerCardsClass
+ * @param {String} customClassesCards.containerCardsSelector
+ * @param {String} customClassesCards.cardsSelector
  * @param {Function} options.initComplete
  * @param {function($):void} options.initCompleteEnd
  * @param {Function} options.preDrawCallback
@@ -773,11 +777,21 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
  * @param {function($):void} options.drawCallbackEnd
  * @returns {Object}
  */
-function dataTablesServerProccesingOnCards(containerSelector, perPage, options) {
+function dataTablesServerProccesingOnCards(containerSelector, perPage, options, customClassesCards) {
 
 	containerSelector = typeof containerSelector == 'string' ? containerSelector : null
 	perPage = typeof perPage == 'number' ? perPage : 10
 	options = typeof options == 'object' ? options : {}
+	customClassesCards = typeof customClassesCards == 'object' ? customClassesCards : {}
+	if (typeof customClassesCards.containerCardsClass != 'string') {
+		customClassesCards.containerCardsClass = 'ui cards'
+	}
+	if (typeof customClassesCards.containerCardsSelector != 'string') {
+		customClassesCards.containerCardsSelector = '.ui.cards'
+	}
+	if (typeof customClassesCards.cardsSelector != 'string') {
+		customClassesCards.cardsSelector = '.card'
+	}
 
 	let container = containerSelector !== null ? $(containerSelector) : null
 
@@ -826,7 +840,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 				//Creación del contenedor de fichas y otras manipulaciones de html
 				let wrapper = container.find('.component-wrapper')
 
-				wrapper.prepend(`<br><div class="ui cards"></div><br><br>`)
+				wrapper.prepend(`<br><div class="${customClassesCards.containerCardsClass}"></div><br><br>`)
 
 				//──── Controles ─────────────────────────────────────────────────────────────────────────
 				let controls = container.find('.component-controls')
@@ -892,8 +906,8 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 
 				preDrawCallback(settings)
 
-				cardsContainer = container.find('.ui.cards')
-				cards = cardsContainer.find('.card')
+				cardsContainer = container.find(customClassesCards.containerCardsSelector)
+				cards = cardsContainer.find(customClassesCards.cardsSelector)
 
 				cardsContainer.html('')
 
@@ -911,7 +925,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
 					cardsContainer.append(data)
 				}
 
-				cards = cardsContainer.find('.card')
+				cards = cardsContainer.find(customClassesCards.cardsSelector)
 
 				if (cards.length == 0) {
 					cardsContainer.html(`<h3>${pcsphpGlobals.messages[pcsphpGlobals.lang].datatables.lang.emptyTable}</h3>`)
@@ -955,7 +969,7 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options) 
  * @param {String|$} selectorForm 
  * @param {genericFormHandler.Options} options
  * @param {Boolean} [overwrite=true] Si es true aplica .off al evento submit
- * @param {Boolean} [defaultInvalidHandler=true] Si es true aplica un manejador de invalidez del formulario predefinido
+ * @param {Boolean} [defaultInvalidHandler=true] Si es true aplica un manejador de invalidez del formulario predefinido (options.onInvalidEvent lo sobreescribe)
  * @returns {$} 
  */
 function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', options = {}, overwrite = true, defaultInvalidHandler = true) {
@@ -963,12 +977,12 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	/**
 	 * @typedef genericFormHandler.Options
 	 * @property {genericFormHandler.Options.ConfirmationOption} [confirmation]
-	 * @property {Function} [onSetFormData]
-	 * @property {Function} [onSetForm]
-	 * @property {Function} [validate]
-	 * @property {Function} [onSuccess]
-	 * @property {Function} [onError]
-	 * @property {Function} [onInvalidEvent]
+	 * @property {{Function(formData: FormData, form: $):FormData}} [onSetFormData]
+	 * @property {{Function(form: $):$|Promise}} [onSetForm]
+	 * @property {{Function(form: $):Boolean}} [validate]
+	 * @property {{Function(form: $, formData: FormData, response: Object):Promise|void}} [onSuccess]
+	 * @property {{Function(form: $, formData: FormData, response: Object):void}} [onError]
+	 * @property {{Function(event: Event):void}} [onInvalidEvent]
 	 * @property {Boolean} [toast]
 	 * @property {Boolean} [ignoreRedirection]
 	 * @property {Boolean} [ignoreReload]
@@ -980,7 +994,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	 * @property {String} [message]	Mensaje de advertencia
 	 * @property {String} [positive] Texto afirmativo
 	 * @property {String} [negative] Texto negativo
-	 * @property {Function} [condition]
+	 * @property {{Function(buttonConfirmation: $):Boolean}} [condition]
 	 */
 	let ignore;
 
@@ -995,21 +1009,51 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 
 	let hasConfirmation = false
 	let buttonConfirmation = null
-	let onSetFormData = function (formData) {
+	let waitForConfirmation = false
+	/**
+	 * @param {FormData} formData
+	 * @param {$} form
+	 * @returns {FormData}
+	 */
+	let onSetFormData = function (formData, form) {
 		return formData
 	}
+	/**
+	 * @param {$} form
+	 * @returns {$|Promise}
+	 */
 	let onSetForm = function (form) {
 		return form
 	}
+	/**
+	 * @param {$} form
+	 * @returns {Boolean}
+	 */
 	let validate = function (form) {
 		return true
 	}
-	let onSuccess = function () {
+	/**
+	 * @param {$} form
+	 * @param {FormData} formData
+	 * @param {Object} response
+	 * @returns {Promise|void}
+	 */
+	let onSuccess = function (form, formData, response) {
 	}
-	let onError = function () {
+	/**
+	 * @param {$} form
+	 * @param {FormData} formData
+	 * @param {Object} response
+	 * @returns {void}
+	 */
+	let onError = function (form, formData, response) {
 	}
 
 	let onInvalidEventOnToTopAnimation = false
+	/**
+	 * @param {Event} event
+	 * @returns {void}
+	 */
 	let onInvalidEvent = function (event) {
 
 		let element = event.target
@@ -1202,7 +1246,6 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		}
 	}
 
-
 	if (form.length > 0) {
 
 		form.off('invalid')
@@ -1225,38 +1268,35 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 
 				} else {
 
-					iziToast.question({
-						timeout: 20000,
-						close: false,
-						overlay: true,
-						displayMode: 'once',
-						id: 'question',
-						zindex: 999,
-						title: options.confirmation.title,
-						message: options.confirmation.message,
-						position: 'center',
-						buttons: [
-							[
-								`<button><b>${options.confirmation.positive}</b></button>`,
-								(instance, toast) => {
+					if (!waitForConfirmation) {
+						$('body').addClass('wait-to-action')
+						waitForConfirmation = true
+						$.toast({
+							title: options.confirmation.title,
+							message: options.confirmation.message,
+							displayTime: 0,
+							class: 'white',
+							position: 'top center',
+							classActions: 'top attached',
+							actions: [{
+								text: `${options.confirmation.positive}`,
+								class: 'blue',
+								click: function () {
 									submit(thisForm)
-									instance.hide({
-										transitionOut: 'fadeOut'
-									}, toast, 'button')
-								},
-								true
-							],
-							[
-								`<button>${options.confirmation.negative}</button>`,
-								(instance, toast) => {
-									instance.hide({
-										transitionOut: 'fadeOut'
-									}, toast, 'button')
+									$('body').removeClass('wait-to-action')
+									waitForConfirmation = false
 								}
-							],
-						]
-					})
-
+							}, {
+								text: `${options.confirmation.negative}`,
+								class: 'gray',
+								click: function () {
+									$('body').removeClass('wait-to-action')
+									waitForConfirmation = false
+									return true
+								}
+							}]
+						})
+					}
 				}
 			}
 
@@ -1339,6 +1379,12 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		}
 	}
 
+	/**
+	 * @param {JQueryXHR} request 
+	 * @param {$} formProcess 
+	 * @param {FormData} formData 
+	 * @returns {void}
+	 */
 	function handlerRequest(request, formProcess, formData) {
 
 		request.done(function (response) {
@@ -1397,13 +1443,13 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 			for (let option in responseStructure) {
 				let config = responseStructure[option]
 				let optional = config.optional
-				let validate = config.validate
+				let validateResponseValue = config.validate
 				let parse = config.parse
 				let value = config.default
 				let optionExists = typeof response[option]
 				if (optionExists) {
 					let inputValue = response[option]
-					if (validate(inputValue)) {
+					if (validateResponseValue(inputValue)) {
 						value = parse(inputValue)
 					}
 					response[option] = value

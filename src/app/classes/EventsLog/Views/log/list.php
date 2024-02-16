@@ -1,7 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Model\AvatarModel;
-use App\Model\UsersModel;
 use PiecesPHP\Core\Validation\Validator;
 
 /**
@@ -40,7 +39,7 @@ $avatar = AvatarModel::getAvatar(Validator::isInteger($user->id) ? (int) $user->
     </div>
 
     <div class="person-title">
-        <?php if($avatar !== null):?>
+        <?php if ($avatar !== null) : ?>
         <div class="image">
             <img src="<?= $avatar; ?>" alt="<?= $user->getFullName(); ?>">
         </div>
@@ -56,12 +55,15 @@ $avatar = AvatarModel::getAvatar(Validator::isInteger($user->id) ? (int) $user->
 
     <div class="container-standard-table">
 
-        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
+        <table url="<?= $processTableLink; ?>" class="ui basic table">
 
             <thead>
 
                 <tr>
+                    <th><?= __($langGroup, '#'); ?></th>
+                    <th><?= __($langGroup, 'Módulo'); ?></th>
                     <th><?= __($langGroup, 'Evento'); ?></th>
+                    <th><?= __($langGroup, 'Usuario'); ?></th>
                     <th><?= __($langGroup, 'IP'); ?></th>
                     <th><?= __($langGroup, 'País'); ?></th>
                     <th><?= __($langGroup, 'Fecha'); ?></th>
