@@ -239,8 +239,8 @@ $adminOptionsGroups = [
 $withAdminOptions = false;
 $withNews = NEWS_MODULE;
 
-foreach($adminOptionsGroups as $title => $config){
-    if($config['visible']){
+foreach ($adminOptionsGroups as $title => $config) {
+    if ($config['visible']) {
         $withAdminOptions = true;
         break;
     }
@@ -274,7 +274,7 @@ $avatar = $currentUser->avatar;
     <i class="angle down icon"></i>
 </div>
 
-<?php if($withNews): ?>
+<?php if ($withNews) : ?>
 <div class="ui-pcs topbar-toggle notifications-options">
     <div class="icon">
         <i class="bell outline icon"></i>
@@ -282,7 +282,7 @@ $avatar = $currentUser->avatar;
 </div>
 <?php endif; ?>
 
-<?php if($withAdminOptions): ?>
+<?php if ($withAdminOptions) : ?>
 <div class="ui-pcs topbar-toggle admin-options <?= $withAdminOptions && !$withNews ? 'is-unique' : ''; ?>">
     <div class="icon">
         <i class="cog icon"></i>
@@ -307,9 +307,9 @@ $avatar = $currentUser->avatar;
         <div class="user-info">
 
             <div class="avatar">
-                <?php if($hasAvatar): ?>
+                <?php if ($hasAvatar) : ?>
                 <img src="<?= $avatar; ?>">
-                <?php else: ?>
+                <?php else : ?>
                 <div class="icon">
                     <i class="icon user outline"></i>
                 </div>
@@ -355,7 +355,7 @@ $avatar = $currentUser->avatar;
     </div>
 </div>
 
-<?php if($withNews): ?>
+<?php if ($withNews) : ?>
 <div class="topbar-content close" data-url="<?= \News\Controllers\NewsController::routeName('ajax-all'); ?>">
 
     <div class="close-user">
@@ -389,7 +389,7 @@ $avatar = $currentUser->avatar;
     <div class="ui-pcs topbar-options admin-options">
 
         <div class="items">
-            <?php foreach($adminOptionsGroups as $title => $config): ?>
+            <?php foreach ($adminOptionsGroups as $title => $config) : ?>
 
             <?php /** @var bool */ $visible = $config['visible']; ?>
             <?php /** @var MenuGroup[] */ $collection = $config['collection']->getItems(); ?>
@@ -397,9 +397,9 @@ $avatar = $currentUser->avatar;
 
             <div class="section-title"><?= $title; ?></div>
 
-            <?php foreach($collection as $adminOption): ?>
+            <?php foreach ($collection as $adminOption) : ?>
 
-            <?php if($adminOption->asLink()):?>
+            <?php if($adminOption->asLink()): ?>
             <a class="item<?= $adminOption->isCurrent() ? " current" : ''; ?>" href="<?= $adminOption->getHref() === '#' ? 'javascript:void(0);' : $adminOption->getHref(); ?>" <?= $adminOption->getAttributes(true); ?>>
                 <div class="figure"><i class="icon <?= $adminOption->getIcon(false); ?>"></i></div>
                 <div class="text"><?= $adminOption->getName(); ?></div>

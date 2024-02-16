@@ -25,6 +25,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 	]
 	let onCroppedCallback = () => { }
 	let onCancelCallback = () => { }
+	let onInitCallback = () => { }
 
 	/**
 	 * @typedef CropperOptions
@@ -146,10 +147,43 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 	}
 
 	/**
+	 * @param {Function} callback 
+	 * @returns {SimpleCropperAdapter}
+	 */
+	this.onInit = function (callback) {
+		if (typeof callback == 'function') {
+			onInitCallback = callback
+		}
+		return instance
+	}
+
+	/**
 	 */
 	this.refresh = function () {
-		cropper.replace(settedImage)
+		if (typeof settedImage == 'string' && settedImage.length > 0) {
+			cropper.replace(settedImage)
+		} else {
+			cropper.replace(settedPreviewImage)
+		}
 		return instance
+	}
+
+	/**
+	 * @returns {String} La url
+	 */
+	this.getSettedImage = function () {
+		if (typeof settedImage == 'string' && settedImage.length > 0) {
+			return settedImage
+		} else {
+			return settedPreviewImage
+		}
+	}
+
+	/**
+	 * @returns {Boolean}
+	 */
+	this.imageIsSetted = function () {
+		return typeof settedImage == 'string' && settedImage.length > 0
 	}
 
 	/**
@@ -210,7 +244,16 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 	if (typeof options.minCropBoxWidth == 'undefined') {
 		options.minCropBoxWidth = options.outputWidth * 2
 	}
-	let cropper = new Cropper(preview, Object.assign(options, {}))
+	let onInitDispatched = false
+	let cropper = new Cropper(preview, Object.assign(options, {
+		ready: function () {
+			if (!onInitDispatched) {
+				onInitCallback(instance)
+				onInitDispatched = true
+			}
+			removeGenericLoader('SimpleCropperAdapter')
+		}
+	}))
 	let blobImage = null
 	let settedImage = preview.hasAttribute('is-final') ? preview.src : ''
 	let settedPreviewImage = !preview.hasAttribute('is-final') ? preview.src : ''
@@ -326,10 +369,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 
 	})
 
-	removeGenericLoader('SimpleCropperAdapter')
 	return this
-
-
 }
 /**
  * @param {String} name 

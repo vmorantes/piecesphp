@@ -122,7 +122,10 @@ class LogsController extends AdminPanelController
         $selectFields = LogsMapper::fieldsToSelect();
 
         $columnsOrder = [
+            'idPadding',
+            'moduleName',
             'textMessageReplacement',
+            'createdByUser',
             'ip',
             'geolocationByIp',
             'createdAt',
@@ -149,7 +152,10 @@ class LogsController extends AdminPanelController
 
                 $columns = [];
 
+                $columns[] = $e->idPadding;
+                $columns[] = $e->moduleName;
                 $columns[] = $e->textMessageReplacement;
+                $columns[] = $e->createdByUser;
                 $columns[] = $e->ip;
                 $columns[] = $e->geolocationByIp;
                 $columns[] = ucfirst($e->createdAtFormat);
