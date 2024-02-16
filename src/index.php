@@ -7,7 +7,6 @@ use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
-use PiecesPHP\Core\CustomErrorsHandlers\CustomSlimErrorHandler;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\DependenciesInjector;
@@ -595,16 +594,39 @@ $handle403 = function (RequestRoute $request, Throwable $exception, bool $displa
         return get_router()->getDI()->get('forbiddenHandler')($exception);
     }
 };
-$handleError = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
-    $customErrorHandler = new CustomSlimErrorHandler($exception);
-    return $customErrorHandler->getResponse($request);
+$customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
+    if ($exception instanceof HttpNotFoundException || $exception instanceof NotFoundException) {
+        return get_router()->getDI()->get('notFoundHandler')($exception);
+    } elseif ($exception instanceof HttpForbiddenException) {
+        return get_router()->getDI()->get('forbiddenHandler')($exception);
+    } else {
+        global_custom_exception_handler($exception, 'RouterSetErrorHandler');
+        $response = new ResponseRoute();
+        return $response->withStatus(500);
+    }
 };
 $errorMiddleware->setErrorHandler(HttpNotFoundException::class, $handle404);
 $errorMiddleware->setErrorHandler(HttpForbiddenException::class, $handle403);
 $errorMiddleware->setErrorHandler(NotFoundException::class, $handle404);
-$errorMiddleware->setErrorHandler(\ErrorException::class, $handleError);
-$errorMiddleware->setErrorHandler(\Error::class, $handleError);
-$errorMiddleware->setErrorHandler(\TypeError::class, $handleError);
-$errorMiddleware->setErrorHandler(\Throwable::class, $handleError);
+$errorMiddleware->setErrorHandler([
+    \ErrorException::class,
+    \Error::class,
+    \Exception::class,
+    \TypeError::class,
+    \Throwable::class,
+    \BadFunctionCallException::class,
+    \BadMethodCallException::class,
+    \DomainException::class,
+    \InvalidArgumentException::class,
+    \LengthException::class,
+    \LogicException::class,
+    \OutOfBoundsException::class,
+    \OutOfRangeException::class,
+    \OverflowException::class,
+    \RangeException::class,
+    \RuntimeException::class,
+    \UnderflowException::class,
+    \UnexpectedValueException::class,
+], $customGlobalExceptionHandler, true);
 
 $app->run(RequestRouteFactory::createFromGlobals());

@@ -98,6 +98,11 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_PASSWORD_RECOVERY_BY_CODE => 'El usuario %username% ha recuperado su contraseña mediante un código',
     ];
 
+    //Rugby
+    const MODULE_NAMES_EQUIVALENCES_BY_SOURCE = [
+        UsersModel::TABLE => 'Usuarios',
+    ];
+
     /**
      * @var string
      */
@@ -208,7 +213,7 @@ class LogsMapper extends EntityMapperExtensible
 
         if (function_exists('geoip_record_by_name')) {
             $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-            $geoIP = @geoip_record_by_name($ip);
+            $geoIP = function_exists('geoip_record_by_name') ? call_user_func('geoip_record_by_name', $ip) : null;
             $geoIP = is_array($geoIP) ? $geoIP : [
                 'country_name' => 'Sin especificar',
             ];
@@ -250,6 +255,8 @@ class LogsMapper extends EntityMapperExtensible
      * - createdAtFormat
      * - ip
      * - geolocationByIp
+     * - moduleNameFromSource
+     * - moduleName
      * @return string[]
      */
     public static function fieldsToSelect()
@@ -264,6 +271,7 @@ class LogsMapper extends EntityMapperExtensible
         $createdAtFormatReplacements = json_encode([
             '{1}' => __(self::LANG_GROUP, 'de'),
         ], \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+        $moduleNameBySourceJSON = json_encode((object) self::MODULE_NAMES_EQUIVALENCES_BY_SOURCE, \JSON_UNESCAPED_UNICODE);
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
@@ -272,6 +280,8 @@ class LogsMapper extends EntityMapperExtensible
             "strTemplateReplace(DATE_FORMAT({$table}.createdAt, '%M %d {1} %Y %h:%i:%s %p'), '{$createdAtFormatReplacements}') AS createdAtFormat",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.ip')) AS ip",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.geolocationByIp')) AS geolocationByIp",
+            "JSON_UNQUOTE(JSON_EXTRACT('{$moduleNameBySourceJSON}', CONCAT('$.', {$table}.referenceSource))) AS moduleNameFromSource",
+            "(SELECT IF(moduleNameFromSource IS NULL, {$table}.referenceSource, moduleNameFromSource)) AS moduleName",
         ];
 
         $allFields = array_keys(self::getFields());

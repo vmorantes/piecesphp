@@ -104,8 +104,6 @@ class LoginAttemptsController extends AdminPanelController
                     'errorAttempts' => count(array_filter($attemptsData, function ($e) {return !$e->success;})),
                     'exportUrl' => get_route('attempts-export'),
                 ]);
-            } else {
-                $this->render('panel/pages/login-reports/login-reports');
             }
 
             $this->render('panel/layout/footer');

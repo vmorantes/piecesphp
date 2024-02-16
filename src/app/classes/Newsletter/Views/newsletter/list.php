@@ -31,8 +31,8 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <div class="column bottom right">
 
-                <?php if ($hasPermissionsAdd):  ?>
-                <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar suscriptor'); ?></a>
+                <?php if ($hasPermissionsAdd) :  ?>
+                    <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar suscriptor'); ?></a>
                 <?php endif; ?>
 
             </div>
@@ -47,7 +47,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
     <div class="container-standard-table">
 
-        <table url="<?= $processTableLink; ?>" class="ui table striped celled">
+        <table url="<?= $processTableLink; ?>" class="ui basic table">
 
             <thead>
 
