@@ -16,10 +16,12 @@ use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\TerminalData;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
+use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Terminal\Controllers\TerminalController;
 
@@ -160,11 +162,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                         $nameGenericViewLang = lang(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, $nameGenericView, $lang);
                         $alternativesURL[$lang] = str_replace($nameGenericView, $nameGenericViewLang, $alternativesURL[$lang]);
                     }
-
                 }
             }
         }
-
     }
 
     Config::set_config('alternatives_url', $alternativesURL);
@@ -273,7 +273,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             if ($date30Days < $now) {
                 @unlink($fullPath);
             }
-
         }, $oldFilesExpiredSessions);
 
         @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
@@ -291,7 +290,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                 $isActiveSession = SessionToken::isActiveSession($JWT);
             }
         }
-
     }
 
     //Verifica la validez del usuario activo si hay una sesion activa
@@ -340,7 +338,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                         ];
                         $user->fullName = trim(implode(' ', $fullname));
                     }
-
                 }
 
                 return $user;
@@ -404,7 +401,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             {
                 return (is_string($value) && ctype_digit($value)) || is_int($value);
             }
-
         };
 
         $user = $validationUserObject->getUserFromDatabase();
@@ -416,7 +412,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             $isActiveSession = false;
             SessionToken::setMinimumDateCreated(new \DateTime());
         }
-
     }
 
     //Verifica si el control automático de acceso por login está activado
@@ -446,7 +441,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                                 'message' => __('errors', 'RESTRICTED_AREA'),
                             ]);
                         }
-
                     } else {
 
                         if (!TerminalData::getInstance()->isTerminal()) {
@@ -455,12 +449,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                         } else {
                             return $emptyResponse->write("Esta ruta necesita autenticación \r\n");
                         }
-
                     }
-
                 }
             }
-
         }
 
         //Redirección al area administrativa desde formulario de logueo en caso de haber una session
@@ -480,7 +471,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             if ($name_route == 'users-form-login') {
                 return $emptyResponse->withRedirect($admin_url);
             }
-
         }
 
         //Control de permisos por roles
@@ -493,7 +483,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         if ($current_role !== null && $active_roles_control === true) {
 
             $has_permissions = Roles::hasPermissions($name_route, $current_role['name']);
-
         }
 
         //Acciones en caso de no tener permisos
@@ -502,7 +491,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                 return throw403($request, []);
             })($request);
         }
-
     }
 
     //Definición de menús
@@ -575,12 +563,10 @@ if (TerminalData::getInstance()->isTerminal()) {
         }
 
         $container->add('environment', \PiecesPHP\Core\Routing\Slim3Compatibility\Http\Environment::mock($basicServerVariables));
-
     } else {
         echo "La ruta solicitada no existe\r\n";
         exit;
     }
-
 }
 
 //Manejar errores
@@ -596,6 +582,9 @@ $handle403 = function (RequestRoute $request, Throwable $exception, bool $displa
 };
 $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
     if ($exception instanceof HttpNotFoundException || $exception instanceof NotFoundException) {
+        return get_router()->getDI()->get('notFoundHandler')($exception);
+    } elseif ($exception instanceof HttpMethodNotAllowedException) {
+        $exception = new NotFoundException($request, new ResponseRoute(StatusCode::HTTP_NOT_FOUND));
         return get_router()->getDI()->get('notFoundHandler')($exception);
     } elseif ($exception instanceof HttpForbiddenException) {
         return get_router()->getDI()->get('forbiddenHandler')($exception);
