@@ -154,7 +154,7 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
     //Manejo de errores lanzados por throw
     if ($exception instanceof \Error) {
         $errorClass = get_class($exception);
-        $exception = new \ErrorException("({$errorClass}) " . $exception->getMessage(), $exception->getCode(), E_WARNING);
+        $exception = new \ErrorException("({$errorClass}) " . $exception->getMessage(), $exception->getCode(), E_WARNING, $exception->getFile(), $exception->getLine(), $exception->getPrevious());
     }
 
     //Manejos de excepciones
