@@ -98,7 +98,6 @@ class LogsMapper extends EntityMapperExtensible
         self::MSG_PASSWORD_RECOVERY_BY_CODE => 'El usuario %username% ha recuperado su contraseña mediante un código',
     ];
 
-    //Rugby
     const MODULE_NAMES_EQUIVALENCES_BY_SOURCE = [
         UsersModel::TABLE => 'Usuarios',
     ];
