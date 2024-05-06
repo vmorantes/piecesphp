@@ -79,29 +79,60 @@ class DataImportExportUtilityController extends AdminPanelController
             }
             return "?" . implode('&', $paramsString);
         };
-        $users = self::routeName('import-users') . ($parseParams)([
-            "force" => 'no',
-            "update" => 'no',
-        ]);
-        echo implode('<br>', [
-            '<strong><a target="_blank" href="' . $users . '">Importar usuarios</a></strong>',
-        ]);
 
-        echo "<br><br>";
+        $urlsImports = [
+            [
+                'text' => 'Importar usuarios',
+                'link' => self::allowedRoute('import-users') ? self::routeName('import-users') . ($parseParams)([
+                    "force" => 'no',
+                    "update" => 'no',
+                ]) : '',
+            ],
+        ];
+        foreach ($urlsImports as $urlImport) {
+            $link = $urlImport['link'];
+            $text = $urlImport['text'];
+            if (mb_strlen($link) == 0) {
+                continue;
+            }
+            echo "<strong><a target='_blank' href='$link'>$text</a></strong><br>";
+        }
 
-        $exportUsers = self::routeName('export-users') . ($parseParams)([
-            "force" => 'no',
-        ]);
-        echo implode('<br>', [
-            '<strong><a target="_blank" href="' . $exportUsers . '">Exportar usuarios</a></strong>',
-        ]);
+        echo "<br>";
 
-        echo "<br><br>";
+        $urlsExports = [
+            [
+                'text' => 'Exportar usuarios',
+                'link' => self::allowedRoute('export-users') ? self::routeName('export-users') . ($parseParams)([
+                    "force" => 'no',
+                ]) : '',
+            ],
+        ];
+        foreach ($urlsExports as $urlExport) {
+            $link = $urlExport['link'];
+            $text = $urlExport['text'];
+            if (mb_strlen($link) == 0) {
+                continue;
+            }
+            echo "<strong><a target='_blank' href='$link'>$text</a></strong><br>";
+        }
 
-        $importedGenerated = self::routeName('show-imported-generated') . ($parseParams)([]);
-        echo implode('<br>', [
-            '<strong><a target="_blank" href="' . $importedGenerated . '">Registro de importaciones</a></strong>',
-        ]);
+        echo "<br>";
+
+        $urlsOthers = [
+            [
+                'text' => 'Registro de importaciones (usuarios)',
+                'link' => self::allowedRoute('show-imported-generated') ? self::routeName('show-imported-generated') . ($parseParams)([]) : '',
+            ],
+        ];
+        foreach ($urlsOthers as $urlOther) {
+            $link = $urlOther['link'];
+            $text = $urlOther['text'];
+            if (mb_strlen($link) == 0) {
+                continue;
+            }
+            echo "<strong><a target='_blank' href='$link'>$text</a></strong><br>";
+        }
 
         return $response;
     }
@@ -662,7 +693,8 @@ class DataImportExportUtilityController extends AdminPanelController
                 true,
                 null,
                 $accessGeneral
-            ), new Route(
+            ),
+            new Route(
                 "{$startRoute}/imported-generated[/]",
                 $classname . ':showImportedGenerated',
                 self::$baseRouteName . '-show-imported-generated',
