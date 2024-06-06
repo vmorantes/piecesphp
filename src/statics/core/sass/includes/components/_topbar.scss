@@ -94,18 +94,10 @@
         @keyframes side-out {
             0% {
                 width: $w;
-
-                >* {
-                    opacity: 1;
-                }
             }
 
             100% {
                 width: 0px;
-
-                >* {
-                    opacity: 0;
-                }
             }
         }
 

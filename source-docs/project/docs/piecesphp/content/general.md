@@ -5,7 +5,7 @@
 - Requerimientos
     - PiecesPHP
     - Composer
-    - NodeJS 12.x LTS con NVM
+    - NodeJS 18.x LTS con NVM
     - NPM
     - Gulp CLI
 
@@ -34,17 +34,17 @@ php -r "unlink('composer-setup.php');"
 mv composer.phar /usr/local/bin/composer ##Para que esté disponible globalmente
 ```
 
-#### NodeJS y NPM
+#### NodeJS (v18.20.2) y NPM
 ```bash
 #Instalar NVM
 cd ~
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 source ~/.bashrc
 #Instalar Node
-nvm install v12.18.4
+nvm install v18.20.2
 #Verificar versiones
-node --version ##v12.18.4
-npm --version ##6.14.6
+node --version ##18.20.2
+npm --version ##10.8.1
 ```
 
 #### Gulp CLI y Typescript
@@ -108,6 +108,14 @@ npm install ##NO USAR sudo
 #Instalar paquetes de composer
 cd $FOLDER/src
 composer install ##NO USAR sudo
+```
+
+##### Actualización de NPM (solo en caso de errores)
+```bash
+#Para actualizar dependencias
+npm install -g npm-check-updates
+ncu -u
+npm install
 ```
 
 #### Paso 5: Activación de módulos apache necesarios
