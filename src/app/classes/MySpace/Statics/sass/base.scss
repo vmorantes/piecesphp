@@ -28,7 +28,7 @@ $totalColumns: 12;
     //Extra small
     @for $i from 1 through $totalColumns {
 
-        $percent: 100%/$totalColumns*$i;
+        $percent: calc(100%/$totalColumns)*$i;
 
         >.col-#{$i} {
             width: #{$percent};
@@ -39,7 +39,7 @@ $totalColumns: 12;
     //md
     @for $i from 1 through $totalColumns {
 
-        $percent: 100%/$totalColumns*$i;
+        $percent: calc(100%/$totalColumns)*$i;
 
         @container col-system (min-width: #{$rsMedium}) {
             >.col-md-#{$i} {
@@ -53,7 +53,7 @@ $totalColumns: 12;
     //lg
     @for $i from 1 through $totalColumns {
 
-        $percent: 100%/$totalColumns*$i;
+        $percent: calc(100%/$totalColumns)*$i;
 
         @container col-system (min-width: #{$rsLarge3}) {
             >.col-lg-#{$i} {
@@ -66,7 +66,7 @@ $totalColumns: 12;
     //x-lg
     @for $i from 1 through $totalColumns {
 
-        $percent: 100%/$totalColumns*$i;
+        $percent: calc(100%/$totalColumns)*$i;
 
         @container col-system (min-width: #{$rsXLarge}) {
             >.col-x-lg-#{$i} {
