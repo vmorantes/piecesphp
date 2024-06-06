@@ -442,7 +442,7 @@
         }
 
         $w: 153;
-        $h: $w/2;
+        $h: calc($w/2);
         width: unquote($w + "px");
         height: unquote($h + "px");
         color: var(--text);

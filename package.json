@@ -5,17 +5,20 @@
     "description": "Librerías JS del framework php PiecesPHP",
     "version": "0.0.1",
     "devDependencies": {
-        "@types/jquery": "^3.3.31",
-        "@types/mapbox-gl": "^2.4.2",
-        "@types/mapbox__mapbox-gl-geocoder": "^4.7.1",
-        "gulp": "^4.0.2",
+        "@types/jquery": "^3.5.30",
+        "@types/mapbox__mapbox-gl-geocoder": "^5.0.0",
+        "@types/mapbox-gl": "^3.1.0",
+        "gulp": "^5.0.0",
         "gulp-concat": "^2.6.1",
         "gulp-rename": "^2.0.0",
         "gulp-replace": "^1.1.4",
-        "gulp-sass": "^4.0.1",
-        "gulp-sourcemaps": "^2.6.4",
+        "gulp-sourcemaps": "^3.0.0",
         "gulp-typescript": "6.0.0-alpha.1",
         "gulp-uglify": "^3.0.2",
-        "typescript": "^4.3.2"
+        "typescript": "^5.4.5"
+    },
+    "dependencies": {
+        "gulp-sass": "^5.1.0",
+        "sass": "^1.77.4"
     }
 }
