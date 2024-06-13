@@ -35,6 +35,7 @@ $sidebar = new MenuGroupCollection([
             'asLink' => true,
             'href' => get_route('admin'),
             'icon' => 'address card',
+            'position' => 1,
         ]),
         new MenuGroup([
             'name' => __(EntryPointController::LANG_GROUP, 'Banner'),
@@ -42,6 +43,7 @@ $sidebar = new MenuGroupCollection([
             'asLink' => true,
             'href' => \PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController::routeName('list', [], true),
             'icon' => 'images',
+            'position' => 100,
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),
@@ -49,6 +51,7 @@ $sidebar = new MenuGroupCollection([
             'asLink' => true,
             'href' => get_route('locations', [], true),
             'icon' => 'map marker alternate',
+            'position' => 100,
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Mensajes'),
@@ -58,6 +61,8 @@ $sidebar = new MenuGroupCollection([
             'visible' => Roles::hasPermissions('messages-inbox', $current_type_user),
             'asLink' => true,
             'href' => get_route('messages-inbox', [], true),
+            'icon' => 'envelope outline',
+            'position' => 100,
         ]),
     ],
 ]);
@@ -69,7 +74,7 @@ $hasManyLangs = !empty($alternativesURL);
 if ($hasManyLangs) {
     $langsItem = new MenuGroup([
         'name' => __(ADMIN_MENU_LANG_GROUP, 'Idiomas'),
-        'position' => 300,
+        'position' => 1000,
         'icon' => 'language',
     ]);
 

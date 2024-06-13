@@ -91,7 +91,7 @@ class DocumentsRoutes
                 [
                     'name' => __(DocumentsLang::LANG_GROUP, 'Documentos'),
                     'icon' => 'open folder',
-                    'position' => 3,
+                    'position' => 20,
                     'items' => [
                         new MenuItem([
                             'text' => __(DocumentsLang::LANG_GROUP, 'Gestionar'),

@@ -104,7 +104,7 @@ class NewsRoutes
                 'href' => NewsController::routeName('list'),
                 'visible' => NewsController::allowedRoute('list'),
                 'asLink' => true,
-                'position' => 5,
+                'position' => 20,
             ]));
 
         }
