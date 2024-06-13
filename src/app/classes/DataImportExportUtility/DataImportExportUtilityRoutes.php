@@ -84,7 +84,7 @@ class DataImportExportUtilityRoutes
                 'icon' => 'file excel',
                 'href' => DataImportExportUtilityController::routeName('show-routes'),
                 'visible' => DataImportExportUtilityController::allowedRoute('show-routes'),
-                'position' => 100,
+                'position' => 900,
             ]));
 
         }

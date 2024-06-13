@@ -86,7 +86,7 @@ class FormsRoutes
                         'visible' => CategoriesController::allowedRoute('list'),
                     ]),
                 ],
-                'position' => 4,
+                'position' => 20,
             ]));
 
         }

@@ -60,6 +60,9 @@ define('FORMS_MODULE_ENABLE', true);
 define('FORMS_MODULE_CATEGORIES_ENABLE', true);
 define('FORMS_MODULE_DOCUMENTS_TYPES_ENABLE', true);
 
+//Módulo de presentaciones para capacitaciones tipo diapositiva
+define('APP_PRESENTATIONS_ENABLE', false);
+
 //Personas
 define('PERSONS_MODULE', true);
 

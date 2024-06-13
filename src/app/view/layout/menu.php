@@ -37,7 +37,7 @@ $publicMenu = new MenuGroupCollection([
             'visible' => true,
             'asLink' => true,
             'href' => PublicAreaController::routeName('contact'),
-            'position' => 20,
+            'position' => 90,
         ]),
     ],
 ]);
@@ -83,7 +83,7 @@ $menuLangGroup = new MenuGroup([
     'name' => __(LANG_GROUP, 'Idiomas') . '&nbsp;&nbsp;',
     'visible' => true,
     'items' => [],
-    'position' => 21,
+    'position' => 100,
 ]);
 
 $langs = \PiecesPHP\Core\Config::get_config('alternatives_url');

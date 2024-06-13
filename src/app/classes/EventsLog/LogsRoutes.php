@@ -84,7 +84,7 @@ class LogsRoutes
                 'asLink' => true,
                 'visible' => LogsController::allowedRoute('list'),
                 'href' => LogsController::routeName('list'),
-                'position' => 30,
+                'position' => 700,
             ]));
 
         }
