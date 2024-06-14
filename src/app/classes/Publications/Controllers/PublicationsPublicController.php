@@ -152,8 +152,9 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
         $exists = $element->id !== null;
         $allowShow = false;
+        $isScheduled = $element->status == PublicationMapper::ACTIVE && !$element->isActiveByDates();
 
-        if ($element->isDraft()) {
+        if ($element->isDraft() || $isScheduled) {
 
             if ($exists && $this->user instanceof \stdClass) {
 

@@ -76,7 +76,7 @@ class PublicationsCategoryController extends AdminPanelController
         self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
 
         $this->model = (new PublicationCategoryMapper())->getModel();
-        set_title(self::$title);
+        set_title(self::$pluralTitle);
 
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
@@ -103,11 +103,24 @@ class PublicationsCategoryController extends AdminPanelController
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
 
+        $title = __(self::LANG_GROUP, 'Agregar categoría');
+        $description = '';
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
-        $data['title'] = __(self::LANG_GROUP, 'Gestión de categoría');
+        $data['title'] = $title;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(self::LANG_GROUP, 'Categorías') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ]);
 
         $this->helpController->render('panel/layout/header');
         self::view('forms/add', $data);
@@ -151,17 +164,30 @@ class PublicationsCategoryController extends AdminPanelController
             $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
+            $title = __(self::LANG_GROUP, 'Edición de categoría');
+            $description = '';
+
+            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
             $data = [];
             $data['action'] = $action;
             $data['element'] = $element;
             $data['deleteRoute'] = self::routeName('actions-delete', ['id' => $element->id]);
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
-            $data['backLink'] = $backLink;
-            $data['title'] = __(self::LANG_GROUP, 'Gestión de categoría');
+            $data['title'] = $title;
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
+            $data['breadcrumbs'] = get_breadcrumbs([
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => get_route('admin'),
+                ],
+                __(self::LANG_GROUP, 'Categorías') => [
+                    'url' => $backLink,
+                ],
+                $title,
+            ]);
 
             $this->helpController->render('panel/layout/header');
             self::view('forms/edit', $data, true, false);
@@ -183,19 +209,27 @@ class PublicationsCategoryController extends AdminPanelController
     public function listView(Request $request, Response $response)
     {
 
-        $backLink = PublicationsController::routeName('list');
         $addLink = self::routeName('forms-add');
         $processTableLink = self::routeName('datatables');
 
-        $title = self::$pluralTitle;
+        $title = __(self::LANG_GROUP, 'Categorías');
+        $description = __(self::LANG_GROUP, 'Listado de categorías');
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = strlen($addLink) > 0;
         $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            $title,
+        ]);
 
         set_custom_assets([
             PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),

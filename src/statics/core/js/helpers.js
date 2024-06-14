@@ -1967,10 +1967,12 @@ function swipedetect(el, callback) {
 
 /**
  * Configura un scroll x espejo en la parte de arriba
+ * @param {String} [namespace]
+ * @param {String} [selector]
  */
-function configMirrorScrollX() {
+function configMirrorScrollX(namespace = 'default', selector = null) {
 
-	let mirrorScrollX = $('.mirror-scroll-x')
+	let mirrorScrollX = typeof selector == 'string' ? $(selector) : $('.mirror-scroll-x')
 
 	if (mirrorScrollX.length > 0) {
 
@@ -2002,10 +2004,10 @@ function configMirrorScrollX() {
 
 		}
 
-		$(window).off('resize', checkScrollX)
-		$(window).on('resize', checkScrollX)
+		$(window).off(`resize.${namespace}`, checkScrollX)
+		$(window).on(`resize.${namespace}`, checkScrollX)
 		setTimeout(function () {
-			$(window).trigger('resize')
+			$(window).trigger(`resize.${namespace}`)
 		}, 500)
 	}
 

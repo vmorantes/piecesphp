@@ -6,7 +6,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
  * @var string $action
  */
 ?>
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="header-options">
 

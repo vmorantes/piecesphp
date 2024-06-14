@@ -547,6 +547,8 @@ $lang = [
         'Ordenar por'         => 'Sort by',
         'ASC'                 => '<i class="ui icon arrow down"></i>Ascendent',
         'DESC'                => '<i class="ui icon arrow up"></i>Descendent',
+        "Ver"                 => "See",
+        "elementos"           => "elements",
 	],
     'bi-dynamic-images' => [
 		'Imágenes principales' => 'Main images',

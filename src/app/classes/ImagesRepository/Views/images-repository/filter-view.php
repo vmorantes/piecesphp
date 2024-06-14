@@ -63,7 +63,7 @@ $hasParams = !empty($params) || ($validateParam)($search);
     </div>
 </div>
 
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="explorer-sidebar-content">
 
