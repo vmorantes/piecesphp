@@ -7,6 +7,7 @@
 namespace Terminal\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Controller\AppConfigController;
 use App\Model\UsersModel;
 use Ifsnop\Mysqldump\Mysqldump;
 use PiecesPHP\Core\BaseModel;
@@ -15,6 +16,8 @@ use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RequestRouteFactory;
+use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
@@ -50,7 +53,7 @@ class TerminalController extends AdminPanelController
     /**
      * Respaldar toda la base de datos
      *
-     * @return string
+     * @return void
      */
     public function dbBackup()
     {
@@ -78,7 +81,7 @@ class TerminalController extends AdminPanelController
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
         //Mensajes de respuesta
-        $responseText = "";
+        $responseText = "asfasffas";
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -173,11 +176,11 @@ class TerminalController extends AdminPanelController
 
         }
 
-        return $responseText;
+        echoTerminal($responseText);
     }
 
     /**
-     * @return string
+     * @return void
      */
     public function bundle()
     {
@@ -251,7 +254,7 @@ class TerminalController extends AdminPanelController
              * @var bool $app
              * @var bool $statics
              * @var bool $all
-             * @var bool $all
+             * @var bool $zip
              */
             $app = $expectedParameters->getValue('app');
             $statics = $expectedParameters->getValue('statics');
@@ -338,6 +341,91 @@ class TerminalController extends AdminPanelController
             $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
             log_exception($e);
 
+        }
+
+        echoTerminal($responseText);
+    }
+
+    /**
+     * @return void
+     */
+    public function cleanCache()
+    {
+
+        //Mensajes de respuesta
+        $responseText = "";
+
+        //──── Acciones ──────────────────────────────────────────────────────────────────────────
+        try {
+
+            try {
+
+                $controllerConfig = new AppConfigController();
+                $response = $controllerConfig->recreateStaticCacheStamp(RequestRouteFactory::createFromGlobals(), new ResponseRoute());
+                $responseJSON = json_decode($response->getLastWriteBodyData(), true);
+                $responseMessage = $responseJSON['message'];
+
+                $responseText = "{$responseMessage}\r\n";
+
+            } catch (\Exception $e) {
+                $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+                log_exception($e);
+            }
+
+        } catch (MissingRequiredParamaterException $e) {
+
+            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+            log_exception($e);
+
+        } catch (ParsedValueException $e) {
+
+            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+            log_exception($e);
+
+        } catch (InvalidParameterValueException $e) {
+
+            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+            log_exception($e);
+
+        } catch (\Exception $e) {
+
+            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+            log_exception($e);
+
+        }
+
+        echoTerminal($responseText);
+    }
+
+    /**
+     * @return string
+     */
+    public function help()
+    {
+
+        //Mensajes de respuesta
+        $responseText = "";
+
+        //Tareas disponibles
+        $terminalTaskAvailables = get_config('terminalTaskAvailablesVerbose');
+
+        if (is_array($terminalTaskAvailables)) {
+
+            $message = [
+                "*** Tareas disponibles ***",
+            ];
+            foreach ($terminalTaskAvailables as $task) {
+                $name = array_key_exists('name', $task) ? $task['name'] : null;
+                $description = array_key_exists('description', $task) ? $task['description'] : null;
+                if (is_string($name) && is_string($description)) {
+                    $message[] = "Tarea: {$name}";
+                    $message[] = "  Descripción: {$description}";
+                }
+            }
+
+            if (count($message) > 1) {
+                echoTerminal(implode("\r\n", $message));
+            }
         }
 
         return $responseText;
@@ -439,6 +527,7 @@ class TerminalController extends AdminPanelController
         if (TerminalData::getInstance()->isTerminal()) {
 
             $routes = [];
+            $terminalTaskAvailables = [];
 
             $groupSegmentURL = $group->getGroupSegment();
 
@@ -448,31 +537,122 @@ class TerminalController extends AdminPanelController
             $classname = self::class;
 
             //Permisos
-            $doBackup = [
+            $onlyRoot = [
                 UsersModel::TYPE_USER_ROOT,
             ];
-            $routes = [
-
+            $routesData = [
                 //──── GET ───────────────────────────────────────────────────────────────────────────────
-                new Route(
-                    "{$startRoute}/db-backup[/]",
-                    $classname . ':dbBackup',
-                    self::$baseRouteName . '-db-backup',
-                    'GET',
-                    true,
-                    null,
-                    $doBackup
-                ),
-                new Route(
-                    "{$startRoute}/bundle[/]",
-                    $classname . ':bundle',
-                    self::$baseRouteName . '-bundle',
-                    'GET',
-                    true,
-                    null,
-                    $doBackup
-                ),
+                [
+                    'description' => [
+                        "Respalda la base de datos por defecto.\r\n",
+                        "\tParámetros:\r\n",
+                        "\t  gz (yes|no) define si se comprime o no. Por defecto: yes",
+                    ],
+                    'route' => "{$startRoute}/db-backup[/]",
+                    'controller' => $classname . ':dbBackup',
+                    'name' => self::$baseRouteName . '-db-backup',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                [
+                    'description' => [
+                        "Empaqueta la aplicación.\r\n",
+                        "\tParámetros:\r\n",
+                        "\t  app (yes|no) solo carpeta app. Por defecto: no\r\n",
+                        "\t  statics (yes|no) solo carpeta static. Por defecto: no\r\n",
+                        "\t  all (yes|no) app y statics. Por defecto: no\r\n",
+                        "\t  zip (yes|no) define si solo copia los archivos o los comprime como zip. Por defecto: no",
+                    ],
+                    'route' => "{$startRoute}/bundle[/]",
+                    'controller' => $classname . ':bundle',
+                    'name' => self::$baseRouteName . '-bundle',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                [
+                    'description' => [
+                        "Fuerza la limpieza de caché de estáticos mediante la renovación del token.\r\n",
+                        "\tParámetros:\r\n",
+                        "\t  N/A\r\n",
+                    ],
+                    'route' => "{$startRoute}/clean-cache[/]",
+                    'controller' => $classname . ':cleanCache',
+                    'name' => self::$baseRouteName . '-clean-cache',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                //Rutas de ayuda
+                [
+                    'description' => null,
+                    'route' => "{$startRoute}/" . uniqid() . "[/]",
+                    'controller' => $classname . ':help',
+                    'name' => self::$baseRouteName . '-help',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                [
+                    'description' => null,
+                    'route' => "{$startRoute}/" . uniqid() . "[/]",
+                    'controller' => $classname . ':help',
+                    'name' => self::$baseRouteName . '-h',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
             ];
+
+            foreach ($routesData as $routeData) {
+                $descriptionRoute = $routeData['description'];
+                $routePathRoute = $routeData['route'];
+                $controllerRoute = $routeData['controller'];
+                $nameRoute = $routeData['name'];
+                $methodRoute = $routeData['method'];
+                $requireLoginRoute = $routeData['requireLogin'];
+                $aliasRoute = $routeData['alias'];
+                $rolesAllowedRoute = $routeData['rolesAllowed'];
+                $defaultParamsValuesRoute = $routeData['defaultParamsValues'];
+                $middlewaresRoute = $routeData['middlewares'];
+                $routes[] = new Route(
+                    $routePathRoute,
+                    $controllerRoute,
+                    $nameRoute,
+                    $methodRoute,
+                    $requireLoginRoute,
+                    $aliasRoute,
+                    $rolesAllowedRoute,
+                    $defaultParamsValuesRoute,
+                    $middlewaresRoute
+                );
+
+                if (is_array($descriptionRoute)) {
+                    $descriptionRoute = implode('', $descriptionRoute);
+                }
+                $terminalTaskAvailables[] = [
+                    'name' => str_replace(self::$baseRouteName . '-', '', $nameRoute),
+                    'description' => $descriptionRoute,
+                ];
+            }
+
+            set_config('terminalTaskAvailablesVerbose', $terminalTaskAvailables);
 
             $group->register($routes);
 

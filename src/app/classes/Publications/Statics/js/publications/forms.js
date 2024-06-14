@@ -109,10 +109,16 @@ window.addEventListener('load', function () {
 
 		}
 	})
+	
+	//Tabs
+	const tabs = $('.tabs-controls [data-tab]').tab({
+		onVisible: function (tabName) {
+		}
+	})
 
+	//Otros
 	form.find('input, select, textarea').attr('autocomplete', 'off')
 	form.find('.checkbox').checkbox()
-	$('.tabs-menu-items .item').tab()
 	$('.ui.accordion').accordion()
 
 	isEdit = form.find(`[name="id"]`).length > 0

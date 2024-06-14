@@ -90,7 +90,7 @@ class PersonsRoutes
                 'asLink' => true,
                 'href' => PersonsController::routeName('list'),
                 'visible' => PersonsController::allowedRoute('list'),
-                'position' => 2,
+                'position' => 20,
                 'icon' => 'users',
             ]));
 

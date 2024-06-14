@@ -99,11 +99,25 @@ class NewsletterController extends AdminPanelController
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
 
+        $title = __(self::LANG_GROUP, 'Agregar suscriptor');
+        $description = '';
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
-        $data['title'] = self::$title;
+        $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(self::LANG_GROUP, 'Suscriptores') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ]);
 
         $this->helpController->render('panel/layout/header');
         self::view('forms/add', $data);
@@ -136,14 +150,28 @@ class NewsletterController extends AdminPanelController
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
 
+            $title = __(self::LANG_GROUP, 'Editar suscriptor');
+            $description = '';
+
+            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
             $data = [];
             $data['action'] = $action;
             $data['element'] = $element;
             $data['deleteRoute'] = self::routeName('actions-delete', ['id' => $element->id]);
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
-            $data['backLink'] = $backLink;
-            $data['title'] = self::$title;
+            $data['title'] = $title;
+            $data['description'] = $description;
+            $data['breadcrumbs'] = get_breadcrumbs([
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => get_route('admin'),
+                ],
+                __(self::LANG_GROUP, 'Suscriptores') => [
+                    'url' => $backLink,
+                ],
+                $title,
+            ]);
 
             $this->helpController->render('panel/layout/header');
             self::view('forms/edit', $data, true, false);
@@ -163,19 +191,27 @@ class NewsletterController extends AdminPanelController
     public function listView()
     {
 
-        $backLink = get_route('admin');
         $addLink = self::routeName('forms-add');
         $processTableLink = self::routeName('datatables');
 
-        $title = self::$pluralTitle;
+        $title = __(self::LANG_GROUP, 'Suscriptores');
+        $description = __(self::LANG_GROUP, 'Listado');
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = strlen($addLink) > 0;
         $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            $title,
+        ]);
 
         set_custom_assets([
             NewsletterRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),

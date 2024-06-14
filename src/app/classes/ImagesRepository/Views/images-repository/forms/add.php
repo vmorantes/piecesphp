@@ -10,7 +10,7 @@ $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup
 ?>
 
 <?php if($standalone): ?>
-<section class="module-view-container">
+<section class="module-view-container limit-size">
     <?php endif; ?>
 
     <?php if($standalone): ?>

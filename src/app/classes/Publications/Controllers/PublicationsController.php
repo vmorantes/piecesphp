@@ -62,10 +62,6 @@ class PublicationsController extends AdminPanelController
      * @var string
      */
     protected static $title = 'Publicación';
-    /**
-     * @var string
-     */
-    protected static $pluralTitle = 'Publicaciones';
 
     /**
      * @var string
@@ -103,11 +99,7 @@ class PublicationsController extends AdminPanelController
     {
         parent::__construct();
 
-        self::$title = __(self::LANG_GROUP, self::$title);
-        self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
-
         $this->model = (new PublicationMapper())->getModel();
-        set_title(self::$title);
 
         $baseURL = base_url();
         $pcsUploadDir = get_config('upload_dir');
@@ -155,14 +147,28 @@ class PublicationsController extends AdminPanelController
         $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), null);
         $searchUsersURL = get_route('users-search-dropdown');
 
+        $title = __(self::LANG_GROUP, 'Agregar publicación');
+        $description = '';
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
-        $data['title'] = __(self::LANG_GROUP, 'Gestión de publicaciones');
+        $data['title'] = $title;
+        $data['description'] = $description;
         $data['allCategories'] = $allCategories;
         $data['attachmentGroup1'] = $attachmentGroup1;
         $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(self::LANG_GROUP, 'Publicaciones') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ]);
 
         $this->helpController->render('panel/layout/header');
         self::view('forms/add', $data);
@@ -220,20 +226,34 @@ class PublicationsController extends AdminPanelController
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
             $searchUsersURL = get_route('users-search-dropdown');
 
+            $title = __(self::LANG_GROUP, 'Edición de publicación');
+            $description = '';
+
+            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
             $data = [];
             $data['action'] = $action;
             $data['element'] = $element;
             $data['deleteRoute'] = self::routeName('actions-delete', ['id' => $element->id]);
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
-            $data['backLink'] = $backLink;
-            $data['title'] = __(self::LANG_GROUP, 'Gestión de publicaciones');
+            $data['title'] = $title;
+            $data['description'] = $description;
             $data['allCategories'] = $allCategories;
             $data['attachmentGroup1'] = $attachmentGroup1;
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
             $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
+            $data['breadcrumbs'] = get_breadcrumbs([
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => get_route('admin'),
+                ],
+                __(self::LANG_GROUP, 'Publicaciones') => [
+                    'url' => $backLink,
+                ],
+                $title,
+            ]);
 
             $this->helpController->render('panel/layout/header');
             self::view('forms/edit', $data, true, false);
@@ -255,18 +275,25 @@ class PublicationsController extends AdminPanelController
     public function listView(Request $request, Response $response)
     {
 
-        $backLink = get_route('admin');
         $addLink = self::routeName('forms-add');
         $addCategoryLink = PublicationsCategoryController::routeName('forms-add');
         $listCategoriesLink = PublicationsCategoryController::routeName('list');
         $processTableLink = self::routeName('datatables');
+        $processTablePublicatedLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_VISIBLE;
+        $processTableDraftLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_DRAFT;
+        $processTableScheduledLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_SCHEDULED;
 
-        $title = self::$pluralTitle;
+        $title = __(self::LANG_GROUP, 'Publicaciones');
+        $description = __(self::LANG_GROUP, 'Listado de publicaciones');
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
+        $data['processTablePublicatedLink'] = $processTablePublicatedLink;
+        $data['processTableDraftLink'] = $processTableDraftLink;
+        $data['processTableScheduledLink'] = $processTableScheduledLink;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = strlen($addLink) > 0;
         $data['addCategoryLink'] = $addCategoryLink;
@@ -274,6 +301,13 @@ class PublicationsController extends AdminPanelController
         $data['listCategoriesLink'] = $listCategoriesLink;
         $data['hasPermissionsListCategories'] = strlen($listCategoriesLink) > 0;
         $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            $title,
+        ]);
 
         set_custom_assets([
             PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -1098,16 +1132,31 @@ class PublicationsController extends AdminPanelController
     public function dataTables(Request $request, Response $response)
     {
 
+        $visibility = $request->getQueryParam('visibility', null);
+
         $whereString = null;
+        $havingString = null;
+        $and = 'AND';
         $table = PublicationMapper::TABLE;
         $inactive = PublicationMapper::INACTIVE;
 
         $where = [
             "{$table}.status != {$inactive}",
         ];
+        $having = [];
+
+        if ($visibility !== null) {
+            $beforeOperator = !empty($having) ? $and : '';
+            $critery = "visibility = {$visibility}";
+            $having[] = "{$beforeOperator} ({$critery})";
+        }
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
+        }
+
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
         }
 
         $selectFields = PublicationMapper::fieldsToSelect();
@@ -1138,6 +1187,7 @@ class PublicationsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
+            'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,

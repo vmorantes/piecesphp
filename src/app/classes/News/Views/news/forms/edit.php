@@ -12,7 +12,7 @@ use News\Mappers\NewsMapper;
  * @var string $action
  */
 ?>
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="header-options">
 

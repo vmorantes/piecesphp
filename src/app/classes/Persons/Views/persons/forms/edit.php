@@ -13,7 +13,7 @@ use Persons\Mappers\PersonsMapper;
  * @var string $action
  */
 ?>
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="header-options">
 

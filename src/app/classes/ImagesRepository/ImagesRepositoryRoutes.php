@@ -87,7 +87,7 @@ class ImagesRepositoryRoutes
                 [
                     'name' => __(ImagesRepositoryLang::LANG_GROUP, 'Registro fotográfico'),
                     'icon' => 'images',
-                    'position' => 4,
+                    'position' => 20,
                     'items' => [
                         new MenuItem([
                             'text' => __(ImagesRepositoryLang::LANG_GROUP, 'Gestionar'),
