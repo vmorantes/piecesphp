@@ -14,7 +14,7 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
  */
 ?>
 
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="header-options">
 
@@ -180,6 +180,7 @@ use ImagesRepository\Mappers\ImagesRepositoryMapper;
                             $this->helpController->render(
                                 'panel/built-in/utilities/simple-upload-placeholder/workspace',
                                 [
+                                    'inputNameAttr' => 'image',
                                     'imagePreview' => $element->image,
                                     'buttonText' => __($langGroup, 'Seleccionar imagen'),
                                     'required' => false,

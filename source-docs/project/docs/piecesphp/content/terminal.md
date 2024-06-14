@@ -25,3 +25,5 @@ php index.php cli bundle app=yes zip=yes
 - db-backup
     - Parámetros:
         - gz [yes|no] default: yes
+
+- help|h Muestra las acciones disponibles

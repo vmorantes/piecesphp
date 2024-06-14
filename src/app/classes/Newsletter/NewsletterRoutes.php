@@ -89,7 +89,7 @@ class NewsletterRoutes
                 'asLink' => true,
                 'href' => NewsletterController::routeName('list'),
                 'visible' => NewsletterController::allowedRoute('list'),
-                'position' => 3,
+                'position' => 20,
             ]));
 
         }

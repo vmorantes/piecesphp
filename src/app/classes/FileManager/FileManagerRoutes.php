@@ -85,7 +85,7 @@ class FileManagerRoutes
                         'visible' => FileManagerController::allowedRoute('filemanager'),
                         'href' => FileManagerController::routeName('filemanager'),
                         'asLink' => true,
-                        'position' => 300,
+                        'position' => 800,
                         'icon' => 'folder open',
                     ]
                 ));

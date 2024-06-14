@@ -35,7 +35,7 @@ class PresentationsRoutes
      */
     private static $init = false;
 
-    const APP_PRESENTATIONS_ENABLE = false;
+    const APP_PRESENTATIONS_ENABLE = APP_PRESENTATIONS_ENABLE;
 
     /**
      * @param RouteGroup $groupAdministration
@@ -104,7 +104,7 @@ class PresentationsRoutes
                             'visible' => PresentationsPublicController::allowedRoute('list'),
                         ]),
                     ],
-                    'position' => 4,
+                    'position' => 30,
                 ]));
 
             } else {
@@ -116,7 +116,7 @@ class PresentationsRoutes
                         'visible' => PresentationsPublicController::allowedRoute('list'),
                         'href' => PresentationsPublicController::routeName('list'),
                         'asLink' => true,
-                        'position' => 4,
+                        'position' => 30,
                     ]
                 ));
 

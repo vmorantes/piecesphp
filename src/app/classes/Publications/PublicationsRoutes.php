@@ -120,7 +120,7 @@ class PublicationsRoutes
                         'visible' => PublicationsCategoryController::allowedRoute('list'),
                     ]),
                 ],
-                'position' => 3,
+                'position' => 10,
             ]));
 
         }

@@ -9,72 +9,173 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 ?>
 <section class="module-view-container">
 
-    <div class="header-options">
+    <div class="breadcrumb">
+        <?= $breadcrumbs ?>
+    </div>
 
-        <div class="main-options">
+    <div class="limiter-content">
 
-            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                <i class="icon left arrow"></i>
-            </a>
+        <div class="section-title">
+            <div class="title"><?= $title ?></div>
+            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
+            <div class="description"><?= $description; ?></div>
+            <?php endif; ?>
+        </div>
+
+        <br>
+
+        <div class="main-buttons">
+
+            <?php if ($hasPermissionsAdd) :  ?>
+            <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar publicación'); ?></a>
+            <?php endif; ?>
+
+            <?php if ($hasPermissionsListCategories) :  ?>
+            <a href="<?= $listCategoriesLink; ?>" class="ui button brand-color"><?= __($langGroup, 'Categorías'); ?></a>
+            <?php endif; ?>
+
+            <?php if ($hasPermissionsAddCategory) :  ?>
+            <a href="<?= $addCategoryLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar categoría'); ?></a>
+            <?php endif; ?>
 
         </div>
 
-        <div class="columns two">
+        <br>
 
-            <div class="column">
+        <div class="tabs-controls">
+            <div class="active" data-tab="all"><?= __($langGroup, 'TODAS_LAS_PUBLICACIONES'); ?></div>
+            <div data-tab="publicated"><?= __($langGroup, 'PUBLICACIONES_PUBLICADAS'); ?></div>
+            <div data-tab="scheduled"><?= __($langGroup, 'PUBLICACIONES_PROGRAMADAS'); ?></div>
+            <div data-tab="draft"><?= __($langGroup, 'PUBLICACIONES_BORRADOR'); ?></div>
+        </div>
 
-                <div class="section-title">
-                    <div class="title"><?= $title; ?></div>
-                    <div class="subtitle"><?= __($langGroup, 'Listado'); ?></div>
-                </div>
+        <div class="ui tab tab-element active" data-tab="all">
 
+            <div class="mirror-scroll-x all" mirror-scroll-target=".container-standard-table.all">
+                <div class="mirror-scroll-x-content"></div>
             </div>
 
-            <div class="column bottom right">
+            <div class="container-standard-table all">
 
-                <?php if ($hasPermissionsAdd) :  ?>
-                    <a href="<?= $addLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar publicación'); ?></a>
-                <?php endif; ?>
+                <table url="<?= $processTableLink; ?>" class="ui basic table all">
 
-                <?php if ($hasPermissionsListCategories) :  ?>
-                    <a href="<?= $listCategoriesLink; ?>" class="ui button brand-color"><?= __($langGroup, 'Categorías'); ?></a>
-                <?php endif; ?>
+                    <thead>
 
-                <?php if ($hasPermissionsAddCategory) :  ?>
-                    <a href="<?= $addCategoryLink; ?>" class="ui button brand-color alt"><?= __($langGroup, 'Agregar categoría'); ?></a>
-                <?php endif; ?>
+                        <tr>
+                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'Título'); ?></th>
+                            <th><?= __($langGroup, 'Categoría'); ?></th>
+                            <th><?= __($langGroup, 'Visitas'); ?></th>
+                            <th><?= __($langGroup, 'Fecha'); ?></th>
+                            <th><?= __($langGroup, 'Autor'); ?></th>
+                            <th><?= __($langGroup, 'Status'); ?></th>
+                            <th><?= __($langGroup, 'Destacado'); ?></th>
+                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                        </tr>
+
+                    </thead>
+
+                </table>
 
             </div>
 
         </div>
 
-    </div>
+        <div class="ui tab tab-element" data-tab="publicated">
 
-    <div class="mirror-scroll-x" mirror-scroll-target=".container-standard-table">
-        <div class="mirror-scroll-x-content"></div>
-    </div>
+            <div class="mirror-scroll-x publicated" mirror-scroll-target=".container-standard-table.publicated">
+                <div class="mirror-scroll-x-content"></div>
+            </div>
 
-    <div class="container-standard-table">
+            <div class="container-standard-table publicated">
 
-        <table url="<?= $processTableLink; ?>" class="ui basic table">
+                <table url="<?= $processTablePublicatedLink; ?>" class="ui basic table publicated">
 
-            <thead>
+                    <thead>
 
-                <tr>
-                    <th><?= __($langGroup, '#'); ?></th>
-                    <th><?= __($langGroup, 'Título'); ?></th>
-                    <th><?= __($langGroup, 'Categoría'); ?></th>
-                    <th><?= __($langGroup, 'Visitas'); ?></th>
-                    <th><?= __($langGroup, 'Fecha'); ?></th>
-                    <th><?= __($langGroup, 'Autor'); ?></th>
-                    <th><?= __($langGroup, 'Estado'); ?></th>
-                    <th><?= __($langGroup, 'Destacado'); ?></th>
-                    <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
-                </tr>
+                        <tr>
+                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'Título'); ?></th>
+                            <th><?= __($langGroup, 'Categoría'); ?></th>
+                            <th><?= __($langGroup, 'Visitas'); ?></th>
+                            <th><?= __($langGroup, 'Fecha'); ?></th>
+                            <th><?= __($langGroup, 'Autor'); ?></th>
+                            <th><?= __($langGroup, 'Status'); ?></th>
+                            <th><?= __($langGroup, 'Destacado'); ?></th>
+                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                        </tr>
 
-            </thead>
+                    </thead>
 
-        </table>
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="ui tab tab-element" data-tab="scheduled">
+
+            <div class="mirror-scroll-x scheduled" mirror-scroll-target=".container-standard-table.scheduled">
+                <div class="mirror-scroll-x-content"></div>
+            </div>
+
+            <div class="container-standard-table scheduled">
+
+                <table url="<?= $processTableScheduledLink; ?>" class="ui basic table scheduled">
+
+                    <thead>
+
+                        <tr>
+                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'Título'); ?></th>
+                            <th><?= __($langGroup, 'Categoría'); ?></th>
+                            <th><?= __($langGroup, 'Visitas'); ?></th>
+                            <th><?= __($langGroup, 'Fecha'); ?></th>
+                            <th><?= __($langGroup, 'Autor'); ?></th>
+                            <th><?= __($langGroup, 'Status'); ?></th>
+                            <th><?= __($langGroup, 'Destacado'); ?></th>
+                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                        </tr>
+
+                    </thead>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="ui tab tab-element" data-tab="draft">
+
+            <div class="mirror-scroll-x draft" mirror-scroll-target=".container-standard-table.draft">
+                <div class="mirror-scroll-x-content"></div>
+            </div>
+
+            <div class="container-standard-table draft">
+
+                <table url="<?= $processTableDraftLink; ?>" class="ui basic table draft">
+
+                    <thead>
+
+                        <tr>
+                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'Título'); ?></th>
+                            <th><?= __($langGroup, 'Categoría'); ?></th>
+                            <th><?= __($langGroup, 'Visitas'); ?></th>
+                            <th><?= __($langGroup, 'Fecha'); ?></th>
+                            <th><?= __($langGroup, 'Autor'); ?></th>
+                            <th><?= __($langGroup, 'Status'); ?></th>
+                            <th><?= __($langGroup, 'Destacado'); ?></th>
+                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                        </tr>
+
+                    </thead>
+
+                </table>
+
+            </div>
+
+        </div>
 
     </div>
 
