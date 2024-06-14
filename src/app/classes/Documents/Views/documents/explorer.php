@@ -18,7 +18,7 @@ $langGroupDatatables = 'datatables';
     </div>
 </div>
 
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="cards-container-standard">
 

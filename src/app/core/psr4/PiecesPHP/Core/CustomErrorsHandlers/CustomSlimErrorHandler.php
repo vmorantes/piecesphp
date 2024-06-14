@@ -7,6 +7,7 @@ namespace PiecesPHP\Core\CustomErrorsHandlers;
 
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\TerminalData;
 use Throwable;
 
 /**
@@ -85,7 +86,7 @@ class CustomSlimErrorHandler
             ],
         ];
 
-        if ($request->isXhr()) {
+        if ($request->isXhr() || TerminalData::getInstance()->isTerminal()) {
             return $response->withStatus(500)->withJson($jsonData);
         } else {
 

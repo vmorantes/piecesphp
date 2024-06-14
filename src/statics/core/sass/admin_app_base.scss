@@ -491,10 +491,20 @@
     }
 }
 
+.force-hidden {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
 //──── Diseño estándar de módulos ────────────────────────────────────────────────────────
 .module-view-container {
 
-    max-width: 1920px;
+    font-family: $fontPoppins;
+
+    &.limit-size {
+        max-width: 1920px;
+    }
 
     //Contenedor de elementos en la parte superior
     .header-options {
@@ -676,6 +686,97 @@
             max-width: 98%;
         }
 
+    }
+
+    //Datatables en cards
+    .table-to-cards {
+        background-color: white;
+        border: 1px solid rgba(112, 112, 112, 0.149);
+        border-radius: 15px;
+        padding: 40px;
+        max-width: 100% !important;
+
+        .length-pagination {
+            display: grid;
+            grid-template-columns: auto 60px auto;
+            column-gap: 10px;
+            row-gap: 2px;
+            justify-content: center;
+            align-items: center;
+
+            input {
+                padding-left: 5px !important;
+                padding-right: 5px !important;
+            }
+        }
+
+        .flex-fields {
+            display: flex;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+    }
+
+    //Limitador de contenido genérico
+    >.limiter-content {
+        position: relative;
+        max-width: 1920px;
+        margin: 0 auto;
+
+        //Botones principales
+        .main-buttons {
+            display: flex;
+            flex: 0 0 auto;
+            flex-wrap: wrap;
+            justify-content: end;
+            align-content: center;
+        }
+    }
+
+    //Tabs
+    .tabs-controls {
+
+        display: flex;
+        flex-wrap: wrap;
+        flex: 0 0 auto;
+        margin-bottom: pxToRem(30);
+
+        >* {
+
+            display: block;
+            color: #1B1C1D;
+            font-weight: $fwMedium;
+            font-size: pxToRem(18);
+            line-height: pxToRem(18+5);
+            background-color: transparent;
+            border-radius: 6px;
+            transition: 0.5s ease all;
+            min-width: 166px;
+            padding: pxToRem(12) pxToRem(30);
+            text-align: center;
+            cursor: pointer;
+
+            &.active {
+                color: $colorFirst;
+                font-weight: $fwBold;
+                background-color: rgba(0, 124, 196, 0.1);
+            }
+        }
+    }
+
+    //Normalización de enlaces
+    a {
+
+        &,
+        &:hover,
+        &:visited,
+        &:hover,
+        &:active {
+            display: inline-block;
+            outline: none;
+            text-decoration: none;
+        }
     }
 
     //Utilidades

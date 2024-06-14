@@ -9,7 +9,7 @@ $standalone = isset($standalone) && is_bool($standalone) ? $standalone : true;
 $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup, 'Guardar');
 ?>
 <?php if($standalone): ?>
-<section class="module-view-container">
+<section class="module-view-container limit-size">
     <?php endif; ?>
 
     <?php if($standalone): ?>

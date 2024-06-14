@@ -3,7 +3,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 $langGroup = LOGIN_REPORT_LANG_GROUP;
 ?>
 
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="breadcrumb">
         <?= $breadcrumbs ?>

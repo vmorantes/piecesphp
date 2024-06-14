@@ -11,6 +11,8 @@ const concat = require('gulp-concat')
 const replace = require('gulp-replace')
 const uglifyJS = require('gulp-uglify')
 const typescript = require('gulp-typescript')
+const exec = require('child_process').exec
+
 //--------TS PiecesPHP
 
 //Archivos que se observar
@@ -324,7 +326,9 @@ task("sass-all", (done) => {
 
 	sassCompileModules()
 
-	done()
+	exec('../bin/cli clean-cache', (error, stdout, stderr) => {
+		done()
+	})
 
 })
 task("sass-all:watch", (done) => {

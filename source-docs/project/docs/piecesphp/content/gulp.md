@@ -18,7 +18,7 @@ gulp sass-all
 - sass:watch (para observar los archivos en src/statics/sass)
 - sass-vendor:init (para compilar los archivos de estilo del área administrativa)
 - sass-vendor:watch (para observar los archivos de estilo del área administrativa)
-- sass-all (compila todos los anteriores)
+- sass-all (compila todos los anteriores, borra caché automáticamente al cambiar el token de caché)
 - sass-all:watch (observa todos los anteriores)
 - ts-vendor (Compila los TypesScript del core del framework)
 - js-vendor:watch (Compila y observa los TypesScript del core del framework)

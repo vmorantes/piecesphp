@@ -12,68 +12,61 @@ use Newsletter\Mappers\NewsletterSuscriberMapper;
  * @var string $action
  */
 ?>
+
 <section class="module-view-container">
 
-    <div class="header-options">
-
-        <div class="main-options">
-
-            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                <i class="icon left arrow"></i>
-            </a>
-
-        </div>
-
-        <div class="columns">
-
-            <div class="column">
-
-                <div class="section-title">
-                    <div class="title"><?= $title; ?></div>
-                    <div class="subtitle"><?= __($langGroup, 'Editar'); ?></div>
-                </div>
-
-            </div>
-
-        </div>
-
+    <div class="breadcrumb">
+        <?= $breadcrumbs ?>
     </div>
 
-    <div class="container-standard-form">
+    <div class="limiter-content">
 
-        <form method='POST' action="<?= $action; ?>" class="ui form newsletter">
+        <div class="section-title">
+            <div class="title"><?= $title ?></div>
+            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
+            <div class="description"><?= $description; ?></div>
+            <?php endif; ?>
+        </div>
 
-            <input type="hidden" name="id" value="<?= $element->id; ?>">
+        <br>
 
-            <div class="field required">
-                <label><?= __($langGroup, 'Nombre'); ?></label>
-                <input required type="text" name="name" maxlength="200" value="<?= $element->name; ?>">
-            </div>
+        <div class="container-standard-form">
 
-            <div class="field required">
-                <label><?= __($langGroup, 'Email'); ?></label>
-                <input required type="email" name="email" maxlength="200" value="<?= $element->email; ?>">
-            </div>
+            <form method='POST' action="<?= $action; ?>" class="ui form newsletter">
 
-            <div class="field">
-                <div class="ui toggle checkbox">
-                    <input type="checkbox" name="acceptUpdates" value="<?= NewsletterSuscriberMapper::ACCEPT_UPDATES_YES; ?>" <?= $element->acceptUpdates() ? 'checked' : ''; ?>>
-                    <label><?= __($langGroup, 'Acepta recibir correos'); ?></label>
+                <input type="hidden" name="id" value="<?= $element->id; ?>">
+
+                <div class="field required">
+                    <label><?= __($langGroup, 'Nombre'); ?></label>
+                    <input required type="text" name="name" maxlength="200" value="<?= $element->name; ?>">
                 </div>
-            </div>
 
-            <br><br>
-
-            <div class="field">
-                <div class="ui buttons">
-                    <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                    <?php if($allowDelete): ?>
-                    <button type="submit" class="ui button brand-color alt2" delete-publication-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
-                    <?php endif; ?>
+                <div class="field required">
+                    <label><?= __($langGroup, 'Email'); ?></label>
+                    <input required type="email" name="email" maxlength="200" value="<?= $element->email; ?>">
                 </div>
-            </div>
 
-        </form>
+                <div class="field">
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" name="acceptUpdates" value="<?= NewsletterSuscriberMapper::ACCEPT_UPDATES_YES; ?>" <?= $element->acceptUpdates() ? 'checked' : ''; ?>>
+                        <label><?= __($langGroup, 'Acepta recibir correos'); ?></label>
+                    </div>
+                </div>
+
+                <br><br>
+
+                <div class="field">
+                    <div class="ui buttons">
+                        <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
+                        <?php if($allowDelete): ?>
+                        <button type="submit" class="ui button brand-color alt2" delete-publication-button data-route="<?= $deleteRoute; ?>"><?= __($langGroup, 'Eliminar'); ?></button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
 
     </div>
 

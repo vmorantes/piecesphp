@@ -12,7 +12,7 @@ use Forms\DocumentTypes\Controllers\DocumentTypesController;
  */
 $langGroupDatatables = 'datatables';
 ?>
-<section class="module-view-container">
+<section class="module-view-container limit-size">
 
     <div class="header-options">
 
