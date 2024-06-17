@@ -4,3 +4,15 @@ Disallow: /admin/
 Disallow: /*/admin/
 Disallow: /users/
 Disallow: /*/users/
+Disallow: /terminal/
+Disallow: /core/
+Disallow: /components-provider/
+Disallow: /configurations/
+Disallow: /tickets/
+Disallow: /timing/
+Disallow: /messages/
+Disallow: /locations/
+Disallow: /importers/
+Disallow: /avatars/
+Disallow: /statics/
+Disallow: /tokens/
