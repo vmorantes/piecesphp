@@ -83,6 +83,7 @@ class CustomSlimErrorHandler
                 'line' => $exception->getLine(),
                 'file' => $file,
                 'trace' => $trace,
+                'extraData' => method_exists($exception, 'extraData') ? call_user_func(array($exception, 'extraData')) : [],
             ],
         ];
 

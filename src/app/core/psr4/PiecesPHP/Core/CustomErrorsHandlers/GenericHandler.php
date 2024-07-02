@@ -172,6 +172,7 @@ class GenericHandler
             'code' => $this->exception->getCode(),
             'file' => $this->exception->getFile(),
             'line' => $this->exception->getLine(),
+            'extraData' => method_exists($this->exception, 'extraData') ? call_user_func(array($this->exception, 'extraData')) : [],
             'trace' => $this->exception->getTrace(),
         ];
 
