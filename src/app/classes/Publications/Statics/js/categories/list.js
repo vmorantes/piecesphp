@@ -6,6 +6,10 @@ window.addEventListener('load', function () {
 		drawCallbackEnd: function (cards) {
 			window.dispatchEvent(new Event('canDeletePublicationCategory'))
 		},
+	}, {
+		containerCardsClass: 'list-cards-container',
+		containerCardsSelector: '.list-cards-container',
+		cardsSelector: '.list-card',
 	})
 
 })

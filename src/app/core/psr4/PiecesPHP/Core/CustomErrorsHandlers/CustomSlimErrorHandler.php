@@ -86,7 +86,8 @@ class CustomSlimErrorHandler
             ],
         ];
 
-        if ($request->isXhr() || TerminalData::getInstance()->isTerminal()) {
+        $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
+        if ($request->isXhr() || TerminalData::getInstance()->isTerminal() || $requestTypeIsJSON) {
             return $response->withStatus(500)->withJson($jsonData);
         } else {
 

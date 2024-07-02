@@ -682,6 +682,9 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 		let searchable = e.getAttribute('search')
 		let orderable = e.getAttribute('order')
 		let name = e.getAttribute('name')
+		let columnWidth = e.getAttribute('column-width')
+		let className = e.getAttribute('class-name')
+		let withContainer = e.getAttribute('with-container')
 
 		if (searchable != null) {
 			columnDefinition.searchable = searchable == 'true'
@@ -691,6 +694,20 @@ function dataTableServerProccesing(table, ajaxURL, perPage, options) {
 		}
 		if (name != null) {
 			columnDefinition.name = name
+		}
+		if (columnWidth != null) {
+			columnDefinition.width = columnWidth
+		}
+		if (className != null) {
+			columnDefinition.className = className
+		}
+
+		columnDefinition.render = function (data, type, row, meta) {
+			if (withContainer != null && withContainer == 'true') {
+				return `<div class="cell-container">${data}</div>`
+			} else {
+				return data
+			}
 		}
 
 		columnsDefinitions.push(columnDefinition)
@@ -2133,6 +2150,7 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 		}
 		dropdown.setRequired = function (required = false) {
 			toggleRequiredSemanticDropdown(dropdown, required)
+			dropdown.find('select[data-simulator]').attr('required', false).removeAttr('required')
 		}
 		dropdown.recreate = function (removeItems = false, searchURL = null, options = {}) {
 

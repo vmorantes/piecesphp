@@ -248,6 +248,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         array_map(function ($e) use ($expiredSessionsFolder) {
 
             $fullPath = $expiredSessionsFolder . \DIRECTORY_SEPARATOR . $e;
+            if ($e == '.keep' || mb_strpos($e, '.json') === false) {
+                return;
+            }
 
             $fullDateSegments = explode('_', str_replace('.json', '', $e));
             $dateSegments = explode('-', $fullDateSegments[0]);
@@ -309,7 +312,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              *
              * @param \stdClass|mixed $user
              */
-            function __construct($user)
+            public function __construct($user)
             {
                 $this->element = $user;
             }
@@ -318,7 +321,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              *
              * @return \stdClass|null
              */
-            function getUserFromDatabase()
+            public function getUserFromDatabase()
             {
                 $user = null;
 
@@ -348,7 +351,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              *
              * @return bool
              */
-            function isValid()
+            public function isValid()
             {
                 return $this->hasID() && $this->validType();
             }
@@ -357,7 +360,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              *
              * @return bool
              */
-            function isObject()
+            public function isObject()
             {
                 return $this->element instanceof \stdClass;
             }
@@ -366,7 +369,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              *
              * @return bool
              */
-            function hasID()
+            public function hasID()
             {
                 $e = $this->element;
                 return $this->isObject() && isset($e->id) && $this->isInteger($e->id);
@@ -376,7 +379,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              *
              * @return bool
              */
-            function hasType()
+            public function hasType()
             {
                 $e = $this->element;
                 return $this->isObject() && isset($e->type) && $this->isInteger($e->type);
@@ -386,7 +389,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              *
              * @return bool
              */
-            function validType()
+            public function validType()
             {
                 $e = $this->element;
                 return $this->hasType() && in_array((int) $e->type, array_keys(UsersModel::TYPES_USERS));
@@ -397,7 +400,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              * @param string|int $value
              * @return bool
              */
-            function isInteger($value)
+            public function isInteger($value)
             {
                 return (is_string($value) && ctype_digit($value)) || is_int($value);
             }

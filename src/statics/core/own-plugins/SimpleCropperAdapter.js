@@ -1,3 +1,4 @@
+/// <reference path="../../../../node_modules/cropperjs/types/index.d.ts" />
 /**
  * @function SimpleCropperAdapter
  *  
@@ -245,15 +246,35 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 		options.minCropBoxWidth = options.outputWidth * 2
 	}
 	let onInitDispatched = false
-	let cropper = new Cropper(preview, Object.assign(options, {
-		ready: function () {
-			if (!onInitDispatched) {
-				onInitCallback(instance)
-				onInitDispatched = true
+
+	//Verifica si la imagen de vista previa existe y luego instancia cropper
+	const previewImage = new Image()
+	let cropper = null
+	previewImage.src = preview.src
+	previewImage.addEventListener('load', function (e) {
+		cropper = new Cropper(preview, Object.assign(options, {
+			ready: function () {
+				if (!onInitDispatched) {
+					onInitCallback(instance)
+					onInitDispatched = true
+				}
+				removeGenericLoader('SimpleCropperAdapter')
 			}
-			removeGenericLoader('SimpleCropperAdapter')
-		}
-	}))
+		}))
+	})
+	previewImage.addEventListener('error', function (e) {
+		preview.src = preview.getAttribute('default-reference-image')
+		cropper = new Cropper(preview, Object.assign(options, {
+			ready: function () {
+				if (!onInitDispatched) {
+					onInitCallback(instance)
+					onInitDispatched = true
+				}
+				removeGenericLoader('SimpleCropperAdapter')
+			}
+		}))
+	})
+
 	let blobImage = null
 	let settedImage = preview.hasAttribute('is-final') ? preview.src : ''
 	let settedPreviewImage = !preview.hasAttribute('is-final') ? preview.src : ''

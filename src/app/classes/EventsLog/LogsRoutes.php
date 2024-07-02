@@ -80,7 +80,7 @@ class LogsRoutes
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(LogsLang::LANG_GROUP, 'Últimos movimientos'),
-                'icon' => 'history',
+                'icon' => 'clock outline',
                 'asLink' => true,
                 'visible' => LogsController::allowedRoute('list'),
                 'href' => LogsController::routeName('list'),

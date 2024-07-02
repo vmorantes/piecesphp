@@ -24,6 +24,7 @@ if (isset($referenceH)) {
 
 $referenceW = !is_int($referenceW) ? 1920 : $referenceW;
 $referenceH = !is_int($referenceH) ? 1080 : $referenceH;
+$workspaceWidth = $referenceW >= 450 ? $referenceW : 450;
 
 ?>
 
@@ -32,7 +33,7 @@ $referenceH = !is_int($referenceH) ? 1080 : $referenceH;
     <button <?= $hideStartButton ? "style='display:none;'" : ''; ?> class="ui button blue" type="button" start></button>
 </div>
 
-<div class="workspace">
+<div class="workspace" style="width: <?= $workspaceWidth; ?>px; max-width: 100%;">
 
     <div class="steps">
 

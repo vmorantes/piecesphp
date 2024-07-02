@@ -896,6 +896,30 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * @param int $categoryID
+     * @param bool $onlyActives
+     * @return int
+     */
+    public static function countByCategory(int $categoryID, bool $onlyActives = true)
+    {
+        $model = self::model();
+        $statusActive = self::ACTIVE;
+        $selectFields = [
+            'COUNT(id) AS total',
+        ];
+        $model->select($selectFields);
+        if ($onlyActives) {
+            $model->where("category = {$categoryID} AND status = {$statusActive}");
+        } else {
+            $model->where("category = {$categoryID}");
+        }
+        $model->execute();
+        $result = $model->result();
+        $result = !empty($result) ? (int) $result[0]->total : 0;
+        return $result;
+    }
+
+    /**
      * @param bool $asMapper
      *
      * @return static[]|array

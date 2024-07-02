@@ -58,9 +58,9 @@ $langGroupDatatables = 'datatables';
                 <tr>
                     <th><?= __($langGroup, '#'); ?></th>
                     <th><?= __($langGroup, 'Categoría'); ?></th>
-                    <th order="no"><?= __($langGroup, 'Color'); ?></th>
-                    <th order="no"><?= __($langGroup, 'Imagen'); ?></th>
-                    <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                    <th order="false"><?= __($langGroup, 'Color'); ?></th>
+                    <th order="false"><?= __($langGroup, 'Imagen'); ?></th>
+                    <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                 </tr>
 
             </thead>
