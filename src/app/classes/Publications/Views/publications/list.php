@@ -70,7 +70,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <th><?= __($langGroup, 'Autor'); ?></th>
                             <th><?= __($langGroup, 'Status'); ?></th>
                             <th><?= __($langGroup, 'Destacado'); ?></th>
-                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                            <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                         </tr>
 
                     </thead>
@@ -102,7 +102,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <th><?= __($langGroup, 'Autor'); ?></th>
                             <th><?= __($langGroup, 'Status'); ?></th>
                             <th><?= __($langGroup, 'Destacado'); ?></th>
-                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                            <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                         </tr>
 
                     </thead>
@@ -134,7 +134,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <th><?= __($langGroup, 'Autor'); ?></th>
                             <th><?= __($langGroup, 'Status'); ?></th>
                             <th><?= __($langGroup, 'Destacado'); ?></th>
-                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                            <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                         </tr>
 
                     </thead>
@@ -166,7 +166,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <th><?= __($langGroup, 'Autor'); ?></th>
                             <th><?= __($langGroup, 'Status'); ?></th>
                             <th><?= __($langGroup, 'Destacado'); ?></th>
-                            <th order="no"><?= __($langGroup, 'Acciones'); ?></th>
+                            <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                         </tr>
 
                     </thead>

@@ -78,4 +78,6 @@ return [
     "Edición de categoría"                                                 => "Category edition",
     "Agregar categoría"                                                    => "Add category",
     "Destacado"                                                            => "Featured",
+    "publicaciones"                                                        => "publications",
+    "publicación"                                                          => "publication",
 ];

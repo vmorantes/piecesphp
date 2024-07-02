@@ -31,6 +31,7 @@ use PiecesPHP\TerminalData;
  * @package     Terminal\Controllers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
+ * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting Colores para texto de terminal
  */
 class TerminalController extends AdminPanelController
 {
@@ -352,83 +353,134 @@ class TerminalController extends AdminPanelController
     public function cleanCache()
     {
 
-        //Mensajes de respuesta
-        $responseText = "";
+        //Mensaje de respuesta
+        $titleTask = "Limpiando caché";
+        $message = [
+            "\e[32m*** {$titleTask} ***\e[39m",
+        ];
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
 
-            try {
+            $controllerConfig = new AppConfigController();
+            $response = $controllerConfig->recreateStaticCacheStamp(RequestRouteFactory::createFromGlobals(), new ResponseRoute());
+            $responseJSON = json_decode($response->getLastWriteBodyData(), true);
+            $responseMessage = $responseJSON['message'];
 
-                $controllerConfig = new AppConfigController();
-                $response = $controllerConfig->recreateStaticCacheStamp(RequestRouteFactory::createFromGlobals(), new ResponseRoute());
-                $responseJSON = json_decode($response->getLastWriteBodyData(), true);
-                $responseMessage = $responseJSON['message'];
+            $message[] = "\e[34m{$responseMessage}\e[39m";
 
-                $responseText = "{$responseMessage}\r\n";
+        } catch (\Exception $e) {
+            $message[] = "\e[31mHa ocurrido un error: {$e->getMessage()}\e[39m";
+            log_exception($e);
+        }
 
-            } catch (\Exception $e) {
-                $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-                log_exception($e);
+        $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
+        if (count($message) > 1) {
+            echoTerminal(implode("\r\n", $message));
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function cleanLogs()
+    {
+
+        //Mensaje de respuesta
+        $titleTask = "Eliminando archivos de logs";
+        $message = [
+            "\e[32m*** {$titleTask} ***\e[39m",
+        ];
+
+        //──── Acciones ──────────────────────────────────────────────────────────────────────────
+        try {
+
+            $baseLogsDirectory = basepath("app/logs");
+            $oldsErrorLogsDirectory = basepath("app/logs/olds");
+            $expiredSessionsLogsDirectory = basepath("app/logs/expired-sessions");
+            $errorLogFile = basepath("app/logs/error.log.json");
+
+            if (file_exists($baseLogsDirectory)) {
+
+                //Log de errores
+                file_put_contents($errorLogFile, '[]');
+                chmod($errorLogFile, 0777);
+                $message[] = "\e[34merror.log.json vaciado.\e[39m";
+
+                //Histórico de logs de errores
+                $oldsErrorLogsHandler = new DirectoryObject($oldsErrorLogsDirectory);
+                if ($oldsErrorLogsHandler->directoryExists()) {
+                    $oldsErrorLogsHandler->process(new FilesIgnore([
+                        '\.keep',
+                    ]));
+                    $oldsErrorLogsHandler->delete(false);
+                    $message[] = "\e[34mLogs de errores antiguos vaciado.\e[39m";
+                }
+
+                //Logs de sesiones expiradas
+                $expiredSessionsLogsHandler = new DirectoryObject($expiredSessionsLogsDirectory);
+                if ($expiredSessionsLogsHandler->directoryExists()) {
+                    $expiredSessionsLogsHandler->process(new FilesIgnore([
+                        '\.keep',
+                    ]));
+                    $expiredSessionsLogsHandler->delete(false);
+                    $message[] = "\e[34mLogs de sesiones expiradas vaciado.\e[39m";
+                }
+
             }
-
-        } catch (MissingRequiredParamaterException $e) {
-
-            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-            log_exception($e);
-
-        } catch (ParsedValueException $e) {
-
-            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-            log_exception($e);
-
-        } catch (InvalidParameterValueException $e) {
-
-            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-            log_exception($e);
 
         } catch (\Exception $e) {
 
-            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+            $message[] = "\e[31mHa ocurrido un error: {$e->getMessage()}\e[39m";
             log_exception($e);
 
         }
 
-        echoTerminal($responseText);
+        $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
+        if (count($message) > 1) {
+            echoTerminal(implode("\r\n", $message));
+        }
     }
 
     /**
-     * @return string
+     * @return void
+     */
+    public function cleanAll()
+    {
+        $this->cleanCache();
+        $this->cleanLogs();
+    }
+
+    /**
+     * @return void
      */
     public function help()
     {
-
-        //Mensajes de respuesta
-        $responseText = "";
 
         //Tareas disponibles
         $terminalTaskAvailables = get_config('terminalTaskAvailablesVerbose');
 
         if (is_array($terminalTaskAvailables)) {
 
+            $titleTask = "Tareas disponibles";
             $message = [
-                "*** Tareas disponibles ***",
+                "\e[32m*** {$titleTask} ***\e[39m",
             ];
             foreach ($terminalTaskAvailables as $task) {
                 $name = array_key_exists('name', $task) ? $task['name'] : null;
                 $description = array_key_exists('description', $task) ? $task['description'] : null;
                 if (is_string($name) && is_string($description)) {
-                    $message[] = "Tarea: {$name}";
-                    $message[] = "  Descripción: {$description}";
+                    $message[] = "\e[94mTarea: {$name}\e[39m";
+                    $message[] = "\e[33m  Descripción: {$description}\e[39m";
                 }
             }
 
+            $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
             if (count($message) > 1) {
                 echoTerminal(implode("\r\n", $message));
             }
         }
 
-        return $responseText;
     }
 
     /**
@@ -586,6 +638,38 @@ class TerminalController extends AdminPanelController
                     'route' => "{$startRoute}/clean-cache[/]",
                     'controller' => $classname . ':cleanCache',
                     'name' => self::$baseRouteName . '-clean-cache',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                [
+                    'description' => [
+                        "Limpia los archivos de logs.\r\n",
+                        "\tParámetros:\r\n",
+                        "\t  N/A",
+                    ],
+                    'route' => "{$startRoute}/clean-logs[/]",
+                    'controller' => $classname . ':cleanLogs',
+                    'name' => self::$baseRouteName . '-clean-logs',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                [
+                    'description' => [
+                        "Limpia: caché, logs...\r\n",
+                        "\tParámetros:\r\n",
+                        "\t  N/A",
+                    ],
+                    'route' => "{$startRoute}/clean-all[/]",
+                    'controller' => $classname . ':cleanAll',
+                    'name' => self::$baseRouteName . '-clean-all',
                     'method' => 'GET',
                     'requireLogin' => true,
                     'alias' => null,

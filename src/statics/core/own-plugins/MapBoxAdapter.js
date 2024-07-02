@@ -1,3 +1,5 @@
+/// <reference path="../../../../node_modules/@types/mapbox-gl/index.d.ts" />
+/// <reference path="../../../../node_modules/@types/mapbox__mapbox-gl-geocoder/index.d.ts" />
 /**
  * @function MapBoxAdapter
  */
@@ -13,13 +15,17 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 * @property {mapboxgl.Marker} marker 
 	 * @property {MapboxGeocoder} geocoder 
 	 * @property {mapboxgl.GeolocateControl} geolocator 
+	 * @property {mapboxgl.FullscreenControl} fullscreen 
+	 * @property {mapboxgl.ScaleControl} scale 
+	 * @property {mapboxgl.NavigationControl} nav
 	 * @property {String|null} mapID
 	 */
 	/**
 	 * @typedef {Object} ConfigurationObject
-	 * @property {number} [defaultLongitude] 
-	 * @property {number} [defaultLatitude] 
-	 * @property {string} [idMapContainer=map] 
+	 * @property {Number} [defaultLongitude] 
+	 * @property {Number} [defaultLatitude] 
+	 * @property {String} [idMapContainer=map] 
+	 * @property {Boolean} [ignoreDefaultCss=false] 
 	 */
 	/**
 	 * @typedef {Object} ConfigurationFormObject
@@ -50,7 +56,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	/**
 	 * @property {string} key
 	 */
-	let instanceKey = 'pk.eyJ1Ijoic2lkcnVzIiwiYSI6ImNsMzFzN3A0ZzAwYXEzZnF3Mmp2ZnQ0M2oifQ.pKKuh1h2sJ2cG8qFpU7wtQ'
+	let instanceKey = ''
 
 	/**
 	 * @property {string} style
@@ -196,6 +202,22 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	}
 
 	/**
+	 * @method isFullscreen
+	 * @returns {Bool}
+	 */
+	this.isFullscreen = function () {
+		let isFullScreen = false
+		if (typeof this.currentMapElements == 'object') {
+			if (this.currentMapElements.map instanceof mapboxgl.Map) {
+				if (this.currentMapElements.fullscreen instanceof mapboxgl.FullscreenControl) {
+					isFullScreen = document.fullscreenElement === this.currentMapElements.map.getContainer()
+				}
+			}
+		}
+		return isFullScreen
+	}
+
+	/**
 	 * @method configurate
 	 * @description Configura los parámetros iniciales de MapBox
 	 * @param {ConfigurationObject} configurations
@@ -206,6 +228,9 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 
 		return new Promise(function (resolve, reject) {
 
+			/**
+			 * @type {mapboxgl.MapboxOptions}
+			 */
 			let mapboxOptions = {
 				withMarker: true,
 				withGeolocator: true,
@@ -226,6 +251,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 			let mapID = container.data('map-id')
 			mapID = typeof mapID != 'undefined' && mapID !== null ? mapID.toString() : null
 			mapID = mapID !== null && mapID.length > 0 ? mapID : null
+			mapID = mapID !== null ? mapID : generateUniqueID()
 
 			//Configurar opciones entrantex
 			for (let property in inputOptionsMapbox) {
@@ -235,19 +261,20 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 			//Opciones fijas
 			mapboxOptions.container = idContainer
 
-			container.parent().css({
-				position: 'relative',
-				height: '500px',
-				width: '100%'
+			if (!(configurations.ignoreDefaultCss === true)) {
+				container.parent().css({
+					position: 'relative',
+					height: '500px',
+					width: '100%'
 
-			})
-
-			container.css({
-				position: 'absolute',
-				top: '0',
-				bottom: '0',
-				width: '100%'
-			})
+				})
+				container.css({
+					position: 'absolute',
+					top: '0',
+					bottom: '0',
+					width: '100%'
+				})
+			}
 
 			if (container.length > 0) {
 				mapboxgl.accessToken = instanceKey
@@ -378,11 +405,15 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 				returnObject.marker = marker
 				returnObject.geocoder = geocoder
 				returnObject.geolocator = geolocator
+				returnObject.fullscreen = fullscreen
+				returnObject.scale = scale
+				returnObject.nav = nav
 				returnObject.mapID = mapID
 
 				resolve(returnObject)
 
 				instance.currentMapElements = returnObject
+				window.dispatchEvent(new Event(MapBoxAdapter.events.ConfigurationReady))
 			}
 
 		})
@@ -395,7 +426,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 * @param {ConfigurationFormObject} controls
 	 * @param {ConfigurationObject} defaultValues
 	 * @param {ConfigurationMapBox} configMapBox
-	 * @returns {Promise}
+	 * @returns {Promise<ResponseConfigurate>}
 	 */
 	this.configurateWhitForm = function (controls = {}, defaultValues = {}, configMapBox = {}) {
 
@@ -504,6 +535,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 				let geocoder = res.geocoder
 				let geolocator = res.geolocator
 				let mapID = res.mapID
+				let isCustomQuery = false
 
 				if (triggerDrawView.length > 0 && triggerSatelitalView.length > 0) {
 
@@ -605,24 +637,34 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 					let stateText = ''
 					let cityText = ''
 					let query = ''
+					let geoseaerchSelectLock = false
 
 					selectCity.on('change', function (e) {
 
-						let element = $(e.target)
-						let optionCity = element.find(`option`).filter(':selected')
+						if (!geoseaerchSelectLock) {
+							let element = $(e.target)
+							let optionCountry = selectCountry.find(`option`).filter(':selected')
+							let optionState = selectState.find(`option`).filter(':selected')
+							let optionCity = element.find(`option`).filter(':selected')
 
-						countryText = selectCountry.find(`option`).filter(':selected').html()
-						stateText = selectState.find(`option`).filter(':selected').html()
-						cityText = optionCity.val().trim().length > 0 ? optionCity.html() : ''
+							countryText = typeof optionCountry.val() == 'string' && optionCountry.val().trim().length > 0 ? optionCountry.html() : ''
+							stateText = typeof optionState.val() == 'string' && optionState.val().trim().length > 0 ? optionState.html() : ''
+							cityText = typeof optionCity.val() == 'string' && optionCity.val().trim().length > 0 ? optionCity.html() : ''
 
-						query = []
-						query.push(cityText)
-						query.push(stateText)
-						query.push(countryText)
-						query = query.map(e => e.trim()).filter(e => e.length > 0)
-						query = query.join(', ').trim()
+							query = []
+							query.push(typeof cityText == 'string' ? cityText : '')
+							query.push(typeof stateText == 'string' ? stateText : '')
+							query.push(typeof countryText == 'string' ? countryText : '')
+							query = query.map(e => e.trim()).filter(e => e.length > 0)
+							query = query.join(', ').trim()
 
-						geocoder.query(query)
+							isCustomQuery = true
+							geocoder.query(query)
+							geoseaerchSelectLock = true
+							setTimeout(function () {
+								geoseaerchSelectLock = false
+							}, 500)
+						}
 
 					})
 
@@ -637,7 +679,11 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 						//console.log(result)
 
 						let wasFound = true
-						let countLocations = query.split(', ').length
+						let countLocations = Array.isArray(query) ? query.length : (
+							typeof query == 'string' ?
+								query.split(', ').length :
+								0
+						)
 						let findForCountry = countLocations == 1
 						let findForState = countLocations == 2
 						let findForCity = countLocations == 3
@@ -654,7 +700,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 							wasFound = false
 						}
 
-						if (!wasFound) {
+						if (!wasFound && isCustomQuery) {
 
 							if (findForCity || findForState) {
 								infoMessage(_i18n(langGroup, 'Información'), formatStr(
@@ -684,11 +730,12 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 							if (findForCity || findForState) {
 								query = query.map(e => e.trim()).filter(e => e.length > 0)
 								query = query.join(', ').trim()
+								isCustomQuery = true
 								geocoder.query(query)
 							}
 
 						} else {
-
+							isCustomQuery = false
 							mapboxInstance.flyTo({
 								center: [
 									lng,
@@ -764,6 +811,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 				})
 
 				resolve(res)
+				window.dispatchEvent(new Event(MapBoxAdapter.events.ConfigurationWithFormReady))
 
 			})
 
@@ -795,6 +843,8 @@ MapBoxAdapter.instanceByID = function (id) {
  */
 MapBoxAdapter.events = {
 	ChangeMarkerPosition: 'ChangeMarkerPosition',
+	ConfigurationReady: 'ConfigurationReady',
+	ConfigurationWithFormReady: 'ConfigurationWithFormReady',
 }
 /**
  * @see https://docs.mapbox.com/api/maps/styles/

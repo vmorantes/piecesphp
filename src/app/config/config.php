@@ -59,7 +59,7 @@ $config['osTicketAPIKey'] = "";
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 
-$config['app_key'] = 'secret';
+$config['app_key'] = 'TODO:secret';
 $config['check_aud_on_auth'] = true;
 
 //──── Statics ───────────────────────────────────────────────────────────────────────────
@@ -72,6 +72,14 @@ $config['mailjet'] = [
     'name' => 'Name',
     'apiKey' => 'API_KEY',
     'secretKey' => 'SECRET_KEY',
+];
+
+//──── Azure ─────────────────────────────────────────────────────────────────────────────
+$config['Azure'] = [
+    'BASE_STORAGE_ACCOUNT_NAME' => '',
+    'BASE_STORAGE_ACCOUNT_KEY' => '',
+    //Asociada al contenedor: X
+    'BASE_STORAGE_ACCESS_QUERY_PARAMS' => '',
 ];
 
 //======Información complementaria para mostrar en la aplicación========

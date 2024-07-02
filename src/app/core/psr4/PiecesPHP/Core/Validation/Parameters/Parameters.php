@@ -65,6 +65,16 @@ class Parameters implements \JsonSerializable
     }
 
     /**
+     * @param string $parameterName
+     * @return static
+     */
+    public function removeParamater(string $parameterName)
+    {
+        unset($this->parameters[$parameterName]);
+        return $this;
+    }
+
+    /**
      * @param Parameter $parameter
      * @return static
      */

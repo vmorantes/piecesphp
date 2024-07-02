@@ -43,15 +43,15 @@ a {
         color: $colorThird;
         transition: 0.5s all ease;
 
+        &:visited {
+            color: black;
+        }
+
         &:hover,
         &:active,
         &:focus {
             color: $colorFirst;
             text-decoration: underline dotted;
-        }
-
-        &:visited {
-            color: black;
         }
     }
 }

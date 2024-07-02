@@ -282,11 +282,18 @@ class ServerStatics
     public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
     {
 
+        $defaultReplacement = [];
+        foreach ($replacement as $toReplace => $valueReplacement) {
+            $defaultReplacement[$toReplace] = $valueReplacement;
+        }
+        $replacement = $defaultReplacement;
+
         $resource = $args['params'];
         $matches = [];
         $matched = preg_match('~^css.*\.css$~', $resource, $matches);
 
-        if ($matched === 1) {
+        //TODO: Este compilador no sirve, no reemplaza las variables. Función deshabilitada por el momento
+        if ($matched === 1 && false) {
 
             $filePathCss = $path === null ? self::getStaticPath() . "/$resource" : rtrim(rtrim($path, '\\'), '/') . "/$resource";
             $filePathSass = str_replace(['css/', '.css'], ['sass/', '.scss'], $filePathCss);
@@ -366,8 +373,8 @@ class ServerStatics
                                                 }
                                             }
                                             if (is_string($_importPath) && mb_strlen(trim($_importPath)) > 0 && file_exists($_importPath) && $existsFileImport) {
+                                                $replaceOnImport[$j] = basename($_importFile);
                                                 if (!in_array($_importPath, $importPaths)) {
-                                                    $replaceOnImport[$j] = basename($_importFile);
                                                     $importPaths[] = $_importPath;
                                                 }
                                             }
@@ -378,13 +385,13 @@ class ServerStatics
 
                         } catch (\Throwable $e) {}
 
-                        foreach ($replacement as $toReplace => $replacement) {
-                            $fileContent = str_replace($toReplace, $replacement, $fileContent);
+                        foreach ($replacement as $toReplace => $valueReplacement) {
+                            $fileContent = str_replace($toReplace, $valueReplacement, $fileContent);
                         }
 
                         if (!empty($importPaths)) {
-                            foreach ($replaceOnImport as $toReplace => $replacement) {
-                                $fileContent = str_replace($toReplace, $replacement, $fileContent);
+                            foreach ($replaceOnImport as $toReplace => $valueReplacement) {
+                                $fileContent = str_replace($toReplace, $valueReplacement, $fileContent);
                             }
                             $scss->setImportPaths($importPaths);
                         }
