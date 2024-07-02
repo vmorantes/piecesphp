@@ -3,7 +3,8 @@ $selectorAttr = isset($selectorAttr) && is_string($selectorAttr) ? $selectorAttr
 $image = isset($image) && is_string($image) ? $image : '';
 $required = isset($required) && $required === true ? $required : false;
 $type = isset($type) &&  is_string($type) ? $type : null;
-$referenceImage = mb_strlen($image) > 0 ? $image : baseurl("img-gen/{$referenceW}/{$referenceH}");
+$defaultReferenceImage = baseurl("img-gen/{$referenceW}/{$referenceH}");
+$referenceImage = mb_strlen($image) > 0 ? $image : $defaultReferenceImage;
 $referenceW = isset($referenceW) && is_string($referenceW)  && is_numeric($referenceW) ? (int) $referenceW : 400;
 $referenceH = isset($referenceH) && is_string($referenceH)  && is_numeric($referenceH) ? (int) $referenceH : 400;
 $loadText = isset($loadText) && is_string($loadText)  ? $loadText : __(CROPPER_ADAPTER_LANG_GROUP, 'Cargar imagen');
@@ -17,7 +18,7 @@ $cropText = isset($cropText) && is_string($cropText)  ? $cropText : __(CROPPER_A
         <input type="file" file<?= $type !== null ? " accept={$type}" : ''; ?><?= $required ? ' required' : ''; ?>>
 
         <div class="image-container">
-            <img class="preview" src="<?= $referenceImage; ?>" <?= mb_strlen($image) > 0 ? ' is-final' : ''; ?> />
+            <img class="preview" default-reference-image="<?= $defaultReferenceImage; ?>" src="<?= $referenceImage; ?>" <?= mb_strlen($image) > 0 ? ' is-final' : ''; ?> />
         </div>
 
         <div class="controls edition">

@@ -65,9 +65,11 @@ $container_configurations = [
         $request = $notFoundError->getRequest();
         $response = new ResponseRoute(StatusCode::HTTP_NOT_FOUND);
 
-        //if ($request->getMethod() == 'OPTIONS') {
-        //    return $response->withStatus(200);
-        //}
+        if (API_MODULE) {
+            if ($request->getMethod() == 'OPTIONS') {
+                return $response->withStatus(200);
+            }
+        }
 
         if (!$request->isXhr()) {
             $controller = new PiecesPHP\Core\BaseController(false);

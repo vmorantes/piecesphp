@@ -8,8 +8,12 @@ window.addEventListener('canDeletePublication', function (e) {
 	registerDynamicMessages(langGroup)
 
 	deleteButtons.forEach((deleteButton) => {
-		deleteButton.removeEventListener('click', deleteHandler)
-		deleteButton.addEventListener('click', deleteHandler)
+		const eventAttached = deleteButton.eventAttached === true
+		if (!eventAttached) {
+			deleteButton.removeEventListener('click', deleteHandler)
+			deleteButton.addEventListener('click', deleteHandler)
+		}
+		deleteButton.eventAttached = true
 	})
 
 	function deleteHandler(e) {
@@ -17,63 +21,67 @@ window.addEventListener('canDeletePublication', function (e) {
 		e.preventDefault()
 
 		let routeDelete = e.currentTarget.dataset.route
+		let title = e.currentTarget.dataset.title
+		let message = e.currentTarget.dataset.message
+		title = typeof title == 'string' && title.length > 0 ? title : _i18n(langGroup, 'Confirmación')
+		message = typeof message == 'string' && message.length > 0 ? message : _i18n(langGroup, '¿Seguro de eliminar el elemento?')
 
-		iziToast.question({
-			timeout: false,
-			close: false,
-			overlay: true,
-			displayMode: 'once',
-			id: 'question',
-			zindex: 999,
-			title: _i18n(langGroup, 'Confirmación'),
-			message: _i18n(langGroup, '¿Seguro de eliminar el elemento?'),
-			position: 'center',
-			buttons: [
-				['<button>' + _i18n(langGroup, 'Sí') + '</button>', function (instance, toast) {
+		$('body').addClass('wait-to-action')
+		$.toast({
+			title: title,
+			message: message,
+			displayTime: 0,
+			class: 'white',
+			position: 'top center',
+			classActions: 'top attached',
+			actions: [{
+				text: _i18n(langGroup, 'Sí'),
+				class: 'red',
+				click: function () {
 
 					showGenericLoader('ELIMINAR_ITEM')
 
-					instance.hide({
-						onClosed: () => {
+					let formData = new FormData()
 
-							let formData = new FormData()
+					postRequest(routeDelete).then(function (res) {
 
-							postRequest(routeDelete).then(function (res) {
+						let success = res.success
+						let name = res.name
+						let message = res.message
+						let values = res.values
+						let redirect = values.redirect
+						let redirect_to = values.redirect_to
 
-								let success = res.success
-								let name = res.name
-								let message = res.message
-								let values = res.values
-								let redirect = values.redirect
-								let redirect_to = values.redirect_to
+						if (success) {
 
-								if (success) {
+							successMessage(name, message)
 
-									successMessage(name, message)
-
-									setTimeout(function () {
-										if (redirect) {
-											window.location.href = redirect_to
-										}
-									}, 1000)
-
-
-								} else {
-									errorMessage(name, message)
+							setTimeout(function () {
+								if (redirect) {
+									window.location.href = redirect_to
 								}
+							}, 1000)
 
-							}).always(function () {
-								removeGenericLoader('ELIMINAR_ITEM')
-							})
 
+						} else {
+							errorMessage(name, message)
 						}
-					}, toast)
 
-				}, true],
-				['<button>' + _i18n(langGroup, 'No') + '</button>', function (instance, toast) {
-					instance.hide({}, toast)
-				}],
-			],
+					}).always(function () {
+						removeGenericLoader('ELIMINAR_ITEM')
+					})
+
+					$('body').removeClass('wait-to-action')
+
+				}
+			}, {
+				text: _i18n(langGroup, 'No'),
+				class: 'blue',
+				click: function () {
+					$('body').removeClass('wait-to-action')
+					return true
+				}
+			}]
 		})
 
 	}

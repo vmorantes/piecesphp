@@ -1,0 +1,91 @@
+@import "../../sass/includes/functions";
+@import "../../sass/includes/variables";
+
+//──── Mapa mapbox ───────────────────────────────────────────────────────────────────────
+.mapboxgl-map {
+
+    .mapboxgl-marker {
+        display: none;
+
+        &.marker-map {
+            display: block;
+            $markerSize: 35px;
+
+            i.map.marker {
+                position: relative;
+                margin: 0;
+                padding: 0;
+                font-size: $markerSize;
+                color: #E83D35;
+                width: max-content;
+                max-width: 100%;
+
+                &::after {
+                    display: block;
+                    position: absolute;
+                    z-index: -1;
+                    top: 15%;
+                    left: 50%;
+                    transform: translate(-50%, 0%);
+                    content: ' ';
+                    width: calc($markerSize/2);
+                    height: calc($markerSize/2);
+                    background-color: #800E11;
+                }
+            }
+        }
+    }
+
+    //Controles
+    .mapboxgl-ctrl.mapboxgl-ctrl-group {
+
+        box-shadow: none;
+        background-color: transparent;
+
+        >button {
+
+            background-color: black;
+            color: white;
+            outline: none;
+            border: none;
+            box-shadow: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: 0.8s ease background-color, 0.45s ease color;
+
+            &:hover,
+            &:active {
+                background-color: whitesmoke;
+                color: black;
+            }
+
+            //Varios botones
+            &.mapboxgl-ctrl-zoom-in,
+            &.mapboxgl-ctrl-zoom-out,
+            &.mapboxgl-ctrl-compass,
+            &.mapboxgl-ctrl-geolocate,
+            &.mapboxgl-ctrl-fullscreen,
+            &.mapboxgl-ctrl-shrink {
+                >span {
+                    background: none;
+                }
+
+                >i.icon {
+                    margin: 0;
+                    padding: 0;
+                    font-size: 18px;
+                    line-height: 1;
+                    width: max-content;
+                    max-width: 100%;
+
+                    &::before {
+                        margin: 0;
+                        padding: 0;
+                    }
+                }
+            }
+        }
+    }
+}
