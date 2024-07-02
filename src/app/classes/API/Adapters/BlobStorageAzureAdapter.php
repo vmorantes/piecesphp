@@ -6,10 +6,10 @@
 
 namespace API\Adapters;
 
+use API\Adapters\Packages\BlobStorageFileAzurePackage;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\Blob;
 use MicrosoftAzure\Storage\Blob\Models\ListBlobsOptions;
-use PQRSMailBox\Mappers\Util\BlobStorageFileAzurePackage;
 
 /**
  * BlobStorageAzureAdapter.
