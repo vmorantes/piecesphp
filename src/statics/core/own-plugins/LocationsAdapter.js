@@ -35,6 +35,7 @@ function LocationsAdapter() {
 	let currentCityDropdown = null
 	let currentPointDropdown = null
 
+	let onConfigDropdowns = () => { }
 	let onChangeCountryDropdown = () => { }
 	let onChangeStateDropdown = () => { }
 	let onChangeCityDropdown = () => { }
@@ -124,12 +125,18 @@ function LocationsAdapter() {
 			if (typeof countriesSelect.attr('with-dropdown') == 'string') {
 
 				$(`[${selectAutoFilledCountryAttr}]`).addClass('search')
-				const dropdown = configFomanticDropdown(`[${selectAutoFilledCountryAttr}]`, {
-					onChange: function (value, text, $element) {
-						onChangeCountryDropdown(value, text, $element)
-					},
-				})[0]
-				currentCountryDropdown = dropdown
+				let dropdown = null
+				if (currentCountryDropdown === null) {
+					dropdown = configFomanticDropdown(`[${selectAutoFilledCountryAttr}]`, {
+						onChange: function (value, text, $element) {
+							onChangeCountryDropdown(value, text, $element)
+						},
+					})[0]
+					currentCountryDropdown = dropdown
+					onConfigDropdowns()
+				} else {
+					dropdown = currentCountryDropdown
+				}
 
 				if (!hasDefault) {
 					instance.fillSelectWithStates(null)
@@ -224,11 +231,20 @@ function LocationsAdapter() {
 				lastStatesSelected = Array.isArray(statesSelect.val()) ? statesSelect.val() : [statesSelect.val()]
 
 				if (statesSelect.closest('.ui.dropdown').length > 0) {
-					let field = statesSelect.closest('.field')
-					let htmlSelect = statesSelect.get(0).outerHTML
-					field.find('*:not(label)').remove()
-					field.append(htmlSelect)
-					statesSelect = field.find('select')
+					if (currentStateDropdown instanceof $) {
+						$(currentStateDropdown.simulatorNode).find('option').removeAttr('selected')
+						const options = Array.from(statesSelect.find('option'))
+						for (let option of options) {
+							option = $(option)
+							if (option.is(':selected') && option.attr('value').length > 0) {
+								$(currentStateDropdown.simulatorNode).append(`<option value="${option.attr('value')}" selected></option>`)
+							}
+						}
+						currentStateDropdown.dropdown('clear')
+						currentStateDropdown.find('.default.text').text($(firstOption).text())
+						currentStateDropdown.dropdown('refresh')
+						currentStateDropdown.setRequired(true)
+					}
 				}
 
 				if (hasDefault) {
@@ -289,12 +305,18 @@ function LocationsAdapter() {
 			if (typeof statesSelect.attr('with-dropdown') == 'string') {
 
 				$(`[${selectAutoFilledStateAttr}]`).addClass('search')
-				const dropdown = configFomanticDropdown(`[${selectAutoFilledStateAttr}]`, {
-					onChange: function (value, text, $element) {
-						onChangeStateDropdown(value, text, $element)
-					},
-				})[0]
-				currentStateDropdown = dropdown
+				let dropdown = null
+				if (currentStateDropdown === null) {
+					dropdown = configFomanticDropdown(`[${selectAutoFilledStateAttr}]`, {
+						onChange: function (value, text, $element) {
+							onChangeStateDropdown(value, text, $element)
+						},
+					})[0]
+					currentStateDropdown = dropdown
+					onConfigDropdowns()
+				} else {
+					dropdown = currentStateDropdown
+				}
 
 				if (!hasDefault) {
 
@@ -410,11 +432,20 @@ function LocationsAdapter() {
 				lastCitiesSelected = Array.isArray(citiesSelect.val()) ? citiesSelect.val() : [citiesSelect.val()]
 
 				if (citiesSelect.closest('.ui.dropdown').length > 0) {
-					let field = citiesSelect.closest('.field')
-					let htmlSelect = citiesSelect.get(0).outerHTML
-					field.find('*:not(label)').remove()
-					field.append(htmlSelect)
-					citiesSelect = field.find('select')
+					if (currentCityDropdown instanceof $) {
+						$(currentCityDropdown.simulatorNode).find('option').removeAttr('selected')
+						const options = Array.from(citiesSelect.find('option'))
+						for (let option of options) {
+							option = $(option)
+							if (option.is(':selected') && option.attr('value').length > 0) {
+								$(currentCityDropdown.simulatorNode).append(`<option value="${option.attr('value')}" selected></option>`)
+							}
+						}
+						currentCityDropdown.dropdown('clear')
+						currentCityDropdown.find('.default.text').text($(firstOption).text())
+						currentCityDropdown.dropdown('refresh')
+						currentCityDropdown.setRequired(true)
+					}
 				}
 
 				if (hasDefault) {
@@ -453,7 +484,7 @@ function LocationsAdapter() {
 
 					} else {
 
-						if (value.trim().length > 0) {
+						if (typeof value == 'string' && value.trim().length > 0) {
 							if (!instance.fillSelectWithPoints(value)) {
 								infoMessage(
 									_i18n(langGroup, 'Atención'),
@@ -475,12 +506,18 @@ function LocationsAdapter() {
 			if (typeof citiesSelect.attr('with-dropdown') == 'string') {
 
 				$(`[${selectAutoFilledCityAttr}]`).addClass('search')
-				const dropdown = configFomanticDropdown(`[${selectAutoFilledCityAttr}]`, {
-					onChange: function (value, text, $element) {
-						onChangeCityDropdown(value, text, $element)
-					},
-				})[0]
-				currentCityDropdown = dropdown
+				let dropdown = null
+				if (currentCityDropdown === null) {
+					dropdown = configFomanticDropdown(`[${selectAutoFilledCityAttr}]`, {
+						onChange: function (value, text, $element) {
+							onChangeCityDropdown(value, text, $element)
+						},
+					})[0]
+					currentCityDropdown = dropdown
+					onConfigDropdowns()
+				} else {
+					dropdown = currentCityDropdown
+				}
 
 				if (!hasDefault) {
 
@@ -596,11 +633,20 @@ function LocationsAdapter() {
 				lastPointsSelected = Array.isArray(pointsSelect.val()) ? pointsSelect.val() : [pointsSelect.val()]
 
 				if (pointsSelect.closest('.ui.dropdown').length > 0) {
-					let field = pointsSelect.closest('.field')
-					let htmlSelect = pointsSelect.get(0).outerHTML
-					field.find('*:not(label)').remove()
-					field.append(htmlSelect)
-					pointsSelect = field.find('select')
+					if (currentPointDropdown instanceof $) {
+						$(currentPointDropdown.simulatorNode).find('option').removeAttr('selected')
+						const options = Array.from(pointsSelect.find('option'))
+						for (let option of options) {
+							option = $(option)
+							if (option.is(':selected') && option.attr('value').length > 0) {
+								$(currentPointDropdown.simulatorNode).append(`<option value="${option.attr('value')}" selected></option>`)
+							}
+						}
+						currentPointDropdown.dropdown('clear')
+						currentPointDropdown.find('.default.text').text($(firstOption).text())
+						currentPointDropdown.dropdown('refresh')
+						currentPointDropdown.setRequired(true)
+					}
 				}
 
 				//Acciones en eventos
@@ -620,12 +666,18 @@ function LocationsAdapter() {
 			if (typeof pointsSelect.attr('with-dropdown') == 'string') {
 
 				$(`[${selectAutoFilledPointAttr}]`).addClass('search')
-				const dropdown = configFomanticDropdown(`[${selectAutoFilledPointAttr}]`, {
-					onChange: function (value, text, $element) {
-						onChangePointDropdown(value, text, $element)
-					},
-				})[0]
-				currentPointDropdown = dropdown
+				let dropdown = null
+				if (currentPointDropdown === null) {
+					dropdown = configFomanticDropdown(`[${selectAutoFilledPointAttr}]`, {
+						onChange: function (value, text, $element) {
+							onChangePointDropdown(value, text, $element)
+						},
+					})[0]
+					currentPointDropdown = dropdown
+					onConfigDropdowns()
+				} else {
+					dropdown = currentPointDropdown
+				}
 
 				if (!hasDefault) {
 
@@ -676,6 +728,15 @@ function LocationsAdapter() {
 	this.getCurrentPointDropdown = function () {
 		let element = currentPointDropdown
 		return element instanceof $ ? element : null
+	}
+
+	/**
+	 * @param {Function} callback 
+	 * @returns {LocationsAdapter}
+	 */
+	this.setOnConfigDropdowns = function (callback) {
+		onConfigDropdowns = typeof callback == 'function' ? callback : () => { }
+		return this
 	}
 
 	/**

@@ -8,6 +8,7 @@
         "@types/jquery": "^3.5.30",
         "@types/mapbox__mapbox-gl-geocoder": "^5.0.0",
         "@types/mapbox-gl": "^3.1.0",
+        "cropperjs": "^1.6.2",
         "gulp": "^5.0.0",
         "gulp-concat": "^2.6.1",
         "gulp-rename": "^2.0.0",

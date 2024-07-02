@@ -2,6 +2,7 @@
 * Dependencias
 */
 const { src, dest, watch, task, series, parallel } = require('gulp')
+const gulp = require('gulp')
 // const pug = require('gulp-pug') // Pug default view template
 const sassCore = require('sass')
 const sass = require('gulp-sass')(sassCore) // Actualiza esta línea
@@ -12,6 +13,9 @@ const replace = require('gulp-replace')
 const uglifyJS = require('gulp-uglify')
 const typescript = require('gulp-typescript')
 const exec = require('child_process').exec
+const removeCacheEvent = 'remove-cache'
+const removeCacheFinishEvent = 'remove-cache-finish'
+let cleanCacheVerbose = false
 
 //--------TS PiecesPHP
 
@@ -47,11 +51,12 @@ function tsTask() {
 //Tareas de compilación
 task("ts-vendor", (done) => {
 	tsTask()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 
 //Tareas de observación
-task("js-vendor:watch", (done) => {
+task("ts-vendor:watch", (done) => {
 	watch(watchingPiecesPHPTS.base, series("ts-vendor"))
 	done()
 })
@@ -92,6 +97,7 @@ function jsTask() {
 //Tareas de compilación
 task("js-vendor", (done) => {
 	jsTask()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 
@@ -203,22 +209,27 @@ function sassCompileAvatars() {
 //Tareas de compilación
 task("sass-compile-own-plugins", (done) => {
 	sassCompileOwnPlugins()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 task("sass-compile-general", (done) => {
 	sassCompileGeneral()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 task("sass-compile-users", (done) => {
 	sassCompileUsers()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 task("sass-compile-users2", (done) => {
 	sassCompileUsers2()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 task("sass-compile-avatars", (done) => {
 	sassCompileAvatars()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 
@@ -239,6 +250,7 @@ task("sass-vendor:init", (done) => {
 	sassCompileUsers()
 	sassCompileUsers2()
 	sassCompileAvatars()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 
@@ -263,6 +275,7 @@ function sassCompileGeneric() {
 
 task("sass", (done) => {
 	sassCompileGeneric()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 task("sass:watch", (done) => {
@@ -271,6 +284,7 @@ task("sass:watch", (done) => {
 })
 task("sass:init", (done) => {
 	sassCompileGeneric()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 
@@ -302,6 +316,7 @@ function sassCompileModules() {
 
 task("sass-modules", (done) => {
 	sassCompileModules()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 task("sass-modules:watch", (done) => {
@@ -310,6 +325,7 @@ task("sass-modules:watch", (done) => {
 })
 task("sass-modules:init", (done) => {
 	sassCompileModules()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 
@@ -326,9 +342,8 @@ task("sass-all", (done) => {
 
 	sassCompileModules()
 
-	exec('../bin/cli clean-cache', (error, stdout, stderr) => {
-		done()
-	})
+	gulp.emit(removeCacheEvent)
+	done()
 
 })
 task("sass-all:watch", (done) => {
@@ -348,6 +363,7 @@ task("init-project", (done) => {
 	parallel(
 		"sass-all",
 	)()
+	gulp.emit(removeCacheEvent)
 	done()
 })
 task("init-project:watch", (done) => {
@@ -358,4 +374,33 @@ task("init-project:watch", (done) => {
 		"js-vendor:watch",
 	)()
 	done()
+})
+
+//Compilar documentación de api
+task("api-build", (done) => {
+	//En estructura normal debe subir solo un directorio
+	exec('cd ../files/API && mkdocs build --clean', (error, stdout, stderr) => {
+		done()
+	})
+})
+
+//Remover cache
+task("clean-cache", (done) => {
+	cleanCacheVerbose = true
+	gulp.emit(removeCacheEvent)
+	gulp.on(removeCacheFinishEvent, function () {
+		done()
+	})
+})
+gulp.on(removeCacheEvent, () => {
+	if (cleanCacheVerbose) {
+		console.log('Limpiando memoria caché..')
+	}
+	exec('../bin/cli clean-cache', (error, stdout, stderr) => {
+		if (cleanCacheVerbose) {
+			console.log('Memoria caché limpiada')
+		}
+		cleanCacheVerbose = false
+		gulp.emit(removeCacheFinishEvent)
+	})
 })

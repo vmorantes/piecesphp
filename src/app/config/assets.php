@@ -301,15 +301,15 @@ $assets['google_captcha_v3_adapter']['js'] = [
 $assets['google_captcha_v3_adapter']['plugins'] = [];
 
 /**
- * MapBox
+ * MapBox v3.4.0
  * https://docs.mapbox.com/
  */
 $assets['mapbox']['css'] = [
-    'statics/plugins/mapbox/v2.6.0/mapbox-gl.css',
+    'statics/plugins/mapbox/v3.4.0/mapbox-gl.css',
     'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.css',
 ];
 $assets['mapbox']['js'] = [
-    'statics/plugins/mapbox/v2.6.0/mapbox-gl.js',
+    'statics/plugins/mapbox/v3.4.0/mapbox-gl.js',
     'statics/plugins/mapbox/geocoder/v2.3.0/mapbox-gl-geocoder.min.js',
 ];
 /**
@@ -317,9 +317,12 @@ $assets['mapbox']['js'] = [
  */
 $assets['mapbox']['plugins'] = [
     'mapBoxAdapter' => [
-        'css' => [],
+        'css' => [
+            'statics/core/own-plugins/css/mapbox-adapter.css',
+        ],
         'js' => [
             'statics/core/own-plugins/MapBoxAdapter.js',
+            'statics/core/own-plugins/MapBoxAdapterCustomControls.js',
         ],
     ],
 ];

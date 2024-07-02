@@ -6,6 +6,7 @@
 
 namespace API;
 
+use API\Adapters\BlobStorageAzureAdapter;
 use API\Controllers\APIController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -44,6 +45,9 @@ class APIRoutes
             });
 
         }
+
+        //Inicializaciones independientes de la API
+        BlobStorageAzureAdapter::init();
 
         return [
             'groupAdministration' => $groupAdministration,

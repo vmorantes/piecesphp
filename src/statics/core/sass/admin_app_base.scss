@@ -502,6 +502,16 @@
 
     font-family: $fontPoppins;
 
+    .ui {
+        &.button {
+            font-family: $fontPoppins;
+            font-weight: $fwRegular;
+            font-size: pxToRem(18);
+            line-height: pxToRem(18);
+            border-radius: pxToRem(10);
+        }
+    }
+
     &.limit-size {
         max-width: 1920px;
     }
@@ -635,18 +645,67 @@
             max-width: 98%;
         }
 
-        table.ui.basic.table {
-            border: none;
+        table.ui.table {
+
+            &.basic {
+                border: none;
+            }
+
+            td {
+                .cell-container {}
+
+                &.buttons {
+                    .cell-container {
+                        display: flex;
+                        flex: 0 0 auto;
+                        flex-wrap: wrap;
+                        justify-content: space-evenly;
+                        align-items: center;
+                        column-gap: 30px;
+                        width: max-content;
+                        max-width: 100%;
+                        margin: 0 auto;
+
+                        .ui.button {
+                            margin: 0;
+                        }
+                    }
+                }
+            }
+
+            th {
+                font-weight: $fwMedium;
+                font-size: pxToRem(18);
+
+                &.buttons {
+                    text-align: center;
+                    padding-left: pxToRem(75);
+                    padding-right: pxToRem(75);
+                    width: max-content;
+                    max-width: 100%;
+                }
+            }
+
         }
     }
 
     //Contenedor de formularios
     .container-standard-form {
+
         background-color: white;
         max-width: 1920px;
         border: 1px rgba(112, 112, 112, 0.149) solid;
         border-radius: 15px;
         padding: 2rem 2.5rem;
+        container-type: inline-size;
+        container-name: container-standard-form;
+
+        &.no-style {
+            background-color: none;
+            border: none;
+            border-radius: 0px;
+            padding: 0;
+        }
 
         .tabs-menu-items {
             padding-bottom: 3rem;
@@ -672,6 +731,59 @@
 
             &.alt {
                 background-color: var(--second-brand-color);
+            }
+        }
+
+        .form-section-title {
+            font-weight: $fwMedium;
+            color: #001130;
+            font-size: pxToRem(21);
+            line-height: pxToRem(18);
+            padding: pxToRem(15) pxToRem(0);
+        }
+
+        .two-columns-section {
+            display: grid;
+            grid-template-columns: 50% 50%;
+            justify-content: center;
+            align-items: start;
+            column-gap: 15px;
+            row-gap: 15px;
+
+            .column {}
+
+            @container container-standard-form (max-width: 1120px) {
+                grid-template-columns: 100%;
+            }
+        }
+    }
+
+    //Sobreescritura de formulario fomantic
+    form.ui.form {
+
+        input:not([type="file"]) {
+            min-height: 52px;
+        }
+
+        label {
+            font-weight: $fwRegular;
+            font-size: pxToRem(16);
+            color: #1B1C1D;
+        }
+
+        .ui.dropdown {
+            min-height: 52px;
+
+            i.dropdown.icon {
+                top: 50%;
+                transform: translateY(-25%);
+            }
+
+            >.text {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                left: 14px;
             }
         }
     }
@@ -718,6 +830,80 @@
         }
     }
 
+    //Diseño alternativo listado con cards
+    .list-cards-container {
+
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        column-gap: pxToRem(40);
+        row-gap: pxToRem(40);
+
+        >.list-card {
+
+            width: 365px;
+            max-width: 100%;
+            padding: pxToRem(25);
+            border-radius: pxToRem(10);
+            box-shadow: 0px 3px 6px rgba(112, 112, 112, 0.149);
+            font-weight: $fwRegular;
+            line-height: 1;
+            color: #1B1C1D;
+
+            .meta-title {
+                font-size: pxToRem(14.5);
+                margin-bottom: pxToRem(10);
+            }
+
+            .title {
+                font-weight: $fwMedium;
+                font-size: pxToRem(22);
+                color: var(--main-brand-color);
+                margin-bottom: pxToRem(20);
+            }
+
+            .footer {
+                .two-columns {
+                    display: grid;
+                    grid-template-columns: auto auto;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    .column {
+                        .info-text {
+                            font-size: pxToRem(16);
+                            display: grid;
+                            grid-template-columns: auto auto;
+                            column-gap: pxToRem(5);
+                            width: max-content;
+                            max-width: 100%;
+
+                            >.icon {
+                                i.icon {
+                                    font-size: pxToRem(15);
+
+                                    &,
+                                    &::before,
+                                    &::after {
+                                        padding: 0;
+                                        margin: 0;
+                                    }
+                                }
+                            }
+
+                            >.text {}
+                        }
+                    }
+
+                    &.rows-mode {
+                        grid-template-columns: 100%;
+                        row-gap: 15px;
+                    }
+                }
+            }
+        }
+    }
+
     //Limitador de contenido genérico
     >.limiter-content {
         position: relative;
@@ -731,6 +917,15 @@
             flex-wrap: wrap;
             justify-content: end;
             align-content: center;
+
+            .button {
+                margin: 0;
+                margin-right: 5px;
+
+                &.no-margin {
+                    margin-right: 0;
+                }
+            }
         }
     }
 
@@ -745,7 +940,7 @@
         >* {
 
             display: block;
-            color: #1B1C1D;
+            color: $colorFirst;
             font-weight: $fwMedium;
             font-size: pxToRem(18);
             line-height: pxToRem(18+5);
@@ -1127,6 +1322,7 @@
     }
 }
 
+//──── General ───────────────────────────────────────────────────────────────────────────
 //Overlay
 body.wait-to-action {
     position: relative;

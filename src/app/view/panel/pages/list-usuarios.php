@@ -70,7 +70,7 @@ $langGroupDatatables = 'datatables';
                         <th><?=__($langGroup, 'Usuario');?></th>
                         <th><?=__($langGroup, 'Activo/Inactivo');?></th>
                         <th><?=__($langGroup, 'Tipo');?></th>
-                        <th order='false'><?=__($langGroup, 'Acciones');?></th>
+                        <th order="false" class-name="buttons" with-container="true"><?=__($langGroup, 'Acciones');?></th>
                     </tr>
 
                 </thead>

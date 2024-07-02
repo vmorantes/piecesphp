@@ -34,7 +34,7 @@ $sidebar = new MenuGroupCollection([
             'visible' => Roles::hasPermissions('admin', $current_type_user),
             'asLink' => true,
             'href' => get_route('admin'),
-            'icon' => 'address card',
+            'icon' => 'home',
             'position' => 1,
         ]),
         new MenuGroup([
