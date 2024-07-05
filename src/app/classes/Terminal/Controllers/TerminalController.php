@@ -82,7 +82,7 @@ class TerminalController extends AdminPanelController
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
         //Mensajes de respuesta
-        $responseText = "asfasffas";
+        $responseText = "";
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
