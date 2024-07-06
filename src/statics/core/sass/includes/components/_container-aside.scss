@@ -7,6 +7,10 @@
     overflow: hidden;
     transition: .5s;
 
+    &.no-expanded {
+        grid-template-columns: 70px auto;
+    }
+
     >.content {
         position: relative;
         padding: $containerAsideContentPaddingT $containerAsideContentPaddingR $containerAsideContentPaddingB $containerAsideContentPaddingL;
