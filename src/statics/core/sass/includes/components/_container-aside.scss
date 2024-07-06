@@ -7,10 +7,6 @@
     overflow: hidden;
     transition: .5s;
 
-    &.no-expanded {
-        grid-template-columns: 70px auto;
-    }
-
     >.content {
         position: relative;
         padding: $containerAsideContentPaddingT $containerAsideContentPaddingR $containerAsideContentPaddingB $containerAsideContentPaddingL;
@@ -33,7 +29,10 @@
 
     @media (max-width: $sidebarBreakPoint) {
         grid-template-columns: 100%;
-        row-gap: 2rem;
+
+        &.no-expanded {
+            grid-template-columns: 100%;
+        }
 
         >.content {
             padding: $containerAsideContentPaddingTRs $containerAsideContentPaddingRRs $containerAsideContentPaddingBRs $containerAsideContentPaddingLRs;
