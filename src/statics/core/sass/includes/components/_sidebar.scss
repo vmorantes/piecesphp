@@ -543,10 +543,6 @@
         }
     }
 
-    @media (max-width: $sidebarBreakPoint) {
-        position: absolute;
-    }
-
     .outSide {
         animation: menuOutSide 0.5s ease;
     }
