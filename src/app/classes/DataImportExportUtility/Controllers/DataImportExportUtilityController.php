@@ -8,10 +8,9 @@ namespace DataImportExportUtility\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
+use DataImportExportUtility\Controllers\ExportHandlers\UsersExporter;
 use DataImportExportUtility\DataImportExportUtilityLang;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -384,151 +383,12 @@ class DataImportExportUtilityController extends AdminPanelController
      */
     public function usersExport(Request $request, Response $response, array $args)
     {
-
-        $whereString = null;
-        $table = UsersModel::TABLE;
-        $where = [
-            "{$table}.type = " . UsersModel::TYPE_USER_GENERAL,
-        ];
-
-        if (count($where) > 0) {
-            $whereString = trim(implode(' ', $where));
-        }
-
-        //idPadding
-        //fullname
-        //names
-        //lastNames
-        //typeName
-        //statusText
-        //documentTypeText
-        //documentAndType
-        //schoolName
-        //gradeName
-        //groupName
-        $selectFields = UsersModel::fieldsToSelect();
-
-        $customOrder = [
-            'idPadding ASC',
-        ];
-
-        $model = UsersModel::model();
-
-        $model->select($selectFields);
-
-        if ($whereString !== null) {
-            $model->having($whereString);
-        }
-
-        $model->orderBy($customOrder);
-
-        $model->execute();
-
-        $result = $model->result();
-
-        $columns = [];
-        $columns[] = 'ID';
-        $columns[] = 'Documento';
-        $columns[] = 'Nombre 1';
-        $columns[] = 'Nombre 2';
-        $columns[] = 'Apellido 1';
-        $columns[] = 'Apellido 2';
-        $columns[] = 'Usuario';
-        $columns[] = 'Email';
-        $columns[] = 'Colegio';
-        $columns[] = 'Grado';
-        $columns[] = 'Grupo';
-
-        $spreadsheet = new Spreadsheet();
-        $writer = new Xlsx($spreadsheet);
-
-        $spreadsheet->setActiveSheetIndex(0);
-        $activeSheet = $spreadsheet->getActiveSheet();
-
-        foreach ($columns as $index => $column) {
-            $activeSheet->setCellValue(excelColumnByIndex($index) . '1', $column);
-
-        }
-
-        $indexColumn = 0;
-        $indexRow = 2;
-
-        foreach ($result as $e) {
-
-            $meta = (object) json_decode($e->meta);
-
-            if (false) {
-                //Saltar según alguna condición
-                continue;
-            }
-
-            //Nombre 1
-            $indexColumn++;
-            $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $e->firstname, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-
-            //Nombre 2
-            $indexColumn++;
-            $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $e->secondname, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-
-            //Apellido 1
-            $indexColumn++;
-            $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $e->first_lastname, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-
-            //Apellido 2
-            $indexColumn++;
-            $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $e->second_lastname, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-
-            //Usuario
-            $indexColumn++;
-            $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $e->username, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-
-            //Email
-            $indexColumn++;
-            $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $e->email, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
-
-            $indexColumn = 0;
-            $indexRow++;
-
-        }
-
-        $firstColumn = 'A';
-        $lastRow = $spreadsheet->getActiveSheet()->getHighestRow();
-        $lastColumn = $spreadsheet->getActiveSheet()->getHighestColumn();
-        $lastColumnIndex = indexByExcelColumn($lastColumn);
-
-        //Definir ancho de columna - INICIO
-        $maxColumnWidth = 30;
-        for ($indexColumn = 0; $indexColumn <= $lastColumnIndex; $indexColumn++) {
-            $activeSheet->getColumnDimension(excelColumnByIndex($indexColumn))->setAutoSize(true);
-        }
-        $activeSheet->calculateColumnWidths();
-        for ($indexColumn = 0; $indexColumn <= $lastColumnIndex; $indexColumn++) {
-            $dimensions = $activeSheet->getColumnDimension(excelColumnByIndex($indexColumn));
-            if ($dimensions->getWidth() > $maxColumnWidth) {
-                $dimensions->setAutoSize(false);
-                $dimensions->setWidth($maxColumnWidth);
-            }
-        }
-        //Definir ancho de columna - FIN
-
-        //Envolver texto y centrar vertical/horizontalmente - INICIO
-        $activeSheet->getStyle("{$firstColumn}1:{$lastColumn}{$lastRow}")->getAlignment()->setVertical('center');
-        $activeSheet->getStyle("{$firstColumn}1:{$lastColumn}{$lastRow}")->getAlignment()->setHorizontal('center');
-        $activeSheet->getStyle("{$firstColumn}1:{$lastColumn}{$lastRow}")->getAlignment()->setWrapText(true);
-        //Envolver texto y centrar vertical/horizontalmente - FIN
-
-        $fileName = "Usuarios - Exportado el " . date('d-m-Y h i A') . '.xlsx';
-
-        ob_start();
-        $writer->save('php://output');
-        $fileData = ob_get_contents();
-        ob_end_clean();
-
+        $exportData = UsersExporter::exportData();
         return $response
-            ->write($fileData)
-            ->withHeader('Content-Type', 'application/vnd.ms-excel')
-            ->withHeader('Content-Disposition', "attachment;filename={$fileName}")
-            ->withHeader('Cache-Control', 'max-age=0');
+            ->write($exportData->fileData())
+            ->withHeader('Content-Type', $exportData->contentType())
+            ->withHeader('Content-Disposition', $exportData->contentDisposition())
+            ->withHeader('Cache-Control', $exportData->cacheControl());
     }
 
     /**
