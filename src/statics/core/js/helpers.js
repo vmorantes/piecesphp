@@ -2037,7 +2037,7 @@ function configMirrorScrollX(namespace = 'default', selector = null) {
  * @param {Booloan} cacheOnAPI
  * @returns {$[]} 
  */
-function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI = true) {
+function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI = false) {
 	selectSelector = typeof selectSelector == 'string' ? selectSelector : 'NONE_SELECTOR'
 	defaultOptions = typeof defaultOptions == 'object' ? defaultOptions : {}
 
