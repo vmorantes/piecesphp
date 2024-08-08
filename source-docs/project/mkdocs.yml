@@ -13,6 +13,12 @@ theme:
         primary: black
         accent: red
 site_dir: ../../docs
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+markdown_extensions:
+  - attr_list
 
 
 
