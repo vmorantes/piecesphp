@@ -52,7 +52,7 @@ $config['font_color_two'] = "#FFFFFF";
 $config['menu_color_background'] = "#6435C9";
 $config['menu_color_mark'] = "rgba(255, 255, 255, 0.2)";
 $config['menu_color_font'] = "#FFFFFF";
-$config['meta_theme_color'] = "#6435C9";
+$config['bg_tools_buttons'] = "#E2ECEF";
 
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";

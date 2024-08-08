@@ -96,8 +96,8 @@ class CategoriesRoutes
         };
 
         $routeStatics = [
-            new Route('formularios/categorias/statics-resolver/globals-vars.css', $cssGlobalVariables, CategoriesRoutes::class . '-global-vars'),
-            new Route('formularios/categorias/statics-resolver/[{params:.*}]', $callableHandler, CategoriesRoutes::class),
+            new Route('formularios/categorias-forms/statics-resolver/globals-vars.css', $cssGlobalVariables, CategoriesRoutes::class . '-global-vars'),
+            new Route('formularios/categorias-forms/statics-resolver/[{params:.*}]', $callableHandler, CategoriesRoutes::class),
         ];
 
         $group->register($routeStatics);
