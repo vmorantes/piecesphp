@@ -489,7 +489,7 @@
         height: 50px;
         right: 0;
         border-radius: 25px 0px 0px 25px;
-        background-color: $colorFirstOpacity;
+        background-color: var(--bg-tools-buttons);
 
         display: flex;
         justify-content: space-between;
@@ -550,7 +550,7 @@
         display: grid;
         place-content: center;
         top: 4px;
-        background-color: $colorFirstOpacity;
+        background-color: var(--bg-tools-buttons);
         right: 235px;
 
         &.is-unique {
@@ -573,7 +573,7 @@
         display: grid;
         place-content: center;
         top: 4px;
-        background-color: $colorFirstOpacity;
+        background-color: var(--bg-tools-buttons);
         right: 185px;
 
         >.icon {

@@ -640,6 +640,466 @@ class DataTablesHelper
     }
 
     /**
+     * @param array $options
+     * @var string $options[fakeTable] required
+     * @var string $options[tableName] required
+     * @var Request $options[request] required
+     * @var array $options[columns_order] required
+     * @var string $options[where_string]
+     * @var string $options[having_string]
+     * @var callable $options[on_set_data] Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
+     * @var array|string $options[select_fields]
+     * @var array $options[custom_order]
+     * @var string $options[group_string]
+     * @return ResultOperations
+     */
+    public static function processFromQuery(array $options)
+    {
+
+        //Variables para depuración
+        $limitGeneratedSQL = "PENDING";
+        $fiterCountGeneratedSQL = "PENDING";
+        $totalCountGeneratedSQL = "PENDING";
+
+        try {
+
+            //──── INICIO ────────────────────────────────────────────────────────────────────────────
+            //Variables de configuración
+            /**
+             * @var string
+             */
+            $fakeTable = '';
+            /**
+             * @var string
+             */
+            $tableName = '';
+            /**
+             * @var Request
+             */
+            $request = null;
+            /**
+             * @var array
+             */
+            $columns_order = [];
+            /**
+             * @var string
+             */
+            $where_string = null;
+            /**
+             * @var string
+             */
+            $having_string = null;
+            /**
+             * @var callable
+             */
+            $on_set_data = null;
+            /**
+             * @var array|string
+             */
+            $select_fields = null;
+            /**
+             * @var array
+             */
+            $custom_order = [];
+            /**
+             * @var string
+             */
+            $group_string = '';
+            /**
+             * @var bool
+             */
+            $ignore_table_in_order = false;
+            /**
+             * @var array
+             */
+            $ignore_fields_in_where = [];
+            /**
+             * @var array
+             */
+            $ignore_table_on_fields_in_where = [];
+            //──── FIN ───────────────────────────────────────────────────────────────────────────────
+
+            //──── INICIO ────────────────────────────────────────────────────────────────────────────
+            //Analizar parámetros entrantes
+            $parameters_expected = new Parameters([
+                new Parameter('fakeTable', null, function ($value) {
+                    return is_string($value);
+                }),
+                new Parameter('tableName', null, function ($value) {
+                    return is_string($value);
+                }),
+                new Parameter('request', null, function ($value) {
+                    return $value instanceof Request;
+                }),
+                new Parameter('columns_order', null, function ($value) {
+                    return is_array($value);
+                }),
+                new Parameter('where_string', null, function ($value) {
+                    return is_string($value);
+                }, true),
+                new Parameter('having_string', null, function ($value) {
+                    return is_string($value);
+                }, true),
+                new Parameter('on_set_data', null, function ($value) {
+                    return is_callable($value);
+                }, true),
+                new Parameter('select_fields', null, function ($value) {
+                    return is_array($value) || is_string($value);
+                }, true),
+                new Parameter('custom_order', null, function ($value) {
+                    return is_array($value);
+                }, true),
+                new Parameter('group_string', null, function ($value) {
+                    return is_string($value);
+                }, true),
+                new Parameter('ignore_table_in_order', false, function ($value) {
+                    return is_bool($value);
+                }, true),
+                new Parameter(
+                    'ignore_fields_in_where',
+                    [],
+                    function ($value) {
+                        return is_array($value);
+                    },
+                    true,
+                    function ($value) {
+                        foreach ($value as $i => $v) {
+                            if (!is_string($v) || !ctype_digit((string) $i)) {
+                                unset($value[$i]);
+                            }
+                        }
+                        return $value;
+                    }
+                ),
+                new Parameter(
+                    'ignore_table_on_fields_in_where',
+                    [],
+                    function ($value) {
+                        return is_array($value);
+                    },
+                    true,
+                    function ($value) {
+                        foreach ($value as $i => $v) {
+                            if (!is_string($v) || !ctype_digit((string) $i)) {
+                                unset($value[$i]);
+                            }
+                        }
+                        return $value;
+                    }
+                ),
+            ]);
+            $parameters_expected->setInputValues($options);
+            extract($parameters_expected->getValues());
+            //──── FIN ───────────────────────────────────────────────────────────────────────────────
+
+            //Objecto de resultado
+            $result = new ResultOperations();
+
+            //Parámetros recibidos desde datatables
+
+            /**
+             * @var int
+             */
+            $draw = (int) $request->getQueryParam('draw', null);
+            /**
+             * @var int
+             */
+            $start = $request->getQueryParam('start', 0);
+            /**
+             * @var int
+             */
+            $length = $request->getQueryParam('length', 10);
+            /**
+             * @var array
+             */
+            $search = $request->getQueryParam('search', null);
+            /**
+             * @var array
+             */
+            $order = $request->getQueryParam('order', null);
+            /**
+             * @var array
+             */
+            $columns = $request->getQueryParam('columns', null);
+            /**
+             * @var int
+             */
+            $page = self::generatePage((int) $start, (int) $length);
+            /**
+             * @var string Criterios de filtro
+             */
+            $where = '';
+
+            /**
+             * @var string Criterios del input de búsqueda de datatables
+             */
+            $having = self::generateHaving(
+                array_filter(
+                    $columns_order,
+                    function ($v) use ($ignore_fields_in_where) {
+                        return !in_array($v, $ignore_fields_in_where);
+                    }
+                ),
+                $columns,
+                $search,
+                $tableName,
+                $ignore_table_on_fields_in_where
+            );
+
+            //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
+            $having_string = trim($having_string);
+            if (mb_strlen($having_string) > 0) {
+                if (mb_strlen($having) > 0) {
+                    $having = "($having_string) AND $having";
+                } else {
+                    $having = "($having_string)";
+                }
+            }
+
+            //Mezclar búsqueda de datatables con los criterios por defecto (inútil, ahora la búsqueda es por HAVING)
+            $where_string = trim($where_string);
+            if (mb_strlen($where_string) > 0) {
+                if (mb_strlen($where) > 0) {
+                    $where = "($where_string) AND $where";
+                } else {
+                    $where = "($where_string)";
+                }
+            }
+
+            //=============================================================
+
+            //Mezclar ordenamiento de datatables con los criterios por defecto
+            $order_by = self::generateOrderBy(
+                $columns_order,
+                $order,
+                $custom_order,
+                $ignore_table_in_order ? '' : $tableName
+            );
+            //=============================================================
+
+            //Definir los valores de paginación
+            $result->setValue('draw', $draw);
+            $result->setValue('start', $start);
+            $result->setValue('length', $length);
+            $result->setValue('page', $page);
+            //=============================================================
+
+            //──── Ejecutar consultas ────────────────────────────────────────────────────────────────
+
+            $modelToPrepare = new BaseModel();
+
+            //=============================================================
+
+            /*
+             * Configuración de la consulta principal
+             */
+            if ($select_fields !== null) {
+                $select_fields = $select_fields;
+            } else {
+                $select_fields = "$tableName.*";
+            }
+            if (is_array($select_fields)) {
+                $select_fields = implode(', ', $select_fields);
+            }
+            if (mb_strlen($where) > 0) {
+                $where = "WHERE {$where}";
+            } else {
+                $where = "";
+            }
+            if (mb_strlen($having) > 0) {
+                $having = "HAVING {$having}";
+            } else {
+                $having = "";
+            }
+            if (mb_strlen($order_by) > 0) {
+                $order_by = "ORDER BY $order_by";
+            } else {
+                $order_by = "";
+            }
+            if (!is_null($group_string) && mb_strlen($group_string) > 0) {
+                $group_string = "GROUP BY $group_string";
+            } else {
+                $group_string = "";
+            }
+            $sqlBaseQuery = "SELECT {$select_fields} FROM ({$fakeTable}) AS {$tableName} {$where} {$group_string} {$having} {$order_by}";
+            $sqlBaseQueryNoHavingNoWhere = "SELECT {$select_fields} FROM ({$fakeTable}) AS {$tableName} {$group_string} {$order_by}";
+
+            //=============================================================
+
+            /*
+             * Ejecutar consulta principal y configuraciones sobre el resultado
+             */
+
+            //Ejecutar consulta
+            $sqlLimitQuery = $sqlBaseQuery;
+            if (!is_null($page) && !is_null($length)) {
+                $page = $page > 0 ? $page : 1;
+                $length = $length > 0 ? $length : 1;
+                $from = ($page - 1) * $length;
+                $sqlLimitQuery .= " LIMIT $from, $length";
+            }
+            $limitPrepared = $modelToPrepare->prepare($sqlLimitQuery);
+            $limitGeneratedSQL = $sqlLimitQuery;
+            $result->setValue('SQL_MAIN_EXECUTED', str_replace(["\r", "\n"], '', $sqlLimitQuery));
+            $limitPrepared->execute();
+            /**
+             * @var array Resultado de la consulta principal
+             */
+            $limitResult = $limitPrepared->fetchAll(\PDO::FETCH_OBJ);
+
+            /**
+             * @var array Array con los elementos resultantes
+             */
+            $data = [];
+
+            //Iterar sobre la consulta para aplicar configuraciones
+            foreach ($limitResult as $element) {
+
+                if (!is_null($on_set_data)) {
+                    //Aplicar callable $on_set_data para procesar las filas
+
+                    //Espera un array que corresponde a una fila en datatables
+                    $data_process = ($on_set_data)($element);
+
+                    //Si no es un array se ignora el resultado (lo que perjudica las cuentas de los resultados)
+                    if (!is_array($data_process)) {
+                        continue;
+                    }
+
+                    $data[] = $data_process;
+
+                } else {
+                    //Procesamiento de filas integrado
+
+                    /**
+                     * @var string[] Las propiedades (columnas) del modelo
+                     */
+                    $properties = [];
+
+                    //Si no fue instanciado con el mapeador
+                    $is_object = is_object($element);
+                    $is_array = is_array($element);
+                    $is_iterable = $is_object || $is_array;
+
+                    if ($is_iterable) {
+
+                        foreach ($element as $name => $property) {
+
+                            $properties[] = $is_object ? $element->$name : $element[$name];
+
+                        }
+
+                    }
+
+                    $data[] = $properties;
+                }
+            }
+
+            //Ordenamiento de los resultados procesados con $on_set_data
+            if (!is_null($on_set_data)) {
+
+                $order_information = [];
+
+                $order = is_array($order) ? $order : [];
+
+                foreach ($order as $value) {
+
+                    $column_index = isset($value['column']) ? $value['column'] : null;
+                    $direction_ordering = isset($value['dir']) ? $value['dir'] : null;
+
+                    if (!is_null($columns_order) && !is_null($direction_ordering)) {
+
+                        $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
+                        $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
+
+                        if (!is_null($column_name) && $column_name == self::INGNORE) {
+
+                            $order_information[] = [
+                                'direction' => $direction_ordering,
+                                'index' => $column_index,
+                            ];
+                        }
+                    }
+                }
+
+                foreach ($order_information as $i) {
+
+                    $index = $i['index'];
+                    $direction = $i['direction'];
+
+                    usort($data, function ($a, $b) use ($index, $direction) {
+
+                        $a = $a[$index];
+                        $b = $b[$index];
+                        $compare_result = 0;
+
+                        if (is_string($a)) {
+
+                            $compare_result = strnatcmp($a, $b);
+                        } elseif (ctype_digit($a) || is_integer($a)) {
+
+                            if ($a < $b) {
+                                $compare_result = -1;
+                            } elseif ($a > $b) {
+                                $compare_result = 1;
+                            }
+                        }
+
+                        if ($direction == 'DESC') {
+
+                            if ($compare_result < 0) {
+                                $compare_result = 1;
+                            } elseif ($compare_result > 0) {
+                                $compare_result = -1;
+                            }
+                        }
+
+                        return $compare_result;
+                    });
+                }
+            }
+
+            //Agregar al resultado los elementos procesados
+            $result->setValue('data', $data);
+            //Agregar al resultado los elementos crudos
+            $result->setValue('rawData', $limitResult);
+            //=============================================================
+
+            //Realizar consulta para configurar los datos necesarios para la paginación
+
+            $filterCountSQL = "SELECT COUNT(*) AS total FROM (" . $sqlBaseQuery . ") AS table_derivate";
+            $filterCountPrepared = $modelToPrepare->prepare($filterCountSQL);
+            $fiterCountGeneratedSQL = $filterCountSQL;
+            $result->setValue('SQL_FILTER_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $filterCountSQL));
+            $filterCountPrepared->execute();
+            $filterCountResult = $filterCountPrepared->fetchAll(\PDO::FETCH_OBJ);
+            $filterCountTotal = !empty($filterCountResult) ? (int) $filterCountResult[0]->total : 0;
+            $result->setValue('recordsFiltered', $filterCountTotal);
+
+            $totalCountSQL = "SELECT COUNT(*) AS total FROM (" . $sqlBaseQueryNoHavingNoWhere . ") AS table_derivate";
+            $result->setValue('SQL_TOTAL_COUNT_EXECUTED', str_replace(["\r", "\n"], '', $totalCountSQL));
+            $totalCountPrepared = $modelToPrepare->prepare($totalCountSQL);
+            $totalCountGeneratedSQL = $totalCountSQL;
+            $totalCountPrepared->execute();
+            $totalCount = $totalCountPrepared->fetchAll(\PDO::FETCH_OBJ);
+
+            $result->setValue('recordsTotal', !empty($totalCount) ? $totalCount[0]->total : 0);
+            //=============================================================
+
+            return $result;
+
+        } catch (PDOException $pdoException) {
+            throw new DataTablesHelperProcessException(0, $pdoException, [
+                'pdoExceptionMessage' => $pdoException->getMessage(),
+                'pdoExceptionCode' => $pdoException->getCode(),
+                'limitGeneratedSQL' => $limitGeneratedSQL,
+                'fiterCountGeneratedSQL' => $fiterCountGeneratedSQL,
+                'totalCountGeneratedSQL' => $totalCountGeneratedSQL,
+            ]);
+        }
+    }
+
+    /**
      * Devuelve un array con la estructura de un HAVING para un EntityMapper
      *
      * @param array $columns_order

@@ -17,6 +17,7 @@ $container_configurations = [
         $cssGlobalVariables->setVariable('meta-theme-color', get_config('meta_theme_color'));
         $cssGlobalVariables->setVariable('main-brand-color', get_config('main_brand_color'));
         $cssGlobalVariables->setVariable('main-brand-color-opacity', get_config('main_brand_color') . '13');
+        $cssGlobalVariables->setVariable('bg-tools-buttons', get_config('bg_tools_buttons'));
         $cssGlobalVariables->setVariable('second-brand-color', get_config('second_brand_color'));
         $cssGlobalVariables->setVariable('font-color-one', get_config('font_color_one'));
         $cssGlobalVariables->setVariable('font-color-two', get_config('font_color_two'));
