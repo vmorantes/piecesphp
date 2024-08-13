@@ -56,13 +56,6 @@ $hasParams = !empty($params) || ($validateParam)($search);
 
 ?>
 
-<div class="custom-ribbon no-negative no-margin-bottom mw-1200">
-    <img src="statics/images/dashboard/decoration-ribbon.png" class="decoration">
-    <div class="header-area center fluid">
-        <div class="title"><?= $title; ?></div>
-    </div>
-</div>
-
 <section class="module-view-container limit-size">
 
     <div class="explorer-sidebar-content">
@@ -154,6 +147,10 @@ $hasParams = !empty($params) || ($validateParam)($search);
         </div>
 
         <div class="content">
+
+            <div class="home-hello-section-title no-t-padding">
+                <div class="title"><?= $title; ?></div>
+            </div>
 
             <div class="cards-container-standard">
 

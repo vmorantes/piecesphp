@@ -18,8 +18,19 @@
     ]) ?>
 </head>
 <?php $currentUserLogged = getLoggedFrameworkUser(); ?>
-
-<body>
+<?php 
+if(isset($bodyClasses) && is_array($bodyClasses)){
+    foreach($bodyClasses as $k => $class){
+        if(!is_string($class)){
+            unset($bodyClasses[$k]);
+        }
+    }
+    $bodyClasses = trim(implode(' ', $bodyClasses));
+}else{
+    $bodyClasses = '';
+}
+?>
+<body class="<?= $bodyClasses; ?>">
 
     <div class="ui modal" support-js>
         <div class="header"><?= __(SUPPORT_FORM_ADMIN_LANG_GROUP, 'Soporte técnico'); ?></div>
