@@ -88,6 +88,18 @@ $assets['cropper']['css'] = [
 $assets['cropper']['js'] = [
     'statics/plugins/cropper/cropper.min.js',
 ];
+
+/**
+ * ApexCharts v3.50.0
+ * https://apexcharts.com/
+ */
+$assets['apexcharts']['css'] = [
+    'statics/plugins/apexcharts/apexcharts.css',
+];
+$assets['apexcharts']['js'] = [
+    'statics/plugins/apexcharts/apexcharts.min.js',
+];
+
 /**
  * @link project://src/statics/core/own-plugins/CropperAdapterComponent.js
  * @link project://src/statics/core/own-plugins/sass/cropper-adapter.scss
