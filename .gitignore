@@ -14,3 +14,4 @@ docs/code/phpdoc-cache-*
 tasks/output
 .scannerwork
 vendor/**
+IGNORE.md

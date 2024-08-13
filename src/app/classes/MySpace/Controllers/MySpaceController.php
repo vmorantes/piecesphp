@@ -95,13 +95,49 @@ class MySpaceController extends AdminPanelController
         $data['newsAjaxURL'] = NewsController::routeName('ajax-all');
 
         $this->helpController->render('panel/layout/header', [
-            'containerClasses' => [
-                'no-t-padding',
-                'no-r-padding',
-                'no-l-padding',
+            'bodyClasses' => [
+                'gradient-base',
             ],
+            'containerClasses' => [],
         ]);
         self::view('my-space', $data);
+        $this->helpController->render('panel/layout/footer');
+
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function exampleResources(Request $request, Response $response)
+    {
+
+        set_title(__(self::LANG_GROUP, 'Recursos de ejemplo'));
+
+        set_custom_assets([
+            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/example-resources.js'),
+        ], 'js');
+
+        set_custom_assets([
+            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/example-resources.css'),
+        ], 'css');
+
+        import_apexcharts();
+
+        $currentUser = getLoggedFrameworkUser();
+
+        $data = [];
+        $data['langGroup'] = self::LANG_GROUP;
+        $data['subtitle'] = $currentUser->fullName;
+
+        $this->helpController->render('panel/layout/header', [
+            'bodyClasses' => [
+                'gradient-base',
+            ],
+            'containerClasses' => [],
+        ]);
+        self::view('example-resources', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -234,6 +270,9 @@ class MySpaceController extends AdminPanelController
          * @var array<string>
          */
         $allRoles = array_keys(UsersModel::TYPES_USERS);
+        $onlySupers = [
+            UsersModel::TYPE_USER_ROOT,
+        ];
 
         $routes = [
 
@@ -247,6 +286,15 @@ class MySpaceController extends AdminPanelController
                 true,
                 null,
                 $allRoles
+            ),
+            new Route(
+                "{$startRoute}/example-resources[/]",
+                $classname . ':exampleResources',
+                self::$baseRouteName . '-example-resources',
+                'GET',
+                true,
+                null,
+                $onlySupers
             ),
 
         ];

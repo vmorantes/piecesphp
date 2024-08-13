@@ -211,14 +211,16 @@ class LogsMapper extends EntityMapperExtensible
         $notExistsMessage = true;
 
         if (function_exists('geoip_record_by_name')) {
-            $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
-            $geoIP = function_exists('geoip_record_by_name') ? call_user_func('geoip_record_by_name', $ip) : null;
-            $geoIP = is_array($geoIP) ? $geoIP : [
-                'country_name' => 'Sin especificar',
-            ];
-            $geolocationByIp = array_key_exists('country_name', $geoIP) ? $geoIP['country_name'] : 'Sin especificar';
-            $mapper->geolocationByIp = $geolocationByIp;
-            $mapper->ip = $ip;
+            try {
+                $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+                $geoIP = function_exists('geoip_record_by_name') ? call_user_func('geoip_record_by_name', $ip) : null;
+                $geoIP = is_array($geoIP) ? $geoIP : [
+                    'country_name' => 'Sin especificar',
+                ];
+                $geolocationByIp = array_key_exists('country_name', $geoIP) ? $geoIP['country_name'] : 'Sin especificar';
+                $mapper->geolocationByIp = $geolocationByIp;
+                $mapper->ip = $ip;
+            } catch (\Throwable $e) {}
         }
 
         foreach (self::MESSAGES as $type => $text) {

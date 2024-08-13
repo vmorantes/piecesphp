@@ -165,6 +165,42 @@ use App\Model\AppConfigModel;
     </div>
 </div>
 
+<div class="menu-tools-bg-colors card">
+    <form pcs-generic-handler-js action="<?= $actionGenericURL; ?>" method="POST" class="ui form">
+        <div class="card-title">
+            <span><?= __($langGroup, 'Color de opciones<br>flotantes arriba-derecha'); ?></span>
+        </div>
+
+        <div class="color-selector">
+            <label><?= __($langGroup, 'Color de fondo'); ?></label>
+            <input type="text" name="value" value="<?= htmlentities(AppConfigModel::getConfigValue('bg_tools_buttons', true)); ?>" color-picker-js data-color-picker-alpha="no" data-color-picker-format="hex">
+            <input type="hidden" name="name" value="bg_tools_buttons">
+            <input type="hidden" name="parse" value="uppercase">
+        </div>
+
+        <div class="buttons-actions">
+            <button style="border-radius: 8px !important;" type="submit" class="ui button primary"><?= __($langGroup, 'Guardar'); ?></button>
+            <button style="border-radius: 8px !important;" type="reset" class="ui grey basic button"><?= __($langGroup, 'Cancelar'); ?></button>
+        </div>
+
+    </form>
+    <div class="example" style="visibility: hidden;">
+        <label><?= __($langGroup, 'Muestra'); ?></label>
+
+        <div class="mobil-example">
+            <div style="background-color: <?= htmlentities(AppConfigModel::getConfigValue('meta_theme_color')); ?>;" class="head">
+                <i class="arrow left icon"></i>
+                <i class="bars icon"></i>
+            </div>
+            <div class="footter">
+                <img src="<?= base_url('statics/images/framework/triangle.png') ?>" alt="">
+                <i class="circle icon"></i>
+                <i class="square full icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
 <br><br>
 
 <?php endif; ?>
