@@ -25,6 +25,7 @@ $container_configurations = [
         $cssGlobalVariables->setVariable('menu-color-background-opacity', get_config('menu_color_background') . 'BD');
         $cssGlobalVariables->setVariable('menu-color-mark', get_config('menu_color_mark'));
         $cssGlobalVariables->setVariable('menu-color-font', get_config('menu_color_font'));
+        $cssGlobalVariables->setVariable('body-gradient', get_config('body_gradient'));
 
         $cssGlobalVariables->setVariable('main-brand-color-0-5', get_config('main_brand_color') . '80');
         $cssGlobalVariables->setVariable('main-brand-color-0-8', get_config('main_brand_color') . 'CC');

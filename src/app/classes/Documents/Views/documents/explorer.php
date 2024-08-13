@@ -11,14 +11,11 @@ use Documents\Controllers\DocumentsController;
 $langGroupDatatables = 'datatables';
 ?>
 
-<div class="custom-ribbon mw-1200">
-    <img src="statics/images/dashboard/decoration-ribbon.png" class="decoration">
-    <div class="header-area center fluid">
+<section class="module-view-container limit-size">
+
+    <div class="home-hello-section-title">
         <div class="title"><?= $title; ?></div>
     </div>
-</div>
-
-<section class="module-view-container limit-size">
 
     <div class="cards-container-standard">
 
