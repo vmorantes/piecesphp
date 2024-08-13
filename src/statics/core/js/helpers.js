@@ -1716,6 +1716,7 @@ function activeGenericLoader(name = 'DEFAULT') {
  * - d	Día del mes, 2 dígitos con ceros iniciales	01 a 31
  * - Y	Una representación numérica completa de un año, 4 dígitos	Ejemplos: 1999 o 2003
  * - m	Representación numérica de un mes, con ceros iniciales	01 hasta 12
+ * - M	Una representación textual corta de un mes, tres letras
  * - g	Formato de 12 horas de una hora sin ceros iniciales	1 hasta 12
  * - G	Formato de 24 horas de una hora sin ceros iniciales	0 hasta 23
  * - h	Formato de 12 horas de una hora con ceros iniciales	01 hasta 12
@@ -1738,6 +1739,7 @@ function formatDate(date, format) {
 
 	let m = date.getMonth() + 1
 	m = m < 10 ? `0${m}` : m
+	let M = _i18n('semantic_calendar', 'monthsShort')[date.getMonth()]
 
 	let Y = date.getFullYear().toString()
 
@@ -1782,6 +1784,7 @@ function formatDate(date, format) {
 	let replacesPattern = {
 		'Y': Y,
 		'm': m,
+		'M': M,
 		'd': d,
 		'A': A,
 		'g': g,
