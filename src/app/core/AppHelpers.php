@@ -1806,6 +1806,18 @@ function import_quilljs(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra apexcharts como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_apexcharts(array $plugins = [], bool $all = true)
+{
+    import_front_library('apexcharts', $plugins, $all);
+}
+
+/**
  * Registra el editor por defecto como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins

@@ -5,7 +5,6 @@
     display: flex;
     flex: 0 0 auto;
     flex-wrap: wrap;
-    justify-content: center;
     width: 800px;
     max-width: 100%;
     gap: 1.2rem;
@@ -13,6 +12,7 @@
     a:hover {
         color: white;
         opacity: 0.5;
+        display: inherit;
     }
 
     .item {

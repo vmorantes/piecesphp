@@ -8,14 +8,14 @@ $totalColumns: 12;
     container-type: inline-size;
     container-name: my-space-content;
     width: 1920px;
-    padding: 0px pxToRem(70) 0px pxToRem(70);
+    padding: 0px;
     max-width: 100%;
 
     >.content {
         display: grid;
         grid-template-columns: 50% 50%;
         align-items: flex-start;
-        padding: pxToRem(0) pxToRem(70) pxToRem(0) pxToRem(0);
+        padding: 0px;
     }
 
 
@@ -37,7 +37,4 @@ $totalColumns: 12;
 @media screen and (max-width: $rsLarge3) {}
 
 @media screen and (max-width: $rsTablet) {
-    .my-space-content {
-        padding: 0px pxToRem(10) 0px pxToRem(10);
-    }
 }

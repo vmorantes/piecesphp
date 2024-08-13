@@ -7,6 +7,8 @@
 namespace MySpace;
 
 use MySpace\Controllers\MySpaceController;
+use PiecesPHP\Core\Menu\MenuGroup;
+use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -71,6 +73,26 @@ class MySpaceRoutes
             }
 
             $currentUserType = (int) $currentUser->type;
+
+            /**
+             * @var MenuGroupCollection $sidebar
+             */
+            $sidebar = get_config('menus')['sidebar'];
+
+            $sidebar->addItem(new MenuGroup(
+                [
+                    'name' => __(MySpaceLang::LANG_GROUP, 'Ejemplos de elementos'),
+                    'icon' => 'ol list',
+                    'position' => 9999,
+                    'items' => [
+                        new MenuItem([
+                            'text' => __(MySpaceLang::LANG_GROUP, 'Varios'),
+                            'visible' => MySpaceController::allowedRoute('example-resources'),
+                            'href' => MySpaceController::routeName('example-resources'),
+                        ]),
+                    ],
+                ]
+            ));
 
         }
 
