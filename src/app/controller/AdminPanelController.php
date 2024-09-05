@@ -394,6 +394,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         /* Librerías de la aplicación */
         import_app_libraries([
             'adminStyle',
+            'attachmentPlaceholder',
         ]);
         add_global_asset(base_url(ADMIN_AREA_PATH_JS . '/main.js'), 'js');
 

@@ -64,6 +64,7 @@ use ImagesRepository\ImagesRepositoryRoutes;
 use MySpace\MySpaceRoutes;
 use Newsletter\NewsletterRoutes;
 use News\NewsRoutes;
+use Organizations\OrganizationsRoutes;
 use Persons\PersonsRoutes;
 use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
@@ -84,6 +85,7 @@ PiecesRouteGroup::setRouter($slim_app);
 $terminalGroup = new PiecesRouteGroup($prefix_lang . '/terminal'); //Rutas de terminal
 $coreGroup = new PiecesRouteGroup($prefix_lang . '/core'); //Varias
 $componentsProvider = new PiecesRouteGroup($prefix_lang . '/components-provider'); //Componentes HTML
+$organizations = new PiecesRouteGroup($prefix_lang . '/organizations'); //Módulo de organizaciones
 $zona_administrativa = new PiecesRouteGroup($prefix_lang . '/admin'); //Zona administrativa
 $configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Configuraciones
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
@@ -104,6 +106,9 @@ TerminalController::routes($terminalGroup);
 
 //Proveedor de componentes HTML
 ComponentProviderRoutes::routes($componentsProvider, $componentsProvider);
+
+//Módulo de organizaciones
+OrganizationsRoutes::routes($organizations, $organizations);
 
 //Rutas básicas de la zona administrativa
 AdminPanelController::routes($zona_administrativa);
