@@ -75,6 +75,9 @@ define('NEWSLETTER_MODULE', true);
 //API
 define('API_MODULE', false);
 
+//Organizaciones
+define('ORGANIZATIONS_MODULE', true);
+
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 
