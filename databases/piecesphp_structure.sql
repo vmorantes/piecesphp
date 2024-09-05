@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 5.5.5-10.5.16-MariaDB-1:10.5.16+maria~focal dump
+-- Adminer 4.8.1 MySQL 5.5.5-10.6.18-MariaDB-ubu2004 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -8,14 +8,14 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 DROP TABLE IF EXISTS `actions_log`;
 CREATE TABLE `actions_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `textMessage` text COLLATE utf8_bin NOT NULL,
-  `textMessageVariables` longtext COLLATE utf8_bin NOT NULL,
-  `referenceColumn` text COLLATE utf8_bin DEFAULT NULL,
-  `referenceValue` text COLLATE utf8_bin DEFAULT NULL,
-  `referenceSource` text COLLATE utf8_bin DEFAULT NULL,
+  `textMessage` text NOT NULL,
+  `textMessageVariables` longtext NOT NULL,
+  `referenceColumn` text DEFAULT NULL,
+  `referenceValue` text DEFAULT NULL,
+  `referenceSource` text DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `createdAt` datetime NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   CONSTRAINT `actions_log_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`)
@@ -25,12 +25,12 @@ CREATE TABLE `actions_log` (
 DROP TABLE IF EXISTS `app_presentations`;
 CREATE TABLE `app_presentations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `name` text COLLATE utf8_bin NOT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `name` text NOT NULL,
   `order` int(11) NOT NULL,
   `category` int(11) NOT NULL,
-  `images` longtext COLLATE utf8_bin NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `images` longtext NOT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `category` (`category`),
   CONSTRAINT `app_presentations_ibfk_1` FOREIGN KEY (`category`) REFERENCES `app_presentations_categories` (`id`)
@@ -40,9 +40,9 @@ CREATE TABLE `app_presentations` (
 DROP TABLE IF EXISTS `app_presentations_categories`;
 CREATE TABLE `app_presentations_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `name` text COLLATE utf8_bin NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `name` text NOT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -50,19 +50,19 @@ CREATE TABLE `app_presentations_categories` (
 DROP TABLE IF EXISTS `documents_elements`;
 CREATE TABLE `documents_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `preferSlug` text DEFAULT NULL,
   `documentType` int(11) NOT NULL,
-  `documentName` text COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
-  `document` text COLLATE utf8_bin NOT NULL,
-  `documentImage` text COLLATE utf8_bin NOT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
+  `documentName` text NOT NULL,
+  `description` text NOT NULL,
+  `document` text NOT NULL,
+  `documentImage` text NOT NULL,
+  `folder` text NOT NULL,
   `status` int(11) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `documentType` (`documentType`),
   KEY `createdBy` (`createdBy`),
@@ -76,15 +76,15 @@ CREATE TABLE `documents_elements` (
 DROP TABLE IF EXISTS `forms_categories`;
 CREATE TABLE `forms_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `categoryName` text COLLATE utf8_bin NOT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `categoryName` text NOT NULL,
+  `folder` text NOT NULL,
   `status` int(11) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   KEY `modifiedBy` (`modifiedBy`),
@@ -96,15 +96,15 @@ CREATE TABLE `forms_categories` (
 DROP TABLE IF EXISTS `forms_document_types`;
 CREATE TABLE `forms_document_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `documentTypeName` text COLLATE utf8_bin NOT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `documentTypeName` text NOT NULL,
+  `folder` text NOT NULL,
   `status` int(11) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   KEY `modifiedBy` (`modifiedBy`),
@@ -116,22 +116,22 @@ CREATE TABLE `forms_document_types` (
 DROP TABLE IF EXISTS `image_repository_images`;
 CREATE TABLE `image_repository_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
+  `preferSlug` text DEFAULT NULL,
   `city` int(11) NOT NULL,
-  `author` text COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin NOT NULL,
-  `image` text COLLATE utf8_bin NOT NULL,
-  `authorization` text COLLATE utf8_bin DEFAULT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
-  `resolution` text COLLATE utf8_bin NOT NULL,
+  `author` text NOT NULL,
+  `description` text NOT NULL,
+  `image` text NOT NULL,
+  `authorization` text DEFAULT NULL,
+  `folder` text NOT NULL,
+  `resolution` text NOT NULL,
   `size` double NOT NULL,
-  `coordinates` longtext COLLATE utf8_bin DEFAULT NULL,
+  `coordinates` longtext DEFAULT NULL,
   `captureDate` datetime NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   KEY `modifiedBy` (`modifiedBy`),
@@ -145,9 +145,9 @@ CREATE TABLE `image_repository_images` (
 DROP TABLE IF EXISTS `locations_cities`;
 CREATE TABLE `locations_cities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
   `state` int(11) NOT NULL,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `name` varchar(255) NOT NULL,
   `active` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `state` (`state`),
@@ -158,8 +158,8 @@ CREATE TABLE `locations_cities` (
 DROP TABLE IF EXISTS `locations_countries`;
 CREATE TABLE `locations_countries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `code` varchar(255) DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
   `active` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -169,8 +169,8 @@ DROP TABLE IF EXISTS `locations_points`;
 CREATE TABLE `locations_points` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `city` int(11) NOT NULL,
-  `address` text COLLATE utf8_bin NOT NULL,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `address` text NOT NULL,
+  `name` varchar(255) NOT NULL,
   `latitude` float NOT NULL,
   `longitude` float NOT NULL,
   `active` int(11) NOT NULL DEFAULT 1,
@@ -183,9 +183,9 @@ CREATE TABLE `locations_points` (
 DROP TABLE IF EXISTS `locations_states`;
 CREATE TABLE `locations_states` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `code` varchar(255) DEFAULT NULL,
   `country` int(11) NOT NULL,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `name` varchar(255) NOT NULL,
   `active` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `country` (`country`),
@@ -197,12 +197,12 @@ DROP TABLE IF EXISTS `login_attempts`;
 CREATE TABLE `login_attempts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) DEFAULT NULL,
-  `username_attempt` varchar(255) COLLATE utf8_bin NOT NULL,
+  `username_attempt` varchar(255) NOT NULL,
   `success` int(11) NOT NULL,
-  `ip` varchar(255) COLLATE utf8_bin NOT NULL,
-  `message` text COLLATE utf8_bin DEFAULT NULL,
+  `ip` varchar(255) NOT NULL,
+  `message` text DEFAULT NULL,
   `date` datetime NOT NULL,
-  `extra_data` longtext COLLATE utf8_bin DEFAULT NULL,
+  `extra_data` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `login_attempts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `pcsphp_users` (`id`)
@@ -215,9 +215,9 @@ CREATE TABLE `messages` (
   `message_from` bigint(20) NOT NULL,
   `message_to` bigint(20) DEFAULT NULL,
   `date` datetime NOT NULL DEFAULT current_timestamp(),
-  `subject` text COLLATE utf8_bin NOT NULL,
-  `message` text COLLATE utf8_bin DEFAULT NULL,
-  `attachment` text COLLATE utf8_bin DEFAULT NULL,
+  `subject` text NOT NULL,
+  `message` text DEFAULT NULL,
+  `attachment` text DEFAULT NULL,
   `readed` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `message_from` (`message_from`),
@@ -232,9 +232,9 @@ CREATE TABLE `messages_responses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `message_id` int(11) NOT NULL,
   `message_from` bigint(20) NOT NULL,
-  `message` text COLLATE utf8_bin DEFAULT NULL,
+  `message` text DEFAULT NULL,
   `date` datetime NOT NULL DEFAULT current_timestamp(),
-  `attachment` text COLLATE utf8_bin DEFAULT NULL,
+  `attachment` text DEFAULT NULL,
   `readed` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `message_from` (`message_from`),
@@ -247,12 +247,12 @@ CREATE TABLE `messages_responses` (
 DROP TABLE IF EXISTS `newsletter_sucribers`;
 CREATE TABLE `newsletter_sucribers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` text COLLATE utf8_bin NOT NULL,
-  `email` text COLLATE utf8_bin NOT NULL,
+  `name` text NOT NULL,
+  `email` text NOT NULL,
   `acceptUpdates` int(11) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -260,11 +260,11 @@ CREATE TABLE `newsletter_sucribers` (
 DROP TABLE IF EXISTS `news_categories`;
 CREATE TABLE `news_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `name` text COLLATE utf8_bin NOT NULL,
-  `iconImage` text COLLATE utf8_bin NOT NULL,
-  `color` text COLLATE utf8_bin NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `name` text NOT NULL,
+  `iconImage` text NOT NULL,
+  `color` text NOT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -272,12 +272,12 @@ CREATE TABLE `news_categories` (
 DROP TABLE IF EXISTS `news_elements`;
 CREATE TABLE `news_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `newsTitle` text COLLATE utf8_bin NOT NULL,
-  `profilesTarget` longtext COLLATE utf8_bin NOT NULL,
-  `content` text COLLATE utf8_bin NOT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `newsTitle` text NOT NULL,
+  `profilesTarget` longtext NOT NULL,
+  `content` text NOT NULL,
   `category` int(11) NOT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
+  `folder` text NOT NULL,
   `startDate` datetime DEFAULT NULL,
   `endDate` datetime DEFAULT NULL,
   `createdAt` datetime NOT NULL,
@@ -285,7 +285,7 @@ CREATE TABLE `news_elements` (
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
   `status` int(11) NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `category` (`category`),
   KEY `createdBy` (`createdBy`),
@@ -296,11 +296,50 @@ CREATE TABLE `news_elements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `organizations_elements`;
+CREATE TABLE `organizations_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text DEFAULT NULL,
+  `name` text NOT NULL,
+  `nit` text NOT NULL,
+  `size` text DEFAULT NULL,
+  `actionLines` longtext DEFAULT NULL,
+  `esal` text DEFAULT NULL,
+  `state` int(11) DEFAULT NULL,
+  `city` int(11) DEFAULT NULL,
+  `address` text DEFAULT NULL,
+  `phone` text DEFAULT NULL,
+  `informativeEmail` text DEFAULT NULL,
+  `billingEmail` text DEFAULT NULL,
+  `contactName` text DEFAULT NULL,
+  `contactPhone` text DEFAULT NULL,
+  `contactEmail` text DEFAULT NULL,
+  `logo` text DEFAULT NULL,
+  `rut` text DEFAULT NULL,
+  `folder` text NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `state` (`state`),
+  KEY `city` (`city`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `organizations_elements_ibfk_1` FOREIGN KEY (`state`) REFERENCES `locations_states` (`id`),
+  CONSTRAINT `organizations_elements_ibfk_2` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
+  CONSTRAINT `organizations_elements_ibfk_3` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `organizations_elements_ibfk_4` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `pcsphp_app_config`;
 CREATE TABLE `pcsphp_app_config` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `value` longtext COLLATE utf8_bin DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -309,11 +348,11 @@ CREATE TABLE `pcsphp_app_config` (
 DROP TABLE IF EXISTS `pcsphp_dynamic_images`;
 CREATE TABLE `pcsphp_dynamic_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` text COLLATE utf8_bin NOT NULL,
-  `description` text COLLATE utf8_bin DEFAULT NULL,
-  `link` text COLLATE utf8_bin DEFAULT NULL,
-  `image` text COLLATE utf8_bin NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `title` text NOT NULL,
+  `description` text DEFAULT NULL,
+  `link` text DEFAULT NULL,
+  `image` text NOT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -321,7 +360,7 @@ CREATE TABLE `pcsphp_dynamic_images` (
 DROP TABLE IF EXISTS `pcsphp_recovery_password`;
 CREATE TABLE `pcsphp_recovery_password` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) COLLATE utf8_bin NOT NULL,
+  `email` varchar(255) NOT NULL,
   `code` int(11) NOT NULL,
   `created` datetime NOT NULL,
   `expired` datetime NOT NULL,
@@ -332,11 +371,11 @@ CREATE TABLE `pcsphp_recovery_password` (
 DROP TABLE IF EXISTS `pcsphp_tickets_log`;
 CREATE TABLE `pcsphp_tickets_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `message` text COLLATE utf8_bin DEFAULT NULL,
-  `type` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `information` longtext COLLATE utf8_bin DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `information` longtext DEFAULT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -345,8 +384,8 @@ CREATE TABLE `pcsphp_tickets_log` (
 DROP TABLE IF EXISTS `pcsphp_tokens`;
 CREATE TABLE `pcsphp_tokens` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `token` text COLLATE utf8_bin NOT NULL,
-  `type` varchar(255) COLLATE utf8_bin NOT NULL,
+  `token` text NOT NULL,
+  `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -354,14 +393,14 @@ CREATE TABLE `pcsphp_tokens` (
 DROP TABLE IF EXISTS `pcsphp_users`;
 CREATE TABLE `pcsphp_users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `username` varchar(255) COLLATE utf8_bin NOT NULL,
-  `password` varchar(255) COLLATE utf8_bin NOT NULL,
-  `firstname` varchar(255) COLLATE utf8_bin NOT NULL,
-  `secondname` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `first_lastname` varchar(255) COLLATE utf8_bin NOT NULL,
-  `second_lastname` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  `email` varchar(255) COLLATE utf8_bin NOT NULL,
-  `meta` text COLLATE utf8_bin DEFAULT NULL,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `firstname` varchar(255) NOT NULL,
+  `secondname` varchar(255) DEFAULT NULL,
+  `first_lastname` varchar(255) NOT NULL,
+  `second_lastname` varchar(255) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `meta` text DEFAULT NULL,
   `type` int(3) NOT NULL,
   `status` int(3) NOT NULL DEFAULT 1,
   `failed_attempts` int(1) NOT NULL DEFAULT 0,
@@ -374,11 +413,11 @@ CREATE TABLE `pcsphp_users` (
 DROP TABLE IF EXISTS `pcsphp_user_problems`;
 CREATE TABLE `pcsphp_user_problems` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(255) COLLATE utf8_bin NOT NULL,
+  `email` varchar(255) NOT NULL,
   `code` int(11) NOT NULL,
   `created` datetime NOT NULL,
   `expired` datetime NOT NULL,
-  `type` varchar(255) COLLATE utf8_bin NOT NULL,
+  `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -386,20 +425,20 @@ CREATE TABLE `pcsphp_user_problems` (
 DROP TABLE IF EXISTS `persons`;
 CREATE TABLE `persons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `documentType` text COLLATE utf8_bin NOT NULL,
-  `documentNumber` text COLLATE utf8_bin NOT NULL,
-  `personName1` text COLLATE utf8_bin NOT NULL,
-  `personName2` text COLLATE utf8_bin NOT NULL,
-  `personLastName1` text COLLATE utf8_bin NOT NULL,
-  `personLastName2` text COLLATE utf8_bin NOT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `documentType` text NOT NULL,
+  `documentNumber` text NOT NULL,
+  `personName1` text NOT NULL,
+  `personName2` text NOT NULL,
+  `personLastName1` text NOT NULL,
+  `personLastName2` text NOT NULL,
+  `folder` text NOT NULL,
   `status` int(11) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   KEY `modifiedBy` (`modifiedBy`),
@@ -412,16 +451,16 @@ DROP TABLE IF EXISTS `publications_attachments`;
 CREATE TABLE `publications_attachments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `publication` int(11) NOT NULL,
-  `attachmentType` text COLLATE utf8_bin NOT NULL,
-  `fileLocation` text COLLATE utf8_bin NOT NULL,
-  `lang` text COLLATE utf8_bin NOT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
+  `attachmentType` text NOT NULL,
+  `fileLocation` text NOT NULL,
+  `lang` text NOT NULL,
+  `folder` text NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
   `status` int(11) NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `publication` (`publication`),
   KEY `createdBy` (`createdBy`),
@@ -435,9 +474,9 @@ CREATE TABLE `publications_attachments` (
 DROP TABLE IF EXISTS `publications_categories`;
 CREATE TABLE `publications_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `name` text COLLATE utf8_bin NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `name` text NOT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -445,16 +484,16 @@ CREATE TABLE `publications_categories` (
 DROP TABLE IF EXISTS `publications_elements`;
 CREATE TABLE `publications_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text COLLATE utf8_bin DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8_bin NOT NULL,
-  `content` text COLLATE utf8_bin NOT NULL,
-  `seoDescription` text COLLATE utf8_bin DEFAULT NULL,
+  `preferSlug` text DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `seoDescription` text DEFAULT NULL,
   `author` bigint(20) NOT NULL,
   `category` int(11) NOT NULL,
-  `mainImage` text COLLATE utf8_bin NOT NULL,
-  `thumbImage` text COLLATE utf8_bin NOT NULL,
-  `ogImage` text COLLATE utf8_bin NOT NULL,
-  `folder` text COLLATE utf8_bin NOT NULL,
+  `mainImage` text NOT NULL,
+  `thumbImage` text NOT NULL,
+  `ogImage` text NOT NULL,
+  `folder` text NOT NULL,
   `visits` int(11) NOT NULL,
   `publicDate` datetime NOT NULL,
   `startDate` datetime DEFAULT NULL,
@@ -465,7 +504,7 @@ CREATE TABLE `publications_elements` (
   `modifiedBy` bigint(20) DEFAULT NULL,
   `status` int(11) NOT NULL,
   `featured` int(11) NOT NULL,
-  `meta` longtext COLLATE utf8_bin DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `author` (`author`),
   KEY `category` (`category`),
@@ -489,4 +528,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- 2022-09-02 04:30:51
+-- 2024-09-05 22:52:46
