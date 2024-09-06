@@ -166,10 +166,15 @@ class GenericHandler
             $fileLogJSON[$date_current][$time] = [];
         }
 
+        $codeException = '-';
+        try {
+            $codeException = $this->exception->getCode();
+        } catch (\Throwable $e) {}
+
         $fileLogJSON[$date_current][$time][] = [
             'type' => $classException,
             'message' => $this->exception->getMessage(),
-            'code' => $this->exception->getCode(),
+            'code' => $codeException,
             'file' => $this->exception->getFile(),
             'line' => $this->exception->getLine(),
             'extraData' => method_exists($this->exception, 'extraData') ? call_user_func(array($this->exception, 'extraData')) : [],

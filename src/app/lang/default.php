@@ -94,7 +94,8 @@ $lang = [
         'NOT_MATCH_PASSWORDS'          => 'Las contraseñas no coinciden.',
         'RESTRICTED_AREA'              => 'Intenta acceder a un área restringida. Para la que no tiene permisos.',
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',
-        'INACTIVE_USER'                => 'El usuario "%1$s" está desactivado.'
+        'INACTIVE_USER'                => 'El usuario "%1$s" está desactivado.',
+        'ORGANIZATION_IS_NOT_ACTIVE'   => 'La organización "%1$s" no está activa.',
 	],
 	'avatarModule' => [
 		'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',

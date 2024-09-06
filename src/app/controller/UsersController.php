@@ -9,6 +9,7 @@ namespace App\Controller;
 use App\Model\AvatarModel;
 use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Pagination\PageQuery;
@@ -25,6 +26,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -94,6 +96,7 @@ class UsersController extends AdminPanelController
     const ACTIVE_SESSION = 'ACTIVE_SESSION';
     const BLOCKED_FOR_ATTEMPTS = 'BLOCKED_FOR_ATTEMPTS';
     const INACTIVE_USER = 'INACTIVE_USER';
+    const ORGANIZATION_IS_NOT_ACTIVE = 'ORGANIZATION_IS_NOT_ACTIVE';
     const EXPIRED_OR_NOT_EXIST_CODE = 'EXPIRED_OR_NOT_EXIST_CODE';
     const NOT_MATCH_PASSWORDS = 'NOT_MATCH_PASSWORDS';
     const NO_EXTERNAL_LOGIN_AVAILABLE = 'NO_EXTERNAL_LOGIN_AVAILABLE';
@@ -156,6 +159,7 @@ class UsersController extends AdminPanelController
 
         $currentUser = new UsersModel($this->user->id);
         $disallowedTypes = $currentUser->getHigherPriorityTypes();
+        $canAssign = OrganizationMapper::canAssignAnyOrganization($currentUser->type);
 
         $where = [
             "id != {$this->user->id}",
@@ -163,6 +167,10 @@ class UsersController extends AdminPanelController
 
         if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
             $where[] = " AND type != " . implode(' AND type != ', $disallowedTypes);
+        }
+
+        if (!$canAssign) {
+            $where[] = " AND organization = " . $currentUser->organization;
         }
 
         $whereString = trim(implode(' ', $where));
@@ -765,81 +773,104 @@ class UsersController extends AdminPanelController
                     //Verificar status
                     if ($user->status == UsersModel::STATUS_USER_ACTIVE) {
 
-                        if ($isExternalLogin) {
-                            if ($user->type != UsersModel::TYPE_USER_GENERAL) {
-                                $resultOperation->setValue('error', self::NO_EXTERNAL_LOGIN_AVAILABLE);
-                                $resultOperation->setValue('message', __(self::LANG_GROUP, 'El usuario no está habilitado para usar la este método de inicio de sesión'));
-                                return $response->withJson($resultOperation->getValues());
-                            }
-                        }
+                        //Verificar status de la organización si aplica
+                        $organizationID = $user->organization;
+                        $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+                        if ($organizationMapper == null || $organizationMapper->status == OrganizationMapper::ACTIVE) {
 
-                        if (password_verify($password, $user->password)) {
-
-                            $resultOperation->setValue('auth', true);
-
-                            //Se genera un token de sesión
-                            $resultOperation->setValue('token', SessionToken::generateToken([
-                                'id' => $user->id,
-                                'type' => $user->type,
-                            ], null, null, get_config('check_aud_on_auth')));
-
-                            //Valores de usuario devueltos
-                            $userLoginData = $userMapper->humanReadable();
-                            $userLoginData['misc'] = [
-                                'avatar' => AvatarModel::getAvatar($userMapper->id),
-                            ];
-                            unset($userLoginData['password']);
-                            unset($userLoginData['meta']);
-
-                            foreach ($userLoginData as $k => $i) {
-                                if (strpos($k, 'META:') !== false) {
-                                    unset($userLoginData[$k]);
-                                    $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
+                            if ($isExternalLogin) {
+                                if ($user->type != UsersModel::TYPE_USER_GENERAL) {
+                                    $resultOperation->setValue('error', self::NO_EXTERNAL_LOGIN_AVAILABLE);
+                                    $resultOperation->setValue('message', __(self::LANG_GROUP, 'El usuario no está habilitado para usar la este método de inicio de sesión'));
+                                    return $response->withJson($resultOperation->getValues());
                                 }
                             }
 
-                            $resultOperation->setValue('userData', $userLoginData);
+                            if (password_verify($password, $user->password)) {
 
-                            $this->mapper->resetAttempts($user->id);
+                                $resultOperation->setValue('auth', true);
 
-                            LoginAttemptsModel::addLogin(
-                                (int) $user->id,
-                                $user->username,
-                                true,
-                                '',
-                                $extraDataLog
-                            );
+                                //Se genera un token de sesión
+                                $resultOperation->setValue('token', SessionToken::generateToken([
+                                    'id' => $user->id,
+                                    'type' => $user->type,
+                                ], null, null, get_config('check_aud_on_auth')));
 
-                        } else {
+                                //Valores de usuario devueltos
+                                $userLoginData = $userMapper->humanReadable();
+                                $userLoginData['misc'] = [
+                                    'avatar' => AvatarModel::getAvatar($userMapper->id),
+                                ];
+                                unset($userLoginData['password']);
+                                unset($userLoginData['meta']);
 
-                            $resultOperation->setValue('error', self::INCORRECT_PASSWORD);
-                            $resultOperation->setValue('message', $this->getMessage(self::INCORRECT_PASSWORD));
-                            LoginAttemptsModel::addLogin(
-                                (int) $user->id,
-                                $user->username,
-                                false,
-                                $resultOperation->getValue('message'),
-                                $extraDataLog
-                            );
+                                foreach ($userLoginData as $k => $i) {
+                                    if (strpos($k, 'META:') !== false) {
+                                        unset($userLoginData[$k]);
+                                        $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
+                                    }
+                                }
 
-                            if ($user->failed_attempts >= self::MAX_ATTEMPTS) {
+                                $resultOperation->setValue('userData', $userLoginData);
 
-                                $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
-                                $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
-                                $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
+                                $this->mapper->resetAttempts($user->id);
+
+                                LoginAttemptsModel::addLogin(
+                                    (int) $user->id,
+                                    $user->username,
+                                    true,
+                                    '',
+                                    $extraDataLog
+                                );
 
                             } else {
 
-                                $attempts = $this->mapper->updateAttempts($user->id);
+                                $resultOperation->setValue('error', self::INCORRECT_PASSWORD);
+                                $resultOperation->setValue('message', $this->getMessage(self::INCORRECT_PASSWORD));
+                                LoginAttemptsModel::addLogin(
+                                    (int) $user->id,
+                                    $user->username,
+                                    false,
+                                    $resultOperation->getValue('message'),
+                                    $extraDataLog
+                                );
 
-                                if ($attempts >= self::MAX_ATTEMPTS) {
+                                if ($user->failed_attempts >= self::MAX_ATTEMPTS) {
 
                                     $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
                                     $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
                                     $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
 
+                                } else {
+
+                                    $attempts = $this->mapper->updateAttempts($user->id);
+
+                                    if ($attempts >= self::MAX_ATTEMPTS) {
+
+                                        $this->mapper->changeStatus(UsersModel::STATUS_USER_ATTEMPTS_BLOCK, $user->id);
+                                        $resultOperation->setValue('error', self::BLOCKED_FOR_ATTEMPTS);
+                                        $resultOperation->setValue('message', vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]));
+
+                                    }
                                 }
+
                             }
+
+                        } else {
+
+                            $errorType = self::ORGANIZATION_IS_NOT_ACTIVE;
+                            $errorTypeMessage = vsprintf($this->getMessage(self::ORGANIZATION_IS_NOT_ACTIVE), [$organizationMapper->name]);
+
+                            $resultOperation->setValue('error', $errorType);
+                            $resultOperation->setValue('message', $errorTypeMessage);
+
+                            LoginAttemptsModel::addLogin(
+                                $user->id,
+                                $username,
+                                false,
+                                $resultOperation->getValue('message'),
+                                $extraDataLog
+                            );
 
                         }
 
@@ -930,6 +961,12 @@ class UsersController extends AdminPanelController
         //Se verifica si ya existe una sesión activa
         $JWT = SessionToken::getJWTReceived();
         $resultOperation->setValue('isAuth', SessionToken::isActiveSession($JWT));
+        //Verificar status de la organización si aplica
+        $organizationID = getLoggedFrameworkUser()->organization;
+        $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+        if ($organizationMapper != null && $organizationMapper->status != OrganizationMapper::ACTIVE) {
+            $resultOperation->setValue('isAuth', false);
+        }
         return $response->withJson($resultOperation->getValues());
     }
 
@@ -1044,6 +1081,17 @@ class UsersController extends AdminPanelController
                     return is_string($value) && ctype_digit($value);
                 }
             ),
+            new Parameter(
+                'organization',
+                null,
+                function ($value) {
+                    return Validator::isInteger($value) || is_null($value);
+                },
+                true,
+                function ($value) {
+                    return Validator::isInteger($value) ? (int) $value : $value;
+                }
+            ),
         ]);
 
         $parametersExcepted->setInputValues($request->getParsedBody());
@@ -1053,6 +1101,7 @@ class UsersController extends AdminPanelController
         $message_duplicate_user = __(self::LANG_GROUP, 'Ya existe un usuario con ese nombre de usuario.');
         $message_duplicate_all = __(self::LANG_GROUP, 'Ya existe un usuario con ese email y nombre de usuario.');
         $message_password_unmatch = __(self::LANG_GROUP, 'Las contraseñas no coinciden.');
+        $message_organization_required = __(self::LANG_GROUP, 'Debe seleccionar una organización.');
         $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
 
         try {
@@ -1068,12 +1117,23 @@ class UsersController extends AdminPanelController
             $first_lastname = $parametersExcepted->getValue('first_lastname');
             $second_lastname = $parametersExcepted->getValue('second_lastname');
             $type = $parametersExcepted->getValue('type');
+            $organization = $parametersExcepted->getValue('organization');
             $status = $parametersExcepted->getValue('status');
 
             $username_duplicate = UsersModel::isDuplicateUsername($username);
             $email_duplicate = UsersModel::isDuplicateEmail($email);
 
             $password_match = $password == $password2;
+
+            //Validar que la organización sea obligatoria si no es usuario ROOT
+            if ($type != UsersModel::TYPE_USER_ROOT) {
+                if (!Validator::isInteger($organization)) {
+                    $result
+                        ->setMessage($message_organization_required)
+                        ->operation($operation_name);
+                    return $response->withJson($result);
+                }
+            }
 
             if (!$username_duplicate && !$email_duplicate && $password_match) {
 
@@ -1091,6 +1151,11 @@ class UsersController extends AdminPanelController
                 $userMapper->failed_attempts = 0;
                 $userMapper->created_at = new \DateTime();
                 $userMapper->modified_at = $userMapper->created_at;
+
+                //Asignar la organización si no es usuario ROOT
+                if ($type != UsersModel::TYPE_USER_ROOT) {
+                    $userMapper->organization = $organization;
+                }
 
                 $success = $userMapper->save();
 
@@ -1294,6 +1359,17 @@ class UsersController extends AdminPanelController
                 },
                 true
             ),
+            new Parameter(
+                'organization',
+                null,
+                function ($value) {
+                    return Validator::isInteger($value) || is_null($value);
+                },
+                true,
+                function ($value) {
+                    return Validator::isInteger($value) ? (int) $value : $value;
+                }
+            ),
         ]);
 
         $parametersExcepted->setInputValues($request->getParsedBody());
@@ -1304,6 +1380,7 @@ class UsersController extends AdminPanelController
         $message_duplicate_all = __(self::LANG_GROUP, 'Ya existe un usuario con ese email y nombre de usuario.');
         $message_password_unmatch = __(self::LANG_GROUP, 'Las contraseñas no coinciden.');
         $message_password_wrong = __(self::LANG_GROUP, 'La contraseña es errónea.');
+        $message_organization_required = __(self::LANG_GROUP, 'Debe seleccionar una organización.');
         $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
 
         try {
@@ -1331,6 +1408,7 @@ class UsersController extends AdminPanelController
             $first_lastname = $parametersExcepted->getValue('first_lastname');
             $second_lastname = $parametersExcepted->getValue('second_lastname');
             $status = $parametersExcepted->getValue('status');
+            $organization = $parametersExcepted->getValue('organization');
 
             $userMapper = new UsersModel($id);
             if ($username === null) {
@@ -1345,6 +1423,16 @@ class UsersController extends AdminPanelController
             $change_password = !is_null($password);
             $password_match = $change_password ? $password == $password2 : true;
             $password_ok = true;
+
+            //Validar que la organización sea obligatoria si no es usuario ROOT
+            if ($userMapper->type != UsersModel::TYPE_USER_ROOT) {
+                if (!Validator::isInteger($organization) && !$isProfile) {
+                    $result
+                        ->setMessage($message_organization_required)
+                        ->operation($operation_name);
+                    return $response->withJson($result);
+                }
+            }
 
             if ($userMapper->id !== null) {
 
@@ -1371,6 +1459,9 @@ class UsersController extends AdminPanelController
                     }
                     if ($status !== null) {
                         $userMapper->status = $status;
+                    }
+                    if ($organization !== null && $userMapper->type != UsersModel::TYPE_USER_ROOT && !$isProfile) {
+                        $userMapper->organization = $organization;
                     }
                     $userMapper->modified_at = new \DateTime();
 
