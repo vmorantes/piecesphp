@@ -47,7 +47,7 @@ class OrganizationsController extends AdminPanelController
     /**
      * @var string
      */
-    protected static $URLDirectory = 'organizations';
+    protected static $URLDirectory = 'admin';
     /**
      * @var string
      */
@@ -129,6 +129,7 @@ class OrganizationsController extends AdminPanelController
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
+        $optionsStatus = array_to_html_options(OrganizationMapper::statusesForSelect(), null);
         $optionsSizes = array_to_html_options(OrganizationMapper::sizesForSelect(), null);
         $optionsActionLines = array_to_html_options(OrganizationMapper::actionLinesForSelect(), null, true);
         $optionsEsal = array_to_html_options(OrganizationMapper::esalOptionsForSelect(), null);
@@ -143,6 +144,7 @@ class OrganizationsController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
+        $data['optionsStatus'] = $optionsStatus;
         $data['optionsSizes'] = $optionsSizes;
         $data['optionsActionLines'] = $optionsActionLines;
         $data['optionsEsal'] = $optionsEsal;
@@ -176,7 +178,7 @@ class OrganizationsController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $lang = $request->getAttribute('lang', null);
         $lang = is_string($lang) ? $lang : null;
@@ -198,10 +200,14 @@ class OrganizationsController extends AdminPanelController
 
             import_cropper();
 
-            $action = self::routeName('actions-edit');
+            $action = self::routeName('actions-edit', [
+                'id' => $element->id,
+            ]);
             $backLink = self::routeName('list');
+            $optionsStatus = array_to_html_options(OrganizationMapper::statusesForSelect(), $element->status);
             $optionsSizes = array_to_html_options(OrganizationMapper::sizesForSelect(), $element->size);
-            $optionsActionLines = array_to_html_options(OrganizationMapper::actionLinesForSelect(), $element->actionLines, true);
+            $actionLines = is_array($element->actionLines) ? $element->actionLines : [];
+            $optionsActionLines = array_to_html_options(OrganizationMapper::actionLinesForSelect('', '', $actionLines), $element->actionLines, true);
             $optionsEsal = array_to_html_options(OrganizationMapper::esalOptionsForSelect(), $element->esal);
             $manyLangs = count($allowedLangs) > 1;
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
@@ -219,6 +225,7 @@ class OrganizationsController extends AdminPanelController
             $data['langGroup'] = self::LANG_GROUP;
             $data['title'] = $title;
             $data['description'] = $description;
+            $data['optionsStatus'] = $optionsStatus;
             $data['optionsSizes'] = $optionsSizes;
             $data['optionsActionLines'] = $optionsActionLines;
             $data['optionsEsal'] = $optionsEsal;
@@ -310,7 +317,7 @@ class OrganizationsController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -326,6 +333,18 @@ class OrganizationsController extends AdminPanelController
                 false,
                 function ($value) {
                     return clean_string($value);
+                }
+            ),
+            new Parameter(
+                "status",
+                null,
+                function ($value) {
+                    return Validator::isInteger($value);
+                },
+                true,
+                function ($value) {
+                    $value = (int) $value;
+                    return $value;
                 }
             ),
             new Parameter(
@@ -358,7 +377,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -380,7 +399,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -391,7 +410,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return (int) $value;
+                    return Validator::isInteger($value) ? (int) $value : $value;
                 }
             ),
             new Parameter(
@@ -402,7 +421,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return (int) $value;
+                    return Validator::isInteger($value) ? (int) $value : $value;
                 }
             ),
             new Parameter(
@@ -413,7 +432,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -424,7 +443,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -435,7 +454,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -446,7 +465,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -457,7 +476,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -468,7 +487,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
             new Parameter(
@@ -479,7 +498,7 @@ class OrganizationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return clean_string($value);
+                    return is_string($value) ? clean_string($value) : $value;
                 }
             ),
         ]);
@@ -533,6 +552,7 @@ class OrganizationsController extends AdminPanelController
              * @var string|null $contactName
              * @var string|null $contactPhone
              * @var string|null $contactEmail
+             * @var int $status
              */
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
@@ -550,6 +570,7 @@ class OrganizationsController extends AdminPanelController
             $contactName = $expectedParameters->getValue('contactName');
             $contactPhone = $expectedParameters->getValue('contactPhone');
             $contactEmail = $expectedParameters->getValue('contactEmail');
+            $status = $expectedParameters->getValue('status');
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -586,6 +607,13 @@ class OrganizationsController extends AdminPanelController
                     $mapper->setLangData($lang, 'contactPhone', $contactPhone);
                     $mapper->setLangData($lang, 'contactEmail', $contactEmail);
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
+                    if (OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type)) {
+                        if ($status !== null) {
+                            $mapper->setLangData($lang, 'status', $status);
+                        }
+                    } else {
+                        $mapper->setLangData($lang, 'status', OrganizationMapper::INACTIVE);
+                    }
 
                     $rut = self::handlerUpload('rut', $mapper->folder);
                     $logo = self::handlerUpload('logo', $mapper->folder);
@@ -631,6 +659,9 @@ class OrganizationsController extends AdminPanelController
                         $mapper->setLangData($lang, 'contactName', $contactName);
                         $mapper->setLangData($lang, 'contactPhone', $contactPhone);
                         $mapper->setLangData($lang, 'contactEmail', $contactEmail);
+                        if (OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type) && $status !== null) {
+                            $mapper->setLangData($lang, 'status', $status);
+                        }
 
                         $rutSetted = $mapper->getLangData($lang, 'rut', false, null);
                         $logoSetted = $mapper->getLangData($lang, 'logo', false, null);
@@ -1033,7 +1064,7 @@ class OrganizationsController extends AdminPanelController
 
                 $name = mb_strlen($e->name) <= 54 ? $e->name : mb_substr($e->name, 0, 51) . '...';
 
-                $columns[] = $e->idPadding;
+                $columns[] = $e->id == OrganizationMapper::INITIAL_ID_GLOBAL ? str_pad(0, 5, "0") : $e->idPadding;
                 $columns[] = $e->nit;
                 $columns[] = $name;
                 $columns[] = $e->stateName;
@@ -1235,14 +1266,35 @@ class OrganizationsController extends AdminPanelController
 
                     $allow = false;
                     $id = ($getParam)('id');
+                    $id = Validator::isInteger($id) ? (int) $id : -1;
+                    $initialInmutableID = OrganizationMapper::INITIAL_ID_GLOBAL;
                     $organization = OrganizationMapper::getBy($id, 'id');
 
-                    if ($organization !== null) {
+                    if ($organization !== null && $initialInmutableID != $id) {
 
                         $createdByID = (int) $organization->createdBy;
                         $allow = $createdByID == $currentUserID;
 
                         if (in_array($currentUserType, OrganizationMapper::CAN_DELETE_ALL)) {
+                            $allow = true;
+                        }
+
+                    }
+
+                } elseif ($name == 'forms-edit' || $name == 'actions-edit') {
+
+                    $allow = false;
+                    $id = ($getParam)('id');
+                    $id = Validator::isInteger($id) ? (int) $id : -1;
+                    $organization = OrganizationMapper::getBy($id, 'id');
+                    $isEditor = in_array($currentUserType, OrganizationMapper::EDITORS);
+                    $initialInmutableID = OrganizationMapper::INITIAL_ID_GLOBAL;
+
+                    if ($organization !== null) {
+
+                        $allow = $isEditor && $currentUser->organization == $organization->id && $currentUser->organization !== $initialInmutableID;
+
+                        if (in_array($currentUserType, OrganizationMapper::CAN_ASSIGN_ALL)) {
                             $allow = true;
                         }
 
@@ -1428,21 +1480,11 @@ class OrganizationsController extends AdminPanelController
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos
-        $list = $allRoles;
-        $creation = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
-        ];
-        $edition = [
-            UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
-        ];
+        $list = OrganizationMapper::CAN_ASSIGN_ALL;
+        $creation = OrganizationMapper::CAN_ASSIGN_ALL;
+        $edition = array_merge(OrganizationMapper::EDITORS, OrganizationMapper::CAN_ASSIGN_ALL);
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
         ];
         $routes = [
 

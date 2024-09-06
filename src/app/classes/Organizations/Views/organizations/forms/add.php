@@ -53,7 +53,7 @@ use Organizations\Mappers\OrganizationMapper;
 
                             <div class="field required">
                                 <label><?= __($langGroup, 'Líneas de acción'); ?></label>
-                                <select required name="actionLines[]" class="ui dropdown search multiple" multiple><?= $optionsActionLines; ?></select>
+                                <select required name="actionLines[]" class="ui dropdown search multiple no-auto" multiple><?= $optionsActionLines; ?></select>
                             </div>
 
                         </div>
@@ -184,6 +184,17 @@ use Organizations\Mappers\OrganizationMapper;
                         </label>
                         <input required type="file" accept="image/*,.pdf" id="<?= $uniqueIdentifier; ?>">
                     </div>
+                </div>
+
+                <br>
+
+                <div class="section-fields-divider">
+                    <div class="title h6"><?= __($langGroup, 'Estado de organización'); ?></div>
+                </div>
+
+                <div class="field required">
+                    <label><?= __($langGroup, 'Estado'); ?></label>
+                    <select required name="status" class="ui dropdown search"><?= $optionsStatus; ?></select>
                 </div>
 
                 <br><br>

@@ -6,6 +6,7 @@ namespace PiecesPHP\UserSystem;
 
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
+use Organizations\Mappers\OrganizationMapper;
 
 /**
  * UserDataPackage.
@@ -16,6 +17,8 @@ use App\Model\UsersModel;
  * @property-read int $id
  * @property-read UsersModel $userMapper
  * @property-read \stdClass $userStdClass
+ * @property-read int|null $organization
+ * @property-read OrganizationMapper|null $organizationMapper
  * @property-read string $password
  * @property-read string $username
  * @property-read string $firstname
@@ -50,6 +53,14 @@ class UserDataPackage
      * @var \stdClass
      */
     protected $userStdClass = null;
+    /**
+     * @var int|null
+     */
+    protected $organization = null;
+    /**
+     * @var OrganizationMapper
+     */
+    protected $organizationMapper = null;
     /**
      * @var string
      */
@@ -190,6 +201,8 @@ class UserDataPackage
         }
 
         $this->dateInstantiated = new \DateTime();
+        $this->organization = $this->userMapper->organization;
+        $this->organizationMapper = $this->organization !== null ? new OrganizationMapper($this->organization) : null;
         $this->password = $this->userMapper->password;
         $this->username = $this->userMapper->username;
         $this->firstname = $this->userMapper->firstname;
