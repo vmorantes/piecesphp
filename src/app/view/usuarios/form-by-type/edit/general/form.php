@@ -1,13 +1,35 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\UsersController;
+use App\Model\UsersModel;
+use Organizations\Mappers\OrganizationMapper;
+
 $langGroup = UsersController::LANG_GROUP;
+$organizations = OrganizationMapper::all(false);
+$canAssignAll = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type);
 ?>
 <h3><?=__($langGroup, 'profile');?>: <?=htmlentities("$edit_user->firstname $edit_user->first_lastname");?></h3>
 
 <form class="ui form users edit general" action="<?= get_route('user-edit-request'); ?>">
 
     <input type="hidden" name='id' value="<?=$edit_user->id;?>">
+
+    <?php if($canAssignAll): ?>
+    <div class="field">
+
+        <select class="ui dropdown" required name="organization">
+
+            <option value=""><?=__($langGroup, 'Organización');?></option>
+            <?php foreach ($organizations as $organization): ?>
+            <option value="<?=$organization->id;?>" <?=$organization->id == $edit_user->organization ? 'selected' : '';?>><?=$organization->name;?></option>
+            <?php endforeach;?>
+
+        </select>
+
+    </div>
+    <?php else: ?>
+    <input type="hidden" name="organization" value="<?= getLoggedFrameworkUser()->organization; ?>">
+    <?php endif; ?>
 
     <div class="ui grid">
 

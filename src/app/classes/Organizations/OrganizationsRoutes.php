@@ -11,6 +11,8 @@ use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
+use PiecesPHP\Core\Menu\MenuItem;
+use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -111,10 +113,28 @@ class OrganizationsRoutes
                 $sidebar->addItem(new MenuGroup([
                     'name' => __(OrganizationsLang::LANG_GROUP, 'Gestión de la organización'),
                     'icon' => 'list',
-                    'href' => OrganizationsController::routeName('list'),
-                    'visible' => OrganizationsController::allowedRoute('list'),
+                    'items' => [
+                        new MenuItem([
+                            'text' => __(OrganizationsLang::LANG_GROUP, 'Organización'),
+                            'href' => OrganizationsController::routeName('forms-edit', [
+                                'id' => getLoggedFrameworkUser()->organization,
+                            ]),
+                            'visible' => OrganizationsController::allowedRoute('forms-edit', [
+                                'id' => getLoggedFrameworkUser()->organization,
+                            ]),
+                        ]),
+                        new MenuItem([
+                            'text' => __(OrganizationsLang::LANG_GROUP, 'Usuarios'),
+                            'href' => get_route('users-list'),
+                            'visible' => Roles::hasPermissions('users-list', $currentUserType),
+                        ]),
+                        new MenuItem([
+                            'text' => __(OrganizationsLang::LANG_GROUP, 'Agregar usuarios'),
+                            'href' => get_route('users-selection-create'),
+                            'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
+                        ]),
+                    ],
                     'position' => 10,
-                    'asLink' => true,
                 ]));
             }
 

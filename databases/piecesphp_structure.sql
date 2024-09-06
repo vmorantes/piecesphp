@@ -393,6 +393,7 @@ CREATE TABLE `pcsphp_tokens` (
 DROP TABLE IF EXISTS `pcsphp_users`;
 CREATE TABLE `pcsphp_users` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `organization` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
   `firstname` varchar(255) NOT NULL,
@@ -406,7 +407,9 @@ CREATE TABLE `pcsphp_users` (
   `failed_attempts` int(1) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `modified_at` datetime NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `organization` (`organization`),
+  CONSTRAINT `pcsphp_users_ibfk_1` FOREIGN KEY (`organization`) REFERENCES `organizations_elements` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
@@ -528,4 +531,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- 2024-09-05 22:52:46
+-- 2024-09-06 04:34:46

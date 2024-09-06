@@ -112,7 +112,8 @@ $lang = [
         'NOT_MATCH_PASSWORDS'          => 'Passwords do not match.',
         'RESTRICTED_AREA'              => 'Try to access a restricted area. For which you do not have permissions.',
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Missing or unexpected parameters.',
-        'INACTIVE_USER'                => 'The user "%1$s" is deactivated.'
+        'INACTIVE_USER'                => 'The user "%1$s" is deactivated.',
+        'ORGANIZATION_IS_NOT_ACTIVE'   => 'The organization "%1$s" is not actived.',
     ],
     'adminZone' => [
         'Crear ticket de soporte'                                    => 'Create support ticket',
