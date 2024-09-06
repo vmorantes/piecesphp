@@ -21,8 +21,15 @@ window.addEventListener('load', function () {
 		outputWidth: 400,
 	})
 
-	configFomanticDropdown('.ui.dropdown:not(.langs)') //Debe inciarse antes de genericFormHandler para la validación
+	//Dropdowns en general
+	configFomanticDropdown('.ui.dropdown:not(.langs):not(.no-auto)') //Debe inciarse antes de genericFormHandler para la validación
 
+	//Líneas de acción
+	configFomanticDropdown('.ui.dropdown[name="actionLines[]"]', {
+		allowAdditions: true,
+	})
+
+	//Formulario
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
 

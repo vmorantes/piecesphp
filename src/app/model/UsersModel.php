@@ -6,6 +6,7 @@
 
 namespace App\Model;
 
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 
@@ -18,6 +19,7 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  * @property int|null $id
+ * @property int $organization Es el ID de OrganizationMapper, no puede ser instanciado porque se vuelve circular
  * @property string $password
  * @property string $username
  * @property string $firstname
@@ -69,6 +71,10 @@ class UsersModel extends EntityMapperExtensible
         'id' => [
             'type' => 'bigint',
             'primary_key' => true,
+        ],
+        'organization' => [
+            'type' => 'int',
+            'null' => true,
         ],
         'password' => [
             'type' => 'varchar',

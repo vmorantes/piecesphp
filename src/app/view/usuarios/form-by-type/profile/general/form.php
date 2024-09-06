@@ -11,6 +11,7 @@ $langGroup = UsersController::LANG_GROUP;
 
     <input type="hidden" name='id' value="<?=$edit_user->id;?>">
     <input type="hidden" name='status' value="<?=$edit_user->status;?>">
+    <input type="hidden" name='organization' value="<?=$edit_user->organization;?>">
     <input type="hidden" name='is_profile' value="yes">
 
     <div class="ui grid">

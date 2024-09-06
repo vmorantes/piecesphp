@@ -2,6 +2,10 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
+use Organizations\Mappers\OrganizationMapper;
+
+$canAssignAll = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type);
+$organizationMapper = $mapper->organization !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($mapper->organization, 'id')) : null;
 ?>
 
 <div class="ui card user">
@@ -46,6 +50,12 @@ use App\Model\UsersModel;
                 <img src="<?= base_url('statics/images/dashboard/email.svg') ?>">
                 <span><?= $mapper->email ?></span>
             </div>
+            <?php if($canAssignAll && $organizationMapper !== null): ?>
+            <div class="item">
+                <img src="<?= base_url('statics/images/dashboard/user_organization.svg') ?>">
+                <span><?= $organizationMapper->name ?></span>
+            </div>
+            <?php endif; ?>
         </div>
 
     </div>

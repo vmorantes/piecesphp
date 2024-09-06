@@ -73,13 +73,18 @@ class CustomSlimErrorHandler
             }
         }
 
+        $codeException = '-';
+        try{
+            $codeException = $exception->getCode();
+        }catch(\Throwable $e){}
+
         $jsonData = [
             'success' => false,
             'message' => $exception->getMessage(),
             'handlerContext' => $this->contextDescription,
             'detail' => [
                 'type' => $class_exception,
-                'code' => $exception->getCode(),
+                'code' => $codeException,
                 'line' => $exception->getLine(),
                 'file' => $file,
                 'trace' => $trace,

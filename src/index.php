@@ -3,6 +3,7 @@
 use App\Controller\PublicAreaController;
 use App\Model\AppConfigModel;
 use App\Model\UsersModel;
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
@@ -409,8 +410,18 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         $user = $validationUserObject->getUserFromDatabase();
 
         if ($user !== null) {
-            set_config('current_user', $user);
-            Roles::setCurrentRole($user->type); //Se establece el rol
+
+            //Verificar status de la organización si aplica
+            $organizationID = $user->organization;
+            $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+            if ($organizationMapper == null || $organizationMapper->status == OrganizationMapper::ACTIVE) {
+                set_config('current_user', $user);
+                Roles::setCurrentRole($user->type); //Se establece el rol
+            } else {
+                $isActiveSession = false;
+                SessionToken::setMinimumDateCreated(new \DateTime());
+            }
+
         } else {
             $isActiveSession = false;
             SessionToken::setMinimumDateCreated(new \DateTime());

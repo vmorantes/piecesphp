@@ -2,12 +2,33 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\UsersController;
 use App\Model\UsersModel;
+use Organizations\Mappers\OrganizationMapper;
+
 $langGroup = UsersController::LANG_GROUP;
+$organizations = OrganizationMapper::all(false);
+$canAssignAll = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type);
 ?>
 
 <form class="ui form users create admin" action="<?= get_route('register-request'); ?>">
 
     <input type="hidden" name="type" value="<?=UsersModel::TYPE_USER_ADMIN;?>">
+
+    <?php if($canAssignAll): ?>
+    <div class="field">
+
+        <select class="ui dropdown" required name="organization">
+
+            <option value=""><?=__($langGroup, 'Organización');?></option>
+            <?php foreach ($organizations as $organization): ?>
+            <option value="<?=$organization->id;?>"><?=$organization->name;?></option>
+            <?php endforeach;?>
+
+        </select>
+
+    </div>
+    <?php else: ?>
+    <input type="hidden" name="organization" value="<?= getLoggedFrameworkUser()->organization; ?>">
+    <?php endif; ?>
 
     <div class="ui grid">
 
@@ -36,8 +57,7 @@ $langGroup = UsersController::LANG_GROUP;
             <div class="column">
 
                 <div class="field">
-                    <input required type="text" name="first_lastname"
-                        placeholder="<?=__($langGroup, 'first-lastname');?>">
+                    <input required type="text" name="first_lastname" placeholder="<?=__($langGroup, 'first-lastname');?>">
                 </div>
 
             </div>
