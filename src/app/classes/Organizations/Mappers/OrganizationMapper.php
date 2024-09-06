@@ -17,6 +17,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\Core\Validation\Validator;
 
 /**
  * OrganizationMapper.
@@ -208,8 +209,15 @@ class OrganizationMapper extends EntityMapperExtensible
         self::ACTION_LINE_3 => 'Línea #3',
     ];
 
+    const INITIAL_ID_GLOBAL = -10;
+
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
+    ];
+    const CAN_ASSIGN_ALL = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+    const EDITORS = [
         UsersModel::TYPE_USER_ADMIN,
     ];
 
@@ -758,6 +766,9 @@ class OrganizationMapper extends EntityMapperExtensible
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
+            if ($value == self::DELETED) {
+                continue;
+            }
             $options[$value] = $text;
         }
         return $options;
@@ -785,9 +796,10 @@ class OrganizationMapper extends EntityMapperExtensible
      * Un array listo para ser usado en array_to_html_options
      * @param string $defaultLabel
      * @param string $defaultValue
+     * @param array $checkAdditionsFromData Verifica si hay información personalizada y la añade
      * @return array
      */
-    public static function actionLinesForSelect(string $defaultLabel = '', string $defaultValue = '')
+    public static function actionLinesForSelect(string $defaultLabel = '', string $defaultValue = '', array $checkAdditionsFromData = [])
     {
         $sourceOptions = self::actionLines();
         $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
@@ -795,6 +807,15 @@ class OrganizationMapper extends EntityMapperExtensible
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
             $options[$value] = $text;
+        }
+        foreach ($checkAdditionsFromData as $i => $additionalValue) {
+            if (is_scalar($additionalValue)) {
+                $additionalValueIntegerVersion = Validator::isInteger($additionalValue) ? (int) $additionalValue : null;
+                $hasAdditionalValueIntegerVersion = $additionalValueIntegerVersion !== null ? array_key_exists($additionalValueIntegerVersion, $sourceOptions) : false;
+                if (!array_key_exists($additionalValue, $sourceOptions) && !$hasAdditionalValueIntegerVersion) {
+                    $options[$additionalValue] = $additionalValue;
+                }
+            }
         }
         return $options;
     }
@@ -819,17 +840,19 @@ class OrganizationMapper extends EntityMapperExtensible
 
     /**
      * @param bool $asMapper
-     *
      * @return static[]|array
      */
-    public static function all(bool $asMapper = false)
+    public static function all(bool $asMapper = false, bool $onlyActives = true)
     {
         $model = self::model();
 
         $selectFields = [];
 
         $model->select($selectFields);
-
+        if ($onlyActives) {
+            $deleted = self::DELETED;
+            $model->where("status != {$deleted}");
+        }
         $model->execute();
 
         $result = $model->result();
@@ -1005,6 +1028,15 @@ class OrganizationMapper extends EntityMapperExtensible
 
         return !empty($result);
 
+    }
+
+    /**
+     * @param integer $userType
+     * @return bool
+     */
+    public static function canAssignAnyOrganization(int $userType)
+    {
+        return in_array($userType, self::CAN_ASSIGN_ALL);
     }
 
     /**
