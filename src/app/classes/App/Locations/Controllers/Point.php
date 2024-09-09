@@ -83,6 +83,18 @@ class Point extends AdminPanelController
         $data['status_options'] = $status_options;
         $data['back_link'] = $back_link;
         $data['title'] = self::$title;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones') => [
+                'url' => get_route('locations', [], true),
+            ],
+            __(LOCATIONS_LANG_GROUP, 'Localidades') => [
+                'url' => $back_link,
+            ],
+            self::$title,
+        ]);
 
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
@@ -115,6 +127,18 @@ class Point extends AdminPanelController
             $data['element'] = $element;
             $data['back_link'] = $back_link;
             $data['title'] = self::$title;
+            $data['breadcrumbs'] = get_breadcrumbs([
+                __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                    'url' => get_route('admin'),
+                ],
+                __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones') => [
+                    'url' => get_route('locations', [], true),
+                ],
+                __(LOCATIONS_LANG_GROUP, 'Localidades') => [
+                    'url' => $back_link,
+                ],
+                self::$title,
+            ]);
 
             $this->render('panel/layout/header');
             $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
@@ -140,6 +164,15 @@ class Point extends AdminPanelController
         $data['add_link'] = $add_link;
         $data['has_add_link_permissions'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones') => [
+                'url' => get_route('locations', [], true),
+            ],
+            self::$pluralTitle,
+        ]);
 
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
@@ -204,17 +237,24 @@ class Point extends AdminPanelController
 
         if ($request->isXhr()) {
 
+            $select_fields = PointMapper::fieldsToSelect();
+
             $columns_order = [
                 'id',
                 'name',
-                DataTablesHelper::INGNORE,
-                'city',
+                'countryName',
+                'stateName',
+                'cityName',
                 'address',
-                ['longitude', 'latitude'],
+                'coordinates',
                 'active',
             ];
 
+            DataTablesHelper::setTablePrefixOnOrder(false);
+            DataTablesHelper::setTablePrefixOnSearch(false);
+
             $result = DataTablesHelper::process([
+                'select_fields' => $select_fields,
                 'columns_order' => $columns_order,
                 'mapper' => new PointMapper(),
                 'request' => $request,
@@ -230,16 +270,14 @@ class Point extends AdminPanelController
                         $editButton = "<a class='ui button green' href='{$editLink}'>{$editText}</a>";
                     }
 
-                    $e_mapper = new PointMapper($e->id);
-
                     return [
                         $e->id,
                         stripslashes($e->name),
-                        $e_mapper->city->state->country->name,
-                        $e_mapper->city->state->name,
-                        $e_mapper->city->name,
-                        $e_mapper->address,
-                        "$e->longitude, $e->latitude",
+                        $e->countryName,
+                        $e->stateName,
+                        $e->cityName,
+                        $e->address,
+                        $e->coordinates,
                         __(LOCATIONS_LANG_GROUP, PointMapper::STATUS[$e->active]),
                         $editButton,
                     ];
