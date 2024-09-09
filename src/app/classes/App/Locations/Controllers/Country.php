@@ -83,6 +83,18 @@ class Country extends AdminPanelController
         $data['status_options'] = $status_options;
         $data['back_link'] = $back_link;
         $data['title'] = self::$title;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones') => [
+                'url' => get_route('locations', [], true),
+            ],
+            __(LOCATIONS_LANG_GROUP, 'Países') => [
+                'url' => $back_link,
+            ],
+            self::$title,
+        ]);
 
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
@@ -115,6 +127,18 @@ class Country extends AdminPanelController
             $data['element'] = $element;
             $data['back_link'] = $back_link;
             $data['title'] = self::$title;
+            $data['breadcrumbs'] = get_breadcrumbs([
+                __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                    'url' => get_route('admin'),
+                ],
+                __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones') => [
+                    'url' => get_route('locations', [], true),
+                ],
+                __(LOCATIONS_LANG_GROUP, 'Países') => [
+                    'url' => $back_link,
+                ],
+                self::$title,
+            ]);
 
             $this->render('panel/layout/header');
             $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
@@ -141,6 +165,15 @@ class Country extends AdminPanelController
         $data['add_link'] = $add_link;
         $data['has_add_link_permissions'] = mb_strlen($add_link) > 0;
         $data['title'] = self::$pluralTitle;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(ADMIN_MENU_LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones') => [
+                'url' => $back_link,
+            ],
+            self::$pluralTitle,
+        ]);
 
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
