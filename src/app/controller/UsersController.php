@@ -157,6 +157,8 @@ class UsersController extends AdminPanelController
     public function dataTablesRequestUsers(Request $request, Response $response)
     {
 
+        $filterStatus = $request->getQueryParam('with-status', null);
+        $filterStatus = Validator::isInteger($filterStatus) ? (int) $filterStatus : null;
         $currentUser = new UsersModel($this->user->id);
         $disallowedTypes = $currentUser->getHigherPriorityTypes();
         $canAssign = OrganizationMapper::canAssignAnyOrganization($currentUser->type);
@@ -171,6 +173,10 @@ class UsersController extends AdminPanelController
 
         if (!$canAssign) {
             $where[] = " AND organization = " . $currentUser->organization;
+        }
+
+        if ($filterStatus !== null) {
+            $where[] = " AND status = {$filterStatus}";
         }
 
         $whereString = trim(implode(' ', $where));
