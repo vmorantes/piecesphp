@@ -10,7 +10,8 @@ $second : var(--second-brand-color);
     border-radius: 15px !important;
 
     >.content {
-        padding: 20px;
+
+        overflow: auto;
 
         >.head {
             display: flex;
@@ -54,11 +55,11 @@ $second : var(--second-brand-color);
 
                     >.status {
                         position: absolute;
-                        width: 15px;
-                        height: 15px;
-                        border-radius: 50%;
-                        right: 3px;
-                        bottom: 3px;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 100%;
+                        right: -4px;
+                        bottom: -4px;
                         background-color: gray;
 
                         &.online {
@@ -202,4 +203,8 @@ $second : var(--second-brand-color);
     &:hover {
         background-color: var(--main-brand-color-opacity);
     }
+}
+
+.padding-40 {
+    padding: 40px;
 }
