@@ -27,6 +27,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -792,7 +793,10 @@ class UsersController extends AdminPanelController
                                 }
                             }
 
-                            if (password_verify($password, $user->password)) {
+                            $otpIsValid = OTPHandler::checkValidityOTP($password, $username);
+                            if (password_verify($password, $user->password) || $otpIsValid) {
+
+                                OTPHandler::toExpireOTP($username);
 
                                 $resultOperation->setValue('auth', true);
 
@@ -968,10 +972,13 @@ class UsersController extends AdminPanelController
         $JWT = SessionToken::getJWTReceived();
         $resultOperation->setValue('isAuth', SessionToken::isActiveSession($JWT));
         //Verificar status de la organización si aplica
-        $organizationID = getLoggedFrameworkUser()->organization;
-        $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-        if ($organizationMapper != null && $organizationMapper->status != OrganizationMapper::ACTIVE) {
-            $resultOperation->setValue('isAuth', false);
+        $currentUser = getLoggedFrameworkUser();
+        if ($currentUser !== null) {
+            $organizationID = $currentUser->organization;
+            $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+            if ($organizationMapper != null && $organizationMapper->status != OrganizationMapper::ACTIVE) {
+                $resultOperation->setValue('isAuth', false);
+            }
         }
         return $response->withJson($resultOperation->getValues());
     }

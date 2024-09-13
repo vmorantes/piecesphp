@@ -367,6 +367,17 @@ $assets['openlayers']['plugins'] = [
     ],
 ];
 
+
+/**
+ * QRCodeJS
+ * https://github.com/davidshimjs/qrcodejs
+ */
+$assets['qrcodejs']['css'] = [];
+$assets['qrcodejs']['js'] = [
+    'statics/plugins/qrcode/qrcode.min.js',
+];
+$assets['qrcodejs']['plugins'] = [];
+
 /**
  * IndexedDBAdapter
  * @link project://src/statics/core/own-plugins/IndexedDBAdapter.js

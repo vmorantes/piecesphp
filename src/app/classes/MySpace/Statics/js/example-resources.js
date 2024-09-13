@@ -5,8 +5,13 @@ window.addEventListener('load', function () {
 	let langGroup = 'exampleResources'
 
 	showGenericLoader(langGroup)
+	
+	//Tabs
+	const tabs = $('.tabs-controls [data-tab]').tab({})
 
 	getDataConfig()
+	createQRs()
+	totp()
 
 	removeGenericLoader(langGroup)
 
@@ -330,5 +335,37 @@ window.addEventListener('load', function () {
 
 		removeGenericLoader('getDataConfig')
 
+	}
+
+	function createQRs() {
+		const qrContainers = Array.from($('[qr-container]'))
+		for (const qrContainer of qrContainers) {
+			const qrData = qrContainer.dataset.value
+			new QRCode(qrContainer, {
+				text: qrData,
+				width: 180,
+				height: 180,
+				colorDark: "#000000",
+				colorLight: "#FFFFFF",
+				correctLevel: QRCode.CorrectLevel.H,
+			})
+		}
+	}
+	function totp() {
+		genericFormHandler("form[totp]")
+
+		const toptContainer = $('[totp-code]')
+		const getTOTPCodeURL = toptContainer.data('url')
+
+		if (typeof getTOTPCodeURL == 'string' && getTOTPCodeURL.trim().length > 0) {
+			const getCode = function () {
+				fetch(getTOTPCodeURL).then(res => res.json()).then(function (res) {
+					const code = res.values.code
+					toptContainer.html(code)
+				})
+			}
+			getCode()
+			setInterval(getCode, 5000)
+		}
 	}
 })

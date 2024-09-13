@@ -1972,6 +1972,18 @@ function import_openlayers(array $plugins = [], bool $all = true)
 }
 
 /**
+ * Registra qrcodejs como assets globales y los plugins definidos por parámetro
+ *
+ * @param array $plugins
+ * @param bool $all
+ * @return void
+ */
+function import_qrcodejs(array $plugins = [], bool $all = true)
+{
+    import_front_library('qrcodejs', $plugins, $all);
+}
+
+/**
  * Registra indexeDB_adapter como assets globales y los plugins definidos por parámetro
  *
  * @param array $plugins
