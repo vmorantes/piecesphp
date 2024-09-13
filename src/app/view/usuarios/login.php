@@ -1,4 +1,7 @@
-<?php defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); ?>
+<?php
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>"); 
+use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
+?>
 <!DOCTYPE html>
 <html lang="<?= get_config('app_lang'); ?>" dlang="<?= get_config('default_lang'); ?>">
 
@@ -49,6 +52,10 @@
 
                     <div class="field text-center">
                         <button type="submit" class="ui button"><?= __(USER_LOGIN_LANG_GROUP, 'Ingresar'); ?></button>
+                    </div>
+
+                    <div class="field text-center">
+                        <button otp-trigger data-url="<?= UserSystemFeaturesController::routeName('generate-otp'); ?>" class="ui button blue"><?= __(USER_LOGIN_LANG_GROUP, 'Contraseña de un uso'); ?></button>
                     </div>
                 </form>
 

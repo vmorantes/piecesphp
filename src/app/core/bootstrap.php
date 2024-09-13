@@ -200,8 +200,8 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '6.1.1');
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '02-07-2024')->format('Y-m-d'));
+    define('APP_VERSION', '6.1.2');
+    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '13-09-2024')->format('Y-m-d'));
 }
 
 require $directories['utilities'];

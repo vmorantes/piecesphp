@@ -7,6 +7,7 @@ namespace PiecesPHP\UserSystem;
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 
 /**
  * UserDataPackage.
@@ -38,6 +39,7 @@ use Organizations\Mappers\OrganizationMapper;
  * @property-read \DateTime $dateInstantiated
  * @property-read string $avatar
  * @property-read bool $hasAvatar
+ * @property-read OTPSecretsUsersMapper|null $TOTPData
  */
 class UserDataPackage
 {
@@ -137,6 +139,10 @@ class UserDataPackage
      * @var bool
      */
     protected $hasAvatar = false;
+    /**
+     * @var OTPSecretsUsersMapper|null
+     */
+    protected $TOTPData = null;
 
     /**
      * @var array<string,string>
@@ -228,6 +234,7 @@ class UserDataPackage
         $avatar = !is_null($avatar) ? $avatar : '';
         $this->avatar = $avatar;
         $this->hasAvatar = mb_strlen($avatar) > 0;
+        $this->TOTPData = OTPSecretsUsersMapper::getTOTPData($this->id);
 
         $fromInstanceToStdClass = [
             'firstLastname',

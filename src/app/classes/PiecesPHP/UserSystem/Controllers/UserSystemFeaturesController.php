@@ -1,44 +1,44 @@
 <?php
 
 /**
- * MySpaceController.php
+ * UserSystemFeaturesController.php
  */
 
-namespace MySpace\Controllers;
+namespace PiecesPHP\UserSystem\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Controller\UsersController;
+use App\Model\LoginAttemptsModel;
 use App\Model\UsersModel;
-use Documents\Mappers\DocumentsMapper;
-use ImagesRepository\Mappers\ImagesRepositoryMapper;
 use MySpace\MySpaceLang;
-use MySpace\MySpaceRoutes;
-use News\Controllers\NewsController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\Authentication\OTPHandler;
+use PiecesPHP\UserSystem\Exceptions\SafeException;
 
 /**
- * MySpaceController.
+ * UserSystemFeaturesController.
  *
- * @package     MySpace\Controllers
+ * @package     PiecesPHP\UserSystem\Controllers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @copyright   Copyright (c) 2022
+ * @copyright   Copyright (c) 2024
  */
-class MySpaceController extends AdminPanelController
+class UserSystemFeaturesController extends AdminPanelController
 {
 
     /**
      * @var string
      */
-    protected static $URLDirectory = 'my-space';
+    protected static $URLDirectory = 'user-system-features';
     /**
      * @var string
      */
-    protected static $baseRouteName = 'my-space-admin';
+    protected static $baseRouteName = 'user-system-features';
 
     /**
      * @var HelperController
@@ -52,14 +52,8 @@ class MySpaceController extends AdminPanelController
     public function __construct()
     {
         parent::__construct();
-
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
-
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
-
-        add_global_asset(MySpaceRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'), 'css');
-
     }
 
     /**
@@ -67,108 +61,88 @@ class MySpaceController extends AdminPanelController
      * @param Response $response
      * @return void
      */
-    public function mySpaceView(Request $request, Response $response)
+    public function generateOTP(Request $request, Response $response)
     {
+        $username = $request->getQueryParam('username', null);
+        $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
 
-        set_title(__(self::LANG_GROUP, 'Mi espacio'));
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Generación de OTP'));
+        $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+        $resultOperation->setSuccessOnSingleOperation(false);
+        $resultOperation->setValue('redirect', false);
+        $resultOperation->setValue('redirect_to', null);
+        $resultOperation->setValue('reload', false);
+        $resultOperation->setValue('error', "");
+        $resultOperation->setValue('error', "");
+        $resultOperation->setValue('user', $username);
+        $resultOperation->setSuccessOnSingleOperation(false);
 
-        set_custom_assets([
-            NewsController::pathFrontNewsAdapter(),
-            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-space.js'),
-        ], 'js');
-
-        set_custom_assets([
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/base.css'),
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/others.css'),
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'),
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'),
-        ], 'css');
-
-        $currentUser = getLoggedFrameworkUser();
-        $qtyDocuments = DocumentsMapper::countAll();
-        $qtyImages = ImagesRepositoryMapper::countAll();
-
-        $data = [];
-        $data['langGroup'] = self::LANG_GROUP;
-        $data['subtitle'] = $currentUser->fullName;
-        $data['qtyDocuments'] = $qtyDocuments;
-        $data['qtyImages'] = $qtyImages;
-        $data['newsAjaxURL'] = NewsController::routeName('ajax-all');
-
-        $this->helpController->render('panel/layout/header', [
-            'bodyClasses' => [
-                'gradient-base',
-            ],
-            'containerClasses' => [],
-        ]);
-        self::view('my-space', $data);
-        $this->helpController->render('panel/layout/footer');
-
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return void
-     */
-    public function exampleResources(Request $request, Response $response)
-    {
-
-        set_title(__(self::LANG_GROUP, 'Recursos de ejemplo'));
-
-        set_custom_assets([
-            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/example-resources.js'),
-        ], 'js');
-
-        set_custom_assets([
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/example-resources.css'),
-        ], 'css');
-
-        import_apexcharts();
-        import_qrcodejs();
-
-        $currentUser = getLoggedFrameworkUser();
-
-        $data = [];
-        $data['langGroup'] = self::LANG_GROUP;
-        $data['subtitle'] = $currentUser->fullName;
-
-        $this->helpController->render('panel/layout/header', [
-            'bodyClasses' => [
-                'gradient-base',
-            ],
-            'containerClasses' => [],
-        ]);
-        self::view('example-resources', $data);
-        $this->helpController->render('panel/layout/footer');
-
-    }
-
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @return void
-     */
-    public function iframesSources(Request $request, Response $response)
-    {
-        $source = $request->getAttribute('source', null);
-        $source = is_string($source) ? $source : '';
-        $refererURL = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : null;
-        $refererURL = is_string($refererURL) && mb_strlen($refererURL) > 0 ? $refererURL : null;
-
-        if ($source == 'mail-users-template') {
-            $this->helpController->render('usuarios/mail/template_base_problem', [
-                'text' => "Razón del correo de ejemplo",
-                'url' => $refererURL !== null ? $refererURL : '#',
-                'code' => generate_code(6, true),
-                'text_button' => 'Llamado a la acción',
-                'note' => "Mensaje informativo del correo electrónico.",
-            ]);
-        } else {
-            throw new NotFoundException($request, $response);
+        try {
+            OTPHandler::generateOTP($username);
+            $resultOperation->setSuccessOnSingleOperation(true);
+            $resultOperation->setMessage(__(self::LANG_GROUP, 'Revise su correo electrónico para obtener el cógido de un uso.'));
+        } catch (SafeException $exception) {
+            if ($exception->getCode() == SafeException::USER_NOT_EXISTS) {
+                $usersController = new UsersController();
+                $resultOperation->setValue('error', UsersController::USER_NO_EXISTS);
+                $resultOperation->setValue('message', vsprintf($usersController->getMessage(UsersController::USER_NO_EXISTS), [$username]));
+                LoginAttemptsModel::addLogin(
+                    null,
+                    $username,
+                    false,
+                    $resultOperation->getValue('message'),
+                    []
+                );
+            } else {
+                $resultOperation->setMessage($exception->getMessage());
+            }
         }
 
-        return $response;
+        return $response->withJson($resultOperation);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function getCurrentTOTP(Request $request, Response $response)
+    {
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Generación de TOTP'));
+        $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+        $resultOperation->setSuccessOnSingleOperation(false);
+        $resultOperation->setValue('redirect', false);
+        $resultOperation->setValue('redirect_to', null);
+        $resultOperation->setValue('reload', false);
+        $resultOperation->setValue('code', OTPHandler::getCurrentUserTOTP());
+        $resultOperation->setSuccessOnSingleOperation(true);
+        return $response->withJson($resultOperation);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function checkTOTP(Request $request, Response $response)
+    {
+        $username = $request->getParsedBodyParam('username', null);
+        $username = is_string($username) && mb_strlen($username) > 0 ? $username : '';
+        $totp = $request->getParsedBodyParam('totp', null);
+        $totp = is_string($totp) && mb_strlen($totp) > 0 ? $totp : '';
+        $valid = OTPHandler::checkValidityTOTP($totp, $username);
+        $okMessage = __(self::LANG_GROUP, 'Código aceptado.');
+        $badMessage = __(self::LANG_GROUP, 'Código inválido.');
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Verificación de TOTP'));
+        $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+        $resultOperation->setSuccessOnSingleOperation(false);
+        $resultOperation->setValue('redirect', false);
+        $resultOperation->setValue('redirect_to', null);
+        $resultOperation->setValue('reload', false);
+        $resultOperation->setSuccessOnSingleOperation($valid);
+        $resultOperation->setMessage($valid ? $okMessage : $badMessage);
+
+        return $response->withJson($resultOperation);
     }
 
     /**
@@ -180,7 +154,7 @@ class MySpaceController extends AdminPanelController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new MySpaceController)->render(trim($name, '/'), $data, $mode, $format);
+        return (new UserSystemFeaturesController)->render(trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -299,40 +273,34 @@ class MySpaceController extends AdminPanelController
          * @var array<string>
          */
         $allRoles = array_keys(UsersModel::TYPES_USERS);
-        $onlySupers = [
-            UsersModel::TYPE_USER_ROOT,
-        ];
 
         $routes = [
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
-            //HTML
             new Route(
-                "{$startRoute}[/]",
-                $classname . ':mySpaceView',
-                self::$baseRouteName . '-my-space',
+                "{$startRoute}/get-current-totp[/]",
+                $classname . ':getCurrentTOTP',
+                self::$baseRouteName . '-get-current-totp',
                 'GET',
                 true,
                 null,
                 $allRoles
             ),
             new Route(
-                "{$startRoute}/example-resources[/]",
-                $classname . ':exampleResources',
-                self::$baseRouteName . '-example-resources',
+                "{$startRoute}/generate-otp[/]",
+                $classname . ':generateOTP',
+                self::$baseRouteName . '-generate-otp',
                 'GET',
-                true,
-                null,
-                $onlySupers
+                false
             ),
+
+            //──── POST ───────────────────────────────────────────────────────────────────────────────
             new Route(
-                "{$startRoute}/iframe-sources/{source}[/]",
-                $classname . ':iframesSources',
-                self::$baseRouteName . '-iframe-sources',
-                'GET',
-                true,
-                null,
-                $onlySupers
+                "{$startRoute}/check-totp[/]",
+                $classname . ':checkTOTP',
+                self::$baseRouteName . '-check-totp',
+                'POST',
+                false
             ),
 
         ];
