@@ -71,6 +71,7 @@ use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Test;
+use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use Publications\PublicationsRoutes;
 use Terminal\Controllers\TerminalController;
 
@@ -124,6 +125,7 @@ LoginAttemptsController::routes($zona_administrativa);
 
 //Sistema de usuarios
 AdminPanelController::usersRoutes($sistema_usuarios);
+UserSystemFeaturesRoutes::routes($sistema_usuarios);
 
 //Tickets
 AdminPanelController::ticketsRoutes($tickets);
