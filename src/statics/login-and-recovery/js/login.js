@@ -56,16 +56,31 @@ function configLoginForm() {
 	let form = $('[login-form-js]')
 	let userNameInput = form.find("[name='username']")
 	let rememberCheckbox = form.find('.remember-me input[type=checkbox]')
+	const otpTrigger = form.find('[otp-trigger]')
 
 	onErrorTryAgainButton.on('click', () => {
 		errorView.hide()
 		defaultView.show()
 	})
 
+	userNameInput.on('input', function (e) {
+		const username = userNameInput.val().trim()
+		if (username.length > 0) {
+			otpTrigger.removeClass('disabled')
+			otpTrigger.attr('disabled', false)
+			otpTrigger.removeAttr('disabled')
+		} else {
+			otpTrigger.addClass('disabled')
+			otpTrigger.attr('disabled', true)
+		}
+	})
+
 	if (userStorage) {
 		userNameInput.val(userStorage)
 		rememberCheckbox.prop('checked', true)
 	}
+
+	userNameInput.trigger('input')
 
 	form.on('submit', function (e) {
 
@@ -125,6 +140,38 @@ function configLoginForm() {
 
 		return false
 	})
+
+	OTPHandler()
+
+	function OTPHandler() {
+		otpTrigger.on('click', function (e) {
+			e.preventDefault()
+			const username = userNameInput.val().trim()
+			const requestURLStr = otpTrigger.data('url')
+			if (username.length > 0 && typeof requestURLStr == 'string' && requestURLStr.trim().length > 0) {
+				showGenericLoader('OTPHandler')
+				const requestURL = new URL(requestURLStr)
+				requestURL.searchParams.set('username', username)
+				fetch(requestURL).then(res => res.json()).then(function (response) {
+					if (response.success) {
+						successMessage(response.name, response.message)
+					} else {
+						if (response.values.error == 'USER_NO_EXISTS') {
+							defaultView.hide()
+							errorView.show()
+							response.user = response.values.user
+							setMessageError(response.values.error, response)
+						} else {
+							errorMessage(response.name, response.message)
+						}
+					}
+
+				}).finally(function () {
+					removeGenericLoader('OTPHandler')
+				})
+			}
+		})
+	}
 
 	function setMessageError(error, data) {
 

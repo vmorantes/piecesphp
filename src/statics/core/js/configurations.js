@@ -1127,16 +1127,17 @@ function pcsAdminTopbars() {
 
 	const loadNews = () => {
 
-		const mainContainer = '[news-toolbar-container]'
+		const mainContainerSelector = '[news-toolbar-container]'
+		const mainContainer = $(mainContainerSelector)
 		const newsModal = $('[news-modal]')
-		const url = $(mainContainer).parent().data('url')
+		const url = $(mainContainerSelector).parent().data('url')
 
 		if (mainContainer.length > 0 && typeof NewsAdapter !== 'undefined') {
 			const newsManager = new NewsAdapter({
 				requestURL: url,
 				page: 1,
 				perPage: 10,
-				containerSelector: mainContainer,
+				containerSelector: mainContainerSelector,
 				onDraw: (item, parsed) => {
 					parsed.on('click', () => {
 						newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)

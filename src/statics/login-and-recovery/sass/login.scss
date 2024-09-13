@@ -125,11 +125,14 @@
                 }
 
                 >.field.text-center {
-                    >button {
+                    button {
                         width: 100%;
                         cursor: pointer;
-                        background-color: $login-overlay-two-color;
-                        color: white;
+
+                        &:not(.blue) {
+                            background-color: $login-overlay-two-color;
+                            color: white;
+                        }
                     }
                 }
             }
