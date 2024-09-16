@@ -114,6 +114,7 @@ $lang = [
         'MISSING_OR_UNEXPECTED_PARAMS' => 'Missing or unexpected parameters.',
         'INACTIVE_USER'                => 'The user "%1$s" is deactivated.',
         'ORGANIZATION_IS_NOT_ACTIVE'   => 'The organization "%1$s" is not actived.',
+        'INVALID_TWO_FACTOR_CODE'      => 'Invalid two-factor authentication code.',
     ],
     'adminZone' => [
         'Crear ticket de soporte'                                    => 'Create support ticket',
