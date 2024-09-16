@@ -329,6 +329,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         if ($totpElement !== null) {
             $totpElement->secret = TOTPStandard::generateSecret();
             $totpElement->twoAuthFactorAlias = $alias;
+            $totpElement->twoAuthFactorQRViewed = 0;
             if ($enable) {
                 $totpElement->twoAuthFactor = self::TWOAF_STATUS_ENABLED;
                 $totpElement->twoAuthFactorSecurityCode = password_hash($securityCode, \PASSWORD_DEFAULT);
