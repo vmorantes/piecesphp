@@ -71,7 +71,7 @@ class OTPHandler
     }
 
     /**
-     * @param string $totp
+     * @param string $totp TOTP o código de seguridad
      * @param string $username
      * @return bool
      */
@@ -84,6 +84,9 @@ class OTPHandler
             $secret = $userDataPackage->TOTPData->secret;
             $totpManager = new TOTPStandard($secret);
             $valid = $totpManager->verifyTOTP($totp, $secret, 1);
+            if (!$valid) {
+                $valid = password_verify($totp, $userDataPackage->TOTPData->twoAuthFactorSecurityCode);
+            }
         }
         return $valid;
     }
@@ -142,6 +145,66 @@ class OTPHandler
             $totp = $totpManager->generateTOTP();
         }
         return $totp;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getCurrentUserQRData()
+    {
+        $qrData = "";
+        $userDataPackage = getLoggedFrameworkUser();
+        if ($userDataPackage !== null) {
+            $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+            $qrData = $totpManager->getQRCodeUrl($userDataPackage->username, $userDataPackage->TOTPData->twoAuthFactorAlias);
+        }
+        return $qrData;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function wasViewedCurrentUserQRData()
+    {
+        $wasVieved = true;
+        $userDataPackage = getLoggedFrameworkUser();
+        if ($userDataPackage !== null) {
+            $wasVieved = $userDataPackage->TOTPData->twoAuthFactorQRViewed == 1;
+        }
+        return $wasVieved;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isEnabled2FA()
+    {
+        $enabled = false;
+        $userDataPackage = getLoggedFrameworkUser();
+        if ($userDataPackage !== null) {
+            $enabled = OTPSecretsUsersMapper::isEnabled2FA($userDataPackage->id);
+        }
+        return $enabled;
+    }
+
+    /**
+     * @param bool $enable
+     * @param string $securityCode
+     * @param string|null $alias
+     * @return TOTPStandard|null
+     */
+    public static function toggleCurrentUser2AF(bool $enable, string $securityCode, string $alias = null)
+    {
+        $totpManager = null;
+        $userDataPackage = getLoggedFrameworkUser();
+        if ($userDataPackage !== null) {
+            OTPSecretsUsersMapper::toggle2FA($userDataPackage->id, $enable, $securityCode, $alias);
+            if ($enable) {
+                $userDataPackage = getLoggedFrameworkUser(true);
+                $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+            }
+        }
+        return $totpManager;
     }
 
     /**
