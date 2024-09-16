@@ -101,6 +101,7 @@ class UsersController extends AdminPanelController
     const EXPIRED_OR_NOT_EXIST_CODE = 'EXPIRED_OR_NOT_EXIST_CODE';
     const NOT_MATCH_PASSWORDS = 'NOT_MATCH_PASSWORDS';
     const NO_EXTERNAL_LOGIN_AVAILABLE = 'NO_EXTERNAL_LOGIN_AVAILABLE';
+    const INVALID_TWO_FACTOR_CODE = 'INVALID_TWO_FACTOR_CODE';
 
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
@@ -700,6 +701,18 @@ class UsersController extends AdminPanelController
             }
         );
 
+        $twoFactorCode = new Parameter(
+            'twoFactor',
+            null,
+            function ($value) {
+                return is_string($value) || null;
+            },
+            true,
+            function ($value) {
+                return is_string($value) ? $value : '';
+            }
+        );
+
         $resolutionWidth = $request->getQueryParam('vp-w', null);
         $resolutionHeight = $request->getQueryParam('vp-h', null);
         $userAgent = $request->getQueryParam('user-agent', null);
@@ -716,6 +729,7 @@ class UsersController extends AdminPanelController
         $expectedParameters = new Parameters([
             $usernameParameter,
             $passwordParameter,
+            $twoFactorCode,
             new Parameter(
                 'overwriteSession',
                 false,
@@ -796,42 +810,63 @@ class UsersController extends AdminPanelController
                             $otpIsValid = OTPHandler::checkValidityOTP($password, $username);
                             if (password_verify($password, $user->password) || $otpIsValid) {
 
-                                OTPHandler::toExpireOTP($username);
+                                $require2FA = OTPHandler::isEnabled2FA($userMapper->id) && OTPHandler::wasViewedCurrentUserQRData($userMapper->id);
+                                $twoFactorCodeValue = $twoFactorCode->getValue();
+                                $twoFactorCodeValue = is_string($twoFactorCodeValue) ? $twoFactorCodeValue : '';
+                                $twoFactorIsValid = OTPHandler::checkValidityTOTP($twoFactorCodeValue, $username);
 
-                                $resultOperation->setValue('auth', true);
+                                if (!$require2FA || $twoFactorIsValid) {
 
-                                //Se genera un token de sesión
-                                $resultOperation->setValue('token', SessionToken::generateToken([
-                                    'id' => $user->id,
-                                    'type' => $user->type,
-                                ], null, null, get_config('check_aud_on_auth')));
+                                    OTPHandler::toExpireOTP($username);
 
-                                //Valores de usuario devueltos
-                                $userLoginData = $userMapper->humanReadable();
-                                $userLoginData['misc'] = [
-                                    'avatar' => AvatarModel::getAvatar($userMapper->id),
-                                ];
-                                unset($userLoginData['password']);
-                                unset($userLoginData['meta']);
+                                    $resultOperation->setValue('auth', true);
 
-                                foreach ($userLoginData as $k => $i) {
-                                    if (strpos($k, 'META:') !== false) {
-                                        unset($userLoginData[$k]);
-                                        $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
+                                    //Se genera un token de sesión
+                                    $resultOperation->setValue('token', SessionToken::generateToken([
+                                        'id' => $user->id,
+                                        'type' => $user->type,
+                                    ], null, null, get_config('check_aud_on_auth')));
+
+                                    //Valores de usuario devueltos
+                                    $userLoginData = $userMapper->humanReadable();
+                                    $userLoginData['misc'] = [
+                                        'avatar' => AvatarModel::getAvatar($userMapper->id),
+                                    ];
+                                    unset($userLoginData['password']);
+                                    unset($userLoginData['meta']);
+
+                                    foreach ($userLoginData as $k => $i) {
+                                        if (strpos($k, 'META:') !== false) {
+                                            unset($userLoginData[$k]);
+                                            $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
+                                        }
                                     }
+
+                                    $resultOperation->setValue('userData', $userLoginData);
+
+                                    $this->mapper->resetAttempts($user->id);
+
+                                    LoginAttemptsModel::addLogin(
+                                        (int) $user->id,
+                                        $user->username,
+                                        true,
+                                        '',
+                                        $extraDataLog
+                                    );
+
+                                } else {
+
+                                    $resultOperation->setValue('error', self::INVALID_TWO_FACTOR_CODE);
+                                    $resultOperation->setValue('message', $this->getMessage(self::INVALID_TWO_FACTOR_CODE));
+                                    LoginAttemptsModel::addLogin(
+                                        (int) $user->id,
+                                        $user->username,
+                                        false,
+                                        $resultOperation->getValue('message'),
+                                        $extraDataLog
+                                    );
+
                                 }
-
-                                $resultOperation->setValue('userData', $userLoginData);
-
-                                $this->mapper->resetAttempts($user->id);
-
-                                LoginAttemptsModel::addLogin(
-                                    (int) $user->id,
-                                    $user->username,
-                                    true,
-                                    '',
-                                    $extraDataLog
-                                );
 
                             } else {
 

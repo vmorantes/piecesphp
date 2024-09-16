@@ -222,6 +222,24 @@ class UserSystemFeaturesController extends AdminPanelController
      * @param Response $response
      * @return void
      */
+    public function checkTwoFactorAuthStatus(Request $request, Response $response)
+    {
+        $username = $request->getParsedBodyParam('username', null);
+        $username = is_string($username) && mb_strlen($username) > 0 ? $username : uniqid();
+
+        $userData = OTPHandler::getUserDataByUsername($username);
+        $userID = $userData !== null ? (int) $userData->id : -1;
+
+        return $response->withJson([
+            'required' => OTPHandler::isEnabled2FA($userID) && OTPHandler::wasViewedCurrentUserQRData($userID),
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
     public function configureTOTP(Request $request, Response $response)
     {
 
@@ -280,6 +298,7 @@ class UserSystemFeaturesController extends AdminPanelController
 
                     $resultOperation->setSuccessOnSingleOperation($disabled);
                     if ($disabled) {
+                        $resultOperation->setValue('reload', true);
                         $resultOperation->setValue('enable', false);
                         $resultOperation->setMessage(__(self::LANG_GROUP, 'Desactivado.'));
                     }
@@ -470,6 +489,13 @@ class UserSystemFeaturesController extends AdminPanelController
                 "{$startRoute}/check-totp[/]",
                 $classname . ':checkTOTP',
                 self::$baseRouteName . '-check-totp',
+                'POST',
+                false
+            ),
+            new Route(
+                "{$startRoute}/two-factor-auth-status[/]",
+                $classname . ':checkTwoFactorAuthStatus',
+                self::$baseRouteName . '-two-factor-auth-status',
                 'POST',
                 false
             ),
