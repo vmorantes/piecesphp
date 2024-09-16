@@ -39,10 +39,15 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
                         <label class="text-left"><?= __(USER_LOGIN_LANG_GROUP, 'Usuario'); ?></label>
                         <input type="text" required name='username' placeholder="<?= __(USER_LOGIN_LANG_GROUP, 'correo@dominio.com'); ?>">
                     </div>
-                    <br>
+
                     <div class="field">
                         <label class="text-left"><?= __(USER_LOGIN_LANG_GROUP, 'Contraseña'); ?></label>
                         <input type="password" required name='password' placeholder="**********">
+                    </div>
+
+                    <div class="field" twofa-field>
+                        <label class="text-left"><?= __(USER_LOGIN_LANG_GROUP, 'Código de temporal de aplicación'); ?></label>
+                        <input type="text" name='twoFactor' placeholder="000000">
                     </div>
 
                     <div class="remember-me">

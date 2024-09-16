@@ -22,6 +22,10 @@ use PiecesPHP\UserSystem\Authentication\TOTPStandard;
  * @property string $oneUseCode Solo para METHOD_ONE_USE_CODE
  * @property string $maxDate Fecha máxima solo para METHOD_ONE_USE_CODE
  * @property string $method Método de código
+ * @property string $twoAuthFactor Define si tiene el 2FA activado este usuario
+ * @property string $twoAuthFactorQRViewed 1|0 Define si ya código QR fue visto para su configuración
+ * @property string $twoAuthFactorAlias Define el alias para el QR en las aplicaciones
+ * @property string $twoAuthFactorSecurityCode Define el código de respaldo en caso de perder la app 2FA (HASH)
  */
 class OTPSecretsUsersMapper extends BaseEntityMapper
 {
@@ -55,6 +59,22 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         'method' => [
             'type' => 'text',
         ],
+        'twoAuthFactor' => [
+            'type' => 'text',
+            'default' => self::TWOAF_STATUS_DISABLED,
+        ],
+        'twoAuthFactorQRViewed' => [
+            'type' => 'int',
+            'default' => 0,
+        ],
+        'twoAuthFactorAlias' => [
+            'type' => 'text',
+            'null' => true,
+            'default' => null,
+        ],
+        'twoAuthFactorSecurityCode' => [
+            'type' => 'text',
+        ],
     ];
 
     const TABLE = 'pcsphp_users_otp_secrets';
@@ -65,6 +85,13 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     const METHODS = [
         self::METHOD_TOTP => 'TOTP',
         self::METHOD_ONE_USE_CODE => 'Código temporal de un uso',
+    ];
+
+    const TWOAF_STATUS_ENABLED = 'ENABLED';
+    const TWOAF_STATUS_DISABLED = 'DISABLED';
+    const TWOAF_STATUSES = [
+        self::TWOAF_STATUS_ENABLED => 'Activado',
+        self::TWOAF_STATUS_DISABLED => 'Desactivado',
     ];
 
     /**
@@ -290,6 +317,32 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
 
     /**
      * @param int $userID
+     * @param bool $enable
+     * @param string $securityCode
+     * @param string|null $alias
+     * @return bool false si hubo algún error
+     */
+    public static function toggle2FA(int $userID, bool $enable, string $securityCode, string $alias = null)
+    {
+        $result = false;
+        $totpElement = self::getTOTPData($userID);
+        if ($totpElement !== null) {
+            $totpElement->secret = TOTPStandard::generateSecret();
+            $totpElement->twoAuthFactorAlias = $alias;
+            if ($enable) {
+                $totpElement->twoAuthFactor = self::TWOAF_STATUS_ENABLED;
+                $totpElement->twoAuthFactorSecurityCode = password_hash($securityCode, \PASSWORD_DEFAULT);
+            } else {
+                $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
+                $totpElement->twoAuthFactorSecurityCode = "";
+            }
+            $totpElement->update();
+        }
+        return $result;
+    }
+
+    /**
+     * @param int $userID
      * @param string $method
      * @param int $ignoreID
      * @return bool
@@ -301,6 +354,24 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
             "user" => $userID,
             "method" => "{$method}",
             "id != {$ignoreID}",
+        ];
+        $model->select()->where($where);
+        $model->execute();
+        $result = $model->result();
+        return !empty($result);
+    }
+
+    /**
+     * @param int $userID
+     * @return bool
+     */
+    public static function isEnabled2FA(int $userID)
+    {
+        $model = self::model();
+        $enabled = self::TWOAF_STATUS_ENABLED;
+        $where = [
+            "user" => $userID,
+            "twoAuthFactor" => "{$enabled}",
         ];
         $model->select()->where($where);
         $model->execute();

@@ -2,10 +2,12 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
+use MySpace\Controllers\MySpaceController;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 
 $role = Roles::getCurrentRole();
 $currentUserType = !is_null($role) ? $role['code'] : null;
@@ -342,6 +344,7 @@ $avatar = $currentUser->avatar;
         <div class="change-account">
             <span edit-account><?= __(AdminPanelController::LANG_GROUP, 'Editar Cuenta'); ?></span>
             <span change-password><?= __(AdminPanelController::LANG_GROUP, 'Cambiar contraseña'); ?></span>
+            <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(UserSystemFeaturesLang::LANG_GROUP, 'Opciones de seguridad'); ?></a>
         </div>
 
         <div class="items">
