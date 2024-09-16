@@ -162,25 +162,37 @@ class OTPHandler
     }
 
     /**
+     * @param int|null $userID
      * @return bool
      */
-    public static function wasViewedCurrentUserQRData()
+    public static function wasViewedCurrentUserQRData(?int $userID = null)
     {
-        $wasVieved = true;
+        $wasViewed = false;
         $userDataPackage = getLoggedFrameworkUser();
-        if ($userDataPackage !== null) {
-            $wasVieved = $userDataPackage->TOTPData->twoAuthFactorQRViewed == 1;
+        try {
+            $userDataPackage = $userID !== null ? new UserDataPackage($userID) : $userDataPackage;
+        } catch (\Exception $e) {
+            $userDataPackage = null;
         }
-        return $wasVieved;
+        if ($userDataPackage !== null) {
+            $wasViewed = $userDataPackage->TOTPData->twoAuthFactorQRViewed == 1;
+        }
+        return $wasViewed;
     }
 
     /**
+     * @param int|null $userID
      * @return bool
      */
-    public static function isEnabled2FA()
+    public static function isEnabled2FA(?int $userID = null)
     {
         $enabled = false;
         $userDataPackage = getLoggedFrameworkUser();
+        try {
+            $userDataPackage = $userID !== null ? new UserDataPackage($userID) : $userDataPackage;
+        } catch (\Exception $e) {
+            $userDataPackage = null;
+        }
         if ($userDataPackage !== null) {
             $enabled = OTPSecretsUsersMapper::isEnabled2FA($userDataPackage->id);
         }
