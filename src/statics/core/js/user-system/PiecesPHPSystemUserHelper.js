@@ -1,6 +1,6 @@
 class PiecesPHPSystemUserHelper {
 
-	constructor(urlAuthenticate, urlVerification) {
+	constructor(urlAuthenticate, urlVerification, urlTwoFactorAuthStatus) {
 
 		this.extraData = null
 
@@ -10,15 +10,19 @@ class PiecesPHPSystemUserHelper {
 		if (typeof urlVerification == 'string') {
 			this.urlVerification = urlVerification
 		}
+		if (typeof urlVerification == 'string') {
+			this.urlTwoFactorAuthStatus = urlTwoFactorAuthStatus
+		}
 
 	}
 
-	authenticateWithUsernamePassword(username, password) {
+	authenticateWithUsernamePassword(username, password, twoFactorCode = '') {
 
 		let instance = this
 		let formData = new FormData()
 		formData.set('username', username)
 		formData.set('password', password)
+		formData.set('twoFactor', twoFactorCode)
 
 		return new Promise((resolve, reject) => {
 
@@ -84,6 +88,33 @@ class PiecesPHPSystemUserHelper {
 						reject(res)
 					}
 
+				})
+				.catch(function (res) {
+					reject(res)
+				})
+		})
+
+	}
+
+	/**
+	 * 
+	 * @param {String} username
+	 * @param {{(required: boolean)}} onResult
+	 * @returns 
+	 */
+	verifyTwoFactorStatus(username, onResult) {
+
+		let instance = this
+
+		return new Promise((resolve, reject) => {
+			let formData = new FormData()
+			formData.set('username', username)
+			instance
+				.post(instance.urlTwoFactorAuthStatus, formData)
+				.then(res => res.json())
+				.then(function (res) {
+					onResult(res.required)
+					resolve(res)
 				})
 				.catch(function (res) {
 					reject(res)

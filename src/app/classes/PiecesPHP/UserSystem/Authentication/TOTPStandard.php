@@ -36,6 +36,14 @@ class TOTPStandard
     }
 
     /**
+     * @return string
+     */
+    public function getSecret()
+    {
+        return $this->secret;
+    }
+
+    /**
      * Generar un código TOTP basado en el tiempo actual.
      * @return string
      */

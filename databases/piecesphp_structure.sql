@@ -413,6 +413,25 @@ CREATE TABLE `pcsphp_users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
+DROP TABLE IF EXISTS `pcsphp_users_otp_secrets`;
+CREATE TABLE `pcsphp_users_otp_secrets` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user` bigint(20) NOT NULL,
+  `secret` text NOT NULL,
+  `intervalTOTP` int(11) NOT NULL,
+  `oneUseCode` text NOT NULL,
+  `maxDate` datetime DEFAULT NULL,
+  `method` text NOT NULL,
+  `twoAuthFactor` text NOT NULL,
+  `twoAuthFactorQRViewed` int(1) NOT NULL DEFAULT 0,
+  `twoAuthFactorAlias` text DEFAULT NULL,
+  `twoAuthFactorSecurityCode` text NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user` (`user`),
+  CONSTRAINT `pcsphp_users_otp_secrets_ibfk_1` FOREIGN KEY (`user`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
 DROP TABLE IF EXISTS `pcsphp_user_problems`;
 CREATE TABLE `pcsphp_user_problems` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -531,4 +550,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- 2024-09-06 04:34:46
+-- 2024-09-16 05:18:16
