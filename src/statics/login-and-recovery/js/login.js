@@ -56,6 +56,8 @@ function configLoginForm() {
 	let form = $('[login-form-js]')
 	let userNameInput = form.find("[name='username']")
 	let rememberCheckbox = form.find('.remember-me input[type=checkbox]')
+	let twoFactorContainer = form.find(".field[twofa-field]")
+	let twoFactorInput = twoFactorContainer.find("[name='twoFactor']")
 	const otpTrigger = form.find('[otp-trigger]')
 
 	onErrorTryAgainButton.on('click', () => {
@@ -81,6 +83,7 @@ function configLoginForm() {
 	}
 
 	userNameInput.trigger('input')
+	toggleTwoFactor(false) //Esconder código de autenticación
 
 	form.on('submit', function (e) {
 
@@ -97,45 +100,65 @@ function configLoginForm() {
 			localStorage.removeItem(STORAGE_USER_NAME)
 		}
 
-		const LoaderName = 'login'
+		const loaderVerifyTwoFactorStatus = 'VerifyTwoFactorStatus'
+		showGenericLoader(loaderVerifyTwoFactorStatus)
+		pcsphp.authenticator.verifyTwoFactorStatus(userNameInput.val(), function (required2FA) {
 
-		showGenericLoader(LoaderName)
+			const toLogin = function () {
+				const LoaderName = 'login'
+				showGenericLoader(LoaderName)
+				let login = pcsphp.authenticator.authenticateWithUsernamePassword(
+					userNameInput.val(),
+					form.find("[name='password']").val(),
+					twoFactorInput.val()
+				)
+				let lastURL = form.attr('last-uri')
+				login.then(function (res) {
 
-		let login = pcsphp.authenticator.authenticateWithUsernamePassword(
-			userNameInput.val(),
-			form.find("[name='password']").val()
-		)
+					let auth = res.auth
+					let isAuth = res.isAuth
 
-		let lastURL = form.attr('last-uri')
+					if (auth === true || isAuth === true) {
 
-		login.then(function (res) {
+						if (typeof lastURL == 'string' && lastURL.trim().length > 0) {
 
-			let auth = res.auth
-			let isAuth = res.isAuth
+							window.location.href = lastURL
 
-			if (auth === true || isAuth === true) {
+						} else {
 
-				if (typeof lastURL == 'string' && lastURL.trim().length > 0) {
+							window.location.reload()
 
-					window.location.href = lastURL
+						}
 
-				} else {
+					} else {
+						defaultView.hide()
+						errorView.show()
+						setMessageError(res.error, res)
+						removeGenericLoader(LoaderName)
+					}
 
-					window.location.reload()
-
-				}
-
-			} else {
-				defaultView.hide()
-				errorView.show()
-				setMessageError(res.error, res)
-				removeGenericLoader(LoaderName)
+				}).catch(function (jqXHR) {
+					removeGenericLoader(LoaderName)
+					console.error(jqXHR)
+					errorMessage(_i18n('loginForm', 'Error'), _i18n('loginForm', 'Ha ocurrido un error inesperado, intente más tarde.'))
+				})
 			}
 
-		}).catch(function (jqXHR) {
-			removeGenericLoader(LoaderName)
-			console.error(jqXHR)
-			errorMessage(_i18n('loginForm', 'Error'), _i18n('loginForm', 'Ha ocurrido un error inesperado, intente más tarde.'))
+			if (!required2FA) {
+				toLogin()
+				toggleTwoFactor(false)
+			} else {
+				if (!twoFactorContainer.is(':visible')) {
+					toggleTwoFactor(true)
+				} else {
+					toLogin()
+				}
+			}
+
+			removeGenericLoader(loaderVerifyTwoFactorStatus)
+
+		}).catch(function () {
+			removeGenericLoader(loaderVerifyTwoFactorStatus)
 		})
 
 		return false
@@ -171,6 +194,18 @@ function configLoginForm() {
 				})
 			}
 		})
+	}
+
+	function toggleTwoFactor(active = true) {
+		twoFactorInput.val('')
+		if (active) {
+			twoFactorContainer.show(500)
+			twoFactorInput.attr('required', true)
+		} else {
+			twoFactorContainer.hide()
+			twoFactorInput.attr('required', false)
+			twoFactorInput.removeAttr('required')
+		}
 	}
 
 	function setMessageError(error, data) {

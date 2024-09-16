@@ -16,6 +16,7 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
@@ -106,6 +107,77 @@ class UserSystemFeaturesController extends AdminPanelController
      * @param Response $response
      * @return void
      */
+    public function markQRDataAsViewed(Request $request, Response $response)
+    {
+
+        $currentUser = getLoggedFrameworkUser();
+
+        if ($currentUser !== null) {
+
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'QR de 2FA usado'));
+
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+            $resultOperation->setSuccessOnSingleOperation(false);
+            $resultOperation->setValue('redirect', false);
+            $resultOperation->setValue('redirect_to', null);
+            $resultOperation->setValue('reload', false);
+            $resultOperation->setSuccessOnSingleOperation(true);
+
+            $currentUser->TOTPData->twoAuthFactorQRViewed = 1;
+            $currentUser->TOTPData->update();
+            $resultOperation->setSuccessOnSingleOperation(true);
+
+            $response = $response->withJson($resultOperation);
+
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function getTOTPDataQR(Request $request, Response $response)
+    {
+
+        $currentUser = getLoggedFrameworkUser();
+
+        if ($currentUser !== null) {
+
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'QR de 2FA'));
+
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+            $resultOperation->setSuccessOnSingleOperation(false);
+            $resultOperation->setValue('redirect', false);
+            $resultOperation->setValue('redirect_to', null);
+            $resultOperation->setValue('reload', false);
+            $resultOperation->setValue('QRDataURL', '');
+
+            if (!OTPHandler::wasViewedCurrentUserQRData()) {
+                $resultOperation->setValue('QRDataURL', OTPHandler::getCurrentUserQRData());
+                $resultOperation->setSuccessOnSingleOperation(true);
+            } else {
+                $resultOperation->setMessage(__(self::LANG_GROUP, 'El QR ya caducó.'));
+            }
+
+            $response = $response->withJson($resultOperation);
+
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
     public function getCurrentTOTP(Request $request, Response $response)
     {
         $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Generación de TOTP'));
@@ -143,6 +215,106 @@ class UserSystemFeaturesController extends AdminPanelController
         $resultOperation->setMessage($valid ? $okMessage : $badMessage);
 
         return $response->withJson($resultOperation);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function checkTwoFactorAuthStatus(Request $request, Response $response)
+    {
+        $username = $request->getParsedBodyParam('username', null);
+        $username = is_string($username) && mb_strlen($username) > 0 ? $username : uniqid();
+
+        $userData = OTPHandler::getUserDataByUsername($username);
+        $userID = $userData !== null ? (int) $userData->id : -1;
+
+        return $response->withJson([
+            'required' => OTPHandler::isEnabled2FA($userID) && OTPHandler::wasViewedCurrentUserQRData($userID),
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function configureTOTP(Request $request, Response $response)
+    {
+
+        $currentUser = getLoggedFrameworkUser();
+
+        if ($currentUser !== null) {
+
+            $enable = $request->getParsedBodyParam('enable', null) === 'yes';
+            $totp = $request->getParsedBodyParam('totp', null);
+            $totp = is_string($totp) && mb_strlen(trim($totp)) > 0 ? $totp : null;
+            $issuerName = $request->getParsedBodyParam('issuerName', null);
+            $issuerName = is_string($issuerName) && mb_strlen(trim($issuerName)) > 0 ? $issuerName : get_config('owner');
+            $password = $request->getParsedBodyParam('password', null);
+            $password = is_string($password) && mb_strlen(trim($password)) > 0 ? $password : '';
+
+            $isCurrentlyEnabled = OTPHandler::isEnabled2FA();
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, '2AF'));
+
+            $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+            $resultOperation->setSuccessOnSingleOperation(false);
+            $resultOperation->setValue('redirect', false);
+            $resultOperation->setValue('redirect_to', null);
+            $resultOperation->setValue('reload', false);
+            $resultOperation->setValue('securityCode', '');
+            $resultOperation->setValue('enable', $isCurrentlyEnabled);
+
+            if (password_verify($password, $currentUser->password)) {
+
+                if ($enable) {
+
+                    if (!$isCurrentlyEnabled) {
+                        $securityCode = sha1(uniqid() . generate_pass(50)['password']);
+                        OTPHandler::toggleCurrentUser2AF($enable, $securityCode, $issuerName);
+                        $resultOperation->setValue('securityCode', $securityCode);
+                    }
+
+                    $resultOperation->setValue('enable', true);
+                    $resultOperation->setMessage(__(self::LANG_GROUP, 'Activado.'));
+                    $resultOperation->setSuccessOnSingleOperation(true);
+
+                } else {
+
+                    $disabled = false;
+                    if ($isCurrentlyEnabled) {
+
+                        if (OTPHandler::checkValidityTOTP($totp, $currentUser->username)) {
+                            OTPHandler::toggleCurrentUser2AF($enable, '');
+                            $disabled = true;
+                        } else {
+                            $resultOperation->setMessage(__(self::LANG_GROUP, 'El código de la aplicación es inválido.'));
+                        }
+
+                    } else {
+                        $disabled = true;
+                    }
+
+                    $resultOperation->setSuccessOnSingleOperation($disabled);
+                    if ($disabled) {
+                        $resultOperation->setValue('reload', true);
+                        $resultOperation->setValue('enable', false);
+                        $resultOperation->setMessage(__(self::LANG_GROUP, 'Desactivado.'));
+                    }
+                }
+
+            } else {
+                $resultOperation->setMessage(__(self::LANG_GROUP, 'Contraseña errónea.'));
+            }
+
+            $response = $response->withJson($resultOperation);
+
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
+        return $response;
     }
 
     /**
@@ -278,6 +450,13 @@ class UserSystemFeaturesController extends AdminPanelController
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
             new Route(
+                "{$startRoute}/generate-otp[/]",
+                $classname . ':generateOTP',
+                self::$baseRouteName . '-generate-otp',
+                'GET',
+                false
+            ),
+            new Route(
                 "{$startRoute}/get-current-totp[/]",
                 $classname . ':getCurrentTOTP',
                 self::$baseRouteName . '-get-current-totp',
@@ -287,20 +466,47 @@ class UserSystemFeaturesController extends AdminPanelController
                 $allRoles
             ),
             new Route(
-                "{$startRoute}/generate-otp[/]",
-                $classname . ':generateOTP',
-                self::$baseRouteName . '-generate-otp',
+                "{$startRoute}/get-current-totp-qr-data[/]",
+                $classname . ':getTOTPDataQR',
+                self::$baseRouteName . '-get-current-totp-qr-data',
                 'GET',
-                false
+                true,
+                null,
+                $allRoles
             ),
 
             //──── POST ───────────────────────────────────────────────────────────────────────────────
+            new Route(
+                "{$startRoute}/mark-current-totp-qr-as-viewed[/]",
+                $classname . ':markQRDataAsViewed',
+                self::$baseRouteName . '-mark-current-totp-qr-as-viewed',
+                'POST',
+                true,
+                null,
+                $allRoles
+            ),
             new Route(
                 "{$startRoute}/check-totp[/]",
                 $classname . ':checkTOTP',
                 self::$baseRouteName . '-check-totp',
                 'POST',
                 false
+            ),
+            new Route(
+                "{$startRoute}/two-factor-auth-status[/]",
+                $classname . ':checkTwoFactorAuthStatus',
+                self::$baseRouteName . '-two-factor-auth-status',
+                'POST',
+                false
+            ),
+            new Route(
+                "{$startRoute}/configure-totp[/]",
+                $classname . ':configureTOTP',
+                self::$baseRouteName . '-configure-totp',
+                'POST',
+                true,
+                null,
+                $allRoles
             ),
 
         ];

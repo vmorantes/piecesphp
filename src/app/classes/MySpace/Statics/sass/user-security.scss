@@ -1,0 +1,93 @@
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
+
+.module-view-container {
+
+    font-family: $fontPoppins;
+    font-weight: $fwRegular;
+    container-type: inline-size;
+    container-name: module-section;
+
+    i.icon {
+        margin: 0;
+        padding: 0;
+    }
+
+    @container module-section (max-width: 1439px) {
+
+        .statistics-section {
+            grid-template-columns: max-content max-content;
+
+            .card-statistic {
+                &.fullw-on-break-1 {
+                    width: 100%;
+                }
+
+                &.wide {
+                    width: 100%;
+                }
+            }
+        }
+
+        .one-on-break-1 {
+            grid-template-columns: auto !important;
+
+            &.max-content {
+                grid-template-columns: max-content !important;
+            }
+        }
+
+        .two-on-break-1 {
+            grid-template-columns: auto auto !important;
+
+            &.max-content {
+                grid-template-columns: max-content auto !important;
+            }
+        }
+    }
+
+    @container module-section (max-width: 725px) {
+
+        .statistics-section {
+            grid-template-columns: 100% !important;
+
+            .two-columns-grid {
+                grid-template-columns: 100% !important;
+            }
+
+            .three-columns-grid {
+                grid-template-columns: 100% !important;
+            }
+        }
+    }
+
+}
+
+
+.secret-text {
+    display: inline-block;
+    background-color: #2e2e2e;
+    color: rgba(0, 0, 0, 0.259);
+    filter: blur(4px);
+    transition: all 0.5s ease;
+    cursor: pointer;
+    word-break: break-all;
+
+    &:hover {
+        background-color: transparent;
+        color: black;
+        filter: blur(0px);
+    }
+}
+
+.explanation {
+    font-size: 1.5rem;
+}
+
+[security-code] {
+    display: inline-block;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: var(--main-brand-color);
+    word-break: break-all;
+}
