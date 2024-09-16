@@ -994,12 +994,12 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	/**
 	 * @typedef genericFormHandler.Options
 	 * @property {genericFormHandler.Options.ConfirmationOption} [confirmation]
-	 * @property {{Function(formData: FormData, form: $):FormData}} [onSetFormData]
-	 * @property {{Function(form: $):$|Promise}} [onSetForm]
-	 * @property {{Function(form: $):Boolean}} [validate]
-	 * @property {{Function(form: $, formData: FormData, response: Object):Promise|void}} [onSuccess]
-	 * @property {{Function(form: $, formData: FormData, response: Object):void}} [onError]
-	 * @property {{Function(event: Event):void}} [onInvalidEvent]
+	 * @property {{(formData: FormData, form: $):FormData}} [onSetFormData]
+	 * @property {{(form: $):$|Promise}} [onSetForm]
+	 * @property {{(form: $):Boolean}} [validate]
+	 * @property {{(form: $, formData: FormData, response: Object):Promise|void}} [onSuccess]
+	 * @property {{(form: $, formData: FormData, response: Object):void}} [onError]
+	 * @property {{(event: Event):void}} [onInvalidEvent]
 	 * @property {Boolean} [toast]
 	 * @property {Boolean} [ignoreRedirection]
 	 * @property {Boolean} [ignoreReload]

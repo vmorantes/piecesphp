@@ -20,6 +20,7 @@ use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 
 /**
  * MySpaceController.
@@ -102,6 +103,44 @@ class MySpaceController extends AdminPanelController
             'containerClasses' => [],
         ]);
         self::view('my-space', $data);
+        $this->helpController->render('panel/layout/footer');
+
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return void
+     */
+    public function userSecurity(Request $request, Response $response)
+    {
+
+        set_title(__(UserSystemFeaturesLang::LANG_GROUP, 'Opciones de seguridad'));
+
+        set_custom_assets([
+            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/user-security.js'),
+        ], 'js');
+
+        set_custom_assets([
+            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/user-security.css'),
+        ], 'css');
+
+        import_apexcharts();
+        import_qrcodejs();
+
+        $currentUser = getLoggedFrameworkUser();
+
+        $data = [];
+        $data['langGroup'] = UserSystemFeaturesLang::LANG_GROUP;
+        $data['subtitle'] = $currentUser->fullName;
+
+        $this->helpController->render('panel/layout/header', [
+            'bodyClasses' => [
+                'gradient-base',
+            ],
+            'containerClasses' => [],
+        ]);
+        self::view('user-security', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -315,6 +354,15 @@ class MySpaceController extends AdminPanelController
                 true,
                 null,
                 $allRoles
+            ),
+            new Route(
+                "{$startRoute}/user-security[/]",
+                $classname . ':userSecurity',
+                self::$baseRouteName . '-user-security',
+                'GET',
+                true,
+                null,
+                $onlySupers
             ),
             new Route(
                 "{$startRoute}/example-resources[/]",
