@@ -15,7 +15,7 @@ $username = $currentUser->username;
 $totpManager = new TOTPStandard($totpSecret);
 $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 ?>
-<section class="module-view-container">
+<section class="module-view-container" drag-area>
 
     <div class="home-hello-section-title">
         <div class="title"><?= __($langGroup, 'Hola,'); ?></div>
@@ -26,6 +26,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
         <div class="active" data-tab="a"><?= __($langGroup, 'Gráficos y estadísticas'); ?></div>
         <div data-tab="b"><?= __($langGroup, 'Plantillas de correo'); ?></div>
         <div data-tab="c"><?= __($langGroup, 'Bases de 2AF'); ?></div>
+        <div data-tab="d"><?= __($langGroup, 'Dialog'); ?></div>
     </div>
 
     <div class="ui tab tab-element active" data-tab="a">
@@ -309,6 +310,26 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
             </li>
         </ul>
 
+    </div>
+
+    <div class="ui tab tab-element" data-tab="d">
+        <button class="ui button green" trigger-add-dialog-pcs><?= __($langGroup, 'Mostrar'); ?></button>
+        <div class="ui card dialog-pcs a">
+            <div class="content header" drag-area>
+                <div class="right floated">
+                    <i class="trash alternate outline icon" delete title="<?= __($langGroup, 'Eliminar'); ?>"></i>
+                    <i class="window close outline icon" close title="<?= __($langGroup, 'Cerrar'); ?>"></i>
+                </div>
+                <div class="header">Lorem, ipsum dolor.</div>
+            </div>
+            <div class="content">
+                <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Alias veniam ad expedita distinctio, quod error voluptatem pariatur magni illo molestias, voluptatibus eius enim fugit consequatur cupiditate? Recusandae a nobis provident!</p>
+            </div>
+            <div class="extra content">
+                <button class="ui button primary"><?= __($langGroup, 'Aceptar'); ?></button>
+                <button class="ui button"><?= __($langGroup, 'Cancelar'); ?></button>
+            </div>
+        </div>
     </div>
 
 </section>

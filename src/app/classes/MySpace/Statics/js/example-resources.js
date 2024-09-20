@@ -5,13 +5,14 @@ window.addEventListener('load', function () {
 	let langGroup = 'exampleResources'
 
 	showGenericLoader(langGroup)
-	
+
 	//Tabs
 	const tabs = $('.tabs-controls [data-tab]').tab({})
 
 	getDataConfig()
 	createQRs()
 	totp()
+	dialogPcs()
 
 	removeGenericLoader(langGroup)
 
@@ -367,5 +368,17 @@ window.addEventListener('load', function () {
 			getCode()
 			setInterval(getCode, 5000)
 		}
+	}
+	function dialogPcs() {
+		const trigger = $('[trigger-add-dialog-pcs]')
+		let dialog = new DialogPCS('.dialog-pcs.a', '.module-view-container')
+		trigger.on('click', function (e) {
+			e.preventDefault()
+			if (dialog.isOpen()) {
+				dialog.close()
+			} else {
+				dialog.open()
+			}
+		})
 	}
 })
