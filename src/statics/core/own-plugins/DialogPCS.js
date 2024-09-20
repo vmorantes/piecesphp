@@ -33,30 +33,45 @@ function DialogPCS(selectorParam = '.dialog-pcs', parentSelectorParam = 'body', 
 	/** @type {Boolean} */ let resizable
 	/** @type {String} */ let selector
 	/** @type {String} */ let parentSelector
+	/** @type {String} */ let dragAreaSelector
+	/** @type {String} */ let closeTriggerSelectors
+	/** @type {String} */ let deleteTriggersSelectors
 
 	init(selectorParam, parentSelectorParam, resizableParam)
 
 	/**
 	 * @function init
-	 * @param {String} selectorParam 
-	 * @param {String} parentSelectorParam 
+	 * @param {String} [selectorParam] Elemento completo
+	 * @param {String} [parentSelectorParam] Contenedor en donde puede moverse
+	 * @param {String} [dragAreaSelectorParam] Sección que se debe arrastrar
+	 * @param {String} [closeTriggerSelectorsParam] Cerrar
+	 * @param {String} [deleteTriggersSelectorsParam] Eliminar
 	 * @param {Boolean} resizableParam 
 	 * @returns {void}
 	 */
-	function init(selectorParam, parentSelectorParam, resizableParam) {
+	function init(selectorParam, parentSelectorParam, dragAreaSelectorParam, closeTriggerSelectorsParam, deleteTriggersSelectorsParam, resizableParam) {
 
 		selector = typeof selectorParam == 'string' ? selectorParam : '.dialog-pcs'
 		parentSelector = typeof parentSelectorParam == 'string' ? parentSelectorParam : 'body'
+		dragAreaSelector = typeof dragAreaSelectorParam == 'string' ? dragAreaSelectorParam : `${selectorParam} [drag-area]`
+		closeTriggerSelectors = typeof closeTriggerSelectorsParam == 'string' ? closeTriggerSelectorsParam : `${selectorParam} [close]`
+		deleteTriggersSelectors = typeof deleteTriggersSelectorsParam == 'string' ? deleteTriggersSelectorsParam : `${selectorParam} [delete]`
 		resizable = typeof resizableParam == 'boolean' ? resizableParam === true : true
 
 		dragItem = $(selectorParam)
 		container = $(parentSelector)
-		dragArea = $('[drag-area]')
-		closeTrigger = $('[close]')
-		deleteTrigger = $('[delete]')
+		dragArea = $(dragAreaSelector)
+		closeTrigger = $(closeTriggerSelectors)
+		deleteTrigger = $(deleteTriggersSelectors)
 
 		closeTrigger.css('cursor', 'pointer')
 		deleteTrigger.css('cursor', 'pointer')
+		dragArea.on('mousedown', function () {
+			dragArea.css('cursor', 'move')
+		})
+		dragArea.on('mouseup', function () {
+			dragArea.css('cursor', 'normal')
+		})
 
 		if (container.length > 0) {
 

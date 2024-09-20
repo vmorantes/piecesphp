@@ -163,6 +163,7 @@ class MySpaceController extends AdminPanelController
             MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/example-resources.css'),
         ], 'css');
 
+        import_dialog_pcs();
         import_apexcharts();
         import_qrcodejs();
 
