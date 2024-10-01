@@ -74,6 +74,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         ],
         'twoAuthFactorSecurityCode' => [
             'type' => 'text',
+            'default' => '',
         ],
     ];
 
