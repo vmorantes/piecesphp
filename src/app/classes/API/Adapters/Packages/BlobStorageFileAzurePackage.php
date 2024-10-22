@@ -52,7 +52,7 @@ class BlobStorageFileAzurePackage
     public function content()
     {
         $content = stream_get_contents($this->blobContentResult->getContentStream());
-        return $content;
+        return is_string($content) ? $content : '';
     }
 
     /**
