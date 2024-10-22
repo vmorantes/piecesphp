@@ -33,7 +33,13 @@ class BlobStorageAzureAdapter
      */
     protected $blobClient = null;
 
+    /**
+     * @var string
+     */
     public static $BASE_ACCOUNT_NAME = '';
+    /**
+     * @var string
+     */
     public static $BASE_ACCOUNT_KEY = '';
 
     /**

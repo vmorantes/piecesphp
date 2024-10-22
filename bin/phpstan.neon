@@ -7,7 +7,6 @@ parameters:
         - ../src/app/config/constants.php
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
     ignoreErrors:
         -
             message: '#.*#'
