@@ -155,7 +155,7 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
  * @param int $position Empezando desde 0
  * @return array
  */
-function addElementInPosition(array $array, $key = null, $element, int $position)
+function addElementInPosition(array $array, $key = null, $element = null, int $position = 0)
 {
     $currentPosition = 0;
     $position = $position < 0 ? 0 : $position;

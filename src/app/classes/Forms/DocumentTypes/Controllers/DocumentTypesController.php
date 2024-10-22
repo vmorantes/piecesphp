@@ -529,6 +529,9 @@ class DocumentTypesController extends AdminPanelController
                     ];
 
                     $pdo = DocumentTypesMapper::model()::getDb(Config::app_db('default')['db']);
+                    if ($pdo === null) {
+                        throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
+                    }
 
                     try {
 
