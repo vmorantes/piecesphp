@@ -114,7 +114,7 @@ class City extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $element = new CityMapper($id);
 
@@ -196,7 +196,7 @@ class City extends AdminPanelController
         $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
 
         if ($state !== null) {
-            if (ctype_digit($state)) {
+            if (Validator::isInteger($state)) {
                 $state = (int) $state;
             } else {
                 $state = -1;
@@ -318,7 +318,7 @@ class City extends AdminPanelController
         $is_edit = $id !== -1;
 
         $valid_params = !in_array(null, [
-            !is_null($state) && ctype_digit($state) ? (int) $state : null,
+            !is_null($state) && Validator::isInteger($state) ? (int) $state : null,
             $name,
             $active,
         ]);
@@ -587,7 +587,7 @@ class City extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -598,7 +598,7 @@ class City extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -609,7 +609,7 @@ class City extends AdminPanelController
                 'state',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) || $value == -1;
+                    return Validator::isInteger($value) || $value == -1;
                 },
                 true,
                 function ($value) {
@@ -620,7 +620,7 @@ class City extends AdminPanelController
                 'ignore',
                 [],
                 function ($value) {
-                    return is_array($value) || ctype_digit($value) || is_int($value);
+                    return is_array($value) || Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -633,7 +633,7 @@ class City extends AdminPanelController
 
                     $value = array_filter($value, function ($i) {
 
-                        return (is_string($i) && ctype_digit($i)) || is_int($i);
+                        return Validator::isInteger($i);
 
                     });
                     $value = array_map(function ($i) {

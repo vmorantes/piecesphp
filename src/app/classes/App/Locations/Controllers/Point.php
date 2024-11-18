@@ -17,6 +17,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -110,7 +111,7 @@ class Point extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $element = new PointMapper($id);
 
@@ -189,7 +190,7 @@ class Point extends AdminPanelController
         $city = $request->getQueryParam('city', null);
 
         if ($city !== null) {
-            if (ctype_digit($city)) {
+            if (Validator::isInteger($city)) {
                 $city = (int) $city;
             } else {
                 $city = -1;
@@ -228,7 +229,7 @@ class Point extends AdminPanelController
         $city = $request->getQueryParam('city', null);
 
         if ($city !== null) {
-            if (ctype_digit($city)) {
+            if (Validator::isInteger($city)) {
                 $city = (int) $city;
             } else {
                 $city = -1;
@@ -312,7 +313,7 @@ class Point extends AdminPanelController
         $is_edit = $id !== -1;
 
         $valid_params = !in_array(null, [
-            !is_null($city) && ctype_digit($city) ? (int) $city : null,
+            Validator::isInteger($city) ? (int) $city : null,
             $address,
             $name,
             $longitude,
@@ -495,7 +496,7 @@ class Point extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -506,7 +507,7 @@ class Point extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -517,7 +518,7 @@ class Point extends AdminPanelController
                 'city',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) || $value == -1;
+                    return Validator::isInteger($value) || $value == -1;
                 },
                 true,
                 function ($value) {
@@ -528,7 +529,7 @@ class Point extends AdminPanelController
                 'ignore',
                 [],
                 function ($value) {
-                    return is_array($value) || ctype_digit($value) || is_int($value);
+                    return is_array($value) || Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -541,7 +542,7 @@ class Point extends AdminPanelController
 
                     $value = array_filter($value, function ($i) {
 
-                        return (is_string($i) && ctype_digit($i)) || is_int($i);
+                        return Validator::isInteger($i);
 
                     });
                     $value = array_map(function ($i) {

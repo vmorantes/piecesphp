@@ -58,6 +58,9 @@ $config['body_gradient'] = "transparent linear-gradient(180deg, #D1CCBD40 0%, #D
 
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
+$config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
+$config['LabsMobileSendInLocal'] = true;
+$config['CronJobKey'] = 'CronJobKey';
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 
