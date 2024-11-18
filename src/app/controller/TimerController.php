@@ -10,6 +10,7 @@ use App\Model\TimeOnPlatformModel;
 use App\Model\UsersModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -39,7 +40,7 @@ class TimerController extends \PiecesPHP\Core\BaseController
     {
         $seconds = $request->getParsedBodyParam('seconds', null);
         $user_id = $request->getParsedBodyParam('user_id', null);
-        $valid_user = ctype_digit($user_id) && !is_null((new UsersModel($user_id))->id);
+        $valid_user = Validator::isInteger($user_id) && !is_null((new UsersModel($user_id))->id);
         $valid_time = is_numeric($seconds);
 
         $response_json = [

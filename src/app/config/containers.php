@@ -97,7 +97,11 @@ $container_configurations = [
         $line = array_key_exists('line', $extraData) ? $extraData['line'] : null;
         $file = array_key_exists('file', $extraData) ? $extraData['file'] : null;
 
-        if (!$request->isXhr()) {
+        $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
+
+        if ($request->isXhr() || $requestTypeIsJSON) {
+            $response = $response->withJson("403 Forbidden");
+        } else {
 
             $dataController = [
                 'url' => $url,
@@ -106,8 +110,6 @@ $container_configurations = [
             $controller = new PiecesPHP\Core\BaseController(false);
             $controller->render('pages/403', $dataController);
 
-        } else {
-            $response = $response->withJson("403 Forbidden");
         }
 
         return $response;

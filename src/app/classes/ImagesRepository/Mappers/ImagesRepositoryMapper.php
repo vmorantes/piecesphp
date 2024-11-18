@@ -15,6 +15,7 @@ use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
+use PiecesPHP\Core\Validation\Validator;
 
 /**
  * ImagesRepositoryMapper.
@@ -335,7 +336,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
     }
 
@@ -860,7 +861,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $slug = '';
 
         if ($elementOrID instanceof \stdClass) {
-            if (isset($elementOrID->id) && is_string($elementOrID->id) && ctype_digit($elementOrID->id)) {
+            if (isset($elementOrID->id) && Validator::isInteger($elementOrID->id)) {
                 $elementOrID = (int) $elementOrID->id;
             }
         }
@@ -896,7 +897,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         $slug = $slug !== null ? BaseHashEncryption::decrypt(strtr($slug, '._', '-_'), self::TABLE) : null;
         $slug = $slug !== null ? explode('-', $slug) : null;
         $slugID = is_array($slug) && count($slug) === 2 ? $slug[0] : null;
-        $slugID = is_string($slugID) && ctype_digit($slugID) ? (int) $slugID : null;
+        $slugID = Validator::isInteger($slugID) ? (int) $slugID : null;
         return $slugID;
     }
 
@@ -1131,7 +1132,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
                         foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {

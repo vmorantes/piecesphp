@@ -760,7 +760,7 @@ class OrganizationsController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -906,7 +906,7 @@ class OrganizationsController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -917,7 +917,7 @@ class OrganizationsController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -928,7 +928,7 @@ class OrganizationsController extends AdminPanelController
                 'status',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) || (is_string($value) && mb_strtoupper($value) == 'ANY');
+                    return Validator::isInteger($value) || (is_string($value) && mb_strtoupper($value) == 'ANY');
                 },
                 true,
                 function ($value) {

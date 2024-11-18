@@ -6,8 +6,8 @@ parameters:
     scanFiles:
         - ../src/app/config/constants.php
     treatPhpDocTypesAsCertain: false
-    checkMissingIterableValueType: false
     ignoreErrors:
+        - identifier: missingType.iterableValue
         -
             message: '#(If condition is always false.|Variable \$where in empty\(\) always exists and is always falsy\.|.*always exists and is not.*)#'
             paths:

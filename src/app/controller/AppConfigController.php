@@ -25,6 +25,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\LangInjector;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
@@ -760,7 +761,7 @@ class AppConfigController extends AdminPanelController
                     'auto_tls',
                     null,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value) || is_bool($value);
+                        return Validator::isInteger($value) || is_bool($value);
                     },
                     false,
                     function ($value) {
@@ -771,7 +772,7 @@ class AppConfigController extends AdminPanelController
                     'auth',
                     null,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value) || is_bool($value);
+                        return Validator::isInteger($value) || is_bool($value);
                     },
                     false,
                     function ($value) {
@@ -804,7 +805,7 @@ class AppConfigController extends AdminPanelController
                     'port',
                     null,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value);
+                        return Validator::isInteger($value);
                     },
                     false,
                     function ($value) {
@@ -1137,7 +1138,7 @@ class AppConfigController extends AdminPanelController
                     'check_aud_on_auth',
                     null,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value) || is_bool($value) || is_null($value);
+                        return Validator::isInteger($value) || is_bool($value) || is_null($value);
                     },
                     true,
                     function ($value) {

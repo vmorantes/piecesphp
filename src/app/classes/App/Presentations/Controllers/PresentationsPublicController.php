@@ -22,6 +22,7 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 
 /**
  * PresentationsPublicController.
@@ -114,7 +115,7 @@ class PresentationsPublicController extends AdminPanelController
             $category = new Parameter('category');
             $category->setDefaultValue(null)->setOptional(true);
             $category->setValidator(function ($value) {
-                return ctype_digit($value) || is_int($value);
+                return Validator::isInteger($value);
             });
             $category->setParser(function ($value) {
                 return (int) $value;
@@ -221,7 +222,7 @@ class PresentationsPublicController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -232,7 +233,7 @@ class PresentationsPublicController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -243,7 +244,7 @@ class PresentationsPublicController extends AdminPanelController
                 'category',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -254,7 +255,7 @@ class PresentationsPublicController extends AdminPanelController
                 'ignore',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {

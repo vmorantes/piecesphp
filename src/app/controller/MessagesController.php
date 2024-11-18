@@ -77,7 +77,7 @@ class MessagesController extends AdminPanelController
 
             $queryMessages = null;
 
-            if (ctype_digit($user_id)) {
+            if (Validator::isInteger($user_id)) {
 
                 $user = new UsersModel($user_id);
                 $queryBuilder = (new MessagesModel)->getModel();
