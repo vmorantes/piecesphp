@@ -2867,7 +2867,7 @@ function var_dump_pretty($data, $label = '', $return = false)
     $style = str_replace(' {', '{', $style);
     $style = trim($style);
 
-    $c = trim($c);
+    $c = is_string($c) ? trim($c) : "";
     $c = preg_replace("/\n<\/span>/", "</span>\n", $c);
 
     if ($label == '') {

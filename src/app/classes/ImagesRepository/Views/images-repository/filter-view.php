@@ -3,6 +3,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
 use App\Locations\Mappers\StateMapper;
 use ImagesRepository\Controllers\ImagesRepositoryController;
+use PiecesPHP\Core\Validation\Validator;
 
 /**
  * @var ImagesRepositoryController $this
@@ -44,7 +45,7 @@ $validateParam = function ($e) {
     return is_scalar($e) && is_string($e) && mb_strlen(trim($e)) > 0;
 };
 
-$stateMapper = ctype_digit($state) || is_int($state) ? new StateMapper($state) : new StateMapper(-1);
+$stateMapper = Validator::isInteger($state) ? new StateMapper($state) : new StateMapper(-1);
 $params = [
     __($langGroup, 'Año') => $year,
     __($langGroup, 'Departamento') => $stateMapper->id !== null ? $stateMapper->name : null,

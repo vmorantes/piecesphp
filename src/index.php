@@ -248,7 +248,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         $oldFilesExpiredSessions = file_exists($expiredSessionsFolder) ? array_diff(scandir($expiredSessionsFolder), array('..', '.')) : [];
         array_map(function ($e) use ($expiredSessionsFolder) {
 
-            $fullPath = $expiredSessionsFolder . \DIRECTORY_SEPARATOR . $e;
+            $fullPath = $expiredSessionsFolder . \DIRECTORY_SEPARATOR  . $e;
             if ($e == '.keep' || mb_strpos($e, '.json') === false) {
                 return;
             }
@@ -279,7 +279,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             }
         }, $oldFilesExpiredSessions);
 
-        @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
+        @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR  . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
 
         $ignoreExpired = in_array($route->getName(), $ignoreExpiredForRoutesName);
 
@@ -403,7 +403,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
              */
             public function isInteger($value)
             {
-                return (is_string($value) && ctype_digit($value)) || is_int($value);
+                return (is_string($value) && ctype_digit((string) $value)) || is_int($value);
             }
         };
 

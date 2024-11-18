@@ -83,12 +83,14 @@ window.addEventListener('load', function() {
     })
 
     simpleCropperAdapter.onCropped(function(blob, url) {
+        console.log('onCropped')
         console.log(blob)
         console.log(url)
     })
 
     setInterval(function() {
         if (simpleCropperAdapter.wasChange()) {
+            console.log('Interval wasChange')
             //Obtener archivo
             console.log(simpleCropperAdapter.getFile())
         }
