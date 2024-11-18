@@ -16,12 +16,12 @@ window.addEventListener('load', () => {
 		event.preventDefault()
 
 	}
-	const instantiateCropper = (selector, ow = 400, ar = 400 / 400) => {
+	const instantiateCropper = (selector, ow = 400, ar = 400 / 400, fillColor = "white") => {
 		return new SimpleCropperAdapter(selector, {
 			aspectRatio: ar,
 			format: 'image/png',
 			quality: 0.8,
-			fillColor: 'white',
+			fillColor: fillColor,
 			outputWidth: ow,
 		})
 	}
@@ -41,13 +41,13 @@ window.addEventListener('load', () => {
 	let firstPartnersDraw = true
 	let firstPartnersVerticalDraw = true
 
-	let cropperPublicFavicon = instantiateCropper(`form.public-favicon [fav-cropper]`)
+	let cropperPublicFavicon = instantiateCropper(`form.public-favicon [fav-cropper]`, 400, 400/400, 'transparent')
 	genericFormHandler(`form.public-favicon`, {
 		onSetFormData: (formData) => onSetFormData(formData, cropperPublicFavicon, `favicon`),
 		onInvalidEvent: onInvalidHandler,
 	})
 
-	let cropperBackFavicon = instantiateCropper(`form.back-favicon [admin-fav-cropper]`)
+	let cropperBackFavicon = instantiateCropper(`form.back-favicon [admin-fav-cropper]`, 400, 400/400, 'transparent')
 	genericFormHandler(`form.back-favicon`, {
 		onSetFormData: (formData) => onSetFormData(formData, cropperBackFavicon, `favicon-back`),
 		onInvalidEvent: onInvalidHandler,
