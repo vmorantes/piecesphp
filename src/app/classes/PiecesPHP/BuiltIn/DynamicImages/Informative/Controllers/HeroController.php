@@ -128,7 +128,7 @@ class HeroController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $element = new ImageMapper($id);
 
@@ -213,7 +213,7 @@ class HeroController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -360,7 +360,7 @@ class HeroController extends AdminPanelController
                 'order',
                 0,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -645,7 +645,7 @@ class HeroController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -796,7 +796,7 @@ class HeroController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -807,7 +807,7 @@ class HeroController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {

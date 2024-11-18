@@ -531,7 +531,7 @@ class UsersController extends AdminPanelController
         ], 'css');
 
         $id = $req->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $user = new UsersModel($id);
 
@@ -1119,14 +1119,14 @@ class UsersController extends AdminPanelController
                 'type',
                 null,
                 function ($value) {
-                    return is_string($value) && ctype_digit($value);
+                    return Validator::isInteger($value);
                 }
             ),
             new Parameter(
                 'status',
                 null,
                 function ($value) {
-                    return is_string($value) && ctype_digit($value);
+                    return Validator::isInteger($value);
                 }
             ),
             new Parameter(
@@ -1295,7 +1295,7 @@ class UsersController extends AdminPanelController
                 'id',
                 null,
                 function ($value) {
-                    return ctype_digit($value);
+                    return Validator::isInteger($value);
                 }
             ),
             new Parameter(
@@ -1403,7 +1403,7 @@ class UsersController extends AdminPanelController
                 'status',
                 null,
                 function ($value) {
-                    return is_string($value) && ctype_digit($value);
+                    return Validator::isInteger($value);
                 },
                 true
             ),
@@ -1613,7 +1613,7 @@ class UsersController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -1624,7 +1624,7 @@ class UsersController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -1635,7 +1635,7 @@ class UsersController extends AdminPanelController
                 'type',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) || $value == -1 || $value == 'ANY';
+                    return Validator::isInteger($value) || $value == 'ANY';
                 },
                 true,
                 function ($value) {
@@ -1646,7 +1646,7 @@ class UsersController extends AdminPanelController
                 'ignore',
                 [],
                 function ($value) {
-                    return is_array($value) || ctype_digit($value) || is_int($value);
+                    return is_array($value) || Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -1659,7 +1659,7 @@ class UsersController extends AdminPanelController
 
                     $value = array_filter($value, function ($i) {
 
-                        return (is_string($i) && ctype_digit($i)) || is_int($i);
+                        return Validator::isInteger($i);
 
                     });
                     $value = array_map(function ($i) {

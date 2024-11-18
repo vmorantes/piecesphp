@@ -189,6 +189,7 @@ class StringManipulate
 
         }
 
+        $string = is_string($string) ? $string : '';
         return trim($string, '-');
     }
 }

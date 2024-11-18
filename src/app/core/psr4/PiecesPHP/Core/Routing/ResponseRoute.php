@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Core\Routing;
 
+use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Response;
 
 /**
@@ -86,10 +87,13 @@ class ResponseRoute extends Response
      */
     public function write($data)
     {
-        $this->getBody()->write($data);
         $this->lastWriteBodyData = $data;
-
-        return $this;
+        $streamFactory = new StreamFactory();
+        $emptyBody = $streamFactory->createStream();
+        $response = clone $this;
+        $response = $this->withBody($emptyBody); // Reemplaza el cuerpo actual con uno vacío
+        $response->getBody()->write($data);
+        return $response;
     }
 
     /**

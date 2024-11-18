@@ -27,6 +27,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 
 /**
  * NewsletterController.
@@ -136,7 +137,7 @@ class NewsletterController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $element = new NewsletterSuscriberMapper($id);
 
@@ -242,7 +243,7 @@ class NewsletterController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -275,7 +276,7 @@ class NewsletterController extends AdminPanelController
                 'acceptUpdates',
                 false,
                 function ($value) {
-                    $isNumber = ctype_digit($value) || is_int($value);
+                    $isNumber = Validator::isInteger($value);
                     $value = $isNumber ? $value == NewsletterSuscriberMapper::ACCEPT_UPDATES_YES : false;
                     return is_bool($value);
                 },
@@ -555,7 +556,7 @@ class NewsletterController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -700,7 +701,7 @@ class NewsletterController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -711,7 +712,7 @@ class NewsletterController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
