@@ -9,6 +9,11 @@ parameters:
     checkMissingIterableValueType: false
     ignoreErrors:
         -
+            message: '#(If condition is always false.|Variable \$where in empty\(\) always exists and is always falsy\.|.*always exists and is not.*)#'
+            paths:
+                - ../src/*
+                - ../src/**/*
+        -
             message: '#.*#'
             paths:
                 - ../src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php   

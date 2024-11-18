@@ -474,7 +474,7 @@ class ServerStatics
 
         $filePath = $path === null ? self::getStaticPath() . "/$resource" : rtrim(rtrim($path, '\\'), '/') . "/$resource";
 
-        if (file_exists($filePath) && is_string($resource) && is_resource($fileInformation)) {
+        if (file_exists($filePath) && is_string($resource) && $fileInformation !== false) {
 
             $extension = pathinfo($filePath, PATHINFO_EXTENSION);
             $mimeType = finfo_file($fileInformation, $filePath);
