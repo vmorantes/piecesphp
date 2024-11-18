@@ -187,7 +187,7 @@ class PublicationsController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $lang = $request->getAttribute('lang', null);
         $lang = is_string($lang) ? $lang : null;
@@ -338,7 +338,7 @@ class PublicationsController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -349,7 +349,7 @@ class PublicationsController extends AdminPanelController
                 'author',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 false,
                 function ($value) {
@@ -404,7 +404,7 @@ class PublicationsController extends AdminPanelController
                 'category',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
+                    return Validator::isInteger($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
                 },
                 false,
                 function ($value) {
@@ -448,7 +448,7 @@ class PublicationsController extends AdminPanelController
                 'featured',
                 PublicationMapper::UNFEATURED,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -817,7 +817,7 @@ class PublicationsController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -963,7 +963,7 @@ class PublicationsController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -974,7 +974,7 @@ class PublicationsController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -985,7 +985,7 @@ class PublicationsController extends AdminPanelController
                 'category',
                 null,
                 function ($value) {
-                    return (ctype_digit($value) || is_int($value)) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
+                    return Validator::isInteger($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
                 },
                 true,
                 function ($value) {
@@ -996,7 +996,7 @@ class PublicationsController extends AdminPanelController
                 'status',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) || (is_string($value) && mb_strtoupper($value) == 'ANY');
+                    return Validator::isInteger($value) || (is_string($value) && mb_strtoupper($value) == 'ANY');
                 },
                 true,
                 function ($value) {
@@ -1018,11 +1018,11 @@ class PublicationsController extends AdminPanelController
                 'featured',
                 null,
                 function ($value) {
-                    return (ctype_digit($value) || is_int($value)) || is_null($value);
+                    return Validator::isInteger($value) || is_null($value);
                 },
                 true,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value) ? (int) $value : null;
+                    return Validator::isInteger($value) ? (int) $value : null;
                 }
             ),
         ]);

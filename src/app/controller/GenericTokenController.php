@@ -18,6 +18,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\Operation;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -79,7 +80,7 @@ class GenericTokenController extends AdminPanelController
         }
 
         $tokenID = BaseHashEncryption::decrypt($tokenID, self::class);
-        $tokenID = ctype_digit($tokenID) || is_int($tokenID) ? (int) $tokenID : null;
+        $tokenID = Validator::isInteger($tokenID) ? (int) $tokenID : null;
 
         if ($tokenID !== null) {
 
@@ -105,7 +106,7 @@ class GenericTokenController extends AdminPanelController
 
         $tokenData = BaseToken::getData($token, self::KEY_JWT, null, true);
         $tokenExpired = BaseToken::isExpire($token, self::KEY_JWT, null);
-        $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass ? (array) $tokenData : [];
+        $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass  ? (array) $tokenData : [];
 
         $tokenController = new TokenController();
 
@@ -279,7 +280,7 @@ class GenericTokenController extends AdminPanelController
 
             $token->setValidator(function ($value) {
 
-                return (is_string($value) && ctype_digit($value)) || is_int($value);
+                return Validator::isInteger($value);
 
             })->setParser(function ($value) {
 
@@ -312,7 +313,7 @@ class GenericTokenController extends AdminPanelController
                 if ($tokenElement !== null) {
 
                     $tokenData = BaseToken::getData($tokenElement->token, self::KEY_JWT, null, true);
-                    $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass ? (array) $tokenData : [];
+                    $this->tokenData = is_array($tokenData) || $tokenData instanceof \stdClass  ? (array) $tokenData : [];
 
                     //ACCIONES AL ENVIAR
 

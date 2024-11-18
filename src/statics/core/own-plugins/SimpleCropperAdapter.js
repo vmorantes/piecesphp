@@ -27,6 +27,10 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 	let onCroppedCallback = () => { }
 	let onCancelCallback = () => { }
 	let onInitCallback = () => { }
+	let getNameFromSrc = (src) => {
+		const fileURLPathname = new URL(src).pathname
+		return fileURLPathname.substring(fileURLPathname.lastIndexOf('/') + 1)
+	}
 
 	/**
 	 * @typedef CropperOptions
@@ -82,12 +86,13 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 			}
 
 			const canvas = cropper.getCroppedCanvas(cropOptions)
+			const filename = generateUniqueID() + '.' + extensionsByMime[format]
 			if (formatsWithQuality.indexOf(format) !== -1) {
 				canvas.toBlob(function (blob) {
-					const blobURL = URL.createObjectURL(blob)
-					const file = new File([blob], generateUniqueID() + '.' + extensionsByMime[format], {
+					const file = new File([blob], filename, {
 						type: format,
 					})
+					const blobURL = URL.createObjectURL(blob)
 					resolve({
 						blob: file,
 						blobURL: blobURL,
@@ -96,10 +101,10 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 				}, format, quality)
 			} else {
 				canvas.toBlob(function (blob) {
-					const blobURL = URL.createObjectURL(blob)
-					const file = new File([blob], generateUniqueID() + '.' + extensionsByMime[format], {
+					const file = new File([blob], filename, {
 						type: format,
 					})
+					const blobURL = URL.createObjectURL(blob)
 					resolve({
 						blob: file,
 						blobURL: blobURL,
@@ -277,6 +282,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 
 	let blobImage = null
 	let settedImage = preview.hasAttribute('is-final') ? preview.src : ''
+	let settedImageName = preview.hasAttribute('is-final') ? getNameFromSrc(settedImage) : ''
 	let settedPreviewImage = !preview.hasAttribute('is-final') ? preview.src : ''
 	let wasChange = false
 
@@ -293,8 +299,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 			fetch(settedImage)
 				.then(function (response) {
 					const mimeType = response.headers.get('content-type')
-					const fileURLPathname = new URL(settedImage).pathname
-					const fileName = fileURLPathname.substring(fileURLPathname.lastIndexOf('/') + 1)
+					const fileName = settedImageName.length > 0 ? settedImageName : getNameFromSrc(settedImage)
 					return new Promise(function (fileResolve) {
 						response.blob().then(function (blob) {
 							fileResolve(new File([blob], fileName, {
@@ -377,6 +382,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 			cropped.then(function (res) {
 				blobImage = res.blob
 				settedImage = res.blobURL
+				settedImageName = typeof res.blob.name == 'string' ? res.blob.name : ''
 				cropper.reset()
 				cropper.zoomTo(0)
 				cropper.replace(settedImage, false)

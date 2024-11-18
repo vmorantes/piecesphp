@@ -102,7 +102,7 @@ class APIController extends AdminPanelController
                         'page',
                         1,
                         function ($value) {
-                            return ctype_digit($value) || is_int($value);
+                            return Validator::isInteger($value);
                         },
                         true,
                         function ($value) {
@@ -113,7 +113,7 @@ class APIController extends AdminPanelController
                         'perPage',
                         10,
                         function ($value) {
-                            return ctype_digit($value) || is_int($value);
+                            return Validator::isInteger($value);
                         },
                         true,
                         function ($value) {
@@ -124,7 +124,7 @@ class APIController extends AdminPanelController
                         'category',
                         null,
                         function ($value) {
-                            return (ctype_digit($value) || is_int($value)) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
+                            return Validator::isInteger($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
                         },
                         true,
                         function ($value) {
@@ -230,7 +230,7 @@ class APIController extends AdminPanelController
                         'page',
                         1,
                         function ($value) {
-                            return ctype_digit($value) || is_int($value);
+                            return Validator::isInteger($value);
                         },
                         true,
                         function ($value) {
@@ -241,7 +241,7 @@ class APIController extends AdminPanelController
                         'perPage',
                         10,
                         function ($value) {
-                            return ctype_digit($value) || is_int($value);
+                            return Validator::isInteger($value);
                         },
                         true,
                         function ($value) {
@@ -297,7 +297,7 @@ class APIController extends AdminPanelController
                     'page',
                     1,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value);
+                        return Validator::isInteger($value);
                     },
                     true,
                     function ($value) {
@@ -308,7 +308,7 @@ class APIController extends AdminPanelController
                     'perPage',
                     10,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value);
+                        return Validator::isInteger($value);
                     },
                     true,
                     function ($value) {
@@ -319,7 +319,7 @@ class APIController extends AdminPanelController
                     'category',
                     null,
                     function ($value) {
-                        return (ctype_digit($value) || is_int($value)) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
+                        return Validator::isInteger($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
                     },
                     true,
                     function ($value) {
@@ -408,7 +408,7 @@ class APIController extends AdminPanelController
                     'page',
                     1,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value);
+                        return Validator::isInteger($value);
                     },
                     true,
                     function ($value) {
@@ -419,7 +419,7 @@ class APIController extends AdminPanelController
                     'perPage',
                     10,
                     function ($value) {
-                        return ctype_digit($value) || is_int($value);
+                        return Validator::isInteger($value);
                     },
                     true,
                     function ($value) {
@@ -817,6 +817,54 @@ class APIController extends AdminPanelController
      * @param Response $response
      * @return Response
      */
+    public function cronJobs(Request $request, Response $response)
+    {
+
+        /**
+         * Ejemplo para programar cron job:
+         * Contenido: curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run
+         * Tiempo: 0 * * * *
+         */
+        $actionType = $request->getAttribute('actionType');
+        $method = mb_strtoupper($request->getMethod());
+
+        $CronJobKey = get_config('CronJobKey');
+        $cronJobKeyOnRequest = $request->getHeaderLine('Cron-Job-Key');
+        $cronJobKeyIsValid = $cronJobKeyOnRequest === $CronJobKey;
+
+        if (!$cronJobKeyIsValid) {
+            return throw403($request, [
+                'line' => __LINE__,
+                'file' => __FILE__,
+            ]);
+        }
+
+        $currentUser = getLoggedFrameworkUser();
+        $isLogged = $currentUser !== null;
+        $responseJSON = [
+            'TasksRuns' => [],
+        ];
+
+        if ($actionType == 'run') {
+
+            if ($method !== 'GET') {
+                throw new NotFoundException($request, $response);
+            }
+
+            $responseJSON['TasksRuns']["CheckWorking"] = true;
+
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
+        return $response->withJson($responseJSON);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public function externalActions(Request $request, Response $response)
     {
 
@@ -975,6 +1023,8 @@ class APIController extends AdminPanelController
 
         $usersActions = $allRoles;
 
+        $cronJobs = $allRoles;
+
         $externalActions = $allRoles;
 
         $other = [
@@ -987,6 +1037,13 @@ class APIController extends AdminPanelController
 
             //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
             //JSON
+            new Route( //Rutas de servicios provistos
+                "{$startRoute}/services/{actionType}[/]",
+                $classname . ':services',
+                self::$baseRouteName . '-services-actions',
+                'GET|POST',
+                false
+            ),
             new Route( //Rutas de publicaciones
                 "{$startRoute}/publications/{context}/{actionType}[/]",
                 $classname . ':publications',
@@ -1013,6 +1070,15 @@ class APIController extends AdminPanelController
                 false,
                 null,
                 $usersActions,
+            ),
+            new Route( //Acciones sobre el módulo de usuarios
+                "{$startRoute}/cron-jobs/{actionType}[/]",
+                $classname . ':cronJobs',
+                self::$baseRouteName . '-cron-jobs',
+                'GET|POST',
+                false,
+                null,
+                $cronJobs,
             ),
             //new Route( //Acciones sobre API externa (muestra)
             //    "{$startRoute}/external/{context}/{actionType}[/]",

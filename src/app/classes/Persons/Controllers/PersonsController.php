@@ -32,6 +32,7 @@ use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterExce
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
+use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 
 /**
@@ -207,7 +208,7 @@ class PersonsController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $lang = $request->getAttribute('lang', null);
         $lang = is_string($lang) ? $lang : null;
@@ -278,7 +279,7 @@ class PersonsController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -547,7 +548,7 @@ class PersonsController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -696,7 +697,7 @@ class PersonsController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -707,7 +708,7 @@ class PersonsController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -718,7 +719,7 @@ class PersonsController extends AdminPanelController
                 'id',
                 null,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
