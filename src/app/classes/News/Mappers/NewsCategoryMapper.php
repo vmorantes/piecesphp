@@ -14,6 +14,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\StringManipulate;
+use PiecesPHP\Core\Validation\Validator;
 
 /**
  * NewsCategoryMapper.
@@ -405,7 +406,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
         $slug = '';
 
         if ($elementOrID instanceof \stdClass) {
-            if (isset($elementOrID->id) && is_string($elementOrID->id) && ctype_digit($elementOrID->id)) {
+            if (isset($elementOrID->id) && Validator::isInteger($elementOrID->id)) {
                 $elementOrID = (int) $elementOrID->id;
             }
         }
@@ -449,7 +450,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
         if (!$isUncategorized) {
             $slug = $slug !== null ? explode('-', $slug) : null;
             $slugID = is_array($slug) && count($slug) === 2 ? $slug[0] : null;
-            $slugID = (is_string($slugID) && ctype_digit($slugID)) || $slugID == self::UNCATEGORIZED_ID ? (int) $slugID : null;
+            $slugID = (Validator::isInteger($slugID)) || $slugID == self::UNCATEGORIZED_ID ? (int) $slugID : null;
         } else {
             $slugID = self::UNCATEGORIZED_ID;
         }
@@ -649,7 +650,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

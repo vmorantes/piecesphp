@@ -1290,10 +1290,40 @@ function generateCachingHeadersAndStatus(\PiecesPHP\Core\Routing\RequestRoute $r
 }
 
 /**
+ * Toma una imagen y devuelve sus dimensiones
+ * @param string $imagePath
+ * @return array Un array asociativo con los índices width y height
+ */
+function imageDimensions(string $imagePath)
+{
+
+    $dimensions = [
+        'width' => null,
+        'height' => null,
+    ];
+
+    if (file_exists($imagePath)) {
+
+        $imageResource = imagecreatefromstring(file_get_contents($imagePath));
+        $width = imagesx($imageResource);
+        $height = imagesy($imageResource);
+
+        $dimensions = [
+            'width' => $width,
+            'height' => $height,
+        ];
+
+    }
+
+    return $dimensions;
+
+}
+
+/**
  * Toma un fichero, lo recorta y redimensiona.
  * Si alguna dimensión ingresada es mayor a la original se usará la original.
  * Dependiendo de $outputPath lo guarda o simplemente lo muestra.
- * El resultado es una imagen JPG
+ * El resultado es una imagen JPG o PNG
  *
  * @param string $imagePath
  * @param int $thumbWidth
@@ -1301,9 +1331,10 @@ function generateCachingHeadersAndStatus(\PiecesPHP\Core\Routing\RequestRoute $r
  * @param float $quality
  * @param string $outputPath
  * @param bool $withAspectRatio Si es true, la redimensión respetará la relación de aspecto original y tomará de referencia solo el ancho ingresado
+ * @param bool $asPng
  * @return void
  */
-function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, string $outputPath = null, bool $withAspectRatio = false)
+function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, string $outputPath = null, bool $withAspectRatio = false, bool $asPng = false)
 {
 
     if (file_exists($imagePath)) {
@@ -1338,6 +1369,11 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
         }
 
         $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
+        if ($asPng) {
+            imagesavealpha($thumbImage, true);
+            $transparentColor = imagecolorallocatealpha($thumbImage, 0, 0, 0, 127);
+            imagefill($thumbImage, 0, 0, $transparentColor);
+        }
 
         // Redimencionar y cortar
         imagecopyresampled($thumbImage,
@@ -1348,7 +1384,26 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
             $newWidth, $newHeight,
             $width, $height);
 
-        imagejpeg($thumbImage, $outputPath, $quality);
+        if ($asPng) {
+            $quality = (int) round(9 / 100 * $quality);
+            $quality = $quality > 9 ? 9 : ($quality < 0 ? 0 : $quality);
+            $qualityCompression = [
+                9 => 0,
+                8 => 1,
+                7 => 2,
+                6 => 3,
+                5 => 4,
+                4 => 5,
+                3 => 6,
+                2 => 7,
+                1 => 8,
+                0 => 9,
+            ];
+            $quality = $qualityCompression[$quality];
+            imagepng($thumbImage, $outputPath, 9);
+        } else {
+            imagejpeg($thumbImage, $outputPath, $quality);
+        }
 
     }
 

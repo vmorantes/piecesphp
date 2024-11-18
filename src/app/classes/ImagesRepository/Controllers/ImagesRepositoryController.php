@@ -132,7 +132,7 @@ class ImagesRepositoryController extends AdminPanelController
     public function previewImage(Request $request, Response $response)
     {
         $id = $request->getAttribute('id', null);
-        $id = is_int($id) || (is_string($id) && ctype_digit($id)) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
         $image = $id !== null ? ImagesRepositoryMapper::getByID($id) : null;
 
         if ($image !== null) {
@@ -522,7 +522,7 @@ class ImagesRepositoryController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) ? (int) $id : null;
+        $id = Validator::isInteger($id) ? (int) $id : null;
 
         $lang = $request->getAttribute('lang', null);
         $lang = is_string($lang) ? $lang : null;
@@ -646,7 +646,7 @@ class ImagesRepositoryController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -956,7 +956,7 @@ class ImagesRepositoryController extends AdminPanelController
                 'id',
                 -1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -1108,7 +1108,7 @@ class ImagesRepositoryController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -1119,7 +1119,7 @@ class ImagesRepositoryController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -1247,10 +1247,10 @@ class ImagesRepositoryController extends AdminPanelController
 
         //──── Parámetros ────────────────────────────────────────────────────────────────────────
         $year = $request->getQueryParam('year', null);
-        $year = is_int($year) || ctype_digit($year) ? (int) $year : null;
+        $year = Validator::isInteger($year) ? (int) $year : null;
 
         $state = $request->getQueryParam('state', null);
-        $state = is_int($state) || ctype_digit($state) ? (int) $state : null;
+        $state = Validator::isInteger($state) ? (int) $state : null;
 
         $search = $request->getQueryParam('searchText', null);
         $search = is_string($search) && mb_strlen(trim($search)) > 0 ? trim($search) : null;

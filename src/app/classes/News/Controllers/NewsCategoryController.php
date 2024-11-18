@@ -150,7 +150,7 @@ class NewsCategoryController extends AdminPanelController
     {
 
         $id = $request->getAttribute('id', null);
-        $id = !is_null($id) && ctype_digit($id) || $id == NewsCategoryMapper::UNCATEGORIZED_ID ? (int) $id : null;
+        $id = Validator::isInteger($id) || $id == NewsCategoryMapper::UNCATEGORIZED_ID ? (int) $id : null;
 
         $lang = $request->getAttribute('lang', null);
         $lang = is_string($lang) ? $lang : null;
@@ -523,7 +523,7 @@ class NewsCategoryController extends AdminPanelController
                     if ($value == NewsCategoryMapper::UNCATEGORIZED_ID || $value == (string) NewsCategoryMapper::UNCATEGORIZED_ID) {
                         $value = NewsCategoryMapper::UNCATEGORIZED_ID;
                     }
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -680,7 +680,7 @@ class NewsCategoryController extends AdminPanelController
                 'page',
                 1,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {
@@ -691,7 +691,7 @@ class NewsCategoryController extends AdminPanelController
                 'per_page',
                 10,
                 function ($value) {
-                    return ctype_digit($value) || is_int($value);
+                    return Validator::isInteger($value);
                 },
                 true,
                 function ($value) {

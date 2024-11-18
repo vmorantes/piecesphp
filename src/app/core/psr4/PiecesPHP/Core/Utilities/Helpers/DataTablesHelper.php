@@ -270,7 +270,7 @@ class DataTablesHelper
             );
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
-            $having_string = trim($having_string);
+            $having_string = is_string($having_string) ? trim($having_string) : "";
             if (mb_strlen($having_string) > 0) {
                 if (mb_strlen($having) > 0) {
                     $having = "($having_string) AND $having";
@@ -280,7 +280,7 @@ class DataTablesHelper
             }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (inútil, ahora la búsqueda es por HAVING)
-            $where_string = trim($where_string);
+            $where_string = is_string($where_string) ? trim($where_string) : "";
             if (mb_strlen($where_string) > 0) {
                 if (mb_strlen($where) > 0) {
                     $where = "($where_string) AND $where";
@@ -847,7 +847,7 @@ class DataTablesHelper
             );
 
             //Mezclar búsqueda de datatables con los criterios por defecto (funcionando actualmente)
-            $having_string = trim($having_string);
+            $having_string = is_string($having_string) ? trim($having_string) : "";
             if (mb_strlen($having_string) > 0) {
                 if (mb_strlen($having) > 0) {
                     $having = "($having_string) AND $having";
@@ -857,7 +857,7 @@ class DataTablesHelper
             }
 
             //Mezclar búsqueda de datatables con los criterios por defecto (inútil, ahora la búsqueda es por HAVING)
-            $where_string = trim($where_string);
+            $where_string = is_string($where_string) ? trim($where_string) : "";
             if (mb_strlen($where_string) > 0) {
                 if (mb_strlen($where) > 0) {
                     $where = "($where_string) AND $where";
