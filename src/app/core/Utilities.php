@@ -1470,7 +1470,13 @@ function localeDateFormat(string $format, \DateTime $time = null, array $replace
     $formated = strftime($formatToStrftime, $time->getTimestamp());
 
     foreach ($changedCase as $original => $replaceWith) {
-        $formated = str_replace($original, $replaceWith, $formated);
+        $formated = preg_replace_callback(
+            '/\b' . preg_quote($original, '/') . '\b/u',
+            function () use ($replaceWith) {
+                return $replaceWith;
+            },
+            $formated
+        );
     }
 
     $formated = str_replace(array_keys($replaceTemplate), array_values($replaceTemplate), $formated);
