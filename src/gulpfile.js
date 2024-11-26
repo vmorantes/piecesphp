@@ -16,6 +16,25 @@ const exec = require('child_process').exec
 const removeCacheEvent = 'remove-cache'
 const removeCacheFinishEvent = 'remove-cache-finish'
 let cleanCacheVerbose = false
+let sassCompileAdapter = function (options) {
+	options = typeof options == 'object' ? options : {}
+	const baseOptions = {
+		outputStyle: 'compressed',
+		quietDeps: true,
+		silenceDeprecations: [
+			'legacy-js-api',
+			'color-functions',
+			'mixed-decls',
+		]
+	}
+	const finalOptions = Object.assign({}, baseOptions)
+
+	for (const option in options) {
+		finalOptions.option = options[option]
+	}
+
+	return sass(finalOptions)
+}
 
 //--------TS PiecesPHP
 
@@ -160,7 +179,7 @@ var destsPiecesPHP = {
 function sassCompileOwnPlugins() {
 	return src(compilePiecesPHPSassFiles.ownPlugins)
 		.pipe(sourcemaps.init())
-		.pipe(sass({ outputStyle: 'compressed', quietDeps: true, }).on('error', sass.logError))
+		.pipe(sassCompileAdapter({}).on('error', sass.logError))
 		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.ownPlugins))
@@ -170,7 +189,7 @@ function sassCompileOwnPlugins() {
 function sassCompileGeneral() {
 	return src(compilePiecesPHPSassFiles.general)
 		.pipe(sourcemaps.init())
-		.pipe(sass({ outputStyle: 'compressed', quietDeps: true, }).on('error', sass.logError))
+		.pipe(sassCompileAdapter({}).on('error', sass.logError))
 		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.general))
@@ -180,7 +199,7 @@ function sassCompileGeneral() {
 function sassCompileUsers() {
 	return src(compilePiecesPHPSassFiles.users)
 		.pipe(sourcemaps.init())
-		.pipe(sass({ outputStyle: 'compressed', quietDeps: true, }).on('error', sass.logError))
+		.pipe(sassCompileAdapter({}).on('error', sass.logError))
 		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.users))
@@ -190,7 +209,7 @@ function sassCompileUsers() {
 function sassCompileUsers2() {
 	return src(compilePiecesPHPSassFiles.users2)
 		.pipe(sourcemaps.init())
-		.pipe(sass({ outputStyle: 'compressed', quietDeps: true, }).on('error', sass.logError))
+		.pipe(sassCompileAdapter({}).on('error', sass.logError))
 		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.users2))
@@ -200,7 +219,7 @@ function sassCompileUsers2() {
 function sassCompileAvatars() {
 	return src(compilePiecesPHPSassFiles.avatars)
 		.pipe(sourcemaps.init())
-		.pipe(sass({ outputStyle: 'compressed', quietDeps: true, }).on('error', sass.logError))
+		.pipe(sassCompileAdapter({}).on('error', sass.logError))
 		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHP.avatars))
@@ -267,7 +286,7 @@ var cssDest = './statics/css'
 function sassCompileGeneric() {
 	return src(compileSassFiles)
 		.pipe(sourcemaps.init())
-		.pipe(sass({ outputStyle: 'compressed', quietDeps: true, }).on('error', sass.logError))
+		.pipe(sassCompileAdapter({}).on('error', sass.logError))
 		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(cssDest))
@@ -301,7 +320,7 @@ var cssModulesDest = './app/classes'
 function sassCompileModules() {
 	return src(compileMonulesSassFiles)
 		.pipe(sourcemaps.init())
-		.pipe(sass({ outputStyle: 'compressed', quietDeps: true, }).on('error', sass.logError))
+		.pipe(sassCompileAdapter({}).on('error', sass.logError))
 		.pipe(replace('CACHESTAMP', `${new Date().getTime()}`))
 		.pipe(sourcemaps.write('./'))
 		.pipe(rename(function (path) {
