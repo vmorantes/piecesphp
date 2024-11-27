@@ -1410,6 +1410,88 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
 }
 
 /**
+ * Redimensiona la imagen a una nueva, pero sin alterarla. Solo se reduce, no se amplia
+ * Se centra horizontal y verticalmente y lo que adopta el tamaño objetivo es el "lienzo"
+ * @param string $inputPath
+ * @param string $outputPath
+ * @param int $targetWidth
+ * @param int $targetHeight
+ * @return void
+ */
+function resizeAndCenterImage(string $inputPath, string $outputPath, int $targetWidth, int $targetHeight)
+{
+    // Crear un lienzo transparente con las dimensiones deseadas
+    $canvas = imagecreatetruecolor($targetWidth, $targetHeight);
+
+    // Hacer el fondo transparente
+    imagesavealpha($canvas, true);
+    $transparentColor = imagecolorallocatealpha($canvas, 0, 0, 0, 127); // Color transparente
+    imagefill($canvas, 0, 0, $transparentColor);
+
+    // Cargar la imagen original
+    $imageInfo = getimagesize($inputPath);
+    $originalWidth = $imageInfo[0];
+    $originalHeight = $imageInfo[1];
+    $mime = $imageInfo['mime'];
+
+    switch ($mime) {
+        case 'image/jpeg':
+            $originalImage = imagecreatefromjpeg($inputPath);
+            break;
+        case 'image/png':
+            $originalImage = imagecreatefrompng($inputPath);
+            break;
+        case 'image/gif':
+            $originalImage = imagecreatefromgif($inputPath);
+            break;
+        default:
+            throw new Exception("Formato de imagen no soportado: $mime");
+    }
+
+    // Calcular las dimensiones escaladas manteniendo la proporción
+    $aspectRatio = $originalWidth / $originalHeight;
+    if ($targetWidth / $targetHeight > $aspectRatio) {
+        // La imagen es más alta que el lienzo
+        $newHeight = $targetHeight;
+        $newWidth = $targetHeight * $aspectRatio;
+    } else {
+        // La imagen es más ancha o tiene proporción igual al lienzo
+        $newWidth = $targetWidth;
+        $newHeight = $targetWidth / $aspectRatio;
+    }
+
+    // Calcular posición centrada
+    $xOffset = ($targetWidth - $newWidth) / 2;
+    $yOffset = ($targetHeight - $newHeight) / 2;
+
+    // Redimensionar y copiar la imagen al lienzo
+    imagecopyresampled(
+        $canvas, $originalImage,
+        $xOffset, $yOffset, // Posición en el lienzo
+        0, 0, // Coordenadas originales
+        $newWidth, $newHeight, // Tamaño escalado
+        $originalWidth, $originalHeight // Tamaño original
+    );
+
+    // Guardar la nueva imagen
+    switch ($mime) {
+        case 'image/jpeg':
+            imagejpeg($canvas, $outputPath, 100); // Calidad máxima
+            break;
+        case 'image/png':
+            imagepng($canvas, $outputPath);
+            break;
+        case 'image/gif':
+            imagegif($canvas, $outputPath);
+            break;
+    }
+
+    // Liberar memoria
+    imagedestroy($canvas);
+    imagedestroy($originalImage);
+}
+
+/**
  * Devuelve la fecha con strftime extrapolando los códigos de formato de date()
  *
  * Para sistemas unix la conversión de zona horaria está bien. Los usuarios de Windows deben cambiar %z and %Z.
