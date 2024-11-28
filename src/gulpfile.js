@@ -20,12 +20,14 @@ let sassCompileAdapter = function (options) {
 	options = typeof options == 'object' ? options : {}
 	const baseOptions = {
 		outputStyle: 'compressed',
-		quietDeps: true,
 		silenceDeprecations: [
 			'legacy-js-api',
 			'color-functions',
 			'mixed-decls',
-		]
+			'import',
+			'global-builtin',
+		],		
+		quietDeps: true,
 	}
 	const finalOptions = Object.assign({}, baseOptions)
 
