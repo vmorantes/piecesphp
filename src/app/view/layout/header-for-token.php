@@ -15,6 +15,7 @@ $alternativesURL = Config::get_config('alternatives_url');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="cache-stamp" value="<?= get_config('cacheStamp'); ?>">
+    <meta name="config-admin-url" value="<?= base64_encode(@json_encode(get_config('admin_url'))); ?>">
     <base href="<?=baseurl();?>">
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph(); ?>

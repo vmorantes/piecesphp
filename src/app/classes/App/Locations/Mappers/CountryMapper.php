@@ -20,6 +20,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @property int|null $id
  * @property string|null $code
  * @property string $name
+ * @property string $region
  * @property int $active
  */
 class CountryMapper extends BaseEntityMapper
@@ -46,6 +47,10 @@ class CountryMapper extends BaseEntityMapper
         ],
         'name' => [
             'type' => 'varchar',
+        ],
+        'region' => [
+            'type' => 'text',
+            'null' => true,
         ],
         'active' => [
             'type' => 'int',
@@ -155,6 +160,17 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
+     * @return \stdClass
+     */
+    public static function allRegions()
+    {
+        $model = self::model();
+        $prepared = $model->prepare("SELECT region AS name FROM locations_countries GROUP BY region ORDER BY region ASC");
+        $prepared->execute();
+        return $prepared->fetchAll(\PDO::FETCH_OBJ);
+    }
+
+    /**
      * @param string $defaultLabel
      * @param string $defaultValue
      * @return array
@@ -168,6 +184,24 @@ class CountryMapper extends BaseEntityMapper
         array_map(function ($e) use (&$options) {
             $options[$e->id] = $e->name;
         }, self::all(false, true));
+
+        return $options;
+    }
+
+    /**
+     * @param string $defaultLabel
+     * @param string $defaultValue
+     * @return array
+     */
+    public static function allRegionsForSelect(string $defaultLabel = '', string $defaultValue = '')
+    {
+        $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Regiones');
+        $options = [];
+        $options[$defaultValue] = $defaultLabel;
+
+        array_map(function ($e) use (&$options) {
+            $options[$e->name] = $e->name;
+        }, self::allRegions(false, true));
 
         return $options;
     }

@@ -42,6 +42,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                         <th><?= __(LOCATIONS_LANG_GROUP, 'ID'); ?></th>
                         <th><?= __(LOCATIONS_LANG_GROUP, 'Código'); ?></th>
                         <th><?= __(LOCATIONS_LANG_GROUP, 'Nombre'); ?></th>
+                        <th><?= __(LOCATIONS_LANG_GROUP, 'Región'); ?></th>
                         <th><?= __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo'); ?></th>
                         <th order='false'><?= __(LOCATIONS_LANG_GROUP, 'Acciones'); ?></th>
                     </tr>

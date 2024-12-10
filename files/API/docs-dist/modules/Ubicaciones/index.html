@@ -63,6 +63,8 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#get">GET</a>
         <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#baseurllocationsregions">{{baseURL}}/locations/regions/</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#baseurllocationscountries">{{baseURL}}/locations/countries/</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#baseurllocationsstates">{{baseURL}}/locations/states/</a>
@@ -112,11 +114,21 @@
                 <h1 id="ubicaciones">Ubicaciones</h1>
 <p><em>Solo si está activo el módulo</em></p>
 <h2 id="get">GET</h2>
+<h3 id="baseurllocationsregions">{{baseURL}}/locations/regions/</h3>
+<ul>
+<li>Autorización: No</li>
+<li>Descripción: Ruta para listar las regiones</li>
+<li>Devolución:<ul>
+<li>Tipo: JSON</li>
+</ul>
+</li>
+</ul>
 <h3 id="baseurllocationscountries">{{baseURL}}/locations/countries/</h3>
 <ul>
 <li>Autorización: No</li>
 <li>Descripción: Ruta para listar los países</li>
 <li>Parámetros:<ul>
+<li>region: string (opcional) Nombre de la región</li>
 <li>ids: int[] (opcional) Ids de los países solicitados</li>
 </ul>
 </li>
