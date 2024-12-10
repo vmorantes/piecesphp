@@ -11,44 +11,170 @@ function LocationsAdapter() {
 
 	let locationsURL = 'locations'
 
+	let regionsURL = `${locationsURL}/regions`
 	let countriesURL = `${locationsURL}/countries`
 	let statesURL = `${locationsURL}/states`
 	let citiesURL = `${locationsURL}/cities`
 	let pointsURL = `${locationsURL}/points`
 
+	let selectAutoFilledRegionAttr = 'locations-component-auto-filled-region'
 	let selectAutoFilledCountryAttr = 'locations-component-auto-filled-country'
 	let selectAutoFilledStateAttr = 'locations-component-auto-filled-state'
 	let selectAutoFilledCityAttr = 'locations-component-auto-filled-city'
 	let selectAutoFilledPointAttr = 'locations-component-auto-filled-point'
 
+	let regionFirstTime = true
 	let countryFirstTime = true
 	let stateFirstTime = true
 	let cityFirstTime = true
 	let pointFirstTime = true
 
+	let lastCountrySelected = []
 	let lastStatesSelected = []
 	let lastCitiesSelected = []
 	let lastPointsSelected = []
 
+	let currentRegionDropdown = null
 	let currentCountryDropdown = null
 	let currentStateDropdown = null
 	let currentCityDropdown = null
 	let currentPointDropdown = null
 
 	let onConfigDropdowns = () => { }
+	let onChangeRegionDropdown = () => { }
 	let onChangeCountryDropdown = () => { }
 	let onChangeStateDropdown = () => { }
 	let onChangeCityDropdown = () => { }
 	let onChangePointDropdown = () => { }
 
 	/**
-	 * @method fillSelectWithCountries
-	 * @description Rellena un select con los países
+	 * @method fillSelectWithRegions
+	 * @description Rellena un select con las regiones
 	 * @returns {bool} true si hay, false si no
 	   */
-	this.fillSelectWithCountries = () => {
+	this.fillSelectWithRegions = () => {
 
-		let countries = this.getCountries()
+		let regions = this.getRegions()
+
+		let regionsSelect = $(`[${selectAutoFilledRegionAttr}]`)
+
+		let has = true
+
+		if (regionsSelect.length > 0) {
+
+			has = regions.length > 0
+
+			let firstOption = regionsSelect.find(`option[value=""]`)
+
+			let attrValue = regionsSelect.attr(selectAutoFilledRegionAttr)
+			let hasDefault = typeof attrValue == 'string' && attrValue.trim().length > 0 && regionFirstTime
+			let defaultValue = hasDefault ? attrValue.trim() : null
+
+			regionFirstTime = false
+
+			if (firstOption.length > 0) {
+				firstOption = firstOption.get(0).outerHTML
+			} else if (regions.length > 0) {
+				firstOption = `<option value="">${_i18n(langGroup, 'Seleccione una opción')}</option>`
+			} else {
+				firstOption = null
+			}
+
+			regionsSelect.html('')
+
+			if (firstOption != null) {
+				regionsSelect.append(firstOption)
+			}
+
+			//Acciones con valores iniciales
+
+			for (let region of regions) {
+				let option = document.createElement('option')
+				option.value = region.name
+				option.innerHTML = region.name
+				if (hasDefault) {
+					if (region.name == defaultValue) {
+						option.setAttribute('selected', true)
+					}
+				}
+				regionsSelect.append(option)
+			}
+
+			let selectedOption = regionsSelect.find('option').filter(':selected')
+			let selectedValue = selectedOption.length > 0 ? selectedOption.val().trim() : ''
+
+			if (selectedValue.length > 0) {
+				if (!instance.fillSelectWithCountries(selectedValue)) {
+					infoMessage(_i18n(langGroup, 'Atención'), _i18n(langGroup, 'No hay países registrados.'))
+				}
+			}
+
+			//Acciones con eventos
+
+			function eventHandler(e) {
+
+				let value = $(e.target).val()
+				value = typeof value == 'string' ? value : ''
+				const loaderName = generateUniqueID('event')
+				showGenericLoader(loaderName)
+
+				if (typeof value == 'string' && value.trim().length > 0) {
+					if (!instance.fillSelectWithCountries(value)) {
+						infoMessage(_i18n(langGroup, 'Atención'), _i18n(langGroup, 'No hay países registrados.'))
+					}
+				} else {
+					instance.fillSelectWithCountries('NONE')
+				}
+
+				removeGenericLoader(loaderName)
+
+			}
+
+			if (regionsSelect.attr('event-attach') !== 'yes') {
+				regionsSelect.off('change', eventHandler)
+				regionsSelect.on('change', eventHandler)
+				regionsSelect.attr('event-attach', 'yes')
+			}
+
+			if (typeof regionsSelect.attr('with-dropdown') == 'string') {
+
+				$(`[${selectAutoFilledRegionAttr}]`).addClass('search')
+				let dropdown = null
+				if (currentRegionDropdown === null) {
+					dropdown = configFomanticDropdown(`[${selectAutoFilledRegionAttr}]`, {
+						onChange: function (value, text, $element) {
+							onChangeRegionDropdown(value, text, $element)
+						},
+					})[0]
+					currentRegionDropdown = dropdown
+					onConfigDropdowns()
+				} else {
+					dropdown = currentRegionDropdown
+				}
+
+				if (!hasDefault) {
+					instance.fillSelectWithStates(null)
+					dropdown.dropdown('clear')
+				} else {
+					dropdown.dropdown('refresh')
+				}
+
+			}
+
+		}
+
+		return has
+	}
+
+	/**
+	 * @method fillSelectWithCountries
+	 * @description Rellena un select con los países
+	 * @param {string} region El nombre de la región
+	 * @returns {bool} true si hay, false si no
+	   */
+	this.fillSelectWithCountries = (region = null) => {
+
+		let countries = this.getCountries(region)
 
 		let countriesSelect = $(`[${selectAutoFilledCountryAttr}]`)
 
@@ -81,7 +207,7 @@ function LocationsAdapter() {
 			}
 
 			//Acciones con valores iniciales
-
+			let hasSelected = false
 			for (let country of countries) {
 				let option = document.createElement('option')
 				option.value = country.id
@@ -89,7 +215,12 @@ function LocationsAdapter() {
 				if (hasDefault) {
 					if (country.id == defaultValue) {
 						option.setAttribute('selected', true)
+						hasSelected = true
 					}
+				}
+				if (LocationsAdapter.dataToFilter.countriesSelected.includes(parseInt(country.id)) || LocationsAdapter.dataToFilter.countriesSelected.includes(`${country.id}`)) {
+					option.setAttribute('selected', true)
+					hasSelected = true
 				}
 				countriesSelect.append(option)
 			}
@@ -109,8 +240,10 @@ function LocationsAdapter() {
 
 				let value = $(e.target).val()
 				value = typeof value == 'string' ? value : ''
+				const loaderName = generateUniqueID('event')
+				showGenericLoader(loaderName)
 
-				if (value.trim().length > 0) {
+				if (typeof value == 'string' && value.trim().length > 0) {
 					if (!instance.fillSelectWithStates(value)) {
 						infoMessage(_i18n(langGroup, 'Atención'), _i18n(langGroup, 'No hay departamentos registrados.'))
 					}
@@ -118,9 +251,15 @@ function LocationsAdapter() {
 					instance.fillSelectWithStates(-1)
 				}
 
+				removeGenericLoader(loaderName)
+
 			}
-			countriesSelect.off('change', eventHandler)
-			countriesSelect.on('change', eventHandler)
+
+			if (countriesSelect.attr('event-attach') !== 'yes') {
+				countriesSelect.off('change', eventHandler)
+				countriesSelect.on('change', eventHandler)
+				countriesSelect.attr('event-attach', 'yes')
+			}
 
 			if (typeof countriesSelect.attr('with-dropdown') == 'string') {
 
@@ -138,7 +277,7 @@ function LocationsAdapter() {
 					dropdown = currentCountryDropdown
 				}
 
-				if (!hasDefault) {
+				if (!hasDefault && !hasSelected) {
 					instance.fillSelectWithStates(null)
 					dropdown.dropdown('clear')
 				} else {
@@ -265,6 +404,8 @@ function LocationsAdapter() {
 					let that = $(e.currentTarget)
 					let value = that.val()
 					lastStatesSelected = Array.isArray(value) ? value : [value]
+					const loaderName = generateUniqueID('event')
+					showGenericLoader(loaderName)
 
 					if (Array.isArray(value)) {
 
@@ -283,7 +424,7 @@ function LocationsAdapter() {
 
 					} else {
 
-						if (value.trim().length > 0) {
+						if (typeof value == 'string' && value.trim().length > 0) {
 							if (!instance.fillSelectWithCities(value)) {
 								infoMessage(
 									_i18n(langGroup, 'Atención'),
@@ -296,9 +437,15 @@ function LocationsAdapter() {
 
 					}
 
+					removeGenericLoader(loaderName)
+
 				}
-				statesSelect.off('change', eventHandler)
-				statesSelect.on('change', eventHandler)
+
+				if (statesSelect.attr('event-attach') !== 'yes') {
+					statesSelect.off('change', eventHandler)
+					statesSelect.on('change', eventHandler)
+					statesSelect.attr('event-attach', 'yes')
+				}
 
 			}
 
@@ -466,6 +613,8 @@ function LocationsAdapter() {
 					let that = $(e.currentTarget)
 					let value = that.val()
 					lastCitiesSelected = Array.isArray(value) ? value : [value]
+					const loaderName = generateUniqueID('event')
+					showGenericLoader(loaderName)
 
 					if (Array.isArray(value)) {
 
@@ -497,9 +646,15 @@ function LocationsAdapter() {
 
 					}
 
+					removeGenericLoader(loaderName)
+
 				}
-				citiesSelect.off('change', eventHandler)
-				citiesSelect.on('change', eventHandler)
+
+				if (citiesSelect.attr('event-attach') !== 'yes') {
+					citiesSelect.off('change', eventHandler)
+					citiesSelect.on('change', eventHandler)
+					citiesSelect.attr('event-attach', 'yes')
+				}
 
 			}
 
@@ -656,10 +811,16 @@ function LocationsAdapter() {
 					let that = $(e.currentTarget)
 					let value = that.val()
 					lastPointsSelected = Array.isArray(value) ? value : [value]
-
+					const loaderName = generateUniqueID('event')
+					showGenericLoader(loaderName)
+					removeGenericLoader(loaderName)
 				}
-				pointsSelect.off('change', eventHandler)
-				pointsSelect.on('change', eventHandler)
+
+				if (pointsSelect.attr('event-attach') !== 'yes') {
+					pointsSelect.off('change', eventHandler)
+					pointsSelect.on('change', eventHandler)
+					pointsSelect.attr('event-attach', 'yes')
+				}
 
 			}
 
@@ -696,6 +857,14 @@ function LocationsAdapter() {
 		}
 
 		return has
+	}
+
+	/**
+	 * @returns {$|null}
+	 */
+	this.getCurrentRegionDropdown = function () {
+		let element = currentRegionDropdown
+		return element instanceof $ ? element : null
 	}
 
 	/**
@@ -743,6 +912,15 @@ function LocationsAdapter() {
 	 * @param {Function} callback 
 	 * @returns {LocationsAdapter}
 	 */
+	this.setOnChangeRegionDropdown = function (callback) {
+		onChangeRegionDropdown = typeof callback == 'function' ? callback : () => { }
+		return this
+	}
+
+	/**
+	 * @param {Function} callback 
+	 * @returns {LocationsAdapter}
+	 */
 	this.setOnChangeCountryDropdown = function (callback) {
 		onChangeCountryDropdown = typeof callback == 'function' ? callback : () => { }
 		return this
@@ -776,22 +954,52 @@ function LocationsAdapter() {
 	}
 
 	/**
-	 * @method getCountries
+	 * @method getRegions
 	 * @description Devuelve los países
 	 * @returns {array}
 	   */
-	this.getCountries = () => {
+	this.getRegions = () => {
+		const loaderName = generateUniqueID()
+		showGenericLoader(loaderName)
+		let regions = []
+		let url = new URL(regionsURL, document.baseURI)
+		$.ajax({
+			async: false,
+			url: url,
+			dataType: 'json',
+		}).done(function (res) {
+			regions = res
+		}).always(function () {
+			removeGenericLoader(loaderName)
+		})
+		return regions
+	}
+
+	/**
+	 * @method getCountries
+	 * @description Devuelve los países
+	 * @param {string} region
+	 * @returns {array}
+	   */
+	this.getCountries = (region = null) => {
+		const loaderName = generateUniqueID()
+		showGenericLoader(loaderName)
 		let countries = []
 		let url = new URL(countriesURL, document.baseURI)
 		LocationsAdapter.dataToFilter.onlyCountries.map(function (i) {
 			url.searchParams.append('ids[]', i)
 		})
+		if (region !== null) {
+			url.searchParams.append('region', region)
+		}
 		$.ajax({
 			async: false,
 			url: url,
 			dataType: 'json',
 		}).done(function (res) {
 			countries = res
+		}).always(function () {
+			removeGenericLoader(loaderName)
 		})
 		return countries
 	}
@@ -803,6 +1011,8 @@ function LocationsAdapter() {
 	 * @returns {array}
 	   */
 	this.getStates = (country) => {
+		const loaderName = generateUniqueID()
+		showGenericLoader(loaderName)
 		let states = []
 		let url = new URL(statesURL, document.baseURI)
 		url.searchParams.set('country', country)
@@ -815,6 +1025,8 @@ function LocationsAdapter() {
 			dataType: 'json',
 		}).done(function (res) {
 			states = res
+		}).always(function () {
+			removeGenericLoader(loaderName)
 		})
 		return states
 	}
@@ -826,6 +1038,8 @@ function LocationsAdapter() {
 	 * @returns {array}
 	   */
 	this.getCities = (state) => {
+		const loaderName = generateUniqueID()
+		showGenericLoader(loaderName)
 		let cities = []
 		let url = new URL(citiesURL, document.baseURI)
 		url.searchParams.set('state', state)
@@ -838,6 +1052,8 @@ function LocationsAdapter() {
 			dataType: 'json',
 		}).done(function (res) {
 			cities = res
+		}).always(function () {
+			removeGenericLoader(loaderName)
 		})
 		return cities
 	}
@@ -849,6 +1065,8 @@ function LocationsAdapter() {
 	 * @returns {array}
 	   */
 	this.getPoints = (city) => {
+		const loaderName = generateUniqueID()
+		showGenericLoader(loaderName)
 		let points = []
 		$.ajax({
 			async: false,
@@ -856,6 +1074,8 @@ function LocationsAdapter() {
 			dataType: 'json',
 		}).done(function (res) {
 			points = res
+		}).always(function () {
+			removeGenericLoader(loaderName)
 		})
 		return points
 	}
@@ -865,6 +1085,7 @@ LocationsAdapter.dataToFilter = {
 	onlyCountries: [],
 	onlyStates: [],
 	onlyCities: [],
+	countriesSelected: [],
 }
 /**
  * @param {String} name 

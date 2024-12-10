@@ -14,9 +14,14 @@ use Publications\Mappers\PublicationMapper;
 
 ?>
 <div class="list-card">
+    <div class="corner-icon" data-tooltip="<?= $mapper->currentLangData('name'); ?>">
+        <div class="icon">
+            <i class="newspaper outline icon"></i>
+        </div>
+    </div>
     <div class="meta-title"><?= __($langGroup, 'Categoría'); ?></div>
     <div class="title"><?= $mapper->currentLangData('name'); ?></div>
-    <div class="footer">
+    <div class="content">
         <div class="two-columns rows-mode">
             <div class="column">
                 <div class="info-text">
@@ -30,18 +35,32 @@ use Publications\Mappers\PublicationMapper;
                     </div>
                 </div>
             </div>
-            <div class="column">
-                <?php if($hasEdit): ?>
-                <a class="ui brand-color button icon" href="<?= $editLink; ?>">
-                    <i class="icon plus"></i> &nbsp; <?= __($langGroup, 'Editar'); ?>
-                </a>
-                <?php endif;?>
-                <?php if($hasDelete): ?>
-                <a class="ui brand-color alt2 button icon" delete-publication-category-button data-route="<?= $deleteRoute; ?>">
-                    <i class="icon trash"></i> &nbsp; <?= __($langGroup, 'Eliminar'); ?>
-                </a>
-                <?php endif;?>
-            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="controls">
+            <?php if($hasEdit): ?>
+            <a class="control" href="<?= $editLink . '?mode=detail'; ?>">
+                <div class="icon">
+                    <i class="plus icon"></i>
+                </div>
+                <div class="text">
+                    <?= __($langGroup, 'Detalle'); ?>
+                </div>
+            </a>
+            <a class="control icon" data-tooltip="<?= __($langGroup, 'Editar'); ?>" href="<?= $editLink; ?>">
+                <div class="icon">
+                    <i class="edit outline icon"></i>
+                </div>
+            </a>
+            <?php endif;?>
+            <?php if($hasDelete): ?>
+            <a class="control icon" data-tooltip="<?= __($langGroup, 'Eliminar'); ?>" delete-poll-stc-button data-route="<?= $deleteRoute; ?>">
+                <div class="icon">
+                    <i class="trash alternate outline icon"></i>
+                </div>
+            </a>
+            <?php endif;?>
         </div>
     </div>
 </div>

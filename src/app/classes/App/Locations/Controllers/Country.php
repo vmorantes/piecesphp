@@ -78,6 +78,7 @@ class Country extends AdminPanelController
         $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CountryMapper::STATUS);
         $status_options = array_to_html_options($status_options, CountryMapper::ACTIVE);
         $back_link = self::routeName('list');
+        $regionsOptions = array_to_html_options(CountryMapper::allRegionsForSelect());
 
         $data = [];
         $data['action'] = $action;
@@ -96,6 +97,7 @@ class Country extends AdminPanelController
             ],
             self::$title,
         ]);
+        $data['regionsOptions'] = $regionsOptions;
 
         $this->render('panel/layout/header');
         $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
@@ -120,6 +122,7 @@ class Country extends AdminPanelController
             $action = self::routeName('actions-edit');
             $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CountryMapper::STATUS);
             $status_options = array_to_html_options($status_options, $element->active);
+            $regionsOptions = array_to_html_options(CountryMapper::allRegionsForSelect(), $element->region);
             $back_link = self::routeName('list');
 
             $data = [];
@@ -140,6 +143,7 @@ class Country extends AdminPanelController
                 ],
                 self::$title,
             ]);
+            $data['regionsOptions'] = $regionsOptions;
 
             $this->render('panel/layout/header');
             $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
@@ -188,13 +192,28 @@ class Country extends AdminPanelController
      */
     public function countries(Request $request, Response $response)
     {
+        $region = $request->getQueryParam('region', null);
         $ids = $request->getQueryParam('ids', []);
         $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
 
-        $this->model->select()->execute();
+        if ($region !== null) {
+            if (is_string($region) && mb_strlen(trim($region))) {
+                $region = trim($region);
+            } else {
+                $region = "";
+            }
+        }
+
+        $query = $this->model->select();
 
         $where = [];
         $whereString = null;
+
+        if (!is_null($region)) {
+            $operator = !empty($where) ? ' AND ' : '';
+            $critery = "{$operator} (UPPER(region) = UPPER('{$region}'))";
+            $where[] = $critery;
+        }
 
         if (!is_null($ids)) {
             $operator = !empty($where) ? ' AND ' : '';
@@ -204,12 +223,12 @@ class Country extends AdminPanelController
 
         if (!empty($where)) {
             $whereString = implode(' ', $where);
-            $this->model->where($whereString);
+            $query->where($whereString);
         }
 
-        $this->model->execute();
+        $query->execute();
 
-        $result = $this->model->result();
+        $result = $query->result();
         $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
@@ -228,10 +247,20 @@ class Country extends AdminPanelController
     public function countriesDataTables(Request $request, Response $response)
     {
 
+        $region = $request->getQueryParam('region', null);
+        if ($region !== null) {
+            if (is_string($region) && mb_strlen(trim($region))) {
+                $region = trim($region);
+            } else {
+                $region = "";
+            }
+        }
+
         $columns_order = [
             'id',
             'code',
             'name',
+            'region',
             'active',
         ];
 
@@ -255,11 +284,13 @@ class Country extends AdminPanelController
                     $e->id,
                     !is_null($e->code) ? $e->code : '-',
                     stripslashes($e->name),
+                    !is_null($e->region) ? $e->region : '-',
                     __(LOCATIONS_LANG_GROUP, CountryMapper::STATUS[$e->active]),
                     $editButton,
                 ];
 
             },
+            'where_string' => is_null($region) ? null : "UPPER(region) = UPPER('{$region}')",
         ]);
 
         return $response->withJson($result->getValues());
@@ -279,6 +310,7 @@ class Country extends AdminPanelController
         $id = $request->getParsedBodyParam('id', -1);
         $code = $request->getParsedBodyParam('code', null);
         $name = $request->getParsedBodyParam('name', null);
+        $region = $request->getParsedBodyParam('region', null);
         $active = $request->getParsedBodyParam('active', null);
         $is_edit = $id !== -1;
 
@@ -310,6 +342,7 @@ class Country extends AdminPanelController
             $name = clean_string($name);
             $code = is_string($code) ? clean_string($code) : '';
             $code = mb_strlen($code) > 0 ? $code : null;
+            $region = is_string($region) && mb_strlen(trim($region)) > 0 ? clean_string($region) : null;
             $is_duplicate_name = CountryMapper::isDuplicateName($name, $id);
             $is_duplicate_code = CountryMapper::isDuplicateCode($code, $id);
 
@@ -323,6 +356,7 @@ class Country extends AdminPanelController
 
                         $mapper->code = $code;
                         $mapper->name = $name;
+                        $mapper->region = $region;
                         $mapper->active = $active;
                         $saved = $mapper->save();
 
@@ -355,6 +389,7 @@ class Country extends AdminPanelController
 
                             $mapper->code = $code;
                             $mapper->name = $name;
+                            $mapper->region = $region;
                             $mapper->active = $active;
                             $updated = $mapper->update();
 

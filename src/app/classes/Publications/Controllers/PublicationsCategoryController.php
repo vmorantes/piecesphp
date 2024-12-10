@@ -145,6 +145,10 @@ class PublicationsCategoryController extends AdminPanelController
         $lang = $request->getAttribute('lang', null);
         $lang = is_string($lang) ? $lang : null;
 
+        $mode = $request->getQueryParam('mode', null);
+        $mode = is_string($mode) ? $mode : null;
+        $detailMode = $mode == 'detail';
+
         $allowedLangs = Config::get_allowed_langs();
 
         if ($lang === null || !in_array($lang, $allowedLangs)) {
@@ -189,6 +193,7 @@ class PublicationsCategoryController extends AdminPanelController
                 ],
                 $title,
             ]);
+            $data['detailMode'] = $detailMode;
 
             $this->helpController->render('panel/layout/header');
             self::view('forms/edit', $data, true, false);
