@@ -197,6 +197,8 @@ class Parameters implements \JsonSerializable
             $parameter = $this->parameters[$name];
             if (!$parameter->isOptional()) {
                 $parameters_errors[] = $name;
+            } else {
+                $to_validate[$name] = $this->parameters[$name]->getDefaultValue();
             }
         }
 

@@ -352,6 +352,7 @@ window.addEventListener('load', function () {
 			})
 		}
 	}
+
 	function totp() {
 		genericFormHandler("form[totp]")
 
@@ -369,6 +370,7 @@ window.addEventListener('load', function () {
 			setInterval(getCode, 5000)
 		}
 	}
+
 	function dialogPcs() {
 		const trigger = $('[trigger-add-dialog-pcs]')
 		let dialog = new DialogPCS('.dialog-pcs.a', '.module-view-container')
@@ -381,4 +383,5 @@ window.addEventListener('load', function () {
 			}
 		})
 	}
+
 })
