@@ -87,6 +87,13 @@ class Locations extends AdminPanelController
 
         $group->register($routes);
 
+        //Regiones
+        $group->register(
+            self::genericManageRoutesRegions($startRoute, self::$prefixEntity, Region::class, 'regions', [
+                'edit' => $permisos_gestion,
+                'list' => $permisos_listado,
+            ])
+        );
         //Country
         $group->register(
             self::genericManageRoutes($startRoute, self::$prefixEntity, Country::class, 'countries', [
@@ -195,6 +202,45 @@ class Locations extends AdminPanelController
                 true,
                 null,
                 $editPermissions
+            ),
+            //JSON
+            new Route( //JSON con todos los elementos
+                "{$startRoute}/all[/]",
+                "{$handler}:all",
+                "{$namePrefix}-ajax-all2",
+                'GET'
+            ),
+            new Route( //Búsqueda
+                "{$startRoute}/search[/]",
+                "{$handler}:search",
+                "{$namePrefix}-ajax-search",
+                'GET'
+            ),
+        ];
+    }
+
+    /**
+     * @param string $startRoute
+     * @param string $namePrefix
+     * @param string $handler
+     * @param string $uriPrefix
+     * @param array $rolesAllowed
+     * @return Route[]
+     */
+    protected static function genericManageRoutesRegions(string $startRoute, string $namePrefix, string $handler, string $uriPrefix, array $rolesAllowed = [])
+    {
+        $namePrefix .= '-' . $uriPrefix;
+        $startRoute .= $uriPrefix;
+
+        $editPermissions = $rolesAllowed['edit'];
+        $listPermissions = $rolesAllowed['list'];
+
+        return [
+            new Route(
+                "{$startRoute}[/]",
+                "{$handler}:{$uriPrefix}",
+                "{$namePrefix}-ajax-all",
+                'GET'
             ),
             //JSON
             new Route( //JSON con todos los elementos
