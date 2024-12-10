@@ -7,8 +7,10 @@ window.addEventListener('load', function () {
 	window.dispatchEvent(new Event('canDeletePublicationCategory'))
 
 	let isEdit = false
+	let isDetailMode = false
 	let formSelector = `.ui.form.publications-categories`
 
+	//Formulario
 	let form = genericFormHandler(formSelector, {
 		onInvalidEvent: function (event) {
 
@@ -31,6 +33,7 @@ window.addEventListener('load', function () {
 	isEdit = form.find(`[name="id"]`).length > 0
 
 	configLangChange('.ui.dropdown.langs')
+	checkDetailMode()
 
 	function configLangChange(dropdownSelector) {
 
@@ -48,6 +51,31 @@ window.addEventListener('load', function () {
 				window.location.href = value
 			},
 		})
+
+	}
+
+	function checkDetailMode() {
+
+		isDetailMode = form.hasClass('detail-mode')
+
+		if (isDetailMode) {
+
+			const fields = Array.from(form.find('.field'))
+			const fieldsButtons = form.find('.field .ui.buttons')
+			const submitButtons = fieldsButtons.find("button[type='submit']")
+
+			for (const field of fields) {
+				const $field = $(field)
+				$field.addClass('disabled')
+				$field.filter(':visible').attr('style', 'opacity: 0.80;')
+				$field.find('label,input,select:not([simulator]),textarea').filter(':visible').attr('style', 'opacity: 1;')
+			}
+
+			if (submitButtons.length > 0) {
+				fieldsButtons.remove()
+			}
+
+		}
 
 	}
 

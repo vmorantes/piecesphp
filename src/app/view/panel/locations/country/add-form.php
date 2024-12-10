@@ -33,6 +33,15 @@
                     <input type="text" name="code" maxlength="255">
                 </div>
 
+                <div class="field">
+                    <label>
+                        <?= __(LOCATIONS_LANG_GROUP, 'Región'); ?>
+                        <br>
+                        <small>(<?= __(LOCATIONS_LANG_GROUP, 'Puede escribir la región y presionar ENTER si no la encuentra en el listado.'); ?>)</small>
+                    </label>
+                    <select class="ui dropdown regions search" name="region"><?= $regionsOptions; ?></select>
+                </div>
+
                 <div class="field required">
                     <label><?= __(LOCATIONS_LANG_GROUP, 'Activo/Inactivo'); ?></label>
                     <select required name="active">
@@ -50,3 +59,11 @@
     </div>
 
 </section>
+
+<script>
+window.addEventListener('load', function() {
+    configFomanticDropdown('.ui.dropdown.regions', {
+        allowAdditions: true,
+    })
+})
+</script>

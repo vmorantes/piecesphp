@@ -156,10 +156,12 @@ class MySpaceController extends AdminPanelController
         set_title(__(self::LANG_GROUP, 'Recursos de ejemplo'));
 
         set_custom_assets([
+            //Base
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/example-resources.js'),
         ], 'js');
 
         set_custom_assets([
+            //Base
             MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/example-resources.css'),
         ], 'css');
 
@@ -204,6 +206,10 @@ class MySpaceController extends AdminPanelController
                 'text_button' => 'Llamado a la acción',
                 'note' => "Mensaje informativo del correo electrónico.",
             ]);
+        } elseif ($source == 'survey-js-creator') {
+            self::view('resources/survey-js-creator', []);
+        } elseif ($source == 'survey-js-form') {
+            self::view('resources/survey-js-form', []);
         } else {
             throw new NotFoundException($request, $response);
         }

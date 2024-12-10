@@ -12,4 +12,7 @@ window.addEventListener('load', function () {
 		cardsSelector: '.list-card',
 	})
 
+	//Tooltip
+	$('[data-tooltip]').popup()
+
 })

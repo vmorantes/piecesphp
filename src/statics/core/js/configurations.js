@@ -4,6 +4,29 @@
  */
 var pcsphpGlobals = {}
 
+//──── URL ───────────────────────────────────────────────────────────────────────────────
+pcsphpGlobals.baseURL = document.head.baseURI
+pcsphpGlobals.adminURLConfig = (function () {
+	let adminURLConfig = document.querySelector('html head meta[name="config-admin-url"]')
+	const defaultValue = {
+		relative: true,
+		url: "admin",
+	}
+	if (adminURLConfig !== null) {
+		adminURLConfig = adminURLConfig.getAttribute('value')
+		adminURLConfig = typeof adminURLConfig == 'string' ? atob(adminURLConfig) : null
+		try {
+			adminURLConfig = typeof adminURLConfig == 'string' ? JSON.parse(adminURLConfig) : null
+		} catch (e) {
+			adminURLConfig = null
+		}
+	}
+	if (adminURLConfig === null) {
+		adminURLConfig = defaultValue
+	}
+	return adminURLConfig
+})()
+
 //──── Lenguaje ──────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.lang = (function () {
 	let langHTML = document.querySelector('html').getAttribute('lang')
