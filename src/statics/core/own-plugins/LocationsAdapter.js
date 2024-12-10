@@ -153,7 +153,7 @@ function LocationsAdapter() {
 				}
 
 				if (!hasDefault) {
-					instance.fillSelectWithStates(null)
+					instance.fillSelectWithCountries(-1)
 					dropdown.dropdown('clear')
 				} else {
 					dropdown.dropdown('refresh')
