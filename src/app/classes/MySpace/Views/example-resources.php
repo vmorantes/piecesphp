@@ -27,6 +27,8 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
         <div data-tab="b"><?= __($langGroup, 'Plantillas de correo'); ?></div>
         <div data-tab="c"><?= __($langGroup, 'Bases de 2AF'); ?></div>
         <div data-tab="d"><?= __($langGroup, 'Dialog'); ?></div>
+        <div data-tab="e"><?= __($langGroup, 'Survey JS Creator'); ?></div>
+        <div data-tab="f"><?= __($langGroup, 'Survey JS Form'); ?></div>
     </div>
 
     <div class="ui tab tab-element active" data-tab="a">
@@ -262,7 +264,6 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 
     </div>
 
-
     <div class="ui tab tab-element" data-tab="b">
 
         <h2><?= __($langGroup, 'Usuarios'); ?></h2>
@@ -330,6 +331,14 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
                 <button class="ui button"><?= __($langGroup, 'Cancelar'); ?></button>
             </div>
         </div>
+    </div>
+
+    <div class="ui tab tab-element" data-tab="e">
+        <iframe src="<?= MySpaceController::routeName('iframe-sources', ['source' => 'survey-js-creator'])?>" frameborder="0" style="width: 100%; max-width: 1920px; height: 800px;"></iframe>
+    </div>
+
+    <div class="ui tab tab-element" data-tab="f">
+        <iframe src="<?= MySpaceController::routeName('iframe-sources', ['source' => 'survey-js-form'])?>" frameborder="0" style="width: 100%; max-width: 1920px; height: 800px;"></iframe>
     </div>
 
 </section>

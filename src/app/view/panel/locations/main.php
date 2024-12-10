@@ -6,7 +6,7 @@ $elements = [
     [
         'title' => __(LOCATIONS_LANG_GROUP, 'Países'),
         'description' => __(LOCATIONS_LANG_GROUP, 'Listado de los países'),
-		'image'=> '',
+        'image' => '',
         'icon' => '<i class="globe icon"></i>',
         'route_list' => 'locations-countries-list',
         'route_add' => 'locations-countries-forms-add',
@@ -20,7 +20,7 @@ $elements = [
     [
         'title' => __(LOCATIONS_LANG_GROUP, 'Departamentos'),
         'description' => __(LOCATIONS_LANG_GROUP, 'Listado de los departamentos'),
-		'image'=> '',
+        'image' => '',
         'icon' => '<i class="flag icon"></i>',
         'route_list' => 'locations-states-list',
         'route_add' => 'locations-states-forms-add',
@@ -34,7 +34,7 @@ $elements = [
     [
         'title' => __(LOCATIONS_LANG_GROUP, 'Ciudades'),
         'description' => __(LOCATIONS_LANG_GROUP, 'Listado de las ciudades'),
-		'image'=> '',
+        'image' => '',
         'icon' => '<i class="building outline icon"></i>',
         'route_list' => 'locations-cities-list',
         'route_add' => 'locations-cities-forms-add',
@@ -48,7 +48,7 @@ $elements = [
     [
         'title' => __(LOCATIONS_LANG_GROUP, 'Localidades'),
         'description' => __(LOCATIONS_LANG_GROUP, 'Listado de las localidades'),
-		'image'=> '',
+        'image' => '',
         'icon' => '<i class="map marker alternate icon"></i>',
         'route_list' => 'locations-points-list',
         'route_add' => 'locations-points-forms-add',
@@ -60,12 +60,38 @@ $elements = [
         },
     ],
 ];
+$checkPatterns = function (array $patterns = [], string $str = "") {
+    foreach ($patterns as $pattern) {
+        if (@preg_match($pattern, "") !== false) {
+            if(preg_match($pattern, $str)){
+                return true;
+            }
+        } else {
+            if(mb_strpos($str, $pattern) !== false){
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
 /**
  * @var \stdClass[] $elements
  */
-$elements = array_map(function ($e) {
+$elements = array_filter(array_map(function ($e) {
     return (object) $e;
-}, $elements);
+}, $elements), function ($e) use ($checkPatterns) {
+    $ignoreRouteNames = [
+        //"locations-states-list",
+        //"locations-states-forms-add",
+        //"locations-cities-list",
+        //"locations-cities-forms-add",
+        //"locations-points-list",
+        //"locations-points-forms-add",
+    ];
+    return !($checkPatterns)($ignoreRouteNames, $e->route_list) && !($checkPatterns)($ignoreRouteNames, $e->route_add);
+});
+
 $title = __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones');
 ?>
 

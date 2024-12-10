@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 5.5.5-10.6.18-MariaDB-ubu2004 dump
+-- Adminer 4.8.1 MySQL 10.6.18-MariaDB-ubu2004 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -160,6 +160,7 @@ CREATE TABLE `locations_countries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(255) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
+  `region` text DEFAULT NULL,
   `active` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -550,4 +551,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
--- 2024-09-16 05:18:16
+-- 2024-12-10 19:39:21

@@ -3,10 +3,17 @@ _Solo si está activo el módulo_
 
 ## GET
 
+### {{baseURL}}/locations/regions/
+- Autorización: No
+- Descripción: Ruta para listar las regiones
+- Devolución:
+	- Tipo: JSON
+
 ### {{baseURL}}/locations/countries/
 - Autorización: No
 - Descripción: Ruta para listar los países
 - Parámetros:
+	- region: string (opcional) Nombre de la región
 	- ids: int[] (opcional) Ids de los países solicitados
 - Devolución:
 	- Tipo: JSON
