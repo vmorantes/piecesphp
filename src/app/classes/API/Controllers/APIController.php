@@ -1037,13 +1037,6 @@ class APIController extends AdminPanelController
 
             //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
             //JSON
-            new Route( //Rutas de servicios provistos
-                "{$startRoute}/services/{actionType}[/]",
-                $classname . ':services',
-                self::$baseRouteName . '-services-actions',
-                'GET|POST',
-                false
-            ),
             new Route( //Rutas de publicaciones
                 "{$startRoute}/publications/{context}/{actionType}[/]",
                 $classname . ':publications',
