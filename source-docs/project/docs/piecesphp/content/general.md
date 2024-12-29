@@ -34,17 +34,17 @@ php -r "unlink('composer-setup.php');"
 mv composer.phar /usr/local/bin/composer ##Para que esté disponible globalmente
 ```
 
-#### NodeJS (v18.20.2) y NPM
+#### NodeJS (v22.12.0) y NPM
 ```bash
 #Instalar NVM
 cd ~
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 source ~/.bashrc
 #Instalar Node
-nvm install v18.20.2
+nvm install v22.12.0
 #Verificar versiones
-node --version ##18.20.2
-npm --version ##10.8.1
+node --version ##22.12.0
+npm --version ##11.0.0
 ```
 
 #### Gulp CLI y Typescript
@@ -52,8 +52,8 @@ npm --version ##10.8.1
 #Instalar globalmente (sudo es solo para paquetes globales)
 sudo npm install -g gulp-cli typescript
 #Verificar versión
-gulp --version ##CLI version: 2.3.0
-tsc --version ##Version 4.3.2
+gulp --version ##CLI version: 3.0.0
+tsc --version ##Version 5.7.2
 ```
 
 ### Desplegar PiecesPHP

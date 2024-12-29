@@ -1,38 +1,90 @@
-# Instalación de Apache2
-
-- Ubuntu 20
-- Apache2
+# Apache2
 
 ## Instalación
 
+- Iniciamos la instalación moviendonos al directorio de usuario:
+
 ```bash
-#Moverse al directorio de usuario
 cd ~
-#Instalar apache
+```
+
+- Se recomienda la realización antes de un update y upgrade:
+
+```bash
+sudo apt update
+```
+
+```bash
+sudo apt upgrade
+```
+
+- Continuamos con la instalación por medio del comando:
+
+```bash
 sudo apt install apache2
-#Activar algunos módulos
+```
+
+- Activamos los módulos mod_ssl y mod_headers por medio del comando a2enmod:
+
+```bash
 sudo a2enmod rewrite headers ssl
-#Activar soporte para el puerto SSL
+```
+
+- Seguidamnete se activa el soporte para el puerto SSL:
+
+```bash
 sudo a2ensite default-ssl.conf
-#Reiniciar
+```
+
+- Reiniciamos Apache:
+
+```bash
 sudo service apache2 restart
-#Paquetes útiles para el entorno
+```
+
+- Finalizamos con la instalación de paquetes útiles para el entorno:
+
+```bash
 sudo apt install curl zip unzip openssl git wget
 ```
 
-## Configuraciones generales
+- Podemos revisar el estado de Apache con el siguiente comando:
 
 ```bash
-#Mover a carpeta de apache
+sudo service apache2 status
+```
+
+- Y debemos obtener algo como lo que muestra la siguiente imagen:
+
+![Apache2-1](../../statics/muestra-apache-status.png)
+
+## Configuraciones generales
+
+- Para la configuración de apache vamos a la carpeta de Apache:
+
+```bash
 cd /etc/apache2/
+```
 
-#Respaldar archivo de configuración por defecto
+- Creamos un respaldo de la configuración por defecto de apache:
+
+```bash
 cp apache2.conf apache2.conf.bk
+```
 
-#Permitir .htaccess
-sudo nano apache.conf
+- Abrimos el archivo de configuración para permitir el .htaccess:
 
-### En la configuración de Directory /var/www/ cambiar AllowOverride None por AllowOverride All
-### Guardar y reinicias servidor
+```bash
+sudo nano apache2.conf
+```
+
+- Y buscamos la configuración de Directory en el apartado /var/www/, en donde reemplazamos **AllowOverride None** por **AllowOverride All**, guardamos el archivo y reiniciamos el servidor Apache:
+
+```bash
+## Luego de moficar apache2.conf
 sudo service apache2 restart
 ```
+
+- Continuamos con:
+
+[Instalación de PHP](./content/PHP.md){ .md-button }
