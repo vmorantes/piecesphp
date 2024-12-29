@@ -1,9 +1,11 @@
 # HestiaCP
 
-- Ubuntu 20
-- HestiaCP
+Antes de iniciar con la instalación debe confirmar que la la versión del sistema operativo es Ubuntu 22.04 LTS, la versión 1.8x de Hestia CP no es compatible con la versión 24.04 LTS de Ubuntu. Este tutorial está ajustado a la versión de HestiaCP 1.8.12 del 26 de agosto de 2024.
 
 ## Algunos paquetes
+
+Realice una actualziación del sistema antes de iniciar intslando los siguientes paquetes:
+
 ```bash
 sudo apt update
 sudo apt install -y curl zip unzip openssl git wget
@@ -12,23 +14,44 @@ sudo apt-get install -y language-pack-es
 ```
 
 ## Variables
+
+Defina las variables a utilizar, reemplazando los valores a continuación por los que requiera:
+
 ```bash
 export HESTIA_DOMAIN="sample.com"
 export HESTIA_EMAIL="admin@sample.com"
 export HESTIA_PASSWORD="hestiacp8083pass"
 ```
 
+_Nota: Si su proveedor de hosting es OVH, utilice el nombre del VPS en Hestia Domain._
+
+
 ## Instalación
+
+Los siguientes valores están optimizados para un uso estandar de PiecesPHP, en caso de requerir personalizar la instalación vaya a la sección para ajustar la [Instalación de HestiaCP](https://hestiacp.com/install.html).
+
 ```bash
 #Descargar
 wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-install.sh
-#Instalar
+#Instalación con opciones relevantes
+sudo bash hst-install.sh --hostname $HESTIA_DOMAIN --email $HESTIA_EMAIL --password $HESTIA_PASSWORD --multiphp yes --clamav no --quota yes
+
+#Instalación con todas las opciones
 sudo bash hst-install.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mysql yes --postgresql no --exim yes --dovecot yes --clamav no --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --lang en --interactive yes --hostname $HESTIA_DOMAIN --email $HESTIA_EMAIL --password $HESTIA_PASSWORD -f
 ```
 
-_Nota: Puede ver las opciones en la [documentación de HestiaCP](https://docs.hestiacp.com/getting_started.html#all-available-options-of-install-script)_
+### Acceso
 
-### Casos de error
+Ingrese por el valor asignado en HESTIA_DOMAIN y el puerto seleccionado, por defecto es el 8083.
+
+### Recomendaciones
+
+Cuando finalice la instalación se recomienda:
+- Al momento de crear el primer dominio dentro de HestiaCP, crear un usuario con permisos limitados y habilitar el acceso Bash al perfil del usuario creado.
+- Conectese por FileZilla o cualquier gestor FTP que utilice para la carga de archivos.
+
+
+## Casos de error
 
 ### User admin exists
 
