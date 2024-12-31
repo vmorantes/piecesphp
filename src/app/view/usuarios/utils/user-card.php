@@ -6,6 +6,10 @@ use Organizations\Mappers\OrganizationMapper;
 
 $canAssignAll = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type);
 $organizationMapper = $mapper->organization !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($mapper->organization, 'id')) : null;
+$getExcerpt = function(string $str, int $maxLength = 300){
+    $strLength = mb_strlen($str);
+    return $strLength <= $maxLength ? $str : substr($str, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
+};
 ?>
 
 <div class="ui card user">
@@ -26,7 +30,7 @@ $organizationMapper = $mapper->organization !== null ? OrganizationMapper::objec
                     <div class="status<?= $mapper->status == UsersModel::STATUS_USER_ACTIVE ? ' online' : ''; ?><?= $mapper->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK ? ' blocked' : ''; ?>"></div>
                 </div>
                 <div class="info">
-                    <span><?= $mapper->getFullName() ?></span>
+                    <span data-tooltip="<?= $mapper->getFullName(); ?>"><?= ($getExcerpt)($mapper->getFullName(), 30); ?></span>
                 </div>
                 <div class="place-status"><?= __($langGroup, 'Bloqueado') ?></div>
             </div>
@@ -44,16 +48,16 @@ $organizationMapper = $mapper->organization !== null ? OrganizationMapper::objec
             </div>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/user.svg') ?>">
-                <span><?= $mapper->username ?></span>
+                <span data-tooltip="<?= $mapper->username; ?>"><?= ($getExcerpt)($mapper->username, 30); ?></span>
             </div>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/email.svg') ?>">
-                <span><?= $mapper->email ?></span>
+                <span data-tooltip="<?= $mapper->email; ?>"><?= ($getExcerpt)($mapper->email, 30); ?></span>
             </div>
             <?php if($canAssignAll && $organizationMapper !== null): ?>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/user_organization.svg') ?>">
-                <span><?= $organizationMapper->name ?></span>
+                <span data-tooltip="<?= $organizationMapper->name; ?>"><?= ($getExcerpt)($organizationMapper->name, 30); ?></span>
             </div>
             <?php endif; ?>
         </div>
