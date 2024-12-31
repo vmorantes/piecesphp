@@ -1,7 +1,17 @@
-$(document).ready(function (e) {
-	formImporter('.ui.form[importer-js]')
+/// <reference path="../../../../../statics/core/js/configurations.js" />
+/// <reference path="../../../../../statics/core/js/helpers.js" />
+/// <reference path="../../../../../statics/core/own-plugins/AttachmentPlaceholder.js" />
+window.addEventListener('load', function () {
+	let attachmentTemplate = new AttachmentPlaceholder($('.attach-placeholder.template-upload'))
+	let form = formImporter('form[importer-js]')
+	attachmentTemplate.scopeAction(function (instance, elements) {
+		instance.onSelected(function (instance, selectedFile) {
+			console.log(instance, selectedFile)
+			form.trigger('submit')
+			elements.inputFile.val('')
+		})
+	})
 })
-
 
 function formImporter(selector) {
 
@@ -34,31 +44,22 @@ function formImporter(selector) {
 	let errorsStatistic = resultContainer.find('.statistic .number.errors')
 	let detail = resultContainer.find('[view-detail]')
 
-	detail.click(() => {
+	detail.on('click', () => {
 		modalMessages.modal('show')
 	})
 
 	resultContainer.hide()
 
-	form.submit(function (e) {
+	form.on('submit', function (e) {
 
 		e.preventDefault()
 
 		if (form.form('is valid')) {
 
+			const loaderName = generateUniqueID()
+			showGenericLoader(loaderName)
+
 			resultContainer.hide()
-
-			NProgress.configure({
-				parent: selector
-			})
-
-			NProgress.start()
-
-			let titleUploading = document.createElement('h3')
-			titleUploading.innerHTML = 'Cargando archivo...'
-			titleUploading = $(titleUploading)
-
-			form.prepend(titleUploading)
 
 			let formData = new FormData(form[0])
 			let req = postRequest(url, formData)
@@ -134,11 +135,12 @@ function formImporter(selector) {
 
 			req.always(() => {
 				resultContainer.show(500)
-				NProgress.done()
-				titleUploading.remove()
+				removeGenericLoader(loaderName)
 				form.find('.field').removeClass('disabled')
 			})
 		}
 		return false
 	})
+
+	return form
 }

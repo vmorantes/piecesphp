@@ -1783,6 +1783,10 @@ class UsersController extends AdminPanelController
         $users = self::class;
         $recovery = RecoveryPasswordController::class;
         $users_problems = UserProblemsController::class;
+        /**
+         * @var array<string>
+         */
+        $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //──── GET ─────────────────────────────────────────────────────────────────────────
 
@@ -1834,14 +1838,20 @@ class UsersController extends AdminPanelController
                 "{$startRoute}datatables[/]",
                 $users . ':dataTablesRequestUsers',
                 'users-datatables',
-                'GET'
+                'GET',
+                true,
+                null,
+                $allRoles
             ),
             //Search Dropdown
             new Route(
                 "{$startRoute}search-dropdown[/]",
                 $users . ':searchDropdown',
                 'users-search-dropdown',
-                'GET'
+                'GET',
+                true,
+                null,
+                $allRoles
             ),
 
             //JSON
@@ -1849,7 +1859,10 @@ class UsersController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $users . ':all',
                 'users-ajax-all',
-                'GET'
+                'GET',
+                true,
+                null,
+                $allRoles
             ),
         ]);
 
@@ -1916,13 +1929,19 @@ class UsersController extends AdminPanelController
                 "{$startRoute}register[/]",
                 $users . ':register',
                 'register-request',
-                'POST'
+                'POST',
+                true,
+                null,
+                $allRoles
             ),
             new Route(
                 "{$startRoute}edit[/]",
                 $users . ':edit',
                 'user-edit-request',
-                'POST'
+                'POST',
+                true,
+                null,
+                $allRoles
             ),
         ]);
 

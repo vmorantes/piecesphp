@@ -1,0 +1,193 @@
+@mixin attach-placeholder {
+
+    position: relative;
+    margin-bottom: 15px;
+    width: 360px;
+    max-width: 100%;
+
+    &.fluid {
+        width: 100%;
+        max-width: max-content;
+    }
+
+    >.ui.label {
+
+        display: none;
+        background-color: var(--main-brand-color) !important;
+        color: white;
+        border-radius: 0px;
+        border-top-right-radius: 6px;
+
+        >i.icon {
+            font-size: pxToRem(18);
+            margin: 0px;
+            padding: 0px;
+        }
+    }
+
+    &.attached {
+        >.ui.label {
+            display: inline-block;
+        }
+
+        >label {
+            >.text {
+                padding-top: 25px;
+            }
+        }
+    }
+
+    .ui.top.attached.label+:not(.attached),
+    .ui.top.attached.label~.ui.bottom.attached.label+:not(.attached) {
+        margin-top: 0px !important;
+    }
+
+    >label {
+
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr);
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        padding: 0px;
+        background-color: white;
+        box-shadow: 0px 3px 6px #00000029;
+        border-radius: 6px;
+        min-height: 130px;
+
+        >.image {
+            background-color: #F3F3F3;
+            color: #707070;
+            height: 100%;
+            width: 100%;
+            align-content: center;
+            text-align: center;
+            padding: 15px;
+
+            &.mark {
+                background-color: var(--main-brand-color);
+                color: white;
+            }
+
+            >i.icon {
+                margin: 0;
+                padding: 0;
+                font-size: pxToRem(40);
+                line-height: pxToRem(40);
+            }
+
+            >img {
+                max-height: 74px;
+            }
+
+            >.caption {
+                margin-top: 5px;
+                font-weight: $fwRegular;
+                font-size: pxToRem(16);
+                line-height: pxToRem(16+3);
+            }
+        }
+
+        >.text {
+            font-family: $fontPoppins;
+            padding: 10px 10px 10px 15px;
+            position: relative;
+
+            >.filename {
+                position: absolute;
+                top: 4px;
+                left: 10px;
+                font-weight: $fwLight;
+                font-size: pxToRem(14);
+                line-height: pxToRem(14+3);
+                color: var(--main-brand-color);
+                width: 165px;
+                max-width: 100%;
+                height: max-content;
+                max-height: 18px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+
+                a[see-file] {
+                    color: var(--main-brand-color);
+                }
+            }
+
+            >.header {
+                >.title {
+                    position: relative;
+                    font-weight: $fwMedium;
+                    font-size: pxToRem(18);
+                    line-height: pxToRem(18+3);
+                    color: var(--main-brand-color);
+                    padding-bottom: 5px;
+                    width: max-content;
+                    max-width: 100%;
+                }
+
+                >.meta {
+                    font-weight: $fwRegular;
+                    font-size: pxToRem(12);
+                    line-height: pxToRem(12+3);
+                    color: #B7B7B7;
+                }
+            }
+
+            >.description {
+                font-weight: $fwRegular;
+                font-size: pxToRem(14);
+                line-height: pxToRem(14+3);
+                color: #626363;
+                padding-top: 8px;
+            }
+        }
+    }
+
+    >input {
+        position: absolute;
+        height: 0px !important;
+        width: 0px !important;
+        margin: 0px !important;
+        padding: 0px !important;
+        border: 0px !important;
+        outline: none !important;
+    }
+
+    &.required {
+
+
+        >label {
+
+            >.text {
+                >.header {
+                    >.title {
+                        padding-top: 5px;
+                        padding-right: 10px;
+
+                        &::after {
+                            position: absolute;
+                            top: 0px;
+                            right: 0px;
+                            display: block;
+                            content: '*';
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    &,
+    &:hover,
+    &:active,
+    &:visited,
+    &:focus {
+        text-decoration: none !important;
+    }
+
+    @media screen and (max-width: 380px) {
+        >label {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+}

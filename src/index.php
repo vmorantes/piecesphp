@@ -46,6 +46,7 @@ if (get_config('control_access_login') === true) {
     add_global_requireds_assets([
         base_url('statics/core/js/user-system/PiecesPHPSystemUserHelper.js'),
         base_url('statics/core/js/user-system/main_system_user.js'),
+        base_url('statics/core/js/user-system/PiecesPHPGenericHandlerSession.js'),
     ], 'js');
 }
 

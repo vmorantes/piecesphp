@@ -342,6 +342,8 @@ function LocationsAdapter() {
 
 						defaultValues = attrValue.trim().split(', ').filter((i) => {
 							return i.trim().length > 0
+						}).map(e => {
+							return parseInt(e)
 						})
 
 						hasDefault = defaultValues.length > 0 && stateFirstTime
@@ -550,6 +552,8 @@ function LocationsAdapter() {
 
 						defaultValues = attrValue.trim().split(', ').filter((i) => {
 							return i.trim().length > 0
+						}).map(e => {
+							return parseInt(e)
 						})
 
 						hasDefault = defaultValues.length > 0 && cityFirstTime
@@ -759,6 +763,8 @@ function LocationsAdapter() {
 
 						defaultValues = attrValue.trim().split(', ').filter((i) => {
 							return i.trim().length > 0
+						}).map(e => {
+							return parseInt(e)
 						})
 
 						hasDefault = defaultValues.length > 0 && pointFirstTime

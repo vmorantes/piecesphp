@@ -128,7 +128,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
             $this->helpController->render('layout/header');
             $this->helpController->render('layout/menu');
-            self::view('public/list', $data);
+            $this->render('public/list', $data);
             $this->helpController->render('layout/footer');
 
         } catch (\Exception $e) {
@@ -214,7 +214,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
             $this->helpController->render('layout/header');
             $this->helpController->render('layout/menu');
-            self::view('public/single', $data);
+            $this->render('public/single', $data);
             $this->helpController->render('layout/footer');
 
         } else {
@@ -242,7 +242,15 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
      */
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
-        return (new PublicationsPublicController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return (new PublicationsPublicController)->render($name, $data, $mode, $format);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
+    {
+        return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**

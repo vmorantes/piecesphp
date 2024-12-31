@@ -34,7 +34,9 @@
                 <img class="error-image" src="statics/images/errors/403.svg" alt="">
                 <div class="body">
                     <a class="btn" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
+                    <?php if(!isset($showReportButton) || $showReportButton === true): ?>
                     <a class="btn report" href="<?= get_route("other-problems-form"); ?>">Reportar problema</a>
+                    <?php endif; ?>
                 </div>
                 <div class="logo-footer">
                     <img class="img-logo-footer" src="<?= get_config('logo'); ?>">
