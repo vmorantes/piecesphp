@@ -29,6 +29,10 @@ window.addEventListener('load', function () {
 		allowAdditions: true,
 	})
 
+	//Ubicación	
+	let locations = new LocationsAdapter()
+	locations.fillSelectWithStates(1) //Colombia
+
 	//Formulario
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
@@ -91,10 +95,6 @@ window.addEventListener('load', function () {
 		})
 
 	})
-
-	//Ubicación	
-	let locations = new LocationsAdapter()
-	locations.fillSelectWithStates(1) //Colombia
 
 	//Tabs
 	const tabs = $('.tabs-controls [data-tab]').tab({

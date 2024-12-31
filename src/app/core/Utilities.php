@@ -756,7 +756,7 @@ function remove_directory(string $path)
  * @param ZipArchive &$zipInstance
  * @return string La ruta del zip
  */
-function directory_to_zip(string $root, string $output_directory = null, string $output_name = null, bool $self = false, array $exclude = [], string $parent = null, \ZipArchive &$zipInstance = null)
+function directory_to_zip(string $root, string $output_directory = null, string $output_name = null, bool $self = false, array $exclude = [], string $parent = null, \ZipArchive  &$zipInstance = null)
 {
     $zip_path = '';
 
@@ -771,7 +771,7 @@ function directory_to_zip(string $root, string $output_directory = null, string 
                 $base = '';
             }
         } else {
-            $base = $parent . \DIRECTORY_SEPARATOR . $root_name;
+            $base = $parent . \DIRECTORY_SEPARATOR  . $root_name;
         }
 
         $base = str_replace([
@@ -816,7 +816,7 @@ function directory_to_zip(string $root, string $output_directory = null, string 
                 "\\",
             ], $output_directory);
 
-            $name_zip = $output_directory . \DIRECTORY_SEPARATOR . $output_name;
+            $name_zip = $output_directory . \DIRECTORY_SEPARATOR  . $output_name;
             $zip->open($name_zip, \ZIPARCHIVE::CREATE);
 
             $zip_path = $name_zip;
@@ -939,7 +939,7 @@ function directory_mapper(string $path, string $base_path = null, int $mode = nu
 
                 if (!in_array($file, $ignore)) {
 
-                    $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR . $file;
+                    $file_path = rtrim($path, \DIRECTORY_SEPARATOR) . \DIRECTORY_SEPARATOR  . $file;
                     $file_path = realpath($file_path);
 
                     if (is_string($file_path) && file_exists($file_path)) {
@@ -1536,12 +1536,12 @@ function localeDateFormat(string $format, \DateTime $time = null, array $replace
     $changedCase = [];
 
     foreach ($formatDay as $key => $value) {
-        $value = strftime($value, $time->getTimestamp());
+        $value = @strftime($value, $time->getTimestamp());
         $changedCase[$value] = mb_convert_case($value, \MB_CASE_TITLE);
     }
 
     foreach ($formatMonth as $key => $value) {
-        $value = strftime($value, $time->getTimestamp());
+        $value = @strftime($value, $time->getTimestamp());
         $changedCase[$value] = mb_convert_case($value, \MB_CASE_TITLE);
     }
 
@@ -1549,7 +1549,7 @@ function localeDateFormat(string $format, \DateTime $time = null, array $replace
 
     $formatToStrftime = strtr((string) $format, $formatOptions);
 
-    $formated = strftime($formatToStrftime, $time->getTimestamp());
+    $formated = @strftime($formatToStrftime, $time->getTimestamp());
 
     foreach ($changedCase as $original => $replaceWith) {
         $formated = preg_replace_callback(

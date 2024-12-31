@@ -340,7 +340,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 $classname . ':sendTicket',
                 'tickets-create',
                 'POST',
-                false,
+                true,
                 null,
                 $all_roles
             ),

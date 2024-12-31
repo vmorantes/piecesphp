@@ -2887,3 +2887,20 @@ function var_dump_pretty($data, $label = '', $return = false)
         echo $out;
     }
 }
+
+/**
+ * Establece la cookie con las configuraciones definidas en cookies.php
+ * @param string $name
+ * @param string $value
+ * @return void
+ */
+function setCookieByConfig(string $name, string $value)
+{
+    $cookiesConfig = get_config('cookies');
+    $lifetime = array_key_exists('lifetime', $cookiesConfig) ? $cookiesConfig['lifetime'] : 0;
+    $path = array_key_exists('path', $cookiesConfig) ? $cookiesConfig['path'] : '';
+    $domain = array_key_exists('domain', $cookiesConfig) ? $cookiesConfig['domain'] : '';
+    $secure = array_key_exists('secure', $cookiesConfig) ? $cookiesConfig['secure'] : false;
+    $httponly = array_key_exists('httponly', $cookiesConfig) ? $cookiesConfig['httponly'] : false;
+    setcookie($name, $value, $lifetime, $path, $domain, $secure, $httponly);
+}

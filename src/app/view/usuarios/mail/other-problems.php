@@ -1,16 +1,39 @@
 <?php
-$langGroup = MAIL_TEMPLATES_LANG_GROUP;
-?>
-<h1><?= __($langGroup, 'Mensaje'); ?></h1>
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use PiecesPHP\Core\BaseController;
+$langGroup = LANG_GROUP;
+$baseController = new BaseController();
 
-<p><strong><?= __($langGroup, 'Enviado desde'); ?>: <?= $originURL; ?></strong></p>
-<p><strong><?= __($langGroup, 'Asunto'); ?>: <?= $subject; ?></strong></p>
-<p><strong><?= __($langGroup, 'E-mail'); ?>: <?= $mail; ?></strong></p>
-<p><strong><?= __($langGroup, 'Nombre'); ?>: <?= $name; ?></strong></p>
-<p><strong><?= __($langGroup, 'Mensaje'); ?>: <?= $message; ?></strong></p>
-<?php if(isset($extra) && is_array($extra) && !empty($extra)):?>
-<h2><?= __($langGroup, 'Extra'); ?>:</h2>
-<?php foreach($extra as $content):?>
-<p><strong><?= $content['display']; ?>: <?= $content['text']; ?></strong></p>
-<?php endforeach;?>
-<?php endif;?>
+$extraData = [];
+if (isset($extra) && is_array($extra) && !empty($extra)) {
+    $extraData[] = "<h2>" . __($langGroup, 'Extra') . "</h2>";
+    foreach ($extra as $content) {
+        $extraDisplayTitle = $content['display'];
+        $extraText = $content['text'];
+        $extraData[] = "<p><strong>{$extraDisplayTitle}: {$extraText}</strong></p>";
+    }
+}
+$extraData = implode('\n', $extraData);
+
+$title = __($langGroup, 'Mensaje');
+$labelA = __($langGroup, 'Enviado desde');
+$labelB = __($langGroup, 'Asunto');
+$labelC = __($langGroup, 'E-mail');
+$labelD = __($langGroup, 'Nombre');
+$labelE = __($langGroup, 'Mensaje');
+$text = <<<EOF
+<h1>$title</h1>
+<p><strong>$labelA: $originURL</strong></p>
+<p><strong>$labelB: $subject</strong></p>
+<p><strong>$labelC: $mail</strong></p>
+<p><strong>$labelD: $name</strong></p>
+<p><strong>$labelE: $message</strong></p>
+$extraData
+EOF;
+
+set_config('cache_stamp_render_files', false); //Desactiva añadir cacheStamp en las URLL
+$baseController->render('mailing/template_base', [
+    'text' => $text,
+    'langGroup' => $langGroup,
+]);
+set_config('cache_stamp_render_files', true); //Reactiva añadir cacheStamp en las URLL

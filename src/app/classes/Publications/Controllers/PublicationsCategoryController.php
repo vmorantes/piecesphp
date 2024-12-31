@@ -124,7 +124,7 @@ class PublicationsCategoryController extends AdminPanelController
         ]);
 
         $this->helpController->render('panel/layout/header');
-        self::view('forms/add', $data);
+        $this->render('forms/add', $data);
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -196,7 +196,7 @@ class PublicationsCategoryController extends AdminPanelController
             $data['detailMode'] = $detailMode;
 
             $this->helpController->render('panel/layout/header');
-            self::view('forms/edit', $data, true, false);
+            $this->render('forms/edit', $data, true, false);
             $this->helpController->render('panel/layout/footer');
 
             return $response;
@@ -243,7 +243,7 @@ class PublicationsCategoryController extends AdminPanelController
         ], 'js');
 
         $this->helpController->render('panel/layout/header');
-        self::view('list', $data);
+        $this->render('list', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -696,7 +696,7 @@ class PublicationsCategoryController extends AdminPanelController
 
             $mapper = new PublicationCategoryMapper($element->id);
 
-            $rawData[$index] = self::view(
+            $rawData[$index] = $this->render(
                 'util/list-card',
                 [
                     'mapper' => $mapper,
@@ -812,15 +812,11 @@ class PublicationsCategoryController extends AdminPanelController
     }
 
     /**
-     * @param string $name
-     * @param array $data
-     * @param bool $mode
-     * @param bool $format
-     * @return void|string
+     * @inheritDoc
      */
-    public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
+    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
     {
-        return (new PublicationsCategoryController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -993,7 +989,10 @@ class PublicationsCategoryController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
-                'GET'
+                'GET',
+                true,
+                null,
+                $list
             ),
             new Route( //Datos para datatables
                 "{$startRoute}/datatables[/]",

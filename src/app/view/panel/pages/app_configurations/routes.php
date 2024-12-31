@@ -44,16 +44,16 @@ $langGroup = 'routesViewAdminZone';
             </thead>
             <tbody>
                 <?php foreach ($routes as $name => $information) : ?>
-                    <?php if (!is_string($information['controller'])) continue; ?>
-                    <tr>
-                        <td><?= $information['name']; ?></td>
-                        <td><?= $information['route']; ?></td>
-                        <td><?= str_replace(baseurl(), '', get_route_sample($information['name'])); ?></td>
-                        <td><?= explode(':', $information['controller'])[0]; ?></td>
-                        <td><?= explode(':', $information['controller'])[1]; ?></td>
-                        <td><?= $information['require_login'] ? '- ' . implode('<br>- ', get_route_roles_allowed($name, 'name')) : __($langGroup, 'No requiere autenticación'); ?>
-                        </td>
-                    </tr>
+                <?php if (!is_string($information['controller'])) continue; ?>
+                <tr>
+                    <td><?= $information['name']; ?></td>
+                    <td><?= $information['route']; ?></td>
+                    <td><?= str_replace(baseurl(), '', get_route_sample($information['name'])); ?></td>
+                    <td><?= explode(':', $information['controller'])[0]; ?></td>
+                    <td><?= explode(':', $information['controller'])[1]; ?></td>
+                    <td><?= $information['require_login'] ? '- ' . implode('<br>- ', get_route_roles_allowed($name, 'name')) : __($langGroup, 'No requiere autenticación'); ?>
+                    </td>
+                </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
@@ -62,17 +62,19 @@ $langGroup = 'routesViewAdminZone';
 </div>
 
 <script>
-    window.addEventListener('load', function(e) {
-        let config = Object.assign({
-            drawCallback: function(settings) {
-                console.log('Draw occurred at: ' + new Date().getTime());
-            }
-        }, pcsphpGlobals.configDataTables)
-        let table = $('.ui.table.roles').DataTable(config)
+window.addEventListener('load', function(e) {
+    let config = Object.assign(pcsphpGlobals.configDataTables, {
+        drawCallback: function(settings) {
+            console.log('Draw occurred at: ' + new Date().getTime());
+        },
+        pageLength: 10,
+        responsive: false,
     })
+    let table = $('.ui.table.roles').DataTable(config)
+})
 </script>
 <style>
-    .ui.form {
-        max-width: 800px;
-    }
+.ui.form {
+    max-width: 800px;
+}
 </style>

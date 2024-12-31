@@ -8,22 +8,28 @@ window.addEventListener('load', function (e) {
 	let captchaResult = false
 	let captchaMessage = ''
 	let captchaToken = ''
-	let captchaAdapter = new GoogleCaptchaV3Adapter({
-		key: '6Lc9cTgdAAAAAMVBHJIk3i0XBOnNtyAV0Ijl6ZBv',
-	})
-	let recaptchaEval = function () {
-		captchaAdapter.execute(function (response, success, message, token) {
-			captchaResponse = response
-			captchaResult = success
-			captchaMessage = message
-			captchaToken = token
-		})
-	}
+	let captchaAdapterDefined = typeof GoogleCaptchaV3Adapter !== 'undefined'
+	let recaptchaEval = () => { }
 
-	captchaAdapter.on('prepare', function () {
-		recaptchaEval()
-		setInterval(recaptchaEval, 120 * 1000)
-	})
+	if (captchaAdapterDefined) {
+		let captchaAdapter = new GoogleCaptchaV3Adapter({
+			key: '6Lc9cTgdAAAAAMVBHJIk3i0XBOnNtyAV0Ijl6ZBv',
+		})
+		recaptchaEval = function () {
+			captchaAdapter.execute(function (response, success, message, token) {
+				captchaResponse = response
+				captchaResult = success
+				captchaMessage = message
+				captchaToken = token
+			})
+		}
+		captchaAdapter.on('prepare', function () {
+			recaptchaEval()
+			setInterval(recaptchaEval, 120 * 1000)
+		})
+	} else {
+		captchaResult = true
+	}
 
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData, form) {

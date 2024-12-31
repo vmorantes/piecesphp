@@ -5,6 +5,7 @@
 namespace PiecesPHP\UserSystem\Authentication;
 
 use App\Model\UsersModel;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
@@ -92,10 +93,12 @@ class OTPHandler
     }
 
     /**
+     * @param BaseController $controller
      * @param string $username
+     * @param string $relativeView
      * @throws SafeException Si el usuario no existe o ocurre algún error
      */
-    public static function generateOTP(string $username)
+    public static function generateOTP(BaseController $controller, string $username, string $relativeView = 'mails/otp-code')
     {
         $userData = self::getUserDataByUsername($username);
         if ($userData !== null) {
@@ -106,14 +109,20 @@ class OTPHandler
 
             if ($OTPCreated) {
 
+                $subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8') . ' - ' . get_title();
+                $bodyMessage = $controller->render($relativeView, [
+                    'text' => __(self::LANG_GROUP, 'Contraseña de un solo uso'),
+                    'note' => __(self::LANG_GROUP, 'Tiene una validez de 20 minutos'),
+                    'code' => $code,
+                ], false);
+                $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
                 $mailer = new Mailer();
                 $mailConfig = new MailConfig;
                 $mailer->SMTPDebug = 2;
                 $mailer->isHTML(true);
                 $mailer->setFrom($mailConfig->user());
                 $mailer->addAddress($userData->email);
-                $mailer->Subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8');
-                $bodyMessage = __(self::LANG_GROUP, 'La siguiente es una contraseña de un solo uso que tiene una validez de 20 minutos') . ": <strong>{$code}</strong>";
+                $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
                 $mailer->Body = $bodyMessage;
                 if (!$mailer->checkSettedSMTP() && !is_local()) {
                     $mailer->asGoDaddy(true);

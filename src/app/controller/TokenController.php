@@ -6,6 +6,7 @@
 
 namespace App\Controller;
 
+use App\Model\TokenModel;
 use PiecesPHP\Core\BaseController;
 
 /**
@@ -24,82 +25,59 @@ class TokenController extends BaseController
     }
 
     /**
-     * @param mixed $token
-     * @param mixed $type
+     * @param string $token
+     * @param string $type
      * @return bool
      */
-    public function newToken($token, $type)
+    public function newToken(string $token, string $type)
     {
-        $result = $this->model->insert([
-            'token' => $token,
-            'type' => $type,
-        ])->execute();
-        return $result === true;
+        $addedID = TokenModel::add($token, $type);
+        return $addedID !== null;
     }
 
     /**
-     * @param mixed $token
+     * @param string $token
      * @return bool
      */
-    public function tokenExists($token)
+    public function tokenExists(string $token)
     {
-        $result = $this->model
-            ->select()
-            ->where("token = '" . $token . "'")
-            ->execute();
-        $result = $this->model->result();
-        return ($result !== false && !empty($result));
+        return TokenModel::exists($token);
     }
 
     /**
-     * @param mixed $code
+     * @param string $type
      * @return bool
      */
-    public function tokenExistsByType($code)
+    public function tokenExistsByType(string $type)
     {
-        $result = $this->model
-            ->select()
-            ->where("type = '" . $code . "'")
-            ->execute();
-        $result = $this->model->result();
-        return ($result !== false && !empty($result));
+        return TokenModel::existsByType($type);
     }
 
     /**
-     * @param mixed $id
+     * @param int $id
      * @return bool
      */
-    public static function tokenExistsByID($id)
+    public static function tokenExistsByID(int $id)
     {
-        $controller = new TokenController();
-        $result = $controller->model
-            ->select()
-            ->where("id = '" . $id . "'")
-            ->execute();
-        $result = $controller->model->result();
-        return ($result !== false && !empty($result));
+        return TokenModel::existsByID($id);
     }
 
     /**
-     * @param mixed $token
-     * @return void
+     * @param string $token
+     * @return bool
      */
-    public function deleteToken($token)
+    public function deleteToken(string $token)
     {
-        $this->model
-            ->delete("token = '" . $token . "'")
-            ->execute();
+        return TokenModel::deleteByToken($token);
     }
 
     /**
-     * @param mixed $tokenID
-     * @return void
+     * @param int $tokenID
+     * @return bool
      */
-    public function deleteTokenByID($tokenID)
+    public function deleteTokenByID(int $tokenID)
     {
-        $this->model
-            ->delete("id = {$tokenID}")
-            ->execute();
+        return TokenModel::deleteByID($tokenID);
     }
 
     const TOKEN_PASSWORD_RECOVERY = 'TOKEN_PASSWORD_RECOVERY';

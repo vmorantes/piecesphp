@@ -25,6 +25,51 @@ class BaseHashEncryption
      * @use self::getSecretKey
      * @use self::urlSafeB64Encode
      */
+    public static function encryptBidirectionalHash(string $string, string $key = null)
+    {
+        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key = substr(hash('sha256', $key, true), 0, 32);
+        if (extension_loaded('zlib') && function_exists('gzencode')) {
+            $string = gzencode($string, 9);
+        }
+        $iv = random_bytes(16);
+        $ciphertext = openssl_encrypt($string, 'aes-256-cbc', $key, \OPENSSL_RAW_DATA, $iv);
+        return self::urlSafeB64Encode($iv . $ciphertext);
+    }
+
+    /**
+     * Desencripta un string
+     *
+     * @param string    $encrypt_string     El base64 seguro para url del string encriptado
+     * @param string    $key    La llave
+     * @return string|null   El string desencriptado. Devuelve null si falló
+     * @use self::getSecretKey
+     * @use self::urlSafeB64Decode
+     */
+    public static function decryptBidirectionalHash(string $encrypt_string, string $key = null)
+    {
+        $key = is_null($key) ? self::getSecretKey() : $key;
+        $key = substr(hash('sha256', $key, true), 0, 32);
+        $encrypt_string = self::urlSafeB64Decode($encrypt_string);
+        $iv = substr($encrypt_string, 0, 16);
+        $ciphertext = substr($encrypt_string, 16);
+        $decrypt_string = @openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+        $decrypt_string = is_string($decrypt_string) ? $decrypt_string : null;
+        if (extension_loaded('zlib') && function_exists('gzdecode') && is_string($decrypt_string)) {
+            $decrypt_string = gzdecode($decrypt_string);
+        }
+        return $decrypt_string;
+    }
+
+    /**
+     * Encripta un string y lo devuelve en base64 seguro para url
+     *
+     * @param string $string El string
+     * @param string $key La llave
+     * @return string El string base64 seguro para url del string encriptado
+     * @use self::getSecretKey
+     * @use self::urlSafeB64Encode
+     */
     public static function encrypt(string $string, string $key = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
