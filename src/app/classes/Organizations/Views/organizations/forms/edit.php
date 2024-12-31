@@ -76,12 +76,12 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
 
                             <div class="field required">
                                 <label><?= __(LOCATIONS_LANG_GROUP, 'Departamento'); ?></label>
-                                <select required name="state" locations-component-auto-filled-state="<?= $element->state->id; ?>" with-dropdown></select>
+                                <select required name="state" class="no-auto" locations-component-auto-filled-state="<?= $element->state->id; ?>" with-dropdown></select>
                             </div>
 
                             <div class="field required">
                                 <label><?= __(LOCATIONS_LANG_GROUP, 'Ciudad'); ?></label>
-                                <select required name="city" locations-component-auto-filled-city="<?= $element->city->id; ?>" with-dropdown></select>
+                                <select required name="city" class="no-auto" locations-component-auto-filled-city="<?= $element->city->id; ?>" with-dropdown></select>
                             </div>
 
                         </div>
@@ -196,7 +196,7 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                                 <div class="description"><?= __($langGroup, 'Tamaño máximo del archivo 2MB'); ?></div>
                             </div>
                         </label>
-                        <input type="file" accept="image/*,.pdf" id="<?= $uniqueIdentifier; ?>">
+                        <input <?= $element->getLangData($lang, 'rut', false, '') !== '' ? '' : 'required'; ?> type="file" accept="image/*,.pdf" id="<?= $uniqueIdentifier; ?>">
                     </div>
                 </div>
 

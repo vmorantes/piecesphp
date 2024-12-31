@@ -1,0 +1,40 @@
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
+
+.limiter-content {
+    max-width: 1440px !important;
+    margin: 0px 0px !important;
+
+    >.section-title {
+        >.title {
+            font-size: pxToRem(21);
+            line-height: pxToRem(21+5);
+            margin-bottom: pxToRem(15);
+        }
+
+        >.description {
+            font-size: pxToRem(16);
+            line-height: pxToRem(16+5);
+            margin-bottom: pxToRem(35);
+        }
+    }
+}
+
+.cards-importer {
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-items: start;
+    column-gap: 20px;
+
+    .w-card {
+        width: 100%;
+        max-width: 450px !important;
+    }
+
+    @media screen and (max-width: 380px) {
+        >* {
+            margin: 0 auto;
+        }
+    }
+}

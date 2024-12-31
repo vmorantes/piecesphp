@@ -2060,6 +2060,11 @@ class AppConfigController extends AdminPanelController
         $startRoute = $lastIsBar ? '' : '/';
         $classname = self::class;
 
+        /**
+         * @var array<string>
+         */
+        $allRoles = array_keys(UsersModel::TYPES_USERS);
+
         $group->active(APP_CONFIGURATION_MODULE);
 
         //Perzonalizaciones
@@ -2115,7 +2120,10 @@ class AppConfigController extends AdminPanelController
                 "{$startRoute}/mapbox-key[/]",
                 $classname . ':mapboxKey',
                 self::$baseRouteName . '-' . 'mapbox-key',
-                'GET'
+                'GET',
+                true,
+                null,
+                $allRoles
             ),
 
             //Limpiar caché

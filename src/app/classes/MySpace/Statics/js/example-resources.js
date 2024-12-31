@@ -273,6 +273,15 @@ window.addEventListener('load', function () {
 			return Math.floor(Math.random() * (max - min + 1) + min);
 		}
 
+		//Configurar tooltip en cards
+		$('.card-statistic .toolbar .help:not(.icon)').map(function (index, element) {
+			let tooltipText = element.dataset.tooltip
+			tooltipText = typeof tooltipText == 'string' && tooltipText.length > 0 ? tooltipText : null
+			if (tooltipText == null) {
+				element.remove()
+			}
+		})
+
 		//EJEMPLO DE DATOS ENTRANTES
 		const maxForPercents = getRandomInt(0, 1000)
 		const secondaryForPercents = getRandomInt(0, maxForPercents)

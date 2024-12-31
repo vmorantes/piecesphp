@@ -195,17 +195,17 @@ class ContactFormsController extends PublicAreaController
                 }
 
                 if ($captchaSuccess) {
+
                     $title = get_config('title_app');
                     $title = vsprintf(__(LANG_GROUP, "Fue contactado desde: <a href='%s'>%s</a>"), [
                         baseurl(),
                         $title,
                     ]);
-                    $logo = baseurl(get_config('logo'));
 
-                    $bodyMessage = $this->render('mail-templates/generic-contact-form', [
-                        'from' => $from,
+                    $subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8') . ' - ' . get_title();
+
+                    $bodyMessage = $this->render('mailing/generic-contact-form', [
                         'title' => $title,
-                        'logo' => $logo,
                         'name' => $name,
                         'email' => $email,
                         'subject' => $subject,
@@ -213,23 +213,18 @@ class ContactFormsController extends PublicAreaController
                         'updates' => $updates,
                     ], false);
                     $bodyMessage = mb_convert_encoding($bodyMessage, 'UTF-8');
-
                     $mailer = new Mailer();
                     $mailConfig = new MailConfig;
-
                     $mailer->SMTPDebug = 2;
                     $mailer->isHTML(true);
-
                     $mailer->setFrom($mailConfig->user());
                     $mailer->addReplyTo($email, $name);
-
                     foreach ($this->recipientsMessages as $recipient) {
                         $mailer->addAddress($recipient);
                     }
 
-                    $mailer->Subject = mb_convert_encoding((string) __(LANG_GROUP, 'Contacto') . ': ' . $subject, 'UTF-8');
+                    $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
                     $mailer->Body = $bodyMessage;
-
                     if (!$mailer->checkSettedSMTP() && !is_local()) {
                         $mailer->asGoDaddy(true);
                     }

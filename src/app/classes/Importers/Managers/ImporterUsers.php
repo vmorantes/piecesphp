@@ -3,9 +3,10 @@
 /**
  * ImporterUsers.php
  */
-namespace Importers;
+namespace Importers\Managers;
 
 use App\Model\UsersModel;
+use Importers\Controller\ImporterController;
 use PiecesPHP\Core\Importer\Collections\FieldCollection;
 use PiecesPHP\Core\Importer\Field;
 use PiecesPHP\Core\Importer\Importer;
@@ -17,7 +18,7 @@ use PiecesPHP\Core\Validation\Validator;
  *
  * Importador de usuarios
  *
- * @package     Importers
+ * @package     Importers\Managers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
@@ -31,15 +32,15 @@ class ImporterUsers extends Importer
 
         $this->setUpdate(false);
 
-        $id              = new Field('id', __(self::LANG_GROUP, 'ID'), null, true, '', false);
-        $username        = new Field('username', __(self::LANG_GROUP, 'Usuario'), '', false);
-        $password        = new Field('password', __(self::LANG_GROUP, 'Contraseña'), '', false);
-        $firstname       = new Field('firstname', __(self::LANG_GROUP, 'Primer nombre'), '', false);
-        $secondname      = new Field('secondname', __(self::LANG_GROUP, 'Segundo nombre'), '', true);
-        $first_lastname  = new Field('first_lastname', __(self::LANG_GROUP, 'Primer apellido'), '', false);
+        $id = new Field('id', __(self::LANG_GROUP, 'ID'), null, true, '', false);
+        $username = new Field('username', __(self::LANG_GROUP, 'Usuario'), '', false);
+        $password = new Field('password', __(self::LANG_GROUP, 'Contraseña'), '', false);
+        $firstname = new Field('firstname', __(self::LANG_GROUP, 'Primer nombre'), '', false);
+        $secondname = new Field('secondname', __(self::LANG_GROUP, 'Segundo nombre'), '', true);
+        $first_lastname = new Field('first_lastname', __(self::LANG_GROUP, 'Primer apellido'), '', false);
         $second_lastname = new Field('second_lastname', __(self::LANG_GROUP, 'Segundo apellido'), '', true);
-        $email           = new Field('email', __(self::LANG_GROUP, 'Email'), '', false);
-        $type            = new Field('type', __(self::LANG_GROUP, 'Tipo'), UsersModel::TYPE_USER_GENERAL, true, '', false);
+        $email = new Field('email', __(self::LANG_GROUP, 'Email'), '', false);
+        $type = new Field('type', __(self::LANG_GROUP, 'Tipo'), UsersModel::TYPE_USER_GENERAL, true, '', false);
 
         $email->setValidator(function ($value) {
             return Validator::isEmail($value);
@@ -148,8 +149,84 @@ class ImporterUsers extends Importer
 
         $schema->setTemplateWithHumanReadable(true);
 
-        parent::__construct($schema, $data, __(self::LANG_GROUP, 'Agregar de usuarios'));
+        parent::__construct($schema, $data, self::title());
 
+    }
+
+    /**
+     * @return string
+     */
+    public static function templateTitle(): string
+    {
+        return __(self::LANG_GROUP, 'Plantilla de importación de usuarios');
+    }
+
+    /**
+     * @return string
+     */
+    public static function title(): string
+    {
+        return __(self::LANG_GROUP, 'Agregar usuarios');
+    }
+
+    /**
+     * @return string
+     */
+    public static function view(): string
+    {
+        return 'users';
+    }
+
+    /**
+     * @return string
+     */
+    public static function text(): string
+    {
+        return __(self::LANG_GROUP, 'TEXTO_IMPORTACION_USUARIOS');
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function js(): array
+    {
+        return [
+            ImporterController::staticRoute('js/users.js'),
+        ];
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function css(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    public static function data(): array
+    {
+        return [
+            'subtitle' => __(self::LANG_GROUP, 'Carga masiva de usuarios'),
+        ];
+    }
+
+    /**
+     * @return bool
+     */
+    public static function importDefaultStyles(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    public static function overwritePermissions(): array
+    {
+        return [];
     }
 
 }

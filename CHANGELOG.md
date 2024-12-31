@@ -26,3 +26,18 @@ Nota: No hay nigún problema de retro-compatibilidad conocido.
 - Cambio de versión de Slim a v4.
     - Ya no es retrocompatible.
 - Verisión mínima de compatibilidad de PHP: 7.4
+
+# V6.3.0
+
+- Independización de módulo importador.
+- Manejador de sesiones sin usuario: PiecesPHPGenericHandlerSession, SessionTokenIsolated.
+- Ajustes de seguridad en rutas expuestas.
+- En módulo de publicaciones cambio de self::view por $this->render sobreescrito para no repetir importación de módulos.
+- Unificación y simplificación de plantillas de correo electrónico.
+- Nuevos métodos de encriptación bidireccional (BaseHashEncryption).
+- Utilidad para crear cookie: setCookieByConfig.
+- @strftime para ignorar deprecated.
+- TokenModel/TokenController ajustados.
+- Ajustes menores en módulo de ubicaciones.
+- GoogleReCaptchaV3 ajustado para poder ser desactivado.
+- Ajustes en recursos de prueba.

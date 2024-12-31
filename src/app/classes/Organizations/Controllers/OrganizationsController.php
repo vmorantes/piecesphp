@@ -1385,7 +1385,7 @@ class OrganizationsController extends AdminPanelController
                         $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
 
                         //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
+                        if (!is_null($oldFile) && is_file($oldFile)) {
 
                             if (basename($oldFile) != $nameCurrent) {
                                 unlink($oldFile);
@@ -1529,7 +1529,10 @@ class OrganizationsController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
-                'GET'
+                'GET',
+                true,
+                null,
+                $list
             ),
             new Route( //Datos para datatables
                 "{$startRoute}/datatables[/]",

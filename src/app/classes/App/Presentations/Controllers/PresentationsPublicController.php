@@ -450,7 +450,10 @@ class PresentationsPublicController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
-                'GET'
+                'GET',
+                true,
+                null,
+                $permisos_listado
             ),
 
         ];

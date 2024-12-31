@@ -1155,7 +1155,10 @@ class PresentationsController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
-                'GET'
+                'GET',
+                true,
+                null,
+                $permisos_listado
             ),
             new Route( //Datos para datatables
                 "{$startRoute}/datatables[/]",

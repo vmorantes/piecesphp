@@ -1473,7 +1473,10 @@ class DocumentsController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
-                'GET'
+                'GET',
+                true,
+                null,
+                $list
             ),
             new Route( //Datos para datatables
                 "{$startRoute}/datatables[/]",
@@ -1499,6 +1502,9 @@ class DocumentsController extends AdminPanelController
                 $classname . ':searchDropdown',
                 self::$baseRouteName . '-search-dropdown',
                 'GET',
+                true,
+                null,
+                $list
             ),
 
             //──── POST ──────────────────────────────────────────────────────────────────────────────
