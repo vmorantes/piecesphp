@@ -11,8 +11,6 @@ $second : var(--second-brand-color);
 
     >.content {
 
-        overflow: auto;
-
         >.head {
             display: flex;
             justify-content: space-between;
@@ -79,7 +77,7 @@ $second : var(--second-brand-color);
 
                     >span {
                         max-width: 190px;
-                        font-size: 17px;
+                        font-size: 15px;
                         color: $mainColor;
                         font-weight: bold;
                     }
