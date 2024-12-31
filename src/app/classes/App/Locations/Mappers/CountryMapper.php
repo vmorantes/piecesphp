@@ -160,7 +160,42 @@ class CountryMapper extends BaseEntityMapper
     }
 
     /**
-     * @return \stdClass
+     * @param string $column
+     * @param string $critery
+     * @param bool $asMapper
+     * @param bool $onlyActives
+     * @return static[]|array
+     */
+    public static function allBy(string $column, string $critery, bool $asMapper = false, bool $onlyActives = false)
+    {
+        $model = self::model();
+
+        $model->select(self::fieldsToSelect());
+        $where = [
+            $column => $critery,
+        ];
+
+        if ($onlyActives) {
+            $where['active'] = self::ACTIVE;
+        }
+
+        $model->where($where);
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        if ($asMapper) {
+            $result = array_map(function ($e) {
+                return new CountryMapper($e->id);
+            }, $result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return \stdClass[]
      */
     public static function allRegions()
     {

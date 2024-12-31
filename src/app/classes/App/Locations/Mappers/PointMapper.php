@@ -92,6 +92,7 @@ class PointMapper extends BaseEntityMapper
      *  - stateName
      *  - countryID
      *  - countryName
+     *  - coordinates
      * @return string[]
      */
     public static function fieldsToSelect()
@@ -109,6 +110,7 @@ class PointMapper extends BaseEntityMapper
         $stateNameQuery = "(SELECT {$tableState}.name FROM {$tableState} WHERE {$tableState}.id = stateID)";
         $countryIDQuery = "(SELECT {$tableState}.country FROM {$tableState} WHERE {$tableState}.id = stateID)";
         $countryNameQuery = "(SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = countryID)";
+        $coordinates = "CONCAT({$table}.longitude, ', ', {$table}.latitude)";
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
@@ -117,6 +119,7 @@ class PointMapper extends BaseEntityMapper
             "{$stateNameQuery} AS stateName",
             "{$countryIDQuery} AS countryID",
             "{$countryNameQuery} AS countryName",
+            "{$coordinates} AS coordinates",
         ];
 
         $allFields = array_keys($mapper->getFields());

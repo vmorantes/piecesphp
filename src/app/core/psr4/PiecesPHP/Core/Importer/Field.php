@@ -65,6 +65,10 @@ class Field
      * @var bool
      */
     protected $showInTemplate = true;
+    /**
+     * @var string
+     */
+    protected $currentErrorMessage = '';
 
     const LANG_GROUP = 'importerModule';
 
@@ -82,10 +86,14 @@ class Field
         $this->name = trim($name);
         $this->defaultValue = $defaultValue;
         $this->sampleValue = $sampleValue;
-        $this->humanReadableName = $humanReadableName === null ? $this->name : mb_strtolower(trim($humanReadableName));
-        $this->humanReadableName = mb_str_split($this->humanReadableName);
-        $this->humanReadableName[0] = mb_strtoupper($this->humanReadableName[0]);
-        $this->humanReadableName = trim(implode('', $this->humanReadableName));
+        $humanReadableName = is_string($humanReadableName) && mb_strlen($humanReadableName) > 0 ? mb_strtolower(trim($humanReadableName)) : $this->name;
+        $humanReadableName = mb_str_split($humanReadableName);
+        if ($humanReadableName !== false) {
+            $humanReadableName[0] = mb_strtoupper($humanReadableName[0]);
+            $this->humanReadableName = trim(implode('', $humanReadableName));
+        } else {
+            $this->humanReadableName = $this->name;
+        }
         $this->optional = $optional;
         $this->metaPropertiesAllowed = new FieldCollection();
         $this->showInTemplate = $inTemplate;
@@ -158,7 +166,7 @@ class Field
                 } else {
                     throw new \Exception(
                         sprintf(
-                            __(self::LANG_GROUP, 'El valor ingresado en %s no es válido.'),
+                            is_string($this->currentErrorMessage) && mb_strlen($this->currentErrorMessage) > 0 ? $this->currentErrorMessage : __(self::LANG_GROUP, 'El valor ingresado en %s no es válido.'),
                             "$this->name/$this->humanReadableName"
                         )
                     );
@@ -212,6 +220,16 @@ class Field
         } else {
             throw new \TypeError('$value debe ser un valor escalar.');
         }
+        return $this;
+    }
+
+    /**
+     * @param string $value
+     * @return static
+     */
+    public function setCurrentErrorMessage(string $value)
+    {
+        $this->currentErrorMessage = $value;
         return $this;
     }
 

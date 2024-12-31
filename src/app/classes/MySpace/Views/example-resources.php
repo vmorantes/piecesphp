@@ -37,51 +37,33 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 
         <div class="statistics-section">
 
-            <div class="card-statistic">
-                <div class="toolbar">
-                    <div class="help">
-                        <i class="icon help"></i>
-                    </div>
+            <a class="card-action" href="#">
+                <div class="icon">
+                    <i class="plus square outline icon"></i>
                 </div>
-                <div class="data">
-                    <div data-type="dataElement1" class="number">0&nbsp;</div>
+                <div class="title">
+                    <?= __($langGroup, 'Realizar acción #1'); ?>
                 </div>
-                <div class="footer">
-                    <div class="caption">
-                        <?= __($langGroup, 'Texto de ejemplo'); ?>
-                    </div>
-                    <div class="action-button">
-                        <a class="button" href="#">
-                            <i class="arrow right icon"></i>
-                        </a>
-                    </div>
+                <div class="description">
+                    <?= __($langGroup, 'Esta es una tarjeta de acción de ejemplo'); ?>
                 </div>
-            </div>
+            </a>
+
+            <a class="card-action" href="#">
+                <div class="icon">
+                    <i class="user plus icon"></i>
+                </div>
+                <div class="title">
+                    <?= __($langGroup, 'Realizar acción #2'); ?>
+                </div>
+                <div class="description">
+                    <?= __($langGroup, 'Esta es una tarjeta de acción de ejemplo'); ?>
+                </div>
+            </a>
 
             <div class="card-statistic">
                 <div class="toolbar">
-                    <div class="help">
-                        <i class="icon help"></i>
-                    </div>
-                </div>
-                <div class="data">
-                    <div data-type="dataElement2" class="number">0&nbsp;</div>
-                </div>
-                <div class="footer">
-                    <div class="caption">
-                        <?= __($langGroup, 'Texto de ejemplo'); ?>
-                    </div>
-                    <div class="action-button">
-                        <a class="button" href="#">
-                            <i class="arrow right icon"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card-statistic">
-                <div class="toolbar">
-                    <div class="help">
+                    <div class="help" data-tooltip="">
                         <i class="icon help"></i>
                     </div>
                 </div>
@@ -102,7 +84,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 
             <div class="card-statistic">
                 <div class="toolbar">
-                    <div class="help">
+                    <div class="help" data-tooltip="">
                         <i class="icon help"></i>
                     </div>
                 </div>
@@ -130,7 +112,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
                 <div class="card-statistic tall fullw-on-break-1">
                     <div class="toolbar">
                         <div class="title big"><?= __($langGroup, 'Texto de ejemplo'); ?></div>
-                        <div class="help">
+                        <div class="help" data-tooltip="">
                             <i class="icon help"></i>
                         </div>
                     </div>
@@ -169,7 +151,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 
                         <div class="card-statistic tall">
                             <div class="toolbar">
-                                <div class="help">
+                                <div class="help" data-tooltip="">
                                     <i class="icon help"></i>
                                 </div>
                             </div>
@@ -190,7 +172,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 
                         <div class="card-statistic tall">
                             <div class="toolbar">
-                                <div class="help">
+                                <div class="help" data-tooltip="">
                                     <i class="icon help"></i>
                                 </div>
                             </div>
@@ -211,7 +193,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
 
                         <div class="card-statistic tall">
                             <div class="toolbar">
-                                <div class="help">
+                                <div class="help" data-tooltip="">
                                     <i class="icon help"></i>
                                 </div>
                             </div>
@@ -237,7 +219,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
                         <div class="card-statistic fullsize">
                             <div class="toolbar">
                                 <div class="title big"><?= __($langGroup, 'Texto de ejemplo'); ?></div>
-                                <div class="help">
+                                <div class="help" data-tooltip="">
                                     <i class="icon help"></i>
                                 </div>
                             </div>

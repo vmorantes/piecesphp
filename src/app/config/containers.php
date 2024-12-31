@@ -103,9 +103,8 @@ $container_configurations = [
             $response = $response->withJson("403 Forbidden");
         } else {
 
-            $dataController = [
-                'url' => $url,
-            ];
+            $dataController = $extraData;
+            $dataController['url'] = $url;
 
             $controller = new PiecesPHP\Core\BaseController(false);
             $controller->render('pages/403', $dataController);

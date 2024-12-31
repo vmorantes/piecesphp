@@ -1175,7 +1175,10 @@ class DocumentTypesController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
-                'GET'
+                'GET',
+                true,
+                null,
+                $list
             ),
             new Route( //Datos para datatables
                 "{$startRoute}/datatables[/]",

@@ -7,6 +7,7 @@
 namespace App\Controller;
 
 use App\Model\AvatarModel;
+use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Controllers\NewsletterController;
 use Newsletter\NewsletterRoutes;
 use PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController;
@@ -65,7 +66,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         import_semantic();
         import_app_libraries();
         import_app_front_libraries();
-        import_google_captcha_v3_adapter();
+        if (GoogleReCaptchaV3Routes::ENABLE) {
+            import_google_captcha_v3_adapter();
+        }
         add_global_asset('statics/fonts/abhaya/abhaya.css', 'font');
     }
 
@@ -361,7 +364,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         //Otras rutas
         $namePrefix = self::$prefixNameRoutes;
-
+        //self::$startSegmentRoutes = uniqid(); //Para ocultar este controlador
         if (mb_strlen(self::$startSegmentRoutes) > 0) {
             $startRoute .= self::$startSegmentRoutes;
         } else {
@@ -373,7 +376,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         //Generales
         $group->register([
             new Route(
-                $lastIsBar ? "" : "[/]",
+                "{$startRoute}[/]",
                 self::class . ":indexView",
                 "{$namePrefix}-index",
                 'GET'

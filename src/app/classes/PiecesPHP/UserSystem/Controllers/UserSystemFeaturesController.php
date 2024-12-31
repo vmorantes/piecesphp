@@ -79,7 +79,7 @@ class UserSystemFeaturesController extends AdminPanelController
         $resultOperation->setSuccessOnSingleOperation(false);
 
         try {
-            OTPHandler::generateOTP($username);
+            OTPHandler::generateOTP($this, $username);
             $resultOperation->setSuccessOnSingleOperation(true);
             $resultOperation->setMessage(__(self::LANG_GROUP, 'Revise su correo electrónico para obtener el cógido de un uso.'));
         } catch (SafeException $exception) {
