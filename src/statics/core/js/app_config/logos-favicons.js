@@ -40,14 +40,15 @@ window.addEventListener('load', () => {
 	let firstLogoDraw = true
 	let firstPartnersDraw = true
 	let firstPartnersVerticalDraw = true
+	let firstMailingLogoDraw = true
 
-	let cropperPublicFavicon = instantiateCropper(`form.public-favicon [fav-cropper]`, 400, 400/400, 'transparent')
+	let cropperPublicFavicon = instantiateCropper(`form.public-favicon [fav-cropper]`, 400, 400 / 400, 'transparent')
 	genericFormHandler(`form.public-favicon`, {
 		onSetFormData: (formData) => onSetFormData(formData, cropperPublicFavicon, `favicon`),
 		onInvalidEvent: onInvalidHandler,
 	})
 
-	let cropperBackFavicon = instantiateCropper(`form.back-favicon [admin-fav-cropper]`, 400, 400/400, 'transparent')
+	let cropperBackFavicon = instantiateCropper(`form.back-favicon [admin-fav-cropper]`, 400, 400 / 400, 'transparent')
 	genericFormHandler(`form.back-favicon`, {
 		onSetFormData: (formData) => onSetFormData(formData, cropperBackFavicon, `favicon-back`),
 		onInvalidEvent: onInvalidHandler,
@@ -70,18 +71,27 @@ window.addEventListener('load', () => {
 		onInvalidEvent: onInvalidHandler,
 	})
 
+	let cropperMailingLogo = instantiateCropper(`form.mailing-logo [mailing-logo-cropper]`, 500, 500 / 172, 'transparent')
+	genericFormHandler(`form.mailing-logo`, {
+		onSetFormData: (formData) => onSetFormData(formData, cropperMailingLogo, `mailingLogo`),
+		onInvalidEvent: onInvalidHandler,
+	})
+
+
 	// Modals
 	const logoModal = $("[logo-modal]")
 	const adminFavModal = $("[admin-favicon-modal]")
 	const favModal = $("[favicon-modal]")
 	const partnersModal = $("[partners-modal]")
 	const partnersVerticalModal = $("[partners-vertical-modal]")
+	const mailingLogoModal = $("[mailing-logo-modal]")
 	// Image card tag
 	const logoCard = $("[card-logo]")
 	const adminFavCard = $("[admin-fav-card]")
 	const favCard = $("[fav-card]")
 	const partnersCard = $("[partners-card]")
 	const partnersVerticalCard = $("[partners-vertical-card]")
+	const mailingLogoCard = $("[mailing-logo-card]")
 	// Se muestran los modales
 	logoCard.on('click', () => {
 		logoModal.modal({
@@ -133,6 +143,16 @@ window.addEventListener('load', () => {
 			}
 		}).modal('show')
 	})
+	mailingLogoCard.on('click', () => {
+		mailingLogoModal.modal({
+			onVisible: function () {
+				if (firstMailingLogoDraw) {
+					cropperMailingLogo.refresh()
+					firstMailingLogoDraw = false
+				}
+			}
+		}).modal('show')
+	})
 	//Enviar los formularios
 	cropperLogo.onCropped((blobImage, settedImage) => {
 		logoModal.find('form').trigger('submit')
@@ -159,6 +179,11 @@ window.addEventListener('load', () => {
 		partnersVerticalCard.find('>img').attr('src', settedImage)
 		partnersVerticalModal.modal('hide')
 	})
+	cropperMailingLogo.onCropped((blobImage, settedImage) => {
+		mailingLogoModal.find('form').trigger('submit')
+		mailingLogoCard.find('>img').attr('src', settedImage)
+		mailingLogoModal.modal('hide')
+	})
 	// Acciones de cancelar
 	cropperLogo.onCancel(() => {
 		logoModal.modal('hide')
@@ -174,6 +199,9 @@ window.addEventListener('load', () => {
 	})
 	cropperPartnersVertical.onCancel(() => {
 		partnersVerticalModal.modal('hide')
+	})
+	cropperMailingLogo.onCancel(() => {
+		mailingLogoModal.modal('hide')
 	})
 
 	removeGenericLoader('logos-favicon')

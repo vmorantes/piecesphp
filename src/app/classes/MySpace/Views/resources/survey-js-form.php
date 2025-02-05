@@ -23,12 +23,12 @@ set_config('imported_assets', []);
 set_config('lock_assets', false);
 set_custom_assets([
     //SurveyJS Form Library resources
-    "https://unpkg.com/survey-core/defaultV2.min.css",
+    baseurl("statics/plugins/surveyjs/survey-core/defaultV2.min.css"),
 ], 'css');
 set_custom_assets([
     //SurveyJS Form Library resources
-    "https://unpkg.com/survey-core/survey.core.min.js",
-    "https://unpkg.com/survey-js-ui/survey-js-ui.min.js",
+    baseurl("statics/plugins/surveyjs/survey-core/survey.core.min.js"),
+    baseurl("statics/plugins/surveyjs/survey-js-ui/survey-js-ui.min.js"),
 ], 'js');
 
 ?>
@@ -92,6 +92,14 @@ set_custom_assets([
                     ]
                 }]
             })
+			//Localización
+			const defaultLocateStrings = Survey.surveyLocalization.getLocaleStrings("en")
+			const customLocaleStrings = Object.assign(defaultLocateStrings, getLangGroupData('SurveyJS'))
+			Survey.setupLocale({
+				localeCode: pcsphpGlobals.lang,
+				strings: customLocaleStrings,
+			})
+			survey.locale = pcsphpGlobals.lang
             survey.render(document.getElementById("surveyContainer"))
             survey.onComplete.add(surveyComplete)
             function surveyComplete(survey) {

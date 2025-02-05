@@ -129,6 +129,33 @@ class AppConfigModel extends BaseEntityMapper
 
     /**
      * @param string $name
+     * @param mixed $value
+     * @param bool $staticConfig Sobreescribe la configuración local
+     * @return bool Resultado de la operación
+     */
+    public static function setConfigValue(string $name, $value, bool $staticConfig = false)
+    {
+        $saved = false;
+        $mapper = new AppConfigModel($name);
+
+        if ($mapper->id !== null) {
+            $mapper->value = $value;
+            $saved = $mapper->update();
+        } else {
+            $mapper->name = $name;
+            $mapper->value = $value;
+            $saved = $mapper->save();
+        }
+
+        if ($staticConfig) {
+            set_config($name, $value);
+        }
+
+        return $saved;
+    }
+
+    /**
+     * @param string $name
      * @param bool $staticConfig Si no existe en la base de datos intenta buscar en la configuración estática
      * @return mixed
      */

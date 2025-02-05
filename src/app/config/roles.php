@@ -90,4 +90,4 @@ $config['admin_url']['relative'] = true;
 $config['admin_url']['url'] = 'admin';
 
 //Definir fecha mínima del token de inicio de sesión
-SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '26-06-1999 05:43:59 PM'));
+SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '05-02-2024 00:00:00 AM'));

@@ -146,12 +146,20 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     $allowedLangs = Config::get_allowed_langs();
     $currentLang = Config::get_lang();
     $alternativesURL = [];
+    $alternativesURLIncludeCurrent = [];
+    $setAlternativesLangsURLs = function (bool $isExternalCall = false) use ($route, $allowedLangs, &$currentLang, $isGenericView, &$alternativesURL, &$alternativesURLIncludeCurrent) {
 
-    foreach ($allowedLangs as $lang) {
+        $currentLang = Config::get_lang();
+        $alternativesURL = [];
+        $alternativesURLIncludeCurrent = [];
 
-        if ($currentLang != $lang) {
+        foreach ($allowedLangs as $lang) {
 
-            $alternativesURL[$lang] = get_lang_url($currentLang, $lang);
+            $isDiffOfCurrentLang = $currentLang != $lang;
+            $alternativesURLIncludeCurrent[$lang] = get_lang_url($currentLang, $lang);
+            if ($isDiffOfCurrentLang) {
+                $alternativesURL[$lang] = get_lang_url($currentLang, $lang);
+            }
 
             if ($isGenericView) {
                 $arguments = $route->getArguments();
@@ -162,14 +170,21 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
                     if (is_string($nameGenericView)) {
                         $nameGenericViewLang = lang(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, $nameGenericView, $lang);
-                        $alternativesURL[$lang] = str_replace($nameGenericView, $nameGenericViewLang, $alternativesURL[$lang]);
+                        $alternativesURLIncludeCurrent[$lang] = str_replace($nameGenericView, $nameGenericViewLang, $alternativesURLIncludeCurrent[$lang]);
+                        if ($isDiffOfCurrentLang) {
+                            $alternativesURL[$lang] = str_replace($nameGenericView, $nameGenericViewLang, $alternativesURL[$lang]);
+                        }
                     }
                 }
             }
         }
-    }
 
-    Config::set_config('alternatives_url', $alternativesURL);
+        Config::set_config('alternatives_url', $alternativesURL);
+        Config::set_config('alternatives_url_include_current', $alternativesURLIncludeCurrent);
+
+    };
+    ($setAlternativesLangsURLs)();
+    Config::set_config('calculate_alternatives_langs_urls', function () use ($setAlternativesLangsURLs) {($setAlternativesLangsURLs)(true);});
 
     //──── Validaciones de sesión y redirecciones ────────────────────────────────────────────
     $JWT = SessionToken::getJWTReceived();
@@ -246,7 +261,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             $expiredSessionDataToJSON['tokenCreatedDate'] = $tokenCreatedDate->format('d-m-Y h:i:s A P');
         }
 
-        $oldFilesExpiredSessions = file_exists($expiredSessionsFolder) ? array_diff(scandir($expiredSessionsFolder), array('..', '.')) : [];
+        $oldFilesExpiredSessions = file_exists($expiredSessionsFolder) ? array_diff(scandir($expiredSessionsFolder), ['..', '.']) : [];
         array_map(function ($e) use ($expiredSessionsFolder) {
 
             $fullPath = $expiredSessionsFolder . \DIRECTORY_SEPARATOR  . $e;

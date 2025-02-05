@@ -521,6 +521,7 @@ class Config
         $t[$lang][$groupName][$messageKey] = $messageValue;
 
         self::$translations = $t;
+        self::set_config('pcsphp_system_translations', self::$translations);
 
     }
 
@@ -644,6 +645,11 @@ class Config
             $reflectedProperty->setAccessible(true);
             $reflectedProperty->setValue($value);
 
+            if ($name == 'app_lang') {
+                //Establecer nuevamente setlocale en caso de cambiar el idioma
+                self::set_locale_from_current_lang();
+            }
+
         } elseif (self::$instance !== null) {
 
             if (array_key_exists($name, $namesOnInstance)) {
@@ -689,7 +695,7 @@ class Config
 
     /**
      * Establece setlocale a partir del lenguaje actual de la aplicación.
-     * @param int $categories Por defecto [\LC_COLLATE, \LC_CTYPE, \LC_TIME, \LC_MESSAGES (Solo si existe) ]
+     * @param int[] $categories Por defecto [\LC_COLLATE, \LC_CTYPE, \LC_TIME, \LC_MESSAGES (Solo si existe) ]
      * @return void
      */
     public static function set_locale_from_current_lang(array $categories = [\LC_COLLATE, \LC_CTYPE, \LC_TIME, 'LC_MESSAGES'])

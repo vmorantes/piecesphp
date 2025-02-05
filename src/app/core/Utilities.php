@@ -471,12 +471,12 @@ function require_keys(array $keys, array $array)
 function get_youtube_id(string $url)
 {
     if (strstr($url, 'youtu.be')) {
-        return str_ireplace(array('https://youtu.be/', 'http://youtu.be/'), '', $url);
+        return str_ireplace(['https://youtu.be/', 'http://youtu.be/'], '', $url);
     }
 
     $id = "";
 
-    $queryString = array();
+    $queryString = [];
     $urlQuery = parse_url($url, PHP_URL_QUERY);
     if (is_string($urlQuery)) {
         parse_str($urlQuery, $queryString);
@@ -492,11 +492,17 @@ function get_youtube_id(string $url)
 /**
  * Verificar si está en local.
  *
- * @return boolean true si $_SERVER['HTTP_HOST'] == "localhost", false si no
+ * @return boolean Dependiendo de $_SERVER['HTTP_HOST']
  */
 function is_local()
 {
-    return $_SERVER['HTTP_HOST'] == "localhost" ? true : false;
+    $isLocal = false;
+    if (isset($_SERVER['HTTP_HOST'])) {
+        $host = $_SERVER['HTTP_HOST'];
+        // Comprueba si el host es "localhost" o termina con ".localhost"
+        $isLocal = $host === 'localhost' || mb_substr($host, -10) === '.localhost';
+    }
+    return $isLocal;
 }
 
 /**
@@ -1520,7 +1526,7 @@ function localeDateFormat(string $format, \DateTime $time = null, array $replace
         'F' => '%B', 'm' => '%m', 'M' => '%b',
     ];
 
-    $formatOptions = array(
+    $formatOptions = [
         // Week - no date eq : %U, %W
         'W' => '%V',
         // Year - no strf eq : L; no date eq : %C, %g
@@ -1531,7 +1537,7 @@ function localeDateFormat(string $format, \DateTime $time = null, array $replace
         'O' => '%z', 'T' => '%Z',
         // Full Date / Time - no strf eq : c, r; no date eq : %c, %D, %F, %x
         'U' => '%s',
-    );
+    ];
 
     $changedCase = [];
 

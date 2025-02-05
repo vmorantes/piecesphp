@@ -309,6 +309,7 @@ class AppConfigController extends AdminPanelController
                 'logo' => get_config('logo'),
                 'partners' => get_config('partners'),
                 'partnersVertical' => get_config('partnersVertical'),
+                'mailingLogo' => get_config('mailing_logo'),
             ];
 
             $baseViewDir = 'panel/pages/app_configurations';
@@ -324,6 +325,7 @@ class AppConfigController extends AdminPanelController
                 'logo' => 'logo',
                 'partners' => 'partners',
                 'partnersVertical' => 'partners-vertical',
+                'mailingLogo' => 'mailing-logo',
             ];
 
             $nameCurrentAllowedImage = '';
@@ -380,7 +382,7 @@ class AppConfigController extends AdminPanelController
 
                     if (!empty($route)) {
 
-                        $updated = $logosAndFaviconsMapper->update();
+                        $updated = $logosAndFaviconsMapper->id !== null ? $logosAndFaviconsMapper->update() : AppConfigModel::setConfigValue($nameCurrentAllowedImage, $relativePath);
 
                         if ($updated && mb_strlen(trim($oldImage)) > 0 && $oldImage != $relativePath) {
                             unlink(basepath($oldImage));

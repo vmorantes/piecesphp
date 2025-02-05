@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 10.6.18-MariaDB-ubu2004 dump
+-- Adminer 4.8.1 MySQL 10.11.8-MariaDB-0ubuntu0.24.04.1 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -19,7 +19,7 @@ CREATE TABLE `actions_log` (
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   CONSTRAINT `actions_log_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `app_presentations`;
@@ -34,7 +34,7 @@ CREATE TABLE `app_presentations` (
   PRIMARY KEY (`id`),
   KEY `category` (`category`),
   CONSTRAINT `app_presentations_ibfk_1` FOREIGN KEY (`category`) REFERENCES `app_presentations_categories` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `app_presentations_categories`;
@@ -44,7 +44,7 @@ CREATE TABLE `app_presentations_categories` (
   `name` text NOT NULL,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `documents_elements`;
@@ -70,7 +70,7 @@ CREATE TABLE `documents_elements` (
   CONSTRAINT `documents_elements_ibfk_1` FOREIGN KEY (`documentType`) REFERENCES `forms_document_types` (`id`),
   CONSTRAINT `documents_elements_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `documents_elements_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `forms_categories`;
@@ -90,7 +90,7 @@ CREATE TABLE `forms_categories` (
   KEY `modifiedBy` (`modifiedBy`),
   CONSTRAINT `forms_categories_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `forms_categories_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `forms_document_types`;
@@ -110,7 +110,7 @@ CREATE TABLE `forms_document_types` (
   KEY `modifiedBy` (`modifiedBy`),
   CONSTRAINT `forms_document_types_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `forms_document_types_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `image_repository_images`;
@@ -139,7 +139,7 @@ CREATE TABLE `image_repository_images` (
   CONSTRAINT `image_repository_images_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `image_repository_images_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `image_repository_images_ibfk_5` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `locations_cities`;
@@ -152,7 +152,7 @@ CREATE TABLE `locations_cities` (
   PRIMARY KEY (`id`),
   KEY `state` (`state`),
   CONSTRAINT `locations_cities_ibfk_1` FOREIGN KEY (`state`) REFERENCES `locations_states` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `locations_countries`;
@@ -163,7 +163,7 @@ CREATE TABLE `locations_countries` (
   `region` text DEFAULT NULL,
   `active` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `locations_points`;
@@ -178,7 +178,7 @@ CREATE TABLE `locations_points` (
   PRIMARY KEY (`id`),
   KEY `city` (`city`),
   CONSTRAINT `locations_points_ibfk_1` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `locations_states`;
@@ -191,7 +191,7 @@ CREATE TABLE `locations_states` (
   PRIMARY KEY (`id`),
   KEY `country` (`country`),
   CONSTRAINT `locations_states_ibfk_1` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `login_attempts`;
@@ -207,7 +207,7 @@ CREATE TABLE `login_attempts` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `login_attempts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `messages`;
@@ -225,7 +225,7 @@ CREATE TABLE `messages` (
   KEY `message_to` (`message_to`),
   CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`message_from`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`message_to`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `messages_responses`;
@@ -242,7 +242,7 @@ CREATE TABLE `messages_responses` (
   KEY `message_id` (`message_id`),
   CONSTRAINT `messages_responses_ibfk_1` FOREIGN KEY (`message_from`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `messages_responses_ibfk_2` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `newsletter_sucribers`;
@@ -255,7 +255,7 @@ CREATE TABLE `newsletter_sucribers` (
   `updatedAt` datetime DEFAULT NULL,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `news_categories`;
@@ -267,7 +267,7 @@ CREATE TABLE `news_categories` (
   `color` text NOT NULL,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `news_elements`;
@@ -294,7 +294,7 @@ CREATE TABLE `news_elements` (
   CONSTRAINT `news_elements_ibfk_1` FOREIGN KEY (`category`) REFERENCES `news_categories` (`id`),
   CONSTRAINT `news_elements_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `news_elements_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `organizations_elements`;
@@ -333,7 +333,7 @@ CREATE TABLE `organizations_elements` (
   CONSTRAINT `organizations_elements_ibfk_2` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
   CONSTRAINT `organizations_elements_ibfk_3` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `organizations_elements_ibfk_4` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_app_config`;
@@ -343,7 +343,7 @@ CREATE TABLE `pcsphp_app_config` (
   `value` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_dynamic_images`;
@@ -355,7 +355,7 @@ CREATE TABLE `pcsphp_dynamic_images` (
   `image` text NOT NULL,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_recovery_password`;
@@ -366,7 +366,7 @@ CREATE TABLE `pcsphp_recovery_password` (
   `created` datetime NOT NULL,
   `expired` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_tickets_log`;
@@ -379,7 +379,7 @@ CREATE TABLE `pcsphp_tickets_log` (
   `information` longtext DEFAULT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_tokens`;
@@ -388,7 +388,7 @@ CREATE TABLE `pcsphp_tokens` (
   `token` text NOT NULL,
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_users`;
@@ -411,7 +411,7 @@ CREATE TABLE `pcsphp_users` (
   PRIMARY KEY (`id`),
   KEY `organization` (`organization`),
   CONSTRAINT `pcsphp_users_ibfk_1` FOREIGN KEY (`organization`) REFERENCES `organizations_elements` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_users_otp_secrets`;
@@ -430,7 +430,7 @@ CREATE TABLE `pcsphp_users_otp_secrets` (
   PRIMARY KEY (`id`),
   KEY `user` (`user`),
   CONSTRAINT `pcsphp_users_otp_secrets_ibfk_1` FOREIGN KEY (`user`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_user_problems`;
@@ -442,7 +442,7 @@ CREATE TABLE `pcsphp_user_problems` (
   `expired` datetime NOT NULL,
   `type` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `persons`;
@@ -467,7 +467,7 @@ CREATE TABLE `persons` (
   KEY `modifiedBy` (`modifiedBy`),
   CONSTRAINT `persons_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `persons_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `publications_attachments`;
@@ -491,7 +491,7 @@ CREATE TABLE `publications_attachments` (
   CONSTRAINT `publications_attachments_ibfk_1` FOREIGN KEY (`publication`) REFERENCES `publications_elements` (`id`),
   CONSTRAINT `publications_attachments_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `publications_attachments_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `publications_categories`;
@@ -501,7 +501,7 @@ CREATE TABLE `publications_categories` (
   `name` text NOT NULL,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `publications_elements`;
@@ -537,7 +537,7 @@ CREATE TABLE `publications_elements` (
   CONSTRAINT `publications_elements_ibfk_2` FOREIGN KEY (`category`) REFERENCES `publications_categories` (`id`),
   CONSTRAINT `publications_elements_ibfk_3` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `publications_elements_ibfk_4` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
 DROP TABLE IF EXISTS `time_on_platform`;
@@ -548,7 +548,7 @@ CREATE TABLE `time_on_platform` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `time_on_platform_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
--- 2024-12-10 19:39:21
+-- 2025-02-05 02:14:07

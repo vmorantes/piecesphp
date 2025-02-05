@@ -60,14 +60,14 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                         <br>
                         <div class="two fields">
 
-                            <div class="field required">
+                            <div class="field">
                                 <label><?= __($langGroup, 'Tamaño de la organización'); ?></label>
-                                <select required name="size" class="ui dropdown search"><?= $optionsSizes; ?></select>
+                                <select name="size" class="ui dropdown search"><?= $optionsSizes; ?></select>
                             </div>
 
-                            <div class="field required">
+                            <div class="field">
                                 <label><?= __($langGroup, 'Líneas de acción'); ?></label>
-                                <select required name="actionLines[]" class="ui dropdown search multiple no-auto" multiple><?= $optionsActionLines; ?></select>
+                                <select name="actionLines[]" class="ui dropdown search multiple no-auto" multiple><?= $optionsActionLines; ?></select>
                             </div>
 
                         </div>
@@ -88,14 +88,14 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                         <br>
                         <div class="two fields">
 
-                            <div class="field required">
+                            <div class="field">
                                 <label><?= __($langGroup, 'Teléfono'); ?></label>
-                                <input required type="tel" name="phone" placeholder="" value="<?= $element->getLangData($lang, 'phone', false, ''); ?>">
+                                <input type="tel" name="phone" placeholder="">
                             </div>
 
-                            <div class="field required">
-                                <label><?= __($langGroup, 'Correo informativo'); ?></label>
-                                <input required type="email" name="informativeEmail" placeholder="" value="<?= $element->getLangData($lang, 'informativeEmail', false, ''); ?>">
+                            <div class="field">
+                                <label><?= __($langGroup, 'Correo de la organización'); ?></label>
+                                <input type="email" name="informativeEmail" placeholder="" value="<?= $element->getLangData($lang, 'informativeEmail', false, ''); ?>">
                             </div>
 
                         </div>
@@ -109,9 +109,9 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                             <input required type="text" name="nit" placeholder="" value="<?= $element->getLangData($lang, 'nit', false, ''); ?>">
                         </div>
                         <br>
-                        <div class="field required">
+                        <div class="field">
                             <label><?= __($langGroup, 'ESAL autorizado por DIAN'); ?></label>
-                            <select required name="esal" class="ui dropdown search"><?= $optionsEsal; ?></select>
+                            <select name="esal" class="ui dropdown search"><?= $optionsEsal; ?></select>
                         </div>
                         <br>
                         <div class="field required">
@@ -140,13 +140,13 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                         <input required type="text" name="contactName" placeholder="" value="<?= $element->getLangData($lang, 'contactName', false, ''); ?>">
                     </div>
 
-                    <div class="field required">
+                    <div class="field">
                         <label><?= __($langGroup, 'Teléfono'); ?></label>
-                        <input required type="tel" name="contactPhone" placeholder="" value="<?= $element->getLangData($lang, 'contactPhone', false, ''); ?>">
+                        <input type="tel" name="contactPhone" placeholder="" value="<?= $element->getLangData($lang, 'contactPhone', false, ''); ?>">
                     </div>
 
                     <div class="field required">
-                        <label><?= __($langGroup, 'Correo informativo'); ?></label>
+                        <label><?= __($langGroup, 'Correo de contacto'); ?></label>
                         <input required type="email" name="contactEmail" placeholder="" value="<?= $element->getLangData($lang, 'contactEmail', false, ''); ?>">
                     </div>
 

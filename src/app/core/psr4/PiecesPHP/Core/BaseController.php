@@ -108,6 +108,7 @@ class BaseController
         } catch (Throwable $e) {
             ob_end_clean();
             set_flash_message('render_exception', $e, BaseController::class);
+            log_exception($e);
             header('Location: ' . get_current_url());
             die;
         }

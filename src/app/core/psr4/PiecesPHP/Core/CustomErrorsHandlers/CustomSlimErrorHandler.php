@@ -74,9 +74,9 @@ class CustomSlimErrorHandler
         }
 
         $codeException = '-';
-        try{
+        try {
             $codeException = $exception->getCode();
-        }catch(\Throwable $e){}
+        } catch (\Throwable $e) {}
 
         $jsonData = [
             'success' => false,
@@ -100,9 +100,9 @@ class CustomSlimErrorHandler
             unset($jsonData['detail']['line']);
             unset($jsonData['detail']['file']);
             $message = $exception->getMessage();
-            $html = var_dump_pretty([
+            $html = function_exists('var_dump_pretty') ? var_dump_pretty([
                 $jsonData['detail'],
-            ], '', true);
+            ], '', true) : '<pre>' . json_encode($jsonData['detail'], \JSON_UNESCAPED_SLASHES  | \JSON_UNESCAPED_UNICODE  | \JSON_PRETTY_PRINT) . '</pre>';
             $html = "
                 <html>
                     <style>

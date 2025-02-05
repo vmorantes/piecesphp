@@ -34,7 +34,7 @@ $globalClassPcs: 'ui-pcs';
 
         .#{$globalClassPcs}-loader {
             border: 16px solid transparentize($colorThird, 0.5);
-            border-top: 16px solid $colorSecond;
+            border-top: 16px solid var(--main-brand-color, $colorSecond);
             border-radius: 50%;
             width: 120px;
             height: 120px;
