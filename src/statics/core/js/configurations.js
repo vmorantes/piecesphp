@@ -26,6 +26,20 @@ pcsphpGlobals.adminURLConfig = (function () {
 	}
 	return adminURLConfig
 })()
+pcsphpGlobals.langMessagesFromServerURL = (function () {
+	let langMessagesFromServerURL = document.querySelector('html head meta[name="lang-messages-from-server-url"]')
+	if (langMessagesFromServerURL !== null) {
+		langMessagesFromServerURL = langMessagesFromServerURL.getAttribute('value')
+		langMessagesFromServerURL = typeof langMessagesFromServerURL == 'string' ? atob(langMessagesFromServerURL) : null
+		try {
+			langMessagesFromServerURL = typeof langMessagesFromServerURL == 'string' ? langMessagesFromServerURL : ''
+			langMessagesFromServerURL = langMessagesFromServerURL.trim().length > 0 ? langMessagesFromServerURL : null
+		} catch (e) {
+			langMessagesFromServerURL = null
+		}
+	}
+	return langMessagesFromServerURL
+})()
 
 //──── Lenguaje ──────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.lang = (function () {
@@ -58,11 +72,17 @@ pcsphpGlobals.messages.es = {
 		'es': 'Español',
 		'en': 'Inglés',
 		'fr': 'Francés',
+		'de': 'Alemán',
+		'it': 'Italiano',
+		'pt': 'Portugués',
 	},
 	langShort: {
 		'es': 'ES',
 		'en': 'EN',
 		'fr': 'FR',
+		'de': 'DE',
+		'it': 'IT',
+		'pt': 'PT',
 	},
 	titles: {
 		error: 'Error',
@@ -193,11 +213,17 @@ pcsphpGlobals.messages.en = {
 		'es': 'Spanish',
 		'en': 'English',
 		'fr': 'French',
+		'de': 'German',
+		'it': 'Italian',
+		'pt': 'Portuguese',
 	},
 	langShort: {
 		'es': 'ES',
 		'en': 'EN',
 		'fr': 'FR',
+		'de': 'DE',
+		'it': 'IT',
+		'pt': 'PT',
 	},
 	titles: {
 		error: 'Error',
@@ -1282,4 +1308,105 @@ function _i18n(type, message) {
 	} else {
 		return message
 	}
+}
+
+/**
+ * Intente tomar desde el servidor las traducciones
+ * @param {String} langGroup
+ */
+function registerDynamicLocalizationMessages(langGroup) {
+
+	const requestURL = pcsphpGlobals.langMessagesFromServerURL
+
+	if (typeof requestURL == 'string' && requestURL.length > 0) {
+
+		if (typeof pcsphpGlobals != 'object') {
+			window.pcsphpGlobals = {}
+		}
+		if (typeof pcsphpGlobals.messages != 'object') {
+			pcsphpGlobals.messages = {}
+		}
+		const url = new URL(requestURL)
+		url.searchParams.set('group', langGroup)
+		getRequest(url, '', {}, {
+			async: false,
+		}).done(function (response) {
+
+			const defaultLangData = typeof response['default'] == 'object' ? response['default'] : {}
+			const existentsMessages = []
+
+			//Añadir idiomas regulares
+			for (const langName in response) {
+
+				if (langName !== 'default') {
+
+					const langData = response[langName]
+
+					//Si no existe en el objeto se crea
+					if (typeof pcsphpGlobals.messages[langName] != 'object') {
+						pcsphpGlobals.messages[langName] = {}
+					}
+					if (typeof pcsphpGlobals.messages[langName][langGroup] != 'object') {
+						pcsphpGlobals.messages[langName][langGroup] = {}
+					}
+
+					//Añadir solo los que no estén presenten en JS
+					for (const langMessage in langData) {
+						const translateMessage = langData[langMessage]
+
+						if (typeof pcsphpGlobals.messages[langName][langGroup][langMessage] == 'undefined') {
+							pcsphpGlobals.messages[langName][langGroup][langMessage] = translateMessage
+						} else {
+							existentsMessages.push(`Ya hay una traducción para [ ${langMessage} ] en ${langGroup}:${langName}`)
+						}
+
+					}
+
+				}
+
+			}
+
+			//Añadir valores por defecto en todos los lugares donde no haya
+			for (const langName in response) {
+
+				if (langName !== 'default') {
+
+					//Iterar sobre default
+					for (const langMessage in defaultLangData) {
+						const defaultTranslation = defaultLangData[langMessage]
+						if (typeof pcsphpGlobals.messages[langName][langGroup][langMessage] == 'undefined') {
+							pcsphpGlobals.messages[langName][langGroup][langMessage] = defaultTranslation
+						}
+					}
+
+				}
+
+			}
+
+			if (existentsMessages.length > 0) {
+				console.info(existentsMessages)
+			}
+
+		})
+
+	}
+
+}
+
+/**
+ * Devuelve el valor de todo el grupo del lenguaje actual
+ * @param {String} langGroup
+ */
+function getLangGroupData(langGroup) {
+
+	const currentLang = pcsphpGlobals.lang
+	let groupData = {}
+
+	if (typeof pcsphpGlobals.messages[currentLang] == 'object') {
+		if (typeof pcsphpGlobals.messages[currentLang][langGroup] == 'object') {
+			groupData = pcsphpGlobals.messages[currentLang][langGroup]
+		}
+	}
+
+	return groupData
 }

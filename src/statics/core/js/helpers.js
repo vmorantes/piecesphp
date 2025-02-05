@@ -2448,3 +2448,64 @@ function responsiveObserver(observedElement, onChange, customSizes = []) {
 	}
 
 }
+
+/**
+ * Almacena en localStorage
+ * @param {String} name 
+ * @param {any} data 
+ * @return {String} El valor guardado convertido a string
+ */
+function setLocalStorageData(name, data) {
+	const toSave = JSON.stringify(data)
+	localStorage.setItem(name, toSave)
+	return toSave
+}
+
+/**
+ * Recupera de localStorage
+ * @param {String} name 
+ * @return {Object|String|Number}
+ */
+function getLocalStorageData(name) {
+	let data = localStorage.getItem(name)
+	return data !== null ? JSON.parse(data) : data
+}
+
+/**
+ * Utilidad para tomar variables del html de forma simple desde (solo desde la primera carga, luego no se actualizan):
+ * <template variables>
+ * 		<var name="VAR_NAME" value="VAR_VALUE"></var>
+ * </template>
+ * @param {String} name Nombre de la variable
+ * @returns {any|null}
+ */
+function getVariableFromHTML(name) {
+
+	name = typeof name == 'string' && name.trim().length > 0 ? name.trim() : null
+
+	let value = null
+	let variables = null
+
+	const htmlVariablesInMemory = typeof window.htmlVariablesInMemory !== 'undefined' ? window.htmlVariablesInMemory : null
+	const templateVariables = document.querySelector(`template[variables]`)
+
+	if ((templateVariables !== null || htmlVariablesInMemory) && name !== null) {
+
+		if (htmlVariablesInMemory === null) {
+			variables = document.createElement('div')
+			variables.innerHTML = templateVariables.innerHTML
+			window.htmlVariablesInMemory = variables
+			templateVariables.remove()
+		} else {
+			variables = htmlVariablesInMemory
+		}
+
+		let variable = variables.querySelector(`var[name="${name}"]`)
+		if (variable !== null) {
+			value = variable.getAttribute('value')
+		}
+
+	}
+	
+	return value
+}

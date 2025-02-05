@@ -92,8 +92,11 @@ if (!empty($langs)) {
 
     foreach ($langs as $lang => $url) {
 
+        $flagHTML = get_config('get_fomantic_flag_by_lang')($lang, 'small', 0.3);
         $menuLangGroup->addItem(new MenuItem([
-            'text' => $lang,
+            'text' => strReplaceTemplate("<span style='display: inline-block;background-color:rgba(0, 0, 0, 0.33);border-radius: 10px;padding:2.5px 2.5px 5px 2.5px'>{flag}</span>", [
+                '{flag}' => $flagHTML,
+            ]),
             'visible' => true,
             'href' => $url,
         ]));

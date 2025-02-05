@@ -66,6 +66,9 @@
             font-size: pxToRem(22);
             color: var(--main-brand-color);
             margin-bottom: pxToRem(20);
+            &.small{
+                font-size: pxToRem(18);
+            }
         }
 
         .content {

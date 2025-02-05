@@ -569,6 +569,7 @@ a.ui.button {
             cursor: pointer;
             transition: .5s;
             border-radius: 15px 0 0 15px;
+            object-fit: contain;
         }
 
         >.hover-content {

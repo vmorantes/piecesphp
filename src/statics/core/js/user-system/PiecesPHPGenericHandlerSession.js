@@ -1,7 +1,8 @@
 class PiecesPHPGenericHandlerSession {
 
-	constructor(tokenName) {
+	constructor(tokenName, onLogout) {
 		this.tokenName = tokenName
+		this.onLogout = typeof onLogout == 'function' ? onLogout : () => {}
 		this.verifyPairLocalStorageAndCookieSession()
 	}
 
@@ -55,6 +56,7 @@ class PiecesPHPGenericHandlerSession {
 		let JWTFromCookie = this.getCookie(this.tokenName)
 		JWTFromCookie = typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : ''
 		JWT = JWT.length > 0 ? JWT : JWTFromCookie
+		this.onLogout()
 
 		if (JWT.length > 0) {
 			document.cookie = `${this.tokenName}=;expires=${now};path=/`;

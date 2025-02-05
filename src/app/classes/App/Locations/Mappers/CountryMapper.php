@@ -8,6 +8,8 @@ namespace App\Locations\Mappers;
 
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Database\ORM\Statements\Critery\WhereItem;
+use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
 
 /**
  * CountryMapper.
@@ -180,6 +182,42 @@ class CountryMapper extends BaseEntityMapper
         }
 
         $model->where($where);
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        if ($asMapper) {
+            $result = array_map(function ($e) {
+                return new CountryMapper($e->id);
+            }, $result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string[] $regions
+     * @param bool $asMapper
+     * @param bool $onlyActives
+     * @return static[]|array
+     */
+    public static function allByRegions(array $regions = [], bool $asMapper = false, bool $onlyActives = false)
+    {
+        $model = self::model();
+
+        $model->select(self::fieldsToSelect());
+        $regions[] = 'NONE';
+        $regionsForFindInSet = implode(',', $regions);
+        $whereSegment = new WhereSegment([
+            WhereItem::findInSet($regionsForFindInSet, 'region', true),
+        ]);
+
+        if ($onlyActives) {
+            $whereSegment->addCritery(new WhereItem('active', WhereItem::EQUAL_OPERATOR, self::ACTIVE, WhereItem::AND_OPERATOR));
+        }
+
+        $model->where($whereSegment);
         $model->execute();
 
         $result = $model->result();

@@ -104,8 +104,7 @@ class Response implements \JsonSerializable
     /**
      * @return array
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'success' => $this->success,
