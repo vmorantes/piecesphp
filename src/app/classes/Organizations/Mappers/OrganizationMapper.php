@@ -219,6 +219,7 @@ class OrganizationMapper extends EntityMapperExtensible
     ];
     const EDITORS = [
         UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_GENERAL,
     ];
 
     const TABLE = 'organizations_elements';

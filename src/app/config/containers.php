@@ -66,6 +66,12 @@ $container_configurations = [
          */
         $request = $notFoundError->getRequest();
         $response = new ResponseRoute(StatusCode::HTTP_NOT_FOUND);
+        $extraDataKey = 'information404';
+        $extraData = $request->getAttribute($extraDataKey, []);
+        $extraData = is_array($extraData) ? $extraData : [];
+
+        $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
+        $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
 
         if (API_MODULE) {
             if ($request->getMethod() == 'OPTIONS') {
@@ -73,11 +79,15 @@ $container_configurations = [
             }
         }
 
-        if (!$request->isXhr()) {
-            $controller = new PiecesPHP\Core\BaseController(false);
-            $controller->render('pages/404');
-        } else {
+        $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
+
+        if ($request->isXhr() || $requestTypeIsJSON) {
             $response = $response->withJson("404 Not Found");
+        } else {
+            $dataController = $extraData;
+            $dataController['url'] = $url;
+            $controller = new PiecesPHP\Core\BaseController(false);
+            $controller->render('pages/404', $dataController);
         }
 
         return $response;
@@ -88,9 +98,22 @@ $container_configurations = [
          * @var RequestRoute $request
          */
         $request = $forbiddenError->getRequest();
+        $route = $request->getRoute();
+        $extraDataKey = 'information403';
         $response = new ResponseRoute(StatusCode::HTTP_FORBIDDEN);
-        $extraData = $request->getAttribute('information403', []);
+        $extraData = $request->getAttribute($extraDataKey, []);
         $extraData = is_array($extraData) ? $extraData : [];
+
+        if ($route !== null) {
+            $routeName = $route->getName();
+            $routeInformation = get_route_info($routeName);
+            $requireLogin = $routeInformation['require_login'];
+            //Definir el botón de volver en la ruta administrativa si no hay una url definida y la ruta requiere login
+            $adminRoute = get_route('admin');
+            if ($requireLogin && !array_key_exists('url', $extraData)) {
+                $extraData['url'] = $adminRoute;
+            }
+        }
 
         $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
         $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;

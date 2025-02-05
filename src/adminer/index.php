@@ -3,8 +3,8 @@ define('_DEV_MODE_', false);
 
 $httpUser = isset($_SERVER['PHP_AUTH_USER']) ? $_SERVER['PHP_AUTH_USER'] : null;
 $httpPassword = isset($_SERVER['PHP_AUTH_PW']) ? $_SERVER['PHP_AUTH_PW'] : null;
-$user = '$2y$10$KulwTp7Shm28baDBTALDtui5vFlZzjilacuYPs/StYLHm6RSeBeQ2';
-$password = '$2y$10$UKOuG4XUi10YYqN46u6hueE6XRb72ZtLLRIt7qw2WFO3z3MWFF1Aa';
+$user = '$2y$10$LrJGo3zCpWaxOrc4KLF5HeD.9wIidIL5QAeAkPwmJXLYxwCXxq.by';
+$password = '$2y$10$9oL913NBrERZHYdMT3JVceaUCNnIv5snA2KoNH8Qsm/temn/qKNKG';
 
 $valid = $httpUser !== null && $httpPassword !== null;
 $valid = $valid && password_verify($httpPassword, $password) && password_verify($httpUser, $user);

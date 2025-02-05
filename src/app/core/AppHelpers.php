@@ -171,11 +171,21 @@ function get_lang_url($current_lang = 'es', $target_lang = 'en')
 function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
 {
 
+    $debugMode = isset($GLOBALS['debug_convert_lang_url']) && $GLOBALS['debug_convert_lang_url'];
     $default_lang = get_config('default_lang');
     $target_is_default = $target_lang == $default_lang;
     $current_is_default = $current_lang == $default_lang;
 
     $current_is_same_target = $current_lang == $target_lang || Config::get_lang() == $target_lang;
+
+    if ($debugMode) {
+        $test['target_lang'] = $target_lang;
+        $test['input_url'] = $input_url;
+        $test['default_lang'] = $default_lang;
+        $test['target_is_default'] = $target_is_default;
+        $test['current_is_default'] = $current_is_default;
+        $test['current_is_same_target'] = $current_is_same_target;
+    }
 
     $lang_url = '';
 
@@ -188,26 +198,71 @@ function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
         $protocol_input_url = mb_strpos($input_url, 'https://') !== false ? 'https://' : 'http://';
         $protocol_base_url = mb_strpos($base_url, 'https://') !== false ? 'https://' : 'http://';
 
+        if ($debugMode) {
+            $test['input_url_end_slash'] = $input_url_end_slash;
+            $test['base_url'] = $base_url;
+            $test['protocol_input_url'] = $protocol_input_url;
+            $test['protocol_base_url'] = $protocol_base_url;
+        }
+
         $input_url = str_replace($protocol_input_url, '', $input_url);
         $base_url = str_replace($protocol_base_url, '', $base_url);
         $segment_url = str_replace($base_url, '', $input_url);
+
+        if ($debugMode) {
+            $test['input_url2'] = $input_url;
+            $test['base_url2'] = $base_url;
+            $test['segment_url'] = $segment_url;
+        }
 
         $segments_url = array_filter(explode('/', $segment_url), function ($e) {
             return mb_strlen(trim($e)) > 0;
         });
         $segment_url = implode('/', $segments_url);
+        if ($debugMode) {
+            $test['segments_url'] = $segments_url;
+            $test['segment_url2'] = $segment_url;
+        }
 
-        $lang_url = !$target_is_default ? baseurl("{$target_lang}/$segment_url") : baseurl("$segment_url");
+        $segment_is_equal_than_input_url = trim($input_url, '/') == $segment_url;
+        $segment_is_equal_than_selected_lang = trim($target_lang, '/') == $segment_url;
+        $lang_url = !$target_is_default ? (
+            !$segment_is_equal_than_selected_lang ?
+            baseurl("{$target_lang}/$segment_url") :
+            $protocol_input_url . $input_url
+        ) : (
+            $segment_is_equal_than_input_url ?
+            $protocol_input_url . $input_url :
+            baseurl("$segment_url")
+        );
+        if ($debugMode) {
+            $test['segment_is_equal_than_input_url'] = $segment_is_equal_than_input_url;
+            $test['segment_is_equal_than_selected_lang'] = $segment_is_equal_than_selected_lang;
+            $test['lang_url'] = $lang_url;
+        }
         $lang_url = str_replace($protocol_base_url, $protocol_input_url, $lang_url);
 
         $lang_url_end_slash = last_char($lang_url) === '/';
+
+        if ($debugMode) {
+            $test['lang_url2'] = $lang_url;
+            $test['lang_url_end_slash'] = $lang_url_end_slash;
+        }
 
         if ($input_url_end_slash && !$lang_url_end_slash) {
             $lang_url .= '/';
         }
 
+        if ($debugMode) {
+            $test['lang_url3'] = $lang_url;
+        }
+
     } else {
         $lang_url = $input_url;
+    }
+
+    if ($debugMode) {
+        var_dump($test);
     }
 
     return $lang_url;
@@ -314,6 +369,77 @@ function lang(string $type, string $message, string $lang, bool $echo = false)
 }
 
 /**
+ * Se diferencia de lang() en que recibe $lang como primer parámetro
+ *
+ * @param string $lang Idioma
+ * @param string $type Índice del tipo de mensaje
+ * @param string $message Índice del mensaje en el tipo dado
+ * @param boolean $echo Si es true hace echo, si no solo retorna el mensaje
+ * @return string|string[]
+ * Si $echo es true retorna el string y hace un echo de este.
+ * Si $echo es false retorna un string correspondiente al mensaje.
+ * Si $message es '' devuelve el array completo de mensajes en $type
+ */
+function lang2(string $lang, string $type, string $message, bool $echo = false)
+{
+    return Config::i18n($type, $message, $echo, $lang);
+}
+
+/**
+ * Devuele el codigo de lenguaje que considera más apropiado para el usuario actual
+ * basándose en HTTP_ACCEPT_LANGUAGE
+ *
+ * @param string[] $supportedLanguages Recibe un array de los idiomas soportados
+ * @return string
+ */
+function getPreferredLanguageByHeader(array $supportedLanguages)
+{
+
+    $default = Config::get_default_lang();
+
+    //Verificar si se envió la cabecera Accept-Language
+    if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        return $default; // Si no existe la cabecera, usar el idioma por defecto
+    }
+
+    //Obtener la cabecera y dividirla en las opciones separadas por comas
+    $acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+    $languages = explode(',', $acceptLanguage);
+
+    //Crear un arreglo para almacenar las preferencias del cliente
+    $preferences = [];
+
+    //Analizar cada opción del encabezado
+    foreach ($languages as $lang) {
+        //Dividir idioma y peso (q)
+        $parts = explode(';', $lang);
+        $language = trim($parts[0]); // Primer parte es el idioma
+        $weight = isset($parts[1]) ? floatval(str_replace('q=', '', $parts[1])) : 1.0; // Peso por defecto es 1.0
+        $preferences[$language] = $weight;
+    }
+
+    //Ordenar por peso (de mayor a menor)
+    arsort($preferences);
+
+    //Comparar las preferencias del usuario con los idiomas soportados
+    foreach ($preferences as $language => $weight) {
+        //Buscar coincidencias exactas primero
+        if (in_array($language, $supportedLanguages)) {
+            return $language;
+        }
+
+        //Si no hay coincidencia exacta, probar el código base (ej. "es" en vez de "es-ES")
+        $baseLanguage = strtok($language, '-'); // Obtener solo la parte antes del guión
+        if (in_array($baseLanguage, $supportedLanguages)) {
+            return $baseLanguage;
+        }
+    }
+
+    //Si no hay coincidencias, devolver el idioma por defecto
+    return $default;
+}
+
+/**
  * @param bool $update
  * @return string
  */
@@ -366,7 +492,7 @@ function add_cache_stamp_to_url(string $url)
  * @var array<string,string[]> $config['attrNoApplyTo']
  * @return void
  */
-function load_js(array $config = array())
+function load_js(array $config = [])
 {
     $global_assets = get_config('global_assets');
     $custom_assets = get_config('custom_assets');
@@ -607,7 +733,7 @@ function load_js(array $config = array())
  * @var array<string,string[]> $config['attrNoApplyTo']
  * @return void
  */
-function load_css(array $config = array())
+function load_css(array $config = [])
 {
     $global_assets = get_config('global_assets');
     $custom_assets = get_config('custom_assets');
@@ -852,7 +978,7 @@ function load_css(array $config = array())
  * @var array<string,string[]> $config['attrNoApplyTo']
  * @return void
  */
-function load_font(array $config = array())
+function load_font(array $config = [])
 {
     $global_assets = get_config('global_assets');
     $custom_assets = get_config('custom_assets');
@@ -2806,19 +2932,19 @@ function var_dump_pretty($data, $label = '', $return = false)
     $c = preg_replace("/(\"\n{1,})( {0,}\[)/sim", "$1</span>$2", $c);
     $c = preg_replace("/(string\([0-9]+\) )\"(.*?)\"\n/sim", "$1<span class=\"string\">\"$2\"</span>\n", $c);
 
-    $regex = array(
+    $regex = [
         // Numberrs
-        'numbers' => array('/(^|] = )(array|float|int|string|resource|object\(.*\)|\&amp;object\(.*\))\(([0-9\.]+)\)/i', '$1$2(<span class="number">$3</span>)'),
+        'numbers' => ['/(^|] = )(array|float|int|string|resource|object\(.*\)|\&amp;object\(.*\))\(([0-9\.]+)\)/i', '$1$2(<span class="number">$3</span>)'],
         // Keywords
-        'null' => array('/(^|] = )(null)/i', '$1<span class="keyword">$2</span>'),
-        'bool' => array('/(bool)\((true|false)\)/i', '$1(<span class="keyword">$2</span>)'),
+        'null' => ['/(^|] = )(null)/i', '$1<span class="keyword">$2</span>'],
+        'bool' => ['/(bool)\((true|false)\)/i', '$1(<span class="keyword">$2</span>)'],
         // Types
-        'types' => array('/(of type )\((.*)\)/i', '$1(<span class="type">$2</span>)'),
+        'types' => ['/(of type )\((.*)\)/i', '$1(<span class="type">$2</span>)'],
         // Objects
-        'object' => array('/(object|\&amp;object)\(([\w]+)\)/i', '$1(<span class="object">$2</span>)'),
+        'object' => ['/(object|\&amp;object)\(([\w]+)\)/i', '$1(<span class="object">$2</span>)'],
         // Function
-        'function' => array('/(^|] = )(array|string|int|float|bool|resource|object|\&amp;object)\(/i', '$1<span class="function">$2</span>('),
-    );
+        'function' => ['/(^|] = )(array|string|int|float|bool|resource|object|\&amp;object)\(/i', '$1<span class="function">$2</span>('],
+    ];
 
     foreach ($regex as $x) {
         $c = preg_replace($x[0], $x[1], $c);
@@ -2903,4 +3029,21 @@ function setCookieByConfig(string $name, string $value)
     $secure = array_key_exists('secure', $cookiesConfig) ? $cookiesConfig['secure'] : false;
     $httponly = array_key_exists('httponly', $cookiesConfig) ? $cookiesConfig['httponly'] : false;
     setcookie($name, $value, $lifetime, $path, $domain, $secure, $httponly);
+}
+
+/**
+ * Devulve el valor o null si no existe
+ * @param string $name
+ * @param bool $jsonDecode
+ * @param bool $jsonDecodeAsArray
+ * @return \stdClass|array|string|null|int|double|bool
+ */
+function getCookie(string $name, bool $jsonDecode = false, bool $jsonDecodeAsArray = false)
+{
+    $exits = array_key_exists($name, $_COOKIE);
+    $value = $exits ? $_COOKIE[$name] : null;
+    if ($jsonDecode && is_string($value)) {
+        $value = @json_decode($value, $jsonDecodeAsArray);
+    }
+    return $value;
 }

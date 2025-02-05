@@ -20,6 +20,7 @@ return [
     'Imagen preferiblemente con fondo transparente. Tamaño de la imagen {dimensions}'                                   => 'Image preferably with transparent background. Image size {dimensions}',
     'Íconos de favoritos (favicon)'                                                                                     => 'Favorite icons (favicon)',
     'Favicon en zona pública'                                                                                           => 'Favicon in public area',
+    'Correos electrónicos'                                                                                              => 'E-mails',
     'Favicon en zona administrativa'                                                                                    => 'Favicon in administrative area',
     'Logos'                                                                                                             => 'Logos',
     'Logo'                                                                                                              => 'Logo',

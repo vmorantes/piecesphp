@@ -46,14 +46,14 @@ use Organizations\Mappers\OrganizationMapper;
                         <br>
                         <div class="two fields">
 
-                            <div class="field required">
+                            <div class="field">
                                 <label><?= __($langGroup, 'Tamaño de la organización'); ?></label>
-                                <select required name="size" class="ui dropdown search"><?= $optionsSizes; ?></select>
+                                <select name="size" class="ui dropdown search"><?= $optionsSizes; ?></select>
                             </div>
 
-                            <div class="field required">
+                            <div class="field">
                                 <label><?= __($langGroup, 'Líneas de acción'); ?></label>
-                                <select required name="actionLines[]" class="ui dropdown search multiple no-auto" multiple><?= $optionsActionLines; ?></select>
+                                <select name="actionLines[]" class="ui dropdown search multiple no-auto" multiple><?= $optionsActionLines; ?></select>
                             </div>
 
                         </div>
@@ -74,14 +74,14 @@ use Organizations\Mappers\OrganizationMapper;
                         <br>
                         <div class="two fields">
 
-                            <div class="field required">
+                            <div class="field">
                                 <label><?= __($langGroup, 'Teléfono'); ?></label>
-                                <input required type="tel" name="phone" placeholder="">
+                                <input type="tel" name="phone" placeholder="">
                             </div>
 
-                            <div class="field required">
-                                <label><?= __($langGroup, 'Correo informativo'); ?></label>
-                                <input required type="email" name="informativeEmail" placeholder="">
+                            <div class="field">
+                                <label><?= __($langGroup, 'Correo de la organización'); ?></label>
+                                <input type="email" name="informativeEmail" placeholder="">
                             </div>
 
                         </div>
@@ -95,9 +95,9 @@ use Organizations\Mappers\OrganizationMapper;
                             <input required type="text" name="nit" placeholder="">
                         </div>
                         <br>
-                        <div class="field required">
+                        <div class="field">
                             <label><?= __($langGroup, 'ESAL autorizado por DIAN'); ?></label>
-                            <select required name="esal" class="ui dropdown search"><?= $optionsEsal; ?></select>
+                            <select name="esal" class="ui dropdown search"><?= $optionsEsal; ?></select>
                         </div>
                         <br>
                         <div class="field required">
@@ -126,13 +126,13 @@ use Organizations\Mappers\OrganizationMapper;
                         <input required type="text" name="contactName" placeholder="">
                     </div>
 
-                    <div class="field required">
+                    <div class="field">
                         <label><?= __($langGroup, 'Teléfono'); ?></label>
-                        <input required type="tel" name="contactPhone" placeholder="">
+                        <input type="tel" name="contactPhone" placeholder="">
                     </div>
 
                     <div class="field required">
-                        <label><?= __($langGroup, 'Correo informativo'); ?></label>
+                        <label><?= __($langGroup, 'Correo de contacto'); ?></label>
                         <input required type="email" name="contactEmail" placeholder="">
                     </div>
 

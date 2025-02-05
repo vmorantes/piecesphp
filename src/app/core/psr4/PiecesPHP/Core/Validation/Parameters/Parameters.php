@@ -225,8 +225,7 @@ class Parameters implements \JsonSerializable
     /**
      * @return array
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'parameters' => $this->parameters,

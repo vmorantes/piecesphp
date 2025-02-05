@@ -31,6 +31,21 @@ class NotFoundException extends HttpNotFoundException
      */
     public function __construct(RequestRoute $request, ?ResponseRoute $response = null, ?string $message = null, ?Throwable $previous = null)
     {
+        $route = $request->getRoute();
+        $extraDataKey = 'information404';
+        $extraData = $request->getAttribute($extraDataKey, []);
+        $extraData = is_array($extraData) ? $extraData : [];
+        if ($route !== null) {
+            $routeName = $route->getName();
+            $routeInformation = get_route_info($routeName);
+            $requireLogin = $routeInformation['require_login'];
+            //Definir el botón de volver en la ruta administrativa si no hay una url definida y la ruta requiere login
+            $adminRoute = get_route('admin');
+            if ($requireLogin && !array_key_exists('url', $extraData)) {
+                $extraData['url'] = $adminRoute;
+            }
+        }
+        $request = $request->withAttribute($extraDataKey, $extraData);
         parent::__construct($request, $message, $previous);
         $this->response = $response;
     }

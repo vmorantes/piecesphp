@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="cache-stamp" value="<?= get_config('cacheStamp'); ?>">
+    <meta name="lang-messages-from-server-url" value="<?= base64_encode(\PiecesPHP\LocalizationSystem\Controllers\LocalizationSystemController::routeName('get-lang-messages-by-group')); ?>">
     <meta name="config-admin-url" value="<?= base64_encode(@json_encode(get_config('admin_url'))); ?>">
     <base href="<?= baseurl(); ?>">
     <?= \PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric(); ?>

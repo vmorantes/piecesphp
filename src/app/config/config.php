@@ -79,6 +79,8 @@ $config['mailjet'] = [
     'secretKey' => 'SECRET_KEY',
 ];
 
+$config['SurveyJSKey'] = "";
+
 //──── Azure ─────────────────────────────────────────────────────────────────────────────
 $config['Azure'] = [
     'BASE_STORAGE_ACCOUNT_NAME' => '',
@@ -86,6 +88,13 @@ $config['Azure'] = [
     //Asociada al contenedor: X
     'BASE_STORAGE_ACCESS_QUERY_PARAMS' => '',
 ];
+
+//──── Geolozalización ───────────────────────────────────────────────────────────────────
+//GeoIP
+$config['GEO_IP'] = [
+ 'custom_directory' => realpath(__DIR__ . '/../../geoip'),
+];
+ini_set('geoip.custom_directory', $config['GEO_IP']['custom_directory']);
 
 //======Información complementaria para mostrar en la aplicación========
 

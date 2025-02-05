@@ -52,7 +52,7 @@ class UsersModel extends EntityMapperExtensible
      */
     const TYPES_USERS = [
         self::TYPE_USER_ROOT => 'Principal',
-        self::TYPE_USER_ADMIN => 'Administrativo',
+        self::TYPE_USER_ADMIN => 'Administrador',
         self::TYPE_USER_GENERAL => 'General',
     ];
 

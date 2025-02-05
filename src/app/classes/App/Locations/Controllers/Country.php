@@ -196,12 +196,15 @@ class Country extends AdminPanelController
         $ids = $request->getQueryParam('ids', []);
         $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
 
-        if ($region !== null) {
-            if (is_string($region) && mb_strlen(trim($region))) {
-                $region = trim($region);
-            } else {
-                $region = "";
-            }
+        if ($region !== null && is_string($region) && mb_strlen(trim($region)) > 0) {
+            $region = array_map(function ($e) {
+                $e = is_string($e) && mb_strlen(trim($e)) > 0 ? trim($e) : 'EMPTY';
+                return "UPPER('{$e}')";
+            }, explode(',', $region));
+            $region[] = "UPPER('NONE')";
+            $region = implode(',', $region);
+        } else {
+            $region = null;
         }
 
         $query = $this->model->select();
@@ -211,7 +214,7 @@ class Country extends AdminPanelController
 
         if (!is_null($region)) {
             $operator = !empty($where) ? ' AND ' : '';
-            $critery = "{$operator} (UPPER(region) = UPPER('{$region}'))";
+            $critery = "{$operator} ( UPPER(region) IN ({$region}) )";
             $where[] = $critery;
         }
 
