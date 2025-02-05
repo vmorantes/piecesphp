@@ -7,11 +7,17 @@ $lang = [
         'es' => 'Español',
         'en' => 'Inglés',
         'fr' => 'Francés',
+        'de' => 'Alemán',
+        'it' => 'Italiano',
+        'pt' => 'Portugués',
     ],
     'langShort' => [
         'es' => 'ES',
         'en' => 'EN',
         'fr' => 'FR',
+        'de' => 'DE',
+        'it' => 'IT',
+        'pt' => 'PT',
     ],
     'formatsDate' => [
         'd-m-Y h:i:s'   => 'd-m-Y h:i:s',

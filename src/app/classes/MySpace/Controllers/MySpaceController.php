@@ -199,14 +199,8 @@ class MySpaceController extends AdminPanelController
         $refererURL = is_string($refererURL) && mb_strlen($refererURL) > 0 ? $refererURL : null;
 
         if ($source == 'mail-users-template') {
-            $this->helpController->render('mailing/template_base', [
-                'header_image' => base_url(get_config('mailing_logo')),
-                'text' => "Razón del correo de ejemplo",
-                'code' => generate_code(6, true),
-                'note' => "Mensaje informativo del correo electrónico.",
-                'url' => $refererURL !== null ? $refererURL : '#',
-                'text_button' => 'Llamado a la acción',
-                'text_footer' => 'Texto del footer - ' . get_config('owner'),
+            self::view('resources/mail-sample', [
+                'refererURL' => $refererURL,
             ]);
         } elseif ($source == 'survey-js-creator') {
             self::view('resources/survey-js-creator', []);

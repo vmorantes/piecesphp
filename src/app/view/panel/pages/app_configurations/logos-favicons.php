@@ -81,6 +81,28 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                         'height' => 400,
                     ]);
                 ?>
+                <?php
+                    imageUploaderForCropperAdminViews([
+                        //Imagen de vista previa, string
+                        'image' => $mailingLogo,
+                        //Texto en alt de la etiqueta img, string
+                        'imageAlt' => null,
+                        // Por defecto tiene la clase image-action pueden añadirse más, string
+                        'classes' => null, 
+                        //Atributos que se añaden al contenedor .image-action, string
+                        'imageActionAttrs' => "mailing-logo-card",
+                        //Texto que refiere al cambio de imagen, string
+                        'changeImageText' => null,
+                        //Título de la ficha, string
+                        'title' => __($langGroup, "Correos electrónicos"),
+                        //Texto descriptivo de la ficha, string
+                        'description' => null,
+                        //Ancho de referencia, int
+                        'width' => 500,
+                        //Alto de referencia, int
+                        'height' => 172,
+                    ]);
+                ?>
             </div>
 
             <span class="card-tag">
@@ -182,6 +204,20 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                 'image' => $publicFavicon,
                 //Modal
                 'modalContainerAttrs' => 'favicon-modal',
+                'modalContainerClasses' => 'ui tiny modal',
+                'titleModal' => null,
+                'descriptionModal' => null,
+            ],
+            [
+                //Formulario y cropper
+                'actionURL' => $actionURL,
+                'classForm' => 'mailing-logo',
+                'selectorAttr' => 'mailing-logo-cropper',
+                'referenceW' => '500',
+                'referenceH' => '172',
+                'image' => $mailingLogo,
+                //Modal
+                'modalContainerAttrs' => 'mailing-logo-modal',
                 'modalContainerClasses' => 'ui tiny modal',
                 'titleModal' => null,
                 'descriptionModal' => null,

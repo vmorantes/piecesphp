@@ -62,6 +62,12 @@ class GenericHandler
 
         $this->date = $date;
 
+        if (!defined('LOG_ERRORS_PATH')) {
+            define('LOG_ERRORS_PATH', realpath(__DIR__ . '/../../../../../logs'));
+        }
+        if (!defined('LOG_ERRORS_BACKUP_PATH')) {
+            define('LOG_ERRORS_BACKUP_PATH', realpath(__DIR__ . '/../../../../../logs/olds'));
+        }
         $this->directory = LOG_ERRORS_PATH;
         $this->directoryBackup = LOG_ERRORS_BACKUP_PATH;
 

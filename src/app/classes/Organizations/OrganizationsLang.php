@@ -26,7 +26,9 @@ class OrganizationsLang extends LangInjector
      */
     public static function injectLang()
     {
-        $injector = new LangInjector(__DIR__ . '/lang', Config::get_allowed_langs());
+        $langs = Config::get_allowed_langs();
+        $langs[] = 'default'; //Para añadir por defecto
+        $injector = new LangInjector(__DIR__ . '/lang', $langs);
         $injector->injectGroup(self::LANG_GROUP);
     }
 

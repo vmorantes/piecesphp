@@ -71,6 +71,7 @@ use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\Core\Test;
+use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use Publications\PublicationsRoutes;
 use Terminal\Controllers\TerminalController;
@@ -153,6 +154,9 @@ GoogleReCaptchaV3Routes::routes(new PiecesRouteGroup($prefix_lang . '/recaptcha'
 
 //Utilidad de importación y exportación
 DataImportExportUtilityRoutes::routes($zona_administrativa);
+
+//Utilidad de localización (idiomas)
+LocalizationSystemFeaturesRoutes::routes($zona_administrativa);
 
 //API
 APIRoutes::routes($coreGroup);
