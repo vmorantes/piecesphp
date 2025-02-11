@@ -18,6 +18,7 @@ sudo apt-get install -y language-pack-es
 Defina las variables a utilizar, reemplazando los valores a continuación por los que requiera:
 
 ```bash
+export HESTIA_ADMIN_USER="admin"
 export HESTIA_DOMAIN="sample.com"
 export HESTIA_EMAIL="admin@sample.com"
 export HESTIA_PASSWORD="hestiacp8083pass"
@@ -37,7 +38,33 @@ wget https://raw.githubusercontent.com/hestiacp/hestiacp/release/install/hst-ins
 sudo bash hst-install.sh --hostname $HESTIA_DOMAIN --email $HESTIA_EMAIL --password $HESTIA_PASSWORD --multiphp yes --clamav no --quota yes
 
 #Instalación con todas las opciones
-sudo bash hst-install.sh --apache yes --phpfpm yes --multiphp yes --vsftpd yes --proftpd no --named yes --mysql yes --postgresql no --exim yes --dovecot yes --clamav no --spamassassin yes --iptables yes --fail2ban yes --quota yes --api yes --lang en --interactive yes --hostname $HESTIA_DOMAIN --email $HESTIA_EMAIL --password $HESTIA_PASSWORD -f
+bash hst-install.sh \
+    --apache yes \
+    --phpfpm yes \
+    --multiphp '7.2,7.3,7.4,8.0,8.1,8.2,8.5' \
+    --vsftpd yes \
+    --proftpd no \
+    --named yes \
+    --mysql yes \
+    --mysql8 no \
+    --postgresql no \
+    --exim yes \
+    --dovecot yes \
+    --clamav no \
+    --spamassassin yes \
+    --iptables yes \
+    --fail2ban yes \
+    --quota yes \
+    --api yes \
+    --lang en \
+    --interactive yes \
+    --hostname $HESTIA_DOMAIN \
+    --email $HESTIA_EMAIL \
+    --password $HESTIA_PASSWORD \
+    --username $HESTIA_ADMIN_USER \
+    --webterminal yes \
+    --sieve no \
+    --force;
 ```
 
 ### Acceso
