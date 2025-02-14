@@ -1410,3 +1410,9 @@ function getLangGroupData(langGroup) {
 
 	return groupData
 }
+
+
+window.dispatchEvent(new Event('PiecesPHP-Configurations-Load'))
+window.addEventListener('load', function () {
+	window.dispatchEvent(new Event('PiecesPHP-Configurations-And-Window-Load'))
+})

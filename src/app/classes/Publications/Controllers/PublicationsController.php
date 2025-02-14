@@ -1735,10 +1735,7 @@ class PublicationsController extends AdminPanelController
                 "{$startRoute}/all[/]",
                 $classname . ':all',
                 self::$baseRouteName . '-ajax-all',
-                'GET',
-                true,
-                null,
-                $list
+                'GET'
             ),
             new Route( //Datos para datatables
                 "{$startRoute}/datatables[/]",

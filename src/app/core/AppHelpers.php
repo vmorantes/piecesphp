@@ -1948,12 +1948,13 @@ function import_apexcharts(array $plugins = [], bool $all = true)
  *
  * @param array $plugins
  * @param bool $all
+ * @param bool $ignoreElfinder
  * @return void
  */
-function import_default_rich_editor(array $plugins = [], bool $all = true)
+function import_default_rich_editor(array $plugins = [], bool $all = true, bool $ignoreElfinder = false)
 {
     import_front_library('defaultRichEditor', $plugins, $all);
-    if (function_exists('import_elfinder')) {
+    if (function_exists('import_elfinder') && !$ignoreElfinder) {
         import_elfinder();
     }
 }

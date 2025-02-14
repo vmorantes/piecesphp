@@ -67,7 +67,8 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			'subscript',
 			'htmlEmbed',
 			'horizontalLine',
-			'codeBlock'
+			'sourceEditing',
+			//'codeBlock'
 		]
 	}
 
