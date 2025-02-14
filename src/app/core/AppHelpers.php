@@ -496,6 +496,7 @@ function load_js(array $config = [])
 {
     $global_assets = get_config('global_assets');
     $custom_assets = get_config('custom_assets');
+    $asModules = get_config('as_modules_assets');
 
     ksort($global_assets['js']);
     ksort($custom_assets['js']);
@@ -637,7 +638,7 @@ function load_js(array $config = [])
     /**
      * @return string
      */
-    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr) {
+    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr, $asModules) {
 
         $defaultConfig = [
             'base_url' => [
@@ -683,6 +684,13 @@ function load_js(array $config = [])
 
         $path = $configValues['baseURL'] . $src;
         $attributes['src'] = $path;
+        //Revisar si es tipo módulo
+        foreach ($asModules as $asModule) {
+            if (mb_strpos($src, $asModule) !== false) {
+                $attributes['type'] = 'module';
+                break;
+            }
+        }
 
         $attributes = ($processAttr)($config, $attributes, $src);
 
@@ -716,7 +724,7 @@ function load_js(array $config = [])
         $url = URLManager::fromString($script);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $script = $url->__toString();
-        $tag = ($processElement)($config, $script);
+        $tag = ($processElement)($config, $script, []);
         echo $tag . "\n";
     }
 }
@@ -1388,6 +1396,34 @@ function add_global_requireds_assets(array $custom_assets, string $type)
 }
 
 /**
+ * Añade un elemento a la lista de los que se importan como módulos (JS)
+ *
+ * @param string $asset
+ * @return bool
+ */
+function add_as_module_asset(string $asset)
+{
+    $as_modules_assets = get_config('as_modules_assets');
+    $as_modules_assets = is_array($as_modules_assets) ? $as_modules_assets : [];
+    if (!in_array($asset, $as_modules_assets)) {
+        $as_modules_assets[] = $asset;
+    }
+    set_config('as_modules_assets', $as_modules_assets);
+}
+/**
+ * Añade múltiples elementos a la lista de los que se importan como módulos (JS)
+ *
+ * @param string[] $assets
+ * @return bool
+ */
+function add_as_module_assets(array $assets)
+{
+    foreach ($assets as $asset) {
+        add_as_module_asset($asset);
+    }
+}
+
+/**
  * Remueve un asset global, devuelve el índice si fue removido, devuelve false si no existe
  * o en caso de no removerse por ser requerido (para lo cual debe usarse remove_global_required_asset)
  *
@@ -1684,6 +1720,7 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
             $has_js = array_key_exists('js', $library);
             $has_css = array_key_exists('css', $library);
             $has_font = array_key_exists('font', $library);
+            $has_as_modules = array_key_exists('asModules', $library);
             $was_imported = false;
 
             if ($has_js) {
@@ -1707,6 +1744,14 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
 
                 if (is_array($font)) {
                     add_global_assets($font, 'font');
+                    $was_imported = true;
+                }
+            }
+            if ($has_as_modules) {
+                $asModules = $library['asModules'];
+
+                if (is_array($asModules)) {
+                    add_as_module_assets($asModules);
                     $was_imported = true;
                 }
             }
@@ -1948,15 +1993,11 @@ function import_apexcharts(array $plugins = [], bool $all = true)
  *
  * @param array $plugins
  * @param bool $all
- * @param bool $ignoreElfinder
  * @return void
  */
-function import_default_rich_editor(array $plugins = [], bool $all = true, bool $ignoreElfinder = false)
+function import_default_rich_editor(array $plugins = [], bool $all = true)
 {
     import_front_library('defaultRichEditor', $plugins, $all);
-    if (function_exists('import_elfinder') && !$ignoreElfinder) {
-        import_elfinder();
-    }
 }
 
 /**
