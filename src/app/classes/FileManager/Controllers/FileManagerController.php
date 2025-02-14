@@ -95,6 +95,38 @@ class FileManagerController extends AdminPanelController
     }
 
     /**
+     * @return void
+     */
+    public function fileManagerRichEditor()
+    {
+
+        $backLink = get_route('admin');
+        $configurationRoute = self::routeName('filemanager-configuration-rich-editor');
+
+        $title = self::$title;
+
+        $data = [];
+        $data['langGroup'] = self::LANG_GROUP;
+        $data['backLink'] = $backLink;
+        $data['configurationRoute'] = $configurationRoute;
+        $data['title'] = $title;
+
+        import_elfinder();
+        import_jqueryui();
+
+        set_custom_assets([
+            FileManagerRoutes::staticRoute(self::BASE_JS_DIR . '/file-manager-rich-editor.js'),
+        ], 'js');
+
+        $this->helpController->render('panel/layout/header-no-sidebar', [
+            'noTopBar' => true,
+        ]);
+        self::view('file-manager-rich-editor', $data);
+        $this->helpController->render('panel/layout/footer-no-sidebar');
+
+    }
+
+    /**
      * @param Request $request
      * @param Response $response
      * @return Response
@@ -111,8 +143,8 @@ class FileManagerController extends AdminPanelController
                 'alias' => 'Imágenes (Editor de texto)',
                 'relativePath' => 'images',
                 'trashHash' => 't2_Lw',
-                'uploadDeny' => array('all'),
-                'uploadAllow' => array('image'),
+                'uploadDeny' => ['all'],
+                'uploadAllow' => ['image'],
                 'permissions' => 0777,
             ],
             [
@@ -137,14 +169,14 @@ class FileManagerController extends AdminPanelController
                 'id' => '2',
                 'relativePath' => '.trash-images',
                 'alias' => 'Papelera' . ' (Imágenes - Editor de texto)',
-                'uploadDeny' => array('all'),
-                'uploadAllow' => array('image'),
+                'uploadDeny' => ['all'],
+                'uploadAllow' => ['image'],
             ],
         ];
 
-        $opts = array(
+        $opts = [
             'roots' => self::structureOptions($dirs, $trashes),
-        );
+        ];
 
         $connector = new elFinderConnector(new elFinder($opts));
         $connector->run();
@@ -166,8 +198,8 @@ class FileManagerController extends AdminPanelController
                 'alias' => 'Imágenes',
                 'relativePath' => 'images',
                 'trashHash' => 't2_Lw',
-                'uploadDeny' => array('all'),
-                'uploadAllow' => array('image'),
+                'uploadDeny' => ['all'],
+                'uploadAllow' => ['image'],
             ],
         ];
         $trashes = [
@@ -175,14 +207,14 @@ class FileManagerController extends AdminPanelController
                 'id' => '2',
                 'relativePath' => '.trash-images',
                 'alias' => 'Papelera' . ' (Imágenes)',
-                'uploadDeny' => array('all'),
-                'uploadAllow' => array('image'),
+                'uploadDeny' => ['all'],
+                'uploadAllow' => ['image'],
             ],
         ];
 
-        $opts = array(
+        $opts = [
             'roots' => self::structureOptions($dirs, $trashes),
-        );
+        ];
 
         $connector = new elFinderConnector(new elFinder($opts));
         $connector->run();
@@ -219,8 +251,8 @@ class FileManagerController extends AdminPanelController
                 'driver' => 'LocalFileSystem',
                 'trashHash' => 't1_Lw',
                 'winHashFix' => DIRECTORY_SEPARATOR !== '/',
-                'uploadDeny' => array(),
-                'uploadAllow' => array('all'),
+                'uploadDeny' => [],
+                'uploadAllow' => ['all'],
                 'uploadOrder' => [
                     'deny',
                     'allow',
@@ -259,8 +291,8 @@ class FileManagerController extends AdminPanelController
             $expectedOptions = [
                 'driver' => 'Trash',
                 'winHashFix' => DIRECTORY_SEPARATOR !== '/',
-                'uploadDeny' => array(),
-                'uploadAllow' => array('all'),
+                'uploadDeny' => [],
+                'uploadAllow' => ['all'],
                 'uploadOrder' => [
                     'deny',
                     'allow',
@@ -344,9 +376,9 @@ class FileManagerController extends AdminPanelController
     {
         $basename = basename($path);
         return $basename[0] === '.' // if file/folder begins with '.' (dot)
-         && strlen($relpath) !== 1// but with out volume root
-         ? !($attr == 'read' || $attr == 'write') // set read+write to false, other (locked+hidden) set to true
-         : null; // else elFinder decide it itself
+        && strlen($relpath) !== 1// but with out volume root
+        ? !($attr == 'read' || $attr == 'write') // set read+write to false, other (locked+hidden) set to true
+        : null; // else elFinder decide it itself
     }
 
     /**
@@ -451,6 +483,15 @@ class FileManagerController extends AdminPanelController
                 "{$startRoute}[/]",
                 $classname . ':fileManager',
                 self::$baseRouteName . '-filemanager',
+                'GET',
+                true,
+                null,
+                $permisos_estados_gestion
+            ),
+            new Route( //Vista del listado
+                "{$startRoute}/rich-editor[/]",
+                $classname . ':fileManagerRichEditor',
+                self::$baseRouteName . '-filemanager-rich-editor',
                 'GET',
                 true,
                 null,
