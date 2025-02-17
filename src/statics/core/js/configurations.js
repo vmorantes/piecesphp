@@ -40,6 +40,7 @@ pcsphpGlobals.langMessagesFromServerURL = (function () {
 	}
 	return langMessagesFromServerURL
 })()
+pcsphpGlobals.langMessagesFromServerURLRequested = []
 
 //──── Lenguaje ──────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.lang = (function () {
@@ -1313,8 +1314,9 @@ function _i18n(type, message) {
 /**
  * Intente tomar desde el servidor las traducciones
  * @param {String} langGroup
+ * @param {Boolean} repeat Repite la solicitud aunque haya sido hecho previamente
  */
-function registerDynamicLocalizationMessages(langGroup) {
+function registerDynamicLocalizationMessages(langGroup, repeat = false) {
 
 	const requestURL = pcsphpGlobals.langMessagesFromServerURL
 
@@ -1328,6 +1330,15 @@ function registerDynamicLocalizationMessages(langGroup) {
 		}
 		const url = new URL(requestURL)
 		url.searchParams.set('group', langGroup)
+
+		if (!pcsphpGlobals.langMessagesFromServerURLRequested.includes(langGroup)) {
+			pcsphpGlobals.langMessagesFromServerURLRequested.push(langGroup)
+		} else {
+			if (!repeat) {
+				return null
+			}
+		}
+
 		getRequest(url, '', {}, {
 			async: false,
 		}).done(function (response) {

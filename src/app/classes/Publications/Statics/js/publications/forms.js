@@ -114,8 +114,6 @@ window.addEventListener('load', function () {
 			if (field.length == 0) {
 				field = jElement.closest('.attach-placeholder')
 				nameOnLabel = field.find('>label >.text >.header >.title').text()
-				console.log(element)
-				console.log(field.find('input'))
 			}
 
 			errorMessage(`${nameOnLabel}: ${validationMessage}`)
@@ -155,9 +153,6 @@ window.addEventListener('load', function () {
 
 		const modal = $(`[modal="${selector}"]`)
 		let firstDraw = true
-
-		console.log(selector)
-		console.log(modal)
 		cropper.onCancel(() => modal.modal('hide'))
 		cropper.onCropped((blobImage, settedImage) => {
 			instance.setFile(blobImage)
