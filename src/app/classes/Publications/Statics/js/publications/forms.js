@@ -3,49 +3,59 @@
 /// <reference path="../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/RichEditorAdapterComponent.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
+/// <reference path="../../../../../../statics/core/own-plugins/AttachmentPlaceholder.js" />
 showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('load', function () {
 
 	window.dispatchEvent(new Event('canDeletePublication'))
-
 	let isEdit = false
-	let formSelector = `.ui.form.publications`
-	let langGroup = 'appPublicationsLang'
 
-	let imagenMain = new CropperAdapterComponent({
-		containerSelector: '[cropper-image-main]',
-		minWidth: 800,
+	/* Traducciones */
+	const langGroup = 'appPublicationsLang'
+	registerDynamicLocalizationMessages(langGroup)
+
+	/* Selectores y elementos de interfaz */
+	const formSelector = `.ui.form.publications`
+	const idMainImage = 'main-image'
+	const idThumbImage = 'thumb-image'
+	const idOpenGraphImage = 'og-image'
+
+	//Placeholders
+	let attachmentMainImage = new AttachmentPlaceholder($(`.attach-placeholder.${idMainImage}`))
+	let attachmentThumbImage = new AttachmentPlaceholder($(`.attach-placeholder.${idThumbImage}`))
+	let attachmentOpenGraphImage = new AttachmentPlaceholder($(`.attach-placeholder.${idOpenGraphImage}`))
+
+	//Croppers
+	let cropperMainImage = new SimpleCropperAdapter(`[${idMainImage}]`, {
+		aspectRatio: 4 / 3,
+		format: 'image/jpeg',
+		quality: 0.8,
+		fillColor: 'white',
 		outputWidth: 800,
-		cropperOptions: {
-			aspectRatio: 4 / 3,
-		},
 	})
-
-	let imageThumb = new CropperAdapterComponent({
-		containerSelector: '[cropper-image-thumb]',
-		minWidth: 400,
+	let cropperThumbImage = new SimpleCropperAdapter(`[${idThumbImage}]`, {
+		aspectRatio: 4 / 3,
+		format: 'image/jpeg',
+		quality: 0.8,
+		fillColor: 'white',
 		outputWidth: 400,
-		cropperOptions: {
-			aspectRatio: 4 / 3,
-		},
 	})
-
-	let imageOpenGraph = new CropperAdapterComponent({
-		containerSelector: '[cropper-image-og]',
-		minWidth: 800,
+	let cropperOpenGraphImage = new SimpleCropperAdapter(`[${idOpenGraphImage}]`, {
+		aspectRatio: 2 / 1,
+		format: 'image/jpeg',
+		quality: 0.8,
+		fillColor: 'white',
 		outputWidth: 1200,
-		cropperOptions: {
-			aspectRatio: 2 / 1,
-		},
 	})
 
+	//Editores de texto
 	let richEditorAdapter = new RichEditorAdapterComponent({
 		containerSelector: '[rich-editor-adapter-component]',
 		textareaTargetSelector: "textarea[name='content']",
 	})
 
+	//Adjuntos
 	const attachments = {}
-
 	let indexAttachment = 1
 	for (const attachmentElement of Array.from(document.querySelectorAll('[attachment-element]'))) {
 		attachmentElement.setAttribute(`attachment-${indexAttachment}`, '')
@@ -72,24 +82,23 @@ window.addEventListener('load', function () {
 		indexAttachment++
 	}
 
+	/* Configuraciones iniciales */
 	configFomanticDropdown('.ui.dropdown:not(.langs)') //Debe inciarse antes de genericFormHandler para la validación
 
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
 
 			if (isEdit) {
-
-				formData.set('mainImage', imagenMain.getFile(null, null, null, null, true))
-				formData.set('thumbImage', imageThumb.getFile(null, null, null, null, true))
-				if (imageOpenGraph.wasChanged()) {
-					formData.set('ogImage', imageOpenGraph.getFile(null, null, null, null, true))
+				formData.set('mainImage', cropperMainImage.getFile())
+				formData.set('thumbImage', cropperThumbImage.getFile())
+				if (cropperOpenGraphImage.wasChange()) {
+					formData.set('ogImage', cropperOpenGraphImage.getFile())
 				}
-
 			} else {
-				formData.set('mainImage', imagenMain.getFile())
-				formData.set('thumbImage', imageThumb.getFile())
-				if (imageOpenGraph.wasChanged()) {
-					formData.set('ogImage', imageOpenGraph.getFile())
+				formData.set('mainImage', cropperMainImage.getFile())
+				formData.set('thumbImage', cropperThumbImage.getFile())
+				if (cropperOpenGraphImage.wasChange()) {
+					formData.set('ogImage', cropperOpenGraphImage.getFile())
 				}
 			}
 
@@ -102,6 +111,12 @@ window.addEventListener('load', function () {
 			let jElement = $(element)
 			let field = jElement.closest('.field')
 			let nameOnLabel = field.find('label').html()
+			if (field.length == 0) {
+				field = jElement.closest('.attach-placeholder')
+				nameOnLabel = field.find('>label >.text >.header >.title').text()
+				console.log(element)
+				console.log(field.find('input'))
+			}
 
 			errorMessage(`${nameOnLabel}: ${validationMessage}`)
 
@@ -109,6 +124,11 @@ window.addEventListener('load', function () {
 
 		}
 	})
+
+	//Comportamiento de placeholders
+	attachmentMainImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperMainImage, idMainImage) })
+	attachmentThumbImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperThumbImage, idThumbImage) })
+	attachmentOpenGraphImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperOpenGraphImage, idOpenGraphImage) })
 
 	//Tabs
 	const tabs = $('.tabs-controls [data-tab]').tab({
@@ -124,6 +144,39 @@ window.addEventListener('load', function () {
 	isEdit = form.find(`[name="id"]`).length > 0
 
 	configLangChange('.ui.dropdown.langs')
+
+	/** 
+	 * @param {AttachmentPlaceholder} instance
+	 * @param {AttachmentPlaceholderElements} elements
+	 * @param {SimpleCropperAdapter} cropper
+	 * @param {String} selector
+	*/
+	function genericAttachmentWithModalCropperBehavior(instance, elements, cropper, selector) {
+
+		const modal = $(`[modal="${selector}"]`)
+		let firstDraw = true
+
+		console.log(selector)
+		console.log(modal)
+		cropper.onCancel(() => modal.modal('hide'))
+		cropper.onCropped((blobImage, settedImage) => {
+			instance.setFile(blobImage)
+			modal.modal('hide')
+		})
+
+		instance.onClick(function (instance, elements, event) {
+			event.preventDefault()
+			modal.modal({
+				onVisible: function () {
+					if (firstDraw) {
+						cropper.refresh()
+						firstDraw = false
+					}
+				},
+			}).modal('show')
+		})
+
+	}
 
 	function configLangChange(dropdownSelector) {
 
