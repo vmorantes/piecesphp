@@ -178,7 +178,7 @@ CustomNamespace.tabs = function (activeClass) {
  * 
  * @param {String} selector
  * @param {Number} delay 0 = No se pasa automáticamente (segundos)
- * @param {Function} onChangeImage
+ * @param {function(srcDesktop:String,srcMobile:String, currentItem:HTMLElement)} onChangeImage
  * @returns {HTMLElement}
  */
 CustomNamespace.slideshow = function (selector, delay = 5, onChangeImage) {
@@ -313,7 +313,12 @@ CustomNamespace.slideshow = function (selector, delay = 5, onChangeImage) {
 				activeItem = item
 			}
 
-			onChangeImage(activeItem.querySelector('img').src)
+			let mainImage = activeItem.querySelector('img.desktop')
+			mainImage = mainImage !== null ? mainImage : activeItem.querySelector('img:not(.mobile)')
+			let mobileImage = activeItem.querySelector('img.mobile')
+			mobileImage = mobileImage !== null ? mobileImage : activeItem.querySelector('img:not(.desktop)')
+			mobileImage = mobileImage !== null ? mobileImage : mainImage
+			onChangeImage(mainImage.src, mobileImage.src, activeItem)
 
 		}
 

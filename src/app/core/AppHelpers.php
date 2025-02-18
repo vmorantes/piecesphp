@@ -33,7 +33,9 @@ use Spatie\Url\Url as URLManager;
  */
 function get_config(string $name)
 {
-    if (array_key_exists($name, array_flip(AppConfigController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME))) {
+    $initialName = $name;
+    $isSEOElement = array_key_exists($name, array_flip(AppConfigController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME));
+    if ($isSEOElement) {
 
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
@@ -51,7 +53,13 @@ function get_config(string $name)
         }
     }
 
-    return Config::get_config($name);
+    $value = Config::get_config($name);
+
+    if ($isSEOElement && $value === false) {
+        $value = Config::get_config($initialName);
+    }
+
+    return $value;
 }
 
 /**
@@ -64,6 +72,45 @@ function get_config(string $name)
 function set_config(string $name, $value)
 {
     Config::set_config($name, $value);
+}
+
+/**
+ * Agrega información a la configuración front_configurations
+ * @param string $name
+ * @param mixed $value
+ * @return array Devuelve el valor completo de front_configurations
+ */
+function add_to_front_configurations(string $name, $value)
+{
+    $frontConfigurations = get_config('front_configurations');
+    $frontConfigurations = !is_array($frontConfigurations) ? [] : $frontConfigurations;
+    $frontConfigurations[$name] = $value;
+    set_config('front_configurations', $frontConfigurations);
+    return $frontConfigurations;
+}
+
+/**
+ * Devuelve el valor completo de front_configurations
+ * @return array
+ */
+function get_front_configurations()
+{
+    $frontConfigurations = get_config('front_configurations');
+    $frontConfigurations = !is_array($frontConfigurations) ? [] : $frontConfigurations;
+    return $frontConfigurations;
+}
+
+/**
+ * Devuelve el valor seleccionado de front_configurations
+ * @param string $name
+ * @return mixed
+ */
+function get_front_configuration(string $name)
+{
+    $frontConfigurations = get_config('front_configurations');
+    $frontConfigurations = !is_array($frontConfigurations) ? [] : $frontConfigurations;
+    $value = array_key_exists($name, $frontConfigurations) ? $frontConfigurations[$name] : null;
+    return $value;
 }
 
 /**
@@ -1262,7 +1309,7 @@ function add_global_asset(string $asset, string $type)
     $global_assets = get_config('global_assets');
     $exists = isset($global_assets[$type]) && in_array($asset, $global_assets[$type]);
 
-    if (is_string($asset) && ($type == "js" || $type == "css" || $type == "font")) {
+    if (is_string($asset) && mb_strlen($asset) > 0 && ($type == "js" || $type == "css" || $type == "font")) {
 
         if (!$exists) {
 

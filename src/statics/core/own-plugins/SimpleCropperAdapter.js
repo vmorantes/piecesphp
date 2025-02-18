@@ -365,7 +365,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 		cropper.zoomTo(0)
 		if (settedImage.length === 0) {
 			cropper.replace(settedPreviewImage, true)
-			controlCrop.addEventListener('disabled', true)
+			controlCrop.setAttribute('disabled', true)
 		} else {
 			cropper.replace(settedImage, true)
 		}

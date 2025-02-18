@@ -10,7 +10,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
         <div class="wrapper oversize unbounds blured">
             <div class="blur"></div>
-            <div class="slideshow slideshow-main-home text-center" data-url="<?= $sliderAjax; ?>">
+            <div class="slideshow text-center" built-in-banner-js data-url="<?= $sliderAjax; ?>">
                 <span class="prev">&#10094;</span>
                 <span class="next">&#10095;</span>
                 <div class="navigation-dots"></div>
