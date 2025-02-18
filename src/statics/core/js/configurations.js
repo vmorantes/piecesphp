@@ -30,7 +30,7 @@ pcsphpGlobals.frontConfigurationsFromBackend = (function () {
 	let containerData = document.querySelector('html head meta[name="front-configurations"]')
 	let frontConfigurations = {}
 	const defaultValue = {}
-	if (frontConfigurations !== null) {
+	if (containerData !== null) {
 		frontConfigurations = containerData.getAttribute('value')
 		frontConfigurations = typeof frontConfigurations == 'string' ? atob(frontConfigurations) : null
 		try {
