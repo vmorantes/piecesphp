@@ -469,11 +469,12 @@ class FileManagerController extends AdminPanelController
         /**
          * @var array<string>
          */
-        $all_roles = array_keys(UsersModel::TYPES_USERS);
+        $allRoles = array_keys(UsersModel::TYPES_USERS);
 
-        $permisos_estados_gestion = [
+        $totalManagement = [
             UsersModel::TYPE_USER_ROOT,
         ];
+        $richEditorManagement = $allRoles;
 
         $routes = [
 
@@ -486,7 +487,7 @@ class FileManagerController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_estados_gestion
+                $totalManagement
             ),
             new Route( //Vista del listado
                 "{$startRoute}/rich-editor[/]",
@@ -495,7 +496,7 @@ class FileManagerController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $permisos_estados_gestion
+                $richEditorManagement
             ),
             //JSON
             new Route(
@@ -505,7 +506,7 @@ class FileManagerController extends AdminPanelController
                 'GET|POST',
                 true,
                 null,
-                $permisos_estados_gestion
+                $totalManagement
             ),
             new Route(
                 "{$startRoute}/rich-editor/configuration[/]",
@@ -514,7 +515,7 @@ class FileManagerController extends AdminPanelController
                 'GET|POST',
                 true,
                 null,
-                $all_roles
+                $richEditorManagement
             ),
 
         ];
