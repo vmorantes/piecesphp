@@ -1,16 +1,18 @@
 <?php
 
 /**
- * PublicationsController.php
+ * BuiltInBannerController.php
  */
 
-namespace Publications\Controllers;
+namespace PiecesPHP\BuiltIn\Banner\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use PiecesPHP\Core\Cache\CacheControllersCriteries;
-use PiecesPHP\Core\Cache\CacheControllersCritery;
-use PiecesPHP\Core\Cache\CacheControllersManager;
+use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
+use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
+use PiecesPHP\BuiltIn\Banner\Exceptions\DuplicateException;
+use PiecesPHP\BuiltIn\Banner\Exceptions\SafeException;
+use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
@@ -31,37 +33,29 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
-use Publications\Exceptions\DuplicateException;
-use Publications\Exceptions\SafeException;
-use Publications\Mappers\AttachmentPublicationMapper;
-use Publications\Mappers\PublicationCategoryMapper;
-use Publications\Mappers\PublicationMapper;
-use Publications\PublicationsLang;
-use Publications\PublicationsRoutes;
-use Publications\Util\AttachmentPackage;
 
 /**
- * PublicationsController.
+ * BuiltInBannerController.
  *
- * @package     Publications\Controllers
+ * @package     PiecesPHP\BuiltIn\Banner\Controllers
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @copyright   Copyright (c) 2021
+ * @copyright   Copyright (c) 2025
  */
-class PublicationsController extends AdminPanelController
+class BuiltInBannerController extends AdminPanelController
 {
 
     /**
      * @var string
      */
-    protected static $URLDirectory = 'publications';
+    protected static $URLDirectory = 'built-in-banner';
     /**
      * @var string
      */
-    protected static $baseRouteName = 'publications-admin';
+    protected static $baseRouteName = 'built-in-banner-admin';
     /**
      * @var string
      */
-    protected static $title = 'Publicación';
+    protected static $title = 'Banner';
 
     /**
      * @var string
@@ -84,12 +78,11 @@ class PublicationsController extends AdminPanelController
      */
     protected $helpController = null;
 
-    const BASE_VIEW_DIR = 'publications';
-    const BASE_JS_DIR = 'js/publications';
+    const BASE_JS_DIR = 'js';
     const BASE_CSS_DIR = 'css';
-    const UPLOAD_DIR = 'publications';
-    const UPLOAD_DIR_TMP = 'publications/tmp';
-    const LANG_GROUP = PublicationsLang::LANG_GROUP;
+    const UPLOAD_DIR = 'built-in-banner';
+    const UPLOAD_DIR_TMP = 'built-in-banner/tmp';
+    const LANG_GROUP = BuiltInBannerLang::LANG_GROUP;
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
     const RESPONSE_SOURCE_NORMAL_RESULT = 'NORMAL_RESULT';
@@ -99,7 +92,7 @@ class PublicationsController extends AdminPanelController
     {
         parent::__construct();
 
-        $this->model = (new PublicationMapper())->getModel();
+        $this->model = (new BuiltInBannerMapper())->getModel();
 
         $baseURL = base_url();
         $pcsUploadDir = get_config('upload_dir');
@@ -114,11 +107,39 @@ class PublicationsController extends AdminPanelController
 
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
-        add_global_asset(PublicationsRoutes::staticRoute('globals-vars.css'), 'css');
-        add_global_asset(PublicationsRoutes::staticRoute(self::BASE_CSS_DIR . '/publications.css'), 'css');
+        add_global_asset(BuiltInBannerRoutes::staticRoute('globals-vars.css'), 'css');
+        add_global_asset(BuiltInBannerRoutes::staticRoute(self::BASE_CSS_DIR . '/built-in-banner.css'), 'css');
 
-        PublicationCategoryMapper::uncategorizedCategory();
+        $aspectRatioDesktopDefault = 16 / 9;
+        $aspectRatioMobileDefault = 4 / 3;
+        $outputWidthDesktopDefault = 1920;
+        $outputWidthMobileDefault = 800;
 
+        if (get_config('BuiltInBannerConfiguration') === false) {
+            set_config('BuiltInBannerConfiguration', [
+                'desktop' => [
+                    'aspectRatio' => 12 / 5,
+                    'outputWidth' => 1920,
+                    'referenceW' => 1920,
+                    'referenceH' => 800,
+                    'sizeRecommendedText' => strReplaceTemplate(__(self::LANG_GROUP, 'Tamaño {%1}'), [
+                        '{%1}' => "1920x800",
+                    ]),
+                ],
+                'mobile' => [
+                    'aspectRatio' => 4 / 3,
+                    'outputWidth' => 800,
+                    'referenceW' => 800,
+                    'referenceH' => 600,
+                    'sizeRecommendedText' => strReplaceTemplate(__(self::LANG_GROUP, 'Tamaño {%1}'), [
+                        '{%1}' => "800x600",
+                    ]),
+                ],
+            ]);
+
+        }
+
+        add_to_front_configurations('BuiltInBannerConfiguration', get_config('BuiltInBannerConfiguration'));
     }
 
     /**
@@ -130,24 +151,16 @@ class PublicationsController extends AdminPanelController
     {
 
         set_custom_assets([
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+            BuiltInBannerRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
         ], 'js');
 
         import_cropper();
         import_default_rich_editor();
-        import_simple_upload_placeholder();
-
-        $attachmentGroup1 = [
-            new AttachmentPackage(-1, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
-            new AttachmentPackage(-1, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
-        ];
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
-        $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), null);
-        $searchUsersURL = get_route('users-search-dropdown');
 
-        $title = __(self::LANG_GROUP, 'Agregar publicación');
+        $title = __(self::LANG_GROUP, 'Agregar banner');
         $description = '';
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
@@ -157,14 +170,11 @@ class PublicationsController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
-        $data['allCategories'] = $allCategories;
-        $data['attachmentGroup1'] = $attachmentGroup1;
-        $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => get_route('admin'),
             ],
-            __(self::LANG_GROUP, 'Publicaciones') => [
+            __(self::LANG_GROUP, 'Banners') => [
                 'url' => $backLink,
             ],
             $title,
@@ -198,35 +208,24 @@ class PublicationsController extends AdminPanelController
             throw new NotFoundException($request, $response);
         }
 
-        $element = new PublicationMapper($id);
+        $element = new BuiltInBannerMapper($id);
 
-        if ($element->id !== null && PublicationMapper::existsByID($element->id)) {
+        if ($element->id !== null && BuiltInBannerMapper::existsByID($element->id)) {
 
             set_custom_assets([
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+                BuiltInBannerRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
+                BuiltInBannerRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
             ], 'js');
 
             import_cropper();
             import_default_rich_editor();
-            import_simple_upload_placeholder();
-
-            $attachmentGroup1 = [
-                new AttachmentPackage($element->id, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
-                new AttachmentPackage($element->id, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
-            ];
-            $attachmentGroup1 = array_map(function ($e) use ($lang) {
-                return $e->setLang($lang);
-            }, $attachmentGroup1);
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
             $manyLangs = count($allowedLangs) > 1;
-            $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category->id);
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
-            $searchUsersURL = get_route('users-search-dropdown');
 
-            $title = __(self::LANG_GROUP, 'Edición de publicación');
+            $title = __(self::LANG_GROUP, 'Edición de banner');
             $description = '';
 
             set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
@@ -239,17 +238,14 @@ class PublicationsController extends AdminPanelController
             $data['langGroup'] = self::LANG_GROUP;
             $data['title'] = $title;
             $data['description'] = $description;
-            $data['allCategories'] = $allCategories;
-            $data['attachmentGroup1'] = $attachmentGroup1;
             $data['allowedLangs'] = $allowedLangs;
             $data['manyLangs'] = $manyLangs;
             $data['lang'] = $lang;
-            $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
                 ],
-                __(self::LANG_GROUP, 'Publicaciones') => [
+                __(self::LANG_GROUP, 'Banners') => [
                     'url' => $backLink,
                 ],
                 $title,
@@ -276,30 +272,18 @@ class PublicationsController extends AdminPanelController
     {
 
         $addLink = self::routeName('forms-add');
-        $addCategoryLink = PublicationsCategoryController::routeName('forms-add');
-        $listCategoriesLink = PublicationsCategoryController::routeName('list');
         $processTableLink = self::routeName('datatables');
-        $processTablePublicatedLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_VISIBLE;
-        $processTableDraftLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_DRAFT;
-        $processTableScheduledLink = self::routeName('datatables') . "?visibility=" . PublicationMapper::VISIBILITY_SCHEDULED;
 
-        $title = __(self::LANG_GROUP, 'Publicaciones');
-        $description = __(self::LANG_GROUP, 'Listado de publicaciones');
+        $title = __(self::LANG_GROUP, 'Banners');
+        $description = __(self::LANG_GROUP, 'Listado de banners');
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
-        $data['processTablePublicatedLink'] = $processTablePublicatedLink;
-        $data['processTableDraftLink'] = $processTableDraftLink;
-        $data['processTableScheduledLink'] = $processTableScheduledLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = strlen($addLink) > 0;
-        $data['addCategoryLink'] = $addCategoryLink;
-        $data['hasPermissionsAddCategory'] = strlen($addCategoryLink) > 0;
-        $data['listCategoriesLink'] = $listCategoriesLink;
-        $data['hasPermissionsListCategories'] = strlen($listCategoriesLink) > 0;
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
@@ -310,8 +294,8 @@ class PublicationsController extends AdminPanelController
         ]);
 
         set_custom_assets([
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
+            BuiltInBannerRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
+            BuiltInBannerRoutes::staticRoute(self::BASE_JS_DIR . '/list.js'),
         ], 'js');
 
         $this->helpController->render('panel/layout/header');
@@ -346,17 +330,6 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'author',
-                null,
-                function ($value) {
-                    return Validator::isInteger($value);
-                },
-                false,
-                function ($value) {
-                    return (int) $value;
-                }
-            ),
-            new Parameter(
                 'lang',
                 null,
                 function ($value) {
@@ -373,7 +346,7 @@ class PublicationsController extends AdminPanelController
                 function ($value) {
                     return is_string($value) && strlen(trim($value)) > 0;
                 },
-                false,
+                true,
                 function ($value) {
                     return clean_string($value);
                 }
@@ -384,42 +357,9 @@ class PublicationsController extends AdminPanelController
                 function ($value) {
                     return is_string($value) && strlen(trim($value)) > 0;
                 },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            ),
-            new Parameter(
-                'seoDescription',
-                null,
-                function ($value) {
-                    return $value === null || is_string($value);
-                },
                 true,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0 ? clean_string($value) : '';
-                }
-            ),
-            new Parameter(
-                'category',
-                null,
-                function ($value) {
-                    return Validator::isInteger($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
-                },
-                false,
-                function ($value) {
-                    return (int) $value;
-                }
-            ),
-            new Parameter(
-                'publicDate',
-                null,
-                function ($value) {
-                    return Validator::isDate($value, 'd-m-Y');
-                },
-                false,
-                function ($value) {
-                    return \DateTime::createFromFormat('d-m-Y H:i:s', "{$value} 00:00:00");
+                    return clean_string($value);
                 }
             ),
             new Parameter(
@@ -445,8 +385,8 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'featured',
-                PublicationMapper::UNFEATURED,
+                'orderPosition',
+                0,
                 function ($value) {
                     return Validator::isInteger($value);
                 },
@@ -456,14 +396,14 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'draft',
-                false,
+                'link',
+                null,
                 function ($value) {
-                    return $value === 'yes' || $value === true;
+                    return is_string($value);
                 },
                 true,
                 function ($value) {
-                    return $value === 'yes' || $value === true;
+                    return is_string($value) ? clean_string($value) : '';
                 }
             ),
         ]);
@@ -476,7 +416,7 @@ class PublicationsController extends AdminPanelController
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
-        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Publicación'));
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Banner'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
 
         //Valores iniciales de la respuesta
@@ -486,38 +426,12 @@ class PublicationsController extends AdminPanelController
         $resultOperation->setValue('reload', false);
 
         //Mensajes de respuesta
-        $notExistsMessage = __(self::LANG_GROUP, 'La publicación que intenta modificar no existe.');
-        $successCreateMessage = __(self::LANG_GROUP, 'Publicación creada.');
+        $notExistsMessage = __(self::LANG_GROUP, 'El banner que intenta modificar no existe.');
+        $successCreateMessage = __(self::LANG_GROUP, 'Banner creado.');
         $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
-        $categoryNotExistsMessage = __(self::LANG_GROUP, 'No hay existe la categoría.');
         $notAllowedLangMessage = __(self::LANG_GROUP, 'El idioma "%s" no está permitido.');
-
-        //──── Anexos ────────────────────────────────────────────────────────────────────────────
-
-        $attachmentsConfigure = [
-            new AttachmentPackage(null, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
-            new AttachmentPackage(null, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
-        ];
-
-        $attachmentsExpectedParameters = [];
-
-        foreach ($attachmentsConfigure as $attachmentConfigure) {
-            $attachmentsExpectedParameters[] = new Parameter(
-                $attachmentConfigure->baseNameAppend('Type'),
-                null,
-                function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            );
-        }
-
-        $expectedParameters->addParameters($attachmentsExpectedParameters);
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -528,40 +442,22 @@ class PublicationsController extends AdminPanelController
             //Información del formulario
             /**
              * @var int $id
-             * @var int $author
              * @var string $lang
-             * @var string $title
-             * @var string $content
-             * @var string $seoDescription
-             * @var int $category
-             * @var \DateTime $publicDate
+             * @var string|null $title
+             * @var string|null $content
              * @var \DateTime|null $startDate
              * @var \DateTime|null $endDate
-             * @var int $featured
-             * @var int|null $draft
-             * @var array $attachmentsTypes
+             * @var string $orderPosition
+             * @var string|null $link
              */
             $id = $expectedParameters->getValue('id');
-            $author = $expectedParameters->getValue('author');
             $lang = $expectedParameters->getValue('lang');
             $title = $expectedParameters->getValue('title');
             $content = $expectedParameters->getValue('content');
-            $seoDescription = $expectedParameters->getValue('seoDescription');
-            $category = $expectedParameters->getValue('category');
-            $publicDate = $expectedParameters->getValue('publicDate');
             $startDate = $expectedParameters->getValue('startDate');
             $endDate = $expectedParameters->getValue('endDate');
-            $featured = $expectedParameters->getValue('featured') == PublicationMapper::FEATURED ? PublicationMapper::FEATURED : PublicationMapper::UNFEATURED;
-            $draft = $expectedParameters->getValue('draft');
-
-            $attachmentsTypes = [];
-            foreach ($attachmentsConfigure as $attachmentConfigure) {
-                if ($attachmentConfigure->getType() == $expectedParameters->getValue($attachmentConfigure->baseNameAppend('Type'))) {
-                    $attachmentConfigure->setPublicationID($id);
-                    $attachmentConfigure->setLang($lang);
-                    $attachmentsTypes[$attachmentConfigure->baseNameAppend('Type')] = $attachmentConfigure;
-                }
-            }
+            $orderPosition = $expectedParameters->getValue('orderPosition');
+            $link = $expectedParameters->getValue('link');
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -569,10 +465,6 @@ class PublicationsController extends AdminPanelController
             try {
 
                 $allowedLangs = Config::get_allowed_langs();
-
-                if (!PublicationCategoryMapper::existsByID($category)) {
-                    throw new SafeException($categoryNotExistsMessage);
-                }
 
                 if ($isEdit) {
                     if (!in_array($lang, $allowedLangs)) {
@@ -585,69 +477,31 @@ class PublicationsController extends AdminPanelController
                 if (!$isEdit) {
                     //Nuevo
 
-                    $mapper = new PublicationMapper();
+                    $mapper = new BuiltInBannerMapper();
 
                     $mapper->setLangData($lang, 'title', $title);
                     $mapper->setLangData($lang, 'content', $content);
-                    $mapper->setLangData($lang, 'seoDescription', $seoDescription);
-                    $mapper->setLangData($lang, 'publicDate', $publicDate);
                     $mapper->setLangData($lang, 'startDate', $startDate);
                     $mapper->setLangData($lang, 'endDate', $endDate);
-                    $mapper->setLangData($lang, 'category', $category);
-                    $mapper->setLangData($lang, 'visits', 0);
-                    $mapper->setLangData($lang, 'author', $author);
+                    $mapper->setLangData($lang, 'orderPosition', $orderPosition);
+                    $mapper->setLangData($lang, 'link', $link);
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
-                    $mapper->setLangData($lang, 'featured', $featured);
 
-                    if ($draft) {
-                        $mapper->status = PublicationMapper::DRAFT;
-                    }
+                    $desktopImage = self::handlerUpload('desktopImage', $mapper->folder);
+                    $mobileImage = self::handlerUpload('mobileImage', $mapper->folder);
 
-                    $mainImage = self::handlerUpload('mainImage', $mapper->folder);
-                    $thumbImage = self::handlerUpload('thumbImage', $mapper->folder);
-                    $ogImage = self::handlerUpload('ogImage', $mapper->folder);
-
-                    $mapper->setLangData($lang, 'mainImage', $mainImage);
-                    $mapper->setLangData($lang, 'thumbImage', $thumbImage);
-                    $mapper->setLangData($lang, 'ogImage', $ogImage);
+                    $mapper->setLangData($lang, 'desktopImage', $desktopImage);
+                    $mapper->setLangData($lang, 'mobileImage', $mobileImage);
 
                     $saved = $mapper->save();
                     $resultOperation->setSuccessOnSingleOperation($saved);
 
                     if ($saved) {
 
-                        /**
-                         * @var AttachmentPackage[] $attachmentsTypes
-                         */
-                        foreach ($attachmentsTypes as $attachmentConfig) {
-
-                            $attachBasename = $attachmentConfig->getBaseName();
-                            $attachMapper = $attachmentConfig->getMapper();
-                            $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
-                            $attachType = $attachmentConfig->getType();
-                            $attachValidTypes = $attachmentConfig->getValidTypes();
-                            $attachFileName = $attachmentConfig->getTypeFilename();
-
-                            $attachMapper->publication = $mapper->id;
-                            $attachMapper->attachmentType = $attachType;
-                            $attachMapper->lang = $lang;
-                            $attachMapper->folder = $mapper->folder . '/' . 'attachments';
-
-                            $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), $attachMapper->folder, null, $attachValidTypes, false, $attachFileName);
-
-                            if (mb_strlen($attachFile) > 0) {
-                                $attachMapper->fileLocation = $attachFile;
-                                $attachMapper->id !== null ? $attachMapper->update() : $attachMapper->save();
-                            }
-
-                        }
-
                         $resultOperation
                             ->setMessage($successCreateMessage)
                             ->setValue('redirect', true)
-                            ->setValue('redirect_to', self::routeName('forms-edit', [
-                                'id' => $mapper->id,
-                            ]));
+                            ->setValue('redirect_to', self::routeName('list'));
 
                     } else {
                         $resultOperation->setMessage($unknowErrorMessage);
@@ -656,95 +510,46 @@ class PublicationsController extends AdminPanelController
                 } else {
                     //Existente
 
-                    $mapper = new PublicationMapper((int) $id);
+                    $mapper = new BuiltInBannerMapper((int) $id);
                     $exists = !is_null($mapper->id);
 
                     if ($exists) {
 
                         $mapper->setLangData($lang, 'title', $title);
                         $mapper->setLangData($lang, 'content', $content);
-                        $mapper->setLangData($lang, 'seoDescription', $seoDescription);
-                        $mapper->setLangData($lang, 'publicDate', $publicDate);
                         $mapper->setLangData($lang, 'startDate', $startDate);
                         $mapper->setLangData($lang, 'endDate', $endDate);
-                        $mapper->setLangData($lang, 'category', $category);
-                        $mapper->setLangData($lang, 'featured', $featured);
-                        $mapper->setLangData($lang, 'author', $author);
+                        $mapper->setLangData($lang, 'orderPosition', $orderPosition);
+                        $mapper->setLangData($lang, 'link', $link);
+                        $mapper->status = BuiltInBannerMapper::ACTIVE;
 
-                        if ($draft) {
-                            $mapper->status = PublicationMapper::DRAFT;
+                        $desktopImageSetted = $mapper->getLangData($lang, 'desktopImage', false, null);
+                        $mobileImageSetted = $mapper->getLangData($lang, 'mobileImage', false, null);
+
+                        if (is_string($mobileImageSetted) && mb_strlen(trim($mobileImageSetted)) < 1) {
+                            $mobileImageSetted = null;
+                        }
+
+                        if ($desktopImageSetted !== null) {
+                            $desktopImage = self::handlerUpload('desktopImage', '', $desktopImageSetted);
                         } else {
-                            $mapper->status = PublicationMapper::ACTIVE;
+                            $desktopImage = self::handlerUpload('desktopImage', $mapper->folder, null);
                         }
 
-                        $mainImageSetted = $mapper->getLangData($lang, 'mainImage', false, null);
-                        $thumbImageSetted = $mapper->getLangData($lang, 'thumbImage', false, null);
-                        $ogImageSetted = $mapper->getLangData($lang, 'ogImage', false, null);
-
-                        if (is_string($ogImageSetted) && mb_strlen(trim($ogImageSetted)) < 1) {
-                            $ogImageSetted = null;
-                        }
-
-                        if ($mainImageSetted !== null) {
-                            $mainImage = self::handlerUpload('mainImage', '', $mainImageSetted);
+                        if ($mobileImageSetted !== null) {
+                            $mobileImage = self::handlerUpload('mobileImage', '', $mobileImageSetted);
                         } else {
-                            $mainImage = self::handlerUpload('mainImage', $mapper->folder, null);
+                            $mobileImage = self::handlerUpload('mobileImage', $mapper->folder, null);
                         }
 
-                        if ($thumbImageSetted !== null) {
-                            $thumbImage = self::handlerUpload('thumbImage', '', $thumbImageSetted);
-                        } else {
-                            $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, null);
+                        if (mb_strlen($desktopImage) > 0) {
+                            $mapper->setLangData($lang, 'desktopImage', $desktopImage);
                         }
-
-                        if ($ogImageSetted !== null) {
-                            $ogImage = self::handlerUpload('ogImage', '', $ogImageSetted);
-                        } else {
-                            $ogImage = self::handlerUpload('ogImage', $mapper->folder, null);
-                        }
-
-                        if (mb_strlen($mainImage) > 0) {
-                            $mapper->setLangData($lang, 'mainImage', $mainImage);
-                        }
-                        if (mb_strlen($thumbImage) > 0) {
-                            $mapper->setLangData($lang, 'thumbImage', $thumbImage);
-                        }
-                        if (mb_strlen($ogImage) > 0) {
-                            $mapper->setLangData($lang, 'ogImage', $ogImage);
+                        if (mb_strlen($mobileImage) > 0) {
+                            $mapper->setLangData($lang, 'mobileImage', $mobileImage);
                         }
 
                         $defaultLang = Config::get_default_lang();
-
-                        /**
-                         * @var AttachmentPackage[] $attachmentsTypes
-                         */
-                        foreach ($attachmentsTypes as $attachmentConfig) {
-
-                            $attachBasename = $attachmentConfig->getBaseName();
-                            $attachMapper = $attachmentConfig->getMapper();
-                            $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
-                            $attachType = $attachmentConfig->getType();
-                            $attachValidTypes = $attachmentConfig->getValidTypes();
-                            $attachFileName = $attachmentConfig->getTypeFilename();
-                            $langSuffix = $defaultLang != $lang ? "_{$lang}" : '';
-
-                            $attachMapper->attachmentType = $attachType;
-                            $attachMapper->publication = $mapper->id;
-                            $attachMapper->lang = $lang;
-                            $attachMapper->folder = $mapper->folder . '/' . 'attachments';
-
-                            if ($attachMapper->id !== null) {
-                                $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), '', $attachMapper->fileLocation, $attachValidTypes, false, $attachFileName . $langSuffix);
-                            } else {
-                                $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), $attachMapper->folder, null, $attachValidTypes, false, $attachFileName . $langSuffix);
-                            }
-
-                            if (mb_strlen($attachFile) > 0) {
-                                $attachMapper->fileLocation = $attachFile;
-                                $attachMapper->id !== null ? $attachMapper->update() : $attachMapper->save();
-                            }
-
-                        }
 
                         $updated = $mapper->update();
                         $resultOperation->setSuccessOnSingleOperation($updated);
@@ -834,7 +639,7 @@ class PublicationsController extends AdminPanelController
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
-        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Eliminar publicación'));
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Eliminar banner'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
 
         //Valores iniciales de la respuesta
@@ -845,8 +650,8 @@ class PublicationsController extends AdminPanelController
         $resultOperation->setValue('received', $inputData);
 
         //Mensajes de respuesta
-        $notExistsMessage = __(self::LANG_GROUP, 'La publicación que intenta eliminar no existe.');
-        $successMessage = __(self::LANG_GROUP, 'Publicación eliminada.');
+        $notExistsMessage = __(self::LANG_GROUP, 'El banner que intenta eliminar no existe.');
+        $successMessage = __(self::LANG_GROUP, 'Banner eliminado.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
 
@@ -865,15 +670,15 @@ class PublicationsController extends AdminPanelController
 
             try {
 
-                $exists = PublicationMapper::existsByID($id);
+                $exists = BuiltInBannerMapper::existsByID($id);
 
                 if ($exists) {
 
                     //Dirección de redirección en caso de creación
                     $redirectURLOn = self::routeName('list');
 
-                    $table = PublicationMapper::TABLE;
-                    $inactive = PublicationMapper::INACTIVE;
+                    $table = BuiltInBannerMapper::TABLE;
+                    $inactive = BuiltInBannerMapper::INACTIVE;
 
                     $transactionSQLDeleteQueries = [
                         [
@@ -884,7 +689,7 @@ class PublicationsController extends AdminPanelController
                         ],
                     ];
 
-                    $pdo = PublicationMapper::model()::getDb(Config::app_db('default')['db']);
+                    $pdo = BuiltInBannerMapper::model()::getDb(Config::app_db('default')['db']);
                     if ($pdo === null) {
                         throw new \Exception(__(self::LANG_GROUP, 'No pudo conectarse a la base de datos'));
                     }
@@ -982,17 +787,6 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'category',
-                null,
-                function ($value) {
-                    return Validator::isInteger($value) || $value == PublicationCategoryMapper::UNCATEGORIZED_ID;
-                },
-                true,
-                function ($value) {
-                    return (int) $value;
-                }
-            ),
-            new Parameter(
                 'status',
                 null,
                 function ($value) {
@@ -1014,17 +808,6 @@ class PublicationsController extends AdminPanelController
                     return (string) $value;
                 }
             ),
-            new Parameter(
-                'featured',
-                null,
-                function ($value) {
-                    return Validator::isInteger($value) || is_null($value);
-                },
-                true,
-                function ($value) {
-                    return Validator::isInteger($value) ? (int) $value : null;
-                }
-            ),
         ]);
 
         $expectedParameters->setInputValues($request->getQueryParams());
@@ -1033,93 +816,19 @@ class PublicationsController extends AdminPanelController
         /**
          * @var int $page
          * @var int $perPage
-         * @var int $category
          * @var int $status
          * @var string $title
-         * @var int $featured
          */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
-        $category = $expectedParameters->getValue('category');
         $status = $expectedParameters->getValue('status');
         $title = $expectedParameters->getValue('title');
-        $featured = $expectedParameters->getValue('featured');
-
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
 
-        if (self::ENABLE_CACHE) {
-
-            //=================Definir política de cache=================//
-
-            //Datos para la verificación
-            $currentLang = Config::get_lang();
-            $activesByDateIDs = PublicationMapper::activesByDateIDs();
-            $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
-            $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', '01-01-1990 00:00:00');
-            if ($lastModifiedElement !== null) {
-                $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
-            }
-            $checksumData = [
-                $currentLang,
-                $page,
-                $perPage,
-                $category,
-                $status,
-                $title,
-                $featured,
-                sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
-            ];
-            $checksum = sha1(json_encode($checksumData));
-
-            //Validar cacheo por cabeceras
-            $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $checksum);
-            foreach ($headersAndStatus['headers'] as $header => $value) {
-                $response = $response->withHeader($header, $value);
-            }
-            $response = $response->withStatus($headersAndStatus['status']);
-            $shouldBeRecached = $response->getStatusCode() == 200; //La información cambió o debe ser actualizada
-            $hasCache = false;
-
-            //Verificar si ya hay archivos estáticos generados para esta petición
-            if ($shouldBeRecached) {
-                $cacheHandler = new CacheControllersManager(self::class, 'all', 3600 * 24 * 7 * 4);
-                $cacheCriteries = new CacheControllersCriteries([
-                    new CacheControllersCritery('checksum', $checksum),
-                ]);
-                $hasCache = $cacheHandler->setCriteries($cacheCriteries)->process()->hasCachedData();
-            }
-
-            //=================Fin de política de cache=================//
-
-            $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
-
-            if ($shouldBeRecached) {
-
-                if (!$hasCache) {
-
-                    $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus);
-                    $response = $response->withJson($result);
-
-                    //Definir respuesta para la generación del archivo estático
-                    $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
-
-                } else {
-                    $response = $response
-                        ->withHeader('Content-Type', $cacheHandler->getContentType())
-                        ->write($cacheHandler->getCachedData(false));
-                    $sourceData = self::RESPONSE_SOURCE_STATIC_CACHE;
-                }
-
-            }
-
-        } else {
-
-            $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
-            $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus);
-            $response = $response->withJson($result);
-
-        }
+        $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
+        $result = self::_all($page, $perPage, $status, $title, $ignoreStatus);
+        $response = $response->withJson($result);
 
         $response = $response->withHeader('PCSPHP-Response-Source', $sourceData);
 
@@ -1135,22 +844,20 @@ class PublicationsController extends AdminPanelController
     public function dataTables(Request $request, Response $response)
     {
 
-        $visibility = $request->getQueryParam('visibility', null);
-
         $whereString = null;
         $havingString = null;
         $and = 'AND';
-        $table = PublicationMapper::TABLE;
-        $inactive = PublicationMapper::INACTIVE;
+        $table = BuiltInBannerMapper::TABLE;
+        $inactive = BuiltInBannerMapper::INACTIVE;
 
         $where = [
             "{$table}.status != {$inactive}",
         ];
         $having = [];
 
-        if ($visibility !== null) {
+        if (false) {
             $beforeOperator = !empty($having) ? $and : '';
-            $critery = "visibility = {$visibility}";
+            $critery = "CRITERY = VALUE";
             $having[] = "{$beforeOperator} ({$critery})";
         }
 
@@ -1162,26 +869,20 @@ class PublicationsController extends AdminPanelController
             $havingString = trim(implode(' ', $having));
         }
 
-        $selectFields = PublicationMapper::fieldsToSelect();
+        $selectFields = BuiltInBannerMapper::fieldsToSelect();
 
         $columnsOrder = [
             'idPadding',
             'title',
-            'categoryName',
-            'visits',
-            'publicDateFormat',
-            'authorUser',
-            'visibilityText',
-            'featuredDisplay',
+            'orderPosition',
+            'desktopImage',
+            'mobileImage',
         ];
 
         $customOrder = [
             'idPadding' => 'DESC',
             'createdAt' => 'DESC',
             'updatedAt' => 'DESC',
-            'authorUser' => 'DESC',
-            'categoryName' => 'DESC',
-            'featuredDisplay' => 'DESC',
         ];
 
         DataTablesHelper::setTablePrefixOnOrder(false);
@@ -1194,16 +895,15 @@ class PublicationsController extends AdminPanelController
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
-            'mapper' => new PublicationMapper(),
+            'mapper' => new BuiltInBannerMapper(),
             'request' => $request,
             'on_set_data' => function ($e) {
 
-                $mapper = PublicationMapper::objectToMapper($e);
+                $mapper = BuiltInBannerMapper::objectToMapper($e);
 
                 $buttons = [];
                 $hasEdit = self::allowedRoute('forms-edit', ['id' => $e->id]);
                 $hasDelete = self::allowedRoute('actions-delete', ['id' => $e->id]);
-                $hasPreview = PublicationsPublicController::allowedRoute('single', ['slug' => $mapper->getSlug()]);
 
                 if ($hasEdit) {
                     $editLink = self::routeName('forms-edit', ['id' => $e->id]);
@@ -1212,36 +912,32 @@ class PublicationsController extends AdminPanelController
                     $editButton = "<a title='{$editText}' href='{$editLink}' class='ui button brand-color icon'>{$editIcon}</a>";
                     $buttons[] = $editButton;
                 }
-                if ($hasPreview) {
-                    $previewLink = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
-                    $previewText = __(self::LANG_GROUP, 'Ver');
-                    $previewIcon = "<i class='icon external alternate'></i>";
-                    $previewButton = "<a target='_blank' title='{$previewText}' href='{$previewLink}' class='ui button brand-color alt icon'>{$previewIcon}</a>";
-                    $buttons[] = $previewButton;
-                }
                 if ($hasDelete) {
                     $deleteLink = self::routeName('actions-delete', ['id' => $mapper->id]);
                     $deleteText = __(self::LANG_GROUP, 'Eliminar');
                     $deleteIcon = "<i class='icon trash'></i>";
-                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-publication-button>{$deleteIcon}</a>";
+                    $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-built-in-banner-button>{$deleteIcon}</a>";
                     $buttons[] = $deleteButton;
                 }
 
                 $buttons = implode('', $buttons);
                 $columns = [];
 
-                $tagColor = PublicationMapper::VISIBILITIES_COLORS[$e->visibility];
-                $tag = "<span class='ui {$tagColor} tag label'>{$e->visibilityText}</span>";
-                $title = mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...';
+                $title = is_string($e->title) ? (mb_strlen($e->title) <= 54 ? $e->title : mb_substr($e->title, 0, 51) . '...') : 'N/A';
+                $startDateFormat = $e->startDateFormat;
+                $endDateFormat = $e->endDateFormat;
+                $dates = array_filter([
+                    $e->startDate !== null ? $startDateFormat : null,
+                    $e->endDate !== null ? $endDateFormat : null,
+                ], function ($e) {return $e !== null;});
+                $dates = !empty($dates) ? implode(' a ', $dates) : 'N/A';
 
                 $columns[] = $e->idPadding;
                 $columns[] = $title;
-                $columns[] = $e->categoryName;
-                $columns[] = $e->visits;
-                $columns[] = $e->publicDateFormat;
-                $columns[] = $e->authorUser;
-                $columns[] = $tag;
-                $columns[] = $e->featuredDisplay;
+                $columns[] = $e->orderPosition;
+                $columns[] = $e->desktopImage !== null ? "<a class='ui button icon blue' href='#' data-image-preview='{$e->desktopImage}'><i class='icon image'></i></a>" : 'N/A';
+                $columns[] = $e->mobileImage !== null && mb_strlen($e->mobileImage) > 0 ? "<a class='ui button icon blue' href='#' data-image-preview='{$e->mobileImage}'><i class='icon image'></i></a>" : 'N/A';
+                $columns[] = $dates;
                 $columns[] = $buttons;
                 return $columns;
             },
@@ -1254,9 +950,7 @@ class PublicationsController extends AdminPanelController
     /**
      * @param int $page =1
      * @param int $perPage =10
-     * @param int $category =null
-     * @param int $status =PublicationMapper::ACTIVE
-     * @param int $featured =null
+     * @param int $status =BuiltInBannerMapper::ACTIVE
      * @param string $title =null
      * @param bool $ignoreStatus =false
      * @param bool $ignoreDateLimit =false
@@ -1265,32 +959,21 @@ class PublicationsController extends AdminPanelController
     public static function _all(
         int $page = null,
         int $perPage = null,
-        int $category = null,
         int $status = null,
-        int $featured = null,
         string $title = null,
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false
     ) {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? PublicationMapper::ACTIVE : $status;
+        $status = $status === null ? BuiltInBannerMapper::ACTIVE : $status;
 
-        $table = PublicationMapper::TABLE;
-        $fields = PublicationMapper::fieldsToSelect();
-        $jsonExtractExists = PublicationMapper::jsonExtractExistsMySQL();
+        $table = BuiltInBannerMapper::TABLE;
+        $fields = BuiltInBannerMapper::fieldsToSelect();
 
         $whereString = null;
         $where = [];
         $and = 'AND';
-
-        if ($category !== null) {
-
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$table}.category = {$category}";
-            $where[] = "{$beforeOperator} ({$critery})";
-
-        }
 
         if (!$ignoreStatus) {
 
@@ -1303,16 +986,8 @@ class PublicationsController extends AdminPanelController
         if ($title !== null) {
 
             $beforeOperator = !empty($where) ? $and : '';
-            $titleField = PublicationMapper::fieldCurrentLangForSQL('title');
+            $titleField = BuiltInBannerMapper::fieldCurrentLangForSQL('title');
             $critery = "UPPER({$titleField}) LIKE UPPER('%{$title}%')";
-            $where[] = "{$beforeOperator} ({$critery})";
-
-        }
-
-        if ($featured !== null) {
-
-            $beforeOperator = !empty($where) ? $and : '';
-            $critery = "{$table}.featured = {$featured}";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1340,17 +1015,9 @@ class PublicationsController extends AdminPanelController
         $currentLang = Config::get_lang();
 
         if ($currentLang != $defaultLang) {
-
-            if ($jsonExtractExists) {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
-                $where[] = "{$beforeOperator} ({$critery})";
-            } else {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
+            $where[] = "{$beforeOperator} ({$critery})";
         }
 
         if (!empty($where)) {
@@ -1366,25 +1033,19 @@ class PublicationsController extends AdminPanelController
             $sqlCount .= " WHERE {$whereString}";
         }
 
-        $sqlSelect .= " ORDER BY " . implode(', ', PublicationMapper::ORDER_BY_PREFERENCE);
+        $sqlSelect .= " ORDER BY " . implode(', ', BuiltInBannerMapper::ORDER_BY_PREFERENCE);
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
         $parser = function ($element) {
-            $element = PublicationMapper::objectToMapper($element);
-            $element = PublicationsPublicController::view('public/util/item', [
+            $element = BuiltInBannerMapper::objectToMapper($element);
+            $element = BuiltInBannerPublicController::view('public/util/item', [
                 'element' => $element,
             ], false, false);
             return $element;
         };
-        $each = !$jsonExtractExists ? function ($element) {
-            $mapper = PublicationMapper::objectToMapper($element);
-            $element = PublicationMapper::translateEntityObject($element);
-            $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
-            return $element;
-        } : function ($element) {
-            $mapper = PublicationMapper::objectToMapper($element);
-            $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
+        $each = function ($element) {
+            $mapper = BuiltInBannerMapper::objectToMapper($element);
             return $element;
         };
 
@@ -1428,7 +1089,7 @@ class PublicationsController extends AdminPanelController
      */
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
-        return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return parent::render(trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -1480,15 +1141,14 @@ class PublicationsController extends AdminPanelController
 
                     $allow = false;
                     $id = ($getParam)('id');
-                    $publication = PublicationMapper::getBy($id, 'id');
+                    $builtInBanner = BuiltInBannerMapper::getBy($id, 'id');
 
-                    if ($publication !== null) {
+                    if ($builtInBanner !== null) {
 
-                        $createdByID = (int) $publication->createdBy;
-                        $authorID = (int) $publication->author;
-                        $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
+                        $createdByID = (int) $builtInBanner->createdBy;
+                        $allow = $createdByID == $currentUserID;
 
-                        if (in_array($currentUserType, PublicationMapper::CAN_DELETE_ALL)) {
+                        if (in_array($currentUserType, BuiltInBannerMapper::CAN_DELETE_ALL)) {
                             $allow = true;
                         }
 
@@ -1503,9 +1163,9 @@ class PublicationsController extends AdminPanelController
         return $allow;
     }
 
-    public static function pathFrontPublicationsAdapter()
+    public static function pathFrontBuiltInBannerAdapter()
     {
-        return PublicationsRoutes::staticRoute('js/PublicationsAdapter.js');
+        return BuiltInBannerRoutes::staticRoute('js/BuiltInBannerAdapter.js');
     }
 
     /**
@@ -1538,7 +1198,7 @@ class PublicationsController extends AdminPanelController
 
                 $valid = $handler->validate();
 
-                $instance = new PublicationsController;
+                $instance = new BuiltInBannerController;
                 $uploadDirPath = $instance->uploadDir;
                 $uploadDirRelativeURL = $instance->uploadDirURL;
 

@@ -26,6 +26,25 @@ pcsphpGlobals.adminURLConfig = (function () {
 	}
 	return adminURLConfig
 })()
+pcsphpGlobals.frontConfigurationsFromBackend = (function () {
+	let containerData = document.querySelector('html head meta[name="front-configurations"]')
+	let frontConfigurations = {}
+	const defaultValue = {}
+	if (frontConfigurations !== null) {
+		frontConfigurations = containerData.getAttribute('value')
+		frontConfigurations = typeof frontConfigurations == 'string' ? atob(frontConfigurations) : null
+		try {
+			frontConfigurations = typeof frontConfigurations == 'string' ? JSON.parse(frontConfigurations) : null
+		} catch (e) {
+			frontConfigurations = null
+		}
+	}
+
+	if (frontConfigurations === null || Array.isArray(frontConfigurations)) {
+		frontConfigurations = defaultValue
+	}
+	return frontConfigurations
+})()
 pcsphpGlobals.langMessagesFromServerURL = (function () {
 	let langMessagesFromServerURL = document.querySelector('html head meta[name="lang-messages-from-server-url"]')
 	if (langMessagesFromServerURL !== null) {

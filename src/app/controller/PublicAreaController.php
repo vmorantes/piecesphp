@@ -10,7 +10,9 @@ use App\Model\AvatarModel;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Controllers\NewsletterController;
 use Newsletter\NewsletterRoutes;
-use PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController;
+use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
+use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;
+use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -18,6 +20,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use Publications\Controllers\PublicationsController;
+use Publications\Controllers\PublicationsPublicController;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -88,13 +91,14 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         set_custom_assets([
             PublicationsController::pathFrontPublicationsAdapter(),
-            HeroController::BASE_JS_DIR . '/public/main.js',
+            BuiltInBannerController::pathFrontBuiltInBannerAdapter(),
+            BuiltInBannerRoutes::staticRoute('js/public/home.js'),
             'statics/js/main.js',
         ], 'js');
 
         $data = [
-            'ajaxArticlesURL' => PublicationsController::routeName('ajax-all', [], true),
-            'sliderAjax' => HeroController::routeName('ajax-all', [], true),
+            'ajaxArticlesURL' => PublicationsPublicController::routeName('ajax-all', [], true),
+            'sliderAjax' => BuiltInBannerPublicController::routeName('ajax-all', [], true),
             'addSuscriberURL' => NewsletterController::routeName('add', [], true),
             'suscriberEnable' => NewsletterRoutes::ENABLE,
             'langGroup' => LANG_GROUP,
