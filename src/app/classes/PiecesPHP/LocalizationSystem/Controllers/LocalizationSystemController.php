@@ -81,7 +81,15 @@ class LocalizationSystemController extends AdminPanelController
             $translationsOnlyGroup[$lang] = array_key_exists($langGroup, $langData) ? $langData[$langGroup] : [];
         }
 
-        $response = $response->withJson($translationsOnlyGroup);
+        $headersAndStatus = generateCachingHeadersAndStatus($request, new \DateTime(date('Y-m-d 00:00:00')), json_encode($translationsOnlyGroup));
+        foreach ($headersAndStatus['headers'] as $header => $value) {
+            $response = $response->withHeader($header, $value);
+        }
+        $response = $response->withStatus($headersAndStatus['status']);
+
+        if($headersAndStatus['status'] !== 304){
+            $response = $response->withJson($translationsOnlyGroup);            
+        }
 
         return $response;
     }
@@ -89,7 +97,7 @@ class LocalizationSystemController extends AdminPanelController
     /**
      * @inheritDoc
      */
-    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
+    public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(trim($name, '/'), $data, $mode, $format);
     }

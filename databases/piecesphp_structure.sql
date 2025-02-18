@@ -47,6 +47,32 @@ CREATE TABLE `app_presentations_categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
+DROP TABLE IF EXISTS `built_in_banner_elements`;
+CREATE TABLE `built_in_banner_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `title` text NOT NULL,
+  `content` text NOT NULL,
+  `link` text NOT NULL,
+  `desktopImage` text NOT NULL,
+  `mobileImage` text NOT NULL,
+  `orderPosition` int(11) NOT NULL,
+  `folder` text NOT NULL,
+  `startDate` datetime DEFAULT NULL,
+  `endDate` datetime DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `built_in_banner_elements_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `built_in_banner_elements_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
 DROP TABLE IF EXISTS `documents_elements`;
 CREATE TABLE `documents_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -346,18 +372,6 @@ CREATE TABLE `pcsphp_app_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
-DROP TABLE IF EXISTS `pcsphp_dynamic_images`;
-CREATE TABLE `pcsphp_dynamic_images` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` text NOT NULL,
-  `description` text DEFAULT NULL,
-  `link` text DEFAULT NULL,
-  `image` text NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
-
-
 DROP TABLE IF EXISTS `pcsphp_recovery_password`;
 CREATE TABLE `pcsphp_recovery_password` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -551,4 +565,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
--- 2025-02-05 02:14:07
+-- 2025-02-17 21:00:55

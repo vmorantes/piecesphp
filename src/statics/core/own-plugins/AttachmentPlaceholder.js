@@ -147,6 +147,7 @@ function AttachmentPlaceholder(attachContainer) {
 			if (!attachContainer.hasClass('attached')) {
 				attachContainer.addClass('attached')
 			}
+			inputFile.removeAttr('required')
 			wasChange = true
 			onSelectedCallback(instance, selectedFile)
 		}
@@ -253,37 +254,7 @@ function AttachmentPlaceholder(attachContainer) {
  * @returns {void}
  */
 AttachmentPlaceholder.registerDynamicMessages = function (name) {
-
-	if (typeof pcsphpGlobals != 'object') {
-		pcsphpGlobals = {}
-	}
-	if (typeof pcsphpGlobals.messages != 'object') {
-		pcsphpGlobals.messages = {}
-	}
-	if (typeof pcsphpGlobals.messages.es != 'object') {
-		pcsphpGlobals.messages.es = {}
-	}
-	if (typeof pcsphpGlobals.messages.en != 'object') {
-		pcsphpGlobals.messages.en = {}
-	}
-
-	let es = {
-	}
-
-	let en = {
-		'ESPAÑOL': 'ENGLISH',
-	}
-
-	for (let i in es) {
-		if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
-		pcsphpGlobals.messages.es[name][i] = es[i]
-	}
-
-	for (let i in en) {
-		if (typeof pcsphpGlobals.messages.en[name] == 'undefined') pcsphpGlobals.messages.en[name] = {}
-		pcsphpGlobals.messages.en[name][i] = en[i]
-	}
-
+	registerDynamicLocalizationMessages(name)
 }
 /**
  * @typedef AttachmentPlaceholderElements

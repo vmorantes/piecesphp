@@ -18,7 +18,6 @@
         text-decoration: none;
         margin: 0px;
         padding: 0px;
-        padding-bottom: 30px;
         outline: none;
         border: none;
 
@@ -38,6 +37,14 @@
             margin: 0px;
             padding: 0px;
             vertical-align: bottom;
+
+            &.desktop {
+                display: initial;
+            }
+
+            &.mobile {
+                display: none;
+            }
         }
 
         .caption {
@@ -83,12 +90,23 @@
 
         }
 
-        @media screen and (min-width: $rsTablet) {
-            padding-bottom: 0px;
+
+        @media screen and (max-width:$rsMedium) {
+
+            img {
+                &.mobile {
+                    display: initial
+                }
+
+                &.desktop {
+                    display: none;
+                }
+            }
+
         }
 
         @media screen and (max-width: $rsTablet) {
-            img{
+            img {
                 object-fit: cover;
                 height: 300px;
             }

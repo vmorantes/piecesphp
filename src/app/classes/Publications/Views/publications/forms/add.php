@@ -86,32 +86,50 @@ use Publications\Util\AttachmentPackage;
 
                 <div class="ui tab" data-tab="images">
 
-                    <div class="ui form cropper-adapter" cropper-image-main>
-
-                        <div class="field required">
-                            <label><?= __($langGroup, 'Imagen principal'); ?></label>
-                            <input type="file" accept="image/*" required>
+                    <div class="form-attachments-regular">
+                        <div class="attach-placeholder main-image required">
+                            <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
+                            <div class="ui top right attached label green">
+                                <i class="paperclip icon"></i>
+                            </div>
+                            <label for="<?= $uniqueIdentifier; ?>">
+                                <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                    <i class="icon upload"></i>
+                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
+                                </div>
+                                <div class="text">
+                                    <div class="filename"></div>
+                                    <div class="header">
+                                        <div class="title"><?= __($langGroup, 'Imagen principal'); ?></div>
+                                        <div class="meta"><?= __($langGroup, 'Tamaño 800x600'); ?></div>
+                                    </div>
+                                    <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
+                                </div>
+                            </label>
+                            <input required type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
                         </div>
 
-                        <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                            'referenceW'=> '800',
-                            'referenceH'=> '600',
-                        ]); ?>
-
-                    </div>
-
-                    <div class="ui form cropper-adapter" cropper-image-thumb>
-
-                        <div class="field required">
-                            <label><?= __($langGroup, 'Imagen miniatura'); ?></label>
-                            <input type="file" accept="image/*" required>
+                        <div class="attach-placeholder thumb-image required">
+                            <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
+                            <div class="ui top right attached label green">
+                                <i class="paperclip icon"></i>
+                            </div>
+                            <label for="<?= $uniqueIdentifier; ?>">
+                                <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                    <i class="icon upload"></i>
+                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
+                                </div>
+                                <div class="text">
+                                    <div class="filename"></div>
+                                    <div class="header">
+                                        <div class="title"><?= __($langGroup, 'Imagen miniatura'); ?></div>
+                                        <div class="meta"><?= __($langGroup, 'Tamaño 400x300'); ?></div>
+                                    </div>
+                                    <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
+                                </div>
+                            </label>
+                            <input required type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
                         </div>
-
-                        <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                            'referenceW'=> '400',
-                            'referenceH'=> '300',
-                        ]); ?>
-
                     </div>
 
                 </div>
@@ -143,18 +161,26 @@ use Publications\Util\AttachmentPackage;
 
                 <div class="ui tab" data-tab="seo">
 
-                    <div class="ui form cropper-adapter" cropper-image-og>
-
-                        <div class="field">
-                            <label><?= __($langGroup, 'Imagen'); ?></label>
-                            <input type="file" accept="image/*">
+                    <div class="attach-placeholder og-image">
+                        <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
+                        <div class="ui top right attached label green">
+                            <i class="paperclip icon"></i>
                         </div>
-
-                        <?php $this->helpController->_render('panel/built-in/utilities/cropper/workspace.php', [
-                            'referenceW'=> '1200',
-                            'referenceH'=> '600',
-                        ]); ?>
-
+                        <label for="<?= $uniqueIdentifier; ?>">
+                            <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                <i class="icon upload"></i>
+                                <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
+                            </div>
+                            <div class="text">
+                                <div class="filename"></div>
+                                <div class="header">
+                                    <div class="title"><?= __($langGroup, 'Imagen'); ?></div>
+                                    <div class="meta"><?= __($langGroup, 'Tamaño 1200x600'); ?></div>
+                                </div>
+                                <div class="description"><?= __($langGroup, 'Imagen preferiblemente en formato .jpg'); ?></div>
+                            </div>
+                        </label>
+                        <input type="file" accept="image/*" id="<?= $uniqueIdentifier; ?>">
                     </div>
 
                     <br>
@@ -221,3 +247,64 @@ use Publications\Util\AttachmentPackage;
     </div>
 
 </section>
+
+<?php
+
+    $croppers = [
+        [
+            'id' => 'main-image',
+            'cropperOptions' => [
+                'type' => 'image/*',
+                'required' => true,
+                'referenceW' => '800',
+                'referenceH' => '600',
+                'image' => '',
+            ],
+        ],
+        [
+            'id' => 'thumb-image',
+            'cropperOptions' => [
+                'type' => 'image/*',
+                'required' => true,
+                'referenceW' => '400',
+                'referenceH' => '300',
+                'image' => '',
+            ],
+        ],
+        [
+            'id' => 'og-image',
+            'cropperOptions' => [
+                'type' => 'image/*',
+                'required' => false,
+                'referenceW' => '1200',
+                'referenceH' => '600',
+                'image' => '',
+            ],
+        ],
+    ];
+
+    foreach ($croppers as $cropperData) {
+        $id = $cropperData['id'];
+        $cropperOptions = $cropperData['cropperOptions'];
+        $cropperOptions['selectorAttr'] = $id;
+        modalImageUploaderForCropperAdminViews([
+            //El contenido (si se usa simpleCropperAdapterWorkSpace o similar debe ser con el parámetro $echo en false)
+            'content' => simpleCropperAdapterWorkSpace($cropperOptions, false),
+            //Atributos que se asignarán al modal (el contenedor principal), string
+            'modalContainerAttrs' => "modal='{$id}'",
+            //Clases que se asignarán al modal (el contenedor principal), string
+            'modalContainerClasses' => "ui tiny modal",
+            //Atributos que se asignarán al elemento de contenido del modal (modal > .content), string
+            'modalContentElementAttrs' => null,
+            //Clase por defecto del elemento informativo del modal (donde están el título y la descripcion, por omisión cropper-info-content), string
+            'informationContentMainClass' => null,
+            //Clases que se asignarán al elemento informativo del modal (donde están el título y la descripcion), string
+            'informationContentClasses' => null,
+            //Título del modal, string
+            'titleModal' => null,
+            //Descripción del modal, string
+            'descriptionModal' => null,
+        ]);
+    }
+
+?>

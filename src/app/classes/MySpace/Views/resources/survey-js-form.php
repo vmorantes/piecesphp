@@ -51,7 +51,7 @@ set_custom_assets([
     <div id="surveyContainer"></div>
 
     <script>
-    window.addEventListener('load', function() {
+    window.addEventListener('PiecesPHP-Configurations-And-Window-Load', function() {
 
         surveyJSTest()
 
