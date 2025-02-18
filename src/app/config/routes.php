@@ -66,7 +66,7 @@ use Newsletter\NewsletterRoutes;
 use News\NewsRoutes;
 use Organizations\OrganizationsRoutes;
 use Persons\PersonsRoutes;
-use PiecesPHP\BuiltIn\DynamicImages\DynamicImagesRoutes;
+use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
@@ -102,6 +102,31 @@ $token_handler = new PiecesRouteGroup($prefix_lang . '/tokens'); //Sistema de to
 $zona_publica = new PiecesRouteGroup($prefix_lang); //Zona pública
 
 //──── REGISTRAR RUTAS ───────────────────────────────────────────────────────────────────
+
+$sistema_avatares->register(
+    [
+        //──── GET ───────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
+        //──── POST ──────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
+    ]
+);
+
+$servidor_estaticos->register(
+    [
+        //──── GET ───────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('[{params:.*}]', ServerStatics::class . ':serve', 'statics-files'),
+    ]
+);
+
+$generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
+$generacion_imagenes->active(true); //Grupo activo/inactivo
+$generacion_imagenes->register(
+    [
+        //──── GET ───────────────────────────────────────────────────────────────────────────────
+        new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
+    ]
+);
 
 //Rutas para solicitudes desde la terminal
 TerminalController::routes($terminalGroup);
@@ -146,9 +171,6 @@ ImporterController::routes($importadores);
 //Manejador de tokens
 GenericTokenController::routes($token_handler);
 
-//Imágenes
-DynamicImagesRoutes::routes($zona_administrativa);
-
 //Google ReCaptcha V3
 GoogleReCaptchaV3Routes::routes(new PiecesRouteGroup($prefix_lang . '/recaptcha'));
 
@@ -161,32 +183,8 @@ LocalizationSystemFeaturesRoutes::routes($zona_administrativa);
 //API
 APIRoutes::routes($coreGroup);
 
-$sistema_avatares->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('/get[/]', AvatarController::class . ':avatar', 'avatars', 'GET', true, null),
-        //──── POST ──────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('/push[/]', AvatarController::class . ':register', 'push-avatars', 'POST', true),
-    ]
-);
-
-$servidor_estaticos->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('[{params:.*}]', ServerStatics::class . ':serve', 'statics-files'),
-    ]
-);
-
-//──── RUTAS OPCIONALES ──────────────────────────────────────────────────────────────────
-
-$generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
-$generacion_imagenes->active(true); //Grupo activo/inactivo
-$generacion_imagenes->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
-    ]
-);
+//Imágenes
+BuiltInBannerRoutes::routes($zona_administrativa, $zona_publica);
 
 //Módulo de presentaciones
 PresentationsRoutes::routes($zona_administrativa, $zona_publica);

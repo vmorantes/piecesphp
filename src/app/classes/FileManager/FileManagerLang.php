@@ -26,7 +26,9 @@ class FileManagerLang extends LangInjector
      */
     public static function injectLang()
     {
-        $injector = new LangInjector(__DIR__ . '/lang', Config::get_allowed_langs());
+        $allowedLangs = Config::get_allowed_langs();
+        $allowedLangs[] = 'default';
+        $injector = new LangInjector(__DIR__ . '/lang', $allowedLangs);
         $injector->injectGroup(self::LANG_GROUP);
     }
 

@@ -26,6 +26,25 @@ pcsphpGlobals.adminURLConfig = (function () {
 	}
 	return adminURLConfig
 })()
+pcsphpGlobals.frontConfigurationsFromBackend = (function () {
+	let containerData = document.querySelector('html head meta[name="front-configurations"]')
+	let frontConfigurations = {}
+	const defaultValue = {}
+	if (frontConfigurations !== null) {
+		frontConfigurations = containerData.getAttribute('value')
+		frontConfigurations = typeof frontConfigurations == 'string' ? atob(frontConfigurations) : null
+		try {
+			frontConfigurations = typeof frontConfigurations == 'string' ? JSON.parse(frontConfigurations) : null
+		} catch (e) {
+			frontConfigurations = null
+		}
+	}
+
+	if (frontConfigurations === null || Array.isArray(frontConfigurations)) {
+		frontConfigurations = defaultValue
+	}
+	return frontConfigurations
+})()
 pcsphpGlobals.langMessagesFromServerURL = (function () {
 	let langMessagesFromServerURL = document.querySelector('html head meta[name="lang-messages-from-server-url"]')
 	if (langMessagesFromServerURL !== null) {
@@ -40,6 +59,7 @@ pcsphpGlobals.langMessagesFromServerURL = (function () {
 	}
 	return langMessagesFromServerURL
 })()
+pcsphpGlobals.langMessagesFromServerURLRequested = []
 
 //──── Lenguaje ──────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.lang = (function () {
@@ -1313,8 +1333,9 @@ function _i18n(type, message) {
 /**
  * Intente tomar desde el servidor las traducciones
  * @param {String} langGroup
+ * @param {Boolean} repeat Repite la solicitud aunque haya sido hecho previamente
  */
-function registerDynamicLocalizationMessages(langGroup) {
+function registerDynamicLocalizationMessages(langGroup, repeat = false) {
 
 	const requestURL = pcsphpGlobals.langMessagesFromServerURL
 
@@ -1328,6 +1349,15 @@ function registerDynamicLocalizationMessages(langGroup) {
 		}
 		const url = new URL(requestURL)
 		url.searchParams.set('group', langGroup)
+
+		if (!pcsphpGlobals.langMessagesFromServerURLRequested.includes(langGroup)) {
+			pcsphpGlobals.langMessagesFromServerURLRequested.push(langGroup)
+		} else {
+			if (!repeat) {
+				return null
+			}
+		}
+
 		getRequest(url, '', {}, {
 			async: false,
 		}).done(function (response) {
@@ -1410,3 +1440,9 @@ function getLangGroupData(langGroup) {
 
 	return groupData
 }
+
+
+window.dispatchEvent(new Event('PiecesPHP-Configurations-Load'))
+window.addEventListener('load', function () {
+	window.dispatchEvent(new Event('PiecesPHP-Configurations-And-Window-Load'))
+})

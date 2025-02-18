@@ -1426,7 +1426,7 @@ class PublicationsController extends AdminPanelController
     /**
      * @inheritDoc
      */
-    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
+    public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }

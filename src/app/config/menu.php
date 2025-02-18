@@ -9,7 +9,6 @@
  * En este este archivo se pueden definir elementos útiles para generar menús
  */
 
-use PiecesPHP\BuiltIn\DynamicImages\EntryPointController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
@@ -36,14 +35,6 @@ $sidebar = new MenuGroupCollection([
             'href' => get_route('admin'),
             'icon' => 'home',
             'position' => 1,
-        ]),
-        new MenuGroup([
-            'name' => __(EntryPointController::LANG_GROUP, 'Banner'),
-            'visible' => \PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController::allowedRoute('list'),
-            'asLink' => true,
-            'href' => \PiecesPHP\BuiltIn\DynamicImages\Informative\Controllers\HeroController::routeName('list', [], true),
-            'icon' => 'images',
-            'position' => 100,
         ]),
         new MenuGroup([
             'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),

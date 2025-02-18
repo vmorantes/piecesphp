@@ -33,7 +33,9 @@ use Spatie\Url\Url as URLManager;
  */
 function get_config(string $name)
 {
-    if (array_key_exists($name, array_flip(AppConfigController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME))) {
+    $initialName = $name;
+    $isSEOElement = array_key_exists($name, array_flip(AppConfigController::SEO_OPTIONS_CONFIG_NAME_BY_FORM_NAME));
+    if ($isSEOElement) {
 
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
@@ -51,7 +53,13 @@ function get_config(string $name)
         }
     }
 
-    return Config::get_config($name);
+    $value = Config::get_config($name);
+
+    if ($isSEOElement && $value === false) {
+        $value = Config::get_config($initialName);
+    }
+
+    return $value;
 }
 
 /**
@@ -64,6 +72,45 @@ function get_config(string $name)
 function set_config(string $name, $value)
 {
     Config::set_config($name, $value);
+}
+
+/**
+ * Agrega información a la configuración front_configurations
+ * @param string $name
+ * @param mixed $value
+ * @return array Devuelve el valor completo de front_configurations
+ */
+function add_to_front_configurations(string $name, $value)
+{
+    $frontConfigurations = get_config('front_configurations');
+    $frontConfigurations = !is_array($frontConfigurations) ? [] : $frontConfigurations;
+    $frontConfigurations[$name] = $value;
+    set_config('front_configurations', $frontConfigurations);
+    return $frontConfigurations;
+}
+
+/**
+ * Devuelve el valor completo de front_configurations
+ * @return array
+ */
+function get_front_configurations()
+{
+    $frontConfigurations = get_config('front_configurations');
+    $frontConfigurations = !is_array($frontConfigurations) ? [] : $frontConfigurations;
+    return $frontConfigurations;
+}
+
+/**
+ * Devuelve el valor seleccionado de front_configurations
+ * @param string $name
+ * @return mixed
+ */
+function get_front_configuration(string $name)
+{
+    $frontConfigurations = get_config('front_configurations');
+    $frontConfigurations = !is_array($frontConfigurations) ? [] : $frontConfigurations;
+    $value = array_key_exists($name, $frontConfigurations) ? $frontConfigurations[$name] : null;
+    return $value;
 }
 
 /**
@@ -496,6 +543,7 @@ function load_js(array $config = [])
 {
     $global_assets = get_config('global_assets');
     $custom_assets = get_config('custom_assets');
+    $asModules = get_config('as_modules_assets');
 
     ksort($global_assets['js']);
     ksort($custom_assets['js']);
@@ -637,7 +685,7 @@ function load_js(array $config = [])
     /**
      * @return string
      */
-    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr) {
+    $processElement = function (array $config, string $src, array $ingoreConfig = []) use ($processAttr, $asModules) {
 
         $defaultConfig = [
             'base_url' => [
@@ -683,6 +731,13 @@ function load_js(array $config = [])
 
         $path = $configValues['baseURL'] . $src;
         $attributes['src'] = $path;
+        //Revisar si es tipo módulo
+        foreach ($asModules as $asModule) {
+            if (mb_strpos($src, $asModule) !== false) {
+                $attributes['type'] = 'module';
+                break;
+            }
+        }
 
         $attributes = ($processAttr)($config, $attributes, $src);
 
@@ -716,7 +771,7 @@ function load_js(array $config = [])
         $url = URLManager::fromString($script);
         $url = $stamp !== 'none' ? $url->withQueryParameter('cacheStamp', $stamp) : $url;
         $script = $url->__toString();
-        $tag = ($processElement)($config, $script);
+        $tag = ($processElement)($config, $script, []);
         echo $tag . "\n";
     }
 }
@@ -1254,7 +1309,7 @@ function add_global_asset(string $asset, string $type)
     $global_assets = get_config('global_assets');
     $exists = isset($global_assets[$type]) && in_array($asset, $global_assets[$type]);
 
-    if (is_string($asset) && ($type == "js" || $type == "css" || $type == "font")) {
+    if (is_string($asset) && mb_strlen($asset) > 0 && ($type == "js" || $type == "css" || $type == "font")) {
 
         if (!$exists) {
 
@@ -1384,6 +1439,34 @@ function add_global_requireds_assets(array $custom_assets, string $type)
 {
     foreach ($custom_assets as $asset) {
         add_global_required_asset($asset, $type);
+    }
+}
+
+/**
+ * Añade un elemento a la lista de los que se importan como módulos (JS)
+ *
+ * @param string $asset
+ * @return bool
+ */
+function add_as_module_asset(string $asset)
+{
+    $as_modules_assets = get_config('as_modules_assets');
+    $as_modules_assets = is_array($as_modules_assets) ? $as_modules_assets : [];
+    if (!in_array($asset, $as_modules_assets)) {
+        $as_modules_assets[] = $asset;
+    }
+    set_config('as_modules_assets', $as_modules_assets);
+}
+/**
+ * Añade múltiples elementos a la lista de los que se importan como módulos (JS)
+ *
+ * @param string[] $assets
+ * @return bool
+ */
+function add_as_module_assets(array $assets)
+{
+    foreach ($assets as $asset) {
+        add_as_module_asset($asset);
     }
 }
 
@@ -1684,6 +1767,7 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
             $has_js = array_key_exists('js', $library);
             $has_css = array_key_exists('css', $library);
             $has_font = array_key_exists('font', $library);
+            $has_as_modules = array_key_exists('asModules', $library);
             $was_imported = false;
 
             if ($has_js) {
@@ -1707,6 +1791,14 @@ function import_front_library(string $name = '', array $plugins = ['calendar'], 
 
                 if (is_array($font)) {
                     add_global_assets($font, 'font');
+                    $was_imported = true;
+                }
+            }
+            if ($has_as_modules) {
+                $asModules = $library['asModules'];
+
+                if (is_array($asModules)) {
+                    add_as_module_assets($asModules);
                     $was_imported = true;
                 }
             }
@@ -1953,9 +2045,6 @@ function import_apexcharts(array $plugins = [], bool $all = true)
 function import_default_rich_editor(array $plugins = [], bool $all = true)
 {
     import_front_library('defaultRichEditor', $plugins, $all);
-    if (function_exists('import_elfinder')) {
-        import_elfinder();
-    }
 }
 
 /**

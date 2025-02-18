@@ -1,4 +1,5 @@
 <?php
+use PiecesPHP\Core\Config;
 
 /**
  * Librerías front cargadas por defecto
@@ -175,12 +176,22 @@ $assets['quilljs']['plugins'] = [
 
 /**
  * CKEditor5
+ * 27.1.0
  * https://ckeditor.com/ckeditor-5/
  */
+$ckeditorLangs = [
+    'en' => 'statics/plugins/ckeditor/translations/en.js',
+    'fr' => 'statics/plugins/ckeditor/translations/fr.js',
+    'de' => 'statics/plugins/ckeditor/translations/de.js',
+    'it' => 'statics/plugins/ckeditor/translations/it.js',
+    'pt' => 'statics/plugins/ckeditor/translations/pt.js',
+];
 $assets['ckeditor']['js'] = [
     'statics/plugins/ckeditor/ckeditor.js',
+    array_key_exists(Config::get_lang(), $ckeditorLangs) ? $ckeditorLangs[Config::get_lang()] : '',
 ];
 $assets['ckeditor']['css'] = [];
+$assets['ckeditor']['asModules'] = [];
 /**
  * @link project://src/statics/core/own-plugins/RichEditorAdapterComponent.js
  * @link project://src/statics/core/own-plugins/sass/rich-editor-adapter.scss
@@ -208,6 +219,7 @@ $assets['ckeditor']['plugins'] = [
 $defaultRichEditorName = 'ckeditor';
 $assets['defaultRichEditor']['js'] = $assets[$defaultRichEditorName]['js'];
 $assets['defaultRichEditor']['css'] = $assets[$defaultRichEditorName]['css'];
+$assets['defaultRichEditor']['asModules'] = array_key_exists('asModules', $assets[$defaultRichEditorName]) ? $assets[$defaultRichEditorName]['asModules'] : [];
 $assets['defaultRichEditor']['plugins'] = $assets[$defaultRichEditorName]['plugins'];
 
 /**
@@ -367,7 +379,6 @@ $assets['openlayers']['plugins'] = [
     ],
 ];
 
-
 /**
  * QRCodeJS
  * https://github.com/davidshimjs/qrcodejs
@@ -475,4 +486,5 @@ set_config('global_requireds_assets', [
     'font' => [],
 ]);
 set_config('imported_assets', []);
+set_config('as_modules_assets', []);
 set_config('lock_assets', false);

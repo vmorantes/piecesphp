@@ -38,4 +38,17 @@ CREATE VIEW image_repository_images_view AS (
         img.*
     FROM image_repository_images AS img
 );
+DROP VIEW IF EXISTS built_in_banner_active_date_elements;
+CREATE VIEW built_in_banner_active_date_elements AS (
+    SELECT
+        bibe.id,
+        bibe.startDate,
+        bibe.endDate,
+        bibe.status,
+        UNIX_TIMESTAMP(NOW()) AS nowDate
+    FROM built_in_banner_elements AS bibe
+    HAVING
+        (UNIX_TIMESTAMP(bibe.startDate) <= nowDate OR bibe.startDate IS NULL) AND
+        (UNIX_TIMESTAMP(bibe.endDate) > nowDate OR bibe.endDate IS NULL)
+);
 COMMIT;

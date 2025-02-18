@@ -10,7 +10,8 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @typedef RichEditorAdapterOptions
 	 * @property {String} [containerSelector=[rich-editor-adapter-component]]
 	 * @property {String} [textareaTargetSelector=[rich-editor-adapter-component] + textarea[target]]
-	 * @property {String} [fileManagerURL]
+	 * @property {String} [fileManagerConfigURL]
+	 * @property {String} [fileManagerUIURL]
 	 * @property {String} [fileManagerBaseURLStatics]
 	 */
 	adapterOptions;
@@ -25,8 +26,10 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @property {String}
 	 */
 	let langGroup = 'richEditor'
+	let langGroupFileManager = 'filemanager-lang'
 
 	RichEditorAdapterComponent.registerDynamicMessages(langGroup)
+	registerDynamicLocalizationMessages(langGroupFileManager)
 
 	//──── Misc. vars ──────────────────────────────────────────────────────────────────────
 
@@ -67,7 +70,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			'subscript',
 			'htmlEmbed',
 			'horizontalLine',
-			'codeBlock'
+			//'codeBlock'
 		]
 	}
 
@@ -82,9 +85,20 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	let textareaTargetSelector = `${containerSelector} + textarea[target]`
 
 	/**
+	 * Modal de selector de archivos
+	 * @property {$|null} 
+	 */
+	let fileManagerModal = null
+
+	/**
 	 * @property {String}
 	 */
-	let fileManagerURL = ''
+	let fileManagerConfigURL = ''
+
+	/**
+	 * @property {String}
+	 */
+	let fileManagerUIURL = ''
 
 	/**
 	 * @property {String}
@@ -102,6 +116,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	let uploadTargetHash = 'l1_Lw'
 
 	/**
+	 * Esto se usa para saber si ya se puede insertar la imagen seleccionada desde el explorador de imágenes
 	 * @property {Boolean}
 	 */
 	let verifyImgCmd = false
@@ -201,7 +216,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 		ClassicEditor
 			.create(document.querySelector(`[id-component-rich-editor="${idComponent}"]`), {
 				toolbar: toolbarOptions,
-				language: 'es',
+				language: typeof pcsphpGlobals !== 'undefined' ? pcsphpGlobals.lang : 'es',
 				image: {
 					toolbar: [
 						'imageTextAlternative',
@@ -251,16 +266,8 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 				const fileRepository = editorInstance.plugins.get('FileRepository')
 
 				CKFinder.execute = () => {
-
-					let fileManagerPromise = fileManagerHandler()
-
-					fileManagerPromise.then(fileManager => {
-						verifyImgCmd = false
-						fileManager.getUI().dialogelfinder('open')
-					})
-
+					explorerHandler(uploadTargetHash)
 				}
-
 				fileRepository.createUploadAdapter = loader => {
 					return new UploadAdapter(loader)
 				}
@@ -289,11 +296,18 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			textareaTargetSelector = adapterOptions.textareaTargetSelector
 		}
 
-		if (typeof adapterOptions.fileManagerURL == 'string' && adapterOptions.fileManagerURL.length > 0) {
-			fileManagerURL = adapterOptions.fileManagerURL
+		if (typeof adapterOptions.fileManagerConfigURL == 'string' && adapterOptions.fileManagerConfigURL.length > 0) {
+			fileManagerConfigURL = adapterOptions.fileManagerConfigURL
 		} else {
 			const relativeAdminPath = pcsphpGlobals.adminURLConfig.url.length > 0 ? `${pcsphpGlobals.adminURLConfig.url}/` : ''
-			fileManagerURL = `${relativeAdminPath}filemanager/rich-editor/configuration/`
+			fileManagerConfigURL = `${relativeAdminPath}filemanager/rich-editor/configuration/`
+		}
+
+		if (typeof adapterOptions.fileManagerUIURL == 'string' && adapterOptions.fileManagerUIURL.length > 0) {
+			fileManagerUIURL = adapterOptions.fileManagerUIURL
+		} else {
+			const relativeAdminPath = pcsphpGlobals.adminURLConfig.url.length > 0 ? `${pcsphpGlobals.adminURLConfig.url}/` : ''
+			fileManagerUIURL = `${relativeAdminPath}filemanager/rich-editor/`
 		}
 
 		if (typeof adapterOptions.fileManagerBaseURLStatics == 'string' && adapterOptions.fileManagerBaseURLStatics.length > 0) {
@@ -305,119 +319,59 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	}
 
 	/**
+	 * Abre el explorador de archivos y maneja las inserciones
 	 * @param {String} target
 	 * @returns {Promise}
 	 */
-	function fileManagerHandler(target = null) {
+	function explorerHandler(target = null) {
+		return new Promise((resolve) => {
 
-		return new Promise((resolve, reject) => {
+			const explorerURL = new URL(fileManagerUIURL, pcsphpGlobals.baseURL)
+			explorerURL.searchParams.set('target', target)
 
-			const done = () => {
+			fileManagerModalCreate(explorerURL.href)
+			verifyImgCmd = false
 
-				if (target) {
-
-					if (!Object.keys(fileManager.files()).length) {
-
-						fileManager.one('open', () => {
-							fileManager.file(target) ? resolve(fileManager) : reject(fileManager, 'errFolderNotFound');
-						})
-
-					} else {
-
-						new Promise((res, rej) => {
-
-							if (fileManager.file(target)) {
-
-								res()
-
-							} else {
-
-								fileManager.request({ cmd: 'parents', target: target }).done(e => {
-
-									fileManager.file(target) ? res() : rej()
-
-								}).fail(() => {
-									rej()
-								})
-							}
-
-						}).then(() => {
-
-							fileManager.exec('open', target).done(() => {
-								resolve(fileManager)
-							}).fail(err => {
-								reject(fileManager, err ? err : 'errFolderNotFound')
-							})
-
-						}).catch((err) => {
-							reject(fileManager, err ? err : 'errFolderNotFound')
-						})
-
-					}
-
-				} else {
-					resolve(fileManager);
+			//Observar selección de imagen externa
+			window.addEventListener('message', function (event) {
+				if (typeof event.data.ckeditorSelection !== 'undefined' && event.data.ckeditorSelection) {
+					insertImages(event.data.fileURL)
+					fileManagerModalDestroy()
 				}
+			}, false)
 
-			}
-
-			if (fileManager != null) {
-				done()
-			} else {
-
-				fileManager = $('<div/>').dialogelfinder({
-					title: 'Seleccionar imagen',
-					url: fileManagerURL,
-					baseUrl: fileManagerBaseURLStatics + '/',
-					lang: 'es',
-					useBrowserHistory: false,
-					autoOpen: false,
-					width: 'auto',
-					commandsOptions: {
-						getfile: {
-							oncomplete: 'close',
-							multiple: true
-						}
-					},
-					getFileCallback: (files, instance) => {
-
-						let imagesSrc = []
-
-						instance.getUI('cwd').trigger('unselectall')
-
-						$.each(files, function (index, file) {
-
-							if (typeof file == 'object' && typeof file.url == 'string' && file.url.length > 0) {
-
-								let baseURL = new URL($('head base').attr('href'))
-								let fileURL = file.url.replace(baseURL.href, '').replace(/(^\/|\/$)/g, '')
-
-								if (file.mime.match(/^image\//i)) {
-
-									imagesSrc.push(fileURL)
-
-								} else {
-									errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Debe seleccionar una imagen'))
-								}
-
-							}
-
-						})
-
-						if (imagesSrc.length > 0) {
-							insertImages(imagesSrc)
-						}
-
-					}
-
-				}).elfinder('instance')
-
-				done()
-
-			}
+			resolve()
 
 		})
+	}
 
+	/**
+	 * Crea el modal del explorador de archivos
+	 * @param {String} url 
+	 */
+	function fileManagerModalCreate(url) {
+		const $modal = $(`<div id="fileManagerModal" class="ui modal">
+			<div class="content">
+				<iframe id="fileManagerIframe" src="${url}" style="width: 100%; height: 500px; border: none;"></iframe>
+			</div>
+		</div>`)
+		$('body').append($modal)
+		$modal.modal({
+			closable: true,
+			onHidden: () => { }
+		}).modal('show')
+		fileManagerModal = $modal
+	}
+
+	/**
+	 * Destruye el modal del explorador de archivos
+	 * @param {String} url 
+	 */
+	function fileManagerModalDestroy() {
+		if (fileManagerModal !== null) {
+			fileManagerModal.modal('hide')
+			fileManagerModal.remove()
+		}
 	}
 
 	/**
@@ -427,54 +381,53 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 
 		let upload = function (file, resolve, reject) {
 
-			fileManagerHandler(uploadTargetHash).then(instance => {
+			const formUploadData = new FormData()
 
-				let fmNode = instance.getUI()
+			const uploadURL = new URL(fileManagerConfigURL, pcsphpGlobals.baseURL)
+			uploadURL.searchParams.set('cmd', 'upload')
+			uploadURL.searchParams.set('target', uploadTargetHash)
+			uploadURL.searchParams.set('overwrite', 0)
+			formUploadData.append('upload[]', file)
 
-				verifyImgCmd = true
-				fmNode.dialogelfinder('open')
+			const handleError = function (errorData) {
+				const isString = typeof errorData == 'string'
+				if (!isString) {
+					let responseJSON = typeof errorData.responseJSON == 'object' ? errorData.responseJSON : errorData
+					responseJSON = typeof responseJSON == 'object' ? responseJSON : {}
+					const message = typeof responseJSON == 'object' && typeof responseJSON.message == 'string' ? responseJSON.message : JSON.stringify(errorData)
+					errorMessage(message)
+				} else {
+					errorMessage(errorData)
+				}
+				reject()
+			}
 
-				instance.exec('upload', { files: [file], target: uploadTargetHash }, void (0), uploadTargetHash)
-					.done(data => {
-
-						if (data.added && data.added.length) {
-
-							instance.url(data.added[0].hash, { async: true }).done(function (url) {
-
-								let baseURL = new URL($('head base').attr('href'))
-								let fileURL = url.replace(baseURL.href, '').replace(/(^\/|\/$)/g, '')
-
-								resolve({
-									'default': fileURL,
-								})
-
-								fmNode.dialogelfinder('close')
-
-							}).fail(function () {
-
-								reject('errFileNotFound')
-
-							})
-
-						} else {
-
-							reject(instance.i18n(data.error ? data.error : 'errUpload'))
-							fmNode.dialogelfinder('close')
-
+			postRequest(uploadURL, formUploadData)
+				.done(data => {
+					if (Array.isArray(data.added) && data.added.length > 0) {
+						const uploadedElement = data.added[0]
+						const uploadedElementHash = uploadedElement.hash
+						const uploadedElementURL = uploadedElement.url
+						const fileURL = uploadedElementURL.replace(pcsphpGlobals.baseURL, '').replace(/(^\/|\/$)/g, '')
+						resolve({
+							'default': fileURL,
+						})
+					} else {
+						let errorStr = []
+						let error = Array.isArray(data.error) ? data.error : data
+						for (const str of error) {
+							if (typeof str == 'string' && str.length > 0) {
+								errorStr.push(_i18n(langGroupFileManager, str))
+							}
 						}
-
-					})
-					.fail(err => {
-						const error = instance.parseError(err)
-						reject(instance.i18n(error ? (error === 'userabort' ? 'errAbort' : error) : 'errUploadNoFiles'))
-					})
-
-			}).catch((instance, err) => {
-				console.error(instance)
-				console.error(err)
-				const error = instance.parseError(err)
-				reject(instance.i18n(error ? (error === 'userabort' ? 'errAbort' : error) : 'errUploadNoFiles'))
-			})
+						errorStr = errorStr.join("<br>")
+						error = errorStr.length > 0 ? errorStr : error
+						handleError(error)
+					}
+				})
+				.fail((errorData) => {
+					handleError(errorData)
+				})
 
 		}
 
@@ -497,7 +450,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 		}
 
 		this.abort = function () {
-			fileManager && fileManager.getUI().trigger('uploadabort')
+			fileManagerModalDestroy()
 		}
 
 	}
