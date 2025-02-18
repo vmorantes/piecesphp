@@ -50,11 +50,11 @@ CREATE TABLE `app_presentations_categories` (
 DROP TABLE IF EXISTS `built_in_banner_elements`;
 CREATE TABLE `built_in_banner_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` text NOT NULL,
-  `content` text NOT NULL,
-  `link` text NOT NULL,
+  `title` text DEFAULT NULL,
+  `content` text DEFAULT NULL,
+  `link` text DEFAULT NULL,
   `desktopImage` text NOT NULL,
-  `mobileImage` text NOT NULL,
+  `mobileImage` text DEFAULT NULL,
   `orderPosition` int(11) NOT NULL,
   `folder` text NOT NULL,
   `startDate` datetime DEFAULT NULL,
@@ -565,4 +565,4 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
--- 2025-02-17 21:00:55
+-- 2025-02-18 16:26:21
