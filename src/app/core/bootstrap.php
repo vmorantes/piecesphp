@@ -159,8 +159,8 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
 
     //Manejos de excepciones
     if (
-        $exception instanceof \ErrorException ||
-        $exception instanceof \Exception ||
+        $exception instanceof \ErrorException  ||
+        $exception instanceof \Exception  ||
         $exception instanceof \ClosedGeneratorException
     ) {
         ($stopAndShowError)($exception, $request);
@@ -226,6 +226,14 @@ if (is_array($config_pcs_php)) {
 
 require $directories['app_helpers'];
 require $directories['config_lang'];
+
+//Definir el lenguaje por defecto según el navegador
+if (get_config('default_lang_by_browser') === true) {
+    $allowedLangs = get_config('allowed_langs');
+    $allowedLangs = is_array($allowedLangs) ? $allowedLangs : ['es'];
+    $preferedLang = getPreferredLanguageByHeader($allowedLangs, 'es');
+    set_config('default_lang', $preferedLang);
+}
 
 Config::init();
 

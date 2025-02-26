@@ -12,6 +12,12 @@
 set_config('lang_by_url', true);
 
 /**
+ * Si la configuracion 'default_lang_by_browser' se establece en true, la aplicación definirá
+ * 'default_lang' a partir de getPreferredLanguageByHeader
+ */
+set_config('default_lang_by_browser', false);
+
+/**
  * Array con el identificador de los idiomas permitidos, este debe coincidir
  * con el nombre de su archivo correspondiente en app/lang/ sin la extensión '.php'
  * ya que es implícita.

@@ -437,12 +437,13 @@ function lang2(string $lang, string $type, string $message, bool $echo = false)
  * basándose en HTTP_ACCEPT_LANGUAGE
  *
  * @param string[] $supportedLanguages Recibe un array de los idiomas soportados
+ * @param ?string $defaultLang
  * @return string
  */
-function getPreferredLanguageByHeader(array $supportedLanguages)
+function getPreferredLanguageByHeader(array $supportedLanguages, ?string $defaultLang = null)
 {
 
-    $default = Config::get_default_lang();
+    $default = $defaultLang !== null ? $defaultLang : Config::get_default_lang();
 
     //Verificar si se envió la cabecera Accept-Language
     if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
@@ -1457,6 +1458,7 @@ function add_as_module_asset(string $asset)
     }
     set_config('as_modules_assets', $as_modules_assets);
 }
+
 /**
  * Añade múltiples elementos a la lista de los que se importan como módulos (JS)
  *
