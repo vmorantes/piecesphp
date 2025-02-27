@@ -105,4 +105,36 @@ class ResponseRoute extends Response
         return $this->lastWriteBodyData;
     }
 
+    /**
+     * Cierra la conexión con el cliente con fastcgi_finish_request, pero primero escribe el body
+     * @param array|string $data Los datos que mostrará en el body
+     * @param ?string $contentType
+     * @param ?int $status
+     * @return void
+     */
+    public function fastCgiFinishRequestFlush($data, ?string $contentType = null, ?int $status = null)
+    {
+        $contentType = $contentType !== null ? $contentType : 'text/html';
+        if (is_array($data) || is_object($data)) {
+            $response = $this->withJson($data);
+            $response = $response->withHeader('Content-Type', 'application/json');
+        } else {
+            $response = $this->write($data);
+            $response = $response->withHeader('Content-Type', $contentType);
+        }
+        if (isset($status)) {
+            $response = $response->withStatus($status);
+        }
+        http_response_code($response->getStatusCode());
+        foreach ($response->getHeaders() as $headerName => $headerValues) {
+            $headerValues = is_array($headerValues) ? $headerValues : [$headerValues];
+            foreach ($headerValues as $headerValue) {
+                header("{$headerName}: {$headerValue}");
+            }
+        }
+        echo($response->getBody());
+        set_config('flushing_pcsphp', true);
+        fastcgi_finish_request();
+    }
+
 }
