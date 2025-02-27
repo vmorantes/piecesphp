@@ -8,7 +8,7 @@ namespace PiecesPHP\Core\Forms;
 /**
  * FileValidator.
  *
- * Valida los tipos de archivos subido
+ * Clase para validar tipos de archivos subidos.
  *
  * @package     PiecesPHP\Core\Forms
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -16,10 +16,14 @@ namespace PiecesPHP\Core\Forms;
  */
 class FileValidator
 {
+
+    //Definición de constantes para los tipos de archivos permitidos
     const TYPE_ANY = 'any';
-
     const TYPE_ALL_IMAGES = 'image/*';
+    const TYPE_ALL_AUDIOS = 'audio/*';
+    const TYPE_ALL_VIDEOS = 'video/*';
 
+    //Tipos específicos de archivos permitidos (imagenes, documentos, audios, videos)
     const TYPE_JPG = 'jpg';
     const TYPE_JPEG = 'jpeg';
     const TYPE_WEBP = 'webp';
@@ -35,9 +39,19 @@ class FileValidator
     const TYPE_DOCX = 'docx';
 
     const TYPE_MP3 = 'mp3';
+    const TYPE_OGG = 'ogg';
+    const TYPE_WAV = 'wav';
+    const TYPE_AAC = 'aac';
 
     const TYPE_MP4 = 'mp4';
+    const TYPE_AVI = 'avi';
+    const TYPE_MOV = 'mov';
+    const TYPE_WMV = 'wmv';
+    const TYPE_FLV = 'flv';
 
+    /**
+     * Mapeo de tipos MIME permitidos para cada tipo de archivo.
+     */
     const MIME_TYPES = [
         self::TYPE_ANY => [],
         self::TYPE_ALL_IMAGES => [
@@ -50,6 +64,23 @@ class FileValidator
             'image/tiff',
             'image/webp',
             'image/png',
+        ],
+        self::TYPE_ALL_AUDIOS => [
+            'audio/mpeg',
+            'audio/mp3',
+            'audio/ogg',
+            'audio/wav',
+            'audio/aac',
+            'audio/x-wav',
+            'audio/webm',
+        ],
+        self::TYPE_ALL_VIDEOS => [
+            'video/mp4',
+            'video/avi',
+            'video/quicktime',
+            'video/x-ms-wmv',
+            'video/x-flv',
+            'video/webm',
         ],
         self::TYPE_JPG => [
             'image/jpg',
@@ -122,10 +153,36 @@ class FileValidator
             'audio/mp3',
             'audio/mpeg',
         ],
+        self::TYPE_OGG => [
+            'audio/ogg',
+        ],
+        self::TYPE_WAV => [
+            'audio/wav',
+            'audio/x-wav',
+        ],
+        self::TYPE_AAC => [
+            'audio/aac',
+        ],
         self::TYPE_MP4 => [
             'video/mp4',
         ],
+        self::TYPE_AVI => [
+            'video/avi',
+        ],
+        self::TYPE_MOV => [
+            'video/quicktime',
+        ],
+        self::TYPE_WMV => [
+            'video/x-ms-wmv',
+        ],
+        self::TYPE_FLV => [
+            'video/x-flv',
+        ],
     ];
+
+    /**
+     * Extensiones de archivos permitidas para cada tipo.
+     */
     const EXTENSIONS = [
         self::TYPE_ANY => [],
         self::TYPE_ALL_IMAGES => [
@@ -137,6 +194,19 @@ class FileValidator
             'tiff',
             'webp',
             'png',
+        ],
+        self::TYPE_ALL_AUDIOS => [
+            'mp3',
+            'ogg',
+            'wav',
+            'aac',
+        ],
+        self::TYPE_ALL_VIDEOS => [
+            'mp4',
+            'avi',
+            'mov',
+            'wmv',
+            'flv',
         ],
         self::TYPE_JPG => [
             'jpg',
@@ -187,14 +257,40 @@ class FileValidator
         self::TYPE_MP3 => [
             'mp3',
         ],
+        self::TYPE_OGG => [
+            'ogg',
+        ],
+        self::TYPE_WAV => [
+            'wav',
+        ],
+        self::TYPE_AAC => [
+            'aac',
+        ],
         self::TYPE_MP4 => [
             'mp4',
         ],
+        self::TYPE_AVI => [
+            'avi',
+        ],
+        self::TYPE_MOV => [
+            'mov',
+        ],
+        self::TYPE_WMV => [
+            'wmv',
+        ],
+        self::TYPE_FLV => [
+            'flv',
+        ],
     ];
 
+    /**
+     * Descripciones legibles de los tipos de archivo permitidos.
+     */
     const DISPLAY = [
         self::TYPE_ANY => 'Cualquier archivo',
         self::TYPE_ALL_IMAGES => 'Cualquier imagen',
+        self::TYPE_ALL_AUDIOS => 'Cualquier audio',
+        self::TYPE_ALL_VIDEOS => 'Cualquier video',
         self::TYPE_JPG => 'Imagen JPG',
         self::TYPE_JPEG => 'Imagen JPG',
         self::TYPE_WEBP => 'Imagen WEBP',
@@ -208,33 +304,51 @@ class FileValidator
         self::TYPE_DOC => 'DOC (Word)',
         self::TYPE_DOCX => 'DOCX (Word)',
         self::TYPE_MP3 => 'MP3',
+        self::TYPE_OGG => 'OGG',
+        self::TYPE_WAV => 'WAV',
+        self::TYPE_AAC => 'AAC',
         self::TYPE_MP4 => 'MP4',
+        self::TYPE_AVI => 'AVI',
+        self::TYPE_MOV => 'MOV',
+        self::TYPE_WMV => 'WMV',
+        self::TYPE_FLV => 'FLV',
     ];
 
     /**
-     * @var array
+     * @var array Lista de tipos de archivos aceptados.
      */
     protected $acceptedTypes = [];
+
     /**
-     * @var string
+     * @var string Mensaje de error en la validación.
      */
     protected $message = '';
+
     /**
-     * @var int
+     * @var int Tamaño máximo de archivo permitido en MB.
      */
     protected $maxFileSizeMB = 0;
+
     /**
-     * @var bool
+     * @var bool Permite ignorar la validación por MIME Type.
      */
     public static $ignoreMimeType = false;
 
     /**
-     * @param string[] $accepted_types
-     * @return static
+     * Grupo de lenguaje para mensajes de error.
+     */
+    const LANG_GROUP = 'FileValidator';
+
+    /**
+     * Constructor.
+     *
+     * @param string[] $accepted_types Lista de tipos de archivos aceptados.
+     * @param int|null $max_size_mb Tamaño máximo permitido en MB.
      */
     public function __construct(array $accepted_types = [], int $max_size_mb = null)
     {
 
+        //Definición de tipos aceptados
         $accepted_types = array_map(
             function ($item) {
                 return trim($item);
@@ -242,14 +356,14 @@ class FileValidator
             array_filter($accepted_types, function ($item) {
                 $is_string = is_string($item);
                 if (!$is_string) {
-                    throw new \TypeError('El parámetro $accepted_types debe ser de tipo string[]');
+                    throw new \TypeError(__(self::LANG_GROUP, 'El parámetro $accepted_types debe ser de tipo string[]'));
                 }
                 return $is_string;
             })
         );
-
         $this->acceptedTypes = $accepted_types;
 
+        //Determinar el tamaño máximo permitido
         if (is_null($max_size_mb)) {
             $max_upload = min(ini_get('post_max_size'), ini_get('upload_max_filesize'));
             $max_upload = str_replace('M', '', $max_upload);
@@ -262,9 +376,11 @@ class FileValidator
     }
 
     /**
-     * @param string $file
-     * @param string $basename
-     * @return bool
+     * Valida un archivo dados su ruta y nombre base.
+     *
+     * @param string $file Ruta del archivo.
+     * @param string $basename Nombre del archivo con extensión.
+     * @return bool true si el archivo es válido, false si no lo es.
      */
     public function validate(string $file, string $basename)
     {
@@ -276,7 +392,7 @@ class FileValidator
 
         $mime_type = finfo_file($file_info, $file);
         $extension = @mb_strtolower(pathinfo($basename, \PATHINFO_EXTENSION));
-        $filesize = filesize($file) / 1000 / 1000;
+        $filesize = filesize($file) / 1000 / 1000; //Convertir a MB
 
         finfo_close($file_info);
 
@@ -284,6 +400,7 @@ class FileValidator
 
         $this->message = '';
 
+        //Obtener los MIME types y extensiones permitidas
         $mimes = [];
         $extensions = [];
 
@@ -299,6 +416,7 @@ class FileValidator
 
         }
 
+        //Si no se ingresó TYPE_ANY se validan los tipos
         if (!in_array(self::TYPE_ANY, $this->getAcceptedTypes())) {
             $valid_mime_type = in_array($mime_type, $mimes) || self::$ignoreMimeType === true;
             $valid_extension = in_array($extension, $extensions);
@@ -310,14 +428,17 @@ class FileValidator
         $valid_size = $filesize <= $this->maxFileSizeMB;
         $valid = $valid_mime_type && $valid_extension && $valid_size;
 
+        //Mensajes de error si la validación falla
         if (!$valid) {
 
             if (!$valid_mime_type || !$valid_extension) {
-                $this->message .= "Tipo de archivo inválido.\r\n";
+                $this->message .= __(self::LANG_GROUP, "Tipo de archivo inválido.\r\n");
             }
 
             if (!$valid_size) {
-                $this->message .= "El tamaño máximo permitido {$this->maxFileSizeMB}MB.\r\n";
+                $this->message .= strReplaceTemplate(__(self::LANG_GROUP, "El tamaño máximo permitido %1MB.\r\n"), [
+                    '%1' => $this->maxFileSizeMB,
+                ]);
             }
 
         }
@@ -326,6 +447,8 @@ class FileValidator
     }
 
     /**
+     * Obtiene la lista de tipos de archivos aceptados.
+     *
      * @return array
      */
     public function getAcceptedTypes()
@@ -334,6 +457,8 @@ class FileValidator
     }
 
     /**
+     * Obtiene el mensaje de error generado en la última validación.
+     *
      * @return string
      */
     public function getMessage()
