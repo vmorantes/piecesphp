@@ -81,7 +81,7 @@ class FileUpload
 
                 $files = $files[$name];
                 $values_files_is_array = is_array($files['name']);
-                $count_files = count($files['name']);
+                $count_files = $values_files_is_array ? count($files['name']) : 0;
                 $properties = array_keys($files);
 
                 if ($values_files_is_array) {
