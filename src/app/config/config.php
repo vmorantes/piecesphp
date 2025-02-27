@@ -87,12 +87,15 @@ $config['Azure'] = [
     'BASE_STORAGE_ACCOUNT_KEY' => '',
     //Asociada al contenedor: X
     'BASE_STORAGE_ACCESS_QUERY_PARAMS' => '',
+    //Speech to text
+    'SPEECH_SUBSCRIPTION_KEY' => '',
+    'SPEECH_REGION' => 'eastus',
 ];
 
 //──── Geolozalización ───────────────────────────────────────────────────────────────────
 //GeoIP
 $config['GEO_IP'] = [
- 'custom_directory' => realpath(__DIR__ . '/../../geoip'),
+    'custom_directory' => realpath(__DIR__ . '/../../geoip'),
 ];
 ini_set('geoip.custom_directory', $config['GEO_IP']['custom_directory']);
 

@@ -62,7 +62,9 @@ class InvocationStrategy implements InvocationStrategyInterface
         try {
             ob_start();
             $invokeResult = $callable($request, $response, $routeArguments);
-            ob_end_flush();
+            if (get_config('flushing_pcsphp') !== true) {
+                ob_end_flush();
+            }
         } catch (Throwable $e) {
             $errorType = get_class($e);
             $errorsTypes = [
