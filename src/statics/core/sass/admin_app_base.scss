@@ -603,6 +603,7 @@
         display: flex;
         gap: 10px;
         align-items: center;
+        font-family: $fontPoppins;
         margin-bottom: 20px;
         flex-wrap: wrap;
 
@@ -625,6 +626,7 @@
 
         width: max-content;
         max-width: 100%;
+        font-family: $fontPoppins;
 
         >* {
             width: max-content;
