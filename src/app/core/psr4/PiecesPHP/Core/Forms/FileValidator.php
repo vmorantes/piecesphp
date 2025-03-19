@@ -40,6 +40,7 @@ class FileValidator
 
     const TYPE_MP3 = 'mp3';
     const TYPE_OGG = 'ogg';
+    const TYPE_WEBM = 'webm';
     const TYPE_WAV = 'wav';
     const TYPE_AAC = 'aac';
 
@@ -156,6 +157,10 @@ class FileValidator
         self::TYPE_OGG => [
             'audio/ogg',
         ],
+        self::TYPE_WEBM => [
+            'audio/webm',
+            'video/webm',
+        ],
         self::TYPE_WAV => [
             'audio/wav',
             'audio/x-wav',
@@ -200,6 +205,7 @@ class FileValidator
             'ogg',
             'wav',
             'aac',
+            'webm',
         ],
         self::TYPE_ALL_VIDEOS => [
             'mp4',
@@ -207,6 +213,7 @@ class FileValidator
             'mov',
             'wmv',
             'flv',
+            'webm',
         ],
         self::TYPE_JPG => [
             'jpg',
@@ -260,6 +267,9 @@ class FileValidator
         self::TYPE_OGG => [
             'ogg',
         ],
+        self::TYPE_WEBM => [
+            'webm',
+        ],
         self::TYPE_WAV => [
             'wav',
         ],
@@ -305,6 +315,7 @@ class FileValidator
         self::TYPE_DOCX => 'DOCX (Word)',
         self::TYPE_MP3 => 'MP3',
         self::TYPE_OGG => 'OGG',
+        self::TYPE_WEBM => 'WEBM',
         self::TYPE_WAV => 'WAV',
         self::TYPE_AAC => 'AAC',
         self::TYPE_MP4 => 'MP4',
