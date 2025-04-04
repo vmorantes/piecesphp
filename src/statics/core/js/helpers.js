@@ -2506,6 +2506,28 @@ function getVariableFromHTML(name) {
 		}
 
 	}
-	
+
 	return value
+}
+
+/**
+ * Codifica a base64 seguro con caracteres latinos
+ * @param {String} str 
+ * @returns 
+ */
+function base64EncodeUnicode(str) {
+	return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+		String.fromCharCode('0x' + p1)
+	))
+}
+
+/**
+ * Decodifica strings codificados con base64EncodeUnicode
+ * @param {String} str 
+ * @returns 
+ */
+function base64DecodeUnicode(str) {
+	return decodeURIComponent(Array.prototype.map.call(atob(str), c =>
+		'%' + c.charCodeAt(0).toString(16).padStart(2, '0')
+	).join(''))
 }
