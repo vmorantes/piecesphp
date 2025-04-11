@@ -1,3 +1,10 @@
+
+/// <reference path="./translations/es.js" />
+/// <reference path="./translations/en.js" />
+/// <reference path="./translations/fr.js" />
+/// <reference path="./translations/de.js" />
+/// <reference path="./translations/it.js" />
+/// <reference path="./translations/pt.js" />
 /**
  * Datos accesibles globalmente
  * @namespace
@@ -85,269 +92,13 @@ pcsphpGlobals.defaultLang = (function () {
 	return lang
 })()
 
-pcsphpGlobals.messages = {}
-
-pcsphpGlobals.messages.es = {
-	lang: {
-		'es': 'Español',
-		'en': 'Inglés',
-		'fr': 'Francés',
-		'de': 'Alemán',
-		'it': 'Italiano',
-		'pt': 'Portugués',
-	},
-	langShort: {
-		'es': 'ES',
-		'en': 'EN',
-		'fr': 'FR',
-		'de': 'DE',
-		'it': 'IT',
-		'pt': 'PT',
-	},
-	titles: {
-		error: 'Error',
-		success: 'Exito',
-		created: 'Creado',
-		edited: 'Editado',
-	},
-	errors: {
-		pass_not_match: 'Error: las contraseñas deben coincidir.',
-		unexpected_error: 'Ha ocurrido un error inesperado.',
-		unexpected_error_try_later: 'Ha ocurrido un error inesperado, intente más tarde.',
-		name_is_required: 'El nombre es requerido.',
-		name_should_be_string: 'El nombre debe ser un string.',
-		lastname_is_required: 'El apellido es requerido.',
-		lastname_should_be_string: 'El apellido debe ser un string.',
-		email_is_required: 'El email es requerido.',
-		email_should_be_string: 'El email debe ser un string.',
-		user_is_required: 'El nombre de usuario es requerido.',
-		user_should_be_string: 'El nombre de usuario debe ser un string.',
-		password_is_required: 'La contraseña es requerida.',
-		password_should_be_string: 'La contraseña debe ser un string.',
-	},
-	semantic_calendar: {
-		days: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
-		months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-		monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-		today: 'Hoy',
-		now: 'Ahora',
-		am: 'AM',
-		pm: 'PM',
-	},
-	semantic_form: {
-		text: {
-			unspecifiedRule: 'Por favor, introduza un valor válido',
-			unspecifiedField: 'Este campo'
-		},
-		prompt: {
-			empty: '{name} debe tener un valor',
-			checked: '{name} debe estar marcado',
-			email: '{name} debe ser un email válido',
-			url: '{name} debe ser una url válida',
-			regExp: '{name} no tiene el formato correcto',
-			integer: '{name} debe ser un número entero',
-			decimal: '{name} debe ser un número decimal',
-			number: '{name} debe ser un número',
-			is: '{name} debe ser \'{ruleValue}\'',
-			isExactly: '{name} debe ser exactamente \'{ruleValue}\'',
-			not: '{name} No puede ser \'{ruleValue}\'',
-			notExactly: '{name} No puede ser exactamente \'{ruleValue}\'',
-			contain: '{name} No puede contener \'{ruleValue}\'',
-			containExactly: '{name} No puede contener exatamente \'{ruleValue}\'',
-			doesntContain: '{name} debe contener  \'{ruleValue}\'',
-			doesntContainExactly: '{name} debe contener exactamente \'{ruleValue}\'',
-			minLength: '{name} debe contener al menos {ruleValue} caracteres',
-			length: '{name} debe contener al menos {ruleValue} caracteres',
-			exactLength: '{name} debe contener exatamente {ruleValue} caracteres',
-			maxLength: '{name} no puede contener más de {ruleValue} caracteres',
-			match: '{name} debe coincidir con el campo {ruleValue}',
-			different: '{name} debe tener un valor diferente que el campo {ruleValue}',
-			creditCard: '{name} debe ser un número de tarjeta de crédito válido',
-			minCount: '{name} Debe tener al menos {ruleValue} elecciones',
-			exactCount: '{name} Debe tener exatamente {ruleValue} elecciones',
-			maxCount: '{name} Debe tener {ruleValue} o menos elecciones'
-		}
-	},
-	semantic_search: {
-		error: {
-			logging: "Error en el registro de depuración, saliendo.",
-			maxResults: "Los resultados deben ser una matriz para usar la configuración maxResults",
-			method: "El método al que llamó no está definido.",
-			noEndpoint: "No se especificó ningún punto final de búsqueda",
-			noNormalize: "Se ignorará la configuración \"ignoreDiacritics\". El navegador no es compatible con String().normalize(). Puede considerar incluir <https://cdn.jsdelivr.net/npm/unorm@1.4.1/lib/unorm.min.js> como un polyfill.",
-			noResults: "Su búsqueda no produjo resultados",
-			noResultsHeader: "No hay resultados",
-			noTemplate: "No se especificó un nombre de plantilla válido.",
-			oldSearchSyntax: "La configuración de searchFullText se ha renombrado como fullTextSearch para mantener la coherencia, ajuste su configuración.",
-			serverError: "Hubo un problema al consultar el servidor.",
-			source: "No se puede buscar. No se usó ninguna fuente y no se incluyó el módulo API semantic",
-		},
-	},
-	datatables: {
-		lang: {
-			"decimal": "",
-			"emptyTable": "No hay información disponible",
-			"info": "Viendo desde _START_ hasta  _END_ de _TOTAL_ elementos",
-			"infoEmpty": "Viendo desde 0 hasta 0 de 0 elementos",
-			"infoFiltered": "(filtrado desde _MAX_ elementos)",
-			"infoPostFix": "",
-			"thousands": ".",
-			"lengthMenu": "Ver _MENU_ elementos",
-			"loadingRecords": "Cargando...",
-			"processing": "Procesando...",
-			"search": "",
-			"searchPlaceholder": "Buscar...",
-			"zeroRecords": "No se encontraron coincidencias",
-			"paginate": {
-				"first": "Primero",
-				"last": "Último",
-				"next": "Próximo",
-				"previous": "Anterior"
-			},
-			"aria": {
-				"sortAscending": ": activar ordenamiento de columnas ascendentemente",
-				"sortDescending": ": activar ordenamiento de columnas descendentemente"
-			}
-		}
-	},
-	date: {
-		days: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-		daysLetter: ['D', 'L', 'M', 'M', 'J', 'V', 'S'],
-		months: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-		monthsShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-		today: 'Hoy',
-		now: 'Ahora',
-		am: 'AM',
-		pm: 'PM',
-	},
-	loginForm: {
-		'CONTRASEÑA_INVÁLIDA': '<span class="text">Contraseña</span> <span class="mark">inválida</span>',
-		'USUARIO_BLOQUEADO': '<span class="text">Usuario</span> <span class="mark">bloqueado</span>',
-		'USUARIO_INEXISTENTE': '<span class="text">El usuario</span> <span class="mark">%r</span> <span class="text">no existe</span>',
-		'ERROR_AL_INGRESAR': 'Error al ingresar',
-	},
-}
-
-pcsphpGlobals.messages.en = {
-	lang: {
-		'es': 'Spanish',
-		'en': 'English',
-		'fr': 'French',
-		'de': 'German',
-		'it': 'Italian',
-		'pt': 'Portuguese',
-	},
-	langShort: {
-		'es': 'ES',
-		'en': 'EN',
-		'fr': 'FR',
-		'de': 'DE',
-		'it': 'IT',
-		'pt': 'PT',
-	},
-	titles: {
-		error: 'Error',
-		success: 'Success',
-		created: 'Created',
-		edited: 'Edited',
-	},
-	errors: {
-		pass_not_match: 'Error: passwords must match.',
-		unexpected_error: 'An unexpected error has occurred.',
-		unexpected_error_try_later: 'An unexpected error has occurred, try again later.',
-		name_is_required: 'The name is required.',
-		name_should_be_string: 'The name must be a string.',
-		lastname_is_required: 'The last name is required.',
-		lastname_should_be_string: 'The last name must be a string.',
-		email_is_required: 'The email is required.',
-		email_should_be_string: 'The email must be a string.',
-		user_is_required: 'The username is required.',
-		user_should_be_string: 'The username must be a string.',
-		password_is_required: 'The password is required.',
-		password_should_be_string: 'The password must be a string.',
-	},
-	semantic_calendar: {
-		days: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-		months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-		monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-		today: 'Today',
-		now: 'Now',
-		am: 'AM',
-		pm: 'PM',
-	},
-	datatables: {
-		lang: {
-			"decimal": "",
-			"emptyTable": "No information available",
-			"info": "Viewing from _START_ to _END_ of _TOTAL_ elements",
-			"infoEmpty": "Displaying 0 to 0 of 0 items",
-			"infoFiltered": "(filtered from _MAX_ elements)",
-			"infoPostFix": "",
-			"thousands": ".",
-			"lengthMenu": "See _MENU_ elements",
-			"loadingRecords": "Loading...",
-			"processing": "Processing ...",
-			"search": "",
-			"searchPlaceholder": "Look for...",
-			"zeroRecords": "No matches found",
-			"paginate": {
-				"first": "First",
-				"last": "Latest",
-				"next": "Next",
-				"previous": "Previous",
-			},
-			"aria": {
-				"sortAscending": ": activate ascending column sorting",
-				"sortDescending": ": activate descending column ordering"
-			}
-		}
-	},
-	date: {
-		days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-		daysLetter: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-		months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-		monthsShort: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-		today: 'Today',
-		now: 'Now',
-		am: 'AM',
-		pm: 'PM',
-	},
-	messenger: {
-		'Error': 'Error',
-		'Ha ocurrido un error desconocido.': 'An unknown error has occurred.',
-		'¡Listo!': 'Ready!',
-	},
-	loginForm: {
-		'Error': 'Error',
-		'Ha ocurrido un error inesperado, intente más tarde.': 'An unexpected error has occurred, try again later.',
-		'Si continua con problemas para ingresar, por favor utilice la ayuda.': 'If you continue to have problems entering, please use the help.',
-		'Por favor, verifique los datos de ingreso y vuelva a intentar.': 'Please verify the login details and try again.',
-		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.': 'Please enter the following link to unlock your user.',
-		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'An error has occurred at the time of entry, please try again.',
-		'CONTRASEÑA_INVÁLIDA': '<span class="mark">Invalid</span> <span class="text">password</span>',
-		'USUARIO_BLOQUEADO': '<span class="text">User</span> <span class="mark">blocked</span>',
-		'USUARIO_INEXISTENTE': '<span class="text">The user</span> <span class="mark">%r</span> <span class="text">does not exist</span>',
-		'ERROR_AL_INGRESAR': 'Login failed',
-	},
-	userProblems: {
-		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'It will be solved very soon, please check your mail in the next few hours. <br> The email may be in "Spam", please check the spam folder. The sender of the email is <strong>%r</strong>.',
-		'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Enter the code sent to your email, the email may be in "Spam", please check the spam folder. The sender of the email is <strong>%r</strong>.',
-		'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.': 'The email entered is not associated with any user, please enter another email account or you can create a support request to associate that email with your account.',
-		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.': 'The code entered is wrong, please re-enter the code, request a new one or create a support request to report the error.',
-		'Ingrese con su usuario y la nueva contraseña': 'Login with your username and the new password',
-		'Las contraseñas no coinciden': 'Passwords do not match',
-	},
-	avatar: {
-		'Confirmación': 'Confirmation',
-		'¿Seguro de guardar el avatar?': 'Are you sure to save the avatar?',
-		'Cargando...': 'Loading...',
-		'¿Seguro de guardar la foto de perfil?': 'Are you sure to save the profile picture?',
-		'Sí': 'Yes',
-		'No': 'No',
-	},
-	public: {
-		'Ver más': 'Read more',
-	},
+pcsphpGlobals.messages = {
+	es: PCSPHP_TRANSLATIONS_ES,
+	en: PCSPHP_TRANSLATIONS_EN,
+	fr: PCSPHP_TRANSLATIONS_FR,
+	de: PCSPHP_TRANSLATIONS_DE,
+	it: PCSPHP_TRANSLATIONS_IT,
+	pt: PCSPHP_TRANSLATIONS_PT,
 }
 
 if (typeof pcsphpGlobals.messages[pcsphpGlobals.lang] == 'undefined') {
@@ -1426,15 +1177,17 @@ function registerDynamicLocalizationMessages(langGroup, repeat = false) {
 /**
  * Devuelve el valor de todo el grupo del lenguaje actual
  * @param {String} langGroup
+ * @param {String} lang
  */
-function getLangGroupData(langGroup) {
+function getLangGroupData(langGroup, lang = null) {
 
 	const currentLang = pcsphpGlobals.lang
+	const selectedLang = typeof lang == 'string' && lang.length > 0 ? lang : currentLang
 	let groupData = {}
 
-	if (typeof pcsphpGlobals.messages[currentLang] == 'object') {
-		if (typeof pcsphpGlobals.messages[currentLang][langGroup] == 'object') {
-			groupData = pcsphpGlobals.messages[currentLang][langGroup]
+	if (typeof pcsphpGlobals.messages[selectedLang] == 'object') {
+		if (typeof pcsphpGlobals.messages[selectedLang][langGroup] == 'object') {
+			groupData = pcsphpGlobals.messages[selectedLang][langGroup]
 		}
 	}
 

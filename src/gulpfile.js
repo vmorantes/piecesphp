@@ -87,6 +87,7 @@ task("ts-vendor:watch", (done) => {
 var watchingPiecesPHPJS = {
 	base: [
 		'./statics/core/js/UtilPieces.js',
+		'./statics/core/js/translations/*.js',
 		'./statics/core/js/configurations.js',
 		'./statics/core/js/helpers.js',
 	],
@@ -95,6 +96,7 @@ var watchingPiecesPHPJS = {
 var compilePiecesPHPJS = {
 	base: [
 		'./statics/core/js/UtilPieces.js',
+		'./statics/core/js/translations/*.js',
 		'./statics/core/js/configurations.js',
 		'./statics/core/js/helpers.js',
 	],
