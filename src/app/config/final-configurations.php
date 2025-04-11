@@ -4,6 +4,7 @@
  * final-configurations.php
  */
 
+use App\Controller\AdminPanelController;
 use App\Controller\PublicAreaController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\LangInjector;
@@ -18,6 +19,8 @@ $langsOptions = array_merge(Config::get_allowed_langs(), ['default']);
 $langInjectors = [
     LANG_GROUP => new LangInjector(basepath('app/lang/public'), $langsOptions),
     PublicAreaController::LANG_REPLACE_GENERIC_TITLES => new LangInjector(basepath('app/lang/replace-generic-titles'), $langsOptions),
+    ADMIN_MENU_LANG_GROUP => new LangInjector(basepath('app/lang/sidebarAdminZone'), $langsOptions),
+    AdminPanelController::LANG_GROUP => new LangInjector(basepath('app/lang/adminZone'), $langsOptions),
 ];
 
 foreach ($langInjectors as $group => $injector) {

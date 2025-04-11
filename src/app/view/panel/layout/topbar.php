@@ -344,7 +344,7 @@ $avatar = $currentUser->avatar;
         <div class="change-account">
             <span edit-account><?= __(AdminPanelController::LANG_GROUP, 'Editar Cuenta'); ?></span>
             <span change-password><?= __(AdminPanelController::LANG_GROUP, 'Cambiar contraseña'); ?></span>
-            <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(UserSystemFeaturesLang::LANG_GROUP, 'Opciones de seguridad'); ?></a>
+            <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(AdminPanelController::LANG_GROUP, 'Opciones de seguridad'); ?></a>
         </div>
 
         <div class="items">
