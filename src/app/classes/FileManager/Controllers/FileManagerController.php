@@ -136,11 +136,11 @@ class FileManagerController extends AdminPanelController
 
         $dirs = [
             [
-                'alias' => 'Archivos',
+                'alias' => __(self::LANG_GROUP, 'Archivos'),
                 'relativePath' => 'files',
             ],
             [
-                'alias' => 'Imágenes (Editor de texto)',
+                'alias' => __(self::LANG_GROUP, 'Imágenes (Editor de texto)'),
                 'relativePath' => 'images',
                 'trashHash' => 't2_Lw',
                 'uploadDeny' => ['all'],
@@ -148,13 +148,13 @@ class FileManagerController extends AdminPanelController
                 'permissions' => 0777,
             ],
             [
-                'alias' => 'Cargas',
+                'alias' => __(self::LANG_GROUP, 'Cargas'),
                 'relativePath' => 'statics/uploads',
                 'withBasePath' => false,
                 'permissions' => 0777,
             ],
             [
-                'alias' => 'Temporales',
+                'alias' => __(self::LANG_GROUP, 'Temporales'),
                 'relativePath' => 'tmp',
                 'withBasePath' => false,
                 'permissions' => 0777,
@@ -168,7 +168,7 @@ class FileManagerController extends AdminPanelController
             [
                 'id' => '2',
                 'relativePath' => '.trash-images',
-                'alias' => 'Papelera' . ' (Imágenes - Editor de texto)',
+                'alias' => __(self::LANG_GROUP, 'Papelera (Imágenes - Editor de texto)'),
                 'uploadDeny' => ['all'],
                 'uploadAllow' => ['image'],
             ],
@@ -195,7 +195,7 @@ class FileManagerController extends AdminPanelController
 
         $dirs = [
             [
-                'alias' => 'Imágenes',
+                'alias' => __(self::LANG_GROUP, 'Imágenes'),
                 'relativePath' => 'images',
                 'trashHash' => 't2_Lw',
                 'uploadDeny' => ['all'],
@@ -206,7 +206,7 @@ class FileManagerController extends AdminPanelController
             [
                 'id' => '2',
                 'relativePath' => '.trash-images',
-                'alias' => 'Papelera' . ' (Imágenes)',
+                'alias' => __(self::LANG_GROUP, 'Papelera (Imágenes)'),
                 'uploadDeny' => ['all'],
                 'uploadAllow' => ['image'],
             ],

@@ -115,7 +115,7 @@ class MySpaceController extends AdminPanelController
     public function userSecurity(Request $request, Response $response)
     {
 
-        set_title(__(UserSystemFeaturesLang::LANG_GROUP, 'Opciones de seguridad'));
+        set_title(__(AdminPanelController::LANG_GROUP, 'Opciones de seguridad'));
 
         set_custom_assets([
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/user-security.js'),
