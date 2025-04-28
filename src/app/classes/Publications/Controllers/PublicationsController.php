@@ -130,7 +130,7 @@ class PublicationsController extends AdminPanelController
     {
 
         set_custom_assets([
-            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+            PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/add-form.js'),
         ], 'js');
 
         import_cropper();
@@ -189,14 +189,7 @@ class PublicationsController extends AdminPanelController
         $id = $request->getAttribute('id', null);
         $id = Validator::isInteger($id) ? (int) $id : null;
 
-        $lang = $request->getAttribute('lang', null);
-        $lang = is_string($lang) ? $lang : null;
-
-        $allowedLangs = Config::get_allowed_langs();
-
-        if ($lang === null || !in_array($lang, $allowedLangs)) {
-            throw new NotFoundException($request, $response);
-        }
+        $selectedLang = $request->getQueryParam('lang', null);
 
         $element = new PublicationMapper($id);
 
@@ -204,7 +197,8 @@ class PublicationsController extends AdminPanelController
 
             set_custom_assets([
                 PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/translation-config.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/edit-form.js'),
             ], 'js');
 
             import_cropper();
@@ -215,15 +209,10 @@ class PublicationsController extends AdminPanelController
                 new AttachmentPackage($element->id, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
                 new AttachmentPackage($element->id, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
             ];
-            $attachmentGroup1 = array_map(function ($e) use ($lang) {
-                return $e->setLang($lang);
-            }, $attachmentGroup1);
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $manyLangs = count($allowedLangs) > 1;
             $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category->id);
-            $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
             $searchUsersURL = get_route('users-search-dropdown');
 
             $title = __(self::LANG_GROUP, 'Edición de publicación');
@@ -241,9 +230,7 @@ class PublicationsController extends AdminPanelController
             $data['description'] = $description;
             $data['allCategories'] = $allCategories;
             $data['attachmentGroup1'] = $attachmentGroup1;
-            $data['allowedLangs'] = $allowedLangs;
-            $data['manyLangs'] = $manyLangs;
-            $data['lang'] = $lang;
+            $data['selectedLang'] = $selectedLang;
             $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
@@ -661,6 +648,11 @@ class PublicationsController extends AdminPanelController
 
                     if ($exists) {
 
+                        $defaultLang = Config::get_default_lang();
+                        $isDefaultLang = $lang == $defaultLang;
+                        $translationData = clone $mapper->langData;
+                        $translationExists = !$isDefaultLang ? property_exists($translationData, $lang) : true;
+
                         $mapper->setLangData($lang, 'title', $title);
                         $mapper->setLangData($lang, 'content', $content);
                         $mapper->setLangData($lang, 'seoDescription', $seoDescription);
@@ -677,9 +669,10 @@ class PublicationsController extends AdminPanelController
                             $mapper->status = PublicationMapper::ACTIVE;
                         }
 
-                        $mainImageSetted = $mapper->getLangData($lang, 'mainImage', false, null);
-                        $thumbImageSetted = $mapper->getLangData($lang, 'thumbImage', false, null);
-                        $ogImageSetted = $mapper->getLangData($lang, 'ogImage', false, null);
+                        $mainImageSetted = $translationExists ? $mapper->getLangData($lang, 'mainImage', false, null) : null;
+                        $thumbImageSetted = $translationExists ? $mapper->getLangData($lang, 'thumbImage', false, null) : null;
+                        $ogImageSetted = $translationExists ? $mapper->getLangData($lang, 'ogImage', false, null) : null;
+                        $suffixLangName = !$translationExists ? $lang : '';
 
                         if (is_string($ogImageSetted) && mb_strlen(trim($ogImageSetted)) < 1) {
                             $ogImageSetted = null;
@@ -688,19 +681,19 @@ class PublicationsController extends AdminPanelController
                         if ($mainImageSetted !== null) {
                             $mainImage = self::handlerUpload('mainImage', '', $mainImageSetted);
                         } else {
-                            $mainImage = self::handlerUpload('mainImage', $mapper->folder, null);
+                            $mainImage = self::handlerUpload('mainImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
 
                         if ($thumbImageSetted !== null) {
                             $thumbImage = self::handlerUpload('thumbImage', '', $thumbImageSetted);
                         } else {
-                            $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, null);
+                            $thumbImage = self::handlerUpload('thumbImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
 
                         if ($ogImageSetted !== null) {
                             $ogImage = self::handlerUpload('ogImage', '', $ogImageSetted);
                         } else {
-                            $ogImage = self::handlerUpload('ogImage', $mapper->folder, null);
+                            $ogImage = self::handlerUpload('ogImage', $mapper->folder, null, null, true, null, $suffixLangName);
                         }
 
                         if (mb_strlen($mainImage) > 0) {
@@ -753,7 +746,8 @@ class PublicationsController extends AdminPanelController
 
                             $resultOperation
                                 ->setMessage($successEditMessage)
-                                ->setValue('redirect', true)
+                                ->setValue('reload', false)
+                                ->setValue('redirect', false)
                                 ->setValue('redirect_to', self::routeName('list'));
 
                         } else {
@@ -1394,36 +1388,6 @@ class PublicationsController extends AdminPanelController
     }
 
     /**
-     * @param string $currentLang
-     * @param int $elementID
-     * @return array
-     */
-    public static function allowedLangsForSelect(string $currentLang, int $elementID)
-    {
-
-        $allowedLangsForSelect = [];
-
-        $allowedLangs = Config::get_allowed_langs();
-
-        $allowedLangs = array_filter($allowedLangs, function ($l) use ($currentLang) {
-            return $l != $currentLang;
-        });
-
-        array_unshift($allowedLangs, $currentLang);
-
-        foreach ($allowedLangs as $i) {
-
-            $value = self::routeName('forms-edit', ['id' => $elementID, 'lang' => $i]);
-
-            $allowedLangsForSelect[$value] = __('lang', $i);
-
-        }
-
-        return $allowedLangsForSelect;
-
-    }
-
-    /**
      * @inheritDoc
      */
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
@@ -1515,10 +1479,11 @@ class PublicationsController extends AdminPanelController
      * @param array $allowedTypes
      * @param bool $setNameByInput
      * @param string $name
+     * @param string $suffixName
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null)
+    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null, string $suffixName = '')
     {
         if ($allowedTypes === null) {
             $allowedTypes = [
@@ -1569,6 +1534,9 @@ class PublicationsController extends AdminPanelController
 
                 $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
                 $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
+                if (mb_strlen($suffixName) > 0) {
+                    $name .= "_{$suffixName}";
+                }
 
                 if ($valid) {
 
@@ -1718,16 +1686,13 @@ class PublicationsController extends AdminPanelController
                 $creation
             ),
             new Route( //Formulario de editar
-                "{$startRoute}/forms/edit/{id}/{lang}[/]",
+                "{$startRoute}/forms/edit/{id}[/]",
                 $classname . ':editForm',
                 self::$baseRouteName . '-forms-edit',
                 'GET',
                 true,
                 null,
-                $edition,
-                [
-                    'lang' => Config::get_default_lang(),
-                ]
+                $edition
             ),
 
             //JSON

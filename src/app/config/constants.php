@@ -72,6 +72,35 @@ define('EVENTS_LOG_MODULE', true);
 //Listado de suscriptores
 define('NEWSLETTER_MODULE', true);
 
+//Traducciones por API
+define('API_TRANSLATION_MODULE', true);
+
+//Inteligencia artificial
+define('AI_OPENAI', 'OpenAI');
+define('AI_MISTRAL', 'Mistral');
+define('TRANSLATION_AI_LIST', [
+    AI_OPENAI => 'OpenAI',
+    //AI_MISTRAL => 'Mistral',
+]);
+define('AI_MODELS', [
+    AI_OPENAI => [
+        'gpt-3.5-turbo' => 'gpt-3.5-turbo',
+        'gpt-3.5-turbo-instruct' => 'gpt-3.5-turbo-instruct',
+        'gpt-4' => 'gpt-4',
+        'gpt-4-turbo' => 'gpt-4-turbo',
+        'gpt-4o' => 'gpt-4o',
+        'gpt-3.5-turbo-0125' => 'gpt-3.5-turbo-0125',
+    ],
+    AI_MISTRAL => [
+        'mistral-tiny' => 'mistral-tiny',
+        'mistral-small' => 'mistral-small',
+        'mistral-medium' => 'mistral-medium',
+        'mistral-large' => 'mistral-large',
+        'mixtral-8x7b' => 'mixtral-8x7b',
+        'open-mixtral-8x22b' => 'open-mixtral-8x22b',
+    ],
+]);
+
 //API
 define('API_MODULE', false);
 

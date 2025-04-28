@@ -25,10 +25,10 @@ set_config('default_lang_by_browser', false);
 set_config('allowed_langs', [
     'es',
     'en',
-    //'fr',
-    //'de',
-    //'it',
-    //'pt',
+    'fr',
+    'de',
+    'it',
+    'pt',
 ]);
 
 /**
@@ -50,12 +50,26 @@ set_config('locale_langs', [
  * Array con los códigos de localidad para las conexiones a base de datos
  */
 set_config('lc_time_names_mysql', [
-    'es' => 'es_ES',
-    'en' => 'en_US',
-    'fr' => 'fr_FR',
-    'de' => 'de_DE',
-    'it' => 'it_IT',
-    'pt' => 'pt_PT',
+    'es' => [
+        'es_ES',
+        'es_CO',
+        'es_MX',
+    ],
+    'en' => [
+        'en_US',
+    ],
+    'fr' => [
+        'fr_FR',
+    ],
+    'de' => [
+        'de_DE',
+    ],
+    'it' => [
+        'it_IT',
+    ],
+    'pt' => [
+        'pt_PT',
+    ],
 ]);
 
 /**

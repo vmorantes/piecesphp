@@ -9,6 +9,7 @@ namespace PiecesPHP\Core\Routing\Slim3Compatibility;
 
 use ArrayIterator;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Interfaces\CollectionInterface;
+use Traversable;
 
 /**
  * Collection
@@ -109,7 +110,7 @@ class Collection implements CollectionInterface
      *
      * @return bool
      */
-    public function offsetExists($key)
+    public function offsetExists($key): bool
     {
         return $this->has($key);
     }
@@ -121,7 +122,7 @@ class Collection implements CollectionInterface
      *
      * @return mixed The key's value, or the default value
      */
-    public function offsetGet($key)
+    public function offsetGet($key): mixed
     {
         return $this->get($key);
     }
@@ -132,7 +133,7 @@ class Collection implements CollectionInterface
      * @param string $key   The data key
      * @param mixed  $value The data value
      */
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         $this->set($key, $value);
     }
@@ -142,7 +143,7 @@ class Collection implements CollectionInterface
      *
      * @param string $key The data key
      */
-    public function offsetUnset($key)
+    public function offsetUnset($key): void
     {
         $this->remove($key);
     }
@@ -152,7 +153,7 @@ class Collection implements CollectionInterface
      *
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return count($this->data);
     }
@@ -162,7 +163,7 @@ class Collection implements CollectionInterface
      *
      * @return ArrayIterator
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->data);
     }

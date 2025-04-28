@@ -1,3 +1,17 @@
+# 6.3.4
+
+- Mejoramiento de multi-idioma.
+- Traducción de textos faltantes.
+- Integración con IA para traducción.
+- Configuración dinámica de IA OpenAI y Mistral.
+- Flujo de multi-idioma de Publicaciones mejorado, integración con traducción por IA.
+- Acceso a claves seguras con getKeyFromSecureKeys.
+- Evento onChange en RichEditorAdapterComponent y método textareaTarget.get(0).updateRichEditor
+- onSuccessFinally en genericFormHandler
+- PCSPHP-Response-Expected-Language como método de definir un idioma para la respuesta back-end desde front-end (recibe el idioma, ie.: es, en, fr, etc....)
+- Mejoramiento de configuraciones finales, se pueden añadir archivos indefinidamente para configuraciones más claras.
+- getExtension en FileObject
+
 # 6.3.1
 
 - Módulo de localización mejorado con LocalizationSystem que permite acceder a las traducciones desde front mediante una ruta con registerDynamicLocalizationMessages.

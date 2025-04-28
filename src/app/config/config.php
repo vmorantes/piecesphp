@@ -81,6 +81,14 @@ $config['mailjet'] = [
 
 $config['SurveyJSKey'] = "";
 
+//Inteligencia artificial
+$config['OpenAIApiKey'] = "";
+$config['MistralAIApiKey'] = "";
+$config['translationAI'] = "";
+$config['translationAIEnable'] = true;
+$config['modelOpenAI'] = "gpt-3.5-turbo-0125";
+$config['modelMistral'] = "mistral-medium";
+
 //──── Azure ─────────────────────────────────────────────────────────────────────────────
 $config['Azure'] = [
     'BASE_STORAGE_ACCOUNT_NAME' => '',

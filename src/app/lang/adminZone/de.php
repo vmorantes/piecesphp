@@ -15,7 +15,6 @@ return [
     'Agregar usuario' => 'Benutzer hinzufügen',
     'Gestionar usuarios' => 'Benutzerverwaltung',
     'Log de errores' => 'Fehlerprotokoll',
-    'Rutas y permisos' => 'Routen und Berechtigungen',
     'Importar usuarios' => 'Benutzer importieren',
     'Acerca de' => 'Über',
     'Editar foto' => 'Profilbild bearbeiten',
