@@ -1,5 +1,3 @@
 <?php
 
-return [
-    'KEY' => 'VALUE ES',
-];
+return [];

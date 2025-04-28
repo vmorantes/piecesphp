@@ -88,6 +88,16 @@ class FileObject implements \JsonSerializable
     /**
      * @return string
      */
+    public function getExtension()
+    {
+        $basename = $this->getBasename();
+        $extension = pathinfo($basename, \PATHINFO_EXTENSION);
+        return $extension;
+    }
+
+    /**
+     * @return string
+     */
     public function getParent()
     {
         return $this->parent;

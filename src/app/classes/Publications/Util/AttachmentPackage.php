@@ -105,6 +105,15 @@ class AttachmentPackage
     }
 
     /**
+     * @return static
+     */
+    public function forceEvaluationMapper()
+    {
+        $this->mapper = null;
+        return $this;
+    }
+
+    /**
      * @param string $str
      * @return string
      */
@@ -292,9 +301,23 @@ class AttachmentPackage
      */
     public function getMapper()
     {
-        if (($this->mapper !== null && (is_object($this->mapper->publication) ? $this->mapper->publication->id : $this->mapper->publication) != $this->publicationID) || $this->mapper == null) {
+
+        $mapperIsNull = $this->mapper === null;
+        $mapperIsNotNull = !$mapperIsNull;
+
+        $publication = $mapperIsNotNull ? $this->mapper->publication : null;
+        $publicationIsNull = $publication === null;
+        $publicationIsObject = !$publicationIsNull && is_object($publication);
+        $mapperPublicationID = $publicationIsObject ? $publication->id : (
+            !$publicationIsNull ? $publication : null
+        );
+
+        $publicationIDEqualsMapperPublicationID = $mapperPublicationID == $this->publicationID;
+
+        if (!$publicationIDEqualsMapperPublicationID || $mapperIsNull) {
             $this->mapper = AttachmentPublicationMapper::getByTypeAndPublication($this->publicationID, $this->type, $this->lang, true);
         }
+
         return $this->mapper;
     }
 

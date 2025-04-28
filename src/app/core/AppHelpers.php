@@ -3138,3 +3138,28 @@ function getCookie(string $name, bool $jsonDecode = false, bool $jsonDecodeAsArr
     }
     return $value;
 }
+
+/**
+ * Obtiene el contenido del archivo con el nombre provisto dentro de la carpeta de llaves seguras
+ *
+ * @param string $name
+ * @return string
+ */
+function getKeyFromSecureKeys(string $name)
+{
+    $key = '';
+    $file = basepath('..' . \DIRECTORY_SEPARATOR  . 'secure-keys' . \DIRECTORY_SEPARATOR  . $name);
+    $fileExists = file_exists($file);
+    $ignoreFiles = [
+        '.gitignore',
+        '.htaccess',
+        '.editorconfig',
+    ];
+    if ($fileExists && !in_array($name, $ignoreFiles)) {
+        $content = file_get_contents($file);
+        if (is_string($content)) {
+            $key = trim($content);
+        }
+    }
+    return $key;
+}
