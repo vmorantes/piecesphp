@@ -72,8 +72,8 @@ class BaseModel extends ActiveRecordModel
             ]);
 
         } else {
-            if (is_string($this->prefix_table)) {
-                $this->table = trim($this->prefix_table) . trim($this->table);
+            if (is_string($this->tablePrefix)) {
+                $this->table = trim($this->tablePrefix) . trim($this->table);
             }
             if (is_null($this->fields) && is_string($this->table)) {
                 $this->configFields();
