@@ -1000,6 +1000,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	 * @property {{(form: $, formData: FormData, response: Object):Promise|void}} [onSuccess]
 	 * @property {{(form: $, formData: FormData, response: Object):void}} [onError]
 	 * @property {{(event: Event):void}} [onInvalidEvent]
+	 * @property {{(form: $, formData: FormData, response: Object):void}} [onSuccessFinally]
 	 * @property {Boolean} [toast]
 	 * @property {Boolean} [ignoreRedirection]
 	 * @property {Boolean} [ignoreReload]
@@ -1200,6 +1201,14 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 	}
 	onInvalidEvent = defaultInvalidHandler ? onInvalidEvent : function (event) {
 	}
+	/**
+	 * @param {$} form
+	 * @param {FormData} formData
+	 * @param {Object} response
+	 * @returns {void}
+	 */
+	let onSuccessFinally = function (form, formData, response) {
+	}
 	let toast = true
 	let ignoreRedirection = false
 	let ignoreReload = false
@@ -1252,6 +1261,9 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		if (typeof options.onInvalidEvent == 'function') {
 			onInvalidEvent = options.onInvalidEvent
 		}
+		if (typeof options.onSuccessFinally == 'function') {
+			onSuccessFinally = options.onSuccessFinally
+		}
 		if (typeof options.toast == 'boolean') {
 			toast = options.toast
 		}
@@ -1268,6 +1280,7 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 		form.off('invalid')
 		form.find('input,textarea,select').off('invalid')
 		form.find('input,textarea,select').on('invalid', onInvalidEvent)
+		form.onSuccessFinally = onSuccessFinally
 
 		if (overwrite) {
 			form.off('submit')
@@ -1486,11 +1499,11 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 					successMessage(response.name, response.message)
 				}
 
-				let resposeValues = response.values
+				let responseValues = response.values
 
-				let hasReload = typeof resposeValues.reload != 'undefined' && resposeValues.reload == true
-				let hasRedirection = typeof resposeValues.redirect != 'undefined' && resposeValues.redirect == true
-				let validRedirection = typeof resposeValues.redirect_to == 'string' && resposeValues.redirect_to.trim().length > 0
+				let hasReload = typeof responseValues.reload != 'undefined' && responseValues.reload == true
+				let hasRedirection = typeof responseValues.redirect != 'undefined' && responseValues.redirect == true
+				let validRedirection = typeof responseValues.redirect_to == 'string' && responseValues.redirect_to.trim().length > 0
 
 				if (ignoreRedirection) {
 					hasRedirection = false
@@ -1508,11 +1521,15 @@ function genericFormHandler(selectorForm = 'form[pcs-generic-handler-js]', optio
 
 				promiseOnSuccess.finally(function () {
 
+					if (typeof form.onSuccessFinally == 'function') {
+						form.onSuccessFinally(formProcess, formData, response)
+					}
+
 					if (hasRedirection && validRedirection) {
 
 						setTimeout(function (e) {
 
-							window.location = resposeValues.redirect_to
+							window.location = responseValues.redirect_to
 
 						}, 1500)
 

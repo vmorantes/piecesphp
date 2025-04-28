@@ -75,7 +75,7 @@ class AppConfigController extends AdminPanelController
     const ROLES_OS_TICKET = [
         UsersModel::TYPE_USER_ROOT,
     ];
-    const ROLES_SECURITY = [
+    const ROLES_SECURITY_AND_IA = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN,
     ];
@@ -1100,25 +1100,25 @@ class AppConfigController extends AdminPanelController
      * @param Response $res
      * @return Response
      */
-    public function security(Request $req, Response $res)
+    public function securityAndIA(Request $req, Response $res)
     {
         $langGroup = self::LANG_GROUP;
 
         $requestMethod = mb_strtoupper($req->getMethod());
 
-        set_title(__(self::LANG_GROUP, 'Seguridad'));
+        set_title(__(self::LANG_GROUP, 'Seguridad e IA'));
 
         if ($requestMethod == 'GET') {
 
             set_custom_assets([
-                'statics/core/js/app_config/security.js',
+                'statics/core/js/app_config/security-and-ia.js',
             ], 'js');
 
             set_custom_assets([
-                'statics/core/css/app_config/security.css',
+                'statics/core/css/app_config/security-and-ia.css',
             ], 'css');
 
-            $actionURL = self::routeName('security');
+            $actionURL = self::routeName('security-and-ia');
 
             $data = [
                 'langGroup' => $langGroup,
@@ -1127,7 +1127,7 @@ class AppConfigController extends AdminPanelController
 
             $baseViewDir = 'panel/pages/app_configurations';
             $this->render('panel/layout/header');
-            $this->render("{$baseViewDir}/security", $data);
+            $this->render("{$baseViewDir}/security-and-ia", $data);
             $this->render('panel/layout/footer');
 
         } elseif ($requestMethod == 'POST') {
@@ -1147,6 +1147,72 @@ class AppConfigController extends AdminPanelController
                         return ($value === 1 || $value == '1' || $value === true);
                     }
                 ),
+                new Parameter(
+                    'modelOpenAI',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+                new Parameter(
+                    'modelMistral',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+                new Parameter(
+                    'OpenAIApiKey',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+                new Parameter(
+                    'MistralAIApiKey',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+                new Parameter(
+                    'translationAI',
+                    '',
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    true,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+                new Parameter(
+                    'translationAIEnable',
+                    null,
+                    function ($value) {
+                        return Validator::isInteger($value) || is_bool($value) || is_null($value);
+                    },
+                    true,
+                    function ($value) {
+                        return ($value === 1 || $value == '1' || $value === true);
+                    }
+                ),
             ]);
 
             //Obtención de datos
@@ -1157,7 +1223,7 @@ class AppConfigController extends AdminPanelController
 
             //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
-            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Seguridad'));
+            $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Seguridad e IA'));
             $resultOperation->setSingleOperation(true); //Se define que es de una única operación
 
             //Valores iniciales de la respuesta
@@ -1177,18 +1243,42 @@ class AppConfigController extends AdminPanelController
                 //Información del formulario
                 /**
                  * @var bool $checkAudOnAuth
+                 * @var string $modelOpenAI
+                 * @var string $modelMistral
+                 * @var string $OpenAIApiKey
+                 * @var string $MistralAIApiKey
+                 * @var string $translationAI
+                 * @var bool $translationAIEnable
                  */
                 $checkAudOnAuth = $expectedParameters->getValue('check_aud_on_auth');
+                $modelOpenAI = $expectedParameters->getValue('modelOpenAI');
+                $modelMistral = $expectedParameters->getValue('modelMistral');
+                $OpenAIApiKey = $expectedParameters->getValue('OpenAIApiKey');
+                $MistralAIApiKey = $expectedParameters->getValue('MistralAIApiKey');
+                $translationAI = $expectedParameters->getValue('translationAI');
+                $translationAIEnable = $expectedParameters->getValue('translationAIEnable');
 
                 try {
 
                     $configurationsToSave = [
                         'check_aud_on_auth' => $checkAudOnAuth,
+                        'modelOpenAI' => $modelOpenAI,
+                        'modelMistral' => $modelMistral,
+                        'OpenAIApiKey' => $OpenAIApiKey,
+                        'MistralAIApiKey' => $MistralAIApiKey,
+                        'translationAI' => $translationAI,
+                        'translationAIEnable' => $translationAIEnable,
                     ];
                     $messagesOnSave = [
                         'check_aud_on_auth' => strReplaceTemplate(__(self::LANG_GROUP, '"%s" fue guardado'), [
                             '%s' => __(self::LANG_GROUP, 'Usar IP del usuario para encriptar el token de sesión'),
                         ]),
+                        'modelOpenAI' => __(self::LANG_GROUP, 'Modelo de OpenAI actualizado'),
+                        'modelMistral' => __(self::LANG_GROUP, 'Modelo de Mistral actualizado'),
+                        'OpenAIApiKey' => __(self::LANG_GROUP, 'API Key de OpenAI actualizada'),
+                        'MistralAIApiKey' => __(self::LANG_GROUP, 'API Key de Mistral actualizada'),
+                        'translationAI' => __(self::LANG_GROUP, 'IA para traducciones'),
+                        'translationAIEnable' => __(self::LANG_GROUP, 'Configuración de traducción con IA actualizada'),
                     ];
 
                     $success = true;
@@ -1215,7 +1305,7 @@ class AppConfigController extends AdminPanelController
 
                                 $success = $success && $configSuccess;
 
-                                if ($configSuccess) {
+                                if ($configSuccess && array_key_exists($configName, $messagesOnSave)) {
                                     $changesMessages[] = $messagesOnSave[$configName];
                                 } else {
                                     $unknowErrorMessage = $errorSomesOptions;
@@ -1527,11 +1617,13 @@ class AppConfigController extends AdminPanelController
 
         };
 
+        //Algunas rutas fijas
         $somesURLs = [
             baseurl(),
             PublicationsPublicController::routeName('list'),
         ];
 
+        //Rutas por controladores
         $routes = array_merge(
             get_routes_by_controller(PublicationsPublicController::class),
             get_routes_by_controller(PublicAreaController::class)
@@ -1552,6 +1644,7 @@ class AppConfigController extends AdminPanelController
             }
         }
 
+        //Rutas módulo de publicaciones
         $categories = PublicationsCategoryController::_all()->elements();
         $articles = PublicationsController::_all()->elements();
 
@@ -2198,13 +2291,13 @@ class AppConfigController extends AdminPanelController
 
             //Seguridad
             new Route(
-                "{$startRoute}/security[/]",
-                $classname . ':security',
-                self::$baseRouteName . '-' . 'security',
+                "{$startRoute}/security-and-ia[/]",
+                $classname . ':securityAndIA',
+                self::$baseRouteName . '-' . 'security-and-ia',
                 'GET|POST',
                 true,
                 null,
-                self::ROLES_SECURITY
+                self::ROLES_SECURITY_AND_IA
             ),
 
         ]);

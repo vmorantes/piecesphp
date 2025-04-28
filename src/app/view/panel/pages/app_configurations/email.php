@@ -12,7 +12,7 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
     <section class="main-body-header">
         <div class="head">
             <h2 class="tittle"><?= __($langGroup, 'Configuración de emails'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Configuración de Plataforma'); ?></span>
+            <span class="sub-tittle"><?= __($langGroup, 'Descripción_Email'); ?></span>
         </div>
         <div class="body-card">
             <form action="<?= $actionURL; ?>" method="POST" class="ui form email">

@@ -7,7 +7,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
     <section class="main-body-header">
         <div class="head">
             <h2 class="tittle"><?= __($langGroup, 'OsTicket'); ?></h2>
-            <span class="sub-tittle"><?= __($langGroup, 'Configuración de Plataforma'); ?></span>
+            <span class="sub-tittle"><?= __($langGroup, 'Descripción_OsTicket'); ?></span>
         </div>
         <div class="body-card">
             <form action="<?= $actionURL; ?>" method="POST" class="ui form os-ticket">

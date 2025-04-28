@@ -15,7 +15,6 @@ $lang = [
     'Agregar usuario' => 'Aggiungi utente',
     'Gestionar usuarios' => 'Gestione utenti',
     'Log de errores' => 'Log errori',
-    'Rutas y permisos' => 'Percorsi e permessi',
     'Importar usuarios' => 'Importa utenti',
     'Acerca de' => 'Informazioni',
     'Editar foto' => 'Modifica foto',

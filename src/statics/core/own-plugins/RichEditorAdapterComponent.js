@@ -13,6 +13,7 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @property {String} [fileManagerConfigURL]
 	 * @property {String} [fileManagerUIURL]
 	 * @property {String} [fileManagerBaseURLStatics]
+	 * @property {Function} [onChange]
 	 */
 	adapterOptions;
 
@@ -79,6 +80,10 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 */
 	let containerSelector = '[rich-editor-adapter-component]'
 
+	/**
+	 * @property {Function}
+	 */
+	let onChange = () => { }
 	/**
 	 * @property {String}
 	 */
@@ -260,10 +265,15 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 				editorInstance = editor
 				editorInstance.model.document.on('change:data', () => {
 					textareaTarget.val(editorInstance.getData())
+					onChange(instance, editorInstance.getData())
 				})
 
 				const CKFinder = editor.commands.get('ckfinder')
 				const fileRepository = editorInstance.plugins.get('FileRepository')
+
+				textareaTarget.get(0).updateRichEditor = function (value) {
+					editorInstance.setData(value)
+				}
 
 				CKFinder.execute = () => {
 					explorerHandler(uploadTargetHash)
@@ -287,6 +297,10 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @param {RichEditorAdapterOptions} adapterOptions 
 	 */
 	function configs(adapterOptions) {
+
+		if (typeof adapterOptions.onChange == 'function') {
+			onChange = adapterOptions.onChange
+		}
 
 		if (typeof adapterOptions.containerSelector == 'string' && adapterOptions.containerSelector.length > 0) {
 			containerSelector = adapterOptions.containerSelector

@@ -195,16 +195,6 @@ $lang = [
         'Mantenimiento'                                            => 'Maintenance',
         'En curso, no es posible usar la plataforma en un tiempo.' => 'En cours, il n\'est pas possible d\'utiliser la plateforme pour le moment.',
     ],
-    'routesViewAdminZone' => [
-        'Rutas y permisos'          => 'Routes et permissions',
-        'Nombre'                    => 'Nom',
-        'Definición'                => 'Définition',
-        'Ruta'                      => 'Route',
-        'Clase'                     => 'Classe',
-        'Método'                    => 'Méthode',
-        'Roles con acceso'          => 'Rôles avec accès',
-        'No requiere autenticación' => 'Aucune authentification requise',
-    ],
     'genericTokenModule' => [
         'Comentarios'                                                           => 'Commentaires',
         'Correo electrónico'                                                    => 'Email',

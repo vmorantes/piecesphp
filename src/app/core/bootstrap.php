@@ -101,7 +101,11 @@ if (!isset($_SERVER['HTTP_HOST'])) {
 
 //Manejo de errores
 error_reporting(E_ALL);
-ini_set('display_errors', isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost');
+$isLocalBootstrap = isset($_SERVER['HTTP_HOST']) && (
+    $_SERVER['HTTP_HOST'] === 'localhost' ||
+    mb_substr($_SERVER['HTTP_HOST'], -10) === '.localhost'
+);
+ini_set('display_errors', $isLocalBootstrap);
 set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line) {
     $errorLevelTypeReferencesByType = [
         E_ERROR => 'Fatal error',
@@ -200,8 +204,8 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '6.3.2');
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '13-09-2024')->format('Y-m-d'));
+    define('APP_VERSION', '6.3.4');
+    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '25-04-2025')->format('Y-m-d'));
 }
 
 require $directories['utilities'];

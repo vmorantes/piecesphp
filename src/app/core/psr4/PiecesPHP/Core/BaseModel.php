@@ -84,13 +84,25 @@ class BaseModel extends ActiveRecordModel
             $lcTimeNameOptions = get_config('lc_time_names_mysql');
             if (is_array($lcTimeNameOptions) && !empty($lcTimeNameOptions)) {
                 $currentLang = Config::get_lang();
-                $lcTimeName = array_key_exists($currentLang, $lcTimeNameOptions) ? $lcTimeNameOptions[$currentLang] : null;
-                if (is_string($lcTimeName) && mb_strlen($lcTimeName) > 0) {
-                    $databaseInstance = $this->getDatabase();
-                    if ($databaseInstance instanceof Database) {
-                        $prepareStatement = $databaseInstance->prepare("SET lc_time_names = '{$lcTimeName}';");
-                        $prepareStatement->execute();
-                        $prepareStatement->closeCursor();
+                $lcTimeNameList = array_key_exists($currentLang, $lcTimeNameOptions) ? $lcTimeNameOptions[$currentLang] : null;
+                $lcTimeNameList = is_array($lcTimeNameList) ? $lcTimeNameList : [$lcTimeNameList];
+
+                if (is_array($lcTimeNameList) && !empty($lcTimeNameList)) {
+                    foreach ($lcTimeNameList as $lcTimeName) {
+                        if (is_string($lcTimeName) && mb_strlen($lcTimeName) > 0) {
+                            $databaseInstance = $this->getDatabase();
+                            if ($databaseInstance instanceof Database) {
+                                try {
+                                    $prepareStatement = $databaseInstance->prepare("SET lc_time_names = '{$lcTimeName}';");
+                                    $prepareStatement->execute();
+                                    $prepareStatement->closeCursor();
+                                    break;
+                                } catch (\Exception $e) {
+                                    log_exception($e);
+                                    continue;
+                                }
+                            }
+                        }
                     }
                 }
             }

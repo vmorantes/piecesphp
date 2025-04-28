@@ -3,10 +3,10 @@
 /**
  * final-configurations.php
  */
-
 use App\Controller\AdminPanelController;
 use App\Controller\PublicAreaController;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\LangInjector;
 
 /**
@@ -27,14 +27,18 @@ foreach ($langInjectors as $group => $injector) {
     $injector->injectGroup($group);
 }
 
-//Crear logo para mailing
-try {
-    $mailingLogoRelativePath = "statics/images/mailing-logo.png";
-    $mailingLogoPath = basepath($mailingLogoRelativePath);
-    if (!file_exists($mailingLogoPath)) {
-        resizeAndCenterImage(basepath(get_config('logo')), $mailingLogoPath, 500, 172);
+//Configuraciones adicionales en archivos independientes. Se incluyen todos los archivos .php dentro de ./final-configurations-includes
+
+$finalConfigurationsIncludesDirectory = new DirectoryObject(basepath('app/config/final-configurations-includes'));
+$finalConfigurationsIncludesDirectory->process();
+$finalConfigurationsIncludesFiles = $finalConfigurationsIncludesDirectory->getFiles();
+
+if (!empty($finalConfigurationsIncludesFiles)) {
+    foreach ($finalConfigurationsIncludesFiles as $finalConfigurationsIncludesFile) {
+        if ($finalConfigurationsIncludesFile->getExists()) {
+            if (mb_strtolower($finalConfigurationsIncludesFile->getExtension()) == 'php') {
+                include_once $finalConfigurationsIncludesFile->getPath();
+            }
+        }
     }
-    set_config('mailing_logo', $mailingLogoRelativePath);
-} catch (\Exception $e) {
-    set_config('mailing_logo', get_config('logo'));
 }

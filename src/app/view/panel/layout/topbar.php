@@ -143,10 +143,10 @@ $adminOptionsGroups = [
                     'asLink' => true,
                 ]),
                 new MenuGroup([
-                    'name' => __(AppConfigController::LANG_GROUP, 'Seguridad'),
+                    'name' => __(AppConfigController::LANG_GROUP, 'Seguridad e IA'),
                     'icon' => 'lock',
-                    'href' => AppConfigController::routeName('security'),
-                    'visible' => AppConfigController::allowedRoute('security'),
+                    'href' => AppConfigController::routeName('security-and-ia'),
+                    'visible' => AppConfigController::allowedRoute('security-and-ia'),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
