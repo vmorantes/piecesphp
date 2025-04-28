@@ -7,7 +7,10 @@
 namespace API\Controllers;
 
 use API\Adapters\APIExternalAdapterExample;
+use API\Adapters\MistralHandlerAdapter;
+use API\Adapters\OpenAIHandlerAdapter;
 use API\APILang;
+use API\APIRoutes;
 use App\Controller\AdminPanelController;
 use App\Controller\AvatarController;
 use App\Controller\RecoveryPasswordController;
@@ -21,6 +24,7 @@ use EventsLog\Mappers\LogsMapper;
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;
 use News\Mappers\NewsMapper;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -444,6 +448,139 @@ class APIController extends AdminPanelController
             $response = $response->withJson($all);
 
             return $response;
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function translations(Request $request, Response $response)
+    {
+        //Selección de idioma de respuesta
+        $lang = Config::get_lang();
+        $expectedLang = get_config('responseExpectedLang');
+        $lang = is_string($expectedLang) && mb_strlen($expectedLang) > 1 ? $expectedLang : $lang;
+        set_config('app_lang', $lang);
+
+        $method = mb_strtoupper($request->getMethod());
+
+        if ($method === 'GET') {
+
+            $expectedParameters = new Parameters([
+                new Parameter(
+                    'text',
+                    null,
+                    function ($value) {
+                        return is_string($value) || is_array($value) || is_null($value);
+                    },
+                    false,
+                    function ($value) {
+                        $jsonParsed = null;
+                        $parseJSON = function (string $jsonStr) {
+                            $decoded = json_decode($jsonStr, true);
+                            $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
+                            return $decoded;
+                        };
+                        if (is_string($value)) {
+
+                            //Intentar convertir a JSON directamente
+                            $jsonParsed = ($parseJSON)($value);
+                            //Tratar de decodificar Base 64
+                            if ($jsonParsed == null) {
+                                $base64Decoded = url_safe_base64_decode($value);
+                                $jsonParsed = ($parseJSON)($base64Decoded);
+                            }
+
+                        }
+                        return $jsonParsed;
+                    }
+                ),
+                new Parameter(
+                    'from',
+                    null,
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    false,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+                new Parameter(
+                    'to',
+                    null,
+                    function ($value) {
+                        return is_string($value);
+                    },
+                    false,
+                    function ($value) {
+                        return $value;
+                    }
+                ),
+            ]);
+
+            $expectedParameters->setInputValues($request->getQueryParams());
+            $expectedParameters->validate();
+
+            /**
+             * @var array<string,string>|null $text
+             * @var string $from
+             * @var string $to
+             */
+            $text = $expectedParameters->getValue('text');
+            $from = $expectedParameters->getValue('from');
+            $to = $expectedParameters->getValue('to');
+
+            $translationAI = get_config('translationAI');
+            $modelOpenAI = get_config('modelOpenAI');
+            $modelMistral = get_config('modelMistral');
+            $aiHandler = null;
+
+            if ($translationAI == AI_OPENAI) {
+                $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
+            } elseif ($translationAI == AI_MISTRAL) {
+                $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
+            }
+
+            $responseJSON = [
+                'success' => false,
+                'message' => '',
+                'result' => [
+                    'text' => $text,
+                    'from' => $from,
+                    'to' => $to,
+                    'translation' => null,
+                ],
+                'error' => null,
+                'AI' => [
+                    'provider' => $translationAI,
+                    'modelOpenAI' => $modelOpenAI,
+                    'modelMistral' => $modelMistral,
+                ],
+            ];
+
+            try {
+                $translation = $aiHandler->translate($text, $from, $to, '/\{(?:[^{}]|(?R))*\}/');
+                if ($translation !== null) {
+                    $responseJSON['success'] = true;
+                    $responseJSON['result']['translation'] = $translation;
+                    $responseJSON['message'] = __(self::LANG_GROUP, 'La traducción se realizó con éxito.');
+                } else {
+                    $responseJSON['message'] = __(self::LANG_GROUP, 'No pudo efectuarse la traducción, intente más tarde.');
+                }
+            } catch (\Throwable $e) {
+                $responseJSON['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error con el servicio de traducción, intente más tarde.');
+                $responseJSON['error'] = $e->getMessage();
+            }
+
+            return $response->withJson($responseJSON);
+
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -1021,6 +1158,8 @@ class APIController extends AdminPanelController
 
         $news = $allRoles;
 
+        $translations = $allRoles;
+
         $usersActions = $allRoles;
 
         $cronJobs = $allRoles;
@@ -1033,7 +1172,8 @@ class APIController extends AdminPanelController
             UsersModel::TYPE_USER_GENERAL,
         ];
 
-        $routes = [
+        $routes = [];
+        $routesGeneral = [
 
             //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
             //JSON
@@ -1084,14 +1224,39 @@ class APIController extends AdminPanelController
             //),
 
         ];
+        $routesTranslation = [
 
-        $group->register($routes);
+            //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
+            //JSON
+            new Route( //Rutas de traducciones
+                "{$startRoute}/translations[/]",
+                $classname . ':translations',
+                self::$baseRouteName . '-translations-actions',
+                'GET',
+                true,
+                null,
+                $translations,
+            ),
 
-        $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
-            return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
-                return self::routeName($name, $params);
-            }))->getResponse($request, $handler);
-        });
+        ];
+
+        if (APIRoutes::ENABLE) {
+            $routes = array_merge($routes, $routesGeneral);
+        }
+
+        if (APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable')) {
+            $routes = array_merge($routes, $routesTranslation);
+        }
+
+        if (APIRoutes::ENABLE || (APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable'))) {
+            $group->register($routes);
+
+            $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {
+                return (new DefaultAccessControlModules(self::$baseRouteName . '-', function (string $name, array $params) {
+                    return self::routeName($name, $params);
+                }))->getResponse($request, $handler);
+            });
+        }
 
         return $group;
     }

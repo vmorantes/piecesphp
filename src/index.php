@@ -560,6 +560,13 @@ $routeCollector->setDefaultInvocationStrategy(new InvocationStrategy());
 
 //Llamadas antes y después de ejecutar rutas
 $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
+    //Obtener el idioma deseado de las solicitudes
+    $responseExpectedLang = $request->getHeaderLine('PCSPHP-Response-Expected-Language');
+    if (!is_string($responseExpectedLang) || mb_strlen(trim($responseExpectedLang)) < 1) {
+        $responseExpectedLang = null;
+    }
+    set_config('responseExpectedLang', $responseExpectedLang);
+    //Continuar
     $response = $handler->handle($request);
     return $response;
 });

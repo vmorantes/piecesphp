@@ -13,6 +13,14 @@ use PiecesPHP\Core\Config;
  * @var string $backLink
  * @var string $action
  */
+
+$langs = Config::get_allowed_langs();
+$defaultLang = Config::get_default_lang();
+$langsTabs = [];
+$translatableProperties = $element->getTranslatableProperties();
+array_map(function ($lang) use (&$langsTabs) {
+    $langsTabs[$lang] = __('lang', $lang);
+}, $langs);
 ?>
 <section class="module-view-container">
 
@@ -33,26 +41,29 @@ use PiecesPHP\Core\Config;
 
         <div class="container-standard-form">
 
-            <?php if($manyLangs): ?>
-            <div class="ui form">
-                <div class="field required">
-                    <label><?= __($langGroup, 'Idiomas'); ?></label>
-                    <select required class="ui dropdown search langs">
-                        <?= $allowedLangs; ?>
-                    </select>
-                </div>
-            </div>
-            <?php endif; ?>
-
             <form method='POST' action="<?= $action; ?>" class="ui form publications-categories <?= $detailMode ? 'detail-mode' : ''; ?>">
 
                 <input type="hidden" name="id" value="<?= $element->id; ?>">
-                <input type="hidden" name="lang" value="<?= $lang; ?>">
 
                 <div class="field required">
-                    <label><?= __($langGroup, 'Nombre'); ?></label>
-                    <input required type="text" name="name" maxlength="300" value="<?= $element->getLangData($lang, 'name', false, ''); ?>">
+                    <label>
+                        <?= __($langGroup, 'Nombre'); ?>
+                        <small>(<?= __('lang', $defaultLang); ?>)</small>
+                    </label>
+                    <input required type="text" name="name[<?= $defaultLang ?>]" maxlength="300" value="<?= $element->getLangData($defaultLang, 'name', false, ''); ?>">
                 </div>
+
+                <?php foreach($langsTabs as $langCode => $langName): ?>
+                <?php if($defaultLang !== $langCode): ?>
+                <div class="field">
+                    <label>
+                        <?= __($langGroup, 'Nombre'); ?>
+                        <small>(<?= $langName; ?>)</small>
+                    </label>
+                    <input type="text" name="name[<?= $langCode ?>]" maxlength="300" value="<?= $element->getLangData($langCode, 'name', false, ''); ?>">
+                </div>
+                <?php endif; ?>
+                <?php endforeach; ?>
 
                 <br>
 

@@ -8,7 +8,6 @@ showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('load', function () {
 
 	window.dispatchEvent(new Event('canDeletePublication'))
-	let isEdit = false
 
 	/* Traducciones */
 	const langGroup = 'appPublicationsLang'
@@ -65,18 +64,6 @@ window.addEventListener('load', function () {
 			},
 			onChangeFile: (files, component, instance, event) => {
 				const fileInput = files[0]
-				if (isEdit) {
-					const previewContainer = $(attachmentElement).find('[preview]')
-					if (fileInput.type.indexOf('image/') !== -1) {
-						const reader = new FileReader()
-						reader.readAsDataURL(fileInput)
-						reader.onload = function (e) {
-							previewContainer.html(`<img src="${e.target.result}"/>`)
-						}
-					} else {
-						previewContainer.html('')
-					}
-				}
 			},
 		})
 		indexAttachment++
@@ -88,18 +75,10 @@ window.addEventListener('load', function () {
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
 
-			if (isEdit) {
-				formData.set('mainImage', cropperMainImage.getFile())
-				formData.set('thumbImage', cropperThumbImage.getFile())
-				if (cropperOpenGraphImage.wasChange()) {
-					formData.set('ogImage', cropperOpenGraphImage.getFile())
-				}
-			} else {
-				formData.set('mainImage', cropperMainImage.getFile())
-				formData.set('thumbImage', cropperThumbImage.getFile())
-				if (cropperOpenGraphImage.wasChange()) {
-					formData.set('ogImage', cropperOpenGraphImage.getFile())
-				}
+			formData.set('mainImage', cropperMainImage.getFile())
+			formData.set('thumbImage', cropperThumbImage.getFile())
+			if (cropperOpenGraphImage.wasChange()) {
+				formData.set('ogImage', cropperOpenGraphImage.getFile())
 			}
 
 			return formData
@@ -138,8 +117,6 @@ window.addEventListener('load', function () {
 	form.find('input, select, textarea').attr('autocomplete', 'off')
 	form.find('.checkbox').checkbox()
 	$('.ui.accordion').accordion()
-
-	isEdit = form.find(`[name="id"]`).length > 0
 
 	configLangChange('.ui.dropdown.langs')
 

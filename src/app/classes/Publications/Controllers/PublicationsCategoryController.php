@@ -142,18 +142,9 @@ class PublicationsCategoryController extends AdminPanelController
         $id = $request->getAttribute('id', null);
         $id = Validator::isInteger($id) || $id == PublicationCategoryMapper::UNCATEGORIZED_ID ? (int) $id : null;
 
-        $lang = $request->getAttribute('lang', null);
-        $lang = is_string($lang) ? $lang : null;
-
         $mode = $request->getQueryParam('mode', null);
         $mode = is_string($mode) ? $mode : null;
         $detailMode = $mode == 'detail';
-
-        $allowedLangs = Config::get_allowed_langs();
-
-        if ($lang === null || !in_array($lang, $allowedLangs)) {
-            throw new NotFoundException($request, $response);
-        }
 
         $element = new PublicationCategoryMapper($id);
 
@@ -166,8 +157,6 @@ class PublicationsCategoryController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $manyLangs = count($allowedLangs) > 1;
-            $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $title = __(self::LANG_GROUP, 'Edición de categoría');
             $description = '';
@@ -181,9 +170,6 @@ class PublicationsCategoryController extends AdminPanelController
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
             $data['title'] = $title;
-            $data['allowedLangs'] = $allowedLangs;
-            $data['manyLangs'] = $manyLangs;
-            $data['lang'] = $lang;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
@@ -261,6 +247,8 @@ class PublicationsCategoryController extends AdminPanelController
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
 
         //Definición de validaciones y procesamiento
+        $defaultLang = Config::get_default_lang();
+        $allowedLangs = Config::get_allowed_langs();
         $expectedParameters = new Parameters([
             new Parameter(
                 'id',
@@ -274,25 +262,31 @@ class PublicationsCategoryController extends AdminPanelController
                 }
             ),
             new Parameter(
-                'lang',
-                null,
-                function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            ),
-            new Parameter(
                 'name',
                 null,
-                function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                function ($value) use ($defaultLang) {
+                    $valid = is_array($value);
+                    if ($valid) {
+                        foreach ($value as $langCode => $text) {
+                            $valid = is_string($text);
+                            $valid = $langCode == $defaultLang ? mb_strlen(trim($text)) > 0 : true;
+                            if (!$valid) {
+                                break;
+                            }
+                        }
+                        $valid = $valid && array_key_exists($defaultLang, $value);
+                    }
+                    return $valid;
                 },
                 false,
-                function ($value) {
-                    return clean_string($value);
+                function ($value) use ($allowedLangs) {
+                    $parsed = [];
+                    foreach ($value as $langCode => $text) {
+                        if (in_array($langCode, $allowedLangs)) {
+                            $parsed[$langCode] = clean_string($text);
+                        }
+                    }
+                    return $parsed;
                 }
             ),
         ]);
@@ -320,7 +314,6 @@ class PublicationsCategoryController extends AdminPanelController
         $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
-        $notAllowedLangMessage = __(self::LANG_GROUP, 'El idioma "%s" no está permitido.');
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -331,11 +324,9 @@ class PublicationsCategoryController extends AdminPanelController
             //Información del formulario
             /**
              * @var int $id
-             * @var string $lang
-             * @var string $name
+             * @var array<string,string> $name
              */
             $id = $expectedParameters->getValue('id');
-            $lang = $expectedParameters->getValue('lang');
             $name = $expectedParameters->getValue('name');
 
             //Se define si es edición o creación
@@ -343,22 +334,16 @@ class PublicationsCategoryController extends AdminPanelController
 
             try {
 
-                $allowedLangs = Config::get_allowed_langs();
-
-                if ($isEdit) {
-                    if (!in_array($lang, $allowedLangs)) {
-                        throw new \Exception(vsprintf($notAllowedLangMessage, [$lang]));
-                    }
-                } else {
-                    $lang = get_config('default_lang');
-                }
-
                 if (!$isEdit) {
                     //Nuevo
 
                     $mapper = new PublicationCategoryMapper();
 
-                    $mapper->setLangData($lang, 'name', $name);
+                    foreach ($name as $langName => $textName) {
+                        if (mb_strlen($textName) > 0) {
+                            $mapper->setLangData($langName, 'name', $textName);
+                        }
+                    }
 
                     $saved = $mapper->save();
 
@@ -386,7 +371,11 @@ class PublicationsCategoryController extends AdminPanelController
 
                     if ($exists) {
 
-                        $mapper->setLangData($lang, 'name', $name);
+                        foreach ($name as $langName => $textName) {
+                            if (mb_strlen($textName) > 0) {
+                                $mapper->setLangData($langName, 'name', $textName);
+                            }
+                        }
 
                         $updated = $mapper->update();
 
@@ -782,39 +771,9 @@ class PublicationsCategoryController extends AdminPanelController
     }
 
     /**
-     * @param string $currentLang
-     * @param int $elementID
-     * @return array
-     */
-    public static function allowedLangsForSelect(string $currentLang, int $elementID)
-    {
-
-        $allowedLangsForSelect = [];
-
-        $allowedLangs = Config::get_allowed_langs();
-
-        $allowedLangs = array_filter($allowedLangs, function ($l) use ($currentLang) {
-            return $l != $currentLang;
-        });
-
-        array_unshift($allowedLangs, $currentLang);
-
-        foreach ($allowedLangs as $i) {
-
-            $value = self::routeName('forms-edit', ['id' => $elementID, 'lang' => $i]);
-
-            $allowedLangsForSelect[$value] = __('lang', $i);
-
-        }
-
-        return $allowedLangsForSelect;
-
-    }
-
-    /**
      * @inheritDoc
      */
-    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
+    public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
@@ -972,16 +931,13 @@ class PublicationsCategoryController extends AdminPanelController
                 $creation
             ),
             new Route( //Formulario de editar
-                "{$startRoute}/forms/edit/{id}/{lang}[/]",
+                "{$startRoute}/forms/edit/{id}[/]",
                 $classname . ':editForm',
                 self::$baseRouteName . '-forms-edit',
                 'GET',
                 true,
                 null,
-                $edition,
-                [
-                    'lang' => Config::get_default_lang(),
-                ]
+                $edition
             ),
 
             //JSON

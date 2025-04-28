@@ -1,6 +1,7 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-$langGroup = 'routesViewAdminZone';
+use App\Controller\AppConfigController;
+$langGroup = AppConfigController::LANG_GROUP;
 ?>
 
 <div class="container">
@@ -20,8 +21,8 @@ $langGroup = 'routesViewAdminZone';
             <div class="column">
 
                 <div class="section-title">
-                    <div class="title"><?= __($langGroup, 'Rutas y Permisos'); ?></div>
-                    <div class="subtitle"><?= __($langGroup, 'Configuración de Plataforma'); ?></div>
+                    <div class="title"><?= __($langGroup, 'Rutas y permisos'); ?></div>
+                    <div class="subtitle"><?= __($langGroup, 'Descripción_Routes_And_Permissions'); ?></div>
                 </div>
 
             </div>

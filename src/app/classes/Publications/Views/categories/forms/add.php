@@ -1,11 +1,13 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
+use PiecesPHP\Core\Config;
 
 /**
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
  */
+$defaultLang = Config::get_default_lang();
 ?>
 <section class="module-view-container">
 
@@ -28,11 +30,12 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <form method='POST' action="<?= $action; ?>" class="ui form publications-categories">
 
-                <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
-
                 <div class="field required">
-                    <label><?= __($langGroup, 'Nombre'); ?></label>
-                    <input required type="text" name="name" maxlength="300">
+                    <label>
+                        <?= __($langGroup, 'Nombre'); ?>
+                        <small>(<?= __('lang', $defaultLang); ?>)</small>
+                    </label>
+                    <input required type="text" name="name[<?= $defaultLang ?>]" maxlength="300">
                 </div>
 
                 <div class="field">

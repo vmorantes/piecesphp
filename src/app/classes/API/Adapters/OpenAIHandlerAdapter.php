@@ -38,6 +38,38 @@ class OpenAIHandlerAdapter
         $this->model = $model;
         $this->openAIClient = OpenAI::client($this->apiKey);
     }
+    /**
+     * Traducción rápida desde un contexto estático.
+     *
+     * @param array $input
+     * @param string $from
+     * @param string $to
+     * @param ?string $pattern
+     * @return array|null Array asociativo o null si no se pudo extrar un JSON de la respuesta
+     */
+    public function translate(array $input, string $from = 'es', string $to = 'en', ?string $pattern = null)
+    {
+        $jsonResponse = $this->askToChat(self::buildTranslationPrompt($input, $from, $to));
+        $jsonResponseParsed = $jsonResponse;
+        $parseJSON = function (string $jsonStr) {
+            $decoded = json_decode($jsonStr, true);
+            $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
+            return $decoded;
+        };
+        $jsonResponseParsed = ($parseJSON)($jsonResponse);
+
+        if ($jsonResponseParsed === null) {
+            if ($pattern !== null) {
+                $matches = [];
+                if (preg_match($pattern, $jsonResponse, $matches)) {
+                    $json = $matches[0];
+                    $jsonResponseParsed = ($parseJSON)($json);
+                }
+            }
+        }
+
+        return $jsonResponseParsed;
+    }
 
     /**
      * @param string $ask
@@ -195,5 +227,30 @@ class OpenAIHandlerAdapter
             }
         }
         return $this;
+    }
+
+    /**
+     * Arma el prompt para traducción.
+     *
+     * @param array $input
+     * @param string $from
+     * @param string $to
+     * @return string
+     */
+    protected static function buildTranslationPrompt(array $input, string $from, string $to): string
+    {
+        $input = (object) $input;
+        $jsonPretty = json_encode($input, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $prompt = [
+            "Haz una traducción siguiendo estos lineamientos:",
+            "- Traduce los solo los valores del JSON.",
+            "- Idioma origen: {$from}",
+            "- Idioma destino: {$to}",
+            "- Tu respuesta debe ser un JSON bien formado con las claves intactas y los valores traducidos.",
+            "Este es el JSON original:",
+            $jsonPretty,
+        ];
+        $prompt = implode("\n", $prompt);
+        return $prompt;
     }
 }
