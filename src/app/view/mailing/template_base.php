@@ -1,5 +1,6 @@
 <?php
-    $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : LANG_GROUP;
+    use App\Controller\PublicAreaController;
+    $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_GENERAL_LANG_GROUP;
     $header_image = isset($header_image) && is_string($header_image) ? $header_image : (
         is_local() ?
         "https://placehold.co/500x172.png?text=" . urlencode(get_config('title_app')) :
@@ -9,8 +10,9 @@
     $hasCode = isset($code) && is_string($code);
     $note = isset($note) && is_string($note) ? $note : '';
     $hasURL = isset($url) && is_string($url);
-    $text_button = isset($text_button) && is_string($text_button) ? $text_button : __($langGroup, 'Clic aquí');
+    $text_button = isset($text_button) && is_string($text_button) ? $text_button : __(MAILING_GENERAL_LANG_GROUP, 'Clic aquí');
     $text_footer = isset($text_footer) && is_string($text_footer) ? $text_footer : "<p><span class='owner'>" . get_config('owner') . "</span></p>";
+    $unsuscriptionURL = isset($unsuscriptionURL) && is_string($unsuscriptionURL) ? $unsuscriptionURL : PublicAreaController::routeName('unsubscribe', ['identifier' => \PiecesPHP\Core\StringManipulate::urlSafeB64Encode(uniqid())]);
 ?>
 <!DOCTYPE html>
 <html>
@@ -99,6 +101,11 @@
         font-size: 160%;
         font-weight: bold;
     }
+
+    .footer .unsuscribe a {
+        color: white !important;
+        text-decoration: underline;
+    }
     </style>
 </head>
 
@@ -133,6 +140,9 @@
         <!-- Footer Section -->
         <div class="footer">
             <?=$text_footer;?>
+            <p class="unsuscribe">
+                <?=strReplaceTemplate(__(MAILING_GENERAL_LANG_GROUP, 'UNSUSCRIBE_TEXT'), ['{{url}}' => $unsuscriptionURL]);?>
+            </p>
         </div>
     </div>
 </body>
