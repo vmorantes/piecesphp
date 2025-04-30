@@ -1,10 +1,11 @@
 /**
- * @description Mensaje modal con tipo success (toast fomantic|alert)
+ * @description Mensaje modal con tipo success (toast fomantic|alert|izitoast)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
  */
 function successMessage(title, message, onClose = null, options) {
 
@@ -37,6 +38,29 @@ function successMessage(title, message, onClose = null, options) {
 
 		$('body').toast(options)
 
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
@@ -47,12 +71,13 @@ function successMessage(title, message, onClose = null, options) {
 }
 
 /**
- * @description Mensaje modal con tipo warning (toast fomantic|alert)
+ * @description Mensaje modal con tipo warning (toast fomantic|alert|izitoast)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
  */
 function warningMessage(title, message, onClose = null, options) {
 
@@ -85,6 +110,29 @@ function warningMessage(title, message, onClose = null, options) {
 
 		$('body').toast(options)
 
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
@@ -95,12 +143,13 @@ function warningMessage(title, message, onClose = null, options) {
 }
 
 /**
- * @description Mensaje modal con tipo info (toast fomantic|alert)
+ * @description Mensaje modal con tipo info (toast fomantic|alert|izitoast)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
  */
 function infoMessage(title, message, onClose = null, options) {
 
@@ -133,6 +182,29 @@ function infoMessage(title, message, onClose = null, options) {
 
 		$('body').toast(options)
 
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {
@@ -143,12 +215,13 @@ function infoMessage(title, message, onClose = null, options) {
 }
 
 /**
- * @description Mensaje modal con tipo error (toast fomantic|alert)
+ * @description Mensaje modal con tipo error (toast fomantic|alert|izitoast)
  * @param {String} title Título del mensaje
  * @param {String} message Mensaje
  * @param {Function} onClose Callback llamado al cerrar
  * @param {Object} options Opciones
  * @see https://fomantic-ui.com/modules/toast.html#/settings
+ * @see https://marcelodolza.github.io/iziToast
  */
 function errorMessage(title, message, onClose = null, options) {
 
@@ -181,6 +254,29 @@ function errorMessage(title, message, onClose = null, options) {
 
 		$('body').toast(options)
 
+	} else if (typeof iziToast !== 'undefined' && typeof iziToast.show === 'function') {
+
+		const iziToastDefaultOptions = {
+			title: title,
+			message: message,
+			onClosing: function () {
+				if (typeof onClose == 'function') {
+					onClose()
+				}
+			},
+
+		}
+
+		for (const property in iziToastDefaultOptions) {
+			const defaultValue = iziToastDefaultOptions[property]
+			options[property] = defaultValue
+		}
+
+		if (typeof options.position !== 'string') {
+			options.position = 'topCenter'
+		}
+
+		iziToast[typeMessage](options)
 	} else {
 		window.alert(`${title}:\r\n${message}`)
 		if (typeof onClose == 'function') {

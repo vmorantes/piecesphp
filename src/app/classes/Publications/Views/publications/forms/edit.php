@@ -228,16 +228,22 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
 
                             <?php $fieldName = 'startDate'; ?>
                             <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
-                            <div class="field" calendar-group-js='periodo' start translatable="<?= $fieldHandler->isTranslatable(); ?>">
+                            <?php $fieldValue = $element->getLangData($langCode, $fieldName, false, ''); ?>
+                            <?php $fieldValue = $fieldValue instanceof \stdClass ? new \DateTime($fieldValue->date) : $fieldValue; ?>
+                            <?php $fieldValue = $fieldValue instanceof \DateTime ? $fieldValue->format('Y-m-d h:i:s A') : ''; ?>
+                            <div class="field" calendar-group-js-lang-<?= $langCode; ?>='periodo' start translatable="<?= $fieldHandler->isTranslatable(); ?>">
                                 <label><?= __($langGroup, 'Iniciar'); ?></label>
-                                <input type="text" name="<?= $fieldName; ?>" autocomplete="off" value="<?= $element->startDate !== null ? $element->startDate->format('Y-m-d h:i:s A') : ''; ?>">
+                                <input type="text" name="<?= $fieldName; ?>" autocomplete="off" value="<?= $fieldValue; ?>">
                             </div>
 
                             <?php $fieldName = 'endDate'; ?>
                             <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
-                            <div class="field" calendar-group-js='periodo' end translatable="<?= $fieldHandler->isTranslatable(); ?>">
+                            <?php $fieldValue = $element->getLangData($langCode, $fieldName, false, ''); ?>
+                            <?php $fieldValue = $fieldValue instanceof \stdClass ? new \DateTime($fieldValue->date) : $fieldValue; ?>
+                            <?php $fieldValue = $fieldValue instanceof \DateTime ? $fieldValue->format('Y-m-d h:i:s A') : ''; ?>
+                            <div class="field" calendar-group-js-lang-<?= $langCode; ?>='periodo' end translatable="<?= $fieldHandler->isTranslatable(); ?>">
                                 <label><?= __($langGroup, 'Finalizar'); ?></label>
-                                <input type="text" name="<?= $fieldName; ?>" autocomplete="off" value="<?= $element->endDate !== null ? $element->endDate->format('Y-m-d h:i:s A') : ''; ?>">
+                                <input type="text" name="<?= $fieldName; ?>" autocomplete="off" value="<?= $fieldValue; ?>">
                             </div>
 
                         </div>

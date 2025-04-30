@@ -34,7 +34,7 @@ $publicMenu = new MenuGroupCollection([
         ]),
         new MenuGroup([
             'name' => __(LANG_GROUP, 'Contacto'),
-            'visible' => true,
+            'visible' => PublicAreaController::allowedRoute('contact'),
             'asLink' => true,
             'href' => PublicAreaController::routeName('contact'),
             'position' => 90,
@@ -43,7 +43,6 @@ $publicMenu = new MenuGroupCollection([
 ]);
 
 //Menú para el blog
-
 if (PublicationsRoutes::ENABLE) {
     $menuBlogGroup = new MenuGroup([
         'name' => __(LANG_GROUP, 'Blog') . '&nbsp;&nbsp;',
@@ -130,15 +129,13 @@ if (!empty($langs)) {
 
             <?php if($element->asLink()): ?>
 
-            <a class="item<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>"
-                href="<?= $element->getHref(); ?>" <?= $element->getAttributes(true); ?>>
+            <a class="item<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>" href="<?= $element->getHref(); ?>" <?= $element->getAttributes(true); ?>>
                 <div class="text"><?= $element->getName(); ?></div>
             </a>
 
             <?php else: ?>
 
-            <span class="item menu<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>"
-                <?= $element->getAttributes(true); ?>>
+            <span class="item menu<?= $element->isCurrent() ? ' current' : '' ?><?= $elementClasses; ?>" <?= $element->getAttributes(true); ?>>
 
                 <div class="text">
                     <?= $element->getName(); ?> <i class="icon angle down"></i>
@@ -150,8 +147,7 @@ if (!empty($langs)) {
                     <?php $subElementAttributes = $subElement->getAttributes(); ?>
                     <?php $subElementClasses = array_key_exists('class', $subElementAttributes) ? ' ' . $subElementAttributes['class'] : ''; ?>
 
-                    <a class="item<?= $subElementClasses; ?>" href="<?= $subElement->getHref(); ?>"
-                        <?= $subElement->getAttributes(true); ?>>
+                    <a class="item<?= $subElementClasses; ?>" href="<?= $subElement->getHref(); ?>" <?= $subElement->getAttributes(true); ?>>
                         <?= $subElement->getText(); ?>
                     </a>
 

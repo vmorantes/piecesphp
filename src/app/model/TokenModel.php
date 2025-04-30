@@ -183,13 +183,15 @@ class TokenModel extends BaseModel
      *
      * @param array $data
      * @param string|null $code
+     * @param int $duration Minutos
+     * @param string $type
      * @return array{id:int|null,code:string,jwt:string}
      */
-    public static function addJWTWithCode(array $data = [], string $code = null, string $type = TokenController::TOKEN_GENERIC_CONTROLLER)
+    public static function addJWTWithCode(array $data = [], string $code = null, int $duration = 60, string $type = TokenController::TOKEN_GENERIC_CONTROLLER)
     {
         $code = !is_null($code) ? $code : generate_code(6, true);
         $data['code'] = $code;
-        $jwt = self::generateJWT($data);
+        $jwt = self::generateJWT($data, $duration);
         $addedTokenID = self::add($jwt, $type);
         return [
             'id' => $addedTokenID,
