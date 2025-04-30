@@ -21,6 +21,7 @@ $langInjectors = [
     PublicAreaController::LANG_REPLACE_GENERIC_TITLES => new LangInjector(basepath('app/lang/replace-generic-titles'), $langsOptions),
     ADMIN_MENU_LANG_GROUP => new LangInjector(basepath('app/lang/sidebarAdminZone'), $langsOptions),
     AdminPanelController::LANG_GROUP => new LangInjector(basepath('app/lang/adminZone'), $langsOptions),
+    MAILING_GENERAL_LANG_GROUP => new LangInjector(basepath('app/lang/mailingGeneral'), $langsOptions),
 ];
 
 foreach ($langInjectors as $group => $injector) {
