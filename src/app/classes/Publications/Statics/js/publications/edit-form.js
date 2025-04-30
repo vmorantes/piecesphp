@@ -164,6 +164,9 @@ window.addEventListener('load', function () {
 			}
 		})
 
+		//Calendar
+		configGroupCalendar(`calendar-group-js-lang-${lang}`)
+
 		//Adjuntos
 		const attachments = {}
 		let indexAttachment = 1
@@ -226,6 +229,9 @@ window.addEventListener('load', function () {
 			toast: false,
 			onSuccess: function (formProcess, formData, response) {
 				successMessage(`<small>(${translationsLangs[lang]})</small> ${response.name}`, response.message)
+			},
+			onError: function (formProcess, formData, response) {
+				errorMessage(`<small>(${translationsLangs[lang]})</small> ${response.name}`, response.message)
 			},
 		})
 		let form = formsByLang.get(lang).form

@@ -119,3 +119,4 @@ define('MAIL_TEMPLATES_LANG_GROUP', 'mailTemplates');
 define('USER_LOGIN_LANG_GROUP', 'userLogin');
 define('GENERAL_LANG_GROUP', 'general');
 define('LANG_GROUP', 'public');
+define('MAILING_GENERAL_LANG_GROUP', 'mailingGeneral');

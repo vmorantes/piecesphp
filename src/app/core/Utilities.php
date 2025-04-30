@@ -1374,6 +1374,8 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
             $thumbHeight = $newHeight;
         }
 
+        $thumbWidth = intval($thumbWidth);
+        $thumbHeight = intval($thumbHeight);
         $thumbImage = imagecreatetruecolor($thumbWidth, $thumbHeight);
         if ($asPng) {
             imagesavealpha($thumbImage, true);
@@ -1382,10 +1384,16 @@ function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHe
         }
 
         // Redimencionar y cortar
+        $centerH = intval(0 - ($newWidth - $thumbWidth) / 2);
+        $centerV = intval(0 - ($newHeight - $thumbHeight) / 2);
+        $newWidth = intval($newWidth);
+        $newHeight = intval($newHeight);
+        $width = intval($width);
+        $height = intval($height);
         imagecopyresampled($thumbImage,
             $imageResource,
-            0 - ($newWidth - $thumbWidth) / 2, // Centra la image horizontalmente
-            0 - ($newHeight - $thumbHeight) / 2, // Centra la image verticalmente
+            $centerH, // Centra la image horizontalmente
+            $centerV, // Centra la image verticalmente
             0, 0,
             $newWidth, $newHeight,
             $width, $height);

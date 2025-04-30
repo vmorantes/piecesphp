@@ -89,12 +89,16 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             'statics/css/style.css',
         ], 'css');
 
-        set_custom_assets([
+        $assetsJS = [
             PublicationsController::pathFrontPublicationsAdapter(),
             BuiltInBannerController::pathFrontBuiltInBannerAdapter(),
             BuiltInBannerRoutes::staticRoute('js/public/home.js'),
             'statics/js/main.js',
-        ], 'js');
+        ];
+        $assetsJS = array_filter($assetsJS, function ($e) {return mb_strlen($e) > 0;});
+        if (!empty($assetsJS)) {
+            set_custom_assets($assetsJS, 'js');
+        }
 
         $data = [
             'ajaxArticlesURL' => PublicationsPublicController::routeName('ajax-all', [], true),
@@ -144,6 +148,18 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         $this->render('pages/contact', []);
         $this->render('layout/footer');
 
+        return $res;
+    }
+
+    /**
+     * @param Request $req
+     * @param Response $res
+     * @return Response
+     */
+    public function unsubscribeView(Request $req, Response $res)
+    {
+        set_title(__(LANG_GROUP, 'Unsubscribe'));
+        echo "OK";
         return $res;
     }
 
@@ -378,7 +394,10 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         //──── GET ─────────────────────────────────────────────────────────────────────────
 
         //Generales
-        $group->register([
+        $ignoreRoutes = [
+            "{$namePrefix}-SAMPLE",
+        ];
+        $routes = array_filter([
             new Route(
                 "{$startRoute}[/]",
                 self::class . ":indexView",
@@ -389,6 +408,12 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 "{$startRoute}/contact[/]",
                 self::class . ":contactView",
                 "{$namePrefix}-contact",
+                'GET'
+            ),
+            new Route(
+                "{$startRoute}/unsubscribe/{identifier}[/]",
+                self::class . ":unsubscribeView",
+                "{$namePrefix}-unsubscribe",
                 'GET'
             ),
             new Route(
@@ -403,8 +428,11 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 "{$namePrefix}-generic-2",
                 'GET'
             ),
-        ]);
+        ], function ($e) use ($ignoreRoutes) {
+            return !in_array($e->name(), $ignoreRoutes);
+        });
 
+        $group->register($routes);
         //──── POST ─────────────────────────────────────────────────────────────────────────
 
         //Otros controladores asociados
