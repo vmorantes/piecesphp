@@ -15,7 +15,7 @@ window.addEventListener('load', function (e) {
 			perPage: 3,
 			containerSelector: articlesContainerSelector,
 			loadMoreTriggerSelector: '[load-more-articles]',
-			onDraw: (item, parsed) => {
+			onDraw: (item, parsed, container) => {
 				//Recibo el item y devuelvo el HTML
 				return item
 			},

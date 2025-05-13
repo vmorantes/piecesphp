@@ -19,20 +19,31 @@ use Publications\Util\FieldTranslationUtility;
  */
 
 $langs = Config::get_allowed_langs();
-$defaultLang = Config::get_default_lang();
-$currentLang = isset($selectedLang) && is_string($selectedLang) && in_array($selectedLang, $langs) ? $selectedLang : $defaultLang;
+$baseLang = $element->baseLang;
+$currentLang = isset($selectedLang) && is_string($selectedLang) && in_array($selectedLang, $langs) ? $selectedLang : $baseLang;
 $langsTabs = [];
-$translatableProperties = $element->getTranslatableProperties();
-array_map(function ($lang) use (&$langsTabs) {
+
+//== Ordenar con el idioma base primero ==
+//==Se agrega el idioma base
+$langsTabs[$baseLang] = __('lang', $baseLang);
+//==Se agregan el resto de idiomas ordenados alfabéticamente
+$otherLangs = array_filter($langs, function($lang) use ($baseLang) {
+    return $lang !== $baseLang;
+});
+sort($otherLangs);
+//==Se mezclan los idiomas
+foreach ($otherLangs as $lang) {
     $langsTabs[$lang] = __('lang', $lang);
-}, $langs);
+}
+
+$translatableProperties = $element->getTranslatableProperties();
 $fields = array_keys($element->getFields());
 $fieldsHandler = [];
 foreach ($fields as $fieldName) {
     $fieldsHandler[$fieldName] = new FieldTranslationUtility(
         $element,
         $fieldName,
-        $defaultLang,
+        $baseLang,
         $currentLang,
         in_array($fieldName, $translatableProperties)
     );
@@ -42,10 +53,11 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
         $fieldsHandler[$fieldHandler->fieldName()]->currentLang($lang);
     }
 };
+$withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 ?>
 
 <template variables>
-    <var name="defaultLang" value="<?= base64_encode($defaultLang); ?>"></var>
+    <var name="baseLang" value="<?= base64_encode($baseLang); ?>"></var>
     <var name="translatableProperties" value="<?= base64_encode(json_encode($translatableProperties)); ?>"></var>
     <var name="translationsLangs" value="<?= base64_encode(json_encode($langsTabs)); ?>"></var>
 </template>
@@ -78,24 +90,23 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
 
         <?php foreach($langsTabs as $langCode => $langName): ?>
         <?php $activeLang = $currentLang == $langCode; ?>
-        <?php $isDefaultLang = $defaultLang == $langCode; ?>
+        <?php $isBaseLang = $baseLang == $langCode; ?>
         <?php $switchFieldsLang($langCode); ?>
         <div class="ui<?= $activeLang ? ' active' : ''; ?> tab" data-tab="<?= $langCode; ?>" lang-container="<?= $langCode; ?>">
 
             <div class="tabs-controls">
                 <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
                 <div data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
-                <div data-tab="details" <?= !$isDefaultLang ? 'style="display:none;"' : '' ?>><?= __($langGroup, 'Detalles'); ?></div>
-                <div data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
+                <div data-tab="details" <?= !$isBaseLang ? 'style="display:none;"' : '' ?>><?= __($langGroup, 'Detalles'); ?></div>
+                <div data-tab="attachments" style="<?= $withAttachments ? '' : 'display:none;' ?>"><?= __($langGroup, 'Anexos'); ?></div>
                 <div data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
+                <?php if(!$isBaseLang && APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable')):?>
+                <button class="ui right labeled icon button brand-color" do-translation from-lang="<?= $baseLang; ?>" to-lang="<?= $langCode; ?>">
+                    <?= __($langGroup, 'Traducir'); ?><i class="language icon"></i>
+                </button>
+                <br><br>
+                <?php endif; ?>
             </div>
-
-            <?php if(!$isDefaultLang && APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable')):?>
-            <button class="ui right labeled icon button brand-color" do-translation from-lang="<?= $defaultLang; ?>" to-lang="<?= $langCode; ?>">
-                <?= __($langGroup, 'Traducir'); ?><i class="language icon"></i>
-            </button>
-            <br><br>
-            <?php endif; ?>
 
             <div class="container-standard-form">
 
@@ -110,7 +121,7 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
                         <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
                         <div class="field required" translatable="<?= $fieldHandler->isTranslatable(); ?>">
                             <label><?= __($langGroup, 'Nombre'); ?></label>
-                            <input required type="text" name="title" maxlength="300" value="<?= $element->getLangData($langCode, 'title', false, ''); ?>">
+                            <input required type="text" name="title" maxlength="300" value="<?= $element->getLangData($langCode, 'title', false, ''); ?>" placeholder=" ">
                         </div>
 
                         <?php $fieldName = 'author'; ?>
@@ -160,6 +171,11 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
                     </div>
 
                     <div class="ui tab" data-tab="images">
+
+                        <p>
+                            <strong><?=__($langGroup, 'Si reemplaza las imágenes, estas solo serán visibles en la publicación de este idioma'); ?></strong>
+                        </p>
+                        <br>
 
                         <div class="form-attachments-regular">
                             <?php $fieldName = 'mainImage'; ?>
@@ -252,6 +268,11 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
 
                     <div class="ui tab" data-tab="seo">
 
+                        <p>
+                            <strong><?=__($langGroup, 'Si reemplaza la imagen, esta solo serán visibles en la publicación de este idioma.'); ?></strong>
+                        </p>
+                        <br>
+
                         <?php $fieldName = 'ogImage'; ?>
                         <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
                         <div class="attach-placeholder og-image-<?= $langCode; ?>" translatable="<?= $fieldHandler->isTranslatable(); ?>">
@@ -287,9 +308,12 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
 
                     </div>
 
-                    <div class="ui tab" data-tab="attachments">
+                    <div class="ui tab" data-tab="attachments" style="<?= $withAttachments ? '' : 'display:none;' ?>">
 
-                        <h4 class="ui dividing header"><?= __($langGroup, 'Anexos'); ?></h4>
+                        <p>
+                            <strong><?=__($langGroup, 'Si reemplaza los anexos, estos solo serán visibles en la publicación de este idioma.'); ?></strong>
+                        </p>
+                        <br>
 
                         <div class="two fields">
 
@@ -326,7 +350,6 @@ $switchFieldsLang = function($lang) use (&$fieldsHandler){
                             <?php endforeach; ?>
 
                         </div>
-
 
                     </div>
 

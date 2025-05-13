@@ -2,7 +2,7 @@
 /**
  * @param {RichEditorAdapterOptions} adapterOptions 
  * @param {Array} [toolbar=null] 
- * @param {Boolean} [silentError=true] 
+ * @param {Boolean} [silentError=true]
  */
 function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentError = true) {
 	//──── Types ─────────────────────────────────────────────────────────────────────────────
@@ -22,6 +22,11 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	 * @property {RichEditorAdapterComponent}
 	 */
 	let instance = this;
+
+	/**
+	 * @property {HTMLElement}
+	 */
+	let eventer = document.createElement('div')
 
 	/**
 	 * @property {String}
@@ -155,6 +160,13 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 
 	//──── Methods ───────────────────────────────────────────────────────────────────────────
 
+	this.on = function (event, callback) {
+		eventer.addEventListener(event, callback)
+	}
+
+	this.off = function (event, callback) {
+		eventer.removeEventListener(event, callback)
+	}
 
 	//──── Functions ─────────────────────────────────────────────────────────────────────────
 
@@ -275,12 +287,24 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 					editorInstance.setData(value)
 				}
 
+				textareaTarget.get(0).getRichEditorData = function () {
+					return editorInstance.getData()
+				}
+
+				textareaTarget.get(0).onChangeRichEditor = function (callback) {
+					editorInstance.model.document.on('change:data', () => {
+						callback(instance, editorInstance.getData())
+					})
+				}
+
 				CKFinder.execute = () => {
 					explorerHandler(uploadTargetHash)
 				}
 				fileRepository.createUploadAdapter = loader => {
 					return new UploadAdapter(loader)
 				}
+
+				eventer.dispatchEvent(new Event(RichEditorAdapterComponent.events.instanceReady))
 
 			})
 			.catch(error => {
@@ -496,8 +520,13 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 	return instance
 }
 
-RichEditorAdapterComponent.componentsSelectors = []/**
+RichEditorAdapterComponent.events = {
+	instanceReady: 'instanceReady',
+}
 
+RichEditorAdapterComponent.componentsSelectors = []
+
+/**
 * @param {String} name 
 * @returns {void}
 */

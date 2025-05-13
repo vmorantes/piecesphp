@@ -15,12 +15,21 @@ use PiecesPHP\Core\Config;
  */
 
 $langs = Config::get_allowed_langs();
-$defaultLang = Config::get_default_lang();
+$baseLang = $element->baseLang;
 $langsTabs = [];
 $translatableProperties = $element->getTranslatableProperties();
-array_map(function ($lang) use (&$langsTabs) {
+//== Ordenar con el idioma base primero ==
+//==Se agrega el idioma base
+$langsTabs[$baseLang] = __('lang', $baseLang);
+//==Se agregan el resto de idiomas ordenados alfabéticamente
+$otherLangs = array_filter($langs, function($lang) use ($baseLang) {
+    return $lang !== $baseLang;
+});
+sort($otherLangs);
+//==Se mezclan los idiomas
+foreach ($otherLangs as $lang) {
     $langsTabs[$lang] = __('lang', $lang);
-}, $langs);
+}
 ?>
 <section class="module-view-container">
 
@@ -44,17 +53,18 @@ array_map(function ($lang) use (&$langsTabs) {
             <form method='POST' action="<?= $action; ?>" class="ui form publications-categories <?= $detailMode ? 'detail-mode' : ''; ?>">
 
                 <input type="hidden" name="id" value="<?= $element->id; ?>">
+                <input type="hidden" name="baseLang" value="<?= $baseLang; ?>">
 
                 <div class="field required">
                     <label>
                         <?= __($langGroup, 'Nombre'); ?>
-                        <small>(<?= __('lang', $defaultLang); ?>)</small>
+                        <small>(<?= __('lang', $baseLang); ?>)</small>
                     </label>
-                    <input required type="text" name="name[<?= $defaultLang ?>]" maxlength="300" value="<?= $element->getLangData($defaultLang, 'name', false, ''); ?>">
+                    <input required type="text" name="name[<?= $baseLang ?>]" maxlength="300" value="<?= $element->getLangData($baseLang, 'name', false, ''); ?>">
                 </div>
 
                 <?php foreach($langsTabs as $langCode => $langName): ?>
-                <?php if($defaultLang !== $langCode): ?>
+                <?php if($baseLang !== $langCode): ?>
                 <div class="field">
                     <label>
                         <?= __($langGroup, 'Nombre'); ?>

@@ -243,7 +243,8 @@ class OpenAIHandlerAdapter
         $jsonPretty = json_encode($input, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $prompt = [
             "Haz una traducción siguiendo estos lineamientos:",
-            "- Traduce los solo los valores del JSON.",
+            "- Traduce los solo los valores del JSON (no los nombres de las claves).",
+            "- Preserva todos los caracteres especiales (como saltos de línea, tabulaciones, entidades HTML, etc.)",
             "- Idioma origen: {$from}",
             "- Idioma destino: {$to}",
             "- Tu respuesta debe ser un JSON bien formado con las claves intactas y los valores traducidos.",

@@ -16,6 +16,7 @@ use App\Controller\AvatarController;
 use App\Controller\RecoveryPasswordController;
 use App\Controller\UserProblemsController;
 use App\Controller\UsersController;
+use App\Model\AppConfigModel;
 use App\Model\AvatarModel;
 use App\Model\RecoveryPasswordModel;
 use App\Model\TicketsLogModel;
@@ -31,6 +32,7 @@ use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
+use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
@@ -462,129 +464,345 @@ class APIController extends AdminPanelController
      */
     public function translations(Request $request, Response $response)
     {
+        $actionType = $request->getAttribute('actionType', 'translate');
+
+        //Acciones permitidas
+        $allowedActions = [
+            get_config('translationAIEnable') ? 'translate' : uniqid(),
+            'saveGroup',
+        ];
+        if (!in_array($actionType, $allowedActions)) {
+            throw new NotFoundException($request, $response);
+        }
+
         //Selección de idioma de respuesta
         $lang = Config::get_lang();
         $expectedLang = get_config('responseExpectedLang');
         $lang = is_string($expectedLang) && mb_strlen($expectedLang) > 1 ? $expectedLang : $lang;
         set_config('app_lang', $lang);
 
+        //Obtener dominio actual y verificar si la petición es del mismo dominio
+        $isSameDomain = requestIsSameDomain();
+
         $method = mb_strtoupper($request->getMethod());
+        $responseJSON = [
+            'success' => false,
+            'message' => '',
+        ];
 
-        if ($method === 'GET') {
+        try {
+            if ($method === 'GET' || $method === 'POST') {
 
-            $expectedParameters = new Parameters([
-                new Parameter(
-                    'text',
-                    null,
-                    function ($value) {
-                        return is_string($value) || is_array($value) || is_null($value);
-                    },
-                    false,
-                    function ($value) {
-                        $jsonParsed = null;
-                        $parseJSON = function (string $jsonStr) {
-                            $decoded = json_decode($jsonStr, true);
-                            $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
-                            return $decoded;
-                        };
-                        if (is_string($value)) {
+                if ($actionType == 'translate') {
 
-                            //Intentar convertir a JSON directamente
-                            $jsonParsed = ($parseJSON)($value);
-                            //Tratar de decodificar Base 64
-                            if ($jsonParsed == null) {
-                                $base64Decoded = url_safe_base64_decode($value);
-                                $jsonParsed = ($parseJSON)($base64Decoded);
+                    $expectedParameters = new Parameters([
+                        new Parameter(
+                            'text',
+                            null,
+                            function ($value) {
+                                return is_string($value) || is_array($value) || is_null($value);
+                            },
+                            false,
+                            function ($value) {
+                                $jsonParsed = null;
+                                $parseJSON = function (string $jsonStr) {
+                                    $decoded = json_decode($jsonStr, true);
+                                    $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
+                                    return $decoded;
+                                };
+                                if (is_string($value)) {
+
+                                    //Intentar convertir a JSON directamente
+                                    $jsonParsed = ($parseJSON)($value);
+                                    //Tratar de decodificar Base 64
+                                    if ($jsonParsed == null) {
+                                        $base64Decoded = url_safe_base64_decode($value);
+                                        $jsonParsed = ($parseJSON)($base64Decoded);
+                                    }
+
+                                }
+                                return $jsonParsed;
+                            }
+                        ),
+                        new Parameter(
+                            'from',
+                            null,
+                            function ($value) {
+                                return is_string($value);
+                            },
+                            false,
+                            function ($value) {
+                                return $value;
+                            }
+                        ),
+                        new Parameter(
+                            'to',
+                            null,
+                            function ($value) {
+                                return is_string($value);
+                            },
+                            false,
+                            function ($value) {
+                                return $value;
+                            }
+                        ),
+                    ]);
+
+                    if ($method === 'POST') {
+                        $inputValues = $request->getParsedBody();
+                    } else {
+                        $inputValues = $request->getQueryParams();
+                    }
+                    $expectedParameters->setInputValues($inputValues);
+                    $expectedParameters->validate();
+
+                    /**
+                     * @var array<string,string>|null $text
+                     * @var string $from
+                     * @var string $to
+                     */
+                    $text = $expectedParameters->getValue('text');
+                    $from = $expectedParameters->getValue('from');
+                    $to = $expectedParameters->getValue('to');
+
+                    $translationAI = get_config('translationAI');
+                    $modelOpenAI = get_config('modelOpenAI');
+                    $modelMistral = get_config('modelMistral');
+                    $aiHandler = null;
+
+                    if ($translationAI == AI_OPENAI) {
+                        $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
+                    } elseif ($translationAI == AI_MISTRAL) {
+                        $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
+                    }
+
+                    $responseJSON = [
+                        'success' => false,
+                        'message' => '',
+                        'result' => [
+                            'text' => $text,
+                            'from' => $from,
+                            'to' => $to,
+                            'translation' => null,
+                        ],
+                        'error' => null,
+                        'AI' => [
+                            'provider' => $translationAI,
+                            'modelOpenAI' => $modelOpenAI,
+                            'modelMistral' => $modelMistral,
+                        ],
+                    ];
+
+                    try {
+                        $translation = $aiHandler->translate($text, $from, $to, '/\{(?:[^{}]|(?R))*\}/');
+                        if ($translation !== null) {
+                            $responseJSON['success'] = true;
+                            $responseJSON['result']['translation'] = $translation;
+                            $responseJSON['message'] = __(self::LANG_GROUP, 'La traducción se realizó con éxito.');
+                        } else {
+                            $responseJSON['message'] = __(self::LANG_GROUP, 'No pudo efectuarse la traducción, intente más tarde.');
+                        }
+                    } catch (\Throwable $e) {
+                        $responseJSON['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error con el servicio de traducción, intente más tarde.');
+                        $responseJSON['error'] = $e->getMessage();
+                    }
+
+                } elseif ($actionType == 'saveGroup') {
+
+                    $expectedParameters = new Parameters([
+                        new Parameter(
+                            'text',
+                            null,
+                            function ($value) {
+                                return is_string($value) || is_array($value) || is_null($value);
+                            },
+                            false,
+                            function ($value) {
+                                $jsonParsed = null;
+                                $parseJSON = function (string $jsonStr) {
+                                    $decoded = json_decode($jsonStr, true);
+                                    $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
+                                    return $decoded;
+                                };
+                                if (is_string($value)) {
+
+                                    //Intentar convertir a JSON directamente
+                                    $jsonParsed = ($parseJSON)($value);
+                                    //Tratar de decodificar Base 64
+                                    if ($jsonParsed == null) {
+                                        $base64Decoded = url_safe_base64_decode($value);
+                                        $jsonParsed = ($parseJSON)($base64Decoded);
+                                    }
+
+                                }
+                                return $jsonParsed;
+                            }
+                        ),
+                        new Parameter(
+                            'to',
+                            null,
+                            function ($value) {
+                                return is_string($value);
+                            },
+                            false,
+                            function ($value) {
+                                return $value;
+                            }
+                        ),
+                        new Parameter(
+                            'saveGroup',
+                            null,
+                            function ($value) {
+                                return is_string($value);
+                            },
+                            false,
+                            function ($value) {
+                                return $value;
+                            }
+                        ),
+                        new Parameter(
+                            'database',
+                            false,
+                            function ($value) {
+                                return is_string($value) || is_bool($value);
+                            },
+                            true,
+                            function ($value) {
+                                return $value === 'yes';
+                            }
+                        ),
+                    ]);
+
+                    if ($method === 'POST') {
+                        $inputValues = $request->getParsedBody();
+                    } else {
+                        $inputValues = $request->getQueryParams();
+                    }
+                    $expectedParameters->setInputValues($inputValues);
+                    $expectedParameters->validate();
+
+                    /**
+                     * @var array<string,string>|null $text
+                     * @var string $to
+                     * @var string $saveGroup
+                     * @var bool $database
+                     */
+                    $text = $expectedParameters->getValue('text');
+                    $to = $expectedParameters->getValue('to');
+                    $saveGroup = $expectedParameters->getValue('saveGroup');
+                    $database = $expectedParameters->getValue('database');
+
+                    $responseJSON = [
+                        'success' => false,
+                        'message' => '',
+                        'error' => null,
+                    ];
+
+                    if ($isSameDomain) {
+
+                        if ($database) {
+
+                            $responseJSON['success'] = true;
+                            $translationsDatabaseName = 'dynamicTranslations';
+                            $translationsDatabase = new AppConfigModel($translationsDatabaseName);
+                            $translationsDatabase->name = $translationsDatabaseName;
+                            $currentTranslationsDatabase = $translationsDatabase->value;
+                            $currentTranslationsDatabase = is_string($currentTranslationsDatabase) ? base64_decode($currentTranslationsDatabase) : null;
+                            $currentTranslationsDatabase = is_string($currentTranslationsDatabase) ? @json_decode($currentTranslationsDatabase, true) : null;
+                            $currentTranslationsDatabase = is_array($currentTranslationsDatabase) ? $currentTranslationsDatabase['data'] : null;
+
+                            $baseTranslationsDatabase = [
+                                $to => [
+                                    $saveGroup => [],
+                                ],
+                            ];
+                            $currentTranslationsDatabase = $currentTranslationsDatabase !== null ? objectToArray($currentTranslationsDatabase) : $baseTranslationsDatabase;
+
+                            if (!array_key_exists($to, $currentTranslationsDatabase)) {
+                                $currentTranslationsDatabase[$to] = [];
+                            }
+                            if (!array_key_exists($saveGroup, $currentTranslationsDatabase[$to])) {
+                                $currentTranslationsDatabase[$to][$saveGroup] = [];
+                            }
+
+                            $finalTranslationsDatabase = $currentTranslationsDatabase;
+                            $finalTranslationsDatabase[$to][$saveGroup] = array_merge($finalTranslationsDatabase[$to][$saveGroup], $text);
+                            $translationsDatabase->value = base64_encode(json_encode([
+                                'data' => $finalTranslationsDatabase,
+                                'updated' => date('Y-m-d H:i:s'),
+                            ], \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
+
+                            if ($translationsDatabase->id !== null) {
+                                $translationsDatabase->update();
+                            } else {
+                                $translationsDatabase->save();
+                            }
+
+                        } else {
+
+                            if (is_string($saveGroup) && mb_strlen($saveGroup) > 0) {
+
+                                $responseJSON['success'] = true;
+                                $langDynamicTranslationsPath = basepath('app/lang/dynamic-translations/');
+                                $langDynamicTranslationsLangPath = append_to_path_system($langDynamicTranslationsPath, $to);
+                                $langDynamicTranslationsDirectoryExists = file_exists($langDynamicTranslationsPath);
+                                $langDynamicTranslationsLangDirectoryExists = file_exists($langDynamicTranslationsLangPath);
+
+                                if (!$langDynamicTranslationsDirectoryExists) {
+                                    mkdir($langDynamicTranslationsPath, 0777, true);
+                                }
+                                if (!$langDynamicTranslationsLangDirectoryExists) {
+                                    mkdir($langDynamicTranslationsLangPath, 0777, true);
+                                }
+
+                                $langDynamicTranslationsLangGroupPath = append_to_path_system($langDynamicTranslationsLangPath, "{$saveGroup}.php");
+                                $langDynamicTranslationsLangGroupFileExists = file_exists($langDynamicTranslationsLangGroupPath);
+                                $arrayLangVariableName = "\$dynamicTranslation_{$saveGroup}";
+
+                                if (!$langDynamicTranslationsLangGroupFileExists) {
+                                    file_put_contents($langDynamicTranslationsLangGroupPath, [
+                                        "<?php\n",
+                                        "{$arrayLangVariableName} = [];\n\n",
+                                        "return {$arrayLangVariableName};\n",
+                                    ]);
+                                    chmod($langDynamicTranslationsLangGroupPath, 0777);
+                                }
+
+                                $currentTranslations = include $langDynamicTranslationsLangGroupPath;
+                                $translatedTexts = [];
+                                $langDynamicTranslationsLangGroupPathContent = file_get_contents($langDynamicTranslationsLangGroupPath);
+                                foreach ($text as $originalText => $translatedText) {
+                                    $originalText = str_replace('"', '\\"', $originalText);
+                                    $translatedText = str_replace('"', '\\"', $translatedText);
+                                    if (!array_key_exists($originalText, $currentTranslations)) {
+                                        $translatedTexts[] = "{$arrayLangVariableName}[\"{$originalText}\"] = \"{$translatedText}\";";
+                                    }
+                                }
+
+                                $translatedTexts = implode("\n", $translatedTexts);
+                                $langDynamicTranslationsLangGroupPathContent = str_replace("return {$arrayLangVariableName};", "{$translatedTexts}\n\nreturn {$arrayLangVariableName};", $langDynamicTranslationsLangGroupPathContent);
+                                file_put_contents($langDynamicTranslationsLangGroupPath, $langDynamicTranslationsLangGroupPathContent);
+
                             }
 
                         }
-                        return $jsonParsed;
+
+                    } else {
+                        throw new NotFoundException($request, $response);
                     }
-                ),
-                new Parameter(
-                    'from',
-                    null,
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    false,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-                new Parameter(
-                    'to',
-                    null,
-                    function ($value) {
-                        return is_string($value);
-                    },
-                    false,
-                    function ($value) {
-                        return $value;
-                    }
-                ),
-            ]);
 
-            $expectedParameters->setInputValues($request->getQueryParams());
-            $expectedParameters->validate();
-
-            /**
-             * @var array<string,string>|null $text
-             * @var string $from
-             * @var string $to
-             */
-            $text = $expectedParameters->getValue('text');
-            $from = $expectedParameters->getValue('from');
-            $to = $expectedParameters->getValue('to');
-
-            $translationAI = get_config('translationAI');
-            $modelOpenAI = get_config('modelOpenAI');
-            $modelMistral = get_config('modelMistral');
-            $aiHandler = null;
-
-            if ($translationAI == AI_OPENAI) {
-                $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
-            } elseif ($translationAI == AI_MISTRAL) {
-                $aiHandler = new MistralHandlerAdapter(get_config('MistralAIApiKey'), $modelMistral);
-            }
-
-            $responseJSON = [
-                'success' => false,
-                'message' => '',
-                'result' => [
-                    'text' => $text,
-                    'from' => $from,
-                    'to' => $to,
-                    'translation' => null,
-                ],
-                'error' => null,
-                'AI' => [
-                    'provider' => $translationAI,
-                    'modelOpenAI' => $modelOpenAI,
-                    'modelMistral' => $modelMistral,
-                ],
-            ];
-
-            try {
-                $translation = $aiHandler->translate($text, $from, $to, '/\{(?:[^{}]|(?R))*\}/');
-                if ($translation !== null) {
-                    $responseJSON['success'] = true;
-                    $responseJSON['result']['translation'] = $translation;
-                    $responseJSON['message'] = __(self::LANG_GROUP, 'La traducción se realizó con éxito.');
-                } else {
-                    $responseJSON['message'] = __(self::LANG_GROUP, 'No pudo efectuarse la traducción, intente más tarde.');
                 }
-            } catch (\Throwable $e) {
-                $responseJSON['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error con el servicio de traducción, intente más tarde.');
-                $responseJSON['error'] = $e->getMessage();
+
+                return $response->withJson($responseJSON);
+
+            } else {
+                throw new NotFoundException($request, $response);
             }
-
-            return $response->withJson($responseJSON);
-
-        } else {
-            throw new NotFoundException($request, $response);
+        } catch (MissingRequiredParamaterException $e) {
+            $responseJSON['success'] = false;
+            $responseJSON['error'] = $e->getMessage();
+            $response = $response->withJson($responseJSON);
         }
-
         return $response;
     }
 
@@ -1228,14 +1446,26 @@ class APIController extends AdminPanelController
 
             //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
             //JSON
-            new Route( //Rutas de traducciones
+            new Route( //Rutas de traducciones (corta)
                 "{$startRoute}/translations[/]",
                 $classname . ':translations',
                 self::$baseRouteName . '-translations-actions',
-                'GET',
+                'GET|POST',
                 true,
                 null,
                 $translations,
+                [
+                    'actionType' => 'translate',
+                ]
+            ),
+            new Route( //Rutas de traducciones (larga)
+                "{$startRoute}/translations/{actionType}[/]",
+                $classname . ':translations',
+                self::$baseRouteName . '-translations-actions-full',
+                'GET|POST',
+                true,
+                null,
+                $translations
             ),
 
         ];
@@ -1244,11 +1474,11 @@ class APIController extends AdminPanelController
             $routes = array_merge($routes, $routesGeneral);
         }
 
-        if (APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable')) {
+        if (APIRoutes::ENABLE_TRANSLATIONS) {
             $routes = array_merge($routes, $routesTranslation);
         }
 
-        if (APIRoutes::ENABLE || (APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable'))) {
+        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS) {
             $group->register($routes);
 
             $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {

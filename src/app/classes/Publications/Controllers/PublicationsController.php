@@ -152,11 +152,14 @@ class PublicationsController extends AdminPanelController
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
+        $langsOptions = array_to_html_options(HelperController::getLangsForSelect(), Config::get_default_lang());
+
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
         $data['description'] = $description;
+        $data['langsOptions'] = $langsOptions;
         $data['allCategories'] = $allCategories;
         $data['attachmentGroup1'] = $attachmentGroup1;
         $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
@@ -344,6 +347,25 @@ class PublicationsController extends AdminPanelController
                 }
             ),
             new Parameter(
+                'baseLang',
+                null,
+                function ($value) {
+                    $valid = is_string($value) && mb_strlen(trim($value)) > 0;
+                    $allowedLangs = Config::get_allowed_langs();
+                    if ($valid) {
+                        $valid = in_array($value, $allowedLangs);
+                        if (!$valid) {
+                            throw new SafeException(__(self::LANG_GROUP, 'El idioma seleccionado no es válido.'));
+                        }
+                    }
+                    return $valid;
+                },
+                true,
+                function ($value) {
+                    return is_string($value) && mb_strlen(trim($value)) > 0 ? $value : Config::get_default_lang();
+                }
+            ),
+            new Parameter(
                 'lang',
                 null,
                 function ($value) {
@@ -517,6 +539,7 @@ class PublicationsController extends AdminPanelController
              * @var int $id
              * @var int $author
              * @var string $lang
+             * @var string $baseLang
              * @var string $title
              * @var string $content
              * @var string $seoDescription
@@ -531,6 +554,7 @@ class PublicationsController extends AdminPanelController
             $id = $expectedParameters->getValue('id');
             $author = $expectedParameters->getValue('author');
             $lang = $expectedParameters->getValue('lang');
+            $baseLang = $expectedParameters->getValue('baseLang');
             $title = $expectedParameters->getValue('title');
             $content = $expectedParameters->getValue('content');
             $seoDescription = $expectedParameters->getValue('seoDescription');
@@ -540,6 +564,7 @@ class PublicationsController extends AdminPanelController
             $endDate = $expectedParameters->getValue('endDate');
             $featured = $expectedParameters->getValue('featured') == PublicationMapper::FEATURED ? PublicationMapper::FEATURED : PublicationMapper::UNFEATURED;
             $draft = $expectedParameters->getValue('draft');
+            $toTranslation = $request->getParsedBodyParam('toTranslation', 'no') == 'yes';
 
             $attachmentsTypes = [];
             foreach ($attachmentsConfigure as $attachmentConfigure) {
@@ -572,8 +597,11 @@ class PublicationsController extends AdminPanelController
                 if (!$isEdit) {
                     //Nuevo
 
+                    //En creación $lang es el idioma base
+                    $lang = $baseLang;
                     $mapper = new PublicationMapper();
 
+                    $mapper->baseLang = $baseLang;
                     $mapper->setLangData($lang, 'title', $title);
                     $mapper->setLangData($lang, 'content', $content);
                     $mapper->setLangData($lang, 'seoDescription', $seoDescription);
@@ -629,12 +657,25 @@ class PublicationsController extends AdminPanelController
 
                         }
 
-                        $resultOperation
-                            ->setMessage($successCreateMessage)
-                            ->setValue('redirect', true)
-                            ->setValue('redirect_to', self::routeName('forms-edit', [
-                                'id' => $mapper->id,
-                            ]));
+                        if ($toTranslation) {
+                            $toLang = $baseLang;
+                            $allowedLangs = array_filter(Config::get_allowed_langs(), function ($lang) use ($toLang) {
+                                return $lang != $toLang;
+                            });
+                            $toLang = array_key_exists(0, $allowedLangs) ? $allowedLangs[0] : $toLang;
+
+                            $resultOperation
+                                ->setMessage($successCreateMessage)
+                                ->setValue('redirect', true)
+                                ->setValue('redirect_to', self::routeName('forms-edit', [
+                                    'id' => $mapper->id,
+                                ]) . '?lang=' . $toLang);
+                        } else {
+                            $resultOperation
+                                ->setMessage($successCreateMessage)
+                                ->setValue('redirect', true)
+                                ->setValue('redirect_to', self::routeName('list'));
+                        }
 
                     } else {
                         $resultOperation->setMessage($unknowErrorMessage);
@@ -648,10 +689,10 @@ class PublicationsController extends AdminPanelController
 
                     if ($exists) {
 
-                        $defaultLang = Config::get_default_lang();
-                        $isDefaultLang = $lang == $defaultLang;
+                        $baseLang = $mapper->baseLang;
+                        $isBaseLang = $lang == $baseLang;
                         $translationData = clone $mapper->langData;
-                        $translationExists = !$isDefaultLang ? property_exists($translationData, $lang) : true;
+                        $translationExists = !$isBaseLang ? property_exists($translationData, $lang) : true;
 
                         $mapper->setLangData($lang, 'title', $title);
                         $mapper->setLangData($lang, 'content', $content);
@@ -706,8 +747,6 @@ class PublicationsController extends AdminPanelController
                             $mapper->setLangData($lang, 'ogImage', $ogImage);
                         }
 
-                        $defaultLang = Config::get_default_lang();
-
                         /**
                          * @var AttachmentPackage[] $attachmentsTypes
                          */
@@ -719,7 +758,7 @@ class PublicationsController extends AdminPanelController
                             $attachType = $attachmentConfig->getType();
                             $attachValidTypes = $attachmentConfig->getValidTypes();
                             $attachFileName = $attachmentConfig->getTypeFilename();
-                            $langSuffix = $defaultLang != $lang ? "_{$lang}" : '';
+                            $langSuffix = $baseLang != $lang ? "_{$lang}" : '';
 
                             $attachMapper->attachmentType = $attachType;
                             $attachMapper->publication = $mapper->id;
@@ -1019,6 +1058,30 @@ class PublicationsController extends AdminPanelController
                     return Validator::isInteger($value) ? (int) $value : null;
                 }
             ),
+            new Parameter(
+                'ignoreSlugs',
+                [],
+                function ($value) {
+                    $valid = is_array($value);
+                    if ($valid) {
+                        foreach ($value as $slug) {
+                            $valid = is_scalar($slug) && mb_strlen((string) $slug) > 0;
+                        }
+                    }
+                    return $valid;
+                },
+                true,
+                function ($value) {
+                    $result = [];
+                    $value = is_array($value) ? $value : [$value];
+                    foreach ($value as $key => $slug) {
+                        if (is_scalar($slug) && mb_strlen((string) $slug) > 0) {
+                            $result[$key] = (string) $slug;
+                        }
+                    }
+                    return $result;
+                }
+            ),
         ]);
 
         $expectedParameters->setInputValues($request->getQueryParams());
@@ -1031,6 +1094,7 @@ class PublicationsController extends AdminPanelController
          * @var int $status
          * @var string $title
          * @var int $featured
+         * @var string[] $ignoreSlugs
          */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
@@ -1038,6 +1102,7 @@ class PublicationsController extends AdminPanelController
         $status = $expectedParameters->getValue('status');
         $title = $expectedParameters->getValue('title');
         $featured = $expectedParameters->getValue('featured');
+        $ignoreSlugs = $expectedParameters->getValue('ignoreSlugs');
 
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
@@ -1092,7 +1157,7 @@ class PublicationsController extends AdminPanelController
 
                 if (!$hasCache) {
 
-                    $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus);
+                    $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus, false, $ignoreSlugs);
                     $response = $response->withJson($result);
 
                     //Definir respuesta para la generación del archivo estático
@@ -1110,7 +1175,7 @@ class PublicationsController extends AdminPanelController
         } else {
 
             $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
-            $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus);
+            $result = self::_all($page, $perPage, $category, $status, $featured, $title, $ignoreStatus, false, $ignoreSlugs);
             $response = $response->withJson($result);
 
         }
@@ -1254,6 +1319,7 @@ class PublicationsController extends AdminPanelController
      * @param string $title =null
      * @param bool $ignoreStatus =false
      * @param bool $ignoreDateLimit =false
+     * @param string[] $ignoreSlugs =[]
      * @return PaginationResult
      */
     public static function _all(
@@ -1264,7 +1330,8 @@ class PublicationsController extends AdminPanelController
         int $featured = null,
         string $title = null,
         bool $ignoreStatus = false,
-        bool $ignoreDateLimit = false
+        bool $ignoreDateLimit = false,
+        array $ignoreSlugs = []
     ) {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
@@ -1272,7 +1339,6 @@ class PublicationsController extends AdminPanelController
 
         $table = PublicationMapper::TABLE;
         $fields = PublicationMapper::fieldsToSelect();
-        $jsonExtractExists = PublicationMapper::jsonExtractExistsMySQL();
 
         $whereString = null;
         $where = [];
@@ -1290,6 +1356,16 @@ class PublicationsController extends AdminPanelController
 
             $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.status = {$status}";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        if (!empty($ignoreSlugs)) {
+
+            $beforeOperator = !empty($where) ? $and : '';
+            $ignoreSlugs = implode('","', $ignoreSlugs);
+            $ignoreSlugs = '"' . $ignoreSlugs . '"';
+            $critery = "{$table}.preferSlug NOT IN ({$ignoreSlugs})";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
@@ -1329,22 +1405,14 @@ class PublicationsController extends AdminPanelController
 
         }
 
-        //Verificación de idioma
-        $defaultLang = Config::get_default_lang();
+        //Verificar idiomas
+        $showAlways = false; //Define si se muestra siempre aunque no tenga traducción
         $currentLang = Config::get_lang();
 
-        if ($currentLang != $defaultLang) {
-
-            if ($jsonExtractExists) {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
-                $where[] = "{$beforeOperator} ({$critery})";
-            } else {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-
+        if (!$showAlways) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL || JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) = '{$currentLang}'";
+            $where[] = "{$beforeOperator} ({$critery})";
         }
 
         if (!empty($where)) {
@@ -1366,19 +1434,30 @@ class PublicationsController extends AdminPanelController
 
         $parser = function ($element) {
             $element = PublicationMapper::objectToMapper($element);
-            $element = PublicationsPublicController::view('public/util/item', [
+            $element = mb_convert_encoding(PublicationsPublicController::view('public/util/item', [
                 'element' => $element,
-            ], false, false);
+            ], false, false), 'UTF-8');
             return $element;
         };
-        $each = !$jsonExtractExists ? function ($element) {
-            $mapper = PublicationMapper::objectToMapper($element);
-            $element = PublicationMapper::translateEntityObject($element);
-            $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
-            return $element;
-        } : function ($element) {
+        $each = function ($element) {
             $mapper = PublicationMapper::objectToMapper($element);
             $element->link = PublicationsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
+            $excerpt = $mapper->excerpt(253);
+            $excerptAlt = $mapper->excerpt(102);
+            $element->excerpt = mb_strpos($excerpt, '...') ? $excerpt : $excerpt . '...';
+            $element->excerptAlt = mb_strpos($excerptAlt, '...') ? $excerptAlt : $excerptAlt . '...';
+            unset($element->author);
+            unset($element->visits);
+            unset($element->folder);
+            unset($element->id);
+            unset($element->idPadding);
+            unset($element->isActiveByDate);
+            unset($element->meta);
+            foreach ($element as $key => $value) {
+                if (is_string($value)) {
+                    $element->$key = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+                }
+            }
             return $element;
         };
 

@@ -10,6 +10,8 @@ window.addEventListener('load', function () {
 	const translatableProperties = JSON.parse(atob(getVariableFromHTML('translatableProperties')))
 	const translationsLangs = JSON.parse(atob(getVariableFromHTML('translationsLangs')))
 	const defaultLang = atob(getVariableFromHTML('defaultLang'))
+	const baseLang = atob(getVariableFromHTML('baseLang'))
+	const previousTranslationsPromises = []
 
 	const tabsLang = $('.lang-tabs [data-tab]').tab({
 		onVisible: function (tabName) {
@@ -37,7 +39,7 @@ window.addEventListener('load', function () {
 		for (const lang of formsByLangKeys) {
 			const wasFormChanged = formsByLang.get(lang).wasFormChanged
 			const form = formsByLang.get(lang).form
-			if (wasFormChanged || defaultLang == lang) {
+			if (wasFormChanged || baseLang == lang) {
 				const isValid = form.get(0).checkValidity()
 				sendPromises.push(new Promise(function (resolve,) {
 					form.onSuccessFinally = function (formProcess, formData, response) {
@@ -100,6 +102,14 @@ window.addEventListener('load', function () {
 
 	})
 
+	//Lanzar evento de traducción lista para configurar
+	const publicationsTranslationsReadyToConfigEvent = 'publicationsTranslationsReadyToConfig'
+	showGenericLoader(publicationsTranslationsReadyToConfigEvent)
+	Promise.all(previousTranslationsPromises).then(function () {
+		window.dispatchEvent(new Event(publicationsTranslationsReadyToConfigEvent))
+		removeGenericLoader(publicationsTranslationsReadyToConfigEvent)
+	})
+
 	removeGenericLoader('_CARGA_INICIAL_')
 
 	function configByLang(lang) {
@@ -156,13 +166,19 @@ window.addEventListener('load', function () {
 		})
 
 		//Editores de texto
-		let richEditorAdapter = new RichEditorAdapterComponent({
-			containerSelector: `${baseSelector} [rich-editor-adapter-component]`,
-			textareaTargetSelector: `${baseSelector} textarea[name='content']`,
-			onChange: function () {
-				triggerChange()
-			}
-		})
+		let richEditorAdapter = null
+		previousTranslationsPromises.push(new Promise(function (resolve) {
+			richEditorAdapter = new RichEditorAdapterComponent({
+				containerSelector: `${baseSelector} [rich-editor-adapter-component]`,
+				textareaTargetSelector: `${baseSelector} textarea[name='content']`,
+				onChange: function () {
+					triggerChange()
+				}
+			})
+			richEditorAdapter.on(RichEditorAdapterComponent.events.instanceReady, function () {
+				resolve()
+			})
+		}))
 
 		//Calendar
 		configGroupCalendar(`calendar-group-js-lang-${lang}`)

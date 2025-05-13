@@ -31,7 +31,7 @@ class FieldTranslationUtility
     /**
      * @var string
      */
-    protected $defaultLang = '';
+    protected $baseLang = '';
 
     /**
      * @var string
@@ -45,15 +45,15 @@ class FieldTranslationUtility
 
     /**
      * @param string $fieldName
-     * @param string $defaultLang
+     * @param string $baseLang
      * @param string $currentLang
      * @param bool $translatable
      */
-    public function __construct(PublicationMapper $mapper, string $fieldName, string $defaultLang, string $currentLang, bool $translatable = false)
+    public function __construct(PublicationMapper $mapper, string $fieldName, string $baseLang, string $currentLang, bool $translatable = false)
     {
         $this->mapper = $mapper;
         $this->fieldName = $fieldName;
-        $this->defaultLang = $defaultLang;
+        $this->baseLang = $baseLang;
         $this->currentLang = $currentLang;
         $this->translatable = $translatable;
     }
@@ -63,7 +63,7 @@ class FieldTranslationUtility
      */
     public function isTranslatable()
     {
-        return $this->defaultLang == $this->currentLang ? 'current' : ($this->translatable ? 'yes' : 'no');
+        return $this->baseLang == $this->currentLang ? 'current' : ($this->translatable ? 'yes' : 'no');
     }
 
     /**
@@ -100,9 +100,9 @@ class FieldTranslationUtility
      * @param ?string $value
      * @return static|string
      */
-    public function defaultLang(?string $value = null)
+    public function baseLang(?string $value = null)
     {
-        $propertyName = 'defaultLang';
+        $propertyName = 'baseLang';
         if ($value !== null) {
             $this->$propertyName = $value;
             return $this;

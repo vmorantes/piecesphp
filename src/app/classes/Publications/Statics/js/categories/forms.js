@@ -12,6 +12,16 @@ window.addEventListener('load', function () {
 
 	//Formulario
 	let form = genericFormHandler(formSelector, {
+		onSetFormData: function (formData) {
+			if (isEdit) {
+				return formData
+			} else {
+				const processedFormData = new FormData()
+				processedFormData.set('baseLang', formData.get('baseLang'))
+				processedFormData.set(`name[${formData.get('baseLang')}]`, formData.get('name'))
+				return processedFormData
+			}
+		},
 		onInvalidEvent: function (event) {
 
 			let element = event.target

@@ -19,10 +19,37 @@
     "files.associations": {
         "*.neon": "yaml"
     },
-    "html.format.wrapLineLength": 300,
+    "html.format.wrapLineLength": 0,
+    "html.format.wrapAttributes": "auto",
+    "html.format.wrapAttributesIndentSize": 0,
+    "html.format.maxPreserveNewLines": 1,
+    "html.format.preserveNewLines": true,
     "phpfmt.indent_with_space": 4,
     "phpfmt.psr2": true,
+    "phpfmt.passes": [
+        "AlignPHPCode",
+        "AutoSemicolon",
+        "MergeNamespaceWithOpenTag",
+        "RemoveSemicolonAfterCurly",
+        "RestoreComments",
+        "ShortArray",
+        "ExtraCommaInArray"
+    ],
     "editor.wordWrap": "on",
     "editor.multiCursorModifier": "ctrlCmd",
-    "intelephense.environment.phpVersion": "7.4"
+    "intelephense.environment.phpVersion": "8.1",
+    "[php]": {
+        "editor.defaultFormatter": "kokororin.vscode-phpfmt",
+        "editor.formatOnSave": false
+    },
+    "[html]": {
+        "editor.formatOnSave": false
+    },
+    "explorer.confirmDelete": true,
+    "[scss]": {
+        "editor.defaultFormatter": "michelemelluso.code-beautifier"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "michelemelluso.code-beautifier"
+    }
 }

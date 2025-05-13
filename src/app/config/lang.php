@@ -31,6 +31,16 @@ set_config('allowed_langs', [
     'pt',
 ]);
 
+//Idiomas no traducibles automáticamente con autoTranslateFromLangGroupHTML
+add_to_front_configurations('autoTranslateFromLangGroupHTMLIgnoreLangs', [
+    'es',
+    'en',
+    'fr',
+    'de',
+    'it',
+    'pt',
+]);
+
 /**
  * Array con los códigos de localidad según el idioma
  */
@@ -76,12 +86,22 @@ set_config('lc_time_names_mysql', [
  * Formatos de fechas según idioma
  */
 set_config('format_date_lang', [
-    'es' => 'l, d/F/Y', // Sábado, 08/Mayo/2021
-    'en' => 'l, Y/F/d',
-    'fr' => 'l, Y/F/d',
-    'de' => 'l, Y/F/d',
-    'it' => 'l, Y/F/d',
-    'pt' => 'l, Y/F/d',
+    //'es' => 'l, d/F/Y', // Sábado, 08/Mayo/2021
+    //'en' => 'l, Y/F/d', // Saturday, 2021/May/08
+    'es' => 'd/m/Y', // 08/05/2021
+    'en' => 'm/d/Y',
+    'fr' => 'm/d/Y',
+    'de' => 'm/d/Y',
+    'it' => 'm/d/Y',
+    'pt' => 'd/m/Y',
+]);
+set_config('format_date_lang_sql', [
+    'es' => '%d/%m/%Y', // 08/05/2021
+    'en' => '%Y/%m/%d',
+    'fr' => '%Y/%m/%d',
+    'de' => '%Y/%m/%d',
+    'it' => '%Y/%m/%d',
+    'pt' => '%d/%m/%Y',
 ]);
 
 /**
