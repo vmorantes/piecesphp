@@ -9,6 +9,7 @@ namespace App\Model;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
  * UsersModel.
@@ -62,7 +63,7 @@ class UsersModel extends EntityMapperExtensible
         self::TYPE_USER_GENERAL => 1,
     ];
 
-    const LANG_GROUP = 'usersModule';
+    const LANG_GROUP = UserDataPackage::LANG_GROUP;
     const TABLE = 'pcsphp_users';
 
     protected $table = self::TABLE;

@@ -46,6 +46,7 @@ use Publications\PublicationsLang;
  * @property int $status
  * @property int $featured
  * @property \stdClass|string|null $meta
+ * @property string $baseLang
  * @property \stdClass|null $langData
  */
 class PublicationMapper extends EntityMapperExtensible
@@ -209,6 +210,7 @@ class PublicationMapper extends EntityMapperExtensible
         '`startDate` ASC',
         '`endDate` ASC',
     ];
+    const WITH_ATTACHMENTS = true;
 
     /**
      * Propiedades que no necesitan multi-idioma
@@ -245,6 +247,7 @@ class PublicationMapper extends EntityMapperExtensible
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), false), 'baseLang');
         parent::__construct($value, $fieldCompare);
 
         //Definición de campos no traducibles en caso de que estén vacíos
@@ -434,9 +437,10 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * @param bool $includeCurrentLang
      * @return string[]
      */
-    public function getURLAlternatives()
+    public function getURLAlternatives(bool $includeCurrentLang = false)
     {
 
         $currentLang = Config::get_lang();
@@ -444,11 +448,14 @@ class PublicationMapper extends EntityMapperExtensible
         $urls = [];
 
         foreach ($allowedLangs as $lang) {
-            $existOnLang = $this->getLangData($lang, 'title', false, null) !== null;
-            if ($existOnLang && $lang != $currentLang) {
-                $url = PublicationsPublicController::routeName('single', ['slug' => $this->getSlug($lang)]);
-                $url = convert_lang_url($url, $currentLang, $lang);
-                $urls[$lang] = $url;
+            $existOnLang = $this->hasLang($lang);
+            if ($existOnLang) {
+                $isSameLang = $lang == $currentLang;
+                if (!$isSameLang || $includeCurrentLang) {
+                    $url = PublicationsPublicController::routeName('single', ['slug' => $this->getSlug($lang)]);
+                    $url = convert_lang_url($url, $currentLang, $lang);
+                    $urls[$lang] = $url;
+                }
             }
         }
 
@@ -525,10 +532,11 @@ class PublicationMapper extends EntityMapperExtensible
 
         $translatables = $this->translatableProperties;
         $noTranslatables = $this->noTranslatableProperties;
+        $baseLang = $this->baseLang;
 
         if (in_array($property, $translatables)) {
 
-            if ($lang !== Config::get_default_lang()) {
+            if ($lang !== $baseLang) {
 
                 if (!isset($this->langData->$lang)) {
                     $this->langData->$lang = new \stdClass;
@@ -561,6 +569,9 @@ class PublicationMapper extends EntityMapperExtensible
      */
     public function getLangData(string $lang, string $property, bool $defaultOnEmpty = true, $returnOnEmpty = '')
     {
+
+        $baseLang = $this->baseLang;
+
         if (isset($this->langData->$lang) && isset($this->langData->$lang->$property)) {
 
             $value = $this->langData->$lang->$property;
@@ -575,7 +586,7 @@ class PublicationMapper extends EntityMapperExtensible
 
             return array_key_exists($property, $specialBehaviour) ? ($specialBehaviour[$property])($value) : $value;
 
-        } elseif ($defaultOnEmpty || $lang === Config::get_default_lang()) {
+        } elseif ($defaultOnEmpty || $lang === $baseLang) {
 
             $propertiesExpected = array_merge($this->noTranslatableProperties, $this->translatableProperties);
 
@@ -616,6 +627,19 @@ class PublicationMapper extends EntityMapperExtensible
     }
 
     /**
+     * Verifica si existe un idioma en los datos del elemento
+     * @param string $lang
+     * @return bool
+     */
+    public function hasLang(string $lang)
+    {
+        $baseLang = $this->baseLang;
+        $langData = $this->langData;
+        $hasLangData = isset($langData->$lang);
+        return $baseLang === $lang || $hasLangData;
+    }
+
+    /**
      * Devuelve los campos que no son traducibles
      *
      * @return string[]
@@ -648,11 +672,13 @@ class PublicationMapper extends EntityMapperExtensible
      *  - publicDateFormat
      *  - startDateFormat
      *  - endDateFormat
+     *  - baseLang
      * @return string[]
      */
-    public static function fieldsToSelect(string $formatDate = '%d-%m-%Y')
+    public static function fieldsToSelect(string $formatDate = null)
     {
 
+        $formatDate = $formatDate ?? get_default_format_date(null, true);
         $mapper = (new PublicationMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -661,7 +687,6 @@ class PublicationMapper extends EntityMapperExtensible
         $tableCategory = PublicationCategoryMapper::TABLE;
         $tableUser = UsersModel::TABLE;
 
-        $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
         $categoryNameCurrentLang = PublicationCategoryMapper::fieldCurrentLangForSQL('name');
@@ -709,50 +734,33 @@ class PublicationMapper extends EntityMapperExtensible
             "DATE_FORMAT({$table}.publicDate, '{$formatDate}') AS publicDateFormat",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
+            "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];
 
-        if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
-
-            //En caso de que las funciones JSON_* no estén disponibles en el motor SQL
-            $allFields = array_merge($mapper->getNoTranslatableProperties(), $mapper->getTranslatableProperties());
-
-            foreach ($allFields as $field) {
-                $fields[] = "{$table}.{$field}";
-            }
-
-        } else {
-
-            $noTranslatables = $mapper->getNoTranslatableProperties();
-
-            foreach ($noTranslatables as $field) {
-                $fields[] = "{$table}.{$field}";
-            }
-
-            $translatables = $mapper->getTranslatableProperties();
-
-            $specialBehaviour = [
-                'FIELD_NAME' => function ($fieldName) {
-                    return $fieldName;
-                },
-            ];
-
-            foreach ($translatables as $fieldToLang) {
-
-                if (array_key_exists($fieldToLang, $specialBehaviour)) {
-                    $fields[] = ($specialBehaviour[$fieldToLang])($fieldToLang);
-                } else {
-                    $normalField = "{$table}.{$fieldToLang}";
-                    $langField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldToLang}'))";
-                    $fields[] = "IF({$langField} IS NOT NULL, {$langField}, {$normalField}) AS `{$fieldToLang}`";
-                }
-
-            }
-
+        //Multi-idioma
+        $noTranslatables = $mapper->getNoTranslatableProperties();
+        foreach ($noTranslatables as $field) {
+            $fields[] = "{$table}.{$field}";
         }
-
+        $translatables = $mapper->getTranslatableProperties();
+        $specialBehaviour = [
+            'FIELD_NAME' => function ($fieldName) {
+                return $fieldName;
+            },
+        ];
+        foreach ($translatables as $fieldToLang) {
+            if (!array_key_exists($fieldToLang, $specialBehaviour)) {
+                $normalField = "{$table}.{$fieldToLang}";
+                $baseLang = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang'))";
+                $langField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldToLang}'))";
+                $langFieldCondition = "IF({$langField} IS NOT NULL, {$langField}, {$normalField})";
+                $fields[] = "IF('{$currentLang}' = {$baseLang}, {$normalField}, {$langFieldCondition}) AS `{$fieldToLang}`";
+            } else {
+                $fields[] = ($specialBehaviour[$fieldToLang])($fieldToLang);
+            }
+        }
         return $fields;
-
     }
 
     /**
@@ -764,47 +772,15 @@ class PublicationMapper extends EntityMapperExtensible
 
         $table = self::TABLE;
 
-        $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
         $fieldSQL = '';
 
-        if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
-            $fieldSQL = "{$table}.{$fieldName}";
-        } else {
-            $jsonExtractField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldName}'))";
-            $fieldSQL = "IF({$jsonExtractField} IS NOT NULL, {$jsonExtractField}, {$table}.{$fieldName})";
-        }
+        $jsonExtractFieldConditional = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldName}'))";
+        $baseLangField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang'))";
+        $fieldSQL = "IF({$baseLangField} = '{$currentLang}', {$table}.{$fieldName}, {$jsonExtractFieldConditional})";
 
         return $fieldSQL;
-
-    }
-
-    /**
-     * Configura las versiones de las propiedades según el idioma actual
-     *
-     * @param \stdClass $element
-     * @return \stdClass
-     */
-    public static function translateEntityObject(\stdClass $element)
-    {
-
-        $mapper = self::objectToMapper($element);
-
-        $defaultLang = get_config('default_lang');
-        $currentLang = Config::get_lang();
-
-        if ($defaultLang != $currentLang && $mapper !== null) {
-
-            $translatables = $mapper->getTranslatableProperties();
-
-            foreach ($translatables as $property) {
-                $element->$property = $mapper->getLangData($currentLang, $property);
-            }
-
-        }
-
-        return $element;
 
     }
 
@@ -1212,6 +1188,10 @@ class PublicationMapper extends EntityMapperExtensible
 
         }
 
+        $fieldsFilleds = array_unique($fieldsFilleds);
+        $fields = array_unique($fields);
+        sort($fieldsFilleds);
+        sort($fields);
         $allFilled = count($fieldsFilleds) === count($fields);
 
         if ($allFilled) {
@@ -1226,35 +1206,6 @@ class PublicationMapper extends EntityMapperExtensible
         }
 
         return $allFilled ? $mapper : null;
-
-    }
-
-    /**
-     * @return bool
-     */
-    public static function jsonExtractExistsMySQL()
-    {
-
-        try {
-
-            $json = [
-                'ok' => true,
-            ];
-            $json = json_encode($json);
-            $sql = "SELECT JSON_EXTRACT('{$json}'" . ', \'$.test\')';
-            $prepared = self::model()->prepare($sql);
-            $prepared->execute();
-            return true;
-
-        } catch (\PDOException $e) {
-
-            if ($e->getCode() == 1305 || $e->getCode() == 42000) {
-                return false;
-            } else {
-                throw $e;
-            }
-
-        }
 
     }
 

@@ -28,6 +28,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
+use PiecesPHP\UserSystem\UserDataPackage;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -106,7 +107,7 @@ class UsersController extends AdminPanelController
     //Constante de intentos máximos permitidos
     const MAX_ATTEMPTS = 4;
 
-    const LANG_GROUP = 'usersModule';
+    const LANG_GROUP = UserDataPackage::LANG_GROUP;
 
     /** @ignore */
     public function __construct()

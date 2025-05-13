@@ -13,6 +13,7 @@ use Newsletter\NewsletterRoutes;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -196,30 +197,10 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             'req' => $req,
             'res' => $res,
             'args' => $args,
+            'langGroup' => LANG_GROUP,
         ];
 
-        $availableView = [
-            'tabs-sample' => [
-                'title' => __(LANG_GROUP, 'Ejemplo de tabs'),
-                'appendAssets' => [
-                    'js' => [
-                        'statics/js/generic-views/tabs.js',
-                    ],
-                ],
-                'executeBeforeViews' => function () {},
-                'executeAfterViews' => function () {},
-            ],
-            'elements' => [
-                'title' => __(LANG_GROUP, 'Elementos'),
-                'appendAssets' => [
-                    'js' => [
-                        'statics/js/generic-views/elements.js',
-                    ],
-                ],
-                'executeBeforeViews' => function () {},
-                'executeAfterViews' => function () {},
-            ],
-        ];
+        $availableView = self::genericViewsConfigurations();
 
         $viewHeader = 'layout/header';
         $viewMenu = 'layout/menu';
@@ -228,12 +209,13 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         if (is_string($name) && array_key_exists($name, $availableView)) {
 
             $viewConfig = $availableView[$name];
+            $directory = isset($viewConfig['directory']) && $viewConfig['directory'] !== null ? $viewConfig['directory'] : 'pages/generic-views';
             $file = isset($viewConfig['file']) && $viewConfig['file'] !== null ? $viewConfig['file'] : $name;
-            $viewHeader = isset($viewConfig['header']) ? $viewConfig['header'] : $viewHeader;
-            $viewMenu = isset($viewConfig['menu']) ? $viewConfig['menu'] : $viewMenu;
-            $viewFooter = isset($viewConfig['footer']) ? $viewConfig['footer'] : $viewFooter;
-            $viewTitle = isset($viewConfig['title']) ? $viewConfig['title'] : null;
-            $viewData = isset($viewConfig['data']) ? $viewConfig['data'] : [];
+            $viewHeader = isset($viewConfig['header']) && $viewConfig['header'] !== null ? $viewConfig['header'] : $viewHeader;
+            $viewMenu = isset($viewConfig['menu']) && $viewConfig['menu'] !== null ? $viewConfig['menu'] : $viewMenu;
+            $viewFooter = isset($viewConfig['footer']) && $viewConfig['footer'] !== null ? $viewConfig['footer'] : $viewFooter;
+            $viewTitle = isset($viewConfig['title']) && $viewConfig['title'] !== null ? $viewConfig['title'] : null;
+            $viewData = isset($viewConfig['data']) && $viewConfig['data'] !== null ? $viewConfig['data'] : [];
             $prependAssets = isset($viewConfig['prependAssets']) ? $viewConfig['prependAssets'] : [];
             $appendAssets = isset($viewConfig['appendAssets']) ? $viewConfig['appendAssets'] : [];
             $executeBeforeViews = isset($viewConfig['executeBeforeViews']) && is_callable($viewConfig['executeBeforeViews']) ? $viewConfig['executeBeforeViews'] : function () {};
@@ -273,7 +255,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                 ($executeBeforeViews)();
                 $this->render($viewHeader);
                 $this->render($viewMenu);
-                $this->render("pages/generic-views/{$file}");
+                $this->render("{$directory}/{$file}");
                 $this->render($viewFooter);
                 ($executeAfterViews)();
 
@@ -286,6 +268,76 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         }
 
         return $res;
+    }
+
+    /**
+     * Obtiene las configuraciones de las vistas genéricas
+     *
+     * @return array Arreglo con las configuraciones de las vistas genéricas
+     */
+    public static function genericViewsConfigurations()
+    {
+        $currentUser = getLoggedFrameworkUser();
+
+        $genericViewConfigurations = [
+            'tabs-sample' => [
+                'header' => null,
+                'menu' => null,
+                'footer' => null,
+                'directory' => null,
+                'file' => null,
+                'title' => __(LANG_GROUP, 'Ejemplo de tabs'),
+                'appendAssets' => [
+                    'js' => [
+                        'statics/js/generic-views/tabs.js',
+                    ],
+                ],
+                'data' => [],
+                'executeBeforeViews' => function () {},
+                'executeAfterViews' => function () {},
+            ],
+            'elements' => [
+                'header' => null,
+                'menu' => null,
+                'footer' => null,
+                'directory' => null,
+                'file' => null,
+                'title' => __(LANG_GROUP, 'Elementos'),
+                'appendAssets' => [
+                    'js' => [
+                        'statics/js/generic-views/elements.js',
+                    ],
+                ],
+                'data' => [],
+                'executeBeforeViews' => function () {},
+                'executeAfterViews' => function () {},
+            ],
+        ];
+
+        return $genericViewConfigurations;
+    }
+
+    /**
+     * Verificar si una vista genérica existe
+     * @param string $name
+     * @param string|null $folder
+     * @return bool
+     */
+    public static function genericViewExists(string $name, ?string $folder = null)
+    {
+        $name = $folder !== null ? "{$folder}/{$name}" : $name;
+        $exists = false;
+        $availableView = self::genericViewsConfigurations();
+
+        if (is_string($name) && array_key_exists($name, $availableView)) {
+            $viewConfig = $availableView[$name];
+            $directory = isset($viewConfig['directory']) && $viewConfig['directory'] !== null ? $viewConfig['directory'] : 'pages/generic-views';
+            $file = isset($viewConfig['file']) && $viewConfig['file'] !== null ? $viewConfig['file'] : $name;
+            $path = append_to_path_system((new BaseController())->getViewDir(), "{$directory}/{$file}.php");
+            $exists = file_exists($path);
+        }
+
+        return $exists;
     }
 
     /**

@@ -9,6 +9,7 @@ use Publications\Util\AttachmentPackage;
  * @var string $action
  * @var AttachmentPackage[] $attachmentGroup1
  */
+$withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 ?>
 <section class="module-view-container">
 
@@ -31,21 +32,28 @@ use Publications\Util\AttachmentPackage;
             <div class="active" data-tab="basic"><?= __($langGroup, 'Datos básicos'); ?></div>
             <div data-tab="images"><?= __($langGroup, 'Imágenes'); ?></div>
             <div data-tab="details"><?= __($langGroup, 'Detalles'); ?></div>
-            <div data-tab="attachments"><?= __($langGroup, 'Anexos'); ?></div>
+            <div data-tab="attachments" style="<?= $withAttachments ? '' : 'display:none;' ?>"><?= __($langGroup, 'Anexos'); ?></div>
             <div data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
         </div>
 
-        <div class="container-standard-form">
+        <form method='POST' action="<?= $action; ?>" class="ui form publications">
 
-            <form method='POST' action="<?= $action; ?>" class="ui form publications">
+            <div class="container-standard-form">
 
                 <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
 
                 <div class="ui tab active" data-tab="basic">
 
                     <div class="field required">
+                        <label><?= __('lang', 'Idioma principal'); ?></label>
+                        <select class="ui dropdown search" name="baseLang" required>
+                            <?= $langsOptions; ?>
+                        </select>
+                    </div>
+
+                    <div class="field required">
                         <label><?= __($langGroup, 'Nombre'); ?></label>
-                        <input required type="text" name="title" maxlength="300">
+                        <input required type="text" name="title" maxlength="300" placeholder=" ">
                     </div>
 
                     <div class="field required">
@@ -192,7 +200,7 @@ use Publications\Util\AttachmentPackage;
 
                 </div>
 
-                <div class="ui tab" data-tab="attachments">
+                <div class="ui tab" data-tab="attachments" style="<?= $withAttachments ? '' : 'display:none;' ?>">
 
                     <h4 class="ui dividing header"><?= __($langGroup, 'Anexos'); ?></h4>
 
@@ -234,15 +242,16 @@ use Publications\Util\AttachmentPackage;
 
                 </div>
 
-                <br><br>
+            </div>
 
-                <div class="field">
-                    <button type="submit" class="ui button brand-color"><?= __($langGroup, 'Guardar'); ?></button>
-                </div>
+            <br>
 
-            </form>
+            <div class="field">
+                <button type="submit" class="ui button brand-color" save><?= __($langGroup, 'Guardar'); ?></button>
+                <button type="submit" class="ui button blue" add-translation><?= __($langGroup, 'Agregar traducción'); ?></button>
+            </div>
 
-        </div>
+        </form>
 
     </div>
 

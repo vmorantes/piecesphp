@@ -22,6 +22,10 @@
         "ms-ceintl.vscode-language-pack-es",
         "fabiospampinato.vscode-todo-plus",
         "xshrim.txt-syntax",
-        "kyledavide.vscode-project-links"
+        "kyledavide.vscode-project-links",
+        "ms-azuretools.vscode-azurefunctions",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "aswinkumar863.smarty-template-support",
+        "tomoki1207.pdf"
     ]
 }

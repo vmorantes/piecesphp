@@ -36,7 +36,7 @@ class APIRoutes
      */
     public static function routes(RouteGroup $groupAdministration)
     {
-        if (self::ENABLE || (self::ENABLE_TRANSLATIONS && get_config('translationAIEnable'))) {
+        if (self::ENABLE || self::ENABLE_TRANSLATIONS) {
 
             $groupAdministration = APIController::routes($groupAdministration);
 

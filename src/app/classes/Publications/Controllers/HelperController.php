@@ -7,6 +7,7 @@
 namespace Publications\Controllers;
 
 use PiecesPHP\Core\BaseController;
+use PiecesPHP\Core\Config;
 
 /**
  * HelperController.
@@ -35,6 +36,22 @@ class HelperController extends BaseController
         $this->user = $user instanceof \stdClass ? $user : null;
         $this->setVariables($globalVariables);
         set_config('lock_assets', false);
+    }
+
+    /**
+     * Obtiene los idiomas disponibles para crear en un select
+     * @return array
+     */
+    public static function getLangsForSelect()
+    {
+        $langs = Config::get_allowed_langs();
+        $langsForSelect = [
+            '' => __('lang', 'Idioma principal'),
+        ];
+        foreach ($langs as $lang) {
+            $langsForSelect[$lang] = __('lang', $lang);
+        }
+        return $langsForSelect;
     }
 
 }
