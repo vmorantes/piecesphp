@@ -6,6 +6,7 @@
 
 use App\Controller\PublicAreaController;
 use App\Model\UsersModel;
+use PiecesPHP\Core\Exceptions\RouteNotExistsException;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\UserSystem\UserDataPackage;
 
@@ -190,27 +191,47 @@ function addElementInPosition(array $array, $key = null, $element = null, int $p
 }
 
 /**
- * @param string $name
- * @return string
+ * Genera una ruta para una vista genérica
+ *
+ * @param string $name Nombre de la vista
+ * @param string|null $folder Carpeta opcional donde buscar la vista
+ * @param bool $silentOnNotExists Si es true, no lanzará excepción si la ruta no existe
+ * @return string Retorna la URL de la ruta generada
  */
-function genericViewRoute(string $name)
+function genericViewRoute(string $name, ?string $folder = null, bool $silentOnNotExists = false)
 {
-    return PublicAreaController::routeName('generic', [
+    $exists = PublicAreaController::genericViewExists($name, $folder);
+    $parameters = [
         'name' => $name,
-    ]);
+    ];
+    $route = 'generic';
+    if ($folder !== null) {
+        $parameters['folder'] = $folder;
+        $route = 'generic-2';
+    }
+    $routeURL = '';
+
+    if ($exists) {
+        $routeURL = PublicAreaController::routeName($route, $parameters, $silentOnNotExists);
+    } elseif (!$silentOnNotExists) {
+        $fullName = $folder !== null ? "{$folder}/{$name}" : $name;
+        throw new RouteNotExistsException(0, null, "{$route} ({$fullName})");
+    }
+
+    return $routeURL;
 }
 
 /**
- * @param string $folder
- * @param string $name
- * @return string
+ * Verifica si existe una vista genérica
+ *
+ * @param string $name Nombre de la vista a verificar
+ * @param string|null $folder Carpeta opcional donde buscar la vista
+ * @return bool Retorna true si la vista existe, false en caso contrario
  */
-function genericView2Route(string $folder, string $name)
+function genericViewRouteExists(string $name, ?string $folder = null)
 {
-    return PublicAreaController::routeName('generic-2', [
-        'folder' => $folder,
-        'name' => $name,
-    ]);
+    $exists = PublicAreaController::genericViewExists($name, $folder);
+    return $exists;
 }
 
 /**
@@ -248,20 +269,14 @@ function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = 
     $options = [];
     $options[$defaultValue] = $defaultLabel;
 
-    if (!is_callable($elementStrategy)) {
-        $elementStrategy = function ($e) {
-            return (object) [
-                'value' => $e->id,
-                'text' => "{$e->fullname} ({$e->username})",
-            ];
-        };
-    }
-
     /**
      * @param ProductMapper $e
      */
     array_map(function ($e) use (&$options, $elementStrategy) {
-        $e = ($elementStrategy)($e);
+        $e = is_callable($elementStrategy) ? ($elementStrategy)($e) : (object) [
+            'value' => $e->id,
+            'text' => "{$e->fullname} ({$e->username})",
+        ];
         $options[$e->value] = $e->text;
     }, getAllUsers($ignoreTypes));
 

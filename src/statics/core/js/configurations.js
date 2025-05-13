@@ -5,11 +5,17 @@
 /// <reference path="./translations/de.js" />
 /// <reference path="./translations/it.js" />
 /// <reference path="./translations/pt.js" />
+/// <reference path="./helpers.js" />
 /**
  * Datos accesibles globalmente
  * @namespace
  */
-var pcsphpGlobals = {}
+var pcsphpGlobals = {
+	events: {
+		configurationsLoad: 'PiecesPHP-Configurations-Load',
+		configurationsAndWindowLoad: 'PiecesPHP-Configurations-And-Window-Load',
+	}
+}
 
 //──── URL ───────────────────────────────────────────────────────────────────────────────
 pcsphpGlobals.baseURL = document.head.baseURI
@@ -1087,91 +1093,94 @@ function _i18n(type, message) {
  * @param {Boolean} repeat Repite la solicitud aunque haya sido hecho previamente
  */
 function registerDynamicLocalizationMessages(langGroup, repeat = false) {
+	return new Promise(function (resolve) {
+		const requestURL = pcsphpGlobals.langMessagesFromServerURL
 
-	const requestURL = pcsphpGlobals.langMessagesFromServerURL
+		if (typeof requestURL == 'string' && requestURL.length > 0) {
 
-	if (typeof requestURL == 'string' && requestURL.length > 0) {
-
-		if (typeof pcsphpGlobals != 'object') {
-			window.pcsphpGlobals = {}
-		}
-		if (typeof pcsphpGlobals.messages != 'object') {
-			pcsphpGlobals.messages = {}
-		}
-		const url = new URL(requestURL)
-		url.searchParams.set('group', langGroup)
-
-		if (!pcsphpGlobals.langMessagesFromServerURLRequested.includes(langGroup)) {
-			pcsphpGlobals.langMessagesFromServerURLRequested.push(langGroup)
-		} else {
-			if (!repeat) {
-				return null
+			if (typeof pcsphpGlobals != 'object') {
+				window.pcsphpGlobals = {}
 			}
-		}
+			if (typeof pcsphpGlobals.messages != 'object') {
+				pcsphpGlobals.messages = {}
+			}
+			const url = new URL(requestURL)
+			url.searchParams.set('group', langGroup)
 
-		getRequest(url, '', {}, {
-			async: false,
-		}).done(function (response) {
+			if (!pcsphpGlobals.langMessagesFromServerURLRequested.includes(langGroup)) {
+				pcsphpGlobals.langMessagesFromServerURLRequested.push(langGroup)
+			} else {
+				if (!repeat) {
+					return null
+				}
+			}
 
-			const defaultLangData = typeof response['default'] == 'object' ? response['default'] : {}
-			const existentsMessages = []
+			getRequest(url, '', {}, {
+				async: false,
+			}).done(function (response) {
 
-			//Añadir idiomas regulares
-			for (const langName in response) {
+				const defaultLangData = typeof response['default'] == 'object' ? response['default'] : {}
+				const existentsMessages = []
 
-				if (langName !== 'default') {
+				//Añadir idiomas regulares
+				for (const langName in response) {
 
-					const langData = response[langName]
+					if (langName !== 'default') {
 
-					//Si no existe en el objeto se crea
-					if (typeof pcsphpGlobals.messages[langName] != 'object') {
-						pcsphpGlobals.messages[langName] = {}
-					}
-					if (typeof pcsphpGlobals.messages[langName][langGroup] != 'object') {
-						pcsphpGlobals.messages[langName][langGroup] = {}
-					}
+						const langData = response[langName]
 
-					//Añadir solo los que no estén presenten en JS
-					for (const langMessage in langData) {
-						const translateMessage = langData[langMessage]
+						//Si no existe en el objeto se crea
+						if (typeof pcsphpGlobals.messages[langName] != 'object') {
+							pcsphpGlobals.messages[langName] = {}
+						}
+						if (typeof pcsphpGlobals.messages[langName][langGroup] != 'object') {
+							pcsphpGlobals.messages[langName][langGroup] = {}
+						}
 
-						if (typeof pcsphpGlobals.messages[langName][langGroup][langMessage] == 'undefined') {
-							pcsphpGlobals.messages[langName][langGroup][langMessage] = translateMessage
-						} else {
-							existentsMessages.push(`Ya hay una traducción para [ ${langMessage} ] en ${langGroup}:${langName}`)
+						//Añadir solo los que no estén presenten en JS
+						for (const langMessage in langData) {
+							const translateMessage = langData[langMessage]
+
+							if (typeof pcsphpGlobals.messages[langName][langGroup][langMessage] == 'undefined') {
+								pcsphpGlobals.messages[langName][langGroup][langMessage] = translateMessage
+							} else {
+								existentsMessages.push(`Ya hay una traducción para [ ${langMessage} ] en ${langGroup}:${langName}`)
+							}
+
 						}
 
 					}
 
 				}
 
-			}
+				//Añadir valores por defecto en todos los lugares donde no haya
+				for (const langName in response) {
 
-			//Añadir valores por defecto en todos los lugares donde no haya
-			for (const langName in response) {
+					if (langName !== 'default') {
 
-				if (langName !== 'default') {
-
-					//Iterar sobre default
-					for (const langMessage in defaultLangData) {
-						const defaultTranslation = defaultLangData[langMessage]
-						if (typeof pcsphpGlobals.messages[langName][langGroup][langMessage] == 'undefined') {
-							pcsphpGlobals.messages[langName][langGroup][langMessage] = defaultTranslation
+						//Iterar sobre default
+						for (const langMessage in defaultLangData) {
+							const defaultTranslation = defaultLangData[langMessage]
+							if (typeof pcsphpGlobals.messages[langName][langGroup][langMessage] == 'undefined') {
+								pcsphpGlobals.messages[langName][langGroup][langMessage] = defaultTranslation
+							}
 						}
+
 					}
 
 				}
 
-			}
+				if (existentsMessages.length > 0) {
+					console.info(existentsMessages)
+				}
 
-			if (existentsMessages.length > 0) {
-				console.info(existentsMessages)
-			}
+			}).done(function () {
+				resolve()
+			})
 
-		})
+		}
 
-	}
-
+	})
 }
 
 /**
@@ -1194,8 +1203,235 @@ function getLangGroupData(langGroup, lang = null) {
 	return groupData
 }
 
+/**
+ * Traduce los elementos de HTML que tengan el atributo lang-group
+ * Este método de traducción no toma en cuenta el idioma por defecto
+ */
+function autoTranslateFromLangGroupHTML() {
 
-window.dispatchEvent(new Event('PiecesPHP-Configurations-Load'))
+	let ignoreLangs = pcsphpGlobals.frontConfigurationsFromBackend.autoTranslateFromLangGroupHTMLIgnoreLangs
+	ignoreLangs = typeof ignoreLangs !== 'undefined' && Array.isArray(ignoreLangs) ? ignoreLangs.filter(e => typeof e == 'string') : []
+	const elements = document.querySelectorAll('[lang-group]')
+	const errors = []
+	const translationsObject = {}
+
+	for (const element of elements) {
+
+		let internalElementsWithLangGroup = element.querySelectorAll('[lang-group]')
+
+		//Verificar si hay anidados, eliminar los atributos en los anidados e informar de ese error
+		while (internalElementsWithLangGroup.length > 0) {
+			internalElementsWithLangGroup = element.querySelectorAll('[lang-group]')
+			internalElementsWithLangGroup.forEach(e => {
+				errors.push(`Hay elementos de traducción anidados: ${element.outerHTML}`)
+				e.removeAttribute('lang-group')
+			})
+		}
+
+		//Crear el objeto de traducciones
+		const langGroup = element.getAttribute('lang-group')
+		if (langGroup == null) {
+			continue
+		}
+		if (typeof translationsObject[langGroup] == 'undefined') {
+			translationsObject[langGroup] = {}
+		}
+
+		registerDynamicLocalizationMessages(langGroup)
+		translationsObject[langGroup][`${element.innerHTML}`] = element.innerHTML
+
+	}
+
+	//Remover los mensajes que ya están traducidos
+	const translationsCurrentLang = pcsphpGlobals.messages[pcsphpGlobals.lang]
+	for (const langGroup in translationsObject) {
+		const groupMessages = translationsObject[langGroup]
+		if (typeof translationsCurrentLang == 'object') {
+			const translationsCurrentLangGroup = translationsCurrentLang[langGroup]
+			if (typeof translationsCurrentLangGroup == 'object') {
+				for (const message in groupMessages) {
+					if (typeof translationsCurrentLangGroup[message] == 'string') {
+						delete translationsObject[langGroup][message]
+					}
+				}
+			}
+		}
+	}
+
+	//Traducciones automáticas
+	if (Object.keys(translationsObject).length > 0) {
+
+		let hasPendingTranslations = false
+
+		for (const langGroup in translationsObject) {
+			const groupMessages = translationsObject[langGroup]
+			if (Object.keys(groupMessages).length > 0) {
+				hasPendingTranslations = true
+				break
+			}
+		}
+
+		new Promise(function (resolve, reject) {
+
+			if (hasPendingTranslations) {
+
+				const currentLangIsDefault = pcsphpGlobals.defaultLang == pcsphpGlobals.lang
+				const ignoreLang = ignoreLangs.includes(pcsphpGlobals.lang)
+
+				if (!currentLangIsDefault) {
+					errors.push(`Hay elementos de pendientes de traducción: ${JSON.stringify(translationsObject, null, 4)}`)
+				}
+
+				const translationURL = new URL('core/api/translations', pcsphpGlobals.baseURL)
+				const formData = new FormData()
+				formData.set('text', JSON.stringify(translationsObject))
+				formData.set('from', _i18n('lang', pcsphpGlobals.defaultLang))
+				formData.set('to', _i18n('lang', pcsphpGlobals.lang))
+				let translationPromise = Promise.resolve({
+					success: true,
+					message: '',
+					result: {
+						text: formData.get('text'),
+						from: formData.get('from'),
+						to: formData.get('to'),
+						translation: translationsObject,
+					},
+					error: null,
+					AI: {
+						provider: '',
+						modelOpenAI: '',
+						modelMistral: '',
+					},
+				})
+
+				if (!currentLangIsDefault && !ignoreLang) {
+
+					translationPromise = new Promise(function (translationResolve) {
+						const loaderName = 'translationsLoader'
+						showGenericLoader(loaderName)
+						postRequest(translationURL, formData, {
+							'PCSPHP-Response-Expected-Language': pcsphpGlobals.lang,
+						}).done(function (response) {
+							translationResolve(response)
+						}).always(function () {
+							removeGenericLoader(loaderName)
+						})
+					})
+
+				}
+
+				if (!currentLangIsDefault) {
+
+					translationPromise.then(function (response) {
+
+						const success = response.success
+						const message = response.message
+						const result = response.result
+						const error = response.error
+
+						if (success) {
+
+							const translations = result.translation
+
+							//Guardar las traducciones en el grupo de idioma actual en el backend
+							const saveTranslationsGroupPromises = []
+
+							const loaderName = 'saveTranslationGroupLoader'
+							showGenericLoader(loaderName)
+
+							for (const langGroup in translations) {
+
+								if ((Array.isArray(translations[langGroup]) && translations[langGroup].length == 0) || Object.keys(translations[langGroup]).length == 0) {
+									continue
+								}
+
+								saveTranslationsGroupPromises.push(new Promise(function (resolveSaveGroup) {
+
+									const saveTranslationGroupURL = new URL('core/api/translations/saveGroup', pcsphpGlobals.baseURL)
+									const formData = new FormData()
+									formData.set('text', JSON.stringify(translations[langGroup]))
+									formData.set('to', pcsphpGlobals.lang)
+									formData.set('saveGroup', langGroup)
+									formData.set('database', 'yes')
+
+									postRequest(saveTranslationGroupURL, formData, {
+										'PCSPHP-Response-Expected-Language': pcsphpGlobals.lang,
+									}).done(function (response) {
+
+										const success = response.success
+										const message = response.message
+										const error = response.error
+
+										if (success) {
+											console.info(`Traducción guardada: ${langGroup}`)
+										}
+
+										resolveSaveGroup()
+
+										if (error !== null) {
+											console.error(error)
+										}
+
+									}).fail(function () {
+										resolveSaveGroup()
+									})
+
+								}))
+							}
+
+							Promise.all(saveTranslationsGroupPromises).finally(function () {
+								removeGenericLoader(loaderName)
+								resolve(translations)
+							})
+
+						}
+
+						if (error !== null) {
+							console.error(error)
+						}
+
+					}).catch(function (error) {
+						console.error(error)
+					})
+
+				}
+
+				if (currentLangIsDefault) {
+					if (ignoreLang) {
+						resolve(null)
+					}
+				}
+
+			} else {
+				resolve(null)
+			}
+
+		}).then(function (translations) {
+			for (const element of elements) {
+				const langGroup = element.getAttribute('lang-group')
+				if (langGroup == null) {
+					continue
+				}
+				const message = element.innerHTML
+				element.innerHTML = _i18n(langGroup, message)
+			}
+
+			if (translations !== null) {
+				console.info(translations)
+			}
+		})
+	}
+
+	if (errors.length > 0) {
+		console.info([
+			'====Errores encontrados en traducción automática====\n',
+			errors.join('\n\n')
+		].join('\n'))
+	}
+}
+
+window.dispatchEvent(new Event(pcsphpGlobals.events.configurationsLoad))
 window.addEventListener('load', function () {
-	window.dispatchEvent(new Event('PiecesPHP-Configurations-And-Window-Load'))
+	window.dispatchEvent(new Event(pcsphpGlobals.events.configurationsAndWindowLoad))
+	autoTranslateFromLangGroupHTML()
 })

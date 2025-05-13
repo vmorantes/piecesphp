@@ -5,6 +5,8 @@ use Publications\Mappers\PublicationMapper;
 /**
  * @var PublicationMapper $element
  */
+$excerpt = $element->excerpt(300);
+$excerpt = mb_strpos($excerpt, '...') !== false ? $excerpt : $excerpt . '...';
 ?>
 <article class="ui card">
     <a class="image" href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>">
@@ -15,6 +17,6 @@ use Publications\Mappers\PublicationMapper;
         <div class="meta">
             <span><?= $element->authorFullName(); ?></span>
         </div>
-        <div class="description"><?= $element->excerpt(); ?></div>
+        <div class="description"><?= $excerpt; ?></div>
     </div>
 </article>

@@ -52,6 +52,9 @@ $ignoreNames = [
     AttachmentPublicationMapper::ATTACHMENT_TYPE_1,
 ];
 ?>
+<template variables>
+    <var name="preferSlug" value="<?= $element->preferSlug; ?>"></var>
+</template>
 <section class="body">
 
     <div class="content">
@@ -76,6 +79,7 @@ $ignoreNames = [
             <div class="post-content"><?= $element->currentLangData('content'); ?></div>
         </div>
 
+        <?php if(PublicationMapper::WITH_ATTACHMENTS): ?>
         <div class="wrapper">
             <div class="attachments">
                 <div class="text-center">
@@ -97,7 +101,7 @@ $ignoreNames = [
                 </div>
             </div>
         </div>
-
+        <?php endif; ?>        
     </div>
 
 </section>

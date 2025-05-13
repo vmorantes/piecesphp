@@ -8,7 +8,7 @@ function PublicationsAdapter(options) {
 	/**
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL
-	 * @property {function(Object):HTMLElement|$} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
+	 * @property {function(Object, HTMLElement, $):HTMLElement|$} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
 	 * @property {function(Object)} onEmpty Recibe el contenedor asignado
 	 * @property {Number} [page=1]
 	 * @property {Number} [perPage=5]
@@ -40,7 +40,7 @@ function PublicationsAdapter(options) {
 	/** @property {String|URL} */
 	let requestURL = ''
 
-	/** @property {function(Object, HTMLElement):HTMLElement|$} */
+	/** @property {function(Object, HTMLElement, $):HTMLElement|$} */
 	let onDraw
 	/** @property {function(Object)} */
 	let onEmpty
@@ -83,9 +83,10 @@ function PublicationsAdapter(options) {
 
 	/**
 	 * @method loadItems
+	 * @param {Boolean} [append=true] Agrega los elementos al contenedor
 	 * @returns {Promise}
 	 */
-	this.loadItems = function () {
+	this.loadItems = function (append = true) {
 
 		return new Promise(function (resolve, reject) {
 
@@ -109,7 +110,7 @@ function PublicationsAdapter(options) {
 				nextPage = res.nextPage
 				prevPage = res.prevPage
 				perPage = res.perPage
-
+				let loadMoreTriggerIsInsideContainer = loadMoreTrigger.length > 0 && container.find(loadMoreTrigger).length > 0
 				if (isFinal) {
 					loadMoreTrigger.hide()
 				} else {
@@ -127,7 +128,7 @@ function PublicationsAdapter(options) {
 
 					let element = elements[index]
 					let parsedElement = parsedElements[index]
-					let item = onDraw(element, createItem(parsedElement))
+					let item = onDraw(element, createItem(parsedElement), container)
 
 					if (item instanceof HTMLElement) {
 						item = $(item)
@@ -136,14 +137,23 @@ function PublicationsAdapter(options) {
 					}
 
 					item.hide()
-					items.push(item)
-					container.append(item)
+					if (append) {
+						items.push(item)
+						if (loadMoreTriggerIsInsideContainer) {
+							item.insertBefore(loadMoreTrigger)
+						} else {
+							container.append(item)
+						}
+					}
 
 				}
 
 				items.map(e => $(e).show(500))
 
-				resolve(res)
+				resolve({
+					response: res,
+					container: container,
+				})
 
 			}).fail(function (error) {
 
@@ -159,6 +169,16 @@ function PublicationsAdapter(options) {
 
 		})
 
+	}
+
+	/**
+	 * @function onDraw
+	 * @param {function(Object, HTMLElement, $):HTMLElement|$} callback
+	 */
+	this.onDraw = function (callback) {
+		if (typeof callback == 'function') {
+			onDraw = callback
+		}
 	}
 
 	/**

@@ -8,6 +8,7 @@ use App\Controller\PublicAreaController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\LangInjector;
+use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
  * Configuraciones adicionales.
@@ -22,6 +23,8 @@ $langInjectors = [
     ADMIN_MENU_LANG_GROUP => new LangInjector(basepath('app/lang/sidebarAdminZone'), $langsOptions),
     AdminPanelController::LANG_GROUP => new LangInjector(basepath('app/lang/adminZone'), $langsOptions),
     MAILING_GENERAL_LANG_GROUP => new LangInjector(basepath('app/lang/mailingGeneral'), $langsOptions),
+    UserDataPackage::LANG_GROUP => new LangInjector(basepath('app/lang/usersModule'), $langsOptions),
+    LOCATIONS_LANG_GROUP => new LangInjector(basepath('app/lang/locationBackend'), $langsOptions),
 ];
 
 foreach ($langInjectors as $group => $injector) {

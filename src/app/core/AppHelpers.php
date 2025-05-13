@@ -162,14 +162,32 @@ function set_title(string $title)
 
 /**
  * Obtiene el formato de fecha preferido para el idioma actual
+ * @param string $defaultFormat
+ * @param bool $sqlType
  * @return string
  */
-function get_default_format_date()
+function get_default_format_date(string $defaultFormat = null, bool $sqlType = false)
 {
-    $default = 'Y-m-d';
-    $format = get_config('format_date_lang');
+    $default = !$sqlType ? 'Y-m-d' : '%Y-%m-%d';
+    $defaultFormat = $defaultFormat ?? $default;
+    $format = !$sqlType ? get_config('format_date_lang') : get_config('format_date_lang_sql');
     $format = is_array($format) && isset($format[Config::get_lang()]) ? $format[Config::get_lang()] : null;
-    return is_string($format) ? $format : $default;
+    return is_string($format) ? $format : $defaultFormat;
+}
+
+/**
+ * Verifica si la petición es del mismo dominio
+ * @return bool
+ */
+function requestIsSameDomain()
+{
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+    $protocol = $isHttps ? 'https://' : 'http://';
+    $currentDomain = $protocol . $_SERVER['HTTP_HOST'];
+    $originHttp = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $refererHttp = $_SERVER['HTTP_REFERER'] ?? '';
+    $isSameDomain = $originHttp == $currentDomain || mb_strpos($refererHttp, $currentDomain) === 0;
+    return $isSameDomain;
 }
 
 /**
@@ -3143,23 +3161,54 @@ function getCookie(string $name, bool $jsonDecode = false, bool $jsonDecodeAsArr
  * Obtiene el contenido del archivo con el nombre provisto dentro de la carpeta de llaves seguras
  *
  * @param string $name
+ * @param string $fullDirectory Ruta absoluta de donde se encuentra la carpeta "secure-keys"
  * @return string
  */
-function getKeyFromSecureKeys(string $name)
+function getKeyFromSecureKeys(string $name, string $fullDirectory = null)
 {
     $key = '';
-    $file = basepath('..' . \DIRECTORY_SEPARATOR  . 'secure-keys' . \DIRECTORY_SEPARATOR  . $name);
-    $fileExists = file_exists($file);
-    $ignoreFiles = [
-        '.gitignore',
-        '.htaccess',
-        '.editorconfig',
-    ];
-    if ($fileExists && !in_array($name, $ignoreFiles)) {
-        $content = file_get_contents($file);
-        if (is_string($content)) {
-            $key = trim($content);
+    $file = null;
+    $relativePath = 'secure-keys' . \DIRECTORY_SEPARATOR  . $name;
+    $defaultDir = $fullDirectory !== null ? $fullDirectory : '..' . \DIRECTORY_SEPARATOR;
+    $privateDirHestiaLike = '..' . \DIRECTORY_SEPARATOR  . 'private' . \DIRECTORY_SEPARATOR;
+    try {
+        $file = basepath($defaultDir . $relativePath);
+    } catch (\Exception $e) {
+        try {
+            $file = basepath($privateDirHestiaLike . $relativePath);
+        } catch (\Exception $e) {
+            $file = null;
+        }
+    }
+    if ($file !== null) {
+        $fileExists = file_exists($file);
+        $ignoreFiles = [
+            '.gitignore',
+            '.htaccess',
+            '.editorconfig',
+        ];
+        if ($fileExists && !in_array($name, $ignoreFiles)) {
+            $content = file_get_contents($file);
+            if (is_string($content)) {
+                $key = trim($content);
+            }
         }
     }
     return $key;
+}
+
+/**
+ * Convierte un objeto en un array
+ * @param mixed $input
+ * @return array
+ */
+function objectToArray($input)
+{
+    if (is_object($input)) {
+        $input = get_object_vars($input);
+    }
+    if (is_array($input)) {
+        return array_map('objectToArray', $input);
+    }
+    return $input;
 }
