@@ -72,11 +72,13 @@ window.addEventListener('load', function () {
 	/* Configuraciones iniciales */
 	configFomanticDropdown('.ui.dropdown:not(.langs)') //Debe inciarse antes de genericFormHandler para la validación
 
+	let toFormEditForTranstation = false
 	let form = genericFormHandler(formSelector, {
 		onSetFormData: function (formData) {
 
 			formData.set('mainImage', cropperMainImage.getFile())
 			formData.set('thumbImage', cropperThumbImage.getFile())
+			formData.set('toTranslation', toFormEditForTranstation ? 'yes' : 'no')
 			if (cropperOpenGraphImage.wasChange()) {
 				formData.set('ogImage', cropperOpenGraphImage.getFile())
 			}
@@ -102,6 +104,17 @@ window.addEventListener('load', function () {
 		}
 	})
 
+	//Botones de guardado
+	let regularSaveButton = form.find('button[type="submit"][save]')
+	let toTranslationButtonSubmit = form.find('button[type="submit"][add-translation]')
+
+	//Comportamiento del botón de agregar traducción
+	toTranslationButtonSubmit.on('click', function (event) {
+		event.preventDefault()
+		toFormEditForTranstation = true
+		regularSaveButton.click()
+	})
+
 	//Comportamiento de placeholders
 	attachmentMainImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperMainImage, idMainImage) })
 	attachmentThumbImage.scopeAction(function (instance, elements) { genericAttachmentWithModalCropperBehavior(instance, elements, cropperThumbImage, idThumbImage) })
@@ -117,8 +130,6 @@ window.addEventListener('load', function () {
 	form.find('input, select, textarea').attr('autocomplete', 'off')
 	form.find('.checkbox').checkbox()
 	$('.ui.accordion').accordion()
-
-	configLangChange('.ui.dropdown.langs')
 
 	/** 
 	 * @param {AttachmentPlaceholder} instance
@@ -146,25 +157,6 @@ window.addEventListener('load', function () {
 					}
 				},
 			}).modal('show')
-		})
-
-	}
-
-	function configLangChange(dropdownSelector) {
-
-		let dropdown = $(dropdownSelector)
-
-		dropdown.dropdown({
-			/**
-			 * 
-			 * @param {Number|String} value 
-			 * @param {String} innerText 
-			 * @param {$} element 
-			 */
-			onChange: function (value, innerText, element) {
-				showGenericLoader('redirect')
-				window.location.href = value
-			},
 		})
 
 	}

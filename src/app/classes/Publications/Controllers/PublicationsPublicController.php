@@ -58,6 +58,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
     const BASE_JS_DIR = PublicationsController::BASE_JS_DIR;
     const BASE_CSS_DIR = PublicationsController::BASE_CSS_DIR;
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
+    const LANG_GROUP_PUBLIC = PublicationsLang::LANG_GROUP_PUBLIC;
 
     public function __construct()
     {
@@ -153,6 +154,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
         $exists = $element->id !== null;
         $allowShow = false;
         $isScheduled = $element->status == PublicationMapper::ACTIVE && !$element->isActiveByDates();
+        $allowWithoutTranslation = false; //Define si se puede mostrar el elemento aunque no tenga traducción al idioma actual
 
         if ($element->isDraft() || $isScheduled) {
 
@@ -170,6 +172,10 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
         } else {
             $allowShow = $exists && $element->status == PublicationMapper::ACTIVE && $element->isActiveByDates();
+        }
+
+        if (!$allowWithoutTranslation && !$element->hasLang($currentLang)) {
+            throw new NotFoundException($request, $response);
         }
 
         if ($allowShow) {
@@ -248,7 +254,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
     /**
      * @inheritDoc
      */
-    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
+    public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }

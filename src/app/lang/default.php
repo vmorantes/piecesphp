@@ -107,23 +107,6 @@ $lang = [
 	'avatarModule' => [
 		'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',
     ],
-    'usersModule' => [
-        'firstname'         => 'Primer nombre',
-        'secondname'        => 'Segundo nombre',
-        'first-lastname'    => 'Primer apellido',
-        'second-lastname'   => 'Segundo apellido',
-        'user'              => 'Usuario',
-        'email-standard'    => 'Email',
-        'password'          => 'Contraseña',
-        'confirm-password'  => 'Confirmar contraseña',
-        'status'            => 'Estado',
-        'save'              => 'Guardar',
-        'password_restored' => 'Contraseña nueva',
-        'profile'           => 'Perfil',
-        'current-password'  => 'Contraseña actual',
-        'active'            => 'Activo',
-        'inactive'          => 'Inactivo',
-    ],
     'mailTemplates' => [
         'MENSAJE_DE_VALIDEZ' => 'Recuerde que este código tiene una validez de 24 horas, después de ese tiempo debe generar uno nuevo',
     ],

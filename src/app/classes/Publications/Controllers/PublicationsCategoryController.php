@@ -109,10 +109,13 @@ class PublicationsCategoryController extends AdminPanelController
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
+        $langsOptions = array_to_html_options(HelperController::getLangsForSelect(), Config::get_default_lang());
+
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
         $data['title'] = $title;
+        $data['langsOptions'] = $langsOptions;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => get_route('admin'),
@@ -247,7 +250,7 @@ class PublicationsCategoryController extends AdminPanelController
         //──── Entrada ───────────────────────────────────────────────────────────────────────────
 
         //Definición de validaciones y procesamiento
-        $defaultLang = Config::get_default_lang();
+        $baseLang = $request->getParsedBodyParam('baseLang', Config::get_default_lang());
         $allowedLangs = Config::get_allowed_langs();
         $expectedParameters = new Parameters([
             new Parameter(
@@ -264,17 +267,17 @@ class PublicationsCategoryController extends AdminPanelController
             new Parameter(
                 'name',
                 null,
-                function ($value) use ($defaultLang) {
+                function ($value) use ($baseLang) {
                     $valid = is_array($value);
                     if ($valid) {
                         foreach ($value as $langCode => $text) {
                             $valid = is_string($text);
-                            $valid = $langCode == $defaultLang ? mb_strlen(trim($text)) > 0 : true;
+                            $valid = $langCode == $baseLang ? mb_strlen(trim($text)) > 0 : true;
                             if (!$valid) {
                                 break;
                             }
                         }
-                        $valid = $valid && array_key_exists($defaultLang, $value);
+                        $valid = $valid && array_key_exists($baseLang, $value);
                     }
                     return $valid;
                 },
@@ -287,6 +290,25 @@ class PublicationsCategoryController extends AdminPanelController
                         }
                     }
                     return $parsed;
+                }
+            ),
+            new Parameter(
+                'baseLang',
+                null,
+                function ($value) {
+                    $valid = is_string($value) && mb_strlen(trim($value)) > 0;
+                    $allowedLangs = Config::get_allowed_langs();
+                    if ($valid) {
+                        $valid = in_array($value, $allowedLangs);
+                        if (!$valid) {
+                            throw new SafeException(__(self::LANG_GROUP, 'El idioma seleccionado no es válido.'));
+                        }
+                    }
+                    return $valid;
+                },
+                true,
+                function ($value) {
+                    return is_string($value) && mb_strlen(trim($value)) > 0 ? $value : Config::get_default_lang();
                 }
             ),
         ]);
@@ -324,9 +346,11 @@ class PublicationsCategoryController extends AdminPanelController
             //Información del formulario
             /**
              * @var int $id
+             * @var string $baseLang
              * @var array<string,string> $name
              */
             $id = $expectedParameters->getValue('id');
+            $baseLang = $expectedParameters->getValue('baseLang');
             $name = $expectedParameters->getValue('name');
 
             //Se define si es edición o creación
@@ -338,6 +362,7 @@ class PublicationsCategoryController extends AdminPanelController
                     //Nuevo
 
                     $mapper = new PublicationCategoryMapper();
+                    $mapper->baseLang = $baseLang;
 
                     foreach ($name as $langName => $textName) {
                         if (mb_strlen($textName) > 0) {
@@ -719,27 +744,18 @@ class PublicationsCategoryController extends AdminPanelController
     {
         $table = PublicationCategoryMapper::TABLE;
         $fields = PublicationCategoryMapper::fieldsToSelect();
-        $jsonExtractExists = PublicationCategoryMapper::jsonExtractExistsMySQL();
 
         $whereString = null;
         $where = [];
 
-        //Verificación de idioma
-        $defaultLang = Config::get_default_lang();
+        //Verificar idiomas
+        $showAlways = false; //Define si se muestra siempre aunque no tenga traducción
         $currentLang = Config::get_lang();
 
-        if ($currentLang != $defaultLang) {
-
-            if ($jsonExtractExists) {
-                $beforeOperator = !empty($where) ? 'AND' : '';
-                $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
-                $where[] = "{$beforeOperator} ({$critery})";
-            } else {
-                $beforeOperator = !empty($where) ? 'AND' : '';
-                $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-
+        if (!$showAlways) {
+            $beforeOperator = !empty($where) ? 'AND' : '';
+            $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL || JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) = '{$currentLang}'";
+            $where[] = "{$beforeOperator} ({$critery})";
         }
 
         if (!empty($where)) {
@@ -760,10 +776,7 @@ class PublicationsCategoryController extends AdminPanelController
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
         $parser = null;
-        $each = !$jsonExtractExists ? function ($element) {
-            $element = PublicationCategoryMapper::translateEntityObject($element);
-            return $element;
-        } : null;
+        $each = null;
 
         $pagination = $pageQuery->getPagination($parser, $each);
 

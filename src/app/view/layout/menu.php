@@ -22,15 +22,15 @@ $publicMenu = new MenuGroupCollection([
         ]),
         new MenuGroup([
             'name' => __(LANG_GROUP, 'Elementos'),
-            'visible' => true,
+            'visible' => genericViewRouteExists(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'elements'), null),
             'asLink' => true,
-            'href' => genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'elements')),
+            'href' => genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'elements'), null, true),
         ]),
         new MenuGroup([
             'name' => __(LANG_GROUP, 'Ejemplo de tabs'),
-            'visible' => true,
+            'visible' => genericViewRouteExists(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'tabs-sample'), null),
             'asLink' => true,
-            'href' => genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'tabs-sample')),
+            'href' => genericViewRoute(__(PublicAreaController::LANG_REPLACE_GENERIC_TITLES, 'tabs-sample'), null, true),
         ]),
         new MenuGroup([
             'name' => __(LANG_GROUP, 'Contacto'),

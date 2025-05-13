@@ -157,10 +157,10 @@ class ComponentProvider extends AdminPanelController
         if ($allow) {
 
             $currentUser = getLoggedFrameworkUser();
-            $currentUserType = (int) $currentUser->type;
-            $currentUserID = (int) $currentUser->id;
 
             if ($currentUser !== null) {
+                $currentUserType = (int) $currentUser->type;
+                $currentUserID = (int) $currentUser->id;
 
                 if ($name == 'SAMPLE') { //do something
                     $allow = false;
@@ -258,7 +258,7 @@ class ComponentProvider extends AdminPanelController
                 $classname . ':provide',
                 self::$baseRouteName . '-provide',
                 'GET',
-                true,
+                false,
                 null,
                 $provide
             ),
