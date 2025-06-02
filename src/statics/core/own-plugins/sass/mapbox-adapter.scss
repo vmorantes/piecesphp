@@ -44,7 +44,7 @@
 
         >button {
 
-            background-color: black;
+            background-color: var(--main-brand-color);
             color: white;
             outline: none;
             border: none;
@@ -58,7 +58,7 @@
             &:hover,
             &:active {
                 background-color: whitesmoke;
-                color: black;
+                color: var(--main-brand-color);
             }
 
             //Varios botones

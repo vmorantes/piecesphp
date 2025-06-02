@@ -8,6 +8,7 @@ namespace Publications\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Cache\CacheControllersCriteries;
 use PiecesPHP\Core\Cache\CacheControllersCritery;
 use PiecesPHP\Core\Cache\CacheControllersManager;
@@ -39,6 +40,8 @@ use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
 use Publications\Util\AttachmentPackage;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
 
 /**
  * PublicationsController.
@@ -93,7 +96,7 @@ class PublicationsController extends AdminPanelController
 
     const RESPONSE_SOURCE_STATIC_CACHE = 'STATIC_CACHE';
     const RESPONSE_SOURCE_NORMAL_RESULT = 'NORMAL_RESULT';
-    const ENABLE_CACHE = true;
+    const ENABLE_CACHE = false;
 
     public function __construct()
     {
@@ -137,9 +140,8 @@ class PublicationsController extends AdminPanelController
         import_default_rich_editor();
         import_simple_upload_placeholder();
 
-        $attachmentGroup1 = [
-            new AttachmentPackage(-1, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
-            new AttachmentPackage(-1, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
+        $dynamicAttachments = [
+            new AttachmentPackage(-1, -1, __(self::LANG_GROUP, 'Copia en PDF'), false),
         ];
 
         $action = self::routeName('actions-add');
@@ -161,7 +163,7 @@ class PublicationsController extends AdminPanelController
         $data['description'] = $description;
         $data['langsOptions'] = $langsOptions;
         $data['allCategories'] = $allCategories;
-        $data['attachmentGroup1'] = $attachmentGroup1;
+        $data['dynamicAttachments'] = $dynamicAttachments;
         $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
@@ -208,11 +210,6 @@ class PublicationsController extends AdminPanelController
             import_default_rich_editor();
             import_simple_upload_placeholder();
 
-            $attachmentGroup1 = [
-                new AttachmentPackage($element->id, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
-                new AttachmentPackage($element->id, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
-            ];
-
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
             $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category->id);
@@ -232,7 +229,6 @@ class PublicationsController extends AdminPanelController
             $data['title'] = $title;
             $data['description'] = $description;
             $data['allCategories'] = $allCategories;
-            $data['attachmentGroup1'] = $attachmentGroup1;
             $data['selectedLang'] = $selectedLang;
             $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
             $data['breadcrumbs'] = get_breadcrumbs([
@@ -505,28 +501,28 @@ class PublicationsController extends AdminPanelController
 
         //──── Anexos ────────────────────────────────────────────────────────────────────────────
 
-        $attachmentsConfigure = [
-            new AttachmentPackage(null, 'attachment1', AttachmentPublicationMapper::ATTACHMENT_TYPE_1, FileValidator::TYPE_ANY, '*'),
-            new AttachmentPackage(null, 'attachment2', AttachmentPublicationMapper::ATTACHMENT_TYPE_2, FileValidator::TYPE_PDF, ['pdf', 'PDF']),
-        ];
-
-        $attachmentsExpectedParameters = [];
-
-        foreach ($attachmentsConfigure as $attachmentConfigure) {
-            $attachmentsExpectedParameters[] = new Parameter(
-                $attachmentConfigure->baseNameAppend('Type'),
-                null,
-                function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
-                },
-                false,
-                function ($value) {
-                    return clean_string($value);
-                }
-            );
-        }
-
-        $expectedParameters->addParameters($attachmentsExpectedParameters);
+        $baseAttachmentIDKey = 'attachmentsID_';
+        $baseAttachmentNameKey = 'attachmentsName_';
+        $baseAttachmentFileKey = 'attachmentsFile_';
+        $attachmentIDKeys = array_filter(array_keys($_POST), fn($e) => str_starts_with($e, $baseAttachmentIDKey));
+        $attachmentNamesKeys = array_filter(array_keys($_POST), fn($e) => str_starts_with($e, $baseAttachmentNameKey));
+        $attachmentFilesKeys = array_filter(array_keys($_FILES), fn($e) => str_starts_with($e, $baseAttachmentFileKey));
+        $attachmentExistsByIndex = function ($index) use ($baseAttachmentNameKey, $baseAttachmentFileKey, $baseAttachmentIDKey, $attachmentNamesKeys, $attachmentFilesKeys, $attachmentIDKeys) {
+            $nameIndex = "{$baseAttachmentNameKey}{$index}";
+            $fileIndex = "{$baseAttachmentFileKey}{$index}";
+            $idIndex = "{$baseAttachmentIDKey}{$index}";
+            $pairFileName = in_array($nameIndex, $attachmentNamesKeys) && in_array($fileIndex, $attachmentFilesKeys);
+            $pairIDName = in_array($nameIndex, $attachmentNamesKeys) && in_array($idIndex, $attachmentIDKeys);
+            return $pairFileName || $pairIDName;
+        };
+        $attachmentIndexes = array_map(fn($e) => explode('_', $e)[1], $attachmentNamesKeys);
+        $attachmentsUploaded = array_map(fn($e) => ($attachmentExistsByIndex)($e) ? [
+            'id' => array_key_exists("{$baseAttachmentIDKey}{$e}", $_POST) ? $_POST["{$baseAttachmentIDKey}{$e}"] : null,
+            'nameOnFiles' => array_key_exists("{$baseAttachmentFileKey}{$e}", $_FILES) ? "{$baseAttachmentFileKey}{$e}" : null,
+            'name' => $_POST["{$baseAttachmentNameKey}{$e}"],
+            'file' => array_key_exists("{$baseAttachmentFileKey}{$e}", $_FILES) ? $_FILES["{$baseAttachmentFileKey}{$e}"] : null,
+        ] : null, $attachmentIndexes);
+        $attachmentsUploaded = array_filter($attachmentsUploaded, fn($e) => $e !== null);
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -549,7 +545,6 @@ class PublicationsController extends AdminPanelController
              * @var \DateTime|null $endDate
              * @var int $featured
              * @var int|null $draft
-             * @var array $attachmentsTypes
              */
             $id = $expectedParameters->getValue('id');
             $author = $expectedParameters->getValue('author');
@@ -565,15 +560,6 @@ class PublicationsController extends AdminPanelController
             $featured = $expectedParameters->getValue('featured') == PublicationMapper::FEATURED ? PublicationMapper::FEATURED : PublicationMapper::UNFEATURED;
             $draft = $expectedParameters->getValue('draft');
             $toTranslation = $request->getParsedBodyParam('toTranslation', 'no') == 'yes';
-
-            $attachmentsTypes = [];
-            foreach ($attachmentsConfigure as $attachmentConfigure) {
-                if ($attachmentConfigure->getType() == $expectedParameters->getValue($attachmentConfigure->baseNameAppend('Type'))) {
-                    $attachmentConfigure->setPublicationID($id);
-                    $attachmentConfigure->setLang($lang);
-                    $attachmentsTypes[$attachmentConfigure->baseNameAppend('Type')] = $attachmentConfigure;
-                }
-            }
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -631,28 +617,30 @@ class PublicationsController extends AdminPanelController
 
                     if ($saved) {
 
-                        /**
-                         * @var AttachmentPackage[] $attachmentsTypes
-                         */
-                        foreach ($attachmentsTypes as $attachmentConfig) {
+                        foreach ($attachmentsUploaded as $attachmentUploaded) {
 
-                            $attachBasename = $attachmentConfig->getBaseName();
-                            $attachMapper = $attachmentConfig->getMapper();
-                            $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
-                            $attachType = $attachmentConfig->getType();
-                            $attachValidTypes = $attachmentConfig->getValidTypes();
-                            $attachFileName = $attachmentConfig->getTypeFilename();
+                            if ($attachmentUploaded['file'] !== null) {
+                                $attachmentConfig = new AttachmentPackage($mapper->id, -1, $attachmentUploaded['name'], false, $lang);
+                                $attachMapper = $attachmentConfig->getMapper();
+                                $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
+                                $attachMapper->publication = $mapper->id;
+                                $attachMapper->lang = $lang;
+                                $attachMapper->attachmentName = $attachmentConfig->getDisplayName();
+                                $attachMapper->folder = $mapper->folder . '/' . 'attachments';
 
-                            $attachMapper->publication = $mapper->id;
-                            $attachMapper->attachmentType = $attachType;
-                            $attachMapper->lang = $lang;
-                            $attachMapper->folder = $mapper->folder . '/' . 'attachments';
+                                $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], $attachMapper->folder, null, [
+                                    FileValidator::TYPE_ALL_IMAGES,
+                                    FileValidator::TYPE_PDF,
+                                    FileValidator::TYPE_DOC,
+                                    FileValidator::TYPE_DOCX,
+                                    FileValidator::TYPE_XLS,
+                                    FileValidator::TYPE_XLSX,
+                                ], false, friendly_url($attachMapper->attachmentName));
 
-                            $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), $attachMapper->folder, null, $attachValidTypes, false, $attachFileName);
-
-                            if (mb_strlen($attachFile) > 0) {
-                                $attachMapper->fileLocation = $attachFile;
-                                $attachMapper->id !== null ? $attachMapper->update() : $attachMapper->save();
+                                if (mb_strlen($attachFile) > 0) {
+                                    $attachMapper->fileLocation = $attachFile;
+                                    $attachMapper->id !== null ? $attachMapper->update() : $attachMapper->save();
+                                }
                             }
 
                         }
@@ -747,28 +735,41 @@ class PublicationsController extends AdminPanelController
                             $mapper->setLangData($lang, 'ogImage', $ogImage);
                         }
 
-                        /**
-                         * @var AttachmentPackage[] $attachmentsTypes
-                         */
-                        foreach ($attachmentsTypes as $attachmentConfig) {
+                        foreach ($attachmentsUploaded as $attachmentUploaded) {
 
-                            $attachBasename = $attachmentConfig->getBaseName();
+                            $attachmentID = $attachmentUploaded['id'];
+                            $attachmentID = Validator::isInteger($attachmentID) ? (int) $attachmentID : -1;
+                            $attachmentConfig = new AttachmentPackage($mapper->id, $attachmentID, $attachmentUploaded['name'], false, $lang);
                             $attachMapper = $attachmentConfig->getMapper();
                             $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
-                            $attachType = $attachmentConfig->getType();
-                            $attachValidTypes = $attachmentConfig->getValidTypes();
-                            $attachFileName = $attachmentConfig->getTypeFilename();
                             $langSuffix = $baseLang != $lang ? "_{$lang}" : '';
-
-                            $attachMapper->attachmentType = $attachType;
                             $attachMapper->publication = $mapper->id;
                             $attachMapper->lang = $lang;
+                            $attachMapper->attachmentName = $attachmentConfig->getDisplayName();
                             $attachMapper->folder = $mapper->folder . '/' . 'attachments';
 
                             if ($attachMapper->id !== null) {
-                                $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), '', $attachMapper->fileLocation, $attachValidTypes, false, $attachFileName . $langSuffix);
+                                if ($attachmentUploaded['nameOnFiles'] !== null) {
+                                    $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], '', $attachMapper->fileLocation, [
+                                        FileValidator::TYPE_ALL_IMAGES,
+                                        FileValidator::TYPE_PDF,
+                                        FileValidator::TYPE_DOC,
+                                        FileValidator::TYPE_DOCX,
+                                        FileValidator::TYPE_XLS,
+                                        FileValidator::TYPE_XLSX,
+                                    ], false, friendly_url($attachMapper->attachmentName) . $langSuffix);
+                                } else {
+                                    $attachFile = $attachMapper->fileLocation;
+                                }
                             } else {
-                                $attachFile = self::handlerUpload($attachmentConfig->baseNameAppend('File'), $attachMapper->folder, null, $attachValidTypes, false, $attachFileName . $langSuffix);
+                                $attachFile = self::handlerUpload($attachmentUploaded['nameOnFiles'], $attachMapper->folder, null, [
+                                    FileValidator::TYPE_ALL_IMAGES,
+                                    FileValidator::TYPE_PDF,
+                                    FileValidator::TYPE_DOC,
+                                    FileValidator::TYPE_DOCX,
+                                    FileValidator::TYPE_XLS,
+                                    FileValidator::TYPE_XLSX,
+                                ], false, friendly_url($attachMapper->attachmentName) . $langSuffix);
                             }
 
                             if (mb_strlen($attachFile) > 0) {
@@ -1194,6 +1195,11 @@ class PublicationsController extends AdminPanelController
     public function dataTables(Request $request, Response $response)
     {
 
+        $currentUser = getLoggedFrameworkUser();
+        $currentUserID = $currentUser->id;
+        $currentUserType = $currentUser->type;
+        $currentOrganizationMapper = $currentUser->organizationMapper;
+        $organizationAdmin = $currentOrganizationMapper !== null ? $currentOrganizationMapper->administrator : null;
         $visibility = $request->getQueryParam('visibility', null);
 
         $whereString = null;
@@ -1206,6 +1212,27 @@ class PublicationsController extends AdminPanelController
             "{$table}.status != {$inactive}",
         ];
         $having = [];
+
+        //Restricciones según organización (a menos que pueda verlas todas por PublicationMapper::CAN_VIEW_ALL)
+        if (!in_array($currentUserType, PublicationMapper::CAN_VIEW_ALL)) {
+
+            if ($currentOrganizationMapper !== null) {
+
+                //Ver solo las de su organización
+                $beforeOperator = !empty($having) ? $and : '';
+                $critery = "organizationID = {$currentOrganizationMapper->id}";
+                $having[] = "{$beforeOperator} ({$critery})";
+
+                //Si no es el adminstrador, solo ver las propias
+                //NOTE: Desactivado
+                if ($organizationAdmin->id !== $currentUserID && false) {
+                    $beforeOperator = !empty($having) ? $and : '';
+                    $critery = "createdBy = {$currentUserID}";
+                    $having[] = "{$beforeOperator} ({$critery})";
+                }
+            }
+
+        }
 
         if ($visibility !== null) {
             $beforeOperator = !empty($having) ? $and : '';
@@ -1339,9 +1366,12 @@ class PublicationsController extends AdminPanelController
 
         $table = PublicationMapper::TABLE;
         $fields = PublicationMapper::fieldsToSelect();
+        $validateSystemApprovals = SystemApprovalsRoutes::ENABLE && !empty(array_filter($fields, fn($e) => mb_strpos($e, 'systemApprovalStatus')));
 
         $whereString = null;
         $where = [];
+        $havingString = null;
+        $having = [];
         $and = 'AND';
 
         if ($category !== null) {
@@ -1387,6 +1417,13 @@ class PublicationsController extends AdminPanelController
 
         }
 
+        if ($validateSystemApprovals) {
+            $approved = SystemApprovalsMapper::STATUS_APPROVED;
+            $beforeOperator = !empty($having) ? $and : '';
+            $critery = "systemApprovalStatus = '{$approved}'";
+            $having[] = "{$beforeOperator} ({$critery})";
+        }
+
         $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
         $now = $now->getTimestamp();
         $unixNowDate = "FROM_UNIXTIME({$now})";
@@ -1418,15 +1455,21 @@ class PublicationsController extends AdminPanelController
         if (!empty($where)) {
             $whereString = implode(' ', $where);
         }
+        if (!empty($having)) {
+            $havingString = implode(' ', $having);
+        }
 
         $fields = implode(', ', $fields);
         $sqlSelect = "SELECT {$fields} FROM {$table}";
-        $sqlCount = "SELECT COUNT({$table}.id) AS total FROM {$table}";
 
         if ($whereString !== null) {
             $sqlSelect .= " WHERE {$whereString}";
-            $sqlCount .= " WHERE {$whereString}";
         }
+        if ($havingString !== null) {
+            $sqlSelect .= " HAVING {$havingString}";
+        }
+
+        $sqlCount = "SELECT COUNT(subQuery.id) AS total FROM ({$sqlSelect}) " . 'AS subQuery';
 
         $sqlSelect .= " ORDER BY " . implode(', ', PublicationMapper::ORDER_BY_PREFERENCE);
 
@@ -1518,6 +1561,7 @@ class PublicationsController extends AdminPanelController
 
                 $currentUserType = $currentUser->type;
                 $currentUserID = $currentUser->id;
+                $currentOrganizationMapper = $currentUser->organizationMapper;
 
                 if ($name == 'actions-delete') {
 
@@ -1529,9 +1573,41 @@ class PublicationsController extends AdminPanelController
 
                         $createdByID = (int) $publication->createdBy;
                         $authorID = (int) $publication->author;
+                        $createdByOrganizationID = (int) UsersModel::getBy($publication->createdBy, 'id')->organization;
+                        $createdByOrganizationRecord = OrganizationMapper::getBy($createdByOrganizationID, 'id', true);
+                        $createdByOrganizationAdminID = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator->id : null;
+                        $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
+                        $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
+                        $allowByOrg = $currentIsSameOrg && $currentIsOrgAdmin;
+
                         $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
 
-                        if (in_array($currentUserType, PublicationMapper::CAN_DELETE_ALL)) {
+                        if (in_array($currentUserType, PublicationMapper::CAN_DELETE_ALL) || $allowByOrg) {
+                            $allow = true;
+                        }
+
+                    }
+
+                } elseif ($name == 'forms-edit') {
+
+                    $allow = false;
+                    $id = ($getParam)('id');
+                    $publication = PublicationMapper::getBy($id, 'id');
+
+                    if ($publication !== null) {
+
+                        $createdByID = (int) $publication->createdBy;
+                        $authorID = (int) $publication->author;
+                        $createdByOrganizationID = (int) UsersModel::getBy($publication->createdBy, 'id')->organization;
+                        $createdByOrganizationRecord = OrganizationMapper::getBy($createdByOrganizationID, 'id', true);
+                        $createdByOrganizationAdminID = $createdByOrganizationRecord !== null ? $createdByOrganizationRecord->administrator->id : null;
+                        $currentIsSameOrg = $currentOrganizationMapper !== null ? $createdByOrganizationID == $currentOrganizationMapper->id : false;
+                        $currentIsOrgAdmin = $createdByOrganizationAdminID == $currentUserID;
+                        $allowByOrg = $currentIsSameOrg && $currentIsOrgAdmin;
+
+                        $allow = $createdByID == $currentUserID || $authorID == $currentUserID;
+
+                        if (in_array($currentUserType, PublicationMapper::CAN_EDIT_ALL) || $allowByOrg) {
                             $allow = true;
                         }
 
@@ -1726,21 +1802,29 @@ class PublicationsController extends AdminPanelController
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos
-        $list = $allRoles;
+        $list = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+        ];
         $creation = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $edition = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $routes = [
 

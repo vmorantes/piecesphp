@@ -1,7 +1,13 @@
 /**
  * @function LocationsAdapter
  */
-function LocationsAdapter() {
+function LocationsAdapter(attributes = {
+	selectAutoFilledRegionAttr: 'locations-component-auto-filled-region',
+	selectAutoFilledCountryAttr: 'locations-component-auto-filled-country',
+	selectAutoFilledStateAttr: 'locations-component-auto-filled-state',
+	selectAutoFilledCityAttr: 'locations-component-auto-filled-city',
+	selectAutoFilledPointAttr: 'locations-component-auto-filled-point',
+}) {
 
 	const langGroup = 'LocationsAdapter'
 
@@ -17,11 +23,13 @@ function LocationsAdapter() {
 	let citiesURL = `${locationsURL}/cities`
 	let pointsURL = `${locationsURL}/points`
 
-	let selectAutoFilledRegionAttr = 'locations-component-auto-filled-region'
-	let selectAutoFilledCountryAttr = 'locations-component-auto-filled-country'
-	let selectAutoFilledStateAttr = 'locations-component-auto-filled-state'
-	let selectAutoFilledCityAttr = 'locations-component-auto-filled-city'
-	let selectAutoFilledPointAttr = 'locations-component-auto-filled-point'
+	let {
+		selectAutoFilledRegionAttr,
+		selectAutoFilledCountryAttr,
+		selectAutoFilledStateAttr,
+		selectAutoFilledCityAttr,
+		selectAutoFilledPointAttr,
+	} = attributes
 
 	let regionFirstTime = true
 	let countryFirstTime = true
@@ -866,6 +874,343 @@ function LocationsAdapter() {
 	}
 
 	/**
+	 * @method fillSelectWithCountries
+	 * @description Rellena un select con los países
+	 * @param {string} region El nombre de la región
+	 * @returns {bool} true si hay, false si no
+	   */
+	this.fillSelectWithCountriesToCities = (region = null) => {
+
+		let countries = this.getCountries(region)
+
+		let countriesSelect = $(`[${selectAutoFilledCountryAttr}]`)
+
+		let has = true
+
+		if (countriesSelect.length > 0) {
+
+			has = countries.length > 0
+
+			let firstOption = countriesSelect.find(`option[value=""]`)
+
+			let attrValue = countriesSelect.attr(selectAutoFilledCountryAttr)
+			let hasDefault = typeof attrValue == 'string' && attrValue.trim().length > 0 && countryFirstTime
+			let defaultValue = hasDefault ? attrValue.trim() : null
+
+			countryFirstTime = false
+
+			if (firstOption.length > 0) {
+				firstOption = firstOption.get(0).outerHTML
+			} else if (countries.length > 0) {
+				firstOption = `<option value="">${_i18n(langGroup, 'Seleccione una opción')}</option>`
+			} else {
+				firstOption = null
+			}
+
+			countriesSelect.html('')
+
+			if (firstOption != null) {
+				countriesSelect.append(firstOption)
+			}
+
+			//Acciones con valores iniciales
+			let hasSelected = false
+			for (let country of countries) {
+				let option = document.createElement('option')
+				option.value = country.id
+				option.innerHTML = country.name
+				if (hasDefault) {
+					if (country.id == defaultValue) {
+						option.setAttribute('selected', true)
+						hasSelected = true
+					}
+				}
+				if (LocationsAdapter.dataToFilter.countriesSelected.includes(parseInt(country.id)) || LocationsAdapter.dataToFilter.countriesSelected.includes(`${country.id}`)) {
+					option.setAttribute('selected', true)
+					hasSelected = true
+				}
+				countriesSelect.append(option)
+			}
+
+			let selectedOption = countriesSelect.find('option').filter(':selected')
+			let selectedValue = selectedOption.length > 0 ? selectedOption.val().trim() : ''
+
+			if (selectedValue.length > 0) {
+				if (!instance.fillSelectWithCitiesFromCountry(selectedValue)) {
+					infoMessage(_i18n(langGroup, 'Atención'), _i18n(langGroup, 'No hay ciudades registradas.'))
+				}
+			}
+
+			//Acciones con eventos
+
+			function eventHandler(e) {
+
+				let value = $(e.target).val()
+				value = typeof value == 'string' ? value : ''
+				const loaderName = generateUniqueID('event')
+				showGenericLoader(loaderName)
+
+				if (typeof value == 'string' && value.trim().length > 0) {
+					if (!instance.fillSelectWithCitiesFromCountry(value)) {
+						infoMessage(_i18n(langGroup, 'Atención'), _i18n(langGroup, 'No hay ciudades registradas.'))
+					}
+				} else {
+					instance.fillSelectWithCitiesFromCountry(-1)
+				}
+
+				removeGenericLoader(loaderName)
+
+			}
+
+			if (countriesSelect.attr('event-attach') !== 'yes') {
+				countriesSelect.off('change', eventHandler)
+				countriesSelect.on('change', eventHandler)
+				countriesSelect.attr('event-attach', 'yes')
+			}
+
+			if (typeof countriesSelect.attr('with-dropdown') == 'string') {
+
+				$(`[${selectAutoFilledCountryAttr}]`).addClass('search')
+				let dropdown = null
+				if (currentCountryDropdown === null) {
+					dropdown = configFomanticDropdown(`[${selectAutoFilledCountryAttr}]`, {
+						onChange: function (value, text, $element) {
+							onChangeCountryDropdown(value, text, $element)
+						},
+					})[0]
+					currentCountryDropdown = dropdown
+					onConfigDropdowns()
+				} else {
+					dropdown = currentCountryDropdown
+				}
+
+				if (!hasDefault && !hasSelected) {
+					instance.fillSelectWithCitiesFromCountry(null)
+					dropdown.dropdown('clear')
+				} else {
+					dropdown.dropdown('refresh')
+				}
+
+			}
+
+		}
+
+		return has
+	}
+
+	/**
+	 * @method fillSelectWithCities
+	 * @description Rellena un select con las ciudades del país provisto
+	 * @param {number} country El id del país
+	 * @returns {bool} true si hay, false si no
+	   */
+	this.fillSelectWithCitiesFromCountry = (country) => {
+
+		let cities = []
+
+		let citiesSelect = $(`[${selectAutoFilledCityAttr}]`)
+
+		let has = true
+
+		if (citiesSelect.length > 0) {
+
+			if (country !== null || Array.isArray(country)) {
+
+				country = Array.isArray(country) ? country : [country]
+
+				for (let i of country) {
+					i = typeof i == 'undefined' ? null : i
+					let _cities = this.getCities(null, i)
+
+					for (let j of _cities) {
+						cities.push(j)
+					}
+				}
+
+			}
+
+			has = cities.length > 0
+
+			let firstOption = citiesSelect.find(`option[value=""]`)
+
+			if (firstOption.length > 0) {
+				firstOption = firstOption.get(0).outerHTML
+			} else if (cities.length > 0) {
+				firstOption = `<option value="">${_i18n(langGroup, 'Seleccione una opción')}</option>`
+			} else {
+				firstOption = null
+			}
+
+			citiesSelect.html('')
+
+			if (firstOption != null) {
+				citiesSelect.append(firstOption)
+			}
+
+			let hasDefault = false
+
+			if (country !== null) {
+
+				//Acciones cuando comienza con valores definidos
+
+				let attrValue = citiesSelect.attr(selectAutoFilledCityAttr)
+				let defaultValues = []
+				if (typeof attrValue == 'string') {
+
+					if (attrValue.trim().split(', ').length > 0) {
+
+						defaultValues = attrValue.trim().split(', ').filter((i) => {
+							return i.trim().length > 0
+						}).map(e => {
+							return parseInt(e)
+						})
+
+						hasDefault = defaultValues.length > 0 && cityFirstTime
+
+					}
+
+				}
+
+				cityFirstTime = false
+
+				for (let city of cities) {
+					let option = document.createElement('option')
+					option.value = city.id
+					option.innerHTML = city.name
+					if (hasDefault) {
+						if (defaultValues.indexOf(city.id) !== -1) {
+							option.setAttribute('selected', true)
+						}
+					} else {
+						if (lastCitiesSelected.indexOf(city.id) !== -1) {
+							option.setAttribute('selected', true)
+						}
+					}
+					citiesSelect.append(option)
+				}
+
+				lastCitiesSelected = Array.isArray(citiesSelect.val()) ? citiesSelect.val() : [citiesSelect.val()]
+
+				if (citiesSelect.closest('.ui.dropdown').length > 0) {
+					if (currentCityDropdown instanceof $) {
+						$(currentCityDropdown.simulatorNode).find('option').removeAttr('selected')
+						const options = Array.from(citiesSelect.find('option'))
+						for (let option of options) {
+							option = $(option)
+							if (option.is(':selected') && option.attr('value').length > 0) {
+								$(currentCityDropdown.simulatorNode).append(`<option value="${option.attr('value')}" selected></option>`)
+							}
+						}
+						currentCityDropdown.dropdown('clear')
+						currentCityDropdown.find('.default.text').text($(firstOption).text())
+						currentCityDropdown.dropdown('refresh')
+						currentCityDropdown.setRequired(true)
+					}
+				}
+
+				if (hasDefault) {
+
+					if (!instance.fillSelectWithPoints(defaultValues)) {
+						infoMessage(
+							_i18n(langGroup, 'Atención'),
+							_i18n(langGroup, `No hay locaciones registradas en la(s) ciudad(es) seleccionada(s).`)
+						)
+					}
+
+				}
+
+				//Acciones en eventos
+
+				function eventHandler(e) {
+
+					let that = $(e.currentTarget)
+					let value = that.val()
+					lastCitiesSelected = Array.isArray(value) ? value : [value]
+					const loaderName = generateUniqueID('event')
+					showGenericLoader(loaderName)
+
+					if (Array.isArray(value)) {
+
+						if (value.length > 0) {
+
+							if (!instance.fillSelectWithPoints(value)) {
+								infoMessage(
+									_i18n(langGroup, 'Atención'),
+									_i18n(langGroup, `No hay locaciones registradas en la(s) ciudad(es) seleccionada(s).`)
+								)
+							}
+
+						} else {
+							instance.fillSelectWithPoints(-1)
+						}
+
+					} else {
+
+						if (typeof value == 'string' && value.trim().length > 0) {
+							if (!instance.fillSelectWithPoints(value)) {
+								infoMessage(
+									_i18n(langGroup, 'Atención'),
+									_i18n(langGroup, `No hay locaciones registradas en la(s) ciudad(es) seleccionada(s).`)
+								)
+							}
+						} else {
+							instance.fillSelectWithPoints(-1)
+						}
+
+					}
+
+					removeGenericLoader(loaderName)
+
+				}
+
+				if (citiesSelect.attr('event-attach') !== 'yes') {
+					citiesSelect.off('change', eventHandler)
+					citiesSelect.on('change', eventHandler)
+					citiesSelect.attr('event-attach', 'yes')
+				}
+
+			}
+
+			if (typeof citiesSelect.attr('with-dropdown') == 'string') {
+
+				$(`[${selectAutoFilledCityAttr}]`).addClass('search')
+				let dropdown = null
+				if (currentCityDropdown === null) {
+					dropdown = configFomanticDropdown(`[${selectAutoFilledCityAttr}]`, {
+						onChange: function (value, text, $element) {
+							onChangeCityDropdown(value, text, $element)
+						},
+					})[0]
+					currentCityDropdown = dropdown
+					onConfigDropdowns()
+				} else {
+					dropdown = currentCityDropdown
+				}
+
+				if (!hasDefault) {
+
+					instance.fillSelectWithPoints(null)
+
+					if (lastCitiesSelected.length > 0 && country != null) {
+						dropdown.dropdown('refresh')
+						instance.fillSelectWithPoints(lastCitiesSelected)
+					} else {
+						dropdown.dropdown('clear')
+					}
+
+				} else {
+					dropdown.dropdown('refresh')
+				}
+
+			}
+
+		}
+
+		return has
+	}
+
+
+	/**
 	 * @returns {$|null}
 	 */
 	this.getCurrentRegionDropdown = function () {
@@ -1039,16 +1384,22 @@ function LocationsAdapter() {
 
 	/**
 	 * @method getCities
-	 * @description Devuelve las ciudades del estado provisto
+	 * @description Devuelve las ciudades del estado/país provisto
 	 * @param {number} state
+	 * @param {number} country
 	 * @returns {array}
 	   */
-	this.getCities = (state) => {
+	this.getCities = (state, country) => {
 		const loaderName = generateUniqueID()
 		showGenericLoader(loaderName)
 		let cities = []
 		let url = new URL(citiesURL, document.baseURI)
-		url.searchParams.set('state', state)
+		if (typeof state != 'undefined' && state !== null) {
+			url.searchParams.set('state', state)
+		}
+		if (typeof country != 'undefined' && country !== null) {
+			url.searchParams.set('country', country)
+		}
 		LocationsAdapter.dataToFilter.onlyCities.map(function (i) {
 			url.searchParams.append('ids[]', i)
 		})

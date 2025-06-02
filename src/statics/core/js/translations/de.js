@@ -131,10 +131,40 @@ var PCSPHP_TRANSLATIONS_DE = {
 		am: 'AM',
 		pm: 'PM',
 	},
-	loginForm: {
-		'CONTRASEÑA_INVÁLIDA': '<span class="text">Passwort</span> <span class="mark">ungültig</span>',
-		'USUARIO_BLOQUEADO': '<span class="text">Benutzer</span> <span class="mark">gesperrt</span>',
-		'USUARIO_INEXISTENTE': '<span class="text">Benutzer</span> <span class="mark">%r</span> <span class="text">existiert nicht</span>',
-		'ERROR_AL_INGRESAR': 'Anmeldefehler',
+	messenger: {
+		'Error': 'Fehler',
+		'Ha ocurrido un error desconocido.': 'Ein unbekannter Fehler ist aufgetreten.',
+		'¡Listo!': 'Bereit!',
 	},
+	loginForm: {
+		'Error': 'Fehler',
+		'Ha ocurrido un error inesperado, intente más tarde.': 'Ein unerwarteter Fehler ist aufgetreten, bitte versuchen Sie es später erneut.',
+		'Si continua con problemas para ingresar, por favor utilice la ayuda.': 'Wenn Sie weiterhin Probleme beim Einloggen haben, verwenden Sie bitte die Hilfe.',
+		'Por favor, verifique los datos de ingreso y vuelva a intentar.': 'Bitte überprüfen Sie die Anmeldedaten und versuchen Sie es erneut.',
+		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.': 'Bitte gehen Sie zu folgendem Link, um Ihren Benutzer zu entsperren.',
+		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'Beim Einloggen ist ein Fehler aufgetreten, bitte versuchen Sie es erneut.',
+		'CONTRASEÑA_INVÁLIDA': '<span class="mark">Ungültig</span> <span class="text">Passwort</span>',
+		'USUARIO_BLOQUEADO': '<span class="text">Benutzer</span> <span class="mark">gesperrt</span>',
+		'USUARIO_INEXISTENTE': '<span class="text">Der Benutzer</span> <span class="mark">%r</span> <span class="text">existiert nicht</span>',
+		'ERROR_AL_INGRESAR': 'Anmeldung fehlgeschlagen',
+	},
+	userProblems: {
+		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Es wird sehr bald gelöst, bitte überprüfen Sie Ihre E-Mails in den nächsten Stunden. <br> Die E-Mail könnte im "Spam" sein, bitte überprüfen Sie den Spam-Ordner. Der Absender der E-Mail ist <strong>%r</strong>.',
+		'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Geben Sie den Code ein, der an Ihre E-Mail gesendet wurde, die E-Mail könnte im "Spam" sein, bitte überprüfen Sie den Spam-Ordner. Der Absender der E-Mail ist <strong>%r</strong>.',
+		'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.': 'Die eingegebene E-Mail ist keinem Benutzer zugeordnet, bitte geben Sie ein anderes E-Mail-Konto ein oder erstellen Sie eine Supportanfrage, um diese E-Mail mit Ihrem Konto zu verknüpfen.',
+		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.': 'Der eingegebene Code ist falsch, bitte geben Sie den Code erneut ein, fordern Sie einen neuen an oder erstellen Sie eine Supportanfrage, um den Fehler zu melden.',
+		'Ingrese con su usuario y la nueva contraseña': 'Melden Sie sich mit Ihrem Benutzernamen und dem neuen Passwort an',
+		'Las contraseñas no coinciden': 'Die Passwörter stimmen nicht überein',
+	},
+	avatar: {
+		'Confirmación': 'Bestätigung',
+		'¿Seguro de guardar el avatar?': 'Sind Sie sicher, dass Sie das Avatar speichern möchten?',
+		'Cargando...': 'Laden...',
+		'¿Seguro de guardar la foto de perfil?': 'Sind Sie sicher, dass Sie das Profilbild speichern möchten?',
+		'Sí': 'Ja',
+		'No': 'Nein',
+	},
+	public: {
+		'Ver más': 'Mehr lesen',
+	}
 }

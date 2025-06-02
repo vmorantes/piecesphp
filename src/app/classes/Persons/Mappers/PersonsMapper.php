@@ -111,22 +111,22 @@ class PersonsMapper extends EntityMapperExtensible
 
     const CAN_VIEW_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const CAN_ADD_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const CAN_EDIT_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const STATUS_ACTIVE = 1;
@@ -480,7 +480,7 @@ class PersonsMapper extends EntityMapperExtensible
      *  - documentShortAndNumber
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = new PersonsMapper;

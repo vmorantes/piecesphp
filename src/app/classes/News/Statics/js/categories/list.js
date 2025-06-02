@@ -2,17 +2,36 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 window.addEventListener('load', function () {
 
-	let tableSelector = "table[url]"
-	let table = $(tableSelector)
-	let tableURLAttr = "url"
-
-	const dataTable = dataTableServerProccesing(table, table.attr(tableURLAttr), 20, {
-		responsive: false,
-		drawCallback: function () {
-			window.dispatchEvent(new Event('canDeleteNewsCategory'))
-			configMirrorScrollX()
+	//Tablas
+	const tables = [
+		{
+			selector: 'table[url].all',
+			ajaxURLAttribute: 'url',
+			table: null,
+			dataTable: null,
+			length: 20,
+			options: {
+				responsive: false,
+				autoWidth: false,
+				drawCallback: function () {
+					window.dispatchEvent(new Event('canDeleteNewsCategory'))
+				},
+				initComplete: function () {
+					configMirrorScrollX('namespace.mirror-scroll-x.all', '.mirror-scroll-x.all')
+				},
+			},
 		},
-	}).DataTable()
+	]
+
+	for (const tableConfig of tables) {
+		const selector = tableConfig.selector
+		const ajaxURLAttribute = tableConfig.ajaxURLAttribute
+		const length = tableConfig.length
+		const options = tableConfig.options
+		tableConfig.table = $(selector)
+		let ajaxURL = tableConfig.table.attr(ajaxURLAttribute)
+		tableConfig.dataTable = dataTableServerProccesing(tableConfig.table, ajaxURL, length, options).DataTable()
+	}
 
 	NewsCategories.configNewsCategoryForm(function (formProcess) {
 		return new Promise(function (resolve) {
@@ -20,7 +39,9 @@ window.addEventListener('load', function () {
 			formProcess.find('.ui.dropdown').dropdown('clear')
 			formProcess.find('.ui.dropdown').dropdown('refresh')
 			formProcess.find('[image-element]').get(0).PiecesPHPComponents.SimpleUploadPlaceholder.restoreOverlay()
-			dataTable.draw()
+			for (const tableConfig of tables) {
+				tableConfig.dataTable.draw()
+			}
 			resolve()
 		})
 	}, true, true)

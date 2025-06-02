@@ -1,9 +1,11 @@
 @import '../../../../../statics/core/sass/includes/variables_app_base';
 @import '../../../../../statics/core/sass/includes/functions_app_base';
 
+$fontModule: $fontGlobal;
+
 .module-view-container {
 
-    font-family: $fontPoppins;
+    font-family: $fontModule;
     font-weight: $fwRegular;
     container-type: inline-size;
     container-name: module-section;

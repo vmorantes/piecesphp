@@ -1,7 +1,7 @@
 <?php 
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 $langGroup = LOGIN_REPORT_LANG_GROUP;
-$percent =  intval(($successAttempts * 100) / $totalAttempts);
+$percent = $totalAttempts > 0 ? intval(($successAttempts * 100) / $totalAttempts) : 0;
 ?>
 <section class="module-view-container limit-size">
 
@@ -13,7 +13,7 @@ $percent =  intval(($successAttempts * 100) / $totalAttempts);
         <div class="columns two">
             <div class="column">
                 <div class="section-title">
-                    <div class="title"><?=__($langGroup, $tittle);?></div>
+                    <div class="title"><?=__($langGroup, $title);?></div>
                 </div>
             </div>
         </div>
@@ -56,8 +56,7 @@ $percent =  intval(($successAttempts * 100) / $totalAttempts);
     </div>
 
     <div class="card-table">
-        <table process="<?=get_route('informes-acceso-ajax',['type'=>'attempts']);?>"
-            class="ui basic table attempts no-border" style="max-width:100%;width:100%;">
+        <table process="<?=get_route('informes-acceso-ajax',['type'=>'attempts']);?>" class="ui basic table attempts no-border" style="max-width:100%;width:100%;">
             <thead>
                 <tr>
                     <th><?= __($langGroup, 'Indicador'); ?></th>

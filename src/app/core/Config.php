@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Core;
 
+use Collator;
 use PiecesPHP\LangInjector;
 use ReflectionClass;
 
@@ -475,7 +476,7 @@ class Config
 
             if ($roles['active']) {
                 if (!Roles::hasRoles()) {
-                    Roles::registerRoles($roles['types']);
+                    Roles::registerRoles($roles['types'], true);
                 }
             }
 
@@ -541,8 +542,10 @@ class Config
     public static function i18n(string $groupName, string $message = '', bool $echo = false, string $forceLang = null)
     {
 
+        //Preparación de configuraciones de búsqueda para mensajes
         $t = self::$translations;
         $str = $message;
+        $messageIsEmpty = $message === '';
 
         $currentLang = self::get_config('app_lang');
 
@@ -570,30 +573,65 @@ class Config
 
         }
 
+        //Perparación de configuraciones de registro de mensajes no traducidos
+        $messageHash = sha1($message);
+        $missingMessagesBaseFolderName = 'lang/missing-lang-messages';
+        $missingMessagesBaseFolderPath = app_basepath("{$missingMessagesBaseFolderName}");
+        $missingMessagesGroupFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}");
+        $missingMessagesLangFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$currentLang}");
+        $missingMessagesMessageFilePath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$currentLang}/{$messageHash}.to-translate");
+
+        //Buscar
         foreach ($searchOnLangs as $lang) {
 
-            if ($lang === null) {
-                continue;
-            }
+            $isMissingMessage = true;
 
-            if (array_key_exists($lang, $t)) {
+            if ($lang !== null) {
 
-                $langData = $t[$lang];
+                if (array_key_exists($lang, $t)) {
 
-                if (array_key_exists($groupName, $langData)) {
+                    $langData = $t[$lang];
 
-                    $groupData = $langData[$groupName];
+                    if (array_key_exists($groupName, $langData)) {
 
-                    if (array_key_exists($message, $groupData) || $message === '') {
+                        $groupData = $langData[$groupName];
 
-                        if ($message === '') {
-                            $str = $groupData;
-                        } else {
-                            $str = $groupData[$message];
+                        if (array_key_exists($message, $groupData) || $messageIsEmpty) {
+
+                            $isMissingMessage = false;
+                            if ($messageIsEmpty) {
+                                $str = $groupData;
+                            } else {
+                                $str = $groupData[$message];
+                                //Si existe, eliminarlo de la lista de faltantes
+                                if (file_exists($missingMessagesMessageFilePath)) {
+                                    @unlink($missingMessagesMessageFilePath);
+                                }
+                            }
+                            break;
                         }
-                        break;
+
                     }
 
+                }
+
+                //Si el mensaje no existe y no fue un mensaje vacío
+                $noScanLangs = get_config('no_scan_langs');
+                $noScanLangs = is_array($noScanLangs) ? $noScanLangs : [];
+                if (!in_array($currentLang, $noScanLangs)) {
+                    if ($isMissingMessage && !$messageIsEmpty) {
+                        $missingMessagesFoldersPaths = [
+                            $missingMessagesBaseFolderPath,
+                            $missingMessagesGroupFolderPath,
+                            $missingMessagesLangFolderPath,
+                        ];
+                        array_map(fn($e) => (!file_exists($e) ? make_directory($e) : null), $missingMessagesFoldersPaths);
+                        if (!file_exists($missingMessagesMessageFilePath)) {
+                            file_put_contents($missingMessagesMessageFilePath, $message);
+                            chmod($missingMessagesMessageFilePath, 0777);
+                        }
+
+                    }
                 }
 
             }
@@ -711,7 +749,6 @@ class Config
         ];
 
         $usedCategories = [];
-
         $localeLang = isset(self::$appLocaleLangs[self::$appLang]) ? self::$appLocaleLangs[self::$appLang] : null;
         $localeLang = is_scalar($localeLang) ? [$localeLang] : (is_array($localeLang) ? $localeLang : null);
 
@@ -723,6 +760,11 @@ class Config
                     unset($localeLang[$k]);
                 }
 
+            }
+
+            $settedLocale = self::$appSettedLocale;
+            if ((is_string($settedLocale) && mb_strlen($settedLocale) == 0) || !is_string($settedLocale)) {
+                $settedLocale = 'en_US';
             }
 
             foreach ($categories as $category) {
@@ -740,12 +782,17 @@ class Config
                 if (in_array($category, $allowedCategories)) {
 
                     if (!in_array($category, $usedCategories)) {
-                        self::$appSettedLocale = setlocale($category, $localeLang);
+                        $setLocaleResult = setlocale($category, $localeLang);
+                        if (is_string($setLocaleResult) && mb_strlen($setLocaleResult) > 0) {
+                            $settedLocale = $setLocaleResult;
+                        }
                     }
 
                 }
 
             }
+
+            self::$appSettedLocale = $settedLocale;
 
         }
 
@@ -794,11 +841,25 @@ class Config
 
     /**
      * Obtiene los lenguajes permitidos
+     * @param bool $order
+     * @param string $firsLang
      * @return string[]
      */
-    public static function get_allowed_langs()
+    public static function get_allowed_langs(bool $order = false, ?string $firsLang = null)
     {
-        return self::$appAllowedLangs;
+        $appAllowedLangs = self::$appAllowedLangs;
+        $currentLang = self::get_lang();
+
+        if ($order) {
+            $collator = new Collator($currentLang);
+            $collator->sort($appAllowedLangs);
+        }
+
+        if ($firsLang !== null) {
+            $appAllowedLangs = array_merge([$firsLang], array_diff($appAllowedLangs, [$firsLang]));
+        }
+
+        return $appAllowedLangs;
     }
 
     /**
@@ -962,6 +1023,16 @@ class Config
         $appBase = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
         $appBase = mb_substr($appBase, 1);
         return $appBase;
+    }
+
+    /**
+     * Las traducciones registradas
+     *
+     * @return array
+     */
+    public static function get_translations()
+    {
+        return self::$translations;
     }
 
     /**

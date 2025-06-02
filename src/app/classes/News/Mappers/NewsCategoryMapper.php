@@ -28,6 +28,7 @@ use PiecesPHP\Core\Validation\Validator;
  * @property string $iconImage
  * @property string $color
  * @property \stdClass|string|null $meta
+ * @property string $baseLang
  * @property \stdClass|null $langData
  */
 class NewsCategoryMapper extends EntityMapperExtensible
@@ -98,6 +99,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), true), 'baseLang');
         parent::__construct($value, $fieldCompare);
 
         //Definición de campos no traducibles en caso de que estén vacíos
@@ -159,6 +161,26 @@ class NewsCategoryMapper extends EntityMapperExtensible
     }
 
     /**
+     * Asigna datos a una propiedad para múltiples idiomas.
+     *
+     * Este método itera sobre un arreglo de idiomas y llama a setLangData para cada idioma,
+     * permitiendo la asignación de datos específicos para cada uno.
+     * Se asegura de que solo se asignen datos si el idioma está presente en el arreglo de datos.
+     *
+     * @param string $name El nombre de la propiedad a la que se asignarán los datos.
+     * @param array<string,mixed> $data Un arreglo asociativo donde la clave es el idioma y el valor es el dato a asignar.
+     * @param string[] $langs Un arreglo de idiomas para los cuales se asignarán los datos.
+     */
+    public function addDataManyLangs(string $name, array $data, array $langs)
+    {
+        foreach ($langs as $lang) {
+            if (is_string($lang) && array_key_exists($lang, $data)) {
+                $this->setLangData($lang, $name, $data[$lang]);
+            }
+        }
+    }
+
+    /**
      * Define una propiedad que está habilitada en multi-idioma en un idioma en específico
      * @param string $lang
      * @param string $property
@@ -170,10 +192,11 @@ class NewsCategoryMapper extends EntityMapperExtensible
 
         $translatables = $this->translatableProperties;
         $noTranslatables = $this->noTranslatableProperties;
+        $baseLang = $this->baseLang;
 
         if (in_array($property, $translatables)) {
 
-            if ($lang !== Config::get_default_lang()) {
+            if ($lang !== $baseLang) {
 
                 if (!isset($this->langData->$lang)) {
                     $this->langData->$lang = new \stdClass;
@@ -206,6 +229,9 @@ class NewsCategoryMapper extends EntityMapperExtensible
      */
     public function getLangData(string $lang, string $property, bool $defaultOnEmpty = true, $returnOnEmpty = '')
     {
+
+        $baseLang = $this->baseLang;
+
         if (isset($this->langData->$lang) && isset($this->langData->$lang->$property)) {
 
             $value = $this->langData->$lang->$property;
@@ -220,7 +246,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
 
             return array_key_exists($property, $specialBehaviour) ? ($specialBehaviour[$property])($value) : $value;
 
-        } elseif ($defaultOnEmpty || $lang === Config::get_default_lang()) {
+        } elseif ($defaultOnEmpty || $lang === $baseLang) {
 
             $propertiesExpected = array_merge($this->noTranslatableProperties, $this->translatableProperties);
 
@@ -261,6 +287,19 @@ class NewsCategoryMapper extends EntityMapperExtensible
     }
 
     /**
+     * Verifica si existe un idioma en los datos del elemento
+     * @param string $lang
+     * @return bool
+     */
+    public function hasLang(string $lang)
+    {
+        $baseLang = $this->baseLang;
+        $langData = $this->langData;
+        $hasLangData = isset($langData->$lang);
+        return $baseLang === $lang || $hasLangData;
+    }
+
+    /**
      * Devuelve los campos que no son traducibles
      *
      * @return string[]
@@ -281,64 +320,48 @@ class NewsCategoryMapper extends EntityMapperExtensible
     }
 
     /**
+     * Campos extra:
+     *  - baseLang
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect(string $formatDate = null)
     {
 
-        $mapper = new NewsCategoryMapper;
+        $mapper = (new NewsCategoryMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
 
-        $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
+            "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];
 
-        if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
-
-            //En caso de que las funciones JSON_* no estén disponibles en el motor SQL
-            $allFields = array_merge($mapper->getNoTranslatableProperties(), $mapper->getTranslatableProperties());
-
-            foreach ($allFields as $field) {
-                $fields[] = "{$table}.{$field}";
-            }
-
-        } else {
-
-            $noTranslatables = $mapper->getNoTranslatableProperties();
-
-            foreach ($noTranslatables as $field) {
-                $fields[] = "{$table}.{$field}";
-            }
-
-            $translatables = $mapper->getTranslatableProperties();
-
-            $specialBehaviour = [
-                'FIELD_NAME' => function ($fieldName) {
-                    return $fieldName;
-                },
-            ];
-
-            foreach ($translatables as $fieldToLang) {
-
-                if (array_key_exists($fieldToLang, $specialBehaviour)) {
-                    $fields[] = ($specialBehaviour[$fieldToLang])($fieldToLang);
-                } else {
-                    $normalField = "{$table}.{$fieldToLang}";
-                    $langField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldToLang}'))";
-                    $fields[] = "IF({$langField} IS NOT NULL, {$langField}, {$normalField}) AS `{$fieldToLang}`";
-                }
-
-            }
-
+        //Multi-idioma
+        $noTranslatables = $mapper->getNoTranslatableProperties();
+        foreach ($noTranslatables as $field) {
+            $fields[] = "{$table}.{$field}";
         }
-
+        $translatables = $mapper->getTranslatableProperties();
+        $specialBehaviour = [
+            'FIELD_NAME' => function ($fieldName) {
+                return $fieldName;
+            },
+        ];
+        foreach ($translatables as $fieldToLang) {
+            if (!array_key_exists($fieldToLang, $specialBehaviour)) {
+                $normalField = "{$table}.{$fieldToLang}";
+                $baseLang = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang'))";
+                $langField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldToLang}'))";
+                $langFieldCondition = "IF({$langField} IS NOT NULL, {$langField}, {$normalField})";
+                $fields[] = "IF('{$currentLang}' = {$baseLang}, {$normalField}, {$langFieldCondition}) AS `{$fieldToLang}`";
+            } else {
+                $fields[] = ($specialBehaviour[$fieldToLang])($fieldToLang);
+            }
+        }
         return $fields;
-
     }
 
     /**
@@ -350,47 +373,15 @@ class NewsCategoryMapper extends EntityMapperExtensible
 
         $table = self::TABLE;
 
-        $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
         $fieldSQL = '';
 
-        if ($defaultLang == $currentLang || !self::jsonExtractExistsMySQL()) {
-            $fieldSQL = "{$table}.{$fieldName}";
-        } else {
-            $jsonExtractField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldName}'))";
-            $fieldSQL = "IF({$jsonExtractField} IS NOT NULL, {$jsonExtractField}, {$table}.{$fieldName})";
-        }
+        $jsonExtractFieldConditional = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}.{$fieldName}'))";
+        $baseLangField = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang'))";
+        $fieldSQL = "IF({$baseLangField} = '{$currentLang}', {$table}.{$fieldName}, {$jsonExtractFieldConditional})";
 
         return $fieldSQL;
-
-    }
-
-    /**
-     * Configura las versiones de las propiedades según el idioma actual
-     *
-     * @param \stdClass $element
-     * @return \stdClass
-     */
-    public static function translateEntityObject(\stdClass $element)
-    {
-
-        $mapper = self::objectToMapper($element);
-
-        $defaultLang = get_config('default_lang');
-        $currentLang = Config::get_lang();
-
-        if ($defaultLang != $currentLang && $mapper !== null) {
-
-            $translatables = $mapper->getTranslatableProperties();
-
-            foreach ($translatables as $property) {
-                $element->$property = $mapper->getLangData($currentLang, $property);
-            }
-
-        }
-
-        return $element;
 
     }
 
@@ -644,6 +635,19 @@ class NewsCategoryMapper extends EntityMapperExtensible
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
+        $defaultPropertiesValues = [
+        ];
+
+        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
+            if (!array_key_exists($defaultProperty, $element)) {
+                $element[$defaultProperty] = $defaultPropertyValue;
+            }
+        }
+
+        $defaultMetaPropertiesValues = [
+            'baseLang' => Config::get_default_lang(),
+        ];
+
         foreach ($element as $property => $value) {
 
             if (in_array($property, $fields)) {
@@ -651,6 +655,14 @@ class NewsCategoryMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+
+                    foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
+                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
+                            if (!property_exists($value, $defaultMetaProperty)) {
+                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
+                            }
+                        }
+                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {
@@ -673,7 +685,12 @@ class NewsCategoryMapper extends EntityMapperExtensible
 
         }
 
+        $fieldsFilleds = array_unique($fieldsFilleds);
+        $fields = array_unique($fields);
+        sort($fieldsFilleds);
+        sort($fields);
         $allFilled = count($fieldsFilleds) === count($fields);
+
         if ($allFilled) {
 
             if ($mapper->id !== null) {
@@ -700,6 +717,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
         $category = new NewsCategoryMapper(self::UNCATEGORIZED_ID);
 
         if ($category->id == null) {
+            $category->setLangData(Config::get_default_lang(), 'name', 'Noticia');
             $category->setLangData('es', 'name', 'Noticia');
             $category->setLangData('en', 'name', 'News');
             $category->color = get_config('main_brand_color');
@@ -712,35 +730,6 @@ class NewsCategoryMapper extends EntityMapperExtensible
         }
 
         return $category;
-
-    }
-
-    /**
-     * @return bool
-     */
-    public static function jsonExtractExistsMySQL()
-    {
-
-        try {
-
-            $json = [
-                'ok' => true,
-            ];
-            $json = json_encode($json);
-            $sql = "SELECT JSON_EXTRACT('{$json}'" . ', \'$.test\')';
-            $prepared = self::model()->prepare($sql);
-            $prepared->execute();
-            return true;
-
-        } catch (\PDOException $e) {
-
-            if ($e->getCode() == 1305 || $e->getCode() == 42000) {
-                return false;
-            } else {
-                throw $e;
-            }
-
-        }
 
     }
 

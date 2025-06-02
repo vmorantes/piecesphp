@@ -11,7 +11,6 @@ use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
 use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
-use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -95,9 +94,10 @@ class BuiltInBannerRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(BuiltInBannerLang::LANG_GROUP, 'Banners'),
@@ -105,7 +105,7 @@ class BuiltInBannerRoutes
                 'asLink' => true,
                 'href' => BuiltInBannerController::routeName('list'),
                 'visible' => BuiltInBannerController::allowedRoute('list'),
-                'position' => 90,
+                'position' => 110,
             ]));
 
         }

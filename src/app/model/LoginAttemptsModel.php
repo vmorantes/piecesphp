@@ -4,13 +4,13 @@
  */
 namespace App\Model;
 
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\Enums\CodeStringExceptionsEnum;
 use PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
-use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 
 /**
@@ -141,48 +141,72 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public static function getAttempts(Request $request)
     {
-        $success = self::SUCCESS_ATTEMPT;
-        $on_set_data = function ($element) use ($success) {
-            $attempt = new LoginAttemptsModel($element->id);
-            $data = [];
-            $data[] = $attempt->success == $success ? '<i class="check circle icon" style="visibility: visible;"></i>' : '<i class="times circle icon"></i>';
-            $data[] = $attempt->username_attempt;
-            $data[] = $attempt->message;
-            $data[] = $attempt->ip;
-            $data[] = $attempt->date->format('d-m-Y H:i:s');
+        $currentUser = getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
 
-            return $data;
-        };
+        $whereString = null;
+        $havingString = null;
+        $and = 'AND';
+        $table = self::TABLE;
 
-        $columns = [
+        $where = [];
+        $having = [];
+
+        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+        if (!$canModifyOrganizations) {
+            $criteryValue = $currentOrganizationID;
+            $beforeOperator = !empty($having) ? $and : '';
+            $critery = "({$table}.user_id IS NULL AND organizationID IS NULL) OR organizationID = {$criteryValue}";
+            $having[] = "{$beforeOperator} ({$critery})";
+        }
+
+        if (!empty($where)) {
+            $whereString = trim(implode(' ', $where));
+        }
+
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
+        }
+
+        $selectFields = LoginAttemptsModel::fieldsToSelect('%d-%m-%Y %h:%i:%s %p');
+
+        $columnsOrder = [
             'username_attempt',
             'success',
             'message',
             'ip',
-            'date',
+            'dateFormat',
         ];
 
-        $options = [
-            'request' => $request,
+        $customOrder = [
+            'date' => 'DESC',
+        ];
+
+        DataTablesHelper::setTablePrefixOnOrder(false);
+        DataTablesHelper::setTablePrefixOnSearch(false);
+        $success = self::SUCCESS_ATTEMPT;
+
+        $result = DataTablesHelper::process([
+            'where_string' => $whereString,
+            'having_string' => $havingString,
+            'select_fields' => $selectFields,
+            'columns_order' => $columnsOrder,
+            'custom_order' => $customOrder,
             'mapper' => new LoginAttemptsModel(),
-            'columns_order' => $columns,
-            'custom_order' => [
-                'date' => 'DESC',
-            ],
-            'on_set_data' => $on_set_data,
-        ];
+            'request' => $request,
+            'on_set_data' => function ($e) use ($success) {
+                $columns = [];
+                $columns[] = $e->success == $success ? '<i class="check circle icon" style="visibility: visible;"></i>' : '<i class="times circle icon"></i>';
+                $columns[] = $e->username_attempt;
+                $columns[] = stripslashes($e->message);
+                $columns[] = $e->ip;
+                $columns[] = $e->dateFormat;
+                return $columns;
+            },
 
-        return DataTablesHelper::process($options);
-    }
+        ]);
 
-    /**
-     * @return Array
-     */
-    public static function attemptsViewData()
-    {
-        $model = new LoginAttemptsModel();
-
-        return $model->getAll();
+        return $result;
     }
 
     /**
@@ -191,54 +215,83 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public static function getLoggedUsers(Request $request)
     {
-        $logins_table = self::TABLE;
-        $users_table = 'pcsphp_users';
 
-        $success = self::SUCCESS_ATTEMPT;
-        $type = null;
+        $currentUser = getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
 
-        $where = null;
-        if (!is_null($type)) {
-            $where = "type = $type";
+        $whereString = null;
+        $havingString = null;
+        $and = 'AND';
+        $table = self::TABLE;
+        $tableUsers = UsersModel::TABLE;
+        $tableTimeOnPlatform = TimeOnPlatformModel::TABLE;
+        $successLogin = self::SUCCESS_ATTEMPT;
+
+        $where = [];
+        $having = [
+            'wasLogged = 1',
+        ];
+
+        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+        if (!$canModifyOrganizations) {
+            $criteryValue = $currentOrganizationID;
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$tableUsers}.organization = {$criteryValue}";
+            $where[] = "{$beforeOperator} ({$critery})";
         }
-        $on = "$logins_table.user_id = $users_table.id AND $logins_table.success = $success";
 
-        $on_set_model = function ($model) use ($users_table, $logins_table, $on) {
-            return $model->innerJoin($logins_table, $on);
-        };
+        if (!empty($where)) {
+            $whereString = trim(implode(' ', $where));
+        }
 
-        $on_set_data = function ($element) {
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
+        }
 
-            $user = new UsersModel($element->id);
-            $userID = Validator::isInteger($user->id) ? (int) $user->id : -1;
+        $formatDate = '%d-%m-%Y %h:%i:%s %p';
+        $selectFields = UsersModel::fieldsToSelect();
+        $selectFields[] = "(SELECT COUNT({$table}.user_id) > 0 FROM {$table} WHERE {$table}.user_id IS NOT NULL AND {$table}.user_id = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS wasLogged";
+        $selectFields[] = "(SELECT DATE_FORMAT(MAX({$table}.date), '{$formatDate}') FROM {$table} WHERE {$table}.user_id IS NOT NULL AND {$table}.user_id = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS lastLoginDate";
+        $selectFields[] = "(SELECT SUM({$tableTimeOnPlatform}.minutes) FROM {$tableTimeOnPlatform} WHERE {$tableTimeOnPlatform}.user_id = {$tableUsers}.id) AS timeOnPlatformMinutes";
 
-            $data = [];
-            $data[] = $userID;
-            $data[] = trim("$user->firstname $user->secondname $user->first_lastname $user->second_lastname");
-
-            $data[] = self::lastLogin($userID)->format('d-m-Y H:i:s');
-            $time_on_platform = TimeOnPlatformModel::getRecordByUser($userID);
-            $data[] = !is_null($time_on_platform) ? round($time_on_platform->minutes, 0) . ' minuto(s)' : 'Sin registro';
-
-            return $data;
-        };
-
-        $columns = [
-            'id',
-            ['firstname', 'secondname', 'first_lastname', 'second_lastname'],
+        $columnsOrder = [
+            'idPadding',
+            'username',
+            'fullname',
+            'lastLoginDate',
+            'timeOnPlatformMinutes',
         ];
 
-        $options = [
-            'request' => $request,
+        $customOrder = [
+            'username' => 'ASC',
+            'fullname' => 'ASC',
+            'idPadding' => 'DESC',
+        ];
+
+        DataTablesHelper::setTablePrefixOnOrder(false);
+        DataTablesHelper::setTablePrefixOnSearch(false);
+
+        $result = DataTablesHelper::process([
+            'where_string' => $whereString,
+            'having_string' => $havingString,
+            'select_fields' => $selectFields,
+            'columns_order' => $columnsOrder,
+            'custom_order' => $customOrder,
             'mapper' => new UsersModel(),
-            'columns_order' => $columns,
-            'on_set_model' => $on_set_model,
-            'on_set_data' => $on_set_data,
-            'where_string' => $where,
-            'group_string' => "$users_table.id",
-        ];
+            'request' => $request,
+            'on_set_data' => function ($e) {
 
-        $result = DataTablesHelper::process($options);
+                $timeOnPlatformMinutes = $e->timeOnPlatformMinutes;
+
+                $columns = [];
+                $columns[] = $e->idPadding;
+                $columns[] = $e->username;
+                $columns[] = $e->fullname;
+                $columns[] = $e->lastLoginDate;
+                $columns[] = !is_null($timeOnPlatformMinutes) ? round($timeOnPlatformMinutes, 0) . ' ' . __(LOGIN_REPORT_LANG_GROUP, 'minuto(s)') : __(LOGIN_REPORT_LANG_GROUP, 'Sin registro');
+                return $columns;
+            },
+        ]);
 
         return $result;
     }
@@ -249,49 +302,162 @@ class LoginAttemptsModel extends BaseEntityMapper
      */
     public static function getNotLoggedUsers(Request $request)
     {
-        $logins_table = self::TABLE;
-        $users_table = 'pcsphp_users';
+        $currentUser = getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
 
-        $success = self::SUCCESS_ATTEMPT;
-        $type = null;
+        $whereString = null;
+        $havingString = null;
+        $and = 'AND';
+        $table = self::TABLE;
+        $tableUsers = UsersModel::TABLE;
+        $successLogin = self::SUCCESS_ATTEMPT;
 
-        $on = "$logins_table.user_id = $users_table.id AND $logins_table.success = $success";
-        $where = '';
-        if (!is_null($type)) {
-            $where .= "type = $type AND ";
-        }
-        $where .= "$users_table.id NOT IN ";
-
-        if (!is_null($type)) {
-            $where .= "(SELECT $users_table.id FROM $users_table INNER JOIN $logins_table ON $on WHERE type = $type GROUP BY $users_table.id)";
-        } else {
-            $where .= "(SELECT $users_table.id FROM $users_table INNER JOIN $logins_table ON $on GROUP BY $users_table.id)";
-        }
-
-        $on_set_data = function ($element) {
-
-            $user = new UsersModel($element->id);
-
-            $data = [];
-            $data[] = $user->id;
-            $data[] = trim("$user->firstname $user->secondname $user->first_lastname $user->second_lastname");
-
-            return $data;
-        };
-
-        $columns = [
-            'id',
-            ['firstname', 'secondname', 'first_lastname', 'second_lastname'],
+        $where = [];
+        $having = [
+            'wasLogged = 0',
         ];
 
-        $options = [
-            'request' => $request,
+        $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+        if (!$canModifyOrganizations) {
+            $criteryValue = $currentOrganizationID;
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$tableUsers}.organization = {$criteryValue}";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
+        if (!empty($where)) {
+            $whereString = trim(implode(' ', $where));
+        }
+
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
+        }
+
+        $selectFields = UsersModel::fieldsToSelect();
+        $selectFields[] = "(SELECT COUNT({$table}.user_id) > 0 FROM {$table} WHERE {$table}.user_id IS NOT NULL AND {$table}.user_id = {$tableUsers}.id AND {$table}.success = {$successLogin}) AS wasLogged";
+
+        $columnsOrder = [
+            'idPadding',
+            'username',
+            'fullname',
+        ];
+
+        $customOrder = [
+            'username' => 'ASC',
+            'fullname' => 'ASC',
+            'idPadding' => 'DESC',
+        ];
+
+        DataTablesHelper::setTablePrefixOnOrder(false);
+        DataTablesHelper::setTablePrefixOnSearch(false);
+
+        $result = DataTablesHelper::process([
+            'where_string' => $whereString,
+            'having_string' => $havingString,
+            'select_fields' => $selectFields,
+            'columns_order' => $columnsOrder,
+            'custom_order' => $customOrder,
             'mapper' => new UsersModel(),
-            'columns_order' => $columns,
-            'on_set_data' => $on_set_data,
-            'where_string' => $where,
+            'request' => $request,
+            'on_set_data' => function ($e) {
+                $columns = [];
+                $columns[] = $e->idPadding;
+                $columns[] = $e->username;
+                $columns[] = $e->fullname;
+                return $columns;
+            },
+        ]);
+
+        return $result;
+    }
+
+    /**
+     * Campos extra:
+     *  - idPadding
+     *  - organizationID
+     *  - dateFormat
+     * @return string[]
+     */
+    protected static function fieldsToSelect(string $formatDate = null)
+    {
+
+        $formatDate = $formatDate ?? get_default_format_date(null, true);
+
+        $mapper = (new LoginAttemptsModel);
+        $model = $mapper->getModel();
+        $table = $model->getTable();
+
+        $tableUser = UsersModel::TABLE;
+
+        $organizationID = "SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.user_id";
+
+        $fields = [
+            "LPAD({$table}.id, 5, 0) AS idPadding",
+            "({$organizationID}) AS organizationID",
+            "DATE_FORMAT({$table}.date, '{$formatDate}') AS dateFormat",
         ];
 
-        return DataTablesHelper::process($options);
+        $allFields = array_keys($mapper->getFields());
+        foreach ($allFields as $field) {
+            $fields[] = "{$table}.{$field}";
+        }
+
+        return $fields;
+
+    }
+
+    /**
+     * @param bool $asMapper
+     *
+     * @return static[]|array
+     */
+    public static function all(bool $asMapper = false)
+    {
+
+        $currentUser = getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+
+        $model = self::model();
+        $table = self::TABLE;
+        $selectFields = self::fieldsToSelect();
+        $model->select($selectFields);
+
+        $having = [];
+
+        if ($currentUser !== null) {
+            $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+            if (!$canModifyOrganizations) {
+                $criteryValue = $currentOrganizationID;
+                $beforeOperator = !empty($having) ? 'AND' : '';
+                $critery = "({$table}.user_id IS NULL AND organizationID IS NULL) OR organizationID = {$criteryValue}";
+                $having[] = "{$beforeOperator} ({$critery})";
+            }
+        }
+
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
+            $model->having($havingString);
+        }
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        if ($asMapper) {
+            foreach ($result as $key => $value) {
+                $result[$key] = new LoginAttemptsModel($value->id);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return ActiveRecordModel
+     */
+    public static function model()
+    {
+        return (new LoginAttemptsModel())->getModel();
     }
 }

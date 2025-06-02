@@ -79,15 +79,16 @@ class ImagesRepositoryRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup(
                 [
                     'name' => __(ImagesRepositoryLang::LANG_GROUP, 'Registro fotográfico'),
                     'icon' => 'images',
-                    'position' => 20,
+                    'position' => 150,
                     'items' => [
                         new MenuItem([
                             'text' => __(ImagesRepositoryLang::LANG_GROUP, 'Gestionar'),

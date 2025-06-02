@@ -14,7 +14,6 @@ return [
     'Registro de ingresos' => 'Anmeldeprotokoll',
     'Agregar usuario' => 'Benutzer hinzufügen',
     'Gestionar usuarios' => 'Benutzerverwaltung',
-    'Log de errores' => 'Fehlerprotokoll',
     'Importar usuarios' => 'Benutzer importieren',
     'Acerca de' => 'Über',
     'Editar foto' => 'Profilbild bearbeiten',
@@ -43,4 +42,9 @@ return [
     'Administrativo' => 'Administrativ',
     'Opciones de seguridad' => 'Sicherheitsoptionen',
     'Plataforma' => 'Plattform',
+    "Idiomas" => "Sprachen",
+    "Cambio de usuario" => "Benutzerwechsel",
+    "Cambiar idioma" => "Sprache ändern",
+    "Cambiar" => "Ändern",
+    "Seleccionar usuario" => "Benutzer auswählen",
 ];

@@ -126,4 +126,5 @@ return [
     "Inteligencia artificial" => "Künstliche Intelligenz",
     "Activar traducción con IA" => "KI-Übersetzung aktivieren",
     "Configuración de traducción con IA actualizada" => "KI-Übersetzungseinstellungen aktualisiert",
+    'Log de errores' => 'Fehlerprotokoll',
 ];

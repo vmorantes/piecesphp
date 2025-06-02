@@ -1,7 +1,9 @@
 @import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
 @import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
 @import 'import/variables';
-@import 'import/reset';
+@import '../../core/sass/includes/reset-font-family-fomantic';
+
+$fontModule: $fontGlobal;
 
 * {
     box-sizing: border-box;
@@ -14,7 +16,7 @@
 }
 
 body {
-    font-family: $fontPublicSans;
+    font-family: $fontModule;
 }
 
 .ui.cards {

@@ -17,6 +17,7 @@ use PiecesPHP\Core\Validation\Validator;
 use Publications\Controllers\PublicationsPublicController;
 use Publications\Exceptions\DuplicateException;
 use Publications\PublicationsLang;
+use Spatie\Url\Url as URLManager;
 
 /**
  * PublicationMapper.
@@ -190,13 +191,26 @@ class PublicationMapper extends EntityMapperExtensible
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+    ];
+
+    const CAN_EDIT_ALL = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+    ];
+
+    const CAN_VIEW_ALL = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const CAN_VIEW_DRAFT = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
         UsersModel::TYPE_USER_GENERAL,
+        UsersModel::TYPE_USER_COMUNICACIONES,
+        UsersModel::TYPE_USER_INSTITUCIONAL,
     ];
 
     const TABLE = 'publications_elements';
@@ -247,7 +261,7 @@ class PublicationMapper extends EntityMapperExtensible
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
-        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), false), 'baseLang');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), true), 'baseLang');
         parent::__construct($value, $fieldCompare);
 
         //Definición de campos no traducibles en caso de que estén vacíos
@@ -280,6 +294,17 @@ class PublicationMapper extends EntityMapperExtensible
     public function getAttachments(bool $onlyCurrentLang = false, bool $asMapper = false)
     {
         $attachments = AttachmentPublicationMapper::allBy('publication', $this->id, $asMapper, $onlyCurrentLang);
+        return $attachments;
+    }
+
+    /**
+     * @param string $lang
+     * @param bool $asMapper
+     * @return AttachmentPublicationMapper[]
+     */
+    public function getAttachmentsByLang(string $lang, bool $asMapper = false)
+    {
+        $attachments = AttachmentPublicationMapper::allBy('publication', $this->id, $asMapper, false, $lang);
         return $attachments;
     }
 
@@ -453,7 +478,11 @@ class PublicationMapper extends EntityMapperExtensible
                 $isSameLang = $lang == $currentLang;
                 if (!$isSameLang || $includeCurrentLang) {
                     $url = PublicationsPublicController::routeName('single', ['slug' => $this->getSlug($lang)]);
-                    $url = convert_lang_url($url, $currentLang, $lang);
+                    if (get_config('lang_by_cookie') === true) {
+                        $url = URLManager::fromString($url)->withQueryParameter('i18n', $lang)->__toString();
+                    } else {
+                        $url = convert_lang_url($url, $currentLang, $lang);
+                    }
                     $urls[$lang] = $url;
                 }
             }
@@ -672,10 +701,11 @@ class PublicationMapper extends EntityMapperExtensible
      *  - publicDateFormat
      *  - startDateFormat
      *  - endDateFormat
+     *  - organizationID
      *  - baseLang
      * @return string[]
      */
-    public static function fieldsToSelect(string $formatDate = null)
+    protected static function fieldsToSelect(string $formatDate = null)
     {
 
         $formatDate = $formatDate ?? get_default_format_date(null, true);
@@ -687,6 +717,10 @@ class PublicationMapper extends EntityMapperExtensible
         $tableCategory = PublicationCategoryMapper::TABLE;
         $tableUser = UsersModel::TABLE;
 
+        //Usuario-Organización
+        $organizationID = "(SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.createdBy)";
+
+        //Otros
         $currentLang = Config::get_lang();
 
         $categoryNameCurrentLang = PublicationCategoryMapper::fieldCurrentLangForSQL('name');
@@ -734,6 +768,7 @@ class PublicationMapper extends EntityMapperExtensible
             "DATE_FORMAT({$table}.publicDate, '{$formatDate}') AS publicDateFormat",
             "IF({$table}.startDate IS NOT NULL, DATE_FORMAT({$table}.startDate, '{$formatDate}'), '-') AS startDateFormat",
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
+            "{$organizationID} AS organizationID",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];
@@ -1149,7 +1184,9 @@ class PublicationMapper extends EntityMapperExtensible
             }
         }
 
-        $defaultMetaPropertiesValues = [];
+        $defaultMetaPropertiesValues = [
+            'baseLang' => Config::get_default_lang(),
+        ];
 
         foreach ($element as $property => $value) {
 

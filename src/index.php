@@ -15,15 +15,20 @@ use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Core\Routing\ResponseRouteFactory;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
+use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\TerminalData;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Spatie\Url\Url as URLManager;
+use SystemApprovals\SystemApprovalsMiddleware;
+use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Controllers\TerminalController;
 
 require __DIR__ . '/app/core/bootstrap.php';
@@ -179,6 +184,16 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             }
         }
 
+        foreach ($alternativesURL as $lang => $url) {
+            $urlNoParams = remove_url_params($url, []);
+            $alternativesURL[$lang] = URLManager::fromString($urlNoParams)->withQueryParameter('i18n', $lang)->__toString();
+        }
+
+        foreach ($alternativesURLIncludeCurrent as $lang => $url) {
+            $urlNoParams = remove_url_params($url, []);
+            $alternativesURLIncludeCurrent[$lang] = URLManager::fromString($urlNoParams)->withQueryParameter('i18n', $lang)->__toString();
+        }
+
         Config::set_config('alternatives_url', $alternativesURL);
         Config::set_config('alternatives_url_include_current', $alternativesURLIncludeCurrent);
 
@@ -313,10 +328,15 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     }
 
     //Verifica la validez del usuario activo si hay una sesion activa
+    $organizationID = null;
+    $organizationMapper = null;
+    $user = null;
+    $userIsOrganizationAdministrator = false;
+
     if ($isActiveSession) {
 
-        $user = BaseToken::getData($JWT); //Información del usuario
-        $validationUserObject = new class($user)
+        $userJWTData = BaseToken::getData($JWT); //Información del usuario
+        $validationUserObject = new class($userJWTData)
         {
             /**
              * El usuario entrante
@@ -327,9 +347,18 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             /**
              * El usuario
              *
-             * @param \stdClass|mixed $user
+             * @param \stdClass $user
              */
-            public function __construct($user)
+            public function __construct(\stdClass $user)
+            {
+                $this->setUser($user);
+            }
+            /**
+             * El usuario
+             *
+             * @param \stdClass $user
+             */
+            public function setUser(\stdClass $user)
             {
                 $this->element = $user;
             }
@@ -425,13 +454,42 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
         $user = $validationUserObject->getUserFromDatabase();
 
+        //Conectarse arbitrariamente como un usuario si se es root
+        $anotherUserID = isset($_GET) && array_key_exists(CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME, $_GET) ? $_GET[CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME] : null;
+        $anotherUserID = $anotherUserID !== null ? $anotherUserID : getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
+        set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, null);
+        if ($user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
+            set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, $user->id);
+            $anotherUserID = Validator::isInteger($anotherUserID) ? (int) $anotherUserID : null;
+            if ($anotherUserID !== null && $anotherUserID > 0) {
+                setCookieByConfig(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, $anotherUserID);
+                $userJWTData->id = $anotherUserID;
+                $validationUserObject->setUser($userJWTData);
+                $user = $validationUserObject->getUserFromDatabase();
+                if ($user === null) {
+                    die('El id de usuario con el que intenta ingresar no existe');
+                }
+            } else {
+                $anotherUserID = null;
+                setCookieByConfig(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME, null);
+            }
+            set_config(ROOT_ID_AS_CONNECT_CONFIG_NAME, $anotherUserID ?? $user->id);
+        }
+
         if ($user !== null) {
 
             //Verificar status de la organización si aplica
             $organizationID = $user->organization;
             $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-            if ($organizationMapper == null || $organizationMapper->status == OrganizationMapper::ACTIVE) {
+            $allowedStatusesOrganization = [
+                OrganizationMapper::ACTIVE,
+                OrganizationMapper::PENDING_APPROVAL,
+            ];
+            if ($organizationMapper == null || in_array($organizationMapper->status, $allowedStatusesOrganization)) {
                 set_config('current_user', $user);
+                if ($organizationMapper !== null) {
+                    $userIsOrganizationAdministrator = $organizationMapper->administrator->id == $user->id;
+                }
                 Roles::setCurrentRole($user->type); //Se establece el rol
             } else {
                 $isActiveSession = false;
@@ -509,6 +567,32 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         $current_role = $user !== null ? Roles::getCurrentRole() : null;
         $has_permissions = null;
 
+        //Modificación de permisos del usuario en caso de tener una organización encargada
+        if ($userIsOrganizationAdministrator) {
+
+            //Rutas por agregar si tiene organización encagada
+            $addPermissionsRoutes = OrganizationMapper::PERMISSIONS_ON_ADMINISTRATOR;
+
+            $allRolesConfig = Roles::getRoles();
+
+            foreach ($allRolesConfig as $roleConfigKey => $roleConfig) {
+                if ($current_role['code'] == $roleConfig['code']) {
+                    $roleConfig['allowed_routes'] = array_merge($roleConfig['allowed_routes'], $addPermissionsRoutes);
+                    $allRolesConfig[$roleConfigKey] = $roleConfig;
+                }
+            }
+
+            Roles::registerRoles($allRolesConfig, true);
+        }
+
+        //Acciones en caso de estar el sistema de aprobaciones activo
+        if (SystemApprovalsRoutes::ENABLE) {
+            $systemApprovalsReturnValue = SystemApprovalsMiddleware::handle($request, (new ResponseRouteFactory())->createResponse(), [], $handler);
+            if ($systemApprovalsReturnValue instanceof ResponseRoute) {
+                return $systemApprovalsReturnValue;
+            }
+        }
+
         //Verifica si está activada la comprobación automática de roles
         if ($current_role !== null && $active_roles_control === true) {
 
@@ -527,9 +611,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     $silentModeRolesSetted = Roles::getSilentMode();
     Roles::setSilentMode(true);
     require_once basepath("app/config/menu.php");
-    if (isset($config['menus']) && is_array($config['menus'])) {
-        set_config('menus', $config['menus']);
-    }
     Roles::setSilentMode($silentModeRolesSetted);
 
     /**
@@ -566,6 +647,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         $responseExpectedLang = null;
     }
     set_config('responseExpectedLang', $responseExpectedLang);
+    //Definir el idioma basado en la solicitud
+    if (is_string($responseExpectedLang) && mb_strlen($responseExpectedLang) > 1) {
+        set_config('app_lang', $responseExpectedLang);
+    }
     //Continuar
     $response = $handler->handle($request);
     return $response;

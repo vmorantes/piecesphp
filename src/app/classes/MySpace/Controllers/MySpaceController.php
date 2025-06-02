@@ -8,6 +8,7 @@ namespace MySpace\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
+use ContentNavigationHub\Controllers\ContentNavigationHubController;
 use Documents\Mappers\DocumentsMapper;
 use ImagesRepository\Mappers\ImagesRepositoryMapper;
 use MySpace\MySpaceLang;
@@ -21,6 +22,8 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use Publications\Controllers\PublicationsController;
+use SystemApprovals\Util\SystemApprovalManager;
 
 /**
  * MySpaceController.
@@ -71,39 +74,84 @@ class MySpaceController extends AdminPanelController
     public function mySpaceView(Request $request, Response $response)
     {
 
-        set_title(__(self::LANG_GROUP, 'Mi espacio'));
-
-        set_custom_assets([
-            NewsController::pathFrontNewsAdapter(),
-            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-space.js'),
-        ], 'js');
-
-        set_custom_assets([
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/base.css'),
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/others.css'),
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'),
-            MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'),
-        ], 'css');
-
         $currentUser = getLoggedFrameworkUser();
-        $qtyDocuments = DocumentsMapper::countAll();
-        $qtyImages = ImagesRepositoryMapper::countAll();
+        $currentUserID = $currentUser->id;
+        $currentUserType = $currentUser->type;
+        $noBaseView = [
+            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+        ];
 
-        $data = [];
-        $data['langGroup'] = self::LANG_GROUP;
-        $data['subtitle'] = $currentUser->fullName;
-        $data['qtyDocuments'] = $qtyDocuments;
-        $data['qtyImages'] = $qtyImages;
-        $data['newsAjaxURL'] = NewsController::routeName('ajax-all');
+        if (!in_array($currentUserType, $noBaseView)) {
 
-        $this->helpController->render('panel/layout/header', [
-            'bodyClasses' => [
-                'gradient-base',
-            ],
-            'containerClasses' => [],
-        ]);
-        self::view('my-space', $data);
-        $this->helpController->render('panel/layout/footer');
+            set_title(__(self::LANG_GROUP, 'Mi espacio'));
+
+            set_custom_assets([
+                NewsController::pathFrontNewsAdapter(),
+                MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-space.js'),
+            ], 'js');
+
+            set_custom_assets([
+                MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/base.css'),
+                MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/others.css'),
+                MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'),
+                MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'),
+            ], 'css');
+
+            $currentUser = getLoggedFrameworkUser();
+            $qtyDocuments = DocumentsMapper::countAll();
+            $qtyImages = ImagesRepositoryMapper::countAll();
+
+            $data = [];
+            $data['langGroup'] = self::LANG_GROUP;
+            $data['subtitle'] = $currentUser->fullName;
+            $data['qtyDocuments'] = $qtyDocuments;
+            $data['qtyImages'] = $qtyImages;
+            $data['newsAjaxURL'] = NewsController::routeName('ajax-all');
+
+            $this->helpController->render('panel/layout/header', [
+                'bodyClasses' => [
+                    'gradient-base',
+                ],
+                'containerClasses' => [],
+            ]);
+            $this->render('my-space', $data);
+            $this->helpController->render('panel/layout/footer');
+
+        } else {
+
+            $isApproved = SystemApprovalManager::getInstance()->isApproved(UsersModel::class, $currentUserID);
+
+            if ($isApproved) {
+
+                if ($currentUserType == UsersModel::TYPE_USER_COMUNICACIONES) {
+                    return (new PublicationsController())->listView($request, $response);
+                } else {
+                    return (new ContentNavigationHubController())->applicationCallsListView($request, $response);
+                }
+
+            } else {
+
+                if (in_array($currentUserType, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE)) {
+                    return $response->withRedirect(MyProfileController::routeName('my-profile'));
+                } else {
+                    $data = [];
+                    $data['langGroup'] = self::LANG_GROUP;
+                    $data['subtitle'] = $currentUser->fullName;
+                    $this->helpController->render('panel/layout/header', [
+                        'bodyClasses' => [
+                            'gradient-base',
+                        ],
+                        'containerClasses' => [],
+                    ]);
+                    $this->render('my-space-empty', $data);
+                    $this->helpController->render('panel/layout/footer');
+                }
+
+            }
+
+        }
 
     }
 
@@ -140,7 +188,7 @@ class MySpaceController extends AdminPanelController
             ],
             'containerClasses' => [],
         ]);
-        self::view('user-security', $data);
+        $this->render('user-security', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -181,7 +229,7 @@ class MySpaceController extends AdminPanelController
             ],
             'containerClasses' => [],
         ]);
-        self::view('example-resources', $data);
+        $this->render('example-resources', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -199,13 +247,13 @@ class MySpaceController extends AdminPanelController
         $refererURL = is_string($refererURL) && mb_strlen($refererURL) > 0 ? $refererURL : null;
 
         if ($source == 'mail-users-template') {
-            self::view('resources/mail-sample', [
+            $this->render('resources/mail-sample', [
                 'refererURL' => $refererURL,
             ]);
         } elseif ($source == 'survey-js-creator') {
-            self::view('resources/survey-js-creator', []);
+            $this->render('resources/survey-js-creator', []);
         } elseif ($source == 'survey-js-form') {
-            self::view('resources/survey-js-form', []);
+            $this->render('resources/survey-js-form', []);
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -214,15 +262,11 @@ class MySpaceController extends AdminPanelController
     }
 
     /**
-     * @param string $name
-     * @param array $data
-     * @param bool $mode
-     * @param bool $format
-     * @return void|string
+     * @inheritDoc
      */
-    public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
+    public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
-        return (new MySpaceController)->render(trim($name, '/'), $data, $mode, $format);
+        return parent::render(trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -365,7 +409,7 @@ class MySpaceController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $onlySupers
+                $allRoles
             ),
             new Route(
                 "{$startRoute}/example-resources[/]",

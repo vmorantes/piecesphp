@@ -10,6 +10,7 @@ window.addEventListener('load', function (e) {
 
 	if (requestURL.length > 0) {
 		let articleManager = new PublicationsAdapter({
+			scrollToOnLoadMore: true,
 			requestURL: requestURL,
 			page: 1,
 			perPage: 10,

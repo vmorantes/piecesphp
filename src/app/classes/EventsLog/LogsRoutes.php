@@ -74,9 +74,10 @@ class LogsRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(LogsLang::LANG_GROUP, 'Últimos movimientos'),
@@ -84,7 +85,7 @@ class LogsRoutes
                 'asLink' => true,
                 'visible' => LogsController::allowedRoute('list'),
                 'href' => LogsController::routeName('list'),
-                'position' => 700,
+                'position' => 2000,
             ]));
 
         }

@@ -6,14 +6,14 @@ use Organizations\Mappers\OrganizationMapper;
 
 $langGroup = UsersController::LANG_GROUP;
 $organizations = OrganizationMapper::all(false);
-$canAssignAll = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type);
+$canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type);
 ?>
 
 <form class="ui form users create general" action="<?= get_route('register-request'); ?>">
 
     <input type="hidden" name="type" value="<?=UsersModel::TYPE_USER_GENERAL;?>">
 
-    <?php if($canAssignAll): ?>
+    <?php if($canModifyAll): ?>
     <div class="field">
 
         <select class="ui dropdown" required name="organization">

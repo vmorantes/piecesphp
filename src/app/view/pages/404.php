@@ -34,7 +34,7 @@
                 <img class="error-image" src="statics/images/errors/404.svg" alt="">
                 <div class="body">
                     <a class="btn" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
-                    <a class="btn report" href="<?= get_route("other-problems-form"); ?>">Reportar problema</a>
+                    <a class="btn report" href="<?= get_route("other-problems-form"); ?>"><?= __('page404', 'Reportar problema'); ?></a>
                 </div>
                 <div class="logo-footer">
                     <img class="img-logo-footer" src="<?= get_config('logo'); ?>">

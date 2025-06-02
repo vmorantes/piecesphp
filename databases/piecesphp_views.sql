@@ -51,4 +51,17 @@ CREATE VIEW built_in_banner_active_date_elements AS (
         (UNIX_TIMESTAMP(bibe.startDate) <= nowDate OR bibe.startDate IS NULL) AND
         (UNIX_TIMESTAMP(bibe.endDate) > nowDate OR bibe.endDate IS NULL)
 );
+DROP VIEW IF EXISTS application_calls_active_date_elements;
+CREATE VIEW application_calls_active_date_elements AS (
+    SELECT
+        iace.id,
+        iace.startDate,
+        iace.endDate,
+        iace.status,
+        UNIX_TIMESTAMP(NOW()) AS nowDate
+    FROM application_calls_elements AS iace
+    HAVING
+        (UNIX_TIMESTAMP(iace.startDate) <= nowDate OR iace.startDate IS NULL) AND
+        (UNIX_TIMESTAMP(iace.endDate) > nowDate OR iace.endDate IS NULL)
+);
 COMMIT;

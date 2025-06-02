@@ -42,6 +42,7 @@
  */
 
 use API\APIRoutes;
+use ApplicationCalls\ApplicationCallsRoutes;
 use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
 use App\Controller\AvatarController;
@@ -53,6 +54,7 @@ use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
 use App\Presentations\PresentationsRoutes;
 use Components\ComponentProviderRoutes;
+use ContentNavigationHub\ContentNavigationHubRoutes;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
 use Documents\DocumentsRoutes;
 use EventsLog\LogsRoutes;
@@ -74,6 +76,7 @@ use PiecesPHP\Core\Test;
 use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use Publications\PublicationsRoutes;
+use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Controllers\TerminalController;
 
 $prefix_lang = get_config('prefix_lang');
@@ -215,6 +218,15 @@ DocumentsRoutes::routes($zona_administrativa);
 
 //Mi espacio
 MySpaceRoutes::routes($zona_administrativa);
+
+//Aprobaciones
+SystemApprovalsRoutes::routes($zona_administrativa);
+
+//Contenido navegable centralizado
+ContentNavigationHubRoutes::routes($zona_administrativa, $zona_publica);
+
+//Convocatorias
+ApplicationCallsRoutes::routes($zona_administrativa, $zona_publica);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

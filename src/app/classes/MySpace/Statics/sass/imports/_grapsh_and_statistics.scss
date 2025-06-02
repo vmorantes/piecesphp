@@ -1,6 +1,7 @@
 @import '../../../../../../statics/core/sass/includes/variables_app_base';
 @import '../../../../../../statics/core/sass/includes/functions_app_base';
 
+$fontModule: $fontGlobal;
 $statisticsSectionWidth: 1600px;
 $mediumWidth: 590px;
 $wideWidth: 710px;
@@ -45,7 +46,7 @@ $numberCardColorOrange: #f2721c;
 
 .module-view-container {
 
-    font-family: $fontPoppins;
+    font-family: $fontModule;
     font-weight: $fwRegular;
     container-type: inline-size;
     container-name: module-section;

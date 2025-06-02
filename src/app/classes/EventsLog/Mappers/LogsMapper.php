@@ -260,7 +260,7 @@ class LogsMapper extends EntityMapperExtensible
      * - moduleName
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = (new LogsMapper);

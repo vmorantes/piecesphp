@@ -7,6 +7,7 @@ $second : var(--second-brand-color);
 .ui.card.user {
     width: 350px !important;
     height: 250px !important;
+    min-height: max-content;
     border-radius: 15px !important;
 
     >.content {
@@ -59,14 +60,6 @@ $second : var(--second-brand-color);
                         right: -4px;
                         bottom: -4px;
                         background-color: gray;
-
-                        &.online {
-                            background-color: #21BA45;
-                        }
-
-                        &.blocked {
-                            background-color: red;
-                        }
                     }
 
                 }
@@ -88,76 +81,46 @@ $second : var(--second-brand-color);
                     }
                 }
 
-                >.place-status {
-                    opacity: 0;
+                //STATUS_USER_INACTIVE = 0
+                &.status-0-number {}
+
+                //STATUS_USER_ACTIVE = 1
+                &.status-1-number {
+                    >.image {
+                        >.status {
+                            background-color: #21BA45;
+                        }
+                    }
                 }
 
-                &.blocked-staus {
-                    >.place-status {
-                        opacity: 0;
-                        position: absolute;
-                        background-color: white;
-                        padding: 3px;
-                        border-radius: 5px;
-                        bottom: -30px;
-                        border: 1px solid gray;
-                        width: 100px;
-                        max-width: 100px;
-                        text-align: center;
-
-                        &::before {
-                            content: "";
-                            display: block;
-                            width: 0;
-                            height: 0;
-                            border-left: 7px solid transparent;
-                            border-right: 7px solid transparent;
-                            border-bottom: 14px solid white;
-                            position: absolute;
-                            top: -15px;
-                            left: 50%;
-                            transform: translateX(-50%);
+                //STATUS_USER_ATTEMPTS_BLOCK = 2
+                &.status-2-number {
+                    >.image {
+                        >.status {
+                            background-color: red;
                         }
                     }
-
-                    &:hover {
-                        >.place-status {
-                            animation: status-in 0.5s ease-in-out;
-                            opacity: 1;
-                        }
-                    }
-
-                    &:not(:hover) {
-                        >.place-status {
-                            animation: status-out 0.5s ease-in-out;
-                        }
-                    }
-
-                    @keyframes status-in {
-                        from {
-                            opacity: 0;
-                            transform: translateX(20%);
-                        }
-
-                        to {
-                            opacity: 1;
-                            transform: translateX(0);
-                        }
-                    }
-
-                    @keyframes status-out {
-                        from {
-                            opacity: 1;
-                            transform: translateX(0);
-                        }
-
-                        to {
-                            opacity: 0;
-                            transform: translateX(20%);
-                        }
-                    }
-
                 }
+
+                //STATUS_USER_APPROVED_PENDING = 3
+                &.status-3-number {
+                    >.image {
+                        >.status {
+                            background-color: #ff9800;
+                        }
+                    }
+                }
+
+                //STATUS_USER_REJECTED = 4
+                &.status-4-number {
+                    >.image {
+                        >.status {
+                            background-color: #a14a17;
+                        }
+                    }
+                }
+
+
             }
 
             >a {

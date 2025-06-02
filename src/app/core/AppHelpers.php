@@ -15,6 +15,7 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
+use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Router;
 use PiecesPHP\Core\StringManipulate;
@@ -3013,6 +3014,16 @@ function get_breadcrumbs(array $breadcrumbs)
 }
 
 /**
+ * Obtiene la colección de elementos de menú usada para el menú lateral del backend
+ *
+ * @return MenuGroupCollection
+ */
+function get_sidebar_menu()
+{
+    return get_config('menus')['sidebar'];
+}
+
+/**
  * Como var_dump, pero con estilos para mejor visualización
  */
 function var_dump_pretty($data, $label = '', $return = false)
@@ -3126,10 +3137,10 @@ function var_dump_pretty($data, $label = '', $return = false)
 /**
  * Establece la cookie con las configuraciones definidas en cookies.php
  * @param string $name
- * @param string $value
+ * @param ?string $value
  * @return void
  */
-function setCookieByConfig(string $name, string $value)
+function setCookieByConfig(string $name, ?string $value = null)
 {
     $cookiesConfig = get_config('cookies');
     $lifetime = array_key_exists('lifetime', $cookiesConfig) ? $cookiesConfig['lifetime'] : 0;
@@ -3137,7 +3148,7 @@ function setCookieByConfig(string $name, string $value)
     $domain = array_key_exists('domain', $cookiesConfig) ? $cookiesConfig['domain'] : '';
     $secure = array_key_exists('secure', $cookiesConfig) ? $cookiesConfig['secure'] : false;
     $httponly = array_key_exists('httponly', $cookiesConfig) ? $cookiesConfig['httponly'] : false;
-    setcookie($name, $value, $lifetime, $path, $domain, $secure, $httponly);
+    setcookie($name, $value ?? '', $lifetime, $path, $domain, $secure, $httponly);
 }
 
 /**

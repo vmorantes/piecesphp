@@ -5,8 +5,14 @@
  */
 namespace PiecesPHP\Core;
 
+use App\Model\UsersModel;
 use PiecesPHP\Core\Database\Database;
 use PiecesPHP\Core\Database\EntityMapper;
+use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use ReflectionMethod;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\SystemApprovalsRoutes;
+use SystemApprovals\Util\SystemApprovalManager;
 
 /**
  * BaseEntityMapper - Implementación básica de un ORM
@@ -96,4 +102,81 @@ class BaseEntityMapper extends EntityMapper
             self::$localeSetted = true;
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function save()
+    {
+        /**
+         * @category GlobalMethodDispatch
+         */
+        BaseEventDispatcher::dispatch(get_class($this), 'saving', $this);
+        $saved = parent::save();
+        if ($saved) {
+            BaseEventDispatcher::dispatch(get_class($this), 'saved', $this);
+        }
+        return $saved;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function update()
+    {
+        /**
+         * @category GlobalMethodDispatch
+         */
+        BaseEventDispatcher::dispatch(get_class($this), 'updating', $this);
+        $updated = parent::update();
+        if ($updated) {
+            BaseEventDispatcher::dispatch(get_class($this), 'updated', $this);
+        }
+        return $updated;
+    }
+
+    /**
+     * Método mágico estático para interceptar llamadas a métodos específicos
+     *
+     * @param string $name Nombre del método llamado
+     * @param array $arguments Argumentos pasados al método
+     * @return mixed
+     */
+    public static function __callStatic($name, $arguments)
+    {
+
+        $className = static::class;
+        $reflection = new ReflectionMethod($className, $name);
+        $reflection->setAccessible(true);
+        $result = $reflection->invokeArgs(null, $arguments);
+
+        if ($name === 'fieldsToSelect') {
+            if (SystemApprovalsRoutes::ENABLE) {
+                $tableApprovals = SystemApprovalsMapper::TABLE;
+                $tableProfiles = UserProfileMapper::TABLE;
+                $tableUsers = UsersModel::TABLE;
+                $tableName = constant("{$className}::TABLE");
+                $approvalHandler = SystemApprovalManager::getInstance()->getHandler($tableName);
+                if ($approvalHandler !== null) {
+                    $referenceColumn = $approvalHandler::getReferenceColumn();
+                    $tableColumn = "{$tableName}.{$referenceColumn}";
+                    $result[] = "(SELECT {$tableApprovals}.status FROM {$tableApprovals} WHERE {$tableApprovals}.referenceTable = '{$tableName}' AND {$tableApprovals}.referenceValue = {$tableColumn} LIMIT 1) AS systemApprovalStatus";
+                } else {
+
+                    if ($tableName == $tableProfiles) {
+                        $result[] = "(SELECT {$tableApprovals}.status FROM {$tableApprovals} WHERE {$tableApprovals}.referenceTable = '{$tableUsers}' AND {$tableApprovals}.referenceValue = {$tableProfiles}.belongsTo LIMIT 1) AS systemApprovalStatus";
+                    } else {
+                        $result[] = "1 AS systemApprovalStatus"; //Para homologar todas
+                    }
+
+                }
+            } else {
+                $result[] = "1 AS systemApprovalStatus"; //Para homologar todas
+            }
+        }
+
+        return $result;
+
+    }
+
 }

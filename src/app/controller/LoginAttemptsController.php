@@ -39,7 +39,7 @@ class LoginAttemptsController extends AdminPanelController
      */
     public function reportsAccess(Request $request, Response $response)
     {
-        if ($request->isXhr()) {
+        if ($request->isXhr() || $request->getQueryParam('xhr', 'no') === 'yes') {
 
             $type = $request->getAttribute('type', null);
 
@@ -73,39 +73,46 @@ class LoginAttemptsController extends AdminPanelController
                 ],
             ];
 
-            $this->render('panel/layout/header');
-            $attemptsData = (array) LoginAttemptsModel::attemptsViewData();
-            $userModel = new UsersModel();
+            $attemptsData = LoginAttemptsModel::all();
+            $allUsers = UsersModel::all();
             $allTimeOnPlatform = TimeOnPlatformModel::getAllHoursOnPlatform();
 
+            $data = [];
+            $title = '';
+            $viewName = '';
+
             if ($logged) {
-                $breadcrumb[] = __(LOGIN_REPORT_LANG_GROUP, 'Registro de ingreso');
-                $this->render('panel/pages/login-reports/logged', [
-                    'tittle' => 'Registro de ingreso',
-                    'breadcrumbs' => get_breadcrumbs($breadcrumb),
-                    'totalUsers' => count($userModel->getAll()),
+                $title = __(LOGIN_REPORT_LANG_GROUP, 'Registro de ingreso');
+                $data = array_merge($data, [
+                    'totalUsers' => count($allUsers),
                     'allTimeOnPlatform' => $allTimeOnPlatform,
-                    'exportUrl' => get_route('logged-export'),
                 ]);
+                $viewName = 'panel/pages/login-reports/logged';
             } elseif ($notLogged) {
-                $breadcrumb[] = __(LOGIN_REPORT_LANG_GROUP, 'Usuarios sin Ingreso');
-                $this->render('panel/pages/login-reports/not-logged', [
-                    'tittle' => 'Usuarios sin Ingreso',
-                    'breadcrumbs' => get_breadcrumbs($breadcrumb),
-                    'exportUrl' => get_route('not-logged-export'),
+                $title = __(LOGIN_REPORT_LANG_GROUP, 'Usuarios sin Ingreso');
+                $data = array_merge($data, [
+                    'totalUsers' => count($allUsers),
                 ]);
+                $viewName = 'panel/pages/login-reports/not-logged';
             } elseif ($attempts) {
-                $breadcrumb[] = __(LOGIN_REPORT_LANG_GROUP, 'Intentos de Ingresos');
-                $this->render('panel/pages/login-reports/attempts', [
-                    'tittle' => 'Intentos de Ingresos',
-                    'breadcrumbs' => get_breadcrumbs($breadcrumb),
+                $title = __(LOGIN_REPORT_LANG_GROUP, 'Intentos de Ingresos');
+                $data = array_merge($data, [
                     'totalAttempts' => count($attemptsData),
-                    'successAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success;})),
-                    'errorAttempts' => count(array_filter($attemptsData, function ($e) {return !$e->success;})),
-                    'exportUrl' => get_route('attempts-export'),
+                    'successAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 1;})),
+                    'errorAttempts' => count(array_filter($attemptsData, function ($e) {return $e->success == 0;})),
                 ]);
+                $viewName = 'panel/pages/login-reports/attempts';
             }
 
+            set_title($title);
+
+            $breadcrumb[] = $title;
+            $data['title'] = $title;
+            $data['breadcrumbs'] = get_breadcrumbs($breadcrumb);
+            $data['exportUrl'] = get_route('logged-export');
+
+            $this->render('panel/layout/header');
+            $this->render($viewName, $data);
             $this->render('panel/layout/footer');
         }
 
@@ -331,6 +338,11 @@ class LoginAttemptsController extends AdminPanelController
      */
     public static function routes(RouteGroup $group)
     {
+
+        $accessReports = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+        ];
         $group->register([
             new Route(
                 '/reports-access[/]',
@@ -339,10 +351,7 @@ class LoginAttemptsController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                $accessReports
             ),
             new Route(
                 '/attempts-export[/]',
@@ -351,10 +360,7 @@ class LoginAttemptsController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                $accessReports
             ),
             new Route(
                 '/not-logged-export[/]',
@@ -363,10 +369,7 @@ class LoginAttemptsController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                $accessReports
             ),
             new Route(
                 '/logged-export[/]',
@@ -375,10 +378,7 @@ class LoginAttemptsController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                $accessReports
             ),
             (new Route(
                 '/reports-access/{type}[/]',
@@ -387,10 +387,7 @@ class LoginAttemptsController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                [
-                    UsersModel::TYPE_USER_ROOT,
-                    UsersModel::TYPE_USER_ADMIN,
-                ]
+                $accessReports
             ))->setParameterValue('type', 'not-logged'),
         ]);
 

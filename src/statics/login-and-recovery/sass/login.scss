@@ -1,7 +1,10 @@
 @import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
 @import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
 @import 'import/variables';
+@import '../../core/sass/includes/reset-font-family-fomantic';
 @import 'import/reset';
+
+$fontModule: $fontGlobal;
 
 * {
     box-sizing: border-box;
@@ -214,7 +217,7 @@
         input,
         select {
             border-radius: $border-radius-buttons;
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
             font-weight: 400;
             font-size: 18;
         }

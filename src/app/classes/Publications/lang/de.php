@@ -90,4 +90,13 @@ return [
     "Si reemplaza las imágenes, estas solo serán visibles en la publicación de este idioma" => "Wenn Sie die Bilder ersetzen, werden sie nur in der Veröffentlichung dieser Sprache sichtbar sein.",
     "Si reemplaza los anexos, estos solo serán visibles en la publicación de este idioma." => "Wenn Sie die Anhänge ersetzen, sind diese nur in der Veröffentlichung dieser Sprache sichtbar.",
     "Si reemplaza la imagen, esta solo serán visibles en la publicación de este idioma." => "Wenn Sie das Bild ersetzen, ist es nur in der Veröffentlichung dieser Sprache sichtbar.",
+    "Activo" => "Aktiv",
+    "Inactivo" => "Inaktiv",
+    "Cambiar anexo" => "Anhang ändern",
+    "Traducir" => "Übersetzen",
+    "Desactivado" => "Deaktiviert",
+    "Agregar un nuevo anexo" => "Neuen Anhang hinzufügen",
+    "Si selecciona los anexos solo serán visibles en la publicación de este idioma." => "Wenn Sie die Anhänge auswählen, sind diese nur in der Veröffentlichung dieser Sprache sichtbar.",
+    "Tamaño máximo del archivo 2MB" => "Maximale Dateigröße 2MB",
+    "Adjuntos y/o anexos" => "Anhänge und/oder Anlagen",
 ];
