@@ -25,16 +25,16 @@
         ```
     2. Buscar cadena: images/ (con distinción de mayúsculas)
         - Remplazar por: statics/wf/images/
-    3. Quitar (srcset=("|')[a-z|A-Z|0-9|\/\-\.\s,]*("|')|sizes=("|')[a-z|A-Z|0-9|\/\-\.\s,]*("|')) en imágenes.
+    3. Quitar (srcset=("|')[a-z|A-Z|0-9|\/\-\.\s,\(\):_]*("|')|sizes=("|')[a-z|A-Z|0-9|\/\-\.\s,\(\):_]*("|')) en imágenes.
     4. Buscar elementos .html para remplazar por urls reales.
     5. Estandarizar carateres (en HTML y en traducciones):
         - &#x27; => '
+        - &nbsp; => por un espacio;
         - & => &amp;
         - [\u00A0] se reemplaza por un espacio (usar regexp)
-        - &nbsp; => por un espacio;
     6. Buscar href
-        - Remplazar href=("|')#("|') por href="#TODO:"
-        - Remplazar href=("|')[^#][^T][^O][^D][^O]*("|') por lo que corresponda
+        - Remplazar href=("|')#("|') por href="<?= get_current_url(); ?>#TODO:"
+        - Remplazar href="<\?= get_current_url\(\); \?>#TODO:" por lo que corresponda
     7. Buscar vacíos: lang-group=("|')("|')
 3. Menús:
     1. Clase w--current en etiqueta actual del menú y atributo aria-current="page".

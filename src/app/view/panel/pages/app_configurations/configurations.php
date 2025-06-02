@@ -8,14 +8,14 @@ $isFirstTitle = true;
 $isFirstItem = true;
 
 $view = $tabsItems['general'];
-$tittle = $tabsTitles['general'];
+$title = $tabsTitles['general'];
 ?>
 
 <main class="colors-view">
 
     <section class="main-body-header">
         <div class="head">
-            <h2 class="tittle"><?= __($langGroup, $tittle); ?></h2>
+            <h2 class="tittle"><?= __($langGroup, $title); ?></h2>
             <span class="sub-tittle"><?= __($langGroup, 'Personalización de Plataforma'); ?></span>
         </div>
         <div class="body-card trasparent no-padding">

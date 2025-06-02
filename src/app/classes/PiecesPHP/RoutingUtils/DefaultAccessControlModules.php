@@ -46,13 +46,13 @@ class DefaultAccessControlModules
         $routeArguments = is_array($routeArguments) ? $routeArguments : [];
         $basenameRoute = $this->baseRouteName;
 
-        if (strpos($routeName, $basenameRoute) !== false) {
+        if (strpos($routeName, $basenameRoute) !== false && strpos($routeName, $basenameRoute) == 0) {
 
             $simpleName = str_replace($basenameRoute, '', $routeName);
             $routeURL = ($this->routeNameValidator)($simpleName, $routeArguments);
             $allowed = mb_strlen($routeURL) > 0;
             if (!$allowed) {
-                return throw403($request, []);
+                throw403($request, []);
             }
 
         }

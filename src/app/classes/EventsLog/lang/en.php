@@ -1,3 +1,5 @@
 <?php
 
-return [];
+return [
+    "Últimos movimientos" => "Latest movements",
+];

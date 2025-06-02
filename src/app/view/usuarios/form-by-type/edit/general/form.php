@@ -6,7 +6,7 @@ use Organizations\Mappers\OrganizationMapper;
 
 $langGroup = UsersController::LANG_GROUP;
 $organizations = OrganizationMapper::all(false);
-$canAssignAll = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type);
+$canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type);
 ?>
 <h3><?=__($langGroup, 'profile');?>: <?=htmlentities("$edit_user->firstname $edit_user->first_lastname");?></h3>
 
@@ -14,7 +14,7 @@ $canAssignAll = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkU
 
     <input type="hidden" name='id' value="<?=$edit_user->id;?>">
 
-    <?php if($canAssignAll): ?>
+    <?php if($canModifyAll): ?>
     <div class="field">
 
         <select class="ui dropdown" required name="organization">

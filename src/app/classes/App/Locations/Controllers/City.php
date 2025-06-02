@@ -7,7 +7,9 @@
 namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Locations\LocationsLang;
 use App\Locations\Mappers\CityMapper;
+use App\Locations\Mappers\StateMapper;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -57,12 +59,14 @@ class City extends AdminPanelController
     const DEFAULT_HEADER_LAYOUT = 'panel/layout/header';
     const DEFAULT_FOOTER_LAYOUT = 'panel/layout/footer';
 
+    protected HelperController $helperController;
+
     /**
      * @return static
      */
     public function __construct()
     {
-
+        $this->helperController = new HelperController();
         self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
         self::$pluralTitle = __(LOCATIONS_LANG_GROUP, self::$pluralTitle);
 
@@ -76,7 +80,6 @@ class City extends AdminPanelController
      */
     public function addForm()
     {
-
         $action = self::routeName('actions-add');
         $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CityMapper::STATUS);
         $status_options = array_to_html_options($status_options, CityMapper::ACTIVE);
@@ -100,9 +103,9 @@ class City extends AdminPanelController
             self::$title,
         ]);
 
-        $this->render(self::DEFAULT_HEADER_LAYOUT);
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
-        $this->render(self::DEFAULT_FOOTER_LAYOUT);
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -112,14 +115,12 @@ class City extends AdminPanelController
      */
     public function editForm(Request $request, Response $response)
     {
-
         $id = $request->getAttribute('id', null);
         $id = Validator::isInteger($id) ? (int) $id : null;
 
         $element = new CityMapper($id);
 
         if (!is_null($element->id)) {
-
             $action = self::routeName('actions-edit');
             $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, CityMapper::STATUS);
             $status_options = array_to_html_options($status_options, $element->active);
@@ -144,10 +145,9 @@ class City extends AdminPanelController
                 self::$title,
             ]);
 
-            $this->render(self::DEFAULT_HEADER_LAYOUT);
-            $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
-            $this->render(self::DEFAULT_FOOTER_LAYOUT);
-
+            $this->helperController->render('panel/layout/header');
+            $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
+            $this->helperController->render('panel/layout/footer');
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -158,7 +158,6 @@ class City extends AdminPanelController
      */
     public function list()
     {
-
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();
         $add_link = self::routeName('forms-add');
@@ -179,9 +178,9 @@ class City extends AdminPanelController
             self::$pluralTitle,
         ]);
 
-        $this->render(self::DEFAULT_HEADER_LAYOUT);
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
-        $this->render(self::DEFAULT_FOOTER_LAYOUT);
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -191,6 +190,7 @@ class City extends AdminPanelController
      */
     public function cities(Request $request, Response $response)
     {
+        $country = $request->getQueryParam('country', null);
         $state = $request->getQueryParam('state', null);
         $ids = $request->getQueryParam('ids', []);
         $ids = is_array($ids) && !empty($ids) ? implode(',', $ids) : null;
@@ -203,7 +203,16 @@ class City extends AdminPanelController
             }
         }
 
+        if ($country !== null) {
+            if (Validator::isInteger($country)) {
+                $country = (int) $country;
+            } else {
+                $country = -1;
+            }
+        }
+
         $query = $this->model->select();
+        $table = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
 
         $where = [];
         $whereString = null;
@@ -212,6 +221,14 @@ class City extends AdminPanelController
         if (!is_null($state)) {
             $operator = !empty($where) ? $and : '';
             $critery = "{$operator} (state = {$state})";
+            $where[] = $critery;
+        }
+
+        if (!is_null($country)) {
+            $tableState = StateMapper::PREFIX_TABLE . StateMapper::TABLE;
+            $stateCountry = "(SELECT {$tableState}.country FROM {$tableState} WHERE {$tableState}.id = {$table}.state)";
+            $operator = !empty($where) ? $and : '';
+            $critery = "{$operator} ($stateCountry = {$country})";
             $where[] = $critery;
         }
 
@@ -232,7 +249,7 @@ class City extends AdminPanelController
         $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
-            $value->name = htmlentities(stripslashes($value->name));
+            $value->name = __(LocationsLang::LANG_GROUP_NAMES, $value->name);
             $result[$key] = $value;
         }
 
@@ -457,6 +474,17 @@ class City extends AdminPanelController
                 }
             ),
             new Parameter(
+                'query',
+                '',
+                function ($value) {
+                    return is_string($value);
+                },
+                true,
+                function ($value) {
+                    return clean_string(trim($value));
+                }
+            ),
+            new Parameter(
                 'country',
                 -10,
                 function ($value) {
@@ -501,6 +529,8 @@ class City extends AdminPanelController
          * @var string $mode
          */
         $query = $expectedParameters->getValue('search');
+        $query = is_string($query) && mb_strlen($query) > 0 ? $query : $expectedParameters->getValue('query');
+        $query = is_string($query) && mb_strlen($query) > 0 ? $query : uniqid();
         $country = $expectedParameters->getValue('country');
         $state = $expectedParameters->getValue('state');
         $mode = $expectedParameters->getValue('mode');
@@ -550,12 +580,12 @@ class City extends AdminPanelController
                 if ($mode == 'normal') {
                     $element = [
                         'id' => $row->id,
-                        'title' => $row->name,
+                        'title' => __(LocationsLang::LANG_GROUP_NAMES, $row->name),
                     ];
                 } else {
                     $element = [
                         'value' => $row->id,
-                        'name' => $row->name,
+                        'name' => __(LocationsLang::LANG_GROUP_NAMES, $row->name),
                     ];
                 }
                 $result[] = $element;
@@ -709,7 +739,10 @@ class City extends AdminPanelController
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
-        $pagination = $pageQuery->getPagination();
+        $pagination = $pageQuery->getPagination(function ($e) {
+            $e->name = __(LocationsLang::LANG_GROUP_NAMES, $e->name);
+            return $e;
+        });
 
         return $pagination;
     }

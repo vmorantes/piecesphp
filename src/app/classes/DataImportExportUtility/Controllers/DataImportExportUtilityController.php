@@ -539,7 +539,7 @@ class DataImportExportUtilityController extends AdminPanelController
         ];
         $accessAdmin = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
         ];
 
         $routes = [

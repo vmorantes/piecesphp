@@ -80,7 +80,7 @@ class CountryMapper extends BaseEntityMapper
      *  - idPadding
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = new CountryMapper();

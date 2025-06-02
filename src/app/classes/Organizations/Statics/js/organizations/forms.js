@@ -31,7 +31,7 @@ window.addEventListener('load', function () {
 
 	//Ubicación	
 	let locations = new LocationsAdapter()
-	locations.fillSelectWithStates(1) //Colombia
+	locations.fillSelectWithCountriesToCities()
 
 	//Formulario
 	let form = genericFormHandler(formSelector, {

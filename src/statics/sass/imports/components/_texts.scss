@@ -1,6 +1,8 @@
+$fontModule: $fontGlobal;
+
 @mixin simple-title {
 
-    font-family: $fontAbhaya;
+    font-family: $fontModule;
     font-weight: $fwExtraBold;
     font-size: pxToRem(30);
     line-height: pxToRem(30);
@@ -100,7 +102,7 @@
         &::before,
         &::after {
             position: absolute;
-            font-family: $fontAbhaya;
+            font-family: $fontModule;
             font-weight: $fwExtraBold;
             top: 50%;
             transform: translateY(-50%);
@@ -145,7 +147,7 @@
 }
 
 @mixin basic-custom-list {
-    font-family: $fontAbhaya;
+    font-family: $fontModule;
     text-align: left;
     color: $defaultTextColor;
     margin: 1.5rem 0 1rem 0;
@@ -160,7 +162,7 @@
             padding: 0 0 0 0;
 
             &::before {
-                font-family: $fontAbhaya;
+                font-family: $fontModule;
                 display: grid;
                 align-self: center;
                 align-items: center;

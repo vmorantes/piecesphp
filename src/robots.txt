@@ -2,11 +2,14 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /*/admin/
+Disallow: /dashboard/
+Disallow: /*/dashboard/
 Disallow: /users/
 Disallow: /*/users/
 Disallow: /terminal/
 Disallow: /core/
 Disallow: /components-provider/
+Disallow: /organizations/
 Disallow: /configurations/
 Disallow: /tickets/
 Disallow: /timing/

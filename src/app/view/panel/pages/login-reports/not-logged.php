@@ -12,7 +12,7 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
         <div class="columns two">
             <div class="column">
                 <div class="section-title">
-                    <div class="title"><?= __($langGroup, $tittle); ?></div>
+                    <div class="title"><?= __($langGroup, $title); ?></div>
                 </div>
             </div>
         </div>
@@ -57,6 +57,7 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
             <thead>
                 <tr>
                     <th><?= __($langGroup, 'ID'); ?></th>
+                    <th><?= __($langGroup, 'Usuario'); ?></th>
                     <th><?= __($langGroup, 'Nombre'); ?></th>
                 </tr>
             </thead>
@@ -76,13 +77,13 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
             }) {
                 const {
                     responseJSON: {
-                        recordsFiltered,
-                        recordsTotal
+                        recordsFiltered
                     }
                 } = jqXHR
-                $('[total-users]').text(recordsTotal)
+                const totalUsers = `<?= $totalUsers ?>`
+                $('[total-users]').text(totalUsers)
                 $('[users-not-logged]').text(recordsFiltered)
-                $('[bar-chart-no-logged]').css('width', (recordsFiltered * 100 / recordsTotal) + '%')
+                $('[bar-chart-no-logged]').css('width', (recordsFiltered * 100 / totalUsers) + '%')
             },
         })
 

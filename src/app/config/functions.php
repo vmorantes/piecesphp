@@ -7,7 +7,7 @@
 use App\Controller\PublicAreaController;
 use App\Model\UsersModel;
 use PiecesPHP\Core\Exceptions\RouteNotExistsException;
-use PiecesPHP\Core\Menu\MenuGroupCollection;
+use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -24,16 +24,8 @@ use PiecesPHP\UserSystem\UserDataPackage;
  */
 function menu_sidebar_items(\stdClass $user): string
 {
-    $groups = get_config('menus')['sidebar'];
+    $groups = get_sidebar_menu();
     return $groups->getHtml();
-}
-
-/**
- * @return MenuGroupCollection
- */
-function sidebar_menu()
-{
-    return get_config('menus')['sidebar'];
 }
 
 /**
@@ -279,6 +271,91 @@ function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = 
         ];
         $options[$e->value] = $e->text;
     }, getAllUsers($ignoreTypes));
+
+    return $options;
+}
+
+/**
+ * Devuelve un array listo para ser usado en array_to_html_options con los códigos de área de los países.
+ *
+ * @param bool $withEmptyOption Indica si se debe incluir una opción vacía.
+ * @param string|null $emptyOptionText El texto de la opción vacía.
+ * @return array
+ */
+function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null)
+{
+    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Código de área');
+    $options = [];
+    if ($withEmptyOption) {
+        $options[''] = $emptyOptionText;
+    }
+    foreach (PHONE_AREA_CODES as $country => $area) {
+        $options[$area] = $area;
+    }
+    return $options;
+}
+
+/**
+ * Devuelve un array listo para ser usado en array_to_html_options con las nacionalidades.
+ *
+ * @param bool $withEmptyOption Indica si se debe incluir una opción vacía.
+ * @param string|null $emptyOptionText El texto de la opción vacía.
+ * @param bool $useMultilang Indica si se deben mostrar las versiones multilenguaje
+ * @return array
+ */
+function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionText = null, bool $useMultilang = false)
+{
+    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad');
+    $options = [];
+
+    if ($withEmptyOption) {
+        $options[''] = $emptyOptionText;
+    }
+
+    $nationalities = $useMultilang ? NATIONALITIES : NATIONALITIES;
+
+    foreach ($nationalities as $nationality => $display) {
+        $options[$nationality] = __(GLOBAL_LANG_GROUP, $display);
+    }
+
+    return $options;
+}
+/**
+ * Devuelve un array listo para ser usado en array_to_html_options con las áreas de interés de investigación.
+ *
+ * @param bool $withEmptyOption Indica si se debe incluir una opción vacía.
+ * @param string|null $emptyOptionText El texto de la opción vacía.
+ * @param int[] $ignoreIDs
+ * @param bool $returnObjects
+ * @return array
+ */
+function getInteresResearchAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null, array $ignoreIDs = [], bool $returnObjects = false)
+{
+    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Seleccione las áreas de interes');
+    $options = [];
+
+    if ($withEmptyOption) {
+        $options[''] = $emptyOptionText;
+    }
+
+    $areas = InterestResearchAreasMapper::all(true);
+
+    /**
+     * @var InterestResearchAreasMapper $area
+     */
+    foreach ($areas as $area) {
+        if (!in_array($area->id, $ignoreIDs)) {
+            if (!$returnObjects) {
+                $options[$area->id] = $area->currentLangData('areaName');
+            } else {
+                $options[$area->id] = [
+                    'areaName' => $area->currentLangData('areaName'),
+                    'color' => $area->color,
+                    'id' => $area->id,
+                ];
+            }
+        }
+    }
 
     return $options;
 }

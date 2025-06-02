@@ -25,11 +25,17 @@ use EventsLog\Mappers\LogsMapper;
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;
 use News\Mappers\NewsMapper;
+use Organizations\Controllers\OrganizationsController;
+use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
+use PiecesPHP\Core\ConfigHelpers\MailConfig;
+use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
+use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
@@ -37,6 +43,8 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\UserSystem\Profile\UserProfileMapper;
+use PiecesPHP\UserSystem\UserDataPackage;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
@@ -823,6 +831,127 @@ class APIController extends AdminPanelController
                 throw new NotFoundException($request, $response);
             }
 
+            //Acciones de REGISTRO EXTERNO PERSONALIZADO - INICIO
+            /**
+             * Se espera que userType y organizationID pasaran por encriptación con BaseHashEncryption.
+             * Si organanizationID resulta como NONE se crea la organización desde organizationName.
+             */
+            $parsedBody = $request->getParsedBody();
+            $equivalences = [
+                'type' => [
+                    'from' => 'userType',
+                    'parse' => function ($value) {
+                        return BaseHashEncryption::decryptBidirectionalHash($value);
+                    },
+                ],
+                'firstname' => [
+                    'from' => 'firstName',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'secondname' => [
+                    'from' => 'secondName',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'first_lastname' => [
+                    'from' => 'firstLastName',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'second_lastname' => [
+                    'from' => 'secondLastName',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'password' => [
+                    'from' => 'password',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'password2' => [
+                    'from' => 'passwordConfirm',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'username' => [
+                    'from' => 'email',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'email' => [
+                    'from' => 'email',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'organization' => [
+                    'from' => 'organizationID',
+                    'parse' => function ($value) {
+                        $value = mb_strlen($value) > 0 ? BaseHashEncryption::decryptBidirectionalHash($value) : null;
+                        return $value != 'NONE' ? $value : null;
+                    },
+                ],
+                'organizationID' => [
+                    'from' => 'organizationID',
+                    'parse' => function ($value) {
+                        $value = mb_strlen($value) > 0 ? BaseHashEncryption::decryptBidirectionalHash($value) : null;
+                        return $value;
+                    },
+                ],
+                'phoneCode' => [
+                    'from' => 'phoneCode',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+                'phoneNumber' => [
+                    'from' => 'phoneNumber',
+                    'parse' => function ($value) {
+                        return $value;
+                    },
+                ],
+            ];
+            foreach ($equivalences as $targetName => $configEquivalence) {
+                $fromName = $configEquivalence['from'];
+                $fromValue = array_key_exists($fromName, $parsedBody) ? $parsedBody[$fromName] : null;
+                if ($fromValue !== null) {
+                    $fromValueParsed = $configEquivalence['parse']($fromValue);
+                    if ($fromValueParsed !== null) {
+                        if (!in_array($fromName, array_keys($equivalences))) {
+                            unset($parsedBody[$fromName]);
+                        }
+                        $parsedBody[$targetName] = $configEquivalence['parse']($fromValue);
+                    }
+                }
+            }
+            $organizationID = array_key_exists('organizationID', $parsedBody) ? $parsedBody['organizationID'] : null;
+            $organizationName = array_key_exists('organizationName', $parsedBody) ? $parsedBody['organizationName'] : null;
+            $organizationCreatedID = null;
+            if ($organizationID == 'NONE') {
+                if (is_string($organizationName) && mb_strlen($organizationName) > 0) {
+                    $requestForOrganization = RequestRouteFactory::createFromGlobals();
+                    $requestForOrganization = $requestForOrganization->withParsedBody([
+                        'name' => $organizationName,
+                        'nit' => mb_strtoupper(uniqid('SIN_INFORMACION_')),
+                    ]);
+                    $controllerOrganization = new OrganizationsController();
+                    $reponseOrganization = $controllerOrganization->action($requestForOrganization, (new Response())->withStatus(200, ''));
+                    $arrayBodyResponseOrganization = json_decode($reponseOrganization->getBody()->__toString(), true);
+                    $parsedBody['organization'] = $arrayBodyResponseOrganization['values']['orgID'];
+                    $organizationCreatedID = $arrayBodyResponseOrganization['values']['orgID'];
+                }
+            }
+            $request = $request->withParsedBody($parsedBody);
+            //Acciones de REGISTRO EXTERNO PERSONALIZADO - FIN
+
             //username - ESPERADOS
             //email - ESPERADOS
             //password - ESPERADOS
@@ -832,13 +961,79 @@ class APIController extends AdminPanelController
             //type
             //status
             $parsedBody = $request->getParsedBody();
-            $parsedBody['type'] = (string) UsersModel::TYPE_USER_GENERAL;
-            $parsedBody['status'] = (string) UsersModel::STATUS_USER_INACTIVE;
+            $inputUserType = $request->getParsedBodyParam('type', null);
+            $inputUserType = is_string($inputUserType) ? trim($inputUserType) : null;
+            $defaultUserType = UsersModel::TYPE_USER_GENERAL;
+            $availableUserTypes = [
+                UsersModel::TYPE_USER_ADMIN_ORG,
+                UsersModel::TYPE_USER_GENERAL,
+            ];
+            $defaultOrganizationByType = [
+                UsersModel::TYPE_USER_GENERAL => OrganizationMapper::INITIAL_ID_GLOBAL,
+            ];
+            $userType = in_array($inputUserType, $availableUserTypes) ? $inputUserType : $defaultUserType;
+            $parsedBody['type'] = (string) $userType;
+            $parsedBody['status'] = (string) UsersModel::STATUS_USER_APPROVED_PENDING;
+
+            //Asignación automática de organización si no hay una definida. Según tipo de usuario.
+            if (!array_key_exists('organization', $parsedBody)) {
+                if (array_key_exists($parsedBody['type'], $defaultOrganizationByType)) {
+                    $parsedBody['organization'] = $defaultOrganizationByType[$parsedBody['type']];
+                }
+            }
 
             $request = $request->withParsedBody($parsedBody);
 
             $controller = new UsersController();
             $response = $controller->register($request, $response);
+
+            //Acciones de REGISTRO EXTERNO PERSONALIZADO - INICIO
+            $creationSuccess = json_decode($response->getBody()->__toString(), true)['success'];
+            $username = $request->getParsedBodyParam('username');
+            $phoneCode = $request->getParsedBodyParam('phoneCode');
+            $phoneNumber = $request->getParsedBodyParam('phoneNumber');
+            if ($creationSuccess) {
+                $userByUsername = UsersModel::getBy($username, 'username', [], new UserDataPackage(1), true);
+                if ($userByUsername !== null) {
+                    $profileUser = UserProfileMapper::getProfile($userByUsername->id);
+                    if ($profileUser !== null) {
+                        $profileUser->phoneCode = $phoneCode;
+                        $profileUser->phoneNumber = $phoneNumber;
+                        $profileUser->update();
+                    }
+                    if ($organizationCreatedID !== null) {
+                        $mapperOrg = new OrganizationMapper($organizationCreatedID);
+                        $mapperOrg->administrator = $userByUsername->id;
+                        $mapperOrg->update();
+                    }
+
+                    //Envío de correo - INICIO
+                    $message = strReplaceTemplate(__(self::LANG_GROUP, "Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación."), [
+                        '{NAME}' => $userByUsername->getFullName(),
+                    ]);
+                    $mailer = new Mailer();
+                    $mailConfig = new MailConfig;
+                    $subject = __(self::LANG_GROUP, 'Aprobaciones');
+                    set_title($subject);
+                    $subject = get_title(true);
+                    $mailer->setFrom($mailConfig->user(), $mailConfig->name());
+                    $mailer->addAddress($userByUsername->email, $userByUsername->getFullName());
+                    $mailer->isHTML(true);
+                    $mailer->Subject = mb_convert_encoding($subject, 'UTF-8');
+                    $data = [];
+                    $data['text'] = mb_convert_encoding($message, 'UTF-8');
+                    $data['url'] = get_route('admin');
+                    $data['text_button'] = __(self::LANG_GROUP, 'Iniciar sesión');
+                    $mailer->Body = $this->helpController->render('mailing/template_base', $data, false, false);
+                    if (!$mailer->checkSettedSMTP()) {
+                        $mailer->asGoDaddy();
+                    }
+                    $mailer->send();
+                    //Envío de correo - FIN
+
+                }
+            }
+            //Acciones de REGISTRO EXTERNO PERSONALIZADO - FIN
 
         } elseif ($actionType == 'edit') {
 
@@ -1386,8 +1581,7 @@ class APIController extends AdminPanelController
 
         $other = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
         ];
 
         $routes = [];
@@ -1414,15 +1608,6 @@ class APIController extends AdminPanelController
                 $news,
             ),
             new Route( //Acciones sobre el módulo de usuarios
-                "{$startRoute}/users/{actionType}[/]",
-                $classname . ':usersActions',
-                self::$baseRouteName . '-users-actions',
-                'GET|POST',
-                false,
-                null,
-                $usersActions,
-            ),
-            new Route( //Acciones sobre el módulo de usuarios
                 "{$startRoute}/cron-jobs/{actionType}[/]",
                 $classname . ':cronJobs',
                 self::$baseRouteName . '-cron-jobs',
@@ -1440,6 +1625,21 @@ class APIController extends AdminPanelController
             //    null,
             //    $externalActions,
             //),
+
+        ];
+        $routesUsers = [
+
+            //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
+            //JSON
+            new Route( //Acciones sobre el módulo de usuarios
+                "{$startRoute}/users/{actionType}[/]",
+                $classname . ':usersActions',
+                self::$baseRouteName . '-users-actions',
+                'GET|POST',
+                false,
+                null,
+                $usersActions,
+            ),
 
         ];
         $routesTranslation = [
@@ -1478,7 +1678,11 @@ class APIController extends AdminPanelController
             $routes = array_merge($routes, $routesTranslation);
         }
 
-        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS) {
+        if (APIRoutes::ENABLE_USERS) {
+            $routes = array_merge($routes, $routesUsers);
+        }
+
+        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS) {
             $group->register($routes);
 
             $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {

@@ -8,6 +8,7 @@ use App\Model\AvatarModel;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
+use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 
 /**
  * UserDataPackage.
@@ -40,6 +41,7 @@ use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
  * @property-read string $avatar
  * @property-read bool $hasAvatar
  * @property-read OTPSecretsUsersMapper|null $TOTPData
+ * @property-read UserProfileMapper|null $profile
  */
 class UserDataPackage
 {
@@ -143,6 +145,10 @@ class UserDataPackage
      * @var OTPSecretsUsersMapper|null
      */
     protected $TOTPData = null;
+    /**
+     * @var UserProfileMapper|null
+     */
+    protected $profile = null;
 
     /**
      * @var array<string,string>
@@ -221,7 +227,7 @@ class UserDataPackage
         $this->type = $this->userMapper->type;
         $this->status = $this->userMapper->status;
         $this->failedAttempts = $this->userMapper->failed_attempts;
-        $this->createdAt = $this->userMapper->created_at instanceof \DateTime ? $this->userMapper->created_at : new \DateTime($this->userMapper->created_at);
+        $this->createdAt = $this->userMapper->created_at instanceof \DateTime  ? $this->userMapper->created_at : new \DateTime($this->userMapper->created_at);
         $this->modifiedAt = null;
         if ($this->userMapper->modified_at instanceof \DateTime) {
             $this->modifiedAt = $this->userMapper->modified_at;
@@ -235,6 +241,7 @@ class UserDataPackage
         $this->avatar = $avatar;
         $this->hasAvatar = mb_strlen($avatar) > 0;
         $this->TOTPData = OTPSecretsUsersMapper::getTOTPData($this->id);
+        $this->profile = UserProfileMapper::getProfile($this->id);
 
         $fromInstanceToStdClass = [
             'firstLastname',
@@ -255,6 +262,15 @@ class UserDataPackage
     }
 
     /**
+     * @param string|null $onDefault
+     * @return string
+     */
+    public function getAvatarURL(string | null $onDefault = 'statics/images/default-avatar.png')
+    {
+        return $this->hasAvatar ? $this->avatar : (is_string($onDefault) ? $onDefault : '');
+    }
+
+    /**
      * @return string
      */
     public function getTypeText()
@@ -269,5 +285,18 @@ class UserDataPackage
         }
 
         return $typeText;
+    }
+
+    /**
+     * Obtiene el usuario actual configurado.
+     * @return \stdClass|null El objeto del usuario actual configurado o null si no hay un usuario configurado.
+     */
+    public static function getConfigCurrentUser()
+    {
+        $currentUser = get_config('current_user');
+        if (is_object($currentUser)) {
+            return $currentUser;
+        }
+        return null;
     }
 }

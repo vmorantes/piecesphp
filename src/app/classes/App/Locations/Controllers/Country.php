@@ -7,6 +7,7 @@
 namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Locations\LocationsLang;
 use App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
@@ -52,12 +53,15 @@ class Country extends AdminPanelController
      */
     protected static $pluralTitle = 'Países';
 
+    protected HelperController $helperController;
+
     /**
      * @return static
      */
     public function __construct()
     {
 
+        $this->helperController = new HelperController();
         self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
         self::$pluralTitle = __(LOCATIONS_LANG_GROUP, self::$pluralTitle);
 
@@ -99,9 +103,9 @@ class Country extends AdminPanelController
         ]);
         $data['regionsOptions'] = $regionsOptions;
 
-        $this->render('panel/layout/header');
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
-        $this->render('panel/layout/footer');
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -145,9 +149,9 @@ class Country extends AdminPanelController
             ]);
             $data['regionsOptions'] = $regionsOptions;
 
-            $this->render('panel/layout/header');
-            $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
-            $this->render('panel/layout/footer');
+            $this->helperController->render('panel/layout/header');
+            $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
+            $this->helperController->render('panel/layout/footer');
 
         } else {
             throw new NotFoundException($request, $response);
@@ -180,9 +184,9 @@ class Country extends AdminPanelController
             self::$pluralTitle,
         ]);
 
-        $this->render('panel/layout/header');
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
-        $this->render('panel/layout/footer');
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -235,11 +239,22 @@ class Country extends AdminPanelController
         $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
-            $value->name = htmlentities(stripslashes($value->name));
+            $value->name = is_string($value->name) ? __(LocationsLang::LANG_GROUP_NAMES, $value->name) : $value->name;
+            $value->region = is_string($value->region) ? __(LocationsLang::LANG_GROUP_NAMES, $value->region) : $value->region;
             $result[$key] = $value;
         }
 
         return $response->withJson($result);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function all(Request $request, Response $response)
+    {
+        return $this->countries($request, $response);
     }
 
     /**
@@ -486,6 +501,7 @@ class Country extends AdminPanelController
             $queryResult = $model->result();
 
             foreach ($queryResult as $row) {
+                $row->name = is_string($row->name) ? __(LocationsLang::LANG_GROUP_NAMES, $row->name) : $row->name;
                 $result[] = [
                     'id' => $row->id,
                     'title' => $row->name,

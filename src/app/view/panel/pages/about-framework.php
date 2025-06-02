@@ -2,13 +2,14 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\AdminPanelController;
 $user = getLoggedFrameworkUser(true)->userMapper;
+$langGroup = 'about-framework';
 ?>
 <main class="about-framework">
 
     <div class="page-content">
         <div class="titles">
-            <h2><?= __(AdminPanelController::LANG_GROUP, 'Acerca de'); ?></h2>
-            <span> <?= get_config('title_app'); ?> desarrollada en:</span>
+            <h2><?= __($langGroup, 'Acerca de'); ?></h2>
+            <span> <?= get_config('title_app'); ?> <?= __($langGroup, 'desarrollada en:'); ?></span>
         </div>
 
         <div class="main-card">
@@ -18,11 +19,11 @@ $user = getLoggedFrameworkUser(true)->userMapper;
 
                     <div class="data-grup">
                         <div class="data">
-                            <small>Última versión</small>
+                            <small><?= __($langGroup, 'Última versión'); ?></small>
                             <span>v<?= APP_VERSION; ?></span>
                         </div>
                         <div class="data">
-                            <small>Fecha</small>
+                            <small><?= __($langGroup, 'Fecha'); ?></small>
                             <span><?= (new \DateTime(APP_VERSION_DATE))->format('m/Y'); ?></span>
                         </div>
                     </div>
@@ -40,25 +41,23 @@ $user = getLoggedFrameworkUser(true)->userMapper;
             <article class="description">
                 <div class="decored-tittle">
                     <div class="tittle">
-                        <h3>Descripción</h3>
+                        <h3><?= __($langGroup, 'Descripción'); ?></h3>
                     </div>
                 </div>
                 <p>
-                    Es conjunto de componentes personalizables y reusables para el desarrollo web basado en PHP con licencia MIT (de código abierto, sin costos escondidos o adicionales para el cliente final), modular, liviano y flexible que permite “ensamblar” diferentes librerías, funcionalidades y
-                    plugins como su nombre “Pieces” lo indica; normalmente a este grupo de componentes se le conoce como Framework.
+                    <?= __($langGroup, 'Es conjunto de componentes personalizables y reusables para el desarrollo web basado en PHP con licencia MIT (de código abierto, sin costos escondidos o adicionales para el cliente final), modular, liviano y flexible que permite “ensamblar” diferentes librerías, funcionalidades y plugins como su nombre “Pieces” lo indica; normalmente a este grupo de componentes se le conoce como Framework.'); ?>
                 </p>
 
                 <p>
-                    Este framework ha venido siendo desarrollado durante 5 años por Tejido Digital y ha permitido la estandarización de procesos dentro de la organización, desarrollo de manera más ágil y rápida, disminuyendo las solicitudes de soporte (garantía) y en caso de presentarse alguna,
-                    lograr una solución más rápida.
+                    <?= __($langGroup, 'Este framework ha venido siendo desarrollado durante 5 años por Tejido Digital y ha permitido la estandarización de procesos dentro de la organización, desarrollo de manera más ágil y rápida, disminuyendo las solicitudes de soporte (garantía) y en caso de presentarse alguna, lograr una solución más rápida.'); ?>
                 </p>
             </article>
 
             <article class="own-bookstores">
                 <div class="decored-tittle">
                     <div class="tittle">
-                        <h3>Librerías propias</h3>
-                        <span>con licencia MIT</span>
+                        <h3><?= __($langGroup, 'Librerías propias'); ?></h3>
+                        <span><?= __($langGroup, 'con licencia MIT'); ?></span>
                     </div>
                 </div>
 
@@ -78,12 +77,12 @@ $user = getLoggedFrameworkUser(true)->userMapper;
             <article class="dependencies">
                 <div class="decored-tittle">
                     <div class="tittle">
-                        <h3>Plugins, scripts y dependencias</h3>
-                        <span>Desarrollados por terceros</span>
+                        <h3><?= __($langGroup, 'Plugins, scripts y dependencias'); ?></h3>
+                        <span><?= __($langGroup, 'Desarrollados por terceros'); ?></span>
                     </div>
                 </div>
                 <p>
-                    Estas cuentan con diferentes acuerdos de licencia y están autorizados para uso comercial por parte de terceros, pero los alcances pueden variar dependiendo del proveedor, las cuales son:
+                    <?= __($langGroup, 'Estas cuentan con diferentes acuerdos de licencia y están autorizados para uso comercial por parte de terceros, pero los alcances pueden variar dependiendo del proveedor, las cuales son:'); ?>
                 </p>
                 <ul>
                     <li>Ckeditor Ver. 5.0 Licencia GNU</li>
@@ -94,7 +93,7 @@ $user = getLoggedFrameworkUser(true)->userMapper;
                     <li>jquery Ver. 3.7.0 Licencia MIT</li>
                     <li>jquery-ui Ver. 1.12.1 Licencia MIT</li>
                     <li style="display: none;">Open-layers Ver. 6.14.1 Licencia BSD</li>
-                    <li>Fomantic Ver 2.9.2 Licencia MIT</li>
+                    <li>Fomantic Ver 2.9.4 Licencia MIT</li>
                     <li>ApexCharts Ver. 3.50.0 Licencia MIT</li>
                     <li>QRCodeJS Licencia MIT</li>
                     <li>MapBox JS Ver. 3.4.0 Licencia Mapbox Web SDK</li>

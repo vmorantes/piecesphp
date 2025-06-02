@@ -548,7 +548,7 @@ class ImporterController extends AdminPanelController
         $all_roles = array_keys(UsersModel::TYPES_USERS);
         $edition_permissions = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
         ];
 
         //──── GET ─────────────────────────────────────────────────────────────────────────

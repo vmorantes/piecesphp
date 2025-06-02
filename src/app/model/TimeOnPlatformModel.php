@@ -4,6 +4,7 @@
  */
 namespace App\Model;
 
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseEntityMapper;
 
 /**
@@ -115,10 +116,39 @@ class TimeOnPlatformModel extends BaseEntityMapper
      */
     public static function getAllHoursOnPlatform()
     {
+        $currentUser = getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+
         $model = (new TimeOnPlatformModel())->getModel();
-        $rows = $model->select()->getAll();
-        $rows = array_sum(array_column($rows, 'minutes'));
-        $hours = $rows / 60;
+        $tableUsers = UsersModel::TABLE;
+        $table = self::TABLE;
+
+        $model->select([
+            "{$table}.*",
+            "(SELECT {$tableUsers}.organization FROM {$tableUsers} WHERE {$tableUsers}.id = {$table}.user_id) AS organizationID",
+        ]);
+
+        $having = [];
+
+        if ($currentUser !== null) {
+            $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+            if (!$canModifyOrganizations) {
+                $criteryValue = $currentOrganizationID;
+                $beforeOperator = !empty($having) ? 'AND' : '';
+                $critery = "organizationID = {$criteryValue}";
+                $having[] = "{$beforeOperator} ({$critery})";
+            }
+        }
+
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
+            $model->having($havingString);
+        }
+
+        $model->execute();
+        $rows = $model->result();
+        $minutes = array_sum(array_column($rows, 'minutes'));
+        $hours = $minutes / 60;
         return number_format($hours, 1);
     }
 }

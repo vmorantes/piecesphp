@@ -1,10 +1,13 @@
 @import 'import/variables';
+@import '../../core/sass/includes/reset-font-family-fomantic';
 @import 'import/reset';
 @import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
 @import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
 
+$fontModule: $fontGlobal;
+
 body {
-    font-family: $fontPublicSans;
+    font-family: $fontModule;
 }
 
 .container {
@@ -56,12 +59,12 @@ body {
             .back {
 
                 .ui.button {
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                     font-size: 95%;
                 }
 
                 .ui.button.custom-color {
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                     background-color: $problem-color-button;
                     color: $problem-color-text-button;
                 }
@@ -74,7 +77,7 @@ body {
                 font-size: 95%;
                 background-color: $problem-back-color;
                 color: $problem-color-text-button;
-                font-family: $fontPublicSans;
+                font-family: $fontModule;
             }
 
         }
@@ -279,14 +282,14 @@ body {
         }
 
         .ui.button.back-color {
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
             background-color: $back-button-color;
             color: $color-text-button-back-form;
             margin-right: 20px;
         }
 
         .ui.button.custom-color {
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
             background-color: $next-button-color;
             color: $color-text-next;
         }
@@ -308,7 +311,7 @@ body {
         }
 
         .ui.button {
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
             font-size: $font-size-buttons;
             font-weight: $font-weight-buttons;
             border-radius: $border-radius-buttons;
@@ -322,7 +325,7 @@ body {
                     flex: 0 0 auto;
                     flex-wrap: wrap;
                     justify-content: space-evenly;
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                 }
             }
 

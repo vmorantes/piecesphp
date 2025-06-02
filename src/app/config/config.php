@@ -44,7 +44,7 @@ $config['keywords'] = [
 
 $config['description'] = "Descripción de la página.";
 
-//Colors
+//Colors and fonts
 $config['main_brand_color'] = "#6435C9";
 $config['second_brand_color'] = "#A333C8";
 $config['font_color_one'] = "#1B1C1D";
@@ -55,7 +55,10 @@ $config['menu_color_font'] = "#FFFFFF";
 $config['meta_theme_color'] = "#6435C9";
 $config['bg_tools_buttons'] = "#E2ECEF";
 $config['body_gradient'] = "transparent linear-gradient(180deg, #D1CCBD40 0%, #D1CCBD00 100%) 0% 0% no-repeat padding-box";
+$config['font_family_global'] = "'Poppins', sans-serif";
+$config['font_family_sidebars'] = "'Public Sans', sans-serif";
 
+//Varios
 $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";

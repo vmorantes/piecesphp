@@ -1,5 +1,4 @@
 <?php
-
 namespace App\LangMessages;
 
 $lang = [
@@ -103,9 +102,10 @@ $lang = [
         'INACTIVE_USER'                => 'El usuario "%1$s" está desactivado.',
         'ORGANIZATION_IS_NOT_ACTIVE'   => 'La organización "%1$s" no está activa.',
         'INVALID_TWO_FACTOR_CODE'      => 'Código autenticación de doble factor inválido.',
-	],
-	'avatarModule' => [
-		'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',
+        'APPROVED_PENDING'             => 'Pendiente de aprobación',
+    ],
+    'avatarModule' => [
+        'MISSING_OR_UNEXPECTED_PARAMS' => 'Parámetros faltantes o inesperados.',
     ],
     'mailTemplates' => [
         'MENSAJE_DE_VALIDEZ' => 'Recuerde que este código tiene una validez de 24 horas, después de ese tiempo debe generar uno nuevo',

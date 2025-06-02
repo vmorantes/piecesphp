@@ -3,6 +3,8 @@
 @import 'includes/variables';
 @import 'includes/functions';
 
+$fontModule: $fontGlobal;
+
 .ui-pcs.container-sidebar>.content {
     margin: 0 !important;
     padding: 0 !important;
@@ -27,7 +29,7 @@
                 align-items: center;
 
                 h2 {
-                    font-family: $fontPoppins;
+                    font-family: $fontModule;
                     font-weight: $fwBold;
                     font-size: pxToRem(34);
                     line-height: pxToRem(34);
@@ -36,7 +38,7 @@
                 }
 
                 span {
-                    font-family: $fontPoppins;
+                    font-family: $fontModule;
                     font-weight: $fwMedium;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+5);

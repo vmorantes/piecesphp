@@ -2,7 +2,6 @@
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/CropperAdapterComponent.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/RichEditorAdapterComponent.js" />
-/// <reference path="../../../../../../statics/core/own-plugins/SimpleUploadPlaceholder.js" />
 /// <reference path="../../../../../../statics/core/own-plugins/AttachmentPlaceholder.js" />
 showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('load', function () {
@@ -54,20 +53,11 @@ window.addEventListener('load', function () {
 	})
 
 	//Adjuntos
-	const attachments = {}
-	let indexAttachment = 1
-	for (const attachmentElement of Array.from(document.querySelectorAll('[attachment-element]'))) {
-		attachmentElement.setAttribute(`attachment-${indexAttachment}`, '')
-		attachments[indexAttachment] = new SimpleUploadPlaceholder({
-			containerSelector: `[attachment-element][attachment-${indexAttachment}]`,
-			onReady: function () {
-			},
-			onChangeFile: (files, component, instance, event) => {
-				const fileInput = files[0]
-			},
-		})
-		indexAttachment++
-	}
+	/**
+	 * @type {AttachmentPlaceholder[]}
+	 */
+	let attachments = []
+	dynamicPublicationAttachments(attachments)
 
 	/* Configuraciones iniciales */
 	configFomanticDropdown('.ui.dropdown:not(.langs)') //Debe inciarse antes de genericFormHandler para la validación
@@ -83,6 +73,16 @@ window.addEventListener('load', function () {
 				formData.set('ogImage', cropperOpenGraphImage.getFile())
 			}
 
+			let attachCounter = 0
+			for (const attachment of attachments) {
+				const fileSelected = attachment.getSelectedFile()
+				if (fileSelected !== null) {
+					attachCounter++
+					formData.append(`attachmentsID_${attachCounter}`, null)
+					formData.append(`attachmentsFile_${attachCounter}`, fileSelected)
+					formData.append(`attachmentsName_${attachCounter}`, attachment.getName())
+				}
+			}
 			return formData
 		},
 		onInvalidEvent: function (event) {
@@ -159,6 +159,44 @@ window.addEventListener('load', function () {
 			}).modal('show')
 		})
 
+	}
+
+	/**
+	 * Configura el comportamiento de los adjuntos
+	 * @param {AttachmentPlaceholder[]} attachments 
+	 */
+	function dynamicPublicationAttachments(attachments) {
+		const addTriggerID = 'add-trigger'
+		//Configuración de presentes
+		const baseAttr = 'data-dynamic-attachment'
+		const elements = Array.from(document.querySelectorAll(`[${baseAttr}]`))
+		for (const element of elements) {
+			const identifier = element.getAttribute(baseAttr)
+			if (typeof identifier == 'string' && identifier.trim().length > 0 && identifier != addTriggerID) {
+				attachments.push(new AttachmentPlaceholder($(`[${baseAttr}="${identifier}"]`)))
+			} else if (identifier != addTriggerID) {
+				element.remove()
+			}
+		}
+		//Adición
+		let attachsCounter = 0
+		const addTrigger = $(`[${baseAttr}="${addTriggerID}"]`)
+		const container = addTrigger.parent()
+		const template = document.querySelector('template[attach]').innerHTML
+		addTrigger.on('click', function (e) {
+			e.preventDefault()
+			attachsCounter++
+			const uniqueID = generateUniqueID()
+			const templateElement = $(template
+				.replace(/\{NUMBER\}/gim, attachsCounter)
+				.replace(/\{ID\}/gim, uniqueID)
+			)
+			const title = templateElement.find('.header > .title')
+			container.append(templateElement)
+			const attach = new AttachmentPlaceholder($(`[${baseAttr}="${uniqueID}"]`))
+			attach.setName(title.text())
+			attachments.push(attach)
+		})
 	}
 
 	removeGenericLoader('_CARGA_INICIAL_')

@@ -7,7 +7,7 @@
 namespace Organizations\Mappers;
 
 use App\Locations\Mappers\CityMapper;
-use App\Locations\Mappers\StateMapper;
+use App\Locations\Mappers\CountryMapper;
 use App\Model\UsersModel;
 use Organizations\Exceptions\DuplicateException;
 use Organizations\OrganizationsLang;
@@ -18,6 +18,7 @@ use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\Core\Validation\Validator;
+use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 
 /**
  * OrganizationMapper.
@@ -30,17 +31,17 @@ use PiecesPHP\Core\Validation\Validator;
  * @property string $name
  * @property string $nit
  * @property string|null $size
+ * @property string|null $activitySector
  * @property string[]|null $actionLines
  * @property string|null $esal
- * @property int|StateMapper|null $state
+ * @property int|CountryMapper|null $country
  * @property int|CityMapper|null $city
  * @property string|null $address
  * @property string|null $phone
+ * @property string|null $linkedinLink
+ * @property string|null $websiteLink
  * @property string|null $informativeEmail
  * @property string|null $billingEmail
- * @property string|null $contactName
- * @property string|null $contactPhone
- * @property string|null $contactEmail
  * @property string|null $logo
  * @property string|null $rut
  * @property string $folder
@@ -51,6 +52,12 @@ use PiecesPHP\Core\Validation\Validator;
  * @property int $status
  * @property \stdClass|string|null $meta
  * @property \stdClass|null $langData
+ * @property string|null $phoneCode
+ * @property double|null $longitude
+ * @property double|null $latitude
+ * @property int[]|UsersModel|null $administrator
+ * @property int[]|InterestResearchAreasMapper[]|null $interestResearhAreas
+ * @property string[] $affiliatedInstitutions
  */
 class OrganizationMapper extends EntityMapperExtensible
 {
@@ -74,6 +81,10 @@ class OrganizationMapper extends EntityMapperExtensible
             'type' => 'text',
             'null' => true,
         ],
+        'activitySector' => [
+            'type' => 'text',
+            'null' => true,
+        ],
         'actionLines' => [
             'type' => 'json',
             'null' => true,
@@ -82,13 +93,13 @@ class OrganizationMapper extends EntityMapperExtensible
             'type' => 'text',
             'null' => true,
         ],
-        'state' => [
+        'country' => [
             'type' => 'int',
-            'reference_table' => StateMapper::PREFIX_TABLE . StateMapper::TABLE,
+            'reference_table' => CountryMapper::PREFIX_TABLE . CountryMapper::TABLE,
             'reference_field' => 'id',
             'reference_primary_key' => 'id',
             'human_readable_reference_field' => 'id',
-            'mapper' => StateMapper::class,
+            'mapper' => CountryMapper::class,
             'null' => true,
         ],
         'city' => [
@@ -108,23 +119,19 @@ class OrganizationMapper extends EntityMapperExtensible
             'type' => 'text',
             'null' => true,
         ],
+        'linkedinLink' => [
+            'type' => 'text',
+            'null' => true,
+        ],
+        'websiteLink' => [
+            'type' => 'text',
+            'null' => true,
+        ],
         'informativeEmail' => [
             'type' => 'text',
             'null' => true,
         ],
         'billingEmail' => [
-            'type' => 'text',
-            'null' => true,
-        ],
-        'contactName' => [
-            'type' => 'text',
-            'null' => true,
-        ],
-        'contactPhone' => [
-            'type' => 'text',
-            'null' => true,
-        ],
-        'contactEmail' => [
             'type' => 'text',
             'null' => true,
         ],
@@ -177,11 +184,13 @@ class OrganizationMapper extends EntityMapperExtensible
 
     const ACTIVE = 1;
     const INACTIVE = 2;
+    const PENDING_APPROVAL = 3;
     const DELETED = 0;
     const STATUSES = [
         self::ACTIVE => 'Activa',
         self::INACTIVE => 'Inactiva',
         self::DELETED => 'Eliminada',
+        self::PENDING_APPROVAL => 'Pendiente de aprobación',
     ];
 
     const SIZE_SMALL = "SMALL";
@@ -211,16 +220,58 @@ class OrganizationMapper extends EntityMapperExtensible
 
     const INITIAL_ID_GLOBAL = -10;
 
+    /*
+        Tiene poder de eliminación sobre todas las organizaciones
+    */
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
-    const CAN_ASSIGN_ALL = [
+    /*
+        Tiene poder de asignación, modificación y listado sobre todas las organizaciones
+    */
+    const CAN_MODIFY_ALL = [
         UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
-    const EDITORS = [
-        UsersModel::TYPE_USER_ADMIN,
+    /*
+        Tiene poder de listado sobre las organizaciones
+    */
+    const CAN_VIEW_ALL = [];
+    /*
+        Tiene poder de modificación sobre organizaciones a la que pertenezca
+    */
+    const EDITORS = [];
+    /* 
+        Puede ser asignado como el administrador de una organización y
+        tiene poder de modificación en el formulario de perfil de esta
+        Nota: Idealmente cualquiera que pueda tener organización debería estar
+    */
+    const PROFILE_EDITOR = [
+        UsersModel::TYPE_USER_ADMIN_ORG,
         UsersModel::TYPE_USER_GENERAL,
+        UsersModel::TYPE_USER_INSTITUCIONAL,
+        UsersModel::TYPE_USER_COMUNICACIONES,
     ];
+    /* 
+        Pueden editar perfiles de organización en general, sin necesidad de poder ser asignado
+        Nota: Deberían solo ser usuarios con muchos privilegios
+    */
+    const PROFILE_EDITOR_SUPER = [
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+    ];
+    /* 
+        Permisos adicionales cuando un usuario es el encargado/administrador
+    */
+    const PERMISSIONS_ON_ADMINISTRATOR = [
+        //Usuarios
+        "users-list", //Listado de los usuarios
+        "users-selection-create", //Selección de tipo de usuario para creación
+        "users-form-create", //Formulario de creación de usuarios
+        "users-form-edit", //Formulario de edición de usuarios
+    ];
+
+    const DISABLE_NORMAL_EDIT_FORM = true; //En true el formulario de edición regular está desactivado
 
     const TABLE = 'organizations_elements';
     const VIEW_ACTIVE_DATE = 'organizations_active_date_elements';
@@ -242,7 +293,9 @@ class OrganizationMapper extends EntityMapperExtensible
      *
      * @var string[]
      */
-    protected $translatableProperties = [];
+    protected $translatableProperties = [
+        'activitySector',
+    ];
 
     /**
      * @var string
@@ -257,6 +310,12 @@ class OrganizationMapper extends EntityMapperExtensible
     public function __construct(int $value = null, string $fieldCompare = 'primary_key')
     {
 
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, '+57', true), 'phoneCode');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'longitude');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_DOUBLE, 0, true), 'latitude');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY_MAPPER, null, true, InterestResearchAreasMapper::class, 'id'), 'interestResearhAreas');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY, [], false), 'affiliatedInstitutions');
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_MAPPER, new UsersModel(), true, UsersModel::class), 'administrator');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
         parent::__construct($value, $fieldCompare);
 
@@ -269,6 +328,53 @@ class OrganizationMapper extends EntityMapperExtensible
                 }
             }
         }
+    }
+
+    /**
+     * @param string|null $onDefault
+     * @return string
+     */
+    public function getLogoURL(string | null $onDefault = 'statics/images/default-avatar-org.jpg')
+    {
+        $logo = $this->currentLangData('logo');
+        $hasLogo = is_string($logo) && mb_strlen($logo) > 0;
+        return $hasLogo ? $this->currentLangData('logo') : (is_string($onDefault) ? $onDefault : '');
+    }
+
+    /**
+     * Verifica si el perfil de una organización está completo.
+     *
+     * Un perfil se considera completo si tiene todos los campos requeridos llenos.
+     * Los campos requeridos son: name, informativeEmail, activitySector, logo, country, city, latitude, longitude y interestResearhAreas.
+     *
+     * @return bool true si el perfil está completo, false de lo contrario.
+     */
+    public function profileIsComplete()
+    {
+        $mapper = $this;
+        $complete = false;
+
+        if ($mapper !== null) {
+
+            $complete = true;
+            $requiredProperties = [
+                'name' => fn($e) => is_string($e) && mb_strlen(trim($e)) > 1,
+                'informativeEmail' => fn($e) => is_string($e) && mb_strlen(trim($e)) > 1,
+                'activitySector' => fn($e) => is_string($e) && mb_strlen(trim($e)) > 1,
+                'logo' => fn($e) => is_string($e) && mb_strlen(trim($e)) > 1,
+                'country' => fn($e) => Validator::isInteger($e) || $e instanceof CountryMapper,
+                'city' => fn($e) => Validator::isInteger($e) || $e instanceof CityMapper,
+                'latitude' => fn($e) => Validator::isDouble($e),
+                'longitude' => fn($e) => Validator::isDouble($e),
+                'interestResearhAreas' => fn($e) => is_array($e) && !empty($e),
+            ];
+
+            foreach ($requiredProperties as $requiredProperty => $validator) {
+                $valid = ($validator)($mapper->$requiredProperty);
+                $complete = $complete && $valid;
+            }
+        }
+        return $complete;
     }
 
     /**
@@ -505,43 +611,61 @@ class OrganizationMapper extends EntityMapperExtensible
     /**
      * Campos extra:
      *  - idPadding
-     *  - stateName
+     *  - countryName
      *  - cityName
+     *  - fullLocation
      *  - sizeText
      *  - actionLinesText
      *  - esalText
+     *  - interestResearhAreasNames
+     *  - interestResearhAreasIDsNames
+     *  - interestResearhAreasColorsNames
      *  - statusText
      * @return string[]
      */
-    public static function fieldsToSelect(string $formatDate = '%d-%m-%Y')
+    protected static function fieldsToSelect(string $formatDate = '%d-%m-%Y', string $locationSeparator = ' - ')
     {
 
         $mapper = (new OrganizationMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
 
-        $tableState = StateMapper::PREFIX_TABLE . StateMapper::TABLE;
+        $tableInterestResearchAreas = InterestResearchAreasMapper::TABLE;
+        $tableCountry = CountryMapper::PREFIX_TABLE . CountryMapper::TABLE;
         $tableCity = CityMapper::PREFIX_TABLE . CityMapper::TABLE;
         $tableUser = UsersModel::TABLE;
 
         $defaultLang = Config::get_default_lang();
         $currentLang = Config::get_lang();
 
-        $stateName = "SELECT {$tableState}.name FROM {$tableState} WHERE {$tableState}.id = {$table}.state";
+        //Áreas de investigación
+        $researchAreas = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.interestResearhAreas'))";
+        $areaNameCurrentLang = InterestResearchAreasMapper::fieldCurrentLangForSQL('areaName');
+        $researchAreasNameSubQuery = "SELECT GROUP_CONCAT($areaNameCurrentLang SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
+        $researchAreasNameAndIDSubQuery = "SELECT GROUP_CONCAT(CONCAT({$tableInterestResearchAreas}.id, ':', $areaNameCurrentLang) SEPARATOR ', ') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
+        $researchAreasNameAndColorSubQuery = "SELECT GROUP_CONCAT(CONCAT(JSON_UNQUOTE(JSON_EXTRACT({$tableInterestResearchAreas}.meta, '$.color')), ':', $areaNameCurrentLang) SEPARATOR '|@|') FROM {$tableInterestResearchAreas} WHERE JSON_CONTAINS({$researchAreas}, {$tableInterestResearchAreas}.id)";
+
+        //Ubicaciones
+        $countryName = "SELECT {$tableCountry}.name FROM {$tableCountry} WHERE {$tableCountry}.id = {$table}.country";
         $cityName = "SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city";
 
-        $statusesJSON = json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE);
-        $sizesJSON = json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE);
-        $actionLinesJSON = json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE);
-        $esalOptionsJSON = json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE);
+        //Otros
+        $statusesJSON = escapeString(json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE));
+        $sizesJSON = escapeString(json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE));
+        $actionLinesJSON = escapeString(json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE));
+        $esalOptionsJSON = escapeString(json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE));
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
-            "({$stateName}) AS stateName",
+            "({$countryName}) AS countryName",
             "({$cityName}) AS cityName",
+            "CONCAT((SELECT countryName), '{$locationSeparator}', (SELECT cityName)) AS fullLocation",
             "JSON_UNQUOTE(JSON_EXTRACT('{$sizesJSON}', CONCAT('$.', {$table}.size))) AS sizeText",
             "JSON_UNQUOTE(JSON_EXTRACT('{$actionLinesJSON}', CONCAT('$.', {$table}.actionLines))) AS actionLinesText",
             "JSON_UNQUOTE(JSON_EXTRACT('{$esalOptionsJSON}', CONCAT('$.', {$table}.esal))) AS esalText",
+            "({$researchAreasNameSubQuery}) AS interestResearhAreasNames",
+            "({$researchAreasNameAndIDSubQuery}) AS interestResearhAreasIDsNames",
+            "({$researchAreasNameAndColorSubQuery}) AS interestResearhAreasColorsNames",
             "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
             "{$table}.meta",
         ];
@@ -704,6 +828,38 @@ class OrganizationMapper extends EntityMapperExtensible
         $uniqid = mb_strtolower(str_replace(['.', '-'], '', uniqid()));
         $uniqid = strtr(BaseHashEncryption::encrypt("{$id}-{$uniqid}", self::TABLE), '-_', '._');
         return $uniqid;
+    }
+
+    /**
+     * Un array listo para ser usado en array_to_html_options
+     * @param string $defaultLabel
+     * @param string $defaultValue
+     * @param bool $encryptValue
+     * @param bool $ignoreInitial
+     * @return array
+     */
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', bool $encryptValue = false, bool $ignoreInitial = false)
+    {
+        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Organizaciones');
+        $options = [];
+        $options[$defaultValue] = $defaultLabel;
+
+        /**
+         * @param OrganizationMapper $e
+         */
+        $elements = self::all(true);
+        array_map(function ($e) use (&$options, $encryptValue, $ignoreInitial) {
+
+            $isGlobalElement = $e->id == self::INITIAL_ID_GLOBAL;
+            $ignore = $isGlobalElement && $ignoreInitial;
+            if (!$ignore) {
+                $value = $e->currentLangData('name');
+                $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $value;
+            }
+
+        }, $elements);
+
+        return $options;
     }
 
     /**
@@ -1035,9 +1191,9 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param integer $userType
      * @return bool
      */
-    public static function canAssignAnyOrganization(int $userType)
+    public static function canModifyAnyOrganization(int $userType)
     {
-        return in_array($userType, self::CAN_ASSIGN_ALL);
+        return in_array($userType, self::CAN_MODIFY_ALL);
     }
 
     /**
@@ -1062,7 +1218,14 @@ class OrganizationMapper extends EntityMapperExtensible
             }
         }
 
-        $defaultMetaPropertiesValues = [];
+        $defaultMetaPropertiesValues = [
+            'phoneCode' => '+57',
+            'longitude' => 0.0,
+            'latitude' => 0.0,
+            'interestResearhAreas' => null,
+            'affiliatedInstitutions' => [],
+            'administrator' => null,
+        ];
 
         foreach ($element as $property => $value) {
 

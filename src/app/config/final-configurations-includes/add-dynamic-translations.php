@@ -1,6 +1,7 @@
 <?php
 
 use App\Model\AppConfigModel;
+use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 
@@ -95,6 +96,11 @@ $addDynamicTranslationsLogicFunction = function ($verboseResult = false) {
         }
 
     }
+
+    /**
+     * @category GlobalMethodDispatch
+     */
+    BaseEventDispatcher::dispatch('AddDynamicTransaltions', 'added');
 
     if ($verboseResult) {
         var_dump_pretty($added);

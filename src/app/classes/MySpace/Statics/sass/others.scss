@@ -1,5 +1,8 @@
 @import '../../../../../statics/core/sass/includes/variables_app_base';
 @import '../../../../../statics/core/sass/includes/functions_app_base';
+
+$fontModule: $fontGlobal;
+
 .direct-access {
 
     display: flex;
@@ -60,7 +63,7 @@
         }
 
         .number {
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
             font-weight: $fwBold;
             font-size: pxToRem(150);
             line-height: pxToRem(150+5);
@@ -68,7 +71,7 @@
         }
 
         .title {
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
             font-weight: $fwBold;
             font-size: pxToRem(32);
             line-height: pxToRem(32+5);
@@ -76,7 +79,7 @@
         }
 
         .subtitle {
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
             font-weight: $fwRegular;
             font-size: pxToRem(32);
             line-height: pxToRem(32+5);

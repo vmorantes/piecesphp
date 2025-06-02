@@ -101,9 +101,10 @@ class PublicationsRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(PublicationsLang::LANG_GROUP, 'Publicaciones'),
@@ -120,7 +121,7 @@ class PublicationsRoutes
                         'visible' => PublicationsCategoryController::allowedRoute('list'),
                     ]),
                 ],
-                'position' => 10,
+                'position' => 100,
             ]));
 
         }

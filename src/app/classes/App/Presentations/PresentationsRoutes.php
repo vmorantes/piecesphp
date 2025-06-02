@@ -83,9 +83,10 @@ class PresentationsRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             if ($currentUserType === UsersModel::TYPE_USER_ROOT) {
 
@@ -104,7 +105,7 @@ class PresentationsRoutes
                             'visible' => PresentationsPublicController::allowedRoute('list'),
                         ]),
                     ],
-                    'position' => 30,
+                    'position' => 1900,
                 ]));
 
             } else {
@@ -116,7 +117,7 @@ class PresentationsRoutes
                         'visible' => PresentationsPublicController::allowedRoute('list'),
                         'href' => PresentationsPublicController::routeName('list'),
                         'asLink' => true,
-                        'position' => 30,
+                        'position' => 1900,
                     ]
                 ));
 

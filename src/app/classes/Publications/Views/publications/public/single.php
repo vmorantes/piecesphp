@@ -1,10 +1,6 @@
 <?php
-
-use Publications\Mappers\AttachmentPublicationMapper;
-use Publications\Mappers\PublicationMapper;
-
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
+use Publications\Mappers\PublicationMapper;
 /**
  * @var string $langGroup
  * @var PublicationMapper $element
@@ -48,9 +44,6 @@ $iconByExtension = function (?string $extension, ?string $mimeType = null) {
     }
     return $icon;
 };
-$ignoreNames = [
-    AttachmentPublicationMapper::ATTACHMENT_TYPE_1,
-];
 ?>
 <template variables>
     <var name="preferSlug" value="<?= $element->preferSlug; ?>"></var>
@@ -93,7 +86,7 @@ $ignoreNames = [
                             <i class="large <?= ($iconByExtension)($attachment->getExtension(), $attachment->getMimeType()); ?> middle aligned icon"></i>
                             <div class="content">
                                 <div class="header"><?=  __($langGroup, 'Anexo #') . $order; ?></div>
-                                <?= !in_array($attachment->attachmentType, $ignoreNames) ? $attachment->typeName() : ''; ?>
+                                <?= $attachment->attachmentName; ?>
                             </div>
                         </a>
                         <?php endforeach; ?>

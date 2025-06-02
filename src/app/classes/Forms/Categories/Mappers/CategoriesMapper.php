@@ -91,22 +91,26 @@ class CategoriesMapper extends EntityMapperExtensible
 
     const CAN_VIEW_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_ADD_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_EDIT_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const STATUS_ACTIVE = 1;
@@ -410,7 +414,7 @@ class CategoriesMapper extends EntityMapperExtensible
     /**
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = new CategoriesMapper;

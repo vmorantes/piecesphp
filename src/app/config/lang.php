@@ -18,6 +18,14 @@ set_config('lang_by_url', true);
 set_config('default_lang_by_browser', false);
 
 /**
+ * Si la configuracion 'lang_by_cookie' se establece en true, la aplicación definirá
+ * 'app_lang' (lenguaje actual, no por defecto) a partir de del valor de la cookie llamada como se define en 'cookie_lang_definer'
+ */
+set_config('lang_by_cookie', true);
+//Se define en bootstrap a partir del parámetro de URL i18n
+set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
+
+/**
  * Array con el identificador de los idiomas permitidos, este debe coincidir
  * con el nombre de su archivo correspondiente en app/lang/ sin la extensión '.php'
  * ya que es implícita.
@@ -41,19 +49,42 @@ add_to_front_configurations('autoTranslateFromLangGroupHTMLIgnoreLangs', [
     'pt',
 ]);
 
+//Idiomas para ignorar en el registro de traducciones faltantes (missing-lang-messages)
+set_config('no_scan_langs', [
+    'es',
+    //'en',
+    //'fr',
+    //'de',
+    //'it',
+    //'pt',
+]);
+
 /**
  * Array con los códigos de localidad según el idioma
  */
+set_config('get_locale_versions_by_locale', function (array $locales) {
+    $localeVersions = [];
+    $versions = [
+        '',
+        'utf8',
+        'UTF-8',
+    ];
+    foreach ($locales as $locale) {
+        if (is_string($locale)) {
+            foreach ($versions as $version) {
+                $localeVersions[] = $locale . (mb_strlen($version) > 0 ? ".{$version}" : $version);
+            }
+        }
+    }
+    return $localeVersions;
+});
 set_config('locale_langs', [
-    'es' => [
-        'es_CO.utf8',
-        'es_ES.utf8',
-    ],
-    'en' => 'en_US.utf8',
-    'fr' => 'fr_FR.utf8',
-    'de' => 'de_DE.utf8',
-    'it' => 'it_IT.utf8',
-    'pt' => 'pt_PT.utf8',
+    'es' => get_config('get_locale_versions_by_locale')(['es_CO', 'es_ES', 'es_MX']),
+    'en' => get_config('get_locale_versions_by_locale')(['en_US']),
+    'fr' => get_config('get_locale_versions_by_locale')(['fr_FR']),
+    'de' => get_config('get_locale_versions_by_locale')(['de_DE']),
+    'it' => get_config('get_locale_versions_by_locale')(['it_IT']),
+    'pt' => get_config('get_locale_versions_by_locale')(['pt_PT']),
 ]);
 
 /**

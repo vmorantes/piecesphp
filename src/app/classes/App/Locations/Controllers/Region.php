@@ -7,6 +7,7 @@
 namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Locations\LocationsLang;
 use App\Locations\Mappers\CountryMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Validation\Parameters\Parameter;
@@ -66,11 +67,21 @@ class Region extends AdminPanelController
         $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
-            $value->name = $value->name;
+            $value->name = is_string($value->name) ? __(LocationsLang::LANG_GROUP_NAMES, $value->name) : $value->name;
             $result[$key] = $value;
         }
 
         return $response->withJson($result);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function all(Request $request, Response $response)
+    {
+        return $this->regions($request, $response);
     }
 
     /**
@@ -113,7 +124,7 @@ class Region extends AdminPanelController
         foreach ($regionsRecords as $row) {
             $result[] = [
                 'id' => $row->name,
-                'title' => $row->name,
+                'title' => is_string($row->name) ? __(LocationsLang::LANG_GROUP_NAMES, $row->name) : $row->name,
             ];
         }
 

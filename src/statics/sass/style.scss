@@ -1,8 +1,10 @@
-@import url('../fonts/abhaya/abhaya.css?cacheStamp=CACHESTAMP');
 @import 'imports/functions';
 @import 'imports/variables';
+@import '../core/sass/includes/reset-font-family-fomantic';
 @import 'imports/components';
 @import 'imports/overwrites';
+@import url('../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
+@import url('../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
 
 html {
     overflow-x: hidden;
@@ -41,7 +43,7 @@ img {
 body {
 
     position: relative;
-    font-family: $fontLato;
+    font-family: $fontGlobal;
     font-weight: $fwRegular;
     font-size: 18px;
     line-height: 25px;

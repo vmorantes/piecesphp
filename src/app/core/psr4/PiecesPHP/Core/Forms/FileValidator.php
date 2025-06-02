@@ -443,13 +443,13 @@ class FileValidator
         if (!$valid) {
 
             if (!$valid_mime_type || !$valid_extension) {
-                $this->message .= __(self::LANG_GROUP, "Tipo de archivo inválido.\r\n");
+                $this->message .= __(self::LANG_GROUP, "Tipo de archivo inválido.") . "\r\n";
             }
 
             if (!$valid_size) {
-                $this->message .= strReplaceTemplate(__(self::LANG_GROUP, "El tamaño máximo permitido %1MB.\r\n"), [
+                $this->message .= strReplaceTemplate(__(self::LANG_GROUP, "El tamaño máximo permitido %1MB."), [
                     '%1' => $this->maxFileSizeMB,
-                ]);
+                ]) . "\r\n";
             }
 
         }

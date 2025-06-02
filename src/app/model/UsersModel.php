@@ -38,29 +38,85 @@ use PiecesPHP\UserSystem\UserDataPackage;
 class UsersModel extends EntityMapperExtensible
 {
 
+    //Criterios de login
+    const REQUIRE_APPROBATION_FOR_LOGIN = false;
+
     //Constantes de status de usuario
-    const STATUS_USER_ACTIVE = 1;
     const STATUS_USER_INACTIVE = 0;
+    const STATUS_USER_ACTIVE = 1;
     const STATUS_USER_ATTEMPTS_BLOCK = 2;
+    const STATUS_USER_APPROVED_PENDING = 3;
+    const STATUS_USER_REJECTED = 4;
+    const STATUSES = [
+        self::STATUS_USER_INACTIVE => 'Inactivo',
+        self::STATUS_USER_ACTIVE => 'Activo',
+        self::STATUS_USER_ATTEMPTS_BLOCK => 'Bloqueado por intentos fallidos',
+        self::STATUS_USER_APPROVED_PENDING => 'Por aprobar',
+        self::STATUS_USER_REJECTED => 'No aprobado',
+    ];
+    const STATUSES_FOR_DISPLAY_QUERY = [
+        self::STATUS_USER_INACTIVE => 'No',
+        self::STATUS_USER_ACTIVE => 'Sí',
+        self::STATUS_USER_ATTEMPTS_BLOCK => 'Bloqueado por intentos fallidos',
+        self::STATUS_USER_APPROVED_PENDING => 'Por aprobar',
+        self::STATUS_USER_REJECTED => 'No aprobado',
+    ];
+    const STATUSES_OK_FOR_LOGIN_ON_REQUIRE_APPROBATION = [
+        self::STATUS_USER_ACTIVE,
+    ];
+    const STATUSES_OK_FOR_LOGIN_ON_NO_REQUIRE_APPROBATION = [
+        self::STATUS_USER_ACTIVE,
+        self::STATUS_USER_APPROVED_PENDING,
+        self::STATUS_USER_REJECTED,
+    ];
+    const ARE_AUTO_APPROVAL = [
+        self::TYPE_USER_ROOT,
+        self::TYPE_USER_ADMIN_GRAL,
+        self::TYPE_USER_INSTITUCIONAL,
+        self::TYPE_USER_COMUNICACIONES,
+    ];
 
     //Constantes de tipos de usuario
     const TYPE_USER_ROOT = 0;
-    const TYPE_USER_ADMIN = 1;
+    const TYPE_USER_ADMIN_GRAL = 1;
+    const TYPE_USER_ADMIN_ORG = 12;
     const TYPE_USER_GENERAL = 2;
+    const TYPE_USER_INSTITUCIONAL = 3;
+    const TYPE_USER_COMUNICACIONES = 4;
 
     /**
      * @var array<int,string>
      */
     const TYPES_USERS = [
         self::TYPE_USER_ROOT => 'Principal',
-        self::TYPE_USER_ADMIN => 'Administrador',
-        self::TYPE_USER_GENERAL => 'General',
+        self::TYPE_USER_ADMIN_GRAL => 'Administrador general',
+        self::TYPE_USER_ADMIN_ORG => 'Administrador de organización',
+        self::TYPE_USER_GENERAL => 'Investigador',
+        self::TYPE_USER_INSTITUCIONAL => 'Institucional',
+        self::TYPE_USER_COMUNICACIONES => 'Comunicaciones',
     ];
 
     const TYPES_USER_PRIORITY = [
-        self::TYPE_USER_ROOT => 100,
-        self::TYPE_USER_ADMIN => 90,
+        self::TYPE_USER_ROOT => 500,
+        self::TYPE_USER_ADMIN_GRAL => 400,
+        self::TYPE_USER_ADMIN_ORG => 300,
         self::TYPE_USER_GENERAL => 1,
+        self::TYPE_USER_INSTITUCIONAL => 1,
+        self::TYPE_USER_COMUNICACIONES => 1,
+    ];
+
+    const TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE = [
+        self::TYPE_USER_ADMIN_ORG,
+    ];
+
+    const TYPES_USER_DONT_REQUIRE_ORGANIZATION = [
+        self::TYPE_USER_ROOT,
+        self::TYPE_USER_ADMIN_GRAL,
+    ];
+
+    const TYPES_USER_SHOULD_HAVE_PROFILE = [
+        self::TYPE_USER_ADMIN_ORG,
+        self::TYPE_USER_GENERAL,
     ];
 
     const LANG_GROUP = UserDataPackage::LANG_GROUP;
@@ -170,6 +226,10 @@ class UsersModel extends EntityMapperExtensible
     {
         $typesOver = $this->getHigherPriorityTypes();
         $hasAuthority = !in_array((int) $type, $typesOver);
+        //Verificar si el tipo tiene autoridad o no sobre su mismo tipo
+        if (in_array($type, self::TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE)) {
+            $hasAuthority = $hasAuthority && $type != $this->type;
+        }
         return $hasAuthority;
     }
 
@@ -205,6 +265,44 @@ class UsersModel extends EntityMapperExtensible
         }
 
         return $allTypes;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNames()
+    {
+
+        $fullname = [
+            $this->firstname,
+            $this->secondname,
+        ];
+
+        $fullname = implode(' ', array_filter($fullname, function ($e) {
+            return is_string($e) && mb_strlen(trim($e)) > 0;
+        }));
+
+        return $fullname;
+
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastNames()
+    {
+
+        $fullname = [
+            $this->first_lastname,
+            $this->second_lastname,
+        ];
+
+        $fullname = implode(' ', array_filter($fullname, function ($e) {
+            return is_string($e) && mb_strlen(trim($e)) > 0;
+        }));
+
+        return $fullname;
+
     }
 
     /**
@@ -501,6 +599,34 @@ class UsersModel extends EntityMapperExtensible
     }
 
     /**
+     * Devuelve los valores de STATUSES pasados por función __()
+     *
+     * @return array<string,string>
+     */
+    public static function statuses()
+    {
+        $options = self::STATUSES;
+        foreach ($options as $key => $value) {
+            $options[$key] = __(self::LANG_GROUP, $value);
+        }
+        return $options;
+    }
+
+    /**
+     * Devuelve los valores de STATUSES_FOR_DISPLAY_QUERY pasados por función __()
+     *
+     * @return array<string,string>
+     */
+    public static function statusesForDisplayQuery()
+    {
+        $options = self::STATUSES_FOR_DISPLAY_QUERY;
+        foreach ($options as $key => $value) {
+            $options[$key] = __(self::LANG_GROUP, $value);
+        }
+        return $options;
+    }
+
+    /**
      * @param int $type
      * @param int[] $ignoreIDs
      * @return \stdClass[]
@@ -597,6 +723,15 @@ class UsersModel extends EntityMapperExtensible
     }
 
     /**
+     * @return string|null
+     */
+    public static function getTypeUserName(int $type)
+    {
+        $userTypes = self::getTypesUser();
+        return array_key_exists($type, $userTypes) ? $userTypes[$type] : null;
+    }
+
+    /**
      * Un array listo para ser usado en array_to_html_options
      * @param string $defaultLabel
      * @param string $defaultValue
@@ -612,6 +747,39 @@ class UsersModel extends EntityMapperExtensible
 
         foreach ($types as $k => $i) {
             $options[$k] = $i;
+        }
+
+        return $options;
+    }
+
+    /**
+     * Un array listo para ser usado en array_to_html_options de los usuario de una organización que pueden ser administradores
+     * @param int $organizationID
+     * @param string $defaultLabel
+     * @param string $defaultValue
+     * @return array
+     */
+    public static function allOrganizationUsersCanBeAdminForSelect(int $organizationID, string $defaultLabel = '', string $defaultValue = '')
+    {
+
+        $model = self::model();
+        $table = self::TABLE;
+        $allowerdTypes = implode(', ', OrganizationMapper::PROFILE_EDITOR);
+
+        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Usuarios');
+        $options = [];
+        $options[$defaultValue] = $defaultLabel;
+
+        $model->select(self::fieldsToSelect())->where(implode(' ', [
+            "{$table}.organization = {$organizationID} AND",
+            "{$table}.type IN ({$allowerdTypes})",
+        ]));
+        $model->execute();
+        $users = $model->result();
+
+        foreach ($users as $user) {
+            $userMapper = new UsersModel($user->id);
+            $options[$userMapper->id] = $userMapper->getFullName() . " ({$userMapper->username})";
         }
 
         return $options;
@@ -696,19 +864,16 @@ class UsersModel extends EntityMapperExtensible
      *  - statusText
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $table = self::TABLE;
         $secondNameSegment = "IF({$table}.secondname IS NOT NULL, CONCAT(' ', {$table}.secondname), '')";
         $secondLastNameSegment = "IF({$table}.second_lastname IS NOT NULL, CONCAT(' ', {$table}.second_lastname), '')";
         $typesJSON = json_encode((object) self::TYPES_USERS, \JSON_UNESCAPED_UNICODE);
-        $statusDisplay = [
-            UsersModel::STATUS_USER_ACTIVE => __(self::LANG_GROUP, 'Sí'),
-            UsersModel::STATUS_USER_INACTIVE => __(self::LANG_GROUP, 'No'),
-            UsersModel::STATUS_USER_ATTEMPTS_BLOCK => __(self::LANG_GROUP, 'Bloqueado por intentos fallidos'),
-        ];
+        $statusDisplay = self::statusesForDisplayQuery();
         $statusDisplayJSON = json_encode((object) $statusDisplay, \JSON_UNESCAPED_UNICODE);
+        $statusDisplayJSON = addslashes($statusDisplayJSON);
 
         $fields = array_map(function ($f) use ($table) {
             return "{$table}.{$f}";
@@ -728,6 +893,256 @@ class UsersModel extends EntityMapperExtensible
 
         return $fields;
 
+    }
+
+    /**
+     * @param UserDataPackage $currentUser
+     * @param bool $asMapper
+     * @return static[]|array
+     */
+    public static function all(UserDataPackage $currentUser = null, bool $asMapper = false)
+    {
+
+        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization;
+
+        $model = self::model();
+        $selectFields = self::fieldsToSelect();
+        $model->select($selectFields);
+
+        $where = [];
+
+        if ($currentUser !== null) {
+            $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+            if (!$canModifyOrganizations) {
+                $criteryValue = $currentOrganizationID;
+                $beforeOperator = !empty($where) ? 'AND' : '';
+                $critery = "organization = {$criteryValue}";
+                $where[] = "{$beforeOperator} ({$critery})";
+            }
+        }
+
+        if (!empty($where)) {
+            $whereString = trim(implode(' ', $where));
+            $model->where($whereString);
+        }
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        if ($asMapper) {
+            foreach ($result as $key => $value) {
+                $result[$key] = new UsersModel($value->id);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array[] $criteries Cada elemento debe tener las claves value, column y opcionalmente beforeOperator
+     * @param string[] $orderBy
+     * @param UserDataPackage $currentUser
+     * @param bool $asMapper
+     * @return static[]|array
+     */
+    public static function allByMultipleCriteries(array $criteries = [], array $orderBy = [], UserDataPackage $currentUser = null, bool $asMapper = false)
+    {
+
+        $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
+        $orderBy = array_filter($orderBy, fn($e) => $e !== null);
+        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization;
+
+        $model = self::model();
+        $selectFields = self::fieldsToSelect();
+        $model->select($selectFields);
+        $where = [];
+        $criteriesAdded = 0;
+
+        if (!empty($criteries)) {
+            foreach ($criteries as $critery) {
+                $column = array_key_exists('column', $critery) ? $critery['column'] : null;
+                $value = array_key_exists('value', $critery) ? $critery['value'] : null;
+                $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
+                if ($column !== null && $value !== null) {
+                    $isNumber = is_double($value) || is_int($value);
+                    $criteryValue = $isNumber ? $value : "'" . escapeString($value) . "'";
+                    $beforeOperator = !empty($where) ? $beforeOperatorBase : '';
+                    $critery = "{$column}  = {$criteryValue}";
+                    $where[] = "{$beforeOperator} ({$critery})";
+                    $criteriesAdded++;
+                }
+            }
+        }
+
+        if ($criteriesAdded > 0) {
+
+            if ($currentUser !== null) {
+                $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+                if (!$canModifyOrganizations) {
+                    $criteryValue = $currentOrganizationID;
+                    $beforeOperator = !empty($where) ? 'AND' : '';
+                    $critery = "organization = {$criteryValue}";
+                    $where[] = "{$beforeOperator} ({$critery})";
+                }
+            }
+
+            if (!empty($where)) {
+                $whereString = trim(implode(' ', $where));
+                $model->where($whereString);
+            }
+
+            if (!empty($orderBy)) {
+                $model->orderBy($orderBy);
+            }
+
+            $model->execute();
+
+            $result = $model->result();
+
+            if ($asMapper) {
+                foreach ($result as $key => $value) {
+                    $result[$key] = new UsersModel($value->id);
+                }
+            }
+
+            return $result;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @param mixed $value
+     * @param string $column
+     * @param string[] $orderBy
+     * @param UserDataPackage $currentUser
+     * @param bool $asMapper
+     * @return \stdClass|static|null
+     */
+    public static function getBy($value, string $column = 'id', array $orderBy = [], UserDataPackage $currentUser = null, bool $asMapper = false)
+    {
+
+        $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
+        $orderBy = array_filter($orderBy, fn($e) => $e !== null);
+        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization;
+
+        $model = self::model();
+        $selectFields = self::fieldsToSelect();
+        $model->select($selectFields);
+
+        $isNumber = is_double($value) || is_int($value);
+        $value = $isNumber ? $value : "'" . escapeString($value) . "'";
+        $where = [
+            "{$column} = {$value}",
+        ];
+
+        if ($currentUser !== null) {
+            $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+            if (!$canModifyOrganizations) {
+                $criteryValue = $currentOrganizationID;
+                $beforeOperator = !empty($where) ? 'AND' : '';
+                $critery = "organization = {$criteryValue}";
+                $where[] = "{$beforeOperator} ({$critery})";
+            }
+        }
+
+        if (!empty($where)) {
+            $whereString = trim(implode(' ', $where));
+            $model->where($whereString);
+        }
+
+        if (!empty($orderBy)) {
+            $model->orderBy($orderBy);
+        }
+
+        $model->execute();
+
+        $result = $model->result();
+        $result = !empty($result) ? $result[0] : null;
+
+        if ($asMapper && $result !== null) {
+            $result = new UsersModel($result->id);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array[] $criteries Cada elemento debe tener las claves value, column y opcionalmente beforeOperator
+     * @param string[] $orderBy
+     * @param UserDataPackage $currentUser
+     * @param bool $asMapper
+     * @return \stdClass|static|null
+     */
+    public static function getByMultipleCriteries(array $criteries = [], array $orderBy = [], UserDataPackage $currentUser = null, bool $asMapper = false)
+    {
+
+        $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
+        $orderBy = array_filter($orderBy, fn($e) => $e !== null);
+        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
+        $currentOrganizationID = $currentUser->organization;
+
+        $model = self::model();
+        $selectFields = self::fieldsToSelect();
+        $model->select($selectFields);
+        $where = [];
+        $criteriesAdded = 0;
+
+        if (!empty($criteries)) {
+            foreach ($criteries as $critery) {
+                $column = array_key_exists('column', $critery) ? $critery['column'] : null;
+                $value = array_key_exists('value', $critery) ? $critery['value'] : null;
+                $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
+                if ($column !== null && $value !== null) {
+                    $isNumber = is_double($value) || is_int($value);
+                    $criteryValue = $isNumber ? $value : "'" . escapeString($value) . "'";
+                    $beforeOperator = !empty($where) ? $beforeOperatorBase : '';
+                    $critery = "{$column}  = {$criteryValue}";
+                    $where[] = "{$beforeOperator} ({$critery})";
+                    $criteriesAdded++;
+                }
+            }
+        }
+
+        if ($criteriesAdded > 0) {
+
+            if ($currentUser !== null) {
+                $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
+                if (!$canModifyOrganizations) {
+                    $criteryValue = $currentOrganizationID;
+                    $beforeOperator = !empty($where) ? 'AND' : '';
+                    $critery = "organization = {$criteryValue}";
+                    $where[] = "{$beforeOperator} ({$critery})";
+                }
+            }
+
+            if (!empty($where)) {
+                $whereString = trim(implode(' ', $where));
+                $model->where($whereString);
+            }
+
+            if (!empty($orderBy)) {
+                $model->orderBy($orderBy);
+            }
+
+            $model->execute();
+
+            $result = $model->result();
+            $result = !empty($result) ? $result[0] : null;
+
+            if ($asMapper && $result !== null) {
+                $result = new UsersModel($result->id);
+            }
+
+            return $result;
+        } else {
+            return null;
+        }
     }
 
     /**

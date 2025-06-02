@@ -95,18 +95,20 @@ class OrganizationsRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
-            $isRoot = $currentUser->type == UsersModel::TYPE_USER_ROOT;
-            if ($isRoot) {
+            $dontRequireOrganization = in_array($currentUserType, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION);
+
+            if ($dontRequireOrganization) {
                 $sidebar->addItem(new MenuGroup([
                     'name' => __(OrganizationsLang::LANG_GROUP, 'Gestión de organizaciones'),
                     'icon' => 'list',
                     'href' => OrganizationsController::routeName('list'),
                     'visible' => OrganizationsController::allowedRoute('list'),
-                    'position' => 10,
+                    'position' => 80,
                     'asLink' => true,
                 ]));
             } else {
@@ -134,7 +136,7 @@ class OrganizationsRoutes
                             'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
                         ]),
                     ],
-                    'position' => 10,
+                    'position' => 80,
                 ]));
             }
 

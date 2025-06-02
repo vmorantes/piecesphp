@@ -86,7 +86,9 @@ NewsCategories.configNewsCategoryForm = function (onSuccess = null, ignoreRedire
 			 */
 			onChange: function (value, innerText, element) {
 				showGenericLoader('redirect')
-				window.location.href = value
+				const url = new URL(window.location.href)
+				url.searchParams.set('lang', value)
+				window.location.href = url.href
 			},
 		})
 

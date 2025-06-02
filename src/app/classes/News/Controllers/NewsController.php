@@ -55,10 +55,6 @@ class NewsController extends AdminPanelController
      * @var string
      */
     protected static $title = 'Noticia';
-    /**
-     * @var string
-     */
-    protected static $pluralTitle = 'Noticias';
 
     /**
      * @var HelperController
@@ -79,7 +75,6 @@ class NewsController extends AdminPanelController
         parent::__construct();
 
         self::$title = __(self::LANG_GROUP, self::$title);
-        self::$pluralTitle = __(self::LANG_GROUP, self::$pluralTitle);
 
         $this->model = (new NewsMapper())->getModel();
         set_title(self::$title);
@@ -104,11 +99,17 @@ class NewsController extends AdminPanelController
     {
 
         set_custom_assets([
-            NewsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+            NewsRoutes::staticRoute(self::BASE_JS_DIR . '/add-form.js'),
         ], 'js');
 
         import_default_rich_editor();
 
+        $title = __(self::LANG_GROUP, 'Gestión de noticias');
+        $description = '';
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
+        $langsOptions = array_to_html_options(HelperController::getLangsForSelect(), Config::get_default_lang());
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
         $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), null);
@@ -123,13 +124,23 @@ class NewsController extends AdminPanelController
         $data = [];
         $data['action'] = $action;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
-        $data['title'] = __(self::LANG_GROUP, 'Gestión de noticias');
+        $data['title'] = $title;
+        $data['description'] = $description;
+        $data['langsOptions'] = $langsOptions;
         $data['allCategories'] = $allCategories;
         $data['allUsersTypes'] = $allUsersTypes;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            __(self::LANG_GROUP, 'Noticias') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ]);
 
         $this->helpController->render('panel/layout/header');
-        self::view('forms/add', $data);
+        $this->render('forms/add', $data);
         $this->helpController->render('panel/layout/footer');
 
         return $response;
@@ -147,14 +158,7 @@ class NewsController extends AdminPanelController
         $id = $request->getAttribute('id', null);
         $id = Validator::isInteger($id) ? (int) $id : null;
 
-        $lang = $request->getAttribute('lang', null);
-        $lang = is_string($lang) ? $lang : null;
-
-        $allowedLangs = Config::get_allowed_langs();
-
-        if ($lang === null || !in_array($lang, $allowedLangs)) {
-            throw new NotFoundException($request, $response);
-        }
+        $selectedLang = $request->getQueryParam('lang', Config::get_default_lang());
 
         $element = new NewsMapper($id);
 
@@ -162,14 +166,18 @@ class NewsController extends AdminPanelController
 
             set_custom_assets([
                 NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
-                NewsRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+                NewsRoutes::staticRoute(self::BASE_JS_DIR . '/edit-form.js'),
             ], 'js');
 
             import_default_rich_editor();
 
+            $title = __(self::LANG_GROUP, 'Gestión de noticias');
+            $description = '';
+
+            set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $manyLangs = count($allowedLangs) > 1;
             $allCategories = array_to_html_options(NewsCategoryMapper::allForSelect(), $element->category->id);
             $ignoreUserTypes = [
                 UsersModel::TYPE_USER_ROOT,
@@ -178,7 +186,6 @@ class NewsController extends AdminPanelController
                 return !in_array($key, $ignoreUserTypes);
             }, \ARRAY_FILTER_USE_KEY);
             $allUsersTypes = array_to_html_options($userTypesForSelect, $element->profilesTarget, true);
-            $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $data = [];
             $data['action'] = $action;
@@ -186,16 +193,23 @@ class NewsController extends AdminPanelController
             $data['deleteRoute'] = self::routeName('actions-delete', ['id' => $element->id]);
             $data['allowDelete'] = self::allowedRoute('actions-delete', ['id' => $element->id]);
             $data['langGroup'] = self::LANG_GROUP;
-            $data['backLink'] = $backLink;
-            $data['title'] = __(self::LANG_GROUP, 'Gestión de noticias');
+            $data['title'] = $title;
+            $data['description'] = $description;
             $data['allCategories'] = $allCategories;
             $data['allUsersTypes'] = $allUsersTypes;
-            $data['allowedLangs'] = $allowedLangs;
-            $data['manyLangs'] = $manyLangs;
-            $data['lang'] = $lang;
+            $data['selectedLang'] = $selectedLang;
+            $data['breadcrumbs'] = get_breadcrumbs([
+                __(self::LANG_GROUP, 'Inicio') => [
+                    'url' => get_route('admin'),
+                ],
+                __(self::LANG_GROUP, 'Publicaciones') => [
+                    'url' => $backLink,
+                ],
+                $title,
+            ]);
 
             $this->helpController->render('panel/layout/header');
-            self::view('forms/edit', $data, true, false);
+            $this->render('forms/edit', $data, true, false);
             $this->helpController->render('panel/layout/footer');
 
             return $response;
@@ -218,18 +232,28 @@ class NewsController extends AdminPanelController
         $addLink = self::routeName('forms-add');
         $listCategoriesLink = NewsCategoryController::routeName('list');
         $processTableLink = self::routeName('datatables');
+        $processTableLink = self::routeName('datatables');
 
-        $title = self::$pluralTitle;
+        $title = __(self::LANG_GROUP, 'Noticias');
+        $description = __(self::LANG_GROUP, 'Listado');
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
         $data = [];
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
-        $data['backLink'] = $backLink;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = strlen($addLink) > 0;
         $data['listCategoriesLink'] = $listCategoriesLink;
         $data['hasPermissionsListCategories'] = strlen($listCategoriesLink) > 0;
         $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => $backLink,
+            ],
+            $title,
+        ]);
 
         set_custom_assets([
             NewsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
@@ -237,7 +261,7 @@ class NewsController extends AdminPanelController
         ], 'js');
 
         $this->helpController->render('panel/layout/header');
-        self::view('list', $data);
+        $this->render('list', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -265,6 +289,25 @@ class NewsController extends AdminPanelController
                 true,
                 function ($value) {
                     return (int) $value;
+                }
+            ),
+            new Parameter(
+                'baseLang',
+                null,
+                function ($value) {
+                    $valid = is_string($value) && mb_strlen(trim($value)) > 0;
+                    $allowedLangs = Config::get_allowed_langs();
+                    if ($valid) {
+                        $valid = in_array($value, $allowedLangs);
+                        if (!$valid) {
+                            throw new SafeException(__(self::LANG_GROUP, 'El idioma seleccionado no es válido.'));
+                        }
+                    }
+                    return $valid;
+                },
+                true,
+                function ($value) {
+                    return is_string($value) && mb_strlen(trim($value)) > 0 ? $value : Config::get_default_lang();
                 }
             ),
             new Parameter(
@@ -312,22 +355,86 @@ class NewsController extends AdminPanelController
                 'newsTitle',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    $isArray = is_array($value);
+                    $valid = is_null($value) || (is_string($value) && mb_strlen(trim($value)) > 0) || $isArray;
+                    $allowedLangs = Config::get_allowed_langs();
+                    if ($isArray) {
+                        foreach ($value as $key => $v) {
+                            if (!(
+                                is_string($key) &&
+                                in_array($key, $allowedLangs) &&
+                                is_string($v) &&
+                                mb_strlen(trim($v)) > 0
+                            )) {
+                                $valid = false;
+                            }
+                        }
+                    }
+
+                    return $valid;
                 },
                 false,
                 function ($value) {
-                    return clean_string($value);
+                    $parsed = [];
+                    $allowedLangs = Config::get_allowed_langs();
+                    if (is_array($value)) {
+                        foreach ($value as $key => $v) {
+                            if ((
+                                is_string($key) &&
+                                in_array($key, $allowedLangs) &&
+                                is_string($v) &&
+                                mb_strlen(trim($v)) > 0
+                            )) {
+                                $parsed[$key] = clean_string($v);
+                            }
+                        }
+                        return $parsed;
+                    } else {
+                        return is_string($value) ? clean_string($value) : $value;
+                    }
                 }
             ),
             new Parameter(
                 'content',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    $isArray = is_array($value);
+                    $valid = is_null($value) || (is_string($value) && mb_strlen(trim($value)) > 0) || $isArray;
+                    $allowedLangs = Config::get_allowed_langs();
+                    if ($isArray) {
+                        foreach ($value as $key => $v) {
+                            if (!(
+                                is_string($key) &&
+                                in_array($key, $allowedLangs) &&
+                                is_string($v) &&
+                                mb_strlen(trim($v)) > 0
+                            )) {
+                                $valid = false;
+                            }
+                        }
+                    }
+
+                    return $valid;
                 },
                 false,
                 function ($value) {
-                    return clean_string($value);
+                    $parsed = [];
+                    $allowedLangs = Config::get_allowed_langs();
+                    if (is_array($value)) {
+                        foreach ($value as $key => $v) {
+                            if ((
+                                is_string($key) &&
+                                in_array($key, $allowedLangs) &&
+                                is_string($v) &&
+                                mb_strlen(trim($v)) > 0
+                            )) {
+                                $parsed[$key] = clean_string($v);
+                            }
+                        }
+                        return $parsed;
+                    } else {
+                        return is_string($value) ? clean_string($value) : $value;
+                    }
                 }
             ),
             new Parameter(
@@ -390,6 +497,7 @@ class NewsController extends AdminPanelController
             /**
              * @var int $id
              * @var string $lang
+             * @var string $baseLang
              * @var int[] $profilesTarget
              * @var int $category
              * @var string $content
@@ -399,6 +507,7 @@ class NewsController extends AdminPanelController
              */
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
+            $baseLang = $expectedParameters->getValue('baseLang');
             $profilesTarget = $expectedParameters->getValue('profilesTarget');
             $category = $expectedParameters->getValue('category');
             $newsTitle = $expectedParameters->getValue('newsTitle');
@@ -428,12 +537,14 @@ class NewsController extends AdminPanelController
                 if (!$isEdit) {
                     //Nuevo
 
+                    //En creación $lang es el idioma base
+                    $lang = $baseLang !== null ? $baseLang : $lang;
                     $mapper = new NewsMapper();
 
                     $mapper->setLangData($lang, 'profilesTarget', $profilesTarget);
                     $mapper->setLangData($lang, 'category', $category);
-                    $mapper->setLangData($lang, 'newsTitle', $newsTitle);
-                    $mapper->setLangData($lang, 'content', $content);
+                    $mapper->addDataManyLangs('newsTitle', $newsTitle, array_keys($newsTitle));
+                    $mapper->addDataManyLangs('content', $content, array_keys($newsTitle));
                     $mapper->setLangData($lang, 'startDate', $startDate);
                     $mapper->setLangData($lang, 'endDate', $endDate);
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
@@ -446,9 +557,7 @@ class NewsController extends AdminPanelController
                         $resultOperation
                             ->setMessage($successCreateMessage)
                             ->setValue('redirect', true)
-                            ->setValue('redirect_to', self::routeName('forms-edit', [
-                                'id' => $mapper->id,
-                            ]));
+                            ->setValue('redirect_to', self::routeName('list'));
 
                     } else {
                         $resultOperation->setMessage($unknowErrorMessage);
@@ -464,8 +573,8 @@ class NewsController extends AdminPanelController
 
                         $mapper->setLangData($lang, 'profilesTarget', $profilesTarget);
                         $mapper->setLangData($lang, 'category', $category);
-                        $mapper->setLangData($lang, 'newsTitle', $newsTitle);
-                        $mapper->setLangData($lang, 'content', $content);
+                        $mapper->addDataManyLangs('newsTitle', $newsTitle, array_keys($newsTitle));
+                        $mapper->addDataManyLangs('content', $content, array_keys($newsTitle));
                         $mapper->setLangData($lang, 'startDate', $startDate);
                         $mapper->setLangData($lang, 'endDate', $endDate);
 
@@ -726,6 +835,41 @@ class NewsController extends AdminPanelController
                     return (is_string($value) && mb_strtoupper($value) == 'ANY') ? 'ANY' : (int) $value;
                 }
             ),
+            new Parameter(
+                'newsTitle',
+                null,
+                function ($value) {
+                    return is_scalar($value) && mb_strlen((string) $value) > 0;
+                },
+                true,
+                function ($value) {
+                    return (string) $value;
+                }
+            ),
+            new Parameter(
+                'ignoreSlugs',
+                [],
+                function ($value) {
+                    $valid = is_array($value);
+                    if ($valid) {
+                        foreach ($value as $slug) {
+                            $valid = is_scalar($slug) && mb_strlen((string) $slug) > 0;
+                        }
+                    }
+                    return $valid;
+                },
+                true,
+                function ($value) {
+                    $result = [];
+                    $value = is_array($value) ? $value : [$value];
+                    foreach ($value as $key => $slug) {
+                        if (is_scalar($slug) && mb_strlen((string) $slug) > 0) {
+                            $result[$key] = (string) $slug;
+                        }
+                    }
+                    return $result;
+                }
+            ),
         ]);
 
         $expectedParameters->setInputValues($request->getQueryParams());
@@ -736,17 +880,21 @@ class NewsController extends AdminPanelController
          * @var int $perPage
          * @var int $category
          * @var int $status
+         * @var string $newsTitle
+         * @var string[] $ignoreSlugs
          */
         $page = $expectedParameters->getValue('page');
         $perPage = $expectedParameters->getValue('per_page');
         $category = $expectedParameters->getValue('category');
         $status = $expectedParameters->getValue('status');
+        $newsTitle = $expectedParameters->getValue('newsTitle');
+        $ignoreSlugs = $expectedParameters->getValue('ignoreSlugs');
 
         $ignoreStatus = $status === 'ANY';
         $status = $status === 'ANY' ? null : $status;
 
         $sourceData = self::RESPONSE_SOURCE_NORMAL_RESULT;
-        $result = self::_all($page, $perPage, $category, $status, $ignoreStatus);
+        $result = self::_all($page, $perPage, $category, $status, $newsTitle, $ignoreStatus, false, $ignoreSlugs);
         $response = $response->withJson($result);
 
         $response = $response->withHeader('PCSPHP-Response-Source', $sourceData);
@@ -764,15 +912,22 @@ class NewsController extends AdminPanelController
     {
 
         $whereString = null;
+        $havingString = null;
+        $and = 'AND';
         $table = NewsMapper::TABLE;
         $inactive = NewsMapper::INACTIVE;
 
         $where = [
             "{$table}.status != {$inactive}",
         ];
+        $having = [];
 
         if (!empty($where)) {
             $whereString = trim(implode(' ', $where));
+        }
+
+        if (!empty($having)) {
+            $havingString = trim(implode(' ', $having));
         }
 
         $selectFields = NewsMapper::fieldsToSelect();
@@ -800,6 +955,7 @@ class NewsController extends AdminPanelController
         $result = DataTablesHelper::process([
 
             'where_string' => $whereString,
+            'having_string' => $havingString,
             'select_fields' => $selectFields,
             'columns_order' => $columnsOrder,
             'custom_order' => $customOrder,
@@ -856,8 +1012,10 @@ class NewsController extends AdminPanelController
      * @param int $perPage =10
      * @param int $category =null
      * @param int $status =NewsMapper::ACTIVE
+     * @param string $newsTitle =null
      * @param bool $ignoreStatus =false
      * @param bool $ignoreDateLimit =false
+     * @param string[] $ignoreSlugs =[]
      * @return PaginationResult
      */
     public static function _all(
@@ -865,8 +1023,10 @@ class NewsController extends AdminPanelController
         int $perPage = null,
         int $category = null,
         int $status = null,
+        string $newsTitle = null,
         bool $ignoreStatus = false,
-        bool $ignoreDateLimit = false
+        bool $ignoreDateLimit = false,
+        array $ignoreSlugs = []
     ) {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
@@ -874,7 +1034,6 @@ class NewsController extends AdminPanelController
 
         $table = NewsMapper::TABLE;
         $fields = NewsMapper::fieldsToSelect();
-        $jsonExtractExists = NewsMapper::jsonExtractExistsMySQL();
 
         $whereString = null;
         $where = [];
@@ -905,10 +1064,30 @@ class NewsController extends AdminPanelController
 
         }
 
+        if (!empty($ignoreSlugs)) {
+
+            $beforeOperator = !empty($where) ? $and : '';
+            $ignoreSlugs = implode('","', $ignoreSlugs);
+            $ignoreSlugs = '"' . $ignoreSlugs . '"';
+            $critery = "{$table}.preferSlug NOT IN ({$ignoreSlugs})";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
+        if ($newsTitle !== null) {
+
+            $beforeOperator = !empty($where) ? $and : '';
+            $newsTitleField = NewsMapper::fieldCurrentLangForSQL('newsTitle');
+            $critery = "UPPER({$newsTitleField}) LIKE UPPER('%{$newsTitle}%')";
+            $where[] = "{$beforeOperator} ({$critery})";
+
+        }
+
         $now = \DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'));
         $now = $now->getTimestamp();
         $unixNowDate = "FROM_UNIXTIME({$now})";
         $startDateSQL = "{$table}.startDate";
+        $endDateSQL = "{$table}.endDate";
 
         if (!$ignoreDateLimit) {
 
@@ -917,27 +1096,19 @@ class NewsController extends AdminPanelController
             $where[] = "{$beforeOperator} ({$critery})";
 
             $beforeOperator = !empty($where) ? $and : '';
-            $critery = "DATE_ADD({$table}.endDate, INTERVAL 15 DAY) > {$unixNowDate} OR {$table}.endDate IS NULL";
+            $critery = "{$endDateSQL} > {$unixNowDate} OR {$table}.endDate IS NULL";
             $where[] = "{$beforeOperator} ({$critery})";
 
         }
 
-        //Verificación de idioma
-        $defaultLang = Config::get_default_lang();
+        //Verificar idiomas
+        $showAlways = false; //Define si se muestra siempre aunque no tenga traducción
         $currentLang = Config::get_lang();
 
-        if ($currentLang != $defaultLang) {
-
-            if ($jsonExtractExists) {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL";
-                $where[] = "{$beforeOperator} ({$critery})";
-            } else {
-                $beforeOperator = !empty($where) ? $and : '';
-                $critery = "POSITION('\"{$currentLang}\":{' IN meta) != 0 || POSITION(\"'{$currentLang}':{\" IN meta) != 0";
-                $where[] = "{$beforeOperator} ({$critery})";
-            }
-
+        if (!$showAlways) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.langData.{$currentLang}')) IS NOT NULL || JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) = '{$currentLang}'";
+            $where[] = "{$beforeOperator} ({$critery})";
         }
 
         if (!empty($where)) {
@@ -957,30 +1128,35 @@ class NewsController extends AdminPanelController
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
-        $parser = function ($element) {
+        $controller = new NewsController;
+        $parser = function ($element) use ($controller) {
             $element = NewsMapper::objectToMapper($element);
-            $element = mb_convert_encoding(self::view('public/util/item', [
+            $element = mb_convert_encoding($controller->render('public/util/item', [
                 'element' => $element,
                 'langGroup' => self::LANG_GROUP,
             ], false, false), 'UTF-8');
             return $element;
         };
-        $each = !$jsonExtractExists ? function ($element) {
+        $each = function ($element) {
             $mapper = NewsMapper::objectToMapper($element);
-            $element = NewsMapper::translateEntityObject($element);
+            $category = new NewsCategoryMapper($mapper->category);
+            $element->profilesTarget = $mapper->profilesTarget;
+            $element->createdBy = $mapper->createdBy;
+            $element->modifiedBy = $mapper->modifiedBy;
+            $element->category = [
+                'id' => $category->id,
+                'name' => $category->name,
+                'iconImage' => $category->iconImage,
+                'color' => $category->color,
+            ];
+
+            unset($element->meta);
+            foreach ($element as $key => $value) {
+                if (is_string($value)) {
+                    $element->$key = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+                }
+            }
             return $element;
-        } : function ($element) {
-            $mapper = new NewsMapper($element->id);
-            $elementData = $mapper->humanReadable();
-            $elementData['profilesTarget'] = (array) $mapper->profilesTarget;
-            $elementData['createdBy'] = $mapper->createdBy->id;
-            $elementData['modifiedBy'] = $mapper->modifiedBy !== null ? $mapper->modifiedBy->id : null;
-            $elementData['category']['iconImage'] = baseurl($elementData['category']['iconImage']);
-            unset($elementData['category']['meta']);
-            unset($elementData['category']['META:langData']);
-            unset($elementData['meta']);
-            unset($elementData['META:langData']);
-            return $elementData;
         };
 
         $pagination = $pageQuery->getPagination($parser, $each);
@@ -989,45 +1165,11 @@ class NewsController extends AdminPanelController
     }
 
     /**
-     * @param string $currentLang
-     * @param int $elementID
-     * @return array
+     * @inheritDoc
      */
-    public static function allowedLangsForSelect(string $currentLang, int $elementID)
+    public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
-
-        $allowedLangsForSelect = [];
-
-        $allowedLangs = Config::get_allowed_langs();
-
-        $allowedLangs = array_filter($allowedLangs, function ($l) use ($currentLang) {
-            return $l != $currentLang;
-        });
-
-        array_unshift($allowedLangs, $currentLang);
-
-        foreach ($allowedLangs as $i) {
-
-            $value = self::routeName('forms-edit', ['id' => $elementID, 'lang' => $i]);
-
-            $allowedLangsForSelect[$value] = __('lang', $i);
-
-        }
-
-        return $allowedLangsForSelect;
-
-    }
-
-    /**
-     * @param string $name
-     * @param array $data
-     * @param bool $mode
-     * @param bool $format
-     * @return void|string
-     */
-    public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
-    {
-        return (new NewsController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
+        return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
     }
 
     /**
@@ -1175,23 +1317,23 @@ class NewsController extends AdminPanelController
         $queries = $allRoles;
         $list = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $creation = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $edition = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $routes = [
 
@@ -1216,16 +1358,13 @@ class NewsController extends AdminPanelController
                 $creation
             ),
             new Route( //Formulario de editar
-                "{$startRoute}/forms/edit/{id}/{lang}[/]",
+                "{$startRoute}/forms/edit/{id}[/]",
                 $classname . ':editForm',
                 self::$baseRouteName . '-forms-edit',
                 'GET',
                 true,
                 null,
-                $edition,
-                [
-                    'lang' => Config::get_default_lang(),
-                ]
+                $edition
             ),
 
             //JSON
@@ -1236,7 +1375,7 @@ class NewsController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $list
+                $queries
             ),
             new Route( //Datos para datatables
                 "{$startRoute}/datatables[/]",

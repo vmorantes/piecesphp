@@ -5,6 +5,14 @@
     width: 360px;
     max-width: 100%;
 
+    &.tall {
+        height: auto;
+
+        >label {
+            height: 100%;
+        }
+    }
+
     &.fluid {
         width: 100%;
         max-width: max-content;
@@ -69,6 +77,18 @@
                 color: white;
             }
 
+            &.fullsize {
+                padding: 0px;
+
+                >img {
+                    height: 100%;
+                    width: 100%;
+                    max-height: initial;
+                    max-width: initial;
+                    object-fit: cover;
+                }
+            }
+
             >i.icon {
                 margin: 0;
                 padding: 0;
@@ -89,7 +109,7 @@
         }
 
         >.text {
-            font-family: $fontPoppins;
+            font-family: $fontGlobal;
             padding: 10px 10px 10px 15px;
             position: relative;
 
@@ -139,6 +159,20 @@
                 line-height: pxToRem(14+3);
                 color: #626363;
                 padding-top: 8px;
+            }
+
+            >.name {
+                margin-top: 5px;
+
+                label {
+                    font-size: 14px;
+                }
+
+                input {
+                    margin-top: 5px;
+                    min-height: 20px !important;
+                    height: 50px !important;
+                }
             }
         }
     }

@@ -62,45 +62,44 @@ class AppConfigController extends AdminPanelController
     ];
     const ROLES_BACKGROUND = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_LOGOS_FAVICONS = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_SEO = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_EMAIL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_OS_TICKET = [
         UsersModel::TYPE_USER_ROOT,
     ];
     const ROLES_SECURITY_AND_IA = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_VIEW_CONFIGURATIONS_VIEW = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_GENERIC_ACTION = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     const ROLES_SITEMAP_ACTION = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
     ];
     const ROLES_ROUTES_VIEWS = [
         UsersModel::TYPE_USER_ROOT,
     ];
     const ROLES_CLEAN_CACHE_ACTION = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const SEO_OPTION_TITLE_APP = 'title_app';
@@ -1876,7 +1875,7 @@ class AppConfigController extends AdminPanelController
         $keyLocal = 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ';
         $keyDomain = 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ';
         $key = is_local() ? $keyLocal : $keyDomain;
-        $res->write($key);
+        $res = $res->write($key);
         return $res;
     }
 

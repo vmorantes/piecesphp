@@ -83,15 +83,16 @@ class DocumentsRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup(
                 [
                     'name' => __(DocumentsLang::LANG_GROUP, 'Documentos'),
                     'icon' => 'open folder',
-                    'position' => 20,
+                    'position' => 150,
                     'items' => [
                         new MenuItem([
                             'text' => __(DocumentsLang::LANG_GROUP, 'Gestionar'),

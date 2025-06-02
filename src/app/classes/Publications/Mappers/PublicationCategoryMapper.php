@@ -280,7 +280,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
     /**
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = new PublicationCategoryMapper;
@@ -593,6 +593,18 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         $fieldsFilleds = [];
         $fields = array_merge(array_keys($mapper->fields), array_keys($mapper->getMetaProperties()));
 
+        $defaultPropertiesValues = [];
+
+        foreach ($defaultPropertiesValues as $defaultProperty => $defaultPropertyValue) {
+            if (!array_key_exists($defaultProperty, $element)) {
+                $element[$defaultProperty] = $defaultPropertyValue;
+            }
+        }
+
+        $defaultMetaPropertiesValues = [
+            'baseLang' => Config::get_default_lang(),
+        ];
+
         foreach ($element as $property => $value) {
 
             if (in_array($property, $fields)) {
@@ -600,6 +612,14 @@ class PublicationCategoryMapper extends EntityMapperExtensible
                 if ($property == 'meta') {
 
                     $value = $value instanceof \stdClass  ? $value : @json_decode($value);
+
+                    foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
+                        foreach ($defaultMetaPropertiesValues as $defaultMetaProperty => $defaultMetaPropertyValue) {
+                            if (!property_exists($value, $defaultMetaProperty)) {
+                                $value->$defaultMetaProperty = $defaultMetaPropertyValue;
+                            }
+                        }
+                    }
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {
@@ -653,6 +673,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         $category = new PublicationCategoryMapper(self::UNCATEGORIZED_ID);
 
         if ($category->id == null) {
+            $category->setLangData(Config::get_default_lang(), 'name', 'Sin categoría');
             $category->setLangData('es', 'name', 'Sin categoría');
             $category->setLangData('en', 'name', 'Uncategorized');
             $category->meta = $category->metaValueToSave();

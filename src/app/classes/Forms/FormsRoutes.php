@@ -72,9 +72,10 @@ class FormsRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Formularios'),
@@ -86,7 +87,7 @@ class FormsRoutes
                         'visible' => CategoriesController::allowedRoute('list'),
                     ]),
                 ],
-                'position' => 20,
+                'position' => 150,
             ]));
 
         }

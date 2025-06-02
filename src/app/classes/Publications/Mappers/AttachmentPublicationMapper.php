@@ -10,7 +10,6 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
-use Publications\Exceptions\DuplicateException;
 use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 
@@ -22,7 +21,7 @@ use Publications\PublicationsLang;
  * @copyright   Copyright (c) 2022
  * @property int|null $id
  * @property int|PublicationMapper $publication
- * @property string $attachmentType
+ * @property string $attachmentName
  * @property string $fileLocation
  * @property string $lang
  * @property string $folder
@@ -48,7 +47,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
             'human_readable_reference_field' => 'id',
             'mapper' => PublicationMapper::class,
         ],
-        'attachmentType' => [
+        'attachmentName' => [
             'type' => 'text',
         ],
         'fileLocation' => [
@@ -101,26 +100,13 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const TABLE = 'publications_attachments';
     const LANG_GROUP = PublicationsLang::LANG_GROUP;
     const ORDER_BY_PREFERENCE = [
         '`id` ASC',
-    ];
-
-    const ATTACHMENT_TYPE_1 = 'TYPE_1';
-    const ATTACHMENT_TYPE_2 = 'TYPE_2';
-
-    const ATTACHMENT_TYPES = [
-        self::ATTACHMENT_TYPE_1 => 'Anexo',
-        self::ATTACHMENT_TYPE_2 => 'Copia en PDF',
-    ];
-
-    const ATTACHMENT_TYPES_FILENAMES = [
-        self::ATTACHMENT_TYPE_1 => 'RANDOM',
-        self::ATTACHMENT_TYPE_2 => 'copia-pdf',
     ];
 
     /**
@@ -188,16 +174,8 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
-        $formated = $this->updatedAt instanceof \DateTime ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
+        $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
         return $formated;
-    }
-
-    /**
-     * @return string
-     */
-    public function typeName()
-    {
-        return $this->attachmentType !== null ? self::attachmentTypeText($this->attachmentType) : '';
     }
 
     /**
@@ -275,11 +253,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      */
     public function save()
     {
-        $publicationID = is_object($this->publication) ? $this->publication->id : $this->publication;
-        $publicationID = $publicationID !== null ? $publicationID : -1;
-        if (self::existsByPublication($publicationID, $this->attachmentType, $this->lang, -1)) {
-            throw new DuplicateException(__(self::LANG_GROUP, "Ya existe este anexo en esta publicación."));
-        }
 
         $this->createdAt = new \DateTime();
         if ($this->createdBy === null) {
@@ -302,11 +275,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      */
     public function update(bool $noDateUpdate = false)
     {
-        $publicationID = is_object($this->publication) ? $this->publication->id : $this->publication;
-        $publicationID = $publicationID !== null ? $publicationID : -1;
-        if (self::existsByPublication($publicationID, $this->attachmentType, $this->lang, $this->id)) {
-            throw new DuplicateException(__(self::LANG_GROUP, "Ya existe este anexo en esta publicación."));
-        }
         if (!$noDateUpdate) {
             $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
@@ -319,7 +287,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * - idPadding
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = new AttachmentPublicationMapper;
@@ -338,68 +306,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         }
 
         return $fields;
-
-    }
-
-    /**
-     * @param string $type
-     * @return string
-     */
-    public static function attachmentTypeText(string $type)
-    {
-        return self::attachmentTypes()[$type];
-    }
-
-    /**
-     * Un array listo para ser usado en array_to_html_options
-     * @param string $defaultLabel
-     * @param string $defaultValue
-     * @return array
-     */
-    public static function allAttachmentTypesForSelect(string $defaultLabel = '', string $defaultValue = '')
-    {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tipo de anexo');
-
-        $inputOptions = self::attachmentTypes();
-        $options = [];
-        $options[$defaultValue] = $defaultLabel;
-
-        foreach ($inputOptions as $k => $i) {
-            $options[$k] = $i;
-        }
-
-        return $options;
-    }
-
-    /**
-     * @return array
-     */
-    public static function attachmentTypes()
-    {
-
-        $options = [];
-
-        foreach (self::ATTACHMENT_TYPES as $k => $i) {
-            $options[$k] = __(self::LANG_GROUP, $i);
-        }
-
-        return $options;
-
-    }
-
-    /**
-     * @return array
-     */
-    public static function attachmentTypesFilenames()
-    {
-
-        $options = [];
-
-        foreach (self::ATTACHMENT_TYPES_FILENAMES as $k => $i) {
-            $options[$k] = $i !== 'RANDOM' ? $i : uniqid('file_');
-        }
-
-        return $options;
 
     }
 
@@ -435,10 +341,11 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param bool $asMapper
      * @param bool $currentLang
+     * @param string $lang
      *
      * @return static[]|array
      */
-    public static function allBy(string $column, $value, bool $asMapper = false, bool $currentLang = false)
+    public static function allBy(string $column, $value, bool $asMapper = false, bool $currentLang = false, string $lang = null)
     {
         $model = self::model();
 
@@ -448,6 +355,9 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         if ($currentLang) {
             $where['lang'] = Config::get_lang();
+        }
+        if ($lang !== null) {
+            $where['lang'] = $lang;
         }
 
         $model->select()->where($where)->execute();
@@ -495,18 +405,18 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
     /**
      * @param int $publicationID
-     * @param string $attachmentType
+     * @param int $attachmentID
      * @param string $lang
      * @param boolean $asMapper
      * @return static|object|null
      */
-    public static function getByTypeAndPublication(int $publicationID, string $attachmentType, string $lang, bool $asMapper = false)
+    public static function getExactAttachment(int $publicationID, int $attachmentID, string $lang, bool $asMapper = false)
     {
         $model = self::model();
 
         $where = [
             'publication' => $publicationID,
-            'attachmentType' => $attachmentType,
+            'id' => $attachmentID,
             'lang' => $lang,
         ];
 
@@ -600,12 +510,11 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * Verifica si existe algún registro igual
      *
      * @param int $publicationID
-     * @param string $attachmentType
      * @param string $lang
      * @param int $ignoreID
      * @return bool
      */
-    public static function existsByPublication(int $publicationID, string $attachmentType, string $lang = null, int $ignoreID = null)
+    public static function existsByPublication(int $publicationID, string $lang = null, int $ignoreID = null)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;
@@ -613,7 +522,6 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
         $where = [
             "publication = {$publicationID} AND",
-            "attachmentType = '{$attachmentType}' AND",
             "id != {$ignoreID}",
         ];
 
@@ -660,7 +568,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {
