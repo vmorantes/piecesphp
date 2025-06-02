@@ -16,6 +16,10 @@ define('LOG_ERRORS_BACKUP_PATH', app_basepath('logs/olds'));
 
 //Configuraciones
 define('APP_CONFIGURATION_MODULE', true);
+define('CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME', 'asUserID');
+define('CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME', 'asUser');
+define('ROOT_ORIGINAL_ID_CONFIG_NAME', 'RootOriginalID');
+define('ROOT_ID_AS_CONNECT_CONFIG_NAME', 'RootIsLoggedAsUser');
 
 //Zona administrativa
 define('ADMIN_PATH_VIEWS', 'panel');
@@ -103,9 +107,13 @@ define('AI_MODELS', [
 
 //API
 define('API_MODULE', false);
+define('API_USERS', false);
 
 //Organizaciones
 define('ORGANIZATIONS_MODULE', true);
+
+//Aprobaciones
+define('SYSTEM_APPROVALS_MODULE', true);
 
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
@@ -120,3 +128,25 @@ define('USER_LOGIN_LANG_GROUP', 'userLogin');
 define('GENERAL_LANG_GROUP', 'general');
 define('LANG_GROUP', 'public');
 define('MAILING_GENERAL_LANG_GROUP', 'mailingGeneral');
+
+//Proyecto
+define('GLOBAL_LANG_GROUP', 'global');
+define('PHONE_AREA_CODES', [
+    'Francia' => '+33',
+    'Colombia' => '+57',
+]);
+define('NATIONALITIES', [
+    'Francesa' => 'Francesa',
+    'Colombiana' => 'Colombiana',
+]);
+define('INTERESTS_RESEARCH_AREAS', [
+    "Informática",
+]);
+define('CURRENCIES', [
+    'EUR' => 'Euro (EUR)',
+    'COP' => 'Peso colombiano (COP)',
+    'USD' => 'Dólar estadounidense (USD)',
+]);
+define('INTERESTS_RESEARCH_AREAS_WITH_COLOR', [
+    "Informática" => 'rgba(255, 149, 117, 0.2)',
+]);

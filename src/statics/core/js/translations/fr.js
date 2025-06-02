@@ -131,10 +131,40 @@ var PCSPHP_TRANSLATIONS_FR = {
 		am: 'AM',
 		pm: 'PM',
 	},
+	messenger: {
+		'Error': 'Erreur',
+		'Ha ocurrido un error desconocido.': 'Une erreur inconnue s\'est produite.',
+		'¡Listo!': 'Prêt!',
+	},
 	loginForm: {
-		'CONTRASEÑA_INVÁLIDA': '<span class="text">Mot de passe</span> <span class="mark">invalide</span>',
+		'Error': 'Erreur',
+		'Ha ocurrido un error inesperado, intente más tarde.': 'Une erreur inattendue s\'est produite, veuillez réessayer plus tard.',
+		'Si continua con problemas para ingresar, por favor utilice la ayuda.': 'Si vous continuez à avoir des problèmes pour vous connecter, veuillez utiliser l\'aide.',
+		'Por favor, verifique los datos de ingreso y vuelva a intentar.': 'Veuillez vérifier les informations de connexion et réessayer.',
+		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.': 'Veuillez accéder au lien suivant pour débloquer votre utilisateur.',
+		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'Une erreur s\'est produite lors de la connexion, veuillez réessayer.',
+		'CONTRASEÑA_INVÁLIDA': '<span class="mark">Invalide</span> <span class="text">mot de passe</span>',
 		'USUARIO_BLOQUEADO': '<span class="text">Utilisateur</span> <span class="mark">bloqué</span>',
 		'USUARIO_INEXISTENTE': '<span class="text">L\'utilisateur</span> <span class="mark">%r</span> <span class="text">n\'existe pas</span>',
-		'ERROR_AL_INGRESAR': 'Erreur lors de la connexion',
+		'ERROR_AL_INGRESAR': 'Échec de la connexion',
 	},
+	userProblems: {
+		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Cela sera résolu très bientôt, veuillez vérifier votre e-mail dans les prochaines heures. <br> L\'e-mail peut se trouver dans "Spam", veuillez vérifier le dossier spam. L\'expéditeur de l\'e-mail est <strong>%r</strong>.',
+		'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Entrez le code envoyé à votre e-mail, l\'e-mail peut se trouver dans "Spam", veuillez vérifier le dossier spam. L\'expéditeur de l\'e-mail est <strong>%r</strong>.',
+		'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.': 'L\'e-mail saisi n\'est associé à aucun utilisateur, veuillez saisir un autre compte e-mail ou vous pouvez créer une demande de support pour associer cet e-mail à votre compte.',
+		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.': 'Le code saisi est incorrect, veuillez ressaisir le code, en demander un nouveau ou créer une demande de support pour signaler l\'erreur.',
+		'Ingrese con su usuario y la nueva contraseña': 'Connectez-vous avec votre nom d\'utilisateur et le nouveau mot de passe',
+		'Las contraseñas no coinciden': 'Les mots de passe ne correspondent pas',
+	},
+	avatar: {
+		'Confirmación': 'Confirmation',
+		'¿Seguro de guardar el avatar?': 'Êtes-vous sûr de vouloir enregistrer l\'avatar?',
+		'Cargando...': 'Chargement...',
+		'¿Seguro de guardar la foto de perfil?': 'Êtes-vous sûr de vouloir enregistrer la photo de profil?',
+		'Sí': 'Oui',
+		'No': 'Non',
+	},
+	public: {
+		'Ver más': 'Lire la suite',
+	}
 }

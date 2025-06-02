@@ -6,6 +6,9 @@ window.addEventListener(MapBoxAdapter.events.ConfigurationReady, function () {
 	for (const mapBoxAdapter of MapBoxAdapter.instances) {
 
 		const currentMapElements = mapBoxAdapter.currentMapElements
+		if (currentMapElements === null) {
+			continue
+		}
 		const map = currentMapElements.map
 		const marker = currentMapElements.marker
 		const geolocator = currentMapElements.geolocator

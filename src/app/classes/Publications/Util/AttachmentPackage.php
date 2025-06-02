@@ -7,7 +7,6 @@
 namespace Publications\Util;
 
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileValidator;
 use Publications\Mappers\AttachmentPublicationMapper;
 
 /**
@@ -26,14 +25,14 @@ class AttachmentPackage
     protected $publicationID = -1;
 
     /**
-     * @var string
+     * @var int
      */
-    protected $baseName = '';
+    protected $attachmentID = -1;
 
     /**
      * @var string
      */
-    protected $type = '';
+    protected $displayName = '';
 
     /**
      * @var bool
@@ -41,32 +40,9 @@ class AttachmentPackage
     protected $required = false;
 
     /**
-     * @var bool
-     */
-    protected $multiple = false;
-
-    /**
      * @var string
      */
     protected $lang = '';
-
-    /**
-     * @var string[]
-     */
-    protected $validTypes = [
-        FileValidator::TYPE_JPEG,
-        FileValidator::TYPE_JPG,
-        FileValidator::TYPE_PDF,
-    ];
-
-    /**
-     * @var string[]
-     */
-    protected $extensions = [
-        '.jpg',
-        '.jpeg',
-        '.pdf',
-    ];
 
     /**
      * @var AttachmentPublicationMapper|null
@@ -75,28 +51,18 @@ class AttachmentPackage
 
     /**
      * @param int $publicationID
-     * @param string $baseName
+     * @param int $attachmentID
+     * @param string $displayName
      * @param string $type
-     * @param string[]|string $validTypes
      * @param string[]|string $extensions
      * @param bool $required
-     * @param bool $multiple
      */
-    public function __construct(int $publicationID = null, string $baseName, string $type, $validTypes = null, $extensions = null, bool $required = false, bool $multiple = false, string $lang = null)
+    public function __construct(int $publicationID = null, int $attachmentID = null, string $displayName, bool $required = false, string $lang = null)
     {
         $this->publicationID = $publicationID;
-        $this->baseName = $baseName;
-        $this->type = $type;
-        if ($validTypes !== null) {
-            $validTypes = is_array($validTypes) ? $validTypes : [$validTypes];
-            $this->setValidTypes($validTypes);
-        }
-        if ($extensions !== null) {
-            $extensions = is_array($extensions) ? $extensions : [$extensions];
-            $this->setExtensions($extensions);
-        }
+        $this->attachmentID = $attachmentID;
+        $this->displayName = $displayName;
         $this->required = $required;
-        $this->multiple = $multiple;
         if ($lang !== null) {
             $this->lang = $lang;
         } else {
@@ -114,82 +80,11 @@ class AttachmentPackage
     }
 
     /**
-     * @param string $str
-     * @return string
-     */
-    public function baseNameAppend(string $str)
-    {
-        return $this->baseName . trim($str);
-    }
-
-    /**
      * @return bool
      */
     public function hasAttachment()
     {
         return $this->getMapper() !== null;
-    }
-
-    /**
-     * @param string $type
-     * @return static
-     */
-    public function addValidType(string $type)
-    {
-        $this->validTypes[] = $type;
-        return $this;
-    }
-
-    /**
-     * @param string[] $types
-     * @return static
-     */
-    public function setValidTypes(array $types)
-    {
-        $this->validTypes = [];
-        foreach ($types as $type) {
-            $this->addValidType($type);
-        }
-        return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getValidTypes()
-    {
-        return $this->validTypes;
-    }
-
-    /**
-     * @param string $extension
-     * @return static
-     */
-    public function addExtension(string $extension)
-    {
-        $this->extensions[] = ".{$extension}";
-        return $this;
-    }
-
-    /**
-     * @param string[] $extensions
-     * @return static
-     */
-    public function setExtensions(array $extensions)
-    {
-        $this->extensions = [];
-        foreach ($extensions as $extension) {
-            $this->addExtension($extension);
-        }
-        return $this;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getExtensions()
-    {
-        return $this->extensions;
     }
 
     /**
@@ -208,24 +103,6 @@ class AttachmentPackage
     public function isRequired()
     {
         return $this->required;
-    }
-
-    /**
-     * @param bool $multiple
-     * @return static
-     */
-    public function setMultiple(bool $multiple)
-    {
-        $this->required = $multiple;
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isMultiple()
-    {
-        return $this->multiple;
     }
 
     /**
@@ -267,33 +144,9 @@ class AttachmentPackage
     /**
      * @return string
      */
-    public function getBaseName()
+    public function getDisplayName()
     {
-        return $this->baseName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTypeText()
-    {
-        return AttachmentPublicationMapper::attachmentTypeText($this->type);
-    }
-
-    /**
-     * @return string
-     */
-    public function getTypeFilename()
-    {
-        return AttachmentPublicationMapper::attachmentTypesFilenames()[$this->type];
+        return $this->displayName;
     }
 
     /**
@@ -315,7 +168,7 @@ class AttachmentPackage
         $publicationIDEqualsMapperPublicationID = $mapperPublicationID == $this->publicationID;
 
         if (!$publicationIDEqualsMapperPublicationID || $mapperIsNull) {
-            $this->mapper = AttachmentPublicationMapper::getByTypeAndPublication($this->publicationID, $this->type, $this->lang, true);
+            $this->mapper = AttachmentPublicationMapper::getExactAttachment($this->publicationID, $this->attachmentID, $this->lang, true);
         }
 
         return $this->mapper;

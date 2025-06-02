@@ -1,0 +1,112 @@
+body {
+    font-family: $fontGlobal;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-family: $fontGlobal;
+}
+
+.ui.button {
+    font-family: $fontGlobal;
+}
+
+.ui.text.container {
+    font-family: $fontGlobal;
+}
+
+.ui.header {
+    font-family: $fontGlobal;
+}
+
+.ui.input>input {
+    font-family: $fontGlobal;
+}
+
+.ui.list .list>.item .header,
+.ui.list>.item .header {
+    font-family: $fontGlobal;
+}
+
+.ui.steps .step .title {
+    font-family: $fontGlobal;
+}
+
+.ui.form input:not([type]),
+.ui.form input[type="color"],
+.ui.form input[type="date"],
+.ui.form input[type="datetime-local"],
+.ui.form input[type="email"],
+.ui.form input[type="month"],
+.ui.form input[type="number"],
+.ui.form input[type="password"],
+.ui.form input[type="search"],
+.ui.form input[type="tel"],
+.ui.form input[type="time"],
+.ui.form input[type="text"],
+.ui.form input[type="file"],
+.ui.form input[type="url"],
+.ui.form input[type="week"] {
+    font-family: $fontGlobal;
+}
+
+.ui.input textarea,
+.ui.form textarea {
+    font-family: $fontGlobal;
+}
+
+.ui.menu {
+    font-family: $fontGlobal;
+}
+
+.ui.message .header {
+    font-family: $fontGlobal;
+}
+
+.ui.cards>.card>.content>.header,
+.ui.card>.content>.header {
+    font-family: $fontGlobal;
+}
+
+.ui.statistics .statistic>.value,
+.ui.statistic>.value {
+    font-family: $fontGlobal;
+}
+
+.ui.statistics .statistic>.label,
+.ui.statistic>.label {
+    font-family: $fontGlobal;
+}
+
+.ui.search>.results .result .title {
+    font-family: $fontGlobal;
+}
+
+.ui.modal>.header {
+    font-family: $fontGlobal;
+}
+
+.ui.search>.results>.message .header {
+    font-family: $fontGlobal;
+}
+
+.ui.category.search>.results .category>.name {
+    font-family: $fontGlobal;
+}
+
+.ui.items>.item>.content>.header {
+    font-family: $fontGlobal;
+}
+
+.ui.accordion.menu .item>.title,
+.ui.accordion>.title,
+.ui.accordion .accordion>.title {
+    font-family: $fontGlobal;
+}
+
+.ui.popup>.header {
+    font-family: $fontGlobal;
+}

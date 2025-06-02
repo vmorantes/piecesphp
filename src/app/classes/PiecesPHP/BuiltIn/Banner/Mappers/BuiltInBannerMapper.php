@@ -127,7 +127,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const TABLE = 'built_in_banner_elements';
@@ -461,7 +461,7 @@ class BuiltInBannerMapper extends EntityMapperExtensible
      *  - endDateFormat
      * @return string[]
      */
-    public static function fieldsToSelect(string $formatDate = '%d-%m-%Y')
+    protected static function fieldsToSelect(string $formatDate = '%d-%m-%Y')
     {
 
         $mapper = (new BuiltInBannerMapper);

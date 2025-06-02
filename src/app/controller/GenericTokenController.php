@@ -328,12 +328,11 @@ class GenericTokenController extends AdminPanelController
                     $data = [];
 
                     $data['text'] = mb_convert_encoding($message->getValue(), 'UTF-8');
-                    $data['with_link'] = false;
                     $data['note'] = '';
                     $data['url'] = '';
                     $data['text_button'] = '';
 
-                    $mailer->Body = $this->render('panel/pages/generic_token/mail_template', $data, false, false);
+                    $mailer->Body = $this->render('mailing/template_base', $data, false, false);
 
                     if (!$mailer->checkSettedSMTP()) {
                         $mailer->asGoDaddy();

@@ -121,11 +121,15 @@ class Roles
      * ]
      *
      * @param array $roles Roles
+     * @param bool $override
      * @return void
      * @throws RoleMalformedException
      */
-    public static function registerRoles(array $roles)
+    public static function registerRoles(array $roles, bool $override = false)
     {
+        if ($override) {
+            self::$roles = [];
+        }
         foreach ($roles as $role) {
 
             $all = isset($role['all']) ? (is_bool($role['all']) ? $role['all'] : null) : false;

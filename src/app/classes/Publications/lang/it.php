@@ -90,4 +90,13 @@ return [
     "Si reemplaza las imágenes, estas solo serán visibles en la publicación de este idioma" => "Se sostituiscono le immagini, queste saranno visibili solo nella pubblicazione di questa lingua",
     "Si reemplaza los anexos, estos solo serán visibles en la publicación de este idioma." => "Se sostituisci gli allegati, saranno visibili solo nella pubblicazione di questa lingua.",
     "Si reemplaza la imagen, esta solo serán visibles en la publicación de este idioma." => "Se sostituisci l'immagine, sarà visibile solo nella pubblicazione di questa lingua.",
+    "Activo" => "Attivo",
+    "Inactivo" => "Inattivo",
+    "Cambiar anexo" => "Cambia allegato",
+    "Traducir" => "Tradurre",
+    "Desactivado" => "Disattivato",
+    "Agregar un nuevo anexo" => "Aggiungi un nuovo allegato",
+    "Si selecciona los anexos solo serán visibles en la publicación de este idioma." => "Se selezioni gli allegati saranno visibili solo nella pubblicazione di questa lingua.",
+    "Tamaño máximo del archivo 2MB" => "Dimensione massima del file 2MB",
+    "Adjuntos y/o anexos" => "Allegati e/o annessi",
 ];

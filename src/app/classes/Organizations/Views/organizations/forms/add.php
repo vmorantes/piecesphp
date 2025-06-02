@@ -44,6 +44,11 @@ use Organizations\Mappers\OrganizationMapper;
                             <input required type="text" name="name" maxlength="300" placeholder="">
                         </div>
                         <br>
+                        <div class="field required">
+                            <label><?= __($langGroup, 'Sector de actividad'); ?></label>
+                            <input required type="text" name="activitySector" placeholder=" ">
+                        </div>
+                        <br>
                         <div class="two fields">
 
                             <div class="field">
@@ -61,8 +66,8 @@ use Organizations\Mappers\OrganizationMapper;
                         <div class="two fields">
 
                             <div class="field required">
-                                <label><?= __(LOCATIONS_LANG_GROUP, 'Departamento'); ?></label>
-                                <select required name="state" locations-component-auto-filled-state="" with-dropdown></select>
+                                <label><?= __(LOCATIONS_LANG_GROUP, 'País'); ?></label>
+                                <select required name="country" locations-component-auto-filled-country="" with-dropdown></select>
                             </div>
 
                             <div class="field required">
@@ -70,13 +75,23 @@ use Organizations\Mappers\OrganizationMapper;
                                 <select required name="city" locations-component-auto-filled-city="" with-dropdown></select>
                             </div>
 
+                            <input type="hidden" name="latitude">
+                            <input type="hidden" name="longitude">
+
                         </div>
                         <br>
                         <div class="two fields">
 
                             <div class="field">
                                 <label><?= __($langGroup, 'Teléfono'); ?></label>
-                                <input type="tel" name="phone" placeholder="">
+                                <div class="fields">
+                                    <div class="three wide field">
+                                        <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(getPhoneAreas(), null); ?></select>
+                                    </div>
+                                    <div class="thirteen wide field">
+                                        <input type="tel" name="phone" placeholder="">
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="field">
@@ -84,6 +99,17 @@ use Organizations\Mappers\OrganizationMapper;
                                 <input type="email" name="informativeEmail" placeholder="">
                             </div>
 
+                        </div>
+                        <br>
+                        <div class="two fields">
+                            <div class="field">
+                                <label><?= __($langGroup, 'Enlace LinkedIn'); ?></label>
+                                <input type="url" name="linkedinLink">
+                            </div>
+                            <div class="field">
+                                <label><?= __($langGroup, 'Enlace página web'); ?></label>
+                                <input type="url" name="websiteLink">
+                            </div>
                         </div>
 
                     </div>
@@ -119,24 +145,7 @@ use Organizations\Mappers\OrganizationMapper;
                     <div class="description"><?= __($langGroup, 'Persona designada como punto de contacto principal.'); ?></div>
                 </div>
 
-                <div class="three fields">
-
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Nombre completo'); ?></label>
-                        <input required type="text" name="contactName" placeholder="">
-                    </div>
-
-                    <div class="field">
-                        <label><?= __($langGroup, 'Teléfono'); ?></label>
-                        <input type="tel" name="contactPhone" placeholder="">
-                    </div>
-
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Correo de contacto'); ?></label>
-                        <input required type="email" name="contactEmail" placeholder="">
-                    </div>
-
-                </div>
+                ...
 
                 <div class="section-fields-divider">
                     <div class="title h6"><?= __($langGroup, 'Adjuntos'); ?></div>

@@ -8,7 +8,7 @@ use Organizations\Mappers\OrganizationMapper;
  * @var string $action
  * @var OrganizationMapper $element
  */
-$canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser()->type);
+$canModify = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type);
 ?>
 <section class="module-view-container">
 
@@ -58,6 +58,11 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                             <input required type="text" name="name" maxlength="300" placeholder="" value="<?= $element->getLangData($lang, 'name', false, ''); ?>">
                         </div>
                         <br>
+                        <div class="field required">
+                            <label><?= __($langGroup, 'Sector de actividad'); ?></label>
+                            <input required type="text" name="activitySector" value="<?= $element->getLangData($lang, 'activitySector', false, ''); ?>">
+                        </div>
+                        <br>
                         <div class="two fields">
 
                             <div class="field">
@@ -75,14 +80,17 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                         <div class="two fields">
 
                             <div class="field required">
-                                <label><?= __(LOCATIONS_LANG_GROUP, 'Departamento'); ?></label>
-                                <select required name="state" class="no-auto" locations-component-auto-filled-state="<?= $element->state->id; ?>" with-dropdown></select>
+                                <label><?= __(LOCATIONS_LANG_GROUP, 'País'); ?></label>
+                                <select required name="country" class="no-auto" locations-component-auto-filled-country="<?= $element->country !== null ? $element->country->id : ''; ?>" with-dropdown></select>
                             </div>
 
                             <div class="field required">
                                 <label><?= __(LOCATIONS_LANG_GROUP, 'Ciudad'); ?></label>
-                                <select required name="city" class="no-auto" locations-component-auto-filled-city="<?= $element->city->id; ?>" with-dropdown></select>
+                                <select required name="city" class="no-auto" locations-component-auto-filled-city="<?= $element->city !== null ? $element->city->id : ''; ?>" with-dropdown></select>
                             </div>
+
+                            <input type="hidden" name="latitude" value="<?= $element->latitude; ?>">
+                            <input type="hidden" name="longitude" value="<?= $element->longitude; ?>">
 
                         </div>
                         <br>
@@ -90,7 +98,14 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
 
                             <div class="field">
                                 <label><?= __($langGroup, 'Teléfono'); ?></label>
-                                <input type="tel" name="phone" placeholder="">
+                                <div class="fields">
+                                    <div class="three wide field">
+                                        <select name="phoneCode" class="ui dropdown auto"><?= array_to_html_options(getPhoneAreas(), $element->phoneCode); ?></select>
+                                    </div>
+                                    <div class="thirteen wide field">
+                                        <input type="tel" name="phone" value="<?= $element->getLangData($lang, 'phone', false, ''); ?>">
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="field">
@@ -99,7 +114,17 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                             </div>
 
                         </div>
-
+                        <br>
+                        <div class="two fields">
+                            <div class="field">
+                                <label><?= __($langGroup, 'Enlace LinkedIn'); ?></label>
+                                <input type="url" name="linkedinLink" value="<?= $element->getLangData($lang, 'linkedinLink', false); ?>">
+                            </div>
+                            <div class="field">
+                                <label><?= __($langGroup, 'Enlace página web'); ?></label>
+                                <input type="url" name="websiteLink" value="<?= $element->getLangData($lang, 'websiteLink', false); ?>">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="field five wide">
@@ -128,29 +153,18 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
 
                 </div>
 
+                <?php if($canModify): ?>
+                <br>
                 <div class="section-fields-divider">
                     <div class="title h6"><?= __($langGroup, 'Contacto de la organización'); ?></div>
                     <div class="description"><?= __($langGroup, 'Persona designada como punto de contacto principal.'); ?></div>
                 </div>
 
-                <div class="three fields">
-
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Nombre completo'); ?></label>
-                        <input required type="text" name="contactName" placeholder="" value="<?= $element->getLangData($lang, 'contactName', false, ''); ?>">
-                    </div>
-
-                    <div class="field">
-                        <label><?= __($langGroup, 'Teléfono'); ?></label>
-                        <input type="tel" name="contactPhone" placeholder="" value="<?= $element->getLangData($lang, 'contactPhone', false, ''); ?>">
-                    </div>
-
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Correo de contacto'); ?></label>
-                        <input required type="email" name="contactEmail" placeholder="" value="<?= $element->getLangData($lang, 'contactEmail', false, ''); ?>">
-                    </div>
-
+                <div class="field required">
+                    <label style="display: none;"><?= __($langGroup, 'Persona encargada'); ?></label>
+                    <select required name="administrator" class="ui dropdown search"><?= $optionsUsersAdministrators; ?></select>
                 </div>
+                <?php endif;?>
 
                 <div class="section-fields-divider">
                     <div class="title h6"><?= __($langGroup, 'Adjuntos'); ?></div>
@@ -200,7 +214,7 @@ $canAssign = OrganizationMapper::canAssignAnyOrganization(getLoggedFrameworkUser
                     </div>
                 </div>
 
-                <?php if($canAssign): ?>
+                <?php if($canModify): ?>
                 <br>
 
                 <div class="section-fields-divider">

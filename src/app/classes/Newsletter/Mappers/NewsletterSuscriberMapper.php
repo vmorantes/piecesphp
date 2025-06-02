@@ -71,7 +71,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
 
     const TABLE = 'newsletter_sucribers';
@@ -199,7 +199,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
     /**
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = (new NewsletterSuscriberMapper);
@@ -371,7 +371,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

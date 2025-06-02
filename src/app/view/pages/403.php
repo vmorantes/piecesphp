@@ -35,7 +35,7 @@
                 <div class="body">
                     <a class="btn" href="<?= isset($url) && is_string($url) ? $url : base_url(); ?>"><?= __('page404', 'Ir a Inicio'); ?></a>
                     <?php if(!isset($showReportButton) || $showReportButton === true): ?>
-                    <a class="btn report" href="<?= get_route("other-problems-form"); ?>">Reportar problema</a>
+                    <a class="btn report" href="<?= get_route("other-problems-form"); ?>"><?= __('page403', 'Reportar problema'); ?></a>
                     <?php endif; ?>
                 </div>
                 <div class="logo-footer">

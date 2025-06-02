@@ -6,8 +6,14 @@
 
 namespace MySpace;
 
+use MySpace\Controllers\AllProfilesController;
+use MySpace\Controllers\MyOrganizationProfileController;
+use MySpace\Controllers\MyProfileController;
 use MySpace\Controllers\MySpaceController;
+use MySpace\Controllers\OrganizationProfileController;
+use MySpace\Controllers\ProfileController;
 use PiecesPHP\Core\Menu\MenuGroup;
+use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -42,6 +48,11 @@ class MySpaceRoutes
         if (self::ENABLE) {
 
             $groupAdministration = MySpaceController::routes($groupAdministration);
+            $groupAdministration = MyProfileController::routes($groupAdministration);
+            $groupAdministration = ProfileController::routes($groupAdministration);
+            $groupAdministration = MyOrganizationProfileController::routes($groupAdministration);
+            $groupAdministration = OrganizationProfileController::routes($groupAdministration);
+            $groupAdministration = AllProfilesController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
 
@@ -75,9 +86,10 @@ class MySpaceRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup(
                 [

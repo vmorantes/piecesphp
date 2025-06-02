@@ -22,6 +22,7 @@ function AttachmentPlaceholder(attachContainer) {
 	let textContainer = null
 	let filenameContainer = null
 	let inputFile = null
+	let inputName = null
 	let selectedFile = null
 	let wasChange = false
 	let id = null
@@ -80,6 +81,19 @@ function AttachmentPlaceholder(attachContainer) {
 	}
 
 	/**
+	 * @returns {String}
+	 */
+	this.getName = function () {
+		const nameOnInput = inputName.val()
+		const nameIsValid = typeof nameOnInput == 'string' ? nameOnInput.trim().length > 0 : false
+		if (!nameIsValid) {
+			return inputName.attr('data-file-name')
+		} else {
+			return inputName.val()
+		}
+	}
+
+	/**
 	 * @returns {AttachmentPlaceholderElements}
 	 */
 	this.getElements = function () {
@@ -94,6 +108,7 @@ function AttachmentPlaceholder(attachContainer) {
 			textContainer: textContainer,
 			filenameContainer: filenameContainer,
 			inputFile: inputFile,
+			inputName: inputName,
 			selectedFile: selectedFile,
 		}
 	}
@@ -148,6 +163,10 @@ function AttachmentPlaceholder(attachContainer) {
 				attachContainer.addClass('attached')
 			}
 			inputFile.removeAttr('required')
+			inputName.attr('data-file-name', fileName.split('.')[0])
+			if (inputName.val().trim().length == 0) {
+				inputName.val(fileName.split('.')[0])
+			}
 			wasChange = true
 			onSelectedCallback(instance, selectedFile)
 		}
@@ -156,6 +175,15 @@ function AttachmentPlaceholder(attachContainer) {
 			removeGenericLoader(loaderAttachmentName)
 		}
 
+	}
+
+	/**
+	 * @param {String} name 
+	 * @returns {AttachmentPlaceholderElements}
+	 */
+	this.setName = function (name) {
+		inputName.val(name)
+		return this
 	}
 
 	//──── Inicialización ────────────────────────────────────────────────────────────────────
@@ -181,6 +209,7 @@ function AttachmentPlaceholder(attachContainer) {
 		textContainer = attachLabelElement.find('>.text')
 		filenameContainer = textContainer.find('>.filename')
 		inputFile = attachContainer.find('input[type="file"]')
+		inputName = attachContainer.find('input[attachment-name]')
 
 		if (imageSetted !== null) {
 			const initialImageLoaderName = generateUniqueID('initial_image')
@@ -268,5 +297,6 @@ AttachmentPlaceholder.registerDynamicMessages = function (name) {
  * @property {$|null} textContainer Contenedor principal de los textos (la columna derecha)
  * @property {$|null} filenameContainer Contenedor donde se muestra el nombre del archivo cargado
  * @property {$|null} inputFile input:file
+ * @property {$|null} inputName input:text
  * @property {File|null} selectedFile Último archivo seleccionado
  */

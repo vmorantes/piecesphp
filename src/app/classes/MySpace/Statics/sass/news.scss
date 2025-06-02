@@ -1,5 +1,8 @@
 @import '../../../../../statics/core/sass/includes/variables_app_base';
 @import '../../../../../statics/core/sass/includes/functions_app_base';
+
+$fontModule: $fontGlobal;
+
 .news-content {
 
     min-height: 550px;
@@ -17,7 +20,7 @@
     }
 
     >.title {
-        font-family: $fontPublicSans;
+        font-family: $fontModule;
         font-weight: $fwSemiBold;
         font-size: pxToRem(30);
         line-height: pxToRem(30+5);
@@ -60,7 +63,7 @@
             grid-template-columns: auto 45px;
             justify-content: space-between;
             row-gap: 15px;
-            font-family: $fontPublicSans;
+            font-family: $fontModule;
 
             >.text {
                 >.title {
@@ -116,7 +119,7 @@
     >.non-results-content {
 
         display: none;
-        font-family: $fontPublicSans;
+        font-family: $fontModule;
         font-weight: $fwMedium;
 
         >.title {
@@ -170,7 +173,7 @@
         margin: 0 auto;
         width: max-content;
         max-width: 100%;
-        font-family: $fontPublicSans;
+        font-family: $fontModule;
 
         >.text {
 

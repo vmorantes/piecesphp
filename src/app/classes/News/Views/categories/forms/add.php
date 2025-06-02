@@ -1,6 +1,5 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
 /**
  * @var string $langGroup
  * @var string $backLink
@@ -10,68 +9,58 @@ $standalone = isset($standalone) && is_bool($standalone) ? $standalone : true;
 $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup, 'Guardar');
 ?>
 <?php if($standalone): ?>
-<section class="module-view-container limit-size">
+<section class="module-view-container">
     <?php endif; ?>
-
     <?php if($standalone): ?>
-    <div class="header-options">
-
-        <div class="main-options">
-
-            <a href="<?= $backLink; ?>" class="ui icon button brand-color alt2" title="<?= __($langGroup, 'Regresar'); ?>">
-                <i class="icon left arrow"></i>
-            </a>
-
-        </div>
-
-        <div class="columns">
-
-            <div class="column">
-
-                <div class="section-title">
-                    <div class="title"><?= $title; ?></div>
-                    <div class="subtitle"><?= __($langGroup, 'Agregar'); ?></div>
-                </div>
-
-            </div>
-
-        </div>
-
+    <div class="breadcrumb">
+        <?= $breadcrumbs ?>
     </div>
     <?php endif; ?>
 
-    <div class="container-standard-form <?= !$standalone ? 'max-w-1200 block-centered' : 'max-w-1200'; ?>">
-        <form method='POST' action="<?= $action; ?>" class="ui form news-categories">
+    <?php if($standalone): ?><div class="limiter-content"><?php endif; ?>
 
-            <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_lang(); ?>">
+        <?php if($standalone): ?><div class="section-title">
+            <div class="title"><?= $title ?></div>
+            <?php if(isset($description) && is_string($description) && mb_strlen(trim($description)) > 0): ?>
+            <div class="description"><?= $description; ?></div>
+            <?php endif; ?>
+        </div>
 
-            <div class="fields">
+        <br><?php endif; ?>
 
-                <div class="ten wide field">
+        <form method='POST' action="<?= $action; ?>" class="ui form news-categories initial <?= !$standalone ? 'max-w-1200 block-centered' : 'max-w-1200'; ?>">
 
-                    <h4 class="ui dividing header"><?= __($langGroup, 'Datos básicos'); ?></h4>
+            <div class="container-standard-form">
 
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Nombre'); ?></label>
-                        <input required type="text" name="name" maxlength="300">
+                <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_default_lang(); ?>">
+
+                <div class="fields">
+
+                    <div class="ten wide field">
+
+                        <h4 class="ui dividing header"><?= __($langGroup, 'Datos básicos'); ?></h4>
+
+                        <div class="field required">
+                            <label><?= __($langGroup, 'Nombre'); ?></label>
+                            <input required type="text" name="name" maxlength="300">
+                        </div>
+
+                        <br>
+
+                        <div class="field required">
+                            <label><?= __($langGroup, 'Color'); ?></label>
+                            <input type="text" name="color" value="#000000" color-picker-js data-color-picker-alpha="yes" data-color-picker-format="rgb">
+                        </div>
+
                     </div>
 
-                    <br>
+                    <div class="six wide field">
 
-                    <div class="field required">
-                        <label><?= __($langGroup, 'Color'); ?></label>
-                        <input type="text" name="color" value="#000000" color-picker-js data-color-picker-alpha="yes" data-color-picker-format="rgb">
-                    </div>
+                        <h4 class="ui dividing header"><?= __($langGroup, 'Ícono de categoría'); ?></h4>
 
-                </div>
-
-                <div class="six wide field">
-
-                    <h4 class="ui dividing header"><?= __($langGroup, 'Ícono de categoría'); ?></h4>
-
-                    <div class="field" placeholder="<?= __($langGroup, 'Ícono de categoría'); ?>" image-element>
-                        <label><?= __($langGroup, 'Tamaño del ícono'); ?> 300x300px</label>
-                        <?php simpleUploadPlaceholderWorkSpace([
+                        <div class="field" placeholder="<?= __($langGroup, 'Ícono de categoría'); ?>" image-element>
+                            <label><?= __($langGroup, 'Tamaño del ícono'); ?> 300x300px</label>
+                            <?php simpleUploadPlaceholderWorkSpace([
                             'inputNameAttr' => 'iconImage',
                             'buttonText' => __($langGroup, 'Agregar'),
                             'classesButton' => 'fomantic green',
@@ -80,19 +69,25 @@ $submitButtonText = isset($submitButtonText) ? $submitButtonText : __($langGroup
                             'icon' => 'upload',
                             'accept' => 'image/*',
                         ]); ?>
-                        <br><br>
+                            <br><br>
+                        </div>
+
                     </div>
 
                 </div>
 
             </div>
 
+            <br>
+
             <div class="field">
-                <button class="ui button brand-color" type="submit"><?= $submitButtonText; ?></button>
+                <button class="ui button brand-color" type="submit" save><?= $submitButtonText; ?></button>
             </div>
 
         </form>
-    </div>
+
+        <?php if($standalone): ?>
+    </div><?php endif; ?>
+
     <?php if($standalone): ?>
-</section>
-<?php endif; ?>
+</section><?php endif; ?>

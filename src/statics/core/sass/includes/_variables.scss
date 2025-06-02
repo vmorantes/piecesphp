@@ -15,18 +15,11 @@ $fontPublicSans: 'Public Sans',
 sans-serif;
 $fontPoppins: 'Poppins',
 sans-serif;
-$fontOpenSans: 'Open Sans',
-sans-serif;
-$fontFamilyFirst: 'Lato',
-'Helvetica Neue',
-Arial,
-Helvetica,
-sans-serif;
-$fontFamilySecond: Arial,
-Helvetica,
-sans-serif;
-$pFontFamily:$fontFamilySecond;
-$listFontFamily:$fontFamilySecond;
+$fontGlobal: var(--font-family-global);
+$fontGlobalText: $fontPoppins;
+$pFontFamily: $fontGlobalText;
+$listFontFamily: $fontGlobalText;
+$fontSidebars: var(--font-family-sidebars);
 
 // Weights
 $fwHairLine: 100;

@@ -21,6 +21,10 @@ class ResponseRoute extends Response
      * @var string
      */
     protected $lastWriteBodyData = '';
+    /**
+     * @var mixed
+     */
+    protected $rawJsonDataInserted = null;
 
     /**
      * Json.
@@ -40,6 +44,7 @@ class ResponseRoute extends Response
      */
     public function withJson($data, $status = null, $encodingOptions = 0)
     {
+        $this->rawJsonDataInserted = $data;
         $json = json_encode($data, $encodingOptions);
 
         if ($json === false) {
@@ -103,6 +108,15 @@ class ResponseRoute extends Response
     public function getLastWriteBodyData()
     {
         return $this->lastWriteBodyData;
+    }
+
+    /**
+     * Devuelve lo último que haya sido introducido en la respuesta con el método withJson
+     * @return mixed
+     */
+    public function getRawJsonDataInserted()
+    {
+        return $this->rawJsonDataInserted;
     }
 
     /**

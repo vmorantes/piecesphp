@@ -73,9 +73,10 @@ class FileManagerRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             if ($currentUserType === UsersModel::TYPE_USER_ROOT) {
 
@@ -85,7 +86,7 @@ class FileManagerRoutes
                         'visible' => FileManagerController::allowedRoute('filemanager'),
                         'href' => FileManagerController::routeName('filemanager'),
                         'asLink' => true,
-                        'position' => 800,
+                        'position' => 1980,
                         'icon' => 'folder open',
                     ]
                 ));

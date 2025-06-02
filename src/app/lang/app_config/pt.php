@@ -126,4 +126,5 @@ return [
     "Inteligencia artificial" => "Inteligência artificial",
     "Activar traducción con IA" => "Ativar tradução com IA",
     "Configuración de traducción con IA actualizada" => "Configurações de tradução com IA atualizadas",
+    'Log de errores' => 'Log de erros',
 ];

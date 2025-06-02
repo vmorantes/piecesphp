@@ -7,7 +7,7 @@ use Publications\Util\AttachmentPackage;
  * @var string $langGroup
  * @var string $backLink
  * @var string $action
- * @var AttachmentPackage[] $attachmentGroup1
+ * @var AttachmentPackage[] $dynamicAttachments
  */
 $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 ?>
@@ -202,43 +202,67 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
                 <div class="ui tab" data-tab="attachments" style="<?= $withAttachments ? '' : 'display:none;' ?>">
 
-                    <h4 class="ui dividing header"><?= __($langGroup, 'Anexos'); ?></h4>
-
-                    <div class="two fields">
-
-                        <?php foreach($attachmentGroup1 as $attachmentElement): ?>
-
-                        <div class="field" attachment-element>
-                            <label><?= $attachmentElement->getTypeText(); ?></label>
-                            <input type="hidden" name="<?= $attachmentElement->baseNameAppend('Type'); ?>" value="<?= $attachmentElement->getType(); ?>">
-                            <?php if($attachmentElement->hasAttachment()): ?>
-                            <div preview>
-                                <?php if(!$attachmentElement->getMapper()->fileIsImage()):?>
-                                <a target="_blank" href="<?= $attachmentElement->getMapper()->fileLocation; ?>" class="ui button icon labeled blue">
-                                    <i class="ui icon download"></i>
-                                    <?= __($langGroup, 'Ver documento'); ?>
-                                </a>
-                                <?php else: ?>
-                                <img src="<?= $attachmentElement->getMapper()->fileLocation; ?>">
-                                <?php endif; ?>
-                            </div>
-                            <?php endif; ?>
-                            <?php simpleUploadPlaceholderWorkSpace([
-                                'onlyButton' => $attachmentElement->hasAttachment(),
-                                'inputNameAttr' => $attachmentElement->baseNameAppend('File'),
-                                'buttonText' => $attachmentElement->hasAttachment() ? __($langGroup, 'Cambiar anexo') :  __($langGroup, 'Agregar anexo'),
-                                'required' =>  $attachmentElement->isRequired(),
-                                'multiple' =>  $attachmentElement->isMultiple(),
-                                'icon' => 'image outline',
-                                'accept' => implode(',', $attachmentElement->getExtensions()),
-                            ]); ?>
-                            <br><br>
+                    <div class="section-fields-divider">
+                        <div class="title s20">
+                            <?= __($langGroup, 'Adjuntos y/o anexos'); ?>
                         </div>
-
-                        <?php endforeach; ?>
-
                     </div>
 
+                    <div class="form-attachments-regular">
+
+                        <?php $uniqueIdentifier = "add-trigger"; ?>
+                        <div class="attach-placeholder tall" data-dynamic-attachment="<?= $uniqueIdentifier; ?>">
+                            <div class="ui top right attached label green">
+                                <i class="paperclip icon"></i>
+                            </div>
+                            <label for="<?= $uniqueIdentifier; ?>">
+                                <div data-image="" class="image mark" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                    <i class="icon upload"></i>
+                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
+                                </div>
+                                <div class="text">
+                                    <div class="filename"></div>
+                                    <div class="header">
+                                        <div class="title"><?= __($langGroup, 'Agregar un nuevo anexo'); ?></div>
+                                    </div>
+                                    <div class="description"><?= __($langGroup, 'Tamaño máximo del archivo 2MB'); ?></div>
+                                </div>
+                            </label>
+                            <input type="file">
+                        </div>
+
+                        <?php foreach($dynamicAttachments as $attachmentElement): ?>
+                        <?php $hasAttachment = $attachmentElement->hasAttachment(); ?>
+                        <?php $attachmentMapper = $attachmentElement->getMapper(); ?>
+                        <?php $fileLocation = $hasAttachment ? $attachmentMapper->fileLocation : ''; ?>
+                        <?php $isImage = $hasAttachment ? $attachmentMapper->fileIsImage() : ''; ?>
+                        <?php $existingFileAttr = $isImage ? "data-image" : "data-file"; ?>
+                        <?php $existingFileAttr = "{$existingFileAttr}='{$fileLocation}'"; ?>
+                        <?php $uniqueIdentifier = "attach-id-" . uniqid(); ?>
+                        <div class="attach-placeholder" data-dynamic-attachment="<?= $uniqueIdentifier; ?>">
+                            <div class="ui top right attached label green">
+                                <i class="paperclip icon"></i>
+                            </div>
+                            <label <?= $existingFileAttr; ?> for="<?= $uniqueIdentifier; ?>">
+                                <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                                    <i class="icon upload"></i>
+                                    <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
+                                </div>
+                                <div class="text">
+                                    <div class="filename"></div>
+                                    <div class="header">
+                                        <div class="title"><?= $attachmentElement->getDisplayName(); ?></div>
+                                    </div>
+                                    <div class="name">
+                                        <label><?= __($langGroup, 'Título'); ?></label>
+                                        <input type="text" attachment-name value="<?= $attachmentElement->getDisplayName(); ?>">
+                                    </div>
+                                </div>
+                            </label>
+                            <input <?= $attachmentElement->isRequired() ? 'required' : ''; ?> type="file" accept="image/*,.pdf" id="<?= $uniqueIdentifier; ?>">
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
 
                 </div>
 
@@ -317,3 +341,27 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
     }
 
 ?>
+<template attach>
+    <div class="attach-placeholder" data-dynamic-attachment="{ID}">
+        <div class="ui top right attached label green">
+            <i class="paperclip icon"></i>
+        </div>
+        <label for="{ID}">
+            <div data-image="" class="image" data-on-change-text="<?= __($langGroup, 'Cambiar'); ?>">
+                <i class="icon upload"></i>
+                <div class="caption"><?= __($langGroup, 'Anexar'); ?></div>
+            </div>
+            <div class="text">
+                <div class="filename"></div>
+                <div class="header">
+                    <div class="title"><?= __($langGroup, 'Anexo'); ?> #{NUMBER}</div>
+                </div>
+                <div class="name">
+                    <label><?= __($langGroup, 'Título'); ?></label>
+                    <input type="text" attachment-name value="">
+                </div>
+            </div>
+        </label>
+        <input type="file" accept="image/*,.pdf" id="{ID}">
+    </div>
+</template>

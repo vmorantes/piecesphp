@@ -16,6 +16,15 @@ $lang = [
     "Configuración plataforma" => "Configuration de la plateforme",
     "Gestión de usuarios" => "Gestion des utilisateurs",
     "Registro" => "Inscription",
+    "Gestión" => "Gestion",
+    "Mi perfil" => "Mon profil",
+    "Convocatorias" => "Appels d'offres",
+    "Consultar" => "Consulter",
+    "Volver a mi usuario" => "Retour à mon utilisateur",
+    "Mi organización" => "Mon organisation",
+    "Listado de actores" => "Liste des acteurs",
+    "Conectar como otro usuario" => "Se connecter en tant qu'autre utilisateur",
+    "Mapa de actores" => "Carte des acteurs",
 ];
 
 return $lang;

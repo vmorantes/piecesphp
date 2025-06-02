@@ -56,17 +56,43 @@ $(document).ready(function (e) {
 
 		},
 	}
-	genericFormHandler('form.users.create.root', formConfiguration)
-	genericFormHandler('form.users.create.admin', formConfiguration)
-	genericFormHandler('form.users.create.general', formConfiguration)
 
-	genericFormHandler('form.users.edit.root', formConfiguration)
-	genericFormHandler('form.users.edit.admin', formConfiguration)
-	genericFormHandler('form.users.edit.general', formConfiguration)
+	const forms = {}
+	const userTypesFormsSelectors = {
+		create: {
+			root: 'form.users.create.root',
+			adminGral: 'form.users.create.admin-general',
+			adminOrg: 'form.users.create.admin-organization',
+			general: 'form.users.create.general',
+			institucional: 'form.users.create.institucional',
+			comunicaciones: 'form.users.create.comunicaciones',
+		},
+		edit: {
+			root: 'form.users.edit.root',
+			adminGral: 'form.users.edit.admin-general',
+			adminOrg: 'form.users.edit.admin-organization',
+			general: 'form.users.edit.general',
+			institucional: 'form.users.edit.institucional',
+			comunicaciones: 'form.users.edit.comunicaciones',
+		},
+		profile: {
+			root: 'form.users.profile.root',
+			adminGral: 'form.users.profile.admin-general',
+			adminOrg: 'form.users.profile.admin-organization',
+			general: 'form.users.profile.general',
+			institucional: 'form.users.profile.institucional',
+			comunicaciones: 'form.users.profile.comunicaciones',
+		},
+	}
 
-	genericFormHandler('form.users.profile.root', formConfiguration)
-	genericFormHandler('form.users.profile.admin', formConfiguration)
-	genericFormHandler('form.users.profile.general', formConfiguration)
+	for (const formType in userTypesFormsSelectors) {
+		const userTypeFormsSelectorsByUserType = userTypesFormsSelectors[formType]
+		forms[formType] = typeof forms[formType] == 'object' ? forms[formType] : {}
+		for (const userType in userTypeFormsSelectorsByUserType) {
+			const userTypeFormSelector = userTypeFormsSelectorsByUserType[userType]
+			forms[formType][userType] = genericFormHandler(userTypeFormSelector, formConfiguration)
+		}
+	}
 
 	function configAvatar() {
 

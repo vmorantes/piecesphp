@@ -41,7 +41,7 @@ window.addEventListener('load', function () {
 			const form = formsByLang.get(lang).form
 			if (wasFormChanged || baseLang == lang) {
 				const isValid = form.get(0).checkValidity()
-				sendPromises.push(new Promise(function (resolve,) {
+				sendPromises.push(new Promise(function (resolve) {
 					form.onSuccessFinally = function (formProcess, formData, response) {
 						resolve({
 							form: form,
@@ -184,30 +184,11 @@ window.addEventListener('load', function () {
 		configGroupCalendar(`calendar-group-js-lang-${lang}`)
 
 		//Adjuntos
-		const attachments = {}
-		let indexAttachment = 1
-		for (const attachmentElement of Array.from(document.querySelectorAll(`${baseSelector} [attachment-element]`))) {
-			attachmentElement.setAttribute(`attachment-${indexAttachment}`, '')
-			attachments[indexAttachment] = new SimpleUploadPlaceholder({
-				containerSelector: `${baseSelector} [attachment-element][attachment-${indexAttachment}]`,
-				onReady: function () {
-				},
-				onChangeFile: (files, component, instance, event) => {
-					const fileInput = files[0]
-					const previewContainer = $(attachmentElement).find('[preview]')
-					if (fileInput.type.indexOf('image/') !== -1) {
-						const reader = new FileReader()
-						reader.readAsDataURL(fileInput)
-						reader.onload = function (e) {
-							previewContainer.html(`<img src="${e.target.result}"/>`)
-						}
-					} else {
-						previewContainer.html('')
-					}
-				},
-			})
-			indexAttachment++
-		}
+		/**
+		 * @type {AttachmentPlaceholder[]}
+		 */
+		let attachments = []
+		dynamicPublicationAttachments(attachments, baseSelector)
 
 		/* Configuraciones iniciales */
 		configFomanticDropdown(`${baseSelector} .ui.dropdown:not(.langs)`) //Debe inciarse antes de genericFormHandler para la validación
@@ -222,6 +203,23 @@ window.addEventListener('load', function () {
 					if (cropperOpenGraphImage.getFile() !== null) {
 						formData.set('ogImage', cropperOpenGraphImage.getFile())
 					}
+				}
+
+				let attachCounter = 0
+				for (const attachment of attachments) {
+					const fileSelected = attachment.getSelectedFile()
+					const mapperID = attachment.getElements().attachContainer.data('mapper-id')
+					let existsAttachment = typeof mapperID !== 'undefined'
+					const isNewOrChanged = (existsAttachment && attachment.wasChange()) || !existsAttachment
+					if (existsAttachment) {
+						attachCounter++
+						formData.append(`attachmentsID_${attachCounter}`, mapperID)
+					}
+					if (isNewOrChanged) {
+						if (!existsAttachment) { attachCounter++ }
+						formData.append(`attachmentsFile_${attachCounter}`, fileSelected)
+					}
+					formData.append(`attachmentsName_${attachCounter}`, attachment.getName())
 				}
 				return formData
 			},
@@ -311,6 +309,52 @@ window.addEventListener('load', function () {
 				}).modal('show')
 			})
 
+		}
+
+		/**
+		 * Configura el comportamiento de los adjuntos
+		 * @param {AttachmentPlaceholder[]} attachments 
+		 * @param {String} baseSelector 
+		 */
+		function dynamicPublicationAttachments(attachments, baseSelector) {
+			const addTriggerID = 'add-trigger'
+			//Configuración de presentes
+			const baseAttr = 'data-dynamic-attachment'
+			const elements = Array.from(document.querySelectorAll(`${baseSelector} [${baseAttr}]`))
+			for (const element of elements) {
+				const identifier = element.getAttribute(baseAttr)
+				if (typeof identifier == 'string' && identifier.trim().length > 0 && identifier != addTriggerID) {
+					const attachment = new AttachmentPlaceholder($(`${baseSelector} [${baseAttr}="${identifier}"]`))
+					attachment.onSelected(function () {
+						triggerChange()
+					})
+					attachments.push(attachment)
+				} else if (identifier != addTriggerID) {
+					element.remove()
+				}
+			}
+			//Adición
+			let attachsCounter = 0
+			const addTrigger = $(`${baseSelector} [${baseAttr}="${addTriggerID}"]`)
+			const container = addTrigger.parent()
+			const template = document.querySelector('template[attach]').innerHTML
+			addTrigger.on('click', function (e) {
+				e.preventDefault()
+				attachsCounter++
+				const uniqueID = generateUniqueID()
+				const templateElement = $(template
+					.replace(/\{NUMBER\}/gim, attachsCounter)
+					.replace(/\{ID\}/gim, uniqueID)
+				)
+				const title = templateElement.find('.header > .title')
+				container.append(templateElement)
+				const attach = new AttachmentPlaceholder($(`${baseSelector} [${baseAttr}="${uniqueID}"]`))
+				attach.onSelected(function () {
+					triggerChange()
+				})
+				attach.setName(title.text())
+				attachments.push(attach)
+			})
 		}
 
 		function configTranslations() {

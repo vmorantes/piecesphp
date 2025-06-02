@@ -244,7 +244,10 @@ class ExifHelper
                 } elseif (count($parts) == 1) {
                     $segments[$segment] = $parts[0];
                 } else {
-                    $segments[$segment] = floatval($parts[0]) / floatval($parts[1]);
+                    $partOne = floatval($parts[0]);
+                    $partTwo = floatval($parts[1]);
+                    $areDifferentToZero = $partOne != 0 && $partTwo != 0;
+                    $segments[$segment] = $areDifferentToZero ? floatval($parts[0]) / floatval($parts[1]) : 0;
                 }
 
             }

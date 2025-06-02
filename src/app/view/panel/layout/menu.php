@@ -1,6 +1,6 @@
 <?php
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-$sidebarMenu = sidebar_menu();
+$sidebarMenu = get_sidebar_menu();
 ?>
 <div class="ui-pcs sidebar-toggle">
     <i class="icon bars"></i>
@@ -85,7 +85,6 @@ $sidebarMenu = sidebar_menu();
 
                             <?php endforeach; ?>
                         </div>
-
 
                     </div>
 

@@ -26,9 +26,17 @@ $container_configurations = [
         $cssGlobalVariables->setVariable('menu-color-mark', get_config('menu_color_mark'));
         $cssGlobalVariables->setVariable('menu-color-font', get_config('menu_color_font'));
         $cssGlobalVariables->setVariable('body-gradient', get_config('body_gradient'));
-
         $cssGlobalVariables->setVariable('main-brand-color-0-5', get_config('main_brand_color') . '80');
         $cssGlobalVariables->setVariable('main-brand-color-0-8', get_config('main_brand_color') . 'CC');
+
+        $fontFamilyGlobal = get_config('font_family_global');
+        if (is_string($fontFamilyGlobal) && mb_strlen($fontFamilyGlobal) > 0) {
+            $cssGlobalVariables->setVariable('font-family-global', $fontFamilyGlobal);
+        }
+        $fontFamilySidebars = get_config('font_family_sidebars');
+        if (is_string($fontFamilySidebars) && mb_strlen($fontFamilySidebars) > 0) {
+            $cssGlobalVariables->setVariable('font-family-sidebars', $fontFamilySidebars);
+        }
 
         //CSS de variables globales del área administrativa
         add_global_required_asset(get_route('admin-global-variables-css'), 'css');

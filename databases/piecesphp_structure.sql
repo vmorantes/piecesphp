@@ -1,4 +1,4 @@
--- Adminer 4.8.1 MySQL 10.11.8-MariaDB-0ubuntu0.24.04.1 dump
+-- Adminer 5.3.0 MariaDB 10.11.8-MariaDB-0ubuntu0.24.04.1 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -139,6 +139,61 @@ CREATE TABLE `forms_document_types` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
+DROP TABLE IF EXISTS `application_calls_attachments`;
+CREATE TABLE `application_calls_attachments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `applicationCall` int(11) NOT NULL,
+  `attachmentName` text NOT NULL,
+  `fileLocation` text NOT NULL,
+  `lang` text NOT NULL,
+  `folder` text NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `applicationCall` (`applicationCall`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `application_calls_attachments_ibfk_1` FOREIGN KEY (`applicationCall`) REFERENCES `application_calls_elements` (`id`),
+  CONSTRAINT `application_calls_attachments_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `application_calls_attachments_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
+DROP TABLE IF EXISTS `application_calls_elements`;
+CREATE TABLE `application_calls_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `contentType` text NOT NULL,
+  `financingType` text NOT NULL,
+  `currency` text NOT NULL,
+  `amount` double NOT NULL,
+  `participatingInstitutions` longtext NOT NULL,
+  `applicationLink` text NOT NULL,
+  `content` text NOT NULL,
+  `mainImage` text NOT NULL,
+  `thumbImage` text NOT NULL,
+  `folder` text NOT NULL,
+  `startDate` datetime DEFAULT NULL,
+  `endDate` datetime DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `application_calls_elements_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `application_calls_elements_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
 DROP TABLE IF EXISTS `image_repository_images`;
 CREATE TABLE `image_repository_images` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -165,6 +220,24 @@ CREATE TABLE `image_repository_images` (
   CONSTRAINT `image_repository_images_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `image_repository_images_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `image_repository_images_ibfk_5` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
+DROP TABLE IF EXISTS `interest_research_area`;
+CREATE TABLE `interest_research_area` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text DEFAULT NULL,
+  `areaName` text DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `interest_research_area_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `interest_research_area_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
@@ -330,17 +403,17 @@ CREATE TABLE `organizations_elements` (
   `name` text NOT NULL,
   `nit` text NOT NULL,
   `size` text DEFAULT NULL,
+  `activitySector` text DEFAULT NULL,
   `actionLines` longtext DEFAULT NULL,
   `esal` text DEFAULT NULL,
-  `state` int(11) DEFAULT NULL,
+  `country` int(11) DEFAULT NULL,
   `city` int(11) DEFAULT NULL,
   `address` text DEFAULT NULL,
   `phone` text DEFAULT NULL,
+  `linkedinLink` text DEFAULT NULL,
+  `websiteLink` text DEFAULT NULL,
   `informativeEmail` text DEFAULT NULL,
   `billingEmail` text DEFAULT NULL,
-  `contactName` text DEFAULT NULL,
-  `contactPhone` text DEFAULT NULL,
-  `contactEmail` text DEFAULT NULL,
   `logo` text DEFAULT NULL,
   `rut` text DEFAULT NULL,
   `folder` text NOT NULL,
@@ -351,14 +424,48 @@ CREATE TABLE `organizations_elements` (
   `status` int(11) NOT NULL,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `state` (`state`),
   KEY `city` (`city`),
   KEY `createdBy` (`createdBy`),
   KEY `modifiedBy` (`modifiedBy`),
-  CONSTRAINT `organizations_elements_ibfk_1` FOREIGN KEY (`state`) REFERENCES `locations_states` (`id`),
+  KEY `country` (`country`),
+  CONSTRAINT `organizations_elements_ibfk_1` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`),
   CONSTRAINT `organizations_elements_ibfk_2` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
   CONSTRAINT `organizations_elements_ibfk_3` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `organizations_elements_ibfk_4` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
+DROP TABLE IF EXISTS `organization_previous_experiences`;
+CREATE TABLE `organization_previous_experiences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text DEFAULT NULL,
+  `profile` int(11) NOT NULL,
+  `experienceName` text NOT NULL,
+  `experienceType` text NOT NULL,
+  `researchAreas` longtext NOT NULL,
+  `institutionsParticipated` longtext NOT NULL,
+  `country` int(11) NOT NULL,
+  `city` int(11) NOT NULL,
+  `startDate` date NOT NULL,
+  `endDate` date NOT NULL,
+  `description` text NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `profile` (`profile`),
+  KEY `country` (`country`),
+  KEY `city` (`city`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `organization_previous_experiences_ibfk_1` FOREIGN KEY (`profile`) REFERENCES `organizations_elements` (`id`),
+  CONSTRAINT `organization_previous_experiences_ibfk_2` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`),
+  CONSTRAINT `organization_previous_experiences_ibfk_3` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
+  CONSTRAINT `organization_previous_experiences_ibfk_4` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `organization_previous_experiences_ibfk_5` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
@@ -484,11 +591,45 @@ CREATE TABLE `persons` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
+DROP TABLE IF EXISTS `previous_experiences`;
+CREATE TABLE `previous_experiences` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text DEFAULT NULL,
+  `profile` int(11) NOT NULL,
+  `experienceName` text NOT NULL,
+  `experienceType` text NOT NULL,
+  `researchAreas` longtext NOT NULL,
+  `institutionsParticipated` longtext NOT NULL,
+  `country` int(11) NOT NULL,
+  `city` int(11) NOT NULL,
+  `startDate` date NOT NULL,
+  `endDate` date NOT NULL,
+  `description` text NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `profile` (`profile`),
+  KEY `country` (`country`),
+  KEY `city` (`city`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `previous_experiences_ibfk_1` FOREIGN KEY (`profile`) REFERENCES `user_system_profile` (`id`),
+  CONSTRAINT `previous_experiences_ibfk_2` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`),
+  CONSTRAINT `previous_experiences_ibfk_3` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
+  CONSTRAINT `previous_experiences_ibfk_4` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `previous_experiences_ibfk_5` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
 DROP TABLE IF EXISTS `publications_attachments`;
 CREATE TABLE `publications_attachments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `publication` int(11) NOT NULL,
-  `attachmentType` text NOT NULL,
+  `attachmentName` text NOT NULL,
   `fileLocation` text NOT NULL,
   `lang` text NOT NULL,
   `folder` text NOT NULL,
@@ -554,6 +695,28 @@ CREATE TABLE `publications_elements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
+DROP TABLE IF EXISTS `system_approvals_elements`;
+CREATE TABLE `system_approvals_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `referenceAlias` text NOT NULL,
+  `referenceValue` text NOT NULL,
+  `referenceTable` text NOT NULL,
+  `referenceDate` text NOT NULL,
+  `reason` text DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `approvalAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `approvalBy` bigint(20) DEFAULT NULL,
+  `status` text NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `approvalBy` (`approvalBy`),
+  CONSTRAINT `system_approvals_elements_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `system_approvals_elements_ibfk_2` FOREIGN KEY (`approvalBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
 DROP TABLE IF EXISTS `time_on_platform`;
 CREATE TABLE `time_on_platform` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -565,4 +728,38 @@ CREATE TABLE `time_on_platform` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
--- 2025-02-18 16:26:21
+DROP TABLE IF EXISTS `user_system_profile`;
+CREATE TABLE `user_system_profile` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text DEFAULT NULL,
+  `jobPosition` text DEFAULT NULL,
+  `phoneCode` text DEFAULT NULL,
+  `phoneNumber` text DEFAULT NULL,
+  `nationality` text DEFAULT NULL,
+  `linkedinLink` text DEFAULT NULL,
+  `websiteLink` text DEFAULT NULL,
+  `country` int(11) DEFAULT NULL,
+  `city` int(11) DEFAULT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
+  `belongsTo` bigint(20) NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `country` (`country`),
+  KEY `city` (`city`),
+  KEY `belongsTo` (`belongsTo`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `user_system_profile_ibfk_1` FOREIGN KEY (`country`) REFERENCES `locations_countries` (`id`),
+  CONSTRAINT `user_system_profile_ibfk_2` FOREIGN KEY (`city`) REFERENCES `locations_cities` (`id`),
+  CONSTRAINT `user_system_profile_ibfk_3` FOREIGN KEY (`belongsTo`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `user_system_profile_ibfk_4` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `user_system_profile_ibfk_5` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
+-- 2025-06-02 03:25:47 UTC

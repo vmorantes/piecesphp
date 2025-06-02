@@ -1,0 +1,97 @@
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
+
+.container-standard-table {
+    table {
+        tr {
+            td {
+                font-size: 16px;
+                line-height: 24px;
+                color: #707070;
+            }
+        }
+
+        .user-info {
+            display: grid;
+            grid-template-columns: auto auto;
+            justify-content: start;
+            align-items: center;
+            gap: 10px;
+
+            >.avatar {
+                width: 45px;
+                height: 45px;
+
+                img {
+                    border-radius: 100%;
+                    border: 4px solid #7AB1E8;
+                }
+
+                &.org {
+                    img {
+                        border: 4px solid #99C221;
+                    }
+                }
+            }
+
+            >.name {}
+        }
+
+        .area-tags {
+            display: flex;
+            align-items: center;
+            align-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .area-tag {
+            display: flex;
+            height: 32px;
+            padding: 4px 8px;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            color: #1B1C1D;
+            font-size: 14px;
+            line-height: 24px;
+            background-color: var(--area-color);
+        }
+
+    }
+
+    .custom-search {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: end;
+
+        .ui.form {
+            width: max-content;
+            max-width: 100%;
+            border-radius: 16px;
+            background: linear-gradient(0deg, rgba(112, 112, 112, 0.15) 0%, rgba(112, 112, 112, 0.15) 100%), #FFF;
+            padding: 15px 30px;
+
+            .field {
+                label {
+                    font-size: pxToRem(18);
+                    color: #1B1C1D;
+                    line-height: pxToRem(28);
+                }
+
+                .ui.input {
+                    font-size: pxToRem(16);
+                    line-height: pxToRem(24);
+
+                    input::placeholder {
+                        color: #707070;
+                    }
+                }
+            }
+        }
+    }
+}
+
+[share-action]{
+    cursor: pointer;
+}

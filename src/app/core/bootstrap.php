@@ -204,8 +204,8 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '6.3.4');
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '25-04-2025')->format('Y-m-d'));
+    define('APP_VERSION', '6.4.0');
+    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '02-06-2025')->format('Y-m-d'));
 }
 
 require $directories['utilities'];
@@ -231,7 +231,7 @@ if (is_array($config_pcs_php)) {
 require $directories['app_helpers'];
 require $directories['config_lang'];
 
-//Definir el lenguaje por defecto según el navegador
+//Definir el lenguaje por defecto según el navegador (antes de Config::init)
 if (get_config('default_lang_by_browser') === true) {
     $allowedLangs = get_config('allowed_langs');
     $allowedLangs = is_array($allowedLangs) ? $allowedLangs : ['es'];
@@ -240,6 +240,35 @@ if (get_config('default_lang_by_browser') === true) {
 }
 
 Config::init();
+
+//Definir el lenguaje actual según cookies (después de Config::init)
+if (get_config('lang_by_cookie') === true) {
+
+    $cookieName = get_config('cookie_lang_definer');
+    $cookieName = is_string($cookieName) && mb_strlen(trim($cookieName)) > 0 ? $cookieName : uniqid();
+    $urlParamLangName = 'i18n';
+
+    //Configurar cookie desde URL o usar el último valor
+    $i18nURLValue = isset($_GET) && array_key_exists($urlParamLangName, $_GET) ? $_GET[$urlParamLangName] : null;
+    $i18nURLValue = $i18nURLValue !== null ? $i18nURLValue : getCookie($cookieName);
+    $selectedLang = null;
+    if (is_string($i18nURLValue)) {
+        if ($i18nURLValue == 'default') {
+            setCookieByConfig($cookieName, null);
+        } else {
+            $selectedLang = $i18nURLValue;
+            setCookieByConfig($cookieName, $i18nURLValue);
+        }
+    }
+
+    //Definir el idioma
+    $allowedLangs = get_config('allowed_langs');
+    $allowedLangs = is_array($allowedLangs) ? $allowedLangs : ['es'];
+    $selectedLang = is_string($selectedLang) ? $selectedLang : '-1';
+    if (in_array($selectedLang, $allowedLangs)) {
+        set_config('app_lang', $selectedLang);
+    }
+}
 
 if (file_exists($directories['custom_functions'])) {
     require $directories['custom_functions'];

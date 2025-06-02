@@ -1,8 +1,9 @@
 class PiecesPHPGenericHandlerSession {
 
-	constructor(tokenName, onLogout) {
+	constructor(tokenName, onLogout, expectedLang) {
 		this.tokenName = tokenName
-		this.onLogout = typeof onLogout == 'function' ? onLogout : () => {}
+		this.onLogout = typeof onLogout == 'function' ? onLogout : () => { }
+		this.expectedLang = typeof expectedLang == 'string' && expectedLang.trim().length > 0 ? expectedLang : null
 		this.verifyPairLocalStorageAndCookieSession()
 	}
 
@@ -19,7 +20,7 @@ class PiecesPHPGenericHandlerSession {
 		 * Si es null, no se hace nada
 		 */
 		currentJWTFromCookie = typeof currentJWTFromCookie == 'string' ? [currentJWTFromCookie] : currentJWTFromCookie
-		currentJWTFromCookie = Array.isArray(currentJWTFromCookie) ? currentJWTFromCookie.filter((value) => { return typeof value === "string" && value.length > 0}) : currentJWTFromCookie
+		currentJWTFromCookie = Array.isArray(currentJWTFromCookie) ? currentJWTFromCookie.filter((value) => { return typeof value === "string" && value.length > 0 }) : currentJWTFromCookie
 		currentJWTFromCookie = Array.isArray(currentJWTFromCookie) && currentJWTFromCookie.every(value => value === currentJWTFromCookie[0]) ? currentJWTFromCookie[0] : null
 
 		if (currentJWT == '' && currentJWTFromCookie !== null) {
@@ -260,6 +261,9 @@ class PiecesPHPGenericHandlerSession {
 
 		mapHeaders.set(this.tokenName, this.getJWT())
 		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
+		if (this.expectedLang !== null) {
+			mapHeaders.set('PCSPHP-Response-Expected-Language', this.expectedLang)
+		}
 
 		return mapHeaders
 

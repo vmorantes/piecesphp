@@ -1,18 +1,17 @@
 <?php
-
 namespace App\LangMessages;
 
 //Hereda los mensajes que estan en lang/default.php
 $lang = [
     'lang' => [
-        'es' => 'Spagnolo',
-        'en' => 'Inglese',
-        'fr' => 'Francese',
-        'de' => 'Tedesco',
-        'it' => 'Italiano',
-        'pt' => 'Portoghese',
-        'Idioma' => 'Lingua',
-        'Idiomas' => 'Lingue',
+        'es'               => 'Spagnolo',
+        'en'               => 'Inglese',
+        'fr'               => 'Francese',
+        'de'               => 'Tedesco',
+        'it'               => 'Italiano',
+        'pt'               => 'Portoghese',
+        'Idioma'           => 'Lingua',
+        'Idiomas'          => 'Lingue',
         'Idioma principal' => 'Lingua principale',
     ],
     'langShort' => [
@@ -124,6 +123,7 @@ $lang = [
         'INACTIVE_USER'                => 'L\'utente "%1$s" è disattivato.',
         'ORGANIZATION_IS_NOT_ACTIVE'   => 'L\'organizzazione "%1$s" non è attiva.',
         'INVALID_TWO_FACTOR_CODE'      => 'Codice di autenticazione a due fattori non valido.',
+        'APPROVED_PENDING'             => 'In attesa di approvazione',
     ],
     'avatarModule' => [
         'Ha ocurrido un error desconocido, intente más tarde.' => 'Si è verificato un errore sconosciuto, riprova più tardi.',
@@ -186,12 +186,14 @@ $lang = [
         'Algo está mal aquí'                                             => 'Qualcosa non va qui',
         'El enlace al que intenta ingresar ya no existe o fue cambiado.' => 'Il link che stai cercando di aprire non esiste più o è stato modificato.',
         'Ir a Inicio'                                                    => 'Vai alla Home',
+        "Reportar problema"                                              => "Segnala un problema",
     ],
     'page403' => [
         '403 - Acceso denegado'                                                => '403 - Accesso negato',
         'Algo está mal aquí'                                                   => 'Qualcosa non va qui',
         'El enlace al que intenta ingresar no está disponible para su acceso.' => 'Il link che stai cercando di aprire non è disponibile per il tuo accesso.',
         'Ir a Inicio'                                                          => 'Vai alla Home',
+        "Reportar problema"                                                    => "Segnala un problema",
     ],
     'page503' => [
         '503 - En mantenimiento'                                   => '503 - In manutenzione',
@@ -214,21 +216,6 @@ $lang = [
         'Ha ocurrido un error inesperado.'                                      => 'Si è verificato un errore imprevisto.',
         'El enlace tendrá validez de una hora.'                                 => 'Il link sarà valido per un\'ora.',
         'Responder'                                                             => 'Rispondi',
-    ],
-    'loginReport' => [
-        'Registro de ingresos'           => 'Registro accessi',
-        'Usuarios que han ingresado'     => 'Utenti che hanno effettuato l\'accesso',
-        'Usuarios que no han ingresado'  => 'Utenti che non hanno effettuato l\'accesso',
-        'Registro de intentos de inicio' => 'Registro tentativi di accesso',
-        'Nombre'                         => 'Nome',
-        'Último acceso'                  => 'Ultimo accesso',
-        'Tiempo en plataforma'           => 'Tempo sulla piattaforma',
-        'ID'                             => 'ID',
-        'Usuario ingresado'              => 'Utente loggato',
-        'Intento exitoso'                => 'Tentativo riuscito',
-        'Información'                    => 'Informazione',
-        'IP'                             => 'IP',
-        'Fecha'                          => 'Data',
     ],
     'mailTemplates' => [
         'Mensaje'                              => 'Messaggio',

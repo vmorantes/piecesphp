@@ -73,7 +73,6 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         if (GoogleReCaptchaV3Routes::ENABLE) {
             import_google_captcha_v3_adapter();
         }
-        add_global_asset('statics/fonts/abhaya/abhaya.css', 'font');
     }
 
     /**
@@ -187,6 +186,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             'statics/css/style.css',
         ];
         $js = [
+            PublicationsController::pathFrontPublicationsAdapter(),
             'statics/js/CustomNamespace.js',
             'statics/js/main.js',
         ];
@@ -198,6 +198,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             'res' => $res,
             'args' => $args,
             'langGroup' => LANG_GROUP,
+            'ajaxArticlesURL' => PublicationsPublicController::routeName('ajax-all', [], true),
         ];
 
         $availableView = self::genericViewsConfigurations();
@@ -325,7 +326,12 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
      */
     public static function genericViewExists(string $name, ?string $folder = null)
     {
-        $name = $folder !== null ? "{$folder}/{$name}" : $name;
+
+        $folder = is_string($folder) && mb_strlen(trim($folder)) > 0 ? trim($folder) : null;
+        $name = mb_strlen(trim($name)) > 0 ? __(self::LANG_REPLACE_GENERIC_TITLES, trim($name)) : null;
+        if ($folder !== null) {
+            $name = "{$folder}/{$name}";
+        }
         $exists = false;
         $availableView = self::genericViewsConfigurations();
 

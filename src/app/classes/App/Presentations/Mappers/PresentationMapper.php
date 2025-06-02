@@ -284,7 +284,7 @@ class PresentationMapper extends EntityMapperExtensible
     /**
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = (new PresentationMapper);

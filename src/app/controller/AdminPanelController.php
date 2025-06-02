@@ -70,7 +70,8 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
     public function indexView(Request $req, Response $res)
     {
         if (MySpaceRoutes::ENABLE) {
-            return $res->withRedirect(MySpaceController::routeName('my-space'));
+            $controller = new MySpaceController();
+            return $controller->mySpaceView($req, $res);
         } else {
 
             add_global_asset('statics/core/css/dashboard.css', 'css');
@@ -128,7 +129,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
         $file = LOG_ERRORS_PATH . '/error.log.json';
         $log = file_exists($file) ? file_get_contents($file) : '';
         $log = json_decode($log, true);
-        if (json_last_error() != \JSON_ERROR_NONE || !is_array($log)) {
+        if (json_last_error() != \JSON_ERROR_NONE  || !is_array($log)) {
             $log = [];
         }
         return $res->withJson($log);

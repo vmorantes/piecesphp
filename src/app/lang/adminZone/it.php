@@ -14,7 +14,6 @@ $lang = [
     'Registro de ingresos' => 'Registro accessi',
     'Agregar usuario' => 'Aggiungi utente',
     'Gestionar usuarios' => 'Gestione utenti',
-    'Log de errores' => 'Log errori',
     'Importar usuarios' => 'Importa utenti',
     'Acerca de' => 'Informazioni',
     'Editar foto' => 'Modifica foto',
@@ -43,6 +42,11 @@ $lang = [
     'Administrativo' => 'Amministrativo',
     'Opciones de seguridad' => 'Opzioni di sicurezza',
     'Plataforma' => 'Piattaforma',
+    "Idiomas" => "Lingue",
+    "Cambio de usuario" => "Cambio utente",
+    "Cambiar idioma" => "Cambia lingua",
+    "Cambiar" => "Cambia",
+    "Seleccionar usuario" => "Seleziona utente",
 ];
 
 return $lang;

@@ -79,9 +79,10 @@ class NewsletterRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(NewsletterLang::LANG_GROUP, 'Suscriptores'),
@@ -89,7 +90,7 @@ class NewsletterRoutes
                 'asLink' => true,
                 'href' => NewsletterController::routeName('list'),
                 'visible' => NewsletterController::allowedRoute('list'),
-                'position' => 20,
+                'position' => 150,
             ]));
 
         }

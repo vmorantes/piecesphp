@@ -103,7 +103,7 @@ class TerminalController extends AdminPanelController
             $dbPassword = $db->getPassword();
             $dbPassword = $dbPassword !== null ? $dbPassword : '';
 
-            $dumpSettingsDefault = array(
+            $dumpSettingsDefault = [
                 'compress' => $gz ? Mysqldump::GZIP : Mysqldump::NONE,
                 'add-drop-table' => true,
                 'default-character-set' => Mysqldump::UTF8,
@@ -111,7 +111,7 @@ class TerminalController extends AdminPanelController
                 'single-transaction' => true,
                 'skip-definer' => true,
                 'disable-foreign-keys-check' => true,
-            );
+            ];
 
             if ($dbUser !== null) {
 
@@ -454,6 +454,92 @@ class TerminalController extends AdminPanelController
     /**
      * @return void
      */
+    public function scanMissinLangMessages()
+    {
+
+        //Parámetros
+        $arguments = TerminalData::getInstance()->arguments();
+
+        $excludeLangName = '--exclude-lang';
+        $excludeLang = isset($arguments[$excludeLangName]) && is_string($arguments[$excludeLangName]) ? explode(',', $arguments[$excludeLangName]) : [];
+
+        $ignoreGroupName = '--exclude-group';
+        $ignoreGroup = isset($arguments[$ignoreGroupName]) && is_string($arguments[$ignoreGroupName]) ? explode(',', $arguments[$ignoreGroupName]) : [];
+
+        $noScanLangs = get_config('no_scan_langs');
+        $noScanLangs = is_array($noScanLangs) ? $noScanLangs : [];
+        $excludeLang = array_merge($excludeLang, $noScanLangs);
+
+        //Mensaje de respuesta
+        $titleTask = "Examinando mensajes de traducción faltantes";
+        $message = [
+            "\e[32m*** {$titleTask} ***\e[39m",
+        ];
+        $missingMessagesBaseFolderName = 'lang/missing-lang-messages';
+        $missingMessagesBaseFolderPath = app_basepath("{$missingMessagesBaseFolderName}");
+
+        //──── Acciones ──────────────────────────────────────────────────────────────────────────
+        try {
+
+            if (file_exists($missingMessagesBaseFolderPath)) {
+
+                $messagesFiles = glob($missingMessagesBaseFolderPath . '/*/*/*.to-translate');
+                $messagesDataByLang = [];
+
+                foreach ($messagesFiles as $messageFile) {
+
+                    $messageFileRelative = trim(str_replace($missingMessagesBaseFolderPath, '', $messageFile));
+                    $messageText = file_get_contents($messageFile);
+                    $messageData = array_values(array_filter(explode('/', $messageFileRelative), fn($e) => is_string($e) && mb_strlen(trim($e)) > 0));
+
+                    if (count($messageData) == 3) {
+                        $groupName = $messageData[0];
+                        $lang = $messageData[1];
+                        if (in_array($lang, $excludeLang)) {
+                            continue;
+                        }
+                        if (in_array($groupName, $ignoreGroup)) {
+                            continue;
+                        }
+                        if (!array_key_exists($lang, $messagesDataByLang)) {
+                            $messagesDataByLang[$lang] = [];
+                        }
+                        if (!array_key_exists($groupName, $messagesDataByLang[$lang])) {
+                            $messagesDataByLang[$lang][$groupName] = [];
+                        }
+                        if (!array_key_exists($messageText, $messagesDataByLang[$lang][$groupName])) {
+                            $messagesDataByLang[$lang][$groupName][$messageText] = $messageText;
+                        }
+                    }
+
+                    $message[] = "\e[34mLeyendo: {$messageFileRelative}\e[39m";
+                }
+
+                $fileMissingLangMessagePath = app_basepath("logs/missing-lang-messages.json");
+                if (!file_exists($fileMissingLangMessagePath)) {
+                    touch($fileMissingLangMessagePath);
+                    chmod($fileMissingLangMessagePath, 0777);
+                }
+                file_put_contents($fileMissingLangMessagePath, json_encode($messagesDataByLang, \JSON_PRETTY_PRINT  | \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
+                $message[] = "\e[34mArchivo generado en: {$fileMissingLangMessagePath}\e[39m";
+            }
+
+        } catch (\Exception $e) {
+
+            $message[] = "\e[31mHa ocurrido un error: {$e->getMessage()}\e[39m";
+            log_exception($e);
+
+        }
+
+        $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
+        if (count($message) > 1) {
+            echoTerminal(implode("\r\n", $message));
+        }
+    }
+
+    /**
+     * @return void
+     */
     public function help()
     {
 
@@ -670,6 +756,22 @@ class TerminalController extends AdminPanelController
                     'route' => "{$startRoute}/clean-all[/]",
                     'controller' => $classname . ':cleanAll',
                     'name' => self::$baseRouteName . '-clean-all',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                [
+                    'description' => [
+                        "Revisa los mensajes faltantes por traducción y genera un archivo php con ellos.\r\n",
+                        "\tParámetros:\r\n",
+                        "\t  N/A",
+                    ],
+                    'route' => "{$startRoute}/scan-missing-lang[/]",
+                    'controller' => $classname . ':scanMissinLangMessages',
+                    'name' => self::$baseRouteName . '-scan-missing-lang',
                     'method' => 'GET',
                     'requireLogin' => true,
                     'alias' => null,
