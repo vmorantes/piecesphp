@@ -13,7 +13,7 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
         <div class="columns two">
             <div class="column">
                 <div class="section-title">
-                    <div class="title"><?= __($langGroup, $tittle); ?></div>
+                    <div class="title"><?= __($langGroup, $title); ?></div>
                 </div>
             </div>
         </div>
@@ -54,9 +54,10 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
             <thead>
                 <tr>
                     <th><?= __($langGroup, 'ID'); ?></th>
+                    <th><?= __($langGroup, 'Usuario'); ?></th>
                     <th><?= __($langGroup, 'Nombre'); ?></th>
-                    <th><?= __($langGroup, 'Último acceso'); ?></th>
-                    <th><?= __($langGroup, 'Tiempo en plataforma'); ?></th>
+                    <th order="true"><?= __($langGroup, 'Último acceso'); ?></th>
+                    <th order="true"><?= __($langGroup, 'Tiempo en plataforma'); ?></th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -65,25 +66,25 @@ $langGroup = LOGIN_REPORT_LANG_GROUP;
 </section>
 
 <script>
-    window.onload = function(e) {
-        $('.tabular.menu .item').tab()
-        let tableLogged = $('table.ui.table.logged')
-        dataTableServerProccesing(tableLogged, tableLogged.attr('process'), 25, {
-            drawCallback: function({
-                jqXHR
-            }) {
-                const {
-                    responseJSON: {
-                        recordsFiltered,
-                        rawData
-                    }
-                } = jqXHR
-                const totalUsers = `<?= $totalUsers ?>`
-                const percent = Math.round((recordsFiltered * 100) / totalUsers)
-                $('.rounded-chart').css('--percentage', percent)
-                $('.rounded-chart > .content > span').text(percent + '%')
-                $('[total-users]').text(recordsFiltered)
-            },
-        })
-    }
+window.onload = function(e) {
+    $('.tabular.menu .item').tab()
+    let tableLogged = $('table.ui.table.logged')
+    dataTableServerProccesing(tableLogged, tableLogged.attr('process'), 25, {
+        drawCallback: function({
+            jqXHR
+        }) {
+            const {
+                responseJSON: {
+                    recordsFiltered,
+                    rawData
+                }
+            } = jqXHR
+            const totalUsers = `<?= $totalUsers ?>`
+            const percent = Math.round((recordsFiltered * 100) / totalUsers)
+            $('.rounded-chart').css('--percentage', percent)
+            $('.rounded-chart > .content > span').text(percent + '%')
+            $('[total-users]').text(recordsFiltered)
+        },
+    })
+}
 </script>

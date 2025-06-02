@@ -10,4 +10,7 @@ return [
     "No pudo efectuarse la traducción, intente más tarde." => "La traduzione non è riuscita, riprova più tardi.",
     "Ha ocurrido un error con el servicio de traducción, intente más tarde." => "Si è verificato un errore con il servizio di traduzione, riprova più tardi.",
     "Solicitud de restablecimiento de contraseña." => "Richiesta di reimpostazione della password.",
+    "Aprobaciones" => "Approvazioni",
+    "Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación." => "Gentile {NAME}, la informiamo che il suo account utente è stato creato ed è in attesa di approvazione. Per ora può accedere e completare il suo profilo per accelerare il processo di approvazione.",
+    "Iniciar sesión" => "Accedi",
 ];

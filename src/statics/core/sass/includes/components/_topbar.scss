@@ -1,3 +1,5 @@
+$fontModule: $fontSidebars;
+
 .topbar-content {
     $w: 320px;
     position: absolute;
@@ -185,7 +187,7 @@
                 }
 
                 .names {
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                     font-weight: $fwSemiBold;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+5);
@@ -201,7 +203,7 @@
 
                 .text {
 
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                     font-weight: $fwRegular;
                     font-size: pxToRem(15);
                     line-height: pxToRem(15+5);
@@ -282,7 +284,7 @@
                     column-gap: 1rem;
                     padding: 1rem 0rem 1rem 1.5rem;
                     text-decoration: none;
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                     font-weight: $fwRegular;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+5);
@@ -331,7 +333,7 @@
 
                 >.section-title {
                     position: relative;
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                     font-weight: $fwSemiBold;
                     font-size: pxToRem(18);
                     line-height: pxToRem(18+5);
@@ -364,7 +366,7 @@
                     column-gap: 1rem;
                     padding: 0.5rem 0rem 0.5rem 3rem;
                     text-decoration: none;
-                    font-family: $fontPublicSans;
+                    font-family: $fontModule;
                     font-weight: $fwRegular;
                     font-size: pxToRem(15);
                     line-height: pxToRem(15+5);
@@ -486,125 +488,142 @@
 }
 
 
-.#{$globalClassPcs}.topbar-toggle {
+.#{$globalClassPcs}.topbar-switches {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 15px;
     position: absolute;
     top: 0px;
     right: 0px;
     z-index: 99;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-family: $fontPoppins;
 
-    &.user-options {
-        width: 175px;
-        height: 50px;
-        right: 0;
-        border-radius: 25px 0px 0px 25px;
-        background-color: var(--bg-tools-buttons);
+    >.topbar-toggle {
 
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 15px 0 5px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-family: $fontModule;
 
-        .current-user-info {
+        &.user-options {
+            width: 175px;
+            height: 50px;
+            border-radius: 25px 0px 0px 25px;
+            background-color: var(--bg-tools-buttons);
+
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
             align-items: center;
+            padding: 0 15px 0 5px;
 
-            .image {
-                width: 40px;
-                min-width: 40px;
-                height: 40px;
-                border-radius: 100%;
-                background-repeat: no-repeat;
-                background-size: cover;
-                background-position: center center;
-                background-color: var(--main-brand-color);
+            .current-user-info {
+                display: flex;
+                gap: 10px;
+                align-items: center;
 
-                display: grid;
-                place-content: center;
-
-                >img {
-                    border-radius: 100%;
+                .image {
                     width: 40px;
+                    min-width: 40px;
                     height: 40px;
+                    border-radius: 100%;
+                    background-repeat: no-repeat;
+                    background-size: cover;
+                    background-position: center center;
+                    background-color: var(--main-brand-color);
+
+                    display: grid;
+                    place-content: center;
+
+                    >img {
+                        border-radius: 100%;
+                        width: 40px;
+                        height: 40px;
+                    }
+
+                    >i {
+                        margin: 0;
+                        padding: 0;
+                        color: white;
+                        font-size: pxToRem(20);
+                    }
                 }
 
-                >i {
+                >span {
+                    max-width: 100px;
+                    max-height: 50px;
+                    color: var(--main-brand-color);
+                    font-size: 14px;
+                }
+
+            }
+
+            >i {
+                color: var(--main-brand-color);
+                margin: 0;
+                padding: 0;
+                font-size: pxToRem(20);
+            }
+
+        }
+
+        &.admin-options {
+            display: grid;
+            place-content: center;
+            background-color: var(--bg-tools-buttons);
+
+            >.icon {
+                border-radius: 100%;
+                color: var(--main-brand-color);
+                font-size: pxToRem(20);
+
+                >i.icon {
                     margin: 0;
                     padding: 0;
-                    color: white;
-                    font-size: pxToRem(20);
                 }
             }
+        }
 
-            >span {
-                max-width: 100px;
-                max-height: 50px;
+        &.notifications-options {
+            display: grid;
+            place-content: center;
+            background-color: var(--bg-tools-buttons);
+
+            >.icon {
+                color: white;
+                border-radius: 100%;
                 color: var(--main-brand-color);
-                font-size: 14px;
+                font-size: pxToRem(20);
+
+                >i.icon {
+                    margin: 0;
+                    padding: 0;
+                }
             }
-
         }
 
-        >i {
-            color: var(--main-brand-color);
-            margin: 0;
-            padding: 0;
-            font-size: pxToRem(20);
-        }
+        &.exit-as-logged-options {
+            display: grid;
+            place-content: center;
+            background-color: var(--bg-tools-buttons);
 
-    }
+            >.icon {
+                color: white;
+                border-radius: 100%;
+                color: var(--main-brand-color);
+                font-size: pxToRem(20);
 
-    &.admin-options {
-        display: grid;
-        place-content: center;
-        top: 4px;
-        background-color: var(--bg-tools-buttons);
-        right: 235px;
-
-        &.is-unique {
-            right: 185px;
-        }
-
-        >.icon {
-            border-radius: 100%;
-            color: var(--main-brand-color);
-            font-size: pxToRem(20);
-
-            >i.icon {
-                margin: 0;
-                padding: 0;
+                >i.icon {
+                    margin: 0;
+                    padding: 0;
+                }
             }
         }
     }
-
-    &.notifications-options {
-        display: grid;
-        place-content: center;
-        top: 4px;
-        background-color: var(--bg-tools-buttons);
-        right: 185px;
-
-        >.icon {
-            color: white;
-            border-radius: 100%;
-            color: var(--main-brand-color);
-            font-size: pxToRem(20);
-
-            >i.icon {
-                margin: 0;
-                padding: 0;
-            }
-        }
-    }
-
 }
 
-.profile-content {
+.profile-content-system {
     position: absolute;
     z-index: 99;
     right: 0;
@@ -825,7 +844,7 @@
     padding-block: 15px !important;
 
     >.content {
-        font-family: $fontPoppins;
+        font-family: $fontModule;
 
         >.info-content {
             width: 100%;
@@ -849,4 +868,36 @@
         }
     }
 
+}
+
+.ui.modal {
+
+    &[change-system-lang-modal],
+    &[connect-as-another-user-modal] {
+        width: 600px;
+        max-width: 100%;
+        height: 400px;
+        max-height: 100%;
+
+        >.content {
+            display: grid;
+            grid-template-columns: 100%;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100%;
+
+            .ui.form {
+                display: grid;
+                grid-template-columns: 100%;
+                justify-content: center;
+                align-items: center;
+                gap: 35px;
+                text-align: center;
+                width: 100%;
+                max-width: 375px;
+                margin: 0 auto;
+            }
+        }
+    }
 }

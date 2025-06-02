@@ -6,7 +6,6 @@
 
 namespace PiecesPHP\UserSystem;
 
-use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -89,11 +88,6 @@ class UserSystemFeaturesRoutes
             }
 
             $currentUserType = (int) $currentUser->type;
-
-            /**
-             * @var MenuGroupCollection $sidebar
-             */
-            $sidebar = get_config('menus')['sidebar'];
 
         }
 

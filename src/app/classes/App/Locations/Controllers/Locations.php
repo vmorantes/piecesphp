@@ -7,6 +7,7 @@
 namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Locations\LocationsLang;
 use App\Model\UsersModel;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -34,11 +35,14 @@ class Locations extends AdminPanelController
      */
     public static $title = 'Ubicaciones';
 
+    protected HelperController $helperController;
+
     /**
      * @return static
      */
     public function __construct()
     {
+        $this->helperController = new HelperController();
         self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
 
         parent::__construct();
@@ -52,9 +56,66 @@ class Locations extends AdminPanelController
      */
     public function indexView(Request $request, Response $response)
     {
-        $this->render('panel/layout/header');
-        $this->render('panel/' . self::$prefixEntity . '/main');
-        $this->render('panel/layout/footer');
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixEntity . '/main');
+        $this->helperController->render('panel/layout/footer');
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function generateLangFile(Request $request, Response $response)
+    {
+        $regionsController = new Region();
+        $countriesController = new Country();
+        $statesController = new State();
+        $citiesController = new City();
+        $pointsController = new Point();
+
+        $regions = $regionsController->regions($request, $response);
+        $countries = $countriesController->countries($request, $response);
+        $states = $statesController->states($request, $response);
+        $cities = $citiesController->cities($request, $response);
+        $points = $pointsController->points($request, $response);
+
+        $data = [
+            'regions' => $regions->getRawJsonDataInserted(),
+            'countries' => $countries->getRawJsonDataInserted(),
+            'states' => $states->getRawJsonDataInserted(),
+            'cities' => $cities->getRawJsonDataInserted(),
+            'points' => $points->getRawJsonDataInserted(),
+        ];
+
+        $dataToTranslation = [];
+
+        foreach ($data as $type => $elements) {
+            foreach ($elements as $element) {
+                $name = $element->name;
+                $description = property_exists($element, 'description') && is_string($element->description) ? $element->description : null;
+                if (is_string($name)) {
+                    $dataToTranslation[$name] = $name;
+                    if ($description !== null) {
+                        $dataToTranslation[$description] = $description;
+                    }
+                } else {
+                    continue;
+                }
+            }
+        }
+
+        $strToPHPFile = "<?php\n";
+        $strToPHPFile .= "return [\n";
+        foreach ($dataToTranslation as $key => $value) {
+            $strToPHPFile .= "\t'{$key}' => '{$value}',\n";
+        }
+        $strToPHPFile .= "];\n";
+
+        $response = $response->withHeader('Content-Type', 'text/plain');
+        $response = $response->write($strToPHPFile);
+
         return $response;
     }
 
@@ -65,6 +126,7 @@ class Locations extends AdminPanelController
     public static function routes(RouteGroup $group)
     {
         $group->active(LOCATIONS_ENABLED);
+        LocationsLang::injectLang();
 
         $routes = [];
 
@@ -73,17 +135,22 @@ class Locations extends AdminPanelController
         $lastIsBar = last_char($groupSegmentURL) == '/';
         $startRoute = $lastIsBar ? '' : '/';
 
+        $permisos_traducciones = [
+            UsersModel::TYPE_USER_ROOT,
+        ];
+
         $permisos_gestion = [
             UsersModel::TYPE_USER_ROOT,
         ];
 
         $permisos_listado = [
-            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_ROOT,
         ];
 
         //General
         $routes[] = new Route("[$startRoute]", static::class . ':indexView', self::$prefixEntity, 'GET', true, null, $permisos_listado);
+        $routes[] = new Route("/generate-lang-file[/]", static::class . ':generateLangFile', self::$prefixEntity . '-generate-lang-file', 'GET', true, null, $permisos_traducciones);
 
         $group->register($routes);
 

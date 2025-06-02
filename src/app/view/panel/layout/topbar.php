@@ -2,18 +2,45 @@
 defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
+use App\Model\UsersModel;
 use MySpace\Controllers\MySpaceController;
+use News\NewsLang;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
+use Spatie\Url\Url as URLManager;
 
-$role = Roles::getCurrentRole();
-$currentUserType = !is_null($role) ? $role['code'] : null;
+$currentUser = getLoggedFrameworkUser();
+$currentUserID = $currentUser->id;
+$currentUserType = $currentUser->type;
+$isRoot = $currentUserType == UsersModel::TYPE_USER_ROOT;
+$asUserLoggedID = get_config(ROOT_ID_AS_CONNECT_CONFIG_NAME);
+$rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
+$isLoggedOtherUser = $asUserLoggedID !== $rootOriginalID;
+$currentLang = Config::get_lang();
+$allowedLangs = Config::get_allowed_langs();
+$manyLangs = count($allowedLangs) > 1;
+$alternativesURL = Config::get_config('alternatives_url');
+$searchUsersURL = URLManager::fromString(get_route('users-search-dropdown'));
+$searchUsersURL = $searchUsersURL->withQueryParameter('search', '{query}');
+$searchUsersURL = $searchUsersURL->withQueryParameter('typeResult', 'RESULT_FULLNAME_USERNAME');
+$searchUsersURL = urldecode($searchUsersURL->__toString());
 
 $userOptions = new MenuGroupCollection([
     'items' => [
+        new MenuGroup([
+            'name' => __(AdminPanelController::LANG_GROUP, 'Idiomas'),
+            'icon' => 'globe',
+            'href' => baseurl() . '?changeLang',
+            'visible' => $manyLangs,
+            'asLink' => true,
+            'attributes' => [
+                'change-system-lang-trigger' => '',
+            ],
+        ]),
         new MenuGroup([
             'name' => __(AdminPanelController::LANG_GROUP, 'Acerca de'),
             'icon' => 'desktop',
@@ -29,6 +56,26 @@ $userOptions = new MenuGroupCollection([
                 'support-button-js' => '',
             ],
             'visible' => Roles::hasPermissions('tickets-create', $currentUserType) && false,
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Conectar como otro usuario'),
+            'icon' => 'users',
+            'href' => '#',
+            'attributes' => [
+                'connect-as-another-user-trigger' => '',
+            ],
+            'visible' => $isRoot,
+            'asLink' => true,
+        ]),
+        new MenuGroup([
+            'name' => __(ADMIN_MENU_LANG_GROUP, 'Volver a mi usuario'),
+            'icon' => 'exchange alternate',
+            'href' => '#',
+            'attributes' => [
+                'exit-as-logged-options' => '',
+            ],
+            'visible' => $isLoggedOtherUser,
             'asLink' => true,
         ]),
         new MenuGroup([
@@ -262,35 +309,45 @@ $hasAvatar = $currentUser->hasAvatar;
 $avatar = $currentUser->avatar;
 ?>
 
-<div class="ui-pcs topbar-toggle user-options">
-    <div class="current-user-info">
-        <div class="image">
-            <?php if ($hasAvatar) : ?>
-            <img src="<?= $avatar; ?>">
-            <?php else : ?>
-            <i class="icon user outline"></i>
-            <?php endif; ?>
+<div class="ui-pcs topbar-switches">
+    <div class="ui-pcs topbar-toggle user-options">
+        <div class="current-user-info">
+            <div class="image">
+                <?php if ($hasAvatar) : ?>
+                <img src="<?= $avatar; ?>">
+                <?php else : ?>
+                <i class="icon user outline"></i>
+                <?php endif; ?>
+            </div>
+            <span><?= $currentUser->firstname . ' ' . $currentUser->firstLastname; ?></span>
         </div>
-        <span><?= $currentUser->firstname . ' ' . $currentUser->firstLastname; ?></span>
+        <i class="angle down icon"></i>
     </div>
-    <i class="angle down icon"></i>
-</div>
 
-<?php if ($withNews) : ?>
-<div class="ui-pcs topbar-toggle notifications-options">
-    <div class="icon">
-        <i class="bell outline icon"></i>
+    <?php if ($withNews) : ?>
+    <div class="ui-pcs topbar-toggle notifications-options">
+        <div class="icon">
+            <i class="bell outline icon"></i>
+        </div>
     </div>
-</div>
-<?php endif; ?>
+    <?php endif; ?>
 
-<?php if ($withAdminOptions) : ?>
-<div class="ui-pcs topbar-toggle admin-options <?= $withAdminOptions && !$withNews ? 'is-unique' : ''; ?>">
-    <div class="icon">
-        <i class="cog icon"></i>
+    <?php if ($withAdminOptions) : ?>
+    <div class="ui-pcs topbar-toggle admin-options">
+        <div class="icon">
+            <i class="cog icon"></i>
+        </div>
     </div>
+    <?php endif; ?>
+
+    <?php if ($isLoggedOtherUser) : ?>
+    <div class="ui-pcs topbar-toggle exit-as-logged-options">
+        <div class="icon">
+            <i class="exchange alternate icon"></i>
+        </div>
+    </div>
+    <?php endif; ?>
 </div>
-<?php endif; ?>
 
 <div class="topbar-content close">
 
@@ -420,7 +477,7 @@ $avatar = $currentUser->avatar;
 </div>
 <?php endif; ?>
 
-<div class="profile-content">
+<div class="profile-content-system">
 
     <div class="close">
         <i close-profile class="times icon"></i>
@@ -535,7 +592,49 @@ $avatar = $currentUser->avatar;
     <div class="header"></div>
     <div class="content"></div>
     <div class="actions">
-        <div class="ui cancel button primary">Ok</div>
+        <div class="ui cancel button primary"><?= __(NewsLang::LANG_GROUP, 'Cerrar'); ?></div>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if($manyLangs): ?>
+<div class="ui modal" change-system-lang-modal data-lang-cookie="<?= get_config('cookie_lang_definer'); ?>">
+    <div class="content">
+        <form class="ui form">
+            <div class="section-fields-divider">
+                <div class="title s24"><?= __(AdminPanelController::LANG_GROUP, 'Cambiar idioma'); ?></div>
+            </div>
+            <div class="field">
+                <select name="lang" class="ui dropdown search auto">
+                    <?php foreach($alternativesURL as $lang => $url): ?>
+                    <option <?= $lang == $currentLang ? 'selected' : ''; ?> value="<?= $lang; ?>"><?= __('lang', $lang); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="field">
+                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::LANG_GROUP, 'Cambiar'); ?></button>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if($isRoot): ?>
+<div class="ui modal" connect-as-another-user-modal data-as-user-cookie="<?= CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME; ?>">
+    <div class="content">
+        <form class="ui form">
+            <div class="section-fields-divider">
+                <div class="title s24"><?= __(AdminPanelController::LANG_GROUP, 'Cambio de usuario'); ?></div>
+            </div>
+            <div class="field">
+                <select class="ui dropdown search" name="userID" data-search-url="<?= $searchUsersURL; ?>" required>
+                    <option value=""><?= __(AdminPanelController::LANG_GROUP, 'Seleccionar usuario'); ?></option>
+                </select>
+            </div>
+            <div class="field">
+                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::LANG_GROUP, 'Cambiar'); ?></button>
+            </div>
+        </form>
     </div>
 </div>
 <?php endif; ?>

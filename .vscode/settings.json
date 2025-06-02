@@ -35,6 +35,9 @@
         "ShortArray",
         "ExtraCommaInArray"
     ],
+    "[javascript]": {
+        "editor.formatOnSave": true,
+    },
     "editor.wordWrap": "on",
     "editor.multiCursorModifier": "ctrlCmd",
     "intelephense.environment.phpVersion": "8.1",

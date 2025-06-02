@@ -1,6 +1,8 @@
 @import "../../sass/includes/functions";
 @import "../../sass/includes/variables";
 
+$fontModule: $fontGlobal;
+
 .simple-cropper {
 
     width: 500px;
@@ -86,7 +88,7 @@
                     grid-template-columns: auto auto;
                     justify-content: center;
                     align-items: center;
-                    font-family: $fontPoppins;
+                    font-family: $fontModule;
                     font-size: pxToRem(16);
                     font-weight: $fwMedium;
                     text-decoration: 1px solid var(--main-brand-color);

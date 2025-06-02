@@ -10,11 +10,12 @@
  * Datos accesibles globalmente
  * @namespace
  */
-var pcsphpGlobals = {
-	events: {
-		configurationsLoad: 'PiecesPHP-Configurations-Load',
-		configurationsAndWindowLoad: 'PiecesPHP-Configurations-And-Window-Load',
-	}
+var pcsphpGlobals = {}
+
+//──── Events ────────────────────────────────────────────────────────────────────────────
+pcsphpGlobals.events = {
+	configurationsLoad: 'PiecesPHP-Configurations-Load',
+	configurationsAndWindowLoad: 'PiecesPHP-Configurations-And-Window-Load',
 }
 
 //──── URL ───────────────────────────────────────────────────────────────────────────────
@@ -267,6 +268,21 @@ if (typeof $ !== 'undefined') {
 
 	})
 
+}
+
+/**
+ * @param {String} [name] Si no se provee un nombre se retornan todas las configuraciones
+ */
+function getPCSPHPConfig(name = null) {
+	if (name !== null) {
+		name = typeof name == 'string' ? name : ''
+		if (typeof pcsphpGlobals[name] !== 'undefined') {
+			return pcsphpGlobals[name]
+		}
+	} else {
+		return pcsphpGlobals
+	}
+	return null
 }
 
 /**
@@ -749,7 +765,7 @@ function pcsAdminTopbars() {
 	const userOptionsMenu = $('.ui-pcs.topbar-options.user-options')
 	const adminOptionsMenu = $('.ui-pcs.topbar-options.admin-options')
 	const notificationsOptionsMenu = $('.ui-pcs.topbar-options.notifications-options')
-	const profileContainer = $('.profile-content')
+	const profileContainer = $('.profile-content-system')
 
 	const userOptionsMenuCloseButton = userOptionsMenu.find('.close')
 	const adminOptionsMenuCloseButton = adminOptionsMenu.find('.close')
@@ -758,10 +774,12 @@ function pcsAdminTopbars() {
 	const userOptionsToggles = $('.ui-pcs.topbar-toggle.user-options')
 	const adminOptionsToggles = $('.ui-pcs.topbar-toggle.admin-options')
 	const notificationsOptionsToggles = $('.ui-pcs.topbar-toggle.notifications-options')
+	const exitAsLoggedOtherProfileButton = $('.ui-pcs.topbar-toggle.exit-as-logged-options, [exit-as-logged-options]')
 
 	const hasUserOptions = userOptionsMenu.length > 0 && userOptionsToggles.length > 0
 	const hasAdminOptions = adminOptionsMenu.length > 0 && adminOptionsToggles.length > 0
 	const hasNotificationsOptions = notificationsOptionsMenu.length > 0 && notificationsOptionsToggles.length > 0
+	const hasExitAsLoggedOtherProfileOption = exitAsLoggedOtherProfileButton.length > 0 && exitAsLoggedOtherProfileButton.length > 0
 
 	const hasProfile = profileContainer.length > 0
 
@@ -813,10 +831,32 @@ function pcsAdminTopbars() {
 		})
 	}
 
+	if (hasExitAsLoggedOtherProfileOption) {
+		exitAsLoggedOtherProfileButton.on('click', function (e) {
+			e.preventDefault()
+			const cookieName = 'asUserID'
+			const paramName = 'asUser'
+			document.cookie = `${cookieName}=;path=/`
+			document.cookie = `${cookieName}=;path=/;domain=${location.hostname}`
+			document.cookie = `${cookieName}=;path=/;domain=.${location.hostname}`
+			const currentURL = new URL(location.href)
+			currentURL.searchParams.delete(paramName)
+			location.assign(currentURL)
+			if (location.href == currentURL.href) {
+				location.reload()
+			}
+		})
+	}
+
 	userOptionsMenu.find('[edit-account]').on('click', () => {
 		close(userOptionsMenu)
 		profileContainer.addClass('activated')
 		tabsController('account')
+	})
+	$('[external-trigger-edit-account]').on('click', (e) => {
+		e.preventDefault()
+		e.stopPropagation()
+		userOptionsMenu.find('[edit-account]').click()
 	})
 	userOptionsMenu.find('[change-password]').on('click', () => {
 		close(userOptionsMenu)
@@ -925,7 +965,7 @@ function pcsAdminTopbars() {
 	const formAction = () => {
 		const LOADER_NAME = 'editUser'
 
-		const mainForm = $(".profile-content").find("form")
+		const mainForm = $(".profile-content-system").find("form")
 
 		mainForm.on('submit', (e) => {
 			e.preventDefault()
@@ -958,7 +998,7 @@ function pcsAdminTopbars() {
 		const newsModal = $('[news-modal]')
 		const url = $(mainContainerSelector).parent().data('url')
 
-		if (mainContainer.length > 0 && typeof NewsAdapter !== 'undefined') {
+		if (mainContainer.length > 0 && typeof NewsAdapter !== 'undefined' && typeof url == 'string' && url.trim().length > 1) {
 			const newsManager = new NewsAdapter({
 				requestURL: url,
 				page: 1,
@@ -1275,7 +1315,9 @@ function autoTranslateFromLangGroupHTML() {
 
 			if (hasPendingTranslations) {
 
-				const currentLangIsDefault = pcsphpGlobals.defaultLang == pcsphpGlobals.lang
+				//NOTE: Ignoro el idioma y creo siempre los modelos de traducción para todo
+				//const currentLangIsDefault = pcsphpGlobals.defaultLang == pcsphpGlobals.lang
+				const currentLangIsDefault = false
 				const ignoreLang = ignoreLangs.includes(pcsphpGlobals.lang)
 
 				if (!currentLangIsDefault) {
@@ -1430,8 +1472,78 @@ function autoTranslateFromLangGroupHTML() {
 	}
 }
 
+
+
+/**
+ * Maneja el cambio de idioma en el modal de cambio de idioma global.
+ * 
+ * Esta función se encarga de mostrar el modal de cambio de idioma cuando se hace clic en el elemento con el atributo 'change-system-lang-trigger'.
+ * Una vez mostrado el modal, se configura el botón de cambio de idioma para que, al hacer clic en él, actualice la cookie de idioma y recargue la página.
+ */
+function handleGlobalChangeLangModal() {
+	const trigger = $('[change-system-lang-trigger]')
+	if (trigger.length > 0) {
+		const modal = $('[change-system-lang-modal]').modal()
+		const dropdown = modal.find('.ui.dropdown').dropdown()
+		const changeButton = modal.find('button[type="submit"]')
+		const langCookieName = modal.data('lang-cookie')
+		trigger.off('click')
+		trigger.on('click', function (e) {
+			e.preventDefault()
+			modal.modal({
+				onVisible: function () {
+					changeButton.off('click')
+					changeButton.on('click', function (e) {
+						e.preventDefault()
+						const lang = dropdown.dropdown('get value')
+						document.cookie = `${langCookieName}=${lang};path=/`
+						document.cookie = `${langCookieName}=${lang};path=/;domain=${location.hostname}`
+						document.cookie = `${langCookieName}=${lang};path=/;domain=.${location.hostname}`
+						location.reload()
+					})
+				},
+			}).modal('show')
+		})
+	}
+}
+
+/**
+ * Maneja la lógica de conectarse como otro usuario (solo root)
+ */
+function handleConnectAsAnotherUser() {
+	const modalSelector = '[connect-as-another-user-modal]'
+	const trigger = $('[connect-as-another-user-trigger]')
+	if (trigger.length > 0) {
+		const modal = $(modalSelector).modal()
+		const dropdown = configFomanticDropdown(`${modalSelector} .ui.dropdown`)
+		const changeButton = modal.find('button[type="submit"]')
+		const asUserCookieName = modal.data('as-user-cookie')
+		trigger.off('click')
+		trigger.on('click', function (e) {
+			e.preventDefault()
+			modal.modal({
+				onVisible: function () {
+					changeButton.off('click')
+					changeButton.on('click', function (e) {
+						e.preventDefault()
+						const userID = dropdown[0].getValue()
+						document.cookie = `${asUserCookieName}=${userID};path=/`
+						document.cookie = `${asUserCookieName}=${userID};path=/;domain=${location.hostname}`
+						document.cookie = `${asUserCookieName}=${userID};path=/;domain=.${location.hostname}`
+						location.reload()
+					})
+				},
+			}).modal('show')
+		})
+	}
+}
+
 window.dispatchEvent(new Event(pcsphpGlobals.events.configurationsLoad))
 window.addEventListener('load', function () {
 	window.dispatchEvent(new Event(pcsphpGlobals.events.configurationsAndWindowLoad))
 	autoTranslateFromLangGroupHTML()
+	handleGlobalChangeLangModal()
+	handleConnectAsAnotherUser()
+	registerDynamicLocalizationMessages('global')
+	registerDynamicLocalizationMessages('general')
 })

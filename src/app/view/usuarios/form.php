@@ -9,7 +9,7 @@ $onlyImage = isset($onlyImage) ? $onlyImage : false;
 
     <div class="ui pointing secondary menu items-pointing">
         <?php if (!$onlyImage): ?>
-        <a class="item active" data-tab="form-container"><?= __($langGroup, 'Datos de usuario'); ?></a>
+        <a class="item active" data-tab="form-container"><?= __($langGroup, 'Datos de usuario'); ?><?= isset($typeName) ? " ({$typeName})" : '';?></a>
         <?php endif;?>
         <?php if (!$create && !$onlyProfile): ?>
         <a class="item<?= $onlyImage ? ' active' : '';?>" data-tab="avatar-photo-container"><?= __($langGroup, 'Foto de perfil'); ?></a>

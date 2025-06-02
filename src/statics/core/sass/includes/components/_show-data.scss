@@ -1,6 +1,6 @@
 @mixin list-data-cards {
 
-    font-family: $fontPoppins;
+    font-family: $fontGlobal;
     display: flex;
     flex: 0 0 auto;
     flex-wrap: wrap;
@@ -66,7 +66,8 @@
             font-size: pxToRem(22);
             color: var(--main-brand-color);
             margin-bottom: pxToRem(20);
-            &.small{
+
+            &.small {
                 font-size: pxToRem(18);
             }
         }
@@ -256,6 +257,104 @@
                 }
             }
 
+        }
+    }
+}
+
+@mixin section-fields-divider {
+    .section-fields-divider {
+
+        margin-bottom: 20px;
+
+        >.title {
+
+            font-weight: $fwMedium;
+            color: var(--main-brand-color);
+            word-break: break-word;
+
+            &.h1 {
+                font-size: pxToRem(55);
+                line-height: pxToRem(55+5);
+            }
+
+            &.h2 {
+                font-size: pxToRem(40);
+                line-height: pxToRem(40+5);
+            }
+
+            &,
+            &.h3 {
+                font-size: pxToRem(30);
+                line-height: pxToRem(30+5);
+            }
+
+            &.h4 {
+                font-size: pxToRem(25);
+                line-height: pxToRem(25+5);
+            }
+
+            &.h5 {
+                font-size: pxToRem(22);
+                line-height: pxToRem(22+5);
+            }
+
+            &.h6 {
+                font-size: pxToRem(18.5);
+                line-height: pxToRem(18.5+5);
+            }
+
+            &.s20 {
+                font-size: pxToRem(20);
+                line-height: pxToRem(20+5);
+            }
+
+            &.s24 {
+                font-size: pxToRem(24);
+                line-height: pxToRem(24+5);
+            }
+        }
+
+        >.description {
+            margin-top: 10px;
+            font-weight: $fwLight;
+            font-size: pxToRem(15);
+            line-height: pxToRem(15+5);
+            color: #AAAAAA;
+
+            &.fs16 {
+                font-weight: $fwRegular;
+                font-size: pxToRem(16);
+                line-height: pxToRem(16+5);
+            }
+
+            &.fs20 {
+                font-weight: $fwRegular;
+                font-size: pxToRem(20);
+                line-height: pxToRem(20+5);
+            }
+
+            &.black {
+                color: #1B1C1D;
+            }
+
+            &.grey {
+                color: #707070;
+            }
+        }
+
+    }
+
+    label.section-fields-divider {
+        position: relative;
+        width: max-content;
+        max-width: 100%;
+        margin-bottom: 20px !important;
+
+        &::after {
+            position: absolute;
+            top: 0px;
+            right: -10px;
+            margin: 0 !important;
         }
     }
 }

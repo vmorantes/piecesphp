@@ -7,6 +7,7 @@
 namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Locations\LocationsLang;
 use App\Locations\Mappers\PointMapper;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
@@ -54,12 +55,14 @@ class Point extends AdminPanelController
      */
     protected static $pluralTitle = 'Localidades';
 
+    protected HelperController $helperController;
+
     /**
      * @return static
      */
     public function __construct()
     {
-
+        $this->helperController = new HelperController();
         self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
         self::$pluralTitle = __(LOCATIONS_LANG_GROUP, self::$pluralTitle);
 
@@ -73,7 +76,6 @@ class Point extends AdminPanelController
      */
     public function addForm()
     {
-
         $action = self::routeName('actions-add');
         $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, PointMapper::STATUS);
         $status_options = array_to_html_options($status_options, PointMapper::ACTIVE);
@@ -97,9 +99,9 @@ class Point extends AdminPanelController
             self::$title,
         ]);
 
-        $this->render('panel/layout/header');
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
-        $this->render('panel/layout/footer');
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -109,14 +111,12 @@ class Point extends AdminPanelController
      */
     public function editForm(Request $request, Response $response)
     {
-
         $id = $request->getAttribute('id', null);
         $id = Validator::isInteger($id) ? (int) $id : null;
 
         $element = new PointMapper($id);
 
         if (!is_null($element->id)) {
-
             $action = self::routeName('actions-edit');
             $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, PointMapper::STATUS);
             $status_options = array_to_html_options($status_options, $element->active);
@@ -141,9 +141,9 @@ class Point extends AdminPanelController
                 self::$title,
             ]);
 
-            $this->render('panel/layout/header');
-            $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
-            $this->render('panel/layout/footer');
+            $this->helperController->render('panel/layout/header');
+            $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
+            $this->helperController->render('panel/layout/footer');
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -154,7 +154,6 @@ class Point extends AdminPanelController
      */
     public function list()
     {
-
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();
         $add_link = self::routeName('forms-add');
@@ -175,9 +174,9 @@ class Point extends AdminPanelController
             self::$pluralTitle,
         ]);
 
-        $this->render('panel/layout/header');
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
-        $this->render('panel/layout/footer');
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -211,7 +210,7 @@ class Point extends AdminPanelController
         $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
-            $value->name = htmlentities(stripslashes($value->name));
+            $value->name = __(LocationsLang::LANG_GROUP_NAMES, $value->name);
             $result[$key] = $value;
         }
 
@@ -429,11 +428,11 @@ class Point extends AdminPanelController
         $expectedParameters = new Parameters([
             new Parameter(
                 'query',
-                '-1',
+                uniqid(),
                 function ($value) {
                     return is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
                     return clean_string(trim($value));
                 }
@@ -474,7 +473,7 @@ class Point extends AdminPanelController
             foreach ($queryResult as $row) {
                 $result[] = [
                     'id' => $row->id,
-                    'title' => $row->name,
+                    'title' => __(LocationsLang::LANG_GROUP_NAMES, $row->name),
                 ];
             }
 
@@ -618,7 +617,10 @@ class Point extends AdminPanelController
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
-        $pagination = $pageQuery->getPagination();
+        $pagination = $pageQuery->getPagination(function ($e) {
+            $e->name = __(LocationsLang::LANG_GROUP_NAMES, $e->name);
+            return $e;
+        });
 
         return $pagination;
     }

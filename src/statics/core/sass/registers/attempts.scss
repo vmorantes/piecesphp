@@ -2,6 +2,8 @@
 @import '../includes/functions_app_base';
 @import '../includes/variables';
 
+$fontModule: $fontGlobal;
+
 .module-view-container {
 
     .logged-cards {
@@ -66,7 +68,7 @@
                         max-width: 156px;
                         font-size: 18px;
                         color: $colorFirst;
-                        font-family: $fontPoppins;
+                        font-family: $fontModule;
                         font-weight: $fwMedium;
                     }
 
@@ -152,7 +154,7 @@
                 gap: 7px;
 
                 >span {
-                    font-family: $fontPoppins;
+                    font-family: $fontModule;
                     font-weight: $fwSemiBold;
                     font-size: pxToRem(18);
                     color: $colorFirst;
@@ -189,12 +191,12 @@
                     >span {
                         color: #21BA45;
                         font-size: pxToRem(32);
-                        font-family: $fontPoppins;
+                        font-family: $fontModule;
                         font-weight: $fwBold;
                     }
 
                     >small {
-                        font-family: $fontPoppins;
+                        font-family: $fontModule;
                         color: black;
                         font-size: pxToRem(14);
                     }
@@ -307,14 +309,14 @@
 
                         >span {
                             font-size: pxToRem(27);
-                            font-family: $fontPoppins;
+                            font-family: $fontModule;
                             color: $colorFirst;
                             font-weight: $fwSemiBold;
                         }
 
                         >small {
                             font-size: pxToRem(18);
-                            font-family: $fontPoppins;
+                            font-family: $fontModule;
                             color: black;
                             font-weight: $fwMedium;
                         }
@@ -337,12 +339,12 @@
 
                         >small.tag {
                             font-size: pxToRem(17);
-                            font-family: $fontPoppins;
+                            font-family: $fontModule;
                         }
 
                         >span.value {
                             font-size: pxToRem(30);
-                            font-family: $fontPoppins;
+                            font-family: $fontModule;
                             font-weight: $fwBold;
                             color: $colorFirst;
                         }

@@ -161,102 +161,104 @@ class MetaProperty
         $existsOnMapper = true;
         $originalInputValue = $value;
 
-        if ($this->type == self::TYPE_MAPPER) {
+        if ($value !== null) {
+            if ($this->type == self::TYPE_MAPPER) {
 
-            $valid = $this->validateValue($value);
-            $existsOnMapper = false;
+                $valid = $this->validateValue($value);
+                $existsOnMapper = false;
 
-            if (!$valid) {
+                if (!$valid) {
 
-                if (is_null($this->customSetMapper)) {
+                    if (is_null($this->customSetMapper)) {
 
-                    $mapper = $this->mapperName;
-                    $value = new $mapper($value);
+                        $mapper = $this->mapperName;
+                        $value = new $mapper($value);
 
-                } else {
+                    } else {
 
-                    $value = ($this->customSetMapper)($value);
-
-                }
-
-            }
-
-            $valid = $this->validateValue($value);
-
-            if ($valid) {
-
-                if (is_null($this->customValidMapper)) {
-
-                    $existsOnMapper = $value->id !== null;
-
-                } else {
-
-                    $existsOnMapper = ($this->customValidMapper)($value) === true;
-
-                }
-
-            }
-
-        } else if ($this->type == self::TYPE_ARRAY_MAPPER) {
-
-            $valid = $this->validateValue($value) && is_array($value);
-
-            if (!$valid) {
-
-                if (is_null($this->customSetMapper)) {
-
-                    $mapper = $this->mapperName;
-
-                    foreach ($value as $k => $v) {
-
-                        $value[$k] = new $mapper($v);
-
-                    }
-
-                } else {
-
-                    $mapper = $this->mapperName;
-
-                    foreach ($value as $k => $v) {
-
-                        $value[$k] = ($this->customSetMapper)($v);
+                        $value = ($this->customSetMapper)($value);
 
                     }
 
                 }
 
-            }
+                $valid = $this->validateValue($value);
 
-            $valid = $this->validateValue($value);
-
-            if ($valid) {
-
-                foreach ($value as $k => $v) {
+                if ($valid) {
 
                     if (is_null($this->customValidMapper)) {
 
-                        if ($v->id === null) {
-                            $existsOnMapper = false;
-                            break;
+                        $existsOnMapper = $value->id !== null;
+
+                    } else {
+
+                        $existsOnMapper = ($this->customValidMapper)($value) === true;
+
+                    }
+
+                }
+
+            } else if ($this->type == self::TYPE_ARRAY_MAPPER) {
+
+                $valid = $this->validateValue($value) && is_array($value);
+
+                if (!$valid) {
+
+                    if (is_null($this->customSetMapper)) {
+
+                        $mapper = $this->mapperName;
+
+                        foreach ($value as $k => $v) {
+
+                            $value[$k] = new $mapper($v);
+
                         }
 
                     } else {
 
-                        if (($this->customValidMapper)($value) !== true) {
-                            $existsOnMapper = false;
-                            break;
+                        $mapper = $this->mapperName;
+
+                        foreach ($value as $k => $v) {
+
+                            $value[$k] = ($this->customSetMapper)($v);
+
                         }
 
                     }
 
                 }
 
+                $valid = $this->validateValue($value);
+
+                if ($valid) {
+
+                    foreach ($value as $k => $v) {
+
+                        if (is_null($this->customValidMapper)) {
+
+                            if ($v->id === null) {
+                                $existsOnMapper = false;
+                                break;
+                            }
+
+                        } else {
+
+                            if (($this->customValidMapper)($value) !== true) {
+                                $existsOnMapper = false;
+                                break;
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            } else {
+
+                $valid = $this->validateValue($value);
+
             }
-
-        } else {
-
-            $valid = $this->validateValue($value);
-
         }
 
         if ($this->nullable) {

@@ -94,9 +94,10 @@ class NewsRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(NewsLang::LANG_GROUP, 'Noticias internas'),
@@ -104,7 +105,7 @@ class NewsRoutes
                 'href' => NewsController::routeName('list'),
                 'visible' => NewsController::allowedRoute('list'),
                 'asLink' => true,
-                'position' => 20,
+                'position' => 130,
             ]));
 
         }

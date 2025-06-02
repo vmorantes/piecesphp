@@ -1,11 +1,14 @@
 @import 'imports/variables';
+@import '../core/sass/includes/reset-font-family-fomantic';
 @import url('../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
-@import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
+@import url('../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
+
+$fontModule: $fontGlobal;
 
 body {
     background-color: $background-color-body;
     margin: $margin-body;
-    font-family: $fontPublicSans;
+    font-family: $fontModule;
 }
 
 .errors-main-container {

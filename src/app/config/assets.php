@@ -12,7 +12,7 @@ use PiecesPHP\Core\Config;
 $assets = [];
 
 /**
- * Fomantic UI v2.9.2
+ * Fomantic UI v2.9.4
  * https://fomantic-ui.com/
  */
 $assets['semantic']['css'] = [

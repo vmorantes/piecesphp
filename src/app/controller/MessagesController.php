@@ -34,7 +34,11 @@ class MessagesController extends AdminPanelController
         UsersModel::TYPE_USER_GENERAL => [
             self::COMPONENT_EXTERNAL_EDITOR,
         ],
-        UsersModel::TYPE_USER_ADMIN => [
+        UsersModel::TYPE_USER_ADMIN_GRAL => [
+            self::VIEW_MESSAGES_WITHOUT_TO,
+            self::COMPONENT_EXTERNAL_EDITOR_WITH_SELECT_DESTINE,
+        ],
+        UsersModel::TYPE_USER_ADMIN_ORG => [
             self::VIEW_MESSAGES_WITHOUT_TO,
             self::COMPONENT_EXTERNAL_EDITOR_WITH_SELECT_DESTINE,
         ],

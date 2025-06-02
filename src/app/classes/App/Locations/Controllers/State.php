@@ -7,6 +7,7 @@
 namespace App\Locations\Controllers;
 
 use App\Controller\AdminPanelController;
+use App\Locations\LocationsLang;
 use App\Locations\Mappers\StateMapper;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
@@ -54,12 +55,14 @@ class State extends AdminPanelController
      */
     protected static $pluralTitle = 'Departamentos';
 
+    protected HelperController $helperController;
+
     /**
      * @return static
      */
     public function __construct()
     {
-
+        $this->helperController = new HelperController();
         self::$title = __(LOCATIONS_LANG_GROUP, self::$title);
         self::$pluralTitle = __(LOCATIONS_LANG_GROUP, self::$pluralTitle);
 
@@ -73,7 +76,6 @@ class State extends AdminPanelController
      */
     public function addForm()
     {
-
         $action = self::routeName('actions-add');
         $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, StateMapper::STATUS);
         $status_options = array_to_html_options($status_options, StateMapper::ACTIVE);
@@ -97,9 +99,9 @@ class State extends AdminPanelController
             self::$title,
         ]);
 
-        $this->render('panel/layout/header');
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
-        $this->render('panel/layout/footer');
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/add-form', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -109,14 +111,12 @@ class State extends AdminPanelController
      */
     public function editForm(Request $request, Response $response)
     {
-
         $id = $request->getAttribute('id', null);
         $id = Validator::isInteger($id) ? (int) $id : null;
 
         $element = new StateMapper($id);
 
         if (!is_null($element->id)) {
-
             $action = self::routeName('actions-edit');
             $status_options = array_map(function ($i) {return __(LOCATIONS_LANG_GROUP, $i);}, StateMapper::STATUS);
             $status_options = array_to_html_options($status_options, $element->active);
@@ -141,10 +141,9 @@ class State extends AdminPanelController
                 self::$title,
             ]);
 
-            $this->render('panel/layout/header');
-            $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
-            $this->render('panel/layout/footer');
-
+            $this->helperController->render('panel/layout/header');
+            $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/edit-form', $data);
+            $this->helperController->render('panel/layout/footer');
         } else {
             throw new NotFoundException($request, $response);
         }
@@ -155,7 +154,6 @@ class State extends AdminPanelController
      */
     public function list()
     {
-
         $process_table = self::routeName('datatables');
         $back_link = self::routeName();
         $add_link = self::routeName('forms-add');
@@ -176,9 +174,9 @@ class State extends AdminPanelController
             self::$pluralTitle,
         ]);
 
-        $this->render('panel/layout/header');
-        $this->render('panel/' . self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
-        $this->render('panel/layout/footer');
+        $this->helperController->render('panel/layout/header');
+        $this->helperController->localRender(self::$prefixParentEntity . '/' . self::$prefixSingularEntity . '/list', $data);
+        $this->helperController->render('panel/layout/footer');
     }
 
     /**
@@ -228,12 +226,11 @@ class State extends AdminPanelController
         $result = is_array($result) ? $result : [];
 
         foreach ($result as $key => $value) {
-            $value->name = htmlentities(stripslashes($value->name));
+            $value->name = __(LocationsLang::LANG_GROUP_NAMES, $value->name);
             $result[$key] = $value;
         }
 
         return $response->withJson($result);
-
     }
 
     /**
@@ -291,7 +288,6 @@ class State extends AdminPanelController
         ]);
 
         return $response->withJson($result->getValues());
-
     }
 
     /**
@@ -303,7 +299,6 @@ class State extends AdminPanelController
      */
     public function action(Request $request, Response $response)
     {
-
         $id = $request->getParsedBodyParam('id', -1);
         $country = $request->getParsedBodyParam('country', null);
         $name = $request->getParsedBodyParam('name', null);
@@ -336,7 +331,6 @@ class State extends AdminPanelController
         $redirect_url_on_create = self::routeName('list');
 
         if ($valid_params) {
-
             $name = clean_string($name);
             $code = is_string($code) ? clean_string($code) : '';
             $code = mb_strlen($code) > 0 ? $code : null;
@@ -345,13 +339,10 @@ class State extends AdminPanelController
             $is_duplicate_code = StateMapper::isDuplicateCode($code, $country, $id);
 
             if (!$is_duplicate_name && !$is_duplicate_code) {
-
                 if (!$is_edit) {
-
                     $mapper = new StateMapper();
 
                     try {
-
                         $mapper->country = $country;
                         $mapper->code = $code;
                         $mapper->name = $name;
@@ -359,32 +350,25 @@ class State extends AdminPanelController
                         $saved = $mapper->save();
 
                         if ($saved) {
-
                             $result->setMessage($success_create_message)
                                 ->operation($operation_name)
                                 ->setSuccess(true);
 
                             $result->setValue('redirect', true);
                             $result->setValue('redirect_to', $redirect_url_on_create);
-
                         } else {
                             $result->setMessage($unknow_error_message);
                         }
-
                     } catch (\Exception $e) {
                         $result->setMessage($e->getMessage());
                         log_exception($e);
                     }
-
                 } else {
-
                     $mapper = new StateMapper((int) $id);
                     $exists = !is_null($mapper->id);
 
                     if ($exists) {
-
                         try {
-
                             $mapper->country = $country;
                             $mapper->code = $code;
                             $mapper->name = $name;
@@ -398,31 +382,21 @@ class State extends AdminPanelController
                             } else {
                                 $result->setMessage($unknow_error_message);
                             }
-
                         } catch (\Exception $e) {
                             $result->setMessage($e->getMessage());
                             log_exception($e);
                         }
-
                     } else {
                         $result->setMessage($not_exists_message);
                     }
-
                 }
             } else {
-
                 if ($is_duplicate_name) {
-
                     $result->setMessage($is_duplicate_message_name);
-
                 } elseif ($is_duplicate_code) {
-
                     $result->setMessage($is_duplicate_message_code);
-
                 }
-
             }
-
         } else {
             $result->setMessage($error_parameters_message);
         }
@@ -437,15 +411,14 @@ class State extends AdminPanelController
      */
     public function search(Request $request, Response $response)
     {
-
         $expectedParameters = new Parameters([
             new Parameter(
                 'query',
-                '-1',
+                uniqid(),
                 function ($value) {
                     return is_string($value);
                 },
-                false,
+                true,
                 function ($value) {
                     return clean_string(trim($value));
                 }
@@ -477,7 +450,6 @@ class State extends AdminPanelController
         }
 
         if (is_string($whereString)) {
-
             $model = StateMapper::model();
             $model->select()->where($whereString);
             $model->execute(false, 1, 15);
@@ -486,10 +458,9 @@ class State extends AdminPanelController
             foreach ($queryResult as $row) {
                 $result[] = [
                     'id' => $row->id,
-                    'title' => $row->name,
+                    'title' => __(LocationsLang::LANG_GROUP_NAMES, $row->name),
                 ];
             }
-
         }
 
         return $response->withJson($result);
@@ -502,7 +473,6 @@ class State extends AdminPanelController
      */
     public function all(Request $request, Response $response)
     {
-
         $expectedParameters = new Parameters([
             new Parameter(
                 'page',
@@ -545,7 +515,6 @@ class State extends AdminPanelController
                 },
                 true,
                 function ($value) {
-
                     if (is_scalar($value)) {
                         $value = [$value];
                     }
@@ -553,18 +522,13 @@ class State extends AdminPanelController
                     $value = is_array($value) ? $value : [];
 
                     $value = array_filter($value, function ($i) {
-
                         return Validator::isInteger($i);
-
                     });
                     $value = array_map(function ($i) {
-
                         return (int) $i;
-
                     }, $value);
 
                     return $value;
-
                 }
             ),
         ]);
@@ -629,7 +593,10 @@ class State extends AdminPanelController
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
-        $pagination = $pageQuery->getPagination();
+        $pagination = $pageQuery->getPagination(function ($e) {
+            $e->name = __(LocationsLang::LANG_GROUP_NAMES, $e->name);
+            return $e;
+        });
 
         return $pagination;
     }
@@ -668,6 +635,5 @@ class State extends AdminPanelController
         } else {
             return '';
         }
-
     }
 }

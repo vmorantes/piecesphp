@@ -64,6 +64,12 @@ $permisosSuperiores = array_unique(array_merge($permisosGenerales, $permisosAdmi
     "admin-error-log",
 ]));
 
+$config['roles']['baseInitialSegmentedPermissions'] = [
+    'generals' => $permisosGenerales,
+    'administratives' => $permisosAdministrativos,
+    'superiors' => $permisosSuperiores,
+];
+
 $config['roles']['types'] = [
     [
         'code' => UsersModel::TYPE_USER_ROOT,
@@ -72,14 +78,32 @@ $config['roles']['types'] = [
         'allowed_routes' => $permisosSuperiores,
     ],
     [
-        'code' => UsersModel::TYPE_USER_ADMIN,
-        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN],
+        'code' => UsersModel::TYPE_USER_ADMIN_GRAL,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_GRAL],
         'all' => false,
         'allowed_routes' => $permisosAdministrativos,
     ],
     [
+        'code' => UsersModel::TYPE_USER_ADMIN_ORG,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_ORG],
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+    [
         'code' => UsersModel::TYPE_USER_GENERAL,
         'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_GENERAL],
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_INSTITUCIONAL,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_INSTITUCIONAL],
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
+    [
+        'code' => UsersModel::TYPE_USER_COMUNICACIONES,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_COMUNICACIONES],
         'all' => false,
         'allowed_routes' => $permisosGenerales,
     ],

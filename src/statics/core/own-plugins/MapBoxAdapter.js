@@ -26,6 +26,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 * @property {Number} [defaultLatitude] 
 	 * @property {String} [idMapContainer=map] 
 	 * @property {Boolean} [ignoreDefaultCss=false] 
+	 * @property {boolean} [draggableMarker=true] 
 	 */
 	/**
 	 * @typedef {Object} ConfigurationFormObject
@@ -46,7 +47,6 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 * @property {boolean} [withGeolocator=true] 
 	 * @property {boolean} [withNav=true] 
 	 * @property {boolean} [withScale=true] 
-	 * @property {boolean} [withGeocoder=true] 
 	 * @property {boolean} [withFullscreen=true] 
 	 * @property {Number} [zoom=7] 
 	 * @property {boolean} [doubleClickZoom=false] 
@@ -245,6 +245,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 
 			let defaultLongitude = typeof configurations.defaultLongitude != 'undefined' ? configurations.defaultLongitude : null
 			let defaultLatitude = typeof configurations.defaultLatitude != 'undefined' ? configurations.defaultLatitude : null
+			let draggableMarker = typeof configurations.draggableMarker != 'undefined' ? configurations.draggableMarker : true
 			let idContainer = typeof configurations.idMapContainer != 'undefined' ? configurations.idMapContainer : 'map'
 
 			let container = $('#' + idContainer)
@@ -261,7 +262,8 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 			//Opciones fijas
 			mapboxOptions.container = idContainer
 
-			if (!(configurations.ignoreDefaultCss === true)) {
+			const ignoreDefaultCss = configurations.ignoreDefaultCss === true
+			if (!ignoreDefaultCss) {
 				container.parent().css({
 					position: 'relative',
 					height: '500px',
@@ -285,7 +287,7 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 				let mapboxInstance = new mapboxgl.Map(mapboxOptions)
 
 				let marker = new mapboxgl.Marker({
-					draggable: true
+					draggable: draggableMarker
 				})
 
 				let scale = new mapboxgl.ScaleControl({
@@ -631,25 +633,38 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 
 				})
 
-				if (selectCity.length > 0) {
+				let selectForSearch = selectCity.length > 0 ? selectCity : (
+					selectState.length > 0 ? selectState : (
+						selectCountry.length > 0 ? selectCountry : $(generateUniqueID('NONE'))
+					)
+				)
+
+				if (selectForSearch.length > 0) {
 
 					let countryText = ''
 					let stateText = ''
 					let cityText = ''
+					let findForCity = false
+					let findForState = false
+					let findForCountry = false
 					let query = ''
 					let geoseaerchSelectLock = false
 
-					selectCity.on('change', function (e) {
+					selectForSearch.on('change', function (e) {
 
 						if (!geoseaerchSelectLock) {
 							let element = $(e.target)
 							let optionCountry = selectCountry.find(`option`).filter(':selected')
 							let optionState = selectState.find(`option`).filter(':selected')
-							let optionCity = element.find(`option`).filter(':selected')
+							let optionCity = selectCity.find(`option`).filter(':selected')
 
 							countryText = typeof optionCountry.val() == 'string' && optionCountry.val().trim().length > 0 ? optionCountry.html() : ''
 							stateText = typeof optionState.val() == 'string' && optionState.val().trim().length > 0 ? optionState.html() : ''
 							cityText = typeof optionCity.val() == 'string' && optionCity.val().trim().length > 0 ? optionCity.html() : ''
+
+							findForCity = cityText.length > 0
+							findForState = stateText.length > 0 && !findForCity
+							findForCountry = countryText.length > 0 && (!findForState && !findForCity)
 
 							query = []
 							query.push(typeof cityText == 'string' ? cityText : '')
@@ -659,6 +674,15 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 							query = query.join(', ').trim()
 
 							isCustomQuery = true
+
+							if (findForCity) {
+								geocoder.options.types = 'place'
+							} else if (findForState) {
+								geocoder.options.types = 'region'
+							} else if (findForCountry) {
+								geocoder.options.types = 'country'
+							}
+
 							geocoder.query(query)
 							geoseaerchSelectLock = true
 							setTimeout(function () {
@@ -668,6 +692,8 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 
 					})
 
+					let recursivesQueriesCount = 0
+					let maxRecursivesQueries = 1
 					geocoder.on('result', function (r) {
 
 						let result = r.result
@@ -676,28 +702,19 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 						let lng = coordinates[0]
 						let placeName = result.place_name
 						let placeType = result.place_type
-						//console.log(result)
-
 						let wasFound = true
-						let countLocations = Array.isArray(query) ? query.length : (
-							typeof query == 'string' ?
-								query.split(', ').length :
-								0
-						)
-						let findForCountry = countLocations == 1
-						let findForState = countLocations == 2
-						let findForCity = countLocations == 3
 
-						if (findForCountry && placeType != 'country') {
+						if (findForCountry && !placeType.includes('country')) {
 							wasFound = false
-						} else if (findForState && placeType != 'region') {
+						} else if (findForState && !placeType.includes('region')) {
 							wasFound = false
-						} else if (findForCity && placeType != 'place') {
+						} else if (findForCity && !placeType.includes('place')) {
 							wasFound = false
 						}
 
 						if (placeName.indexOf(countryText) == -1) {
-							wasFound = false
+							//TODO: Corrgier, esta comparación directa no es funcional
+							//wasFound = false
 						}
 
 						if (!wasFound && isCustomQuery) {
@@ -721,17 +738,28 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 							query = []
 
 							if (findForCity) {
-								query.push(stateText)
-								query.push(countryText)
+								if (stateText.length > 0) {
+									query.push(stateText)
+								}
+								if (countryText.length > 0) {
+									query.push(countryText)
+								}
 							} else if (findForState) {
-								query.push(countryText)
+								if (countryText.length > 0) {
+									query.push(countryText)
+								}
 							}
 
 							if (findForCity || findForState) {
 								query = query.map(e => e.trim()).filter(e => e.length > 0)
 								query = query.join(', ').trim()
 								isCustomQuery = true
-								geocoder.query(query)
+								if (recursivesQueriesCount < maxRecursivesQueries) {
+									geocoder.query(query)
+									recursivesQueriesCount++
+								} else {
+									recursivesQueriesCount = 0
+								}
 							}
 
 						} else {

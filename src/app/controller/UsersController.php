@@ -97,6 +97,7 @@ class UsersController extends AdminPanelController
     const UNEXPECTED_ACTION = 'UNEXPECTED_ACTION';
     const ACTIVE_SESSION = 'ACTIVE_SESSION';
     const BLOCKED_FOR_ATTEMPTS = 'BLOCKED_FOR_ATTEMPTS';
+    const APPROVED_PENDING = 'APPROVED_PENDING';
     const INACTIVE_USER = 'INACTIVE_USER';
     const ORGANIZATION_IS_NOT_ACTIVE = 'ORGANIZATION_IS_NOT_ACTIVE';
     const EXPIRED_OR_NOT_EXIST_CODE = 'EXPIRED_OR_NOT_EXIST_CODE';
@@ -136,6 +137,11 @@ class UsersController extends AdminPanelController
      */
     public function usersList(Request $req, Response $res)
     {
+        $langGroup = UsersController::LANG_GROUP;
+        $title = __($langGroup, 'Usuarios');
+
+        set_title($title);
+
         set_custom_assets([
             base_url('statics/admin-area/css/users-list.css'),
         ], 'css');
@@ -145,6 +151,8 @@ class UsersController extends AdminPanelController
 
         $this->render('panel/layout/header');
         $this->render('panel/pages/list-usuarios', [
+            'langGroup' => $langGroup,
+            'title' => $title,
             'process_table' => get_route('users-datatables'),
         ]);
         $this->render('panel/layout/footer');
@@ -164,7 +172,7 @@ class UsersController extends AdminPanelController
         $filterStatus = Validator::isInteger($filterStatus) ? (int) $filterStatus : null;
         $currentUser = new UsersModel($this->user->id);
         $disallowedTypes = $currentUser->getHigherPriorityTypes();
-        $canAssign = OrganizationMapper::canAssignAnyOrganization($currentUser->type);
+        $canModify = OrganizationMapper::canModifyAnyOrganization($currentUser->type);
 
         $where = [
             "id != {$this->user->id}",
@@ -174,7 +182,7 @@ class UsersController extends AdminPanelController
             $where[] = " AND type != " . implode(' AND type != ', $disallowedTypes);
         }
 
-        if (!$canAssign) {
+        if (!$canModify) {
             $where[] = " AND organization = " . $currentUser->organization;
         }
 
@@ -444,6 +452,9 @@ class UsersController extends AdminPanelController
      */
     public function formCreateByType(Request $req, Response $res)
     {
+
+        set_title(__(self::LANG_GROUP, 'Agregar usuario'));
+
         set_custom_assets([
             base_url('statics/features/avatars/js/canvg.min.js'),
             base_url('statics/features/avatars/js/avatar.js'),
@@ -472,32 +483,52 @@ class UsersController extends AdminPanelController
 
         if (isset(UsersModel::getTypesUser()[$type])) {
 
-            $status_options = [
-                __(self::LANG_GROUP, 'active') => UsersModel::STATUS_USER_ACTIVE,
-                __(self::LANG_GROUP, 'inactive') => UsersModel::STATUS_USER_INACTIVE,
-            ];
+            $status_options = UsersModel::statuses();
+            unset($status_options[UsersModel::STATUS_USER_ATTEMPTS_BLOCK]);
+            $status_options = array_flip($status_options);
 
             $data_form = [];
             $data_form['status_options'] = $status_options;
 
             $form = '';
 
-            if ($type == UsersModel::TYPE_USER_ROOT) {
+            $formsByType = [
+                UsersModel::TYPE_USER_ROOT => [
+                    'view' => 'usuarios/form-by-type/create/root/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_ADMIN_GRAL => [
+                    'view' => 'usuarios/form-by-type/create/admin-general/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_ADMIN_ORG => [
+                    'view' => 'usuarios/form-by-type/create/admin-organization/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_GENERAL => [
+                    'view' => 'usuarios/form-by-type/create/general/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_INSTITUCIONAL => [
+                    'view' => 'usuarios/form-by-type/create/institucional/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_COMUNICACIONES => [
+                    'view' => 'usuarios/form-by-type/create/comunicaciones/form',
+                    'data' => array_merge($data_form, []),
+                ],
+            ];
 
-                $form = $this->render('usuarios/form-by-type/create/root/form', $data_form, false);
-
-            } elseif ($type == UsersModel::TYPE_USER_ADMIN) {
-
-                $form = $this->render('usuarios/form-by-type/create/admin/form', $data_form, false);
-
-            } elseif ($type == UsersModel::TYPE_USER_GENERAL) {
-
-                $form = $this->render('usuarios/form-by-type/create/general/form', $data_form, false);
-
+            foreach ($formsByType as $formType => $formTypeData) {
+                if ($type == $formType) {
+                    $form = $this->render($formTypeData['view'], $formTypeData['data'], false);
+                    break;
+                }
             }
 
             $data = [];
             $data['form'] = $form;
+            $data['typeName'] = UsersModel::getTypeUserName($type);
             $data['create'] = true;
 
             $this->render('panel/layout/header');
@@ -518,6 +549,7 @@ class UsersController extends AdminPanelController
      */
     public function formEditByType(Request $req, Response $res)
     {
+        set_title(__(self::LANG_GROUP, 'Editar usuario'));
 
         import_cropper();
 
@@ -553,14 +585,19 @@ class UsersController extends AdminPanelController
 
                 $type = $user->type;
 
-                $status_options = [
-                    __(self::LANG_GROUP, 'active') => UsersModel::STATUS_USER_ACTIVE,
-                    __(self::LANG_GROUP, 'inactive') => UsersModel::STATUS_USER_INACTIVE,
-                ];
-
-                if ($user->status == UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
-                    $status_options[__(self::LANG_GROUP, 'Bloqueado por intentos fallidos')] = UsersModel::STATUS_USER_ATTEMPTS_BLOCK;
+                $status_options = UsersModel::statuses();
+                if ($user->status != UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
+                    unset($status_options[UsersModel::STATUS_USER_ATTEMPTS_BLOCK]);
                 }
+
+                if ($user->status != UsersModel::STATUS_USER_APPROVED_PENDING) {
+                    unset($status_options[UsersModel::STATUS_USER_APPROVED_PENDING]);
+                }
+
+                if ($user->status != UsersModel::STATUS_USER_REJECTED) {
+                    unset($status_options[UsersModel::STATUS_USER_REJECTED]);
+                }
+                $status_options = array_flip($status_options);
 
                 $data_form = [];
                 $data_form['status_options'] = $status_options;
@@ -568,22 +605,43 @@ class UsersController extends AdminPanelController
 
                 $form = '';
 
-                if ($type == UsersModel::TYPE_USER_ROOT) {
+                $formsByType = [
+                    UsersModel::TYPE_USER_ROOT => [
+                        'view' => 'usuarios/form-by-type/edit/root/form',
+                        'data' => array_merge($data_form, []),
+                    ],
+                    UsersModel::TYPE_USER_ADMIN_GRAL => [
+                        'view' => 'usuarios/form-by-type/edit/admin-general/form',
+                        'data' => array_merge($data_form, []),
+                    ],
+                    UsersModel::TYPE_USER_ADMIN_ORG => [
+                        'view' => 'usuarios/form-by-type/edit/admin-organization/form',
+                        'data' => array_merge($data_form, []),
+                    ],
+                    UsersModel::TYPE_USER_GENERAL => [
+                        'view' => 'usuarios/form-by-type/edit/general/form',
+                        'data' => array_merge($data_form, []),
+                    ],
+                    UsersModel::TYPE_USER_INSTITUCIONAL => [
+                        'view' => 'usuarios/form-by-type/edit/institucional/form',
+                        'data' => array_merge($data_form, []),
+                    ],
+                    UsersModel::TYPE_USER_COMUNICACIONES => [
+                        'view' => 'usuarios/form-by-type/edit/comunicaciones/form',
+                        'data' => array_merge($data_form, []),
+                    ],
+                ];
 
-                    $form = $this->render('usuarios/form-by-type/edit/root/form', $data_form, false);
-
-                } elseif ($type == UsersModel::TYPE_USER_ADMIN) {
-
-                    $form = $this->render('usuarios/form-by-type/edit/admin/form', $data_form, false);
-
-                } elseif ($type == UsersModel::TYPE_USER_GENERAL) {
-
-                    $form = $this->render('usuarios/form-by-type/edit/general/form', $data_form, false);
-
+                foreach ($formsByType as $formType => $formTypeData) {
+                    if ($type == $formType) {
+                        $form = $this->render($formTypeData['view'], $formTypeData['data'], false);
+                        break;
+                    }
                 }
 
                 $data = [];
                 $data['form'] = $form;
+                $data['typeName'] = UsersModel::getTypeUserName($type);
                 $data['edit_user'] = $user;
                 $data['avatar'] = AvatarModel::getAvatar($user->id);
                 $data['hasAvatar'] = !is_null($data['avatar']);
@@ -640,22 +698,43 @@ class UsersController extends AdminPanelController
 
             $form = '';
 
-            if ($type == UsersModel::TYPE_USER_ROOT) {
+            $formsByType = [
+                UsersModel::TYPE_USER_ROOT => [
+                    'view' => 'usuarios/form-by-type/profile/root/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_ADMIN_GRAL => [
+                    'view' => 'usuarios/form-by-type/profile/admin-general/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_ADMIN_ORG => [
+                    'view' => 'usuarios/form-by-type/profile/admin-organization/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_GENERAL => [
+                    'view' => 'usuarios/form-by-type/profile/general/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_INSTITUCIONAL => [
+                    'view' => 'usuarios/form-by-type/profile/institucional/form',
+                    'data' => array_merge($data_form, []),
+                ],
+                UsersModel::TYPE_USER_COMUNICACIONES => [
+                    'view' => 'usuarios/form-by-type/profile/comunicaciones/form',
+                    'data' => array_merge($data_form, []),
+                ],
+            ];
 
-                $form = $this->render('usuarios/form-by-type/profile/root/form', $data_form, false);
-
-            } elseif ($type == UsersModel::TYPE_USER_ADMIN) {
-
-                $form = $this->render('usuarios/form-by-type/profile/admin/form', $data_form, false);
-
-            } elseif ($type == UsersModel::TYPE_USER_GENERAL) {
-
-                $form = $this->render('usuarios/form-by-type/profile/general/form', $data_form, false);
-
+            foreach ($formsByType as $formType => $formTypeData) {
+                if ($type == $formType) {
+                    $form = $this->render($formTypeData['view'], $formTypeData['data'], false);
+                    break;
+                }
             }
 
             $data = [];
             $data['form'] = $form;
+            $data['typeName'] = UsersModel::getTypeUserName($type);
             $data['edit_user'] = $user;
             $data['avatar'] = AvatarModel::getAvatar($user->id);
             $data['hasAvatar'] = !is_null($data['avatar']);
@@ -791,9 +870,11 @@ class UsersController extends AdminPanelController
 
                     $user->status = (int) $user->status;
                     $userMapper = new UsersModel($user->id);
+                    $requireAprobation = UsersModel::REQUIRE_APPROBATION_FOR_LOGIN;
+                    $statusOk = $requireAprobation ? in_array($user->status, UsersModel::STATUSES_OK_FOR_LOGIN_ON_REQUIRE_APPROBATION) : in_array($user->status, UsersModel::STATUSES_OK_FOR_LOGIN_ON_NO_REQUIRE_APPROBATION);
 
                     //Verificar status
-                    if ($user->status == UsersModel::STATUS_USER_ACTIVE) {
+                    if ($statusOk) {
 
                         //Verificar status de la organización si aplica
                         $organizationID = $user->organization;
@@ -926,6 +1007,11 @@ class UsersController extends AdminPanelController
 
                             $errorType = self::BLOCKED_FOR_ATTEMPTS;
                             $errorTypeMessage = vsprintf($this->getMessage(self::BLOCKED_FOR_ATTEMPTS), [$user->username]);
+
+                        } elseif ($user->status == UsersModel::STATUS_USER_APPROVED_PENDING && $requireAprobation) {
+
+                            $errorType = self::APPROVED_PENDING;
+                            $errorTypeMessage = vsprintf($this->getMessage(self::APPROVED_PENDING), [$user->username]);
 
                         } else {
 
@@ -1174,8 +1260,8 @@ class UsersController extends AdminPanelController
 
             $password_match = $password == $password2;
 
-            //Validar que la organización sea obligatoria si no es usuario ROOT
-            if ($type != UsersModel::TYPE_USER_ROOT) {
+            //Validar que la organización sea obligatoria si no está en UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION
+            if (!in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) {
                 if (!Validator::isInteger($organization)) {
                     $result
                         ->setMessage($message_organization_required)
@@ -1201,8 +1287,8 @@ class UsersController extends AdminPanelController
                 $userMapper->created_at = new \DateTime();
                 $userMapper->modified_at = $userMapper->created_at;
 
-                //Asignar la organización si no es usuario ROOT
-                if ($type != UsersModel::TYPE_USER_ROOT) {
+                //Asignar la organización si no está en UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION
+                if (!in_array($type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) {
                     $userMapper->organization = $organization;
                 }
 
@@ -1473,8 +1559,8 @@ class UsersController extends AdminPanelController
             $password_match = $change_password ? $password == $password2 : true;
             $password_ok = true;
 
-            //Validar que la organización sea obligatoria si no es usuario ROOT
-            if ($userMapper->type != UsersModel::TYPE_USER_ROOT) {
+            //Validar que la organización sea obligatoria si no está en UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION
+            if (!in_array($userMapper->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) {
                 if (!Validator::isInteger($organization) && !$isProfile) {
                     $result
                         ->setMessage($message_organization_required)
@@ -1509,7 +1595,7 @@ class UsersController extends AdminPanelController
                     if ($status !== null) {
                         $userMapper->status = $status;
                     }
-                    if ($organization !== null && $userMapper->type != UsersModel::TYPE_USER_ROOT && !$isProfile) {
+                    if ($organization !== null && (!in_array($userMapper->type, UsersModel::TYPES_USER_DONT_REQUIRE_ORGANIZATION)) && !$isProfile) {
                         $userMapper->organization = $organization;
                     }
                     $userMapper->modified_at = new \DateTime();

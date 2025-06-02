@@ -1,3 +1,32 @@
+# 6.4.0
+
+- Unificación de archivos del módulo de ubicación.
+- getPCSPHPConfig a configurations.js.
+- Mejora del sistema de traducciones y agrupaciones de mensajes más modularizadas.
+    - Actualización de módulo de noticias internas y de publicaciones.
+    - Mejoramiento de función de cambio de idioma y manejo persistente de selección (lang_by_cookie, cookie_lang_definer).
+    - Búsqueda de traducciones faltantes con scan-missing-lang y registro de faltantes en app/lang/missing-lang-messages.
+- Unificación de plantillas de correo en view/mailing/template_base.php y plantilla con poco html en view/mailing/template_base_no_style.php.
+- Ampliación de roles de usuarios base.
+- Mejora del listado de usuarios.
+- Sistema de usuarios con capa de aprobación y mejor acoplado a sistema de organizaciones. Como medida que "prescinde" de esa características se puede dejar la organización base única.
+- Sistema de "Perfiles" para usuarios y organizaciones.
+- Ajuste de error en DefaultAccessControlModules que hacía que algunas rutas se mostran indebidamente con 403. Se verifica que empiece por la parte comparada del nombre de la ruta que se está buscando.
+- Eliminación y reordenamiento de código scss.
+- Mejoramiento de LocationsAdapter para trabajar con par país-ciudad (y más) y de MapBoxAdapter para mejorar la búsqueda del geocoder. Y mejoras en general.
+- En AttachmentPlaceholder se agregó una opción para nombres personalizados distinto del nombre del archivo.
+- Para ROOT, se integra en backend la posibilidad de "conectarse" como otro usuario.
+- Adjuntos en Publications es añadible.
+- Ajustes de lógica y orden en sistema de reporte de login.
+- Ajuste dinámico de algunos permisos según si se es el administrador de una organización.
+- Sistema de aprobación, según el que si no se está aprobado el márgen de acción es limitado (integrado con organizaciones, usuarios, convocatorias y publicaciones).
+    - BaseEntityMapper intercepta fieldsToSelect (por lo tanto debe definirse como protected) con y devuelve un campo en consulta relacionado al estatus de aprobación (systemApprovalStatus).
+- Comentarios @category AddToBackendSidebarMenu para rastrear mejor el uso del menú lateral del backend.
+- ContentNavigationHub como un módulo de navegación entre los contenidos de otros módulos internamente.
+- Implementación de un sistema de eventos en BaseEventDispatcher. Útil para el sistema de aprobaciones.
+    - En BaseEntityMapper se disparan: saving, saved, updating y updated.
+    - aseEventDispatcher::dispatch('AddDynamicTransaltions', 'added') para después de añadidas las traducciones dinámicas.
+
 # 6.3.4
 
 - Mejoramiento de multi-idioma.

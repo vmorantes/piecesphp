@@ -1,18 +1,17 @@
 <?php
-
 namespace App\LangMessages;
 
-  //Hereda los mensajes que estan en lang/default.php
+//Hereda los mensajes que estan en lang/default.php
 $lang = [
     'lang' => [
-        'es' => 'Spanish',
-        'en' => 'English',
-        'fr' => 'French',
-        'de' => 'German',
-        'it' => 'Italian',
-        'pt' => 'Portuguese',
-        'Idioma' => 'Language',
-        'Idiomas' => 'Languages',
+        'es'               => 'Spanish',
+        'en'               => 'English',
+        'fr'               => 'French',
+        'de'               => 'German',
+        'it'               => 'Italian',
+        'pt'               => 'Portuguese',
+        'Idioma'           => 'Language',
+        'Idiomas'          => 'Languages',
         'Idioma principal' => 'Main language',
     ],
     'langShort' => [
@@ -124,6 +123,7 @@ $lang = [
         'INACTIVE_USER'                => 'The user "%1$s" is deactivated.',
         'ORGANIZATION_IS_NOT_ACTIVE'   => 'The organization "%1$s" is not actived.',
         'INVALID_TWO_FACTOR_CODE'      => 'Invalid two-factor authentication code.',
+        'APPROVED_PENDING'             => 'Pending approval',
     ],
     'avatarModule' => [
         'Ha ocurrido un error desconocido, intente más tarde.' => 'An unknown error has occurred, try later.',
@@ -186,12 +186,14 @@ $lang = [
         'Algo está mal aquí'                                             => 'Something is wrong here',
         'El enlace al que intenta ingresar ya no existe o fue cambiado.' => 'The link you are trying to enter no longer exists or was changed.',
         'Ir a Inicio'                                                    => 'Go to home',
+        "Reportar problema"                                              => "Report problem",
     ],
     'page403' => [
         '403 - Acceso denegado'                                                => '403 - Access denied',
         'Algo está mal aquí'                                                   => 'Something is wrong here',
         'El enlace al que intenta ingresar no está disponible para su acceso.' => 'The link you are trying to enter is not available for access.',
         'Ir a Inicio'                                                          => 'Go to home',
+        "Reportar problema"                                                    => "Report problem",
     ],
     'page503' => [
         '503 - En mantenimiento'                                   => '503 - In maintenance',
@@ -214,21 +216,6 @@ $lang = [
         'Ha ocurrido un error inesperado.'                                      => 'An unexpected error has occurred.',
         'El enlace tendrá validez de una hora.'                                 => 'The link will be valid for one hour.',
         'Responder'                                                             => 'Answer',
-    ],
-    'loginReport' => [
-        'Registro de ingresos'           => 'Login record',
-        'Usuarios que han ingresado'     => 'Users who have entered',
-        'Usuarios que no han ingresado'  => 'Users who have not logged in',
-        'Registro de intentos de inicio' => 'Attempts log',
-        'Nombre'                         => 'Name',
-        'Último acceso'                  => 'Last access',
-        'Tiempo en plataforma'           => 'Time on platform',
-        'ID'                             => 'ID',
-        'Usuario ingresado'              => 'User Login',
-        'Intento exitoso'                => 'Successful attempt',
-        'Información'                    => 'information',
-        'IP'                             => 'IP',
-        'Fecha'                          => 'Date',
     ],
     'mailTemplates' => [
         'Mensaje'                              => 'Message',

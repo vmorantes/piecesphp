@@ -55,7 +55,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
                             <th><?= __($langGroup, '#'); ?></th>
                             <th><?= __($langGroup, 'NIT'); ?></th>
                             <th><?= __($langGroup, 'Nombre de la organización'); ?></th>
-                            <th><?= __($langGroup, 'Departamento'); ?></th>
+                            <th><?= __($langGroup, 'País'); ?></th>
                             <th><?= __($langGroup, 'Ciudad'); ?></th>
                             <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
                         </tr>

@@ -43,12 +43,12 @@ $overlayEffectBGColorAlt: white;
 $genericBGColor1: #EBEBEB;
 
 //──── Fonts ─────────────────────────────────────────────────────────────────────────────
-$fontAbhaya: 'Abhaya Libre';
-$fontLato: 'Lato';
 $fontPublicSans: 'Public Sans',
 sans-serif;
 $fontPoppins: 'Poppins',
 sans-serif;
+$fontGlobal: var(--font-family-global, $fontPoppins);
+$fontGlobalText: $fontPoppins;
 
 // Weights
 $fwHairLine: 100;

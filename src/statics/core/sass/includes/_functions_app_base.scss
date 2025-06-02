@@ -1,1 +1,129 @@
 @import 'functions';
+
+@mixin titleZoneBaseLegacy {
+
+    position: relative;
+    color: var(--main-brand-color);
+    text-align: center;
+    font-size: 2rem;
+    margin: 0px auto;
+    margin-bottom: 2rem;
+    padding: 0px 25px;
+    width: max-content;
+    max-width: 100%;
+
+    &.w-800 {
+        width: 800px;
+    }
+
+    &.inline-block {
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    &.no-center {
+        margin-left: initial;
+        margin-right: initial;
+        text-align: initial;
+    }
+
+    &.no-padding-left {
+        padding-left: 0px;
+    }
+
+    &.small-padding-left {
+        padding-left: 10px;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0px;
+        width: 100%;
+        height: 2px;
+        display: block;
+        border-bottom: 1.8px solid var(--second-brand-color);
+    }
+
+    &.no-underline {
+        &::after {
+            display: none;
+        }
+    }
+
+    &.left {
+        margin-left: 0px;
+        margin-right: 0px;
+        padding-left: 0px;
+    }
+
+    &.small {
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    &.subtitle {
+
+        >.subtitle {
+
+            position: relative;
+            font-size: 1.3rem;
+            color: var(--second-brand-color);
+            display: block;
+            margin-top: 0.5rem;
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: -2px;
+                left: 0px;
+                width: 100%;
+                height: 2px;
+                display: block;
+                border-bottom: 1.8px solid var(--second-brand-color);
+            }
+
+            &.grey {
+                color: #4A494A;
+            }
+
+        }
+
+        &::after {
+            display: none;
+        }
+    }
+
+    >.extra {
+
+        position: relative;
+        font-size: 1rem;
+        line-height: 1;
+        color: #4A494A;
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    &.mark {
+
+        font-size: 2.2rem;
+
+        &.subtitle {
+            >.subtitle {
+                font-size: 1.8rem;
+                font-weight: bold;
+
+                &::before {
+                    border-bottom-width: 2.5px;
+                }
+            }
+        }
+
+        &::after {
+            border-bottom-width: 2.5px;
+        }
+    }
+
+}

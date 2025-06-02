@@ -905,20 +905,27 @@ class PublicationsCategoryController extends AdminPanelController
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos
-        $list = $allRoles;
+        $list = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+        ];
         $creation = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $edition = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
-            UsersModel::TYPE_USER_ADMIN,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
         ];
 
         $routes = [

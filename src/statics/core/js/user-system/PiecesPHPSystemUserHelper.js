@@ -1,8 +1,9 @@
 class PiecesPHPSystemUserHelper {
 
-	constructor(urlAuthenticate, urlVerification, urlTwoFactorAuthStatus) {
+	constructor(urlAuthenticate, urlVerification, urlTwoFactorAuthStatus, expectedLang) {
 
 		this.extraData = null
+		this.expectedLang = typeof expectedLang == 'string' && expectedLang.trim().length > 0 ? expectedLang : null
 
 		if (typeof urlAuthenticate == 'string') {
 			this.urlAuthenticate = urlAuthenticate
@@ -391,6 +392,9 @@ class PiecesPHPSystemUserHelper {
 
 		mapHeaders.set('JWTAUTH', this.getJWT())
 		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
+		if (this.expectedLang !== null) {
+			mapHeaders.set('PCSPHP-Response-Expected-Language', this.expectedLang)
+		}
 
 		return mapHeaders
 

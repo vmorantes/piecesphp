@@ -16,6 +16,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
 use PiecesPHP\Core\Database\Meta\MetaProperty;
 use PiecesPHP\Core\Validation\Validator;
+use Spatie\Url\Url as URLManager;
 
 /**
  * ImagesRepositoryMapper.
@@ -128,22 +129,26 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
 
     const CAN_VIEW_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_ADD_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_EDIT_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const CAN_DELETE_ALL = [
         UsersModel::TYPE_USER_ROOT,
-        UsersModel::TYPE_USER_ADMIN,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
     ];
 
     const TABLE = 'image_repository_images';
@@ -354,7 +359,11 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
             $existOnLang = $this->getLangData($lang, 'title', false, null) !== null;
             if ($existOnLang && $lang != $currentLang) {
                 $url = ImagesRepositoryController::routeName('single', ['slug' => $this->getSlug($lang)]);
-                $url = convert_lang_url($url, $currentLang, $lang);
+                if (get_config('lang_by_cookie') === true) {
+                    $url = URLManager::fromString($url)->withQueryParameter('i18n', $lang)->__toString();
+                } else {
+                    $url = convert_lang_url($url, $currentLang, $lang);
+                }
                 $urls[$lang] = $url;
             }
         }
@@ -733,7 +742,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
     /**
      * @return string[]
      */
-    public static function fieldsToSelect()
+    protected static function fieldsToSelect()
     {
 
         $mapper = new ImagesRepositoryMapper;

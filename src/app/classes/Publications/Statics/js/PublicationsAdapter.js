@@ -14,6 +14,7 @@ function PublicationsAdapter(options) {
 	 * @property {Number} [perPage=5]
 	 * @property {String} [containerSelector=[publications-js]]
 	 * @property {String} [loadMoreTriggerSelector=[publications-load-more-js]]
+	 * @property {Boolean} [scrollToOnLoadMore=[false]]
 	 */
 
 	/** @constant {string} */
@@ -50,6 +51,12 @@ function PublicationsAdapter(options) {
 	let loadMoreTrigger
 	/** @property {Boolean} */
 	let firstLoad = false
+	/** @property {Number} */
+	let maxIndex = -1
+	/** @property {Boolean} */
+	let scrollToOnLoadMore = false
+	/** @property {$[]} */
+	let addedItems = []
 
 	init(options)
 
@@ -69,7 +76,7 @@ function PublicationsAdapter(options) {
 			loadMoreTrigger.off('click')
 			loadMoreTrigger.on('click', function (e) {
 				page = nextPage
-				instance.loadItems()
+				instance.loadItems(true, scrollToOnLoadMore)
 			})
 
 		} catch (error) {
@@ -82,11 +89,30 @@ function PublicationsAdapter(options) {
 	}
 
 	/**
+	 * Reinicia la consulta
+	 * @param {URL|String} url 
+	 * @returns {PublicationsAdapter}
+	 */
+	this.reload = function (url) {
+		requestURL = typeof url == 'string' ? new URL(url) : (
+			url instanceof URL ?
+				url :
+				requestURL
+		)
+		options.requestURL = requestURL
+		addedItems.map((e) => e.remove())
+		addedItems = []
+		init(options)
+		return this
+	}
+
+	/**
 	 * @method loadItems
 	 * @param {Boolean} [append=true] Agrega los elementos al contenedor
+	 * @param {Boolean} [scrollToFinal=false]
 	 * @returns {Promise}
 	 */
-	this.loadItems = function (append = true) {
+	this.loadItems = function (append = true, scrollToFinal = false) {
 
 		return new Promise(function (resolve, reject) {
 
@@ -136,7 +162,10 @@ function PublicationsAdapter(options) {
 						item = createItem(parsedElement)
 					}
 
-					item.hide()
+					item.css('display', 'none')
+					item.css('opacity', 0)
+					maxIndex++
+					item.attr('data-index', maxIndex)
 					if (append) {
 						items.push(item)
 						if (loadMoreTriggerIsInsideContainer) {
@@ -148,7 +177,43 @@ function PublicationsAdapter(options) {
 
 				}
 
-				items.map(e => $(e).show(500))
+				const showPromises = []
+				items.map(e => {
+					const $e = $(e)
+					const resolveElement = {
+						index: $e.data('index'),
+						element: $e,
+					}
+					addedItems.push($e)
+					$e.css('display', '')
+					const lastPromise = showPromises.length > 0 ? showPromises[showPromises.length - 1] : null
+					const showElement = function () {
+						showPromises.push(new Promise((showResolve) => {
+							$e.animate({ opacity: 1 }, 500, () => {
+								showResolve(resolveElement)
+							})
+						}))
+					}
+
+					if (lastPromise == null) {
+						showElement()
+					} else {
+						lastPromise.then(function () {
+							showElement()
+						})
+					}
+
+				})
+
+				Promise.all(showPromises).then(function (elements) {
+					const lastElement = elements.find((element) => element.index == maxIndex)
+					if (scrollToFinal) {
+						getScrollableParent(lastElement.element.get(0)).scrollTo({
+							top: lastElement.element.offset().top + 100,
+							behavior: 'smooth'
+						})
+					}
+				})
 
 				resolve({
 					response: res,
@@ -223,6 +288,12 @@ function PublicationsAdapter(options) {
 		} else {
 			onEmpty = function () {
 			}
+		}
+
+		if (typeof options.scrollToOnLoadMore == 'boolean') {
+			scrollToOnLoadMore = options.scrollToOnLoadMore
+		} else {
+			scrollToOnLoadMore = false
 		}
 
 		//Asignación de valores

@@ -1,5 +1,6 @@
 @import 'includes/functions';
 @import 'includes/variables';
+@import 'includes/reset-font-family-fomantic';
 @import 'includes/components';
 @import url('../../fonts/public-sans/public-sans.css?cacheStamp=CACHESTAMP');
 @import url('../../fonts/poppins/poppins.css?cacheStamp=CACHESTAMP');
@@ -12,7 +13,7 @@
 html,
 body {
     font-size: $htmlFontSize;
-    font-family: $fontFamilyFirst;
+    font-family: $fontGlobal;
     font-weight: 400;
     height: 100%;
     width: 100%;
@@ -32,6 +33,14 @@ body {
         background: rgba(255, 0, 0, .1);
         box-shadow: 0 0 0 1px red;
     }
+}
+
+.horizontal-space {
+    display: block;
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 50px;
 }
 
 //Link
@@ -61,7 +70,7 @@ h1 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontPoppins;
+        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(48);
         line-height: pxToRem(48+5);
@@ -75,7 +84,7 @@ h2 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontPoppins;
+        font-family: $fontGlobal;
         font-weight: $fwSemiBold;
         font-size: pxToRem(36);
         line-height: pxToRem(36+5);
@@ -88,7 +97,7 @@ h3 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontPoppins;
+        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(32);
         line-height: pxToRem(32+5);
@@ -101,7 +110,7 @@ h4 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontPoppins;
+        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(27);
         line-height: pxToRem(27+5);
@@ -114,7 +123,7 @@ h5 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontPoppins;
+        font-family: $fontGlobal;
         font-weight: $fwMedium;
         font-size: pxToRem(22);
         line-height: pxToRem(22+5);
@@ -127,7 +136,7 @@ h6 {
 
     .#{$globalClassPcs} &,
     &.#{$globalClassPcs} {
-        font-family: $fontPoppins;
+        font-family: $fontGlobal;
         font-weight: $fwBold;
         font-size: pxToRem(18);
         line-height: pxToRem(18+5);
@@ -196,7 +205,7 @@ ol {
                 padding: $listItemPadding;
 
                 &::before {
-                    font-family: $fontFamilyFirst;
+                    font-family: $fontGlobal;
                     counter-increment: list;
                     display: block;
                     position: absolute;
@@ -331,6 +340,12 @@ a.ui.button {
 
     &.button {
 
+        font-size: 14px;
+        font-weight: $fwRegular;
+        border-radius: 8px;
+        margin: 0px;
+
+
         &.brand-color,
         &.custom-main-color {
 
@@ -383,20 +398,6 @@ a.ui.button {
         }
     }
 
-    &.form {
-
-        .intertitle {
-            font-family: $fontPublicSans;
-            font-weight: $fwSemiBold;
-            font-size: pxToRem(15);
-            line-height: pxToRem(15+5);
-            color: #4D525A;
-            margin: 0px 0px;
-            padding: 18px 10px 10px 0px;
-        }
-
-    }
-
     &.tabular.menu {
         .item:not(.active) {
             cursor: pointer;
@@ -434,7 +435,7 @@ a.ui.button {
 
 }
 
-// General views components
+//──── Vistas de configuración ───────────────────────────────────────────────────────────
 .main-body-header {
     width: 100%;
     height: 300px;
@@ -443,7 +444,7 @@ a.ui.button {
     display: flex;
     flex-direction: column;
     align-items: center;
-    font-family: $fontPoppins;
+    font-family: $fontGlobal;
 
     @media screen and (max-width:1050px) {
         padding-top: 70px;
@@ -528,13 +529,13 @@ a.ui.button {
         width: 100%;
         background-color: var(--main-brand-color);
     }
-}
 
-/* Estilos para las inputs cards images */
-.cards-list {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    /* Estilos para las inputs cards images */
+    .cards-list {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
 }
 
 .input-image-card {
@@ -604,7 +605,7 @@ a.ui.button {
                 }
 
                 >span {
-                    font-family: $fontPoppins;
+                    font-family: $fontGlobal;
                     font-weight: $fwMedium;
                     color: #5b5b5b;
                     font-size: 12px;
@@ -656,6 +657,7 @@ a.ui.button {
     }
 }
 
+//──── Modal para cropper ─────────────────────────────────────────────────────────────────
 .cropper-info-content {
     width: 100%;
     margin-bottom: 10px;
@@ -677,13 +679,14 @@ a.ui.button {
     }
 }
 
+//──── Vista de rutas ────────────────────────────────────────────────────────────────────
 .pcs-header-options {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
 
     .section-title {
-        font-family: $fontPoppins;
+        font-family: $fontGlobal;
 
         .title {
             font-weight: $fwBold;

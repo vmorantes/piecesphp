@@ -8,6 +8,7 @@ namespace DataImportExportUtility;
 
 use DataImportExportUtility\Controllers\DataImportExportUtilityController;
 use PiecesPHP\Core\Menu\MenuGroup;
+use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -74,9 +75,10 @@ class DataImportExportUtilityRoutes
             $currentUserType = (int) $currentUser->type;
 
             /**
+             * @category AddToBackendSidebarMenu
              * @var MenuGroupCollection $sidebar
              */
-            $sidebar = get_config('menus')['sidebar'];
+            $sidebar = get_sidebar_menu();
 
             $sidebar->addItem(new MenuGroup([
                 'name' => __(DataImportExportUtilityLang::LANG_GROUP, 'Import/Export'),
@@ -84,7 +86,7 @@ class DataImportExportUtilityRoutes
                 'icon' => 'file excel',
                 'href' => DataImportExportUtilityController::routeName('show-routes'),
                 'visible' => DataImportExportUtilityController::allowedRoute('show-routes'),
-                'position' => 900,
+                'position' => 8000,
             ]));
 
         }

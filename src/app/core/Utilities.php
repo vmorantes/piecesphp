@@ -307,6 +307,108 @@ function append_to_path_system(string $locationPath, string $segment, string $di
 }
 
 /**
+ * Esta función toma una URL y devuelve sus partes.
+ *
+ * La función utiliza la función parse_url() de PHP para analizar la URL y devuelve un array asociativo con las siguientes partes:
+ *
+ * - scheme: El esquema de la URL (por ejemplo, http o https)
+ * - user: El nombre de usuario para la autenticación
+ * - pass: La contraseña para la autenticación
+ * - host: El nombre del host o la dirección IP
+ * - port: El número de puerto
+ * - path: La ruta del recurso
+ * - query: La cadena de consulta
+ * - fragment: El fragmento de la URL (por ejemplo, el ancla)
+ *
+ * @param string $url La URL a analizar.
+ * @return array{scheme:string|null,user:string|null,pass:string|null,host:string|null,port:string|null,path:string|null,query:string|null,fragment:string|null}
+ */
+function get_url_parts(string $url)
+{
+    return [
+        'scheme' => parse_url($url, \PHP_URL_SCHEME),
+        'user' => parse_url($url, \PHP_URL_USER),
+        'pass' => parse_url($url, \PHP_URL_PASS),
+        'host' => parse_url($url, \PHP_URL_HOST),
+        'port' => parse_url($url, \PHP_URL_PORT),
+        'path' => parse_url($url, \PHP_URL_PATH),
+        'query' => parse_url($url, \PHP_URL_QUERY),
+        'fragment' => parse_url($url, \PHP_URL_FRAGMENT),
+    ];
+}
+
+/**
+ * Esta función toma una URL y devuelve sus parámetros.
+ *
+ * La función utiliza la función get_url_parts() para obtener la cadena de consulta de la URL y la divide en pares clave=valor.
+ * Luego, filtra los pares que no tienen un valor o una clave vacía.
+ * Finalmente, devuelve un array asociativo con los pares clave=valor.
+ *
+ * @param string $url La URL a analizar.
+ * @return array<string,string>
+ */
+function get_url_params(string $url)
+{
+    $params = [];
+    $parts = get_url_parts($url);
+    $query = $parts['query'];
+    $query = is_string($query) ? explode('&', $query) : null;
+    if ($query !== null) {
+        $query = array_filter($query, fn($e) => is_string($e) && count(explode('=', $e)) == 2);
+        $query = array_map(fn($e) => explode('=', $e), $query);
+        foreach ($query as $pair) {
+            $param = $pair[0];
+            $value = $pair[1];
+            $param = trim($param);
+            $value = trim($value);
+            if (mb_strlen($param) > 0 && mb_strlen($value) > 0) {
+                $params[$param] = $value;
+            }
+        }
+    }
+    return $params;
+}
+
+/**
+ * Esta función toma una URL y elimina los parámetros especificados.
+ *
+ * La función utiliza la función get_url_parts() para obtener la cadena de consulta de la URL y la divide en pares clave=valor.
+ * Luego, filtra los pares que coinciden con los parámetros especificados.
+ * Finalmente, devuelve la URL con los parámetros eliminados.
+ *
+ * @param string $url La URL a analizar.
+ * @param array $params Los parámetros a eliminar.
+ * @return string La URL con los parámetros eliminados.
+ */
+function remove_url_params(string $url, array $params = [])
+{
+    $returnURL = $url;
+    $removeAll = empty($params);
+    $params = array_map(fn($e) => is_string($e) && mb_strlen(trim($e)) > 0 ? trim($e) : null, $params);
+    $params = array_filter($params, fn($e) => is_string($e));
+    $parts = get_url_parts($url);
+    $scheme = is_string($parts['scheme']) && mb_strlen(trim($parts['scheme'])) > 0 ? $parts['scheme'] : null;
+    $host = is_string($parts['host']) && mb_strlen(trim($parts['host'])) > 0 ? $parts['host'] : null;
+    $path = is_string($parts['path']) && mb_strlen(trim($parts['path'])) > 0 ? $parts['path'] : null;
+    $queries = $removeAll ? [] : get_url_params($url);
+    $query = [];
+
+    foreach ($params as $paramName) {
+        unset($queries[$paramName]);
+    }
+
+    foreach ($queries as $paramName => $paramValue) {
+        $query[] = "{$paramName}={$paramValue}";
+    }
+
+    if ($scheme !== null && $host !== null && $path !== null) {
+        $query = !empty($query) ? '?' . implode('&', $query) : '';
+        $returnURL = "{$scheme}://{$host}{$path}{$query}";
+    }
+    return $returnURL;
+}
+
+/**
  * Genera una contraseña con la longitud especificada y la encripta.
  *
  * Usa password_hash() para la encriptación.
