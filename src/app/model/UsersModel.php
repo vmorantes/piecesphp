@@ -91,7 +91,7 @@ class UsersModel extends EntityMapperExtensible
         self::TYPE_USER_ROOT => 'Principal',
         self::TYPE_USER_ADMIN_GRAL => 'Administrador general',
         self::TYPE_USER_ADMIN_ORG => 'Administrador de organización',
-        self::TYPE_USER_GENERAL => 'Investigador',
+        self::TYPE_USER_GENERAL => 'Usuario general',
         self::TYPE_USER_INSTITUCIONAL => 'Institucional',
         self::TYPE_USER_COMUNICACIONES => 'Comunicaciones',
     ];

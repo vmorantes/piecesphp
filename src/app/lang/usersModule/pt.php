@@ -92,6 +92,7 @@ $lang = [
     "No aprobado" => "Não aprovado",
     "Investigador independiente" => "Pesquisador independente",
     "No aprobados" => "Não aprovados",
+    "Usuario general" => "Usuário geral",
 ];
 
 return $lang;
