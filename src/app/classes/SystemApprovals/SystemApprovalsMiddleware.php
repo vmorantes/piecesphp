@@ -54,6 +54,7 @@ class SystemApprovalsMiddleware
                                 str_starts_with($e, 'profile-admin-'),
                                 str_starts_with($e, 'user-'),
                                 str_starts_with($e, 'my-space-admin-'),
+                                str_starts_with($e, 'api-admin-'),
                                 str_starts_with($e, 'SAMPLE'),
                             ];
                             foreach ($allowed as $i) {

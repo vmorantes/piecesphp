@@ -202,7 +202,7 @@ class NewsController extends AdminPanelController
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
                 ],
-                __(self::LANG_GROUP, 'Publicaciones') => [
+                __(self::LANG_GROUP, 'Noticias') => [
                     'url' => $backLink,
                 ],
                 $title,
@@ -1102,7 +1102,7 @@ class NewsController extends AdminPanelController
         }
 
         //Verificar idiomas
-        $showAlways = false; //Define si se muestra siempre aunque no tenga traducción
+        $showAlways = count(NewsMapper::$LANGS_ON_CREATION) == 1; //Define si se muestra siempre aunque no tenga traducción
         $currentLang = Config::get_lang();
 
         if (!$showAlways) {
@@ -1123,8 +1123,6 @@ class NewsController extends AdminPanelController
             $sqlSelect .= " WHERE {$whereString}";
             $sqlCount .= " WHERE {$whereString}";
         }
-
-        $sqlSelect .= " ORDER BY " . implode(', ', NewsMapper::ORDER_BY_PREFERENCE);
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
@@ -1317,21 +1315,25 @@ class NewsController extends AdminPanelController
         $queries = $allRoles;
         $list = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $creation = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $edition = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];

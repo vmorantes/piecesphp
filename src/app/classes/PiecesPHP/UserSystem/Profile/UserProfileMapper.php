@@ -457,7 +457,9 @@ class UserProfileMapper extends EntityMapperExtensible
 
     /**
      * Campos extra:
+     *  - organizationID
      *  - idPadding
+     *  - userStatus
      *  - username
      *  - email
      *  - type
@@ -499,19 +501,24 @@ class UserProfileMapper extends EntityMapperExtensible
         $tableUser = UsersModel::TABLE;
         $firstnameSegment = "TRIM({$tableUser}.firstname)";
         $secondNameSegment = "IF({$tableUser}.secondname IS NOT NULL, CONCAT(' ', {$tableUser}.secondname), '')";
+        $names = "TRIM(CONCAT({$firstnameSegment}, {$secondNameSegment}))";
         $firstLastNameSegment = "TRIM({$tableUser}.first_lastname)";
         $secondLastNameSegment = "IF({$tableUser}.second_lastname IS NOT NULL, CONCAT(' ', {$tableUser}.second_lastname), '')";
+        $lastNames = "TRIM(CONCAT({$firstLastNameSegment}, {$secondLastNameSegment}))";
+        $fullName = "TRIM(CONCAT({$names}, ' ', {$lastNames}))";
 
         $currentLang = Config::get_lang();
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
+            "(SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS organizationID",
+            "(SELECT {$tableUser}.status FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS userStatus",
             "(SELECT {$tableUser}.username FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS username",
             "(SELECT {$tableUser}.email FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS email",
             "(SELECT {$tableUser}.type FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS type",
-            "(SELECT TRIM(CONCAT($firstnameSegment, {$secondNameSegment}, ' ', {$firstLastNameSegment}, {$secondLastNameSegment})) FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS fullname",
-            "(SELECT TRIM(CONCAT({$firstnameSegment}, {$secondNameSegment})) FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS names",
-            "(SELECT TRIM(CONCAT({$firstLastNameSegment}, {$secondLastNameSegment})) FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS lastNames",
+            "(SELECT {$fullName} FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS fullname",
+            "(SELECT {$names} FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS names",
+            "(SELECT {$lastNames} FROM {$tableUser} WHERE {$tableUser}.id = {$table}.belongsTo) AS lastNames",
             "{$countryName} AS countryName",
             "{$cityName} AS cityName",
             "CONCAT((SELECT countryName), '{$locationSeparator}', (SELECT cityName)) AS fullLocation",

@@ -37,6 +37,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
         <div class="tabs-controls">
             <div class="active" data-tab="actives"><?= __($langGroup, 'Activas'); ?></div>
             <div data-tab="inactives"><?= __($langGroup, 'Inactivas'); ?></div>
+            <div data-tab="pendings"><?= __($langGroup, 'Pendientes de aprobación'); ?></div>
         </div>
 
         <div class="ui tab tab-element active" data-tab="actives">
@@ -77,6 +78,35 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             <div class="container-standard-table inactives">
 
                 <table url="<?= $processTableInactivesLink; ?>" class="ui basic table inactives">
+
+                    <thead>
+
+                        <tr>
+                            <th><?= __($langGroup, '#'); ?></th>
+                            <th><?= __($langGroup, 'NIT'); ?></th>
+                            <th><?= __($langGroup, 'Nombre de la organización'); ?></th>
+                            <th><?= __($langGroup, 'Departamento'); ?></th>
+                            <th><?= __($langGroup, 'Ciudad'); ?></th>
+                            <th order="false" class-name="buttons" with-container="true"><?= __($langGroup, 'Acciones'); ?></th>
+                        </tr>
+
+                    </thead>
+
+                </table>
+
+            </div>
+
+        </div>
+
+        <div class="ui tab tab-element" data-tab="pendings">
+
+            <div class="mirror-scroll-x pendings" mirror-scroll-target=".container-standard-table.pendings">
+                <div class="mirror-scroll-x-content"></div>
+            </div>
+
+            <div class="container-standard-table pendings">
+
+                <table url="<?= $processTablePendingsLink; ?>" class="ui basic table pendings">
 
                     <thead>
 

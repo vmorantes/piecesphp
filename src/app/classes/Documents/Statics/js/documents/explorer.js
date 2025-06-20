@@ -4,7 +4,6 @@ window.addEventListener('load', function () {
 
 	const dataTable = dataTablesServerProccesingOnCards('.table-to-cards', 20, {
 		drawCallbackEnd: function (cards) {
-			console.log(cards)
 		},
 	}).DataTable()
 	const defaultURL = new URL(dataTable.ajax.url())

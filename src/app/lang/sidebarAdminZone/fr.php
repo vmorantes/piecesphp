@@ -18,13 +18,22 @@ $lang = [
     "Registro" => "Inscription",
     "Gestión" => "Gestion",
     "Mi perfil" => "Mon profil",
-    "Convocatorias" => "Appels d'offres",
+    "Contenidos" => "Contenus",
     "Consultar" => "Consulter",
     "Volver a mi usuario" => "Retour à mon utilisateur",
     "Mi organización" => "Mon organisation",
     "Listado de actores" => "Liste des acteurs",
     "Conectar como otro usuario" => "Se connecter en tant qu'autre utilisateur",
     "Mapa de actores" => "Carte des acteurs",
+    "Consultar oportunidades" => "Consulter les opportunités",
+    "Agregar oportunidades" => "Ajouter des opportunités",
+    "Mapa de contenidos" => "Carte des contenus",
+    "Oportunidades" => "Opportunités",
+    "Proyectos" => "Projets",
+    "Agregar proyectos" => "Ajouter des projets",
+    "Mapa de actores y contenidos" => "Carte des acteurs et des contenus",
+    "Consultar proyectos" => "Consulter les projets",
+    "Áreas de investigación" => "Domaines de recherche",
 ];
 
 return $lang;

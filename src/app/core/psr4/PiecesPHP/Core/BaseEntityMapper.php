@@ -151,6 +151,7 @@ class BaseEntityMapper extends EntityMapper
         $result = $reflection->invokeArgs(null, $arguments);
 
         if ($name === 'fieldsToSelect') {
+            $approvedValue = SystemApprovalsMapper::STATUS_APPROVED;
             if (SystemApprovalsRoutes::ENABLE) {
                 $tableApprovals = SystemApprovalsMapper::TABLE;
                 $tableProfiles = UserProfileMapper::TABLE;
@@ -166,12 +167,12 @@ class BaseEntityMapper extends EntityMapper
                     if ($tableName == $tableProfiles) {
                         $result[] = "(SELECT {$tableApprovals}.status FROM {$tableApprovals} WHERE {$tableApprovals}.referenceTable = '{$tableUsers}' AND {$tableApprovals}.referenceValue = {$tableProfiles}.belongsTo LIMIT 1) AS systemApprovalStatus";
                     } else {
-                        $result[] = "1 AS systemApprovalStatus"; //Para homologar todas
+                        $result[] = "'{$approvedValue}' AS systemApprovalStatus"; //Para homologar todas
                     }
 
                 }
             } else {
-                $result[] = "1 AS systemApprovalStatus"; //Para homologar todas
+                $result[] = "'{$approvedValue}' AS systemApprovalStatus"; //Para homologar todas
             }
         }
 

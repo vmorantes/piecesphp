@@ -47,6 +47,13 @@ class UsersModel extends EntityMapperExtensible
     const STATUS_USER_ATTEMPTS_BLOCK = 2;
     const STATUS_USER_APPROVED_PENDING = 3;
     const STATUS_USER_REJECTED = 4;
+    const STATUSES_VALUES = [
+        self::STATUS_USER_INACTIVE,
+        self::STATUS_USER_ACTIVE,
+        self::STATUS_USER_ATTEMPTS_BLOCK,
+        self::STATUS_USER_APPROVED_PENDING,
+        self::STATUS_USER_REJECTED,
+    ];
     const STATUSES = [
         self::STATUS_USER_INACTIVE => 'Inactivo',
         self::STATUS_USER_ACTIVE => 'Activo',
@@ -99,10 +106,10 @@ class UsersModel extends EntityMapperExtensible
     const TYPES_USER_PRIORITY = [
         self::TYPE_USER_ROOT => 500,
         self::TYPE_USER_ADMIN_GRAL => 400,
-        self::TYPE_USER_ADMIN_ORG => 300,
+        self::TYPE_USER_ADMIN_ORG => 1,
         self::TYPE_USER_GENERAL => 1,
-        self::TYPE_USER_INSTITUCIONAL => 1,
-        self::TYPE_USER_COMUNICACIONES => 1,
+        self::TYPE_USER_INSTITUCIONAL => 100,
+        self::TYPE_USER_COMUNICACIONES => 2,
     ];
 
     const TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE = [
@@ -1028,8 +1035,8 @@ class UsersModel extends EntityMapperExtensible
 
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
         $orderBy = array_filter($orderBy, fn($e) => $e !== null);
-        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization;
+        $currentUser = $currentUser !== null ? $currentUser : null;
+        $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
         $selectFields = self::fieldsToSelect();

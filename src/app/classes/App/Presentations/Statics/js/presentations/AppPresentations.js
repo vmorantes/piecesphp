@@ -142,7 +142,7 @@ function AppPresentations(options) {
 			}).fail(function (error) {
 
 				errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Ha ocurrido un error al cargar los elementos.'))
-				console.log(error)
+				console.error(error)
 
 			}).always(function () {
 

@@ -373,7 +373,15 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			//Observar selección de imagen externa
 			window.addEventListener('message', function (event) {
 				if (typeof event.data.ckeditorSelection !== 'undefined' && event.data.ckeditorSelection) {
-					insertImages(event.data.fileURL)
+					const fileURL = event.data.fileURL
+					const fileType = fileURL.split('.').pop()
+					const imagesTypes = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'ico', 'webp', 'svg']
+					const isImage = imagesTypes.includes(fileType.toLowerCase())
+					if (isImage) {
+						insertImages(fileURL)
+					} else {
+						insertLink(fileURL)
+					}
 					fileManagerModalDestroy()
 				}
 			}, false)
@@ -513,6 +521,23 @@ function RichEditorAdapterComponent(adapterOptions = {}, toolbar = null, silentE
 			editorInstance.execute('imageInsert', { source: url })
 		}
 
+	}
+
+	/**
+	 * @param {String} url 
+	 * @param {Object} attributes 
+	 */
+	function insertLink(url, attributes = {}) {
+		let linkName = decodeURIComponent(url).split('/').pop()
+		linkName = typeof linkName == 'string' && linkName.length > 0 ? linkName : url
+		editorInstance.model.enqueueChange('transparent', writer => {
+			const textNode = writer.createText(linkName, {
+				...attributes,
+				linkHref: url
+			})
+			const position = editorInstance.model.document.selection.getFirstPosition()
+			editorInstance.model.insertContent(textNode, position)
+		})
 	}
 
 	instantiate(adapterOptions)

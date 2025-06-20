@@ -72,7 +72,7 @@ $approvalElementExtended = $approvalMapper->getExtendedElement();
                 <div class="three wide column">
 
                     <div class="base-title"><?= __($langGroup, 'Fecha pública'); ?></div>
-                    <div class="base-text"><?= strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->publicDate), ['%1' => 'de']); ?></div>
+                    <div class="base-text"><?= strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->publicDate), ['%1' => __(LANG_GROUP, 'de')]); ?></div>
                 </div>
             </div>
 
@@ -81,11 +81,11 @@ $approvalElementExtended = $approvalMapper->getExtendedElement();
             <div class="ui stackable grid">
                 <div class="three wide column">
                     <div class="base-title"><?= __($langGroup, 'Fecha inicial'); ?></div>
-                    <div class="base-text"><?= $mapper->startDate != null ? strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->startDate), ['%1' => 'de']) : __($langGroup, 'N/A'); ?></div>
+                    <div class="base-text"><?= $mapper->startDate != null ? strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->startDate), ['%1' => __(LANG_GROUP, 'de')]) : __($langGroup, 'N/A'); ?></div>
                 </div>
                 <div class="three wide column">
                     <div class="base-title"><?= __($langGroup, 'Fecha final'); ?></div>
-                    <div class="base-text"><?= $mapper->endDate != null ? strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->endDate), ['%1' => 'de']) : __($langGroup, 'N/A'); ?></div>
+                    <div class="base-text"><?= $mapper->endDate != null ? strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->endDate), ['%1' => __(LANG_GROUP, 'de')]) : __($langGroup, 'N/A'); ?></div>
                 </div>
             </div>
 

@@ -102,7 +102,7 @@ class ApplicationCallsRoutes
             $sidebar = get_sidebar_menu();
 
             //$sidebar->addItem(new MenuGroup([
-            //    'name' => __(ApplicationCallsLang::LANG_GROUP, 'Gestionar convocatorias'),
+            //    'name' => __(ApplicationCallsLang::LANG_GROUP, 'Gestionar contenidos'),
             //    'icon' => 'bullhorn',
             //    'href' => ApplicationCallsController::routeName('list'),
             //    'visible' => ApplicationCallsController::allowedRoute('list'),
@@ -122,12 +122,7 @@ class ApplicationCallsRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        if (self::ENABLE) {
-            $route = get_route(self::class);
-            return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
-        } else {
-            return '';
-        }
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::ENABLE);
     }
 
     /**

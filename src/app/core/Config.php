@@ -115,6 +115,8 @@ class Config
         $this->initAppDBConfig();
         $this->initAppKeyConfig();
         $this->initAppAllowedLangsConfig();
+        $this->initLangByCookieConfig();
+        $this->initLangByBrowserConfig();
         $this->initLangByURLConfig();
         $this->initAppLangConfig();
         $this->initAppLocaleLangs();
@@ -248,9 +250,32 @@ class Config
         }
         set_config($configName, $this->appKey);
     }
+    /**
+     * Configura si la aplicación tomará el lenguaje de la cookie
+     *
+     * @return void
+     */
+    public function initLangByCookieConfig()
+    {
+        $configName = 'lang_by_cookie';
+        $lang_by_cookie = get_config($configName) === true;
+        set_config($configName, $lang_by_cookie);
+    }
 
     /**
-     * Configura la si la aplicación tomará el idioma de la url
+     * Configura si la aplicación tomará el lenguaje por defecto del navegador
+     *
+     * @return void
+     */
+    public function initLangByBrowserConfig()
+    {
+        $configName = 'lang_by_browser';
+        $lang_by_browser = get_config($configName) === true;
+        set_config($configName, $lang_by_browser);
+    }
+
+    /**
+     * Configura si la aplicación tomará el lenguaje de la url
      *
      * @return void
      */
@@ -262,7 +287,7 @@ class Config
     }
 
     /**
-     * Configura los idiomas permitidos
+     * Configura los lenguajes permitidos
      *
      * @return void
      */
@@ -281,7 +306,7 @@ class Config
     }
 
     /**
-     * Configura el idioma por defecto de la aplicación
+     * Configura el lenguaje por defecto de la aplicación
      *
      * @return void
      */
@@ -326,7 +351,7 @@ class Config
     }
 
     /**
-     * Configura los códigos de localidad según idioma
+     * Configura los códigos de localidad según lenguaje
      *
      * @return void
      */
@@ -492,7 +517,7 @@ class Config
     {
         if (self::$instance === null) {
             self::$instance = new static();
-            self::set_lang_by_url();
+            self::set_lang_strategy();
             self::set_locale_from_current_lang();
         }
     }
@@ -574,12 +599,13 @@ class Config
         }
 
         //Perparación de configuraciones de registro de mensajes no traducidos
+        $reviewLang = $forceLang ?? $currentLang;
         $messageHash = sha1($message);
         $missingMessagesBaseFolderName = 'lang/missing-lang-messages';
         $missingMessagesBaseFolderPath = app_basepath("{$missingMessagesBaseFolderName}");
         $missingMessagesGroupFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}");
-        $missingMessagesLangFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$currentLang}");
-        $missingMessagesMessageFilePath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$currentLang}/{$messageHash}.to-translate");
+        $missingMessagesLangFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$reviewLang}");
+        $missingMessagesMessageFilePath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$reviewLang}/{$messageHash}.to-translate");
 
         //Buscar
         foreach ($searchOnLangs as $lang) {
@@ -598,7 +624,8 @@ class Config
 
                         if (array_key_exists($message, $groupData) || $messageIsEmpty) {
 
-                            $isMissingMessage = false;
+                            //Si el mensaje existe pero no es el idioma de revisión, se marca como faltante
+                            $isMissingMessage = $lang == $reviewLang ? false : true;
                             if ($messageIsEmpty) {
                                 $str = $groupData;
                             } else {
@@ -618,7 +645,9 @@ class Config
                 //Si el mensaje no existe y no fue un mensaje vacío
                 $noScanLangs = get_config('no_scan_langs');
                 $noScanLangs = is_array($noScanLangs) ? $noScanLangs : [];
-                if (!in_array($currentLang, $noScanLangs)) {
+                $noScanLangGroups = get_config('no_scan_lang_groups');
+                $noScanLangGroups = is_array($noScanLangGroups) ? $noScanLangGroups : [];
+                if (!in_array($reviewLang, $noScanLangs) && !in_array($groupName, $noScanLangGroups)) {
                     if ($isMissingMessage && !$messageIsEmpty) {
                         $missingMessagesFoldersPaths = [
                             $missingMessagesBaseFolderPath,
@@ -684,7 +713,7 @@ class Config
             $reflectedProperty->setValue($value);
 
             if ($name == 'app_lang') {
-                //Establecer nuevamente setlocale en caso de cambiar el idioma
+                //Establecer nuevamente setlocale en caso de cambiar el lenguaje
                 self::set_locale_from_current_lang();
             }
 
@@ -799,24 +828,113 @@ class Config
     }
 
     /**
-     * Establece el lenguaje de la aplicación según la URL
-     * @param string $lang Lo ideal es que sea el nombre del archivo correspondiente en app/lang
+     * Establece el lenguaje de la aplicación (actual y por defecto) según diversas estrategias, de momento: Cookie, Navegador y cookie. En ese orden de prioridad.
      * @return void
      */
-    public static function set_lang_by_url()
+    public static function set_lang_strategy()
     {
-        $url_lang = get_part_request(1);
         $lang_by_url = get_config('lang_by_url');
+        $lang_by_cookie = get_config('lang_by_cookie');
+        $lang_by_browser = get_config('lang_by_browser');
+        $appLangByURL = null;
+        $appLangByCookie = null;
+        $appLangByBrowser = null;
+        $allowedLangs = self::$appAllowedLangs;
+
+        /* Selección de lenguaje ACTUAL */
+
+        /**
+         * Por URL, se define según el primer segmento de la URL
+         */
+        $url_lang = get_part_request(1);
         if ($lang_by_url === true) {
-            if (in_array($url_lang, self::$appAllowedLangs)) {
-                self::$appLang = $url_lang;
+            if (in_array($url_lang, $allowedLangs)) {
+                $appLangByURL = $url_lang;
             } else {
-                self::$appLang = self::$defaultAppLang;
+                $appLangByURL = self::$defaultAppLang;
             }
         }
 
-        self::$prefixLang = self::$appLang == self::$defaultAppLang ? '' : '/' . self::$appLang;
+        /**
+         * Por navegador, se define según el lenguaje preferido del navegador
+         */
+        if ($lang_by_browser === true) {
+            $preferedLang = getPreferredLanguageByHeader($allowedLangs, self::$defaultAppLang);
+            $appLangByBrowser = $preferedLang;
+        }
 
+        /**
+         * Por cookie, se define según el valor de la cookie
+         * El valor de usado es la configuración 'cookie_lang_definer', para establecer el cambio de lenguaje por primera vez
+         * se usa el parámetro de URL 'i18n'
+         */
+        if ($lang_by_cookie === true) {
+
+            $cookieName = get_config('cookie_lang_definer');
+            $cookieName = is_string($cookieName) && mb_strlen(trim($cookieName)) > 0 ? $cookieName : uniqid();
+            $urlParamLangName = 'i18n';
+
+            //Configurar cookie desde URL o usar el último valor
+            $i18nURLValue = isset($_GET) && array_key_exists($urlParamLangName, $_GET) ? $_GET[$urlParamLangName] : null;
+            $i18nURLValue = $i18nURLValue !== null ? $i18nURLValue : getCookie($cookieName);
+            $selectedLang = null;
+            if (is_string($i18nURLValue)) {
+                if ($i18nURLValue == 'default') {
+                    setCookieByConfig($cookieName, null);
+                } else {
+                    $selectedLang = $i18nURLValue;
+                    setCookieByConfig($cookieName, $i18nURLValue);
+                }
+            }
+
+            //Definir el lenguaje
+            $selectedLang = is_string($selectedLang) ? $selectedLang : '-1';
+            if (in_array($selectedLang, $allowedLangs)) {
+                $appLangByCookie = $selectedLang;
+            }
+        }
+
+        /* Establecer lenguaje actual según prioridad de las estrategias usadas */
+        $isLangByURL = false;
+        $isLangByBrowser = false;
+        $isLangByCookie = false;
+        $prefixLang = '';
+        if ($appLangByCookie !== null) {
+            self::$appLang = $appLangByCookie;
+            $isLangByCookie = true;
+        } else if ($appLangByBrowser !== null) {
+            self::$appLang = $appLangByBrowser;
+            $isLangByBrowser = true;
+        } else if ($appLangByURL !== null) {
+            self::$appLang = $appLangByURL;
+            $prefixLang = self::$appLang == self::$defaultAppLang ? '' : '/' . self::$appLang;
+            $isLangByURL = true;
+        } else {
+            self::$appLang = self::$defaultAppLang;
+        }
+
+        /* Ajustes según prioridades */
+
+        //Caso: No se seleecionó mediante URL
+        if (!$isLangByURL) {
+
+            //De cualquier forma, se establece el prefijo de lenguaje según la selección por URL para evitar conflictos si está activo el soporte de URL
+            $prefixLang = $appLangByURL == self::$defaultAppLang ? '' : '/' . $appLangByURL;
+
+            //Caso: Está activo el soporte por URL pero se seleccionó mediante navegador
+            if ($isLangByBrowser) {
+                $hasPrefix = mb_strlen($prefixLang) > 0;
+                //Caso: Existe declaración explícita de lenguaje en URL
+                if ($hasPrefix) {
+                    //Se usa el lenguaje de la URL
+                    self::$appLang = $appLangByURL;
+                }
+            }
+
+        }
+        self::$prefixLang = $prefixLang;
+
+        //Establecer configuración de prefijo de lenguaje y lenguaje actual
         set_config('prefix_lang', self::$prefixLang);
         set_config('app_lang', self::$appLang);
     }
@@ -860,6 +978,17 @@ class Config
         }
 
         return $appAllowedLangs;
+    }
+
+    /**
+     * Verifica si un lenguaje está permitido
+     * @param string $lang
+     * @return bool
+     */
+    public static function is_allowed_lang($lang)
+    {
+        $appAllowedLangs = self::$appAllowedLangs;
+        return is_string($lang) && in_array($lang, $appAllowedLangs);
     }
 
     /**

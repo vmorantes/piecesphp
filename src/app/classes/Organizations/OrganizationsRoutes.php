@@ -152,12 +152,7 @@ class OrganizationsRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        if (self::ENABLE) {
-            $route = get_route(self::class);
-            return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
-        } else {
-            return '';
-        }
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::ENABLE);
     }
 
     /**

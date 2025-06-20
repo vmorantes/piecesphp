@@ -70,7 +70,7 @@ return [
     "Nacionalidad" => "Nationalité",
     "Filtrar" => "Filtrer",
     "Aprobación de %1" => "Approbation de %1",
-    "Investigador independiente" => "Chercheur indépendant",
+    "Usuario independiente" => "Utilisateur indépendant",
     "Oportunidad" => "Opportunité",
     "Categoría" => "Catégorie",
     "Tipo de contenido" => "Type de contenu",
@@ -81,4 +81,8 @@ return [
     "Proyecto de cooperación bilateral" => "Projet de coopération bilatérale",
     "Oportunidad de financiación" => "Opportunité de financement",
     "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado" => "Monsieur/Madame {NAME}, nous vous informons que votre contenu \"{CONTENT_NAME}\" a été rejeté",
+    "El estado que intenta asignar no es válido." => "L'état que vous essayez d'assigner n'est pas valide.",
+    "Tipo de contratación" => "Type de contrat",
+    "Eliminado" => "Supprimé",
+    "No pudo conectarse a la base de datos" => "Impossible de se connecter à la base de données"
 ];

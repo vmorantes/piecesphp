@@ -62,7 +62,7 @@ class ApplicationCallsController extends AdminPanelController
     /**
      * @var string
      */
-    protected static $title = 'Convocatoria';
+    protected static $title = 'Contenido';
 
     /**
      * @var string
@@ -129,6 +129,7 @@ class ApplicationCallsController extends AdminPanelController
     {
 
         set_custom_assets([
+            ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/translation-config.js'),
             ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/add-form.js'),
         ], 'js');
 
@@ -141,7 +142,7 @@ class ApplicationCallsController extends AdminPanelController
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
 
-        $title = __(self::LANG_GROUP, 'Agregar convocatoria');
+        $title = __(self::LANG_GROUP, 'Agregar contenido');
         $description = '';
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
@@ -167,7 +168,7 @@ class ApplicationCallsController extends AdminPanelController
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => get_route('admin'),
             ],
-            __(self::LANG_GROUP, 'Convocatorias') => [
+            __(self::LANG_GROUP, 'Contenidos') => [
                 'url' => $backLink,
             ],
             $title,
@@ -199,6 +200,7 @@ class ApplicationCallsController extends AdminPanelController
         if ($element->id !== null && ApplicationCallsMapper::existsByID($element->id)) {
 
             set_custom_assets([
+                ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/translation-config.js'),
                 ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
                 ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/edit-form.js'),
             ], 'js');
@@ -209,7 +211,7 @@ class ApplicationCallsController extends AdminPanelController
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
 
-            $title = __(self::LANG_GROUP, 'Edición de convocatoria');
+            $title = __(self::LANG_GROUP, 'Edición de contenido');
             $description = '';
 
             set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
@@ -242,7 +244,7 @@ class ApplicationCallsController extends AdminPanelController
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
                 ],
-                __(self::LANG_GROUP, 'Convocatorias') => [
+                __(self::LANG_GROUP, 'Contenidos') => [
                     'url' => $backLink,
                 ],
                 $title,
@@ -271,8 +273,8 @@ class ApplicationCallsController extends AdminPanelController
         $addLink = self::routeName('forms-add');
         $processTableLink = self::routeName('datatables');
 
-        $title = __(self::LANG_GROUP, 'Convocatorias');
-        $description = __(self::LANG_GROUP, 'Listado de convocatorias');
+        $title = __(self::LANG_GROUP, 'Contenidos');
+        $description = __(self::LANG_GROUP, 'Listado de contenidos');
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
 
@@ -611,7 +613,7 @@ class ApplicationCallsController extends AdminPanelController
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
-        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Convocatoria'));
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Contenido'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
 
         //Valores iniciales de la respuesta
@@ -621,8 +623,8 @@ class ApplicationCallsController extends AdminPanelController
         $resultOperation->setValue('reload', false);
 
         //Mensajes de respuesta
-        $notExistsMessage = __(self::LANG_GROUP, 'La convocatoria que intenta modificar no existe.');
-        $successCreateMessage = __(self::LANG_GROUP, 'Convocatoria creada.');
+        $notExistsMessage = __(self::LANG_GROUP, 'El contenido que intenta modificar no existe.');
+        $successCreateMessage = __(self::LANG_GROUP, 'Contenido creado.');
         $successEditMessage = __(self::LANG_GROUP, 'Datos guardados.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
@@ -960,7 +962,7 @@ class ApplicationCallsController extends AdminPanelController
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
-        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Eliminar convocatoria'));
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Eliminar contenido'));
         $resultOperation->setSingleOperation(true); //Se define que es de una única operación
 
         //Valores iniciales de la respuesta
@@ -971,8 +973,8 @@ class ApplicationCallsController extends AdminPanelController
         $resultOperation->setValue('received', $inputData);
 
         //Mensajes de respuesta
-        $notExistsMessage = __(self::LANG_GROUP, 'La convocatoria que intenta eliminar no existe.');
-        $successMessage = __(self::LANG_GROUP, 'Convocatoria eliminada.');
+        $notExistsMessage = __(self::LANG_GROUP, 'El contenido que intenta eliminar no existe.');
+        $successMessage = __(self::LANG_GROUP, 'Contenido eliminado.');
         $unknowErrorMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido.');
         $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
 
@@ -1174,6 +1176,7 @@ class ApplicationCallsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
+                    $value = !is_array($value) ? [$value] : $value;
                     return array_map(fn($e) => is_scalar($e) ? (
                         Validator::isInteger($e) ? (int) $e : -1
                     ) : -1, $value);
@@ -1188,6 +1191,7 @@ class ApplicationCallsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
+                    $value = !is_array($value) ? [$value] : $value;
                     return array_map(fn($e) => is_scalar($e) ? (
                         Validator::isInteger($e) ? (int) $e : -1
                     ) : -1, $value);
@@ -1202,6 +1206,7 @@ class ApplicationCallsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
+                    $value = !is_array($value) ? [$value] : $value;
                     return array_map(fn($e) => is_scalar($e) ? (string) $e : '-1', $value);
                 }
             ),
@@ -1214,6 +1219,7 @@ class ApplicationCallsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
+                    $value = !is_array($value) ? [$value] : $value;
                     return array_map(fn($e) => is_scalar($e) ? (string) $e : '-1', $value);
                 }
             ),
@@ -1628,7 +1634,11 @@ class ApplicationCallsController extends AdminPanelController
 
         $sqlCount = "SELECT COUNT(subQuery.id) AS total FROM ({$sqlSelect}) " . 'AS subQuery';
 
-        $sqlSelect .= " ORDER BY " . implode(', ', ApplicationCallsMapper::ORDER_BY_PREFERENCE);
+        $orderBy = ApplicationCallsMapper::ORDER_BY_PREFERENCE;
+        if (isset($_GET['random']) && $_GET['random'] === 'yes') {
+            $orderBy = ['RAND()'];
+        }
+        $sqlSelect .= " ORDER BY " . implode(', ', $orderBy);
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
@@ -1643,13 +1653,11 @@ class ApplicationCallsController extends AdminPanelController
         $each = function ($element) use ($internalItem) {
             if (!$internalItem) {
                 $mapper = ApplicationCallsMapper::objectToMapper($element);
-                $element->link = ApplicationCallsPublicController::routeName('single', ['slug' => $mapper->getSlug()]);
                 $excerpt = $mapper->excerpt(253);
                 $excerptAlt = $mapper->excerpt(102);
                 $element->excerpt = mb_strpos($excerpt, '...') ? $excerpt : $excerpt . '...';
                 $element->excerptAlt = mb_strpos($excerptAlt, '...') ? $excerptAlt : $excerptAlt . '...';
                 unset($element->folder);
-                unset($element->id);
                 unset($element->idPadding);
                 unset($element->isActiveByDate);
                 unset($element->meta);

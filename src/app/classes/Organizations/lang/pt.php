@@ -74,4 +74,7 @@ return [
     "Pendiente de aprobación" => "Pendente de aprovação",
     "Enlace página web" => "Link do site",
     "Enlace LinkedIn" => "Link do LinkedIn",
+    "Pendientes de aprobación" => "Pendentes de aprovação",
+    "El área de interés no es válida" => "A área de interesse não é válida",
+    "Editar perfil" => "Editar perfil"
 ];

@@ -2,3 +2,4 @@ olds/*
 !olds/.keep
 **/*.json
 !.gitignore
+!missing-lang-messages.json

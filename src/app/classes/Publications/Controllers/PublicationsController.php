@@ -40,6 +40,7 @@ use Publications\Mappers\PublicationMapper;
 use Publications\PublicationsLang;
 use Publications\PublicationsRoutes;
 use Publications\Util\AttachmentPackage;
+use Spatie\Url\Url as URLManager;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\SystemApprovalsRoutes;
 
@@ -86,6 +87,10 @@ class PublicationsController extends AdminPanelController
      * @var HelperController
      */
     protected $helpController = null;
+    /**
+     * @var string
+     */
+    protected $urlForSearchUsers = '';
 
     const BASE_VIEW_DIR = 'publications';
     const BASE_JS_DIR = 'js/publications';
@@ -122,6 +127,19 @@ class PublicationsController extends AdminPanelController
 
         PublicationCategoryMapper::uncategorizedCategory();
 
+        //Para autor
+        $ignoreTypesForAuthor = array_filter(array_keys(UsersModel::TYPES_USERS), function ($type) {
+            $validTypes = [
+                UsersModel::TYPE_USER_COMUNICACIONES,
+                UsersModel::TYPE_USER_INSTITUCIONAL,
+            ];
+            return !in_array($type, $validTypes);
+        });
+        $this->urlForSearchUsers = URLManager::fromString(get_route('users-search-dropdown'))
+            ->withQueryParameter('search', '{query}')
+            ->withQueryParameter('ignoreTypes', implode(',', $ignoreTypesForAuthor))
+            ->__toString();
+
     }
 
     /**
@@ -146,8 +164,9 @@ class PublicationsController extends AdminPanelController
 
         $action = self::routeName('actions-add');
         $backLink = self::routeName('list');
-        $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), null);
-        $searchUsersURL = get_route('users-search-dropdown');
+        //NOTE: Solo sobre proyecto, seleccionar por defecto categoría base
+        $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), PublicationCategoryMapper::UNCATEGORIZED_ID);
+        $searchUsersURL = $this->urlForSearchUsers;
 
         $title = __(self::LANG_GROUP, 'Agregar publicación');
         $description = '';
@@ -164,7 +183,7 @@ class PublicationsController extends AdminPanelController
         $data['langsOptions'] = $langsOptions;
         $data['allCategories'] = $allCategories;
         $data['dynamicAttachments'] = $dynamicAttachments;
-        $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
+        $data['searchUsersURL'] = $searchUsersURL;
         $data['breadcrumbs'] = get_breadcrumbs([
             __(self::LANG_GROUP, 'Inicio') => [
                 'url' => get_route('admin'),
@@ -213,7 +232,7 @@ class PublicationsController extends AdminPanelController
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
             $allCategories = array_to_html_options(PublicationCategoryMapper::allForSelect(), $element->category->id);
-            $searchUsersURL = get_route('users-search-dropdown');
+            $searchUsersURL = $this->urlForSearchUsers;
 
             $title = __(self::LANG_GROUP, 'Edición de publicación');
             $description = '';
@@ -230,7 +249,7 @@ class PublicationsController extends AdminPanelController
             $data['description'] = $description;
             $data['allCategories'] = $allCategories;
             $data['selectedLang'] = $selectedLang;
-            $data['searchUsersURL'] = append_to_url($searchUsersURL, '?search={query}');
+            $data['searchUsersURL'] = $searchUsersURL;
             $data['breadcrumbs'] = get_breadcrumbs([
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
@@ -1471,7 +1490,11 @@ class PublicationsController extends AdminPanelController
 
         $sqlCount = "SELECT COUNT(subQuery.id) AS total FROM ({$sqlSelect}) " . 'AS subQuery';
 
-        $sqlSelect .= " ORDER BY " . implode(', ', PublicationMapper::ORDER_BY_PREFERENCE);
+        $orderBy = PublicationMapper::ORDER_BY_PREFERENCE;
+        if (isset($_GET['random']) && $_GET['random'] === 'yes') {
+            $orderBy = ['RAND()'];
+        }
+        $sqlSelect .= " ORDER BY " . implode(', ', $orderBy);
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 

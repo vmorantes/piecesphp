@@ -7,6 +7,8 @@
 namespace App\Controller;
 
 use App\Model\AvatarModel;
+use App\Model\UsersModel;
+use Components\Controllers\ComponentProvider;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use Newsletter\Controllers\NewsletterController;
 use Newsletter\NewsletterRoutes;
@@ -22,6 +24,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
+use Publications\PublicationsRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -83,7 +86,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     public function indexView(Request $req, Response $res)
     {
 
-        set_title(__(LANG_GROUP, 'Home'));
+        set_title(__(LANG_GROUP, 'Inicio'));
 
         set_custom_assets([
             'statics/css/style.css',
@@ -93,6 +96,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             PublicationsController::pathFrontPublicationsAdapter(),
             BuiltInBannerController::pathFrontBuiltInBannerAdapter(),
             BuiltInBannerRoutes::staticRoute('js/public/home.js'),
+            PublicationsRoutes::staticRoute('js/publications/public/listing.js'),
             'statics/js/main.js',
         ];
         $assetsJS = array_filter($assetsJS, function ($e) {return mb_strlen($e) > 0;});
@@ -101,7 +105,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
         }
 
         $data = [
-            'ajaxArticlesURL' => PublicationsPublicController::routeName('ajax-all', [], true),
+            'componentsProviderURL' => ComponentProvider::routeName('provide', ['group' => '{GROUP}'], true),
+            'ajaxPublicationsURL' => PublicationsPublicController::routeName('ajax-all', [], true),
             'sliderAjax' => BuiltInBannerPublicController::routeName('ajax-all', [], true),
             'addSuscriberURL' => NewsletterController::routeName('add', [], true),
             'suscriberEnable' => NewsletterRoutes::ENABLE,
@@ -198,7 +203,8 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
             'res' => $res,
             'args' => $args,
             'langGroup' => LANG_GROUP,
-            'ajaxArticlesURL' => PublicationsPublicController::routeName('ajax-all', [], true),
+            'ajaxPublicationsURL' => PublicationsPublicController::routeName('ajax-all', [], true),
+            'componentsProviderURL' => ComponentProvider::routeName('provide', ['group' => '{GROUP}'], true),
         ];
 
         $availableView = self::genericViewsConfigurations();
@@ -293,7 +299,9 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                         'statics/js/generic-views/tabs.js',
                     ],
                 ],
-                'data' => [],
+                'data' => [
+                    'bodyClasses' => '',
+                ],
                 'executeBeforeViews' => function () {},
                 'executeAfterViews' => function () {},
             ],
@@ -309,11 +317,24 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
                         'statics/js/generic-views/elements.js',
                     ],
                 ],
-                'data' => [],
+                'data' => [
+                    'bodyClasses' => '',
+                ],
                 'executeBeforeViews' => function () {},
                 'executeAfterViews' => function () {},
             ],
         ];
+
+        if ($currentUser !== null) {
+
+            if ($currentUser->type == UsersModel::TYPE_USER_ROOT) {
+
+                //NOTE: Vistas adicionales para pruebas o disponibles según criterios
+                $genericViewConfigurations['SOMETHING' . uniqid()] = [];
+
+            }
+
+        }
 
         return $genericViewConfigurations;
     }
@@ -453,6 +474,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
 
         //Generales
         $ignoreRoutes = [
+            //Vistas para ignorar
             "{$namePrefix}-SAMPLE",
         ];
         $routes = array_filter([

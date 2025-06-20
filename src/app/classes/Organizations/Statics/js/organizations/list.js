@@ -38,6 +38,23 @@ window.addEventListener('load', function () {
 				},
 			},
 		},
+		{
+			selector: 'table[url].pendings',
+			ajaxURLAttribute: 'url',
+			table: null,
+			dataTable: null,
+			length: 20,
+			options: {
+				responsive: false,
+				autoWidth: false,
+				drawCallback: function () {
+					window.dispatchEvent(new Event('canDeleteOrganization'))
+				},
+				initComplete: function () {
+					configMirrorScrollX('namespace.mirror-scroll-x.pendings', '.mirror-scroll-x.pendings')
+				},
+			},
+		},
 	]
 
 	for (const tableConfig of tables) {

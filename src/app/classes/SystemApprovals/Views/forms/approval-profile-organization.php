@@ -193,11 +193,11 @@
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?=__($langGroup, 'Fecha inicial');?></div>
-            <div class="base-text"><?=$experience->startDateFormat('%e %1 %B %1 Y', ['%1' => 'de']);?></div>
+            <div class="base-text"><?=$experience->startDateFormat('%e %1 %B %1 Y', ['%1' => __(LANG_GROUP, 'de')]);?></div>
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?=__($langGroup, 'Fecha final');?></div>
-            <div class="base-text"><?=$experience->endDateFormat('%e %1 %B %1 Y', ['%1' => 'de']);?></div>
+            <div class="base-text"><?=$experience->endDateFormat('%e %1 %B %1 Y', ['%1' => __(LANG_GROUP, 'de')]);?></div>
             <div class="base-horizontal-space"></div>
 
             <div class="base-title"><?=__($langGroup, 'Descripción');?></div>

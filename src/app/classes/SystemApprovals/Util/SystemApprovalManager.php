@@ -76,6 +76,8 @@ class SystemApprovalManager
                                 }
                                 $approvalElement->update();
                             }
+
+                            $class::onUpdatedRecord($payload, $approvalElement);
                         }
                     }, $class::getMapperClass());
                     $this->configurations[] = $class;
@@ -217,6 +219,8 @@ class SystemApprovalManager
         $subQueries = [];
 
         foreach ($configurations as $class) {
+            $className = (string) $class;
+            $classProperties = get_class_vars($className);
             $tableElement = $class::getReferenceTable();
             $columnElement = $class::getReferenceColumn();
             $supportedFields = $class::getFields();
@@ -225,10 +229,22 @@ class SystemApprovalManager
             if ($columnToExtract == 'createdBy' && $tableElement == UsersModel::TABLE) {
                 $columnToExtract = 'id';
             }
-            if (in_array($columnToExtract, $supportedFields)) {
-                $subQueries[] = "(SELECT {$tableElement}.{$columnToExtract} FROM {$tableElement} WHERE {$table}referenceValue = {$tableElement}.{$columnElement} AND  {$table}referenceTable = '{$tableElement}')";
+            //Para verificar estado de activo o inactivo
+            if ($columnToExtract == 'isActive') {
+
+                if (property_exists($class, 'STATUS_ACTIVATION_COLUMN') && property_exists($class, 'STATUS_ACTIVATION_POSITIVES_VALUES')) {
+                    $STATUS_ACTIVATION_COLUMN = $classProperties['STATUS_ACTIVATION_COLUMN'];
+                    $STATUS_ACTIVATION_POSITIVES_VALUES = implode("','", $classProperties['STATUS_ACTIVATION_POSITIVES_VALUES']);
+                    $subQueries[] = "(SELECT {$tableElement}.{$STATUS_ACTIVATION_COLUMN} IN ('{$STATUS_ACTIVATION_POSITIVES_VALUES}') FROM {$tableElement} WHERE {$table}referenceValue = {$tableElement}.{$columnElement} AND  {$table}referenceTable = '{$tableElement}')";
+                }
+
+            } else {
+                if (in_array($columnToExtract, $supportedFields)) {
+                    $subQueries[] = "(SELECT {$tableElement}.{$columnToExtract} FROM {$tableElement} WHERE {$table}referenceValue = {$tableElement}.{$columnElement} AND  {$table}referenceTable = '{$tableElement}')";
+                }
             }
         }
+
         $subQueries = !empty($subQueries) ? "COALESCE(" . implode(",", $subQueries) . ")" : '(NULL)';
         return $subQueries;
     }

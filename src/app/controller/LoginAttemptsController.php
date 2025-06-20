@@ -342,6 +342,7 @@ class LoginAttemptsController extends AdminPanelController
         $accessReports = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_ADMIN_ORG,
         ];
         $group->register([
             new Route(

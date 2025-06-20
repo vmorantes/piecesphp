@@ -46,6 +46,8 @@ class ContentNavigationHubController extends AdminPanelController
      */
     protected $helpController = null;
 
+    protected static ?ContentNavigationHubController $renderInstance = null;
+
     const BASE_VIEW_DIR = '';
     const BASE_JS_DIR = 'js';
     const BASE_CSS_DIR = 'css';
@@ -105,7 +107,7 @@ class ContentNavigationHubController extends AdminPanelController
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
                 ],
-                __(self::LANG_GROUP, 'Convocatorias') => [
+                __(self::LANG_GROUP, 'Contenidos') => [
                     'url' => $backLink,
                 ],
                 $element->contentTypeForFullDisplayText(),
@@ -126,12 +128,20 @@ class ContentNavigationHubController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
+     * @param array $args
      * @return void
      */
-    public function applicationCallsListView(Request $request, Response $response)
+    public function applicationCallsListView(Request $request, Response $response, array $args = [])
     {
 
-        $title = __(self::LANG_GROUP, 'Convocatorias');
+        $contentTypeSelected = array_key_exists('type', $args) ? $args['type'] : null;
+        $contentTypeSelected = is_scalar($contentTypeSelected) && !is_null($contentTypeSelected) ? $contentTypeSelected : '';
+        $contentTypeSelected = in_array($contentTypeSelected, array_keys(ApplicationCallsMapper::CONTENT_TYPES)) ? $contentTypeSelected : null;
+
+        $title = __(self::LANG_GROUP, 'Contenidos');
+        if ($contentTypeSelected !== null) {
+            $title = ApplicationCallsMapper::contentTypes()[$contentTypeSelected];
+        }
         $description = '';
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
@@ -146,6 +156,7 @@ class ContentNavigationHubController extends AdminPanelController
             ],
             $title,
         ]);
+        $data['contentTypeSelected'] = $contentTypeSelected;
 
         set_custom_assets([
             ApplicationCallsController::pathFrontApplicationCallAdapter(),
@@ -204,11 +215,11 @@ class ContentNavigationHubController extends AdminPanelController
      * @param Response $response
      * @return void
      */
-    public function profilesMapView(Request $request, Response $response)
+    public function contentsMapView(Request $request, Response $response)
     {
 
         remove_imported_asset('locations');
-        $title = __(self::LANG_GROUP, 'Mapa de actores');
+        $title = __(ADMIN_MENU_LANG_GROUP, 'Mapa de actores y contenidos');
         $description = '';
 
         set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
@@ -217,19 +228,19 @@ class ContentNavigationHubController extends AdminPanelController
         $data['langGroup'] = self::LANG_GROUP;
 
         set_custom_assets([
-            ContentNavigationHubRoutes::staticRoute(self::BASE_CSS_DIR . '/profiles-map.css'),
+            ContentNavigationHubRoutes::staticRoute(self::BASE_CSS_DIR . '/contents-map.css'),
         ], 'css');
 
         set_custom_assets([
-            ContentNavigationHubRoutes::staticRoute(self::BASE_JS_DIR . '/profiles/map.js'),
+            ContentNavigationHubRoutes::staticRoute(self::BASE_JS_DIR . '/contents/map.js'),
         ], 'js');
 
         $this->helpController->render('panel/layout/header', [
             'bodyClasses' => [
-                'profiles-map',
+                'contents-map',
             ],
         ]);
-        $this->render('profiles/map', $data);
+        $this->render('contents/map', $data);
         $this->helpController->render('panel/layout/footer');
 
     }
@@ -241,6 +252,17 @@ class ContentNavigationHubController extends AdminPanelController
     {
         $name = mb_strlen(self::BASE_VIEW_DIR) > 0 ? self::BASE_VIEW_DIR . '/' . trim($name, '/') : trim($name, '/');
         return parent::render($name, $data, $mode, $format);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function view(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
+    {
+        if (self::$renderInstance === null) {
+            self::$renderInstance = new ContentNavigationHubController();
+        }
+        return self::$renderInstance->render($name, $data, $mode, $format);
     }
 
     /**
@@ -385,6 +407,15 @@ class ContentNavigationHubController extends AdminPanelController
                 null,
                 $list
             ),
+            new Route( //Vista del listado: Convocatorias (POR TIPO)
+                "{$startRoute}/application-calls-list/{type}[/]",
+                $classname . ':applicationCallsListView',
+                self::$baseRouteName . '-application-calls-list-by-type',
+                'GET',
+                true,
+                null,
+                $list
+            ),
             new Route( //Vista de detalle: Convocatorias
                 "{$startRoute}/application-calls-detail/{id}[/]",
                 $classname . ':applicationCallDetailView',
@@ -403,16 +434,15 @@ class ContentNavigationHubController extends AdminPanelController
                 null,
                 $list
             ),
-            //TODO: Pendiente de completar
-            //new Route( //Vista del mapa de perfiles
-            //    "{$startRoute}/profiles-map[/]",
-            //    $classname . ':profilesMapView',
-            //    self::$baseRouteName . '-profiles-map',
-            //    'GET',
-            //    true,
-            //    null,
-            //    $list
-            //),
+            new Route( //Vista del mapa de contenidos
+                "{$startRoute}/contents-map[/]",
+                $classname . ':contentsMapView',
+                self::$baseRouteName . '-contents-map',
+                'GET',
+                true,
+                null,
+                $list
+            ),
         ];
 
         $group->register($routes);

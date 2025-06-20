@@ -30,6 +30,7 @@ class APIRoutes
     const ENABLE = API_MODULE;
     const ENABLE_TRANSLATIONS = API_TRANSLATION_MODULE;
     const ENABLE_USERS = API_USERS;
+    const ENABLE_REPORTS = API_REPORTS;
 
     /**
      * @param RouteGroup $groupAdministration
@@ -37,7 +38,7 @@ class APIRoutes
      */
     public static function routes(RouteGroup $groupAdministration)
     {
-        if (self::ENABLE || self::ENABLE_TRANSLATIONS || self::ENABLE_USERS) {
+        if (self::ENABLE || self::ENABLE_TRANSLATIONS || self::ENABLE_USERS || self::ENABLE_REPORTS) {
 
             $groupAdministration = APIController::routes($groupAdministration);
 

@@ -268,6 +268,7 @@ class OrganizationsController extends AdminPanelController
         $addLink = self::routeName('forms-add');
         $processTableActivesLink = self::routeName('datatables') . "?status=" . OrganizationMapper::ACTIVE;
         $processTableInactivesLink = self::routeName('datatables') . "?status=" . OrganizationMapper::INACTIVE;
+        $processTablePendingsLink = self::routeName('datatables') . "?status=" . OrganizationMapper::PENDING_APPROVAL;
 
         $title = __(self::LANG_GROUP, 'Organizaciones');
         $description = __(self::LANG_GROUP, 'Listado de organizaciones');
@@ -277,6 +278,7 @@ class OrganizationsController extends AdminPanelController
         $data = [];
         $data['processTableActivesLink'] = $processTableActivesLink;
         $data['processTableInactivesLink'] = $processTableInactivesLink;
+        $data['processTablePendingsLink'] = $processTablePendingsLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
         $data['hasPermissionsAdd'] = strlen($addLink) > 0;
@@ -715,11 +717,22 @@ class OrganizationsController extends AdminPanelController
             $status = $expectedParameters->getValue('status');
             $administrator = $expectedParameters->getValue('administrator');
 
+            if (Validator::isDouble($latitude) && Validator::isDouble($longitude)) {
+                //NOTE: Esto debería ser provisional
+                //Opcional: Modifico arbitrariamente las coordenadas
+                $maxOffset = 0.6000;
+                $latOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
+                $lngOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
+                $latitude = $latitude + $latOffset;
+                $longitude = $longitude + $lngOffset;
+            }
+
             //Se define si es edición o creación
             $isEdit = $id !== -1;
 
             try {
 
+                $currentUser = getLoggedFrameworkUser();
                 $allowedLangs = Config::get_allowed_langs();
 
                 if ($isEdit) {
@@ -754,7 +767,7 @@ class OrganizationsController extends AdminPanelController
                     $mapper->interestResearhAreas = $interestResearhAreas;
                     $mapper->affiliatedInstitutions = $affiliatedInstitutions;
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
-                    if (OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type)) {
+                    if ($currentUser !== null && OrganizationMapper::canModifyAnyOrganization($currentUser->type)) {
                         if ($status !== null) {
                             $mapper->setLangData($lang, 'status', $status);
                         }
@@ -1218,7 +1231,7 @@ class OrganizationsController extends AdminPanelController
         $having = [];
 
         if ($status !== null) {
-            $statusToCritery = $status == $active ? $active : ($status == $inactive ? $inactive : -1);
+            $statusToCritery = in_array($status, array_keys(OrganizationMapper::STATUSES)) ? $status : -1;
             $beforeOperator = !empty($having) ? $and : '';
             $critery = "{$table}.status = {$statusToCritery}";
             $having[] = "{$beforeOperator} ({$critery})";
@@ -1296,7 +1309,7 @@ class OrganizationsController extends AdminPanelController
                     $deleteButton = "<a title='{$deleteText}' data-route='{$deleteLink}' class='ui button brand-color alt2 icon' delete-organization-button>{$deleteIcon}</a>";
                     $buttons[] = $deleteButton;
                 }
-                if ($hasProfileViewLink) {
+                if ($hasProfileViewLink && $e->id != OrganizationMapper::INITIAL_ID_GLOBAL) {
                     $profileViewText = __(self::LANG_GROUP, 'Ver perfil');
                     $profileViewIcon = "<i class='icon address card outline'></i>";
                     $profileViewButton = "<a title='{$profileViewText}' href='{$profileViewLink}' class='ui button blue icon'>{$profileViewIcon}</a>";
@@ -1737,7 +1750,8 @@ class OrganizationsController extends AdminPanelController
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos
-        $list = array_merge(OrganizationMapper::CAN_VIEW_ALL, OrganizationMapper::CAN_MODIFY_ALL);
+        $baseList = OrganizationMapper::CAN_VIEW_BASE_LIST;
+        $list = array_merge(OrganizationMapper::CAN_VIEW_ALL, OrganizationMapper::CAN_MODIFY_ALL, OrganizationMapper::CAN_VIEW_BASE_LIST);
         $creation = OrganizationMapper::CAN_MODIFY_ALL;
         $edition = array_merge(OrganizationMapper::EDITORS, OrganizationMapper::CAN_MODIFY_ALL, OrganizationMapper::PROFILE_EDITOR);
         $deletion = [
@@ -1754,7 +1768,7 @@ class OrganizationsController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $list
+                $baseList
             ),
             new Route( //Formulario de crear
                 "{$startRoute}/forms/add[/]",

@@ -16,7 +16,7 @@ function CustomNamespace() {
  * @returns {void}
  */
 CustomNamespace.loader = function (name = null, on = true, classPrefix = null) {
-
+	name = typeof name == 'string' ? name : 'CustomNamespace'
 	if (on === false) {
 		removeGenericLoader(name, classPrefix)
 	} else {

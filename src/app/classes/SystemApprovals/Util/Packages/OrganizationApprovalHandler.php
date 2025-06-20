@@ -9,6 +9,7 @@ namespace SystemApprovals\Util\Packages;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 /**
  * OrganizationApprovalHandler.
@@ -26,6 +27,12 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
     protected static $REFERENCE_COLUMN = 'id';
     protected static $CREATION_DATE_COLUMN = 'createdAt';
     protected static $BASE_TEXT = 'Organización';
+    public static string $STATUS_ACTIVATION_COLUMN = 'status';
+    public static array $STATUS_ACTIVATION_POSITIVES_VALUES = [
+        OrganizationMapper::ACTIVE,
+        OrganizationMapper::INACTIVE,
+        OrganizationMapper::PENDING_APPROVAL,
+    ];
 
     /**
      * Obtiene el tipo de contenido específico del mapper.
@@ -47,12 +54,20 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
      */
     public static function isAutoApprovalSpecificMapper(int | OrganizationMapper $reference): bool
     {
-        $id = $reference instanceof OrganizationMapper ? $reference->id : (
-            is_int($reference) ?
-            $reference :
-            null
-        );
-        return $id == OrganizationMapper::INITIAL_ID_GLOBAL;
+        $approved = false;
+        $mapper = $reference instanceof OrganizationMapper ? $reference : new OrganizationMapper($reference);
+        $approved = $mapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
+        //Auto aprobación cuando lo crea ciertos tipos de usuarios
+        $createdBy = $mapper->createdBy;
+        $createdByType = $createdBy->type;
+        $autoApprovalUserTypes = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+        ];
+        if (in_array($createdByType, $autoApprovalUserTypes)) {
+            $approved = true;
+        }
+        return $approved;
     }
 
     /**
@@ -69,6 +84,8 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
             ],
         ], [], new UserDataPackage(1), true);
         $users = !empty($users) ? $users : [];
+        $element->status = OrganizationMapper::ACTIVE;
+        $element->update();
         foreach ($users as $user) {
             $user->status = UsersModel::STATUS_USER_ACTIVE;
             $user->update();
@@ -93,5 +110,15 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
             $user->status = UsersModel::STATUS_USER_APPROVED_PENDING;
             $user->update();
         }
+    }
+
+    /**
+     * Método cuando el elemento es actualizado
+     *
+     * @param OrganizationMapper $element El elemento que ha sido actualizado.
+     * @param ?SystemApprovalsMapper $approvalMapper El elemento que gestiona la aprobación
+     */
+    public static function onUpdatedRecordSpecificMapper(OrganizationMapper $element, ?SystemApprovalsMapper $approvalMapper = null): void
+    {
     }
 }

@@ -123,7 +123,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
             set_custom_assets([
                 PublicationsController::pathFrontPublicationsAdapter(),
-                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/list.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/listing.js'),
                 'statics/js/main.js',
             ], 'js');
 
@@ -186,6 +186,8 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
             set_custom_assets([
                 PublicationsController::pathFrontPublicationsAdapter(),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/listing.js'),
+                PublicationsRoutes::staticRoute(self::BASE_JS_DIR . '/public/detail.js'),
                 'statics/js/main.js',
             ], 'js');
 
@@ -213,10 +215,13 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
 
             //URL alternativas según el idioma
             Config::set_config('alternatives_url', $element->getURLAlternatives());
+            $ajaxURL = self::routeName('ajax-all');
 
             $data = [];
             $data['langGroup'] = self::LANG_GROUP;
             $data['element'] = $element;
+            $data['bodyClasses'] = 'body';
+            $data['ajaxURL'] = $ajaxURL;
 
             $this->helpController->render('layout/header');
             $this->helpController->render('layout/menu');

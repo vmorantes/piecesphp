@@ -84,7 +84,7 @@ define('AI_OPENAI', 'OpenAI');
 define('AI_MISTRAL', 'Mistral');
 define('TRANSLATION_AI_LIST', [
     AI_OPENAI => 'OpenAI',
-    //AI_MISTRAL => 'Mistral',
+    AI_MISTRAL => 'Mistral',
 ]);
 define('AI_MODELS', [
     AI_OPENAI => [
@@ -108,6 +108,7 @@ define('AI_MODELS', [
 //API
 define('API_MODULE', false);
 define('API_USERS', false);
+define('API_REPORTS', false);
 
 //Organizaciones
 define('ORGANIZATIONS_MODULE', true);
@@ -138,15 +139,10 @@ define('PHONE_AREA_CODES', [
 define('NATIONALITIES', [
     'Francesa' => 'Francesa',
     'Colombiana' => 'Colombiana',
-]);
-define('INTERESTS_RESEARCH_AREAS', [
-    "Informática",
+    'Otras nacionalidad' => 'Otra nacionalidad',
 ]);
 define('CURRENCIES', [
     'EUR' => 'Euro (EUR)',
     'COP' => 'Peso colombiano (COP)',
     'USD' => 'Dólar estadounidense (USD)',
-]);
-define('INTERESTS_RESEARCH_AREAS_WITH_COLOR', [
-    "Informática" => 'rgba(255, 149, 117, 0.2)',
 ]);

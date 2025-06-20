@@ -4,7 +4,7 @@
 //──── Mapa mapbox ───────────────────────────────────────────────────────────────────────
 .mapboxgl-map {
 
-    .mapboxgl-marker {
+    .mapboxgl-marker:not(.custom-point) {
         display: none;
 
         &.marker-map {

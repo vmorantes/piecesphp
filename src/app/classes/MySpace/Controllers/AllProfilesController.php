@@ -102,7 +102,7 @@ class AllProfilesController extends AdminPanelController
         $selectForUserProfiles = "SELECT {$selectFieldsUserProfiles} FROM {$tableUserProfile}";
         $tableUserProfile = 'userQuery';
         $selectFieldsUserProfiles = implode(",", [
-            "{$tableUserProfile}.id",
+            "{$tableUserProfile}.belongsTo AS id",
             "{$tableUserProfile}.fullname AS name",
             "{$tableUserProfile}.fullLocation",
             "{$tableUserProfile}.interestResearhAreasColorsNames",
