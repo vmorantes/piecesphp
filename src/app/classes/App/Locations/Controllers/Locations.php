@@ -141,6 +141,7 @@ class Locations extends AdminPanelController
 
         $permisos_gestion = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
         ];
 
         $permisos_listado = [

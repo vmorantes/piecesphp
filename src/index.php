@@ -269,11 +269,13 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             'data' => $expiredUserData,
             'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
         ];
+        $addToExpired = false;
         if (is_object($expiredSessionDataToJSON['decodeToken'])) {
             $tokenCreatedDate = (new \DateTime());
             $tokenCreatedDate->setTimezone(new \DateTimeZone(date_default_timezone_get()));
             $tokenCreatedDate->setTimestamp($expiredSessionDataToJSON['decodeToken']->iat);
             $expiredSessionDataToJSON['tokenCreatedDate'] = $tokenCreatedDate->format('d-m-Y h:i:s A P');
+            $addToExpired = true;
         }
 
         $oldFilesExpiredSessions = file_exists($expiredSessionsFolder) ? array_diff(scandir($expiredSessionsFolder), ['..', '.']) : [];
@@ -310,7 +312,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             }
         }, $oldFilesExpiredSessions);
 
-        @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR  . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
+        if ($addToExpired) {
+            @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR  . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
+        }
 
         $ignoreExpired = in_array($route->getName(), $ignoreExpiredForRoutesName);
 

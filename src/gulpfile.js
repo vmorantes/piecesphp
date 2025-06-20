@@ -26,7 +26,7 @@ let sassCompileAdapter = function (options) {
 			'mixed-decls',
 			'import',
 			'global-builtin',
-		],		
+		],
 		quietDeps: true,
 	}
 	const finalOptions = Object.assign({}, baseOptions)
@@ -86,7 +86,7 @@ task("ts-vendor:watch", (done) => {
 //Archivos que se observar
 var watchingPiecesPHPJS = {
 	base: [
-		'./statics/core/js/UtilPieces.js',
+		'./statics/core/js/helpers-lib/*.js',
 		'./statics/core/js/translations/*.js',
 		'./statics/core/js/configurations.js',
 		'./statics/core/js/helpers.js',
@@ -95,7 +95,7 @@ var watchingPiecesPHPJS = {
 //Archivos que se compilan
 var compilePiecesPHPJS = {
 	base: [
-		'./statics/core/js/UtilPieces.js',
+		'./statics/core/js/helpers-lib/*.js',
 		'./statics/core/js/translations/*.js',
 		'./statics/core/js/configurations.js',
 		'./statics/core/js/helpers.js',

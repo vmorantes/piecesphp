@@ -419,14 +419,28 @@ window.addEventListener('load', function () {
 		locations2.fillSelectWithCountriesToCities()
 
 		let controlsMapBox = {
-			latitudeInput: $(`[longitude-mapbox-handler]`),
-			longitudeInput: $(`[latitude-mapbox-handler]`),
+			latitudeInput: $(`[latitude-mapbox-handler]`),
+			longitudeInput: $(`[longitude-mapbox-handler]`),
 			selectCountry: $(`[locations-component-auto-filled-country]`),
 			selectState: $(`[locations-component-auto-filled-state]`),
 			selectCity: $(`[locations-component-auto-filled-city]`),
 			triggerSatelitalView: $(`[set-satelital-view]`),
 			triggerDrawView: $(`[set-draw-view]`),
 			triggerCenterView: $(`[set-center-view]`),
+		}
+
+		//NOTE: Ignorar arbitrariamente valores que corresponden a "Otros"
+		mapBoxAdapter.ignoreSearch = function (countryValue, stateValue, cityValue) {
+			let ignore = countryValue == 3 || stateValue == 127 || cityValue == 1574
+			//Asignar coordenadas en medio del mar
+			if (ignore) {
+				const lng = -14.065756740576035
+				const lat = -14.416525542824788
+				mapBoxAdapter.currentMapElements.marker.setLngLat([lng, lat])
+				controlsMapBox.longitudeInput.val(lng)
+				controlsMapBox.latitudeInput.val(lat)
+			}
+			return ignore
 		}
 
 		return new Promise(function (resolve) {

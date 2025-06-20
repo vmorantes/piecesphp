@@ -9,7 +9,7 @@ $excerpt = $element->excerpt(300);
 $excerpt = mb_strpos($excerpt, '...') !== false ? $excerpt : $excerpt . '...';
 ?>
 <article class="ui card">
-    <a class="image" href="<?= ApplicationCallsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>">
+    <a class="image" href="#">
         <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>" loading="lazy">
     </a>
     <div class="content">

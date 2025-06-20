@@ -46,13 +46,13 @@ class LogsRoutes
 
             self::staticResolver($group);
 
-            LogsLang::injectLang();
-
             \PiecesPHP\Core\Routing\InvocationStrategy::appendBeforeCallMethod(function () {
                 self::init();
             });
 
         }
+
+        LogsLang::injectLang();
 
         return $group;
     }

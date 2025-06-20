@@ -85,6 +85,11 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 	 */
 	this.currentMapElements = null
 
+	/**
+	 * @type {Function} Si devuelve true no hace búsqueda automática con el geocoder
+	 */
+	this.ignoreSearch = () => false
+
 	/** 
 	 * @param {String} eventName 
 	 * @param {Function} callback 
@@ -652,11 +657,14 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 
 					selectForSearch.on('change', function (e) {
 
-						if (!geoseaerchSelectLock) {
+						instance.ignoreSearch = typeof instance.ignoreSearch == 'function' ? instance.ignoreSearch : () => false
+
+						let optionCountry = selectCountry.find(`option`).filter(':selected')
+						let optionState = selectState.find(`option`).filter(':selected')
+						let optionCity = selectCity.find(`option`).filter(':selected')
+
+						if (!geoseaerchSelectLock && !instance.ignoreSearch(optionCountry.val(), optionState.val(), optionCity.val())) {
 							let element = $(e.target)
-							let optionCountry = selectCountry.find(`option`).filter(':selected')
-							let optionState = selectState.find(`option`).filter(':selected')
-							let optionCity = selectCity.find(`option`).filter(':selected')
 
 							countryText = typeof optionCountry.val() == 'string' && optionCountry.val().trim().length > 0 ? optionCountry.html() : ''
 							stateText = typeof optionState.val() == 'string' && optionState.val().trim().length > 0 ? optionState.html() : ''

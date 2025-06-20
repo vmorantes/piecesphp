@@ -27,6 +27,7 @@ use News\Controllers\NewsController;
 use News\Mappers\NewsMapper;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
@@ -49,6 +50,7 @@ use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
+use ReportsManage\Queries\ReportsManageQueries;
 
 /**
  * APIController.
@@ -598,11 +600,22 @@ class APIController extends AdminPanelController
                             'provider' => $translationAI,
                             'modelOpenAI' => $modelOpenAI,
                             'modelMistral' => $modelMistral,
+                            'lastUsage' => [],
+                            'tokensUsed' => 0,
                         ],
                     ];
 
                     try {
+
                         $translation = $aiHandler->translate($text, $from, $to, '/\{(?:[^{}]|(?R))*\}/');
+                        $responseJSON['AI']['lastUsage'] = $aiHandler->lastUsage();
+                        $responseJSON['AI']['tokensUsed'] = $aiHandler->getTokensUsed();
+
+                        //Actualizar el uso de tokens
+                        $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
+                        $currentUsageData[$translationAI] = $currentUsageData[$translationAI] + $aiHandler->getTokensUsed();
+                        GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
+
                         if ($translation !== null) {
                             $responseJSON['success'] = true;
                             $responseJSON['result']['translation'] = $translation;
@@ -819,6 +832,61 @@ class APIController extends AdminPanelController
      * @param Response $response
      * @return Response
      */
+    public function reports(Request $request, Response $response)
+    {
+
+        $actionType = $request->getAttribute('actionType');
+        $method = mb_strtoupper($request->getMethod());
+        $dataReportsActionsAvailables = [
+            'get-generic-data',
+        ];
+
+        if (in_array($actionType, $dataReportsActionsAvailables)) {
+
+            if ($method !== 'GET') {
+                throw new NotFoundException($request, $response);
+            }
+
+            $currentUser = getLoggedFrameworkUser();
+            if ($currentUser === null) {
+                return throw403($request, [
+                    'line' => __LINE__,
+                    'file' => __FILE__,
+                ]);
+            } else {
+                if (!in_array($currentUser->type, ReportsManageQueries::ROLES_WITH_REPORTS)) {
+                    throw new NotFoundException($request, $response);
+                }
+            }
+
+            //Solicitud HTTP
+            $expectedParameters = new Parameters([]);
+
+            $expectedParameters->setInputValues($request->getQueryParams());
+            $expectedParameters->validate();
+
+            //Obtener datos
+            $reportData = [];
+
+            if ($actionType == 'get-generic-data') {
+                $reportData = ReportsManageQueries::genericReportData();
+            }
+
+            //Resultado
+            $response = $response->withJson($reportData);
+
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
     public function usersActions(Request $request, Response $response)
     {
 
@@ -947,6 +1015,8 @@ class APIController extends AdminPanelController
                     $arrayBodyResponseOrganization = json_decode($reponseOrganization->getBody()->__toString(), true);
                     $parsedBody['organization'] = $arrayBodyResponseOrganization['values']['orgID'];
                     $organizationCreatedID = $arrayBodyResponseOrganization['values']['orgID'];
+                    //Dado que esta persona creó su organización se pone como adminstrador de organización
+                    $parsedBody['type'] = UsersModel::TYPE_USER_ADMIN_ORG;
                 }
             }
             $request = $request->withParsedBody($parsedBody);
@@ -1577,6 +1647,8 @@ class APIController extends AdminPanelController
 
         $cronJobs = $allRoles;
 
+        $reports = $allRoles;
+
         $externalActions = $allRoles;
 
         $other = [
@@ -1670,6 +1742,19 @@ class APIController extends AdminPanelController
 
         ];
 
+        $routesReports = [
+            //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
+            new Route( //Rutas de reportes
+                "{$startRoute}/reports/{actionType}[/]",
+                $classname . ':reports',
+                self::$baseRouteName . '-reports-actions',
+                'GET|POST',
+                false,
+                null,
+                $reports,
+            ),
+        ];
+
         if (APIRoutes::ENABLE) {
             $routes = array_merge($routes, $routesGeneral);
         }
@@ -1682,7 +1767,11 @@ class APIController extends AdminPanelController
             $routes = array_merge($routes, $routesUsers);
         }
 
-        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS) {
+        if (APIRoutes::ENABLE_REPORTS) {
+            $routes = array_merge($routes, $routesReports);
+        }
+
+        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS || APIRoutes::ENABLE_REPORTS) {
             $group->register($routes);
 
             $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {

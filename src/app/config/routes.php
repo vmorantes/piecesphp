@@ -60,15 +60,18 @@ use Documents\DocumentsRoutes;
 use EventsLog\LogsRoutes;
 use FileManager\FileManagerRoutes;
 use Forms\FormsRoutes;
+use GeoJSONManager\GeoJsonManagerRoutes;
 use GoogleReCaptchaV3\GoogleReCaptchaV3Routes;
 use ImagesRepository\ImagesRepositoryRoutes;
 use Importers\Controller\ImporterController;
+use InterestResearchAreas\InterestResearchAreasRoutes;
 use MySpace\MySpaceRoutes;
 use Newsletter\NewsletterRoutes;
 use News\NewsRoutes;
 use Organizations\OrganizationsRoutes;
 use Persons\PersonsRoutes;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
+use PiecesPHP\BuiltIn\Helpers\HelpersSystemRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use PiecesPHP\Core\ServerStatics;
@@ -76,6 +79,7 @@ use PiecesPHP\Core\Test;
 use PiecesPHP\LocalizationSystem\LocalizationSystemFeaturesRoutes;
 use PiecesPHP\UserSystem\UserSystemFeaturesRoutes;
 use Publications\PublicationsRoutes;
+use ReportsManage\ReportsManageRoutes;
 use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Controllers\TerminalController;
 
@@ -122,14 +126,16 @@ $servidor_estaticos->register(
     ]
 );
 
-$generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
-$generacion_imagenes->active(true); //Grupo activo/inactivo
-$generacion_imagenes->register(
-    [
-        //──── GET ───────────────────────────────────────────────────────────────────────────────
-        new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
-    ]
-);
+if (requestIsSameDomain()) {
+    $generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
+    $generacion_imagenes->active(true); //Grupo activo/inactivo
+    $generacion_imagenes->register(
+        [
+            //──── GET ───────────────────────────────────────────────────────────────────────────────
+            new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
+        ]
+    );
+}
 
 //Rutas para solicitudes desde la terminal
 TerminalController::routes($terminalGroup);
@@ -225,8 +231,20 @@ SystemApprovalsRoutes::routes($zona_administrativa);
 //Contenido navegable centralizado
 ContentNavigationHubRoutes::routes($zona_administrativa, $zona_publica);
 
+//Gestión de GeoJSON
+GeoJsonManagerRoutes::routes($zona_administrativa);
+
 //Convocatorias
 ApplicationCallsRoutes::routes($zona_administrativa, $zona_publica);
+
+//Áreas de investigación
+InterestResearchAreasRoutes::routes($zona_administrativa, $zona_publica);
+
+//Reportes
+ReportsManageRoutes::routes($zona_administrativa);
+
+//Helpers
+HelpersSystemRoutes::routes($zona_administrativa);
 
 //Rutas básicas de la zona pública
 PublicAreaController::routes($zona_publica);

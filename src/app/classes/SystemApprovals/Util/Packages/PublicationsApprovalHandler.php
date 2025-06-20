@@ -6,7 +6,9 @@
 
 namespace SystemApprovals\Util\Packages;
 
+use App\Model\UsersModel;
 use Publications\Mappers\PublicationMapper;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 /**
  * PublicationsApprovalHandler.
@@ -24,6 +26,11 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
     protected static $REFERENCE_COLUMN = 'id';
     protected static $CREATION_DATE_COLUMN = 'createdAt';
     protected static $BASE_TEXT = 'Publicación';
+    public static string $STATUS_ACTIVATION_COLUMN = 'status';
+    public static array $STATUS_ACTIVATION_POSITIVES_VALUES = [
+        PublicationMapper::ACTIVE,
+        PublicationMapper::DRAFT,
+    ];
 
     /**
      * Obtiene el tipo de contenido específico del mapper.
@@ -45,7 +52,19 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
      */
     public static function isAutoApprovalSpecificMapper(int | PublicationMapper $reference): bool
     {
-        return false;
+        $approved = false;
+        $mapper = $reference instanceof PublicationMapper ? $reference : new PublicationMapper($reference);
+        //Auto aprobación cuando lo crea ciertos tipos de usuarios
+        $createdBy = $mapper->createdBy;
+        $createdByType = $createdBy->type;
+        $autoApprovalUserTypes = [
+            UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
+        ];
+        if (in_array($createdByType, $autoApprovalUserTypes)) {
+            $approved = true;
+        }
+        return $approved;
     }
 
     /**
@@ -65,4 +84,13 @@ class PublicationsApprovalHandler extends BaseApprovalHandler
     public static function onRejectedSpecificMapper(PublicationMapper $element): void
     {
     }
+
+    /**
+     * Método cuando el elemento es actualizado
+     *
+     * @param PublicationMapper $element El elemento que ha sido actualizado.
+     * @param ?SystemApprovalsMapper $approvalMapper El elemento que gestiona la aprobación
+     */
+    public static function onUpdatedRecordSpecificMapper(PublicationMapper $element, ?SystemApprovalsMapper $approvalMapper = null): void
+    {}
 }

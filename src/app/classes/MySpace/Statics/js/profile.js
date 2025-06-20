@@ -26,8 +26,8 @@ window.addEventListener('load', function () {
 
 		let mapBoxAdapterLocation = new MapBoxAdapter()
 		let mapBoxAdapterLocationMobile = new MapBoxAdapter()
-		const longitudeInput = $(`[latitude-mapbox-handler]`)
-		const latitudeInput = $(`[longitude-mapbox-handler]`)
+		const longitudeInput = $(`[longitude-mapbox-handler]`)
+		const latitudeInput = $(`[latitude-mapbox-handler]`)
 
 		return new Promise(function (resolve) {
 

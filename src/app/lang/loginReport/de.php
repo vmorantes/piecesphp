@@ -32,6 +32,8 @@ $lang = [
     "Intentos fallidos" => "Fehlgeschlagene Versuche",
     "Tiempo de uso de la plataforma" => "Nutzungszeit der Plattform",
     "Exportar datos" => "Daten exportieren",
+    "minuto(s)" => "Minute(n)",
+    "Sin registro" => "Kein Eintrag"
 ];
 
 return $lang;

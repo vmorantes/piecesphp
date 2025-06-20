@@ -4,5 +4,5 @@ cd $SCRIPT_DIR/..
 REPORT_FILE=PHPStanResult.txt
 echo $'Recordatorio:\n'  > $REPORT_FILE
 echo $'\tReemplazar en el resultado el siguiente patrón \'(  )Line   (.*)\' por \'$1project://src/app/$2\'\n' >> $REPORT_FILE
-src/vendor/bin/phpstan analyse --memory-limit "2000M" -c bin/phpstan.neon >> $REPORT_FILE
+bin/tools/vendor/bin/phpstan analyse --memory-limit "2000M" -c bin/phpstan.neon >> $REPORT_FILE
 php $SCRIPT_DIR/phpstan-process-result.php

@@ -2,7 +2,7 @@
 /// <reference path="../../../../../../../../statics/core/js/helpers.js" />
 /// <reference path="../BuiltInBannerAdapter.js" />
 CustomNamespace.loader()
-window.addEventListener('load', function (e) {
+window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, function (e) {
 
 	CustomNamespace.loader(null, false)
 
@@ -34,12 +34,16 @@ window.addEventListener('load', function (e) {
 			onEmpty: (container) => { },
 		})
 
-		bannerManager.loadItems().then(function () {
-			CustomNamespace.slideshow(containerSelector, 5, function (srcDesktop, srcMobile, currentItem) {
-				if (bluredParent.length > 0) {
-					bluredParent.get(0).style.backgroundImage = `url("${$(currentItem).find('img').filter(':visible').attr('src')}")`
-				}
-			})
+		bannerManager.loadItems().then(function (response) {
+			if (response.response.elements.length > 0) {
+				CustomNamespace.slideshow(containerSelector, 5, function (srcDesktop, srcMobile, currentItem) {
+					if (bluredParent.length > 0) {
+						bluredParent.get(0).style.backgroundImage = `url("${$(currentItem).find('img').filter(':visible').attr('src')}")`
+					}
+				})
+			} else {
+				$(containerSelector).closest('.hero').remove()
+			}
 		})
 	}
 })

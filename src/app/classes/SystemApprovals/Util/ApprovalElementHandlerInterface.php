@@ -8,6 +8,7 @@ namespace SystemApprovals\Util;
 
 use App\Model\UsersModel;
 use PiecesPHP\Core\Database\EntityMapper;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 /**
  * ApprovalElementHandlerInterface.
@@ -91,6 +92,15 @@ interface ApprovalElementHandlerInterface
      * @return void
      */
     public static function onRejected(EntityMapper $reference): void;
+
+    /**
+     * Método que se ejecuta el evento de actualización es disparado.
+     *
+     * @param EntityMapper $reference
+     * @param ?SystemApprovalsMapper $approvalMapper
+     * @return void
+     */
+    public static function onUpdatedRecord(EntityMapper $reference, ?SystemApprovalsMapper $approvalMapper = null): void;
 
     /**
      * Obtiene el usuario asociado para notificaciones

@@ -8,21 +8,25 @@
  * el primer segmento de la URL que concuerte con 'allowed_langs' para establecer el idioma.
  * Ej.: De la URL http://www.example.com/en tomaría el valor 'en' y si no concuerda con ningún
  * idioma permitido o no hay segmento alguno el valor por defecto será 'es'.
+ * NOTA: Tiene prioridad sobre lang_by_browser si el idioma en URL es explícito.
  */
 set_config('lang_by_url', true);
 
 /**
- * Si la configuracion 'default_lang_by_browser' se establece en true, la aplicación definirá
- * 'default_lang' a partir de getPreferredLanguageByHeader
+ * Si la configuracion 'lang_by_browser' se establece en true, la aplicación definirá
+ * 'default_lang' a partir de getPreferredLanguageByHeader.
+ * NOTA: Tiene prioridad sobre lang_by_url en el estado base, pero no con idioma en URL explícito.
  */
-set_config('default_lang_by_browser', false);
+set_config('lang_by_browser', true);
 
 /**
  * Si la configuracion 'lang_by_cookie' se establece en true, la aplicación definirá
  * 'app_lang' (lenguaje actual, no por defecto) a partir de del valor de la cookie llamada como se define en 'cookie_lang_definer'
+ * y del parámetro url i18n.
+ * NOTA: Tiene prioridad sobre lang_by_url y lang_by_browser
  */
 set_config('lang_by_cookie', true);
-//Se define en bootstrap a partir del parámetro de URL i18n
+//Se define a partir del parámetro de URL i18n
 set_config('cookie_lang_definer', 'PREFER_LANG_BY_COOKIE');
 
 /**
@@ -49,7 +53,7 @@ add_to_front_configurations('autoTranslateFromLangGroupHTMLIgnoreLangs', [
     'pt',
 ]);
 
-//Idiomas para ignorar en el registro de traducciones faltantes (missing-lang-messages)
+//Idiomas y grupos para ignorar en el registro de traducciones faltantes (missing-lang-messages)
 set_config('no_scan_langs', [
     'es',
     //'en',
@@ -57,6 +61,9 @@ set_config('no_scan_langs', [
     //'de',
     //'it',
     //'pt',
+]);
+set_config('no_scan_lang_groups', [
+    'locationBackend-names',
 ]);
 
 /**

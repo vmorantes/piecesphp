@@ -879,7 +879,7 @@ class UsersController extends AdminPanelController
                         //Verificar status de la organización si aplica
                         $organizationID = $user->organization;
                         $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-                        if ($organizationMapper == null || $organizationMapper->status == OrganizationMapper::ACTIVE) {
+                        if ($organizationMapper == null || in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN)) {
 
                             if ($isExternalLogin) {
                                 if ($user->type != UsersModel::TYPE_USER_GENERAL) {

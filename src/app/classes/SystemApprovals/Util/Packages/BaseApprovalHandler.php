@@ -9,6 +9,7 @@ namespace SystemApprovals\Util\Packages;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\EntityMapper;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\ApprovalElementHandlerInterface;
 
 /**
@@ -28,6 +29,12 @@ class BaseApprovalHandler implements ApprovalElementHandlerInterface
     protected static $CREATION_DATE_COLUMN = 'createdAt';
     protected static $CREATOR_ID = 'createdBy';
     protected static $BASE_TEXT = 'Elemento';
+    public static string $STATUS_ACTIVATION_COLUMN = 'status';
+    public static array $STATUS_ACTIVATION_POSITIVES_VALUES = [
+        OrganizationMapper::ACTIVE,
+        OrganizationMapper::INACTIVE,
+        OrganizationMapper::PENDING_APPROVAL,
+    ];
 
     public static function isEnabled(): bool
     {
@@ -87,6 +94,13 @@ class BaseApprovalHandler implements ApprovalElementHandlerInterface
     {
         if (method_exists(static::class, 'onRejectedSpecificMapper')) {
             call_user_func([static::class, 'onRejectedSpecificMapper'], $reference);
+        }
+    }
+
+    public static function onUpdatedRecord(EntityMapper $reference, ?SystemApprovalsMapper $approvalMapper = null): void
+    {
+        if (method_exists(static::class, 'onUpdatedRecordSpecificMapper')) {
+            call_user_func([static::class, 'onUpdatedRecordSpecificMapper'], $reference, $approvalMapper);
         }
     }
 

@@ -27,8 +27,8 @@ window.addEventListener('load', function (e) {
 	locations.fillSelectWithCountries()
 
 	let controlsMapBox = {
-		latitudeInput: $(`[longitude-mapbox-handler]`),
-		longitudeInput: $(`[latitude-mapbox-handler]`),
+		latitudeInput: $(`[latitude-mapbox-handler]`),
+		longitudeInput: $(`[longitude-mapbox-handler]`),
 		selectCountry: $(`[locations-component-auto-filled-country]`),
 		selectState: $(`[locations-component-auto-filled-state]`),
 		selectCity: $(`[locations-component-auto-filled-city]`),

@@ -45,9 +45,9 @@ class BaseController
             set_title('');
         }
 
-        $this->setConfig(array(
+        $this->setConfig([
             "extension" => ".php",
-        ));
+        ]);
 
         $base_name_controller = str_replace([
             "App\\Controller\\",
@@ -79,7 +79,7 @@ class BaseController
         }
 
         if (static::$view_folder == '/../view/') {
-            static::$view_folder = __DIR__ . \DIRECTORY_SEPARATOR . '..' . \DIRECTORY_SEPARATOR . "view" . \DIRECTORY_SEPARATOR;
+            static::$view_folder = __DIR__ . \DIRECTORY_SEPARATOR  . '..' . \DIRECTORY_SEPARATOR  . "view" . \DIRECTORY_SEPARATOR;
         }
     }
 
@@ -92,7 +92,7 @@ class BaseController
      * @param bool $format En true formatea la salida con \PiecesPHP\Core\HTML\FormatHtml si está disponible
      * @return void|string
      */
-    public function render(string $name = "index", array $data = array(), bool $mode = true, bool $format = false)
+    public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         $pcs_php__name_view__ = $name;
 
@@ -107,9 +107,8 @@ class BaseController
             ob_end_clean();
         } catch (Throwable $e) {
             ob_end_clean();
-            set_flash_message('render_exception', $e, BaseController::class);
             log_exception($e);
-            header('Location: ' . get_current_url());
+            global_custom_exception_handler($e, static::class);
             die;
         }
 
@@ -194,7 +193,7 @@ class BaseController
      * @param bool $format En true formatea la salida con \PiecesPHP\Core\HTML\FormatHtml si está disponible
      * @return void|string
      */
-    public function _render($name = "index.php", $data = array(), bool $mode = true, bool $format = true)
+    public function _render($name = "index.php", $data = [], bool $mode = true, bool $format = true)
     {
         $pcs_php__name_view__ = $name;
 
@@ -209,8 +208,8 @@ class BaseController
             ob_end_clean();
         } catch (Throwable $e) {
             ob_end_clean();
-            set_flash_message('render_exception', $e, BaseController::class);
-            header('Location: ' . get_current_url());
+            log_exception($e);
+            global_custom_exception_handler($e, static::class);
             die;
         }
 
@@ -291,7 +290,7 @@ class BaseController
      * @param array $config Un array asociativo que designa las configuraciones en orden nombre:valor
      * @return void
      */
-    public function setConfig(array $config = array())
+    public function setConfig(array $config = [])
     {
         $this->config = $config;
     }
@@ -304,7 +303,7 @@ class BaseController
      * @param array $variables Un array asociativo que designa las variables que estarán disponibles dentro de los archivos
      * @return void
      */
-    public function setVariables(array $variables = array())
+    public function setVariables(array $variables = [])
     {
         $this->global_variables = $variables;
     }

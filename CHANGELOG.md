@@ -1,3 +1,34 @@
+# 6.4.2-beta
+
+- Ajuste de bug que hacía que se registraran sesiones "expiradas" sin motivo.
+- Separación de require-dev del composer principal hacia bin/tools.
+- Mejoramiento de base de código js del framework:
+    - CookiesHandler.
+    - GenericStepsViewHandler.
+    - Mejor gestión de adición de librerías adicionales en helpers mediante combinación en gulp con helpers-lib/*
+    - Exposiciones de pcsAdminSideBarIsOpen y pcsAdminSideBarToggle para manipular el sidebar del menú.
+    - Manejo de persistencia de estado (plegado/desplegado) del sidebar con localStorage.
+    - registerDynamicLocalizationMessages y relacionados puede cargar múltiples grupos simultáneamente.
+    - Adición ignoreSearch en MapBoxAdapter para casos en los que no se quiera ejecutar la búsqueda de forma automática.
+- Vista de reporte integrada en front.
+- Internacionalización:
+    - Adición de mensajes, en general.
+    - Optimización de manejo persistente de idiomas, preferencia según navegador y otras mejoras. Se delega el manejor pleno a Config.php
+- Ajustes de permisos según organizaciones y de sistema de aprobaciones.
+- Ajustes de algunas opciones por defecto en inicio de MySpace.
+- Simplificación general de archivos delete-config.js en términos de internacionalización. Es el primer paso para le delegación completa al sistema en lugar de manejarlo en el archivo.
+- Mejora en el manejo de errores para renderización de BaseController.
+- Mejora de funcionalidad de validaciones en PiecesPHP\Core\Validation\Validator.
+- Sesión:
+    - El inicio de sesión toma en cuenta estados de usario y de organización que son candidatos para habilitar el ingreso.
+- Sidebar interno diferenciado según tipos de usuario.
+- En aprobaciones:
+    - Se verifica isActive que se añade dinámicamente por el manejador.
+    - Optimización de auto aprobaciones.
+- Soporte base de reportes.
+- Soporte de "variables de entorno" con GeneriContentPseudoMapper.
+- Varios modos de listado base de publicaciones.
+
 # 6.4.0
 
 - Unificación de archivos del módulo de ubicación.

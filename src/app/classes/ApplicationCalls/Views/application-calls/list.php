@@ -29,7 +29,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
             <?php if ($hasPermissionsAdd) :  ?>
             <a href="<?= $addLink; ?>" class="ui right labeled icon button brand-color alt">
                 <i class="icon plus circle"></i>
-                <?= __($langGroup, 'Agregar convocatoria'); ?>
+                <?= __($langGroup, 'Agregar contenido'); ?>
             </a>
             <?php endif; ?>
 

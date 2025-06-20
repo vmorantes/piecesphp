@@ -59,36 +59,42 @@ class LocalizationSystemController extends AdminPanelController
     public function getLangMessagesByGroup(Request $request, Response $response)
     {
 
-        $langGroup = $request->getQueryParam('group', '');
-        $langGroup = is_string($langGroup) ? $langGroup : uniqid();
+        $langGroups = $request->getQueryParam('group', []);
+        $langGroups = is_array($langGroups) ? $langGroups : (
+            is_string($langGroups) ? [$langGroups] : [uniqid()]
+        );
+        $langGroups = array_map(fn($e) => is_string($e) && mb_strlen($e) == 0 ? uniqid() : $e, $langGroups);
+        $langGroups = !empty($langGroups) ? $langGroups : [uniqid()];
+        $allTranslations = get_config('pcsphp_system_translations');
+        $translationsByGroups = [];
 
-        $translations = get_config('pcsphp_system_translations');
-        $translations = array_map(function ($data) use ($langGroup) {
-            foreach ($data as $group => $groupData) {
-                if ($group !== $langGroup) {
-                    unset($data[$group]);
+        foreach ($langGroups as $langGroup) {
+            $translations = array_map(function ($data) use ($langGroup) {
+                foreach ($data as $group => $groupData) {
+                    if ($group !== $langGroup) {
+                        unset($data[$group]);
+                    }
                 }
+                return $data;
+            }, $allTranslations);
+            $translations = array_filter($translations, function ($data) use ($langGroup) {
+                return isset($data[$langGroup]);
+            });
+            if (!array_key_exists($langGroup, $translationsByGroups)) {
+                $translationsByGroups[$langGroup] = [];
             }
-            return $data;
-        }, $translations);
-        $translations = array_filter($translations, function ($data) use ($langGroup) {
-            return isset($data[$langGroup]);
-        });
-
-        $translationsOnlyGroup = [];
-
-        foreach ($translations as $lang => $langData) {
-            $translationsOnlyGroup[$lang] = array_key_exists($langGroup, $langData) ? $langData[$langGroup] : [];
+            foreach ($translations as $lang => $langData) {
+                $translationsByGroups[$langGroup][$lang] = array_key_exists($langGroup, $langData) ? $langData[$langGroup] : [];
+            }
         }
-
-        $headersAndStatus = generateCachingHeadersAndStatus($request, new \DateTime(date('Y-m-d 00:00:00')), json_encode($translationsOnlyGroup));
+        $headersAndStatus = generateCachingHeadersAndStatus($request, new \DateTime(date('Y-m-d 00:00:00')), json_encode($translationsByGroups));
         foreach ($headersAndStatus['headers'] as $header => $value) {
             $response = $response->withHeader($header, $value);
         }
         $response = $response->withStatus($headersAndStatus['status']);
 
-        if($headersAndStatus['status'] !== 304){
-            $response = $response->withJson($translationsOnlyGroup);            
+        if ($headersAndStatus['status'] !== 304) {
+            $response = $response->withJson($translationsByGroups);
         }
 
         return $response;
