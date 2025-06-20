@@ -104,6 +104,21 @@ class AvatarModel
 
     /**
      * @param int $id
+     * @param string|null $onDefault
+     * @return string
+     */
+    public static function getUserAvatarNameURLOrDefault(int $id, string | null $onDefault = 'statics/images/default-avatar.png')
+    {
+        if (self::hasUserAvatar($id)) {
+            $route = append_to_url(self::getFolderUserURL($id), self::NAME_AVATAR . '.' . self::EXTENSION_AVATAR);
+        } else {
+            $route = $onDefault;
+        }
+        return $route;
+    }
+
+    /**
+     * @param int $id
      * @return bool
      */
     public static function hasUserAvatar(int $id)

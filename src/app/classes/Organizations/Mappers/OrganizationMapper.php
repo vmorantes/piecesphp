@@ -192,6 +192,10 @@ class OrganizationMapper extends EntityMapperExtensible
         self::DELETED => 'Eliminada',
         self::PENDING_APPROVAL => 'Pendiente de aprobación',
     ];
+    const STATUSES_FOR_LOGIN = [
+        self::ACTIVE,
+        self::PENDING_APPROVAL,
+    ];
 
     const SIZE_SMALL = "SMALL";
     const SIZE_MEDIUM = "MEDIUM";
@@ -235,6 +239,17 @@ class OrganizationMapper extends EntityMapperExtensible
         UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     /*
+        Tiene poder de ver el listado estándar de organizaciones (deberían ser todos)
+    */
+    const CAN_VIEW_BASE_LIST = [
+        UsersModel::TYPE_USER_ROOT,
+        //UsersModel::TYPE_USER_ADMIN_GRAL,
+        //UsersModel::TYPE_USER_ADMIN_ORG,
+        //UsersModel::TYPE_USER_GENERAL,
+        //UsersModel::TYPE_USER_INSTITUCIONAL,
+        //UsersModel::TYPE_USER_COMUNICACIONES,
+    ];
+    /*
         Tiene poder de listado sobre las organizaciones
     */
     const CAN_VIEW_ALL = [];
@@ -258,6 +273,7 @@ class OrganizationMapper extends EntityMapperExtensible
         Nota: Deberían solo ser usuarios con muchos privilegios
     */
     const PROFILE_EDITOR_SUPER = [
+        UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
     ];
     /* 
@@ -452,8 +468,9 @@ class OrganizationMapper extends EntityMapperExtensible
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la organización.'));
         }
 
+        $currentUser = getLoggedFrameworkUser();
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        $this->createdBy = $currentUser !== null ? $currentUser->id : 1;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -479,8 +496,9 @@ class OrganizationMapper extends EntityMapperExtensible
         if (self::existsByNit($this->nit, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la organización.'));
         }
+        $currentUser = getLoggedFrameworkUser();
         if (!$noDateUpdate) {
-            $this->modifiedBy = getLoggedFrameworkUser()->id;
+            $this->modifiedBy = $currentUser !== null ? $currentUser->id : $this->modifiedBy;
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
@@ -836,9 +854,10 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param string $defaultValue
      * @param bool $encryptValue
      * @param bool $ignoreInitial
+     * @param ?string $nameForInitial
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', bool $encryptValue = false, bool $ignoreInitial = false)
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', bool $encryptValue = false, bool $ignoreInitial = false, ?string $nameForInitial = null)
     {
         $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Organizaciones');
         $options = [];
@@ -848,13 +867,17 @@ class OrganizationMapper extends EntityMapperExtensible
          * @param OrganizationMapper $e
          */
         $elements = self::all(true);
-        array_map(function ($e) use (&$options, $encryptValue, $ignoreInitial) {
+        array_map(function ($e) use (&$options, $encryptValue, $ignoreInitial, $nameForInitial) {
 
             $isGlobalElement = $e->id == self::INITIAL_ID_GLOBAL;
             $ignore = $isGlobalElement && $ignoreInitial;
             if (!$ignore) {
                 $value = $e->currentLangData('name');
-                $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $value;
+                if ($isGlobalElement) {
+                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $nameForInitial !== null ? $nameForInitial : $value;
+                } else {
+                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $value;
+                }
             }
 
         }, $elements);

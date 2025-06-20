@@ -232,6 +232,7 @@ CREATE TABLE `interest_research_area` (
   `updatedAt` datetime DEFAULT NULL,
   `createdBy` bigint(20) NOT NULL,
   `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
   `meta` longtext DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
@@ -762,4 +763,4 @@ CREATE TABLE `user_system_profile` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
--- 2025-06-02 03:25:47 UTC
+-- 2025-06-09 19:34:06 UTC

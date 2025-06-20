@@ -74,4 +74,7 @@ return [
     "Pendiente de aprobación" => "En attente d'approbation",
     "Enlace página web" => "Lien du site web",
     "Enlace LinkedIn" => "Lien LinkedIn",
+    "Pendientes de aprobación" => "En attente d'approbation",
+    "El área de interés no es válida" => "Le domaine d'intérêt n'est pas valide",
+    "Editar perfil" => "Modifier le profil"
 ];

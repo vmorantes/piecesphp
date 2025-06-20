@@ -678,7 +678,7 @@ function IndexedDBAdapter(configurations = {}, stores = [], instanceID = null) {
 				DBOpenRequest.onsuccess = function (e) {
 
 					database = DBOpenRequest.result
-					console.log(`Base de datos "${databaseName}" abierta.`)
+					console.info(`Base de datos "${databaseName}" abierta.`)
 
 					if (instance.isReady() || instance.database() !== null) {
 						isReady = true

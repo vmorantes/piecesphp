@@ -1,36 +1,7 @@
 //Referencias para ayuda del editor
 /// <reference path="./CustomNamespace.js" />
-/// <reference path="../../app/classes/Publications/Statics/js/PublicationsAdapter.js" />
 CustomNamespace.loader()
-window.addEventListener('load', function (e) {
-
-	//Configurar carga de artículos del blog
-	let articlesContainerSelector = '[articles-container]'
-	let articlesContainer = $(articlesContainerSelector)
-	if (articlesContainer.length > 0) {
-
-		let homeArticleManager = new PublicationsAdapter({
-			requestURL: articlesContainer.data('route'),
-			page: 1,
-			perPage: 3,
-			containerSelector: articlesContainerSelector,
-			loadMoreTriggerSelector: '[load-more-articles]',
-			onDraw: (item, parsed, container) => {
-				//Recibo el item y devuelvo el HTML
-				return item
-			},
-			onEmpty: (container) => {
-				//Si no hay artículos elimino la sección
-				container.closest('.content').remove()
-			},
-		})
-
-		//Cargar items
-		homeArticleManager.loadItems()
-			.then(function () {
-				console.log('Items cargados')
-			})
-	}
+window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, function (e) {
 
 	//Configurar botón de "ir arriba"
 	let toTopButton = $('button.to-top')
@@ -139,7 +110,6 @@ function configurateNavigation() {
 				const bounding = element.getBoundingClientRect() // {top: Number, left: Number, right: Number, bottom: Number}
 				const viewportMeasuresH = (window.innerHeight || document.documentElement.clientHeight)
 				const viewportMeasuresW = (window.innerWidth || document.documentElement.clientWidth)
-				console.log(bounding)
 
 				if (bounding.top < 0) {
 					//Se sale por arriba

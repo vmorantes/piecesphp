@@ -30,4 +30,4 @@ $alternativesURL = Config::get_config('alternatives_url');
     <?= \PiecesPHP\Core\Utilities\Helpers\ExtraScripts::getScripts(); ?>
 </head>
 
-<body>
+<body class="<?=isset($bodyClasses) && is_string($bodyClasses) ? $bodyClasses : '';?>">

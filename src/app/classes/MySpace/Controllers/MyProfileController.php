@@ -13,7 +13,6 @@ use MySpace\Controllers\Util\ProfileTasksUtilities;
 use MySpace\Exceptions\SafeException;
 use MySpace\MySpaceLang;
 use MySpace\MySpaceRoutes;
-use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -83,6 +82,7 @@ class MyProfileController extends AdminPanelController
         remove_imported_asset('locations');
         import_locations([], false, true);
         set_custom_assets([
+            MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/profiles-translation-config.js'),
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/experience/delete-config.js'),
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-profile.js'),
         ], 'js');
@@ -355,6 +355,14 @@ class MyProfileController extends AdminPanelController
             $longitude = $expectedParameters->getValue('longitude');
             $interestResearhAreas = $expectedParameters->getValue('interestResearhAreas');
             $affiliatedInstitutions = $expectedParameters->getValue('affiliatedInstitutions');
+
+            //NOTE: Esto debería ser provisional
+            //Opcional: Modifico arbitrariamente las coordenadas
+            $maxOffset = 0.6000;
+            $latOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
+            $lngOffset = (mt_rand(-1000, 1000) / 10000) * $maxOffset;
+            $latitude = $latitude + $latOffset;
+            $longitude = $longitude + $lngOffset;
 
             try {
 
@@ -849,15 +857,8 @@ class MyProfileController extends AdminPanelController
     public static function routes(RouteGroup $group)
     {
         //Tareas globales del módulo
-        $importAreas = false;
         ProfileTasksUtilities::generateSQL(false);
         ProfileTasksUtilities::generateMissingProfiles(true);
-        if ($importAreas) {
-            ProfileTasksUtilities::generateDefaultInterestResearchAreas(INTERESTS_RESEARCH_AREAS_WITH_COLOR);
-            BaseEventDispatcher::listen('added', function () {
-                ProfileTasksUtilities::generateDefaultInterestResearchAreas(INTERESTS_RESEARCH_AREAS_WITH_COLOR);
-            }, 'AddDynamicTransaltions');
-        }
 
         //Rutas
         $routes = [];

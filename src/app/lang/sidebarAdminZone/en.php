@@ -18,13 +18,22 @@ $lang = [
     "Registro" => "Registration",
     "Gestión" => "Management",
     "Mi perfil" => "My profile",
-    "Convocatorias" => "Calls",
+    "Contenidos" => "Contents",
     "Consultar" => "Consult",
     "Volver a mi usuario" => "Return to my user",
     "Mi organización" => "My organization",
     "Listado de actores" => "List of actors",
     "Conectar como otro usuario" => "Connect as another user",
     "Mapa de actores" => "Actors map",
+    "Consultar oportunidades" => "Consult opportunities",
+    "Agregar oportunidades" => "Add opportunities",
+    "Mapa de contenidos" => "Content map",
+    "Oportunidades" => "Opportunities",
+    "Proyectos" => "Projects",
+    "Agregar proyectos" => "Add projects",
+    "Mapa de actores y contenidos" => "Actors and content map",
+    "Consultar proyectos" => "Consult projects",
+    "Áreas de investigación" => "Research areas",
 ];
 
 return $lang;

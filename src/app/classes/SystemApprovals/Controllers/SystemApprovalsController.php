@@ -369,7 +369,7 @@ class SystemApprovalsController extends AdminPanelController
                             $data = [];
                             $data['text'] = mb_convert_encoding($message, 'UTF-8');
                             $data['reason'] = mb_convert_encoding($reason, 'UTF-8');
-                            $mailer->Body = $this->render('mailing/template_base', $data, false, false);
+                            $mailer->Body = $this->render('mailing/template_base_no_style', $data, false, false);
                             if (!$mailer->checkSettedSMTP()) {
                                 $mailer->asGoDaddy();
                             }
@@ -440,7 +440,6 @@ class SystemApprovalsController extends AdminPanelController
         $currentUser = getLoggedFrameworkUser();
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
-        $typeRoot = UsersModel::TYPE_USER_ROOT;
         $currentOrganizationID = $currentUser->organization;
         $whereString = null;
         $havingString = null;
@@ -450,12 +449,17 @@ class SystemApprovalsController extends AdminPanelController
         $pending = SystemApprovalsMapper::STATUS_PENDING;
         $approved = SystemApprovalsMapper::STATUS_APPROVED;
         $baseOrgID = OrganizationMapper::INITIAL_ID_GLOBAL;
+        $userTypesThatCanApprovalSelf = implode(',', SystemApprovalsMapper::CAN_APPROVAL_SELF);
         $where = [
             "{$table}.status = '{$pending}'",
         ];
         $having = [
-            //Oculta lo que sea del mismo usuario que está viendo (a menos que sea root)
-            "(referenceCreatedBy != {$currentUserID} OR {$currentUserType} = $typeRoot)",
+            //Verifica que la referencia se considere "activa"
+            "referenceIsActive IS NULL OR referenceIsActive = 1",
+            //Verifica que exista la referencia
+            "AND referenceCreatedBy IS NOT NULL",
+            //Oculta lo que sea del mismo usuario que está viendo (a menos que sea que se incluya en SystemApprovalsMapper::CAN_APPROVAL_SELF)
+            "AND (referenceCreatedBy != {$currentUserID} OR {$currentUserType} IN ({$userTypesThatCanApprovalSelf}))",
             //Oculta los perfiles que sean de organizaciones ya aprobadas
             "AND ( ( {$table}.referenceTable != '{$tableUsers}' OR referenceOrganization IS NULL OR referenceOrganization = {$baseOrgID} ) OR (referenceOrtanizationApprovalValue != '{$approved}') )",
         ];

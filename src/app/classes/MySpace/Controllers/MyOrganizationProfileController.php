@@ -113,11 +113,13 @@ class MyOrganizationProfileController extends AdminPanelController
                 import_locations([], false, true);
                 import_cropper();
                 set_custom_assets([
+                    MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/profiles-translation-config.js'),
                     MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/experience-organization/delete-config.js'),
                     MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-organization-profile.js'),
                 ], 'js');
 
-                $organizationMapper = $adminUser->organizationMapper;
+                //Se toma de la organización del administrado o de la ingresada por URL si es root (para organizaciones que fueron huérfanas de admin)
+                $organizationMapper = $adminUser->type != UsersModel::TYPE_USER_ROOT ? $adminUser->organizationMapper : $organizationMapper;
                 $organizationAdminMapper = $organizationMapper->administrator;
                 $organizationIDParam = $hasSuperPrivileges ? [
                     'organizationID' => $organizationID,
@@ -784,6 +786,7 @@ class MyOrganizationProfileController extends AdminPanelController
                 $organizationMapper = $currentUser->organizationMapper;
                 $currentUserType = $currentUser->type;
                 $currentUserID = $currentUser->id;
+                $isRoot = $currentUserType == UsersModel::TYPE_USER_ROOT;
 
                 $adminProfileRoutes = [
                     'my-organization-profile',
@@ -805,7 +808,7 @@ class MyOrganizationProfileController extends AdminPanelController
                         return $allow;
                     }
 
-                    //Privelegios regulares
+                    //Privilegios regulares
                     if ($organizationID === null) {
                         return false;
                     }

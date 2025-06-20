@@ -70,7 +70,7 @@ return [
     "Nacionalidad" => "Nationality",
     "Filtrar" => "Filter",
     "Aprobación de %1" => "Approval of %1",
-    "Investigador independiente" => "Independent researcher",
+    "Usuario independiente" => "Independent user",
     "Oportunidad" => "Opportunity",
     "Categoría" => "Category",
     "Tipo de contenido" => "Content type",
@@ -81,4 +81,8 @@ return [
     "Proyecto de cooperación bilateral" => "Bilateral cooperation project",
     "Oportunidad de financiación" => "Funding opportunity",
     "Sr(a). {NAME}, le informamos que su contenido \"{CONTENT_NAME}\" ha sido rechazado" => "Mr./Mrs. {NAME}, we inform you that your content \"{CONTENT_NAME}\" has been rejected",
+    "El estado que intenta asignar no es válido." => "The state you are trying to assign is not valid.",
+    "Tipo de contratación" => "Hiring type",
+    "Eliminado" => "Deleted",
+    "No pudo conectarse a la base de datos" => "Could not connect to the database"
 ];

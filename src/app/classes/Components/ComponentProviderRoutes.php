@@ -84,12 +84,7 @@ class ComponentProviderRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        if (self::ENABLE) {
-            $route = get_route(self::class);
-            return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
-        } else {
-            return '';
-        }
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::ENABLE);
     }
 
     /**
@@ -107,7 +102,7 @@ class ComponentProviderRoutes
          */
         $callableHandler = function (Request $request, Response $response, array $args) {
             $server = new ServerStatics();
-            return $server->serve($request, $response, $args, __DIR__ . '/Statics');
+            return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
         };
 
         $routeStatics = [

@@ -3,8 +3,11 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use App\Controller\AdminPanelController;
 use App\Controller\AppConfigController;
 use App\Model\UsersModel;
+use MySpace\Controllers\MyOrganizationProfileController;
+use MySpace\Controllers\MyProfileController;
 use MySpace\Controllers\MySpaceController;
 use News\NewsLang;
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
@@ -32,7 +35,7 @@ $searchUsersURL = urldecode($searchUsersURL->__toString());
 $userOptions = new MenuGroupCollection([
     'items' => [
         new MenuGroup([
-            'name' => __(AdminPanelController::LANG_GROUP, 'Idiomas'),
+            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Idiomas'),
             'icon' => 'globe',
             'href' => baseurl() . '?changeLang',
             'visible' => $manyLangs,
@@ -42,7 +45,7 @@ $userOptions = new MenuGroupCollection([
             ],
         ]),
         new MenuGroup([
-            'name' => __(AdminPanelController::LANG_GROUP, 'Acerca de'),
+            'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Acerca de'),
             'icon' => 'desktop',
             'href' => get_route('about-framework'),
             'visible' => Roles::hasPermissions('about-framework', $currentUserType),
@@ -230,21 +233,21 @@ $adminOptionsGroups = [
         'collection' => new MenuGroupCollection([
             'items' => [
                 new MenuGroup([
-                    'name' => __(AdminPanelController::LANG_GROUP, 'Agregar usuario'),
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Agregar usuario'),
                     'icon' => 'user plus',
                     'href' => get_route('users-selection-create'),
                     'visible' => Roles::hasPermissions('users-selection-create', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
-                    'name' => __(AdminPanelController::LANG_GROUP, 'Gestionar usuarios'),
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Gestionar usuarios'),
                     'icon' => 'users cog',
                     'href' => get_route('users-list'),
                     'visible' => Roles::hasPermissions('users-list', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
-                    'name' => __(AdminPanelController::LANG_GROUP, 'Importar usuarios'),
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Importar usuarios'),
                     'icon' => 'upload',
                     'href' => get_route('importer-form', ['type' => 'users'], true),
                     'visible' => Roles::hasPermissions('importer-form', $currentUserType),
@@ -268,21 +271,21 @@ $adminOptionsGroups = [
                     'asLink' => true,
                 ]),
                 new MenuGroup([
-                    'name' => __(AdminPanelController::LANG_GROUP, 'Intentos de ingresos'),
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Intentos de ingresos'),
                     'icon' => 'sign in alternate',
                     'href' => get_route('informes-acceso') . '?attempts=yes',
                     'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
-                    'name' => __(AdminPanelController::LANG_GROUP, 'Usuario sin ingresos'),
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario sin ingresos'),
                     'icon' => 'user times',
                     'href' => get_route('informes-acceso') . '?not-logged=yes',
                     'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
                     'asLink' => true,
                 ]),
                 new MenuGroup([
-                    'name' => __(AdminPanelController::LANG_GROUP, 'Registro de ingresos'),
+                    'name' => __(AdminPanelController::ADMIN_LANG_GROUP, 'Registro de ingresos'),
                     'icon' => 'chart bar outline',
                     'href' => get_route('informes-acceso') . '?logged=yes',
                     'visible' => Roles::hasPermissions('informes-acceso', $currentUserType),
@@ -364,7 +367,7 @@ $avatar = $currentUser->avatar;
             <div class="bg-white">
                 <i class="user outline icon"></i>
             </div>
-            <span><?= __(AdminPanelController::LANG_GROUP, 'Perfil'); ?></span>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Perfil'); ?></span>
         </div>
         <i class="times icon close"></i>
     </div>
@@ -399,13 +402,19 @@ $avatar = $currentUser->avatar;
         </div>
 
         <div class="change-account">
-            <span edit-account><?= __(AdminPanelController::LANG_GROUP, 'Editar Cuenta'); ?></span>
-            <span change-password><?= __(AdminPanelController::LANG_GROUP, 'Cambiar contraseña'); ?></span>
-            <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(AdminPanelController::LANG_GROUP, 'Opciones de seguridad'); ?></a>
+            <span edit-account><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar Cuenta'); ?></span>
+            <span change-password><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar contraseña'); ?></span>
+            <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Opciones de seguridad'); ?></a>
+            <?php if(MyProfileController::allowedRoute('my-profile')): ?>
+            <a href="<?= MyProfileController::routeName('my-profile', [], true); ?>"><?= __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'); ?></a>
+            <?php endif; ?>
+            <?php if(MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR)): ?>
+            <a href="<?= MyOrganizationProfileController::routeName('my-organization-profile', [], true); ?>"><?= __(ADMIN_MENU_LANG_GROUP, 'Mi organización'); ?></a>
+            <?php endif; ?>
         </div>
 
         <div class="items">
-            <div class="section-title"><?= __(AdminPanelController::LANG_GROUP, 'Plataforma'); ?></div>
+            <div class="section-title"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Plataforma'); ?></div>
             <?php foreach ($userOptions->getItems() as $userOption) : ?>
             <?php if ($userOption->asLink()) : ?>
             <a class="item<?= $userOption->isCurrent() ? " current" : ''; ?>" href="<?= $userOption->getHref(); ?>" <?= $userOption->getAttributes(true); ?>>
@@ -431,7 +440,7 @@ $avatar = $currentUser->avatar;
             <div class="bg-white">
                 <i class="bell outline icon"></i>
             </div>
-            <span><?= __(AdminPanelController::LANG_GROUP, 'Noticias'); ?></span>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Noticias'); ?></span>
         </div>
         <i class="times icon close"></i>
     </div>
@@ -449,7 +458,7 @@ $avatar = $currentUser->avatar;
             <div class="bg-white">
                 <i class="cog icon"></i>
             </div>
-            <span><?= __(AdminPanelController::LANG_GROUP, 'Administrativo'); ?></span>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Administrativo'); ?></span>
         </div>
         <i class="times icon close"></i>
     </div>
@@ -504,7 +513,7 @@ $avatar = $currentUser->avatar;
         <div class="info">
             <span><?= $currentUser->firstname . ' ' . $currentUser->secondname . ' ' . $currentUser->firstLastname . ' ' . $currentUser->secondLastname; ?></span>
             <small><?= $currentUser->getTypeText(); ?></small>
-            <a action-image-profile href="javascript:void(0);"><?= __(AdminPanelController::LANG_GROUP, 'Editar foto'); ?></a>
+            <a action-image-profile href="javascript:void(0);"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar foto'); ?></a>
         </div>
     </div>
 
@@ -512,11 +521,11 @@ $avatar = $currentUser->avatar;
 
         <div class="item" data-tab="account">
             <i class="user outline icon"></i>
-            <span><?= __(AdminPanelController::LANG_GROUP, 'Cuenta'); ?></span>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cuenta'); ?></span>
         </div>
         <div class="item" data-tab="password">
             <i class="user outline icon"></i>
-            <span><?= __(AdminPanelController::LANG_GROUP, 'Contraseña'); ?></span>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña'); ?></span>
         </div>
         <?php //<!-- Quitar cuando se coloque otro tab -->; ?>
         <div class=""></div>
@@ -527,41 +536,41 @@ $avatar = $currentUser->avatar;
         <div class="content-view account" data-view="account">
             <form profile-information-form class="ui form" action="">
                 <input type="hidden" name="id" value="<?= $currentUser->id ?>">
-                <h3><?= __(AdminPanelController::LANG_GROUP, 'Información de perfil'); ?></h3>
+                <h3><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Información de perfil'); ?></h3>
                 <div class="field">
-                    <label><?= __(AdminPanelController::LANG_GROUP, 'Nombres'); ?></label>
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nombres'); ?></label>
                     <div class="two fields">
                         <div class="field">
-                            <input type="text" name="firstname" placeholder="<?= __(AdminPanelController::LANG_GROUP, 'Primer nombre'); ?>" required value="<?= $currentUser->firstname ?>">
+                            <input type="text" name="firstname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer nombre'); ?>" required value="<?= $currentUser->firstname ?>">
                         </div>
                         <div class="field">
-                            <input type="text" name="secondname" placeholder="<?= __(AdminPanelController::LANG_GROUP, 'Segundo nombre'); ?>" value="<?= $currentUser->secondname ?>">
+                            <input type="text" name="secondname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo nombre'); ?>" value="<?= $currentUser->secondname ?>">
                         </div>
                     </div>
                 </div>
 
                 <div class="field">
-                    <label><?= __(AdminPanelController::LANG_GROUP, 'Apellidos'); ?></label>
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Apellidos'); ?></label>
                     <div class="two fields">
                         <div class="field">
-                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::LANG_GROUP, 'Primer apellido'); ?>" value="<?= $currentUser->first_lastname ?>">
+                            <input required type="text" name="first_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Primer apellido'); ?>" value="<?= $currentUser->first_lastname ?>">
                         </div>
                         <div class="field">
-                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::LANG_GROUP, 'Segundo apellido'); ?>" value="<?= $currentUser->second_lastname ?>">
+                            <input type="text" name="second_lastname" placeholder="<?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Segundo apellido'); ?>" value="<?= $currentUser->second_lastname ?>">
                         </div>
                     </div>
                 </div>
 
                 <div class="field">
-                    <label><?= __(AdminPanelController::LANG_GROUP, 'Usuario'); ?></label>
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Usuario'); ?></label>
                     <input required type="text" name="username" placeholder="" value="<?= $currentUser->username ?>">
                 </div>
                 <div class="field">
-                    <label><?= __(AdminPanelController::LANG_GROUP, 'Correo'); ?></label>
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Correo'); ?></label>
                     <input required type="email" name="email" placeholder="" value="<?= $currentUser->email ?>">
                 </div>
                 <div class="align-right">
-                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::LANG_GROUP, 'Guardar'); ?></button>
+                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
                 </div>
             </form>
         </div>
@@ -569,24 +578,24 @@ $avatar = $currentUser->avatar;
             <form user-password-form class="ui form" action="">
                 <input type="hidden" name="id" value="<?= $currentUser->id ?>">
 
-                <h3 class="no-margin"><?= __(AdminPanelController::LANG_GROUP, 'Cambiar de contraseña'); ?></h3>
+                <h3 class="no-margin"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar de contraseña'); ?></h3>
                 <span>Una contraseña segura debe tener 8 caracteres como mínimo, distingue mayúsculas de minúsculas</span>
                 <br>
                 <div class="field">
-                    <label><?= __(AdminPanelController::LANG_GROUP, 'Contraseña actual'); ?></label>
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña actual'); ?></label>
                     <input type="password" name="current-password" placeholder="">
                 </div>
                 <div class="field">
-                    <label><?= __(AdminPanelController::LANG_GROUP, 'Nueva contraseña'); ?></label>
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Nueva contraseña'); ?></label>
                     <input type="password" name="password" placeholder="">
                 </div>
                 <div class="field">
-                    <label><?= __(AdminPanelController::LANG_GROUP, 'Confirmar contraseña'); ?></label>
+                    <label><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Confirmar contraseña'); ?></label>
                     <input type="password" name="password2" placeholder="">
                 </div>
                 <div class="align-right">
-                    <button close-profile class="ui secondary basic button" type="reset"><?= __(AdminPanelController::LANG_GROUP, 'Cancelar'); ?></button>
-                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::LANG_GROUP, 'Guardar'); ?></button>
+                    <button close-profile class="ui secondary basic button" type="reset"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cancelar'); ?></button>
+                    <button class="ui button primary" type="submit"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Guardar'); ?></button>
                 </div>
             </form>
         </div>
@@ -610,7 +619,7 @@ $avatar = $currentUser->avatar;
     <div class="content">
         <form class="ui form">
             <div class="section-fields-divider">
-                <div class="title s24"><?= __(AdminPanelController::LANG_GROUP, 'Cambiar idioma'); ?></div>
+                <div class="title s24"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar idioma'); ?></div>
             </div>
             <div class="field">
                 <select name="lang" class="ui dropdown search auto">
@@ -620,7 +629,7 @@ $avatar = $currentUser->avatar;
                 </select>
             </div>
             <div class="field">
-                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::LANG_GROUP, 'Cambiar'); ?></button>
+                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
             </div>
         </form>
     </div>
@@ -632,15 +641,15 @@ $avatar = $currentUser->avatar;
     <div class="content">
         <form class="ui form">
             <div class="section-fields-divider">
-                <div class="title s24"><?= __(AdminPanelController::LANG_GROUP, 'Cambio de usuario'); ?></div>
+                <div class="title s24"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambio de usuario'); ?></div>
             </div>
             <div class="field">
                 <select class="ui dropdown search" name="userID" data-search-url="<?= $searchUsersURL; ?>" required>
-                    <option value=""><?= __(AdminPanelController::LANG_GROUP, 'Seleccionar usuario'); ?></option>
+                    <option value=""><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Seleccionar usuario'); ?></option>
                 </select>
             </div>
             <div class="field">
-                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::LANG_GROUP, 'Cambiar'); ?></button>
+                <button type="submit" class="ui button big brand-color"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar'); ?></button>
             </div>
         </form>
     </div>

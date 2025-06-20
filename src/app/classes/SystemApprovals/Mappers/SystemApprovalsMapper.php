@@ -95,13 +95,20 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     const STATUS_PENDING = 'PENDING';
     const STATUS_APPROVED = 'APPROVED';
     const STATUS_REJECTED = 'REJECTED';
+    const STATUS_DELETED = 'DELETED';
     const STATUSES = [
         self::STATUS_PENDING => 'Pendiente',
         self::STATUS_APPROVED => 'Aprobado',
         self::STATUS_REJECTED => 'Rechazado',
+        self::STATUS_DELETED => 'Eliminado',
     ];
 
     const CAN_APPROVAL_ALL = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_INSTITUCIONAL,
+    ];
+    const CAN_APPROVAL_SELF = [
         UsersModel::TYPE_USER_ROOT,
         UsersModel::TYPE_USER_ADMIN_GRAL,
         UsersModel::TYPE_USER_INSTITUCIONAL,
@@ -238,6 +245,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      *  - referenceUserNames
      *  - referenceUserLastNames
      *  - referenceUserFullName
+     *  - referenceIsActive 1|0
      *  - statusText
      * @return string[]
      */
@@ -250,9 +258,9 @@ class SystemApprovalsMapper extends EntityMapperExtensible
         $tableUsers = UsersModel::TABLE;
         $tableOrganizations = OrganizationMapper::TABLE;
         $approvalManager = SystemApprovalManager::getInstance();
-        $approvalManager->generateCaptureDataFromReferenceForTableOnSQL('createdBy');
 
         //Datos del contenido
+        $referenceIsActive = $approvalManager->generateCaptureDataFromReferenceForTableOnSQL('isActive');
         $referenceCreatedByUserID = $approvalManager->generateCaptureDataFromReferenceForTableOnSQL('createdBy');
         $referenceUserOrganizationID = "(SELECT {$tableUsers}.organization FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
         $referenceUserFirstNameSegment = "(SELECT {$tableUsers}.firstname FROM {$tableUsers} WHERE {$tableUsers}.id = (SELECT referenceCreatedBy))";
@@ -282,6 +290,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             "TRIM(CONCAT((SELECT referenceUserFirstName), ' ', (SELECT referenceUserSecondName))) AS referenceUserNames",
             "TRIM(CONCAT((SELECT referenceUserFirstLastName), ' ', (SELECT referenceUserSecondLastName))) AS referenceUserLastNames",
             "TRIM(CONCAT((SELECT referenceUserNames), ' ', (SELECT referenceUserLastNames))) AS referenceUserFullName",
+            "IF({$referenceIsActive} IS NULL, 1, {$referenceIsActive}) AS referenceIsActive",
             "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
         ];
 

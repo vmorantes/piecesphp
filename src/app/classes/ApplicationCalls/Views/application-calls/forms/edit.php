@@ -45,7 +45,7 @@ $langs = Config::get_allowed_langs(false, Config::get_default_lang());
                         <div class="ui stackable grid">
                             <div class="six wide column">
                                 <div class="field required">
-                                    <label><?= __($langGroup, 'Tipo de convocatoria'); ?></label>
+                                    <label><?= __($langGroup, 'Tipo de contenido'); ?></label>
                                     <select class="ui dropdown search" name="contentType" required>
                                         <?= $contentTypesOptions; ?>
                                     </select>

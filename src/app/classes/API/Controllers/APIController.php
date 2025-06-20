@@ -16,7 +16,6 @@ use App\Controller\AvatarController;
 use App\Controller\RecoveryPasswordController;
 use App\Controller\UserProblemsController;
 use App\Controller\UsersController;
-use App\Model\AppConfigModel;
 use App\Model\AvatarModel;
 use App\Model\RecoveryPasswordModel;
 use App\Model\TicketsLogModel;
@@ -27,7 +26,9 @@ use News\Controllers\NewsController;
 use News\Mappers\NewsMapper;
 use Organizations\Controllers\OrganizationsController;
 use Organizations\Mappers\OrganizationMapper;
+use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseHashEncryption;
+use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
@@ -49,6 +50,7 @@ use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
+use ReportsManage\Queries\ReportsManageQueries;
 
 /**
  * APIController.
@@ -554,6 +556,17 @@ class APIController extends AdminPanelController
                                 return $value;
                             }
                         ),
+                        new Parameter(
+                            'asHTMLProperties',
+                            [],
+                            function ($value) {
+                                return is_array($value);
+                            },
+                            true,
+                            function ($value) {
+                                return $value;
+                            }
+                        ),
                     ]);
 
                     if ($method === 'POST') {
@@ -572,11 +585,17 @@ class APIController extends AdminPanelController
                     $text = $expectedParameters->getValue('text');
                     $from = $expectedParameters->getValue('from');
                     $to = $expectedParameters->getValue('to');
+                    $asHTMLProperties = $expectedParameters->getValue('asHTMLProperties');
 
                     $translationAI = get_config('translationAI');
                     $modelOpenAI = get_config('modelOpenAI');
                     $modelMistral = get_config('modelMistral');
                     $aiHandler = null;
+                    $lastUsage = [];
+                    $lastAskToChatOriginalResponse = [];
+
+                    //Destruir la conexión a la base de datos para evitar errores de conexión
+                    BaseModel::destroyDb(Config::app_db('default')['db'], Config::app_db('default')['host']);
 
                     if ($translationAI == AI_OPENAI) {
                         $aiHandler = new OpenAIHandlerAdapter(get_config('OpenAIApiKey'), '-', $modelOpenAI);
@@ -598,19 +617,116 @@ class APIController extends AdminPanelController
                             'provider' => $translationAI,
                             'modelOpenAI' => $modelOpenAI,
                             'modelMistral' => $modelMistral,
+                            'lastUsage' => [],
+                            'tokensUsed' => 0,
+                            'lastAskToChatOriginalResponseOnError' => [],
                         ],
                     ];
 
                     try {
-                        $translation = $aiHandler->translate($text, $from, $to, '/\{(?:[^{}]|(?R))*\}/');
+
+                        /* Segmentar entradas HTML según las propiedades en $asHTMLProperties */
+                        $textSplitted = [];
+                        if (is_array($text) && count($text) > 0) {
+                            foreach ($text as $key => $value) {
+                                if (in_array($key, $asHTMLProperties)) {
+                                    $textSplitted[$key] = array_merge($textSplitted, HelperController::splitHtmlSafely($value));
+                                    unset($text[$key]);
+                                }
+                            }
+                            if (is_local()) {
+                                $responseJSON['AI']['translationSplitted'] = $textSplitted;
+                            }
+                        }
+
+                        /* Generar traducciones */
+                        $translation = [];
+                        $tranlationCallback = function ($value, bool $isSplitted = false) use ($text) {
+                            $expectedProperties = array_keys($text);
+                            $hasProperties = is_array($value);
+                            if ($hasProperties) {
+                                foreach ($expectedProperties as $expectedProperty) {
+                                    if (!array_key_exists($expectedProperty, $value)) {
+                                        $hasProperties = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if ($isSplitted) {
+                                $hasProperties = is_array($value) && !empty($value);
+                            }
+                            $result = !$hasProperties ? HelperController::tryParseTranslationResult($value) : $value;
+                            return $result;
+                        };
+
+                        //Traducir entradas normales tal como vienen
+                        $translationNormal = $aiHandler->translate($text, $from, $to, $tranlationCallback);
+                        $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
+                        $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
+
+                        //Traducir entradas HTML segmentadas
+                        $translationSplitted = [];
+                        foreach ($textSplitted as $key => $splitted) {
+                            //Recorrer cada elemento de la entrada HTML segmentada
+                            foreach ($splitted as $valueIndex => $splittedElement) {
+
+                                //Traducir segmento
+                                $translationSplittedResult = $aiHandler->translate([
+                                    'segment' => $splittedElement,
+                                ], $from, $to, function ($value) use ($tranlationCallback) {
+                                    return $tranlationCallback($value, true);
+                                });
+
+                                //Añadir segmento
+                                if ($translationSplittedResult !== null) {
+                                    $translationSplitted[$key][$valueIndex] = implode("\n", $translationSplittedResult);
+                                }
+                                $lastUsage = array_merge($lastUsage, $aiHandler->lastUsage());
+                                $lastAskToChatOriginalResponse[] = $aiHandler->getLastAskToChatOriginalResponse();
+                            }
+
+                            //Juntar segmentos
+                            $translationSplitted[$key] = implode("\n", $translationSplitted[$key]);
+                        }
+
+                        /* Agregar traducciones */
+
+                        //Agregar entradas normales
+                        if ($translationNormal !== null) {
+                            $translation = $translationNormal;
+                        }
+
+                        //Agregar entradas HTML segmentadas
+                        if (count($translationSplitted) > 0) {
+                            $translation = array_merge($translation, $translationSplitted);
+                        }
+
+                        //Verificar que haya traducciones
+                        $translation = !empty($translation) ? $translation : null;
+                        $tokensUsed = $aiHandler->getTokensUsed($lastUsage);
+
+                        $responseJSON['AI']['lastUsage'] = $lastUsage;
+                        $responseJSON['AI']['tokensUsed'] = $tokensUsed;
+
+                        //Actualizar el uso de tokens
+                        $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
+                        $currentUsageData[$translationAI] = $currentUsageData[$translationAI] + $tokensUsed;
+                        GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
+
                         if ($translation !== null) {
                             $responseJSON['success'] = true;
                             $responseJSON['result']['translation'] = $translation;
                             $responseJSON['message'] = __(self::LANG_GROUP, 'La traducción se realizó con éxito.');
+                            if (is_local()) {
+                                $responseJSON['AI']['lastAskToChatOriginalResponse'] = $lastAskToChatOriginalResponse;
+                            }
                         } else {
                             $responseJSON['message'] = __(self::LANG_GROUP, 'No pudo efectuarse la traducción, intente más tarde.');
+                            $responseJSON['AI']['lastAskToChatOriginalResponseOnError'] = $lastAskToChatOriginalResponse;
                         }
+
                     } catch (\Throwable $e) {
+                        log_exception($e);
                         $responseJSON['message'] = __(self::LANG_GROUP, 'Ha ocurrido un error con el servicio de traducción, intente más tarde.');
                         $responseJSON['error'] = $e->getMessage();
                     }
@@ -668,17 +784,6 @@ class APIController extends AdminPanelController
                                 return $value;
                             }
                         ),
-                        new Parameter(
-                            'database',
-                            false,
-                            function ($value) {
-                                return is_string($value) || is_bool($value);
-                            },
-                            true,
-                            function ($value) {
-                                return $value === 'yes';
-                            }
-                        ),
                     ]);
 
                     if ($method === 'POST') {
@@ -693,12 +798,10 @@ class APIController extends AdminPanelController
                      * @var array<string,string>|null $text
                      * @var string $to
                      * @var string $saveGroup
-                     * @var bool $database
                      */
                     $text = $expectedParameters->getValue('text');
                     $to = $expectedParameters->getValue('to');
                     $saveGroup = $expectedParameters->getValue('saveGroup');
-                    $database = $expectedParameters->getValue('database');
 
                     $responseJSON = [
                         'success' => false,
@@ -708,92 +811,38 @@ class APIController extends AdminPanelController
 
                     if ($isSameDomain) {
 
-                        if ($database) {
+                        /* Variables de configuración */
+                        $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
+                        $dataConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['dataConfigName'];
+                        $lastDateConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['lastDateConfigName'];
 
-                            $responseJSON['success'] = true;
-                            $translationsDatabaseName = 'dynamicTranslations';
-                            $translationsDatabase = new AppConfigModel($translationsDatabaseName);
-                            $translationsDatabase->name = $translationsDatabaseName;
-                            $currentTranslationsDatabase = $translationsDatabase->value;
-                            $currentTranslationsDatabase = is_string($currentTranslationsDatabase) ? base64_decode($currentTranslationsDatabase) : null;
-                            $currentTranslationsDatabase = is_string($currentTranslationsDatabase) ? @json_decode($currentTranslationsDatabase, true) : null;
-                            $currentTranslationsDatabase = is_array($currentTranslationsDatabase) ? $currentTranslationsDatabase['data'] : null;
+                        /* Valores actuales */
+                        $currentData = GenericContentPseudoMapper::getContentData($dataConfigName);
+                        $currentData = is_array($currentData) ? $currentData : [];
 
-                            $baseTranslationsDatabase = [
-                                $to => [
-                                    $saveGroup => [],
-                                ],
-                            ];
-                            $currentTranslationsDatabase = $currentTranslationsDatabase !== null ? objectToArray($currentTranslationsDatabase) : $baseTranslationsDatabase;
+                        /* Actualizar valores */
 
-                            if (!array_key_exists($to, $currentTranslationsDatabase)) {
-                                $currentTranslationsDatabase[$to] = [];
-                            }
-                            if (!array_key_exists($saveGroup, $currentTranslationsDatabase[$to])) {
-                                $currentTranslationsDatabase[$to][$saveGroup] = [];
-                            }
-
-                            $finalTranslationsDatabase = $currentTranslationsDatabase;
-                            $finalTranslationsDatabase[$to][$saveGroup] = array_merge($finalTranslationsDatabase[$to][$saveGroup], $text);
-                            $translationsDatabase->value = base64_encode(json_encode([
-                                'data' => $finalTranslationsDatabase,
-                                'updated' => date('Y-m-d H:i:s'),
-                            ], \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
-
-                            if ($translationsDatabase->id !== null) {
-                                $translationsDatabase->update();
-                            } else {
-                                $translationsDatabase->save();
-                            }
-
-                        } else {
-
-                            if (is_string($saveGroup) && mb_strlen($saveGroup) > 0) {
-
-                                $responseJSON['success'] = true;
-                                $langDynamicTranslationsPath = basepath('app/lang/dynamic-translations/');
-                                $langDynamicTranslationsLangPath = append_to_path_system($langDynamicTranslationsPath, $to);
-                                $langDynamicTranslationsDirectoryExists = file_exists($langDynamicTranslationsPath);
-                                $langDynamicTranslationsLangDirectoryExists = file_exists($langDynamicTranslationsLangPath);
-
-                                if (!$langDynamicTranslationsDirectoryExists) {
-                                    mkdir($langDynamicTranslationsPath, 0777, true);
-                                }
-                                if (!$langDynamicTranslationsLangDirectoryExists) {
-                                    mkdir($langDynamicTranslationsLangPath, 0777, true);
-                                }
-
-                                $langDynamicTranslationsLangGroupPath = append_to_path_system($langDynamicTranslationsLangPath, "{$saveGroup}.php");
-                                $langDynamicTranslationsLangGroupFileExists = file_exists($langDynamicTranslationsLangGroupPath);
-                                $arrayLangVariableName = "\$dynamicTranslation_{$saveGroup}";
-
-                                if (!$langDynamicTranslationsLangGroupFileExists) {
-                                    file_put_contents($langDynamicTranslationsLangGroupPath, [
-                                        "<?php\n",
-                                        "{$arrayLangVariableName} = [];\n\n",
-                                        "return {$arrayLangVariableName};\n",
-                                    ]);
-                                    chmod($langDynamicTranslationsLangGroupPath, 0777);
-                                }
-
-                                $currentTranslations = include $langDynamicTranslationsLangGroupPath;
-                                $translatedTexts = [];
-                                $langDynamicTranslationsLangGroupPathContent = file_get_contents($langDynamicTranslationsLangGroupPath);
-                                foreach ($text as $originalText => $translatedText) {
-                                    $originalText = str_replace('"', '\\"', $originalText);
-                                    $translatedText = str_replace('"', '\\"', $translatedText);
-                                    if (!array_key_exists($originalText, $currentTranslations)) {
-                                        $translatedTexts[] = "{$arrayLangVariableName}[\"{$originalText}\"] = \"{$translatedText}\";";
-                                    }
-                                }
-
-                                $translatedTexts = implode("\n", $translatedTexts);
-                                $langDynamicTranslationsLangGroupPathContent = str_replace("return {$arrayLangVariableName};", "{$translatedTexts}\n\nreturn {$arrayLangVariableName};", $langDynamicTranslationsLangGroupPathContent);
-                                file_put_contents($langDynamicTranslationsLangGroupPath, $langDynamicTranslationsLangGroupPathContent);
-
-                            }
-
+                        //Agregar idioma si no existe
+                        if (!array_key_exists($to, $currentData)) {
+                            $currentData[$to] = [];
                         }
+                        //Agregar grupo si no existe
+                        if (!array_key_exists($saveGroup, $currentData[$to])) {
+                            $currentData[$to][$saveGroup] = [];
+                        }
+
+                        //Agregar traducciones a las existentes
+                        $currentData[$to][$saveGroup] = array_merge($currentData[$to][$saveGroup], $text);
+                        //Actualizar fecha de actualización
+                        $lastUpdateDate = new \DateTime();
+
+                        /* Guardar valores */
+                        GenericContentPseudoMapper::setContentData($dataConfigName, $currentData);
+                        GenericContentPseudoMapper::setContentData($lastDateConfigName, $lastUpdateDate);
+
+                        /* Respuesta */
+                        $responseJSON['success'] = true;
+                        $responseJSON['message'] = __(self::LANG_GROUP, 'Las traducciones se guardaron con éxito.');
 
                     } else {
                         throw new NotFoundException($request, $response);
@@ -811,6 +860,61 @@ class APIController extends AdminPanelController
             $responseJSON['error'] = $e->getMessage();
             $response = $response->withJson($responseJSON);
         }
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function reports(Request $request, Response $response)
+    {
+
+        $actionType = $request->getAttribute('actionType');
+        $method = mb_strtoupper($request->getMethod());
+        $dataReportsActionsAvailables = [
+            'get-generic-data',
+        ];
+
+        if (in_array($actionType, $dataReportsActionsAvailables)) {
+
+            if ($method !== 'GET') {
+                throw new NotFoundException($request, $response);
+            }
+
+            $currentUser = getLoggedFrameworkUser();
+            if ($currentUser === null) {
+                return throw403($request, [
+                    'line' => __LINE__,
+                    'file' => __FILE__,
+                ]);
+            } else {
+                if (!in_array($currentUser->type, ReportsManageQueries::ROLES_WITH_REPORTS)) {
+                    throw new NotFoundException($request, $response);
+                }
+            }
+
+            //Solicitud HTTP
+            $expectedParameters = new Parameters([]);
+
+            $expectedParameters->setInputValues($request->getQueryParams());
+            $expectedParameters->validate();
+
+            //Obtener datos
+            $reportData = [];
+
+            if ($actionType == 'get-generic-data') {
+                $reportData = ReportsManageQueries::genericReportData();
+            }
+
+            //Resultado
+            $response = $response->withJson($reportData);
+
+        } else {
+            throw new NotFoundException($request, $response);
+        }
+
         return $response;
     }
 
@@ -947,6 +1051,8 @@ class APIController extends AdminPanelController
                     $arrayBodyResponseOrganization = json_decode($reponseOrganization->getBody()->__toString(), true);
                     $parsedBody['organization'] = $arrayBodyResponseOrganization['values']['orgID'];
                     $organizationCreatedID = $arrayBodyResponseOrganization['values']['orgID'];
+                    //Dado que esta persona creó su organización se pone como adminstrador de organización
+                    $parsedBody['type'] = UsersModel::TYPE_USER_ADMIN_ORG;
                 }
             }
             $request = $request->withParsedBody($parsedBody);
@@ -1024,7 +1130,7 @@ class APIController extends AdminPanelController
                     $data['text'] = mb_convert_encoding($message, 'UTF-8');
                     $data['url'] = get_route('admin');
                     $data['text_button'] = __(self::LANG_GROUP, 'Iniciar sesión');
-                    $mailer->Body = $this->helpController->render('mailing/template_base', $data, false, false);
+                    $mailer->Body = $this->helpController->render('mailing/template_base_no_style', $data, false, false);
                     if (!$mailer->checkSettedSMTP()) {
                         $mailer->asGoDaddy();
                     }
@@ -1577,6 +1683,8 @@ class APIController extends AdminPanelController
 
         $cronJobs = $allRoles;
 
+        $reports = $allRoles;
+
         $externalActions = $allRoles;
 
         $other = [
@@ -1670,6 +1778,19 @@ class APIController extends AdminPanelController
 
         ];
 
+        $routesReports = [
+            //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
+            new Route( //Rutas de reportes
+                "{$startRoute}/reports/{actionType}[/]",
+                $classname . ':reports',
+                self::$baseRouteName . '-reports-actions',
+                'GET|POST',
+                false,
+                null,
+                $reports,
+            ),
+        ];
+
         if (APIRoutes::ENABLE) {
             $routes = array_merge($routes, $routesGeneral);
         }
@@ -1682,7 +1803,11 @@ class APIController extends AdminPanelController
             $routes = array_merge($routes, $routesUsers);
         }
 
-        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS) {
+        if (APIRoutes::ENABLE_REPORTS) {
+            $routes = array_merge($routes, $routesReports);
+        }
+
+        if (APIRoutes::ENABLE || APIRoutes::ENABLE_TRANSLATIONS || APIRoutes::ENABLE_USERS || APIRoutes::ENABLE_REPORTS) {
             $group->register($routes);
 
             $group->addMiddleware(function (\PiecesPHP\Core\Routing\RequestRoute $request, $handler) {

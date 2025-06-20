@@ -55,4 +55,5 @@ return [
     "Inactiva" => "Inactive",
     "Cerrar" => "Close",
     "Inicio" => "Home",
+    "El idioma seleccionado no es válido." => "The selected language is not valid."
 ];

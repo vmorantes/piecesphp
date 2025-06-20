@@ -10,7 +10,10 @@
  */
 
 use ApplicationCalls\Controllers\ApplicationCallsController;
+use ApplicationCalls\Mappers\ApplicationCallsMapper;
+use App\Model\UsersModel;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
+use InterestResearchAreas\Controllers\InterestResearchAreasController;
 use MySpace\Controllers\MyOrganizationProfileController;
 use MySpace\Controllers\MyProfileController;
 use Organizations\Mappers\OrganizationMapper;
@@ -34,83 +37,171 @@ $headerDropdown = new MenuItemCollection([
 /**
  * @category AddToBackendSidebarMenu
  */
-$sidebar = new MenuGroupCollection([
-    'items' => [
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Inicio'),
-            'visible' => Roles::hasPermissions('admin', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('admin'),
-            'icon' => 'home',
-            'position' => 0,
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Gestión'),
-            'visible' => true,
-            'icon' => 'edit',
-            'position' => 0,
-            'items' => [
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'),
-                    'href' => MyProfileController::routeName('my-profile'),
-                    'visible' => MyProfileController::allowedRoute('my-profile'),
-                ]),
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Mi organización'),
-                    'href' => MyOrganizationProfileController::routeName('my-organization-profile'),
-                    'visible' => MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($current_type_user, OrganizationMapper::PROFILE_EDITOR),
-                ]),
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Convocatorias'),
-                    'href' => ApplicationCallsController::routeName('list'),
-                    'visible' => ApplicationCallsController::allowedRoute('list'),
-                ]),
-            ],
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Consultar'),
-            'visible' => true,
-            'icon' => 'search',
-            'position' => 0,
-            'items' => [
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Listado de actores'),
-                    'href' => ContentNavigationHubController::routeName('profiles-list'),
-                    'visible' => ContentNavigationHubController::allowedRoute('profiles-list'),
-                ]),
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de actores'),
-                    'href' => ContentNavigationHubController::routeName('profiles-map'),
-                    'visible' => ContentNavigationHubController::allowedRoute('profiles-map'),
-                ]),
-                new MenuItem([
-                    'text' => __(ADMIN_MENU_LANG_GROUP, 'Convocatorias'),
-                    'href' => ContentNavigationHubController::routeName('application-calls-list'),
-                    'visible' => ContentNavigationHubController::allowedRoute('application-calls-list'),
-                ]),
-            ],
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),
-            'visible' => Roles::hasPermissions('locations', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('locations', [], true),
-            'icon' => 'map marker alternate',
-            'position' => 1800,
-        ]),
-        new MenuGroup([
-            'name' => __(ADMIN_MENU_LANG_GROUP, 'Mensajes'),
-            'attributes' => [
-                'unread-threads' => get_route('messages-threads-status', [], true),
-            ],
-            'visible' => Roles::hasPermissions('messages-inbox', $current_type_user),
-            'asLink' => true,
-            'href' => get_route('messages-inbox', [], true),
-            'icon' => 'envelope outline',
-            'position' => 2000,
-        ]),
-    ],
-]);
+$externalUsers = [
+    UsersModel::TYPE_USER_GENERAL,
+    UsersModel::TYPE_USER_ADMIN_ORG,
+];
+
+$sidebar = new MenuGroupCollection([]);
+
+if (!in_array($current_type_user, $externalUsers)) {
+    $sidebar = new MenuGroupCollection([
+        'items' => [
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Inicio'),
+                'visible' => Roles::hasPermissions('admin', $current_type_user),
+                'asLink' => true,
+                'href' => get_route('admin'),
+                'icon' => 'home',
+                'position' => 0,
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Gestión'),
+                'visible' => true,
+                'icon' => 'edit',
+                'position' => 0,
+                'items' => [
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'),
+                        'href' => MyProfileController::routeName('my-profile', [], true),
+                        'visible' => MyProfileController::allowedRoute('my-profile'),
+                    ]),
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Mi organización'),
+                        'href' => MyOrganizationProfileController::routeName('my-organization-profile', [], true),
+                        'visible' => MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($current_type_user, OrganizationMapper::PROFILE_EDITOR),
+                    ]),
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Contenidos'),
+                        'href' => ApplicationCallsController::routeName('list', [], true),
+                        'visible' => ApplicationCallsController::allowedRoute('list'),
+                    ]),
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Áreas de investigación'),
+                        'href' => InterestResearchAreasController::routeName('list', [], true),
+                        'visible' => InterestResearchAreasController::allowedRoute('list'),
+                    ]),
+                ],
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Consultar'),
+                'visible' => true,
+                'icon' => 'search',
+                'position' => 0,
+                'items' => [
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Listado de actores'),
+                        'href' => ContentNavigationHubController::routeName('profiles-list', [], true),
+                        'visible' => ContentNavigationHubController::allowedRoute('profiles-list'),
+                    ]),
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de contenidos'),
+                        'href' => ContentNavigationHubController::routeName('contents-map', [], true),
+                        'visible' => ContentNavigationHubController::allowedRoute('contents-map'),
+                    ]),
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Contenidos'),
+                        'href' => ContentNavigationHubController::routeName('application-calls-list', [], true),
+                        'visible' => ContentNavigationHubController::allowedRoute('application-calls-list'),
+                    ]),
+                ],
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Ubicaciones'),
+                'visible' => Roles::hasPermissions('locations', $current_type_user),
+                'asLink' => true,
+                'href' => get_route('locations', [], true),
+                'icon' => 'map marker alternate',
+                'position' => 1800,
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Mensajes'),
+                'attributes' => [
+                    'unread-threads' => get_route('messages-threads-status', [], true),
+                ],
+                'visible' => Roles::hasPermissions('messages-inbox', $current_type_user),
+                'asLink' => true,
+                'href' => get_route('messages-inbox', [], true),
+                'icon' => 'envelope outline',
+                'position' => 2000,
+            ]),
+        ],
+    ]);
+} else {
+
+    $sidebar = new MenuGroupCollection([
+        'items' => [
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Inicio'),
+                'visible' => Roles::hasPermissions('admin', $current_type_user),
+                'asLink' => true,
+                'href' => get_route('admin'),
+                'icon' => 'home',
+                'position' => 0,
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Usuarios generales'),
+                'icon' => 'edit',
+                'position' => 0,
+                'asLink' => true,
+                'href' => ContentNavigationHubController::routeName('profiles-list', [], true),
+                'visible' => ContentNavigationHubController::allowedRoute('profiles-list'),
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Proyectos'),
+                'visible' => true,
+                'icon' => 'search',
+                'position' => 0,
+                'items' => [
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Consultar proyectos'),
+                        'href' => ContentNavigationHubController::routeName('application-calls-list-by-type', [
+                            'type' => ApplicationCallsMapper::CONTENT_TYPE_BILATERAL_PROJECT,
+                        ], true),
+                        'visible' => ContentNavigationHubController::allowedRoute('application-calls-list-by-type', [
+                            'type' => ApplicationCallsMapper::CONTENT_TYPE_BILATERAL_PROJECT,
+                        ]),
+                    ]),
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Agregar proyectos'),
+                        'href' => ApplicationCallsController::routeName('forms-add', [], true) . '?p',
+                        'visible' => ApplicationCallsController::allowedRoute('forms-add'),
+                    ]),
+                ],
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Oportunidades'),
+                'visible' => true,
+                'icon' => 'search',
+                'position' => 0,
+                'items' => [
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Consultar oportunidades'),
+                        'href' => ContentNavigationHubController::routeName('application-calls-list-by-type', [
+                            'type' => ApplicationCallsMapper::CONTENT_TYPE_FUNDING_OPPORTUNITY,
+                        ], true),
+                        'visible' => ContentNavigationHubController::allowedRoute('application-calls-list-by-type', [
+                            'type' => ApplicationCallsMapper::CONTENT_TYPE_BILATERAL_PROJECT,
+                        ]),
+                    ]),
+                    new MenuItem([
+                        'text' => __(ADMIN_MENU_LANG_GROUP, 'Agregar oportunidades'),
+                        'href' => ApplicationCallsController::routeName('forms-add', [], true) . '?o',
+                        'visible' => ApplicationCallsController::allowedRoute('forms-add'),
+                    ]),
+                ],
+            ]),
+            new MenuGroup([
+                'name' => __(ADMIN_MENU_LANG_GROUP, 'Mapa de actores y contenidos'),
+                'icon' => 'map outline',
+                'position' => 0,
+                'asLink' => true,
+                'href' => ContentNavigationHubController::routeName('contents-map', [], true),
+                'visible' => ContentNavigationHubController::allowedRoute('contents-map'),
+            ]),
+        ],
+    ]);
+}
 
 //Idiomas
 $alternativesURL = Config::get_config('alternatives_url');

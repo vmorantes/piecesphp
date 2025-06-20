@@ -13,7 +13,7 @@ $lang = [
     'ID' => 'ID',
     'Usuario ingresado' => 'User Login',
     'Intento exitoso' => 'Successful attempt',
-    'Información' => 'information',
+    'Información' => 'Information',
     'IP' => 'IP',
     'Fecha' => 'Date',
     "Ingresado" => "Logged in",
@@ -32,6 +32,8 @@ $lang = [
     "Intentos fallidos" => "Failed attempts",
     "Tiempo de uso de la plataforma" => "Platform usage time",
     "Exportar datos" => "Export data",
+    "minuto(s)" => "minute(s)",
+    "Sin registro" => "No record"
 ];
 
 return $lang;

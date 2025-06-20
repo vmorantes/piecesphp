@@ -27,8 +27,8 @@ window.addEventListener('load', function (e) {
 	locations.fillSelectWithCountries()
 
 	let controlsMapBox = {
-		latitudeInput: $(`[longitude-mapbox-handler]`),
-		longitudeInput: $(`[latitude-mapbox-handler]`),
+		latitudeInput: $(`[latitude-mapbox-handler]`),
+		longitudeInput: $(`[longitude-mapbox-handler]`),
 		selectCountry: $(`[locations-component-auto-filled-country]`),
 		selectState: $(`[locations-component-auto-filled-state]`),
 		selectCity: $(`[locations-component-auto-filled-city]`),
@@ -37,27 +37,39 @@ window.addEventListener('load', function (e) {
 		triggerCenterView: $(`[set-center-view]`),
 	}
 
-	new Promise(function (resolve) {
+	if (typeof pcsphpGlobals.globalAuthenticator !== 'undefined') {
 
-		fetch('configurations/mapbox-key')
-			.then(response => response.text())
-			.then(key => resolve(key))
+		pcsphpGlobals.globalAuthenticator.verify(function () {
 
-	}).then(function (key) {
-		mapBoxAdapter
-			.setKey(key)
-			.configurateWhitForm(
-				controlsMapBox,
-				{
-					defaultLongitude: -74.8065913846496,
-					defaultLatitude: 11.0021516003209,
-				},
-				{
-					zoom: 3,
-				}
-			)
-	}).finally(function () {
+			new Promise(function (resolve) {
+
+				fetch('configurations/mapbox-key')
+					.then(response => response.text())
+					.then(key => resolve(key))
+
+			}).then(function (key) {
+				mapBoxAdapter
+					.setKey(key)
+					.configurateWhitForm(
+						controlsMapBox,
+						{
+							defaultLongitude: -74.8065913846496,
+							defaultLatitude: 11.0021516003209,
+						},
+						{
+							zoom: 3,
+						}
+					)
+			}).finally(function () {
+				removeGenericLoader('Maps')
+			})
+
+		}, function () {
+			removeGenericLoader('Maps')
+		})
+
+	} else {
 		removeGenericLoader('Maps')
-	})
+	}
 
 })

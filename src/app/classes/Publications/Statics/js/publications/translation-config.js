@@ -1,5 +1,6 @@
 /// <reference path="../../../../../../statics/core/js/configurations.js" />
 /// <reference path="../../../../../../statics/core/js/helpers.js" />
+/// <reference path="../../../../../../statics/core/own-plugins/RichEditorAdapterComponent.js" />
 showGenericLoader('_CARGA_INICIAL_')
 window.addEventListener('publicationsTranslationsReadyToConfig', function () {
 
@@ -12,6 +13,8 @@ window.addEventListener('publicationsTranslationsReadyToConfig', function () {
 	const containerElements = Array.from($('.module-view-container [lang-container]').not(`[lang-container="${baseLang}"]`))
 	const translationURL = new URL('core/api/translations', pcsphpGlobals.baseURL)
 	const textsToTranslate = {}
+	const asHTMLProperties = []
+	const globalLangGroup = 'global'
 
 	const fieldsHandler = {
 		title: {
@@ -67,7 +70,13 @@ window.addEventListener('publicationsTranslationsReadyToConfig', function () {
 	for (const fieldName in fieldsHandler) {
 		const fieldConfig = fieldsHandler[fieldName]
 		const fieldElement = baseLangContainerElements.find(fieldConfig.selector)
+		const isTextArea = fieldElement.is('textarea')
+		const isRichEditor = isTextArea && typeof fieldElement.get(0).getRichEditorData !== 'undefined'
 		const fieldValue = fieldConfig.getValue(fieldElement)
+		const asHTML = isRichEditor
+		if (asHTML) {
+			asHTMLProperties.push(fieldName)
+		}
 		textsToTranslate[fieldName] = fieldValue
 		fieldConfig.onChange(fieldElement, function (value) {
 			if (typeof value == 'string' && value.trim().length > 0) {
@@ -103,11 +112,18 @@ window.addEventListener('publicationsTranslationsReadyToConfig', function () {
 					translateTrigger.on('click', function (e) {
 						e.preventDefault()
 						const loaderName = generateUniqueID()
-						showGenericLoader(loaderName)
-						translationURL.searchParams.set('text', base64EncodeUnicode(JSON.stringify(textsToTranslate)))
-						translationURL.searchParams.set('from', fromLangName)
-						translationURL.searchParams.set('to', toLangName)
-						getRequest(translationURL, null, {
+						showGenericLoader(loaderName, null, false, {
+							textMessage: _i18n(globalLangGroup, 'El tiempo de respuesta depende del servicio de traducción de las plataformas de inteligencia artificial, por lo que su duración puede variar.'),
+						})
+						const formData = new FormData()
+						formData.set('text', base64EncodeUnicode(JSON.stringify(textsToTranslate)))
+						formData.set('from', fromLangName)
+						formData.set('to', toLangName)
+						asHTMLProperties.forEach(function (asHTMLProperty) {
+							formData.append('asHTMLProperties[]', asHTMLProperty)
+						})
+
+						postRequest(translationURL.href, formData, {
 							'PCSPHP-Response-Expected-Language': currentAppLang,
 						}).done(function (response) {
 

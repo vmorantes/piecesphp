@@ -129,7 +129,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
                             <div class="name"><?= __($langGroup, 'Valor A'); ?></div>
                             <div data-type="dataElement7" class="value">0&nbsp;</div>
                         </div>
-                        <div class="item sencodary">
+                        <div class="item secondary">
                             <div class="color circle"></div>
                             <div class="name"><?= __($langGroup, 'Valor B'); ?></div>
                             <div data-type="dataElement8" class="value">0&nbsp;</div>
@@ -264,7 +264,7 @@ $totpQrURL = $totpManager->getQRCodeUrl($username, get_config('owner'));
                             </div>
                         </div>
                         <div class="chart-data">
-                            <div class="item stack sencodary">
+                            <div class="item stack secondary">
                                 <div class="legend">
                                     <div class="color circle"></div>
                                     <div class="name"><?= __($langGroup, 'Valor A'); ?></div>

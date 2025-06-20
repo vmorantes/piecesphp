@@ -12,7 +12,7 @@ $allowedLangs = Config::get_allowed_langs(false, $defaultLang);
 $emptyMapper = new NewsMapper();
 $translatableProperties = $emptyMapper->getTranslatableProperties();
 //Se agrega el lenguaje por defecto en el primer puesto, por si no está y se eliminan duplicados
-$langsOnCreation = array_unique(array_merge([$defaultLang], NewsMapper::LANGS_ON_CREATION));
+$langsOnCreation = array_unique(array_merge([$defaultLang], NewsMapper::$LANGS_ON_CREATION));
 $manyLangsOnCreation = count($langsOnCreation) > 1;
 ?>
 <section class="module-view-container">

@@ -61,6 +61,10 @@ $lang = [
     'Ya existe un país con ese código.' => 'Esiste già un paese con questo codice.',
     'Ya existe un departamento con ese código.' => 'Esiste già un dipartimento con questo codice.',
     'Ya existe un municipio con ese código.' => 'Esiste già un comune con questo codice.',
+    "Puede escribir la región y presionar ENTER si no la encuentra en el listado." => "Puoi digitare la regione e premere INVIO se non la trovi nell'elenco.",
+    "Ya existe una ciudad con ese código." => "Esiste già una città con questo codice.",
+    "Región" => "Regione",
+    "Regiones" => "Regioni",
 ];
 
 return $lang;

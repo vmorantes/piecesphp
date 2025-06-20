@@ -8,11 +8,13 @@ function BuiltInBannerAdapter(options) {
 	/**
 	 * @typedef OptionsConfiguration
 	 * @property {String|URL} requestURL
-	 * @property {function(Object, HTMLElement): (HTMLElement|$)} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
+	 * @property {function(Object, HTMLElement, $):HTMLElement|$} onDraw Recibe el item actual por parámetro, se usa para insertar el elemento en el DOM debe devolver un HTMLElement o un objeto JQuery ($)
 	 * @property {function(Object)} onEmpty Recibe el contenedor asignado
 	 * @property {Number} [page=1]
 	 * @property {Number} [perPage=5]
 	 * @property {String} [containerSelector=[built-in-banner-js]]
+	 * @property {String} [loadMoreTriggerSelector=[built-in-banner-load-more-js]]
+	 * @property {Boolean} [scrollToOnLoadMore=[false]]
 	 */
 
 	/** @constant {string} */
@@ -34,17 +36,27 @@ function BuiltInBannerAdapter(options) {
 	let prevPage = 1
 	/** @property {String} */
 	let containerSelector = '[built-in-banner-js]'
+	/** @property {String} */
+	let loadMoreTriggerSelector = '[built-in-banner-load-more-js]'
 	/** @property {String|URL} */
 	let requestURL = ''
 
-	/** @property {function(Object, HTMLElement): (HTMLElement|$)} */
+	/** @property {function(Object, HTMLElement, $):HTMLElement|$} */
 	let onDraw
 	/** @property {function(Object)} */
 	let onEmpty
 	/** @property {$} */
 	let container
+	/** @property {$} */
+	let loadMoreTrigger
 	/** @property {Boolean} */
 	let firstLoad = false
+	/** @property {Number} */
+	let maxIndex = -1
+	/** @property {Boolean} */
+	let scrollToOnLoadMore = false
+	/** @property {$[]} */
+	let addedItems = []
 
 	init(options)
 
@@ -60,6 +72,14 @@ function BuiltInBannerAdapter(options) {
 
 			processOptions(options)
 
+			//Acciones inciales
+			loadMoreTrigger.off('click')
+			loadMoreTrigger.on('click', function (e) {
+				e.preventDefault()
+				page = nextPage
+				instance.loadItems(true, scrollToOnLoadMore)
+			})
+
 		} catch (error) {
 
 			console.error(error)
@@ -70,10 +90,30 @@ function BuiltInBannerAdapter(options) {
 	}
 
 	/**
+	 * Reinicia la consulta
+	 * @param {URL|String} url 
+	 * @returns {BuiltInBannerAdapter}
+	 */
+	this.reload = function (url) {
+		requestURL = typeof url == 'string' ? new URL(url) : (
+			url instanceof URL ?
+				url :
+				requestURL
+		)
+		options.requestURL = requestURL
+		addedItems.map((e) => e.remove())
+		addedItems = []
+		init(options)
+		return this
+	}
+
+	/**
 	 * @method loadItems
+	 * @param {Boolean} [append=true] Agrega los elementos al contenedor
+	 * @param {Boolean} [scrollToFinal=false]
 	 * @returns {Promise}
 	 */
-	this.loadItems = function () {
+	this.loadItems = function (append = true, scrollToFinal = false) {
 
 		return new Promise(function (resolve, reject) {
 
@@ -83,6 +123,7 @@ function BuiltInBannerAdapter(options) {
 
 			showGenericLoader(LOADER_NAME)
 			firstLoad = true
+			loadMoreTrigger.attr('disabled', true)
 
 			let request = getRequest(requestURL)
 
@@ -96,6 +137,14 @@ function BuiltInBannerAdapter(options) {
 				nextPage = res.nextPage
 				prevPage = res.prevPage
 				perPage = res.perPage
+				let loadMoreTriggerIsInsideContainer = loadMoreTrigger.length > 0 && container.find(loadMoreTrigger).length > 0
+				if (isFinal) {
+					loadMoreTrigger.hide()
+				} else {
+					if (!loadMoreTrigger.is(':visible')) {
+						loadMoreTrigger.show()
+					}
+				}
 
 				if (totalElements == 0) {
 					onEmpty(container)
@@ -106,7 +155,7 @@ function BuiltInBannerAdapter(options) {
 
 					let element = elements[index]
 					let parsedElement = parsedElements[index]
-					let item = onDraw(element, createItem(parsedElement))
+					let item = onDraw(element, createItem(parsedElement), container)
 
 					if (item instanceof HTMLElement) {
 						item = $(item)
@@ -114,29 +163,88 @@ function BuiltInBannerAdapter(options) {
 						item = createItem(parsedElement)
 					}
 
-					item.hide()
-					items.push(item)
-					container.append(item)
+					item.css('display', 'none')
+					item.css('opacity', 0)
+					maxIndex++
+					item.attr('data-index', maxIndex)
+					if (append) {
+						items.push(item)
+						if (loadMoreTriggerIsInsideContainer) {
+							item.insertBefore(loadMoreTrigger)
+						} else {
+							container.append(item)
+						}
+					}
 
 				}
 
-				items.map(e => $(e).show(500))
+				const showPromises = []
+				items.map(e => {
+					const $e = $(e)
+					const resolveElement = {
+						index: $e.data('index'),
+						element: $e,
+					}
+					addedItems.push($e)
+					$e.css('display', '')
+					const lastPromise = showPromises.length > 0 ? showPromises[showPromises.length - 1] : null
+					const showElement = function () {
+						showPromises.push(new Promise((showResolve) => {
+							$e.animate({ opacity: 1 }, 500, () => {
+								showResolve(resolveElement)
+							})
+						}))
+					}
 
-				resolve(res)
+					if (lastPromise == null) {
+						showElement()
+					} else {
+						lastPromise.then(function () {
+							showElement()
+						})
+					}
+
+				})
+
+				Promise.all(showPromises).then(function (elements) {
+					const lastElement = elements.find((element) => element.index == maxIndex)
+					if (scrollToFinal) {
+						getScrollableParent(lastElement.element.get(0)).scrollTo({
+							top: lastElement.element.offset().top + 100,
+							behavior: 'smooth'
+						})
+					}
+				})
+
+				resolve({
+					response: res,
+					container: container,
+				})
 
 			}).fail(function (error) {
 
 				errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Ha ocurrido un error al cargar los elementos.'))
-				console.log(error)
+				console.error(error)
 
 			}).always(function () {
 
 				removeGenericLoader(LOADER_NAME)
+				loadMoreTrigger.attr('disabled', false)
 
 			})
 
 		})
 
+	}
+
+	/**
+	 * @function onDraw
+	 * @param {function(Object, HTMLElement, $):HTMLElement|$} callback
+	 */
+	this.onDraw = function (callback) {
+		if (typeof callback == 'function') {
+			onDraw = callback
+		}
 	}
 
 	/**
@@ -162,6 +270,10 @@ function BuiltInBannerAdapter(options) {
 			containerSelector = options.containerSelector
 		}
 
+		if (typeof options.loadMoreTriggerSelector == 'string') {
+			loadMoreTriggerSelector = options.loadMoreTriggerSelector
+		}
+
 		if (typeof options.requestURL == 'string') {
 			requestURL = options.requestURL
 		}
@@ -179,6 +291,12 @@ function BuiltInBannerAdapter(options) {
 			}
 		}
 
+		if (typeof options.scrollToOnLoadMore == 'boolean') {
+			scrollToOnLoadMore = options.scrollToOnLoadMore
+		} else {
+			scrollToOnLoadMore = false
+		}
+
 		//Asignación de valores
 
 		if (typeof requestURL == 'string') {
@@ -186,16 +304,17 @@ function BuiltInBannerAdapter(options) {
 		}
 
 		container = $(containerSelector)
+		loadMoreTrigger = $(loadMoreTriggerSelector)
 
 	}
 
 	/**
 	 * @function createItem
 	 * @param {Object} data 
-	 * @returns {HTMLElement}
+	 * @returns {$}
 	 */
 	function createItem(data) {
-		return $(data).get(0)
+		return $(data)
 	}
 
 	return this
