@@ -126,6 +126,7 @@ $servidor_estaticos->register(
     ]
 );
 
+//Solo se genera imagen si es mismo dominio
 if (requestIsSameDomain()) {
     $generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
     $generacion_imagenes->active(true); //Grupo activo/inactivo

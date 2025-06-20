@@ -22,6 +22,7 @@ class MistralHandlerAdapter
     protected string $model;
     protected ?HttpClient $httpClient = null;
     protected array $lastUsage = [];
+    protected array $lastAskToChatOriginalResponse = [];
 
     /**
      * @param string $apiKey
@@ -40,30 +41,18 @@ class MistralHandlerAdapter
      * @param array $input
      * @param string $from
      * @param string $to
-     * @param ?string $pattern
+     * @param ?callable $parseJSON
      * @return array|null Array asociativo o null si no se pudo extrar un JSON de la respuesta
      */
-    public function translate(array $input, string $from = 'es', string $to = 'en', ?string $pattern = null)
+    public function translate(array $input, string $from = 'es', string $to = 'en',  ?callable $parseJSON = null)
     {
-        $jsonResponse = $this->askToChat(self::buildTranslationPrompt($input, $from, $to));
-        $parseJSON = function (string $jsonStr) {
-            $decoded = json_decode($jsonStr, true);
-            $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
-            return $decoded;
-        };
-        $jsonResponseParsed = ($parseJSON)($jsonResponse);
-
-        if ($jsonResponseParsed === null) {
-            if ($pattern !== null) {
-                $matches = [];
-                if (preg_match($pattern, $jsonResponse, $matches)) {
-                    $json = $matches[0];
-                    $jsonResponseParsed = ($parseJSON)($json);
-                }
-            }
-        }
-
-        return $jsonResponseParsed;
+        $jsonResponse = $this->askToChat(self::buildTranslationPrompt($input, $from, $to), 0.0, [
+            'response_format' => [
+                'type' => 'json_object',
+            ],
+        ]);
+        $parseJSON = $parseJSON ?? fn($e) => @json_decode($e, true);
+        return ($parseJSON)($jsonResponse);
     }
 
     /**
@@ -71,9 +60,10 @@ class MistralHandlerAdapter
      *
      * @param string $prompt
      * @param float $temperature
+     * @param array $moreOptions
      * @return string
      */
-    public function askToChat(string $prompt, float $temperature = 0.0): string
+    public function askToChat(string $prompt, float $temperature = 0.0, array $moreOptions = []) : string|array
     {
         $client = $this->httpClient;
 
@@ -86,16 +76,20 @@ class MistralHandlerAdapter
                 ],
             ],
             'temperature' => $temperature,
+            ...$moreOptions,
         ];
 
         $client->request('chat/completions', 'POST', $payload, [], false);
 
+        $rawResponse = $client->getResponseParsedBody(HttpClient::MODE_PARSED_RAW);
         $response = $client->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON_ASSOC);
 
         $choice = !empty($response['choices']) ? $response['choices'][0] : null;
         $content = $choice !== null && is_string($choice['message']['content']) ? $choice['message']['content'] : '';
         $usage = isset($response['usage']) ? $response['usage'] : null;
-
+        $this->lastAskToChatOriginalResponse = is_array($response) ? $response : (
+            is_array($rawResponse) ? $rawResponse : [$rawResponse]
+        );
         $this->addLastUsage($usage);
 
         //Intenta decodificar como JSON si es posible
@@ -113,12 +107,13 @@ class MistralHandlerAdapter
 
     /**
      * Obtiene el total de tokens usados.
+     * @param ?array $lastUsageData
      * @return int
      */
-    public function getTokensUsed()
+    public function getTokensUsed(?array $lastUsageData = null)
     {
         $tokensUsed = 0;
-        $usage = $this->lastUsage;
+        $usage = $lastUsageData ?? $this->lastUsage;
         if (is_array($usage)) {
             foreach ($usage as $usageItem) {
                 if (is_array($usageItem) && array_key_exists('total_tokens', $usageItem)) {
@@ -139,6 +134,16 @@ class MistralHandlerAdapter
             $this->lastUsage[] = $usage;
         }
         return $this;
+    }
+
+    /**
+     * Devuelve la respuesta original del último mensaje enviado al chat.
+     *
+     * @return array
+     */
+    public function getLastAskToChatOriginalResponse()
+    {
+        return $this->lastAskToChatOriginalResponse;
     }
 
     /**

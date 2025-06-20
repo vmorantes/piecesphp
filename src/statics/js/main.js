@@ -110,7 +110,6 @@ function configurateNavigation() {
 				const bounding = element.getBoundingClientRect() // {top: Number, left: Number, right: Number, bottom: Number}
 				const viewportMeasuresH = (window.innerHeight || document.documentElement.clientHeight)
 				const viewportMeasuresW = (window.innerWidth || document.documentElement.clientWidth)
-				console.log(bounding)
 
 				if (bounding.top < 0) {
 					//Se sale por arriba

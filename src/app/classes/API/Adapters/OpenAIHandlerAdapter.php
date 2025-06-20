@@ -26,6 +26,8 @@ class OpenAIHandlerAdapter
     protected string $apiKey;
     protected string $assistantID;
     protected string $model;
+    protected array $lastAskToChatOriginalResponse = [];
+
     /**
      * @var array[]
      */
@@ -38,44 +40,31 @@ class OpenAIHandlerAdapter
         $this->model = $model;
         $this->openAIClient = OpenAI::client($this->apiKey);
     }
+
     /**
      * Traducción rápida desde un contexto estático.
      *
      * @param array $input
      * @param string $from
      * @param string $to
-     * @param ?string $pattern
+     * @param ?callable $parseJSON
      * @return array|null Array asociativo o null si no se pudo extrar un JSON de la respuesta
      */
-    public function translate(array $input, string $from = 'es', string $to = 'en', ?string $pattern = null)
+    public function translate(array $input, string $from = 'es', string $to = 'en',  ?callable $parseJSON = null)
     {
         $jsonResponse = $this->askToChat(self::buildTranslationPrompt($input, $from, $to));
-        $jsonResponseParsed = $jsonResponse;
-        $parseJSON = function (string $jsonStr) {
-            $decoded = json_decode($jsonStr, true);
-            $decoded = json_last_error() === \JSON_ERROR_NONE  ? $decoded : null;
-            return $decoded;
-        };
-        $jsonResponseParsed = ($parseJSON)($jsonResponse);
-
-        if ($jsonResponseParsed === null) {
-            if ($pattern !== null) {
-                $matches = [];
-                if (preg_match($pattern, $jsonResponse, $matches)) {
-                    $json = $matches[0];
-                    $jsonResponseParsed = ($parseJSON)($json);
-                }
-            }
-        }
-
-        return $jsonResponseParsed;
+        $parseJSON = $parseJSON ?? fn($e) => @json_decode($e, true);
+        return ($parseJSON)($jsonResponse);
     }
 
     /**
-     * @param string $ask
+     * Pregunta directa al chat de Mistral.
+     *
+     * @param string $prompt
+     * @param array $moreOptions
      * @return string
      */
-    public function askToChat(string $ask)
+    public function askToChat(string $prompt, array $moreOptions = []) : string
     {
 
         $this->lastUsage = [];
@@ -84,7 +73,8 @@ class OpenAIHandlerAdapter
         //Configuración de mensajes de chat
         $chatUser = [
             'role' => 'user',
-            'content' => $ask,
+            'content' => $prompt,
+            ...$moreOptions,
         ];
 
         //Añadir mensajes
@@ -104,7 +94,7 @@ class OpenAIHandlerAdapter
         $this->addLastUsage(property_exists($response, $usageProperty) ? $response->$usageProperty : null);
         $response = $response->toArray();
         $choice = !empty($response['choices']) ? $response['choices'][0] : null;
-
+        $this->lastAskToChatOriginalResponse = $response;
         return $choice !== null && is_string($choice['message']['content']) ? $choice['message']['content'] : '';
     }
 
@@ -217,12 +207,13 @@ class OpenAIHandlerAdapter
 
     /**
      * Obtiene el total de tokens usados.
+     * @param ?array $lastUsageData
      * @return int
      */
-    public function getTokensUsed()
+    public function getTokensUsed(?array $lastUsageData = null)
     {
         $tokensUsed = 0;
-        $usage = $this->lastUsage;
+        $usage = $lastUsageData ?? $this->lastUsage;
         if (is_array($usage)) {
             foreach ($usage as $usageItem) {
                 if (is_array($usageItem) && array_key_exists('total_tokens', $usageItem)) {
@@ -245,6 +236,16 @@ class OpenAIHandlerAdapter
             }
         }
         return $this;
+    }
+
+    /**
+     * Devuelve la respuesta original del último mensaje enviado al chat.
+     *
+     * @return array
+     */
+    public function getLastAskToChatOriginalResponse()
+    {
+        return $this->lastAskToChatOriginalResponse;
     }
 
     /**

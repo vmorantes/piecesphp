@@ -20,6 +20,8 @@ use PiecesPHP\Core\Validation\Validator;
  * @copyright   Copyright (c) 2025
  * @property int $tokensLimit
  * @property array<string,int> $tokensUsed
+ * @property array<string,array<string,array<string,string>>> $dynamicTranslations
+ * @property string|\DateTime|null $dynamicTranslationsUpdatedAt
  */
 class GenericContentPseudoMapper
 {
@@ -27,6 +29,9 @@ class GenericContentPseudoMapper
     const LANG_GROUP = HelpersSystemLang::LANG_GROUP;
     const CONTENT_TOKENS_LIMIT = 'tokensLimit';
     const CONTENT_TOKENS_USED = 'tokensUsed';
+    const CONTENT_DYNAMIC_TRANSCALTIONS = 'DYNAMIC_TRANSCALTIONS';
+    const CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT = 'DYNAMIC_TRANSLATIONS_UPDATED_AT';
+    const CONTENT_MAPBOX_KEYS = 'MAPBOX_KEYS';
 
     /**
      * Define las propiedades del mapper
@@ -39,6 +44,12 @@ class GenericContentPseudoMapper
             AI_OPENAI => 0,
             AI_MISTRAL => 0,
         ],
+        self::CONTENT_DYNAMIC_TRANSCALTIONS => [],
+        self::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT => null,
+        self::CONTENT_MAPBOX_KEYS => [
+            'keyLocal' => 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ',
+            'keyDomain' => 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ',
+        ],
     ];
 
     /**
@@ -47,7 +58,11 @@ class GenericContentPseudoMapper
      * "property" => "datetime",
      * @var array
      */
-    protected $propertiesParseData = [];
+    protected $propertiesParseData = [
+        self::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT => 'datetime',
+        self::CONTENT_DYNAMIC_TRANSCALTIONS => 'associativeArray',
+        self::CONTENT_MAPBOX_KEYS => 'associativeArray',
+    ];
 
     /**
      * Propiedades necesitan multi-idioma
@@ -456,11 +471,11 @@ class GenericContentPseudoMapper
     /**
      * Establece los datos del contenido
      * @param string $contentName
-     * @param array $data
+     * @param mixed $data
      * @param string|null $lang
      * @return void
      */
-    public static function setContentData(string $contentName, array $data, ?string $lang = null)
+    public static function setContentData(string $contentName, $data, ?string $lang = null)
     {
         $contentHandler = new GenericContentPseudoMapper($contentName, true);
         if ($lang !== null) {
@@ -490,6 +505,16 @@ class GenericContentPseudoMapper
             } elseif ($mode === $toSQL) {
                 if ($value instanceof \DateTime) {
                     $value = $value->format('Y-m-d H:i:s');
+                }
+            }
+        } else if ($parseType === 'associativeArray') {
+            if ($mode === $fromSQL) {
+                if (is_string($value)) {
+                    $value = json_decode($value, true);
+                }
+            } elseif ($mode === $toSQL) {
+                if (is_array($value)) {
+                    $value = json_encode($value);
                 }
             }
         }

@@ -599,12 +599,13 @@ class Config
         }
 
         //Perparación de configuraciones de registro de mensajes no traducidos
+        $reviewLang = $forceLang ?? $currentLang;
         $messageHash = sha1($message);
         $missingMessagesBaseFolderName = 'lang/missing-lang-messages';
         $missingMessagesBaseFolderPath = app_basepath("{$missingMessagesBaseFolderName}");
         $missingMessagesGroupFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}");
-        $missingMessagesLangFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$currentLang}");
-        $missingMessagesMessageFilePath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$currentLang}/{$messageHash}.to-translate");
+        $missingMessagesLangFolderPath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$reviewLang}");
+        $missingMessagesMessageFilePath = app_basepath("{$missingMessagesBaseFolderName}/{$groupName}/{$reviewLang}/{$messageHash}.to-translate");
 
         //Buscar
         foreach ($searchOnLangs as $lang) {
@@ -623,7 +624,8 @@ class Config
 
                         if (array_key_exists($message, $groupData) || $messageIsEmpty) {
 
-                            $isMissingMessage = false;
+                            //Si el mensaje existe pero no es el idioma de revisión, se marca como faltante
+                            $isMissingMessage = $lang == $reviewLang ? false : true;
                             if ($messageIsEmpty) {
                                 $str = $groupData;
                             } else {
@@ -645,7 +647,7 @@ class Config
                 $noScanLangs = is_array($noScanLangs) ? $noScanLangs : [];
                 $noScanLangGroups = get_config('no_scan_lang_groups');
                 $noScanLangGroups = is_array($noScanLangGroups) ? $noScanLangGroups : [];
-                if (!in_array($currentLang, $noScanLangs) && !in_array($groupName, $noScanLangGroups)) {
+                if (!in_array($reviewLang, $noScanLangs) && !in_array($groupName, $noScanLangGroups)) {
                     if ($isMissingMessage && !$messageIsEmpty) {
                         $missingMessagesFoldersPaths = [
                             $missingMessagesBaseFolderPath,

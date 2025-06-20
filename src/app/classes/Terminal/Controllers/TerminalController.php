@@ -11,6 +11,7 @@ use App\Controller\AppConfigController;
 use App\Model\UsersModel;
 use Ifsnop\Mysqldump\Mysqldump;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
 use PiecesPHP\Core\Roles;
@@ -481,7 +482,8 @@ class TerminalController extends AdminPanelController
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
 
-            //Ejecutar llamadas a __ para verificar faltantes
+            //Ejecutar llamadas a __ para verificar faltantes en cada lenguaje activo
+            $allowedLangs = Config::get_allowed_langs();
             $langsMessagesCalls = self::searchFunctionUsesWithParser('__', app_basepath());
             $paramGroupNames = [];
             foreach ($langsMessagesCalls as $filePath => $calls) {
@@ -500,7 +502,9 @@ class TerminalController extends AdminPanelController
                             }
                             $paramGroupNames[] = $paramGroupName;
                             //Ejecutar mensaje
-                            __($paramGroupName, $paramMessage);
+                            foreach ($allowedLangs as $lang) {
+                                lang($paramGroupName, $paramMessage, $lang);
+                            }
                         }
                     }
                 }

@@ -59,8 +59,7 @@
                 </div>
 
                 <div class="field">
-                    <div id="map">
-                    </div>
+                    <div id="map"></div>
                 </div>
 
                 <div class="field required">

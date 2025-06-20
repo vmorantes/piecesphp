@@ -12,8 +12,8 @@ function BuiltInBannerAdapter(options) {
 	 * @property {function(Object)} onEmpty Recibe el contenedor asignado
 	 * @property {Number} [page=1]
 	 * @property {Number} [perPage=5]
-	 * @property {String} [containerSelector=[publications-js]]
-	 * @property {String} [loadMoreTriggerSelector=[publications-load-more-js]]
+	 * @property {String} [containerSelector=[built-in-banner-js]]
+	 * @property {String} [loadMoreTriggerSelector=[built-in-banner-load-more-js]]
 	 * @property {Boolean} [scrollToOnLoadMore=[false]]
 	 */
 
@@ -75,6 +75,7 @@ function BuiltInBannerAdapter(options) {
 			//Acciones inciales
 			loadMoreTrigger.off('click')
 			loadMoreTrigger.on('click', function (e) {
+				e.preventDefault()
 				page = nextPage
 				instance.loadItems(true, scrollToOnLoadMore)
 			})
@@ -223,7 +224,7 @@ function BuiltInBannerAdapter(options) {
 			}).fail(function (error) {
 
 				errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Ha ocurrido un error al cargar los elementos.'))
-				console.log(error)
+				console.error(error)
 
 			}).always(function () {
 

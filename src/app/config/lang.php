@@ -58,9 +58,9 @@ set_config('no_scan_langs', [
     'es',
     //'en',
     //'fr',
-    //'de',
-    //'it',
-    //'pt',
+    'de',
+    'it',
+    'pt',
 ]);
 set_config('no_scan_lang_groups', [
     'locationBackend-names',
@@ -174,3 +174,15 @@ set_config('get_fomantic_flag_by_lang', function (string $langCode, string $size
 
     return array_key_exists($langCode, $flags) ? $flags[$langCode] : '';
 });
+
+/**
+ * Configuración de traducciones dinámicas
+ */
+set_config('DYNAMIC_TRANSLATIONS', [
+    'folderName' => 'dynamic-translations',
+    'filePrefix' => 'dynamic-translations-',
+    //GenericContentPseudoMapper::CONTENT_DYNAMIC_TRANSCALTIONS,
+    'dataConfigName' => 'DYNAMIC_TRANSCALTIONS',
+    //GenericContentPseudoMapper::CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT,
+    'lastDateConfigName' => 'DYNAMIC_TRANSLATIONS_UPDATED_AT',
+]);

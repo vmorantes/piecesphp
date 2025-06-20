@@ -26,7 +26,7 @@ $(document).ready(function () {
 						})
 						numSmall = ` ${numSmall[0].outerHTML} `
 						unreadMenu.find('.title-group span').css({
-							position:'relative'
+							position: 'relative'
 						})
 						unreadMenu.find('.title-group span [number-unread]').remove()
 						unreadMenu.find('.title-group span').prepend(numSmall)
@@ -36,7 +36,7 @@ $(document).ready(function () {
 				})
 
 				request.fail(function (res) {
-					console.log(res)
+					console.error(res)
 				})
 			}
 		}

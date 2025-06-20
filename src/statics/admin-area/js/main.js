@@ -33,7 +33,7 @@ function timeOnPlatform() {
 			req.done(function (res) {
 			})
 			req.fail(function (res) {
-				console.log(res)
+				console.error(res)
 			})
 		}
 

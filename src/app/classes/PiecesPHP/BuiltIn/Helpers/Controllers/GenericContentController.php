@@ -76,6 +76,14 @@ class GenericContentController extends AdminPanelController
     const UPLOAD_DIR_TMP = 'helpers-system/tmp';
     const LANG_GROUP = HelpersSystemLang::LANG_GROUP;
 
+    const TOKENS_LIMIT_PERMISSION = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+
+    const MAPBOX_KEYS_PERMISSION = [
+        UsersModel::TYPE_USER_ROOT,
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -144,6 +152,51 @@ class GenericContentController extends AdminPanelController
     }
 
     /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function mapboxKeysForm(Request $request, Response $response)
+    {
+
+        $allowedLangs = Config::get_allowed_langs();
+
+        $element = new GenericContentPseudoMapper(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS);
+
+        set_custom_assets([
+            //Base
+            HelpersSystemRoutes::staticRoute(self::BASE_JS_DIR . '/forms.js'),
+        ], 'js');
+
+        $action = self::routeName('actions-edit');
+
+        $title = __(self::LANG_GROUP, 'Llaves de MapBox');
+        $description = '';
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
+        $data = [];
+        $data['action'] = $action;
+        $data['element'] = $element;
+        $data['langGroup'] = self::LANG_GROUP;
+        $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            $title,
+        ]);
+
+        $this->helpController->render('panel/layout/header');
+        $this->render('forms/mapbox-key', $data, true, false);
+        $this->helpController->render('panel/layout/footer');
+
+        return $response;
+
+    }
+
+    /**
      * Creación/Edición
      *
      * @param Request $request
@@ -179,7 +232,6 @@ class GenericContentController extends AdminPanelController
                     return intval($value);
                 }
             ),
-
             new Parameter(
                 GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT,
                 [],
@@ -201,6 +253,32 @@ class GenericContentController extends AdminPanelController
                     });
                     if (empty($parsed)) {
                         return Validator::isInteger($value) ? (int) $value : 0;
+                    }
+                    return $parsed;
+                }
+            ),
+            new Parameter(
+                GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS,
+                [],
+                function ($value) {
+                    $valid = Validator::isArray($value, function ($key, $value) {
+                        $local = isset($value['keyLocal']) ? $value['keyLocal'] : null;
+                        $domain = isset($value['keyDomain']) ? $value['keyDomain'] : null;
+                        return Config::is_allowed_lang($key) && Validator::isString($local) && Validator::isString($domain);
+                    });
+                    return $valid;
+                },
+                true,
+                function ($value) {
+                    $parsed = [];
+                    Validator::isArray($value, function ($key, $value) use (&$parsed) {
+                        $validData = Config::is_allowed_lang($key) && Validator::isString($value['keyLocal']) && Validator::isString($value['keyDomain']);
+                        if ($validData) {
+                            $parsed[$key] = $value;
+                        }
+                    });
+                    if (empty($parsed)) {
+                        return [];
                     }
                     return $parsed;
                 }
@@ -237,19 +315,43 @@ class GenericContentController extends AdminPanelController
 
             //Información del formulario;
             $configName = $expectedParameters->getValue('configName');
-            $tokensLimit = $expectedParameters->getValue('tokensLimit');
+            $tokensLimit = $expectedParameters->getValue(GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
+            $mapboxKeys = $expectedParameters->getValue(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS);
             /**
              * @var string $configName
              * @var array<string,int> $tokensLimit
+             * @var array<string,string> $mapboxKeys
              */
 
+            $currentUser = getLoggedFrameworkUser();
+            $currentUserType = $currentUser->type;
+            $verifyPermission = function ($configName) use ($currentUserType, $request) {
+                $hasPermission = false;
+                if ($configName == GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT) {
+                    $hasPermission = in_array($currentUserType, self::TOKENS_LIMIT_PERMISSION);
+                }
+                if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
+                    $hasPermission = in_array($currentUserType, self::MAPBOX_KEYS_PERMISSION);
+                }
+                if (!$hasPermission) {
+                    throw403($request);
+                }
+            };
+
             try {
+
+                //Revisión de permisos
+                $verifyPermission($configName);
 
                 //Asignar datos según el tipo de configuración
                 $updated = true;
                 if ($configName == GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT) {
                     $mapper = new GenericContentPseudoMapper($configName, false);
                     $mapper->addDataManyLangs($configName, $tokensLimit, array_keys($tokensLimit));
+                    $updated = $mapper->save();
+                } else if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
+                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper->addDataManyLangs($configName, $mapboxKeys, array_keys($mapboxKeys));
                     $updated = $mapper->save();
                 }
 
@@ -566,9 +668,10 @@ class GenericContentController extends AdminPanelController
         $allRoles = array_keys(UsersModel::TYPES_USERS);
 
         //Permisos
-        $edition = [
-            UsersModel::TYPE_USER_ROOT,
-        ];
+        $editionConfigurations = $allRoles;
+        $editionTokensLimit = self::TOKENS_LIMIT_PERMISSION;
+        $editionMapboxKeys = self::MAPBOX_KEYS_PERMISSION;
+
         $routes = [
 
             //──── GET ───────────────────────────────────────────────────────────────────────────────
@@ -580,7 +683,16 @@ class GenericContentController extends AdminPanelController
                 'GET',
                 true,
                 null,
-                $edition
+                $editionTokensLimit
+            ),
+            new Route( //Formulario de editar
+                "{$startRoute}/forms/mapbox-keys[/]",
+                $classname . ':mapboxKeysForm',
+                self::$baseRouteName . '-forms-mapbox-keys',
+                'GET',
+                true,
+                null,
+                $editionMapboxKeys
             ),
 
             //──── POST ──────────────────────────────────────────────────────────────────────────────
@@ -592,7 +704,7 @@ class GenericContentController extends AdminPanelController
                 'POST',
                 true,
                 null,
-                $edition
+                $editionConfigurations
             ),
 
         ];

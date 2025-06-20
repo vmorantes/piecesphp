@@ -15,6 +15,10 @@ defined('BASEPATH') or die();
  * $config['title_app']: Título de la aplicación en general
  * $config['title']: Título de la sección actual (set_title() y get_title())
  *
+ * $config['domain']: Dominio de la aplicación
+ * $config['domain_protocol']: Protocolo de la aplicación
+ * $config['base_domain_path']: Ruta base del dominio de la aplicación
+ * $config['base_domain_url']: URL base del dominio de la aplicación
  * $config['base_url']: URL base de la aplicación
  *
  * $config['app_key']: Llave de la aplicación usada para la encriptación de todos los token y sesiones
@@ -28,8 +32,11 @@ defined('BASEPATH') or die();
 
 date_default_timezone_set('America/Bogota');
 
-$config['base_url'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
-$config['base_url'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://") . $_SERVER['HTTP_HOST'] . "/" . mb_substr($config['base_url'], 1);
+$config['domain'] = $_SERVER['HTTP_HOST'];
+$config['domain_protocol'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://");
+$config['base_domain_path'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
+$config['base_domain_url'] = $config['domain_protocol'] . $config['domain'];
+$config['base_url'] = $config['base_domain_url'] . $config['base_domain_path'];
 
 $config['default_lang'] = "es";
 $config['cache_stamp_render_files'] = true;

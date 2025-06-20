@@ -8,6 +8,7 @@ namespace App\Controller;
 
 use App\Model\AppConfigModel;
 use App\Model\UsersModel;
+use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Forms\FileUpload;
@@ -1715,9 +1716,8 @@ class AppConfigController extends AdminPanelController
      */
     public function mapboxKey(Request $req, Response $res)
     {
-        $keyLocal = 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ';
-        $keyDomain = 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ';
-        $key = is_local() ? $keyLocal : $keyDomain;
+        $mapboxKeys = GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS);
+        $key = is_local() ? $mapboxKeys['keyLocal'] : $mapboxKeys['keyDomain'];
         $res = $res->write($key);
         return $res;
     }

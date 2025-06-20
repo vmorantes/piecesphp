@@ -101,6 +101,11 @@ class HelpersSystemRoutes
                         'href' => GenericContentController::routeName('forms-tokens-limit'),
                         'visible' => GenericContentController::allowedRoute('forms-tokens-limit'),
                     ]),
+                    new MenuItem([
+                        'text' => __(HelpersSystemLang::LANG_GROUP, 'Llaves de MapBox'),
+                        'href' => GenericContentController::routeName('forms-mapbox-keys'),
+                        'visible' => GenericContentController::allowedRoute('forms-mapbox-keys'),
+                    ]),
                 ],
                 'position' => 100,
             ]));
@@ -117,12 +122,7 @@ class HelpersSystemRoutes
      */
     public static function staticRoute(string $segment = '')
     {
-        if (self::ENABLE) {
-            $route = get_route(self::class);
-            return is_string($route) ? append_to_url(str_replace('/[{params:.*}]', '', $route), $segment) : $segment;
-        } else {
-            return '';
-        }
+        return get_router()->getContainer()->get('staticRouteModulesResolver')(self::class, $segment, __DIR__ . '/Statics', self::ENABLE);
     }
 
     /**

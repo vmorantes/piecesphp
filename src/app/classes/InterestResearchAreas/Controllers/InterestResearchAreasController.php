@@ -1405,26 +1405,26 @@ class InterestResearchAreasController extends AdminPanelController
         $list = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
         ];
         $creation = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
         ];
         $edition = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
         ];
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
-            UsersModel::TYPE_USER_ADMIN_ORG,
-            UsersModel::TYPE_USER_GENERAL,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
         ];
         $routes = [
 

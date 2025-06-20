@@ -528,11 +528,10 @@ function configRichEditor() {
 		}
 
 	} catch (error) {
-		console.log(error)
 		if (error.name == 'ReferenceError') {
-			console.log("RichEditorAdapterComponent no está definido.")
+			console.warn("RichEditorAdapterComponent no está definido.")
 		} else {
-			console.log(error)
+			console.warn(error)
 		}
 	}
 }
@@ -1459,7 +1458,6 @@ function autoTranslateFromLangGroupHTML() {
 										formData.set('text', JSON.stringify(translations[langGroup]))
 										formData.set('to', pcsphpGlobals.lang)
 										formData.set('saveGroup', langGroup)
-										formData.set('database', 'yes')
 
 										postRequest(saveTranslationGroupURL, formData, {
 											'PCSPHP-Response-Expected-Language': pcsphpGlobals.lang,

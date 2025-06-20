@@ -150,7 +150,7 @@ class NewsMapper extends EntityMapperExtensible
         '`categoryName` ASC',
     ];
 
-    const LANGS_ON_CREATION = [
+    public static $LANGS_ON_CREATION = [
         'es',
     ];
 
@@ -367,6 +367,16 @@ class NewsMapper extends EntityMapperExtensible
         if (!$noDateUpdate) {
             $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
+        }
+        /**
+         * @category SpecialCaseSolution
+         * Caso: Un único lenguaje activo
+         * Estrategia: Se asigna la misma información en todos los idiomas disponibles en el sistema
+         */
+        if (count(self::$LANGS_ON_CREATION) == 1) {
+            $allowedLangs = Config::get_allowed_langs();
+            $this->addDataManyLangs('newsTitle', array_fill_keys($allowedLangs, $this->currentLangData('newsTitle')), $allowedLangs);
+            $this->addDataManyLangs('content', array_fill_keys($allowedLangs, $this->currentLangData('content')), $allowedLangs);
         }
         return parent::update();
     }

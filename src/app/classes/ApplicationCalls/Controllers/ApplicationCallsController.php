@@ -129,6 +129,7 @@ class ApplicationCallsController extends AdminPanelController
     {
 
         set_custom_assets([
+            ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/translation-config.js'),
             ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/add-form.js'),
         ], 'js');
 
@@ -199,6 +200,7 @@ class ApplicationCallsController extends AdminPanelController
         if ($element->id !== null && ApplicationCallsMapper::existsByID($element->id)) {
 
             set_custom_assets([
+                ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/translation-config.js'),
                 ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/delete-config.js'),
                 ApplicationCallsRoutes::staticRoute(self::BASE_JS_DIR . '/edit-form.js'),
             ], 'js');

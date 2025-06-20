@@ -195,18 +195,18 @@ class FileManagerController extends AdminPanelController
 
         $dirs = [
             [
-                'alias' => __(self::LANG_GROUP, 'Imágenes'),
-                'relativePath' => 'images',
+                'alias' => __(self::LANG_GROUP, 'Documentos'),
+                'relativePath' => 'documents',
                 'trashHash' => 't2_Lw',
-                'uploadDeny' => ['all'],
-                'uploadAllow' => ['image'],
+                'uploadDeny' => [],
+                'uploadAllow' => ['all'],
             ],
         ];
         $trashes = [
             [
                 'id' => '2',
                 'relativePath' => '.trash-images',
-                'alias' => __(self::LANG_GROUP, 'Papelera (Imágenes)'),
+                'alias' => __(self::LANG_GROUP, 'Papelera (documentos)'),
                 'uploadDeny' => ['all'],
                 'uploadAllow' => ['image'],
             ],

@@ -171,13 +171,12 @@ window.addEventListener('load', function (e) {
 		$('[share-action]').off('click').on('click', function (e) {
 			e.preventDefault()
 			const element = $(e.currentTarget)
-			console.log(element)
 			shareLinkContent({
 				title: element.data('title'),
 				text: element.data('text'),
 				url: element.data('url'),
-				onCopy: (url) => console.log('Copiado:', url),
-				onShare: (shareData) => console.log('Compartido:', shareData)
+				onCopy: (url) => console.info('Copiado:', url),
+				onShare: (shareData) => console.info('Compartido:', shareData)
 			})
 		})
 	}

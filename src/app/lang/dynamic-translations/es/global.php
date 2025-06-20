@@ -18,4 +18,5 @@ return [
     "Colaboración Bilateral" => "Colaboración Bilateral",
     "+ Ver perfil" => "+ Ver perfil",
     "Seleccione las áreas de interes" => "Seleccione las áreas de interes",
+    "El tiempo de respuesta depende del servicio de traducción de las plataformas de inteligencia artificial, por lo que su duración puede variar." => "El tiempo de respuesta depende del servicio de traducción de las plataformas de inteligencia artificial, por lo que su duración puede variar.",
 ];
