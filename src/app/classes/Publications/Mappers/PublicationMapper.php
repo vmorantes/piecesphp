@@ -279,6 +279,17 @@ class PublicationMapper extends EntityMapperExtensible
      * @param int $maxLength
      * @return string
      */
+    public function excerptTitle(int $maxLength = 300)
+    {
+        $content = strip_tags($this->currentLangData('title'));
+        $contentLength = mb_strlen($content);
+        return $contentLength <= $maxLength ? $content : substr($content, 0, ($maxLength >= 6 ? $maxLength - 3 : $maxLength)) . '...';
+    }
+
+    /**
+     * @param int $maxLength
+     * @return string
+     */
     public function excerpt(int $maxLength = 300)
     {
         $content = strip_tags($this->currentLangData('content'));
@@ -547,6 +558,26 @@ class PublicationMapper extends EntityMapperExtensible
             $this->updatedAt = new \DateTime();
         }
         return parent::update();
+    }
+
+    /**
+     * Asigna datos a una propiedad para múltiples idiomas.
+     *
+     * Este método itera sobre un arreglo de idiomas y llama a setLangData para cada idioma,
+     * permitiendo la asignación de datos específicos para cada uno.
+     * Se asegura de que solo se asignen datos si el idioma está presente en el arreglo de datos.
+     *
+     * @param string $name El nombre de la propiedad a la que se asignarán los datos.
+     * @param array<string,mixed> $data Un arreglo asociativo donde la clave es el idioma y el valor es el dato a asignar.
+     * @param string[] $langs Un arreglo de idiomas para los cuales se asignarán los datos.
+     */
+    public function addDataManyLangs(string $name, array $data, array $langs)
+    {
+        foreach ($langs as $lang) {
+            if (is_string($lang) && array_key_exists($lang, $data)) {
+                $this->setLangData($lang, $name, $data[$lang]);
+            }
+        }
     }
 
     /**

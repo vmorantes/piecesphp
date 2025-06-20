@@ -54,7 +54,7 @@ $config['menu_color_mark'] = "rgba(255, 255, 255, 0.2)";
 $config['menu_color_font'] = "#FFFFFF";
 $config['meta_theme_color'] = "#6435C9";
 $config['bg_tools_buttons'] = "#E2ECEF";
-$config['body_gradient'] = "transparent linear-gradient(180deg, #D1CCBD40 0%, #D1CCBD00 100%) 0% 0% no-repeat padding-box";
+$config['body_gradient'] = "transparent linear-gradient(180deg,rgba(100, 53, 201, 0.78) 0%, #D1CCBD00 100%) 0% 0% no-repeat padding-box";
 $config['font_family_global'] = "'Poppins', sans-serif";
 $config['font_family_sidebars'] = "'Public Sans', sans-serif";
 

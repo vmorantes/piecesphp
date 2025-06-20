@@ -216,6 +216,24 @@ class OpenAIHandlerAdapter
     }
 
     /**
+     * Obtiene el total de tokens usados.
+     * @return int
+     */
+    public function getTokensUsed()
+    {
+        $tokensUsed = 0;
+        $usage = $this->lastUsage;
+        if (is_array($usage)) {
+            foreach ($usage as $usageItem) {
+                if (is_array($usageItem) && array_key_exists('total_tokens', $usageItem)) {
+                    $tokensUsed += $usageItem['total_tokens'];
+                }
+            }
+        }
+        return $tokensUsed;
+    }
+
+    /**
      * @param ?mixed $usage
      * @return static
      */

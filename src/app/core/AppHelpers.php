@@ -182,6 +182,10 @@ function get_default_format_date(string $defaultFormat = null, bool $sqlType = f
  */
 function requestIsSameDomain()
 {
+    //Verificar si es acceso por terminal (CLI)
+    if (defined('STDIN')) {
+        return true;
+    }
     $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
     $protocol = $isHttps ? 'https://' : 'http://';
     $currentDomain = $protocol . $_SERVER['HTTP_HOST'];
@@ -214,7 +218,7 @@ function base_url(string $resource = "")
 
 /**
  * Obtiene la url basado en el idioma actual
- * Nota: Solo si lang_by_url es true
+ * Nota: Solo si lang_by_url o lang_by_cookie es true alguno de los dos
  *
  * @param string $current_lang
  * @param string $target_lang
@@ -227,7 +231,7 @@ function get_lang_url($current_lang = 'es', $target_lang = 'en')
 
 /**
  * Convierte la url basado en el idioma actual en su par de otro idioma
- * Nota: Solo si lang_by_url es true
+ * Nota: Solo si lang_by_url o lang_by_cookie es true alguno de los dos
  *
  * @param string $input_url
  * @param string $current_lang
@@ -237,98 +241,63 @@ function get_lang_url($current_lang = 'es', $target_lang = 'en')
 function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
 {
 
-    $debugMode = isset($GLOBALS['debug_convert_lang_url']) && $GLOBALS['debug_convert_lang_url'];
-    $default_lang = get_config('default_lang');
-    $target_is_default = $target_lang == $default_lang;
-    $current_is_default = $current_lang == $default_lang;
+    $langByUrl = get_config('lang_by_url');
+    $langByCookie = get_config('lang_by_cookie');
 
-    $current_is_same_target = $current_lang == $target_lang || Config::get_lang() == $target_lang;
+    if ($langByCookie) {
+        $inputURLParams = get_url_params($input_url);
+        $inputURLProcess = remove_url_params($input_url, $inputURLParams);
+        $lang_url = URLManager::fromString($inputURLProcess)->withQueryParameter('i18n', $target_lang)->__toString();
+    } elseif ($langByUrl) {
+        $default_lang = get_config('default_lang');
+        $target_is_default = $target_lang == $default_lang;
+        $current_is_default = $current_lang == $default_lang;
+        $current_is_same_target = $current_lang == $target_lang || Config::get_lang() == $target_lang;
 
-    if ($debugMode) {
-        $test['target_lang'] = $target_lang;
-        $test['input_url'] = $input_url;
-        $test['default_lang'] = $default_lang;
-        $test['target_is_default'] = $target_is_default;
-        $test['current_is_default'] = $current_is_default;
-        $test['current_is_same_target'] = $current_is_same_target;
-    }
+        $lang_url = '';
 
-    $lang_url = '';
+        if (!$current_is_same_target) {
 
-    if (!$current_is_same_target) {
+            $input_url_end_slash = last_char($input_url) === '/';
 
-        $input_url_end_slash = last_char($input_url) === '/';
+            $base_url = !$current_is_default ? base_url($current_lang) : base_url();
 
-        $base_url = !$current_is_default ? base_url($current_lang) : base_url();
+            $protocol_input_url = mb_strpos($input_url, 'https://') !== false ? 'https://' : 'http://';
+            $protocol_base_url = mb_strpos($base_url, 'https://') !== false ? 'https://' : 'http://';
 
-        $protocol_input_url = mb_strpos($input_url, 'https://') !== false ? 'https://' : 'http://';
-        $protocol_base_url = mb_strpos($base_url, 'https://') !== false ? 'https://' : 'http://';
+            $input_url = str_replace($protocol_input_url, '', $input_url);
+            $base_url = str_replace($protocol_base_url, '', $base_url);
+            $segment_url = str_replace($base_url, '', $input_url);
 
-        if ($debugMode) {
-            $test['input_url_end_slash'] = $input_url_end_slash;
-            $test['base_url'] = $base_url;
-            $test['protocol_input_url'] = $protocol_input_url;
-            $test['protocol_base_url'] = $protocol_base_url;
+            $segments_url = array_filter(explode('/', $segment_url), function ($e) {
+                return mb_strlen(trim($e)) > 0;
+            });
+            $segment_url = implode('/', $segments_url);
+
+            $segment_is_equal_than_input_url = trim($input_url, '/') == $segment_url;
+            $segment_is_equal_than_selected_lang = trim($target_lang, '/') == $segment_url;
+            $lang_url = !$target_is_default ? (
+                !$segment_is_equal_than_selected_lang ?
+                baseurl("{$target_lang}/$segment_url") :
+                $protocol_input_url . $input_url
+            ) : (
+                $segment_is_equal_than_input_url ?
+                $protocol_input_url . $input_url :
+                baseurl("$segment_url")
+            );
+
+            $lang_url = str_replace($protocol_base_url, $protocol_input_url, $lang_url);
+
+            $lang_url_end_slash = last_char($lang_url) === '/';
+
+            if ($input_url_end_slash && !$lang_url_end_slash) {
+                $lang_url .= '/';
+            }
+
+        } else {
+            $lang_url = $input_url;
         }
 
-        $input_url = str_replace($protocol_input_url, '', $input_url);
-        $base_url = str_replace($protocol_base_url, '', $base_url);
-        $segment_url = str_replace($base_url, '', $input_url);
-
-        if ($debugMode) {
-            $test['input_url2'] = $input_url;
-            $test['base_url2'] = $base_url;
-            $test['segment_url'] = $segment_url;
-        }
-
-        $segments_url = array_filter(explode('/', $segment_url), function ($e) {
-            return mb_strlen(trim($e)) > 0;
-        });
-        $segment_url = implode('/', $segments_url);
-        if ($debugMode) {
-            $test['segments_url'] = $segments_url;
-            $test['segment_url2'] = $segment_url;
-        }
-
-        $segment_is_equal_than_input_url = trim($input_url, '/') == $segment_url;
-        $segment_is_equal_than_selected_lang = trim($target_lang, '/') == $segment_url;
-        $lang_url = !$target_is_default ? (
-            !$segment_is_equal_than_selected_lang ?
-            baseurl("{$target_lang}/$segment_url") :
-            $protocol_input_url . $input_url
-        ) : (
-            $segment_is_equal_than_input_url ?
-            $protocol_input_url . $input_url :
-            baseurl("$segment_url")
-        );
-        if ($debugMode) {
-            $test['segment_is_equal_than_input_url'] = $segment_is_equal_than_input_url;
-            $test['segment_is_equal_than_selected_lang'] = $segment_is_equal_than_selected_lang;
-            $test['lang_url'] = $lang_url;
-        }
-        $lang_url = str_replace($protocol_base_url, $protocol_input_url, $lang_url);
-
-        $lang_url_end_slash = last_char($lang_url) === '/';
-
-        if ($debugMode) {
-            $test['lang_url2'] = $lang_url;
-            $test['lang_url_end_slash'] = $lang_url_end_slash;
-        }
-
-        if ($input_url_end_slash && !$lang_url_end_slash) {
-            $lang_url .= '/';
-        }
-
-        if ($debugMode) {
-            $test['lang_url3'] = $lang_url;
-        }
-
-    } else {
-        $lang_url = $input_url;
-    }
-
-    if ($debugMode) {
-        var_dump($test);
     }
 
     return $lang_url;
@@ -337,7 +306,7 @@ function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
 /**
  * Devuelve un array con las urls de idiomas posibles de la URL pasado por parámetros o
  * la actual en caso de no proporcionarla
- * Nota: Solo si lang_by_url es true
+ * Nota: Solo si lang_by_url o lang_by_cookie es true alguno de los dos
  *
  * @param string $url
  * @param bool $short_lang Define si el índice de cada URL es el lenguaje corto o largo ej. ES o Español

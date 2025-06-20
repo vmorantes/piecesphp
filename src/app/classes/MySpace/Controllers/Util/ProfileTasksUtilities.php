@@ -8,8 +8,6 @@ namespace MySpace\Controllers\Util;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
-use MySpace\Exceptions\SafeException;
-use PiecesPHP\Core\Config;
 use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
 use PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperiencesMapper;
 use PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper;
@@ -97,35 +95,6 @@ class ProfileTasksUtilities extends AdminPanelController
                 UserProfileMapper::getProfile($element->userID);
             }
 
-        }
-    }
-
-    /**
-     * Genera áreas de investigación predeterminadas.
-     *
-     * Este método itera sobre un arreglo de nombres de áreas de investigación y las crea automáticamente.
-     * Se utiliza para asegurar que ciertas áreas de investigación estén disponibles en el sistema.
-     *
-     * @param array $areasNames Arreglo de nombres de áreas de investigación a generar.
-     */
-    public static function generateDefaultInterestResearchAreas(array $areasNames = [])
-    {
-        foreach ($areasNames as $areaName => $color) {
-            if (is_string($areaName)) {
-                try {
-                    $areaMapper = InterestResearchAreasMapper::getBy($areaName, 'areaName');
-                    $areaMapper = $areaMapper !== null ? new InterestResearchAreasMapper($areaMapper->id) : new InterestResearchAreasMapper();
-                    $areaMapper->baseLang = 'es';
-                    $areaMapper->color = $color;
-                    $areaMapper->areaName = lang(GLOBAL_LANG_GROUP, $areaName, $areaMapper->baseLang);
-                    foreach (Config::get_allowed_langs() as $lang) {
-                        if ($lang !== $areaMapper->baseLang) {
-                            $areaMapper->setLangData($lang, 'areaName', lang(GLOBAL_LANG_GROUP, $areaName, $lang));
-                        }
-                    }
-                    $areaMapper->id !== null ? $areaMapper->update() : $areaMapper->save();
-                } catch (SafeException $e) {}
-            }
         }
     }
 

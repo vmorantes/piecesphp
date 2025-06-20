@@ -9,6 +9,7 @@ namespace SystemApprovals\Util\Packages;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
+use SystemApprovals\Mappers\SystemApprovalsMapper;
 
 /**
  * UsersApprovalHandler.
@@ -27,6 +28,8 @@ class UsersApprovalHandler extends BaseApprovalHandler
     protected static $CREATION_DATE_COLUMN = 'created_at';
     protected static $CREATOR_ID = 'SAME';
     protected static $BASE_TEXT = 'Perfil';
+    public static string $STATUS_ACTIVATION_COLUMN = 'status';
+    public static array $STATUS_ACTIVATION_POSITIVES_VALUES = UsersModel::STATUSES_VALUES;
 
     /**
      * Obtiene el tipo de contenido específico del mapper.
@@ -47,7 +50,7 @@ class UsersApprovalHandler extends BaseApprovalHandler
         $isBaseOrg = $organization->id !== null && $organization->id == OrganizationMapper::INITIAL_ID_GLOBAL;
         if ($isBaseOrg) {
             if ($mapper->type == UsersModel::TYPE_USER_GENERAL) {
-                $text = 'Investigador independiente';
+                $text = 'Usuario independiente';
             }
         }
         return $text;
@@ -69,6 +72,8 @@ class UsersApprovalHandler extends BaseApprovalHandler
         $autoApprovalUserTypes = [
             UsersModel::TYPE_USER_ROOT,
             UsersModel::TYPE_USER_ADMIN_GRAL,
+            UsersModel::TYPE_USER_INSTITUCIONAL,
+            UsersModel::TYPE_USER_COMUNICACIONES,
         ];
         if (in_array($userMapper->type, $autoApprovalUserTypes) || $userMapper->status == UsersModel::STATUS_USER_ACTIVE || in_array($userMapper->type, UsersModel::ARE_AUTO_APPROVAL)) {
             $approved = true;
@@ -97,4 +102,15 @@ class UsersApprovalHandler extends BaseApprovalHandler
         $element->status = UsersModel::STATUS_USER_REJECTED;
         $element->update();
     }
+
+    /**
+     * Método cuando el elemento es actualizado
+     *
+     * @param UsersModel $element El elemento que ha sido actualizado.
+     * @param ?SystemApprovalsMapper $approvalMapper El elemento que gestiona la aprobación
+     */
+    public static function onUpdatedRecordSpecificMapper(UsersModel $element, ?SystemApprovalsMapper $approvalMapper = null): void
+    {
+    }
+
 }

@@ -1,10 +1,10 @@
 <?php
 return [
-    "Convocatorias" => "Calls",
+    "Contenidos" => "Contents",
     "Cargar más" => "Load more",
     "Instituciones que participan" => "Participating institutions",
     "Fechas" => "Dates",
-    "Tipo de convocatoria" => "Call type",
+    "Tipo de contenido" => "Content type",
     "Inicio" => "Start",
     "USD" => "USD",
     "Filtrar por" => "Filter by",
@@ -29,4 +29,7 @@ return [
     "Mapa de actores" => "Actors map",
     "Tipo de contratación" => "Contract type",
     "Descargar" => "Download",
+    "Ver contenido" => "View content",
+    "Tipo de búsqueda" => "Search type",
+    "Sin organización" => "No organization",
 ];

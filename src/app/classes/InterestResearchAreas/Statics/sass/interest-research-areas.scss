@@ -1,0 +1,23 @@
+@import '../../../../../statics/core/sass/includes/variables_app_base';
+@import '../../../../../statics/core/sass/includes/functions_app_base';
+
+.area-tags {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.area-tag {
+    display: flex;
+    height: 32px;
+    padding: 4px 8px;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    color: #1B1C1D;
+    font-size: 14px;
+    line-height: 24px;
+    background-color: var(--area-color);
+}

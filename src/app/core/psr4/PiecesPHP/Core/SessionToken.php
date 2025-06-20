@@ -50,6 +50,16 @@ class SessionToken
     }
 
     /**
+     * Verifica si el JWT actual recibido tiene una sesión activa
+     * @return bool
+     */
+    public static function currentReceivedJWTHasActiveSession()
+    {
+        $JWT = self::getJWTReceived();
+        return self::isActiveSession($JWT);
+    }
+
+    /**
      * @param string $token
      * @param string $key
      * @return bool

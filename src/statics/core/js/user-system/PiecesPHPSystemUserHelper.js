@@ -26,11 +26,16 @@ class PiecesPHPSystemUserHelper {
 		formData.set('twoFactor', twoFactorCode)
 
 		return new Promise((resolve, reject) => {
-
-			let urlRequest = instance.urlAuthenticate + `?`
-			urlRequest += `vp-w=${screen.width}&`
-			urlRequest += `vp-h=${screen.height}&`
-			urlRequest += `user-agent=${btoa(navigator.userAgent)}`
+			let urlAuthenticateObject
+			try {
+				urlAuthenticateObject = new URL(instance.urlAuthenticate)
+			} catch {
+				urlAuthenticateObject = new URL(instance.urlAuthenticate, document.baseURI)
+			}
+			urlAuthenticateObject.searchParams.set('vp-w', `${screen.width}`)
+			urlAuthenticateObject.searchParams.set('vp-h', `${screen.height}`)
+			urlAuthenticateObject.searchParams.set('user-agent', `${btoa(navigator.userAgent)}`)
+			let urlRequest = urlAuthenticateObject.href
 
 			instance
 				.post(urlRequest, formData, {})
@@ -313,6 +318,7 @@ class PiecesPHPSystemUserHelper {
 	get(url, data, headers = {}) {
 
 		url = (typeof url == 'string' && url.trim().length > 0) || url instanceof URL ? url : ''
+		url = url instanceof URL ? url.href : url
 		data = typeof data == 'string' || data instanceof HTMLFormElement ? data : ''
 		headers = typeof headers == 'object' ? headers : {}
 
@@ -326,20 +332,34 @@ class PiecesPHPSystemUserHelper {
 		let parsedHeaders = this.parseHeaders(headers)
 		parsedHeaders.set('Content-Type', 'application/x-www-form-urlencoded')
 
-		let urlParams = new URLSearchParams()
+		let urlObject
+		try {
+			urlObject = new URL(url)
+		} catch {
+			urlObject = new URL(url, document.baseURI)
+		}
 
 		if (data instanceof HTMLFormElement) {
 
 			let formData = new FormData(data)
 
 			for (let key of formData.keys()) {
-				urlParams.append(key, formData.get(key))
+				urlObject.searchParams.append(key, formData.get(key))
 			}
 
-			url += `?${urlParams.toString()}`
+			url = urlObject.href
 
-		} else if (typeof data == 'string') {
-			url += `?${data}`
+		} else if (typeof data == 'string' && data.length > 0) {
+
+			const urlLength = url.length
+			const indexOfCharQuery = url.lastIndexOf('?')
+			const hasCharQuery = indexOfCharQuery != -1
+			const charQueryIsLastChar = indexOfCharQuery !== -1 && indexOfCharQuery + 1 == urlLength
+			if (hasCharQuery) {
+				url += charQueryIsLastChar ? `${data}` : `&${data}`
+			} else {
+				url += `?${data}`
+			}
 		}
 
 		for (let name of parsedHeaders.keys()) {

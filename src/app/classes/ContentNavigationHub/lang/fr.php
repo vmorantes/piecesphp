@@ -1,10 +1,10 @@
 <?php
 return [
-    "Convocatorias" => "Appels d'offres",
+    "Contenidos" => "Contenus",
     "Cargar más" => "Charger plus",
     "Instituciones que participan" => "Institutions participantes",
     "Fechas" => "Dates",
-    "Tipo de convocatoria" => "Type d'appel d'offres",
+    "Tipo de contenido" => "Type de contenu",
     "Inicio" => "Début",
     "USD" => "USD",
     "Filtrar por" => "Filtrer par",
@@ -29,4 +29,7 @@ return [
     "Mapa de actores" => "Carte des acteurs",
     "Tipo de contratación" => "Type de contratation",
     "Descargar" => "Télécharger",
+    "Ver contenido" => "Voir le contenu",
+    "Tipo de búsqueda" => "Type de recherche",
+    "Sin organización" => "Sans organisation",
 ];

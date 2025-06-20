@@ -89,20 +89,49 @@ class Validator
 
     /**
      * @param mixed $value
+     * @param bool $trim
+     * @param int $minLength
+     * @param int $maxLength
      * @return bool
      */
-    public static function isString($value)
+    public static function isString($value, bool $trim = false, int $minLength = 0, int $maxLength = 0)
     {
-        return is_string($value);
+        if (is_string($value)) {
+            if ($trim) {
+                $value = trim($value);
+            }
+            if ($minLength > 0) {
+                if (mb_strlen($value) < $minLength) {
+                    return false;
+                }
+            }
+            if ($maxLength > 0) {
+                if (mb_strlen($value) > $maxLength) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
+     * Verifica si el valor es un array y si cumple con la condición de la callback
      * @param mixed $value
+     * @param callable|null $callback (key, value) => bool
      * @return bool
      */
-    public static function isArray($value)
+    public static function isArray($value, callable $callback = null)
     {
-        return is_array($value);
+        $valid = is_array($value);
+        if ($valid) {
+            foreach ($value as $key => $v) {
+                if ($callback !== null) {
+                    $valid = $callback($key, $v) && $valid;
+                }
+            }
+        }
+        return $valid;
     }
 
     /**

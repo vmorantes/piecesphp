@@ -57,7 +57,9 @@ $approvalElementExtended = $approvalMapper->getExtendedElement();
             <button type="submit" style="display: none;" save></button>
 
             <div class="base-title"><?= __($langGroup, 'Tipo de proyecto'); ?></div>
-            <div class="base-text"><?= $mapper->financingTypeText()?></div>
+            <div class="base-text"><?= $mapper->contentTypeText(); ?></div>
+            <div class="base-title"><?= __($langGroup, 'Tipo de contratación'); ?></div>
+            <div class="base-text"><?= $mapper->financingTypeText(); ?></div>
 
             <div class="base-horizontal-space"></div>
 
@@ -69,11 +71,11 @@ $approvalElementExtended = $approvalMapper->getExtendedElement();
             <div class="ui stackable grid">
                 <div class="three wide column">
                     <div class="base-title"><?= __($langGroup, 'Fecha inicial'); ?></div>
-                    <div class="base-text"><?= strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->startDate), ['%1' => 'de']); ?></div>
+                    <div class="base-text"><?= strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->startDate), ['%1' => __(LANG_GROUP, 'de')]); ?></div>
                 </div>
                 <div class="three wide column">
                     <div class="base-title"><?= __($langGroup, 'Fecha final'); ?></div>
-                    <div class="base-text"><?= strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->startDate), ['%1' => 'de']); ?></div>
+                    <div class="base-text"><?= strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $mapper->startDate), ['%1' => __(LANG_GROUP, 'de')]); ?></div>
                 </div>
             </div>
 

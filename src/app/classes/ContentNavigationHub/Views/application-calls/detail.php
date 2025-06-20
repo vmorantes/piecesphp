@@ -21,8 +21,8 @@ $contentTypeForFullDisplayText = $element->contentTypeForFullDisplayText();
 $contentTypeIcon = $element->contentTypeIcon();
 $iconColor = $element->contentTypeIconColor();
 $bgColor = $element->contentTypeBackgroundColor();
-$startDate = strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $element->startDate), ['%1' => 'de']);
-$endDate = strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $element->endDate), ['%1' => 'de']);
+$startDate = strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $element->startDate), ['%1' => __(LANG_GROUP, 'de')]);
+$endDate = strReplaceTemplate(localeDateFormat('%e %1 %B %1 Y', $element->endDate), ['%1' => __(LANG_GROUP, 'de')]);
 $targetCountries = implode(', ', array_map(fn($e) => __(LocationsLang::LANG_GROUP_NAMES, $e->name), $element->targetCountries));
 $attachments = [];
 foreach (Config::get_allowed_langs() as $allowedLang) {

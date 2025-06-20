@@ -82,9 +82,6 @@ $lang = [
     "Inactivo" => "Inactive",
     "Investigación" => "Research",
     "Tipos de experiencia" => "Types of experience",
-    "Investigador" => "Researcher",
-    "Regresar" => "Regresar",
-    "Organización" => "Organización",
     "Regresar" => "Return",
     "Organización" => "Organization",
     "Ya existe el área de interés." => "The area of interest already exists.",
@@ -92,9 +89,10 @@ $lang = [
     "Representante de una organización" => "Organization representative",
     "Editar usuario" => "Edit user",
     "No aprobado" => "Not approved",
-    "Investigador independiente" => "Independent researcher",
     "No aprobados" => "Not approved",
-    "Usuario general" => "General user",
+    "Tipos de usuario" => "User types",
+    "El usuario no existe." => "The user does not exist.",
+    "Ya existe el nombre de usuario." => "The username already exists.",
 ];
 
 return $lang;

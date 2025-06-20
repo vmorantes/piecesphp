@@ -1,3 +1,3 @@
 # PiecesPHP Framework
 
-- [Ver historial de cambios](./README.md)
+- [Ver historial de cambios](./CHANGELOG.md)

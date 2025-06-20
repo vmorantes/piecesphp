@@ -30,11 +30,12 @@
     5. Estandarizar carateres (en HTML y en traducciones):
         - &#x27; => '
         - &nbsp; => por un espacio;
+        - &quot; => "
         - & => &amp;
         - [\u00A0] se reemplaza por un espacio (usar regexp)
     6. Buscar href
         - Remplazar href=("|')#("|') por href="<?= get_current_url(); ?>#TODO:"
-        - Remplazar href="<\?= get_current_url\(\); \?>#TODO:" por lo que corresponda
+        - Remplazar href="<\?= get_current_url\(\); \?>#TODO:([a-z|A-Z|0-9]{0,})" por lo que corresponda
     7. Buscar vacíos: lang-group=("|')("|')
 3. Menús:
     1. Clase w--current en etiqueta actual del menú y atributo aria-current="page".

@@ -202,7 +202,7 @@ class NewsController extends AdminPanelController
                 __(self::LANG_GROUP, 'Inicio') => [
                     'url' => get_route('admin'),
                 ],
-                __(self::LANG_GROUP, 'Publicaciones') => [
+                __(self::LANG_GROUP, 'Noticias') => [
                     'url' => $backLink,
                 ],
                 $title,
@@ -1317,21 +1317,25 @@ class NewsController extends AdminPanelController
         $queries = $allRoles;
         $list = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $creation = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $edition = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];
         $deletion = [
             UsersModel::TYPE_USER_ROOT,
+            UsersModel::TYPE_USER_ADMIN_GRAL,
             UsersModel::TYPE_USER_COMUNICACIONES,
             UsersModel::TYPE_USER_INSTITUCIONAL,
         ];

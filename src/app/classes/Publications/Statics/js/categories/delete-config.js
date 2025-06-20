@@ -101,12 +101,6 @@ window.addEventListener('canDeletePublicationCategory', function (e) {
 			pcsphpGlobals.messages.en = {}
 		}
 
-		let es = {
-			'Confirmación': 'Confirmación',
-			'¿Seguro de eliminar el elemento?': '¿Seguro de eliminar el elemento?',
-			'Sí': 'Sí',
-			'No': 'No',
-		}
 		let en = {
 			'Confirmación': 'Confirmation',
 			'¿Seguro de eliminar el elemento?': 'Are you sure you want to delete the item?',
@@ -114,9 +108,10 @@ window.addEventListener('canDeletePublicationCategory', function (e) {
 			'No': 'No',
 		}
 
-		for (let i in es) {
+		//Registrar español a partir de inglés
+		for (let i in en) {
 			if (typeof pcsphpGlobals.messages.es[name] == 'undefined') pcsphpGlobals.messages.es[name] = {}
-			pcsphpGlobals.messages.es[name][i] = es[i]
+			pcsphpGlobals.messages.es[name][i] = i
 		}
 
 		for (let i in en) {

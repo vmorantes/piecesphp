@@ -2,7 +2,7 @@
 /// <reference path="../../core/js/user-system/main_system_user.js" />
 /// <reference path="../../core/js/user-system/PiecesPHPSystemUserHelper.js" />
 
-window.addEventListener('load', function (e) {
+window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, function (e) {
 	changeImageLogin()
 	configLoginForm()
 })

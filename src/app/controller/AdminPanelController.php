@@ -48,7 +48,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
      */
     protected $modelUsers;
 
-    const LANG_GROUP = 'adminZone';
+    const ADMIN_LANG_GROUP = 'adminZone';
 
     /**
      * @return static
@@ -105,7 +105,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
 
         add_global_asset('statics/core/css/about-framework.css', 'css');
 
-        set_title(__(AdminPanelController::LANG_GROUP, 'Acerca de'));
+        set_title(__(AdminPanelController::ADMIN_LANG_GROUP, 'Acerca de'));
 
         $publicationsListLink = PublicationsController::routeName('list');
 
@@ -176,14 +176,14 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
             $comments,
         ]);
 
-        $operation_name = __(self::LANG_GROUP, 'Crear ticket de soporte');
+        $operation_name = __(self::ADMIN_LANG_GROUP, 'Crear ticket de soporte');
         $result = new ResultOperations([
             new Operation($operation_name),
         ], $operation_name);
 
-        $message_create = __(self::LANG_GROUP, 'Ticket de soporte creado.');
-        $message_unknow_error = __(self::LANG_GROUP, 'Ha ocurrido un error inesperado.');
-        $message_unexpected_or_missing_params = __(self::LANG_GROUP, 'Información faltante o inesperada.');
+        $message_create = __(self::ADMIN_LANG_GROUP, 'Ticket de soporte creado.');
+        $message_unknow_error = __(self::ADMIN_LANG_GROUP, 'Ha ocurrido un error inesperado.');
+        $message_unexpected_or_missing_params = __(self::ADMIN_LANG_GROUP, 'Información faltante o inesperada.');
 
         if ($params_ok) {
 
@@ -207,7 +207,7 @@ class AdminPanelController extends \PiecesPHP\Core\BaseController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            $logRequest->type = (string) __(self::LANG_GROUP, 'Ticket soporte dentro del panel administrativo (osTicket).');
+            $logRequest->type = (string) __(self::ADMIN_LANG_GROUP, 'Ticket soporte dentro del panel administrativo (osTicket).');
             $logRequest->save();
 
             if ($success) {

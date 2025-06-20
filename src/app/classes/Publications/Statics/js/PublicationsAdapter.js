@@ -75,6 +75,7 @@ function PublicationsAdapter(options) {
 			//Acciones inciales
 			loadMoreTrigger.off('click')
 			loadMoreTrigger.on('click', function (e) {
+				e.preventDefault()
 				page = nextPage
 				instance.loadItems(true, scrollToOnLoadMore)
 			})

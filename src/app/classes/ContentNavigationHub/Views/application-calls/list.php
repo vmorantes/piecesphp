@@ -1,14 +1,13 @@
 <?php
-
+defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
 use ApplicationCalls\Controllers\ApplicationCallsPublicController;
 use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use Organizations\Mappers\OrganizationMapper;
-
-defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1>");
-
+use Spatie\Url\Url as URLManager;
 /**
  * @var string $langGroup
  * @var string $editLink
+ * @var string|null $contentTypeSelected
  */
 $areaDataForOptions = getInteresResearchAreas(true, null, [], true);
 $areasOptions = [];
@@ -23,6 +22,11 @@ foreach($areaDataForOptions as $areaData){
     }
 }
 $areasOptions = implode("\n", $areasOptions);
+$contentsRequestURL = ApplicationCallsPublicController::routeName('ajax-all');
+if($contentTypeSelected !== null){
+    $contentsRequestURL = URLManager::fromString($contentsRequestURL);
+    $contentsRequestURL = $contentsRequestURL->withQueryParameter('contentType[]', $contentTypeSelected);
+}
 ?>
 <section class="module-view-container content-hub-listing">
 
@@ -42,7 +46,7 @@ $areasOptions = implode("\n", $areasOptions);
         <div class="element-content">
 
             <div class="main-content">
-                <div class="elements-listing" application-calls-js data-application-call-url="<?= ApplicationCallsPublicController::routeName('ajax-all'); ?>"></div>
+                <div class="elements-listing" application-calls-js data-application-call-url="<?= $contentsRequestURL; ?>"></div>
 
                 <button class="ui button brand-color load-more-button" application-calls-load-more-js><?= __($langGroup, 'Cargar más'); ?></button>
             </div>
@@ -86,13 +90,23 @@ $areasOptions = implode("\n", $areasOptions);
                             <div class="current-selection-filter organizations"></div>
                         </div>
 
+                        <?php if($contentTypeSelected === null): ?>
                         <div class="field">
-                            <label><?= __($langGroup, 'Tipo de convocatoria'); ?></label>
+                            <label><?= __($langGroup, 'Tipo de contenido'); ?></label>
                             <select name="contentType[]" multiple id="" class="ui dropdown multiple special-tags" control-content-type ctrl-target=".current-selection-filter.contentType">
                                 <?= array_to_html_options(ApplicationCallsMapper::contentTypesForSelect(), null); ?>
                             </select>
                             <div class="current-selection-filter contentType"></div>
                         </div>
+                        <?php else: ?>
+                        <div class="field" style="display: none;">
+                            <label><?= __($langGroup, 'Tipo de contenido'); ?></label>
+                            <select name="contentType[]" multiple id="" class="ui dropdown multiple special-tags" control-content-type ctrl-target=".current-selection-filter.contentType">
+                                <option selected value="<?= $contentTypeSelected; ?>"><?= $contentTypeSelected; ?></option>
+                            </select>
+                            <div class="current-selection-filter contentType"></div>
+                        </div>
+                        <?php endif; ?>
 
                         <div class="field">
                             <label><?= __($langGroup, 'Tipo de contratación'); ?></label>

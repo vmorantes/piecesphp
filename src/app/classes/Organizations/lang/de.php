@@ -74,4 +74,7 @@ return [
     "Pendiente de aprobación" => "Ausstehende Genehmigung",
     "Enlace página web" => "Webseiten-Link",
     "Enlace LinkedIn" => "LinkedIn-Link",
+    "Pendientes de aprobación" => "Ausstehende Genehmigungen",
+    "El área de interés no es válida" => "Der Interessenbereich ist nicht gültig",
+    "Editar perfil" => "Profil bearbeiten"
 ];

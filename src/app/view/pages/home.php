@@ -31,10 +31,12 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 
             <h2 class="segment-title text-center"><?= __(LANG_GROUP, 'Publicaciones'); ?></h2>
 
-            <section class="ui cards centered posts-list" articles-container data-route="<?= $ajaxArticlesURL; ?>">
+            <section publications-special-block-section>
+                <div class="ui items posts-list" publications-special-block data-url="<?= $ajaxPublicationsURL; ?>" data-components-provider-url="<?= strReplaceTemplate($componentsProviderURL, ['{GROUP}' => 'publications']); ?>"></div>
+                <a href="<?= PublicationsPublicController::routeName('list', [], true); ?>" class="more element-center">
+                    <?= __($langGroup, 'Ver más'); ?>
+                </a>
             </section>
-
-            <a href="<?= PublicationsPublicController::routeName('list', [], true); ?>" class="more element-center"><?= __($langGroup, 'Ver más'); ?></a>
 
         </div>
 

@@ -198,7 +198,7 @@ $lang = [
     'page503' => [
         '503 - En mantenimiento'                                   => '503 - In maintenance',
         'Mantenimiento'                                            => 'Maintenance',
-        'En curso, no es posible usar la plataforma en un tiempo.' => 'In progress, it is not possible to use the platform for some time.',
+        'en curso, no es posible usar la plataforma en un tiempo.' => 'in progress, it is not possible to use the platform for some time.',
     ],
     'genericTokenModule' => [
         'Comentarios'                                                           => 'Comments',

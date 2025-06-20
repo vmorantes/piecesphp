@@ -36,7 +36,7 @@
         "ExtraCommaInArray"
     ],
     "[javascript]": {
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": true
     },
     "editor.wordWrap": "on",
     "editor.multiCursorModifier": "ctrlCmd",
@@ -46,7 +46,7 @@
         "editor.formatOnSave": false
     },
     "[html]": {
-        "editor.formatOnSave": false
+        "editor.formatOnSave": true
     },
     "explorer.confirmDelete": true,
     "[scss]": {
@@ -54,5 +54,8 @@
     },
     "[css]": {
         "editor.defaultFormatter": "michelemelluso.code-beautifier"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
     }
 }

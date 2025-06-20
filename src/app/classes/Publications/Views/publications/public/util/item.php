@@ -5,18 +5,18 @@ use Publications\Mappers\PublicationMapper;
 /**
  * @var PublicationMapper $element
  */
-$excerpt = $element->excerpt(300);
-$excerpt = mb_strpos($excerpt, '...') !== false ? $excerpt : $excerpt . '...';
+$excerptTitle = $element->excerptTitle(300);
+$excerptTitle = mb_strpos($excerptTitle, '...') !== false ? $excerptTitle : $excerptTitle . '...';
 ?>
-<article class="ui card">
-    <a class="image" href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>">
+<a class="ui card" href="<?= PublicationsPublicController::routeName('single', ['slug' => $element->getSlug()]); ?>">
+    <div class="image">
         <img src="<?= $element->currentLangData('thumbImage'); ?>" alt="<?= $element->currentLangData('title'); ?>" loading="lazy">
-    </a>
+    </div>
     <div class="content">
-        <div class="header"><?= $element->currentLangData('title'); ?></div>
+        <div class="header"><?= $element->publicDateFormat(); ?></div>
         <div class="meta">
             <span><?= $element->authorFullName(); ?></span>
         </div>
-        <div class="description"><?= $excerpt; ?></div>
+        <div class="description"><?= $excerptTitle; ?></div>
     </div>
-</article>
+</a>

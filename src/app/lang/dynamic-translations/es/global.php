@@ -5,8 +5,6 @@ return [
     'Colombia' => 'Colombia',
     'Francesa' => 'Francesa',
     'Colombiana' => 'Colombiana',
-    'Francesa / Française' => 'Francesa / Française',
-    'Colombiana / Colombienne' => 'Colombiana / Colombienne',
     'Código de área' => 'Código de área',
     'Seleccione una nacionalidad' => 'Seleccione una nacionalidad',
     "Activo" => "Activo",
@@ -18,6 +16,6 @@ return [
     "Tipos de experiencia" => "Tipos de experiencia",
     "Primer apellido" => "Primer apellido",
     "Colaboración Bilateral" => "Colaboración Bilateral",
+    "+ Ver perfil" => "+ Ver perfil",
     "Seleccione las áreas de interes" => "Seleccione las áreas de interes",
-    "Informática" => "Informática",
 ];
