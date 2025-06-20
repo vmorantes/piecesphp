@@ -372,6 +372,7 @@ class InterestResearchAreasMapper extends EntityMapperExtensible
      *  - lastNames
      *  - statusText
      *  - color
+     *  - organizationID
      *  - baseLang
      * @return string[]
      */
@@ -391,6 +392,9 @@ class InterestResearchAreasMapper extends EntityMapperExtensible
         $firstLastNameSegment = "TRIM({$tableUser}.first_lastname)";
         $secondLastNameSegment = "IF({$tableUser}.second_lastname IS NOT NULL, CONCAT(' ', {$tableUser}.second_lastname), '')";
 
+        //Usuario-Organización
+        $organizationID = "(SELECT {$tableUser}.organization FROM {$tableUser} WHERE {$tableUser}.id = {$table}.createdBy)";
+
         //Otros
         $currentLang = Config::get_lang();
         $statusesJSON = escapeString(json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE));
@@ -403,6 +407,7 @@ class InterestResearchAreasMapper extends EntityMapperExtensible
             "(SELECT TRIM(CONCAT({$firstLastNameSegment}, {$secondLastNameSegment})) FROM {$tableUser} WHERE {$tableUser}.id = {$table}.createdBy) AS lastNames",
             "JSON_UNQUOTE(JSON_EXTRACT('{$statusesJSON}', CONCAT('$.', {$table}.status))) AS statusText",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.color')) AS color",
+            "{$organizationID} AS organizationID",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];

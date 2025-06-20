@@ -62,6 +62,11 @@ class BaseModel extends ActiveRecordModel
             $password = !is_null($password) ? $password : Config::app_db($database_group)['password'];
             $charset = !is_null($charset) ? $charset : Config::app_db($database_group)['charset'];
 
+            //Ajuste de tiempo de ejecución de la conexión a la base de datos según el tiempo de ejecución de PHP
+            $maxExecutionTime = ini_get('max_execution_time') + 30;
+            $optionsDatabase = Database::DEFAULT_PDO_OPTIONS;
+            $optionsDatabase[Database::ATTR_TIMEOUT] = min($maxExecutionTime - 1, 30);
+
             parent::__construct([
                 'driver' => $driver,
                 'database' => $database,
@@ -69,7 +74,7 @@ class BaseModel extends ActiveRecordModel
                 'user' => $user,
                 'password' => $password,
                 'charset' => $charset,
-            ]);
+            ], $optionsDatabase);
 
         } else {
             if (is_string($this->tablePrefix)) {

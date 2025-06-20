@@ -75,6 +75,7 @@ function InterestResearchAreaAdapter(options) {
 			//Acciones inciales
 			loadMoreTrigger.off('click')
 			loadMoreTrigger.on('click', function (e) {
+				e.preventDefault()
 				page = nextPage
 				instance.loadItems(true, scrollToOnLoadMore)
 			})
@@ -223,7 +224,7 @@ function InterestResearchAreaAdapter(options) {
 			}).fail(function (error) {
 
 				errorMessage(_i18n(langGroup, 'Error'), _i18n(langGroup, 'Ha ocurrido un error al cargar los elementos.'))
-				console.log(error)
+				console.error(error)
 
 			}).always(function () {
 

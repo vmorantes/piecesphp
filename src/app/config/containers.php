@@ -4,6 +4,7 @@ use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
+use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
@@ -144,5 +145,26 @@ $container_configurations = [
 
         return $response;
 
+    },
+    'staticRouteModulesResolver' => function (string $classQualifiedName, string $segment = '', string $sourcePath = '', bool $enable = false) {
+        if ($enable) {
+            $route = get_route($classQualifiedName);
+            if (is_string($route)) {
+                //Obtener la ruta del recurso
+                $resourcePath = str_replace('/[{params:.*}]', '', $route);
+                //Verificar si tiene enlace simbólico
+                $delegatedUrl = ServerStatics::getSymbolicLink([
+                    'params' => $segment,
+                ], $sourcePath);
+                //Ajustar ruta final si no hay enlace simbólico
+                $resourcePath = append_to_url($resourcePath, $segment);
+                //Devolver la ruta final
+                return $delegatedUrl ?? $resourcePath;
+            } else {
+                return $segment;
+            }
+        } else {
+            return '';
+        }
     },
 ];

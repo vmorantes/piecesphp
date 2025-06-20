@@ -1102,7 +1102,7 @@ class NewsController extends AdminPanelController
         }
 
         //Verificar idiomas
-        $showAlways = false; //Define si se muestra siempre aunque no tenga traducción
+        $showAlways = count(NewsMapper::$LANGS_ON_CREATION) == 1; //Define si se muestra siempre aunque no tenga traducción
         $currentLang = Config::get_lang();
 
         if (!$showAlways) {
@@ -1123,8 +1123,6 @@ class NewsController extends AdminPanelController
             $sqlSelect .= " WHERE {$whereString}";
             $sqlCount .= " WHERE {$whereString}";
         }
-
-        $sqlSelect .= " ORDER BY " . implode(', ', NewsMapper::ORDER_BY_PREFERENCE);
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 

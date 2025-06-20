@@ -63,7 +63,7 @@ class PiecesPHPSystemUserHelper {
 
 	}
 
-	verify(onSuccess) {
+	verify(onSuccess, onNotAuth) {
 
 		let instance = this
 
@@ -86,6 +86,9 @@ class PiecesPHPSystemUserHelper {
 
 						} else {
 							instance.deleteSession()
+							if (typeof onNotAuth == 'function') {
+								onNotAuth()
+							}
 						}
 
 						resolve(res)

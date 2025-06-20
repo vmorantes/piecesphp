@@ -1,3 +1,4 @@
+///<reference path="../helpers.js" />
 /**
  * Clase que maneja los pasos de registro en la interfaz de usuario.
  * @example 

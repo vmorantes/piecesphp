@@ -6,7 +6,6 @@ window.addEventListener('load', function () {
 	let form = formImporter('form[importer-js]')
 	attachmentTemplate.scopeAction(function (instance, elements) {
 		instance.onSelected(function (instance, selectedFile) {
-			console.log(instance, selectedFile)
 			form.trigger('submit')
 			elements.inputFile.val('')
 		})

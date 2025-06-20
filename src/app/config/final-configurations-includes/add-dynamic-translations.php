@@ -1,17 +1,25 @@
 <?php
 
-use App\Model\AppConfigModel;
+use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
+use PiecesPHP\LocalizationSystem\Util\DynamicTranslationsHelper;
 
-$addDynamicTranslationsLogicFunction = function ($verboseResult = false) {
+$addDynamicTranslationsLogicFunction = function () {
 
+    /* Variables de configuración */
+    $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
+    $baseFolderName = $DYNAMIC_TRANSLATIONS_CONFIG['folderName'];
+    $filePrefix = $DYNAMIC_TRANSLATIONS_CONFIG['filePrefix'];
+    $dataConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['dataConfigName'];
+    $lastDateConfigName = $DYNAMIC_TRANSLATIONS_CONFIG['lastDateConfigName'];
+
+    /* Lectura de traducciones dinámicas presentes en php */
     $langsOptions = array_merge(Config::get_allowed_langs(), ['default']);
-    $langDynamicTranslationsDirectory = new DirectoryObject(basepath('app/lang/dynamic-translations/'));
+    $langDynamicTranslationsDirectory = new DirectoryObject(basepath("app/lang/{$baseFolderName}/"));
     $langDynamicTranslationsDirectory->process();
     $langDynamicTranslationsDirectoryLangs = $langDynamicTranslationsDirectory->getDirectories();
-    $added = [];
 
     //Archivos de traducciones dinámicas
     foreach ($langDynamicTranslationsDirectoryLangs as $langDynamicTranslationsDirectoryLang) {
@@ -22,10 +30,6 @@ $addDynamicTranslationsLogicFunction = function ($verboseResult = false) {
 
         if (in_array($directoryLangName, $langsOptions)) {
 
-            if (!isset($added[$directoryLangName])) {
-                $added[$directoryLangName] = [];
-            }
-
             foreach ($langDynamicTranslationsDirectoryLangFiles as $groupLangFile) {
 
                 $groupLangFileExtension = $groupLangFile->getExtension();
@@ -33,12 +37,8 @@ $addDynamicTranslationsLogicFunction = function ($verboseResult = false) {
                 if ($groupLangFileExtension == 'php') {
                     $langGroup = str_replace('.php', '', $groupLangFile->getBasename());
                     $groupLangFileData = include $groupLangFile->getPath();
-                    if (!isset($added[$directoryLangName][$langGroup])) {
-                        $added[$directoryLangName][$langGroup] = [];
-                    }
                     foreach ($groupLangFileData as $key => $value) {
                         Config::addLangMessage($directoryLangName, $langGroup, $key, $value);
-                        $added[$directoryLangName][$langGroup][$key] = $value;
                     }
                 }
             }
@@ -46,55 +46,58 @@ $addDynamicTranslationsLogicFunction = function ($verboseResult = false) {
         }
     }
 
+    /* Lectura de traducciones dinámicas presentes en base de datos */
+
     //Registros en base de datos de traducciones dinámicas
-    $translationsDatabase = new AppConfigModel('dynamicTranslations');
-    if ($translationsDatabase->id !== null) {
+    $currentJSONTranslationsPackage = DynamicTranslationsHelper::getCurrentDynamicTranslationsJSON();
+    $currentJSONTranslationsData = $currentJSONTranslationsPackage->getData();
+    $currentDatabaseData = GenericContentPseudoMapper::getContentData($dataConfigName);
+    $currentDatabaseLastDate = GenericContentPseudoMapper::getContentData($lastDateConfigName);
+    $currentDatabaseLastDate = $currentDatabaseLastDate instanceof \DateTime  ? $currentDatabaseLastDate : null;
 
-        $dynamicTranslationsFolder = $langDynamicTranslationsDirectory->getPath();
-        $translationsFromDatabase = $translationsDatabase->value;
-        $updated = null;
-        $translationsFromDatabaseIsObject = is_object($translationsFromDatabase);
+    /* Actualizar traducciones locales del JSON con las de la base de datos, si es necesario */
+    if ($currentDatabaseLastDate !== null && $currentDatabaseLastDate > $currentJSONTranslationsPackage->getUpdated()) {
 
-        if ($translationsFromDatabaseIsObject) {
-
-            $translationsFromDatabase = objectToArray($translationsFromDatabase);
-            $updated = date('Y-m-d H:i:s');
-
-            if (is_array($translationsFromDatabase)) {
-                $translationsDatabase->value = base64_encode(json_encode([
-                    'data' => $translationsFromDatabase,
-                    'updated' => $updated,
-                ], \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
-                $translationsDatabase->update();
+        //Revisar si hay traducciones en la base de datos que no estén en el JSON
+        foreach ($currentDatabaseData as $lang => $groupedTranslations) {
+            //Crear el idioma si no existe
+            if (!isset($currentJSONTranslationsData[$lang])) {
+                $currentJSONTranslationsData[$lang] = [];
             }
-
-        } else {
-            $translationsFromDatabase = is_string($translationsFromDatabase) ? base64_decode($translationsFromDatabase) : null;
-            $translationsFromDatabase = is_string($translationsFromDatabase) ? json_decode($translationsFromDatabase, true) : null;
-            $updated = $translationsFromDatabase !== null ? $translationsFromDatabase['updated'] : null;
-            $translationsFromDatabase = $translationsFromDatabase !== null ? $translationsFromDatabase['data'] : [];
-        }
-
-        $fileByUpdateDate = append_to_path_system($dynamicTranslationsFolder, 'dynamic-translations-' . $updated . '.json');
-        if (!file_exists($fileByUpdateDate)) {
-            file_put_contents($fileByUpdateDate, json_encode($translationsFromDatabase, \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
-        }
-
-        foreach ($translationsFromDatabase as $lang => $langTranslations) {
-            if (!isset($added[$lang])) {
-                $added[$lang] = [];
-            }
-            foreach ($langTranslations as $group => $groupTranslations) {
-                if (!isset($added[$lang][$group])) {
-                    $added[$lang][$group] = [];
+            foreach ($groupedTranslations as $group => $translations) {
+                //Crear el grupo si no existe
+                if (!isset($currentJSONTranslationsData[$lang][$group])) {
+                    $currentJSONTranslationsData[$lang][$group] = [];
                 }
-                foreach ($groupTranslations as $key => $value) {
-                    Config::addLangMessage($lang, $group, $key, $value);
-                    $added[$lang][$group][$key] = $value;
+                //Añadir las traducciones del grupo
+                foreach ($translations as $key => $value) {
+                    $currentJSONTranslationsData[$lang][$group][$key] = $value;
                 }
             }
         }
 
+        //Guardar los datos en el JSON
+        $currentJSONTranslationsPackage->setData($currentJSONTranslationsData);
+        DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON($currentJSONTranslationsPackage);
+
+        //Limpiar base de datos
+        GenericContentPseudoMapper::setContentData($dataConfigName, []);
+        GenericContentPseudoMapper::setContentData($lastDateConfigName, new \DateTime('1990-01-01 00:00:00'));
+
+        //Agregar log de actualización
+        $fileByUpdateDate = append_to_path_system($langDynamicTranslationsDirectory->getPath(), $filePrefix . date('Y-m-d H:i:s') . '.json');
+        file_put_contents($fileByUpdateDate, json_encode($currentJSONTranslationsPackage, \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
+
+    }
+
+    /* Inyectar traducciones del JSON en el sistema */
+    $currentJSONTranslationsData = $currentJSONTranslationsPackage->getData();
+    foreach ($currentJSONTranslationsData as $lang => $langTranslations) {
+        foreach ($langTranslations as $group => $groupTranslations) {
+            foreach ($groupTranslations as $key => $value) {
+                Config::addLangMessage($lang, $group, $key, $value);
+            }
+        }
     }
 
     /**
@@ -102,12 +105,7 @@ $addDynamicTranslationsLogicFunction = function ($verboseResult = false) {
      */
     BaseEventDispatcher::dispatch('AddDynamicTransaltions', 'added');
 
-    if ($verboseResult) {
-        var_dump_pretty($added);
-        exit;
-    }
-
 };
 
-($addDynamicTranslationsLogicFunction)(false);
+($addDynamicTranslationsLogicFunction)();
 set_config('add_dynamic_translations', $addDynamicTranslationsLogicFunction);

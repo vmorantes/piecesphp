@@ -7,23 +7,26 @@
         }
     }
 
-    &.ui.items{
-        .item {      
+    &.ui.items {
+        .item {
             margin: 0 auto;
             margin-bottom: 30px;
             width: 100%;
             max-width: 1440px;
             background-color: white;
-            .image{
-                img{
+
+            .image {
+                img {
                     height: 100% !important;
                     object-fit: cover;
                 }
             }
-            .header{
+
+            .header {
                 line-height: 1;
             }
-            .content{
+
+            .content {
                 padding: 45px 15px;
             }
         }

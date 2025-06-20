@@ -1092,13 +1092,14 @@ class UsersController extends AdminPanelController
 
         //Se verifica si ya existe una sesión activa
         $JWT = SessionToken::getJWTReceived();
-        $resultOperation->setValue('isAuth', SessionToken::isActiveSession($JWT));
+        $isActiveSession = SessionToken::isActiveSession($JWT, null, true);
+        $resultOperation->setValue('isAuth', $isActiveSession);
         //Verificar status de la organización si aplica
         $currentUser = getLoggedFrameworkUser();
         if ($currentUser !== null) {
             $organizationID = $currentUser->organization;
             $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
-            if ($organizationMapper != null && $organizationMapper->status != OrganizationMapper::ACTIVE) {
+            if ($organizationMapper != null && !in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN)) {
                 $resultOperation->setValue('isAuth', false);
             }
         }

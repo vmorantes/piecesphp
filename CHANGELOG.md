@@ -1,3 +1,39 @@
+# 6.4.2
+
+- Eliminación de console.log innecesarios.
+- Independización de archivos que gestionan la traducción con IA en el front.
+- Internacionalización:
+    - Mejora en revisión de traducciones pendientes.
+    - Optimización de adaptadores de modelo IA para mejor manejo de las traducciones.
+    - Fragmentos grandes de HTML se dividen en traducción con IA, deben ser especificados en asHTMLProperties.
+    - Se destruye la conexión con la base de datos actual para evitar el error de "MySQL server has gone away" por tiempo de espera en la traducción con IA.
+    - Se añade en lang.php la configuración DYNAMIC_TRANSLATIONS para gestionar elementos relevantes del sistema de inyección dinámica de mensajes de traducción.
+    - Gestión de JSON de "traducciones" dinámicas se reemplaza por GeneriContentPseudoMapper.
+    - Se simplifica la lógica de translations/saveGroup por solo interacción con base de datos.
+    - Introducción de DynamicTranslationsHelper para persistencia de traducciones dinámicas. Ahora la base de datos se usa solo como un estado intermedio para guardar las traducciones "pendientes" y los mensajes fijos se circuncriben a un JSON denominado current-translations. Se gestiona fechas de actualización para no leer innecesariamente desde la base de datos. Se refactoriza add-dynamic-translations.php
+- Servido estático de archivos personalizado:
+    - Mejora en el servido de archivos estáticos desde los módulos.
+    - Refactorización de ServerStatics.php.
+    - ServerStatics.php crea enlaces simbólicos en statics/server-delegated para tener que servirlos siempre con PHP.
+    - Los métodos staticRoute ahora se soportan con staticRouteModulesResolver de container para hacer funcionar la lógica de ServerStatics.php anteriormente descrita. Valida si el enlace simbólico existe.
+- Bases de datos:
+    - En BaseModel si introdujo gestión de tiempo de ejecución de MySQL con PDO::ATTR_TIMEOUT basado en 'max_execution_time' de PHP.
+- Sesión:
+    - Corregido: Ahora se toma en cuenta distintos estados de organización que son candidatos para habilitar el ingreso.
+- Configuraciones en config.php:
+    - Se introducen: domain, domain_protocol, base_domain_path, base_url.
+        - i.e.: domain.tld, https://, /ruta/base/src, https://domain.tld/ruta/base/src
+- En librerías base del framework:
+    - Loader general:
+        - Modulizarización de showGenericLoader, removeGenericLoader activeGenericLoader por un manejador desde una clases.
+        - Se mejoró la lógica interna y se añadió la posibilidad mostrar un mensaje.
+    - Se independizó la función genericFormHandler hacia un archivo único.
+- En el adaptador del editor CKEditor:
+    - Se añadió insertLink para permitir la posibilidad de carga de cualquier tipo de archivo como link.
+    - Se hizo el ajuste correspondiente en la gestión del manejador de archivos.
+- Se recomienda el tag en comentarios @category SpecialCaseSolution para soluciones particulares de modo que sean fáciles de buscar.
+- Llaves mapbox se manejan desde "variables de entorno".
+
 # 6.4.2-beta
 
 - Ajuste de bug que hacía que se registraran sesiones "expiradas" sin motivo.
@@ -20,7 +56,7 @@
 - Mejora en el manejo de errores para renderización de BaseController.
 - Mejora de funcionalidad de validaciones en PiecesPHP\Core\Validation\Validator.
 - Sesión:
-    - El inicio de sesión toma en cuenta estados de usario y de organización que son candidatos para habilitar el ingreso.
+    - El inicio de sesión toma en cuenta estados de usuario y de organización que son candidatos para habilitar el ingreso.
 - Sidebar interno diferenciado según tipos de usuario.
 - En aprobaciones:
     - Se verifica isActive que se añade dinámicamente por el manejador.

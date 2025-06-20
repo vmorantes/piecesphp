@@ -89,6 +89,7 @@ $lang = [
     "Representante de una organización" => "Vertreter einer Organisation",
     "Editar usuario" => "Benutzer bearbeiten",
     "No aprobado" => "Nicht genehmigt",
+    "Usuario independiente" => "Unabhängiger Benutzer",
     "No aprobados" => "Nicht genehmigt",
     "Tipos de usuario" => "Benutzertypen",
     "El usuario no existe." => "Der Benutzer existiert nicht.",

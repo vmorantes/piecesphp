@@ -120,7 +120,7 @@ class HttpClient
 
         $response = @file_get_contents($this->requestURI, false, $context);
         $this->response['headers'] = $this->parseReponseHeaders($http_response_header);
-        $this->response['status'] = $this->response['headers']['reponse_code'];
+        $this->response['status'] = isset($this->response['headers']['response_code']) ? $this->response['headers']['response_code'] : null;
         $this->response['body'] = $response;
 
         return $response;
@@ -366,7 +366,7 @@ class HttpClient
      */
     protected function parseReponseHeaders(array $response_headers)
     {
-        $head = array();
+        $head = [];
         foreach ($response_headers as $k => $v) {
             $t = explode(':', $v, 2);
             if (isset($t[1])) {
@@ -374,7 +374,7 @@ class HttpClient
             } else {
                 $head[] = $v;
                 if (preg_match("#HTTP/[0-9\.]+\s+([0-9]+)#", $v, $out)) {
-                    $head['reponse_code'] = intval($out[1]);
+                    $head['response_code'] = intval($out[1]);
                 }
 
             }
