@@ -4,6 +4,7 @@ nav:
     - lamp/index.md
     - hestiacp/index.md 
     - piecesphp/index.md
+    - performance/index.md
     - tomcat/index.md 
 theme:
     name: material

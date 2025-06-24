@@ -87,4 +87,4 @@ sudo service apache2 restart
 
 - Continuamos con:
 
-[Instalación de PHP](./content/PHP.md){ .md-button }
+[Instalación de PHP](./PHP.md){ .md-button }
