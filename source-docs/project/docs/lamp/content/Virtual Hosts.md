@@ -1,53 +1,47 @@
-# Añadir soporte de dominios en apache2
+# Soporte de dominios (Virtual Hosts) en Apache2 (Ubuntu 24.04 LTS)
 
-_(funciona para ssl, hacer los mismos pasos con el archivo default-ssl.conf) (Debian 9)_  
+## Introducción
+Los Virtual Hosts permiten alojar múltiples sitios web en un solo servidor Apache.
 
-Nota: La información es sacada de [DigitalOcean](https://www.digitalocean.com/community/tutorials/como-configurar-virtual-hosts-de-apache-en-ubuntu-16-04-es)
+---
 
-- Crear el archivo de configuración
+## Crear un nuevo Virtual Host
 
 ```bash
-cd /etc/apache2/sites-available
-cp 000-default.conf DOMINIO.COM.conf
+sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/TUDOMINIO.conf
 ```
 
-- La información de DOMINIO.COM.conf es algo como lo siguiente
+Edita el archivo de configuración:
+
+```bash
+sudo nano /etc/apache2/sites-available/TUDOMINIO.conf
+```
+
+Ejemplo de configuración básica:
 
 ```apacheconf
 <VirtualHost *:80>
-    ServerAdmin webmaster@localhost
-    DocumentRoot /var/www/html
+    ServerAdmin admin@TUDOMINIO
+    ServerName TUDOMINIO
+    ServerAlias www.TUDOMINIO
+    DocumentRoot /var/www/TUDOMINIO/public_html
     ErrorLog ${APACHE_LOG_DIR}/error.log
     CustomLog ${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
 ```
 
-- Modificar información
+---
+
+## Activar el Virtual Host y reiniciar Apache
 
 ```bash
-nano DOMINIO.COM.conf
+sudo a2ensite TUDOMINIO.conf
+# Se desactiva la configuración por defecto
+sudo a2dissite 000-default.conf
+sudo systemctl restart apache2
 ```
 
-```apacheconf
-<VirtualHost *:80>
-	...
-	ServerAdmin admin@DOMINIO.COM #Opcional
-    ServerName DOMINIO.COM
-    ServerAlias www.DOMINIO.COM
-	DocumentRoot /var/www/DOMINIO.COM/public_html
-	...
-</VirtualHost>
-```
+---
 
-- Activar vhost y desactivar configuración por defecto
-
-```bash
-a2ensite DOMINIO.COM.conf
-a2dissite 000-default.conf
-```
-
-- Reinicar servidor
-
-```bash
-service apache2 restart
-```
+## Recursos útiles
+- [Guía de Virtual Hosts en Apache](https://httpd.apache.org/docs/2.4/vhosts/)

@@ -54,4 +54,9 @@ sudo chown -R www-data:www-data phpmyadmin/*
 sudo rm -Rf phpmyadmin/setup
 ```
 
+---
+
+## Recursos útiles
+- [Documentación oficial de PHPMyAdmin](https://docs.phpmyadmin.net/es/latest/)
+
 

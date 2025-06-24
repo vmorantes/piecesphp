@@ -1,28 +1,44 @@
-# PiecesPHP Framework
+# Tareas Gulp en PiecesPHP
 
-## Tareas Gulp
+> **Nota:** Se recomienda NodeJS v22.12.x para máxima compatibilidad con las tareas de Gulp.
 
-### Instrucciones
+## Introducción
+Gulp es un sistema de automatización de tareas para Node.js. PiecesPHP utiliza Gulp para compilar estilos, scripts y otras tareas de desarrollo.
 
-Dentro de la carpeta src, ejecutar:
+---
+
+## Instrucciones básicas
+
+Desde la carpeta `src`, ejecuta:
+
 ```bash
-gulp TAREA
+gulp <tarea>
 ```
-i.e.:
-```bash 
+
+Por ejemplo:
+
+```bash
 gulp sass-all
 ```
 
-### Tareas
-- sass:init (para compilar los archivos en src/statics/sass)
-- sass:watch (para observar los archivos en src/statics/sass)
-- sass-vendor:init (para compilar los archivos de estilo del área administrativa)
-- sass-vendor:watch (para observar los archivos de estilo del área administrativa)
-- sass-all (compila todos los anteriores, borra caché automáticamente al cambiar el token de caché)
-- sass-all:watch (observa todos los anteriores)
-- ts-vendor (Compila los TypesScript del core del framework)
-- js-vendor:watch (Compila y observa los TypesScript del core del framework)
-- js-vendor (Compila los Javascript del core del framework)
-- js-vendor:watch (Compila y observa los Javascript del core del framework)
-- init-project (Ejecuta todas las tareas anteriores)
-- init-project:watch (Ejecuta y observa todas las tareas anteriores)
+---
+
+## Tareas disponibles
+
+- `sass:init` — Compila los archivos SASS en `src/statics/sass`.
+- `sass:watch` — Observa cambios en los archivos SASS.
+- `sass-vendor:init` — Compila estilos del área administrativa.
+- `sass-vendor:watch` — Observa estilos del área administrativa.
+- `sass-all` — Compila todos los estilos y limpia caché.
+- `sass-all:watch` — Observa todos los estilos.
+- `ts-vendor` — Compila TypeScript del core del framework.
+- `js-vendor` — Compila JavaScript del core del framework.
+- `js-vendor:watch` — Observa cambios en JavaScript del core.
+- `init-project` — Ejecuta todas las tareas anteriores.
+- `init-project:watch` — Ejecuta y observa todas las tareas anteriores.
+
+---
+
+## Tips
+- Usa `gulp <tarea> --help` para ver opciones adicionales.
+- Si tienes errores de dependencias, ejecuta `npm install` nuevamente.

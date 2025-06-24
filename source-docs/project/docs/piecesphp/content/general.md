@@ -5,14 +5,13 @@
 - Requerimientos
     - PiecesPHP
     - Composer
-    - NodeJS 18.x LTS con NVM
+    - NodeJS 22.x LTS con NVM
     - NPM
     - Gulp CLI
 
 ### Actualizar repositorios
 ```bash
-#Actualizar
-sudo apt update
+sudo apt update && sudo apt upgrade -y
 ```
 
 ### Instalación de dependencias de desarrollo
@@ -22,38 +21,38 @@ sudo apt update
 - Mediante apt:
 ```bash
 #Instalar
+sudo apt install composer -y
 sudo apt install composer
 #Verificar versión
-composer --version ##1.10.1
+composer --version
 ```
 - Mediante descarga:
 ```bash
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
 php composer-setup.php
 php -r "unlink('composer-setup.php');"
-mv composer.phar /usr/local/bin/composer ##Para que esté disponible globalmente
+sudo mv composer.phar /usr/local/bin/composer
 ```
 
 #### NodeJS (v22.12.0) y NPM
 ```bash
 #Instalar NVM
 cd ~
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 source ~/.bashrc
 #Instalar Node
-nvm install v22.12.0
+nvm install 22.12.0
+nvm use 22.12.0
 #Verificar versiones
-node --version ##22.12.0
-npm --version ##11.0.0
+node --version
+npm --version
 ```
 
 #### Gulp CLI y Typescript
 ```bash
-#Instalar globalmente (sudo es solo para paquetes globales)
 sudo npm install -g gulp-cli typescript
-#Verificar versión
-gulp --version ##CLI version: 3.0.0
-tsc --version ##Version 5.7.2
+gulp --version
+tsc --version
 ```
 
 ### Desplegar PiecesPHP
@@ -63,6 +62,7 @@ tsc --version ##Version 5.7.2
 ```bash
 #Variable con la carpeta del proyecto, si no existe debe crearse antes
 export FOLDER="/var/www/html/pcsphp_project"
+mkdir -p $FOLDER
 ```
 
 O, en caso de que se quiera hacer en el directorio actual (donde está abierta la terminal):
@@ -121,10 +121,11 @@ npm install
 #### Paso 5: Activación de módulos apache necesarios
 ```bash
 sudo a2enmod rewrite headers ssl
+sudo systemctl restart apache2
 ```
 
 #### Más información
-- Durante el desarrollo se recomiendo el uso de las siguientes tareas de gulp (para más información, [clic aquí](../gulp)):
+- Durante el desarrollo se recomiendo el uso de las siguientes tareas de gulp (para más información, [clic aquí](./gulp.md)):
     - init-project
     - init-project:watch
 - Base de datos:
@@ -132,3 +133,10 @@ sudo a2enmod rewrite headers ssl
     - Los archivos para usar en la base de datos están en la carpeta databases
 - Otras cosas:
     - En el archivo src/app/constants.php se pueden activar/desactivar algunas características integradas.
+
+## Despliegue de PiecesPHP (Ubuntu 24.04 LTS)
+
+## Notas adicionales
+- Configura la base de datos en `src/app/database.php`.
+- Los archivos SQL están en la carpeta `databases`.
+- Puedes activar/desactivar características en `src/app/constants.php`.

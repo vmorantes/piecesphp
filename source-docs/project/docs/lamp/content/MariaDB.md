@@ -1,29 +1,26 @@
-# Instalación de MariaDB 10.5
+# Instalación de MariaDB en Ubuntu 24.04 LTS
 
-- Ubuntu 20
-- MariaDB 10.5
+## Introducción
+MariaDB es un sistema de gestión de bases de datos compatible con MySQL. Aquí aprenderás a instalarlo y configurarlo de forma segura.
 
-## Actualizar repositorios
-
-```bash
-sudo apt-get install software-properties-common
-sudo apt-key adv --fetch-keys 'http://mariadb.org/mariadb_release_signing_key.asc'
-sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el] http://mirror.ufscar.br/mariadb/repo/10.5/ubuntu focal main'
-```
+---
 
 ## Instalación
 
+Actualiza los repositorios e instala MariaDB:
+
 ```bash
 sudo apt update
-sudo apt install mariadb-server mariadb-client
+sudo apt install mariadb-server mariadb-client -y
 ```
 
-## Configuración de usuario
+---
+
+## Configuración inicial y seguridad
+
+Ejecuta el script de seguridad:
 
 ```bash
-#Moverse al directorio de usuario
-cd ~
-
 #Modo de super usuario
 sudo su
 
@@ -38,23 +35,39 @@ mysql_secure_installation
 #prompt: Reload privilege tables now? [Y/n]: Y
 
 #Entrar en consola de mariadb
-mysql 
 ```
+
+Sigue las instrucciones para asegurar tu instalación (puedes dejar la contraseña de root vacía si solo usas sockets locales, pero se recomienda establecer una contraseña fuerte).
+
+---
+
+## Crear usuario y base de datos
+
+Accede a la consola de MariaDB:
+
+```bash
+mysql
+```
+
+Crea un usuario y una base de datos de ejemplo:
+
 ```sql
 -- Crear general (el usuario y la contraseña son de ejemplo):
-CREATE USER 'admin_general'@'localhost' IDENTIFIED BY 'pPz_afcad6464e_lr_m646464am';
+CREATE USER 'admin_general'@'localhost' IDENTIFIED BY 'PASSWORD';
+
 -- Otorgar permisos globales al usuario
-GRANT ALL PRIVILEGES ON *.* TO 'admin_general'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *piecesphp_db*.* TO 'admin_general'@'localhost';
 -- Refrescar privilegios:
 FLUSH PRIVILEGES;
 -- Salir de la consola de mariadb
-exit;
+EXIT;
 ```
-```bash
-#Salir del modo de super usuario
-exit
-```
-### Caso en que el usuario root carece de permisos
+
+---
+
+## Solución de problemas de permisos
+
+Si el usuario root no tiene permisos:
 
 ```bash
 #Detener servidor mariadb
@@ -76,3 +89,8 @@ exit;
 #Activar servidor mariadb
 sudo systemctl start mysql
 ```
+
+---
+
+## Recursos útiles
+- [Documentación oficial de MariaDB](https://mariadb.com/kb/es/documentation/)
