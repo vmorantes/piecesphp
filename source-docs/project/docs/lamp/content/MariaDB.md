@@ -56,7 +56,7 @@ Crea un usuario y una base de datos de ejemplo:
 CREATE USER 'admin_general'@'localhost' IDENTIFIED BY 'PASSWORD';
 
 -- Otorgar permisos globales al usuario
-GRANT ALL PRIVILEGES ON *piecesphp_db*.* TO 'admin_general'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'admin_general'@'localhost';
 -- Refrescar privilegios:
 FLUSH PRIVILEGES;
 -- Salir de la consola de mariadb
