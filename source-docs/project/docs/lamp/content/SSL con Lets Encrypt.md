@@ -1,61 +1,100 @@
-# Soporte de SSL con Lets Encrypt (LE) en apache2
+# Soporte de SSL con Let's Encrypt en Apache2 (Ubuntu 24.04 LTS)
 
-_(probado en Debian 9)_  
+## Introducción
+Let's Encrypt permite obtener certificados SSL gratuitos y automáticos para tu servidor web.
 
-Nota: La información es sacada de [snel.com](https://www.snel.com/support/lets-encrypt-on-debian-9-with-apache-webserver/)
+---
+
+## Instalación de Certbot
 
 ```bash
-# Instalar el cerbot de LE
-apt install certbot python3-certbot-apache
-#Generar certificados
-certbot --apache
-#Nota: Probablemente se presente un error con la configuración de vhost ssl
+sudo apt update
+sudo apt install certbot python3-certbot-apache -y
 ```
 
-- Configurar el vhost ssl con las siguiente información
+---
+
+## Generar certificados SSL
+
+```bash
+sudo certbot --apache
+```
+
+Sigue las instrucciones para tu dominio. Si hay errores con la configuración de vhost SSL, revisa los logs y la configuración.
+
+Puedes revisar la sintaxis de Apache antes de continuar:
+
+```bash
+sudo apachectl configtest
+```
+
+---
+
+## Configuración de VirtualHost SSL
+
+Asegúrate de que tu archivo de configuración tenga las siguientes líneas:
 
 ```apacheconf
-<VirtualHost _default_:443>
-	...
-	SSLCertificateFile /etc/letsencrypt/live/DOMINIO/cert.pem
-	SSLCertificateKeyFile /etc/letsencrypt/live/DOMINIO/privkey.pem
-	SSLCertificateChainFile /etc/letsencrypt/live/DOMINIO/chain.pem
-	...
+<VirtualHost *:443>
+    ...
+    SSLCertificateFile /etc/letsencrypt/live/TUDOMINIO/cert.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/TUDOMINIO/privkey.pem
+    SSLCertificateChainFile /etc/letsencrypt/live/TUDOMINIO/chain.pem
+    ...
 </VirtualHost>
 ```
 
+Activa el módulo SSL si no está activo:
+
 ```bash
-#Revisar sintaxis apache
-apachectl configtest
+sudo a2enmod ssl
+```
 
-#Activar módulo SSL
-a2enmod ssl
+Recarga Apache para aplicar los cambios:
 
-#Recargar servidor
-service apache2 reload
+```bash
+sudo systemctl reload apache2
+```
 
-#Configurar renovación automática
+---
+
+## Renovación automática
+
+Let's Encrypt recomienda probar la renovación automática:
+
+```bash
 sudo certbot renew --dry-run
 ```
 
-## Forzar https siempre
+---
+
+## Forzar HTTPS siempre
+
+Activa el módulo rewrite:
 
 ```bash
-#Activar módulo rewrite
-a2enmod rewrite
+sudo a2enmod rewrite
 ```
 
-- Modificar configuración de vhost (NO SSL) para que redireccione
+Redirecciona todo el tráfico HTTP a HTTPS en tu VirtualHost de puerto 80:
 
 ```apacheconf
-<VirtualHost _default_:80>
-	...
-	Redirect permanent / https://DOMINIO.COM/
-	...
+<VirtualHost *:80>
+    ...
+    Redirect permanent / https://TUDOMINIO/
+    ...
 </VirtualHost>
 ```
 
+Recarga Apache para aplicar la redirección:
+
 ```bash
-#Recarcar servidor
-service apache2 reload
+sudo systemctl reload apache2
+```
+
+---
+
+## Recursos útiles
+- [Guía oficial de Let's Encrypt](https://letsencrypt.org/getting-started/)
+
 ```
