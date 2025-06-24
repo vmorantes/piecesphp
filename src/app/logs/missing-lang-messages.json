@@ -1,1 +1,431 @@
-{}
+{
+    "en": {
+        "api-lang": {
+            "Las traducciones se guardaron con éxito.": "Las traducciones se guardaron con éxito."
+        },
+        "app-presentations-lang": {
+            "Ya existe la categoría.": "Ya existe la categoría.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos"
+        },
+        "array_of_exceptions": {
+            "missing_qualified_name": "missing_qualified_name"
+        },
+        "built-in-banner-lang": {
+            "Listado de banners": "Listado de banners",
+            "Datos guardados.": "Datos guardados.",
+            "Eliminar banner": "Eliminar banner",
+            "El banner que intenta eliminar no existe.": "El banner que intenta eliminar no existe.",
+            "Editar": "Editar",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Agregar banner": "Agregar banner",
+            "El banner que intenta modificar no existe.": "El banner que intenta modificar no existe.",
+            "Inicio": "Inicio",
+            "Eliminar": "Eliminar",
+            "Banner eliminado.": "Banner eliminado.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Banners": "Banners",
+            "Banner creado.": "Banner creado.",
+            "Tamaño {%1}": "Tamaño {%1}",
+            "Banner": "Banner",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Edición de banner": "Edición de banner"
+        },
+        "categories-lang": {
+            "Datos guardados.": "Datos guardados.",
+            "Eliminar categoría": "Eliminar categoría",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "La categoría que intenta eliminar no existe.": "La categoría que intenta eliminar no existe.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Categorías": "Categorías",
+            "Guardar": "Guardar",
+            "Categoría creada.": "Categoría creada.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Gestión de": "Gestión de",
+            "Categoría eliminada.": "Categoría eliminada.",
+            "El categoría que intenta modificar no existe.": "El categoría que intenta modificar no existe.",
+            "Categoría": "Categoría"
+        },
+        "DataImportExportUtility-lang": {
+            "Import/Export": "Import/Export"
+        },
+        "document-lang": {
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos"
+        },
+        "document-types-lang": {
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos"
+        },
+        "errors": {
+            "type_param_not_allowed": "type_param_not_allowed"
+        },
+        "exceptions": {
+            "not_allowed_type": "not_allowed_type"
+        },
+        "filemanager-lang": {
+            "Documentos": "Documentos",
+            "Papelera (documentos)": "Papelera (documentos)"
+        },
+        "helpers-system-lang": {
+            "Llaves de MapBox": "Llaves de MapBox"
+        },
+        "html_exceptions": {
+            "malformed_attribute": "malformed_attribute",
+            "malformed_child": "malformed_child"
+        },
+        "images-repository-lang": {
+            "Gestionar": "Gestionar",
+            "Datos guardados.": "Datos guardados.",
+            "El consentimiento no pudo ser removida, intente más tarde o contacte con el soporte.": "El consentimiento no pudo ser removida, intente más tarde o contacte con el soporte.",
+            "Fotografía": "Fotografía",
+            "Registro fotográfico": "Registro fotográfico",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Eliminar fotografía": "Eliminar fotografía",
+            "Guardar Imagen": "Guardar Imagen",
+            "No ha cargado ninguna fotografía.": "No ha cargado ninguna fotografía.",
+            "Fotografía eliminada.": "Fotografía eliminada.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "La imagen no pudo ser removida, intente más tarde o contacte con el soporte.": "La imagen no pudo ser removida, intente más tarde o contacte con el soporte.",
+            "La fotografía que intenta modificar no existe.": "La fotografía que intenta modificar no existe.",
+            "Explorar": "Explorar",
+            "Fotografía creada.": "Fotografía creada.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Gestión de": "Gestión de",
+            "La fotografía que intenta eliminar no existe.": "La fotografía que intenta eliminar no existe."
+        },
+        "newsletter-lang": {
+            "Datos guardados.": "Datos guardados.",
+            "Suscriptor eliminado.": "Suscriptor eliminado.",
+            "Editar": "Editar",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El suscriptor que intenta modificar no existe.": "El suscriptor que intenta modificar no existe.",
+            "Editar suscriptor": "Editar suscriptor",
+            "Inicio": "Inicio",
+            "Sin modificar": "Sin modificar",
+            "Eliminar suscriptor": "Eliminar suscriptor",
+            "Eliminar": "Eliminar",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "No": "No",
+            "Listado": "Listado",
+            "Sí": "Sí",
+            "Suscriptor creado.": "Suscriptor creado.",
+            "El email \"{EMAIL}\" ya existe": "El email \"{EMAIL}\" ya existe",
+            "Ha sido añadido satisfactoriamente.": "Ha sido añadido satisfactoriamente.",
+            "El suscriptor que intenta eliminar no existe.": "El suscriptor que intenta eliminar no existe.",
+            "Agregar suscriptor": "Agregar suscriptor",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Suscriptores": "Suscriptores",
+            "Suscriptor": "Suscriptor",
+            "Añadir al boletín": "Añadir al boletín"
+        },
+        "persons-lang": {
+            "Persona": "Persona",
+            "Datos guardados.": "Datos guardados.",
+            "Persona creada.": "Persona creada.",
+            "Editar": "Editar",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Persona eliminada.": "Persona eliminada.",
+            "La persona que intenta modificar no existe.": "La persona que intenta modificar no existe.",
+            "Eliminar": "Eliminar",
+            "Eliminar persona": "Eliminar persona",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Personas": "Personas",
+            "Guardar": "Guardar",
+            "Tipo de documento": "Tipo de documento",
+            "La persona que intenta eliminar no existe.": "La persona que intenta eliminar no existe.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Gestión de": "Gestión de"
+        },
+        "PiecesPHP\\Core\\Validation\\Parameters": {
+            "Los parámetros %PARAMS% son obligatorios": "Los parámetros %PARAMS% son obligatorios",
+            "El parámetro %PARAMS% es obligatorio": "El parámetro %PARAMS% es obligatorio"
+        },
+        "public": {
+            "Inicio": "Inicio"
+        },
+        "reports-manage-lang": {
+            "Colombia": "Colombia",
+            "Aprobadas": "Aprobadas",
+            "Francia": "Francia",
+            "usuarios generales": "usuarios generales",
+            "Otros países": "Otros países",
+            "organización(es)": "organización(es)",
+            "Creadas": "Creadas",
+            "Reportes": "Reportes"
+        },
+        "roles_exceptions": {
+            "role_duplicate": "role_duplicate",
+            "not_exists": "not_exists",
+            "role_malformed": "role_malformed"
+        },
+        "routes_exceptions": {
+            "duplicate_name_exceptions": "duplicate_name_exceptions"
+        },
+        "sidebarAdminZone": {
+            "Usuarios generales": "Usuarios generales"
+        },
+        "UploadedFileAdapter": {
+            "Los archivos no han sido cargados correctamente.": "Los archivos no han sido cargados correctamente.",
+            "El archivo excede el peso máximo permitido.": "El archivo excede el peso máximo permitido.",
+            "No se ha subido ningún archivo. Problema al escribir en disco.": "No se ha subido ningún archivo. Problema al escribir en disco.",
+            "El archivo no se subió completamente.": "El archivo no se subió completamente.",
+            "Los archivos deben ser subidos mediante POST.": "Los archivos deben ser subidos mediante POST.",
+            "No se ha subido el archivo. Problema con el directorio temporal.": "No se ha subido el archivo. Problema con el directorio temporal.",
+            "No se ha subido ningún archivo. Problema con alguna extensión.": "No se ha subido ningún archivo. Problema con alguna extensión.",
+            "No se ha subido ningún archivo.": "No se ha subido ningún archivo.",
+            "No hay ningún directorio de destino definido": "No hay ningún directorio de destino definido",
+            "Debe ser un solo archivo por manejador.": "Debe ser un solo archivo por manejador.",
+            "No se encontró ningún archivo cargado.": "No se encontró ningún archivo cargado.",
+            "No ha subido ningún archivo.": "No ha subido ningún archivo."
+        },
+        "userLogin": {
+            "Código de temporal de aplicación": "Código de temporal de aplicación",
+            "Contraseña de un uso": "Contraseña de un uso"
+        },
+        "usersProblems": {
+            "name@domain.com": "name@domain.com"
+        }
+    },
+    "fr": {
+        "api-lang": {
+            "Las traducciones se guardaron con éxito.": "Las traducciones se guardaron con éxito."
+        },
+        "app-presentations-lang": {
+            "La categoría que intenta modificar no existe.": "La categoría que intenta modificar no existe.",
+            "Datos guardados.": "Datos guardados.",
+            "Eliminar categoría": "Eliminar categoría",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Presentación": "Presentación",
+            "Ya existe la presentación.": "Ya existe la presentación.",
+            "No hay existe la categoría.": "No hay existe la categoría.",
+            "Presentaciones de entrenamiento": "Presentaciones de entrenamiento",
+            "La categoría que intenta eliminar no existe.": "La categoría que intenta eliminar no existe.",
+            "Listado para usuarios": "Listado para usuarios",
+            "Ya existe la categoría.": "Ya existe la categoría.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Categorías": "Categorías",
+            "La presentación que intenta eliminar no existe.": "La presentación que intenta eliminar no existe.",
+            "Presentación eliminada.": "Presentación eliminada.",
+            "Presentación creada.": "Presentación creada.",
+            "Categoría creada.": "Categoría creada.",
+            "Eliminar presentación": "Eliminar presentación",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Listado (Administación)": "Listado (Administación)",
+            "Categoría eliminada.": "Categoría eliminada.",
+            "No ha sido subida ninguna imagen.": "No ha sido subida ninguna imagen.",
+            "Categoría": "Categoría",
+            "La presentación que intenta modificar no existe.": "La presentación que intenta modificar no existe.",
+            "Presentaciones": "Presentaciones"
+        },
+        "array_of_exceptions": {
+            "missing_qualified_name": "missing_qualified_name"
+        },
+        "built-in-banner-lang": {
+            "Listado de banners": "Listado de banners",
+            "Datos guardados.": "Datos guardados.",
+            "Eliminar banner": "Eliminar banner",
+            "El banner que intenta eliminar no existe.": "El banner que intenta eliminar no existe.",
+            "Editar": "Editar",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Agregar banner": "Agregar banner",
+            "El banner que intenta modificar no existe.": "El banner que intenta modificar no existe.",
+            "Inicio": "Inicio",
+            "Eliminar": "Eliminar",
+            "Banner eliminado.": "Banner eliminado.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Banners": "Banners",
+            "Banner creado.": "Banner creado.",
+            "Tamaño {%1}": "Tamaño {%1}",
+            "Banner": "Banner",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Edición de banner": "Edición de banner"
+        },
+        "categories-lang": {
+            "Datos guardados.": "Datos guardados.",
+            "Eliminar categoría": "Eliminar categoría",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "La categoría que intenta eliminar no existe.": "La categoría que intenta eliminar no existe.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Categorías": "Categorías",
+            "Guardar": "Guardar",
+            "Categoría creada.": "Categoría creada.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Gestión de": "Gestión de",
+            "Categoría eliminada.": "Categoría eliminada.",
+            "El categoría que intenta modificar no existe.": "El categoría que intenta modificar no existe.",
+            "Categoría": "Categoría"
+        },
+        "DataImportExportUtility-lang": {
+            "Import/Export": "Import/Export"
+        },
+        "document-lang": {
+            "Gestionar": "Gestionar",
+            "Datos guardados.": "Datos guardados.",
+            "Eliminar documento": "Eliminar documento",
+            "Documento creado.": "Documento creado.",
+            "El documento que intenta eliminar no existe.": "El documento que intenta eliminar no existe.",
+            "Editar": "Editar",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Documentos": "Documentos",
+            "Eliminar": "Eliminar",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "El documento que intenta modificar no existe.": "El documento que intenta modificar no existe.",
+            "Documento": "Documento",
+            "Guardar": "Guardar",
+            "Explorar": "Explorar",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Documento eliminado.": "Documento eliminado.",
+            "Gestión de": "Gestión de"
+        },
+        "document-types-lang": {
+            "Datos guardados.": "Datos guardados.",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Tipo de documento creado.": "Tipo de documento creado.",
+            "Tipos de documentos": "Tipos de documentos",
+            "Eliminar tipo de documento": "Eliminar tipo de documento",
+            "El tipo de documento que intenta eliminar no existe.": "El tipo de documento que intenta eliminar no existe.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Guardar": "Guardar",
+            "Tipo de documento": "Tipo de documento",
+            "El tipo de documento que intenta modificar no existe.": "El tipo de documento que intenta modificar no existe.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Gestión de": "Gestión de",
+            "Tipo de documento eliminado.": "Tipo de documento eliminado."
+        },
+        "errors": {
+            "type_param_not_allowed": "type_param_not_allowed"
+        },
+        "exceptions": {
+            "not_allowed_type": "not_allowed_type"
+        },
+        "filemanager-lang": {
+            "Documentos": "Documentos",
+            "Papelera (documentos)": "Papelera (documentos)"
+        },
+        "helpers-system-lang": {
+            "Llaves de MapBox": "Llaves de MapBox"
+        },
+        "html_exceptions": {
+            "malformed_attribute": "malformed_attribute",
+            "malformed_child": "malformed_child"
+        },
+        "images-repository-lang": {
+            "Gestionar": "Gestionar",
+            "Datos guardados.": "Datos guardados.",
+            "El consentimiento no pudo ser removida, intente más tarde o contacte con el soporte.": "El consentimiento no pudo ser removida, intente más tarde o contacte con el soporte.",
+            "Fotografía": "Fotografía",
+            "Registro fotográfico": "Registro fotográfico",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Eliminar fotografía": "Eliminar fotografía",
+            "Guardar Imagen": "Guardar Imagen",
+            "No ha cargado ninguna fotografía.": "No ha cargado ninguna fotografía.",
+            "Fotografía eliminada.": "Fotografía eliminada.",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "La imagen no pudo ser removida, intente más tarde o contacte con el soporte.": "La imagen no pudo ser removida, intente más tarde o contacte con el soporte.",
+            "La fotografía que intenta modificar no existe.": "La fotografía que intenta modificar no existe.",
+            "Explorar": "Explorar",
+            "Fotografía creada.": "Fotografía creada.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Gestión de": "Gestión de",
+            "La fotografía que intenta eliminar no existe.": "La fotografía que intenta eliminar no existe."
+        },
+        "newsletter-lang": {
+            "Datos guardados.": "Datos guardados.",
+            "Suscriptor eliminado.": "Suscriptor eliminado.",
+            "Editar": "Editar",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El suscriptor que intenta modificar no existe.": "El suscriptor que intenta modificar no existe.",
+            "Editar suscriptor": "Editar suscriptor",
+            "Inicio": "Inicio",
+            "Sin modificar": "Sin modificar",
+            "Eliminar suscriptor": "Eliminar suscriptor",
+            "Eliminar": "Eliminar",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "No": "No",
+            "Listado": "Listado",
+            "Sí": "Sí",
+            "Suscriptor creado.": "Suscriptor creado.",
+            "El email \"{EMAIL}\" ya existe": "El email \"{EMAIL}\" ya existe",
+            "Ha sido añadido satisfactoriamente.": "Ha sido añadido satisfactoriamente.",
+            "El suscriptor que intenta eliminar no existe.": "El suscriptor que intenta eliminar no existe.",
+            "Agregar suscriptor": "Agregar suscriptor",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Suscriptores": "Suscriptores",
+            "Suscriptor": "Suscriptor",
+            "Añadir al boletín": "Añadir al boletín"
+        },
+        "persons-lang": {
+            "Persona": "Persona",
+            "Datos guardados.": "Datos guardados.",
+            "Persona creada.": "Persona creada.",
+            "Editar": "Editar",
+            "Ha ocurrido un error desconocido.": "Ha ocurrido un error desconocido.",
+            "El idioma \"%s\" no está permitido.": "El idioma \"%s\" no está permitido.",
+            "Persona eliminada.": "Persona eliminada.",
+            "La persona que intenta modificar no existe.": "La persona que intenta modificar no existe.",
+            "Eliminar": "Eliminar",
+            "Eliminar persona": "Eliminar persona",
+            "Ha ocurrido un error desconocido al procesar los valores ingresados.": "Ha ocurrido un error desconocido al procesar los valores ingresados.",
+            "Personas": "Personas",
+            "Guardar": "Guardar",
+            "Tipo de documento": "Tipo de documento",
+            "La persona que intenta eliminar no existe.": "La persona que intenta eliminar no existe.",
+            "No pudo conectarse a la base de datos": "No pudo conectarse a la base de datos",
+            "Gestión de": "Gestión de"
+        },
+        "PiecesPHP\\Core\\Validation\\Parameters": {
+            "Los parámetros %PARAMS% son obligatorios": "Los parámetros %PARAMS% son obligatorios",
+            "El parámetro %PARAMS% es obligatorio": "El parámetro %PARAMS% es obligatorio"
+        },
+        "reports-manage-lang": {
+            "Colombia": "Colombia",
+            "Aprobadas": "Aprobadas",
+            "Francia": "Francia",
+            "usuarios generales": "usuarios generales",
+            "Otros países": "Otros países",
+            "organización(es)": "organización(es)",
+            "Creadas": "Creadas",
+            "Reportes": "Reportes"
+        },
+        "roles_exceptions": {
+            "role_duplicate": "role_duplicate",
+            "not_exists": "not_exists",
+            "role_malformed": "role_malformed"
+        },
+        "routes_exceptions": {
+            "duplicate_name_exceptions": "duplicate_name_exceptions"
+        },
+        "sidebarAdminZone": {
+            "Usuarios generales": "Usuarios generales"
+        },
+        "UploadedFileAdapter": {
+            "Los archivos no han sido cargados correctamente.": "Los archivos no han sido cargados correctamente.",
+            "El archivo excede el peso máximo permitido.": "El archivo excede el peso máximo permitido.",
+            "No se ha subido ningún archivo. Problema al escribir en disco.": "No se ha subido ningún archivo. Problema al escribir en disco.",
+            "El archivo no se subió completamente.": "El archivo no se subió completamente.",
+            "Los archivos deben ser subidos mediante POST.": "Los archivos deben ser subidos mediante POST.",
+            "No se ha subido el archivo. Problema con el directorio temporal.": "No se ha subido el archivo. Problema con el directorio temporal.",
+            "No se ha subido ningún archivo. Problema con alguna extensión.": "No se ha subido ningún archivo. Problema con alguna extensión.",
+            "No se ha subido ningún archivo.": "No se ha subido ningún archivo.",
+            "No hay ningún directorio de destino definido": "No hay ningún directorio de destino definido",
+            "Debe ser un solo archivo por manejador.": "Debe ser un solo archivo por manejador.",
+            "No se encontró ningún archivo cargado.": "No se encontró ningún archivo cargado.",
+            "No ha subido ningún archivo.": "No ha subido ningún archivo."
+        },
+        "userLogin": {
+            "Código de temporal de aplicación": "Código de temporal de aplicación",
+            "Contraseña de un uso": "Contraseña de un uso"
+        },
+        "usersProblems": {
+            "name@domain.com": "name@domain.com"
+        }
+    }
+}
