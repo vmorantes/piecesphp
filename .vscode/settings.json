@@ -40,6 +40,7 @@
     },
     "editor.wordWrap": "on",
     "editor.multiCursorModifier": "ctrlCmd",
+    "editor.multiCursorMergeOverlapping": true,
     "intelephense.environment.phpVersion": "8.1",
     "[php]": {
         "editor.defaultFormatter": "kokororin.vscode-phpfmt",
