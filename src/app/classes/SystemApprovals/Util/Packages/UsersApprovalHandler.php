@@ -10,6 +10,7 @@ use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
 use SystemApprovals\Mappers\SystemApprovalsMapper;
+use SystemApprovals\Util\SystemApprovalManager;
 
 /**
  * UsersApprovalHandler.
@@ -77,6 +78,28 @@ class UsersApprovalHandler extends BaseApprovalHandler
         ];
         if (in_array($userMapper->type, $autoApprovalUserTypes) || $userMapper->status == UsersModel::STATUS_USER_ACTIVE || in_array($userMapper->type, UsersModel::ARE_AUTO_APPROVAL)) {
             $approved = true;
+        }
+        //Si la organización está aprobada
+        if (SystemApprovalManager::getInstance()->isApproved(OrganizationMapper::class, $organization->id)) {
+            $approved = true;
+            $approvalMapper = SystemApprovalsMapper::getByMultipleCriteries([
+                [
+                    'column' => 'referenceTable',
+                    'value' => UsersModel::TABLE,
+                ],
+                [
+                    'column' => 'referenceValue',
+                    'value' => $userMapper->id,
+                ],
+            ], [], false, true);
+            if ($approvalMapper !== null) {
+                $approvalMapper->status = SystemApprovalsMapper::STATUS_APPROVED;
+                $approvalMapper->update();
+            }
+            if ($userMapper->status != UsersModel::STATUS_USER_ACTIVE) {
+                $userMapper->status = UsersModel::STATUS_USER_ACTIVE;
+                $userMapper->update();
+            }
         }
         return $approved;
     }
