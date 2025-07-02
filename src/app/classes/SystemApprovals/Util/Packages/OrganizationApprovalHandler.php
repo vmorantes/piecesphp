@@ -87,6 +87,20 @@ class OrganizationApprovalHandler extends BaseApprovalHandler
         $element->status = OrganizationMapper::ACTIVE;
         $element->update();
         foreach ($users as $user) {
+            $approvalMapperUser = SystemApprovalsMapper::getByMultipleCriteries([
+                [
+                    'column' => 'referenceTable',
+                    'value' => UsersModel::TABLE,
+                ],
+                [
+                    'column' => 'referenceValue',
+                    'value' => $user->id,
+                ],
+            ], [], false, true);
+            if ($approvalMapperUser !== null) {
+                $approvalMapperUser->status = SystemApprovalsMapper::STATUS_APPROVED;
+                $approvalMapperUser->update();
+            }
             $user->status = UsersModel::STATUS_USER_ACTIVE;
             $user->update();
         }
