@@ -32,6 +32,7 @@ class GenericContentPseudoMapper
     const CONTENT_DYNAMIC_TRANSCALTIONS = 'DYNAMIC_TRANSCALTIONS';
     const CONTENT_DYNAMIC_TRANSLATIONS_UPDATED_AT = 'DYNAMIC_TRANSLATIONS_UPDATED_AT';
     const CONTENT_MAPBOX_KEYS = 'MAPBOX_KEYS';
+    const CONTENT_HOME_IMAGE = 'homeImage';
 
     /**
      * Define las propiedades del mapper
@@ -50,6 +51,7 @@ class GenericContentPseudoMapper
             'keyLocal' => 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ',
             'keyDomain' => 'pk.eyJ1IjoidGQtc2VydmVycyIsImEiOiJjbHhubjFmem0wNTNtMnJweTJwcGJtbnBpIn0.wKqrjmZn8vo4zx-9QqlDrQ',
         ],
+        self::CONTENT_HOME_IMAGE => null,
     ];
 
     /**
