@@ -11,7 +11,7 @@ window.addEventListener(pcsphpGlobals.events.configurationsAndWindowLoad, functi
 	let bluredParent = slideshow.closest('.blured')
 	let requestURL = slideshow.data('url')
 
-	if (requestURL.length > 0) {
+	if (typeof requestURL === 'string' && requestURL.length > 0) {
 		let bannerManager = new BuiltInBannerAdapter({
 			requestURL: requestURL,
 			page: 1,

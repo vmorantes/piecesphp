@@ -93,6 +93,15 @@ class HelpersSystemRoutes
             $sidebar = get_config('menus')['sidebar'];
 
             $sidebar->addItem(new MenuGroup([
+                'name' => __(HelpersSystemLang::LANG_GROUP, 'Imagen principal'),
+                'icon' => 'images',
+                'asLink' => true,
+                'href' => GenericContentController::routeName('forms-home-image'),
+                'visible' => GenericContentController::allowedRoute('forms-home-image'),
+                'position' => 100,
+            ]));
+
+            $sidebar->addItem(new MenuGroup([
                 'name' => __(HelpersSystemLang::LANG_GROUP, 'Variables de entorno'),
                 'icon' => 'sliders horizontal',
                 'items' => [

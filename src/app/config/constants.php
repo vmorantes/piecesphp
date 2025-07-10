@@ -116,6 +116,12 @@ define('ORGANIZATIONS_MODULE', true);
 //Aprobaciones
 define('SYSTEM_APPROVALS_MODULE', true);
 
+//Contenidos de navegación
+define('CONTENT_NAVIGATION_HUB_MODULE', true);
+
+//Contenidos genéricos
+define('HOME_IMAGE_BANNER', true);
+
 //Otras
 define('ADMIN_AREA_PATH_JS', 'statics/admin-area/js');
 
