@@ -15,6 +15,7 @@ use PiecesPHP\BuiltIn\Helpers\Mappers\GenericContentPseudoMapper;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -84,6 +85,15 @@ class GenericContentController extends AdminPanelController
         UsersModel::TYPE_USER_ROOT,
     ];
 
+    const HOME_IMAGE_PERMISSIONS = [
+        UsersModel::TYPE_USER_ROOT,
+        UsersModel::TYPE_USER_ADMIN_GRAL,
+        UsersModel::TYPE_USER_ADMIN_ORG,
+        UsersModel::TYPE_USER_GENERAL,
+        UsersModel::TYPE_USER_INSTITUCIONAL,
+        UsersModel::TYPE_USER_COMUNICACIONES,
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -103,6 +113,52 @@ class GenericContentController extends AdminPanelController
 
         add_global_asset(HelpersSystemRoutes::staticRoute('globals-vars.css'), 'css');
         add_global_asset(HelpersSystemRoutes::staticRoute(self::BASE_CSS_DIR . '/helpers-system.css'), 'css');
+
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function homeImage(Request $request, Response $response)
+    {
+
+        $allowedLangs = Config::get_allowed_langs();
+
+        $element = new GenericContentPseudoMapper(GenericContentPseudoMapper::CONTENT_HOME_IMAGE);
+
+        import_cropper();
+        set_custom_assets([
+            //Base
+            HelpersSystemRoutes::staticRoute(self::BASE_JS_DIR . '/home-image.js'),
+        ], 'js');
+
+        $action = self::routeName('actions-edit');
+
+        $title = __(self::LANG_GROUP, 'Imagen principal');
+        $description = '';
+
+        set_title($title . (mb_strlen($description) > 0 ? " - {$description}" : ''));
+
+        $data = [];
+        $data['action'] = $action;
+        $data['element'] = $element;
+        $data['langGroup'] = self::LANG_GROUP;
+        $data['title'] = $title;
+        $data['description'] = $description;
+        $data['breadcrumbs'] = get_breadcrumbs([
+            __(self::LANG_GROUP, 'Inicio') => [
+                'url' => get_route('admin'),
+            ],
+            $title,
+        ]);
+
+        $this->helpController->render('panel/layout/header');
+        $this->render('forms/home-image', $data, true, false);
+        $this->helpController->render('panel/layout/footer');
+
+        return $response;
 
     }
 
@@ -317,6 +373,27 @@ class GenericContentController extends AdminPanelController
             $configName = $expectedParameters->getValue('configName');
             $tokensLimit = $expectedParameters->getValue(GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT);
             $mapboxKeys = $expectedParameters->getValue(GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS);
+            $homeImageByLang = [];
+            $homeImageErrorMessages = [];
+            foreach (UploadedFileAdapter::findAssociativePathsByName(GenericContentPseudoMapper::CONTENT_HOME_IMAGE) as $associativePath) {
+                $homeImageLang = isset($associativePath[1]) && is_string($associativePath[1]) && Config::is_allowed_lang($associativePath[1]) ? $associativePath[1] : null;
+                if ($homeImageLang !== null) {
+                    $homeImageUploaded = new UploadedFileAdapter($associativePath, [
+                        FileValidator::TYPE_ALL_IMAGES,
+                    ]);
+                    if ($homeImageUploaded->hasInput()) {
+                        if ($homeImageUploaded->validate()) {
+                            $homeImageByLang[$homeImageLang] = $homeImageUploaded;
+                        } else {
+                            $homeImageErrorMessages = array_merge($homeImageErrorMessages, $homeImageUploaded->getErrorMessages());
+                        }
+                    }
+                }
+            }
+            if (!empty($homeImageErrorMessages)) {
+                throw new SafeException(implode("\n", $homeImageErrorMessages));
+            }
+
             /**
              * @var string $configName
              * @var array<string,int> $tokensLimit
@@ -332,6 +409,9 @@ class GenericContentController extends AdminPanelController
                 }
                 if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
                     $hasPermission = in_array($currentUserType, self::MAPBOX_KEYS_PERMISSION);
+                }
+                if ($configName == GenericContentPseudoMapper::CONTENT_HOME_IMAGE) {
+                    $hasPermission = in_array($currentUserType, self::HOME_IMAGE_PERMISSIONS);
                 }
                 if (!$hasPermission) {
                     throw403($request);
@@ -352,6 +432,26 @@ class GenericContentController extends AdminPanelController
                 } else if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
                     $mapper = new GenericContentPseudoMapper($configName, false);
                     $mapper->addDataManyLangs($configName, $mapboxKeys, array_keys($mapboxKeys));
+                    $updated = $mapper->save();
+                } else if ($configName == GenericContentPseudoMapper::CONTENT_HOME_IMAGE) {
+                    $homeImagePathByLang = [];
+                    $currentMapper = new GenericContentPseudoMapper($configName);
+                    foreach ($homeImageByLang as $homeImageLang => $homeImageUploaded) {
+                        $homeImageCurrentByLang = $currentMapper->getLangData($homeImageLang, $configName, true, '');
+                        $homeImageCurrentByLang = is_string($homeImageCurrentByLang) ? basepath($homeImageCurrentByLang) : null;
+                        $homeImageCurrentByLang = !is_null($homeImageCurrentByLang) && file_exists($homeImageCurrentByLang) ? $homeImageCurrentByLang : null;
+                        $homeImageUploadedPath = $homeImageUploaded->copyTo($this->uploadDir, uniqid("home_image_"));
+                        if (is_string($homeImageUploadedPath) && mb_strlen($homeImageUploadedPath) > 1 && file_exists($homeImageUploadedPath)) {
+                            chmod($homeImageUploadedPath, 0777);
+                            $uploadedRelativePath = trim(str_replace(basepath(), '', $homeImageUploadedPath), \DIRECTORY_SEPARATOR);
+                            $homeImagePathByLang[$homeImageLang] = $uploadedRelativePath;
+                            if ($homeImageCurrentByLang !== null) {
+                                @unlink($homeImageCurrentByLang);
+                            }
+                        }
+                    }
+                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper->addDataManyLangs($configName, $homeImagePathByLang, array_keys($homeImagePathByLang));
                     $updated = $mapper->save();
                 }
 
@@ -671,6 +771,7 @@ class GenericContentController extends AdminPanelController
         $editionConfigurations = $allRoles;
         $editionTokensLimit = self::TOKENS_LIMIT_PERMISSION;
         $editionMapboxKeys = self::MAPBOX_KEYS_PERMISSION;
+        $editionHomeImage = self::HOME_IMAGE_PERMISSIONS;
 
         $routes = [
 
@@ -694,6 +795,15 @@ class GenericContentController extends AdminPanelController
                 null,
                 $editionMapboxKeys
             ),
+            HOME_IMAGE_BANNER ? new Route( //Formulario de editar
+                "{$startRoute}/forms/home-image[/]",
+                $classname . ':homeImage',
+                self::$baseRouteName . '-forms-home-image',
+                'GET',
+                true,
+                null,
+                $editionHomeImage
+            ) : null,
 
             //──── POST ──────────────────────────────────────────────────────────────────────────────
 
@@ -708,6 +818,10 @@ class GenericContentController extends AdminPanelController
             ),
 
         ];
+
+        $routes = array_filter($routes, function ($route) {
+            return $route !== null;
+        });
 
         $group->register($routes);
 
