@@ -31,7 +31,7 @@ class ContentNavigationHubRoutes
      */
     private static $init = false;
 
-    const ENABLE = true;
+    const ENABLE = CONTENT_NAVIGATION_HUB_MODULE;
 
     /**
      * @param RouteGroup $groupAdministration

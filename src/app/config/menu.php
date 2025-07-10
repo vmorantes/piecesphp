@@ -12,6 +12,7 @@
 use ApplicationCalls\Controllers\ApplicationCallsController;
 use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use App\Model\UsersModel;
+use ContentNavigationHub\ContentNavigationHubRoutes;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
 use InterestResearchAreas\Controllers\InterestResearchAreasController;
 use MySpace\Controllers\MyOrganizationProfileController;
@@ -57,7 +58,7 @@ if (!in_array($current_type_user, $externalUsers)) {
             ]),
             new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Gestión'),
-                'visible' => true,
+                'visible' => ContentNavigationHubRoutes::ENABLE,
                 'icon' => 'edit',
                 'position' => 0,
                 'items' => [
@@ -149,7 +150,7 @@ if (!in_array($current_type_user, $externalUsers)) {
             ]),
             new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Proyectos'),
-                'visible' => true,
+                'visible' => ContentNavigationHubRoutes::ENABLE,
                 'icon' => 'search',
                 'position' => 0,
                 'items' => [
@@ -171,7 +172,7 @@ if (!in_array($current_type_user, $externalUsers)) {
             ]),
             new MenuGroup([
                 'name' => __(ADMIN_MENU_LANG_GROUP, 'Oportunidades'),
-                'visible' => true,
+                'visible' => ContentNavigationHubRoutes::ENABLE,
                 'icon' => 'search',
                 'position' => 0,
                 'items' => [

@@ -164,7 +164,7 @@ function AttachmentPlaceholder(attachContainer) {
 			}
 			inputFile.removeAttr('required')
 			inputName.attr('data-file-name', fileName.split('.')[0])
-			if (inputName.val().trim().length == 0) {
+			if (typeof inputName.val() == 'string' && inputName.val().trim().length == 0) {
 				inputName.val(fileName.split('.')[0])
 			}
 			wasChange = true
