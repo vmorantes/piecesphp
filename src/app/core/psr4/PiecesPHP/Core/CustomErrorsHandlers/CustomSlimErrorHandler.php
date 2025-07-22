@@ -56,16 +56,16 @@ class CustomSlimErrorHandler
             $trace = [];
         }
 
-        $isLocal = is_local();
+        $isLocal = self::isLocal();
 
         $file = $exception->getFile();
         $line = $exception->getLine();
 
         if (!$isLocal) {
-            $file = str_replace(basepath(), '{BASE_PATH}', $exception->getFile());
+            $file = str_replace(self::getBasePath(), '{BASE_PATH}', $exception->getFile());
             foreach ($trace as $i => $t) {
                 if (isset($t['file'])) {
-                    $trace[$i]['file'] = str_replace(basepath(), '{BASE_PATH}', $t['file']);
+                    $trace[$i]['file'] = str_replace(self::getBasePath(), '{BASE_PATH}', $t['file']);
                 }
                 if (isset($t['args'])) {
                     $trace[$i]['args'] = 'HIDDEN';
@@ -88,7 +88,7 @@ class CustomSlimErrorHandler
                 'line' => $exception->getLine(),
                 'file' => $file,
                 'trace' => $trace,
-                'extraData' => method_exists($exception, 'extraData') ? call_user_func(array($exception, 'extraData')) : [],
+                'extraData' => method_exists($exception, 'extraData') ? call_user_func([$exception, 'extraData']) : [],
             ],
         ];
 
@@ -128,10 +128,43 @@ class CustomSlimErrorHandler
                     </body>
                 </html>
             ";
-            $html = !$isLocal ? str_replace(basepath(), '{BASE_PATH}', $html) : $html;
+            $html = !$isLocal ? str_replace(self::getBasePath(), '{BASE_PATH}', $html) : $html;
 
             return $response->withStatus(500)->write($html);
 
         }
     }
+
+    /**
+     * @return boolean
+     */
+    public static function isLocal()
+    {
+        if (!function_exists('is_local')) {
+            $isLocal = false;
+            if (isset($_SERVER['HTTP_HOST'])) {
+                $host = $_SERVER['HTTP_HOST'];
+                // Comprueba si el host es "localhost" o termina con ".localhost"
+                $isLocal = $host === 'localhost' || mb_substr($host, -10) === '.localhost';
+            }
+            return $isLocal;
+        } else {
+            return is_local();
+        }
+    }
+
+    /**
+     * @param string $resource
+     * @return string
+     */
+    public static function getBasePath(string $resource = "")
+    {
+        if (!function_exists('basepath')) {
+            $basePath = realpath(__DIR__ . '/../../../../../../');
+            return is_dir($basePath) ? $basePath : '';
+        } else {
+            return basepath($resource);
+        }
+    }
+
 }
