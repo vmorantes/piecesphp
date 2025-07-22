@@ -8,6 +8,7 @@ namespace MySpace\Controllers;
 
 use App\Controller\AdminPanelController;
 use App\Model\UsersModel;
+use ContentNavigationHub\ContentNavigationHubRoutes;
 use ContentNavigationHub\Controllers\ContentNavigationHubController;
 use Documents\Mappers\DocumentsMapper;
 use ImagesRepository\Mappers\ImagesRepositoryMapper;
@@ -23,6 +24,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use Publications\Controllers\PublicationsController;
+use Publications\PublicationsRoutes;
 use ReportsManage\Controllers\ReportsManageController;
 use ReportsManage\ReportsManageRoutes;
 use SystemApprovals\Util\SystemApprovalManager;
@@ -96,9 +98,9 @@ class MySpaceController extends AdminPanelController
 
             if ($isApproved) {
 
-                if ($currentUserType == UsersModel::TYPE_USER_COMUNICACIONES) {
+                if ($currentUserType == UsersModel::TYPE_USER_COMUNICACIONES && PublicationsRoutes::ENABLE) {
                     return (new PublicationsController())->listView($request, $response);
-                } elseif ($currentUserType != UsersModel::TYPE_USER_ROOT) {
+                } elseif ($currentUserType != UsersModel::TYPE_USER_ROOT && ContentNavigationHubRoutes::ENABLE) {
                     return (new ContentNavigationHubController())->applicationCallsListView($request, $response);
                 } else {
                     $normalSpace = true;
