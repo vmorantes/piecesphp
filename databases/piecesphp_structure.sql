@@ -1,4 +1,4 @@
--- Adminer 5.3.0 MariaDB 10.11.8-MariaDB-0ubuntu0.24.04.1 dump
+-- Adminer 5.3.0 MariaDB 10.11.13-MariaDB-0ubuntu0.24.04.1 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -19,6 +19,61 @@ CREATE TABLE `actions_log` (
   PRIMARY KEY (`id`),
   KEY `createdBy` (`createdBy`),
   CONSTRAINT `actions_log_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
+DROP TABLE IF EXISTS `application_calls_attachments`;
+CREATE TABLE `application_calls_attachments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `applicationCall` int(11) NOT NULL,
+  `attachmentName` text NOT NULL,
+  `fileLocation` text NOT NULL,
+  `lang` text NOT NULL,
+  `folder` text NOT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `applicationCall` (`applicationCall`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `application_calls_attachments_ibfk_1` FOREIGN KEY (`applicationCall`) REFERENCES `application_calls_elements` (`id`),
+  CONSTRAINT `application_calls_attachments_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `application_calls_attachments_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
+DROP TABLE IF EXISTS `application_calls_elements`;
+CREATE TABLE `application_calls_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `preferSlug` text DEFAULT NULL,
+  `title` varchar(255) NOT NULL,
+  `contentType` text NOT NULL,
+  `financingType` text NOT NULL,
+  `currency` text NOT NULL,
+  `amount` double NOT NULL,
+  `participatingInstitutions` longtext NOT NULL,
+  `applicationLink` text NOT NULL,
+  `content` text NOT NULL,
+  `mainImage` text NOT NULL,
+  `thumbImage` text NOT NULL,
+  `folder` text NOT NULL,
+  `startDate` datetime DEFAULT NULL,
+  `endDate` datetime DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `createdBy` bigint(20) NOT NULL,
+  `modifiedBy` bigint(20) DEFAULT NULL,
+  `status` int(11) NOT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `createdBy` (`createdBy`),
+  KEY `modifiedBy` (`modifiedBy`),
+  CONSTRAINT `application_calls_elements_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
+  CONSTRAINT `application_calls_elements_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
@@ -136,61 +191,6 @@ CREATE TABLE `forms_document_types` (
   KEY `modifiedBy` (`modifiedBy`),
   CONSTRAINT `forms_document_types_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
   CONSTRAINT `forms_document_types_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
-
-
-DROP TABLE IF EXISTS `application_calls_attachments`;
-CREATE TABLE `application_calls_attachments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `applicationCall` int(11) NOT NULL,
-  `attachmentName` text NOT NULL,
-  `fileLocation` text NOT NULL,
-  `lang` text NOT NULL,
-  `folder` text NOT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `createdBy` bigint(20) NOT NULL,
-  `modifiedBy` bigint(20) DEFAULT NULL,
-  `status` int(11) NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `applicationCall` (`applicationCall`),
-  KEY `createdBy` (`createdBy`),
-  KEY `modifiedBy` (`modifiedBy`),
-  CONSTRAINT `application_calls_attachments_ibfk_1` FOREIGN KEY (`applicationCall`) REFERENCES `application_calls_elements` (`id`),
-  CONSTRAINT `application_calls_attachments_ibfk_2` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `application_calls_attachments_ibfk_3` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
-
-
-DROP TABLE IF EXISTS `application_calls_elements`;
-CREATE TABLE `application_calls_elements` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `title` varchar(255) NOT NULL,
-  `contentType` text NOT NULL,
-  `financingType` text NOT NULL,
-  `currency` text NOT NULL,
-  `amount` double NOT NULL,
-  `participatingInstitutions` longtext NOT NULL,
-  `applicationLink` text NOT NULL,
-  `content` text NOT NULL,
-  `mainImage` text NOT NULL,
-  `thumbImage` text NOT NULL,
-  `folder` text NOT NULL,
-  `startDate` datetime DEFAULT NULL,
-  `endDate` datetime DEFAULT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `createdBy` bigint(20) NOT NULL,
-  `modifiedBy` bigint(20) DEFAULT NULL,
-  `status` int(11) NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `createdBy` (`createdBy`),
-  KEY `modifiedBy` (`modifiedBy`),
-  CONSTRAINT `application_calls_elements_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `application_calls_elements_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
@@ -763,4 +763,4 @@ CREATE TABLE `user_system_profile` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
--- 2025-06-09 19:34:06 UTC
+-- 2025-07-18 15:25:25 UTC
