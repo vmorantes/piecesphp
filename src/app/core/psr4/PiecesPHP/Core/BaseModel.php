@@ -114,4 +114,23 @@ class BaseModel extends ActiveRecordModel
             self::$localeSetted = true;
         }
     }
+
+    /**
+     * Devuelve el valor de la propiedad db.
+     * @param string $databaseName Nombre de la base de datos
+     * @param string $host Este parámetro se ignora a menos que $databaseGroup sea null.
+     * @param string $databaseGroup El grupo de configuraciones (database.php) por defecto de donde se obtiene la configuración de la base de datos.
+     * @return Database|null
+     */
+    public static function getDb(string $databaseName, string $host = 'localhost', ?string $databaseGroup = 'default')
+    {
+        if (is_string($databaseGroup)) {
+            $autoHost = Config::app_db($databaseGroup)['host'];
+            if (is_string($autoHost) && mb_strlen($autoHost) > 0) {
+                $host = $autoHost;
+            }
+        }
+        return parent::getDb($databaseName, $host);
+    }
+
 }
