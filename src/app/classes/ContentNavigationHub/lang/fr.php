@@ -32,4 +32,5 @@ return [
     "Ver contenido" => "Voir le contenu",
     "Tipo de búsqueda" => "Type de recherche",
     "Sin organización" => "Sans organisation",
+    "Permanente" => "Permanent",
 ];

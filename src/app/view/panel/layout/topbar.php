@@ -20,6 +20,10 @@ $currentUser = getLoggedFrameworkUser();
 $currentUserID = $currentUser->id;
 $currentUserType = $currentUser->type;
 $isRoot = $currentUserType == UsersModel::TYPE_USER_ROOT;
+$usersCanDeleteAccount = [
+    UsersModel::TYPE_USER_ADMIN_ORG,
+    UsersModel::TYPE_USER_GENERAL,
+];
 $asUserLoggedID = get_config(ROOT_ID_AS_CONNECT_CONFIG_NAME);
 $rootOriginalID = get_config(ROOT_ORIGINAL_ID_CONFIG_NAME);
 $isLoggedOtherUser = $asUserLoggedID !== $rootOriginalID;
@@ -519,8 +523,12 @@ $avatar = $currentUser->avatar;
             <i class="user outline icon"></i>
             <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Contraseña'); ?></span>
         </div>
-        <?php //<!-- Quitar cuando se coloque otro tab -->; ?>
-        <div class=""></div>
+        <?php if(in_array($currentUserType, $usersCanDeleteAccount)): ?>
+        <div class="item" delete-account-trigger>
+            <i class="user times icon"></i>
+            <span><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Eliminar cuenta'); ?></span>
+        </div>
+        <?php endif;?>
     </div>
 
     <div class="body-content">
@@ -679,3 +687,20 @@ $avatar = $currentUser->avatar;
         'descriptionModal' => null,
     ]);
 ?>
+
+<div class="ui toast delete-account-handler">
+    <div class="content">
+        <div class="ui header"><?= __(GLOBAL_LANG_GROUP, 'Confirmación'); ?></div>
+        <p>
+            <?= __(GLOBAL_LANG_GROUP, 'Para confirmar la acción escriba en el siguiente campo: Eliminar');?>
+        </p>
+        <div class="ui form">
+            <input type="text" name="confirm-delete" placeholder="<?= __(GLOBAL_LANG_GROUP, "Escriba 'Eliminar'"); ?>" required>
+        </div>
+        <br>
+    </div>
+    <div class="left basic actions">
+        <button class="ui button red" data-url="<?= get_route('delete-account-request'); ?>" delete data-expected-word="<?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?>"><?= __(GLOBAL_LANG_GROUP, 'Eliminar'); ?></button>
+        <button class="ui button grey" cancel><?= __(GLOBAL_LANG_GROUP, 'Cancelar'); ?></button>
+    </div>
+</div>

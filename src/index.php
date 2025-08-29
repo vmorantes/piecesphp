@@ -5,6 +5,7 @@ use App\Model\AppConfigModel;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseController;
+use PiecesPHP\Core\BaseEventDispatcher;
 use PiecesPHP\Core\BaseToken;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
@@ -484,7 +485,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
             //Verificar status de la organización si aplica
             $organizationID = $user->organization;
-            $organizationMapper = $organizationID !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+            $organizationMapper = $organizationID !== null ?OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
             $allowedStatusesOrganization = [
                 OrganizationMapper::ACTIVE,
                 OrganizationMapper::PENDING_APPROVAL,
@@ -496,6 +497,12 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                 }
                 Roles::setCurrentRole($user->type); //Se establece el rol
             } else {
+                $isActiveSession = false;
+                SessionToken::setMinimumDateCreated(new \DateTime());
+            }
+
+            //Verificar el status del usuario
+            if ($user->status == UsersModel::STATUS_USER_INACTIVE) {
                 $isActiveSession = false;
                 SessionToken::setMinimumDateCreated(new \DateTime());
             }
@@ -661,6 +668,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 });
 
 RouteGroup::initRoutes(false);
+set_config('AppRoutesInit', true);
+BaseEventDispatcher::dispatch("AppRoutes", 'InitRoutes', null);
 
 /** Ajustes terminal */
 if (TerminalData::getInstance()->isTerminal()) {
