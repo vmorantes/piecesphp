@@ -37,6 +37,7 @@ use PiecesPHP\Core\Validation\Validator;
  * @property int|UsersModel|null $modifiedBy
  * @property int $status
  * @property \stdClass|string|null $meta
+ * @property int $draft 1|0
  * @property string $baseLang
  * @property \stdClass|null $langData
  */
@@ -119,6 +120,7 @@ class NewsMapper extends EntityMapperExtensible
 
     const ACTIVE = 1;
     const INACTIVE = 0;
+    const PSEUDO_STATUS_DRAFT = 'DRAFT';
 
     const STATUSES = [
         self::ACTIVE => 'Activo',
@@ -128,6 +130,7 @@ class NewsMapper extends EntityMapperExtensible
     const STATUSES_COLORS = [
         self::ACTIVE => 'brand-color',
         self::INACTIVE => 'brand-color alt2',
+        self::PSEUDO_STATUS_DRAFT => 'orange',
     ];
 
     const CAN_DELETE_ALL = [
@@ -150,7 +153,7 @@ class NewsMapper extends EntityMapperExtensible
         '`categoryName` ASC',
     ];
 
-    public static $LANGS_ON_CREATION = [
+    const LANGS_ON_CREATION = [
         'es',
     ];
 
@@ -184,6 +187,7 @@ class NewsMapper extends EntityMapperExtensible
     public function __construct(int $value = null, string $fieldCompare = 'primary_key')
     {
 
+        $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_INT, 0, false), 'draft');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, Config::get_default_lang(), true), 'baseLang');
         parent::__construct($value, $fieldCompare);
@@ -339,7 +343,7 @@ class NewsMapper extends EntityMapperExtensible
         $categoryID = $categoryID !== null ? $categoryID : -1;
 
         $this->createdAt = new \DateTime();
-        $this->createdBy = getLoggedFrameworkUser()->id;
+        $this->createdBy = getLoggedFrameworkUser() != null ? getLoggedFrameworkUser()->id : 1;
         $saveResult = parent::save();
 
         if ($saveResult) {
@@ -367,16 +371,6 @@ class NewsMapper extends EntityMapperExtensible
         if (!$noDateUpdate) {
             $this->modifiedBy = getLoggedFrameworkUser()->id;
             $this->updatedAt = new \DateTime();
-        }
-        /**
-         * @category SpecialCaseSolution
-         * Caso: Un único lenguaje activo
-         * Estrategia: Se asigna la misma información en todos los idiomas disponibles en el sistema
-         */
-        if (count(self::$LANGS_ON_CREATION) == 1) {
-            $allowedLangs = Config::get_allowed_langs();
-            $this->addDataManyLangs('newsTitle', array_fill_keys($allowedLangs, $this->currentLangData('newsTitle')), $allowedLangs);
-            $this->addDataManyLangs('content', array_fill_keys($allowedLangs, $this->currentLangData('content')), $allowedLangs);
         }
         return parent::update();
     }
@@ -552,6 +546,7 @@ class NewsMapper extends EntityMapperExtensible
      *  - endDateFormat
      *  - endDateExtention
      *  - endDateExtentionFormat
+     *  - draft
      *  - baseLang
      * @return string[]
      */
@@ -589,6 +584,7 @@ class NewsMapper extends EntityMapperExtensible
             "IF({$table}.endDate IS NOT NULL, DATE_FORMAT({$table}.endDate, '{$formatDate}'), '-') AS endDateFormat",
             "{$endDateExtention} AS endDateExtention",
             "IF({$endDateExtention} IS NOT NULL, DATE_FORMAT({$endDateExtention}, '{$formatDate}'), '-') AS endDateExtentionFormat",
+            "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.draft')) AS draft",
             "JSON_UNQUOTE(JSON_EXTRACT({$table}.meta, '$.baseLang')) AS baseLang",
             "{$table}.meta",
         ];
@@ -955,6 +951,7 @@ class NewsMapper extends EntityMapperExtensible
 
         $defaultMetaPropertiesValues = [
             'baseLang' => Config::get_default_lang(),
+            'draft' => 0,
         ];
 
         foreach ($element as $property => $value) {

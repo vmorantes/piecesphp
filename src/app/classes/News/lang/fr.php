@@ -55,5 +55,9 @@ return [
     "Inactiva" => "Inactif",
     "Cerrar" => "Fermer",
     "Inicio" => "Accueil",
-    "El idioma seleccionado no es válido." => "La langue sélectionnée n'est pas valide."
+    "El idioma seleccionado no es válido." => "La langue sélectionnée n'est pas valide.",
+    "Borrador" => "Brouillon",
+    "La noticia que intenta marcar como leída no existe." => "L'actualité que vous essayez de marquer comme lue n'existe pas.",
+    "Noticia marcada como leída." => "Actualité marquée comme lue.",
+    "Marcar como leída" => "Marquer comme lue",
 ];
