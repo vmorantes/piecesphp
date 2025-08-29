@@ -9,9 +9,11 @@ $element->category = !is_object($element->category) ? new NewsCategoryMapper($el
 $now = new \DateTime();
 $endDate = $element->endDate;
 $isFinish = $endDate < $now;
-$contentLength = mb_strlen(strip_tags($element->currentLangData('content')));
+$content = $element->currentLangData('content');
+$contentLength = mb_strlen(strip_tags($content));
+$content = str_replace("\\", '', $content);
 ?>
-<article class="notification-card <?= $isFinish ? ' finished' : ''; ?>" style="--category-color: <?= $element->category->currentLangData('color'); ?>;" data-content-b64="<?= base64_encode($element->currentLangData('content')); ?>">
+<article class="notification-card <?= $isFinish ? ' finished' : ''; ?>" style="--category-color: <?= $element->category->currentLangData('color'); ?>;" data-content-b64="<?= base64_encode($content); ?>">
     <div class="head">
         <div class="info">
             <span><?= $element->excerptTitle(); ?></span>

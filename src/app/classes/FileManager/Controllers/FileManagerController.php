@@ -206,7 +206,7 @@ class FileManagerController extends AdminPanelController
             [
                 'id' => '2',
                 'relativePath' => '.trash-images',
-                'alias' => __(self::LANG_GROUP, 'Papelera (documentos)'),
+                'alias' => __(self::LANG_GROUP, 'Papelera (Imágenes)'),
                 'uploadDeny' => ['all'],
                 'uploadAllow' => ['image'],
             ],

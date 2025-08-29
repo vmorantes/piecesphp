@@ -12,6 +12,7 @@ use News\Exceptions\DuplicateException;
 use News\Exceptions\SafeException;
 use News\Mappers\NewsCategoryMapper;
 use News\Mappers\NewsMapper;
+use News\Mappers\NewsReadedMapper;
 use News\NewsLang;
 use News\NewsRoutes;
 use PiecesPHP\Core\Config;
@@ -87,6 +88,9 @@ class NewsController extends AdminPanelController
         add_global_asset(NewsRoutes::staticRoute(self::BASE_CSS_DIR . '/news.css'), 'css');
 
         NewsCategoryMapper::uncategorizedCategory();
+        NewsCategoryMapper::newOpportunitiesCategory();
+
+        add_to_front_configurations('NewsModuleMarkAsReadedEndpoint', self::routeName('actions-mark-as-read', ['newsID' => '{ID}']));
 
     }
 
@@ -459,6 +463,17 @@ class NewsController extends AdminPanelController
                     return $value === null ? $value : \DateTime::createFromFormat('d-m-Y h:i A', $value);
                 }
             ),
+            new Parameter(
+                'draft',
+                false,
+                function ($value) {
+                    return $value === 'yes' || $value === true;
+                },
+                true,
+                function ($value) {
+                    return $value === 'yes' || $value === true;
+                }
+            ),
         ]);
 
         //Obtención de datos
@@ -504,6 +519,7 @@ class NewsController extends AdminPanelController
              * @var string $newsTitle
              * @var \DateTime|null $startDate
              * @var \DateTime|null $endDate
+             * @var bool $draft
              */
             $id = $expectedParameters->getValue('id');
             $lang = $expectedParameters->getValue('lang');
@@ -514,6 +530,7 @@ class NewsController extends AdminPanelController
             $content = $expectedParameters->getValue('content');
             $startDate = $expectedParameters->getValue('startDate');
             $endDate = $expectedParameters->getValue('endDate');
+            $draft = $expectedParameters->getValue('draft');
 
             //Se define si es edición o creación
             $isEdit = $id !== -1;
@@ -547,6 +564,7 @@ class NewsController extends AdminPanelController
                     $mapper->addDataManyLangs('content', $content, array_keys($newsTitle));
                     $mapper->setLangData($lang, 'startDate', $startDate);
                     $mapper->setLangData($lang, 'endDate', $endDate);
+                    $mapper->draft = $draft ? 1 : 0;
                     $mapper->setLangData($lang, 'folder', str_replace('.', '', uniqid()));
 
                     $saved = $mapper->save();
@@ -577,6 +595,7 @@ class NewsController extends AdminPanelController
                         $mapper->addDataManyLangs('content', $content, array_keys($newsTitle));
                         $mapper->setLangData($lang, 'startDate', $startDate);
                         $mapper->setLangData($lang, 'endDate', $endDate);
+                        $mapper->draft = $draft ? 1 : 0;
 
                         $updated = $mapper->update();
                         $resultOperation->setSuccessOnSingleOperation($updated);
@@ -750,6 +769,117 @@ class NewsController extends AdminPanelController
                         $resultOperation->setMessage($unknowErrorMessage);
                         log_exception($e);
                     }
+
+                } else {
+                    $resultOperation->setMessage($notExistsMessage);
+                }
+
+            } catch (\Exception $e) {
+
+                $resultOperation->setMessage($e->getMessage());
+                log_exception($e);
+
+            }
+
+        } catch (MissingRequiredParamaterException $e) {
+
+            $resultOperation->setMessage($e->getMessage());
+            log_exception($e);
+
+        } catch (ParsedValueException $e) {
+
+            $resultOperation->setMessage($unknowErrorWithValuesMessage);
+            log_exception($e);
+
+        } catch (InvalidParameterValueException $e) {
+
+            $resultOperation->setMessage($e->getMessage());
+            log_exception($e);
+
+        }
+
+        return $response->withJson($resultOperation);
+    }
+
+    /**
+     * @param Request $request
+     * @param Response $response
+     * @param array $args
+     * @return Response
+     */
+    public function markAsRead(Request $request, Response $response, array $args)
+    {
+
+        //──── Entrada ───────────────────────────────────────────────────────────────────────────
+
+        //Definición de validaciones y procesamiento
+        $expectedParameters = new Parameters([
+            new Parameter(
+                'newsID',
+                -1,
+                function ($value) {
+                    return Validator::isInteger($value);
+                },
+                true,
+                function ($value) {
+                    return (int) $value;
+                }
+            ),
+        ]);
+
+        //Obtención de datos
+        $inputData = $args;
+
+        //Asignación de datos para procesar
+        $expectedParameters->setInputValues($inputData);
+
+        //──── Estructura de respuesta ───────────────────────────────────────────────────────────
+
+        $resultOperation = new ResultOperations([], __(self::LANG_GROUP, 'Marcar como leída'));
+        $resultOperation->setSingleOperation(true); //Se define que es de una única operación
+
+        //Valores iniciales de la respuesta
+        $resultOperation->setSuccessOnSingleOperation(false);
+        $resultOperation->setValue('redirect', false);
+        $resultOperation->setValue('redirect_to', null);
+        $resultOperation->setValue('reload', false);
+        $resultOperation->setValue('received', $inputData);
+
+        //Mensajes de respuesta
+        $notExistsMessage = __(self::LANG_GROUP, 'La noticia que intenta marcar como leída no existe.');
+        $successMessage = __(self::LANG_GROUP, 'Noticia marcada como leída.');
+        $unknowErrorWithValuesMessage = __(self::LANG_GROUP, 'Ha ocurrido un error desconocido al procesar los valores ingresados.');
+
+        //──── Acciones ──────────────────────────────────────────────────────────────────────────
+        try {
+
+            //Intenta validar, si todo sale bien el código continúa
+            $expectedParameters->validate();
+
+            //Información del formulario
+
+            /**
+             * @var int $newsID
+             * @var int $userID
+             */
+            $currentUser = getLoggedFrameworkUser();
+            $newsID = $expectedParameters->getValue('newsID');
+            $userID = $currentUser->id;
+
+            try {
+
+                $exists = NewsMapper::existsByID($newsID);
+
+                if ($exists) {
+
+                    try {
+                        NewsReadedMapper::addRecord($userID, $newsID);
+                    } catch (\PDOException $e) {}
+
+                    $resultOperation->setSuccessOnSingleOperation(true);
+
+                    $resultOperation
+                        ->setMessage($successMessage);
 
                 } else {
                     $resultOperation->setMessage($notExistsMessage);
@@ -988,8 +1118,9 @@ class NewsController extends AdminPanelController
                 $buttons = implode('', $buttons);
                 $columns = [];
 
-                $tagColor = NewsMapper::STATUSES_COLORS[$e->activeStatus];
-                $tag = "<span class='ui {$tagColor} tag label'>{$e->activeText}</span>";
+                $tagColor = $e->draft == 0 ? NewsMapper::STATUSES_COLORS[$e->activeStatus] : NewsMapper::STATUSES_COLORS[NewsMapper::PSEUDO_STATUS_DRAFT];
+                $tagText = $e->draft == 0 ? $e->activeText : __(self::LANG_GROUP, 'Borrador');
+                $tag = "<span class='ui {$tagColor} tag label'>{$tagText}</span>";
                 $newsTitle = mb_strlen($e->newsTitle) <= 54 ? $e->newsTitle : mb_substr($e->newsTitle, 0, 51) . '...';
 
                 $columns[] = $e->idPadding;
@@ -1033,10 +1164,13 @@ class NewsController extends AdminPanelController
         $status = $status === null ? NewsMapper::ACTIVE : $status;
 
         $table = NewsMapper::TABLE;
+        $tableNewsReaded = NewsReadedMapper::TABLE;
         $fields = NewsMapper::fieldsToSelect();
 
         $whereString = null;
         $where = [];
+        $havingString = null;
+        $having = [];
         $and = 'AND';
 
         $currentUser = getLoggedFrameworkUser();
@@ -1061,6 +1195,10 @@ class NewsController extends AdminPanelController
             $beforeOperator = !empty($where) ? $and : '';
             $critery = "{$table}.status = {$status}";
             $where[] = "{$beforeOperator} ({$critery})";
+
+            $beforeOperator = !empty($having) ? $and : '';
+            $critery = "draft = 0";
+            $having[] = "{$beforeOperator} ({$critery})";
 
         }
 
@@ -1101,8 +1239,17 @@ class NewsController extends AdminPanelController
 
         }
 
+        //Ocultar leídas
+        $currentUser = getLoggedFrameworkUser();
+        $userID = $currentUser !== null ? $currentUser->id : null;
+        if ($userID !== null) {
+            $beforeOperator = !empty($where) ? $and : '';
+            $critery = "{$table}.id NOT IN (SELECT news FROM {$tableNewsReaded} WHERE {$tableNewsReaded}.readerUser = {$userID} AND {$tableNewsReaded}.news = {$table}.id)";
+            $where[] = "{$beforeOperator} ({$critery})";
+        }
+
         //Verificar idiomas
-        $showAlways = count(NewsMapper::$LANGS_ON_CREATION) == 1; //Define si se muestra siempre aunque no tenga traducción
+        $showAlways = false; //Define si se muestra siempre aunque no tenga traducción
         $currentLang = Config::get_lang();
 
         if (!$showAlways) {
@@ -1115,14 +1262,22 @@ class NewsController extends AdminPanelController
             $whereString = implode(' ', $where);
         }
 
+        if (!empty($having)) {
+            $havingString = implode(' ', $having);
+        }
+
         $fields = implode(', ', $fields);
         $sqlSelect = "SELECT {$fields} FROM {$table}";
-        $sqlCount = "SELECT COUNT({$table}.id) AS total FROM {$table}";
 
         if ($whereString !== null) {
             $sqlSelect .= " WHERE {$whereString}";
-            $sqlCount .= " WHERE {$whereString}";
         }
+        if ($havingString !== null) {
+            $sqlSelect .= " HAVING {$havingString}";
+        }
+
+        $sqlSelect .= " ORDER BY " . implode(', ', NewsMapper::ORDER_BY_PREFERENCE);
+        $sqlCount = "SELECT COUNT(mainQuery.id) AS total " . "FROM ({$sqlSelect}) AS mainQuery";
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
@@ -1417,6 +1572,15 @@ class NewsController extends AdminPanelController
                 true,
                 null,
                 $deletion
+            ),
+            new Route( //Acción de marcar como leída
+                "{$startRoute}/action/mark-as-read/{newsID}[/]",
+                $classname . ':markAsRead',
+                self::$baseRouteName . '-actions-mark-as-read',
+                'POST',
+                true,
+                null,
+                $queries
             ),
 
         ];

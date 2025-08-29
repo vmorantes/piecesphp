@@ -13,4 +13,6 @@ return [
     "Aprobaciones" => "Approbations",
     "Sr(a). {NAME}, le informamos que su usuario ha sido creado y está a la espera de aprobación. De momento puede iniciar sesión y completar su perfil para agilizar el proceso de aprobación." => "Cher(e) {NAME}, nous vous informons que votre compte utilisateur a été créé et est en attente d'approbation. Pour l'instant, vous pouvez vous connecter et compléter votre profil pour accélérer le processus d'approbation.",
     "Iniciar sesión" => "Se connecter",
+    "Nueva solicitud de creación de organización" => "Nouvelle demande de création d'organisation",
+    "Su solicitud ha sido enviada correctamente. Nos pondremos en contacto con usted pronto." => "Votre demande a été envoyée avec succès. Nous vous contacterons bientôt.",
 ];

@@ -107,6 +107,7 @@ define('AI_MODELS', [
 
 //API
 define('API_MODULE', false);
+define('API_CRONJOBS', false);
 define('API_USERS', false);
 define('API_REPORTS', false);
 

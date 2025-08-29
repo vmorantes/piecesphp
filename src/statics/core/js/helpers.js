@@ -1002,8 +1002,15 @@ function dataTablesServerProccesingOnCards(containerSelector, perPage, options, 
 				})
 
 				//Cantidad de elementos por página
-				lengthPagination.attr('min', 1)
-				lengthPagination.attr('step', 1)
+				if (lengthPagination.attr('min') == undefined) {
+					lengthPagination.attr('min', perPage % 2 == 0 ? 10 : 5)
+				}
+				if (lengthPagination.attr('step') == undefined) {
+					lengthPagination.attr('step', 10)
+				}
+				if (lengthPagination.attr('max') == undefined) {
+					lengthPagination.attr('max', 100)
+				}
 				lengthPagination.val(perPage)
 				lengthPagination.on('change', function () {
 					let length = lengthPagination.val()

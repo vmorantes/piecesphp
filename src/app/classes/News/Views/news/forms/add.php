@@ -12,7 +12,7 @@ $allowedLangs = Config::get_allowed_langs(false, $defaultLang);
 $emptyMapper = new NewsMapper();
 $translatableProperties = $emptyMapper->getTranslatableProperties();
 //Se agrega el lenguaje por defecto en el primer puesto, por si no está y se eliminan duplicados
-$langsOnCreation = array_unique(array_merge([$defaultLang], NewsMapper::$LANGS_ON_CREATION));
+$langsOnCreation = array_unique(array_merge([$defaultLang], NewsMapper::LANGS_ON_CREATION));
 $manyLangsOnCreation = count($langsOnCreation) > 1;
 ?>
 <section class="module-view-container">
@@ -38,6 +38,13 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
 
                 <input type="hidden" name="lang" value="<?= \PiecesPHP\Core\Config::get_default_lang(); ?>">
 
+                <div class="field">
+                    <div class="ui toggle checkbox">
+                        <input type="checkbox" name="draft" value="yes">
+                        <label><?= __($langGroup, 'Borrador'); ?></label>
+                    </div>
+                </div>
+
                 <div class="two fields">
                     <div class="field required">
                         <label><?= __($langGroup, 'Tipos de perfil para los que será visible'); ?></label>
@@ -52,7 +59,6 @@ $manyLangsOnCreation = count($langsOnCreation) > 1;
                         </select>
                     </div>
                 </div>
-
                 <div class="two fields">
 
                     <div class="field required" calendar-group-js='periodo' start>

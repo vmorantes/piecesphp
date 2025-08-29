@@ -397,6 +397,21 @@ CREATE TABLE `news_elements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
+DROP TABLE IF EXISTS `news_readed_relationship`;
+CREATE TABLE `news_readed_relationship` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `news` int(11) DEFAULT NULL,
+  `readerUser` bigint(20) DEFAULT NULL,
+  `meta` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `news` (`news`),
+  KEY `readerUser` (`readerUser`),
+  CONSTRAINT `news_readed_relationship_ibfk_1` FOREIGN KEY (`news`) REFERENCES `news_elements` (`id`),
+  CONSTRAINT `news_readed_relationship_ibfk_2` FOREIGN KEY (`readerUser`) REFERENCES `pcsphp_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
+
 DROP TABLE IF EXISTS `organizations_elements`;
 CREATE TABLE `organizations_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -763,4 +778,4 @@ CREATE TABLE `user_system_profile` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
 
 
--- 2025-07-18 15:25:25 UTC
+-- 2025-08-29 17:50:23 UTC

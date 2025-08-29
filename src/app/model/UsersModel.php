@@ -887,7 +887,7 @@ class UsersModel extends EntityMapperExtensible
         }, array_keys((new UsersModel)->getFields()));
         $fieldsToAdd = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
-            "TRIM(CONCAT(TRIM({$table}.firstname), {$secondNameSegment}, ' ', {$table}.first_lastname, {$secondLastNameSegment})) AS fullname",
+            "TRIM(CONCAT(TRIM(CONCAT({$table}.firstname, {$secondNameSegment})), ' ', TRIM(CONCAT({$table}.first_lastname, {$secondLastNameSegment})))) AS fullname",
             "TRIM(CONCAT(TRIM({$table}.firstname), {$secondNameSegment})) AS names",
             "TRIM(CONCAT({$table}.first_lastname, {$secondLastNameSegment})) AS lastNames",
             "JSON_UNQUOTE(JSON_EXTRACT('{$typesJSON}', CONCAT('$.', {$table}.type))) AS typeName",

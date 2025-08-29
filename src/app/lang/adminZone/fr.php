@@ -47,6 +47,7 @@ $lang = [
     "Cambiar idioma" => "Changer de langue",
     "Cambiar" => "Changer",
     "Seleccionar usuario" => "Sélectionner l'utilisateur",
+    "Eliminar cuenta" => "Supprimer le compte",
 ];
 
 return $lang;
