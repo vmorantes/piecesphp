@@ -62,18 +62,20 @@ window.addEventListener('load', function () {
 		experienceForm()
 	})
 
-	function profileForm() {
+	let attachmentLogo = null
+	let cropperLogo = null
+	function profileForm(onlyForm = false) {
 
 		/* Selectores y elementos de interfaz */
 		const formSelector = `.ui.form.my-organization-profile`
-		let attachmentLogo = new AttachmentPlaceholder($('.attach-placeholder.logo'))
-		let cropperLogo = new SimpleCropperAdapter(`[logo-cropper]`, {
+		attachmentLogo = attachmentLogo == null ? new AttachmentPlaceholder($('.attach-placeholder.logo')) : attachmentLogo
+		cropperLogo = cropperLogo == null ? new SimpleCropperAdapter(`[logo-cropper]`, {
 			aspectRatio: 1 / 1,
 			format: 'image/jpeg',
 			quality: 0.8,
 			fillColor: 'white',
 			outputWidth: 400,
-		})
+		}) : attachmentLogo
 
 		//Formulario
 		let form = genericFormHandler(formSelector, {
@@ -101,6 +103,10 @@ window.addEventListener('load', function () {
 
 			}
 		})
+
+		if (onlyForm) {
+			return form
+		}
 
 		//Botones de guardado
 		let regularSaveButton = form.find('button[type="submit"][save]')

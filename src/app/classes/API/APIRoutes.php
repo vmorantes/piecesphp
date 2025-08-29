@@ -28,6 +28,7 @@ class APIRoutes
     private static $init = false;
 
     const ENABLE = API_MODULE;
+    const ENABLE_CRONJOBS = API_CRONJOBS;
     const ENABLE_TRANSLATIONS = API_TRANSLATION_MODULE;
     const ENABLE_USERS = API_USERS;
     const ENABLE_REPORTS = API_REPORTS;

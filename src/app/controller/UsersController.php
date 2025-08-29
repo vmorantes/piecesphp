@@ -1107,6 +1107,25 @@ class UsersController extends AdminPanelController
     }
 
     /**
+     * @param Request $request
+     * @param Response $response
+     * @return Response
+     */
+    public function deleteAccount(Request $request, Response $response)
+    {
+        $currentUser = getLoggedFrameworkUser();
+        $result = [
+            'success' => false,
+        ];
+        if ($currentUser !== null) {
+            $mapper = $currentUser->getMapper();
+            $mapper->status = UsersModel::STATUS_USER_INACTIVE;
+            $result['success'] = $mapper->update();
+        }
+        return $response->withJSON($result);
+    }
+
+    /**
      * Registra un usuario nuevo
      *
      * @param Request $request Petición
@@ -2012,6 +2031,14 @@ class UsersController extends AdminPanelController
                 $users . ':verifySession',
                 'verify-login-request',
                 'POST'
+            ),
+            new Route(
+                "{$startRoute}delete-account[/]",
+                $users . ':deleteAccount',
+                'delete-account-request',
+                'POST', true,
+                null,
+                $allRoles
             ),
             new Route(
                 "{$startRoute}register[/]",

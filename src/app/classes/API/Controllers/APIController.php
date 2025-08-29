@@ -1486,7 +1486,8 @@ class APIController extends AdminPanelController
 
         $CronJobKey = get_config('CronJobKey');
         $cronJobKeyOnRequest = $request->getHeaderLine('Cron-Job-Key');
-        $cronJobKeyIsValid = $cronJobKeyOnRequest === $CronJobKey;
+        $cronJobKeyOnGet = $request->getQueryParam('Cron-Job-Key');
+        $cronJobKeyIsValid = $cronJobKeyOnRequest === $CronJobKey || $cronJobKeyOnGet === $CronJobKey;
 
         if (!$cronJobKeyIsValid) {
             return throw403($request, [
@@ -1715,15 +1716,6 @@ class APIController extends AdminPanelController
                 null,
                 $news,
             ),
-            new Route( //Acciones sobre el módulo de usuarios
-                "{$startRoute}/cron-jobs/{actionType}[/]",
-                $classname . ':cronJobs',
-                self::$baseRouteName . '-cron-jobs',
-                'GET|POST',
-                false,
-                null,
-                $cronJobs,
-            ),
             //new Route( //Acciones sobre API externa (muestra)
             //    "{$startRoute}/external/{context}/{actionType}[/]",
             //    $classname . ':externalActions',
@@ -1777,7 +1769,6 @@ class APIController extends AdminPanelController
             ),
 
         ];
-
         $routesReports = [
             //──── GET|POST ───────────────────────────────────────────────────────────────────────────────
             new Route( //Rutas de reportes
@@ -1790,9 +1781,24 @@ class APIController extends AdminPanelController
                 $reports,
             ),
         ];
+        $routesCronJobs = [
+            new Route( //Acciones sobre el módulo de usuarios
+                "{$startRoute}/cron-jobs/{actionType}[/]",
+                $classname . ':cronJobs',
+                self::$baseRouteName . '-cron-jobs',
+                'GET|POST',
+                false,
+                null,
+                $cronJobs,
+            ),
+        ];
 
         if (APIRoutes::ENABLE) {
             $routes = array_merge($routes, $routesGeneral);
+        }
+
+        if (APIRoutes::ENABLE_CRONJOBS) {
+            $routes = array_merge($routes, $routesCronJobs);
         }
 
         if (APIRoutes::ENABLE_TRANSLATIONS) {

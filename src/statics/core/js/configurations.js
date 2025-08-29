@@ -1033,6 +1033,38 @@ function pcsAdminTopbars() {
 					removeGenericLoader(LOADER_NAME)
 				})
 		})
+
+		$(".profile-content-system").find('[delete-account-trigger]').off('click')
+		$(".profile-content-system").find('[delete-account-trigger]').on('click', (e) => {
+			e.preventDefault()
+			$('body').addClass('wait-to-action')
+			const handler = $('.delete-account-handler').toast({
+				position: 'top center',
+				classActions: 'top attached',
+				displayTime: 0,
+				onHidden: function () {
+					$('body').removeClass('wait-to-action')
+				},
+			})
+			const inputWord = handler.find('input')
+			const deleteAccountButton = handler.find('[delete]')
+			const cancelButton = handler.find('[cancel]')
+			deleteAccountButton.on('click', () => {
+				const expectedWord = deleteAccountButton.data('expected-word').trim().toLowerCase()
+				const requestURL = deleteAccountButton.data('url')
+				const word = inputWord.val().trim().toLowerCase()
+				const isSameWord = expectedWord === word
+				if (isSameWord) {
+					postRequest(requestURL, {}).then(function (response) {
+						location.reload()
+					})
+				}
+			})
+			cancelButton.on('click', () => {
+				handler.toast('destroy')
+				$('body').removeClass('wait-to-action')
+			})
+		})
 	}
 
 	const loadNews = () => {
@@ -1041,6 +1073,7 @@ function pcsAdminTopbars() {
 		const mainContainer = $(mainContainerSelector)
 		const newsModal = $('[news-modal]')
 		const url = $(mainContainerSelector).parent().data('url')
+		const markAsReadURL = pcsphpGlobals.frontConfigurationsFromBackend.NewsModuleMarkAsReadedEndpoint
 
 		if (mainContainer.length > 0 && typeof NewsAdapter !== 'undefined' && typeof url == 'string' && url.trim().length > 1) {
 			const newsManager = new NewsAdapter({
@@ -1051,8 +1084,16 @@ function pcsAdminTopbars() {
 				onDraw: (item, parsed) => {
 					parsed.on('click', () => {
 						newsModal.find('.header').text(item.newsTitle).css('color', item.category.color)
-						newsModal.find('.content').html(item.content)
+						newsModal.find('.content').html(item.content.replace(/\\/g, ''))
 						newsModal.modal('show')
+						//Marcar como leída
+						if (typeof markAsReadURL === 'string' && item.id) {
+							postRequest(markAsReadURL.replace('{ID}', item.id)).done((response) => {
+								if (response.success) {
+									parsed.remove()
+								}
+							})
+						}
 						closeProfile()
 					})
 					return parsed

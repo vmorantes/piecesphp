@@ -3,6 +3,7 @@ defined("BASEPATH") or die("<h1>El script no puede ser accedido directamente</h1
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
+use SystemApprovals\SystemApprovalsLang;
 
 $canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type);
 $organizationMapper = $mapper->organization !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($mapper->organization, 'id')) : null;
@@ -13,6 +14,13 @@ $getExcerpt = function(string $str, int $maxLength = 300){
 $isActive = $mapper->status == UsersModel::STATUS_USER_ACTIVE;
 $statusText = UsersModel::statuses()[$mapper->status];
 $statusClass = "status-{$mapper->status}-number";
+$userTypeText = UsersModel::getTypeUserName($mapper->type);
+$isBaseOrganization = $organizationMapper !== null && $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
+if($mapper->type == UsersModel::TYPE_USER_GENERAL){
+    if($isBaseOrganization){
+        $userTypeText = __(SystemApprovalsLang::LANG_GROUP, 'Usuario independiente');
+    }
+}
 ?>
 
 <div class="ui card user">
@@ -46,7 +54,7 @@ $statusClass = "status-{$mapper->status}-number";
         <div class="body">
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/user_type.svg') ?>">
-                <span><?= UsersModel::getTypeUserName($mapper->type); ?></span>
+                <span><?= $userTypeText; ?></span>
             </div>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/user.svg') ?>">

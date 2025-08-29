@@ -60,6 +60,7 @@ class NewsCategoryMapper extends EntityMapperExtensible
     ];
 
     const UNCATEGORIZED_ID = -10;
+    const NEW_OPPORTUNITIES_ID = 150;
     const DEFAULT_ICON = 'statics/images/news/default-icon-category.png';
 
     const TABLE = 'news_categories';
@@ -730,6 +731,29 @@ class NewsCategoryMapper extends EntityMapperExtensible
         }
 
         return $category;
+
+    }
+
+    /**
+     * @return NewsCategoryMapper Devuelve la categoría
+     */
+    public static function newOpportunitiesCategory()
+    {
+
+        $categoryNewOpportunities = new NewsCategoryMapper(self::NEW_OPPORTUNITIES_ID);
+        if ($categoryNewOpportunities->id == null) {
+            $categoryNewOpportunities->setLangData(Config::get_default_lang(), 'name', 'Nouvelles opportunités');
+            $categoryNewOpportunities->setLangData('es', 'name', 'Nuevas oportunidades');
+            $categoryNewOpportunities->setLangData('en', 'name', 'New Opportunities');
+            $categoryNewOpportunities->color = get_config('main_brand_color');
+            $categoryNewOpportunities->iconImage = self::DEFAULT_ICON;
+            $categoryNewOpportunities->meta = $categoryNewOpportunities->metaValueToSave();
+            $dataToInsert = $categoryNewOpportunities->dataToInsert()->getData();
+            $dataToInsert['id'] = self::NEW_OPPORTUNITIES_ID;
+            NewsCategoryMapper::model()->insert($dataToInsert)->execute();
+        }
+
+        return $categoryNewOpportunities;
 
     }
 
