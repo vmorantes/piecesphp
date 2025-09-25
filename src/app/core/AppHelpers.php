@@ -483,6 +483,10 @@ function static_files_cache_stamp(bool $update = false)
 {
     $stamp = 'none';
     $fileCache = basepath('app/cache/statics-files-stamp.txt');
+    $fileCacheDir = dirname($fileCache);
+    if (!is_dir($fileCacheDir)) {
+        mkdir($fileCacheDir, 0777, true);
+    }
 
     if (file_exists($fileCache) && !$update) {
         $stamp = file_get_contents($fileCache);

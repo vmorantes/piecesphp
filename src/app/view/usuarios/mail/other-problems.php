@@ -35,9 +35,9 @@ $text = <<<EOF
 $extraData
 EOF;
 
-set_config('cache_stamp_render_files', false); //Desactiva añadir cacheStamp en las URLL
+set_config('cache_stamp_render_files', false); //Desactiva añadir cacheStamp en las URL
 $baseController->render('mailing/template_base', [
     'text' => $text,
     'langGroup' => $langGroup,
 ]);
-set_config('cache_stamp_render_files', true); //Reactiva añadir cacheStamp en las URLL
+set_config('cache_stamp_render_files', true); //Reactiva añadir cacheStamp en las URL

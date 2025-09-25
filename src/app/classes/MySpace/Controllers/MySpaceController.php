@@ -27,6 +27,7 @@ use Publications\Controllers\PublicationsController;
 use Publications\PublicationsRoutes;
 use ReportsManage\Controllers\ReportsManageController;
 use ReportsManage\ReportsManageRoutes;
+use SystemApprovals\SystemApprovalsRoutes;
 use SystemApprovals\Util\SystemApprovalManager;
 
 /**
@@ -110,7 +111,7 @@ class MySpaceController extends AdminPanelController
 
             if ($normalSpace) {
 
-                if (in_array($currentUserType, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE)) {
+                if (in_array($currentUserType, UsersModel::TYPES_USER_SHOULD_HAVE_PROFILE) && SystemApprovalsRoutes::ENABLE) {
 
                     return $response->withRedirect(MyProfileController::routeName('my-profile'));
 
