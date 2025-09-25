@@ -8,7 +8,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 DELIMITER ;;
 
 DROP FUNCTION IF EXISTS strTemplateReplace;;
-CREATE FUNCTION strTemplateReplace(templateText text, replacementJSON text) RETURNS text CHARSET utf8
+CREATE FUNCTION strTemplateReplace(templateText text, replacementJSON text) RETURNS text CHARSET utf8mb4
 BEGIN
     DECLARE replacementKeys TEXT;
     DECLARE replacementQty INT UNSIGNED DEFAULT 0;

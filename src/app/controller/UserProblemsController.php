@@ -9,6 +9,7 @@ namespace App\Controller;
 use App\Model\TicketsLogModel;
 use App\Model\UserProblemsModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
@@ -555,7 +556,12 @@ class UserProblemsController extends UsersController
      */
     private function sendMessageOtherProblems(string $email, string $name, string $message, array $extra = null)
     {
-        $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . get_title();
+        $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . Config::app_title();
+
+        $customSubject = is_array($extra) && isset($extra['subject']) && is_string($extra['subject']) && mb_strlen(trim($extra['subject'])) > 0 ? trim($extra['subject']) : null;
+        if ($customSubject !== null) {
+            $subject = $customSubject . ' - ' . Config::app_title();
+        }
 
         /**
          * @var string
