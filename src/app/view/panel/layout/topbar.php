@@ -15,6 +15,7 @@ use PiecesPHP\Core\Roles;
 use PiecesPHP\UserSystem\UserDataPackage;
 use PiecesPHP\UserSystem\UserSystemFeaturesLang;
 use Spatie\Url\Url as URLManager;
+use SystemApprovals\SystemApprovalsRoutes;
 
 $currentUser = getLoggedFrameworkUser();
 $currentUserID = $currentUser->id;
@@ -401,7 +402,7 @@ $avatar = $currentUser->avatar;
             <span edit-account><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Editar Cuenta'); ?></span>
             <span change-password><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Cambiar contraseña'); ?></span>
             <a href="<?= MySpaceController::routeName('user-security'); ?>"><?= __(AdminPanelController::ADMIN_LANG_GROUP, 'Opciones de seguridad'); ?></a>
-            <?php if(MyProfileController::allowedRoute('my-profile')): ?>
+            <?php if(MyProfileController::allowedRoute('my-profile') && SystemApprovalsRoutes::ENABLE): ?>
             <a href="<?= MyProfileController::routeName('my-profile', [], true); ?>"><?= __(ADMIN_MENU_LANG_GROUP, 'Mi perfil'); ?></a>
             <?php endif; ?>
             <?php if(MyOrganizationProfileController::allowedRoute('my-organization-profile') && in_array($currentUserType, OrganizationMapper::PROFILE_EDITOR)): ?>
