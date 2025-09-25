@@ -1,5 +1,6 @@
 <?php
 
+use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
@@ -12,6 +13,11 @@ use Slim\Exception\HttpNotFoundException;
 
 $container_configurations = [
     'foundHandler' => function (RequestRoute $request, RequestHandlerInterface $handler) {
+
+        /**
+         * @var DependenciesInjector $container
+         */
+        $container = get_router()->getDI();
 
         //Variables CSS globales
         $cssGlobalVariables = CSSVariables::instance('global');
@@ -52,9 +58,12 @@ $container_configurations = [
             set_config('lock_assets', false);
         });
 
-        $response = null;
+        /* Ejecución antes de procesar la ruta: */
+        //Do something
 
+        $response = null;
         try {
+            //Lanza excepción si el manejador no está devolviendo su respectivo objeto "response"
             $response = $handler->handle($request);
         } catch (\Error $e) {
             if ($response instanceof ResponseRoute) {
@@ -66,9 +75,29 @@ $container_configurations = [
             $response = new ResponseRoute();
         }
 
+        /* Ejecución después de procesar la ruta: */
+
+        //Cabeceras CORS para peticiones desde otros orígenes
+        if (API_MODULE) {
+            if ($container instanceof DependenciesInjector) {
+                $response = $container->get('cors')($request, $response);
+                $response = $response;
+            } else {
+                $response = $response
+                    ->withHeader('Access-Control-Allow-Origin', '*')
+                    ->withHeader('Access-Control-Allow-Methods', '*')
+                    ->withHeader('Access-Control-Allow-Headers', '*');
+            }
+        }
+
         return $response;
     },
-    'notFoundHandler' => function (HttpNotFoundException $notFoundError) {
+    'notFoundHandler' => function (HttpNotFoundException $notFoundError, array $extraData = []) {
+
+        /**
+         * @var DependenciesInjector $container
+         */
+        $container = get_router()->getDI();
 
         /**
          * @var RequestRoute $request
@@ -84,7 +113,16 @@ $container_configurations = [
 
         if (API_MODULE) {
             if ($request->getMethod() == 'OPTIONS') {
-                return $response->withStatus(200);
+                if ($container instanceof DependenciesInjector) {
+                    $response = $container->get('cors')($request, $response);
+                    return $response;
+                } else {
+                    return $response
+                        ->withHeader('Access-Control-Allow-Origin', '*')
+                        ->withHeader('Access-Control-Allow-Methods', '*')
+                        ->withHeader('Access-Control-Allow-Headers', '*')
+                        ->withStatus(204);
+                }
             }
         }
 
@@ -166,5 +204,19 @@ $container_configurations = [
         } else {
             return '';
         }
+    },
+    'cors' => function (RequestRoute $request, ResponseRoute $response) {
+        $origin = $request->getHeaderLine('Origin') ?: '*';
+        $requestedHeaders = $request->getHeaderLine('Access-Control-Request-Headers');
+        $allowedHeaders = $requestedHeaders ?: 'Content-Type, Authorization, isWebApp, isExternalLogin, JWTAuth';
+        $response = $response
+            ->withHeader('Access-Control-Allow-Origin', $origin)
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT')
+            ->withHeader('Access-Control-Allow-Headers', $allowedHeaders)
+            ->withHeader('Vary', 'Origin');
+        if ($request->getMethod() == 'OPTIONS') {
+            $response = $response->withStatus(204);
+        }
+        return $response;
     },
 ];

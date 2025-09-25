@@ -11,10 +11,6 @@
     # X-XSS-Protection
     Header set X-XSS-Protection "1; mode=block"
 
-    # Permitir dominios cruzados y cualquier cabecera
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Headers "*"
-
     # Forzar HSTS a 44 semanas
     <If "%{HTTP_HOST} != 'localhost'">
         Header set Strict-Transport-Security "max-age=26611200; includeSubDomains; preload"
