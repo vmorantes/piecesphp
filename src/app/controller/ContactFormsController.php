@@ -44,9 +44,10 @@ class ContactFormsController extends PublicAreaController
      */
     private static $startSegmentRoutes = 'contact';
 
-    private $recipientsMessages = [
+    const RECIPIENTS_MESSAGES = [
         'sir.vamb@gmail.com',
     ];
+    private $recipientsMessages = self::RECIPIENTS_MESSAGES;
 
     /**
      * @param Request $req

@@ -5,15 +5,19 @@ $langGroup = LANG_GROUP;
 $baseController = new BaseController();
 
 $extraData = [];
+$extraDataAdded = false;
 if (isset($extra) && is_array($extra) && !empty($extra)) {
     $extraData[] = "<h2>" . __($langGroup, 'Extra') . "</h2>";
     foreach ($extra as $content) {
-        $extraDisplayTitle = $content['display'];
-        $extraText = $content['text'];
-        $extraData[] = "<p><strong>{$extraDisplayTitle}: {$extraText}</strong></p>";
+        if (isset($content['display']) && isset($content['text'])) {
+            $extraDisplayTitle = $content['display'];
+            $extraText = $content['text'];
+            $extraData[] = "<p><strong>{$extraDisplayTitle}: {$extraText}</strong></p>";
+            $extraDataAdded = true;
+        }
     }
 }
-$extraData = implode('\n', $extraData);
+$extraData = $extraDataAdded ? implode('\n', $extraData) : '';
 
 $title = __($langGroup, 'Mensaje');
 $labelA = __($langGroup, 'Enviado desde');
@@ -31,9 +35,9 @@ $text = <<<EOF
 $extraData
 EOF;
 
-set_config('cache_stamp_render_files', false); //Desactiva añadir cacheStamp en las URLL
+set_config('cache_stamp_render_files', false); //Desactiva añadir cacheStamp en las URL
 $baseController->render('mailing/template_base', [
     'text' => $text,
     'langGroup' => $langGroup,
 ]);
-set_config('cache_stamp_render_files', true); //Reactiva añadir cacheStamp en las URLL
+set_config('cache_stamp_render_files', true); //Reactiva añadir cacheStamp en las URL

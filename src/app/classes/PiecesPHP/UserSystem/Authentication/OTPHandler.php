@@ -6,6 +6,7 @@ namespace PiecesPHP\UserSystem\Authentication;
 
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseController;
+use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
@@ -109,7 +110,7 @@ class OTPHandler
 
             if ($OTPCreated) {
 
-                $subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8') . ' - ' . get_title();
+                $subject = mb_convert_encoding((string) __(self::LANG_GROUP, 'Contraseña de un uso'), 'UTF-8') . ' - ' . Config::app_title();
                 $bodyMessage = $controller->render($relativeView, [
                     'text' => __(self::LANG_GROUP, 'Contraseña de un solo uso'),
                     'note' => __(self::LANG_GROUP, 'Tiene una validez de 20 minutos'),

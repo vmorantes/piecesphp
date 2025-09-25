@@ -26,6 +26,7 @@
         "ms-azuretools.vscode-azurefunctions",
         "ms-azuretools.vscode-azureresourcegroups",
         "aswinkumar863.smarty-template-support",
-        "tomoki1207.pdf"
+        "tomoki1207.pdf",
+        "postman.postman-for-vscode"
     ]
 }

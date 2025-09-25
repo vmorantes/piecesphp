@@ -485,14 +485,14 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
             //Verificar status de la organización si aplica
             $organizationID = $user->organization;
-            $organizationMapper = $organizationID !== null ?OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
+            $organizationMapper = $organizationID !== null  ?OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
             $allowedStatusesOrganization = [
                 OrganizationMapper::ACTIVE,
                 OrganizationMapper::PENDING_APPROVAL,
             ];
             if ($organizationMapper == null || in_array($organizationMapper->status, $allowedStatusesOrganization)) {
                 set_config('current_user', $user);
-                if ($organizationMapper !== null) {
+                if ($organizationMapper !== null && $organizationMapper->administrator !== null) {
                     $userIsOrganizationAdministrator = $organizationMapper->administrator->id == $user->id;
                 }
                 Roles::setCurrentRole($user->type); //Se establece el rol
@@ -556,7 +556,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         //Redirección al area administrativa desde formulario de logueo en caso de haber una session
         $login_redirect = get_config('admin_url');
         $relative_url = $login_redirect !== false ? (isset($login_redirect['relative']) ? $login_redirect['relative'] : true) : true;
-        $relative_url = !is_bool($relative_url) ? true : $relative_url;
+        $relative_url = !is_bool($relative_url)  ?true : $relative_url;
         $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
         if ($relative_url) {
             $admin_url = baseurl($admin_url);
@@ -575,7 +575,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         //Control de permisos por roles
         $roles_control = get_config('roles');
         $active_roles_control = isset($roles_control['active']) ? $roles_control['active'] : false;
-        $current_role = $user !== null ? Roles::getCurrentRole() : null;
+        $current_role = $user !== null  ?Roles::getCurrentRole() : null;
         $has_permissions = null;
 
         //Modificación de permisos del usuario en caso de tener una organización encargada
@@ -716,15 +716,19 @@ $handle403 = function (RequestRoute $request, Throwable $exception, bool $displa
     }
 };
 $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
-    if ($exception instanceof HttpNotFoundException || $exception instanceof NotFoundException) {
-        return get_router()->getDI()->get('notFoundHandler')($exception);
-    } elseif ($exception instanceof HttpMethodNotAllowedException) {
+    $originalException = $exception;
+    if ($originalException instanceof HttpNotFoundException || $originalException instanceof NotFoundException) {
+        return get_router()->getDI()->get('notFoundHandler')($originalException);
+    } elseif ($originalException instanceof HttpMethodNotAllowedException) {
         $exception = new NotFoundException($request, new ResponseRoute(StatusCode::HTTP_NOT_FOUND));
-        return get_router()->getDI()->get('notFoundHandler')($exception);
-    } elseif ($exception instanceof HttpForbiddenException) {
-        return get_router()->getDI()->get('forbiddenHandler')($exception);
+        return get_router()->getDI()->get('notFoundHandler')($exception, [
+            'requestMethod' => $request->getMethod(),
+            'allowedMethods' => $originalException->getAllowedMethods(),
+        ]);
+    } elseif ($originalException instanceof HttpForbiddenException) {
+        return get_router()->getDI()->get('forbiddenHandler')($originalException);
     } else {
-        global_custom_exception_handler($exception, 'RouterSetErrorHandler');
+        global_custom_exception_handler($originalException, 'RouterSetErrorHandler');
         $response = new ResponseRoute();
         return $response->withStatus(500);
     }

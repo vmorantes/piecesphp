@@ -1,3 +1,14 @@
+# 6.4.200002
+
+- Ajuste de SQL a utf8mb4.
+- Otros ajustes menores.
+
+# 6.4.200001
+
+- Ajustes para CORS.
+- Algunos ajustes en mailing.
+- Mejor gestión de errores en rutas 404.
+
 # 6.4.2
 
 - Eliminación de console.log innecesarios.
