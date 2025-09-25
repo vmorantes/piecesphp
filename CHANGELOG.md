@@ -1,3 +1,9 @@
+# 6.4.200001
+
+- Ajustes para CORS.
+- Algunos ajustes en mailing.
+- Mejor gestión de errores en rutas 404.
+
 # 6.4.2
 
 - Eliminación de console.log innecesarios.

@@ -19,6 +19,8 @@ use Slim\Routing\Route;
 class RequestRoute extends Request
 {
 
+    public bool $silenceOnUnexistingRoute = false;
+
     /**
      * @return Route|null
      */
@@ -38,7 +40,7 @@ class RequestRoute extends Request
             if (!array_key_exists($name, $this->attributes)) {
                 $routeContext = \Slim\Routing\RouteContext::fromRequest($this);
                 $route = $routeContext->getRoute();
-                if (empty($route)) {
+                if (empty($route) && !$this->silenceOnUnexistingRoute) {
                     throw new HttpNotFoundException($this);
                 }
                 return $route;

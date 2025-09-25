@@ -31,6 +31,7 @@ class NotFoundException extends HttpNotFoundException
      */
     public function __construct(RequestRoute $request, ?ResponseRoute $response = null, ?string $message = null, ?Throwable $previous = null)
     {
+        $request->silenceOnUnexistingRoute = true;
         $route = $request->getRoute();
         $extraDataKey = 'information404';
         $extraData = $request->getAttribute($extraDataKey, []);
