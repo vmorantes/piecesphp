@@ -9,6 +9,7 @@ src/statics/features/avatars/css/*
 **/node_modules/*
 **/composer.lock
 **/package-lock*
+**/pnpm-lock*
 **/.sass-cache
 docs/code/phpdoc-cache-*
 tasks/output
