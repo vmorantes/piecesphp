@@ -69,7 +69,16 @@ class UploadedFileAdapter
         });
         $this->associativePath = $associativePath;
         $this->validator = new FileValidator($types, $maxSizeMB);
-        $this->fileInformation = [];
+        $defaultInformation = [
+            'name' => self::NOT_UPLOAD_FAKE_NAME,
+            'type' => self::NOT_UPLOAD_FAKE_TYPE,
+            'size' => self::NOT_UPLOAD_FAKE_SIZE,
+            'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
+            'error' => self::NOT_UPLOAD_FAKE_ERROR,
+            'full_path' => null,
+        ];
+        $this->fileInformation = $defaultInformation;
+
         $files = $_FILES;
         $notFoundUploadedFileMessage = __(self::LANG_GROUP, "No se encontró ningún archivo cargado.");
         $generalErrorMessage = __(self::LANG_GROUP, "Los archivos no han sido cargados correctamente.");
@@ -79,19 +88,10 @@ class UploadedFileAdapter
 
             $nameOnFiles = $associativePath[0];
             $exists = array_key_exists($nameOnFiles, $files);
-
             if ($exists) {
 
                 unset($associativePath[0]);
                 $filesByName = $files[$nameOnFiles];
-                $defaultInformation = [
-                    'name' => self::NOT_UPLOAD_FAKE_NAME,
-                    'type' => self::NOT_UPLOAD_FAKE_TYPE,
-                    'size' => self::NOT_UPLOAD_FAKE_SIZE,
-                    'tmp_name' => self::NOT_UPLOAD_FAKE_TMP_NAME,
-                    'error' => self::NOT_UPLOAD_FAKE_ERROR,
-                    'full_path' => null,
-                ];
                 $fileData = $defaultInformation;
                 $fileInformationNames = [
                     'name',
@@ -279,7 +279,7 @@ class UploadedFileAdapter
     public function hasInput()
     {
         $has = true;
-        if ($this->fileInformation === self::NOT_UPLOAD_FAKE_ERROR) {
+        if ($this->fileInformation['error'] === self::NOT_UPLOAD_FAKE_ERROR) {
             $has = false;
         }
         return $has;
