@@ -340,6 +340,7 @@ function configSinglesCalendar(selectorAttr, options = {}) {
 			'date',
 			'datetime',
 			'month',
+			'time',
 		].indexOf(calendarType) !== -1 ? calendarType : 'datetime'
 		let calendarOptions = Object.assign({}, pcsphpGlobals.configCalendar)
 		calendarOptions.type = calendarType
