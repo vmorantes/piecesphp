@@ -50,3 +50,6 @@ if (!empty($finalConfigurationsIncludesFiles)) {
         }
     }
 }
+
+//Indica si la aplicación está en local o en producción
+add_to_front_configurations('isLH', is_local());
