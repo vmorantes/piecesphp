@@ -1132,6 +1132,7 @@ function activeGenericLoader(name = null, classPrefix = null) {
  * - d	Día del mes, 2 dígitos con ceros iniciales	01 a 31
  * - Y	Una representación numérica completa de un año, 4 dígitos	Ejemplos: 1999 o 2003
  * - m	Representación numérica de un mes, con ceros iniciales	01 hasta 12
+ * - F	Una representación textual completa de un mes, como January o March	January hasta December
  * - M	Una representación textual corta de un mes, tres letras
  * - g	Formato de 12 horas de una hora sin ceros iniciales	1 hasta 12
  * - G	Formato de 24 horas de una hora sin ceros iniciales	0 hasta 23
@@ -1143,63 +1144,33 @@ function activeGenericLoader(name = null, classPrefix = null) {
  * @returns {string}
  */
 function formatDate(date, format) {
-
 	format = typeof format == 'string' && format.length > 0 ? format : 'd-m-Y'
 	if (!(date instanceof Date)) {
 		date = new Date()
 		console.warn('Fecha actual asignada en formatDate')
 	}
 
-	let d = date.getDate()
-	d = d < 10 ? `0${d}` : d
+	let d = String(date.getDate()).padStart(2, '0')
+	let m = String(date.getMonth() + 1).padStart(2, '0')
+	let monthsShort = _i18n('semantic_calendar', 'monthsShort')
+	let monthsFull = _i18n('semantic_calendar', 'months')
+	let M = monthsShort[date.getMonth()]
+	let F = monthsFull[date.getMonth()]
+	let Y = String(date.getFullYear())
 
-	let m = date.getMonth() + 1
-	m = m < 10 ? `0${m}` : m
-	let M = _i18n('semantic_calendar', 'monthsShort')[date.getMonth()]
-
-	let Y = date.getFullYear().toString()
-
-	let hours = {
-		0: 12,
-		1: 1,
-		2: 2,
-		3: 3,
-		4: 4,
-		5: 5,
-		6: 6,
-		7: 7,
-		8: 8,
-		9: 9,
-		10: 10,
-		11: 11,
-		12: 12,
-		13: 1,
-		14: 2,
-		15: 3,
-		16: 4,
-		17: 5,
-		18: 6,
-		19: 7,
-		20: 8,
-		21: 9,
-		22: 10,
-		23: 11,
-	}
 	let hour = date.getHours()
-	let g = hours[hour]
+	let g = hour % 12 === 0 ? 12 : hour % 12
 	let G = hour
-	let h = g < 10 ? `0${g}` : g
-	let H = G < 10 ? `0${G}` : G
+	let h = String(g).padStart(2, '0')
+	let H = String(G).padStart(2, '0')
 	let A = hour >= 12 ? 'PM' : 'AM'
+	let i = String(date.getMinutes()).padStart(2, '0')
+	let s = String(date.getSeconds()).padStart(2, '0')
 
-	let i = parseInt(date.getMinutes())
-	i = i < 10 ? `0${i}` : i
-	let s = parseInt(date.getSeconds())
-	s = s < 10 ? `0${s}` : s
-
-	let replacesPattern = {
+	const tokens = {
 		'Y': Y,
 		'm': m,
+		'F': F,
 		'M': M,
 		'd': d,
 		'A': A,
@@ -1211,13 +1182,9 @@ function formatDate(date, format) {
 		's': s,
 	}
 
-	for (let pattern in replacesPattern) {
-		let value = replacesPattern[pattern]
-		format = format.replace(pattern, value)
-	}
-
-	return format
+	return format.replace(/Y|m|F|M|d|A|g|G|h|H|i|s/g, match => tokens[match])
 }
+
 
 /**
  * 
