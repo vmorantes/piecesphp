@@ -25,8 +25,10 @@ class GenericLoaderElement extends HTMLElement {
 
 		//Crear elementos del cargador
 		this.boxLoader = document.createElement('div')
+		this.logoLoader = document.createElement('div')
 		this.loaderElement = document.createElement('div')
 		this.textMessage = document.createElement('div')
+		this.progressContainer = document.createElement('div')
 
 		this.configureElement()
 
@@ -132,19 +134,54 @@ class GenericLoaderElement extends HTMLElement {
 
 		//Configurar clases
 		this.boxLoader.classList.add(`${this.classPrefix}box`)
+		this.logoLoader.classList.add(`${this.classPrefix}logo`)
 		this.loaderElement.classList.add(`${this.classPrefix}loader`)
 		this.textMessage.classList.add(`${this.classPrefix}text-message`)
+		this.progressContainer.classList.add(`${this.classPrefix}progress-container`)
+
+		//Configurar logo
+		const logoURL = new URL('statics/images/loader-logo.png', pcsphpGlobals.baseURL)
+		const logoImage = new Image()
+		logoImage.src = logoURL.href
+		const logoPromise = new Promise((resolve, reject) => {
+			logoImage.onload = () => resolve()
+			logoImage.onerror = () => reject()
+		})
+		this.logoLoader.appendChild(logoImage)
+
+		//Configurar loader
+		const loaderURL = new URL('statics/images/loader-animation.gif', pcsphpGlobals.baseURL)
+		const loaderImage = new Image()
+		loaderImage.src = loaderURL.href
+		const loaderPromise = new Promise((resolve, reject) => {
+			loaderImage.onload = () => resolve()
+			loaderImage.onerror = () => reject()
+		})
+		this.loaderElement.appendChild(loaderImage)
 
 		//Ensamblar estructura
+		this.boxLoader.appendChild(this.progressContainer)
 		this.boxLoader.appendChild(this.loaderElement)
 		this.appendChild(this.boxLoader)
 		if (this.options.textMessage) {
 			this.textMessage.innerHTML = this.options.textMessage
 			this.boxLoader.appendChild(this.textMessage)
 		}
+		this.boxLoader.appendChild(this.logoLoader)
+
+		//Verificar carga del logo
+		logoPromise.catch(() => {
+			this.logoLoader.style.display = 'none'
+		})
+
+		//Verificar carga del loader
+		loaderPromise.catch(() => {
+			loaderImage.style.display = 'none'
+			this.loaderElement.setAttribute('class', `${this.classPrefix}loader-fallback`)
+		})
 
 		//Agregar progreso si se requiere		
-		this.addProgress(this.withProgress ? 0 : null, this.loaderElement)
+		this.addProgress(this.withProgress ? 0 : null, this.progressContainer)
 
 		return this
 	}

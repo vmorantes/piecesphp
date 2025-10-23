@@ -9,18 +9,20 @@ function CustomNamespace() {
 /**
  * @method loader
  * 
- * @param {String} [name=generic]
+ * @param {String} [name]
  * @param {Boolean} [on=true]
- * @param {String} [classPrefix=vm-]
+ * @param {String} [classPrefix]
+ * @param {Boolean} [withProgress=false]
+ * @param {Object} [options={}]
  * @description Cargador
  * @returns {void}
  */
-CustomNamespace.loader = function (name = null, on = true, classPrefix = null) {
+CustomNamespace.loader = function (name = null, on = true, classPrefix = null, withProgress = false, options = {}) {
 	name = typeof name == 'string' ? name : 'CustomNamespace'
 	if (on === false) {
 		removeGenericLoader(name, classPrefix)
 	} else {
-		showGenericLoader(name, classPrefix)
+		showGenericLoader(name, classPrefix, withProgress, options)
 	}
 
 }

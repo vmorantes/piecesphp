@@ -1682,6 +1682,24 @@ function localeDateFormat(string $format, \DateTime $time = null, array $replace
     return $formated;
 }
 
+/**
+ * Convierte un valor de opacidad decimal a hexadecimal
+ *
+ * @param float $opacity Valor de opacidad entre 0.0 y 1.0
+ * @return string Representación hexadecimal de 2 caracteres (00-FF)
+ */
+function opacityToHex(float $opacity): string
+{
+    //Asegurar que el valor esté entre 0 y 1
+    $opacity = max(0.0, min(1.0, $opacity));
+
+    //Convertir a valor de 0-255 y luego a hexadecimal
+    $hexValue = dechex((int) round($opacity * 255));
+
+    //Asegurar que siempre tenga 2 caracteres (agregar 0 al inicio si es necesario)
+    return strtoupper(str_pad($hexValue, 2, '0', STR_PAD_LEFT));
+}
+
 //========================================================================================
 /*                                                                                      *
  *                                       Polyfills                                      *

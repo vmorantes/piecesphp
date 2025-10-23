@@ -17,6 +17,9 @@ $globalClassPcs: 'ui-pcs';
     width: 100%;
     height: 100%;
     background-color: var(--loader-bg-color, rgba(255, 255, 255, 1));
+    img{
+        max-width: 100%;
+    }
 
     &.active {
         display: block;
@@ -28,29 +31,63 @@ $globalClassPcs: 'ui-pcs';
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        display: block;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        height: 100%;
+        flex-direction: column;
         width: 100%;
         max-width: 800px;
-        max-height: max-content;
 
+        .#{$globalClassPcs}-logo {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 70px;
+            height: 70px;
+            margin: 50px auto 0px auto;
+
+            &,
+            img {
+                border-radius: var(--loader-logo-border-radius, 0%);
+            }
+        }
 
         .#{$globalClassPcs}-loader {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-top: 15px;
+
+            img {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        .#{$globalClassPcs}-loader-fallback {
             position: relative;
             border: 16px solid var(--loader-border-color, transparentize($colorThird, 0.5));
             border-top: 16px solid var(--loader-border-mark-color, var(--main-brand-color, $colorSecond));
             border-radius: 50%;
             width: 120px;
             height: 120px;
-            margin: 0 auto;
+            margin: 15px auto 0 auto;
             animation: spin 2s linear infinite !important;
+        }
+
+        .#{$globalClassPcs}-progress-container {
+            width: max-content;
+            max-width: 100%;
+            margin: 0px auto 0px auto;
 
             .#{$globalClassPcs}-progress {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
                 font-weight: $fwBold;
-                animation: counter-spin 2s linear infinite !important;
+                text-align: center;
+                color: black;
+                font-size: 25px;
             }
         }
 
@@ -58,6 +95,7 @@ $globalClassPcs: 'ui-pcs';
             text-align: center;
             padding: 15px 5px;
             font-weight: $fwBold;
+            color: black;
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
