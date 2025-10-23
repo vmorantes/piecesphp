@@ -20,21 +20,42 @@ $container_configurations = [
         $container = get_router()->getDI();
 
         //Variables CSS globales
+        $metaThemeColor = get_config('meta_theme_color');
+        $mainBrandColor = get_config('main_brand_color');
+        $secondBrandColor = get_config('second_brand_color');
+        $bgToolsButtons = get_config('bg_tools_buttons');
+        $fontColorOne = get_config('font_color_one');
+        $fontColorTwo = get_config('font_color_two');
+        $menuColorBackground = get_config('menu_color_background');
+        $menuColorMark = get_config('menu_color_mark');
+        $menuColorFont = get_config('menu_color_font');
+        $bodyGradient = get_config('body_gradient');
+        $loaderBgColor = "rgba(255, 255, 255, 1)";
+        $loaderBorderColor = "rgb(150, 150, 150)";
+        $loaderBorderMarkColor = $mainBrandColor;
+        $loaderLogoBorderRadius = "100%";
+
         $cssGlobalVariables = CSSVariables::instance('global');
-        $cssGlobalVariables->setVariable('meta-theme-color', get_config('meta_theme_color'));
-        $cssGlobalVariables->setVariable('main-brand-color', get_config('main_brand_color'));
-        $cssGlobalVariables->setVariable('main-brand-color-opacity', get_config('main_brand_color') . '13');
-        $cssGlobalVariables->setVariable('bg-tools-buttons', get_config('bg_tools_buttons'));
-        $cssGlobalVariables->setVariable('second-brand-color', get_config('second_brand_color'));
-        $cssGlobalVariables->setVariable('font-color-one', get_config('font_color_one'));
-        $cssGlobalVariables->setVariable('font-color-two', get_config('font_color_two'));
-        $cssGlobalVariables->setVariable('menu-color-background', get_config('menu_color_background'));
-        $cssGlobalVariables->setVariable('menu-color-background-opacity', get_config('menu_color_background') . 'BD');
-        $cssGlobalVariables->setVariable('menu-color-mark', get_config('menu_color_mark'));
-        $cssGlobalVariables->setVariable('menu-color-font', get_config('menu_color_font'));
-        $cssGlobalVariables->setVariable('body-gradient', get_config('body_gradient'));
-        $cssGlobalVariables->setVariable('main-brand-color-0-5', get_config('main_brand_color') . '80');
-        $cssGlobalVariables->setVariable('main-brand-color-0-8', get_config('main_brand_color') . 'CC');
+        $cssGlobalVariables->setVariable('meta-theme-color', $metaThemeColor);
+        $cssGlobalVariables->setVariable('main-brand-color', $mainBrandColor);
+        $cssGlobalVariables->setVariable('main-brand-color-opacity', $mainBrandColor . opacityToHex(0.075));
+        $cssGlobalVariables->setVariable('bg-tools-buttons', $bgToolsButtons);
+        $cssGlobalVariables->setVariable('second-brand-color', $secondBrandColor);
+        $cssGlobalVariables->setVariable('font-color-one', $fontColorOne);
+        $cssGlobalVariables->setVariable('font-color-two', $fontColorTwo);
+        $cssGlobalVariables->setVariable('menu-color-background', $menuColorBackground);
+        $cssGlobalVariables->setVariable('menu-color-background-opacity', $menuColorBackground . opacityToHex(0.741));
+        $cssGlobalVariables->setVariable('menu-color-mark', $menuColorMark);
+        $cssGlobalVariables->setVariable('menu-color-font', $menuColorFont);
+        $cssGlobalVariables->setVariable('body-gradient', $bodyGradient);
+        $cssGlobalVariables->setVariable('main-brand-color-0-5', $mainBrandColor . opacityToHex(0.502));
+        $cssGlobalVariables->setVariable('main-brand-color-0-8', $mainBrandColor . opacityToHex(0.8));
+
+        //--Loader
+        $cssGlobalVariables->setVariable('loader-bg-color', $loaderBgColor);
+        $cssGlobalVariables->setVariable('loader-border-color', $loaderBorderColor);
+        $cssGlobalVariables->setVariable('loader-border-mark-color', $loaderBorderMarkColor);
+        $cssGlobalVariables->setVariable('loader-logo-border-radius', $loaderLogoBorderRadius);
 
         $fontFamilyGlobal = get_config('font_family_global');
         if (is_string($fontFamilyGlobal) && mb_strlen($fontFamilyGlobal) > 0) {
