@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "commonjs"
+    },
+    "include": [
+        "src/statics/**/*",
+    ],
+    "exclude": [
+        "node_modules",
+        "**/node_modules/*",
+        "src/statics/plugins/**/*",
+    ]
+}
