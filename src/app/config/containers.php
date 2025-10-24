@@ -33,7 +33,7 @@ $container_configurations = [
         $loaderBgColor = "rgba(255, 255, 255, 1)";
         $loaderBorderColor = "rgb(150, 150, 150)";
         $loaderBorderMarkColor = $mainBrandColor;
-        $loaderLogoBorderRadius = "100%";
+        $loaderLogoBorderRadius = "0%";
 
         $cssGlobalVariables = CSSVariables::instance('global');
         $cssGlobalVariables->setVariable('meta-theme-color', $metaThemeColor);
