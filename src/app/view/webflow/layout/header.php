@@ -4,7 +4,7 @@ use PiecesPHP\Core\Config;
 $alternativesURL = Config::get_config('alternatives_url');
 ?>
 <!DOCTYPE HTML>
-<html lang="<?=get_config('app_lang');?>" dlang="<?=get_config('default_lang');?>">
+<html lang="<?=get_config('app_lang');?>" dlang="<?=get_config('default_lang');?>" data-wf-page="<?= $dataWfPage ?? ''; ?>" data-wf-site="<?= $dataWfSite ?? ''; ?>">
 
 <head>
     <meta charset="utf-8">
@@ -17,9 +17,7 @@ $alternativesURL = Config::get_config('alternatives_url');
     <base href="<?=baseurl();?>">
     <link href="<?=baseurl('statics/wf/css/normalize.css');?>" rel="stylesheet" type="text/css">
     <link href="<?=baseurl('statics/wf/css/webflow.css');?>" rel="stylesheet" type="text/css">
-    <link href="<?=baseurl('statics/wf/css/PROJECT.webflow.css');?>" rel="stylesheet" type="text/css">
-    <?=\PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric();?>
-    <?=\PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph();?>
+    <link href="<?=baseurl('statics/wf/css/envision-cs.webflow.css');?>" rel="stylesheet" type="text/css">
     <script type="text/javascript">
     ! function(o, c) {
         var n = c.documentElement,
@@ -27,6 +25,8 @@ $alternativesURL = Config::get_config('alternatives_url');
         n.className += t + "js", ("ontouchstart" in o || o.DocumentTouch && c instanceof DocumentTouch) && (n.className += t + "touch")
     }(window, document);
     </script>
+    <?=\PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsGeneric();?>
+    <?=\PiecesPHP\Core\Utilities\Helpers\MetaTags::getMetaTagsOpenGraph();?>
     <link href="<?=add_cache_stamp_to_url(get_config('favicon'));?>" rel="shortcut icon" type="image/x-icon">
     <link href="<?=add_cache_stamp_to_url(get_config('favicon'));?>" rel="apple-touch-icon">
     <?php load_font()?>

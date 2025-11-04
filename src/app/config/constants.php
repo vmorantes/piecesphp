@@ -32,7 +32,7 @@ define('MESSAGES_ENABLED', true);
 define('MESSAGES_PATH_VIEWS', 'messages');
 define('MESSAGES_PATH_STATICS', 'statics/features/messages');
 define('MESSAGES_PATH_JS', MESSAGES_PATH_STATICS . '/js');
-define('REFRESH_MESSAGES_STATUS', false);
+define('REFRESH_MESSAGES_STATUS', true);
 
 //Módulo de imágenes integrado
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
@@ -42,7 +42,7 @@ define('LOCATIONS_ENABLED', true);
 define('LOCATIONS_LANG_GROUP', 'locationBackend');
 
 //Temporizadores
-define('ACTIVE_TIMER', false);
+define('ACTIVE_TIMER', true);
 
 //Gestor de archivos
 define('FILE_MANAGER_MODULE', true);
@@ -65,7 +65,7 @@ define('FORMS_MODULE_CATEGORIES_ENABLE', true);
 define('FORMS_MODULE_DOCUMENTS_TYPES_ENABLE', true);
 
 //Módulo de presentaciones para capacitaciones tipo diapositiva
-define('APP_PRESENTATIONS_ENABLE', false);
+define('APP_PRESENTATIONS_ENABLE', true);
 
 //Personas
 define('PERSONS_MODULE', true);
@@ -78,6 +78,7 @@ define('NEWSLETTER_MODULE', true);
 
 //Traducciones por API
 define('API_TRANSLATION_MODULE', true);
+define('API_AI_TRANSLATIONS_ACTIVE', false);
 
 //Inteligencia artificial
 define('AI_OPENAI', 'OpenAI');
@@ -106,10 +107,10 @@ define('AI_MODELS', [
 ]);
 
 //API
-define('API_MODULE', false);
-define('API_CRONJOBS', false);
-define('API_USERS', false);
-define('API_REPORTS', false);
+define('API_MODULE', true);
+define('API_CRONJOBS', true);
+define('API_USERS', true);
+define('API_REPORTS', true);
 
 //Organizaciones
 define('ORGANIZATIONS_MODULE', true);

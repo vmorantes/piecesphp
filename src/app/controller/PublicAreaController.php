@@ -286,43 +286,54 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
     {
         $currentUser = getLoggedFrameworkUser();
 
+        $baseConfiguration = [
+            'header' => null,
+            'menu' => null,
+            'footer' => null,
+            'directory' => null,
+            'file' => null,
+            'appendAssets' => [
+                'css' => [
+                ],
+                'js' => [
+                ],
+            ],
+            'data' => [
+                'dataWfPage' => '',
+                'dataWfSite' => '',
+                'bodyClasses' => '',
+            ],
+            'executeBeforeViews' => function () {},
+            'executeAfterViews' => function () {},
+        ];
+        $getConfiguration = fn(array $config = []): array=> array_merge($baseConfiguration, $config);
+        $baseAssetsConfig = fn(array $assets = []): array=> array_merge($baseConfiguration['appendAssets'], [
+            'css' => array_merge($baseConfiguration['appendAssets']['css'], $assets['css'] ?? []),
+            'js' => array_merge($baseConfiguration['appendAssets']['js'], $assets['js'] ?? []),
+        ]);
+        $baseDataConfig = function (array $data = [], bool $overwrite = false) use ($baseConfiguration): array {
+            return $overwrite ? $data : array_merge($baseConfiguration['data'], $data);
+        };
+
         $genericViewConfigurations = [
-            'tabs-sample' => [
-                'header' => null,
-                'menu' => null,
-                'footer' => null,
-                'directory' => null,
-                'file' => null,
+            'tabs-sample' => $getConfiguration([
                 'title' => __(LANG_GROUP, 'Ejemplo de tabs'),
-                'appendAssets' => [
+                'appendAssets' => $baseAssetsConfig([
                     'js' => [
                         'statics/js/generic-views/tabs.js',
                     ],
-                ],
-                'data' => [
-                    'bodyClasses' => '',
-                ],
-                'executeBeforeViews' => function () {},
-                'executeAfterViews' => function () {},
-            ],
-            'elements' => [
-                'header' => null,
-                'menu' => null,
-                'footer' => null,
-                'directory' => null,
-                'file' => null,
+                ]),
+                'data' => $baseDataConfig([]),
+            ]),
+            'elements' => $getConfiguration([
                 'title' => __(LANG_GROUP, 'Elementos'),
-                'appendAssets' => [
+                'appendAssets' => $baseAssetsConfig([
                     'js' => [
                         'statics/js/generic-views/elements.js',
                     ],
-                ],
-                'data' => [
-                    'bodyClasses' => '',
-                ],
-                'executeBeforeViews' => function () {},
-                'executeAfterViews' => function () {},
-            ],
+                ]),
+                'data' => $baseDataConfig([]),
+            ]),
         ];
 
         if ($currentUser !== null) {
