@@ -6,6 +6,8 @@ use PiecesPHP\Core\Config;
  * @var string $backLink
  * @var string $action
  */
+$langs = \PiecesPHP\Core\Config::get_allowed_langs();
+$allowedManyLangs = count($langs) > 1;
 ?>
 <section class="module-view-container">
 
@@ -28,7 +30,7 @@ use PiecesPHP\Core\Config;
 
             <form method='POST' action="<?= $action; ?>" class="ui form publications-categories">
 
-                <div class="field required">
+                <div class="field required" style="<?= $allowedManyLangs ? '' : 'display:none;'; ?>">
                     <label><?= __('lang', 'Idioma principal'); ?></label>
                     <select class="ui dropdown search" name="baseLang" required>
                         <?= $langsOptions; ?>

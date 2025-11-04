@@ -21,6 +21,8 @@ $langs = Config::get_allowed_langs();
 $baseLang = $element->baseLang;
 $currentLang = isset($selectedLang) && is_string($selectedLang) && in_array($selectedLang, $langs) ? $selectedLang : $baseLang;
 $langsTabs = [];
+$allowedManyLangs = count($langs) > 1;
+$translationAvailable = API_AI_TRANSLATIONS_ACTIVE && API_TRANSLATION_MODULE && $allowedManyLangs;
 
 //== Ordenar con el idioma base primero ==
 //==Se agrega el idioma base
@@ -78,7 +80,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
         <br>
 
-        <div class="ui pointing secondary menu lang-tabs">
+        <div class="ui pointing secondary menu lang-tabs" <?= $allowedManyLangs ? '' : 'style="display:none;"'; ?>>
             <?php foreach($langsTabs as $langCode => $langName): ?>
             <?php $activeLang = $currentLang == $langCode; ?>
             <a class="item<?= $activeLang ? ' active' : ''; ?>" data-tab="<?= $langCode; ?>"><?= $langName; ?></a>
@@ -101,7 +103,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                 <div data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
                 <?php if(!$isBaseLang && APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable')):?>
                 <div class="actions-buttons">
-                    <button class="ui right labeled icon button brand-color" do-translation from-lang="<?= $baseLang; ?>" to-lang="<?= $langCode; ?>">
+                    <button class="ui right labeled icon button brand-color" do-translation from-lang="<?= $baseLang; ?>" to-lang="<?= $langCode; ?>"<?= $translationAvailable ? '' : ' style="display:none;"'; ?>>
                         <?= __($langGroup, 'Traducir'); ?><i class="language icon"></i>
                     </button>
                 </div>

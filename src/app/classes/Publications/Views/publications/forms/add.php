@@ -10,6 +10,8 @@ use Publications\Util\AttachmentPackage;
  * @var AttachmentPackage[] $dynamicAttachments
  */
 $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
+$langs = \PiecesPHP\Core\Config::get_allowed_langs();
+$allowedManyLangs = count($langs) > 1;
 ?>
 <section class="module-view-container">
 
@@ -44,7 +46,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
                 <div class="ui tab active" data-tab="basic">
 
-                    <div class="field required">
+                    <div class="field required" style="<?= $allowedManyLangs ? '' : 'display:none;'; ?>">
                         <label><?= __('lang', 'Idioma principal'); ?></label>
                         <select class="ui dropdown search" name="baseLang" required>
                             <?= $langsOptions; ?>
@@ -272,7 +274,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
             <div class="field">
                 <button type="submit" class="ui button brand-color" save><?= __($langGroup, 'Guardar'); ?></button>
-                <button type="submit" class="ui button blue" add-translation><?= __($langGroup, 'Agregar traducción'); ?></button>
+                <button type="submit" class="ui button blue" add-translation <?= $allowedManyLangs ? '' : 'style="display:none;"'; ?>><?= __($langGroup, 'Agregar traducción'); ?></button>
             </div>
 
         </form>

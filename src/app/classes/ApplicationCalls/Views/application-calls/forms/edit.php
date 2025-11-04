@@ -9,6 +9,8 @@ use PiecesPHP\Core\Config;
  * @var string $action
  */
 $langs = Config::get_allowed_langs(false, Config::get_default_lang());
+$allowedManyLangs = count(\PiecesPHP\Core\Config::get_allowed_langs()) > 1;
+$translationAvailable = API_AI_TRANSLATIONS_ACTIVE && API_TRANSLATION_MODULE && $allowedManyLangs;
 ?>
 <section class="module-view-container">
 
@@ -59,7 +61,7 @@ $langs = Config::get_allowed_langs(false, Config::get_default_lang());
                                     </select>
                                 </div>
                             </div>
-                            <div class="four wide column">
+                            <div class="four wide column" <?= $translationAvailable ? '' : 'style="display:none;"'; ?>>
                                 <button type="submit" class="ui right floated button brand-color alt" translate>
                                     <i class="icon world"></i>
                                     <?= __($langGroup, 'Traducir'); ?>
