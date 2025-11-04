@@ -141,6 +141,7 @@ class GenericLoaderElement extends HTMLElement {
 
 		//Configurar logo
 		const logoURL = new URL('statics/images/loader-logo.png', pcsphpGlobals.baseURL)
+		logoURL.searchParams.set('cacheStamp', pcsphpGlobals.cacheStamp)
 		const logoImage = new Image()
 		logoImage.src = logoURL.href
 		const logoPromise = new Promise((resolve, reject) => {
@@ -151,6 +152,7 @@ class GenericLoaderElement extends HTMLElement {
 
 		//Configurar loader
 		const loaderURL = new URL('statics/images/loader-animation.gif', pcsphpGlobals.baseURL)
+		loaderURL.searchParams.set('cacheStamp', pcsphpGlobals.cacheStamp)
 		const loaderImage = new Image()
 		loaderImage.src = loaderURL.href
 		const loaderPromise = new Promise((resolve, reject) => {
