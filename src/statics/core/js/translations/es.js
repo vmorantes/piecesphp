@@ -131,10 +131,40 @@ var PCSPHP_TRANSLATIONS_ES = {
 		am: 'AM',
 		pm: 'PM',
 	},
+	messenger: {
+		'Error': 'Error',
+		'Ha ocurrido un error desconocido.': 'Ha ocurrido un error desconocido.',
+		'¡Listo!': '¡Listo!',
+	},
 	loginForm: {
+		'Error': 'Erreur',
+		'Ha ocurrido un error inesperado, intente más tarde.': 'Ha ocurrido un error inesperado, intente más tarde.',
+		'Si continua con problemas para ingresar, por favor utilice la ayuda.': 'Si continua con problemas para ingresar, por favor utilice la ayuda.',
+		'Por favor, verifique los datos de ingreso y vuelva a intentar.': 'Por favor, verifique los datos de ingreso y vuelva a intentar.',
+		'Por favor, ingrese al siguiente enlace para desbloquear su usuario.': 'Por favor, ingrese al siguiente enlace para desbloquear su usuario.',
+		'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.': 'Se ha presentado un error al momento de ingresar, por favor intente nuevamente.',
 		'CONTRASEÑA_INVÁLIDA': '<span class="text">Contraseña</span> <span class="mark">inválida</span>',
 		'USUARIO_BLOQUEADO': '<span class="text">Usuario</span> <span class="mark">bloqueado</span>',
 		'USUARIO_INEXISTENTE': '<span class="text">El usuario</span> <span class="mark">%r</span> <span class="text">no existe</span>',
 		'ERROR_AL_INGRESAR': 'Error al ingresar',
 	},
+	userProblems: {
+		'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Será solucionada muy pronto, por favor verifique su correo en las próximas horas. <br> El correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.',
+		'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.': 'Ingrese el código enviado a su correo, el correo puede estar en "No deseado", por favor revise la carpeta de Spam. El remitente del correo es <strong>%r</strong>.',
+		'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.': 'El correo ingresado no está asociado a ningún usuario, por favor ingrese otra cuenta de correo o puede crear una solicitud de soporte para asociar ese correo a su cuenta.',
+		'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.': 'El código ingresado está errado, por favor vuelva a ingresar el código, solicite uno nuevo o cree una solicitud de soporte para informar del error.',
+		'Ingrese con su usuario y la nueva contraseña': 'Ingrese con su usuario y la nueva contraseña',
+		'Las contraseñas no coinciden': 'Las contraseñas no coinciden',
+	},
+	avatar: {
+		'Confirmación': 'Confirmación',
+		'¿Seguro de guardar el avatar?': '¿Seguro de guardar el avatar?',
+		'Cargando...': 'Cargando...',
+		'¿Seguro de guardar la foto de perfil?': '¿Seguro de guardar la foto de perfil?',
+		'Sí': 'Sí',
+		'No': 'No',
+	},
+	public: {
+		'Ver más': 'Ver más',
+	}
 }
