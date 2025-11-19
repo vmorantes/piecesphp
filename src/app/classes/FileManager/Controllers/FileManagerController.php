@@ -140,11 +140,11 @@ class FileManagerController extends AdminPanelController
                 'relativePath' => 'files',
             ],
             [
-                'alias' => __(self::LANG_GROUP, 'Imágenes (Editor de texto)'),
-                'relativePath' => 'images',
+                'alias' => __(self::LANG_GROUP, 'Documentos (Editor de texto)'),
+                'relativePath' => 'documents',
                 'trashHash' => 't2_Lw',
-                'uploadDeny' => ['all'],
-                'uploadAllow' => ['image'],
+                'uploadDeny' => [],
+                'uploadAllow' => ['all'],
                 'permissions' => 0777,
             ],
             [
@@ -167,10 +167,10 @@ class FileManagerController extends AdminPanelController
             ],
             [
                 'id' => '2',
-                'relativePath' => '.trash-images',
-                'alias' => __(self::LANG_GROUP, 'Papelera (Imágenes - Editor de texto)'),
-                'uploadDeny' => ['all'],
-                'uploadAllow' => ['image'],
+                'relativePath' => '.trash-documents',
+                'alias' => __(self::LANG_GROUP, 'Papelera (Documentos - Editor de texto)'),
+                'uploadDeny' => [],
+                'uploadAllow' => ['all'],
             ],
         ];
 
@@ -205,10 +205,10 @@ class FileManagerController extends AdminPanelController
         $trashes = [
             [
                 'id' => '2',
-                'relativePath' => '.trash-images',
-                'alias' => __(self::LANG_GROUP, 'Papelera (Imágenes)'),
-                'uploadDeny' => ['all'],
-                'uploadAllow' => ['image'],
+                'relativePath' => '.trash-documents',
+                'alias' => __(self::LANG_GROUP, 'Papelera (Documentos)'),
+                'uploadDeny' => [],
+                'uploadAllow' => ['all'],
             ],
         ];
 
