@@ -28,12 +28,12 @@ if (is_local()) {
     $config['database']['default']['user'] = 'admin';
     $config['database']['default']['password'] = '';
     $config['database']['default']['host'] = 'localhost';
-    $config['database']['default']['charset'] = 'utf8';
+    $config['database']['default']['charset'] = 'utf8mb4';
 } else {
     $config['database']['default']['driver'] = 'mysql';
     $config['database']['default']['db'] = 'admin_pieces';
     $config['database']['default']['user'] = 'root';
     $config['database']['default']['password'] = 'PASSWORD';
     $config['database']['default']['host'] = 'localhost';
-    $config['database']['default']['charset'] = 'utf8';
+    $config['database']['default']['charset'] = 'utf8mb4';
 }
