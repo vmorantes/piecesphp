@@ -1570,6 +1570,9 @@ function remove_imported_asset(string $assetName)
  */
 function set_custom_assets(array $custom_assets, string $type)
 {
+    $custom_assets = array_filter($custom_assets, function ($item) {
+        return is_string($item) && mb_strlen($item) > 0;
+    });
     $_custom_assets = get_config('custom_assets');
     if ($type == "js") {
         $_custom_assets['js'] = $custom_assets;
