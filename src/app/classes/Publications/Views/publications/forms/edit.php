@@ -103,7 +103,7 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
                 <div data-tab="seo"><?= __($langGroup, 'SEO'); ?></div>
                 <?php if(!$isBaseLang && APIRoutes::ENABLE_TRANSLATIONS && get_config('translationAIEnable')):?>
                 <div class="actions-buttons">
-                    <button class="ui right labeled icon button brand-color" do-translation from-lang="<?= $baseLang; ?>" to-lang="<?= $langCode; ?>"<?= $translationAvailable ? '' : ' style="display:none;"'; ?>>
+                    <button class="ui right labeled icon button brand-color" do-translation from-lang="<?= $baseLang; ?>" to-lang="<?= $langCode; ?>" <?= $translationAvailable ? '' : ' style="display:none;"'; ?>>
                         <?= __($langGroup, 'Traducir'); ?><i class="language icon"></i>
                     </button>
                 </div>
@@ -174,10 +174,12 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
                     <div class="ui tab" data-tab="images">
 
+                        <?php if($allowedManyLangs): ?>
                         <p>
                             <strong><?=__($langGroup, 'Si reemplaza las imágenes, estas solo serán visibles en la publicación de este idioma'); ?></strong>
                         </p>
                         <br>
+                        <?php endif; ?>
 
                         <div class="form-attachments-regular">
                             <?php $fieldName = 'mainImage'; ?>
@@ -270,10 +272,12 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
                     <div class="ui tab" data-tab="seo">
 
+                        <?php if($allowedManyLangs): ?>
                         <p>
                             <strong><?=__($langGroup, 'Si reemplaza la imagen, esta solo serán visibles en la publicación de este idioma.'); ?></strong>
                         </p>
                         <br>
+                        <?php endif; ?>
 
                         <?php $fieldName = 'ogImage'; ?>
                         <?php $fieldHandler = $fieldsHandler[$fieldName]; ?>
