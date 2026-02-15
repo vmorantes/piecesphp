@@ -232,6 +232,7 @@ $container_configurations = [
         $allowedHeaders = $requestedHeaders ?: 'Content-Type, Authorization, isWebApp, isExternalLogin, JWTAuth';
         $response = $response
             ->withHeader('Access-Control-Allow-Origin', $origin)
+            ->withHeader('Access-Control-Allow-Credentials', 'true')
             ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT')
             ->withHeader('Access-Control-Allow-Headers', $allowedHeaders)
             ->withHeader('Vary', 'Origin');
