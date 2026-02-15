@@ -164,6 +164,10 @@ class PiecesPHPSystemUserHelper {
 		localStorage.setItem('JWTAuthExtraData', JSON.stringify(extraData))
 	}
 
+	logout() {
+		this.deleteSession()
+	}
+
 	setTriggerLogout(selector) {
 
 		let instance = this
@@ -428,7 +432,7 @@ class PiecesPHPSystemUserHelper {
 	}
 
 	capitalize(str) {
-		return typeof str == 'string' ? str.split('').map(e, i => i == 0 ? e.toUpperCase() : e).join('') : ''
+		return typeof str == 'string' ? str.split('').map((e, i) => i == 0 ? e.toUpperCase() : e).join('') : ''
 	}
 
 	/**
