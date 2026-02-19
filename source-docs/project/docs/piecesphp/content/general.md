@@ -75,7 +75,7 @@ export FOLDER=$(pwd)
 
 ```bash
 cd $FOLDER
-wget https://bitbucket.org/piecesphp/piecesphp/get/last-stable.zip
+wget https://github.com/vmorantes/piecesphp/archive/refs/heads/last-stable.zip
 unzip last-stable.zip -d . && rm last-stable.zip
 ```
 
