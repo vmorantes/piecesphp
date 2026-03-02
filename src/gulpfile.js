@@ -64,6 +64,9 @@ function tsTask() {
 		.pipe(sourcemaps.init())
 		.pipe(typescript({
 			target: 'es5',
+			//Opciones importantes
+			skipLibCheck: true, //No buscar librerías .d.ts.
+			typeRoots: [], //No buscar tipos automáticamente en node_modules.
 		}))
 		.pipe(sourcemaps.write('./'))
 		.pipe(dest(destsPiecesPHPTS.base))

@@ -1,4 +1,3 @@
-/// <reference path="../../../../node_modules/cropperjs/types/index.d.ts" />
 /**
  * @function SimpleCropperAdapter
  *  
@@ -254,6 +253,7 @@ function SimpleCropperAdapter(componentSelector = null, options = {},) {
 
 	//Verifica si la imagen de vista previa existe y luego instancia cropper
 	const previewImage = new Image()
+	/** @type {Cropper} */
 	let cropper = null
 	previewImage.src = preview.src
 	previewImage.addEventListener('load', function (e) {
