@@ -104,7 +104,7 @@ class OTPHandler
         $userData = self::getUserDataByUsername($username);
         if ($userData !== null) {
 
-            $code = generate_code(8, true);
+            $code = generate_code(6, true);
 
             $OTPCreated = OTPSecretsUsersMapper::setOTP($userData->id, $code, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE, 20);
 

@@ -1,5 +1,3 @@
-/// <reference path="../../../../node_modules/@types/mapbox-gl/index.d.ts" />
-/// <reference path="../../../../node_modules/@types/mapbox__mapbox-gl-geocoder/index.d.ts" />
 /**
  * @function MapBoxAdapter
  */
