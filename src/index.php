@@ -32,22 +32,44 @@ use SystemApprovals\SystemApprovalsMiddleware;
 use SystemApprovals\SystemApprovalsRoutes;
 use Terminal\Controllers\TerminalController;
 
+/**
+ * --------------------------------------------------------------------------
+ * Inicialización del Núcleo (Core Bootstrap)
+ * --------------------------------------------------------------------------
+ * Carga el archivo principal de inicialización que prepara el entorno
+ * de la aplicación (constantes, helpers, autoloaders, etc.).
+ */
 require __DIR__ . '/app/core/bootstrap.php';
 
-/**Assets globales */
+/**
+ * --------------------------------------------------------------------------
+ * Registro de Assets Globales
+ * --------------------------------------------------------------------------
+ * Carga las definiciones de recursos estáticos globales (hojas de estilo y scripts).
+ */
 require_once basepath("app/config/assets.php");
 
-/**Rutas */
-
-//Containers
+/**
+ * --------------------------------------------------------------------------
+ * Inyección de Dependencias y Rutas
+ * --------------------------------------------------------------------------
+ * Define los contenedores base requeridos por Slim Framework.
+ */
 require_once basepath("app/config/containers.php");
 
-//Instancia del enrutador
+// Asignación de la instancia del inyector de dependencias (DI) al sistema
 set_config(
     'slim_container',
     new DependenciesInjector($container_configurations)
 );
 
+/**
+ * --------------------------------------------------------------------------
+ * Assets del Sistema de Sesión
+ * --------------------------------------------------------------------------
+ * Añade los scripts de control de sesión de usuario en el frontend si
+ * el parámetro 'control_access_login' está habilitado.
+ */
 if (get_config('control_access_login') === true) {
     add_global_requireds_assets([
         base_url('statics/core/js/user-system/PiecesPHPSystemUserHelper.js'),
@@ -56,6 +78,13 @@ if (get_config('control_access_login') === true) {
     ], 'js');
 }
 
+/**
+ * --------------------------------------------------------------------------
+ * Configuración de la Aplicación por Defecto
+ * --------------------------------------------------------------------------
+ * Inicializa los parámetros visuales (favicons, logos) y valores por
+ * defecto como correos y títulos de la aplicación.
+ */
 if (APP_CONFIGURATION_MODULE) {
 
     $default_configurations_values = [
@@ -104,6 +133,13 @@ if (APP_CONFIGURATION_MODULE) {
     AppConfigModel::initializateConfigurations($default_configurations_values);
 }
 
+/**
+ * --------------------------------------------------------------------------
+ * Sobrescritura de Configuraciones desde la Base de Datos
+ * --------------------------------------------------------------------------
+ * Carga y aplica los ajustes de sistema guardados en tiempo real
+ * y configura el módulo de correos y título principal.
+ */
 if (APP_CONFIGURATION_MODULE) {
     //Configuraciones de la aplicación tomadas desde la base de datos
     $configurations = AppConfigModel::getConfigurations();
@@ -112,17 +148,26 @@ if (APP_CONFIGURATION_MODULE) {
         set_config($name, $value);
     }
 
+    //Configuración de correo
     (function ($config) {
         if (!is_scalar($config)) {
             set_config('mail', (new MailConfig)->toArray());
         }
     })(get_config('mail'));
 
+    //Configuración del título
     if (mb_strlen(get_title()) == 0) {
         set_title(AppConfigModel::getConfigValue('title_app'));
     }
 }
 
+/**
+ * --------------------------------------------------------------------------
+ * Configuración del Enrutador (Router)
+ * --------------------------------------------------------------------------
+ * Crea la instancia principal de la aplicación enrutadora y ajusta
+ * el BasePath de la URIs enviadas al servidor.
+ */
 $app = Router::createRouter(get_config('slim_container'));
 $routerBasePath = appbase();
 $routerBasePath = trim($routerBasePath, '/');
@@ -130,13 +175,23 @@ $routerBasePath = "/" . $routerBasePath;
 $routerBasePath = $routerBasePath == '/' ? '' : $routerBasePath;
 $app->setBasePath($routerBasePath);
 
-//Acciones antes de mostrar una ruta
+/**
+ * --------------------------------------------------------------------------
+ * MIDDLEWARE GLOBAL PRINCIPAL (PRE-ENRUTAMIENTO)
+ * --------------------------------------------------------------------------
+ * Intercepta toda petición HTTP. Contiene la lógica core de seguridad,
+ * validación de sesiones, expiración por inactividad, control de idiomas (i18n)
+ * y jerarquía de permisos de roles, previas al controlador de destino.
+ */
 $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
+    // Atrapa mensajes 'flash' (sesiones volátiles de una sola vez) y excepciones previas al enrutamiento
     $flashMessagesExceptionRender = get_flash_messages(BaseController::class);
     $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessagesExceptionRender) ? $flashMessagesExceptionRender['render_exception'] : null;
 
+    // Plantilla de respuesta HTTP vacía para mutarla y retornar en caso de rechazos 403 o 404
     $emptyResponse = new ResponseRoute();
+    // Obtiene el objeto ruta resuelto tras machear la URI solicitada
     $route = $request->getRoute();
 
     if (empty($route)) {
@@ -147,7 +202,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         throw $flashMessagesExceptionRender;
     }
 
-    //──── Idiomas ───────────────────────────────────────────────────────────────────────────
+    // --- 1. Gestión de Internacionalización y Multi-idioma (i18n) ---
+    // Identifica el lenguaje actual y establece las alternativas URL para dicho idioma.
     $isGenericView = $route->getName() == 'public-generic';
     $allowedLangs = Config::get_allowed_langs();
     $currentLang = Config::get_lang();
@@ -202,20 +258,26 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     ($setAlternativesLangsURLs)();
     Config::set_config('calculate_alternatives_langs_urls', function () use ($setAlternativesLangsURLs) {($setAlternativesLangsURLs)(true);});
 
-    //──── Validaciones de sesión y redirecciones ────────────────────────────────────────────
+    // --- 2. Preparación y Validación Inicial de Sesiones ---
+    // Obtiene el token emitido y el nombre de la ruta solicitada
     $JWT = SessionToken::getJWTReceived();
     $name_route = $route->getName(); //Nombre de la ruta
     $methods = $route->getMethods(); //Métodos que acepta la ruta solicitada
     $arguments = $route->getArguments(); //Argumentos pasados en la url
-    $user = null; //Usuario activo
+    $user = null; // Variable principal que contendrá la entidad Usuario si este superó todas las validaciones
 
     //Control de acceso por login
+    // Bandera maestra: Determina si el sistema exige autenticación de forma predeterminada para cualquier vista
     $control_access_login = get_config('control_access_login');
 
     //Verifica validez del JWT
+    // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
     $isActiveSession = SessionToken::isActiveSession($JWT);
 
     //En caso de ser desde la terminal conectarse al root
+
+    // --- 3. Ejecución desde Consola ---
+    // Fuerzo un login de ROOT si se está ejecutando en CLI (Terminal) sin sesión.
     if (!$isActiveSession && get_config('terminalData')->isTerminal()) {
         $rootUser = new UsersModel(1);
         if ($rootUser->id !== null) {
@@ -224,6 +286,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                 'type' => $rootUser->type,
             ]);
             $_SERVER["HTTP_" . mb_strtoupper(SessionToken::TOKEN_NAME)] = $JWT;
+            // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
             $isActiveSession = SessionToken::isActiveSession($JWT);
         }
     }
@@ -251,12 +314,18 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     };
 
     //Rutas que se reautentican si está desconectado (para consultas de terceros)
+    // Lista Blanca (Whitelist) de nombres de ruteo interno a las que intencionalmente
+    // se les renovará un token caducado de forma automática. Ej: Webhooks, Endpoints de terceros.
     $ignoreExpiredForRoutesName = [
         ($getQualifiedRouteName)('NOMBRE_CALIFICADO_DE_LA_CLASE', 'NOMBRE_SIMPLE_DE_LA_RUTA'),
     ];
 
+    // --- 4. Manejo de Expiración de Sesión ---
+    // Generación de un log persistente en /app/logs si el token se vence,
+    // con autolimpieza de historiales con más de 30 días de antigüedad.
     if (!$isActiveSession) {
 
+        // Desencripta la info del token brincándose la validación de tiempo para rescatar qué usuario intentó operar.
         $expiredUserData = (object) BaseToken::getData($JWT, null, null, true);
 
         $expiredSessionsFolder = basepath('app/logs/expired-sessions');
@@ -317,6 +386,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             @file_put_contents($expiredSessionsFolder . \DIRECTORY_SEPARATOR  . (new \DateTime)->format('d-m-Y_h-i-s-U.u_A') . '.json', json_encode($expiredSessionDataToJSON, \JSON_UNESCAPED_UNICODE));
         }
 
+        // Renueva token si la ruta es una de excepción configurada (Ej. Cron, consultas 3ros, Webhooks)
         $ignoreExpired = in_array($route->getName(), $ignoreExpiredForRoutesName);
 
         if ($ignoreExpired && is_object($expiredUserData) && isset($expiredUserData->id)) {
@@ -327,6 +397,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
                     'type' => $expiredUser->type,
                 ]);
                 $_SERVER["HTTP_" . mb_strtoupper(SessionToken::TOKEN_NAME)] = $JWT;
+                // Comprobación de P1 (Firma y Vigencia). ¿El token JWT provisto fue sellado por esta API y no ha caducado?
                 $isActiveSession = SessionToken::isActiveSession($JWT);
             }
         }
@@ -338,9 +409,16 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     $user = null;
     $userIsOrganizationAdministrator = false;
 
+    // --- 5. Extracción y Verificación Activa en Base de Datos ---
+    // Si existe sesión validada internamente, se confirma extrae del
+    // Token JWT y procede a comprobar en la Base de Datos que el
+    // usuario no haya sido inhabilitado, borrado, etc.
     if ($isActiveSession) {
 
         $userJWTData = BaseToken::getData($JWT); //Información del usuario
+        // --- Clase Anónima de Validación DTO ---
+        // Envuelve la data del token para asegurar que posee las propiedades 'id' y 'type' con valores enteros fiables
+        // antes de cruzar los datos contra MySQL.
         $validationUserObject = new class($userJWTData)
         {
             /**
@@ -369,6 +447,13 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             }
             /**
              * Trata de buscar al usuario en la base de datos
+             *
+             * @return \stdClass|null
+             */
+            /**
+             * Consumo a Base de Datos: Comprueba si el ID desencriptado del token existe físicamente
+             * en MySQL y arma su nombre completo. Esto blinda los casos donde un Token es válido
+             * pero el usuario fue eliminado de la base de datos.
              *
              * @return \stdClass|null
              */
@@ -460,9 +545,15 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         $user = $validationUserObject->getUserFromDatabase();
 
         //Conectarse arbitrariamente como un usuario si se es root
+
+        // --- 6. Impersonación (Login as) ---
+        // Capacidad exclusiva del usuario ROOT para autenticarse temporalmente
+        // en el contexto del sistema como si fuera otro usuario en tiempo de ejecución.
+        // Intercepción de parámetros GET o Cookies para activar la Suplantación de Identidad (Impersonation)
         $anotherUserID = isset($_GET) && array_key_exists(CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME, $_GET) ? $_GET[CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME] : null;
         $anotherUserID = $anotherUserID !== null ? $anotherUserID : getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
         set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, null);
+        // El privilegio ROOT es el único autorizado a intercambiar su variable en memoria y operar del lado del servidor simulando ser otro usuario de menor rango.
         if ($user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
             set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, $user->id);
             $anotherUserID = Validator::isInteger($anotherUserID) ? (int) $anotherUserID : null;
@@ -485,6 +576,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
             //Verificar status de la organización si aplica
             $organizationID = $user->organization;
+            // Verifica que si un usuario pertenece a una organización, dicha entidad tenga al menos un estatus ACTIVO/PENDIENTE.
             $organizationMapper = $organizationID !== null  ?OrganizationMapper::objectToMapper(OrganizationMapper::getBy($organizationID, 'id')) : null;
             $allowedStatusesOrganization = [
                 OrganizationMapper::ACTIVE,
@@ -502,6 +594,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
             }
 
             //Verificar el status del usuario
+            // Suspensión Forzosa: Si la base de datos marca `inactivo`, destrozamos forzosamente la sesión desestimando la firma JWT.
             if ($user->status == UsersModel::STATUS_USER_INACTIVE) {
                 $isActiveSession = false;
                 SessionToken::setMinimumDateCreated(new \DateTime());
@@ -514,6 +607,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     }
 
     //Verifica si el control automático de acceso por login está activado
+
+    // --- 8. Capa de Restricción de Acceso y Reglas de Login ---
+    // Cierre de puertas al sistema si la petición requiere logueo y
+    // el usuario no posee la sesión activa.
     if ($control_access_login) {
 
         $info_route = get_route_info($name_route); //Información de la ruta actual
@@ -573,17 +670,23 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         }
 
         //Control de permisos por roles
+        // --- Inicia Pipeline de Autorización Dinámica de Roles (RBAC) ---
         $roles_control = get_config('roles');
         $active_roles_control = isset($roles_control['active']) ? $roles_control['active'] : false;
         $current_role = $user !== null  ?Roles::getCurrentRole() : null;
         $has_permissions = null;
 
         //Modificación de permisos del usuario en caso de tener una organización encargada
+
+        // Expanden los permisos y roles temporales del usuario si es el
+        // encargado administrador de la organización en curso.
         if ($userIsOrganizationAdministrator) {
 
-            //Rutas por agregar si tiene organización encagada
+            // Recuperamos rutas especiales reservadas para roles gerenciales (organización)
             $addPermissionsRoutes = OrganizationMapper::PERMISSIONS_ON_ADMINISTRATOR;
 
+            // Extrae el mapa global de Roles en RAM y le inyecta permisos de administrador temporales
+            // si el usuario es el encargado designado de dicha organización.
             $allRolesConfig = Roles::getRoles();
 
             foreach ($allRolesConfig as $roleConfigKey => $roleConfig) {
@@ -607,10 +710,14 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         //Verifica si está activada la comprobación automática de roles
         if ($current_role !== null && $active_roles_control === true) {
 
+            // Cruza el Identificador de ruta solicitada (Ej: 'users-delete') vs el catálogo de permisos concedidos de su Rol respectivo.
             $has_permissions = Roles::hasPermissions($name_route, $current_role['name']);
         }
 
         //Acciones en caso de no tener permisos
+
+        // Retorno Forzado de HTTP 403 (Permiso Denegado) si la comprobación
+        // de privilegios del rol del usuario arroja negativo.
         if ($has_permissions !== null && !$has_permissions && $info_route['require_login']) {
             return (function ($request) {
                 return throw403($request, []);
@@ -618,7 +725,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
         }
     }
 
-    //Definición de menús
+    // --- 9. Representación Final de Menú ---
+    // Importa el mapa del Menú principal del Sistema filtrado sobre
+    // los roles procesados anteriormente para esta instancia de usuario.
     $silentModeRolesSetted = Roles::getSilentMode();
     Roles::setSilentMode(true);
     require_once basepath("app/config/menu.php");
@@ -631,28 +740,49 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     return $response;
 });
 
+/**
+ * --------------------------------------------------------------------------
+ * Ajustes Locales del Sistema
+ * --------------------------------------------------------------------------
+ */
 set_config('upload_dir', basepath('statics/uploads'));
 set_config('upload_dir_url', baseurl('statics/uploads'));
 set_config('slim_app', $app);
 
-//Definición de rutas
+/**
+ * --------------------------------------------------------------------------
+ * Carga e Inclusión de las Rutas Globales de la App
+ * --------------------------------------------------------------------------
+ */
 require_once basepath("app/config/routes.php");
 
-//Configuraciones finales
+/**
+ * --------------------------------------------------------------------------
+ * Inclusión de Configuraciones Adicionales / Finales
+ * --------------------------------------------------------------------------
+ */
 require_once basepath("app/config/final-configurations.php");
 
-/** Activar enrutador */
+/**
+ * --------------------------------------------------------------------------
+ * Adición de Manejadores Base y Detección de Errores (ErrorMiddleware)
+ * --------------------------------------------------------------------------
+ */
 $app->addRoutingMiddleware();
 $errorMiddleware = $app->addErrorMiddleware(is_local(), false, false);
 set_config('errorMiddleware', $errorMiddleware);
 
-//Definir estrategia personalizada
 $routeCollector = $app->getRouteCollector();
 $routeCollector->setDefaultInvocationStrategy(new InvocationStrategy());
 
-//Llamadas antes y después de ejecutar rutas
+/**
+ * --------------------------------------------------------------------------
+ * Middleware Pre/Post de Inserción de Cabeceras Custom (Idioma esperado)
+ * --------------------------------------------------------------------------
+ */
 $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     //Obtener el idioma deseado de las solicitudes
+    // Inspecciona si el cliente demandó una respuesta en idioma estricto por Cabecera HTTP (Práctico para integraciones API/Móvil)
     $responseExpectedLang = $request->getHeaderLine('PCSPHP-Response-Expected-Language');
     if (!is_string($responseExpectedLang) || mb_strlen(trim($responseExpectedLang)) < 1) {
         $responseExpectedLang = null;
@@ -667,11 +797,22 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     return $response;
 });
 
+/**
+ * --------------------------------------------------------------------------
+ * Construcción Árbol de Rutas y Despacho de Evento (InitRoutes)
+ * --------------------------------------------------------------------------
+ */
 RouteGroup::initRoutes(false);
 set_config('AppRoutesInit', true);
 BaseEventDispatcher::dispatch("AppRoutes", 'InitRoutes', null);
 
-/** Ajustes terminal */
+/**
+ * --------------------------------------------------------------------------
+ * Parche y Simulador de Peticiones para Terminal (CLI)
+ * --------------------------------------------------------------------------
+ * En caso de detectar entorno consola, permite resolver peticiones Web
+ * mogueando variables nativas ($_SERVER, HTTP headers, URI)
+ */
 if (TerminalData::getInstance()->isTerminal()) {
 
     $terminalDataInstance = TerminalData::getInstance();
@@ -704,7 +845,13 @@ if (TerminalData::getInstance()->isTerminal()) {
     }
 }
 
-//Manejar errores
+/**
+ * --------------------------------------------------------------------------
+ * Rutinas Personalizadas de Exceptions / HTTP Status Callbacks
+ * --------------------------------------------------------------------------
+ * Manejo decorativo de pantallas 404 (No Encontrado), 403 (Acceso Denegado),
+ * 405 (Método no permitido) o en caso general un 500 (Internal Server Error).
+ */
 $handle404 = function (RequestRoute $request, Throwable $exception, bool $displayErrorDetails) {
     if ($exception instanceof HttpNotFoundException) {
         return get_router()->getDI()->get('notFoundHandler')($exception);
@@ -757,4 +904,11 @@ $errorMiddleware->setErrorHandler([
     \UnexpectedValueException::class,
 ], $customGlobalExceptionHandler, true);
 
+/**
+ * --------------------------------------------------------------------------
+ * INICIALIZACIÓN MÁQUINA DE APP
+ * --------------------------------------------------------------------------
+ * Dispara finalmente el proceso de vida de la aplicación basándose en
+ * los Globales del Servidor Web (Apache/Nginx)
+ */
 $app->run(RequestRouteFactory::createFromGlobals());
