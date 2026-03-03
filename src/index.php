@@ -62,6 +62,10 @@ set_config(
     'slim_container',
     new DependenciesInjector($container_configurations)
 );
+/**
+ * @var DependenciesInjector
+ */
+$globalDI = get_config('slim_container');
 
 /**
  * --------------------------------------------------------------------------
@@ -183,7 +187,17 @@ $app->setBasePath($routerBasePath);
  * validación de sesiones, expiración por inactividad, control de idiomas (i18n)
  * y jerarquía de permisos de roles, previas al controlador de destino.
  */
-$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
+$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use ($globalDI) {
+
+    $handleCors = function (RequestRoute $request, ResponseRoute $response) use ($globalDI) {
+        //Cabeceras CORS para peticiones desde otros orígenes (Solo en "modo API")
+        if (API_MODULE) {
+            if ($globalDI instanceof DependenciesInjector) {
+                $response = $globalDI->get('cors')($request, $response);
+            }
+        }
+        return $response;
+    };
 
     // Atrapa mensajes 'flash' (sesiones volátiles de una sola vez) y excepciones previas al enrutamiento
     $flashMessagesExceptionRender = get_flash_messages(BaseController::class);
@@ -632,6 +646,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
 
                         if ($referer != $url_login) {
                             $emptyResponse = $emptyResponse->withStatus(403);
+                            $emptyResponse = ($handleCors)($request, $emptyResponse);
                             return $emptyResponse->withJson([
                                 'error' => 'RESTRICTED_AREA',
                                 'message' => __('errors', 'RESTRICTED_AREA'),

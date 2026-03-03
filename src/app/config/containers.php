@@ -98,16 +98,10 @@ $container_configurations = [
 
         /* Ejecución después de procesar la ruta: */
 
-        //Cabeceras CORS para peticiones desde otros orígenes
+        //Cabeceras CORS para peticiones desde otros orígenes (Solo en "modo API")
         if (API_MODULE) {
             if ($container instanceof DependenciesInjector) {
                 $response = $container->get('cors')($request, $response);
-                $response = $response;
-            } else {
-                $response = $response
-                    ->withHeader('Access-Control-Allow-Origin', '*')
-                    ->withHeader('Access-Control-Allow-Methods', '*')
-                    ->withHeader('Access-Control-Allow-Headers', '*');
             }
         }
 
@@ -132,18 +126,10 @@ $container_configurations = [
         $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
         $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
 
+        //Cabeceras CORS para peticiones desde otros orígenes (Solo en "modo API")
         if (API_MODULE) {
-            if ($request->getMethod() == 'OPTIONS') {
-                if ($container instanceof DependenciesInjector) {
-                    $response = $container->get('cors')($request, $response);
-                    return $response;
-                } else {
-                    return $response
-                        ->withHeader('Access-Control-Allow-Origin', '*')
-                        ->withHeader('Access-Control-Allow-Methods', '*')
-                        ->withHeader('Access-Control-Allow-Headers', '*')
-                        ->withStatus(204);
-                }
+            if ($container instanceof DependenciesInjector) {
+                $response = $container->get('cors')($request, $response);
             }
         }
 
@@ -161,6 +147,11 @@ $container_configurations = [
         return $response;
     },
     'forbiddenHandler' => function (HttpForbiddenException $forbiddenError) {
+
+        /**
+         * @var DependenciesInjector $container
+         */
+        $container = get_router()->getDI();
 
         /**
          * @var RequestRoute $request
@@ -189,6 +180,13 @@ $container_configurations = [
         $file = array_key_exists('file', $extraData) ? $extraData['file'] : null;
 
         $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
+
+        //Cabeceras CORS para peticiones desde otros orígenes (Solo en "modo API")
+        if (API_MODULE) {
+            if ($container instanceof DependenciesInjector) {
+                $response = $container->get('cors')($request, $response);
+            }
+        }
 
         if ($request->isXhr() || $requestTypeIsJSON) {
             $response = $response->withJson("403 Forbidden");
