@@ -21,7 +21,7 @@ $keysToSet = [
 ];
 
 foreach ($keysToSet as $keysToSet) {
-    $directoryKeys = !is_local() ? (realpath('../../private') ?? 'NON_EXISTS') : '';
+    $directoryKeys = '';
     $configName = $keysToSet['configName'];
     $fileKeyName = $keysToSet['fileKeyName'];
     $currentValue = get_config($configName);

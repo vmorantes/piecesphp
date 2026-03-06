@@ -3162,8 +3162,8 @@ function getKeyFromSecureKeys(string $name, string $fullDirectory = null)
         $relativePathFile = 'secure-keys' . \DIRECTORY_SEPARATOR  . $name;
 
         //Opciones de carpetas padre inmediatamente arriba (..) o tipo HestiaCP (public_html/../private)
-        $defaultDir = $fullDirectory !== null ? $fullDirectory : '..' . \DIRECTORY_SEPARATOR;
-        $privateDirHestiaLike = '..' . \DIRECTORY_SEPARATOR  . 'private' . \DIRECTORY_SEPARATOR;
+        $defaultDir = $fullDirectory !== null ? $fullDirectory : basepath() . \DIRECTORY_SEPARATOR  . '..' . \DIRECTORY_SEPARATOR;
+        $privateDirHestiaLike = basepath() . \DIRECTORY_SEPARATOR  . '..' . \DIRECTORY_SEPARATOR  . 'private' . \DIRECTORY_SEPARATOR;
         $alternativesDirectories = [
             'defaultDir' => $defaultDir,
             'privateDirHestiaLike' => $privateDirHestiaLike,
@@ -3195,7 +3195,6 @@ function getKeyFromSecureKeys(string $name, string $fullDirectory = null)
                 } catch (\Throwable) {}
             }
         }
-
         //Si existe finalmente el archivo, se devuelve el contenido
         if ($filePath !== null) {
             $ignoreFiles = [
