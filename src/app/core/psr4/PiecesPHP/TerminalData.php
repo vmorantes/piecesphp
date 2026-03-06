@@ -109,6 +109,12 @@ class TerminalData
                     $this->route = $i;
                 }
 
+            } elseif ($k == 'local') {
+
+                if (is_bool($i)) {
+                    $this->local = $i;
+                }
+
             }
 
         }
@@ -117,6 +123,7 @@ class TerminalData
             'isTerminal' => $this->isTerminal(),
             'arguments' => $this->arguments(),
             'route' => $this->route(),
+            'local' => $this->local,
         ];
 
         return $this;
