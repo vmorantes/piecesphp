@@ -17,7 +17,7 @@ $cronjobs[] = CronJobTaskAdapter::make('Ejemplo', function () {
         'extra_data' => [],
     ];
     return $response;
-})->everyMinutes(1);
+})->dailyAt("00:00");
 
 //Asignación global
 set_config('SystemCronjobs', $cronjobs);

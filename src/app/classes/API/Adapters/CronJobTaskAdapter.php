@@ -96,20 +96,6 @@ class CronJobTaskAdapter
     }
 
     /**
-     * Ejecuta la tarea si pasó un múltiplo de X minutos frente a la hora base.
-     * @param int $minutes
-     * @return self
-     */
-    public function everyMinutes(int $minutes): self
-    {
-        $this->executionCondition = function () use ($minutes) {
-            $currentMinute = (int) $this->getEvalDate()->format('i');
-            return $currentMinute % $minutes === 0;
-        };
-        return $this;
-    }
-
-    /**
      * Ejecuta la tarea siempre a un minuto fijo de cada hora (Ej: al minuto 15 de toda hora).
      * @param int $minute
      * @return self

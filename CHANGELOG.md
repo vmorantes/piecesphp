@@ -1,3 +1,8 @@
+# 6.4.201
+
+- Ajuste en lógica de cronjobs internos.
+- Añadido endpoint para ejecutar cronjobs desde terminal.
+
 # 6.4.200002
 
 - Ajuste de SQL a utf8mb4.

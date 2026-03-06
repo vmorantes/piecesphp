@@ -455,6 +455,55 @@ class TerminalController extends AdminPanelController
     /**
      * @return void
      */
+    public function runCronjobs()
+    {
+        // Mensaje de respuesta
+        $titleTask = "Ejecutando Cronjobs del Sistema";
+        $message = [
+            "\e[32m*** {$titleTask} ***\e[39m",
+        ];
+
+        try {
+            $systemCronjobs = get_config('SystemCronjobs');
+            $systemCronjobs = is_array($systemCronjobs) ? $systemCronjobs : [];
+            $executedCount = 0;
+
+            if (empty($systemCronjobs)) {
+                $message[] = "\e[33mNo hay cronjobs registrados en la configuración 'SystemCronjobs'.\e[39m";
+            } else {
+                foreach ($systemCronjobs as $cronTask) {
+                    if ($cronTask instanceof \API\Adapters\CronJobTaskAdapter) {
+                        if ($cronTask->shouldExecute()) {
+                            $message[] = "\e[34m-> Ejecutando: {$cronTask->getName()}\e[39m";
+                            $result = $cronTask->execute();
+                            $statusColor = $result['success'] ? "\e[32m" : "\e[31m";
+                            $message[] = "{$statusColor}   Resultado: {$result['message']}\e[39m";
+
+                            if (!$result['success'] && isset($result['error'])) {
+                                $message[] = "\e[31m   Error Detail: {$result['error']}\e[39m";
+                            }
+
+                            $executedCount++;
+                        }
+                    }
+                }
+                $message[] = "\e[36mSe revisaron " . count($systemCronjobs) . " tareas en total. Se ejecutaron {$executedCount}.\e[39m";
+            }
+
+        } catch (\Exception $e) {
+            $message[] = "\e[31mHa ocurrido un error general: {$e->getMessage()}\e[39m";
+            log_exception($e);
+        }
+
+        $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
+        if (count($message) > 1) {
+            echoTerminal(implode("\r\n", $message));
+        }
+    }
+
+    /**
+     * @return void
+     */
     public function scanMissinLangMessages()
     {
 
@@ -1025,6 +1074,22 @@ class TerminalController extends AdminPanelController
                     'route' => "{$startRoute}/scan-missing-lang[/]",
                     'controller' => $classname . ':scanMissinLangMessages',
                     'name' => self::$baseRouteName . '-scan-missing-lang',
+                    'method' => 'GET',
+                    'requireLogin' => true,
+                    'alias' => null,
+                    'rolesAllowed' => $onlyRoot,
+                    'defaultParamsValues' => [],
+                    'middlewares' => [],
+                ],
+                [
+                    'description' => [
+                        "Ejecuta las tareas cronjobs en segundo plano sin límites de tiempo HTTP.\r\n",
+                        "\tParámetros:\r\n",
+                        "\t  N/A\r\n",
+                    ],
+                    'route' => "{$startRoute}/run-cronjobs[/]",
+                    'controller' => $classname . ':runCronjobs',
+                    'name' => self::$baseRouteName . '-run-cronjobs',
                     'method' => 'GET',
                     'requireLogin' => true,
                     'alias' => null,
