@@ -125,6 +125,6 @@ $config['developer'] = 'Lorem ipsum';
 
 //Listeners
 \PiecesPHP\Core\BaseEventDispatcher::listen('InitRoutes', function () use ($config) {
-    set_config('GroqAPIKey', getenv('GROQ_API_KEY') ?: getKeyFromSecureKeys('groq'));
-    set_config('CronJobKey', (getenv('CRON_JOB_KEY') ?: getKeyFromSecureKeys('cronjob')) ?: uniqid('cronjob_'));
+    //Cuando se registran las rutas
+    //Do something
 }, 'AppRoutes');

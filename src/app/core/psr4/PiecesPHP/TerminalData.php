@@ -24,6 +24,10 @@ class TerminalData
      */
     protected $isTerminal = false;
     /**
+     * @var bool
+     */
+    protected $local = false;
+    /**
      * @var array
      */
     protected $arguments = [];
@@ -78,6 +82,7 @@ class TerminalData
             'isTerminal',
             'arguments',
             'route',
+            'local',
         ];
 
         foreach ($data as $k => $i) {

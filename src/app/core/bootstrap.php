@@ -23,6 +23,7 @@ $_SERVER['PCSPHP_TERMINAL_DATA'] = [
     'isTerminal' => defined('STDIN'),
     'arguments' => [],
     'route' => [],
+    'local' => true,
 ];
 $_SERVER['argv'] = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
 $_SERVER['argc'] = isset($_SERVER['argc']) ? $_SERVER['argc'] : count($_SERVER['argv']);
@@ -55,6 +56,11 @@ if (!isset($_SERVER['HTTP_HOST'])) {
         $secondArgument = $argc > 1 ? $argv[1] : null;
         $secondArgumentValid = $secondArgumentRequired === $secondArgument;
 
+        $thirdArgumentOptionalLocal = '--local';
+        $thirdArgument = $argc > 2 ? $argv[2] : null;
+        $thirdArgumentValid = $thirdArgumentOptionalLocal === $thirdArgument;
+        $_SERVER['PCSPHP_TERMINAL_DATA']['local'] = $thirdArgumentValid;
+
         if ($firstArgument !== null && $firstArgument) {
             unset($argv[0]);
             $argc--;
@@ -63,12 +69,20 @@ if (!isset($_SERVER['HTTP_HOST'])) {
             unset($argv[1]);
             $argc--;
         }
+        if ($thirdArgumentValid) {
+            unset($argv[2]);
+            $argc--;
+        }
 
         if ($argc > 0 && $firstArgumentValid && $secondArgumentValid) {
 
             $terminalData = $_SERVER['PCSPHP_TERMINAL_DATA'];
-            $actionName = $argv[2];
-            unset($argv[2]);
+            $actionName = !$thirdArgumentValid ? $argv[2] : $argv[3];
+            if (!$thirdArgumentValid) {
+                unset($argv[2]);
+            } else {
+                unset($argv[3]);
+            }
 
             foreach ($argv as $i) {
 
@@ -101,10 +115,15 @@ if (!isset($_SERVER['HTTP_HOST'])) {
 
 //Manejo de errores
 error_reporting(E_ALL);
-$isLocalBootstrap = isset($_SERVER['HTTP_HOST']) && (
-    $_SERVER['HTTP_HOST'] === 'localhost' ||
-    mb_substr($_SERVER['HTTP_HOST'], -10) === '.localhost'
+$isLocalBootstrap = (
+    isset($_SERVER['HTTP_HOST']) && (
+        $_SERVER['HTTP_HOST'] === 'localhost' ||
+        mb_substr($_SERVER['HTTP_HOST'], -10) === '.localhost'
+    )
 );
+if ($_SERVER['PCSPHP_TERMINAL_DATA']['isTerminal']) {
+    $isLocalBootstrap = $_SERVER['PCSPHP_TERMINAL_DATA']['local'];
+}
 ini_set('display_errors', $isLocalBootstrap);
 set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line) {
     $errorLevelTypeReferencesByType = [
