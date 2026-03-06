@@ -208,7 +208,7 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '6.4.200002');
+    define('APP_VERSION', '6.4.201');
     define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '25-09-2025')->format('Y-m-d'));
 }
 
