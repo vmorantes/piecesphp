@@ -3154,34 +3154,68 @@ function getCookie(string $name, bool $jsonDecode = false, bool $jsonDecodeAsArr
 function getKeyFromSecureKeys(string $name, string $fullDirectory = null)
 {
     $key = '';
-    $file = null;
-    $relativePath = 'secure-keys' . \DIRECTORY_SEPARATOR  . $name;
-    $defaultDir = $fullDirectory !== null ? $fullDirectory : '..' . \DIRECTORY_SEPARATOR;
-    $privateDirHestiaLike = '..' . \DIRECTORY_SEPARATOR  . 'private' . \DIRECTORY_SEPARATOR;
+    $filePath = null;
+    $fullDirectory = $fullDirectory !== null && mb_strlen($fullDirectory) > 1 ? $fullDirectory : null;
     try {
-        $file = basepath($defaultDir . $relativePath);
-    } catch (\Exception $e) {
-        try {
-            $file = basepath($privateDirHestiaLike . $relativePath);
-        } catch (\Exception $e) {
-            $file = null;
-        }
-    }
-    if ($file !== null) {
-        $fileExists = file_exists($file);
-        $ignoreFiles = [
-            '.gitignore',
-            '.htaccess',
-            '.editorconfig',
+
+        //Carpeta relativa en donde están las llaves por defecto
+        $relativePathFile = 'secure-keys' . \DIRECTORY_SEPARATOR  . $name;
+
+        //Opciones de carpetas padre inmediatamente arriba (..) o tipo HestiaCP (public_html/../private)
+        $defaultDir = $fullDirectory !== null ? $fullDirectory : '..' . \DIRECTORY_SEPARATOR;
+        $privateDirHestiaLike = '..' . \DIRECTORY_SEPARATOR  . 'private' . \DIRECTORY_SEPARATOR;
+        $alternativesDirectories = [
+            'defaultDir' => $defaultDir,
+            'privateDirHestiaLike' => $privateDirHestiaLike,
         ];
-        if ($fileExists && !in_array($name, $ignoreFiles)) {
-            $content = file_get_contents($file);
-            if (is_string($content)) {
-                $key = trim($content);
+
+        //Probar alternativas
+        if ($fullDirectory !== null) {
+            //Si se definió se busca directamente
+            try {
+                if (file_exists($fullDirectory)) {
+                    $tmp = append_to_path_system($fullDirectory, $relativePathFile);
+                    if (file_exists($tmp)) {
+                        $filePath = $tmp;
+                    }
+                }
+            } catch (\Throwable) {}
+        } else {
+            //Se validan en orden las alternativas disponibles
+            foreach ($alternativesDirectories as $alternativeDirectory) {
+                try {
+                    $alternativeDirectory = realpath($alternativeDirectory);
+                    if (file_exists($alternativeDirectory)) {
+                        $tmp = append_to_path_system($alternativeDirectory, $relativePathFile);
+                        if (file_exists($tmp)) {
+                            $filePath = $tmp;
+                            break;
+                        }
+                    }
+                } catch (\Throwable) {}
             }
         }
+
+        //Si existe finalmente el archivo, se devuelve el contenido
+        if ($filePath !== null) {
+            $ignoreFiles = [
+                '.gitignore',
+                '.htaccess',
+                '.editorconfig',
+            ];
+            if (!in_array($name, $ignoreFiles)) {
+                $content = file_get_contents($filePath);
+                if (is_string($content)) {
+                    $key = trim($content);
+                }
+            }
+        }
+
+        return $key;
+
+    } catch (\Throwable) {
+        return $key;
     }
-    return $key;
 }
 
 /**

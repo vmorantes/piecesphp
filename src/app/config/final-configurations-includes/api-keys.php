@@ -10,13 +10,22 @@ $keysToSet = [
         'configName' => 'MistralAIApiKey',
         'fileKeyName' => 'mistral',
     ],
+    [
+        'configName' => 'GroqAPIKey',
+        'fileKeyName' => 'groq',
+    ],
+    [
+        'configName' => 'CronJobKey',
+        'fileKeyName' => 'cronjob',
+    ],
 ];
 
 foreach ($keysToSet as $keysToSet) {
+    $directoryKeys = !is_local() ? (realpath('../../private') ?? 'NON_EXISTS') : '';
     $configName = $keysToSet['configName'];
     $fileKeyName = $keysToSet['fileKeyName'];
     $currentValue = get_config($configName);
     if (!is_string($currentValue) || mb_strlen($currentValue) == 0) {
-        set_config($configName, getKeyFromSecureKeys($fileKeyName));
+        set_config($configName, getKeyFromSecureKeys($fileKeyName, $directoryKeys));
     }
 }

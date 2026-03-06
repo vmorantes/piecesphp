@@ -117,6 +117,6 @@ class SpeechToTextGroqAdapter
      */
     public static function init()
     {
-        SpeechToTextGroqAdapter::$BASE_API_KEY = getKeyFromSecureKeys('groq');
+        SpeechToTextGroqAdapter::$BASE_API_KEY = get_config('GroqAPIKey');
     }
 }
