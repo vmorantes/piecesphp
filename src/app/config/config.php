@@ -70,7 +70,7 @@ $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
-$config['CronJobKey'] = 'CronJobKey';
+$config['CronJobKey'] = '';
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 
@@ -94,6 +94,7 @@ $config['SurveyJSKey'] = "";
 //Inteligencia artificial
 $config['OpenAIApiKey'] = "";
 $config['MistralAIApiKey'] = "";
+$config['GroqAPIKey'] = "";
 $config['translationAI'] = "";
 $config['translationAIEnable'] = true;
 $config['modelOpenAI'] = "gpt-3.5-turbo-0125";
@@ -121,3 +122,9 @@ ini_set('geoip.custom_directory', $config['GEO_IP']['custom_directory']);
 
 //Desarrollador
 $config['developer'] = 'Lorem ipsum';
+
+//Listeners
+\PiecesPHP\Core\BaseEventDispatcher::listen('InitRoutes', function () use ($config) {
+    set_config('GroqAPIKey', getenv('GROQ_API_KEY') ?: getKeyFromSecureKeys('groq'));
+    set_config('CronJobKey', (getenv('CRON_JOB_KEY') ?: getKeyFromSecureKeys('cronjob')) ?: uniqid('cronjob_'));
+}, 'AppRoutes');
