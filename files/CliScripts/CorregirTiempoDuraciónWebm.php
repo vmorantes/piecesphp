@@ -51,8 +51,9 @@ $fixedExtension = $cliArguments['--fixext'] ?? '.fix.webm';
 
 //Ajustar directorio
 if (!$isAbsolute) {
-    $uploadsDirectory = rtrim(str_replace(['//', '\\'], \DIRECTORY_SEPARATOR, getcwd() . DIRECTORY_SEPARATOR . $uploadsDirectory), \DIRECTORY_SEPARATOR);
+    $uploadsDirectory = str_replace(['//', '\\'], \DIRECTORY_SEPARATOR, getcwd() . DIRECTORY_SEPARATOR . $uploadsDirectory);
 }
+$uploadsDirectory = rtrim($uploadsDirectory, \DIRECTORY_SEPARATOR);
 
 //Ajustar patrón
 $globPattern = $uploadsDirectory . \DIRECTORY_SEPARATOR  . trim($globPattern, '/');
