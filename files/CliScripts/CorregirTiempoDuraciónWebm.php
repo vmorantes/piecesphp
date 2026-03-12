@@ -12,6 +12,78 @@ array_map(function ($e) use (&$cliArguments) {
     }
 }, $argv);
 
+/* Función fallback para ejecutar comandos en el sistema */
+$customExec = function(string $command): array {
+    $disabledFunctions = explode(',', ini_get('disable_functions'));
+    $disabledFunctions = array_map('trim', $disabledFunctions);
+    
+    $output = [];
+    $resultCode = 0;
+
+    // 1. Intentar con exec()
+    if (function_exists('exec') && !in_array('exec', $disabledFunctions)) {
+        exec($command, $output, $resultCode);
+        return [
+            'output' => $output,
+            'resultCode' => $resultCode
+        ];
+    }
+
+    // 2. Intentar con proc_open()
+    if (function_exists('proc_open') && !in_array('proc_open', $disabledFunctions)) {
+        $descriptorspec = [
+            1 => ["pipe", "w"],  // stdout
+            2 => ["pipe", "w"]   // stderr
+        ];
+        
+        $process = proc_open($command, $descriptorspec, $pipes);
+        
+        if (is_resource($process)) {
+            $stdout = stream_get_contents($pipes[1]);
+            $stderr = stream_get_contents($pipes[2]);
+            
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            
+            $fullOutput = trim($stdout . "\n" . $stderr);
+            if (!empty($fullOutput)) {
+                $output = explode("\n", $fullOutput);
+            }
+            
+            $resultCode = proc_close($process);
+            return [
+                'output' => $output,
+                'resultCode' => $resultCode
+            ];
+        }
+    }
+
+    // 3. Fallback final (menos recomendado, pero salva la situación) con shell_exec()
+    if (function_exists('shell_exec') && !in_array('shell_exec', $disabledFunctions)) {
+        $rawOutput = shell_exec($command);
+        if ($rawOutput !== null) {
+            $output = explode("\n", trim($rawOutput));
+            // Como shell_exec no da el código de error, asumiremos éxito si devolvió algo, 
+            // aunque no es exacto. Es el trade-off de caer en este fallback.
+            $resultCode = 0;
+        } else {
+            $resultCode = 1;
+            $output[] = "Error ejecutando comando vía shell_exec() o salida nula.";
+        }
+        return [
+            'output' => $output,
+            'resultCode' => $resultCode
+        ];
+    }
+
+    // 4. Si todo falló
+    return [
+        'output' => ["Error: No hay funciones disponibles para ejecutar comandos del sistema (exec, proc_open, shell_exec deshabilitados)."],
+        'resultCode' => 1
+    ];
+};
+
+
 /* Acciones en "help" */
 if (isset($cliArguments['--help'])) {
     $helpMessages = [
@@ -100,11 +172,10 @@ foreach ($fileResults as $filePath) {
         // '&&' asegura que si un comando falla, el resto no se ejecute
         $command = implode(' && ', $shellActions);
 
-        $output = [];
-        $resultCode = 0;
-
-        // exec() nos permite obtener el código de estado ($resultCode)
-        exec($command, $output, $resultCode);
+        // Llamar customExec
+        $result = $customExec($command);
+        $output = $result['output'];
+        $resultCode = $result['resultCode'];
 
         if ($resultCode === 0) {
             echo "Exito al procesar: {$filePath}\n";
