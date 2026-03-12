@@ -32,6 +32,7 @@ if (isset($cliArguments['--help'])) {
         "\t --fixext: .fix.webm Se elimina al procesar\n",
         "\t --restorebk: Restaura el backup. Si está presente es true, si no false\n",
         "\t --preserveall: Preserva los tres archivos (fix, original y bk). Si está presente es true, si no false\n",
+        "\t --preservefix: Preserva el archivo fix, aunque reemplaza el original. Si está presente es true, si no false\n",
         "\n",
     ];
     echo implode('', $helpMessages);
@@ -42,6 +43,7 @@ if (isset($cliArguments['--help'])) {
 $isAbsolute = ($cliArguments['--absolute'] ?? null) !== null;
 $isPreserveAll = ($cliArguments['--preserveall'] ?? null) !== null;
 $isRestoreBk = ($cliArguments['--restorebk'] ?? null) !== null;
+$isPreserveFix = ($cliArguments['--preservefix'] ?? null) !== null;
 $uploadsDirectory = $cliArguments['--updir'] ?? uniqid('NON_EXISTS');
 $globPattern = $cliArguments['--glob'] ?? '**/*.webm';
 $bkExtension = $cliArguments['--bkext'] ?? '.bk.webm';
@@ -107,7 +109,11 @@ foreach ($fileResults as $filePath) {
             echo "Exito al procesar: {$filePath}\n";
             if (!$isPreserveAll) {
                 @unlink($filePath);
-                @rename($fixedFilePath, $filePath);
+                if (!$isPreserveFix) {
+                    @rename($fixedFilePath, $filePath);
+                } else {
+                    @copy($fixedFilePath, $filePath);
+                }
             }
         } else {
             echo "Error ({$resultCode}) procesando: {$filePath}\n";
