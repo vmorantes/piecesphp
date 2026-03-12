@@ -13,10 +13,10 @@ array_map(function ($e) use (&$cliArguments) {
 }, $argv);
 
 /* Función fallback para ejecutar comandos en el sistema */
-$customExec = function(string $command): array {
+$customExec = function (string $command): array {
     $disabledFunctions = explode(',', ini_get('disable_functions'));
     $disabledFunctions = array_map('trim', $disabledFunctions);
-    
+
     $output = [];
     $resultCode = 0;
 
@@ -25,35 +25,35 @@ $customExec = function(string $command): array {
         exec($command, $output, $resultCode);
         return [
             'output' => $output,
-            'resultCode' => $resultCode
+            'resultCode' => $resultCode,
         ];
     }
 
     // 2. Intentar con proc_open()
     if (function_exists('proc_open') && !in_array('proc_open', $disabledFunctions)) {
         $descriptorspec = [
-            1 => ["pipe", "w"],  // stdout
-            2 => ["pipe", "w"]   // stderr
+            1 => ["pipe", "w"], // stdout
+            2 => ["pipe", "w"], // stderr
         ];
-        
+
         $process = proc_open($command, $descriptorspec, $pipes);
-        
+
         if (is_resource($process)) {
             $stdout = stream_get_contents($pipes[1]);
             $stderr = stream_get_contents($pipes[2]);
-            
+
             fclose($pipes[1]);
             fclose($pipes[2]);
-            
+
             $fullOutput = trim($stdout . "\n" . $stderr);
             if (!empty($fullOutput)) {
                 $output = explode("\n", $fullOutput);
             }
-            
+
             $resultCode = proc_close($process);
             return [
                 'output' => $output,
-                'resultCode' => $resultCode
+                'resultCode' => $resultCode,
             ];
         }
     }
@@ -63,7 +63,7 @@ $customExec = function(string $command): array {
         $rawOutput = shell_exec($command);
         if ($rawOutput !== null) {
             $output = explode("\n", trim($rawOutput));
-            // Como shell_exec no da el código de error, asumiremos éxito si devolvió algo, 
+            // Como shell_exec no da el código de error, asumiremos éxito si devolvió algo,
             // aunque no es exacto. Es el trade-off de caer en este fallback.
             $resultCode = 0;
         } else {
@@ -72,17 +72,16 @@ $customExec = function(string $command): array {
         }
         return [
             'output' => $output,
-            'resultCode' => $resultCode
+            'resultCode' => $resultCode,
         ];
     }
 
     // 4. Si todo falló
     return [
         'output' => ["Error: No hay funciones disponibles para ejecutar comandos del sistema (exec, proc_open, shell_exec deshabilitados)."],
-        'resultCode' => 1
+        'resultCode' => 1,
     ];
 };
-
 
 /* Acciones en "help" */
 if (isset($cliArguments['--help'])) {
@@ -153,14 +152,22 @@ foreach ($fileResults as $filePath) {
     $tmpFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . '.tmp.wav';
     $bkFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . $bkExtension;
     $fixedFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . $fixedExtension;
+    $processedFilePath = $fileDir . \DIRECTORY_SEPARATOR  . $fileName . '.processed';
     $filePathEsc = escapeshellarg($filePath);
     $tmpFilePathEsc = escapeshellarg($tmpFilePath);
     $fixedFilePathEsc = escapeshellarg($fixedFilePath);
 
     if (!$isRestoreBk) {
 
+        //-- Validar
+        if (file_exists($processedFilePath)) {
+            continue;
+        }
+
         //-- Respaldar
-        copy($filePath, $bkFilePath);
+        if (!file_exists($bkFilePath)) {
+            copy($filePath, $bkFilePath);
+        }
 
         //-- Procesar
         $shellActions = [
@@ -186,6 +193,7 @@ foreach ($fileResults as $filePath) {
                 } else {
                     @copy($fixedFilePath, $filePath);
                 }
+                @touch($processedFilePath);
             }
         } else {
             echo "Error ({$resultCode}) procesando: {$filePath}\n";

@@ -96,6 +96,9 @@ if (!isset($_SERVER['HTTP_HOST'])) {
                         $terminalData['arguments'][$argName] = $argValue;
                     }
 
+                } elseif (count($argParts) == 1) {
+                    $argName = $argParts[0];
+                    $terminalData['arguments'][$argName] = true;
                 }
 
             }
