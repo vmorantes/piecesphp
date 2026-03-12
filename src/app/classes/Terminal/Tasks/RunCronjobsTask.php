@@ -12,6 +12,7 @@ use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 
 /**
@@ -68,27 +69,24 @@ class RunCronjobsTask extends TerminalTaskAbstract
         ];
 
         try {
-            $systemCronjobs = get_config('SystemCronjobs');
-            $systemCronjobs = is_array($systemCronjobs) ? $systemCronjobs : [];
+            $systemCronjobs = CronJobTask::getCronJobs();
             $executedCount = 0;
 
             if (empty($systemCronjobs)) {
-                $message[] = "\e[33mNo hay cronjobs registrados en la configuración 'SystemCronjobs'.\e[39m";
+                $message[] = "\e[33mNo hay cronjobs registrados.\e[39m";
             } else {
                 foreach ($systemCronjobs as $cronTask) {
-                    if ($cronTask instanceof \API\Adapters\CronJobTaskAdapter) {
-                        if ($cronTask->shouldExecute()) {
-                            $message[] = "\e[34m-> Ejecutando: {$cronTask->getName()}\e[39m";
-                            $result = $cronTask->execute();
-                            $statusColor = $result['success'] ? "\e[32m" : "\e[31m";
-                            $message[] = "{$statusColor}   Resultado: {$result['message']}\e[39m";
+                    if ($cronTask->shouldExecute()) {
+                        $message[] = "\e[34m-> Ejecutando: {$cronTask->getName()}\e[39m";
+                        $result = $cronTask->execute();
+                        $statusColor = $result['success'] ? "\e[32m" : "\e[31m";
+                        $message[] = "{$statusColor}   Resultado: {$result['message']}\e[39m";
 
-                            if (!$result['success'] && isset($result['error'])) {
-                                $message[] = "\e[31m   Error Detail: {$result['error']}\e[39m";
-                            }
-
-                            $executedCount++;
+                        if (!$result['success'] && isset($result['error'])) {
+                            $message[] = "\e[31m   Error Detail: {$result['error']}\e[39m";
                         }
+
+                        $executedCount++;
                     }
                 }
                 $message[] = "\e[36mSe revisaron " . count($systemCronjobs) . " tareas en total. Se ejecutaron {$executedCount}.\e[39m";

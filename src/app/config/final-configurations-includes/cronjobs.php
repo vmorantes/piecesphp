@@ -1,14 +1,14 @@
 <?php
 
-use API\Adapters\CronJobTaskAdapter;
+use PiecesPHP\Terminal\CronJobTask;
 
 /**
- * @var array<int, CronJobTaskAdapter>
+ * @var array<int, CronJobTask>
  */
 $cronjobs = [];
 
 //Ejemplo
-$cronjobs[] = CronJobTaskAdapter::make('Ejemplo', function () {
+$cronjobs[] = CronJobTask::make('Ejemplo', function () {
 
     //NOTE: Antes de operaciones largas: se destruye la conexión BD para evitar por timeout
     \PiecesPHP\Core\BaseModel::destroyDb(
@@ -32,4 +32,4 @@ $cronjobs[] = CronJobTaskAdapter::make('Ejemplo', function () {
 })->dailyAt("00:00");
 
 //Asignación global
-set_config('SystemCronjobs', $cronjobs);
+CronJobTask::addCronJobs($cronjobs);

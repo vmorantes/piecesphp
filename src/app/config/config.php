@@ -70,7 +70,7 @@ $config['osTicketAPI'] = "";
 $config['osTicketAPIKey'] = "";
 $config['LabsMobileAPIKey'] = "correo@domain.tld:API_KEY";
 $config['LabsMobileSendInLocal'] = true;
-$config['CronJobKey'] = '';
+$config['CronJobKey'] = 'TODO:secret';
 
 //──── Seguridad ─────────────────────────────────────────────────────────────────────────
 

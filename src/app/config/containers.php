@@ -7,6 +7,7 @@ use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
+use PiecesPHP\TerminalData;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
@@ -135,7 +136,7 @@ $container_configurations = [
 
         $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
 
-        if ($request->isXhr() || $requestTypeIsJSON) {
+        if ($request->isXhr() || $requestTypeIsJSON || TerminalData::getInstance()->isTerminal()) {
             $response = $response->withJson("404 Not Found");
         } else {
             $dataController = $extraData;
@@ -188,7 +189,7 @@ $container_configurations = [
             }
         }
 
-        if ($request->isXhr() || $requestTypeIsJSON) {
+        if ($request->isXhr() || $requestTypeIsJSON || TerminalData::getInstance()->isTerminal()) {
             $response = $response->withJson("403 Forbidden");
         } else {
 

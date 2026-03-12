@@ -11,11 +11,12 @@ use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
+use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 
 /**
  * HelpTask.
- * 
+ *
  * Muestra las tareas disponibles
  *
  * @package     Terminal\Tasks
@@ -58,6 +59,9 @@ class HelpTask extends TerminalTaskAbstract
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
 
+        $cliArguments = TerminalData::getInstance()->arguments();
+        $taskName = $cliArguments['task'] ?? null;
+
         //Tareas disponibles
         $terminalTaskAvailables = get_config('terminalTaskAvailablesVerbose');
 
@@ -67,7 +71,22 @@ class HelpTask extends TerminalTaskAbstract
             $message = [
                 "\e[32m*** {$titleTask} ***\e[39m",
             ];
+
+            //Filtrar por tarea específica
+            $taskFilterFound = false;
+            if (is_string($taskName)) {
+                array_map(function ($e) use (&$taskFilterFound, $taskName) {
+                    if ($e['name'] == $taskName) {
+                        $taskFilterFound = true;
+                    }
+                }, $terminalTaskAvailables);
+            }
+
+            //Obtener mensajes
             foreach ($terminalTaskAvailables as $task) {
+                if ($taskFilterFound && $task['name'] != $taskName) {
+                    continue;
+                }
                 $name = array_key_exists('name', $task) ? $task['name'] : null;
                 $description = array_key_exists('description', $task) ? $task['description'] : null;
                 if (is_string($name) && is_string($description)) {

@@ -7,7 +7,6 @@
 namespace API\Controllers;
 
 use API\Adapters\APIExternalAdapterExample;
-use API\Adapters\CronJobTaskAdapter;
 use API\Adapters\MistralHandlerAdapter;
 use API\Adapters\OpenAIHandlerAdapter;
 use API\APILang;
@@ -32,8 +31,6 @@ use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\ConfigHelpers\MailConfig;
-use PiecesPHP\Core\Forms\FileValidator;
-use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -47,10 +44,9 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
+use PiecesPHP\Terminal\CronJobTask;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use PiecesPHP\UserSystem\UserDataPackage;
-use Polls\Controllers\PollsController;
-use Polls\Mappers\PollsDataMapper;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Mappers\PublicationCategoryMapper;
@@ -1481,6 +1477,8 @@ class APIController extends AdminPanelController
     public function cronJobs(Request $request, Response $response)
     {
 
+        $request = $request->withHeader('Accept', 'application/json');
+
         /**
          * Ejemplo para programar cron job:
          * Contenido: curl -X GET -H "Cron-Job-Key: LLAVE" https://domain.tld/core/api/cron-jobs/run
@@ -1515,12 +1513,10 @@ class APIController extends AdminPanelController
 
             $responseJSON['TasksRuns']["CheckWorking"] = true;
 
-            $systemCronjobs = get_config('SystemCronjobs');
+            $systemCronjobs = CronJobTask::getCronJobs();
             if (is_array($systemCronjobs)) {
                 foreach ($systemCronjobs as $cronTask) {
-                    if ($cronTask instanceof CronJobTaskAdapter) {
-                        $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->execute();
-                    }
+                    $responseJSON['TasksRuns'][$cronTask->getName()] = $cronTask->execute();
                 }
             }
 
