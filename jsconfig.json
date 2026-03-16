@@ -1,10 +1,19 @@
 {
     "compilerOptions": {
-        "target": "esnext",
-        "module": "commonjs"
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "skipLibCheck": true,
+        "lib": [
+            "DOM",
+            "DOM.Iterable",
+            "ES2022"
+        ]
     },
     "include": [
-        "src/statics/**/*",
+        "src/statics/**/*.js",
+        "src/app/classes/**/*.js"
     ],
     "exclude": [
         "node_modules",

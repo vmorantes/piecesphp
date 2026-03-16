@@ -298,7 +298,9 @@ function MapBoxAdapter(mapStyle = MapBoxAdapter.styles.MapboxStreets) {
 					unit: 'metric'
 				})
 
-				let nav = new mapboxgl.NavigationControl()
+				let nav = new mapboxgl.NavigationControl({
+					showCompass: false,
+				})
 
 				let geolocator = new mapboxgl.GeolocateControl({
 					positionOptions: {

@@ -191,10 +191,11 @@ class UploadedFileAdapter
     }
 
     /**
+     * @param bool $ignorePOSTUploaded
      * @return bool
      * @throws \Exception en caso de no ser un archivo subido mediante formulario
      */
-    public function validate()
+    public function validate(bool $ignorePOSTUploaded = false)
     {
         $this->errorMessages = [];
         $valid = true;
@@ -203,7 +204,7 @@ class UploadedFileAdapter
         $error = $file['error'];
         if ($error == \UPLOAD_ERR_OK) {
 
-            if (is_uploaded_file($tmp)) {
+            if (is_uploaded_file($tmp) || $ignorePOSTUploaded) {
 
                 if (!$this->validator->validate($tmp, $file['name'])) {
                     $this->errorMessages[] = $this->validator->getMessage();
@@ -339,16 +340,17 @@ class UploadedFileAdapter
      * @param string $extension
      * @param bool $validate
      * @param bool $overwrite
+     * @param bool $ignorePOSTUploaded
      * @return string Ruta del fichero movido, si no fue movido quedará vacía
      * @throws Exception Si no hay directorio de destino definido
      */
-    public function moveTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true)
+    public function moveTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true, bool $ignorePOSTUploaded = false)
     {
 
         $file = $this->fileInformation;
         $output = '';
 
-        $move = $validate ? $this->validate() : true;
+        $move = $validate ? $this->validate($ignorePOSTUploaded) : true;
 
         if (is_null($directory)) {
             if (!is_null($this->directoryMove)) {
@@ -383,15 +385,16 @@ class UploadedFileAdapter
      * @param bool $validate
      * @param bool $overwrite
      * @param bool $removeOriginal
+     * @param bool $ignorePOSTUploaded
      * @return string Ruta del fichero copiado, si no fue copiado quedará vacía
      * @throws Exception Si no hay directorio de destino definido
      */
-    public function copyTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true, bool $removeOriginal = false)
+    public function copyTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true, bool $removeOriginal = false, bool $ignorePOSTUploaded = false)
     {
         $file = $this->fileInformation;
         $output = '';
 
-        $move = $validate ? $this->validate() : true;
+        $move = $validate ? $this->validate($ignorePOSTUploaded) : true;
 
         if (is_null($directory)) {
             if (!is_null($this->directoryMove)) {

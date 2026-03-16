@@ -114,6 +114,12 @@ window.addEventListener('load', function () {
 
 	function configByLang(lang) {
 
+		const langsQuantity = Object.keys(translationsLangs).length
+		let langPrefix = `<small>(${translationsLangs[lang]})</small> `
+		if (langsQuantity < 2) {
+			langPrefix = ''
+		}
+
 		window.dispatchEvent(new Event('canDeletePublication'))
 		const triggerChange = function () {
 			formsByLang.get(lang).wasFormChanged = true
@@ -235,17 +241,17 @@ window.addEventListener('load', function () {
 					nameOnLabel = field.find('>label >.text >.header >.title').text()
 				}
 
-				errorMessage(`<small>(${translationsLangs[lang]})</small> ${nameOnLabel}: ${validationMessage}`)
+				errorMessage(`${langPrefix}</small> ${nameOnLabel}: ${validationMessage}`)
 
 				event.preventDefault()
 
 			},
 			toast: false,
 			onSuccess: function (formProcess, formData, response) {
-				successMessage(`<small>(${translationsLangs[lang]})</small> ${response.name}`, response.message)
+				successMessage(`${langPrefix}${response.name}`, response.message)
 			},
 			onError: function (formProcess, formData, response) {
-				errorMessage(`<small>(${translationsLangs[lang]})</small> ${response.name}`, response.message)
+				errorMessage(`${langPrefix}${response.name}`, response.message)
 			},
 		})
 		let form = formsByLang.get(lang).form

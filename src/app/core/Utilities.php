@@ -797,6 +797,28 @@ function verify_expected_file(string $index_name)
 }
 
 /**
+ * Simula la carga de un archivo en $_FILES
+ * @param string $key      El nombre del input (ej: 'avatar')
+ * @param string $path     Ruta real al archivo que quieres "subir"
+ * @param string $mimeType Tipo MIME manual (opcional)
+ */
+function simulate_file_upload($key, $path, $mimeType = null)
+{
+    if (!file_exists($path)) {
+        throw new Exception("El archivo de origen no existe en: $path");
+    }
+
+    $_FILES[$key] = [
+        'name' => basename($path),
+        'full_path' => basename($path), // PHP 8.1+
+        'type' => $mimeType ?? mime_content_type($path),
+        'tmp_name' => $path,
+        'error' => 0, // UPLOAD_ERR_OK
+        'size' => filesize($path),
+    ];
+}
+
+/**
  * Crea un directorio y todos los directorios superiores
  * que sean necesarios.
  *

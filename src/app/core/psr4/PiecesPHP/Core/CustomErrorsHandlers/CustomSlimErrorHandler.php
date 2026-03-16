@@ -147,6 +147,9 @@ class CustomSlimErrorHandler
                 // Comprueba si el host es "localhost" o termina con ".localhost"
                 $isLocal = $host === 'localhost' || mb_substr($host, -10) === '.localhost';
             }
+            if ($_SERVER['PCSPHP_TERMINAL_DATA']['isTerminal'] ?? false) {
+                $isLocal = $_SERVER['PCSPHP_TERMINAL_DATA']['local'] ?? false;
+            }
             return $isLocal;
         } else {
             return is_local();
