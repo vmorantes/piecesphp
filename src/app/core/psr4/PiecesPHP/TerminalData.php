@@ -39,17 +39,15 @@ class TerminalData
      * @var array
      */
     protected $basicServerVariables = [];
+    /**
+     * @var array<string,mixed>
+     */
+    protected $sharedData = [];
 
     private function __construct()
     {
-        if ((isset($settings['HTTPS']) && $settings['HTTPS'] !== 'off') ||
-            ((isset($settings['REQUEST_SCHEME']) && $settings['REQUEST_SCHEME'] === 'https'))) {
-            $defscheme = 'https';
-            $defport = 443;
-        } else {
-            $defscheme = 'http';
-            $defport = 80;
-        }
+        $defscheme = 'http';
+        $defport = 80;
 
         $this->basicServerVariables = [
             'SERVER_PROTOCOL' => 'HTTP/1.1',
@@ -73,92 +71,227 @@ class TerminalData
     }
 
     /**
+     * @param array<string,mixed> $data
+     * @return static
+     */
+    public function setSharedData(array $data)
+    {
+        $this->sharedData = [];
+        foreach ($data as $k => $i) {
+            if (is_string($k)) {
+                $this->addSharedData($k, $i);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return static
+     */
+    public function addSharedData(string $name, $value)
+    {
+        $this->sharedData[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getSharedData(string $name, $default = null)
+    {
+        return array_key_exists($name, $this->sharedData) ? $this->sharedData[$name] : $default;
+    }
+
+    /**
+     * @param string $name
+     * @return static
+     */
+    public function removeSharedData(string $name)
+    {
+        if (isset($this->sharedData[$name])) {
+            unset($this->sharedData[$name]);
+        }
+        return $this;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function getAllSharedData()
+    {
+        return $this->sharedData;
+    }
+
+    /**
      * @param array $data
      * @return static
      */
     public function setData(array $data)
     {
-        $allowedKeys = [
-            'isTerminal',
-            'arguments',
-            'route',
-            'local',
-        ];
-
+        $dataConfig = $this->dataConfig();
         foreach ($data as $k => $i) {
-
-            if (!in_array($k, $allowedKeys)) {
+            if (!in_array($k, array_keys($dataConfig))) {
                 unset($data[$k]);
             }
-
-            if ($k == 'isTerminal') {
-
-                if (is_bool($i)) {
-                    $this->isTerminal = $i;
-                }
-
-            } elseif ($k == 'arguments') {
-
-                if (is_array($i)) {
-                    $this->arguments = $i;
-                }
-
-            } elseif ($k == 'route') {
-
-                if (is_string($i)) {
-                    $this->route = $i;
-                }
-
-            } elseif ($k == 'local') {
-
-                if (is_bool($i)) {
-                    $this->local = $i;
-                }
-
-            }
-
+            $dataConfig[$k]['set']($i);
         }
+        return $this->syncWithGlobals();
+    }
 
-        $_SERVER['PCSPHP_TERMINAL_DATA'] = [
-            'isTerminal' => $this->isTerminal(),
-            'arguments' => $this->arguments(),
-            'route' => $this->route(),
-            'local' => $this->local,
-        ];
+    /**
+     * @param bool $value
+     * @return bool|static
+     */
+    public function isTerminal(?bool $value = null)
+    {
+        if ($value !== null) {
+            $this->isTerminal = $value;
+            $this->syncWithGlobals();
+        }
+        return $value !== null ? $this : $this->isTerminal;
+    }
 
+    /**
+     * @param array $value
+     * @return array|static
+     */
+    public function arguments(?array $value = null)
+    {
+        if ($value !== null) {
+            $this->arguments = $value;
+            $this->syncWithGlobals();
+        }
+        return $value !== null ? $this : $this->arguments;
+    }
+
+    /**
+     * @param string $value
+     * @return string|static
+     */
+    public function route(?string $value = null)
+    {
+        if ($value !== null) {
+            $this->route = $value;
+            $this->syncWithGlobals();
+        }
+        return $value !== null ? $this : $this->route;
+    }
+
+    /**
+     * @param bool $value
+     * @return bool|static
+     */
+    public function local(?bool $value = null)
+    {
+        if ($value !== null) {
+            $this->local = $value;
+            $this->syncWithGlobals();
+        }
+        return $value !== null ? $this : $this->local;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @return static
+     */
+    public function addArgument(string $name, $value)
+    {
+        $this->arguments[$name] = $value;
+        $this->syncWithGlobals();
         return $this;
     }
 
     /**
-     * @return bool
+     * @param string $name
+     * @param mixed $value
+     * @return static
      */
-    public function isTerminal()
+    public function setArgument(string $name, $value)
     {
-        return $this->isTerminal;
+        $this->arguments[$name] = $value;
+        $this->syncWithGlobals();
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getArgument(string $name, $default = null)
+    {
+        return array_key_exists($name, $this->arguments) ? $this->arguments[$name] : $default;
     }
 
     /**
      * @return array
      */
-    public function arguments()
-    {
-        return $this->arguments;
-    }
-
-    /**
-     * @return string
-     */
-    public function route()
-    {
-        return $this->route;
-    }
-
-    /**
-     * @return array
-     */
-    public function basicServerVariables()
+    public function basicServerVariables(): array
     {
         return $this->basicServerVariables;
+    }
+
+    /**
+     * @param string $name
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getServerVariable(string $name, $default = null)
+    {
+        return array_key_exists($name, $this->basicServerVariables) ? $this->basicServerVariables[$name] : $default;
+    }
+
+    /**
+     * @return static
+     */
+    public function syncWithGlobals(): self
+    {
+
+        $globals = [];
+        $dataConfig = $this->dataConfig();
+        foreach ($dataConfig as $k => $i) {
+            $registerGlobal = $i['registerGlobal'];
+            $value = $i['value'];
+            if ($registerGlobal) {
+                $globals[$k] = $value;
+            }
+        }
+        $_SERVER['PCSPHP_TERMINAL_DATA'] = $globals;
+        return $this;
+    }
+
+    /**
+     * @return array<string, array{'value': mixed, 'set': callable, 'registerGlobal': bool}>
+     */
+    public function dataConfig(): array
+    {
+        return [
+            'isTerminal' => [
+                'value' => $this->isTerminal,
+                'set' => fn($value) => $this->isTerminal($value),
+                'registerGlobal' => true,
+            ],
+            'arguments' => [
+                'value' => $this->arguments,
+                'set' => fn($value) => $this->arguments($value),
+                'registerGlobal' => true,
+            ],
+            'route' => [
+                'value' => $this->route,
+                'set' => fn($value) => $this->route($value),
+                'registerGlobal' => true,
+            ],
+            'local' => [
+                'value' => $this->local,
+                'set' => fn($value) => $this->local($value),
+                'registerGlobal' => true,
+            ],
+        ];
     }
 
     /**
@@ -173,6 +306,14 @@ class TerminalData
 
         return self::$instance;
 
+    }
+
+    /**
+     * @return static
+     */
+    public static function instance()
+    {
+        return self::getInstance();
     }
 
 }
