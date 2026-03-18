@@ -126,16 +126,9 @@ $servidor_estaticos->register(
     ]
 );
 
-//Solo se genera imagen si es mismo dominio
 if (requestIsSameDomain()) {
-    $generacion_imagenes = new PiecesRouteGroup($prefix_lang . '/img-gen/'); //Generación de imágenes
-    $generacion_imagenes->active(true); //Grupo activo/inactivo
-    $generacion_imagenes->register(
-        [
-            //──── GET ───────────────────────────────────────────────────────────────────────────────
-            new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
-        ]
-    );
+    //Generación de imágenes y otras rutas de prueba. Solo se genera imagen si es mismo dominio.
+    Test::registerRoutes($prefix_lang);
 }
 
 //Rutas para solicitudes desde la terminal

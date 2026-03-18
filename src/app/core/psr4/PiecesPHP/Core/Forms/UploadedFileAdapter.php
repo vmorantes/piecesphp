@@ -44,6 +44,10 @@ class UploadedFileAdapter
      * @var string
      */
     protected $extensionOnMove = null;
+    /**
+     * @var array
+     */
+    protected $uploadedFiles = [];
 
     const NOT_UPLOAD_FAKE_NAME = 'NOT_FILE';
     const NOT_UPLOAD_FAKE_TYPE = 'mimetype/unexists';
@@ -58,10 +62,11 @@ class UploadedFileAdapter
      * ['groupOne', 'fileOne'] (name se omite porque forma parte del contenido estándar de $_FILES)
      * @param array $types
      * @param int $maxSizeMB
+     * @param array|null $uploadedFiles Si se especifíca este valor, se usará en lugar de $_FILES. Se espera la misma estructura que $_FILES
      * @return static
      * @throws \Exception
      */
-    public function __construct(array $associativePath, array $types = [], int $maxSizeMB = null)
+    public function __construct(array $associativePath, array $types = [], int $maxSizeMB = null, ?array $uploadedFiles = null)
     {
 
         $associativePath = array_filter($associativePath, function ($e) {
@@ -79,7 +84,8 @@ class UploadedFileAdapter
         ];
         $this->fileInformation = $defaultInformation;
 
-        $files = $_FILES;
+        $this->uploadedFiles = $uploadedFiles ?? $_FILES;
+        $files = $this->uploadedFiles;
         $notFoundUploadedFileMessage = __(self::LANG_GROUP, "No se encontró ningún archivo cargado.");
         $generalErrorMessage = __(self::LANG_GROUP, "Los archivos no han sido cargados correctamente.");
         $shouldBeUniqueFileMessage = __(self::LANG_GROUP, "Debe ser un solo archivo por manejador.");
@@ -335,6 +341,14 @@ class UploadedFileAdapter
     }
 
     /**
+     * @return array Representa el array $_FILES
+     */
+    public function getUploadedFiles()
+    {
+        return $this->uploadedFiles;
+    }
+
+    /**
      * @param string $directory
      * @param string $name
      * @param string $extension
@@ -514,16 +528,20 @@ class UploadedFileAdapter
     /**
      * Devuelve todos los conjuntos de índices que corresponden a un archivo único
      * @param string $name
+     * @param array|null $uploadedFiles Si se especifíca este valor, se usará en lugar de $_FILES. Se espera la misma estructura que $_FILES
      * @return array<string[]>
      */
-    public static function findAssociativePathsByName(string $name)
+    public static function findAssociativePathsByName(string $name, ?array $uploadedFiles = null)
     {
-        $filesByName = array_key_exists($name, $_FILES) ? $_FILES[$name] : null;
+        $files = $uploadedFiles ?? $_FILES;
+        $filesByName = array_key_exists($name, $files) ? $files[$name] : null;
         $associativePaths = [];
         if ($filesByName !== null) {
             $fileTmpNames = array_key_exists('name', $filesByName) ? $filesByName['tmp_name'] : null;
-            if ($fileTmpNames !== null) {
+            if ($fileTmpNames !== null && is_array($fileTmpNames)) {
                 $associativePaths = self::getFilePathsOnUpload($fileTmpNames, [$name]);
+            } else {
+                $associativePaths[] = [$name];
             }
         }
         return $associativePaths;

@@ -22,7 +22,7 @@ use PiecesPHP\TerminalData;
 $_SERVER['PCSPHP_TERMINAL_DATA'] = [
     'isTerminal' => defined('STDIN'),
     'arguments' => [],
-    'route' => [],
+    'route' => '',
     'local' => true,
 ];
 $_SERVER['argv'] = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
@@ -230,8 +230,8 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '6.4.201');
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '25-09-2025')->format('Y-m-d'));
+    define('APP_VERSION', '6.4.3');
+    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '18-03-2026')->format('Y-m-d'));
 }
 
 require $directories['utilities'];

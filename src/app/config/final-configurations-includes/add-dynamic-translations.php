@@ -103,7 +103,7 @@ $addDynamicTranslationsLogicFunction = function () {
     /**
      * @category GlobalMethodDispatch
      */
-    BaseEventDispatcher::dispatch('AddDynamicTransaltions', 'added');
+    BaseEventDispatcher::defaultDispatch(BaseEventDispatcher::EVENT_ADD_DYNAMIC_TRANSLATIONS_NAME, null);
 
 };
 

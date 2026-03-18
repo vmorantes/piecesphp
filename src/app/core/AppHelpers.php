@@ -186,13 +186,26 @@ function requestIsSameDomain()
     if (defined('STDIN')) {
         return true;
     }
-    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+    // 1. Determinar el protocolo (considerando proxies)
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+        ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https' ||
+        $_SERVER['SERVER_PORT'] == 443;
     $protocol = $isHttps ? 'https://' : 'http://';
-    $currentDomain = $protocol . $_SERVER['HTTP_HOST'];
-    $originHttp = $_SERVER['HTTP_ORIGIN'] ?? '';
-    $refererHttp = $_SERVER['HTTP_REFERER'] ?? '';
-    $isSameDomain = $originHttp == $currentDomain || mb_strpos($refererHttp, $currentDomain) === 0;
-    return $isSameDomain;
+    // 2. Determinar el dominio actual (considerando proxies)
+    $host = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+    $currentDomain = $protocol . $host;
+    // 3. Obtener origen y referer
+    $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+    $referer = $_SERVER['HTTP_REFERER'] ?? '';
+    // 4. Verificación
+    $isSameOrigin = !empty($origin) && strpos($origin, $currentDomain) === 0;
+    $isSameReferer = !empty($referer) && mb_strpos($referer, $currentDomain) === 0;
+
+    // 5. Permitir acceso directo en desarrollo (sin Referer ni Origin)
+    $isLocal = in_array($host, ['localhost', '127.0.0.1', '[::1]']) || (strpos($host, '192.168.') === 0);
+    $noEvidenceOfOtherDomain = empty($origin) && empty($referer);
+
+    return $isSameOrigin || $isSameReferer || ($isLocal && $noEvidenceOfOtherDomain);
 }
 
 /**

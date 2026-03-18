@@ -819,7 +819,10 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
  */
 RouteGroup::initRoutes(false);
 set_config('AppRoutesInit', true);
-BaseEventDispatcher::dispatch("AppRoutes", 'InitRoutes', null);
+/**
+ * @category GlobalMethodDispatch
+ */
+BaseEventDispatcher::defaultDispatch(BaseEventDispatcher::EVENT_INIT_ROUTES_NAME, null);
 
 /**
  * --------------------------------------------------------------------------

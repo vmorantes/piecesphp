@@ -6,6 +6,8 @@
 
 namespace PiecesPHP\Core;
 
+use PiecesPHP\Core\Route as PiecesRoute;
+use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -217,5 +219,25 @@ class Test
             ->withStatus(400)
             ->withHeader('Content-Type', 'text/html; charset=utf-8')
             ->write($errorHtml);
+    }
+
+    /**
+     * Registra las rutas del controlador
+     * @param string $prefixLang Prefijo de la ruta
+     * @return void
+     */
+    public static function registerRoutes(string $prefixLang): void
+    {
+        $testingGroup = new PiecesRouteGroup($prefixLang . '/pcsphp-testing');
+        $generateImageGroup = new PiecesRouteGroup($prefixLang . '/img-gen'); //Generación de imágenes
+        $testingGroup->active(true);
+        $generateImageGroup->active(true);
+        $generateImageGroup->register([
+            new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
+        ]);
+        $testingGroup->register([
+            new PiecesRoute('queue-request[/]', TestQueueRequest::class . ':form', uniqid(TestQueueRequest::class), 'GET', false),
+            new PiecesRoute('queue-request/handle[/]', TestQueueRequest::class . ':handle', uniqid(TestQueueRequest::class), 'POST', false),
+        ]);
     }
 }

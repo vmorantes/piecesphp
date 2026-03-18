@@ -13,8 +13,8 @@ use App\Presentations\Mappers\PresentationMapper;
 use App\Presentations\PresentationsLang;
 use App\Presentations\PresentationsRoutes;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -991,10 +991,6 @@ class PresentationsController extends AdminPanelController
      */
     protected static function handlerUploadImages(string $nameOnFiles, string $folder, array $imagesToDelete = [], int $minImages = 1, int $currentTotal = null, string $namePrefrix = 'file')
     {
-        $handler = new FileUpload($nameOnFiles, [
-            FileValidator::TYPE_ALL_IMAGES,
-        ], null, true);
-
         $name = $namePrefrix . '_' . str_replace('.', '', uniqid());
         $relativeURLs = [];
 
@@ -1007,24 +1003,30 @@ class PresentationsController extends AdminPanelController
 
         $deleteImages = function (array $images, string $uploadDirRelativeURL) {
             foreach ($images as $imageToDelete) {
-                if (mb_strpos($imageToDelete, $uploadDirRelativeURL) !== false && file_exists($imageToDelete)) {
-                    unlink(basepath($imageToDelete));
+                $getParamsIndex = mb_strpos($imageToDelete, '?');
+                $imageToDelete = $getParamsIndex !== false ? mb_substr($imageToDelete, 0, mb_strpos($imageToDelete, '?')) : $imageToDelete;
+                $fullPath = basepath($imageToDelete);
+                if (mb_strpos($imageToDelete, $uploadDirRelativeURL) !== false && file_exists($fullPath) && is_file($fullPath)) {
+                    unlink($fullPath);
                 }
             }
         };
 
         try {
 
-            $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
-
-            foreach ($locations as $url) {
-
-                if (mb_strlen($url) > 0) {
-                    $nameCurrent = basename($url);
+            $filesToUpload = UploadedFileAdapter::findAssociativePathsByName($nameOnFiles);
+            $uploadCounter = 0;
+            array_map(function ($fileAssociativePath) use ($uploadDirPath, $name, $uploadDirRelativeURL, &$relativeURLs, &$uploadCounter) {
+                $handler = new UploadedFileAdapter($fileAssociativePath, [
+                    FileValidator::TYPE_ALL_IMAGES,
+                ], null, null);
+                $location = $handler->moveTo($uploadDirPath, ($name . '_' . $uploadCounter), null, false, true, false);
+                if (mb_strlen($location) > 0) {
+                    $nameCurrent = basename($location);
                     $relativeURLs[] = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
+                    $uploadCounter++;
                 }
-
-            }
+            }, $filesToUpload);
 
             if ($currentTotal !== null) {
 

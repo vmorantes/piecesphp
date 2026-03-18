@@ -1,3 +1,23 @@
+# 6.4.3 (18-03-2026)
+
+- **Sistema de Colas (Implementación Inicial)**:
+    - Introducción del sistema de procesamiento de tareas en segundo plano.
+    - Implementación de `QueueTask` y `QueueHandlerResponse` para la gestión de colas.
+    - Nuevo mapeador `QueueJobMapper` para persistencia de tareas con soporte para reintentos, programación diferida (`scheduledAt`) y registro de errores.
+    - Tarea CLI `ProcessQueueTask` para el procesamiento robusto de la cola con manejo de señales y aislamiento de errores.
+    - Ejemplo de implementación sugerida integrado en `TestQueueRequest`.
+- **FreezeRequest (Persistencia de Contexto HTTP)**:
+    - Motor de "congelación" de peticiones para su posterior ejecución en tareas de cola.
+    - Captura completa de `$_POST`, `$_GET`, `$_FILES` (PSR-7 jerárquico), `$_COOKIE`, `$_SESSION` y `Body`.
+    - Soporte para metadatos personalizados (`customData`) persistidos junto a la petición.
+    - `UploadedFilesStructureMapper`: Nueva utilidad para normalizar y reconstruir estructuras complejas de archivos.
+    - Lógica de limpieza recursiva de archivos temporales con gestión de permisos (`chmod 0777`) para operación multiplataforma (Web -> CLI).
+- **Eventos de Base (Centralización)**:
+    - Mejor centralización de los eventos del sistema en `BaseEventDispatcher`.
+    - Introducción de `event-listeners.php` como archivo centralizado de utilidades para escuchar eventos globales de forma organizada. Ejemplo de migración.
+- **Núcleo y Configuración**:.
+    - Soporte mejorado para rutas y manejo de archivos subidos en `UploadedFileAdapter`.
+
 # 6.4.201
 
 - Ajuste en lógica de cronjobs internos.

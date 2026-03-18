@@ -13,8 +13,8 @@ use PiecesPHP\Core\Cache\CacheControllersCriteries;
 use PiecesPHP\Core\Cache\CacheControllersCritery;
 use PiecesPHP\Core\Cache\CacheControllersManager;
 use PiecesPHP\Core\Config;
-use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
+use PiecesPHP\Core\Forms\UploadedFileAdapter;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Roles;
@@ -1668,92 +1668,81 @@ class PublicationsController extends AdminPanelController
                 FileValidator::TYPE_ALL_IMAGES,
             ];
         }
-        $handler = new FileUpload($nameOnFiles, $allowedTypes);
         $valid = false;
         $relativeURL = '';
 
         $name = $name !== null ? $name : 'file_' . uniqid();
         $oldFile = null;
 
-        if ($handler->hasInput()) {
+        $filesAssociativePathsToUpload = UploadedFileAdapter::findAssociativePathsByName($nameOnFiles);
+        foreach ($filesAssociativePathsToUpload as $fileAssociativePathToUpload) {
 
-            try {
+            $handler = new UploadedFileAdapter($fileAssociativePathToUpload, $allowedTypes);
 
-                $valid = $handler->validate();
+            if ($handler->hasInput()) {
 
-                $instance = new PublicationsController;
-                $uploadDirPath = $instance->uploadDir;
-                $uploadDirRelativeURL = $instance->uploadDirURL;
+                try {
 
-                if ($setNameByInput && $valid) {
+                    $valid = $handler->validate();
 
-                    $name = $_FILES[$nameOnFiles]['name'];
-                    $lastPointIndex = mb_strrpos($name, '.');
+                    $instance = new PublicationsController;
+                    $uploadDirPath = $instance->uploadDir;
+                    $uploadDirRelativeURL = $instance->uploadDirURL;
 
-                    if ($lastPointIndex !== false) {
-                        $name = mb_substr($name, 0, $lastPointIndex);
-                    }
+                    if ($setNameByInput && $valid) {
 
-                }
+                        $name = $_FILES[$nameOnFiles]['name'];
+                        $lastPointIndex = mb_strrpos($name, '.');
 
-                if (!is_null($currentRoute)) {
-                    //Si ya existe
-                    $oldFile = append_to_url(basepath(), $currentRoute);
-                    $oldFile = file_exists($oldFile) ? $oldFile : null;
-
-                    if (mb_strlen(trim($folder)) < 1) {
-                        //Si folder está vacío
-                        $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
-                        $folder = str_replace(basename($currentRoute), '', $folder);
-                        $folder = trim($folder, '/');
-                    }
-
-                }
-
-                $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
-                $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
-                if (mb_strlen($suffixName) > 0) {
-                    $name .= "_{$suffixName}";
-                }
-
-                if ($valid) {
-
-                    $locations = $handler->moveTo($uploadDirPath, $name, null, false, true);
-
-                    if (!empty($locations)) {
-
-                        $url = $locations[0];
-                        $nameCurrent = basename($url);
-                        $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
-
-                        //Eliminar archivo anterior
-                        if (!is_null($oldFile)) {
-
-                            if (basename($oldFile) != $nameCurrent) {
-                                unlink($oldFile);
-                            }
-
+                        if ($lastPointIndex !== false) {
+                            $name = mb_substr($name, 0, $lastPointIndex);
                         }
 
-                        //Se elimina cualquier otro archivo
-                        foreach ($locations as $file) {
-                            if ($url != $file) {
-                                if (is_string($file) && file_exists($file)) {
-                                    unlink($file);
+                    }
+
+                    if (!is_null($currentRoute)) {
+                        //Si ya existe
+                        $oldFile = append_to_url(basepath(), $currentRoute);
+                        $oldFile = file_exists($oldFile) ? $oldFile : null;
+
+                        if (mb_strlen(trim($folder)) < 1) {
+                            //Si folder está vacío
+                            $folder = str_replace($uploadDirRelativeURL, '', $currentRoute);
+                            $folder = str_replace(basename($currentRoute), '', $folder);
+                            $folder = trim($folder, '/');
+                        }
+
+                    }
+
+                    $uploadDirPath = append_to_path_system($uploadDirPath, $folder);
+                    $uploadDirRelativeURL = append_to_url($uploadDirRelativeURL, $folder);
+                    if (mb_strlen($suffixName) > 0) {
+                        $name .= "_{$suffixName}";
+                    }
+
+                    if ($valid) {
+
+                        $uploadPath = $handler->moveTo($uploadDirPath, $name, null, false, true);
+                        if (mb_strlen($uploadPath) > 0) {
+                            $nameCurrent = basename($uploadPath);
+                            $relativeURL = trim(append_to_url($uploadDirRelativeURL, $nameCurrent), '/');
+                            //Eliminar archivo anterior
+                            if (!is_null($oldFile)) {
+                                if (basename($oldFile) != $nameCurrent) {
+                                    unlink($oldFile);
                                 }
                             }
                         }
 
+                    } else {
+                        throw new \Exception(implode('<br>', $handler->getErrorMessages()));
                     }
 
-                } else {
-                    throw new \Exception(implode('<br>', $handler->getErrorMessages()));
+                } catch (\Exception $e) {
+                    throw new \Exception($e->getMessage());
                 }
 
-            } catch (\Exception $e) {
-                throw new \Exception($e->getMessage());
             }
-
         }
 
         return $relativeURL;

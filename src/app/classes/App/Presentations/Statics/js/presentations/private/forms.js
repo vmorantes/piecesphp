@@ -19,7 +19,7 @@ window.addEventListener('load', function () {
 		onSetFormData: function (formData) {
 
 			let imagesToAddValues = Array.from(imagesToAdd.values())
-			let imagesToDeleteValues = Array.from(imagesToDelete.values())
+			let imagesToDeleteValues = Array.from(imagesToDelete.values()).map(e => e.replace(new URL(e, document.baseURI).search, ''))
 
 			formData = addObjectToFormData(formData, imagesToDeleteValues, 'images_to_delete')
 
