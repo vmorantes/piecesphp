@@ -12,8 +12,8 @@ use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Terminal\QueueHandlerResponse;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\QueueHandlerResponse;
 use PiecesPHP\Terminal\QueueTask;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 use Terminal\Mappers\QueueJobMapper;
@@ -59,7 +59,7 @@ class ProcessQueueTask extends TerminalTaskAbstract
         $this->requireLogin = true;
         $this->rolesAllowed = new IntegerArray($permissions);
         $this->defaultParamsValues = [
-            '--limit' => 10,
+            '--limit' => 60,
         ];
         $this->middlewares = [];
     }
@@ -68,8 +68,71 @@ class ProcessQueueTask extends TerminalTaskAbstract
     {
         $parameters = empty($parameters) ? TerminalData::instance()->arguments() : array_merge($parameters, TerminalData::instance()->arguments());
 
-        $limit = isset($parameters['--limit']) ? (int) $parameters['--limit'] : 10;
+        $limit = isset($parameters['--limit']) ? (int) $parameters['--limit'] : 60;
         $titleTask = "Procesando Cola de Tareas";
+
+        //Gestión de cola de ejecución (Máximo 1 activa + 5 en espera, orden FIFO)
+        $lockDir = basepath('tmp/process_queue_locks');
+        if (!is_dir($lockDir)) {
+            mkdir($lockDir, 0777, true);
+            chmod($lockDir, 0777);
+        }
+
+        //Registrar mi intento de ejecución
+        $myLockFile = "{$lockDir}/" . microtime(true) . "_" . getmypid() . ".lock";
+        touch($myLockFile);
+        chmod($myLockFile, 0777);
+
+        //Comprobar posición en la cola
+        $waitLimit = 30; //Segundos máximos de espera por cada avance en la cola
+        $waitedOnSamePosition = 0;
+        $lastPosition = null;
+        $maxProcesses = 6; //1 activo + 5 en espera
+
+        while (true) {
+            $locks = glob("{$lockDir}/*.lock");
+            sort($locks); // Asegura el orden FIFO por la marca de tiempo en el nombre del archivo
+            $myPosition = array_search($myLockFile, $locks);
+
+            //Si somos demasiados, abortar los últimos en llegar
+            if (count($locks) > $maxProcesses) {
+                if ($myPosition >= $maxProcesses) {
+                    if (file_exists($myLockFile)) {
+                        unlink($myLockFile);
+                    }
+                    echoTerminal("\e[31m[!] Hay demasiadas colas esperando (límite:" . ($maxProcesses - 1) . "en espera). Abortando ejecución.\e[39m");
+                    return;
+                }
+            }
+
+            //Si somos el primero (posición 0), es nuestro turno
+            if ($myPosition === 0) {
+                break;
+            }
+
+            //Comprobar si la cola se ha movido para reiniciar el tiempo de espera
+            if ($lastPosition !== null && $myPosition < $lastPosition) {
+                $waitedOnSamePosition = 0; // Se ha movido el anterior, reiniciamos el cronómetro de paciencia
+            }
+
+            //Si ha pasado mucho tiempo esperando en la misma posición, abortar (cola estancada)
+            if ($waitedOnSamePosition >= $waitLimit) {
+                if (file_exists($myLockFile)) {
+                    unlink($myLockFile);
+                }
+                echoTerminal("\e[31m[!] Tiempo agotado esperando avance de la cola ({$waitLimit}s). Abortando.\e[39m");
+                return;
+            }
+
+            if ($lastPosition === null) {
+                echoTerminal("\e[33m[!] Hay otra cola en ejecución. Esperando turno (FIFO)...\e[39m");
+            }
+
+            $lastPosition = $myPosition;
+            sleep(1);
+            $waitedOnSamePosition++;
+        }
+
         $message = [
             "\e[32m*** {$titleTask} ***\e[39m",
         ];
@@ -108,7 +171,7 @@ class ProcessQueueTask extends TerminalTaskAbstract
 
                         try {
                             $handler = $handlers[$handlerName];
-                            
+
                             // El mapper ya decodifica el campo 'json', pero nos aseguramos
                             $data = $task->data;
                             if (is_string($data)) {
@@ -178,12 +241,18 @@ class ProcessQueueTask extends TerminalTaskAbstract
         } catch (\Exception $e) {
             $message[] = "\e[31mHa ocurrido un error general: {$e->getMessage()}\e[39m";
             log_exception($e);
+        } finally {
+            if (isset($myLockFile) && file_exists($myLockFile)) {
+                unlink($myLockFile);
+            }
         }
 
         $message[] = "\e[32m*** {$titleTask}, tarea finalizada ***\e[39m";
         if (count($message) > 1) {
             echoTerminal(implode("\r\n", $message));
         }
+
+        exit(0);
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
