@@ -22,6 +22,8 @@ class MauticEmailAdapter
     protected string $clientSecret;
     protected array $errorsHistory = [];
     protected string $errorsFile = '';
+    protected string $authToken = '';
+    protected string $tokenFile = '';
 
     /**
      * @param string $baseURL URL base de la instancia de Mautic
@@ -37,14 +39,19 @@ class MauticEmailAdapter
         //Archivo de errores
         $mauticLogErrorsDir = basepath('app/logs/mautic_errors');
         $this->errorsFile = append_to_path_system($mauticLogErrorsDir, 'log.json');
+        $this->tokenFile = append_to_path_system($mauticLogErrorsDir, 'token.json');
         if (!is_dir($mauticLogErrorsDir)) {
             mkdir($mauticLogErrorsDir, 0755, true);
         }
         if (file_exists($this->errorsFile)) {
             $errorFileData = file_get_contents($this->errorsFile);
             if ($errorFileData !== false) {
-                $this->errorsHistory = @json_decode($errorFileData, true);
-                $this->errorsHistory = is_array($this->errorsHistory) ? $this->errorsHistory : [];
+                $decoded = json_decode($errorFileData, true);
+                if (json_last_error() === \JSON_ERROR_NONE  && is_array($decoded)) {
+                    $this->errorsHistory = $decoded;
+                } else {
+                    $this->errorsHistory = [];
+                }
             }
         }
     }
@@ -56,17 +63,13 @@ class MauticEmailAdapter
      * @return int Cantidad de envíos exitosos
      * @see https://developer.mautic.org/?php#send-email-to-segment
      */
-    public function sendEmail(int $emailID): bool
+    public function sendEmail(int $emailID): int
     {
-        $httpClient = $this->httpClientWithApiKeyHeader();
-        $httpClient->request("/api/emails/{$emailID}/send", 'POST');
-        $response = $httpClient->getResponseBody();
-        $data = (array) $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
-        $success = $httpClient->getResponseStatus() === 200 && array_key_exists('sentCount', $data);
-        $this->saveErrors(!$success ? [] : [
-            'sendEmailResponse' => $response,
-        ]);
-        return (int) ($success ? $data['sentCount'] : 0);
+        $res = $this->makeRequest("/api/emails/{$emailID}/send", 'POST');
+        $success = $res['success'] && is_array($res['data']) && array_key_exists('sentCount', $res['data']);
+        $this->reponseResultToLog($res, 'sendEmailResponse', !$success);
+
+        return (int) ($success ? $res['data']['sentCount'] : 0);
     }
 
     /**
@@ -96,16 +99,14 @@ class MauticEmailAdapter
             }
             $contactsData[] = $contactData;
         }
-        $httpClient = $this->httpClientWithApiKeyHeader();
-        $httpClient->request('/api/contacts/batch/new', 'POST', $contactsData);
-        $response = $httpClient->getResponseBody();
-        $data = (array) $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
-        $createdContacts = array_key_exists('contacts', $data) ? $data['contacts'] : [];
-        $this->saveErrors(!empty($createdContacts) ? [] : [
-            'createBatchContactResponse' => $response,
-        ]);
+
+        $res = $this->makeRequest('/api/contacts/batch/new', 'POST', $contactsData);
+        $createdContacts = (is_array($res['data']) && array_key_exists('contacts', $res['data'])) ? $res['data']['contacts'] : [];
+
+        $this->reponseResultToLog($res, 'createBatchContactResponse', empty($createdContacts));
+
         return is_array($createdContacts) ? array_map(function ($contact) {
-            return $contact->id;
+            return $contact['id'] ?? null;
         }, $createdContacts) : [];
     }
 
@@ -131,14 +132,11 @@ class MauticEmailAdapter
                 $contactData[$otherFieldName] = $otherFieldValue;
             }
         }
-        $httpClient = $this->httpClientWithApiKeyHeader();
-        $httpClient->request('/api/contacts/new', 'POST', $contactData);
-        $response = $httpClient->getResponseBody();
-        $data = (array) $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
-        $contactID = $data['contact']['id'] ?? null;
-        $this->saveErrors($contactID !== null ? [] : [
-            'createContactResponse' => $response,
-        ]);
+
+        $res = $this->makeRequest('/api/contacts/new', 'POST', $contactData);
+        $contactID = (is_array($res['data']) && isset($res['data']['contact']['id'])) ? $res['data']['contact']['id'] : null;
+        $this->reponseResultToLog($res, 'createContactResponse', $contactID === null);
+
         return $contactID;
     }
 
@@ -163,15 +161,12 @@ class MauticEmailAdapter
             'fromName' => $fromName,
             'isPublished' => true,
         ];
-        $configurations = array_merge($otherConfigurations, $configurations);
-        $httpClient = $this->httpClientWithApiKeyHeader();
-        $httpClient->request('/api/emails/new', 'POST', array_merge($otherConfigurations, $configurations));
-        $response = $httpClient->getResponseBody();
-        $data = (array) $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
-        $emailID = $data['email']->id ?? null;
-        $this->saveErrors($emailID !== null ? [] : [
-            'createEmailTemplateResponse' => $response,
-        ]);
+
+        $payload = array_merge($otherConfigurations, $configurations);
+        $res = $this->makeRequest('/api/emails/new', 'POST', $payload);
+        $emailID = (is_array($res['data']) && isset($res['data']['email']['id'])) ? $res['data']['email']['id'] : null;
+        $this->reponseResultToLog($res, 'createEmailTemplateResponse', $emailID === null);
+
         return $emailID;
     }
 
@@ -191,14 +186,12 @@ class MauticEmailAdapter
             'isGlobal' => true,
             'isPublished' => true,
         ];
-        $httpClient = $this->httpClientWithApiKeyHeader();
-        $httpClient->request('/api/segments/new', 'POST', array_merge($defaultConfigurations, $configurations));
-        $response = $httpClient->getResponseBody();
-        $data = (array) $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
-        $segmentID = $data['list']->id ?? null;
-        $this->saveErrors($segmentID !== null ? [] : [
-            'createSegmentResponse' => $response,
-        ]);
+
+        $payload = array_merge($defaultConfigurations, $configurations);
+        $res = $this->makeRequest('/api/segments/new', 'POST', $payload);
+        $segmentID = (is_array($res['data']) && isset($res['data']['list']['id'])) ? $res['data']['list']['id'] : null;
+        $this->reponseResultToLog($res, 'createSegmentResponse', $segmentID === null);
+
         if ($segmentID !== null && !empty($contactIDs)) {
             $this->addContactsToSegment($segmentID, $contactIDs);
         }
@@ -218,16 +211,13 @@ class MauticEmailAdapter
         if (empty($contactIDs)) {
             return false;
         }
-        $httpClient = $this->httpClientWithApiKeyHeader();
-        $httpClient->request("/api/segments/{$segmentID}/contacts/add", 'POST', [
+
+        $res = $this->makeRequest("/api/segments/{$segmentID}/contacts/add", 'POST', [
             'ids' => $contactIDs,
         ]);
-        $response = $httpClient->getResponseBody();
-        $success = $httpClient->getResponseStatus() === 200;
-        $this->saveErrors($success ? [] : [
-            'addContactsToSegmentResponse' => $response,
-        ]);
-        return $success;
+        $this->reponseResultToLog($res, 'addContactsToSegmentResponse', !$res['success']);
+
+        return $res['success'];
     }
 
     /**
@@ -238,17 +228,51 @@ class MauticEmailAdapter
      */
     public function getAccessToken(): string
     {
+        //1. Verificar memoria de la instancia
+        if (!empty($this->authToken)) {
+            return $this->authToken;
+        }
+
+        //2. Verificar persistencia en archivo y expiración
+        if (file_exists($this->tokenFile)) {
+            $tokenFileData = file_get_contents($this->tokenFile);
+            if ($tokenFileData !== false) {
+                $tokenData = json_decode($tokenFileData, true);
+                if (json_last_error() === \JSON_ERROR_NONE  && is_array($tokenData) && isset($tokenData['access_token']) && isset($tokenData['expires_at'])) {
+                    if ($tokenData['expires_at'] > time() + 60) {
+                        //Margen de 1 minuto
+                        $this->authToken = $tokenData['access_token'];
+                        return $this->authToken;
+                    }
+                }
+            }
+        }
+
+        //3. Solicitar nuevo token
         $httpClient = new HttpClient($this->baseURL);
         $httpClient->request('/oauth/v2/token', 'POST', [
             'client_id' => $this->clientID,
             'client_secret' => $this->clientSecret,
             'grant_type' => 'client_credentials',
         ]);
-        $data = (array) $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON);
+
+        $data = $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON_ASSOC);
+
         if (empty($data['access_token'])) {
             throw new Exception(__(APILang::LANG_GROUP, "No se pudo obtener el token de Mautic:") . " " . $httpClient->getResponseBody());
         }
-        return $data['access_token'];
+
+        $this->authToken = $data['access_token'];
+        $expiresIn = (int) ($data['expires_in'] ?? 3600);
+
+        // 4. Persistir token y tiempo de expiración
+        $saveData = [
+            'access_token' => $this->authToken,
+            'expires_at' => time() + $expiresIn,
+        ];
+        file_put_contents($this->tokenFile, json_encode($saveData, \JSON_PRETTY_PRINT), \LOCK_EX);
+
+        return $this->authToken;
     }
 
     /**
@@ -265,6 +289,91 @@ class MauticEmailAdapter
     }
 
     /**
+     * Realiza una petición a la API de Mautic centralizando la lógica de tokens, tipos de contenido y reintentos.
+     *
+     * @param string $path Ruta de la API
+     * @param string $method Método HTTP
+     * @param array $body Cuerpo de la petición
+     * @param bool $retryOn401 Si se debe reintentar en caso de error 401
+     * @return array{success: bool, status: int, data: array|null, response: string, httpClient: HttpClient}
+     */
+    protected function makeRequest(string $path, string $method = 'GET', array $body = [], bool $retryOn401 = true): array
+    {
+        $httpClient = $this->httpClientWithApiKeyHeader();
+
+        $headers = [];
+        $method = strtoupper($method);
+
+        // Mautic prefiere JSON para POST/PUT/PATCH
+        if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+            $headers['Content-Type'] = 'application/json';
+        }
+
+        $httpClient->request($path, $method, $body, $headers, true, false);
+
+        $status = $httpClient->getResponseStatus();
+        $response = $httpClient->getResponseBody();
+        $data = $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON_ASSOC);
+
+        // Si es 401 y tenemos reintentos habilitados, invalidamos token y repetimos
+        if ($status === 401 && $retryOn401) {
+            $this->invalidateToken();
+            return $this->makeRequest($path, $method, $body, false);
+        }
+
+        $success = $status >= 200 && $status < 300;
+
+        return [
+            'httpClient' => $httpClient,
+            'success' => $success,
+            'status' => $status,
+            'data' => $data,
+            'response' => $response,
+        ];
+    }
+
+    /**
+     * Invalida el token actual en memoria y en disco.
+     * @return void
+     */
+    protected function invalidateToken(): void
+    {
+        $this->authToken = '';
+        if (file_exists($this->tokenFile)) {
+            @unlink($this->tokenFile);
+        }
+    }
+
+    /**
+     * Limpia la respuesta si contiene HTML para no saturar los logs.
+     * @param array{success: bool, status: int, data: array|null, response: string, httpClient: HttpClient} $data
+     * @param string $nameRequest Nombre de la petición
+     * @param bool $log Si se debe guardar en el log
+     * @return array
+     */
+    protected function reponseResultToLog(array $data, string $nameRequest, bool $log = true): array
+    {
+        $response = $data['response'];
+        if (strpos($response, '<!DOCTYPE html>') !== false || strpos($response, '<html>') !== false) {
+            $stripped = strip_tags($response);
+            $response = mb_substr($stripped, 0, 500) . '... [HTML content stripped]';
+        }
+        $result = [];
+        $result[$nameRequest] = [
+            'success' => $data['success'],
+            'status' => $data['status'],
+            'data' => $data['data'],
+            'response' => $response,
+            'requestBody' => $data['httpClient']->getRequestBody(true),
+            'requestHeaders' => $data['httpClient']->getRequestHeaders(),
+        ];
+        if ($log) {
+            $this->saveErrors($result);
+        }
+        return $result;
+    }
+
+    /**
      * Guarda los errores en el historial y en un archivo
      * @param array $errors Errores a guardar
      * @return array Historial actualizado
@@ -278,7 +387,7 @@ class MauticEmailAdapter
             'timestamp' => date('Y-m-d H:i:s'),
             'errors' => $errors,
         ];
-        $this->errorsHistory = array_merge($this->errorsHistory, $errorsRecords);
+        $this->errorsHistory[] = $errorsRecords;
         //Limitar el tamaño del historial de errores
         if (count($this->errorsHistory) > 100) {
             $this->errorsHistory = array_slice($this->errorsHistory, -100);
@@ -287,7 +396,7 @@ class MauticEmailAdapter
         if (!is_dir(dirname($this->errorsFile))) {
             mkdir(dirname($this->errorsFile), 0755, true);
         }
-        file_put_contents($this->errorsFile, json_encode($this->errorsHistory, JSON_PRETTY_PRINT));
+        file_put_contents($this->errorsFile, json_encode($this->errorsHistory, JSON_PRETTY_PRINT), \LOCK_EX);
         return $this->errorsHistory;
     }
 }

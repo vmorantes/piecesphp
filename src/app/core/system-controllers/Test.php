@@ -6,6 +6,7 @@
 
 namespace PiecesPHP\Core;
 
+use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Route as PiecesRoute;
 use PiecesPHP\Core\RouteGroup as PiecesRouteGroup;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
@@ -239,5 +240,19 @@ class Test
             new PiecesRoute('queue-request[/]', TestQueueRequest::class . ':form', uniqid(TestQueueRequest::class), 'GET', false),
             new PiecesRoute('queue-request/handle[/]', TestQueueRequest::class . ':handle', uniqid(TestQueueRequest::class), 'POST', false),
         ]);
+
+        //Incluye archivos que sirven para pruebas locales
+        $localTestsDirectory = new DirectoryObject(append_to_path_system(dirname(__FILE__), 'local-tests'));
+        $localTestsDirectory->process();
+        $localTestsFiles = $localTestsDirectory->getFiles();
+        if (!empty($localTestsFiles)) {
+            foreach ($localTestsFiles as $localTestsFile) {
+                if ($localTestsFile->getExists()) {
+                    if (mb_strtolower($localTestsFile->getExtension()) == 'php') {
+                        include_once $localTestsFile->getPath();
+                    }
+                }
+            }
+        }
     }
 }

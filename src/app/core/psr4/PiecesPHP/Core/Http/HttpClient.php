@@ -401,21 +401,15 @@ class HttpClient
         $defaultHeaders = $this->getDefaultRequestHeaders();
         $headers = !empty($headers) ? $headers : $defaultHeaders;
 
-        foreach ($headers as $header => $value) {
-
-            $header = $this->parseNameHeader($header);
-            $default_defined = array_key_exists($header, $defaultHeaders);
-
-            if (!$default_defined) {
-                $processed_headers[$header] = $value;
-            } else {
-                if ($override_defaults) {
-                    $processed_headers[$header] = $value;
-                } else {
-                    $processed_headers[$header] = $defaultHeaders[$header];
-                }
+        if (!$override_defaults) {
+            foreach ($defaultHeaders as $header => $value) {
+                $headers[$header] = $value;
             }
+        }
 
+        foreach ($headers as $header => $value) {
+            $header = $this->parseNameHeader($header);
+            $processed_headers[$header] = $value;
         }
 
         $contentTypeIsSet = isset($processed_headers[$contentTypeString]);
