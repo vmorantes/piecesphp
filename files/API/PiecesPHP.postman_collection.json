@@ -487,6 +487,127 @@
 				}
 			},
 			"response": []
+		},
+		{
+
+			"name": "Translations",
+			"item": [
+				{
+					"name": "Translate",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "text",
+									"value": "Hola mundo",
+									"type": "text"
+								},
+								{
+									"key": "from",
+									"value": "es",
+									"type": "text"
+								},
+								{
+									"key": "to",
+									"value": "en",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseURL}}/core/api/translations/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"core",
+								"api",
+								"translations",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Generic data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/core/api/reports/get-generic-data/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"core",
+								"api",
+								"reports",
+								"get-generic-data",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cron Jobs",
+			"item": [
+				{
+					"name": "Run tasks",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-Requested-With",
+								"value": "XMLHttpRequest",
+								"type": "text"
+							},
+							{
+								"key": "Cron-Job-Key",
+								"value": "YOUR_KEY_HERE",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseURL}}/core/api/cron-jobs/run/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"core",
+								"api",
+								"cron-jobs",
+								"run",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {
@@ -527,7 +648,7 @@
 	"variable": [
 		{
 			"key": "baseURL",
-			"value": "http://localhost/vicsen/piecesphp/src",
+			"value": "http://domain.tld/src",
 			"type": "string"
 		}
 	]

@@ -3,7 +3,12 @@ nav:
     - Home: index.md
     - lamp/index.md
     - hestiacp/index.md 
-    - piecesphp/index.md
+    - PiecesPHP Framework: 
+        - General: piecesphp/index.md
+        - Rutas: piecesphp/content/routing.md
+        - Mappers: piecesphp/content/mappers.md
+        - Gulp: piecesphp/content/gulp.md
+        - Terminal: piecesphp/content/terminal.md
     - performance/index.md
     - tomcat/index.md 
 theme:

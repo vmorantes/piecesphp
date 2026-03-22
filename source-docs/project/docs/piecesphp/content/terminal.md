@@ -27,6 +27,7 @@ php index.php cli bundle app=yes zip=yes
 Respalda la base de datos por defecto.
 
 **Parámetros:**
+
 - `gz` (yes|no) — Define si el respaldo se comprime en gzip. Por defecto: yes.
 
 **Ejemplo:**
@@ -40,9 +41,13 @@ php index.php cli db-backup gz=yes
 Empaqueta la aplicación y/o los archivos estáticos.
 
 **Parámetros:**
+
 - `app` (yes|no) — Solo carpeta app. Por defecto: no
+
 - `statics` (yes|no) — Solo carpeta statics (sin filemanager, uploads ni plugins). Por defecto: no
+
 - `all` (yes|no) — app y statics. Por defecto: no
+
 - `zip` (yes|no) — Define si solo copia los archivos o los comprime como zip. Por defecto: no
 
 **Ejemplo:**
@@ -56,6 +61,7 @@ php index.php cli bundle all=yes zip=yes
 Fuerza la limpieza de caché de archivos estáticos mediante la renovación del token.
 
 **Parámetros:**
+
 - N/A
 
 **Ejemplo:**
@@ -69,6 +75,7 @@ php index.php cli clean-cache
 Limpia los archivos de logs (errores, logs antiguos y logs de sesiones expiradas).
 
 **Parámetros:**
+
 - N/A
 
 **Ejemplo:**
@@ -82,6 +89,7 @@ php index.php cli clean-logs
 Limpia caché y logs en una sola acción.
 
 **Parámetros:**
+
 - N/A
 
 **Ejemplo:**
@@ -95,7 +103,9 @@ php index.php cli clean-all
 Revisa los mensajes faltantes por traducción y genera un archivo con ellos.
 
 **Parámetros:**
+
 - `--exclude-lang` — Cadena separada por comas de idiomas a ignorar. Ejemplo: `--exclude-lang=es,en`
+
 - `--exclude-group` — Cadena separada por comas de grupos a ignorar. Ejemplo: `--exclude-group=general,public`
 
 **Ejemplo:**
@@ -105,7 +115,35 @@ php index.php cli scan-missing-lang --exclude-lang=es,en --exclude-group=general
 
 ---
 
-### 7. help / h
+### 7. run-cronjobs
+Ejecuta todas las tareas programadas (CronJobs) que cumplan su condición de tiempo en el momento de la ejecución.
+
+**Parámetros:**
+
+- N/A
+
+**Ejemplo:**
+```bash
+php index.php cli run-cronjobs
+```
+
+---
+
+### 8. process-queue
+Procesa las tareas pendientes en la cola de ejecución (`pcs_queue`). Utiliza un sistema de bloqueos (locks) para evitar ejecuciones paralelas excesivas.
+
+**Parámetros:**
+
+- `--limit` (int) — Cantidad máxima de tareas a procesar en esta ejecución. Por defecto: 60.
+
+**Ejemplo:**
+```bash
+php index.php cli process-queue --limit=100
+```
+
+---
+
+### 9. help / h
 Muestra la lista de tareas disponibles y su descripción.
 
 **Ejemplo:**
@@ -116,7 +154,41 @@ php index.php cli h
 
 ---
 
+## Programación de Tareas (Desarrollo)
+
+### CronJobs
+Las tareas se definen usando la clase `PiecesPHP\Terminal\CronJobTask` y se registran típicamente en `src/app/config/final-configurations-includes/cronjobs.php`.
+
+**Ejemplo de definición:**
+```php
+CronJobTask::make('Limpieza diaria', function() {
+    // Lógica de la tarea
+    return ['success' => true, 'message' => 'Limpieza completada'];
+})->dailyAt("03:00")->addCronJob();
+```
+
+### Colas (Queues)
+El sistema de colas permite ejecutar procesos pesados de forma asíncrona.
+
+1. **Definir Handler:** Registrado en `src/app/config/final-configurations-includes/queues.php`.
+```php
+QueueTask::make('enviar-email', function($data) {
+    // Lógica usando $data
+    return QueueHandlerResponse::success();
+})->addQueueHandler();
+```
+
+2. **Despachar Tarea:** Desde cualquier parte de la aplicación.
+```php
+QueueTask::dispatch('enviar-email', ['to' => 'user@example.com', 'template' => 'welcome']);
+```
+
+3. **Ejecución:** Debe programarse un Cron del sistema (crontab) que ejecute `php index.php cli process-queue` con la frecuencia deseada (ej. cada minuto).
+
+---
+
 ## Notas y advertencias
+
 - Algunas tareas requieren permisos de usuario root PiecesPHP.
 - Los respaldos de base de datos se guardan en la carpeta `dumps` y los bundles en la carpeta `bundle`.
 - Los parámetros pueden ser escritos en mayúsculas o minúsculas, pero se recomienda usar minúsculas.

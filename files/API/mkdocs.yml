@@ -4,6 +4,9 @@ nav:
     - ./modules/News.md
     - ./modules/Usuarios.md
     - ./modules/Ubicaciones.md
+    - ./modules/Traducciones.md
+    - ./modules/Reportes.md
+    - ./modules/CronJobs.md
 theme:
     name: readthedocs
     language: es

@@ -36,6 +36,19 @@ mkdocs build --clean #para compilar y eliminar archivos que ya no deberían exis
 
 ---
 
+## MkDocs en este proyecto
+
+Existen dos proyectos de documentación de MkDocs en este repositorio:
+- **API:** En el directorio `files/API`.
+- **Desarrollo:** En el directorio `source-docs/project`.
+
+Para compilar cualquiera de ellos, entra al directorio correspondiente y ejecuta el comando:
+```bash
+mkdocs build --clean
+```
+
+---
+
 ## Instalar otras plantillas (ejemplo: mkdocs-material)
 
 ```bash
