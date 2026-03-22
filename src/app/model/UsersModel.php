@@ -114,12 +114,12 @@ class UsersModel extends EntityMapperExtensible
      * @var array<int,string>
      */
     const TYPES_USERS = [
-        self::TYPE_USER_ROOT => 'Sistema',
-        self::TYPE_USER_ADMIN_GRAL => 'Root',
+        self::TYPE_USER_ROOT => 'Principal',
+        self::TYPE_USER_ADMIN_GRAL => 'Administrador general',
         self::TYPE_USER_ADMIN_ORG => 'Administrador de organización',
-        self::TYPE_USER_GENERAL => 'Editor',
-        self::TYPE_USER_INSTITUCIONAL => 'Administrador país',
-        self::TYPE_USER_COMUNICACIONES => 'Reportes',
+        self::TYPE_USER_GENERAL => 'Usuario general',
+        self::TYPE_USER_INSTITUCIONAL => 'Institucional',
+        self::TYPE_USER_COMUNICACIONES => 'Comunicaciones',
     ];
 
     const TYPES_USER_PRIORITY = [
@@ -740,7 +740,7 @@ class UsersModel extends EntityMapperExtensible
 
         foreach (self::TYPES_USERS as $key => $value) {
 
-            if(Roles::roleExists($key)){
+            if (Roles::roleExists($key)) {
                 $types[$key] = __(self::LANG_GROUP, $value);
             }
 
