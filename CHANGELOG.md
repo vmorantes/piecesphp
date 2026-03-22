@@ -1,3 +1,29 @@
+# 6.4.4 (22-03-2026)
+
+- **Integración con Mautic**:
+    - Refactorización de `MauticEmailAdapter` para mayor confiabilidad.
+    - Prueba de procesamiento vía cronjob (`test-mautic-cronjob.php`).
+        - Plantilla de ejemplo de correo (`template_mautic.php`).
+```bash
+php index.php cli --local run-cronjobs mautic run
+```
+- **HttpClient**:
+    - Mejoras significativas en `HttpClient.php` con soporte para métodos modernos y mayor robustez.
+    - Adición de pruebas unitarias exhaustivas para el cliente HTTP en src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
+```bash
+php index.php cli --local run-cronjobs unit-tests core/http-client
+```
+- **Gestión de Usuarios (Soporte Mejorado sin Organizaciones)**:
+    - Optimizada la lógica de visualización para admitir el funcionamiento del sistema cuando el módulo de organizaciones está desactivado.
+    - Los formularios se ajustan dinámicamente ocultando campos relacionados con organizaciones si son innecesarios.
+    - Reestructuración de formularios por tipos para mayor claridad.
+    - Mejora en la visualización de perfiles en `user-card.php`.
+    - Nuevo estado de usuario "Eliminado". Para una gestión ordenada las eliminaciones.
+- **Núcleo y Otros**:
+    - Ajustes en utilidades de `AppHelpers.php`.
+    - Ajustes en utilidades de `Utilities.php`.
+    - Mejoras menores en el punto de entrada `index.php`, incluyendo soporte para estados de inactividad equivalentes.
+
 # 6.4.3 (18-03-2026)
 
 - **Sistema de Colas (Implementación Inicial)**:

@@ -94,6 +94,7 @@ $lang = [
     "Tipos de usuario" => "Types d'utilisateur",
     "El usuario no existe." => "L'utilisateur n'existe pas.",
     "Ya existe el nombre de usuario." => "Le nom d'utilisateur existe déjà.",
+    "Eliminado" => "Supprimé",
 ];
 
 return $lang;

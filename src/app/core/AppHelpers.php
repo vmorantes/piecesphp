@@ -2330,7 +2330,9 @@ function register_route(array $route, &$router)
 
         if (is_array($rolesAllowed)) {
             foreach ($rolesAllowed as $role) {
-                Roles::addPermission($name, $role);
+                if (Roles::roleExists($role)) {
+                    Roles::addPermission($name, $role);
+                }
             }
         }
 

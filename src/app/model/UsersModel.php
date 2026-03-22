@@ -9,6 +9,7 @@ namespace App\Model;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\EntityMapperExtensible;
+use PiecesPHP\Core\Roles;
 use PiecesPHP\UserSystem\UserDataPackage;
 
 /**
@@ -47,12 +48,14 @@ class UsersModel extends EntityMapperExtensible
     const STATUS_USER_ATTEMPTS_BLOCK = 2;
     const STATUS_USER_APPROVED_PENDING = 3;
     const STATUS_USER_REJECTED = 4;
+    const STATUS_USER_DELETED = 6;
     const STATUSES_VALUES = [
         self::STATUS_USER_INACTIVE,
         self::STATUS_USER_ACTIVE,
         self::STATUS_USER_ATTEMPTS_BLOCK,
         self::STATUS_USER_APPROVED_PENDING,
         self::STATUS_USER_REJECTED,
+        self::STATUS_USER_DELETED,
     ];
     const STATUSES = [
         self::STATUS_USER_INACTIVE => 'Inactivo',
@@ -60,6 +63,7 @@ class UsersModel extends EntityMapperExtensible
         self::STATUS_USER_ATTEMPTS_BLOCK => 'Bloqueado por intentos fallidos',
         self::STATUS_USER_APPROVED_PENDING => 'Por aprobar',
         self::STATUS_USER_REJECTED => 'No aprobado',
+        self::STATUS_USER_DELETED => 'Eliminado',
     ];
     const STATUSES_FOR_DISPLAY_QUERY = [
         self::STATUS_USER_INACTIVE => 'No',
@@ -67,6 +71,7 @@ class UsersModel extends EntityMapperExtensible
         self::STATUS_USER_ATTEMPTS_BLOCK => 'Bloqueado por intentos fallidos',
         self::STATUS_USER_APPROVED_PENDING => 'Por aprobar',
         self::STATUS_USER_REJECTED => 'No aprobado',
+        self::STATUS_USER_DELETED => 'Eliminado',
     ];
     const STATUSES_OK_FOR_LOGIN_ON_REQUIRE_APPROBATION = [
         self::STATUS_USER_ACTIVE,
@@ -75,6 +80,20 @@ class UsersModel extends EntityMapperExtensible
         self::STATUS_USER_ACTIVE,
         self::STATUS_USER_APPROVED_PENDING,
         self::STATUS_USER_REJECTED,
+    ];
+    const STATUSES_HIDDEN_ON_CREATION = [
+        self::STATUS_USER_ATTEMPTS_BLOCK,
+        self::STATUS_USER_DELETED,
+    ];
+    const STATUSES_HIDDEN_ON_EDIT = [
+        self::STATUS_USER_ATTEMPTS_BLOCK,
+        self::STATUS_USER_APPROVED_PENDING,
+        self::STATUS_USER_REJECTED,
+        self::STATUS_USER_DELETED,
+    ];
+    const STATUSES_INACTIVE_EQUIVALENT = [
+        self::STATUS_USER_INACTIVE,
+        self::STATUS_USER_DELETED,
     ];
     const ARE_AUTO_APPROVAL = [
         self::TYPE_USER_ROOT,
@@ -95,12 +114,12 @@ class UsersModel extends EntityMapperExtensible
      * @var array<int,string>
      */
     const TYPES_USERS = [
-        self::TYPE_USER_ROOT => 'Principal',
-        self::TYPE_USER_ADMIN_GRAL => 'Administrador general',
+        self::TYPE_USER_ROOT => 'Sistema',
+        self::TYPE_USER_ADMIN_GRAL => 'Root',
         self::TYPE_USER_ADMIN_ORG => 'Administrador de organización',
-        self::TYPE_USER_GENERAL => 'Usuario general',
-        self::TYPE_USER_INSTITUCIONAL => 'Institucional',
-        self::TYPE_USER_COMUNICACIONES => 'Comunicaciones',
+        self::TYPE_USER_GENERAL => 'Editor',
+        self::TYPE_USER_INSTITUCIONAL => 'Administrador país',
+        self::TYPE_USER_COMUNICACIONES => 'Reportes',
     ];
 
     const TYPES_USER_PRIORITY = [
@@ -721,7 +740,9 @@ class UsersModel extends EntityMapperExtensible
 
         foreach (self::TYPES_USERS as $key => $value) {
 
-            $types[$key] = __(self::LANG_GROUP, $value);
+            if(Roles::roleExists($key)){
+                $types[$key] = __(self::LANG_GROUP, $value);
+            }
 
         }
 

@@ -18,7 +18,7 @@ $canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkU
     <?php if($canModifyAll): ?>
     <div class="field">
 
-        <select class="ui dropdown" required name="organization">
+        <select class="ui dropdown" required name="organization" <?= ORGANIZATIONS_MODULE ? '' : 'hidden' ?>>
 
             <option value=""><?=__($langGroup, 'Organización');?></option>
             <?php foreach ($organizations as $organization): ?>

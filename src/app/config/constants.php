@@ -113,7 +113,7 @@ define('API_USERS', true);
 define('API_REPORTS', true);
 
 //Organizaciones
-define('ORGANIZATIONS_MODULE', true);
+define('ORGANIZATIONS_MODULE', CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']);
 
 //Aprobaciones
 define('SYSTEM_APPROVALS_MODULE', true);

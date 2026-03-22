@@ -18,6 +18,9 @@ use PiecesPHP\Core\Routing\RequestRouteFactory;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\TerminalData;
 
+//Constantes críticas (primer archivo que se carga)
+require_once __DIR__ . "/../config/critical-definitions.php";
+
 //Preparación para solicitudes desde la terminal
 $_SERVER['PCSPHP_TERMINAL_DATA'] = [
     'isTerminal' => defined('STDIN'),
@@ -230,8 +233,8 @@ if (!defined('APP_VERSION')) {
     /**
      * @var string Versión de la aplicación
      */
-    define('APP_VERSION', '6.4.3');
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '18-03-2026')->format('Y-m-d'));
+    define('APP_VERSION', '6.4.4');
+    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '22-03-2026')->format('Y-m-d'));
 }
 
 require $directories['utilities'];

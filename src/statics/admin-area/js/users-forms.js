@@ -91,6 +91,9 @@ $(document).ready(function (e) {
 		for (const userType in userTypeFormsSelectorsByUserType) {
 			const userTypeFormSelector = userTypeFormsSelectorsByUserType[userType]
 			forms[formType][userType] = genericFormHandler(userTypeFormSelector, formConfiguration)
+			if (formType == 'create' || formType == 'edit') {
+				forms[formType][userType].find(`[name="organization"][hidden]`).closest('.field').hide()
+			}
 		}
 	}
 

@@ -13,6 +13,7 @@ use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Pagination\PageQuery;
+use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
@@ -176,6 +177,7 @@ class UsersController extends AdminPanelController
 
         $where = [
             "id != {$this->user->id}",
+            "AND status != " . UsersModel::STATUS_USER_DELETED, //No mostrar usuarios marcados eliminados
         ];
 
         if (is_array($disallowedTypes) && !empty($disallowedTypes)) {
@@ -231,6 +233,13 @@ class UsersController extends AdminPanelController
                 }
 
                 $columns = [];
+
+                if (!Roles::roleExists($element->type)) {
+                    //Si el rol no existe, se marca para eliminar
+                    $userMapper = new UsersModel($element->id);
+                    $userMapper->status = UsersModel::STATUS_USER_DELETED;
+                    $userMapper->update();
+                }
 
                 $columns[] = $element->idPadding;
                 $columns[] = stripslashes($element->names);
@@ -296,6 +305,7 @@ class UsersController extends AdminPanelController
         $model = UsersModel::model();
         $model->select(UsersModel::fieldsToSelect());
         $model->orderBy('fullname ASC, username ASC, id DESC');
+        $model->having("status != " . UsersModel::STATUS_USER_DELETED); //No mostrar usuarios marcados eliminados
 
         if (!empty($ignoreTypes)) {
             $ignoreTypes = implode(', ', $ignoreTypes);
@@ -484,7 +494,7 @@ class UsersController extends AdminPanelController
         if (isset(UsersModel::getTypesUser()[$type])) {
 
             $status_options = UsersModel::statuses();
-            unset($status_options[UsersModel::STATUS_USER_ATTEMPTS_BLOCK]);
+            unsetKeys(UsersModel::STATUSES_HIDDEN_ON_CREATION, $status_options);
             $status_options = array_flip($status_options);
 
             $data_form = [];
@@ -571,7 +581,7 @@ class UsersController extends AdminPanelController
         $currentUser = new UsersModel($this->user->id);
         $hasAuthority = $currentUser->hasAuthorityOver($user->type);
 
-        if (!is_null($user->id)) {
+        if (!is_null($user->id) && Roles::roleExists($user->type)) {
 
             if (!$hasAuthority) {
                 return throw403($req, [
@@ -586,17 +596,7 @@ class UsersController extends AdminPanelController
                 $type = $user->type;
 
                 $status_options = UsersModel::statuses();
-                if ($user->status != UsersModel::STATUS_USER_ATTEMPTS_BLOCK) {
-                    unset($status_options[UsersModel::STATUS_USER_ATTEMPTS_BLOCK]);
-                }
-
-                if ($user->status != UsersModel::STATUS_USER_APPROVED_PENDING) {
-                    unset($status_options[UsersModel::STATUS_USER_APPROVED_PENDING]);
-                }
-
-                if ($user->status != UsersModel::STATUS_USER_REJECTED) {
-                    unset($status_options[UsersModel::STATUS_USER_REJECTED]);
-                }
+                unsetKeys(UsersModel::STATUSES_HIDDEN_ON_EDIT, $status_options);
                 $status_options = array_flip($status_options);
 
                 $data_form = [];
@@ -1119,7 +1119,7 @@ class UsersController extends AdminPanelController
         ];
         if ($currentUser !== null) {
             $mapper = $currentUser->getMapper();
-            $mapper->status = UsersModel::STATUS_USER_INACTIVE;
+            $mapper->status = UsersModel::STATUS_USER_DELETED;
             $result['success'] = $mapper->update();
         }
         return $response->withJSON($result);

@@ -415,6 +415,22 @@ class Roles
     }
 
     /**
+     * Verifica si el rol existe
+     * @param int $role_code
+     * @return bool
+     */
+    public static function roleExists(int $role_code)
+    {
+        $roles = self::getRoles();
+        foreach ($roles as $role) {
+            if ($role['code'] == $role_code) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return bool
      */
     public static function hasRoles(): bool

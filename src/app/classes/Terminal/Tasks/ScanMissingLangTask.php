@@ -91,6 +91,9 @@ class ScanMissingLangTask extends TerminalTaskAbstract
 
             //Ejecutar llamadas a __ para verificar faltantes en cada lenguaje activo
             $allowedLangs = Config::get_allowed_langs();
+            $additionalLangsToScan = get_config('additional_langs_to_scan');
+            $additionalLangsToScan = is_array($additionalLangsToScan) ? $additionalLangsToScan : [];
+            $allowedLangs = array_unique(array_merge($allowedLangs, $additionalLangsToScan));
             $langsMessagesCalls = self::searchFunctionUsesWithParser('__', app_basepath());
             $paramGroupNames = [];
             foreach ($langsMessagesCalls as $filePath => $calls) {
@@ -133,6 +136,9 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                     if (count($messageData) == 3) {
                         $groupName = $messageData[0];
                         $lang = $messageData[1];
+                        if (!in_array($lang, $allowedLangs)) {
+                            continue;
+                        }
                         if (in_array($lang, $excludeLang)) {
                             continue;
                         }

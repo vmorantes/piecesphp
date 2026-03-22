@@ -1725,6 +1725,22 @@ function opacityToHex(float $opacity): string
     return strtoupper(str_pad($hexValue, 2, '0', STR_PAD_LEFT));
 }
 
+/**
+ * Elimina las claves especificadas de un array.
+ *
+ * @param array $keys Array de claves a eliminar.
+ * @param array $array Array del cual se eliminarán las claves.
+ * @return void
+ */
+function unsetKeys(array $keys, array &$array)
+{
+    foreach ($keys as $key) {
+        if (is_scalar($key) && array_key_exists($key, $array)) {
+            unset($array[$key]);
+        }
+    }
+}
+
 //========================================================================================
 /*                                                                                      *
  *                                       Polyfills                                      *

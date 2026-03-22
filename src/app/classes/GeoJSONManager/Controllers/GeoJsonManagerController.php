@@ -128,6 +128,7 @@ class GeoJsonManagerController extends AdminPanelController
         $where = [];
         $having = [
             "userStatus != " . UsersModel::STATUS_USER_INACTIVE,
+            "AND userStatus != " . UsersModel::STATUS_USER_DELETED,
         ];
         $table = UserProfileMapper::TABLE;
 

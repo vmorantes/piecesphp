@@ -53,17 +53,25 @@ add_to_front_configurations('autoTranslateFromLangGroupHTMLIgnoreLangs', [
     'pt',
 ]);
 
-//Idiomas y grupos para ignorar en el registro de traducciones faltantes (missing-lang-messages)
+//Idiomas y grupos para ignorar en el registro de traducciones faltantes (missing-lang-messages). Idiomas para añadir aunque no esté en los permitidos (additional_langs_to_scan).
 set_config('no_scan_langs', [
     'es',
     //'en',
-    //'fr',
+    'fr',
     'de',
     'it',
     'pt',
 ]);
 set_config('no_scan_lang_groups', [
     'locationBackend-names',
+]);
+set_config('additional_langs_to_scan', [
+    //'es',
+    //'en',
+    //'fr',
+    //'de',
+    //'it',
+    //'pt',
 ]);
 
 /**

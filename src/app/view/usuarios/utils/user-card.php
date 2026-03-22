@@ -5,6 +5,10 @@ use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use SystemApprovals\SystemApprovalsLang;
 
+/**
+ * @var UsersModel $mapper
+ */;
+ 
 $canModifyAll = OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type);
 $organizationMapper = $mapper->organization !== null ? OrganizationMapper::objectToMapper(OrganizationMapper::getBy($mapper->organization, 'id')) : null;
 $getExcerpt = function(string $str, int $maxLength = 300){
@@ -64,7 +68,7 @@ if($mapper->type == UsersModel::TYPE_USER_GENERAL){
                 <img src="<?= base_url('statics/images/dashboard/email.svg') ?>">
                 <span data-tooltip="<?= $mapper->email; ?>"><?= ($getExcerpt)($mapper->email, 30); ?></span>
             </div>
-            <?php if($canModifyAll && $organizationMapper !== null): ?>
+            <?php if($canModifyAll && $organizationMapper !== null && ORGANIZATIONS_MODULE): ?>
             <div class="item">
                 <img src="<?= base_url('statics/images/dashboard/user_organization.svg') ?>">
                 <span data-tooltip="<?= $organizationMapper->currentLangData('name'); ?>"><?= ($getExcerpt)($organizationMapper->currentLangData('name'), 30); ?></span>

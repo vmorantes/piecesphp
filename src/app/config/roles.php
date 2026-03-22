@@ -73,41 +73,48 @@ $config['roles']['baseInitialSegmentedPermissions'] = [
 $config['roles']['types'] = [
     [
         'code' => UsersModel::TYPE_USER_ROOT,
-        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ROOT],
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ROOT] ?? null,
         'all' => false,
         'allowed_routes' => $permisosSuperiores,
     ],
     [
         'code' => UsersModel::TYPE_USER_ADMIN_GRAL,
-        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_GRAL],
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_GRAL] ?? null,
         'all' => false,
         'allowed_routes' => $permisosAdministrativos,
     ],
     [
         'code' => UsersModel::TYPE_USER_ADMIN_ORG,
-        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_ORG],
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_ADMIN_ORG] ?? null,
         'all' => false,
         'allowed_routes' => $permisosGenerales,
     ],
     [
         'code' => UsersModel::TYPE_USER_GENERAL,
-        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_GENERAL],
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_GENERAL] ?? null,
         'all' => false,
         'allowed_routes' => $permisosGenerales,
     ],
     [
         'code' => UsersModel::TYPE_USER_INSTITUCIONAL,
-        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_INSTITUCIONAL],
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_INSTITUCIONAL] ?? null,
         'all' => false,
         'allowed_routes' => $permisosGenerales,
     ],
     [
         'code' => UsersModel::TYPE_USER_COMUNICACIONES,
-        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_COMUNICACIONES],
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_COMUNICACIONES] ?? null,
         'all' => false,
         'allowed_routes' => $permisosGenerales,
     ],
 ];
+
+//Si no se está usando el módulo de organizaciones, se elimina el tipo de usuario administrador de organización
+if (!CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']) {
+    $config['roles']['types'] = array_filter($config['roles']['types'], function ($type) {
+        return $type['code'] != UsersModel::TYPE_USER_ADMIN_ORG && $type['name'] != null;
+    });
+}
 
 $config['control_access_login'] = true;
 $config['admin_url']['relative'] = true;

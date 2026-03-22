@@ -9,7 +9,7 @@ use PiecesPHP\Terminal\CronJobTask;
 $langGroup = 'TestPCSPHP-Lang';
 $cliArguments = TerminalData::instance()->arguments();
 
-if (($cliArguments['mautic'] ?? false) && ($cliArguments['a'] ?? false)) {
+if (($cliArguments['mautic'] ?? false) && ($cliArguments['run'] ?? false)) {
     CronJobTask::addCronJob(CronJobTask::make(Test::class . ':test-auto-segments-and-send-mautic-cronjob', function () use ($langGroup) {
 
         echoTerminal('[TEST:Mautic] Iniciando proceso de prueba de Mautic...');

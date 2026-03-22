@@ -557,6 +557,14 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         };
 
         $user = $validationUserObject->getUserFromDatabase();
+        //Si el rol no existe, se invalida la sesión y se marca como eliminado el usuario
+        if (!Roles::roleExists($user->type ?? -999) && $user !== null) {
+            $userMapper = new UsersModel($user->id);
+            $userMapper->status = UsersModel::STATUS_USER_DELETED;
+            $userMapper->update();
+            $isActiveSession = false;
+            $user = null;
+        }
 
         //Conectarse arbitrariamente como un usuario si se es root
 
@@ -609,7 +617,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
             //Verificar el status del usuario
             // Suspensión Forzosa: Si la base de datos marca `inactivo`, destrozamos forzosamente la sesión desestimando la firma JWT.
-            if ($user->status == UsersModel::STATUS_USER_INACTIVE) {
+            if (in_array($user->status, UsersModel::STATUSES_INACTIVE_EQUIVALENT)) {
                 $isActiveSession = false;
                 SessionToken::setMinimumDateCreated(new \DateTime());
             }

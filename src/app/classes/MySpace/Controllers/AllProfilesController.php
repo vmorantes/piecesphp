@@ -99,7 +99,7 @@ class AllProfilesController extends AdminPanelController
 
         $tableUserProfile = UserProfileMapper::TABLE;
         $selectFieldsUserProfiles = implode(",", UserProfileMapper::fieldsToSelect());
-        $selectForUserProfiles = "SELECT {$selectFieldsUserProfiles} FROM {$tableUserProfile} HAVING userStatus != " . UsersModel::STATUS_USER_INACTIVE;
+        $selectForUserProfiles = "SELECT {$selectFieldsUserProfiles} FROM {$tableUserProfile} HAVING userStatus != " . UsersModel::STATUS_USER_INACTIVE . " AND userStatus != " . UsersModel::STATUS_USER_DELETED;
         $tableUserProfile = 'userQuery';
         $selectFieldsUserProfiles = implode(",", [
             "{$tableUserProfile}.belongsTo AS id",
