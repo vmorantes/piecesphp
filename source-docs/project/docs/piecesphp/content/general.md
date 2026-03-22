@@ -92,7 +92,7 @@ sudo mv ./tmp/{*,.*} ./;
 ##### Eliminar
 
 ```bash
-sudo rm -Rf tmp CHANGELOG.md README.md TODO TODO.md guides source-docs src/adminer;
+sudo rm -Rf tmp CHANGELOG.md README.md TODO TODO.md guides source-docs src/adminer LICENSE;
 sudo chmod -Rf 0777 src;
 ```
 

@@ -5,12 +5,14 @@ nav:
     - hestiacp/index.md 
     - PiecesPHP Framework: 
         - General: piecesphp/index.md
+        - Estructura: piecesphp/content/structure.md
         - Rutas: piecesphp/content/routing.md
         - Mappers: piecesphp/content/mappers.md
         - Gulp: piecesphp/content/gulp.md
         - Terminal: piecesphp/content/terminal.md
     - performance/index.md
     - tomcat/index.md 
+    - Mautic + RabbitMQ: mautic-rabbitmq.md
 theme:
     name: material
     language: es
@@ -18,13 +20,21 @@ theme:
         scheme: slate
         primary: black
         accent: red
+    features:
+        - content.code.copy
+        - content.code.annotate
 site_dir: ../../docs
 markdown_extensions:
   - admonition
+  - attr_list
   - pymdownx.details
   - pymdownx.superfences
-markdown_extensions:
-  - attr_list
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
 
 
 
