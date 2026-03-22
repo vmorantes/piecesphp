@@ -1,9 +1,6 @@
 <?php
 use App\Controller\PublicAreaController;
 use PiecesPHP\Core\Config;
-/**
- * @var ApplicationCallsMapper[] $opportunities
- */
 $langGroup = isset($langGroup) && is_string($langGroup) ? $langGroup : MAILING_GENERAL_LANG_GROUP;
 $header_image = isset($header_image) && is_string($header_image) ? $header_image : (
     is_local() ?
