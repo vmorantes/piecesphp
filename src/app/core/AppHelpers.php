@@ -2922,10 +2922,18 @@ function throw403(\PiecesPHP\Core\Routing\RequestRoute $request, array $extraDat
  * @param string $text
  * @param boolean $newLine
  * @param string $newLineChars
+ * @param string|null $color
  * @return void
+ * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting Colores para texto de terminal
  */
-function echoTerminal(string $text, bool $newLine = true, string $newLineChars = "\r\n")
+function echoTerminal(string $text, bool $newLine = true, string $newLineChars = "\r\n", string $color = null)
 {
+    $globalTerminalColor = get_config('terminal_color');
+    if ($color !== null) {
+        $text = "\033[{$color}m{$text}\033[0m";
+    } else if ($globalTerminalColor !== null) {
+        $text = "\033[{$globalTerminalColor}m{$text}\033[0m";
+    }
     fwrite(STDOUT, $text . ($newLine ? $newLineChars : ''));
     flush();
 }

@@ -56,6 +56,11 @@ class HttpClient
     protected $requestURI = '';
 
     /**
+     * @var int|null
+     */
+    protected ?int $timeout = null;
+
+    /**
      * @var mixed
      */
     protected $response = [
@@ -66,14 +71,52 @@ class HttpClient
 
     /**
      * @param string $baseURL Es la ruta a la que se añadirán todas las peticiones
-     *
+     * @param array{
+     *   timeout?: int
+     * } $configurations
      */
-    public function __construct(string $baseURL)
+    public function __construct(string $baseURL, array $configurations = [])
     {
         self::$baseURL = $baseURL;
         $this->defaultHeaders = [
             'accept' => '*/*',
         ];
+        //Configuraciones
+        foreach ($configurations as $key => $value) {
+            $this->setOption($key, $value);
+        }
+    }
+
+    /**
+     * Establece el timeout de la petición
+     * @param int|null $value Timeout en segundos
+     * @return self|int Si se pasa un valor se retorna self, si no se retorna el timeout actual
+     */
+    public function timeout(?int $value)
+    {
+        if ($value !== null) {
+            $this->setOption('timeout', $value);
+            return $this;
+        }
+        return $this->timeout;
+    }
+
+    /**
+     * Establece una configuración
+     * @param string $name Nombre de la configuración
+     * @param mixed $value Valor de la configuración
+     * @return self
+     */
+    public function setOption(string $name, $value)
+    {
+        $availableConfigurations = $this->defaultConfigurations();
+        if (isset($availableConfigurations[$name])) {
+            $configuration = $availableConfigurations[$name];
+            if ($configuration['validate']($value)) {
+                $this->$name = $value;
+            }
+        }
+        return $this;
     }
 
     /**
@@ -106,20 +149,41 @@ class HttpClient
                 break;
         }
 
-        $contents = $this->requestBody;
+        $query_string = '';
+        if ($method == 'GET' && !empty($contents)) {
+            $query_string = '?' . http_build_query($contents);
+            $this->requestBody = ''; //No body for GET
+        }
 
-        $context = stream_context_create([
+        $this->response = [
+            'headers' => null,
+            'status' => null,
+            'body' => null,
+        ];
+
+        $streamContextConfiguration = [
             'http' => [
                 'method' => $method,
                 'header' => $headers_string,
-                'content' => $contents,
+                'content' => $this->requestBody,
             ],
-        ]);
+        ];
+        if ($this->timeout !== null) {
+            $streamContextConfiguration['http']['timeout'] = $this->timeout;
+        }
+        $context = stream_context_create($streamContextConfiguration);
 
-        $this->requestURI = append_to_url(self::$baseURL, $request_uri, true);
+        $baseURL = trim(self::$baseURL, '/');
+        $requestURL = $request_uri . $query_string;
+        $this->requestURI = mb_strlen($request_uri) == 0 ? $baseURL . $requestURL : append_to_url($baseURL, $requestURL, true);
 
-        $response = @file_get_contents($this->requestURI, false, $context);
-        $this->response['headers'] = $this->parseReponseHeaders($http_response_header);
+        $response = null;
+        try {
+            $response = file_get_contents($this->requestURI, false, $context);
+        } catch (\Exception $e) {
+            $response = $e->getMessage();
+        }
+        $this->response['headers'] = $this->parseReponseHeaders(isset($http_response_header) && is_array($http_response_header) ? $http_response_header : []);
         $this->response['status'] = isset($this->response['headers']['response_code']) ? $this->response['headers']['response_code'] : null;
         $this->response['body'] = $response;
 
@@ -240,7 +304,7 @@ class HttpClient
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getRequestURI()
     {
@@ -320,6 +384,21 @@ class HttpClient
     {
         return $this->parse($this->getResponseBody(), $mode);
 
+    }
+
+    /**
+     * Devuelve las configuraciones por defecto
+     *
+     * @return array
+     */
+    protected function defaultConfigurations()
+    {
+        return [
+            'timeout' => [
+                'validate' => fn($value) => is_int($value) && $value > 0,
+                'default' => null,
+            ],
+        ];
     }
 
     /**
