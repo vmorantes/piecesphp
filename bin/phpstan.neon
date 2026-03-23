@@ -1,5 +1,5 @@
 parameters:
-    level: 2
+    level: 8
     phpVersion: 80400 # PHP 8.4
     paths:
         - ../src/app
@@ -50,6 +50,59 @@ parameters:
             paths:
                 - ../src/app/*
                 - ../src/app/**/*
-        # ── Condiciones redundantes (programación defensiva) ──────────
-        - identifier: isset.variable
+        # Irrelevantes
+        - identifier: missingType.iterableValue
+        - identifier: missingType.return
+        - identifier: missingType.property
+        - identifier: missingType.parameter
+        - identifier: missingType.generics
+        # ── Condiciones redundantes y código "muerto" (siempre falsas / inalcanzables) ──────────
         - message: '#.*left side of \?\? always exists and is not nullable.*#'
+        - identifier: if.alwaysTrue
+        - identifier: notIdentical.alwaysTrue
+        - identifier: ternary.alwaysTrue
+        - identifier: booleanAnd.rightAlwaysTrue
+        - identifier: booleanAnd.leftAlwaysTrue
+        - identifier: booleanNot.alwaysTrue
+        - identifier: booleanOr.rightAlwaysTrue
+        - identifier: booleanOr.leftAlwaysTrue
+        - identifier: booleanAnd.alwaysTrue
+        - identifier: instanceof.alwaysTrue
+        - identifier: identical.alwaysTrue
+        - identifier: notEqual.alwaysTrue
+        - identifier: equal.alwaysTrue
+        - identifier: booleanOr.alwaysTrue
+        - identifier: isset.variable
+        - identifier: function.alreadyNarrowedType
+        - identifier: if.alwaysFalse
+        - identifier: notIdentical.alwaysFalse
+        - identifier: ternary.alwaysFalse
+        - identifier: booleanAnd.rightAlwaysFalse
+        - identifier: booleanAnd.leftAlwaysFalse
+        - identifier: booleanNot.alwaysFalse
+        - identifier: booleanOr.rightAlwaysFalse
+        - identifier: booleanOr.leftAlwaysFalse
+        - identifier: booleanAnd.alwaysFalse
+        - identifier: instanceof.alwaysFalse
+        - identifier: identical.alwaysFalse
+        - identifier: function.impossibleType
+        - identifier: foreach.emptyArray
+        - identifier: deadCode.unreachable
+        - identifier: catch.neverThrown
+
+        # ── NUEVO: Errores de sintaxis y tipos en PHPDoc (A PHP le da igual) ──────────
+        - '#.*PHPDoc tag @.*#'
+        - identifier: phpDoc.parseError
+        - identifier: parameter.phpDocType
+        - identifier: return.phpDocType
+        - identifier: varTag.misplaced
+        - identifier: varTag.noVariable
+        - identifier: throws.notThrowable
+
+        # ── NUEVO: Quejas de diseño estricto (Métodos sin usar, retornos vacíos, etc.) ──────────
+        - identifier: return.void
+        - identifier: return.unusedType
+        - identifier: method.unused
+        - identifier: staticMethod.resultUnused
+        - identifier: property.unusedType
+        - identifier: argument.unresolvableType

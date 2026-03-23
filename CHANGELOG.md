@@ -1,3 +1,7 @@
+# 7.0.0 (23-03-2026)
+
+- Migración a PHP 8.4 funcional. Con soporte hasta 8.1.
+
 # 7.0.0-beta
 
 - Soporte para PHP 8.4 en proceso.
@@ -23,7 +27,7 @@ php index.php cli --local run-cronjobs mautic run
 ```bash
 php index.php cli --local run-cronjobs unit-tests core/http-client
 ```
-- **Gestión de Usuarios (Soporte Mejorado sin Organizaciones)**:
+- **Gestión de Usua7rios (Soporte Mejorado sin Organizaciones)**:
     - Optimizada la lógica de visualización para admitir el funcionamiento del sistema cuando el módulo de organizaciones está desactivado.
     - Los formularios se ajustan dinámicamente ocultando campos relacionados con organizaciones si son innecesarios.
     - Reestructuración de formularios por tipos para mayor claridad.

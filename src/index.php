@@ -481,7 +481,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
                     $usersModel = UsersModel::model()->select()->where(['id' => $this->element->id]);
                     $usersModel->execute();
                     $user = $usersModel->result();
-                    $user = count($user) > 0 ? $user[0] : null;
+                    $user = count($user ?? []) > 0 ? $user[0] : null;
 
                     if ($user !== null) {
                         $fullname = [

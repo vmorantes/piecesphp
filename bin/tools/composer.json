@@ -9,5 +9,8 @@
     "scripts": {},
     "config": {
         "allow-plugins": {}
+    },
+    "require-dev": {
+        "rector/rector": "^2.3"
     }
 }
