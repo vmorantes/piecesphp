@@ -104,7 +104,7 @@ class OpenAIHandlerAdapter
      * @param array $extraAttachments
      * @return string
      */
-    public function askToAssistent(string $ask, string $attachmentPath = null, array $extraAttachments = [])
+    public function askToAssistent(string $ask, ?string $attachmentPath = null, array $extraAttachments = [])
     {
 
         $this->lastUsage = [];
@@ -176,7 +176,9 @@ class OpenAIHandlerAdapter
         }
 
         //Registrar uso
-        $this->addLastUsage($threadRun->usage);
+        if (isset($threadRun['usage'])) {
+            $this->addLastUsage($threadRun['usage']);
+        }
 
         //Obtener mensajes
         $threadMessages = $client->threads()->messages()->list($threadRun['thread_id'])->toArray()['data'];
@@ -188,7 +190,7 @@ class OpenAIHandlerAdapter
             $client->files()->delete($attachmentUploadedID);
         }
 
-        $content = $threadMessage !== null ? $threadMessage['content'][0]['text']['value'] : '';
+        $content = $threadMessage !== null ? ($threadMessage['content'][0]['text']['value'] ?? '') : '';
 
         if ($threadRun['status'] != 'completed') {
             throw new \Exception(__(APILang::LANG_GROUP, 'La tarea tardó demasiado en completarse'));

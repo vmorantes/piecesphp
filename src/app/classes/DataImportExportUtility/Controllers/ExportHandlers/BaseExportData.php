@@ -28,7 +28,7 @@ class BaseExportData
         $this->fileData($fileData);
         $this->contentType($contentType);
         $fileName = $this->fileName();
-        $this->contentDisposition(str_replace('{FILE_NAME}', $fileName, $this->contentDisposition));
+        $this->contentDisposition(str_replace('{FILE_NAME}', $fileName, $contentDisposition ?? $this->contentDisposition));
         $this->cacheControl($cacheControl);
     }
 

@@ -251,6 +251,8 @@ class CacheControllersManager implements JsonSerializable
 
         self::setGlobalConfigurationProperty($this->className, $this->methodName, 'shouldBeRecached', false);
         $this->setOwnConfigurationProperty('contentType', $this->contentType);
+
+        return $this;
     }
 
     /**

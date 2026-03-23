@@ -56,7 +56,7 @@ class DataImportExportUtilityController extends AdminPanelController
 
     public function __construct()
     {
-        parent::__construct(false); //No cargar ningún modelo automáticamente.
+        parent::__construct();
         $this->helpController = new HelperController($this->user, $this->getGlobalVariables());
         $this->setInstanceViewDir(__DIR__ . '/../Views/');
 
@@ -479,7 +479,7 @@ class DataImportExportUtilityController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = $name;

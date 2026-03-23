@@ -72,7 +72,7 @@ class PaginationResult implements JsonSerializable
      */
     protected $isFinal = false;
 
-    public function __construct(PageQuery $pageQuery, callable $elementParser = null, callable $each = null)
+    public function __construct(PageQuery $pageQuery, ?callable $elementParser = null, ?callable $each = null)
     {
         $this->page = $pageQuery->getPage();
         $this->perPage = $pageQuery->getPerPage();

@@ -1,3 +1,13 @@
+# 7.0.0-beta
+
+- Soporte para PHP 8.4 en proceso.
+- Ajuste de composer.json.
+- Upgrade con PHPStan:
+    - Se ignoran falsos positivos con __() añadiendo doc condicional.
+    - Se corrigieron nullables implicitos en el código.
+    - Se corrigieron errores de variables no declaradas.
+    - Hasta level 2 completo.
+
 # 6.4.4 (22-03-2026)
 
 - **Integración con Mautic**:

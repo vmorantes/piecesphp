@@ -215,7 +215,7 @@ class OTPHandler
      * @param string|null $alias
      * @return TOTPStandard|null
      */
-    public static function toggleCurrentUser2AF(bool $enable, string $securityCode, string $alias = null)
+    public static function toggleCurrentUser2AF(bool $enable, string $securityCode, ?string $alias = null)
     {
         $totpManager = null;
         $userDataPackage = getLoggedFrameworkUser();

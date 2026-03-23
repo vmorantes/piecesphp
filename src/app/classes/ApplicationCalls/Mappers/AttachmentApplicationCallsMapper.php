@@ -119,7 +119,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
         parent::__construct($value, $fieldCompare);
     }
@@ -159,7 +159,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    public function createdAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
@@ -171,7 +171,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
@@ -345,7 +345,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
      *
      * @return static[]|array
      */
-    public static function allBy(string $column, $value, bool $asMapper = false, bool $currentLang = false, string $lang = null)
+    public static function allBy(string $column, $value, bool $asMapper = false, bool $currentLang = false, ?string $lang = null)
     {
         $model = self::model();
 
@@ -514,7 +514,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
      * @param int $ignoreID
      * @return bool
      */
-    public static function existsByApplicationCall(int $applicationCallID, string $lang = null, int $ignoreID = null)
+    public static function existsByApplicationCall(int $applicationCallID, ?string $lang = null, ?int $ignoreID = null)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;

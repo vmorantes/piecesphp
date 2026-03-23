@@ -22,7 +22,7 @@ class RouteNotExistsException extends \PiecesPHP\Core\Exceptions\BaseException
      * @param \Throwable|null $previous Excepción previa que causó esta excepción
      * @param string|null $routeName Nombre de la ruta que no existe.
      */
-    public function __construct(int $code = 0, \Throwable $previous = null, ?string $routeName = null)
+    public function __construct(int $code = 0, ?\Throwable $previous = null, ?string $routeName = null)
     {
         $routeName = $routeName ?? 'solicitada';
         $message = "La ruta {$routeName} no existe";

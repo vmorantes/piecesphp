@@ -1,0 +1,26 @@
+================[RESUMEN]================
+
+[TOTAL DE ERRORES VISIBLES]
+0
+
+[TIPOS DE ERRORES Y CANTIDAD]
+
+
+[ERRORES POR ARCHIVO]
+
+================[PHPSTAN]================
+
+ -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+     Error                                                                                                                                                                                              
+ -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+     Ignored error pattern class.notFound in paths: /var/www/html/vicsen/piecesphp/src/app/view/**/*, /var/www/html/vicsen/piecesphp/src/app/classes/**/Views/**/* was not matched in reported errors.  
+     Ignored error pattern variable.undefined in paths: /var/www/html/vicsen/piecesphp/src/app/view/**/*, /var/www/html/vicsen/piecesphp/src/app/classes/**/Views/**/*,                                 
+     /var/www/html/vicsen/piecesphp/src/**/BaseMongoModel.php was not matched in reported errors.                                                                                                       
+     Ignored error pattern staticMethod.notFound in path /var/www/html/vicsen/piecesphp/src/app/classes/SystemApprovals/**/* was not matched in reported errors.                                        
+     Ignored error pattern #.*Constant LOG_ERRORS_PATH not found.*# in path /var/www/html/vicsen/piecesphp/src/app/controller/**/* was not matched in reported errors.                                  
+     Ignored error pattern new.static in path /var/www/html/vicsen/piecesphp/src/app/**/* was not matched in reported errors.                                                                           
+ -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+
+ [ERROR] Found 5 errors                                                                                                 
+

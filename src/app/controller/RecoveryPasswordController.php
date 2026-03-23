@@ -15,6 +15,7 @@ use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\StringManipulate;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+use \stdClass;
 
 /**
  * RecoveryPasswordController.
@@ -498,7 +499,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @return bool true si se envió, false si no
      */
-    private function mailRecoveryPassword(string $url, \stdClass $usuario)
+    private function mailRecoveryPassword(string $url, stdClass $usuario)
     {
 
         $mail = new Mailer();
@@ -536,7 +537,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @return bool true si se envió, false si no
      */
-    public function mailRecoveryPasswordCode(string $code, \stdClass $usuario, bool $onlyCode = false)
+    public function mailRecoveryPasswordCode(string $code, stdClass $usuario, bool $onlyCode = false)
     {
         $mail = new Mailer();
         $mailConfig = new MailConfig;
@@ -583,7 +584,7 @@ class RecoveryPasswordController extends UsersController
      *
      * @return bool true si se envió, false si no
      */
-    private function mailNewPassword(string $password, \stdClass $usuario)
+    private function mailNewPassword(string $password, stdClass $usuario)
     {
         $mail = new Mailer();
         $mailConfig = new MailConfig;

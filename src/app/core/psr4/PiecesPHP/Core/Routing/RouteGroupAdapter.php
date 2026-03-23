@@ -57,7 +57,7 @@ class RouteGroupAdapter
      * @param Router $router
      * @param bool $useClassRouter
      */
-    public function __construct(string $routeGroup, Router $router = null, bool $useClassRouter = true)
+    public function __construct(string $routeGroup, ?Router $router = null, bool $useClassRouter = true)
     {
         $routerDefined = false;
 

@@ -52,7 +52,7 @@ class MailjetConfig
      * @param string $value
      * @return string|static
      */
-    public function email(string $value = null)
+    public function email(?string $value = null)
     {
         $name = 'email';
         if ($value !== null) {
@@ -68,7 +68,7 @@ class MailjetConfig
      * @param string $value
      * @return string|static
      */
-    public function name(string $value = null)
+    public function name(?string $value = null)
     {
         $name = 'name';
         if ($value !== null) {
@@ -84,7 +84,7 @@ class MailjetConfig
      * @param string $value
      * @return string|static
      */
-    public function apiKey(string $value = null)
+    public function apiKey(?string $value = null)
     {
         $name = 'apiKey';
         if ($value !== null) {
@@ -100,7 +100,7 @@ class MailjetConfig
      * @param string $value
      * @return string|static
      */
-    public function secretKey(string $value = null)
+    public function secretKey(?string $value = null)
     {
         $name = 'secretKey';
         if ($value !== null) {
@@ -116,7 +116,7 @@ class MailjetConfig
      * @param string $value
      * @return string|static
      */
-    public function smtpHost(string $value = null)
+    public function smtpHost(?string $value = null)
     {
         $name = 'smtpHost';
         if ($value !== null) {
@@ -132,7 +132,7 @@ class MailjetConfig
      * @param int $value
      * @return int|static
      */
-    public function smtpPort(int $value = null)
+    public function smtpPort(?int $value = null)
     {
         $name = 'smtpPort';
         if ($value !== null) {

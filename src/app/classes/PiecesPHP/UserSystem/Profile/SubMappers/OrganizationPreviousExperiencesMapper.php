@@ -194,7 +194,7 @@ class OrganizationPreviousExperiencesMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
@@ -242,7 +242,7 @@ class OrganizationPreviousExperiencesMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function startDateFormat(string $format = null, array $replaceTemplate = [])
+    public function startDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->startDate instanceof \DateTime  ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
@@ -254,7 +254,7 @@ class OrganizationPreviousExperiencesMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function endDateFormat(string $format = null, array $replaceTemplate = [])
+    public function endDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->endDate instanceof \DateTime  ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
@@ -445,7 +445,7 @@ class OrganizationPreviousExperiencesMapper extends EntityMapperExtensible
      *  - baseLang
      * @return string[]
      */
-    protected static function fieldsToSelect(string $formatDate = null)
+    protected static function fieldsToSelect(?string $formatDate = null)
     {
 
         $formatDate = $formatDate ?? get_default_format_date(null, true);
@@ -746,7 +746,7 @@ class OrganizationPreviousExperiencesMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->title !== null) {
+                if ($mapper->preferSlug === null && $mapper->experienceName !== null) {
                     $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
                     $mapper->update();
                 }

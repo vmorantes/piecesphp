@@ -559,14 +559,14 @@ class Config
      * Si $message es '' devuelve el array completo de mensajes en $groupName
      *
      * @param string $groupName
-     * @param string $message
+     * @param string|null $message Índice del mensaje en el tipo dado
      * @param bool $echo
      * @param string $forceLang
-     * @return string|string[]
+     * @return ($message is null ? array<string, string> : string)
      */
-    public static function i18n(string $groupName, string $message = '', bool $echo = false, string $forceLang = null)
+    public static function i18n(string $groupName, ?string $message = null, bool $echo = false, ?string $forceLang = null)
     {
-
+        $message = $message === null ? '' : (string) $message;
         //Preparación de configuraciones de búsqueda para mensajes
         $t = self::$translations;
         $str = $message;
@@ -710,7 +710,7 @@ class Config
             $propertyToSet = $namesOnStatic[$name];
             $reflectedProperty = self::$reflectedClass->getProperty($propertyToSet);
             $reflectedProperty->setAccessible(true);
-            $reflectedProperty->setValue($value);
+            $reflectedProperty->setValue(null, $value);
 
             if ($name == 'app_lang') {
                 //Establecer nuevamente setlocale en caso de cambiar el lenguaje
@@ -762,7 +762,7 @@ class Config
 
     /**
      * Establece setlocale a partir del lenguaje actual de la aplicación.
-     * @param int[] $categories Por defecto [\LC_COLLATE, \LC_CTYPE, \LC_TIME, \LC_MESSAGES (Solo si existe) ]
+     * @param array<int|string> $categories Por defecto [\LC_COLLATE, \LC_CTYPE, \LC_TIME, \LC_MESSAGES (Solo si existe) ]
      * @return void
      */
     public static function set_locale_from_current_lang(array $categories = [\LC_COLLATE, \LC_CTYPE, \LC_TIME, 'LC_MESSAGES'])

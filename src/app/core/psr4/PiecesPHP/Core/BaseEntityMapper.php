@@ -6,6 +6,7 @@
 namespace PiecesPHP\Core;
 
 use App\Model\UsersModel;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\Database;
 use PiecesPHP\Core\Database\EntityMapper;
 use PiecesPHP\UserSystem\Profile\UserProfileMapper;
@@ -25,6 +26,7 @@ use SystemApprovals\Util\SystemApprovalManager;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
+ * @property int|null $id
  */
 class BaseEntityMapper extends EntityMapper
 {
@@ -180,4 +182,11 @@ class BaseEntityMapper extends EntityMapper
 
     }
 
+    /**
+     * @return ActiveRecordModel
+     */
+    public static function model()
+    {
+        return (new static())->getModel();
+    }
 }

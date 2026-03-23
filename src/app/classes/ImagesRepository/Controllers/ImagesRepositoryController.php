@@ -1356,9 +1356,9 @@ class ImagesRepositoryController extends AdminPanelController
      * @return PaginationResult
      */
     public static function _all(
-        int $page = null,
-        int $perPage = null,
-        string $description
+        ?int $page = null,
+        ?int $perPage = null,
+        string $description = ''
     ) {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
@@ -1596,7 +1596,7 @@ class ImagesRepositoryController extends AdminPanelController
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, bool $setNameByInput = false, array $validTypes = null)
+    protected static function handlerUpload(string $nameOnFiles, string $folder, ?string $currentRoute = null, bool $setNameByInput = false, ?array $validTypes = null)
     {
         $validTypes = $validTypes !== null ? $validTypes : [
             FileValidator::TYPE_XLSX,
@@ -1701,7 +1701,7 @@ class ImagesRepositoryController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

@@ -112,7 +112,7 @@ class LogsMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, null, true), 'ip');
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, null, true), 'geolocationByIp');
@@ -153,7 +153,7 @@ class LogsMapper extends EntityMapperExtensible
      * @param string $format
      * @return string
      */
-    public function createdAtFormat(string $format = null)
+    public function createdAtFormat(?string $format = null)
     {
 
         $formatDefault = __(self::LANG_GROUP, "F d {1} Y");
@@ -205,7 +205,7 @@ class LogsMapper extends EntityMapperExtensible
      * @param string $referenceSource
      * @return LogsMapper
      */
-    public static function addLog(string $messageType, array $variables = [], string $referenceColumn = null, string $referenceValue = null, string $referenceSource = null)
+    public static function addLog(string $messageType, array $variables = [], ?string $referenceColumn = null, ?string $referenceValue = null, ?string $referenceSource = null)
     {
         $mapper = new LogsMapper;
         $notExistsMessage = true;

@@ -185,7 +185,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
@@ -312,7 +312,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function captureDateFormat(string $format = null, array $replaceTemplate = [])
+    public function captureDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $captureDate = is_object($this->captureDate) ? $this->captureDate : new \DateTime($this->captureDate);
         $format = is_string($format) ? $format : get_default_format_date();
@@ -325,7 +325,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    public function createdAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $createdAt = is_object($this->createdAt) ? $this->createdAt : new \DateTime($this->createdAt);
         $format = is_string($format) ? $format : get_default_format_date();
@@ -338,7 +338,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
@@ -378,7 +378,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public function getSlug(string $lang = null)
+    public function getSlug(?string $lang = null)
     {
         return self::elementFriendlySlug($this, $lang);
     }
@@ -428,7 +428,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * - Un string con el formato lng, lat
      * - Si es nulo devuelve NULL o el valor provisto en $nullString
      */
-    public function getCoordinates(string $nullString = null, bool $asString = false)
+    public function getCoordinates(?string $nullString = null, bool $asString = false)
     {
 
         $result = $nullString;
@@ -478,7 +478,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * @param int $modeValue
      * @return string
      */
-    public function getImagePublicURL(string $mode = null, int $modeValue = null)
+    public function getImagePublicURL(?string $mode = null, ?int $modeValue = null)
     {
         $imagePath = ImagesRepositoryController::routeName('image-friendly', [
             'name' => $this->getFriendlyImageName(),
@@ -865,7 +865,7 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID, string $lang = null)
+    public static function elementFriendlySlug($elementOrID, ?string $lang = null)
     {
         $slug = '';
 

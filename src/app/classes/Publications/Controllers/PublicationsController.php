@@ -275,7 +275,7 @@ class PublicationsController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function listView(Request $request, Response $response)
     {
@@ -322,7 +322,7 @@ class PublicationsController extends AdminPanelController
         $this->helpController->render('panel/layout/header');
         $this->render('list', $data);
         $this->helpController->render('panel/layout/footer');
-
+        return $response;
     }
 
     /**
@@ -1369,12 +1369,12 @@ class PublicationsController extends AdminPanelController
      * @return PaginationResult
      */
     public static function _all(
-        int $page = null,
-        int $perPage = null,
-        int $category = null,
-        int $status = null,
-        int $featured = null,
-        string $title = null,
+        ?int $page = null,
+        ?int $perPage = null,
+        ?int $category = null,
+        ?int $status = null,
+        ?int $featured = null,
+        ?string $title = null,
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = []
@@ -1661,7 +1661,7 @@ class PublicationsController extends AdminPanelController
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null, string $suffixName = '')
+    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null, string $suffixName = '')
     {
         if ($allowedTypes === null) {
             $allowedTypes = [
@@ -1756,7 +1756,7 @@ class PublicationsController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

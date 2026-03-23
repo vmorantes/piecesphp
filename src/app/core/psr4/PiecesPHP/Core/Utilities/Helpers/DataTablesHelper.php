@@ -41,19 +41,7 @@ class DataTablesHelper
     private static $tableOnSearch = true;
 
     /**
-     * @param array $options
-     * @var Request $options[request] required
-     * @var EntityMapper|ORM $options[mapper] required
-     * @var array $options[columns_order] required
-     * @var string $options[where_string]
-     * @var string $options[having_string]
-     * @var callable $options[on_set_data] Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
-     * @var bool $options[as_mapper]
-     * @var callable $options[on_set_model]
-     * @var callable $options[config_result_model]
-     * @var array|string $options[select_fields]
-     * @var array $options[custom_order]
-     * @var string $options[group_string]
+     * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string?:string,having_string?:string,on_set_data?:callable,as_mapper?:bool,on_set_model?:callable,config_result_model?:callable,select_fields?:array|string,custom_order?:array,group_string?:string} $options
      * @return ResultOperations
      */
     public static function process(array $options)
@@ -640,17 +628,7 @@ class DataTablesHelper
     }
 
     /**
-     * @param array $options
-     * @var string $options[fakeTable] required
-     * @var string $options[tableName] required
-     * @var Request $options[request] required
-     * @var array $options[columns_order] required
-     * @var string $options[where_string]
-     * @var string $options[having_string]
-     * @var callable $options[on_set_data] Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
-     * @var array|string $options[select_fields]
-     * @var array $options[custom_order]
-     * @var string $options[group_string]
+     * @param array{fakeTable:string,tableName:string,request:Request,columns_order:array,where_string?:string,having_string?:string,on_set_data?:callable,select_fields?:array|string,custom_order?:array,group_string?:string} $options
      * @return ResultOperations
      */
     public static function processFromQuery(array $options)
@@ -1214,7 +1192,7 @@ class DataTablesHelper
      * @param string $table
      * @return string
      */
-    protected static function generateOrderBy(array $columns_order, $order, array $custom_order = null, string $table = ''): string
+    protected static function generateOrderBy(array $columns_order, $order, ?array $custom_order = null, string $table = ''): string
     {
         $order_by = [];
 

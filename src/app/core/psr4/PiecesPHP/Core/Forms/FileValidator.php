@@ -356,7 +356,7 @@ class FileValidator
      * @param string[] $accepted_types Lista de tipos de archivos aceptados.
      * @param int|null $max_size_mb Tamaño máximo permitido en MB.
      */
-    public function __construct(array $accepted_types = [], int $max_size_mb = null)
+    public function __construct(array $accepted_types = [], ?int $max_size_mb = null)
     {
 
         //Definición de tipos aceptados
@@ -376,9 +376,13 @@ class FileValidator
 
         //Determinar el tamaño máximo permitido
         if (is_null($max_size_mb)) {
-            $max_upload = min(ini_get('post_max_size'), ini_get('upload_max_filesize'));
+            $post_max = ini_get('post_max_size');
+            $upload_max = ini_get('upload_max_filesize');
+            $max_upload = min(
+                is_string($post_max) ? $post_max : '0',
+                is_string($upload_max) ? $upload_max : '0'
+            );
             $max_upload = str_replace('M', '', $max_upload);
-            $max_upload = $max_upload;
             $this->maxFileSizeMB = (int) $max_upload;
         } else {
             $this->maxFileSizeMB = $max_size_mb;
@@ -400,12 +404,16 @@ class FileValidator
         }
 
         $file_info = finfo_open(\FILEINFO_MIME_TYPE);
+        $mime_type = '';
 
-        $mime_type = finfo_file($file_info, $file);
+        if ($file_info !== false) {
+            $mime_type = finfo_file($file_info, $file);
+            $mime_type = is_string($mime_type) ? $mime_type : '';
+            finfo_close($file_info);
+        }
+
         $extension = @mb_strtolower(pathinfo($basename, \PATHINFO_EXTENSION));
         $filesize = filesize($file) / 1000 / 1000; //Convertir a MB
-
-        finfo_close($file_info);
 
         $valid = true;
 

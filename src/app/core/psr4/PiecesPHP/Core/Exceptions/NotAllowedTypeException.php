@@ -20,7 +20,7 @@ class NotAllowedTypeException extends \PiecesPHP\Core\Exceptions\BaseException
 	 *
 	 * @param \Throwable $previous
 	 */
-	public function __construct(int $code = 0, \Throwable $previous = null)
+	public function __construct(int $code = 0, ?\Throwable $previous = null)
 	{	
 		parent::__construct(__('exceptions','not_allowed_type'),$code,$previous);
 	}

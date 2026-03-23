@@ -62,6 +62,7 @@ class Parameters implements \JsonSerializable
                 $this->inputValues[$name] = $value;
             }
         }
+        return $this;
     }
 
     /**

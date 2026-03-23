@@ -22,7 +22,7 @@ class DataTablesHelperProcessException extends \PiecesPHP\Core\Exceptions\BaseEx
      * @param \Throwable $previous
      * @param array $errorData
      */
-    public function __construct(int $code = 0, \Throwable $previous = null, array $errorData = [])
+    public function __construct(int $code = 0, ?\Throwable $previous = null, array $errorData = [])
     {
         parent::__construct("Error al procesar la tabla.", $code, $previous);        $this->setExtraData($errorData);
     }

@@ -20,7 +20,7 @@ class RouteDuplicateNameException extends \PiecesPHP\Core\Exceptions\BaseExcepti
 	 *
 	 * @param \Throwable $previous
 	 */
-	public function __construct(int $code = 0, \Throwable $previous = null)
+	public function __construct(int $code = 0, ?\Throwable $previous = null)
 	{	
 		parent::__construct(__('routes_exceptions','duplicate_name_exceptions'),$code,$previous);
 	}

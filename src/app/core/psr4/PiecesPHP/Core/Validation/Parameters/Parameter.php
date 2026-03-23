@@ -63,7 +63,7 @@ class Parameter implements \JsonSerializable
      * @param callable $parse
      * @return static
      */
-    public function __construct(string $name = null, $default = null, callable $validate = null, bool $optional = false, callable $parse = null)
+    public function __construct(?string $name = null, $default = null, ?callable $validate = null, bool $optional = false, ?callable $parse = null)
     {
         if (self::$NOT_SETTED_VALUE === null) {
             self::$NOT_SETTED_VALUE = uniqid('NOT_SETTED_VALUE_', true);

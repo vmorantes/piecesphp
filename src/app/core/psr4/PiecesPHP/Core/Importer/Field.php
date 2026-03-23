@@ -149,7 +149,7 @@ class Field
      * @return static
      * @throws \Exception
      */
-    public function setValue($value, string $metaName = null)
+    public function setValue($value, ?string $metaName = null)
     {
         if (is_string($metaName)) {
 
@@ -211,7 +211,7 @@ class Field
     /**
      * @param mixed $value
      * @return static
-     * @throws TypeError
+     * @throws \TypeError
      */
     public function setSampleValue($value)
     {

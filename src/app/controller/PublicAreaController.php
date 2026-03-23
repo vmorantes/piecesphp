@@ -37,7 +37,7 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */
-class PublicAreaController extends \PiecesPHP\Core\BaseController
+class PublicAreaController extends BaseController
 {
 
     /**
@@ -423,7 +423,7 @@ class PublicAreaController extends \PiecesPHP\Core\BaseController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

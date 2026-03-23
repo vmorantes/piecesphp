@@ -71,7 +71,7 @@ class MailConfig
      * @param int $value
      * @return int|static
      */
-    public function smtpDebug(int $value = null)
+    public function smtpDebug(?int $value = null)
     {
 
         if ($value !== null) {
@@ -87,7 +87,7 @@ class MailConfig
      * @param bool $value
      * @return bool|static
      */
-    public function isSmtp(bool $value = null)
+    public function isSmtp(?bool $value = null)
     {
 
         if ($value !== null) {
@@ -103,7 +103,7 @@ class MailConfig
      * @param bool $value
      * @return bool|static
      */
-    public function auth(bool $value = null)
+    public function auth(?bool $value = null)
     {
 
         if ($value !== null) {
@@ -119,7 +119,7 @@ class MailConfig
      * @param string $value
      * @return string|static
      */
-    public function host(string $value = null)
+    public function host(?string $value = null)
     {
 
         if ($value !== null) {
@@ -135,7 +135,7 @@ class MailConfig
      * @param string $value
      * @return string|static
      */
-    public function user(string $value = null)
+    public function user(?string $value = null)
     {
 
         if ($value !== null) {
@@ -151,7 +151,7 @@ class MailConfig
      * @param string $value
      * @return string|static
      */
-    public function password(string $value = null)
+    public function password(?string $value = null)
     {
 
         if ($value !== null) {
@@ -167,7 +167,7 @@ class MailConfig
      * @param string $value
      * @return string|static
      */
-    public function name(string $value = null)
+    public function name(?string $value = null)
     {
 
         if ($value !== null) {
@@ -183,7 +183,7 @@ class MailConfig
      * @param string $value
      * @return string|static
      */
-    public function protocol(string $value = null)
+    public function protocol(?string $value = null)
     {
 
         if ($value !== null) {
@@ -199,7 +199,7 @@ class MailConfig
      * @param int $value
      * @return int|static
      */
-    public function port(int $value = null)
+    public function port(?int $value = null)
     {
 
         if ($value !== null) {
@@ -215,7 +215,7 @@ class MailConfig
      * @param bool $value
      * @return bool|static
      */
-    public function autoTls(bool $value = null)
+    public function autoTls(?bool $value = null)
     {
 
         if ($value !== null) {
@@ -231,7 +231,7 @@ class MailConfig
      * @param array $value
      * @return array|static
      */
-    public function smtpOptions(array $value = null)
+    public function smtpOptions(?array $value = null)
     {
 
         if ($value !== null) {

@@ -161,7 +161,7 @@ class ExifHelper
      * - GPS_TYPE_LATITUDE
      * @return int|null
      */
-    public function getGPSSign(string $type = null)
+    public function getGPSSign(?string $type = null)
     {
 
         $value = null;
@@ -213,7 +213,7 @@ class ExifHelper
      * - GPS_TYPE_LATITUDE
      * @return float|int|null
      */
-    public function getGPSDataToNumber(string $type = null)
+    public function getGPSDataToNumber(?string $type = null)
     {
 
         $value = null;

@@ -257,10 +257,8 @@ class UserProblemsController extends UsersController
                         'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
                     ];
                     if ($type == self::TYPE_USER_FORGET) {
-                        //@phpstan-ignore-next-line
                         $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
                     } elseif ($type == self::TYPE_USER_BLOCKED) {
-                        //@phpstan-ignore-next-line
                         $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de desbloqueo de usuario.');
                     }
                     $logRequest->save();
@@ -457,7 +455,6 @@ class UserProblemsController extends UsersController
                 'email_sended' => $success,
                 'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
             ];
-            //@phpstan-ignore-next-line
             $logRequest->type = __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
             $logRequest->save();
 
@@ -554,7 +551,7 @@ class UserProblemsController extends UsersController
      * @param array $extra
      * @return array
      */
-    private function sendMessageOtherProblems(string $email, string $name, string $message, array $extra = null)
+    private function sendMessageOtherProblems(string $email, string $name, string $message, ?array $extra = null)
     {
         $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . Config::app_title();
 

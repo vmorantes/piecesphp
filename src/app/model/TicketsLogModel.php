@@ -59,7 +59,7 @@ class TicketsLogModel extends BaseEntityMapper
 	 * @param integer $id
 	 * @return static
 	 */
-	public function __construct(int $id = null)
+	public function __construct(?int $id = null)
 	{
 		parent::__construct($id);
 	}

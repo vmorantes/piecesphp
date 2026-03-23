@@ -66,7 +66,7 @@ class UploadedFileAdapter
      * @return static
      * @throws \Exception
      */
-    public function __construct(array $associativePath, array $types = [], int $maxSizeMB = null, ?array $uploadedFiles = null)
+    public function __construct(array $associativePath, array $types = [], ?int $maxSizeMB = null, ?array $uploadedFiles = null)
     {
 
         $associativePath = array_filter($associativePath, function ($e) {
@@ -331,7 +331,7 @@ class UploadedFileAdapter
     }
 
     /**
-     * @return array{name:string,type:string,size:int,tmp_name:string,error:int,full_path:string,associativePath:string[]|null>}
+     * @return array{name:string,type:string,size:int,tmp_name:string,error:int,full_path:string,associativePath:string[]|null}
      */
     public function getFileInformation()
     {
@@ -356,9 +356,9 @@ class UploadedFileAdapter
      * @param bool $overwrite
      * @param bool $ignorePOSTUploaded
      * @return string Ruta del fichero movido, si no fue movido quedará vacía
-     * @throws Exception Si no hay directorio de destino definido
+     * @throws \Exception Si no hay directorio de destino definido
      */
-    public function moveTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true, bool $ignorePOSTUploaded = false)
+    public function moveTo(?string $directory = null, ?string $name = null, ?string $extension = null, bool $validate = true, bool $overwrite = true, bool $ignorePOSTUploaded = false)
     {
 
         $file = $this->fileInformation;
@@ -401,9 +401,9 @@ class UploadedFileAdapter
      * @param bool $removeOriginal
      * @param bool $ignorePOSTUploaded
      * @return string Ruta del fichero copiado, si no fue copiado quedará vacía
-     * @throws Exception Si no hay directorio de destino definido
+     * @throws \Exception Si no hay directorio de destino definido
      */
-    public function copyTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true, bool $removeOriginal = false, bool $ignorePOSTUploaded = false)
+    public function copyTo(?string $directory = null, ?string $name = null, ?string $extension = null, bool $validate = true, bool $overwrite = true, bool $removeOriginal = false, bool $ignorePOSTUploaded = false)
     {
         $file = $this->fileInformation;
         $output = '';
@@ -444,7 +444,7 @@ class UploadedFileAdapter
      * @param bool $overwrite
      * @return string La ruta a la que fue movido (string vacío si no fue movido)
      */
-    public static function moveFileTo(string $directory, string $file, string $basename = null, string $extension = null, bool $overwrite = true)
+    public static function moveFileTo(string $directory, string $file, ?string $basename = null, ?string $extension = null, bool $overwrite = true)
     {
         if (!file_exists($directory)) {
             mkdir($directory, 0777, true);
@@ -486,7 +486,7 @@ class UploadedFileAdapter
      * @param bool $removeOriginal
      * @return string La ruta a la que fue movido (string vacío si no fue movido)
      */
-    public static function copyFileTo(string $directory, string $file, string $basename = null, string $extension = null, bool $overwrite = true, bool $removeOriginal = false)
+    public static function copyFileTo(string $directory, string $file, ?string $basename = null, ?string $extension = null, bool $overwrite = true, bool $removeOriginal = false)
     {
         if (!file_exists($directory)) {
             mkdir($directory, 0777, true);

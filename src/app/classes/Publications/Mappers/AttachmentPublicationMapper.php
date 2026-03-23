@@ -119,7 +119,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
         parent::__construct($value, $fieldCompare);
     }
@@ -159,7 +159,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    public function createdAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
@@ -171,7 +171,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
@@ -233,7 +233,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     }
 
     /**
-     * @return string|null
+     * @return bool
      */
     public function fileIsImage()
     {
@@ -345,7 +345,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      *
      * @return static[]|array
      */
-    public static function allBy(string $column, $value, bool $asMapper = false, bool $currentLang = false, string $lang = null)
+    public static function allBy(string $column, $value, bool $asMapper = false, bool $currentLang = false, ?string $lang = null)
     {
         $model = self::model();
 
@@ -408,7 +408,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param int $attachmentID
      * @param string $lang
      * @param boolean $asMapper
-     * @return static|object|null
+     * @return static|\stdClass|null
      */
     public static function getExactAttachment(int $publicationID, int $attachmentID, string $lang, bool $asMapper = false)
     {
@@ -514,7 +514,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
      * @param int $ignoreID
      * @return bool
      */
-    public static function existsByPublication(int $publicationID, string $lang = null, int $ignoreID = null)
+    public static function existsByPublication(int $publicationID, ?string $lang = null, ?int $ignoreID = null)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;

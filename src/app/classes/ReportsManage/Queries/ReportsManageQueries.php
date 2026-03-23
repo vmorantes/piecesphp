@@ -46,7 +46,7 @@ class ReportsManageQueries
      * @param int $pollIdentifier
      * @return array
      */
-    public static function genericReportData(int $pollIdentifier = null)
+    public static function genericReportData(?int $pollIdentifier = null)
     {
 
         //Total de usuarios generales
@@ -182,7 +182,7 @@ class ReportsManageQueries
      * @param int $countryID
      * @return int
      */
-    public static function getTotalResearchersQty(int $countryID = null)
+    public static function getTotalResearchersQty(?int $countryID = null)
     {
 
         $table = UserProfileMapper::TABLE;
@@ -249,7 +249,7 @@ class ReportsManageQueries
      * @param int $countryID
      * @return int
      */
-    public static function getTotalOrganizationsQty(int $countryID = null)
+    public static function getTotalOrganizationsQty(?int $countryID = null)
     {
 
         $table = OrganizationMapper::TABLE;
@@ -306,7 +306,7 @@ class ReportsManageQueries
      * @param string $contentType
      * @return int
      */
-    public static function getTotalApplicationsCallsByTypeQty(string $contentType = null)
+    public static function getTotalApplicationsCallsByTypeQty(?string $contentType = null)
     {
 
         $table = ApplicationCallsMapper::TABLE;
@@ -360,7 +360,7 @@ class ReportsManageQueries
      * @param string $approvalStatus
      * @return int
      */
-    public static function getTotalPublicationsQty(string $approvalStatus = null)
+    public static function getTotalPublicationsQty(?string $approvalStatus = null)
     {
 
         $table = PublicationMapper::TABLE;

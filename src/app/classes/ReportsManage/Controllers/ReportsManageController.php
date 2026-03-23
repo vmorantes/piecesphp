@@ -71,7 +71,7 @@ class ReportsManageController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function genericReportView(Request $request, Response $response)
     {
@@ -172,7 +172,7 @@ class ReportsManageController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

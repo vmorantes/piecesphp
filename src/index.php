@@ -57,6 +57,7 @@ require_once basepath("app/config/assets.php");
  */
 require_once basepath("app/config/containers.php");
 
+/** @var array $container_configurations */
 // Asignación de la instancia del inyector de dependencias (DI) al sistema
 set_config(
     'slim_container',
@@ -843,7 +844,7 @@ if (TerminalData::getInstance()->isTerminal()) {
 
     $terminalDataInstance = TerminalData::getInstance();
     $routeName = TerminalController::routeID($terminalDataInstance->route());
-    $routeInformation = get_route_info($routeName, [], true);
+    $routeInformation = get_route_info($routeName);
     $_SERVER['REQUEST_URI'] = '';
 
     if ($routeInformation !== null) {

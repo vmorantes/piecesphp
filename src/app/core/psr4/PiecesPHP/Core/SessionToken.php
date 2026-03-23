@@ -34,7 +34,7 @@ class SessionToken
      * @param bool $aud Validar token con ip
      * @return string El token generado
      */
-    public static function generateToken($data, string $key = null, int $expire_time = null, bool $aud = true)
+    public static function generateToken($data, ?string $key = null, ?int $expire_time = null, bool $aud = true)
     {
         $time = time();
 
@@ -64,7 +64,7 @@ class SessionToken
      * @param string $key
      * @return bool
      */
-    public static function isActiveSession(string $token, string $key = null)
+    public static function isActiveSession(string $token, ?string $key = null)
     {
         $logged = BaseToken::check($token, $key);
 
@@ -126,7 +126,7 @@ class SessionToken
     }
 
     //---- Preservación de compatibilidad
-    public static function initSession($data, string $key = null, int $expire_time = null)
+    public static function initSession($data, ?string $key = null, ?int $expire_time = null)
     {
         return self::generateToken($data, $key, $expire_time);
     }

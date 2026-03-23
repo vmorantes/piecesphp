@@ -15,6 +15,9 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @package     App\Model
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
+ * @property int $id
+ * @property int|UsersModel|null $user_id
+ * @property float $minutes
  */
 
 class TimeOnPlatformModel extends BaseEntityMapper
@@ -46,11 +49,11 @@ class TimeOnPlatformModel extends BaseEntityMapper
     ];
 
     /**
-     * @param mixed int
-     * @param mixed string
+     * @param int|null $value
+     * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'primary_key')
+    public function __construct(?int $value = null, string $field_compare = 'primary_key')
     {
         parent::__construct($value, $field_compare);
     }

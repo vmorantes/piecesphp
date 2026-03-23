@@ -78,7 +78,7 @@ class CSSVariables
      * @param bool $quote
      * @return string|null
      */
-    public function getVariable(string $name, string $defaultValue = null, bool $quote = false)
+    public function getVariable(string $name, ?string $defaultValue = null, bool $quote = false)
     {
         $value = null;
         if ($this->variableExists($name)) {

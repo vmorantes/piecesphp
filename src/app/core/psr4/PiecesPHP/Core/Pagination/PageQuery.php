@@ -128,7 +128,7 @@ class PageQuery
      * @param callable $each
      * @return PaginationResult
      */
-    public function getPagination(callable $parser = null, callable $each = null)
+    public function getPagination(?callable $parser = null, ?callable $each = null)
     {
         return new PaginationResult($this, $parser, $each);
     }
@@ -205,7 +205,7 @@ class PageQuery
      * @param int $perPage
      * @return int
      */
-    public function from(int $page = null, int $perPage = null)
+    public function from(?int $page = null, ?int $perPage = null)
     {
         $page = $page === null ? $this->page : $page;
         $perPage = $perPage === null ? $this->perPage : $perPage;

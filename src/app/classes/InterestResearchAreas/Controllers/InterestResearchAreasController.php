@@ -1006,10 +1006,10 @@ class InterestResearchAreasController extends AdminPanelController
      * @return PaginationResult
      */
     public static function _all(
-        int $page = null,
-        int $perPage = null,
-        int $status = null,
-        string $title = null,
+        ?int $page = null,
+        ?int $perPage = null,
+        ?int $status = null,
+        ?string $title = null,
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = [],
@@ -1197,7 +1197,7 @@ class InterestResearchAreasController extends AdminPanelController
 
         $pageQuery = new PageQuery($sqlSelect, $sqlCount, $page, $perPage, 'total');
 
-        $parser = function ($element) use ($internalItem) {
+        $parser = function ($element) {
             $element = InterestResearchAreasMapper::objectToMapper($element);
             return $element;
         };
@@ -1344,7 +1344,7 @@ class InterestResearchAreasController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

@@ -56,13 +56,15 @@ class CacheControllersCriteries implements JsonSerializable
             }
         }
 
+        return $this;
+
     }
 
     /**
      * @param CacheControllersCritery[] $criteries
-     * @return CacheControllersCritery[|static
+     * @return ArrayObject<CacheControllersCritery>|static
      */
-    public function criteries(array $criteries = null)
+    public function criteries(?array $criteries = null)
     {
 
         if (is_array($criteries)) {

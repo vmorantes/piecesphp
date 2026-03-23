@@ -109,7 +109,7 @@ class PresentationMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'lang_data');
@@ -558,7 +558,7 @@ class PresentationMapper extends EntityMapperExtensible
      * @param integer $ignoreID
      * @return bool
      */
-    public static function existsByName(string $name, int $categoryID, int $ignoreID = null)
+    public static function existsByName(string $name, int $categoryID, ?int $ignoreID = null)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;

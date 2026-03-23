@@ -29,7 +29,7 @@ interface ApprovalElementHandlerInterface
     /**
      * Obtiene la clase del mapeador de entidades.
      *
-     * @return string
+     * @return class-string<EntityMapper>
      */
     public static function getMapperClass(): string;
 

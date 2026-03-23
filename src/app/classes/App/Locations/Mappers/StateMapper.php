@@ -72,7 +72,7 @@ class StateMapper extends BaseEntityMapper
      * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'primary_key')
+    public function __construct(?int $value = null, string $field_compare = 'primary_key')
     {
         parent::__construct($value, $field_compare);
     }
@@ -171,7 +171,7 @@ class StateMapper extends BaseEntityMapper
      * @param int $country_id
      * @return array|static[]
      */
-    public static function getByName(string $name, bool $as_mapper = false, int $country_id = null)
+    public static function getByName(string $name, bool $as_mapper = false, ?int $country_id = null)
     {
 
         $query = self::model()->select();
@@ -206,7 +206,7 @@ class StateMapper extends BaseEntityMapper
      * @param int $countryID
      * @return static[]|array
      */
-    public static function all(bool $as_mapper = false, bool $onlyActives = false, int $countryID = null)
+    public static function all(bool $as_mapper = false, bool $onlyActives = false, ?int $countryID = null)
     {
 
         $model = self::model();
@@ -256,7 +256,7 @@ class StateMapper extends BaseEntityMapper
      * @param int $countryID
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', int $countryID = null)
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', ?int $countryID = null)
     {
         $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Departamentos');
         $options = [];
@@ -299,7 +299,7 @@ class StateMapper extends BaseEntityMapper
      * @param int $ignore_id
      * @return bool
      */
-    public static function isDuplicateCode(string $code = null, int $country_id, int $ignore_id)
+    public static function isDuplicateCode(?string $code = null, int $country_id = 0, int $ignore_id = 0)
     {
 
         if ($code !== null) {

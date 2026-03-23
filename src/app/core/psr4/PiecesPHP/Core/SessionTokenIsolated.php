@@ -37,7 +37,7 @@ class SessionTokenIsolated
      * @param string $tokenName
      * @param string|null $key
      */
-    public function __construct(string $tokenName, string $key = null)
+    public function __construct(string $tokenName, ?string $key = null)
     {
         $this->tokenName = $tokenName;
         $this->key = $key !== null ? $key : Config::app_key();

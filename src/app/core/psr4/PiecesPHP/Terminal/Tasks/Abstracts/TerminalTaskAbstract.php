@@ -54,12 +54,12 @@ abstract class TerminalTaskAbstract implements TerminalTaskInterface
     protected IntegerArray $rolesAllowed;
     /**
      * Valores por defecto de los parámetros
-     * @property array<string, string>
+     * @var array<string, string>
      */
     protected array $defaultParamsValues;
     /**
      * Middlewares, string invocable o callable
-     * @property array<string>|array<callable>
+     * @var array<string>|array<callable>
      */
     protected array $middlewares;
 

@@ -193,7 +193,7 @@ class PersonsMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
@@ -275,7 +275,7 @@ class PersonsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    public function createdAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
@@ -287,7 +287,7 @@ class PersonsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
@@ -300,7 +300,7 @@ class PersonsMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public function getSlug(string $lang = null)
+    public function getSlug(?string $lang = null)
     {
         return self::elementFriendlySlug($this, $lang);
     }
@@ -611,7 +611,7 @@ class PersonsMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID, string $lang = null)
+    public static function elementFriendlySlug($elementOrID, ?string $lang = null)
     {
         $slug = '';
 
@@ -843,7 +843,7 @@ class PersonsMapper extends EntityMapperExtensible
      * @param bool $onlyActives
      * @return bool
      */
-    public static function existsByDocument(string $documentType, string $documentNumber, int $ignoreID = null, bool $onlyActives = true)
+    public static function existsByDocument(string $documentType, string $documentNumber, ?int $ignoreID = null, bool $onlyActives = true)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;

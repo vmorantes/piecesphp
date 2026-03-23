@@ -559,7 +559,7 @@ class State extends AdminPanelController
      * @param int[] $ignore
      * @return PaginationResult
      */
-    public static function _all(int $page = 1, int $perPage = 10, int $country = null, array $ignore = [])
+    public static function _all(int $page = 1, int $perPage = 10, ?int $country = null, array $ignore = [])
     {
         $table = StateMapper::PREFIX_TABLE . StateMapper::TABLE;
         $fields = [
@@ -607,7 +607,7 @@ class State extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    protected static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    protected static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
         if (!is_null($name)) {
             $name = trim($name);

@@ -323,7 +323,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_TEXT, '+57', true), 'phoneCode');
@@ -428,7 +428,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    public function createdAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
@@ -440,7 +440,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
@@ -453,7 +453,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public function getSlug(string $lang = null)
+    public function getSlug(?string $lang = null)
     {
         return self::elementFriendlySlug($this, $lang);
     }
@@ -791,7 +791,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID, string $lang = null)
+    public static function elementFriendlySlug($elementOrID, ?string $lang = null)
     {
         $slug = '';
 
@@ -1182,7 +1182,7 @@ class OrganizationMapper extends EntityMapperExtensible
      * @param bool $onlyNoDeleted
      * @return bool
      */
-    public static function existsByNit(string $nit, int $ignoreID = null, bool $onlyNoDeleted = true)
+    public static function existsByNit(string $nit, ?int $ignoreID = null, bool $onlyNoDeleted = true)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;

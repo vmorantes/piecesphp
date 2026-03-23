@@ -319,6 +319,7 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                 if (!empty($calls)) {
                     $callsInfo = [];
                     foreach ($calls as $call) {
+                        /** @var \PhpParser\Node\Expr\FuncCall $call */
                         $params = [];
 
                         foreach ($call->args as $arg) {

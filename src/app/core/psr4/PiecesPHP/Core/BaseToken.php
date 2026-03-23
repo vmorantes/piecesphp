@@ -26,7 +26,7 @@ class BaseToken
      * @return string
      * Devuele un string codificado.
      */
-    public static function setToken($data, string $key = null, int $time = null, int $expire = null, bool $aud = false)
+    public static function setToken($data, ?string $key = null, ?int $time = null, ?int $expire = null, bool $aud = false)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 
@@ -75,7 +75,7 @@ class BaseToken
      * @use self::decode
      * @use self::isExpire
      */
-    public static function check(string $token, string $key = null, array $allowed_algs = null)
+    public static function check(string $token, ?string $key = null, ?array $allowed_algs = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 
@@ -109,7 +109,7 @@ class BaseToken
      * @return boolean|string true en caso de haber expirado; de lo contrario, false. Si ocurre otro error, devuelve el código del error.
      * @use self::decode
      */
-    public static function isExpire(string $token, string $key = null, array $allowed_algs = null)
+    public static function isExpire(string $token, ?string $key = null, ?array $allowed_algs = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 
@@ -150,11 +150,11 @@ class BaseToken
      * @param string $key La llave
      * @param array  $allowed_algs Lista de los algoritmos de hashing soportados.
      *                             Los algoritmos son 'HS256', 'HS384', 'HS512' y 'RS256'
-     * @param string $ignore_expired Si es true devuelve la información aunque haya expirado el token
+     * @param bool $ignore_expired Si es true devuelve la información aunque haya expirado el token
      * @return mixed Devuelve la información que haya sido almacenada en el token, EXPIRED_TOKEN o el código del error si sucede alguno
      * @use self::decode
      */
-    public static function getData(string $token, string $key = null, array $allowed_algs = null, bool $ignore_expired = false)
+    public static function getData(string $token, ?string $key = null, ?array $allowed_algs = null, bool $ignore_expired = false)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 
@@ -199,11 +199,11 @@ class BaseToken
      * @param string $key La llave
      * @param array  $allowed_algs Lista de los algoritmos de hashing soportados.
      *                             Los algoritmos son 'HS256', 'HS384', 'HS512' y 'RS256'
-     * @param string $ignore_expired Si es true devuelve la información aunque haya expirado el token
+     * @param bool $ignore_expired Si es true devuelve la información aunque haya expirado el token
      * @return mixed Devuelve la fecha de expiración del token, EXPIRED_TOKEN o el código del error si sucede alguno
      * @use self::decode
      */
-    public static function getExpired(string $token, string $key = null, array $allowed_algs = null, bool $ignore_expired = false)
+    public static function getExpired(string $token, ?string $key = null, ?array $allowed_algs = null, bool $ignore_expired = false)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 
@@ -246,11 +246,11 @@ class BaseToken
      * @param string $key La llave
      * @param array  $allowed_algs Lista de los algoritmos de hashing soportados.
      *                             Los algoritmos son 'HS256', 'HS384', 'HS512' y 'RS256'
-     * @param string $ignore_expired Si es true devuelve la información aunque haya expirado el token
+     * @param bool $ignore_expired Si es true devuelve la información aunque haya expirado el token
      * @return mixed Devuelve la fecha de creación del token, EXPIRED_TOKEN o el código del error si sucede alguno
      * @use self::decode
      */
-    public static function getCreated(string $token, string $key = null, array $allowed_algs = null, bool $ignore_expired = false)
+    public static function getCreated(string $token, ?string $key = null, ?array $allowed_algs = null, bool $ignore_expired = false)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 
@@ -324,7 +324,7 @@ class BaseToken
      * @use self::jsonEncode
      * @use self::urlsafeB64Encode
      */
-    public static function encode($payload, string $key = null, string $alg = 'HS256', $keyId = null, array $head = null)
+    public static function encode($payload, ?string $key = null, string $alg = 'HS256', $keyId = null, ?array $head = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
 
@@ -352,7 +352,7 @@ class BaseToken
      *                                      Si el algoritmo de hashing es simétrico la llave debe ser la llave pública.
      * @param array         $allowed_algs   Lista de los algoritmos de hashing soportados.
      *                                      Los algoritmos son 'HS256', 'HS384', 'HS512' y 'RS256'
-     * @param string        $ignore_expired Si es true decodifica el token aunque haya expirado
+     * @param bool        $ignore_expired Si es true decodifica el token aunque haya expirado
      *
      * @return object|int|string El payload del JWT como un objeto PHP o un int que representa un error.
      *
@@ -452,6 +452,8 @@ class BaseToken
                     return $signature;
                 }
         }
+
+        return self::NOT_SUPPORTED_ALGORITHM;
     }
 
     /**
@@ -599,7 +601,7 @@ class BaseToken
     /**
      * Obtiene el número de bytes en un string criptográfico
      *
-     * @param string
+     * @param string $str
      *
      * @return int
      */

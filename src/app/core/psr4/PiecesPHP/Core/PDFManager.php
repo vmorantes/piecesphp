@@ -13,7 +13,7 @@ use \Mpdf\Mpdf as PDF;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
- * @extends <a target='blank' href='https://mpdf.github.io/'>\Mpdf\Mpdf</a>
+ * @link https://mpdf.github.io/
  */
 class PDFManager extends PDF
 {

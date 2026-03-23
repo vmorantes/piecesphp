@@ -179,7 +179,7 @@ class UserProfileMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
@@ -475,7 +475,7 @@ class UserProfileMapper extends EntityMapperExtensible
      *  - baseLang
      * @return string[]
      */
-    protected static function fieldsToSelect(string $formatDate = null, string $locationSeparator = ' - ')
+    protected static function fieldsToSelect(?string $formatDate = null, string $locationSeparator = ' - ')
     {
 
         $formatDate = $formatDate ?? get_default_format_date(null, true);
@@ -769,7 +769,7 @@ class UserProfileMapper extends EntityMapperExtensible
      * @param int $ignoreID
      * @return bool
      */
-    public static function existsByUser(string $userID, int $ignoreID = null)
+    public static function existsByUser(int $userID, ?int $ignoreID = null)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;
@@ -865,7 +865,7 @@ class UserProfileMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->title !== null) {
+                if ($mapper->preferSlug === null && $mapper->belongsTo !== null) {
                     $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
                     $mapper->update();
                 }

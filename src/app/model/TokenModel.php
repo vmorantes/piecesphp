@@ -81,7 +81,7 @@ class TokenModel extends BaseModel
      * @param string|null $token Si se define evalúa que exista el token del tipo escogido, si no simplemente evalua la existencia de cualquier token del tipo
      * @return bool
      */
-    public static function existsByType(string $type, string $token = null)
+    public static function existsByType(string $type, ?string $token = null)
     {
         $model = new static();
         $where = [
@@ -187,7 +187,7 @@ class TokenModel extends BaseModel
      * @param string $type
      * @return array{id:int|null,code:string,jwt:string}
      */
-    public static function addJWTWithCode(array $data = [], string $code = null, int $duration = 60, string $type = TokenController::TOKEN_GENERIC_CONTROLLER)
+    public static function addJWTWithCode(array $data = [], ?string $code = null, int $duration = 60, string $type = TokenController::TOKEN_GENERIC_CONTROLLER)
     {
         $code = !is_null($code) ? $code : generate_code(6, true);
         $data['code'] = $code;

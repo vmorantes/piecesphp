@@ -732,8 +732,8 @@ class CategoriesController extends AdminPanelController
      * @return PaginationResult
      */
     public static function _all(
-        int $page = null,
-        int $perPage = null
+        ?int $page = null,
+        ?int $perPage = null
     ) {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
@@ -955,7 +955,7 @@ class CategoriesController extends AdminPanelController
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null)
+    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
     {
         if ($allowedTypes === null) {
             $allowedTypes = [
@@ -1058,7 +1058,7 @@ class CategoriesController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

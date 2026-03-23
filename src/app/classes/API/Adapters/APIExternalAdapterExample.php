@@ -57,7 +57,7 @@ class APIExternalAdapterExample
      * @param string $password
      * @param \DateTime $currentDate
      */
-    public function __construct(string $username, string $password, \DateTime $currentDate = null)
+    public function __construct(string $username, string $password, ?\DateTime $currentDate = null)
     {
         $this->username = $username;
         $this->password = $password;
@@ -68,11 +68,9 @@ class APIExternalAdapterExample
 
     /**
      * @param string $replacement
-     * @param string $type border|inverter
-     * @param string $lapse
      * @return array
      */
-    public function genericRequestSample(string $replacement, string $type)
+    public function genericRequestSample(string $replacement)
     {
 
         $httpClient = $this->httpClientWithTokenHeader();

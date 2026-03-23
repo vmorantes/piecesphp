@@ -68,7 +68,7 @@ class Response implements \JsonSerializable
     }
 
     /**
-     * @param string $position
+     * @param int $position
      * @return void
      */
     public function setPosition(int $position)

@@ -8,6 +8,7 @@ use App\Model\UsersModel;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\TOTPStandard;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 
 /**
  * OTPSecretsUsersMapper.
@@ -105,7 +106,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
         parent::__construct($value, $fieldCompare);
     }
@@ -323,7 +324,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      * @param string|null $alias
      * @return bool false si hubo algún error
      */
-    public static function toggle2FA(int $userID, bool $enable, string $securityCode, string $alias = null)
+    public static function toggle2FA(int $userID, bool $enable, string $securityCode, ?string $alias = null)
     {
         $result = false;
         $totpElement = self::getTOTPData($userID);

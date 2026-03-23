@@ -38,7 +38,7 @@ class Roles
      */
     protected static $currentRole = null;
     /**
-     * @var array
+     * @var bool
      */
     protected static $silentMode = false;
 
@@ -79,7 +79,7 @@ class Roles
      * @return void
      * @throws RoleDuplicateException Si code o name están repetidos
      */
-    public static function registerRole(string $name, int $code = null, array $allowed_routes, bool $all_access = false)
+    public static function registerRole(string $name, ?int $code = null, array $allowed_routes = [], bool $all_access = false)
     {
 
         $duplicate = false;
@@ -210,7 +210,7 @@ class Roles
      *
      * @return bool
      */
-    public static function getSilentMode()
+    public static function getSilentMode(): bool
     {
         return self::$silentMode;
     }
@@ -287,7 +287,7 @@ class Roles
      * @param mixed $id_role El code o name del rol a examinar
      * @param bool $silent_mode Si lanza RoleNotExistsException o no
      * @return bool true si tiene permisos, false si no
-     * @throws TypeError Además de las razones comunes, puede lanzar esta exepción si $request_route no es \PiecesPHP\Core\Routing\RequestRoute|string
+     * @throws \TypeError Además de las razones comunes, puede lanzar esta exepción si $request_route no es \PiecesPHP\Core\Routing\RequestRoute|string
      * @throws RoleNotExistsException Si el role no existe
      */
     public static function hasPermissions($request_route, $id_role, bool $silent_mode = false): bool
@@ -419,7 +419,7 @@ class Roles
      * @param int $role_code
      * @return bool
      */
-    public static function roleExists(int $role_code)
+    public static function roleExists(int $role_code): bool
     {
         $roles = self::getRoles();
         foreach ($roles as $role) {

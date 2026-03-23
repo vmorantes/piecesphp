@@ -209,7 +209,7 @@ class UsersModel extends EntityMapperExtensible
      * @param integer $id
      * @return static
      */
-    public function __construct(int $id = null)
+    public function __construct(?int $id = null)
     {
         parent::__construct($id);
     }
@@ -383,7 +383,7 @@ class UsersModel extends EntityMapperExtensible
 
     /**
      * @param mixed $username
-     * @return \stdClass|null
+     * @return object|null
      */
     public function getByUsername($username)
     {
@@ -398,7 +398,7 @@ class UsersModel extends EntityMapperExtensible
 
     /**
      * @param mixed $id
-     * @return \stdClass|null
+     * @return object|null
      */
     public function getByID($id)
     {
@@ -413,7 +413,7 @@ class UsersModel extends EntityMapperExtensible
 
     /**
      * @param mixed $email
-     * @return \stdClass|null
+     * @return object|null
      */
     public function getByEmail($email)
     {
@@ -627,7 +627,7 @@ class UsersModel extends EntityMapperExtensible
     /**
      * Devuelve los valores de STATUSES pasados por función __()
      *
-     * @return array<string,string>
+     * @return array<int,string>
      */
     public static function statuses()
     {
@@ -641,7 +641,7 @@ class UsersModel extends EntityMapperExtensible
     /**
      * Devuelve los valores de STATUSES_FOR_DISPLAY_QUERY pasados por función __()
      *
-     * @return array<string,string>
+     * @return array<int,string>
      */
     public static function statusesForDisplayQuery()
     {
@@ -676,7 +676,9 @@ class UsersModel extends EntityMapperExtensible
 
         $model->execute();
 
-        return $model->result();
+        $result = $model->result();
+
+        return is_array($result) ? $result : [];
 
     }
 
@@ -704,7 +706,9 @@ class UsersModel extends EntityMapperExtensible
 
         $model->execute();
 
-        return $model->result();
+        $result = $model->result();
+
+        return is_array($result) ? $result : [];
 
     }
 
@@ -726,7 +730,9 @@ class UsersModel extends EntityMapperExtensible
 
         $model->execute();
 
-        return $model->result();
+        $result = $model->result();
+
+        return is_array($result) ? $result : [];
 
     }
 
@@ -928,7 +934,7 @@ class UsersModel extends EntityMapperExtensible
      * @param bool $asMapper
      * @return static[]|array
      */
-    public static function all(UserDataPackage $currentUser = null, bool $asMapper = false)
+    public static function all(?UserDataPackage $currentUser = null, bool $asMapper = false)
     {
 
         $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
@@ -974,9 +980,9 @@ class UsersModel extends EntityMapperExtensible
      * @param string[] $orderBy
      * @param UserDataPackage $currentUser
      * @param bool $asMapper
-     * @return static[]|array
+     * @return static[]|array|null
      */
-    public static function allByMultipleCriteries(array $criteries = [], array $orderBy = [], UserDataPackage $currentUser = null, bool $asMapper = false)
+    public static function allByMultipleCriteries(array $criteries = [], array $orderBy = [], ?UserDataPackage $currentUser = null, bool $asMapper = false)
     {
 
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
@@ -1051,7 +1057,7 @@ class UsersModel extends EntityMapperExtensible
      * @param bool $asMapper
      * @return \stdClass|static|null
      */
-    public static function getBy($value, string $column = 'id', array $orderBy = [], UserDataPackage $currentUser = null, bool $asMapper = false)
+    public static function getBy($value, string $column = 'id', array $orderBy = [], ?UserDataPackage $currentUser = null, bool $asMapper = false)
     {
 
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
@@ -1107,7 +1113,7 @@ class UsersModel extends EntityMapperExtensible
      * @param bool $asMapper
      * @return \stdClass|static|null
      */
-    public static function getByMultipleCriteries(array $criteries = [], array $orderBy = [], UserDataPackage $currentUser = null, bool $asMapper = false)
+    public static function getByMultipleCriteries(array $criteries = [], array $orderBy = [], ?UserDataPackage $currentUser = null, bool $asMapper = false)
     {
 
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);

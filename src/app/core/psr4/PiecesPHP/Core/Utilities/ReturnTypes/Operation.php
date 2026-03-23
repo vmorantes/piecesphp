@@ -45,7 +45,7 @@ class Operation implements \JsonSerializable
      * @param bool $required
      * @return static
      */
-    public function __construct(string $name = null, string $message = '', bool $success = false, bool $required = true)
+    public function __construct(?string $name = null, string $message = '', bool $success = false, bool $required = true)
     {
         $this->time = new \DateTime();
         $this->name = is_null($name) ? uniqid() : $name;

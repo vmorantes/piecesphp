@@ -1440,10 +1440,10 @@ class ApplicationCallsController extends AdminPanelController
      * @return PaginationResult
      */
     public static function _all(
-        int $page = null,
-        int $perPage = null,
-        int $status = null,
-        string $title = null,
+        ?int $page = null,
+        ?int $perPage = null,
+        ?int $status = null,
+        ?string $title = null,
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = [],
@@ -1802,7 +1802,7 @@ class ApplicationCallsController extends AdminPanelController
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null, string $suffixName = '')
+    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null, string $suffixName = '')
     {
         if ($allowedTypes === null) {
             $allowedTypes = [
@@ -1908,7 +1908,7 @@ class ApplicationCallsController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

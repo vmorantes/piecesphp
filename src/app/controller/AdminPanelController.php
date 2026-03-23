@@ -13,6 +13,7 @@ use App\Model\UsersModel;
 use MySpace\Controllers\MySpaceController;
 use MySpace\MySpaceRoutes;
 use News\Controllers\NewsController;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -33,7 +34,7 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  */
-class AdminPanelController extends \PiecesPHP\Core\BaseController
+class AdminPanelController extends BaseController
 {
 
     /**

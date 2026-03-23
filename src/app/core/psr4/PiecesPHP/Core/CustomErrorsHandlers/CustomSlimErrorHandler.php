@@ -164,7 +164,7 @@ class CustomSlimErrorHandler
     {
         if (!function_exists('basepath')) {
             $basePath = realpath(__DIR__ . '/../../../../../../');
-            return is_dir($basePath) ? $basePath : '';
+            return is_string($basePath) && is_dir($basePath) ? $basePath : '';
         } else {
             return basepath($resource);
         }

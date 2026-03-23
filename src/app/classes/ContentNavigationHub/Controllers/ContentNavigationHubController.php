@@ -129,7 +129,7 @@ class ContentNavigationHubController extends AdminPanelController
      * @param Request $request
      * @param Response $response
      * @param array $args
-     * @return void
+     * @return Response
      */
     public function applicationCallsListView(Request $request, Response $response, array $args = [])
     {
@@ -166,7 +166,7 @@ class ContentNavigationHubController extends AdminPanelController
         $this->helpController->render('panel/layout/header');
         $this->render('application-calls/list', $data);
         $this->helpController->render('panel/layout/footer');
-
+        return $response;
     }
 
     /**
@@ -329,7 +329,7 @@ class ContentNavigationHubController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

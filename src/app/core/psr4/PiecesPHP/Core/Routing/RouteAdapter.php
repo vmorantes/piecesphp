@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Core\Routing;
 
+use PiecesPHP\Core\Route;
 use Slim\Routing\RouteCollectorProxy;
 use TypeError;
 
@@ -73,10 +74,10 @@ class RouteAdapter
     public function __construct(
         string $route,
         $controller,
-        string $name = null,
+        ?string $name = null,
         string $method = 'GET',
         bool $requireLogin = false,
-        string $alias = null,
+        ?string $alias = null,
         array $rolesAllowed = [],
         array $defaultParamsValues = [],
         array $middlewares = []
@@ -103,7 +104,7 @@ class RouteAdapter
      * @param bool $asArray
      * @return static|string|string[]
      */
-    public function method(string $value = null, bool $asArray = false)
+    public function method(?string $value = null, bool $asArray = false)
     {
         $property = 'method';
 
@@ -145,7 +146,7 @@ class RouteAdapter
      * @param string $value
      * @return static|string
      */
-    public function name(string $value = null)
+    public function name(?string $value = null)
     {
         $property = 'name';
 
@@ -162,7 +163,7 @@ class RouteAdapter
      * @param string $value
      * @return static|string
      */
-    public function alias(string $value = null)
+    public function alias(?string $value = null)
     {
         $property = 'alias';
 
@@ -179,7 +180,7 @@ class RouteAdapter
      * @param bool $value
      * @return static|bool
      */
-    public function requireLogin(bool $value = null)
+    public function requireLogin(?bool $value = null)
     {
         $property = 'requireLogin';
 
@@ -196,7 +197,7 @@ class RouteAdapter
      * @param array $value
      * @return static|array
      */
-    public function rolesAllowed(array $value = null)
+    public function rolesAllowed(?array $value = null)
     {
         $property = 'rolesAllowed';
 
@@ -213,7 +214,7 @@ class RouteAdapter
      * @param string $value
      * @return static|string
      */
-    public function routeSegment(string $value = null)
+    public function routeSegment(?string $value = null)
     {
 
         if ($value !== null) {
@@ -224,7 +225,7 @@ class RouteAdapter
             $params = [];
             preg_match_all('/\{[a-z|A-Z|0-9|_|-]*\}/', $this->route, $params);
             $this->params = [];
-            if (!empty($params)) {
+            if (count($params[0] ?? []) > 0) {
                 foreach ($params[0] as $param) {
                     $param = str_replace(['{', '}'], '', $param);
                     $this->params[$param] = null;
@@ -350,7 +351,7 @@ class RouteAdapter
 
         $route_info = get_route_info($this->name);
 
-        $router = $router === null?static::$router : $router;
+        $router = $router === null ? static::$router : $router;
 
         if ($route_info === null) {
             register_route($this->toArray(), $router);

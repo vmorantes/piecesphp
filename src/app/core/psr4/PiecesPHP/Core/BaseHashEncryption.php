@@ -25,7 +25,7 @@ class BaseHashEncryption
      * @use self::getSecretKey
      * @use self::urlSafeB64Encode
      */
-    public static function encryptBidirectionalHash(string $string, string $key = null)
+    public static function encryptBidirectionalHash(string $string, ?string $key = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
         $key = substr(hash('sha256', $key, true), 0, 32);
@@ -46,7 +46,7 @@ class BaseHashEncryption
      * @use self::getSecretKey
      * @use self::urlSafeB64Decode
      */
-    public static function decryptBidirectionalHash(string $encrypt_string, string $key = null)
+    public static function decryptBidirectionalHash(string $encrypt_string, ?string $key = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
         $key = substr(hash('sha256', $key, true), 0, 32);
@@ -70,7 +70,7 @@ class BaseHashEncryption
      * @use self::getSecretKey
      * @use self::urlSafeB64Encode
      */
-    public static function encrypt(string $string, string $key = null)
+    public static function encrypt(string $string, ?string $key = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
         $result = '';
@@ -92,7 +92,7 @@ class BaseHashEncryption
      * @use self::getSecretKey
      * @use self::urlSafeB64Decode
      */
-    public static function decrypt(string $encrypt_string, string $key = null)
+    public static function decrypt(string $encrypt_string, ?string $key = null)
     {
         $key = is_null($key) ? self::getSecretKey() : $key;
         $result = '';
@@ -134,6 +134,8 @@ class BaseHashEncryption
                     return $signature;
                 }
         }
+
+        return self::NOT_SUPPORTED_ALGORITHM;
     }
 
     /**
@@ -231,10 +233,8 @@ class BaseHashEncryption
 
     /**
      * Obtiene el número de bytes en un string criptográfico
-     *
-     * @param string
-     *
-     * @return int
+     * @param string $str El string
+     * @return int El número de bytes
      */
     private static function safeStrlen(string $str)
     {

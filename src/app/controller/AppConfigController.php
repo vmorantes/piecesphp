@@ -1595,7 +1595,7 @@ class AppConfigController extends AdminPanelController
 
         $sitemap = new Sitemap(basepath('sitemap.xml'), false);
 
-        $getAlternativesURLs = function ($url, callable $existOnLangVerify = null) {
+        $getAlternativesURLs = function ($url, ?callable $existOnLangVerify = null) {
 
             $existOnLangVerify = $existOnLangVerify !== null ? $existOnLangVerify : function ($lang) {
                 return true;
@@ -1927,7 +1927,7 @@ class AppConfigController extends AdminPanelController
      * @param string $to
      * @return mixed
      */
-    public static function parseTo($value, string $to = null)
+    public static function parseTo($value, ?string $to = null)
     {
         $to = is_null($to) ? self::PARSE_TYPE_STRING : $to;
 
@@ -2113,7 +2113,7 @@ class AppConfigController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
         if (!is_null($name)) {
             $name = trim($name);

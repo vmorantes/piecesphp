@@ -367,7 +367,7 @@ class ServerStatics
      * @param bool $mustValidate Si debe validar cache
      * @return Response Respuesta HTTP
      */
-    public function compileScssServe(Request $request, Response $response, array $args, string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
+    public function compileScssServe(Request $request, Response $response, array $args, ?string $path = null, array $replacement = [], string $baseStaticURL = '', bool $mustValidate = true)
     {
 
         $defaultReplacement = [];
@@ -429,7 +429,7 @@ class ServerStatics
      * @param bool $mustValidate Si debe validar cache
      * @return Response Respuesta HTTP
      */
-    public function serve(Request $request, Response $response, array $args, string $path = null, bool $mustValidate = true)
+    public function serve(Request $request, Response $response, array $args, ?string $path = null, bool $mustValidate = true)
     {
         $resource = $args['params'];
         //Verificar si se puede delegar al servidor web
@@ -440,7 +440,7 @@ class ServerStatics
         return self::verifyFile($resource, $request, $response, $path, $mustValidate);
     }
 
-    public static function getSymbolicLink(array $args, string $path = null): ?string
+    public static function getSymbolicLink(array $args, ?string $path = null): ?string
     {
         $resource = $args['params'];
         $filePath = self::buildFilePath($resource, $path);
@@ -579,7 +579,7 @@ class ServerStatics
      * @param bool $mustValidate Si debe validar cache
      * @return Response Respuesta HTTP
      */
-    private static function verifyFile(string $resource, Request $request, Response $response, string $path = null, bool $mustValidate = true)
+    private static function verifyFile(string $resource, Request $request, Response $response, ?string $path = null, bool $mustValidate = true)
     {
         $fileInformation = finfo_open(FILEINFO_MIME_TYPE);
 

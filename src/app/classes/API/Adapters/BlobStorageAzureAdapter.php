@@ -45,7 +45,6 @@ class BlobStorageAzureAdapter
     /**
      * @param string $accountName
      * @param string $accountKey
-     * @param \DateTime $currentDate
      */
     public function __construct(string $accountName, string $accountKey)
     {

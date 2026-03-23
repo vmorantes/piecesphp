@@ -42,7 +42,7 @@ class EntityMapperExtensible extends BaseEntityMapper
      * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'primary_key')
+    public function __construct(?int $value = null, string $field_compare = 'primary_key')
     {
         parent::__construct($value, $field_compare);
 

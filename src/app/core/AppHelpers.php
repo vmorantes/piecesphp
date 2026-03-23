@@ -123,7 +123,7 @@ function get_front_configuration(string $name)
  *
  * @return string
  */
-function get_title(bool $appendTitleApp = false, string $separator = null, bool $reverse = true)
+function get_title(bool $appendTitleApp = false, ?string $separator = null, bool $reverse = true)
 {
     $title = get_config('title');
     $title_app = get_config('title_app');
@@ -167,7 +167,7 @@ function set_title(string $title)
  * @param bool $sqlType
  * @return string
  */
-function get_default_format_date(string $defaultFormat = null, bool $sqlType = false)
+function get_default_format_date(?string $defaultFormat = null, bool $sqlType = false)
 {
     $default = !$sqlType ? 'Y-m-d' : '%Y-%m-%d';
     $defaultFormat = $defaultFormat ?? $default;
@@ -256,6 +256,7 @@ function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
 
     $langByUrl = get_config('lang_by_url');
     $langByCookie = get_config('lang_by_cookie');
+    $lang_url = '';
 
     if ($langByCookie) {
         $inputURLParams = get_url_params($input_url);
@@ -325,7 +326,7 @@ function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
  * @param bool $short_lang Define si el índice de cada URL es el lenguaje corto o largo ej. ES o Español
  * @return string[]
  */
-function get_current_langs_urls(string $url = null, bool $short_lang = false)
+function get_current_langs_urls(?string $url = null, bool $short_lang = false)
 {
 
     $url = !is_null($url) ? $url : get_current_url();
@@ -383,15 +384,16 @@ function appbase()
  * Si el mensaje no existe usa el ingresado tal cual.
  *
  * @param string $type Índice del tipo de mensaje
- * @param string $message Índice del mensaje en el tipo dado
+ * @param string|null $message Índice del mensaje en el tipo dado
  * @param boolean $echo Si es true hace echo, si no solo retorna el mensaje
- * @return string|string[]
+ * @return ($message is null ? array<string, string> : string)
  * Si $echo es true retorna el string y hace un echo de este.
  * Si $echo es false retorna un string correspondiente al mensaje.
- * Si $message es '' devuelve el array completo de mensajes en $type
+ * Si $message es nulo devuelve el array completo de mensajes en $type
  */
-function __(string $type, string $message = '', bool $echo = false)
+function __(string $type, ?string $message = null, bool $echo = false)
 {
+    $message = $message === null ? '' : (string) $message;
     return Config::i18n($type, $message, $echo);
 }
 
@@ -403,16 +405,17 @@ function __(string $type, string $message = '', bool $echo = false)
  * de la aplicación usando __().
  *
  * @param string $type Índice del tipo de mensaje
- * @param string $message Índice del mensaje en el tipo dado
+ * @param string|null $message Índice del mensaje en el tipo dado
  * @param string $lang Idioma
  * @param boolean $echo Si es true hace echo, si no solo retorna el mensaje
- * @return string|string[]
+ * @return ($message is null ? array<string, string> : string)
  * Si $echo es true retorna el string y hace un echo de este.
  * Si $echo es false retorna un string correspondiente al mensaje.
- * Si $message es '' devuelve el array completo de mensajes en $type
+ * Si $message es nulo devuelve el array completo de mensajes en $type
  */
-function lang(string $type, string $message, string $lang, bool $echo = false)
+function lang(string $type, ?string $message = null, string $lang = 'es', bool $echo = false)
 {
+    $message = $message === null ? '' : (string) $message;
     return Config::i18n($type, $message, $echo, $lang);
 }
 
@@ -421,15 +424,16 @@ function lang(string $type, string $message, string $lang, bool $echo = false)
  *
  * @param string $lang Idioma
  * @param string $type Índice del tipo de mensaje
- * @param string $message Índice del mensaje en el tipo dado
+ * @param string|null $message Índice del mensaje en el tipo dado
  * @param boolean $echo Si es true hace echo, si no solo retorna el mensaje
- * @return string|string[]
+ * @return ($message is null ? array<string, string> : string)
  * Si $echo es true retorna el string y hace un echo de este.
  * Si $echo es false retorna un string correspondiente al mensaje.
  * Si $message es '' devuelve el array completo de mensajes en $type
  */
-function lang2(string $lang, string $type, string $message, bool $echo = false)
+function lang2(string $lang, string $type, ?string $message = null, bool $echo = false)
 {
+    $message = $message === null ? '' : (string) $message;
     return Config::i18n($type, $message, $echo, $lang);
 }
 
@@ -537,12 +541,13 @@ function add_cache_stamp_to_url(string $url)
 /**
  * Imprime los scripts js cargados con las funciones auxiliares de assets
  *
- * @param array $config
- * @var string $config['base_url']
- * @var string $config['custom_url']
- * @var array<string,string> $config['attr']
- * @var array<string,string[]> $config['attrApplyTo']
- * @var array<string,string[]> $config['attrNoApplyTo']
+ * @param array|array{
+ *  base_url: string,
+ *  custom_url: string,
+ *  attr: array<string,string>,
+ *  attrApplyTo: array<string,string[]>,
+ *  attrNoApplyTo: array<string,string[]>,
+ * } $config
  * @return void
  */
 function load_js(array $config = [])
@@ -785,13 +790,13 @@ function load_js(array $config = [])
 /**
  * Imprime los link css cargados con las funciones auxiliares de assets
  *
- * @param array $config
- * @var string $config['rel']
- * @var string $config['base_url']
- * @var string $config['custom_url']
- * @var array<string,string> $config['attr']
- * @var array<string,string[]> $config['attrApplyTo']
- * @var array<string,string[]> $config['attrNoApplyTo']
+ * @param array|array{
+ *  rel: string,
+ *  base_url: string,
+ *  custom_url: string,
+ *  attr: array<string,string>,
+ *  attrApplyTo: array<string,string[]>,
+ * } $config
  * @return void
  */
 function load_css(array $config = [])
@@ -1031,12 +1036,13 @@ function load_css(array $config = [])
 /**
  * Imprime los link de fuentes cargados con las funciones auxiliares de assets
  *
- * @param array $config
- * @var string $config['base_url']
- * @var string $config['custom_url']
- * @var array<string,string> $config['attr']
- * @var array<string,string[]> $config['attrApplyTo']
- * @var array<string,string[]> $config['attrNoApplyTo']
+ * @param array|array{
+ *  base_url: string,
+ *  custom_url: string,
+ *  attr: array<string,string>,
+ *  attrApplyTo: array<string,string[]>,
+ *  attrNoApplyTo: array<string,string[]>,
+ * } $config
  * @return void
  */
 function load_font(array $config = [])
@@ -1452,7 +1458,7 @@ function add_global_requireds_assets(array $custom_assets, string $type)
  * Añade un elemento a la lista de los que se importan como módulos (JS)
  *
  * @param string $asset
- * @return bool
+ * @return void
  */
 function add_as_module_asset(string $asset)
 {
@@ -1468,7 +1474,7 @@ function add_as_module_asset(string $asset)
  * Añade múltiples elementos a la lista de los que se importan como módulos (JS)
  *
  * @param string[] $assets
- * @return bool
+ * @return void
  */
 function add_as_module_assets(array $assets)
 {
@@ -2268,6 +2274,9 @@ function register_route(array $route, &$router)
         $routesSetted = [];
     }
 
+    /**
+     * @var \PiecesPHP\Core\Route
+     */
     $instanceRoute = \PiecesPHP\Core\Route::instanceFromArray($route);
 
     /**
@@ -2362,7 +2371,7 @@ function get_routes()
  *
  * @return array
  */
-function get_routes_by_controller(string $name_controller = '', string $method = null, array $params = null)
+function get_routes_by_controller(string $name_controller = '', ?string $method = null, ?array $params = null)
 {
 
     $routes = get_config('_routes_');
@@ -2456,7 +2465,7 @@ function get_routes_by_controller(string $name_controller = '', string $method =
  * @param string $method_request Método de la ruta POST|GET|PUT etc..
  * @return string
  */
-function get_route_by_controller(string $name_controller, string $method_controller, array $params = null, string $method_request = 'GET')
+function get_route_by_controller(string $name_controller, string $method_controller, ?array $params = null, string $method_request = 'GET')
 {
     $route = get_routes_by_controller($name_controller, $method_controller, $params);
     return (is_array($route) && !empty($route)) ? $route['url'] : null;
@@ -2631,7 +2640,7 @@ function get_flash_messages(?string $context = null)
  * @param UploadedFileInterface $uploaded file uploaded file to move
  * @return string filename of moved file
  */
-function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, string $basename = null, string $extension = null)
+function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, ?string $basename = null, ?string $extension = null)
 {
     try {
 
@@ -2751,7 +2760,7 @@ function num_month_to_text(string $date)
  * @param int $maxWords Cantidad máxima de palabras
  * @return string Cadena formateada
  */
-function friendly_url(string $string, int $maxWords = null)
+function friendly_url(string $string, ?int $maxWords = null)
 {
     return StringManipulate::friendlyURLString($string, $maxWords);
 }
@@ -2928,7 +2937,7 @@ function throw403(\PiecesPHP\Core\Routing\RequestRoute $request, array $extraDat
  * @return void
  * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting Colores para texto de terminal
  */
-function echoTerminal(string $text, bool $newLine = true, string $newLineChars = "\r\n", string $color = null)
+function echoTerminal(string $text, bool $newLine = true, string $newLineChars = "\r\n", ?string $color = null)
 {
     $globalTerminalColor = get_config('terminal_color');
     if ($color !== null) {
@@ -3174,7 +3183,7 @@ function getCookie(string $name, bool $jsonDecode = false, bool $jsonDecodeAsArr
  * @param string $fullDirectory Ruta absoluta de donde se encuentra la carpeta "secure-keys"
  * @return string
  */
-function getKeyFromSecureKeys(string $name, string $fullDirectory = null)
+function getKeyFromSecureKeys(string $name, ?string $fullDirectory = null)
 {
     $key = '';
     $filePath = null;

@@ -8,15 +8,16 @@ namespace PiecesPHP\BuiltIn\Banner\Controllers;
 
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
+use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
+use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
+use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
-use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
-use PiecesPHP\BuiltIn\Banner\BuiltInBannerLang;
-use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 
 /**
  * BuiltInBannerPublicController.
@@ -25,7 +26,7 @@ use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2025
  */
-class BuiltInBannerPublicController extends \PiecesPHP\Core\BaseController
+class BuiltInBannerPublicController extends BaseController
 {
 
     /**
@@ -123,7 +124,7 @@ class BuiltInBannerPublicController extends \PiecesPHP\Core\BaseController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
         if (!is_null($name)) {
             $name = trim($name);

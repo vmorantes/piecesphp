@@ -123,7 +123,7 @@ class StringManipulate
      * @param int $maxWords
      * @return string
      */
-    public static function friendlyURLString(string $string, int $maxWords = null)
+    public static function friendlyURLString(string $string, ?int $maxWords = null)
     {
 
         $string = trim($string);

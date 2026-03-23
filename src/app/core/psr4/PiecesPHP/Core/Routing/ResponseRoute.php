@@ -5,6 +5,7 @@
  */
 namespace PiecesPHP\Core\Routing;
 
+use Psr\Http\Message\UriInterface;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Response;
 

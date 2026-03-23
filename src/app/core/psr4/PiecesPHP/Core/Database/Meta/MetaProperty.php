@@ -98,7 +98,7 @@ class MetaProperty
      * @return static
      * @throws \Exception
      */
-    public function __construct(string $type = 'TEXT', $defaultValue = null, bool $nullable = true, string $mapperName = null, string $propertyMapper = 'id')
+    public function __construct(string $type = 'TEXT', $defaultValue = null, bool $nullable = true, ?string $mapperName = null, string $propertyMapper = 'id')
     {
 
         $this->nullable = $nullable;
@@ -555,6 +555,7 @@ class MetaProperty
 
         }
 
+        return false;
     }
 
     /**

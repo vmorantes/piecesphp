@@ -20,7 +20,7 @@ class MalformedAttributeException extends \PiecesPHP\Core\Exceptions\BaseExcepti
 	 *
 	 * @param \Throwable $previous
 	 */
-	public function __construct(int $code = 0, \Throwable $previous = null)
+	public function __construct(int $code = 0, ?\Throwable $previous = null)
 	{	
 		parent::__construct(__('html_exceptions','malformed_attribute'),$code,$previous);
 	}

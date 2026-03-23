@@ -231,7 +231,7 @@ class PersonsController extends AdminPanelController
 
             $action = self::routeName('actions-edit');
             $backLink = self::routeName('list');
-            $manyLangs = !empty($allowedLangs) && !empty($element->getTranslatableProperties());
+            $manyLangs = count($allowedLangs) > 1 && !empty($element->getTranslatableProperties());
             $allowedLangs = array_to_html_options(self::allowedLangsForSelect($lang, $element->id), $lang);
 
             $optionsDocumentTypes = array_to_html_options(PersonsMapper::idDocumentTypesForSelect(), $element->documentType);
@@ -881,9 +881,9 @@ class PersonsController extends AdminPanelController
      * @return PaginationResult
      */
     public static function _all(
-        int $page = null,
-        int $perPage = null,
-        int $id = null
+        ?int $page = null,
+        ?int $perPage = null,
+        ?int $id = null
     ) {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
@@ -1112,7 +1112,7 @@ class PersonsController extends AdminPanelController
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null)
+    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null)
     {
         if ($allowedTypes === null) {
             $allowedTypes = [
@@ -1215,7 +1215,7 @@ class PersonsController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

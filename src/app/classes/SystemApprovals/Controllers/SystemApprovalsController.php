@@ -137,7 +137,7 @@ class SystemApprovalsController extends AdminPanelController
 
         $approvalMapperExists = $approvalMapper->id !== null;
         $hasApprovalHandler = $approvalHandler !== null;
-        $hasReferenceMapper = $referenceMapper !== null && $referenceMapper->id !== null;
+        $hasReferenceMapper = $referenceMapper !== null && ($referenceMapper->id ?? null) !== null;
         $contactUser = $approvalHandler::getContactUser($referenceMapper);
         $isSameUser = $contactUser !== null && $contactUser->id == $currentUserID && $currenUserType != UsersModel::TYPE_USER_ROOT;
 
@@ -641,7 +641,7 @@ class SystemApprovalsController extends AdminPanelController
      * @return string
      * @throws \Exception
      */
-    protected static function handlerUpload(string $nameOnFiles, string $folder, string $currentRoute = null, array $allowedTypes = null, bool $setNameByInput = true, string $name = null, string $suffixName = '')
+    protected static function handlerUpload(?string $nameOnFiles, string $folder, ?string $currentRoute = null, ?array $allowedTypes = null, bool $setNameByInput = true, ?string $name = null, string $suffixName = '')
     {
         if ($allowedTypes === null) {
             $allowedTypes = [
@@ -747,7 +747,7 @@ class SystemApprovalsController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

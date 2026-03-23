@@ -72,7 +72,7 @@ class CityMapper extends BaseEntityMapper
      * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'id')
+    public function __construct(?int $value = null, string $field_compare = 'id')
     {
         parent::__construct($value, $field_compare);
     }
@@ -178,7 +178,7 @@ class CityMapper extends BaseEntityMapper
      * @param int $state_id
      * @return array|static[]
      */
-    public static function getByName(string $name, bool $as_mapper = false, int $state_id = null)
+    public static function getByName(string $name, bool $as_mapper = false, ?int $state_id = null)
     {
 
         $query = self::model()->select();
@@ -213,7 +213,7 @@ class CityMapper extends BaseEntityMapper
      * @param int $stateID
      * @return static[]|array
      */
-    public static function all(bool $as_mapper = false, bool $onlyActives = false, int $stateID = null)
+    public static function all(bool $as_mapper = false, bool $onlyActives = false, ?int $stateID = null)
     {
 
         $model = self::model();
@@ -263,7 +263,7 @@ class CityMapper extends BaseEntityMapper
      * @param int $stateID
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', int $stateID = null)
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', ?int $stateID = null)
     {
         $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Ciudades');
         $options = [];
@@ -306,7 +306,7 @@ class CityMapper extends BaseEntityMapper
      * @param int $ignore_id
      * @return bool
      */
-    public static function isDuplicateCode(string $code = null, int $state_id, int $ignore_id)
+    public static function isDuplicateCode(?string $code = null, int $state_id = 0, int $ignore_id = 0)
     {
 
         if ($code !== null) {

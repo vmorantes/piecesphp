@@ -82,7 +82,7 @@ class TerminalController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, bool $silentOnNotExists)
+    public static function routeName(?string $name = null, bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

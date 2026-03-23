@@ -20,7 +20,7 @@ class RoleDuplicateException extends \PiecesPHP\Core\Exceptions\BaseException
 	 *
 	 * @param \Throwable $previous
 	 */
-	public function __construct(int $code = 0, \Throwable $previous = null)
+	public function __construct(int $code = 0, ?\Throwable $previous = null)
 	{	
 		parent::__construct(__('roles_exceptions','role_duplicate'),$code,$previous);
 	}

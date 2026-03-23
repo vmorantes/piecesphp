@@ -8,6 +8,7 @@ namespace App\Controller;
 
 use App\Model\TimeOnPlatformModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Validation\Validator;
@@ -23,7 +24,7 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
  */
-class TimerController extends \PiecesPHP\Core\BaseController
+class TimerController extends BaseController
 {
     /** @ignore */
     public function __construct()

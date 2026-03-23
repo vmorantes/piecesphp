@@ -194,7 +194,7 @@ function append_to_url(string $url, string $segment, bool $complete = false)
  * @param bool $complete Si la URL podría incluir user, pass (el puerto, si está definido, siempre se incluye)
  * @return string La URL
  */
-function append_to_path_system(string $locationPath, string $segment, string $directorySeparator = null, bool $complete = false)
+function append_to_path_system(string $locationPath, string $segment, ?string $directorySeparator = null, bool $complete = false)
 {
     $url = $locationPath;
     if ($directorySeparator === null) {
@@ -826,7 +826,7 @@ function simulate_file_upload($key, $path, $mimeType = null)
  * @param string $name Nombre del directorio
  * @return bool
  */
-function make_directory(string $path, string $name = null)
+function make_directory(string $path, ?string $name = null)
 {
     if (!is_null($name)) {
 
@@ -889,7 +889,7 @@ function remove_directory(string $path)
  * @param ZipArchive &$zipInstance
  * @return string La ruta del zip
  */
-function directory_to_zip(string $root, string $output_directory = null, string $output_name = null, bool $self = false, array $exclude = [], string $parent = null, \ZipArchive  &$zipInstance = null)
+function directory_to_zip(string $root, ?string $output_directory = null, ?string $output_name = null, bool $self = false, array $exclude = [], ?string $parent = null, ?\ZipArchive &$zipInstance = null)
 {
     $zip_path = '';
 
@@ -1019,7 +1019,7 @@ function directory_to_zip(string $root, string $output_directory = null, string 
  * @param int $mode
  * @return array
  */
-function directory_mapper(string $path, string $base_path = null, int $mode = null)
+function directory_mapper(string $path, ?string $base_path = null, ?int $mode = null)
 {
 
     if ($mode == 1) {
@@ -1304,7 +1304,7 @@ function decimalCoordinatesToDMS(string $value, string $type = 'longitude', stri
         $parts = explode(".", $value);
         $degrees = (int) $parts[0];
         $time = $parts[1];
-        $temporalReference = "0." . $time;
+        $temporalReference = (float) "0.{$time}";
 
         $temporalReference = $temporalReference * 3600;
         $minutes = floor($temporalReference / 60);
@@ -1348,7 +1348,7 @@ function decimalCoordinatesToDMS(string $value, string $type = 'longitude', stri
  * @return array
  * Un array con dos índices: headers (array asociativo Cabecera => Valor) y status (número entero que representa el estado de la solicitud)
  */
-function generateCachingHeadersAndStatus(\PiecesPHP\Core\Routing\RequestRoute $request, \DateTime $lastModification, string $eTagContent = null)
+function generateCachingHeadersAndStatus(\PiecesPHP\Core\Routing\RequestRoute $request, \DateTime $lastModification, ?string $eTagContent = null)
 {
 
     $lastModification = $lastModification->getTimestamp();
@@ -1467,7 +1467,7 @@ function imageDimensions(string $imagePath)
  * @param bool $asPng
  * @return void
  */
-function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, string $outputPath = null, bool $withAspectRatio = false, bool $asPng = false)
+function imageToThumbnail(string $imagePath, int $thumbWidth = 400, int $thumbHeight = 300, float $quality = 80, ?string $outputPath = null, bool $withAspectRatio = false, bool $asPng = false)
 {
 
     if (file_exists($imagePath)) {
@@ -1576,7 +1576,7 @@ function resizeAndCenterImage(string $inputPath, string $outputPath, int $target
     $mime = $imageInfo['mime'];
 
     switch ($mime) {
-        case 'image/jpeg':
+        case 'image/jpeg' :
             $originalImage = imagecreatefromjpeg($inputPath);
             break;
         case 'image/png':
@@ -1646,7 +1646,7 @@ function resizeAndCenterImage(string $inputPath, string $outputPath, int $target
  * @return string
  * @see https://www.php.net/manual/es/function.strftime.php#96424
  */
-function localeDateFormat(string $format, \DateTime $time = null, array $replaceTemplate = [])
+function localeDateFormat(string $format, ?\DateTime $time = null, array $replaceTemplate = [])
 {
     if ($time === null) {
         $time = new \DateTime();

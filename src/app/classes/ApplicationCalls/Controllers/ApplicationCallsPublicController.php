@@ -11,6 +11,7 @@ use ApplicationCalls\ApplicationCallsRoutes;
 use ApplicationCalls\Mappers\ApplicationCallsMapper;
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -25,7 +26,7 @@ use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2025
  */
-class ApplicationCallsPublicController extends \PiecesPHP\Core\BaseController
+class ApplicationCallsPublicController extends BaseController
 {
 
     /**
@@ -133,7 +134,7 @@ class ApplicationCallsPublicController extends \PiecesPHP\Core\BaseController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
         if (!is_null($name)) {
             $name = trim($name);

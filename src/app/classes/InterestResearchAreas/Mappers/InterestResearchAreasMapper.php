@@ -143,7 +143,7 @@ class InterestResearchAreasMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
@@ -376,7 +376,7 @@ class InterestResearchAreasMapper extends EntityMapperExtensible
      *  - baseLang
      * @return string[]
      */
-    protected static function fieldsToSelect(string $formatDate = null)
+    protected static function fieldsToSelect(?string $formatDate = null)
     {
 
         $formatDate = $formatDate ?? get_default_format_date(null, true);
@@ -605,7 +605,7 @@ class InterestResearchAreasMapper extends EntityMapperExtensible
      * @param int $ignoreID
      * @return bool
      */
-    public static function existsByAreaName(string $areaName, int $ignoreID = null)
+    public static function existsByAreaName(string $areaName, ?int $ignoreID = null)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;
@@ -701,7 +701,7 @@ class InterestResearchAreasMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->title !== null) {
+                if ($mapper->preferSlug === null && $mapper->areaName !== null) {
                     $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
                     $mapper->update();
                 }

@@ -54,9 +54,9 @@ class ResultOperations implements \JsonSerializable
      */
     public function __construct(array $operations = [], string $name = '', string $message = '', bool $singleOperation = false)
     {
-        array_map(function ($el) use ($operations) {
+        array_map(function ($el) use ($name) {
             if (!$el instanceof Operation) {
-                throw new \TypeError("El parametro $operations debe ser un array de objetos " . Operation::class);
+                throw new \TypeError("El parámetro {$name} debe ser un array de objetos " . Operation::class);
             }
         }, $operations);
 
@@ -104,7 +104,7 @@ class ResultOperations implements \JsonSerializable
     }
 
     /**
-     * @return bool
+     * @return Operation[]
      */
     public function successOperations(): array
     {

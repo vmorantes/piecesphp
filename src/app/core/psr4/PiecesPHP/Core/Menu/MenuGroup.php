@@ -253,7 +253,7 @@ class MenuGroup
 
     /**
      * @param bool $asString
-     * @return array
+     * @return array|string
      */
     public function getAttributes(bool $asString = false)
     {

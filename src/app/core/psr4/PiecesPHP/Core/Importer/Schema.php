@@ -97,7 +97,7 @@ class Schema
      * @param bool $templateWithHumanReadable
      * @return static
      */
-    public function __construct(FieldCollection $fields, string $table, callable $before = null, bool $templateWithHumanReadable = false)
+    public function __construct(FieldCollection $fields, string $table, ?callable $before = null, bool $templateWithHumanReadable = false)
     {
 
         $this->fields = $fields;
@@ -120,7 +120,7 @@ class Schema
 
     /**
      * @return bool
-     * @throws Exception
+     * @throws \Exception
      */
     public function insert(): bool
     {
@@ -130,10 +130,7 @@ class Schema
 
         foreach ($fields as $field) {
 
-            /**
-             * @var \PiecesPHP\Core\Importer\Field $field
-             */
-
+            /** @var \PiecesPHP\Core\Importer\Field $field */
             $data[$field->getName()] = $field->getValue();
 
         }
@@ -155,7 +152,7 @@ class Schema
 
     /**
      * @return bool
-     * @throws Exception
+     * @throws \Exception
      */
     public function update(): bool
     {
@@ -165,10 +162,7 @@ class Schema
 
         foreach ($fields as $field) {
 
-            /**
-             * @var \PiecesPHP\Core\Importer\Field $field
-             */
-
+            /** @var \PiecesPHP\Core\Importer\Field $field */
             $data[$field->getName()] = $field->getValue();
 
         }
@@ -221,7 +215,7 @@ class Schema
      * @param int $value Pude ser alguna de las constantes de clase MODE_*
      * @return static|int
      */
-    public function mode(int $value = null)
+    public function mode(?int $value = null)
     {
 
         if ($value !== null) {
@@ -264,7 +258,7 @@ class Schema
      * @param string $name
      * @param mixed $value
      * @return void
-     * @throws Exception
+     * @throws \Exception
      */
     public function setFieldValue(string $name, $value)
     {
@@ -282,7 +276,7 @@ class Schema
      * @param string $subFieldName
      * @param mixed $value
      * @return void
-     * @throws Exception
+     * @throws \Exception
      */
     public function setSubFieldValue(string $fieldName, string $subFieldName, $value)
     {

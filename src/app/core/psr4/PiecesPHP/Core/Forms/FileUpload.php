@@ -67,7 +67,7 @@ class FileUpload
      * @return static
      * @throws \Exception
      */
-    public function __construct(string $name, array $types = [], int $max_size_mb = null, bool $multiple = false)
+    public function __construct(string $name, array $types = [], ?int $max_size_mb = null, bool $multiple = false)
     {
         $this->validator = new FileValidator($types, $max_size_mb);
         $this->multiple = $multiple;
@@ -362,9 +362,9 @@ class FileUpload
      * @param bool $validate
      * @param bool $overwrite
      * @return string[] Rutas de los ficheros movidos (las rutas que no fueron movidas se mostrarán vacías)
-     * @throws Exception Si no hay directorio de destino definido
+     * @throws \Exception Si no hay directorio de destino definido
      */
-    public function moveTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true)
+    public function moveTo(?string $directory = null, ?string $name = null, ?string $extension = null, bool $validate = true, bool $overwrite = true)
     {
         $multiple = $this->isMultiple();
 
@@ -419,9 +419,9 @@ class FileUpload
      * @param bool $validate
      * @param bool $overwrite
      * @return string[] Rutas de los ficheros copiados (las rutas que no fueron movidas se mostrarán vacías)
-     * @throws Exception Si no hay directorio de destino definido
+     * @throws \Exception Si no hay directorio de destino definido
      */
-    public function copyTo(string $directory = null, string $name = null, string $extension = null, bool $validate = true, bool $overwrite = true)
+    public function copyTo(?string $directory = null, ?string $name = null, ?string $extension = null, bool $validate = true, bool $overwrite = true)
     {
         $multiple = $this->isMultiple();
 
@@ -477,7 +477,7 @@ class FileUpload
      * @param bool $overwrite
      * @return string La ruta a la que fue movido (string vacío si no fue movido)
      */
-    public static function moveFileTo(string $directory, string $file, string $basename = null, string $extension = null, bool $overwrite = true)
+    public static function moveFileTo(string $directory, string $file, ?string $basename = null, ?string $extension = null, bool $overwrite = true)
     {
         if (!file_exists($directory)) {
             mkdir($directory, 0777, true);
@@ -518,7 +518,7 @@ class FileUpload
      * @param bool $overwrite
      * @return string La ruta a la que fue movido (string vacío si no fue movido)
      */
-    public static function copyFileTo(string $directory, string $file, string $basename = null, string $extension = null, bool $overwrite = true)
+    public static function copyFileTo(string $directory, string $file, ?string $basename = null, ?string $extension = null, bool $overwrite = true)
     {
         if (!file_exists($directory)) {
             mkdir($directory, 0777, true);

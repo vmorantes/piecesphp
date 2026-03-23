@@ -10,7 +10,7 @@ $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/http-client';
 $jobName = uniqid("{$cliTaskFlag}/");
 if (($cliArguments[$cliTaskName] ?? false) && ($cliArguments[$cliTaskFlag] ?? false)) {
-    CronJobTask::addCronJob(CronJobTask::make($jobName, function () use ($langGroup) {
+    CronJobTask::addCronJob(CronJobTask::make($jobName, function () {
 
         echoTerminal('[TEST:HTTPClient] Iniciando suite de pruebas unitarias...');
         echoTerminal('');

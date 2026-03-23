@@ -86,7 +86,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_JSON, new \stdClass, true), 'langData');
@@ -111,7 +111,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public function getSlug(string $lang = null)
+    public function getSlug(?string $lang = null)
     {
         return self::elementFriendlySlug($this, $lang);
     }
@@ -350,7 +350,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID, string $lang = null)
+    public static function elementFriendlySlug($elementOrID, ?string $lang = null)
     {
         $slug = '';
 
@@ -556,7 +556,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
      * @param integer $ignoreID
      * @return bool
      */
-    public static function existsByName(string $name, int $ignoreID = null)
+    public static function existsByName(string $name, ?int $ignoreID = null)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;

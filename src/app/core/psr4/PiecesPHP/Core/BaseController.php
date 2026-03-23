@@ -25,6 +25,9 @@ use Throwable;
  */
 class BaseController
 {
+
+    const FORMATTER_CLASS = '\\PiecesPHP\\Core\\HTML\\FormatHtml';
+
     /**
      * Se asigna la configuración estension=>'.php' (Usada para el método render).
      * Se asigna el directorio de las vistas.
@@ -89,7 +92,7 @@ class BaseController
      * @param array $data Un array asociativo que designa las variables que estarán disponibles dentro del archivo
      * @param bool $mode Modo de la salida si es true hace un echo de la plantilla, si es false la
      * devuelve como string
-     * @param bool $format En true formatea la salida con \PiecesPHP\Core\HTML\FormatHtml si está disponible
+     * @param bool $format En true formatea la salida con self::FORMATTER_CLASS si está disponible
      * @return void|string
      */
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
@@ -116,8 +119,8 @@ class BaseController
             $output = '';
         }
 
-        if (class_exists('\\PiecesPHP\\Core\\HTML\\FormatHtml') && $format) {
-            $output = \PiecesPHP\Core\HTML\FormatHtml::format($output);
+        if (class_exists(self::FORMATTER_CLASS) && $format) {
+            $output = call_user_func(self::FORMATTER_CLASS . '::format', $output);
         }
 
         $cache_stamp_render_files = get_config('cache_stamp_render_files');
@@ -150,7 +153,7 @@ class BaseController
                     $src = $baseSrc;
                     $src = rtrim($src, '/');
                     $src = URLManager::fromString($src);
-                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $url;
+                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $src;
                     $src = $src->__toString();
                     $img->setAttribute('src', $src);
                     $imagesSRCs[$baseSrc] = $src;
@@ -190,7 +193,7 @@ class BaseController
      * @param array $data Un array asociativo que designa las variables que estarán disponibles dentro del archivo
      * @param bool $mode Modo de la salida si es true hace un echo de la plantilla, si es false la
      * devuelve como string
-     * @param bool $format En true formatea la salida con \PiecesPHP\Core\HTML\FormatHtml si está disponible
+     * @param bool $format En true formatea la salida con self::FORMATTER_CLASS si está disponible
      * @return void|string
      */
     public function _render($name = "index.php", $data = [], bool $mode = true, bool $format = true)
@@ -217,8 +220,8 @@ class BaseController
             $output = '';
         }
 
-        if (class_exists('\\PiecesPHP\\Core\\HTML\\FormatHtml') && $format) {
-            $output = \PiecesPHP\Core\HTML\FormatHtml::format($output);
+        if (class_exists(self::FORMATTER_CLASS) && $format) {
+            $output = call_user_func(self::FORMATTER_CLASS . '::format', $output);
         }
 
         $cache_stamp_render_files = get_config('cache_stamp_render_files');
@@ -251,7 +254,7 @@ class BaseController
                     $src = $baseSrc;
                     $src = rtrim($src, '/');
                     $src = URLManager::fromString($src);
-                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $url;
+                    $src = $stamp !== 'none' ? $src->withQueryParameter('cacheStamp', $stamp) : $src;
                     $src = $src->__toString();
                     $img->setAttribute('src', $src);
                     $imagesSRCs[$baseSrc] = $src;
@@ -367,7 +370,7 @@ class BaseController
     protected $global_variables = [];
 
     /**
-     * @var BaseModel|ActiveRecordModel
+     * @var BaseModel|ActiveRecordModel|BaseEntityMapper
      */
     protected $model = null;
 

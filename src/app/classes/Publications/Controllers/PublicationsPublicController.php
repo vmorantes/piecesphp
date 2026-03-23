@@ -8,6 +8,7 @@ namespace Publications\Controllers;
 
 use App\Model\AvatarModel;
 use App\Model\UsersModel;
+use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\Config;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -29,7 +30,7 @@ use Publications\PublicationsRoutes;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2021
  */
-class PublicationsPublicController extends \PiecesPHP\Core\BaseController
+class PublicationsPublicController extends BaseController
 {
 
     /**
@@ -291,7 +292,7 @@ class PublicationsPublicController extends \PiecesPHP\Core\BaseController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
         if (!is_null($name)) {
             $name = trim($name);

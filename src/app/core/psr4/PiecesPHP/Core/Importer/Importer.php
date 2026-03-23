@@ -62,7 +62,7 @@ class Importer
      * @param string $title
      * @return static
      */
-    public function __construct(Schema $schema, array $data, string $title = null)
+    public function __construct(Schema $schema, array $data, ?string $title = null)
     {
         $this->$title = __(self::LANG_GROUP, $this->title);
         $this->schema = $schema;

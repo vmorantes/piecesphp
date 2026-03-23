@@ -220,7 +220,7 @@ class MailjetHandler
      * @param string|null $uniqueID
      * @return static
      */
-    public function addAtachment(string $contentType, string $filename, string $base64Content, string $uniqueID = null)
+    public function addAtachment(string $contentType, string $filename, string $base64Content, ?string $uniqueID = null)
     {
 
         $uniqueID = $uniqueID !== null ? $uniqueID : uniqid();
@@ -255,7 +255,7 @@ class MailjetHandler
      * @param string|null $uniqueID
      * @return static
      */
-    public function addInlineAtachment(string $contentType, string $filename, string $base64Content, string $contentID, string $uniqueID = null)
+    public function addInlineAtachment(string $contentType, string $filename, string $base64Content, string $contentID, ?string $uniqueID = null)
     {
 
         $uniqueID = $uniqueID !== null ? $uniqueID : uniqid();

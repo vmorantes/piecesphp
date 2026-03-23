@@ -1150,11 +1150,11 @@ class NewsController extends AdminPanelController
      * @return PaginationResult
      */
     public static function _all(
-        int $page = null,
-        int $perPage = null,
-        int $category = null,
-        int $status = null,
-        string $newsTitle = null,
+        ?int $page = null,
+        ?int $perPage = null,
+        ?int $category = null,
+        ?int $status = null,
+        ?string $newsTitle = null,
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = []
@@ -1409,7 +1409,7 @@ class NewsController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

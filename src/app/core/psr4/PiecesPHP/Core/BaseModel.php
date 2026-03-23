@@ -44,13 +44,13 @@ class BaseModel extends ActiveRecordModel
      * @return BaseModel
      */
     public function __construct(
-        string $driver = null,
-        string $database = null,
-        string $host = null,
-        string $user = null,
-        string $password = null,
+        ?string $driver = null,
+        ?string $database = null,
+        ?string $host = null,
+        ?string $user = null,
+        ?string $password = null,
         bool $set_database = true,
-        string $charset = null,
+        ?string $charset = null,
         string $database_group = 'default'
     ) {
         if ($set_database === true) {

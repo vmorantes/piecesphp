@@ -184,7 +184,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_INT, 0, false), 'draft');
@@ -280,7 +280,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    public function createdAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
@@ -292,7 +292,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
@@ -304,7 +304,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function startDateFormat(string $format = null, array $replaceTemplate = [])
+    public function startDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->startDate instanceof \DateTime  ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
@@ -316,7 +316,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function endDateFormat(string $format = null, array $replaceTemplate = [])
+    public function endDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->endDate instanceof \DateTime  ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
@@ -329,7 +329,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public function getSlug(string $lang = null)
+    public function getSlug(?string $lang = null)
     {
         return self::elementFriendlySlug($this, $lang);
     }
@@ -550,7 +550,7 @@ class NewsMapper extends EntityMapperExtensible
      *  - baseLang
      * @return string[]
      */
-    protected static function fieldsToSelect(string $formatDate = null)
+    protected static function fieldsToSelect(?string $formatDate = null)
     {
 
         $formatDate = $formatDate ?? get_default_format_date(null, true);
@@ -642,7 +642,7 @@ class NewsMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID, string $lang = null)
+    public static function elementFriendlySlug($elementOrID, ?string $lang = null)
     {
         $slug = '';
 

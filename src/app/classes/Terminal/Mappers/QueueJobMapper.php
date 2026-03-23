@@ -5,6 +5,7 @@
 namespace Terminal\Mappers;
 
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 
 /**
  * QueueJobMapper
@@ -113,7 +114,7 @@ class QueueJobMapper extends BaseEntityMapper
     }
 
     /**
-     * @return \PiecesPHP\Core\BaseModel
+     * @return ActiveRecordModel
      */
     public static function model()
     {

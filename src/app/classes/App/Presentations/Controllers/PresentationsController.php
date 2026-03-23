@@ -827,7 +827,7 @@ class PresentationsController extends AdminPanelController
      * @param int $category
      * @return PaginationResult
      */
-    public static function _all(int $page = 1, int $perPage = 10, int $category = null)
+    public static function _all(int $page = 1, int $perPage = 10, ?int $category = null)
     {
         $table = PresentationMapper::TABLE;
         $fields = PresentationMapper::fieldsToSelect();
@@ -989,7 +989,7 @@ class PresentationsController extends AdminPanelController
      * @return array
      * @throws \Exception
      */
-    protected static function handlerUploadImages(string $nameOnFiles, string $folder, array $imagesToDelete = [], int $minImages = 1, int $currentTotal = null, string $namePrefrix = 'file')
+    protected static function handlerUploadImages(string $nameOnFiles, string $folder, array $imagesToDelete = [], int $minImages = 1, ?int $currentTotal = null, string $namePrefrix = 'file')
     {
         $name = $namePrefrix . '_' . str_replace('.', '', uniqid());
         $relativeURLs = [];
@@ -1061,7 +1061,7 @@ class PresentationsController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
         if (!is_null($name)) {
             $name = trim($name);

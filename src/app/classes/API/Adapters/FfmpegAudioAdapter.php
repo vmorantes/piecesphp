@@ -14,11 +14,11 @@ use FFMpeg\Format\Audio\Wav;
 class FfmpegAudioAdapter
 {
     /**
-     * @var string
+     * @var ?string
      */
     protected $ffmpegPath;
     /**
-     * @var string
+     * @var ?string
      */
     protected $ffprobePath;
     /**

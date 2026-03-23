@@ -25,7 +25,7 @@ class SystemApprovalManager
 {
     protected static ?SystemApprovalManager $instance = null;
     /**
-     * @var ApprovalElementHandlerInterface[]
+     * @var class-string<ApprovalElementHandlerInterface>[]
      */
     protected array $configurations = [];
     protected array $langAlternatives = [];
@@ -190,7 +190,7 @@ class SystemApprovalManager
      * Devuelve el manejador de aprobaciones según la tabla
      *
      * @param string $tableName La tabla del mapeador.
-     * @return ApprovalElementHandlerInterface|null Realmente devuevuelve una cadena que representa la clase
+     * @return class-string<ApprovalElementHandlerInterface>|null
      */
     public function getHandler(string $tableName)
     {

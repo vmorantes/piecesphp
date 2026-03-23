@@ -42,8 +42,11 @@ class HubSpotAPIAdapter
         $results = [];
 
         $client = $this->hubspotClient;
-        $contacts = $client->crm()->contacts()->basicApi()->getPage($perPage, false);
-        $results = json_decode(json_encode($contacts->getResults()));
+        $contacts = $client->crm()->contacts()->basicApi()->getPage($perPage, null);
+        if (!($contacts instanceof \HubSpot\Client\Crm\Contacts\Model\Error)) {
+            $contactsAsRawJSON = json_encode($contacts->getResults());
+            $results = is_string($contactsAsRawJSON) ? json_decode($contactsAsRawJSON) : [];
+        }
 
         return $results;
     }
@@ -75,9 +78,9 @@ class HubSpotAPIAdapter
      */
     public static function getAccessTokenFromJSONFile(string $jsonPath, string $jsonProperty)
     {
-        $jsonFile = file_exists($jsonPath) ? file_get_contents($jsonPath) : [];
-        $jsonContent = @json_decode($jsonFile);
-        $jsonContent = $jsonContent !== null ? $jsonContent : new \stdClass;
+        $jsonFile = file_exists($jsonPath) ? file_get_contents($jsonPath) : "";
+        $jsonContent = is_string($jsonFile) ? @json_decode($jsonFile) : new \stdClass;
+        $jsonContent = $jsonContent !== null && !is_bool($jsonContent) ? $jsonContent : new \stdClass;
         $accessToken = property_exists($jsonContent, $jsonProperty) ? $jsonContent->$jsonProperty : '';
         return $accessToken;
     }

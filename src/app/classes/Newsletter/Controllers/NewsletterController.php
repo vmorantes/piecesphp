@@ -813,7 +813,7 @@ class NewsletterController extends AdminPanelController
      * @param int $perPage =10
      * @return PaginationResult
      */
-    public static function _all(int $page = null, int $perPage = null)
+    public static function _all(?int $page = null, ?int $perPage = null)
     {
         $page = $page === null ? 1 : $page;
         $perPage = $perPage === null ? 10 : $perPage;
@@ -935,7 +935,7 @@ class NewsletterController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

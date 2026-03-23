@@ -135,7 +135,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
         parent::__construct($value, $fieldCompare);
         if ($this->id !== null) {
@@ -249,7 +249,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      *  - statusText
      * @return string[]
      */
-    protected static function fieldsToSelect(string $formatDate = null)
+    protected static function fieldsToSelect(?string $formatDate = null)
     {
         $formatDate = $formatDate ?? get_default_format_date(null, true);
         $mapper = (new SystemApprovalsMapper);

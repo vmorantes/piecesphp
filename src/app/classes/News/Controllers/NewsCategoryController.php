@@ -189,7 +189,7 @@ class NewsCategoryController extends AdminPanelController
             $backLink = self::routeName('list');
             $allowedLangs = Config::get_allowed_langs();
             $manyLangs = count($allowedLangs) > 1;
-            $allowedLangsOptions = array_to_html_options(self::allowedLangsForSelect($selectedLang, $element->id), $selectedLang);
+            $allowedLangsOptions = array_to_html_options(self::allowedLangsForSelect(), $selectedLang);
 
             $data = [];
             $data['action'] = $action;
@@ -1017,7 +1017,7 @@ class NewsCategoryController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

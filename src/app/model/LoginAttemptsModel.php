@@ -7,6 +7,7 @@ namespace App\Model;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseEntityMapper;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Database\Enums\CodeStringExceptionsEnum;
 use PiecesPHP\Core\Database\Exceptions\DatabaseClassesExceptions;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
@@ -21,6 +22,14 @@ use \PiecesPHP\Core\Routing\RequestRoute as Request;
  * @package     PiecesPHP\Core
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
+ * @property int $id
+ * @property int|UsersModel|null $user_id
+ * @property string $username_attempt
+ * @property int $success
+ * @property string $ip
+ * @property string|null $message
+ * @property string|\DateTime $date
+ * @property array|null $extra_data
  */
 
 class LoginAttemptsModel extends BaseEntityMapper
@@ -65,11 +74,11 @@ class LoginAttemptsModel extends BaseEntityMapper
     ];
 
     /**
-     * @param mixed int
-     * @param mixed string
+     * @param int|null $value
+     * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'id')
+    public function __construct(?int $value = null, string $field_compare = 'id')
     {
         $model = new BaseModel();
         $model->setTable($this->table);
@@ -100,7 +109,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      * @param array $extraData
      * @return void
      */
-    public static function addLogin(int $user_id = null, string $username, bool $success, string $message = '', array $extraData = [])
+    public static function addLogin(?int $user_id = null, string $username = '', bool $success = false, string $message = '', array $extraData = [])
     {
         $mapper = new LoginAttemptsModel();
         $mapper->user_id = $user_id;
@@ -378,7 +387,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      *  - dateFormat
      * @return string[]
      */
-    protected static function fieldsToSelect(string $formatDate = null)
+    protected static function fieldsToSelect(?string $formatDate = null)
     {
 
         $formatDate = $formatDate ?? get_default_format_date(null, true);

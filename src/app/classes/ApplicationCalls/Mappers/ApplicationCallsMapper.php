@@ -252,7 +252,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
 
         $this->addMetaProperty(new MetaProperty(MetaProperty::TYPE_ARRAY_MAPPER, [], false, CountryMapper::class, 'id'), 'targetCountries');
@@ -302,7 +302,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * Devuelve el nombre del tipo compuesto por contentType y financingType
      *
      * @param boolean $langSensitive
-     * @return void
+     * @return string
      */
     public function contentTypeForFullDisplayText(bool $langSensitive = true)
     {
@@ -318,7 +318,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
     /**
      * Devuelve el ícono del tipo compuesto por contentType y financingType
      *
-     * @return void
+     * @return string
      */
     public function contentTypeIcon()
     {
@@ -333,7 +333,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
     /**
      * Devuelve un color del ícono para el tipo compuesto contentType y financingType
      *
-     * @return void
+     * @return string
      */
     public function contentTypeIconColor()
     {
@@ -348,7 +348,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
     /**
      * Devuelve un color de fondo para el tipo compuesto contentType y financingType
      *
-     * @return void
+     * @return string
      */
     public function contentTypeBackgroundColor()
     {
@@ -448,7 +448,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string
      */
-    public function createdAtFormat(string $format = null, array $replaceTemplate = [])
+    public function createdAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = localeDateFormat($format, $this->createdAt, $replaceTemplate);
@@ -460,7 +460,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function updatedAtFormat(string $format = null, array $replaceTemplate = [])
+    public function updatedAtFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->updatedAt instanceof \DateTime  ? localeDateFormat($format, $this->updatedAt, $replaceTemplate) : null;
@@ -472,7 +472,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function startDateFormat(string $format = null, array $replaceTemplate = [])
+    public function startDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->startDate instanceof \DateTime  ? localeDateFormat($format, $this->startDate, $replaceTemplate) : null;
@@ -484,7 +484,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param array $replaceTemplate Para remplazar contenido dentro del formato, el array debe ser ['VALOR_A_REEMPLAZAR' => 'VALOR_DE_REEMPLAZO']
      * @return string|null
      */
-    public function endDateFormat(string $format = null, array $replaceTemplate = [])
+    public function endDateFormat(?string $format = null, array $replaceTemplate = [])
     {
         $format = is_string($format) ? $format : get_default_format_date();
         $formated = $this->endDate instanceof \DateTime  ? localeDateFormat($format, $this->endDate, $replaceTemplate) : null;
@@ -528,7 +528,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public function getSlug(string $lang = null)
+    public function getSlug(?string $lang = null)
     {
         return self::elementFriendlySlug($this, $lang);
     }
@@ -745,7 +745,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      *  - baseLang
      * @return string[]
      */
-    protected static function fieldsToSelect(string $formatDate = null)
+    protected static function fieldsToSelect(?string $formatDate = null)
     {
 
         $formatDate = $formatDate ?? get_default_format_date(null, true);
@@ -850,7 +850,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param string $lang
      * @return string
      */
-    public static function elementFriendlySlug($elementOrID, string $lang = null)
+    public static function elementFriendlySlug($elementOrID, ?string $lang = null)
     {
         $slug = '';
 
@@ -1246,7 +1246,7 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      * @param bool $onlyActives
      * @return bool
      */
-    public static function existsByTitle(string $title, int $ignoreID = null, bool $onlyActives = true)
+    public static function existsByTitle(string $title, ?int $ignoreID = null, bool $onlyActives = true)
     {
 
         $ignoreID = $ignoreID !== null ? $ignoreID : -1;

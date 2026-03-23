@@ -57,7 +57,7 @@ class AttachmentPackage
      * @param string[]|string $extensions
      * @param bool $required
      */
-    public function __construct(int $publicationID = null, int $attachmentID = null, string $displayName, bool $required = false, string $lang = null)
+    public function __construct(?int $publicationID = null, ?int $attachmentID = null, string $displayName = '', bool $required = false, ?string $lang = null)
     {
         $this->publicationID = $publicationID;
         $this->attachmentID = $attachmentID;

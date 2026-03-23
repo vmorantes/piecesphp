@@ -20,7 +20,7 @@ class MissingQualifiedNameException extends \PiecesPHP\Core\Exceptions\BaseExcep
 	 *
 	 * @param \Throwable $previous
 	 */
-	public function __construct(int $code = 0, \Throwable $previous = null)
+	public function __construct(int $code = 0, ?\Throwable $previous = null)
 	{	
 		parent::__construct(__('array_of_exceptions','missing_qualified_name'),$code,$previous);
 	}

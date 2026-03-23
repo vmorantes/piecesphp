@@ -14,6 +14,14 @@ use PiecesPHP\Core\BaseEntityMapper;
  * @package     App\Model
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2019
+ * @property int $id
+ * @property int|UsersModel $message_from
+ * @property int|UsersModel|null $message_to
+ * @property string|\DateTime $date
+ * @property string $subject
+ * @property string|null $message
+ * @property string|null $attachment
+ * @property int $readed
  */
 class MessagesModel extends BaseEntityMapper
 {
@@ -80,7 +88,7 @@ class MessagesModel extends BaseEntityMapper
      * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'message_from')
+    public function __construct(?int $value = null, string $field_compare = 'message_from')
     {
         parent::__construct($value, $field_compare);
     }
@@ -92,7 +100,7 @@ class MessagesModel extends BaseEntityMapper
      * @param int $perPage
      * @return static[]
      */
-    public static function getMessages($where, bool $humanReadable = false, int $page = null, int $perPage = null)
+    public static function getMessages($where, bool $humanReadable = false, ?int $page = null, ?int $perPage = null)
     {
         $queryBuilder = (new MessagesModel())->getModel();
         self::$where = $where;
@@ -136,20 +144,26 @@ class MessagesModel extends BaseEntityMapper
     /**
      * @param int $value
      * @param string $field_compare
-     * @return BaseEntityMapper
+     * @return object
      */
-    public static function messagesResponseMapper(int $value = null, string $field_compare = 'message_id')
+    public static function messagesResponseMapper(?int $value = null, string $field_compare = 'message_id')
     {
+        /**
+         * @property int $id
+         * @property int $message_from
+         * @property int $message_id
+         * @property string $message
+         * @property string|\DateTime $date
+         * @property string|null $attachment
+         * @property int $readed
+         */
         return new class($value, $field_compare) extends BaseEntityMapper
         {
             /**
-             * __construct
-             *
-             * @param int $value
+             * @param int|null $value
              * @param string $field_compare
-             * @return static
              */
-            public function __construct(int $value = null, string $field_compare = 'message_id')
+            public function __construct(?int $value = null, string $field_compare = 'message_id')
             {
                 parent::__construct($value, $field_compare);
             }
@@ -212,6 +226,7 @@ class MessagesModel extends BaseEntityMapper
         $readsThreads = 0;
 
         foreach ($messages as $message) {
+            /** @var \PiecesPHP\Core\BaseEntityMapper&object{message_from:?int,readed:?int,id:int} $message */
 
             $messageIsMine = $user->id == $message->message_from;
             $responses = self::getMessagesResponsesByMessage($message->id, false, false);
@@ -226,6 +241,7 @@ class MessagesModel extends BaseEntityMapper
             }
 
             foreach ($responses as $response) {
+                /** @var \PiecesPHP\Core\BaseEntityMapper&object{message_from:?int,readed:?int} $response */
 
                 $responseIsMine = $user->id == $response->message_from;
 

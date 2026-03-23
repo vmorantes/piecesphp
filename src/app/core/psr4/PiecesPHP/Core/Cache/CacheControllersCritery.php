@@ -61,7 +61,7 @@ class CacheControllersCritery implements JsonSerializable
      * @param string $criteries
      * @return string|static
      */
-    public function name(string $name = null)
+    public function name(?string $name = null)
     {
 
         if ($name !== null) {

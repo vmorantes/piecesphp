@@ -74,7 +74,7 @@ class MySpaceController extends AdminPanelController
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function mySpaceView(Request $request, Response $response)
     {
@@ -158,12 +158,13 @@ class MySpaceController extends AdminPanelController
 
         }
 
+        return $response;
     }
 
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function userSecurity(Request $request, Response $response)
     {
@@ -195,13 +196,13 @@ class MySpaceController extends AdminPanelController
         ]);
         $this->render('user-security', $data);
         $this->helpController->render('panel/layout/footer');
-
+        return $response;
     }
 
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function exampleResources(Request $request, Response $response)
     {
@@ -236,13 +237,13 @@ class MySpaceController extends AdminPanelController
         ]);
         $this->render('example-resources', $data);
         $this->helpController->render('panel/layout/footer');
-
+        return $response;
     }
 
     /**
      * @param Request $request
      * @param Response $response
-     * @return void
+     * @return Response
      */
     public function iframesSources(Request $request, Response $response)
     {
@@ -334,7 +335,7 @@ class MySpaceController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

@@ -54,7 +54,7 @@ class OsTicketAPI
      * @param string $url
      *@return static
      */
-    public function __construct(string $url = null, string $apiKey = null)
+    public function __construct(?string $url = null, ?string $apiKey = null)
     {
         $url = !is_null($url) ? append_to_url($url, '/api') : null;
         $this->url = !is_null($url) ? $url : self::$baseURL;

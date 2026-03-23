@@ -30,7 +30,7 @@ class GeoJSONFactory
         $geoJson = new GeoJson([]);
         $features = [];
         /**
-         * @var Feature $geometryPackage
+         * @var Feature $feature
          */
         foreach ($featuresCollection->getArrayCopy() as $feature) {
             $features[] = $feature;

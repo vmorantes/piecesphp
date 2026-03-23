@@ -37,7 +37,7 @@ class APILabsMobileSMS
 
     /**
      * @param string $phoneNumber
-     * @param string $lapse
+     * @param string $message
      * @return array
      */
     public function sendSMS(string $phoneNumber, string $message)

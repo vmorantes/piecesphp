@@ -65,7 +65,7 @@ class DirectoryObject implements \JsonSerializable
      * @param string $root
      * @return static
      */
-    public function __construct(string $path, string $root = null)
+    public function __construct(string $path, ?string $root = null)
     {
         $this->rawPath = $path;
         $this->path = realpath($this->rawPath);
@@ -83,7 +83,7 @@ class DirectoryObject implements \JsonSerializable
      * @param array $ignored_files
      * @return $this
      */
-    public function process(FilesIgnore $filesIgnore = null, array &$ignored_files = [])
+    public function process(?FilesIgnore $filesIgnore = null, array &$ignored_files = [])
     {
 
         if ($this->directoryExists()) {
@@ -237,7 +237,7 @@ class DirectoryObject implements \JsonSerializable
     }
 
     /**
-     * @param mixed bool
+     * @param bool $deleteSelf
      * @return array
      */
     public function delete(bool $deleteSelf = false)
@@ -427,7 +427,7 @@ class DirectoryObject implements \JsonSerializable
      * @param callable $compareFunction
      * @return void
      */
-    public function orderDirectories(callable $compareFunction = null)
+    public function orderDirectories(?callable $compareFunction = null)
     {
 
         if ($compareFunction === null) {
@@ -460,7 +460,7 @@ class DirectoryObject implements \JsonSerializable
      * @param callable $compareFunction
      * @return void
      */
-    public function orderFiles(callable $compareFunction = null)
+    public function orderFiles(?callable $compareFunction = null)
     {
 
         if ($compareFunction === null) {
@@ -493,7 +493,7 @@ class DirectoryObject implements \JsonSerializable
      * @param string $directoryBasename
      * @return void
      */
-    protected function fillZip(\ZipArchive &$zip, array &$logger, string $directoryBasename = null)
+    protected function fillZip(\ZipArchive &$zip, array &$logger, ?string $directoryBasename = null)
     {
         foreach ($this->files as $file) {
             $basename = $file->getBasename();

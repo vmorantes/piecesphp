@@ -57,7 +57,7 @@ class SitemapItem
      * @param float $priority
      * @return static
      */
-    public function __construct(string $location, \DateTime $lastMod = null, string $changeFreq = null, float $priority = 0.5)
+    public function __construct(string $location, ?\DateTime $lastMod = null, ?string $changeFreq = null, float $priority = 0.5)
     {
 
         $this->location = $location;

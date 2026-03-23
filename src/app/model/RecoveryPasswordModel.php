@@ -46,7 +46,7 @@ class RecoveryPasswordModel extends BaseEntityMapper
      * @param integer $id
      * @return static
      */
-    public function __construct(int $id = null)
+    public function __construct(?int $id = null)
     {
         parent::__construct($id);
     }
@@ -69,7 +69,7 @@ class RecoveryPasswordModel extends BaseEntityMapper
 
     /**
      * @param mixed $code
-     * @return bool
+     * @return string
      */
     public static function getUserNameByCode($code)
     {
@@ -83,7 +83,8 @@ class RecoveryPasswordModel extends BaseEntityMapper
 
         $userModel = new UsersModel();
 
-        return $userModel->getWhere(["email" => $query->email])->username;
+        $user = is_object($query) ? $userModel->getWhere(["email" => $query->email]) : null;
+        return is_object($user) ? $user->username : '';
     }
 
     /**

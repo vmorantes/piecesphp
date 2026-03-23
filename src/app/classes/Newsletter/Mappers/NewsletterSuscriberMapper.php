@@ -93,7 +93,7 @@ class NewsletterSuscriberMapper extends EntityMapperExtensible
      * @param string $fieldCompare
      * @return static
      */
-    public function __construct(int $value = null, string $fieldCompare = 'primary_key')
+    public function __construct(?int $value = null, string $fieldCompare = 'primary_key')
     {
         parent::__construct($value, $fieldCompare);
     }

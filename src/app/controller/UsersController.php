@@ -12,6 +12,7 @@ use App\Model\UsersModel;
 use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\Database\ActiveRecordModel;
+use PiecesPHP\Core\Pagination\PaginationResult;
 use PiecesPHP\Core\Pagination\PageQuery;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
@@ -545,6 +546,8 @@ class UsersController extends AdminPanelController
             $this->render('usuarios/form', $data);
             $this->render('panel/layout/footer');
 
+            return $res;
+
         } else {
             throw new NotFoundException($req, $res);
         }
@@ -651,6 +654,8 @@ class UsersController extends AdminPanelController
                 $this->render('usuarios/form', $data);
                 $this->render('panel/layout/footer');
 
+                return $res;
+
             } else {
 
                 throw new NotFoundException($req, $res);
@@ -745,6 +750,8 @@ class UsersController extends AdminPanelController
             $this->render('panel/layout/header');
             $this->render('usuarios/form', $data);
             $this->render('panel/layout/footer');
+
+            return $res;
 
         } else {
             throw new NotFoundException($req, $res);
@@ -1092,7 +1099,7 @@ class UsersController extends AdminPanelController
 
         //Se verifica si ya existe una sesión activa
         $JWT = SessionToken::getJWTReceived();
-        $isActiveSession = SessionToken::isActiveSession($JWT, null, true);
+        $isActiveSession = SessionToken::isActiveSession($JWT, null);
         $resultOperation->setValue('isAuth', $isActiveSession);
         //Verificar status de la organización si aplica
         $currentUser = getLoggedFrameworkUser();
@@ -1808,7 +1815,7 @@ class UsersController extends AdminPanelController
      * @param int[] $ignore
      * @return PaginationResult
      */
-    public static function _all(int $page = 1, int $perPage = 10, int $type = null, array $ignore = [])
+    public static function _all(int $page = 1, int $perPage = 10, ?int $type = null, array $ignore = [])
     {
         $table = 'pcsphp_users';
         $fields = [

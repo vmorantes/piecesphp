@@ -221,6 +221,7 @@ class MessagesController extends AdminPanelController
 
         if ($params_verify) {
 
+            /** @var object */
             $messageResponseObject = MessagesModel::messagesResponseMapper();
             $messageResponseObject->message_id = $message_id;
             $messageResponseObject->message_from = $message_from;
@@ -253,6 +254,7 @@ class MessagesController extends AdminPanelController
         $type = isset($args['type']) ? $args['type'] : null;
         $id = isset($args['id']) ? $args['id'] : null;
 
+        /** @var object $mapper */
         $mapper = null;
 
         $structureResponse = [
@@ -274,6 +276,7 @@ class MessagesController extends AdminPanelController
             }
 
             if (!is_null($mapper->id)) {
+                /** @var object $mapper */
                 $mapper->readed = MessagesModel::READ;
                 $updated = $mapper->update();
 

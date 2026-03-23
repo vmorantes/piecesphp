@@ -90,7 +90,7 @@ class HttpClient
     /**
      * Establece el timeout de la petición
      * @param int|null $value Timeout en segundos
-     * @return self|int Si se pasa un valor se retorna self, si no se retorna el timeout actual
+     * @return self|int|null Si se pasa un valor se retorna self, si no se retorna el timeout actual
      */
     public function timeout(?int $value)
     {
@@ -320,7 +320,7 @@ class HttpClient
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getRequestHeadersString()
     {
@@ -330,7 +330,7 @@ class HttpClient
     /**
      * @param bool $as_array
      *
-     * @return string|array
+     * @return string|array|object
      */
     public function getRequestBody(bool $as_array = false)
     {
@@ -356,7 +356,7 @@ class HttpClient
     }
 
     /**
-     * @return array
+     * @return string
      */
     public function getResponseStatus()
     {

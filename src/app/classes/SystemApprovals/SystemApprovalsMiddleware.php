@@ -30,7 +30,7 @@ class SystemApprovalsMiddleware
      * @param RequestHandlerInterface|null $handler
      * @return Response|null
      */
-    public static function handle(Request $request, Response $response, array $args, RequestHandlerInterface $handler = null): ?Response
+    public static function handle(Request $request, Response $response, array $args, ?RequestHandlerInterface $handler = null): ?Response
     {
 
         $currentUser = getLoggedFrameworkUser();

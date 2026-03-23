@@ -164,16 +164,16 @@ class APIController extends AdminPanelController
                 $expectedParameters->setInputValues($request->getQueryParams());
                 $expectedParameters->validate();
 
+                $page = $expectedParameters->getValue('page');
+                $perPage = $expectedParameters->getValue('perPage');
+                $category = $expectedParameters->getValue('category');
+                $title = $expectedParameters->getValue('title');
                 /**
                  * @var int $page
                  * @var int $perPage
                  * @var int $category
                  * @var string $title
                  */
-                $page = $expectedParameters->getValue('page');
-                $perPage = $expectedParameters->getValue('perPage');
-                $category = $expectedParameters->getValue('category');
-                $title = $expectedParameters->getValue('title');
 
                 $controller = new PublicationsController();
                 $all = $controller->_all($page, $perPage, $category, null, null, $title);
@@ -203,10 +203,10 @@ class APIController extends AdminPanelController
                 $expectedParameters->setInputValues($request->getQueryParams());
                 $expectedParameters->validate();
 
-                /**
-                 * @var int $page
-                 */
                 $id = $expectedParameters->getValue('id');
+                /**
+                 * @var int $id
+                 */
 
                 $elementData = [];
 
@@ -270,12 +270,12 @@ class APIController extends AdminPanelController
                 $expectedParameters->setInputValues($request->getQueryParams());
                 $expectedParameters->validate();
 
+                $page = $expectedParameters->getValue('page');
+                $perPage = $expectedParameters->getValue('perPage');
                 /**
                  * @var int $page
                  * @var int $perPage
                  */
-                $page = $expectedParameters->getValue('page');
-                $perPage = $expectedParameters->getValue('perPage');
 
                 $controller = new PublicationsCategoryController();
                 $all = $controller->_all($page, $perPage);
@@ -348,14 +348,13 @@ class APIController extends AdminPanelController
             $expectedParameters->setInputValues($request->getQueryParams());
             $expectedParameters->validate();
 
-            /**
+            $page = $expectedParameters->getValue('page');
+            $perPage = $expectedParameters->getValue('perPage');
+            $category = $expectedParameters->getValue('category'); /**
              * @var int $page
              * @var int $perPage
              * @var int $category
              */
-            $page = $expectedParameters->getValue('page');
-            $perPage = $expectedParameters->getValue('perPage');
-            $category = $expectedParameters->getValue('category');
 
             $controller = new NewsController();
             $all = $controller->_all($page, $perPage, $category);
@@ -385,10 +384,10 @@ class APIController extends AdminPanelController
             $expectedParameters->setInputValues($request->getQueryParams());
             $expectedParameters->validate();
 
-            /**
-             * @var int $page
-             */
             $id = $expectedParameters->getValue('id');
+            /**
+             * @var int $id
+             */
 
             $elementData = [];
 
@@ -448,12 +447,12 @@ class APIController extends AdminPanelController
             $expectedParameters->setInputValues($request->getQueryParams());
             $expectedParameters->validate();
 
+            $page = $expectedParameters->getValue('page');
+            $perPage = $expectedParameters->getValue('perPage');
             /**
              * @var int $page
              * @var int $perPage
              */
-            $page = $expectedParameters->getValue('page');
-            $perPage = $expectedParameters->getValue('perPage');
 
             $controller = new NewsCategoryController();
             $all = $controller->_all($page, $perPage, true);
@@ -578,14 +577,14 @@ class APIController extends AdminPanelController
                     $expectedParameters->setInputValues($inputValues);
                     $expectedParameters->validate();
 
+                    $text = $expectedParameters->getValue('text');
+                    $from = $expectedParameters->getValue('from');
+                    $to = $expectedParameters->getValue('to');
                     /**
                      * @var array<string,string>|null $text
                      * @var string $from
                      * @var string $to
                      */
-                    $text = $expectedParameters->getValue('text');
-                    $from = $expectedParameters->getValue('from');
-                    $to = $expectedParameters->getValue('to');
                     $asHTMLProperties = $expectedParameters->getValue('asHTMLProperties');
 
                     $translationAI = get_config('translationAI');
@@ -795,14 +794,15 @@ class APIController extends AdminPanelController
                     $expectedParameters->setInputValues($inputValues);
                     $expectedParameters->validate();
 
-                    /**
+                   
+                    $text = $expectedParameters->getValue('text');
+                    $to = $expectedParameters->getValue('to');
+                    $saveGroup = $expectedParameters->getValue('saveGroup');
+                     /**
                      * @var array<string,string>|null $text
                      * @var string $to
                      * @var string $saveGroup
                      */
-                    $text = $expectedParameters->getValue('text');
-                    $to = $expectedParameters->getValue('to');
-                    $saveGroup = $expectedParameters->getValue('saveGroup');
 
                     $responseJSON = [
                         'success' => false,
@@ -1625,7 +1625,7 @@ class APIController extends AdminPanelController
      * @param bool $silentOnNotExists
      * @return string
      */
-    public static function routeName(string $name = null, array $params = [], bool $silentOnNotExists = false)
+    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
         $simpleName = !is_null($name) ? $name : '';

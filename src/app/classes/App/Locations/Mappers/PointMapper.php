@@ -79,7 +79,7 @@ class PointMapper extends BaseEntityMapper
      * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'id')
+    public function __construct(?int $value = null, string $field_compare = 'id')
     {
         parent::__construct($value, $field_compare);
     }
@@ -164,7 +164,7 @@ class PointMapper extends BaseEntityMapper
      * @param int $cityID
      * @return static[]|array
      */
-    public static function all(bool $as_mapper = false, bool $onlyActives = false, int $cityID = null)
+    public static function all(bool $as_mapper = false, bool $onlyActives = false, ?int $cityID = null)
     {
 
         $model = self::model();
@@ -214,7 +214,7 @@ class PointMapper extends BaseEntityMapper
      * @param int $cityID
      * @return array
      */
-    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', int $cityID = null)
+    public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', ?int $cityID = null)
     {
         $defaultLabel = mb_strlen($defaultLabel) > 0 ? $defaultLabel : __(LOCATIONS_LANG_GROUP, 'Localidades');
         $options = [];
@@ -289,7 +289,7 @@ class PointMapper extends BaseEntityMapper
      * @param int $city_id
      * @return array|static[]
      */
-    public static function getByName(string $name, bool $as_mapper = false, int $city_id = null)
+    public static function getByName(string $name, bool $as_mapper = false, ?int $city_id = null)
     {
 
         $query = self::model()->select();

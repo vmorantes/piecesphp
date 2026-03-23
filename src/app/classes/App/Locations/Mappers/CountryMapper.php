@@ -70,7 +70,7 @@ class CountryMapper extends BaseEntityMapper
      * @param string $field_compare
      * @return static
      */
-    public function __construct(int $value = null, string $field_compare = 'id')
+    public function __construct(?int $value = null, string $field_compare = 'id')
     {
         parent::__construct($value, $field_compare);
     }
@@ -274,7 +274,7 @@ class CountryMapper extends BaseEntityMapper
 
         array_map(function ($e) use (&$options) {
             $options[$e->name] = $e->name;
-        }, self::allRegions(false, true));
+        }, self::allRegions());
 
         return $options;
     }
@@ -306,7 +306,7 @@ class CountryMapper extends BaseEntityMapper
      * @param int $ignore_id
      * @return bool
      */
-    public static function isDuplicateCode(string $code = null, int $ignore_id)
+    public static function isDuplicateCode(?string $code = null, int $ignore_id = 0)
     {
 
         if ($code !== null) {

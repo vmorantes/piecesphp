@@ -300,6 +300,8 @@ class ImporterController extends AdminPanelController
                     ->withHeader('Content-Transfer-Encoding', 'binary')
                     ->withHeader('Content-Disposition', 'attachment; filename="' . $name . '.xlsx"');
 
+            } else {
+                throw new NotFoundException($req, $res);
             }
 
         } else {

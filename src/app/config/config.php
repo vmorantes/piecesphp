@@ -124,7 +124,7 @@ ini_set('geoip.custom_directory', $config['GEO_IP']['custom_directory']);
 $config['developer'] = 'Lorem ipsum';
 
 //Listeners
-\PiecesPHP\Core\BaseEventDispatcher::listen('InitRoutes', function () use ($config) {
+\PiecesPHP\Core\BaseEventDispatcher::defaultListen(\PiecesPHP\Core\BaseEventDispatcher::EVENT_INIT_ROUTES_NAME, function () {
     //Cuando se registran las rutas
     //Do something
-}, 'AppRoutes');
+});

@@ -1,8 +1,21 @@
 #!/bin/bash
+
+# 1. Determinar el binario de PHP a usar
+if command -v php8.4 >/dev/null 2>&1; then
+    PHP_BIN="php8.4"
+else
+    PHP_BIN="php"
+fi
+
 SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
-cd $SCRIPT_DIR/..
+cd "$SCRIPT_DIR/.."
+
 REPORT_FILE=PHPStanResult.txt
-echo $'Recordatorio:\n'  > $REPORT_FILE
-echo $'\tReemplazar en el resultado el siguiente patrón \'(  )Line   (.*)\' por \'$1project://src/app/$2\'\n' >> $REPORT_FILE
-bin/tools/vendor/bin/phpstan analyse --memory-limit "2000M" -c bin/phpstan.neon >> $REPORT_FILE
-php $SCRIPT_DIR/phpstan-process-result.php
+
+# 2. Ejecutar PHPStan usando el binario detectado
+# Nota: Pasamos el binario antes del script de PHPStan si este no es ejecutable por sí solo,
+# o simplemente usamos el binario para el proceso posterior.
+PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 $PHP_BIN bin/tools/vendor/bin/phpstan analyse --memory-limit "2000M" -c bin/phpstan.neon > "$REPORT_FILE"
+
+# 3. Ejecutar el script de procesamiento con el mismo binario
+$PHP_BIN "$SCRIPT_DIR/phpstan-process-result.php"

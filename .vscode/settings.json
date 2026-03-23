@@ -41,7 +41,7 @@
     "editor.wordWrap": "on",
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.multiCursorMergeOverlapping": true,
-    "intelephense.environment.phpVersion": "8.1",
+    "intelephense.environment.phpVersion": "8.4",
     "[php]": {
         "editor.defaultFormatter": "kokororin.vscode-phpfmt",
         "editor.formatOnSave": false
@@ -58,5 +58,7 @@
     },
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
-    }
+    },
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": false
 }

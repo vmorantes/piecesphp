@@ -155,7 +155,7 @@ set_config('format_date_lang_sql', [
  * Banderas de fomantic según idioma
  * @see https://fomantic-ui.com/elements/flag.html
  */
-set_config('get_fomantic_flag_by_lang', function (string $langCode, string $size = '', float $currentOpacity = null) {
+set_config('get_fomantic_flag_by_lang', function (string $langCode, string $size = '', ?float $currentOpacity = null) {
 
     $flags = [
         'es' => "<i{CURRENT}class='{$size} es flag'></i>",

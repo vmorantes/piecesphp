@@ -121,7 +121,7 @@ class Validator
      * @param callable|null $callback (key, value) => bool
      * @return bool
      */
-    public static function isArray($value, callable $callback = null)
+    public static function isArray($value, ?callable $callback = null)
     {
         $valid = is_array($value);
         if ($valid) {

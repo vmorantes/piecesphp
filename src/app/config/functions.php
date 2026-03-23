@@ -29,14 +29,15 @@ function menu_sidebar_items(\stdClass $user): string
 }
 
 /**
- * @param array $options
- * @var \PiecesPHP\Core\Routing\RequestRoute $options['request'], required
- * @var \PiecesPHP\Core\Database\EntityMapper $options['mapper'], required
- * @var array $options['columns_order'], required
- * @var string $options['where_string']
- * @var callable $options['on_set_data'] Recibe por parámetro el elemento actual y debe devolver el valor que corresponderá a la fila
- * @var bool $options['as_mapper']
- * @var callable $options['on_set_model']
+ * @param array{
+ *  request: \PiecesPHP\Core\Routing\RequestRoute,
+ *  mapper: \PiecesPHP\Core\Database\EntityMapper,
+ *  columns_order: array,
+ *  where_string?: string,
+ *  on_set_data?: callable,
+ *  as_mapper?: bool,
+ *  on_set_model?: callable
+ * } $options
  * @return \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations
  */
 function datatables_proccessing_with_options(array $options)
@@ -60,10 +61,10 @@ function datatables_proccessing(
     \PiecesPHP\Core\Routing\RequestRoute $request,
     \PiecesPHP\Core\Database\EntityMapper $mapper,
     array $columns_order,
-    string $where_string = null,
-    callable $on_set_data = null,
+    ?string $where_string = null,
+    ?callable $on_set_data = null,
     bool $as_mapper = false,
-    callable $on_set_model = null
+    ?callable $on_set_model = null
 ): \PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations {
     return \PiecesPHP\Core\Utilities\Helpers\DataTablesHelper::process([
         'request' => $request,
