@@ -2292,6 +2292,7 @@ function register_route(array $route, &$router)
      * @var string|callable
      */
     $alias = $instanceRoute->alias();
+    $alias = $alias !== $name ? $alias : null;
     /**
      * @var string|callable
      */
@@ -2313,7 +2314,7 @@ function register_route(array $route, &$router)
     }
 
     if ($alias !== null) {
-        $settedRouteAlias = $router->map($methods, $alias, $controller);
+        $settedRouteAlias = $router->map($methods, $alias, $controller)->setName($alias);
     }
 
     if ($container !== null) {
@@ -2336,6 +2337,9 @@ function register_route(array $route, &$router)
     if (is_string($name) && $name !== null && $name !== '') {
 
         $routesSetted[$name] = $instanceRoute->toArray();
+        if ($alias !== null) {
+            $routesSetted[$alias] = $instanceRoute->toArray();
+        }
 
         if (is_array($rolesAllowed)) {
             foreach ($rolesAllowed as $role) {

@@ -37,6 +37,7 @@ class HelpTask extends TerminalTaskAbstract
             $startRoute = mb_substr($startRoute, 0, mb_strlen($startRoute) - 1);
         }
         $name = ($namePrefix !== null ? $namePrefix . '-' : '') . 'help';
+        $alias = ($namePrefix !== null ? $namePrefix . '-' : '') . 'h';
 
         //Permisos
         $permissions = [
@@ -48,7 +49,7 @@ class HelpTask extends TerminalTaskAbstract
         $this->route = "{$startRoute}/" . uniqid() . "[/]";
         $this->controller = self::class . '::main';
         $this->name = $name;
-        $this->alias = null;
+        $this->alias = $alias;
         $this->method = 'GET';
         $this->requireLogin = true;
         $this->rolesAllowed = new IntegerArray($permissions);
@@ -111,7 +112,7 @@ class HelpTask extends TerminalTaskAbstract
             $instance->name,
             $instance->method,
             $instance->requireLogin,
-            null,
+            $instance->alias,
             $instance->rolesAllowed->getArrayCopy(),
             $instance->defaultParamsValues,
             $instance->middlewares

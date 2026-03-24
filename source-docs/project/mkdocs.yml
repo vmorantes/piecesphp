@@ -1,40 +1,82 @@
 site_name: Documentación de desarrollo
+theme:
+    name: material
+    language: es
+    palette:
+        # Palette toggle for light/dark mode
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: black
+          accent: red
+          toggle:
+              icon: material/brightness-7
+              name: Cambiar a modo oscuro
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: black
+          accent: red
+          toggle:
+              icon: material/brightness-4
+              name: Cambiar a modo claro
+    features:
+        - navigation.tabs
+        - navigation.sections
+        - navigation.expand
+        - navigation.top
+        - navigation.tracking
+        - navigation.indexes
+        - content.code.copy
+        - content.code.annotate
+        - search.suggest
+        - search.highlight
+        - search.share
+
 nav:
     - Home: index.md
-    - lamp/index.md
-    - hestiacp/index.md 
+    - Entornos:
+        - environments/index.md
+        - LAMP: environments/content/lamp/index.md
+        - HestiaCP: environments/content/hestiacp/index.md
+        - Tomcat: environments/content/tomcat/index.md 
+        - Docker: environments/content/docker/index.md
     - PiecesPHP Framework: 
-        - General: piecesphp/index.md
+        - piecesphp/index.md
+        - Despliegue: piecesphp/content/general.md
         - Estructura: piecesphp/content/structure.md
         - Rutas: piecesphp/content/routing.md
         - Mappers: piecesphp/content/mappers.md
         - Gulp: piecesphp/content/gulp.md
         - Terminal: piecesphp/content/terminal.md
-    - performance/index.md
-    - tomcat/index.md 
-    - Mautic + RabbitMQ: mautic-rabbitmq.md
-theme:
-    name: material
-    language: es
-    palette:
-        scheme: slate
-        primary: black
-        accent: red
-    features:
-        - content.code.copy
-        - content.code.annotate
+        - Características Avanzadas:
+            - Sistema de Colas: piecesphp/new-features/queues.md
+            - FreezeRequest: piecesphp/new-features/freeze-request.md
+            - HttpClient: piecesphp/new-features/http-client.md
+            - Eventos: piecesphp/new-features/events.md
+            - CronJobs: piecesphp/new-features/cronjobs.md
+    - Rendimiento: 
+        - performance/index.md
+        - ZRam: performance/content/zram.md
+        - Apache + PHP-FPM: performance/content/apache-php-fpm.md
+    - Herramientas:
+        - tools/index.md
+        - Mautic + RabbitMQ: tools/content/mautic-rabbitmq.md
+        - GeoServer: tools/content/geoserver.md
+    - Changelog: changelog.md
+
 site_dir: ../../docs
+
 markdown_extensions:
   - admonition
   - attr_list
   - pymdownx.details
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-
-
-

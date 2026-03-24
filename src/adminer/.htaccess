@@ -3,7 +3,7 @@ RewriteEngine off
 Options -Indexes
 
 #Prohibir acceso a algunos archivos
-<FilesMatch "\.(sass|scss|htaccess|php|gitignore)$">
+<FilesMatch "\.(sass|scss|htaccess|php|gitignore|sqlite|sqlite3|db|sdb)$">
 	<IfVersion > 2.4>
 		Deny from All
 	</IfVersion>
