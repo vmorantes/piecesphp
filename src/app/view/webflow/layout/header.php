@@ -12,8 +12,8 @@ $alternativesURL = Config::get_config('alternatives_url');
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="cache-stamp" value="<?=get_config('cacheStamp');?>">
     <meta name="lang-messages-from-server-url" value="<?=base64_encode(\PiecesPHP\LocalizationSystem\Controllers\LocalizationSystemController::routeName('get-lang-messages-by-group'));?>">
-    <meta name="config-admin-url" value="<?=base64_encode(@json_encode(get_config('admin_url')));?>">
-    <meta name="front-configurations" value="<?=base64_encode(@json_encode(get_front_configurations()));?>">
+    <meta name="config-admin-url" value="<?=base64EncodeOrDefault(jsonEncodeFallbackNull(get_config('admin_url')), '{}');?>">
+    <meta name="front-configurations" value="<?=base64EncodeOrDefault(jsonEncodeFallbackNull(get_front_configurations()), '[]');?>">
     <base href="<?=baseurl();?>">
     <link href="<?=baseurl('statics/wf/css/normalize.css');?>" rel="stylesheet" type="text/css">
     <link href="<?=baseurl('statics/wf/css/webflow.css');?>" rel="stylesheet" type="text/css">

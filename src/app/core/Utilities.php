@@ -889,7 +889,7 @@ function remove_directory(string $path)
  * @param ZipArchive &$zipInstance
  * @return string La ruta del zip
  */
-function directory_to_zip(string $root, ?string $output_directory = null, ?string $output_name = null, bool $self = false, array $exclude = [], ?string $parent = null, ?\ZipArchive &$zipInstance = null)
+function directory_to_zip(string $root, ?string $output_directory = null, ?string $output_name = null, bool $self = false, array $exclude = [], ?string $parent = null,  ? \ZipArchive  &$zipInstance = null)
 {
     $zip_path = '';
 
@@ -1646,7 +1646,7 @@ function resizeAndCenterImage(string $inputPath, string $outputPath, int $target
  * @return string
  * @see https://www.php.net/manual/es/function.strftime.php#96424
  */
-function localeDateFormat(string $format, ?\DateTime $time = null, array $replaceTemplate = [])
+function localeDateFormat(string $format,  ? \DateTime $time = null, array $replaceTemplate = [])
 {
     if ($time === null) {
         $time = new \DateTime();
@@ -1713,7 +1713,7 @@ function localeDateFormat(string $format, ?\DateTime $time = null, array $replac
  * @param float $opacity Valor de opacidad entre 0.0 y 1.0
  * @return string Representación hexadecimal de 2 caracteres (00-FF)
  */
-function opacityToHex(float $opacity): string
+function opacityToHex(float $opacity) : string
 {
     //Asegurar que el valor esté entre 0 y 1
     $opacity = max(0.0, min(1.0, $opacity));
@@ -1739,6 +1739,40 @@ function unsetKeys(array $keys, array &$array)
             unset($array[$key]);
         }
     }
+}
+
+/**
+ * Codifica un valor a JSON de forma segura.
+ * Si falla la codificación, devuelve null.
+ *
+ * Siempre puede seguir auditándose los errores con json_last_error() y json_last_error_msg()
+ *
+ * @param mixed $value Valor a codificar.
+ * @param int|null $flags Flags adicionales para json_encode.
+ * @param int|null $depth Profundidad máxima de codificación.
+ * @return string|null Valor codificado a JSON o null si falla la codificación.
+ * @link https://php.net/manual/en/function.json-encode.php
+ */
+function jsonEncodeFallbackNull($value, ?int $flags = null, ?int $depth = null)
+{
+    $encoded = json_encode($value, $flags ?? 0, $depth ?? 512);
+    if ($encoded === false) {
+        log_exception(new \Exception(json_last_error_msg()), true);
+    }
+    return $encoded !== false ? $encoded : null;
+}
+
+/**
+ * Codifica un valor a base64 de forma segura.
+ * Si falla la codificación, devuelve un valor por defecto.
+ *
+ * @param string|null $value Valor a codificar.
+ * @param string $defaultValue Valor por defecto si falla la codificación.
+ * @return string Valor codificado a base64 o valor por defecto si falla la codificación.
+ */
+function base64EncodeOrDefault(?string $value, string $defaultValue = '')
+{
+    return $value !== null ? base64_encode($value) : $defaultValue;
 }
 
 //========================================================================================

@@ -81,7 +81,7 @@ class APIExternalAdapterExample
 
         $requestURL = URLManager::fromString(append_to_url($this->baseURL, $requestURL));
 
-        $requestURL = $requestURL->withQueryParameter('paramName', 123456);
+        $requestURL = $requestURL->withQueryParameter('paramName', '123456');
 
         $requestURL = trim(str_replace($this->baseURL, '', $requestURL->__toString()), '/');
         $httpClient->request($requestURL, 'GET');

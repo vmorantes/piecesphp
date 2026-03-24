@@ -75,7 +75,7 @@ class MauticEmailAdapter
     /**
      * Crea contactos en Mautic
      *
-     * @param array $contacts Cada entrada debe contener 'email', 'names', 'lastNames' y puede contener 'otherFields' que es un array clave=>valor para más campos.
+     * @param array<array<string,mixed>> $contacts Cada entrada debe contener 'email', 'names', 'lastNames' y puede contener 'otherFields' que es un array clave=>valor para más campos.
      * @return int[] IDs de los contactos creados
      */
     public function createBatchContacts(array $contacts): array

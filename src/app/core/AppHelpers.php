@@ -329,7 +329,7 @@ function convert_lang_url($input_url, $current_lang = 'es', $target_lang = 'en')
 function get_current_langs_urls(?string $url = null, bool $short_lang = false)
 {
 
-    $url = !is_null($url) ? $url : get_current_url();
+    $url = $url ?? get_current_url();
     $urls = [];
     $langs = get_config('allowed_langs');
 
@@ -2680,14 +2680,13 @@ function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, 
 
 /**
  * @param Throwable $e
+ * @param bool $plainLog
  * @return void
  */
-function log_exception(Throwable $e)
+function log_exception(Throwable $e, bool $plainLog = true)
 {
-
     $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
-    $handler->logging();
-
+    $handler->logging($plainLog);
 }
 
 /**

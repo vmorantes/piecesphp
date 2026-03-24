@@ -148,7 +148,7 @@ class Roles
     }
 
     /**
-     * @return array
+     * @return array{code:int,name:string,all:bool,allowed_routes:string[]}|null
      */
     public static function getCurrentRole()
     {
@@ -180,7 +180,7 @@ class Roles
     /**
      * Devuelve los roles registrados
      *
-     * @return array
+     * @return array<int,array{code:int,name:string,all:bool,allowed_routes:string[]}>
      */
     public static function getRoles(): array
     {
@@ -190,7 +190,7 @@ class Roles
     /**
      * Devuelve el role que coincida o null si no existe
      *
-     * @return array|null
+     * @return array{code:int,name:string,all:bool,allowed_routes:string[]}|null
      */
     public static function getRole($name_or_code)
     {

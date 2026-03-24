@@ -21,7 +21,7 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 
         <article class="form-container">
 
-            <div class="overlay" bg-js="<?= base64_encode(json_encode(get_config('backgrounds'))); ?>">
+            <div class="overlay" bg-js="<?= base64EncodeOrDefault(jsonEncodeFallbackNull(get_config('backgrounds')) ?? '[]'); ?>">
                 <div class="welcome-msg">
                     <?= __(USER_LOGIN_LANG_GROUP, 'WELCOME_MSG'); ?>
                 </div>
@@ -99,7 +99,6 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
             <span><?= mb_strtoupper(get_config('title_app'), 'UTF-8'); ?></span>
             <p><?= __(USER_LOGIN_LANG_GROUP, 'Todos los derechos reservados'); ?> <?= date('Y'); ?></p>
         </div>
-
 
     </section>
 

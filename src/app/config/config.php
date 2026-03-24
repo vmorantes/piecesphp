@@ -32,6 +32,10 @@ defined('BASEPATH') or die();
 
 date_default_timezone_set('America/Bogota');
 
+/**
+ * @var array $config
+ * */
+
 $config['domain'] = $_SERVER['HTTP_HOST'];
 $config['domain_protocol'] = (isset($_SERVER['HTTPS']) ? "https://" : "http://");
 $config['base_domain_path'] = str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);

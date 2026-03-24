@@ -58,7 +58,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "php -r \"if(is_dir('../bin/tools')) { chdir('../bin/tools'); shell_exec('composer install'); }\""
+            "@task"
+        ],
+        "post-update-cmd": [
+            "@task"
         ],
         "task": [
             "PiecesPHP\\ComposerTasks\\TasksManager::task"

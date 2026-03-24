@@ -202,6 +202,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
     // Atrapa mensajes 'flash' (sesiones volátiles de una sola vez) y excepciones previas al enrutamiento
     $flashMessagesExceptionRender = get_flash_messages(BaseController::class);
+    /** @var \Throwable|null */
     $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessagesExceptionRender) ? $flashMessagesExceptionRender['render_exception'] : null;
 
     // Plantilla de respuesta HTTP vacía para mutarla y retornar en caso de rechazos 403 o 404
@@ -704,7 +705,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         // Expanden los permisos y roles temporales del usuario si es el
         // encargado administrador de la organización en curso.
-        if ($userIsOrganizationAdministrator) {
+        if ($userIsOrganizationAdministrator && $current_role !== null) {
 
             // Recuperamos rutas especiales reservadas para roles gerenciales (organización)
             $addPermissionsRoutes = OrganizationMapper::PERMISSIONS_ON_ADMINISTRATOR;

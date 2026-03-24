@@ -1,5 +1,6 @@
 olds/*
 !olds/.keep
 **/*.json
+error.plain.log
 !.gitignore
 !missing-lang-messages.json

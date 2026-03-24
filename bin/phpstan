@@ -15,7 +15,7 @@ REPORT_FILE=PHPStanResult.txt
 # 2. Ejecutar PHPStan usando el binario detectado
 # Nota: Pasamos el binario antes del script de PHPStan si este no es ejecutable por sí solo,
 # o simplemente usamos el binario para el proceso posterior.
-PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 $PHP_BIN bin/tools/vendor/bin/phpstan analyse --memory-limit "2000M" -c bin/phpstan.neon > "$REPORT_FILE"
+PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 $PHP_BIN bin/tools/vendor/bin/phpstan analyse --autoload-file="$SCRIPT_DIR/../src/vendor/autoload.php" --memory-limit "2000M" -c bin/phpstan.neon > "$REPORT_FILE"
 
 # 3. Ejecutar el script de procesamiento con el mismo binario
 $PHP_BIN "$SCRIPT_DIR/phpstan-process-result.php" "$@"

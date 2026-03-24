@@ -27,9 +27,16 @@ use SystemApprovals\Util\SystemApprovalManager;
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2018
  * @property int|null $id
+ * @property mixed $name
  */
 class BaseEntityMapper extends EntityMapper
 {
+
+    /**
+     * @var array<string,array<string,mixed>>
+     */
+    protected $fields = [];
+
     /**
      * @var bool
      */

@@ -26,7 +26,7 @@ class EntityMapperExtensible extends BaseEntityMapper
     protected $metaColumnName = 'meta';
 
     /**
-     * @var MetaProperty[]
+     * @var array<string, MetaProperty>
      */
     private $metaProperties = [];
 
@@ -101,7 +101,7 @@ class EntityMapperExtensible extends BaseEntityMapper
     }
 
     /**
-     * @return MetaProperty[]
+     * @return array<string, MetaProperty>
      */
     public function getMetaProperties()
     {

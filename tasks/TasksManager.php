@@ -7,14 +7,13 @@ namespace PiecesPHP\ComposerTasks;
 
 use Composer\Script\Event;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
-use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
 
 /**
  * TasksManager - Manejador de tareas composer
  *
  * @package     PiecesPHP\ComposerTasks
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
- * @copyright   Copyright (c) 2019
+ * @copyright   Copyright (c) 2026
  */
 class TasksManager
 {
@@ -24,6 +23,9 @@ class TasksManager
      */
     public static function task(Event $event)
     {
+
+        self::setupDevTools();
+
         $params_raw = $event->getArguments();
         $params = [];
 
@@ -36,7 +38,7 @@ class TasksManager
             }
         }
 
-        if (count(explode('-', $params['task'])) > 0) {
+        if (isset($params['task']) && count(explode('-', $params['task'])) > 0) {
 
             $taskName = explode('-', $params['task']);
             $isFirstWord = true;
@@ -66,7 +68,6 @@ class TasksManager
         }
 
         if (isset($params['task']) && is_string($params['task'])) {
-
             $task = $params['task'];
             unset($params['task']);
 
@@ -75,13 +76,44 @@ class TasksManager
             } else {
                 echo "\r\nLa tarea $task no existe\r\n\r\n";
             }
-        } else {
-            echo "\r\nTareas disponibles:\r\n\r\n";
-            echo "- bundle [zip=yes|no] [verbose=yes|no] \r\n";
-            echo "- srcChmod [verbose=yes|no] \r\n";
-            echo "- langsToExcels \r\n";
-            echo "- sqlFromMapper name=MAPPER_NAME \r\n";
-            echo "\r\n";
+        }
+    }
+
+    /**
+     * Instala tools y crea symlink vendor-dev
+     */
+    protected static function setupDevTools(): void
+    {
+        $root = realpath(__DIR__ . '/../'); // src/
+        $toolsDir = realpath($root . '/bin/tools');
+
+        if ($toolsDir && is_dir($toolsDir)) {
+
+            // 1. Instalar tools si no están instaladas
+            $isInstalled = is_dir($toolsDir . '/vendor');
+            chdir($toolsDir);
+            if (!$isInstalled) {
+                echo "[PiecesPHP] Instalando herramientas de desarrollo...\n";
+                shell_exec('composer install');
+            } else {
+                echo "[PiecesPHP] Actualizando herramientas de desarrollo...\n";
+                shell_exec('composer update');
+            }
+
+            // 2. Instalar repositorio de phpstan para intellisense
+            $phpstanRepoDir = $toolsDir . '/phpstan-src';
+            if (!file_exists($phpstanRepoDir)) {
+                mkdir($phpstanRepoDir, 0777, true);
+            }
+            if (is_dir($phpstanRepoDir) && !file_exists($phpstanRepoDir . '/phpstancode.zip')) {
+                chdir($phpstanRepoDir);
+                echo "[PiecesPHP] Instalando repositorio de phpstan para intellisense...\n";
+                shell_exec('wget https://github.com/phpstan/phpstan-src/archive/refs/heads/2.2.x.zip -O phpstancode.zip');
+                shell_exec('unzip phpstancode.zip -d .');
+            } else {
+                echo "[PiecesPHP] Repositorio de phpstan para intellisense ya instalado\n";
+            }
+
         }
     }
 
@@ -124,14 +156,10 @@ class TasksManager
             foreach ($langsData[$lang] as $group => $messages) {
 
                 if ($first) {
-
                     $sheet = $spreadsheet->getActiveSheet();
                     $first = false;
-
                 } else {
-
                     $sheet = $spreadsheet->createSheet();
-
                 }
 
                 $sheet->setTitle($group);
@@ -166,83 +194,4 @@ class TasksManager
 
     }
 
-    /**
-     * @param array $args
-     * @return void
-     */
-    public static function bundle(array $args)
-    {
-
-        $toZip = isset($args['zip']) ? $args['zip'] : 'no';
-        $toZip = $toZip == 'yes' ? true : false;
-
-        $verbose = isset($args['verbose']) ? $args['verbose'] : 'no';
-        $verbose = $verbose == 'yes' ? true : false;
-
-        $directory = new DirectoryObject(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'src');
-        $ignored = [];
-
-        $directory->process(new FilesIgnore([
-            'src/app/cache/PiecesPHP',
-            'src/vendor',
-            'src/node_modules',
-            'gulpfile.js',
-            'package.json',
-            'package-lock.json',
-            'composer.lock',
-            'sass',
-        ]), $ignored);
-
-        if ($verbose) {
-            echo "Ignored\r\n";
-            var_dump($ignored);
-        }
-
-        $result = $directory->copyTo(__DIR__ . DIRECTORY_SEPARATOR . 'output/bundle', $toZip);
-
-        if ($verbose) {
-            echo "Copied\r\n";
-            var_dump($result);
-        }
-    }
-
-    /**
-     * @param array $args
-     * @return void
-     */
-    public static function srcChmod(array $args)
-    {
-
-        $verbose = isset($args['verbose']) ? $args['verbose'] : 'no';
-        $verbose = $verbose == 'yes' ? true : false;
-
-        $directory = new DirectoryObject(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'src');
-        $ignored = [];
-
-        $directory->process(new FilesIgnore([
-            'INCLUDE_EXPR::^src/app$',
-            'INCLUDE_EXPR::^src/app/logs$',
-            'src/app',
-            'src/statics/plugins',
-            'src/vendor',
-            'src/node_modules',
-            'gulpfile.js',
-            'package.json',
-            'package-lock.json',
-            'composer.lock',
-            'sass',
-        ]), $ignored);
-
-        if ($verbose) {
-            echo "Ignored\r\n";
-            var_dump($ignored);
-        }
-
-        $result = $directory->chmod(0777, DirectoryObject::CHMOD_LEVEL_ALL, true);
-
-        if ($verbose) {
-            echo "Changed\r\n";
-            var_dump($result);
-        }
-    }
 }

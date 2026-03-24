@@ -45,6 +45,14 @@ class GenericHandler
      * @var string
      */
     protected $directoryBackup = '';
+    /**
+     * @var string
+     */
+    protected $fileLocationPlain = '';
+    /**
+     * @var string
+     */
+    protected $oldFileLocationPlain = '';
 
     /**
      * @param Throwable $e
@@ -80,6 +88,9 @@ class GenericHandler
 
         $this->fileLocation = $this->directory . '/error.log.json';
         $this->oldFileLocation = $this->directoryBackup . '/error.log.{{DATE}}.json';
+
+        $this->fileLocationPlain = $this->directory . '/error.plain.log';
+        $this->oldFileLocationPlain = $this->directoryBackup . '/error.plain.{{DATE}}.log';
     }
 
     /**
@@ -91,9 +102,10 @@ class GenericHandler
     }
 
     /**
+     * @param bool $plainLog
      * @return void
      */
-    public function logging()
+    public function logging(bool $plainLog = true)
     {
         $exists = file_exists($this->fileLocation);
 
@@ -183,7 +195,7 @@ class GenericHandler
             'code' => $codeException,
             'file' => $this->exception->getFile(),
             'line' => $this->exception->getLine(),
-            'extraData' => method_exists($this->exception, 'extraData') ? call_user_func(array($this->exception, 'extraData')) : [],
+            'extraData' => method_exists($this->exception, 'extraData') ? call_user_func([$this->exception, 'extraData']) : [],
             'trace' => $this->exception->getTrace(),
         ];
 
@@ -202,6 +214,50 @@ class GenericHandler
             fwrite($fp, json_encode($oldFileLogJSON));
             fclose($fp);
             @chmod($file_old_output, 0777);
+        }
+
+        // Plain Log
+        if ($plainLog) {
+
+            $trace = $this->exception->getTrace();
+            $traceSummary = [];
+            foreach ($trace as $i => $frame) {
+                if ($i > 2) {
+                    break;
+                }
+                $file = isset($frame['file']) ? $frame['file'] : 'unknown';
+                $line = isset($frame['line']) ? $frame['line'] : '?';
+                $function = isset($frame['function']) ? $frame['function'] : 'unknown';
+                $traceSummary[] = "{$file}:{$line} ({$function})";
+            }
+            $traceString = count($traceSummary) > 0 ? " | Trace: " . implode(" <- ", $traceSummary) : "";
+
+            $plainLogEntry = sprintf(
+                "[%s] [%s] [%s] %s in %s:%s%s\n",
+                $this->date->format('Y-m-d H:i:s.u'),
+                $classException,
+                $codeException,
+                $this->exception->getMessage(),
+                $this->exception->getFile(),
+                $this->exception->getLine(),
+                $traceString
+            );
+
+            $plainLogExists = file_exists($this->fileLocationPlain);
+            $plainLogSizeMB = $plainLogExists ? filesize($this->fileLocationPlain) / 1024 / 1024 : 0;
+
+            if ($plainLogSizeMB > $this->maxSizeMB) {
+                $file_old_output_plain = str_replace(
+                    '{{DATE}}',
+                    $this->date->format('d-m-Y h-i-s.u'),
+                    $this->oldFileLocationPlain
+                );
+                rename($this->fileLocationPlain, $file_old_output_plain);
+                @chmod($file_old_output_plain, 0777);
+            }
+
+            file_put_contents($this->fileLocationPlain, $plainLogEntry, \FILE_APPEND);
+            @chmod($this->fileLocationPlain, 0777);
         }
     }
 }

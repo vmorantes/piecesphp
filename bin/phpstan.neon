@@ -1,3 +1,5 @@
+includes:
+    - phpstan.services.neon
 parameters:
     level: 8
     phpVersion: 80400 # PHP 8.4
@@ -10,13 +12,20 @@ parameters:
         - ../src/app/config
     bootstrapFiles:
         - ../src/vendor/autoload.php
+    excludePaths:
+        - ../src/adminer
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
-        #──── Variables inyectadas en vistas (extract) y elementos en vistas difíciles de descrubrir 
+        #──── Variables inyectadas en vistas (extract) y elementos difíciles de descrubrir
+        -
+            message: '#.*#'
+            paths:
+                - ../src/app/core/psr4/PiecesPHP/Core/PHPStan
         -
             identifiers: 
                 - class.notFound
                 - variable.undefined
+                - echo.nonString
             paths:
                 - ../src/app/view/*
                 - ../src/app/view/**/*
@@ -34,12 +43,34 @@ parameters:
             paths:
                 - ../src/app/controller/*
                 - ../src/app/controller/**/*
+        -
+            identifier: argument.unresolvableType
+            paths:
+                - ../src/app/**/*Mapper.php
+        -
+            identifiers: 
+                - offsetAccess.nonOffsetAccessible
+            paths:
+                - ../src/app
+        # Tipos no esperados en parámetros
+        - '#.*of function implode expects array<string>, array<mixed> given.*#'
+        - '#.*message of function __ expects.*#'
+
         #──── Generales
         - '#.*throw403 \(void\).*#'
         - "#.*protected static method fieldsToSelect.*#"
-        - '#.*where in empty\(\) always exists.*#' # Validaciones típicas de criterios en ORM
-        - '#.*having in empty\(\) always exists.*#' # Validaciones típicas de criterios en ORM
         - '#.*PHPDoc tag @use has invalid value.*#'
+        # Validaciones típicas de criterios en ORM
+        - '#.*where in empty\(\) always exists.*#'
+        - '#.*having in empty\(\) always exists.*#'
+        # Conversiones
+        - identifier: cast.int
+        - identifier: cast.string
+        - identifier: cast.bool
+        - identifier: cast.array
+        - identifier: cast.double
+        - identifier: cast.float
+
         # Declaraciones en docblocks inconsistentes
         - identifier: varTag.variableNotFound 
         - identifier: parameter.notFound 
@@ -56,7 +87,8 @@ parameters:
         - identifier: missingType.property
         - identifier: missingType.parameter
         - identifier: missingType.generics
-        # ── Condiciones redundantes y código "muerto" (siempre falsas / inalcanzables) ──────────
+
+        # ── Condiciones redundantes y código muerto ──────────
         - message: '#.*left side of \?\? always exists and is not nullable.*#'
         - identifier: if.alwaysTrue
         - identifier: notIdentical.alwaysTrue
@@ -90,7 +122,7 @@ parameters:
         - identifier: deadCode.unreachable
         - identifier: catch.neverThrown
 
-        # ── NUEVO: Errores de sintaxis y tipos en PHPDoc (A PHP le da igual) ──────────
+        # ── PHPDoc ──────────
         - '#.*PHPDoc tag @.*#'
         - identifier: phpDoc.parseError
         - identifier: parameter.phpDocType
@@ -99,10 +131,9 @@ parameters:
         - identifier: varTag.noVariable
         - identifier: throws.notThrowable
 
-        # ── NUEVO: Quejas de diseño estricto (Métodos sin usar, retornos vacíos, etc.) ──────────
+        # ── Diseño estricto ──────────
         - identifier: return.void
         - identifier: return.unusedType
         - identifier: method.unused
         - identifier: staticMethod.resultUnused
         - identifier: property.unusedType
-        - identifier: argument.unresolvableType

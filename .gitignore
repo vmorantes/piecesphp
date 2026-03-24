@@ -1,4 +1,5 @@
 src/vendor/*
+src/vendor-dev/*
 src/statics/uploads/*
 src/statics/css/*
 src/statics/admin-area/css/*
