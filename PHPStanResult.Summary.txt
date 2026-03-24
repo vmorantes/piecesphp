@@ -4,10 +4,10 @@
 242
 
 [TOTAL DE ERRORES VISIBLES]
-1252
+1253
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (417)
+🪪  argument.type (418)
 🪪  property.nonObject (273)
 🪪  method.nonObject (191)
 🪪  return.type (89)
@@ -496,7 +496,7 @@ project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
 	🪪  foreach.nonIterable (Líneas: 121)
 	🪪  argument.type (Líneas: 130)
 project://src/app/classes/Terminal/Tasks/HelpTask.php
-	🪪  offsetAccess.nonOffsetAccessible (Líneas: 63)
+	🪪  offsetAccess.nonOffsetAccessible (Líneas: 64)
 project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php
 	🪪  assign.propertyType (Líneas: 61, 189)
 	🪪  argument.type (Líneas: 69, 94, 95, 98, 180)
@@ -555,9 +555,9 @@ project://src/app/controller/UsersController.php
 	🪪  return.type (Líneas: 490, 590, 1885)
 	🪪  method.nonObject (Líneas: 1331, 1643)
 project://src/app/core/AppHelpers.php
-	🪪  return.type (Líneas: 487, 1308, 1400, 3265)
-	🪪  offsetAccess.notFound (Líneas: 743, 1237, 3041, 3042)
-	🪪  argument.type (Líneas: 2246, 2316, 3049, 3050, 3052, 3053, 3054, 3055, 3058, 3059, 3060, 3061, 3078, 3118, 3119, 3120, 3220, 3221)
+	🪪  return.type (Líneas: 487, 1308, 1400, 3269)
+	🪪  offsetAccess.notFound (Líneas: 743, 1237, 3045, 3046)
+	🪪  argument.type (Líneas: 2246, 2317, 3053, 3054, 3056, 3057, 3058, 3059, 3062, 3063, 3064, 3065, 3082, 3122, 3123, 3124, 3224, 3225)
 project://src/app/core/Config.php
 	🪪  argument.type (Líneas: 814, 1091)
 	🪪  assign.propertyType (Líneas: 930)
