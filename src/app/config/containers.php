@@ -147,7 +147,14 @@ $container_configurations = [
 
         return $response;
     },
-    'forbiddenHandler' => function (HttpForbiddenException $forbiddenError) {
+    'forbiddenHandler' => function (HttpForbiddenException $forbiddenError, bool $throw = false): ResponseRoute {
+
+        //Controlar casos en donde el flujo no se detuvo por no hacer return de throw403. Se lanza la excepción
+        $errorDescription = $forbiddenError->getDescription();
+        if ($throw && mb_strpos($errorDescription, '(REPEATED_THROW)') === false) {
+            $forbiddenError->setDescription($errorDescription . ' (REPEATED_THROW)');
+            throw $forbiddenError;
+        }
 
         /**
          * @var DependenciesInjector $container

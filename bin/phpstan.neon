@@ -61,9 +61,9 @@ parameters:
         - '#.*message of function __ expects.*#'
 
         #──── Generales
-        - '#.*throw403 \(void\).*#'
         - "#.*protected static method fieldsToSelect.*#"
         - '#.*PHPDoc tag @use has invalid value.*#'
+        - '#.*stdClass supplied for foreach.*#' #stdClass marcado como no iterable
         # Validaciones típicas de criterios en ORM
         - '#.*where in empty\(\) always exists.*#'
         - '#.*having in empty\(\) always exists.*#'

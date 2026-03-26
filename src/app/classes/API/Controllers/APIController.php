@@ -217,8 +217,8 @@ class APIController extends AdminPanelController
                     $elementData = $publicationMapper->humanReadable();
                     $elementData['mainImage'] = baseurl($publicationMapper->mainImage);
                     $elementData['thumbImage'] = baseurl($publicationMapper->thumbImage);
-                    $elementData['createdBy'] = $publicationMapper->createdBy->id;
-                    $elementData['modifiedBy'] = $publicationMapper->modifiedBy !== null ? $publicationMapper->modifiedBy->id : null;
+                    $elementData['createdBy'] = $publicationMapper->createdBy->id ?? null;
+                    $elementData['modifiedBy'] = $publicationMapper->modifiedBy->id ?? null;
                     unset($elementData['category']['meta']);
                     unset($elementData['category']['META:langData']);
                     unset($elementData['meta']);
@@ -397,8 +397,8 @@ class APIController extends AdminPanelController
 
                 $elementData = $newsMapper->humanReadable();
                 $elementData['profilesTarget'] = (array) $newsMapper->profilesTarget;
-                $elementData['createdBy'] = $newsMapper->createdBy->id;
-                $elementData['modifiedBy'] = $newsMapper->modifiedBy !== null ? $newsMapper->modifiedBy->id : null;
+                $elementData['createdBy'] = $newsMapper->createdBy->id ?? null;
+                $elementData['modifiedBy'] = $newsMapper->modifiedBy->id ?? null;
                 $elementData['category']['iconImage'] = baseurl($elementData['category']['iconImage']);
                 unset($elementData['category']['meta']);
                 unset($elementData['category']['META:langData']);
@@ -577,11 +577,11 @@ class APIController extends AdminPanelController
                     $expectedParameters->setInputValues($inputValues);
                     $expectedParameters->validate();
 
-                    $text = $expectedParameters->getValue('text');
+                    $text = $expectedParameters->getValue('text') ?? [];
                     $from = $expectedParameters->getValue('from');
                     $to = $expectedParameters->getValue('to');
                     /**
-                     * @var array<string,string>|null $text
+                     * @var array<string,string> $text
                      * @var string $from
                      * @var string $to
                      */
@@ -590,6 +590,9 @@ class APIController extends AdminPanelController
                     $translationAI = get_config('translationAI');
                     $modelOpenAI = get_config('modelOpenAI');
                     $modelMistral = get_config('modelMistral');
+                    /**
+                     * @var OpenAIHandlerAdapter|MistralHandlerAdapter|null $aiHandler
+                     */
                     $aiHandler = null;
                     $lastUsage = [];
                     $lastAskToChatOriginalResponse = [];
@@ -622,6 +625,14 @@ class APIController extends AdminPanelController
                             'lastAskToChatOriginalResponseOnError' => [],
                         ],
                     ];
+
+                    if ($aiHandler === null) {
+                        return $response->withJson([
+                             ...$responseJSON,
+                            'success' => false,
+                            'message' => __(self::LANG_GROUP, 'No se pudo establecer conexión con el proveedor de IA'),
+                        ]);
+                    }
 
                     try {
 
@@ -794,11 +805,10 @@ class APIController extends AdminPanelController
                     $expectedParameters->setInputValues($inputValues);
                     $expectedParameters->validate();
 
-                   
                     $text = $expectedParameters->getValue('text');
                     $to = $expectedParameters->getValue('to');
                     $saveGroup = $expectedParameters->getValue('saveGroup');
-                     /**
+                    /**
                      * @var array<string,string>|null $text
                      * @var string $to
                      * @var string $saveGroup

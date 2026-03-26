@@ -308,21 +308,25 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         }
     }
 
-    $getQualifiedRouteName = function ($classname, $simpleName) {
+    $getQualifiedRouteName = function ($classname, ?string $simpleName = null, bool $withPrefix = true) {
 
         $name = $simpleName;
 
-        if (!is_null($name)) {
+        if (!is_null($name) && $withPrefix) {
             $name = trim($name);
             $name = strlen($name) > 0 ? "-{$name}" : '';
         }
 
-        $prefix = uniqid($classname);
-        if (property_exists($classname, 'baseRouteName')) {
-            $reflectionClass = new ReflectionClass($classname);
-            $reflectionProperty = $reflectionClass->getProperty('baseRouteName');
-            $reflectionProperty->setAccessible(true);
-            $prefix = $reflectionProperty->getValue();
+        if ($withPrefix) {
+            $prefix = uniqid($classname);
+            if (property_exists($classname, 'baseRouteName')) {
+                $reflectionClass = new ReflectionClass($classname);
+                $reflectionProperty = $reflectionClass->getProperty('baseRouteName');
+                $reflectionProperty->setAccessible(true);
+                $prefix = $reflectionProperty->getValue();
+            }
+        } else {
+            $prefix = '';
         }
 
         $name = !is_null($name) ? $prefix . $name : $prefix;
@@ -335,6 +339,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     // se les renovará un token caducado de forma automática. Ej: Webhooks, Endpoints de terceros.
     $ignoreExpiredForRoutesName = [
         ($getQualifiedRouteName)('NOMBRE_CALIFICADO_DE_LA_CLASE', 'NOMBRE_SIMPLE_DE_LA_RUTA'),
+        //($getQualifiedRouteName)(\API\Controllers\APIController::class, 'polls-actions'),
+        //($getQualifiedRouteName)(\App\Controller\TimerController::class, 'timing-add', false),
     ];
 
     // --- 4. Manejo de Expiración de Sesión ---
@@ -355,6 +361,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             'decodeToken' => BaseToken::decode($JWT, BaseToken::getSecretKey(), BaseToken::$encrypt, true),
             'data' => $expiredUserData,
             'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+            'routeName' => $route->getName(),
+            'requestURL' => $request->getRequestTarget(),
+            'ignoreCandidates' => $ignoreExpiredForRoutesName,
         ];
         $addToExpired = false;
         if (is_object($expiredSessionDataToJSON['decodeToken'])) {

@@ -874,7 +874,7 @@ class InterestResearchAreasController extends AdminPanelController
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationMapper = $currentUser->organizationMapper;
-        $organizationAdmin = $currentOrganizationMapper !== null ? $currentOrganizationMapper->administrator : null;
+        $organizationAdmin = $currentOrganizationMapper !== null && is_object($currentOrganizationMapper)? $currentOrganizationMapper->administrator : null;
         $whereString = null;
         $havingString = null;
         $and = 'AND';
@@ -897,7 +897,7 @@ class InterestResearchAreasController extends AdminPanelController
                 $having[] = "{$beforeOperator} ({$critery})";
 
                 //Si no es el adminstrador, solo ver las propias
-                if ($organizationAdmin->id !== $currentUserID) {
+                if (($organizationAdmin->id ?? null) !== $currentUserID) {
                     $beforeOperator = !empty($having) ? $and : '';
                     $critery = "createdBy = {$currentUserID}";
                     $having[] = "{$beforeOperator} ({$critery})";

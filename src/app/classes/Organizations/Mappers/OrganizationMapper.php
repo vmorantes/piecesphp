@@ -55,7 +55,7 @@ use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
  * @property string|null $phoneCode
  * @property double|null $longitude
  * @property double|null $latitude
- * @property int[]|UsersModel|null $administrator
+ * @property int|UsersModel|null $administrator
  * @property int[]|InterestResearchAreasMapper[]|null $interestResearhAreas
  * @property string[] $affiliatedInstitutions
  */

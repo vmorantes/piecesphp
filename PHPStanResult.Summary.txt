@@ -1,19 +1,19 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-222
+191
 
 [TOTAL DE ERRORES VISIBLES]
-1139
+1016
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (401)
-🪪  property.nonObject (273)
-🪪  method.nonObject (191)
-🪪  return.type (86)
+🪪  argument.type (364)
+🪪  property.nonObject (266)
+🪪  method.nonObject (151)
+🪪  return.type (71)
 🪪  property.notFound (64)
-🪪  assign.propertyType (51)
-🪪  foreach.nonIterable (41)
+🪪  assign.propertyType (50)
+🪪  foreach.nonIterable (16)
 🪪  method.notFound (7)
 🪪  clone.nonObject (5)
 🪪  offsetAccess.invalidOffset (4)
@@ -25,6 +25,8 @@
 🪪  isset.offset (1)
 🪪  callable.nonCallable (1)
 🪪  offsetAssign.dimType (1)
+🪪  nullCoalesce.expr (1)
+🪪  nullCoalesce.variable (1)
 
 [ERRORES POR ARCHIVO]
 project://src/app/classes/API/Adapters/MauticEmailAdapter.php
@@ -37,11 +39,9 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	🪪  method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	🪪  property.nonObject (Líneas: 220, 221, 400, 401)
-	🪪  argument.type (Líneas: 577, 645, 689, 794, 836, 1029, 1040, 1086, 1126, 1190, 1217, 1283, 1375)
-	🪪  method.nonObject (Líneas: 663, 664, 665, 674, 684, 685, 706, 1119, 1127)
-	🪪  return.type (Líneas: 889, 1201, 1221, 1228, 1261, 1267, 1287, 1293, 1341, 1347, 1353, 1496)
-	🪪  assign.propertyType (Líneas: 1134)
+	🪪  argument.type (Líneas: 577, 700, 805, 846, 1039, 1050, 1096, 1136, 1200, 1227, 1293, 1385)
+	🪪  method.nonObject (Líneas: 1129, 1137)
+	🪪  assign.propertyType (Líneas: 1144)
 project://src/app/classes/API/Controllers/HelperController.php
 	🪪  property.nonObject (Líneas: 146)
 	🪪  argument.type (Líneas: 148)
@@ -49,7 +49,6 @@ project://src/app/classes/App/Locations/Controllers/City.php
 	🪪  method.nonObject (Líneas: 388, 420)
 	🪪  foreach.nonIterable (Líneas: 579)
 project://src/app/classes/App/Locations/Controllers/Country.php
-	🪪  argument.type (Líneas: 285)
 	🪪  assign.propertyType (Líneas: 377, 410)
 	🪪  method.nonObject (Líneas: 385, 417)
 	🪪  foreach.nonIterable (Líneas: 503)
@@ -60,32 +59,22 @@ project://src/app/classes/App/Locations/Controllers/Point.php
 	🪪  method.nonObject (Líneas: 366, 397)
 	🪪  foreach.nonIterable (Líneas: 473)
 project://src/app/classes/App/Locations/Controllers/State.php
-	🪪  argument.type (Líneas: 260)
 	🪪  method.nonObject (Líneas: 355, 381)
 	🪪  foreach.nonIterable (Líneas: 458)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	🪪  property.nonObject (Líneas: 4)
 project://src/app/classes/App/Presentations/Controllers/PresentationsCategoryController.php
 	🪪  method.nonObject (Líneas: 493, 500, 505, 519)
-	🪪  argument.type (Líneas: 623)
 project://src/app/classes/App/Presentations/Controllers/PresentationsController.php
 	🪪  property.nonObject (Líneas: 183)
-	🪪  argument.type (Líneas: 778, 1007)
+	🪪  argument.type (Líneas: 1007)
 project://src/app/classes/App/Presentations/Controllers/PresentationsPublicController.php
 	🪪  property.nonObject (Líneas: 179)
-project://src/app/classes/App/Presentations/Mappers/PresentationCategoryMapper.php
-	🪪  foreach.nonIterable (Líneas: 604)
-project://src/app/classes/App/Presentations/Mappers/PresentationMapper.php
-	🪪  foreach.nonIterable (Líneas: 608)
-project://src/app/classes/App/Presentations/PresentationsRoutes.php
-	🪪  method.nonObject (Líneas: 137)
 project://src/app/classes/App/Presentations/Views/presentations/public/util/item.php
 	🪪  method.nonObject (Líneas: 18)
-project://src/app/classes/ApplicationCalls/ApplicationCallsRoutes.php
-	🪪  method.nonObject (Líneas: 125)
 project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php
-	🪪  property.nonObject (Líneas: 219, 220, 1306, 1307, 1308, 1332, 1398, 1741, 1765)
-	🪪  argument.type (Líneas: 722, 732, 797, 807, 1373, 1477, 1648, 1812)
+	🪪  property.nonObject (Líneas: 219, 220, 1306, 1307, 1308, 1398, 1741, 1765)
+	🪪  argument.type (Líneas: 722, 732, 797, 807, 1477, 1648, 1812)
 	🪪  assign.propertyType (Líneas: 752)
 	🪪  clone.nonObject (Líneas: 793)
 	🪪  method.nonObject (Líneas: 1590, 1656, 1657)
@@ -95,12 +84,10 @@ project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php
 	🪪  argument.type (Líneas: 454, 777, 778, 779)
 	🪪  property.nonObject (Líneas: 542, 565)
 	🪪  method.nonObject (Líneas: 1156)
-	🪪  foreach.nonIterable (Líneas: 1323)
 project://src/app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMapper.php
 	🪪  argument.type (Líneas: 165, 227, 244)
 	🪪  return.type (Líneas: 228, 247)
 	🪪  property.nonObject (Líneas: 259, 279)
-	🪪  foreach.nonIterable (Líneas: 574)
 project://src/app/classes/ApplicationCalls/Util/AttachmentPackage.php
 	🪪  assign.propertyType (Líneas: 62, 63, 171)
 	🪪  return.type (Líneas: 174)
@@ -111,10 +98,6 @@ project://src/app/classes/ApplicationCalls/Views/application-calls/public/util/i
 	🪪  argument.type (Líneas: 18, 19)
 	🪪  property.nonObject (Líneas: 20, 88)
 	🪪  method.nonObject (Líneas: 88)
-project://src/app/classes/Components/ComponentProviderRoutes.php
-	🪪  method.nonObject (Líneas: 87)
-project://src/app/classes/ContentNavigationHub/ContentNavigationHubRoutes.php
-	🪪  method.nonObject (Líneas: 97)
 project://src/app/classes/ContentNavigationHub/Controllers/ContentNavigationHubController.php
 	🪪  offsetAccess.invalidOffset (Líneas: 143)
 project://src/app/classes/ContentNavigationHub/Views/application-calls/detail.php
@@ -143,34 +126,19 @@ project://src/app/classes/DataImportExportUtility/Controllers/ExportHandlers/Use
 	🪪  argument.type (Líneas: 208)
 project://src/app/classes/DataImportExportUtility/Controllers/HelperController.php
 	🪪  assign.propertyType (Líneas: 35)
-project://src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php
-	🪪  method.nonObject (Líneas: 104)
 project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 	🪪  property.nonObject (Líneas: 53)
 project://src/app/classes/Documents/Controllers/DocumentsController.php
 	🪪  property.nonObject (Líneas: 277, 854)
 	🪪  argument.type (Líneas: 939, 1251)
 	🪪  property.notFound (Líneas: 1165, 1188)
-project://src/app/classes/Documents/DocumentsRoutes.php
-	🪪  method.nonObject (Líneas: 123)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	🪪  argument.type (Líneas: 241)
 	🪪  property.nonObject (Líneas: 278, 304)
-	🪪  foreach.nonIterable (Líneas: 832)
-project://src/app/classes/EventsLog/Controllers/LogsController.php
-	🪪  argument.type (Líneas: 141)
-project://src/app/classes/EventsLog/LogsRoutes.php
-	🪪  method.nonObject (Líneas: 103)
-project://src/app/classes/EventsLog/Mappers/LogsMapper.php
-	🪪  foreach.nonIterable (Líneas: 426)
 project://src/app/classes/EventsLog/Views/log/list.php
 	🪪  property.nonObject (Líneas: 10)
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
 	🪪  argument.type (Líneas: 355)
-project://src/app/classes/FileManager/FileManagerRoutes.php
-	🪪  method.nonObject (Líneas: 107)
-project://src/app/classes/Forms/Categories/CategoriesRoutes.php
-	🪪  method.nonObject (Líneas: 62)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 	🪪  property.nonObject (Líneas: 711)
 	🪪  property.notFound (Líneas: 879, 902)
@@ -178,30 +146,21 @@ project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
 	🪪  argument.type (Líneas: 222)
 	🪪  property.nonObject (Líneas: 259, 286)
-	🪪  foreach.nonIterable (Líneas: 804)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
 	🪪  property.nonObject (Líneas: 712)
 	🪪  property.notFound (Líneas: 880, 903)
 	🪪  argument.type (Líneas: 966)
-project://src/app/classes/Forms/DocumentTypes/DocumentTypesRoutes.php
-	🪪  method.nonObject (Líneas: 61)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	🪪  argument.type (Líneas: 222)
 	🪪  property.nonObject (Líneas: 259, 286)
-	🪪  foreach.nonIterable (Líneas: 817)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	🪪  foreach.nonIterable (Líneas: 190, 310, 479)
 	🪪  method.nonObject (Líneas: 448)
-project://src/app/classes/GeoJSONManager/GeoJsonManagerRoutes.php
-	🪪  method.nonObject (Líneas: 95)
 project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php
-	🪪  argument.type (Líneas: 169, 245, 247, 248, 250, 267, 274, 344, 1189, 1309)
+	🪪  argument.type (Líneas: 169, 245, 247, 248, 250, 267, 274, 344)
 	🪪  property.notFound (Líneas: 1513, 1536)
-project://src/app/classes/ImagesRepository/ImagesRepositoryRoutes.php
-	🪪  method.nonObject (Líneas: 119)
 project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php
 	🪪  property.nonObject (Líneas: 393, 416)
-	🪪  foreach.nonIterable (Líneas: 1155)
 project://src/app/classes/ImagesRepository/Views/images-repository/filter-view.php
 	🪪  argument.type (Líneas: 23)
 project://src/app/classes/Importers/Controller/ImporterController.php
@@ -210,21 +169,15 @@ project://src/app/classes/Importers/Controller/ImporterController.php
 	🪪  encapsedStringPart.nonString (Líneas: 144, 155)
 	🪪  property.nonObject (Líneas: 325)
 	🪪  return.type (Líneas: 347)
-	🪪  method.nonObject (Líneas: 598)
 project://src/app/classes/Importers/Managers/ImporterUsers.php
 	🪪  method.nonObject (Líneas: 69, 70, 71)
 project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchAreasController.php
-	🪪  argument.type (Líneas: 416, 441, 940, 1042)
-	🪪  property.nonObject (Líneas: 874, 875, 876, 900, 965, 977, 1286, 1310)
+	🪪  argument.type (Líneas: 416, 441, 1042)
+	🪪  property.nonObject (Líneas: 874, 875, 876, 965, 977, 1286, 1310)
 	🪪  method.nonObject (Líneas: 1145)
 	🪪  property.notFound (Líneas: 1285, 1286, 1288, 1309, 1310, 1312)
-project://src/app/classes/InterestResearchAreas/InterestResearchAreasRoutes.php
-	🪪  method.nonObject (Líneas: 121)
 project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php
 	🪪  argument.type (Líneas: 170, 196, 400)
-	🪪  foreach.nonIterable (Líneas: 675)
-project://src/app/classes/MySpace/Controllers/AllProfilesController.php
-	🪪  argument.type (Líneas: 163)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
 	🪪  property.nonObject (Líneas: 87, 97, 122, 123, 131, 210, 215, 220, 221, 223, 474, 479, 485, 486, 624, 630, 631, 632, 650, 818, 824)
 	🪪  argument.type (Líneas: 93, 131, 212, 476, 625)
@@ -244,16 +197,13 @@ project://src/app/classes/MySpace/Controllers/ProfileController.php
 	🪪  method.nonObject (Líneas: 105)
 project://src/app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php
 	🪪  property.nonObject (Líneas: 63, 68)
-	🪪  argument.type (Líneas: 65, 107)
+	🪪  argument.type (Líneas: 65)
 	🪪  method.nonObject (Líneas: 231, 238, 243, 250)
 project://src/app/classes/MySpace/Controllers/Util/PreviousExperiencesController.php
 	🪪  property.nonObject (Líneas: 60)
-	🪪  argument.type (Líneas: 94)
 	🪪  method.nonObject (Líneas: 218, 225, 230, 237)
 project://src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php
 	🪪  foreach.nonIterable (Líneas: 94)
-project://src/app/classes/MySpace/MySpaceRoutes.php
-	🪪  method.nonObject (Líneas: 121)
 project://src/app/classes/MySpace/Views/example-resources.php
 	🪪  property.nonObject (Líneas: 12, 13, 14)
 project://src/app/classes/MySpace/Views/profile-organization/profile.php
@@ -265,47 +215,35 @@ project://src/app/classes/MySpace/Views/user-security.php
 project://src/app/classes/News/Controllers/NewsCategoryController.php
 	🪪  assign.propertyType (Líneas: 440)
 	🪪  method.nonObject (Líneas: 663, 670, 675, 685)
-	🪪  argument.type (Líneas: 811)
 	🪪  property.nonObject (Líneas: 837, 913)
 project://src/app/classes/News/Controllers/NewsController.php
 	🪪  property.nonObject (Líneas: 185, 867, 1111, 1295, 1296, 1297, 1298)
-	🪪  argument.type (Líneas: 563, 564, 594, 595, 1085, 1287, 1295)
+	🪪  argument.type (Líneas: 563, 564, 594, 595, 1287, 1295)
 	🪪  method.nonObject (Líneas: 1225)
 	🪪  property.notFound (Líneas: 1381)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
 	🪪  argument.type (Líneas: 438)
-	🪪  foreach.nonIterable (Líneas: 669)
 project://src/app/classes/News/Mappers/NewsMapper.php
 	🪪  return.type (Líneas: 275)
 	🪪  argument.type (Líneas: 286)
 	🪪  property.nonObject (Líneas: 372)
 	🪪  method.nonObject (Líneas: 844)
-	🪪  foreach.nonIterable (Líneas: 974)
 project://src/app/classes/News/Mappers/NewsReadedMapper.php
 	🪪  argument.type (Líneas: 89)
-	🪪  foreach.nonIterable (Líneas: 306)
-project://src/app/classes/News/NewsRoutes.php
-	🪪  method.nonObject (Líneas: 127)
 project://src/app/classes/Newsletter/Controllers/NewsletterController.php
-	🪪  argument.type (Líneas: 767)
 	🪪  property.nonObject (Líneas: 789)
 	🪪  method.nonObject (Líneas: 799, 800)
 project://src/app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php
 	🪪  method.nonObject (Líneas: 137, 146)
-	🪪  foreach.nonIterable (Líneas: 377)
-project://src/app/classes/Newsletter/NewsletterRoutes.php
-	🪪  method.nonObject (Líneas: 108)
 project://src/app/classes/Organizations/Controllers/OrganizationsController.php
 	🪪  property.nonObject (Líneas: 214, 881, 1306, 1543)
-	🪪  argument.type (Líneas: 852, 1267, 1324, 1599)
+	🪪  argument.type (Líneas: 852, 1324, 1599)
 	🪪  property.notFound (Líneas: 1528, 1552)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	🪪  argument.type (Líneas: 434, 671, 672, 673, 674, 877, 879, 995)
 	🪪  offsetAccess.invalidOffset (Líneas: 996)
-	🪪  foreach.nonIterable (Líneas: 1270)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
 	🪪  property.nonObject (Líneas: 122, 125)
-	🪪  method.nonObject (Líneas: 155)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	🪪  property.nonObject (Líneas: 11)
 project://src/app/classes/Persons/Controllers/PersonsController.php
@@ -315,31 +253,21 @@ project://src/app/classes/Persons/Controllers/PersonsController.php
 project://src/app/classes/Persons/Mappers/PersonsMapper.php
 	🪪  argument.type (Líneas: 281)
 	🪪  property.nonObject (Líneas: 318, 344)
-	🪪  foreach.nonIterable (Líneas: 916)
-project://src/app/classes/Persons/PersonsRoutes.php
-	🪪  method.nonObject (Líneas: 110)
-project://src/app/classes/PiecesPHP/BuiltIn/Banner/BuiltInBannerRoutes.php
-	🪪  method.nonObject (Líneas: 123)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php
-	🪪  argument.type (Líneas: 891, 1188)
 	🪪  property.nonObject (Líneas: 916)
 	🪪  method.nonObject (Líneas: 996)
 	🪪  property.notFound (Líneas: 1148)
+	🪪  argument.type (Líneas: 1188)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php
 	🪪  return.type (Líneas: 247)
 	🪪  argument.type (Líneas: 258)
 	🪪  property.nonObject (Líneas: 305, 327)
 	🪪  method.nonObject (Líneas: 719)
-	🪪  foreach.nonIterable (Líneas: 845)
 project://src/app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php
 	🪪  property.nonObject (Líneas: 404)
 	🪪  argument.type (Líneas: 617)
-project://src/app/classes/PiecesPHP/BuiltIn/Helpers/HelpersSystemRoutes.php
-	🪪  method.nonObject (Líneas: 134)
 project://src/app/classes/PiecesPHP/LocalizationSystem/Controllers/LocalizationSystemController.php
 	🪪  argument.type (Líneas: 90)
-project://src/app/classes/PiecesPHP/LocalizationSystem/LocalizationSystemFeaturesRoutes.php
-	🪪  method.nonObject (Líneas: 99)
 project://src/app/classes/PiecesPHP/LocalizationSystem/Util/DynamicTranslationsHelper.php
 	🪪  argument.type (Líneas: 36)
 project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
@@ -362,24 +290,18 @@ project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
 	🪪  offsetAccess.notFound (Líneas: 398, 410)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
 	🪪  property.nonObject (Líneas: 271, 294)
-	🪪  foreach.nonIterable (Líneas: 720)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php
 	🪪  property.nonObject (Líneas: 271, 294)
-	🪪  foreach.nonIterable (Líneas: 720)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php
 	🪪  argument.type (Líneas: 212)
-	🪪  foreach.nonIterable (Líneas: 839)
 project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 	🪪  assign.propertyType (Líneas: 217)
 	🪪  return.type (Líneas: 298)
-project://src/app/classes/PiecesPHP/UserSystem/UserSystemFeaturesRoutes.php
-	🪪  method.nonObject (Líneas: 104)
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	🪪  method.nonObject (Líneas: 565, 572, 577, 587)
-	🪪  argument.type (Líneas: 691)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	🪪  argument.type (Líneas: 138, 1152, 1184, 1189, 1295, 1388, 1503, 1677)
-	🪪  property.nonObject (Líneas: 234, 1218, 1219, 1220, 1247, 1328, 1599, 1624)
+	🪪  argument.type (Líneas: 138, 1152, 1184, 1189, 1388, 1503, 1677)
+	🪪  property.nonObject (Líneas: 234, 1218, 1219, 1220, 1328, 1599, 1624)
 	🪪  assign.propertyType (Líneas: 645)
 	🪪  clone.nonObject (Líneas: 701)
 	🪪  method.nonObject (Líneas: 1311, 1321, 1447, 1510, 1511, 1512)
@@ -388,18 +310,13 @@ project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	🪪  argument.type (Líneas: 165, 227, 244)
 	🪪  return.type (Líneas: 228)
 	🪪  property.nonObject (Líneas: 259, 279)
-	🪪  foreach.nonIterable (Líneas: 574)
 project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
 	🪪  argument.type (Líneas: 395)
-	🪪  foreach.nonIterable (Líneas: 625)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
 	🪪  return.type (Líneas: 396)
 	🪪  argument.type (Líneas: 423, 435)
 	🪪  property.nonObject (Líneas: 529, 557)
 	🪪  method.nonObject (Líneas: 1071)
-	🪪  foreach.nonIterable (Líneas: 1239)
-project://src/app/classes/Publications/PublicationsRoutes.php
-	🪪  method.nonObject (Líneas: 139)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	🪪  assign.propertyType (Líneas: 62, 63, 171)
 	🪪  return.type (Líneas: 174)
@@ -412,8 +329,6 @@ project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	🪪  method.nonObject (Líneas: 82)
 project://src/app/classes/ReportsManage/Queries/ReportsManageQueries.php
 	🪪  property.notFound (Líneas: 56, 57, 62, 63)
-project://src/app/classes/ReportsManage/ReportsManageRoutes.php
-	🪪  method.nonObject (Líneas: 96)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
 	🪪  property.nonObject (Líneas: 135, 136, 334, 441, 442, 443)
 	🪪  staticMethod.nonObject (Líneas: 141)
@@ -424,9 +339,6 @@ project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	🪪  assign.propertyType (Líneas: 145)
 	🪪  property.nonObject (Líneas: 206)
 	🪪  argument.type (Líneas: 314, 315)
-	🪪  foreach.nonIterable (Líneas: 608)
-project://src/app/classes/SystemApprovals/SystemApprovalsRoutes.php
-	🪪  method.nonObject (Líneas: 123)
 project://src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php
 	🪪  property.notFound (Líneas: 48)
 	🪪  method.notFound (Líneas: 49)
@@ -482,9 +394,8 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	🪪  property.notFound (Líneas: 328)
 	🪪  binaryOp.invalid (Líneas: 366)
 project://src/app/config/containers.php
-	🪪  argument.type (Líneas: 71, 169)
+	🪪  argument.type (Líneas: 71, 176)
 project://src/app/config/functions.php
-	🪪  argument.type (Líneas: 69)
 	🪪  return.type (Líneas: 248)
 project://src/app/config/roles.php
 	🪪  argument.type (Líneas: 124)
@@ -492,7 +403,7 @@ project://src/app/controller/AdminPanelController.php
 	🪪  argument.type (Líneas: 132)
 	🪪  method.nonObject (Líneas: 219)
 project://src/app/controller/AppConfigController.php
-	🪪  foreach.nonIterable (Líneas: 212, 1900)
+	🪪  foreach.nonIterable (Líneas: 212)
 	🪪  argument.type (Líneas: 388, 389, 1509, 2057, 2058)
 	🪪  property.nonObject (Líneas: 1405, 1672)
 	🪪  method.nonObject (Líneas: 1556, 1655, 1660, 1671, 1675)
@@ -503,9 +414,9 @@ project://src/app/controller/ContactFormsController.php
 	🪪  argument.type (Líneas: 216, 221)
 project://src/app/controller/GenericTokenController.php
 	🪪  method.nonObject (Líneas: 186, 356)
-	🪪  return.type (Líneas: 200, 416)
 	🪪  argument.type (Líneas: 298, 323, 324)
 	🪪  assign.propertyType (Líneas: 335)
+	🪪  return.type (Líneas: 416)
 project://src/app/controller/LoginAttemptsController.php
 	🪪  return.type (Líneas: 157, 198, 246, 285, 328)
 	🪪  argument.type (Líneas: 198, 246, 329)
@@ -523,13 +434,13 @@ project://src/app/controller/UserProblemsController.php
 	🪪  property.notFound (Líneas: 337, 338, 343, 344, 347)
 project://src/app/controller/UsersController.php
 	🪪  argument.type (Líneas: 487, 542, 888, 922, 1108, 1259, 1537, 1865)
-	🪪  return.type (Líneas: 490, 590, 1885)
 	🪪  method.nonObject (Líneas: 1331, 1643)
+	🪪  return.type (Líneas: 1885)
 project://src/app/core/AppHelpers.php
-	🪪  return.type (Líneas: 1308, 1400)
-	🪪  argument.type (Líneas: 2246, 2317, 2973, 3308, 3309, 3310, 3410, 3411)
-	🪪  offsetAccess.invalidOffset (Líneas: 2341)
-	🪪  offsetAccess.notFound (Líneas: 3203, 3204)
+	🪪  return.type (Líneas: 1309, 1401)
+	🪪  argument.type (Líneas: 2247, 2305, 2322, 3322, 3323, 3324, 3424, 3425)
+	🪪  offsetAccess.invalidOffset (Líneas: 2346)
+	🪪  offsetAccess.notFound (Líneas: 3217, 3218)
 project://src/app/core/Config.php
 	🪪  argument.type (Líneas: 814, 1091)
 	🪪  assign.propertyType (Líneas: 930)
@@ -562,9 +473,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
 	🪪  assign.propertyType (Líneas: 315)
 	🪪  return.type (Líneas: 324)
 project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php
-	🪪  argument.type (Líneas: 71, 124, 191, 192, 285)
-	🪪  method.nonObject (Líneas: 73)
-	🪪  assign.propertyType (Líneas: 75)
+	🪪  argument.type (Líneas: 71, 125, 192, 193, 286)
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
 	🪪  argument.type (Líneas: 295, 319)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php
@@ -575,8 +484,6 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
 project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	🪪  argument.type (Líneas: 234)
 	🪪  return.type (Líneas: 340)
-project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
-	🪪  argument.type (Líneas: 341)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
 	🪪  method.nonObject (Líneas: 139)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Importer.php
@@ -605,13 +512,15 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/RouteGroupAdapter.php
 	🪪  argument.type (Líneas: 108)
 	🪪  binaryOp.invalid (Líneas: 215)
 project://src/app/core/psr4/PiecesPHP/Core/Routing/Router.php
-	🪪  return.type (Líneas: 33)
+	🪪  return.type (Líneas: 29)
+	🪪  nullCoalesce.expr (Líneas: 39)
+	🪪  nullCoalesce.variable (Líneas: 61)
 project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/NotFoundException.php
 	🪪  argument.type (Líneas: 41)
 	🪪  assign.propertyType (Líneas: 51)
 project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
-	🪪  argument.type (Líneas: 602, 943, 947)
-	🪪  return.type (Líneas: 949, 1030, 1032)
+	🪪  argument.type (Líneas: 623, 1003, 1007)
+	🪪  return.type (Líneas: 1009, 1090, 1092)
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 	🪪  return.type (Líneas: 85)
 	🪪  argument.type (Líneas: 110, 161, 162, 178)
@@ -633,8 +542,6 @@ project://src/app/core/psr4/PiecesPHP/Terminal/QueueTask.php
 project://src/app/core/system-controllers/Test.php
 	🪪  argument.type (Líneas: 83, 94, 111)
 	🪪  return.type (Líneas: 126)
-project://src/app/core/system-controllers/local-tests/UnitTest-Functions.php
-	🪪  argument.type (Líneas: 32, 40, 41, 49, 50, 56, 65, 74, 88, 97, 103, 113)
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 	🪪  argument.type (Líneas: 52, 53)
 	🪪  binaryOp.invalid (Líneas: 57)
@@ -642,7 +549,6 @@ project://src/app/model/AvatarModel.php
 	🪪  return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
 	🪪  property.nonObject (Líneas: 154, 164, 229, 244, 315, 329, 427)
-	🪪  argument.type (Líneas: 198, 283, 363)
 project://src/app/model/MessagesModel.php
 	🪪  argument.type (Líneas: 111, 141, 312, 383)
 	🪪  method.notFound (Líneas: 122, 276)
@@ -701,8 +607,8 @@ project://src/app/view/usuarios/utils/user-card.php
 	🪪  property.nonObject (Líneas: 12)
 	🪪  argument.type (Líneas: 13)
 project://src/index.php
-	🪪  property.notFound (Líneas: 363)
-	🪪  method.nonObject (Líneas: 390, 392, 393, 871, 908, 913, 919, 922, 927)
-	🪪  argument.type (Líneas: 586, 605, 641, 653, 670, 730, 740, 848, 859)
-	🪪  property.nonObject (Líneas: 613)
-	🪪  variable.undefined (Líneas: 874, 878, 880)
+	🪪  property.notFound (Líneas: 372)
+	🪪  method.nonObject (Líneas: 399, 401, 402)
+	🪪  argument.type (Líneas: 595, 614, 650, 662, 679, 739, 749, 857, 868)
+	🪪  property.nonObject (Líneas: 622)
+	🪪  variable.undefined (Líneas: 883, 887, 889)

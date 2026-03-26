@@ -72,8 +72,8 @@ class HttpClient
     /**
      * @param string $baseURL Es la ruta a la que se añadirán todas las peticiones
      * @param array{
-     *   timeout?: int
-     * } $configurations
+     *   timeout:?int
+     * }|array $configurations
      */
     public function __construct(string $baseURL, array $configurations = [])
     {
@@ -337,7 +337,7 @@ class HttpClient
 
         $request_body = null;
 
-        if ($as_array) {
+        if ($as_array && is_string($this->requestBody)) {
             parse_str($this->requestBody, $result_parsed);
             $request_body = $result_parsed;
         } else {

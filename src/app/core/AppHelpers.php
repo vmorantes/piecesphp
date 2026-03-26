@@ -18,6 +18,7 @@ use PiecesPHP\Core\Exceptions\RouteDuplicateNameException;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Routing\Router;
+use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\StringManipulate;
 use PiecesPHP\UserSystem\UserDataPackage;
 use Psr\Http\Message\UploadedFileInterface;
@@ -2300,6 +2301,10 @@ function register_route(array $route, &$router)
     $rolesAllowed = $instanceRoute->rolesAllowed();
     $middlewares = array_reverse($instanceRoute->middlewares());
 
+    //Filtrar solo por roles registrados y actualizar ruta
+    $rolesAllowed = array_filter($rolesAllowed, fn($role) => Roles::roleExists($role));
+    $instanceRoute->rolesAllowed($rolesAllowed);
+
     if (is_string($name) && array_key_exists($name, $routesSetted)) {
         throw new RouteDuplicateNameException();
     }
@@ -2585,11 +2590,15 @@ function get_route_roles_allowed(string $name, string $type = 'code')
     $roles_permissions = Roles::getRoles();
     $roles = UsersModel::getTypesUser();
 
-    $roles_allowed = array_map(function ($e) use ($roles, $type) {
-        if ($type == 'name') {
-            return $roles[$e];
-        } elseif ($type == 'code') {
-            return $e;
+    $roles_allowed = array_map(function ($e) use ($roles, $type, $name) {
+        try {
+            if ($type == 'name') {
+                return $roles[$e];
+            } elseif ($type == 'code') {
+                return $e;
+            }
+        } catch (\Throwable $th) {
+            throw new \Exception(sprintf("Error al obtener el rol [%s] de la ruta [%s]", $e, $name));
         }
     }, $information['roles_allowed']);
 
@@ -2941,12 +2950,17 @@ function simpleUploadPlaceholderWorkSpace(array $data = [], bool $echo = true)
 /**
  * @param \PiecesPHP\Core\Routing\RequestRoute $request
  * @param array $extraData
- * @return void
+ * @return \PiecesPHP\Core\Routing\ResponseRoute
  */
-function throw403(\PiecesPHP\Core\Routing\RequestRoute $request, array $extraData = [])
+function throw403(\PiecesPHP\Core\Routing\RequestRoute $request, array $extraData = []): \PiecesPHP\Core\Routing\ResponseRoute
 {
     $request = $request->withAttribute('information403', $extraData);
-    throw new HttpForbiddenException($request);
+    $response = get_router()->getDI()->get('forbiddenHandler')(new HttpForbiddenException($request), true);
+    if ($response instanceof \PiecesPHP\Core\Routing\ResponseRoute) {
+        return $response;
+    } else {
+        return new \PiecesPHP\Core\Routing\ResponseRoute(StatusCode::HTTP_FORBIDDEN);
+    }
 }
 
 /**
@@ -2978,18 +2992,18 @@ function echoTerminal(string $text, bool $newLine = true, string $newLineChars =
  *
  * @param string $text Texto a mostrar
  * @param array{
- *  color?: string|int,
- *  background?: string|int,
- *  bold?: bool|int,
- *  dim?: bool|int,
- *  italic?: bool|int,
- *  underline?: bool|int,
- *  blink?: bool|int,
- *  reverse?: bool|int,
- *  hidden?: bool|int,
- *  strike?: bool|int,
- *  newLine?: bool,
- *  newLineChars?: string
+ *  color:?string|int,
+ *  background:?string|int,
+ *  bold:?bool|int,
+ *  dim:?bool|int,
+ *  italic:?bool|int,
+ *  underline:?bool|int,
+ *  blink:?bool|int,
+ *  reverse:?bool|int,
+ *  hidden:?bool|int,
+ *  strike:?bool|int,
+ *  newLine:?bool,
+ *  newLineChars:?string
  * }|string[]|int[] $format Configuración: color, background, estilos, o lista de formatos (nombres o códigos ANSI)
  * @return string Texto formateado con secuencias ANSI
  * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting

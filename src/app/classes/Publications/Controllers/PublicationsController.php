@@ -1218,7 +1218,7 @@ class PublicationsController extends AdminPanelController
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationMapper = $currentUser->organizationMapper;
-        $organizationAdmin = $currentOrganizationMapper !== null ? $currentOrganizationMapper->administrator : null;
+        $organizationAdmin = $currentOrganizationMapper !== null && is_object($currentOrganizationMapper)? $currentOrganizationMapper->administrator : null;
         $visibility = $request->getQueryParam('visibility', null);
 
         $whereString = null;
@@ -1244,7 +1244,7 @@ class PublicationsController extends AdminPanelController
 
                 //Si no es el adminstrador, solo ver las propias
                 //NOTE: Desactivado
-                if ($organizationAdmin->id !== $currentUserID && false) {
+                if (($organizationAdmin->id ?? null) !== $currentUserID && false) {
                     $beforeOperator = !empty($having) ? $and : '';
                     $critery = "createdBy = {$currentUserID}";
                     $having[] = "{$beforeOperator} ({$critery})";

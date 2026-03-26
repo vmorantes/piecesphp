@@ -41,7 +41,7 @@ class DataTablesHelper
     private static $tableOnSearch = true;
 
     /**
-     * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string?:string,having_string?:string,on_set_data?:callable,as_mapper?:bool,on_set_model?:callable,config_result_model?:callable,select_fields?:array|string,custom_order?:array,group_string?:string} $options
+     * @param array{request:Request,mapper:EntityMapper|ORM,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,as_mapper:?bool,on_set_model:?callable,config_result_model:?callable,select_fields:?array|string,custom_order:?array,group_string:?string} $options
      * @return ResultOperations
      */
     public static function process(array $options)
@@ -628,7 +628,7 @@ class DataTablesHelper
     }
 
     /**
-     * @param array{fakeTable:string,tableName:string,request:Request,columns_order:array,where_string?:string,having_string?:string,on_set_data?:callable,select_fields?:array|string,custom_order?:array,group_string?:string} $options
+     * @param array{fakeTable:string,tableName:string,request:Request,columns_order:array,where_string:?string,having_string:?string,on_set_data:?callable,select_fields:?array|string,custom_order:?array,group_string:?string} $options
      * @return ResultOperations
      */
     public static function processFromQuery(array $options)

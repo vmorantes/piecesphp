@@ -38,7 +38,7 @@ class MistralHandlerAdapter
     /**
      * Traducción rápida desde un contexto estático.
      *
-     * @param array $input
+     * @param array|array<string,string> $input
      * @param string $from
      * @param string $to
      * @param ?callable $parseJSON
