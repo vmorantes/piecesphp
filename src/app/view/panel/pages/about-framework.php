@@ -63,12 +63,12 @@ $langGroup = 'about-framework';
 
                 <div class="libraries">
                     <ul>
-                        <li>Pieces PHP datastructures Ver 2.0</li>
-                        <li>Pieces PHP html Ver 1.1</li>
+                        <li>Pieces PHP database Ver 3.0</li>
+                        <li>Pieces PHP datastructures Ver 3.0</li>
                     </ul>
                     <ul>
-                        <li>Pieces PHP database Ver 2.5</li>
-                        <li>Pieces PHP geojson Ver 1.1</li>
+                        <li>Pieces PHP geojson Ver 2.0</li>
+                        <li>Pieces PHP html Ver 2.0</li>
                     </ul>
                 </div>
 
@@ -88,7 +88,7 @@ $langGroup = 'about-framework';
                     <li>Ckeditor Ver. 5.0 Licencia GNU</li>
                     <li>Cropper Ver. 1.6.1 Licencia MIT</li>
                     <li>Datatables Ver. 1.13.5 Licencia MIT</li>
-                    <li>elfinder Ver. 2.1.57 Licencia BSD</li>
+                    <li>elfinder Ver. ^2.1 Licencia BSD</li>
                     <li>izitoast Ver. 1.4.0 Licencia APACHE</li>
                     <li>jquery Ver. 3.7.0 Licencia MIT</li>
                     <li>jquery-ui Ver. 1.12.1 Licencia MIT</li>
@@ -98,16 +98,21 @@ $langGroup = 'about-framework';
                     <li>QRCodeJS Licencia MIT</li>
                     <li>MapBox JS Ver. 3.4.0 Licencia Mapbox Web SDK</li>
                     <li>Spectrum Ver. 1.8 Licencia MIT</li>
-                    <li>slim/slim Ver. 4.* Licencia MIT</li>
-                    <li>slim/psr7 Ver. 1.6.* Licencia MIT</li>
-                    <li>phpmailer Ver. 6.* Licencia GNU</li>
-                    <li>phpspreadsheet Ver. 1.29.* Licencia MIT</li>
-                    <li>mpdf Ver. 8.2.* Licencia GNU</li>
-                    <li>mysqldump-php Ver. 2.12.* Licencia GNU</li>
-                    <li>scssphp Ver. 1.12.* Licencia MIT</li>
-                    <li>spatie/url Ver. 1.3.* Licencia MIT</li>
-                    <li>microsoft/azure-storage-blob Ver. 1.5.* Licencia MIT</li>
-                    <li>pragmarx/google2fa Ver. 8.0.* Licencia MIT</li>
+                    <li>slim/slim Ver. ^4.0 Licencia MIT</li>
+                    <li>slim/psr7 Ver. ^1.8 Licencia MIT</li>
+                    <li>phpmailer Ver. ^7.0 Licencia GNU</li>
+                    <li>phpspreadsheet Ver. ^5.5 Licencia MIT</li>
+                    <li>mpdf Ver. ^8.3 Licencia GNU</li>
+                    <li>mysqldump-php Ver. ^2.12 Licencia GNU</li>
+                    <li>scssphp Ver. ^2.1 Licencia MIT</li>
+                    <li>spatie/url Ver. ^2.4 Licencia MIT</li>
+                    <li>microsoft/azure-storage-blob Ver. ^1.5 Licencia MIT</li>
+                    <li>pragmarx/google2fa Ver. ^9.0 Licencia MIT</li>
+                    <li>hubspot/api-client Ver. ^14.0 Licencia MIT</li>
+                    <li>openai-php/client Ver. ^0.10 Licencia MIT</li>
+                    <li>aminyazdanpanah/php-ffmpeg-video-streaming Ver. ^1.3 Licencia MIT</li>
+                    <li>guzzlehttp/guzzle Ver. ^7.10 Licencia MIT</li>
+                    <li>react/event-loop Ver. ^1.6 Licencia MIT</li>
                 </ul>
             </article>
         </div>

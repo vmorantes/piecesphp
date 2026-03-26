@@ -1162,30 +1162,40 @@ class ServerStatics
      */
     private static function createDynamicSymlink(string $relativePath): string
     {
-        $delegatedDir = basepath('statics/server-delegated');
-        $symlinkPath = $delegatedDir . '/' . $relativePath;
-        $symlinkDir = dirname($symlinkPath);
-        $targetPath = basepath($relativePath);
-
-        // Crear directorios si no existen
-        if (!is_dir($symlinkDir)) {
-            mkdir($symlinkDir, 0755, true);
+        $oldUmask = umask(0);
+        $finalPath = baseurl("statics/server-delegated/{$relativePath}");
+        $absoluteSourcePath = realpath(append_to_path_system(basepath(), $relativePath));
+        if ($absoluteSourcePath === false) {
+            return $finalPath;
         }
+        try {
+            //Reprocesar la ruta relativa, para evitar ../
+            $relativePath = str_replace(basepath(), '', $absoluteSourcePath);
+            $delegatedDir = basepath('statics/server-delegated');
+            $symlinkPath = append_to_path_system($delegatedDir, $relativePath);
+            $symlinkDir = dirname($symlinkPath);
+            $targetPath = basepath($relativePath);
 
-        //Crear enlace simbólico
-        if (file_exists($symlinkPath)) {
-            if (is_link($symlinkPath)) {
-                unlink($symlinkPath);
-            } else {
-                rename($symlinkPath, $symlinkPath . '.backup');
+            // Crear directorios si no existen
+            if (!is_dir($symlinkDir)) {
+                mkdir($symlinkDir, 0777, true);
             }
-        }
-        if (file_exists($targetPath) && !file_exists($symlinkPath)) {
-            symlink($targetPath, $symlinkPath);
-        }
 
-        //Construir URL
-        return baseurl("statics/server-delegated/{$relativePath}");
+            //Crear enlace simbólico
+            if (file_exists($symlinkPath)) {
+                if (is_link($symlinkPath)) {
+                    unlink($symlinkPath);
+                } else {
+                    rename($symlinkPath, $symlinkPath . '.backup');
+                }
+            }
+            if (file_exists($targetPath) && !file_exists($symlinkPath)) {
+                symlink($targetPath, $symlinkPath);
+            }
+        } finally {
+            umask($oldUmask);
+        }
+        return $finalPath;
     }
 
 }

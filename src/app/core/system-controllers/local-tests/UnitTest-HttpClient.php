@@ -1,5 +1,6 @@
 <?php
 
+use PiecesPHP\Core\Http\HttpClient;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\CronJobTask;
 
@@ -17,7 +18,7 @@ if (($cliArguments[$cliTaskName] ?? false) && ($cliArguments[$cliTaskFlag] ?? fa
         set_config('terminal_color', '33');
 
         $webhookURL = 'https://webhook.site/1948a039-b070-48f2-8ade-4421cdd7889c';
-        $client = new \PiecesPHP\Core\Http\HttpClient($webhookURL);
+        $client = new HttpClient($webhookURL);
 
         // Cabeceras por defecto
         $client->setDefaultRequestHeaders([
@@ -92,7 +93,7 @@ if (($cliArguments[$cliTaskName] ?? false) && ($cliArguments[$cliTaskFlag] ?? fa
 
         // --- CASO 5: Timeout ---
         echoTerminal('[5/5] Probando Timeout configurado...');
-        $timeoutClient = new \PiecesPHP\Core\Http\HttpClient('http://10.255.255.1');
+        $timeoutClient = new HttpClient('http://10.255.255.1');
         $timeoutClient->timeout(2); // bajamos a 2s para rapidez
         $startTime = microtime(true);
         @$timeoutClient->request('', 'GET');

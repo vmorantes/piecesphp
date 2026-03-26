@@ -72,11 +72,15 @@ class CleanCacheTask extends TerminalTaskAbstract
         try {
 
             $controllerConfig = new AppConfigController();
-            $response = $controllerConfig->recreateStaticCacheStamp(RequestRouteFactory::createFromGlobals(), new ResponseRoute());
+            $response = $controllerConfig->recreateStaticCacheStamp(RequestRouteFactory::createFromGlobals(), new ResponseRoute(), [], true);
             $responseJSON = json_decode($response->getLastWriteBodyData(), true);
             $responseMessage = $responseJSON['message'];
 
             $message[] = "\e[34m{$responseMessage}\e[39m";
+
+            if ($responseJSON['values']['serverDelegatedSymLinksRemoved'] ?? false) {
+                $message[] = "\e[34mCaché de enlaces simbólicos eliminada\e[39m";
+            }
 
         } catch (\Exception $e) {
             $message[] = "\e[31mHa ocurrido un error: {$e->getMessage()}\e[39m";

@@ -498,8 +498,8 @@ class Schema
             $value = $field->getSampleValue();
 
             $spreadSheet->setActiveSheetIndex(0)
-                ->setCellValueByColumnAndRow($columnIndex, 1, $displayName)
-                ->setCellValueByColumnAndRow($columnIndex, 2, $value);
+                ->setCellValue([$columnIndex, 1], $displayName)
+                ->setCellValue([$columnIndex, 2], $value);
             $columnIndex++;
         }
         $writer = new XlsxWriter($spreadSheet);

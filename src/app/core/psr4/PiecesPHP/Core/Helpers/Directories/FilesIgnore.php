@@ -6,7 +6,10 @@
 namespace PiecesPHP\Core\Helpers\Directories;
 
 /**
- * FilesIgnore - Representa un conjunto de archivos/directorios que serán ignorados por un objeto DirectoryObject
+ * FilesIgnore - Define reglas para excluir archivos y directorios.
+ *
+ * Permite gestionar expresiones regulares para ignorar elementos durante el escaneo de directorios.
+ * También soporta reglas de inclusión forzada mediante el prefijo 'INCLUDE_EXPR::'.
  *
  * @package     PiecesPHP\Core\Helpers\Directories
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
@@ -15,15 +18,14 @@ namespace PiecesPHP\Core\Helpers\Directories;
 class FilesIgnore
 {
     /**
-     * $exclude_regexprs
-     *
-     * @var string[]
+     * @var string[] Listado de expresiones regulares para exclusión/inclusión.
      */
     protected $exclude_regexprs = [];
 
     /**
-     * @param string[] $regexprs
-     * @return static
+     * Constructor de FilesIgnore.
+     *
+     * @param string[] $regexprs Arreglo inicial de expresiones regulares.
      */
     public function __construct(array $regexprs)
     {
@@ -34,7 +36,9 @@ class FilesIgnore
     }
 
     /**
-     * @param string $regexpr
+     * Añade una expresión regular al listado de exclusión.
+     *
+     * @param string $regexpr Expresión regular.
      * @return $this
      */
     public function addRegExpr(string $regexpr)
@@ -44,7 +48,9 @@ class FilesIgnore
     }
 
     /**
-     * @param string[] $regexprs
+     * Añade múltiples expresiones regulares al listado.
+     *
+     * @param string[] $regexprs Arreglo de expresiones regulares.
      * @return $this
      */
     public function addRegExprs(array $regexprs)
@@ -61,7 +67,9 @@ class FilesIgnore
     }
 
     /**
-     * @param string[] $regexprs
+     * Sobrescribe el listado actual de expresiones regulares.
+     *
+     * @param string[] $regexprs Arreglo de expresiones regulares.
      * @return $this
      */
     public function setRegExprs(array $regexprs)
@@ -77,8 +85,14 @@ class FilesIgnore
     }
 
     /**
-     * @param string $path
-     * @return bool
+     * Determina si una ruta debe ser ignorada basándose en las reglas definidas.
+     *
+     * El método procesa primero las reglas de exclusión y luego las de inclusión
+     * (las que empiezan con 'INCLUDE_EXPR::'). Si una ruta coincide con una regla
+     * de inclusión, será procesada incluso si coincide con una de exclusión.
+     *
+     * @param string $path Ruta a evaluar.
+     * @return bool True si debe ser ignorada, false en caso contrario.
      */
     public function ignore(string $path)
     {

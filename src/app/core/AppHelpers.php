@@ -2685,8 +2685,27 @@ function move_uploaded_file_to($directory, UploadedFileInterface $uploadedFile, 
  */
 function log_exception(Throwable $e, bool $plainLog = true)
 {
-    $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
-    $handler->logging($plainLog);
+    //TODO: Verificar para corregir
+    $add = true;
+    $addAsUnique = false;
+    $message = $e->getMessage();
+    $messagesToIgnore = [
+        'Debe corregirse, en futuras versiones dará el error: Parámetro no aceptado en where()',
+    ];
+    foreach ($messagesToIgnore as $msg) {
+        if (mb_strpos($message, $msg) !== false) {
+            $addAsUnique = true;
+            break;
+        }
+    }
+    if ($add) {
+        $handler = new \PiecesPHP\Core\CustomErrorsHandlers\GenericHandler($e);
+        if ($addAsUnique) {
+            $handler->loggingUniqueMessage();
+        } else {
+            $handler->logging($plainLog);
+        }
+    }
 }
 
 /**

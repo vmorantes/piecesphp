@@ -124,55 +124,59 @@ class FreezeRequest
      */
     public static function capture(?string $bodyRaw = null, ?array $customData = null, ?string $filesDirectoryRequest = null, ?string $filesDirectoryBase = "/tmp"): self
     {
-        $instance = new self([], $filesDirectoryRequest, $filesDirectoryBase ?? "/tmp");
-        $instance->filesAssociativePaths = [];
-        $instance->method = $_SERVER['REQUEST_METHOD'] ?? "GET";
-        $instance->post = $_POST;
-        $instance->get = $_GET;
-        $instance->headers = [];
-        $instance->files = [];
-        $instance->cookies = $_COOKIE;
-        $instance->session = $_SESSION ?? [];
-        $instance->server = $_SERVER ?? [];
-        $instance->customData = $customData ?? [];
-        $instance->rawBody = $bodyRaw ?? '';
+        $oldUmask = umask(0);
+        try {
+            $instance = new self([], $filesDirectoryRequest, $filesDirectoryBase ?? "/tmp");
+            $instance->filesAssociativePaths = [];
+            $instance->method = $_SERVER['REQUEST_METHOD'] ?? "GET";
+            $instance->post = $_POST;
+            $instance->get = $_GET;
+            $instance->headers = [];
+            $instance->files = [];
+            $instance->cookies = $_COOKIE;
+            $instance->session = $_SESSION ?? [];
+            $instance->server = $_SERVER ?? [];
+            $instance->customData = $customData ?? [];
+            $instance->rawBody = $bodyRaw ?? '';
 
-        // Captura robusta de cabeceras
-        if (function_exists('getallheaders')) {
-            $instance->headers = getallheaders();
-        }
-
-        // Normalización de archivos y persistencia temporal
-        $instance->files = UploadedFilesStructureMapper::map($_FILES, function ($file, $path) use ($instance) {
-            // Generar ruta asociativa literal para UploadedFileAdapter
-            $pathCopy = $path;
-            $firstElement = array_shift($pathCopy);
-
-            $fieldName = count($pathCopy) > 0 ? $firstElement . '[' . implode('][', $pathCopy) . ']' : $firstElement;
-            $instance->filesAssociativePaths[] = $fieldName;
-
-            // Mover los archivos a un espacio temporal mientras se procesan
-            $finalDirectoryPath = append_to_path_system($instance->filesDirectoryBase, $instance->filesDirectoryRequest);
-
-            if (!file_exists($finalDirectoryPath)) {
-                mkdir($finalDirectoryPath, 0777, true);
-                chmod($finalDirectoryPath, 0777);
+            // Captura robusta de cabeceras
+            if (function_exists('getallheaders')) {
+                $instance->headers = getallheaders();
             }
 
-            if (file_exists($finalDirectoryPath) && is_dir($finalDirectoryPath)) {
-                $instance->freezeFilesDirectory = $finalDirectoryPath;
-                $finalDirectoryPath = realpath($finalDirectoryPath);
-                $tmpName = $file['tmp_name'];
-                $destinationFile = append_to_path_system($finalDirectoryPath, $file['name']);
-                if (file_exists($tmpName) && is_file($tmpName) && copy($tmpName, $destinationFile)) {
-                    chmod($destinationFile, 0777);
-                    $file['tmp_name'] = $destinationFile;
+            // Normalización de archivos y persistencia temporal
+            $instance->files = UploadedFilesStructureMapper::map($_FILES, function ($file, $path) use ($instance) {
+                // Generar ruta asociativa literal para UploadedFileAdapter
+                $pathCopy = $path;
+                $firstElement = array_shift($pathCopy);
+
+                $fieldName = count($pathCopy) > 0 ? $firstElement . '[' . implode('][', $pathCopy) . ']' : $firstElement;
+                $instance->filesAssociativePaths[] = $fieldName;
+
+                // Mover los archivos a un espacio temporal mientras se procesan
+                $finalDirectoryPath = append_to_path_system($instance->filesDirectoryBase, $instance->filesDirectoryRequest);
+
+                if (!file_exists($finalDirectoryPath)) {
+                    mkdir($finalDirectoryPath, 0777, true);
+                    chmod($finalDirectoryPath, 0777);
                 }
-            }
 
-            return $file;
-        }, false);
+                $finalDirectoryPath = realpath($finalDirectoryPath);
+                if (is_string($finalDirectoryPath) && file_exists($finalDirectoryPath) && is_dir($finalDirectoryPath)) {
+                    $instance->freezeFilesDirectory = $finalDirectoryPath;
+                    $tmpName = $file['tmp_name'];
+                    $destinationFile = append_to_path_system($finalDirectoryPath, $file['name']);
+                    if (file_exists($tmpName) && is_file($tmpName) && copy($tmpName, $destinationFile)) {
+                        chmod($destinationFile, 0777);
+                        $file['tmp_name'] = $destinationFile;
+                    }
+                }
 
+                return $file;
+            }, false);
+        } finally {
+            umask($oldUmask);
+        }
         return $instance;
     }
 
@@ -238,10 +242,10 @@ class FreezeRequest
      */
     public function cleanupFiles(): void
     {
+        $oldUmask = umask(0);
         try {
-            $dir = $this->freezeFilesDirectory;
-            if (file_exists($dir) && is_dir($dir)) {
-                $dir = realpath($dir);
+            $dir = realpath($this->freezeFilesDirectory);
+            if (is_string($dir) && file_exists($dir) && is_dir($dir)) {
                 @chmod($dir, 0777);
                 $directoryObject = new DirectoryObject($dir);
                 $directoryObject->process();
@@ -250,7 +254,10 @@ class FreezeRequest
                     rmdir($dir);
                 }
             }
-        } catch (\Throwable $th) {}
+        } catch (\Throwable $th) {
+        } finally {
+            umask($oldUmask);
+        }
     }
 
     /**

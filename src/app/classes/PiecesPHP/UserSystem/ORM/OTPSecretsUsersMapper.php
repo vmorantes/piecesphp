@@ -6,9 +6,9 @@ namespace PiecesPHP\UserSystem\ORM;
 
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseEntityMapper;
+use PiecesPHP\Core\Database\ActiveRecordModel;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\TOTPStandard;
-use PiecesPHP\Core\Database\ActiveRecordModel;
 
 /**
  * OTPSecretsUsersMapper.
@@ -354,11 +354,11 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     {
         $model = self::model();
         $where = [
-            "user" => $userID,
-            "method" => "{$method}",
-            "id != {$ignoreID}",
+            "user = {$userID}",
+            "AND method = {$method}",
+            "AND id != {$ignoreID}",
         ];
-        $model->select()->where($where);
+        $model->select()->where(implode(' ', $where));
         $model->execute();
         $result = $model->result();
         return !empty($result);

@@ -14,6 +14,7 @@ use PiecesPHP\Core\ConfigHelpers\MailConfig;
 use PiecesPHP\Core\Forms\FileUpload;
 use PiecesPHP\Core\Forms\FileValidator;
 use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
+use PiecesPHP\Core\Helpers\Directories\FilesIgnore;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
@@ -1595,7 +1596,7 @@ class AppConfigController extends AdminPanelController
 
         $sitemap = new Sitemap(basepath('sitemap.xml'), false);
 
-        $getAlternativesURLs = function ($url, ?callable $existOnLangVerify = null) {
+        $getAlternativesURLs = function ($url,  ? callable $existOnLangVerify = null) {
 
             $existOnLangVerify = $existOnLangVerify !== null ? $existOnLangVerify : function ($lang) {
                 return true;
@@ -1725,9 +1726,10 @@ class AppConfigController extends AdminPanelController
     /**
      * @param Request $req
      * @param Response $res
+     * @param array $args
      * @return Response
      */
-    public function recreateStaticCacheStamp(Request $req, Response $res)
+    public function recreateStaticCacheStamp(Request $req, Response $res, array $args = [], bool $removeServerDelegatedSymLinks = true)
     {
 
         $startTime = microtime(true);
@@ -1746,6 +1748,22 @@ class AppConfigController extends AdminPanelController
             $publicationsCache = new DirectoryObject(basepath('app/cache/Publications'));
             $publicationsCache->process();
             $publicationsCache->delete();
+
+            //Caché de enlaces simbólicos
+            $result->setValue('serverDelegatedSymLinksRemoved', false);
+            if ($removeServerDelegatedSymLinks) {
+                try {
+                    $symLinksDir = new DirectoryObject(basepath('statics/server-delegated'));
+                    $symLinksDir->process(new FilesIgnore([
+                        '.htaccess',
+                        '.gitignore',
+                    ]));
+                    $symLinksDir->delete();
+                    $result->setValue('serverDelegatedSymLinksRemoved', true);
+                } catch (\Exception $e) {
+                    log_exception($e);
+                }
+            }
 
             $result->setValue('Rendimiento', [
                 'Memory peak usage' => number_format(memory_get_peak_usage() / (1024 * 1024), 4) . "MB",
@@ -1933,7 +1951,7 @@ class AppConfigController extends AdminPanelController
 
         switch ($to) {
 
-            case self::PARSE_TYPE_STRING:
+            case self::PARSE_TYPE_STRING :
 
                 if (is_scalar($value)) {
                     return (string) $value;

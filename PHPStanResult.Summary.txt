@@ -1,29 +1,29 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-228
+222
 
 [TOTAL DE ERRORES VISIBLES]
-1166
+1139
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (408)
+🪪  argument.type (400)
 🪪  property.nonObject (273)
 🪪  method.nonObject (191)
-🪪  return.type (90)
+🪪  return.type (88)
 🪪  property.notFound (64)
-🪪  assign.propertyType (56)
+🪪  assign.propertyType (51)
 🪪  foreach.nonIterable (41)
-🪪  method.notFound (13)
+🪪  method.notFound (7)
 🪪  offsetAccess.notFound (6)
 🪪  clone.nonObject (5)
-🪪  isset.offset (5)
 🪪  offsetAccess.invalidOffset (4)
 🪪  binaryOp.invalid (3)
-🪪  offsetAssign.dimType (3)
 🪪  encapsedStringPart.nonString (2)
 🪪  staticMethod.nonObject (1)
+🪪  isset.offset (1)
 🪪  callable.nonCallable (1)
+🪪  offsetAssign.dimType (1)
 
 [ERRORES POR ARCHIVO]
 project://src/app/classes/API/Adapters/MauticEmailAdapter.php
@@ -45,11 +45,9 @@ project://src/app/classes/API/Controllers/HelperController.php
 	🪪  property.nonObject (Líneas: 146)
 	🪪  argument.type (Líneas: 148)
 project://src/app/classes/App/Locations/Controllers/City.php
-	🪪  method.notFound (Líneas: 214)
 	🪪  method.nonObject (Líneas: 388, 420)
 	🪪  foreach.nonIterable (Líneas: 579)
 project://src/app/classes/App/Locations/Controllers/Country.php
-	🪪  method.notFound (Líneas: 214)
 	🪪  argument.type (Líneas: 285)
 	🪪  assign.propertyType (Líneas: 377, 410)
 	🪪  method.nonObject (Líneas: 385, 417)
@@ -58,13 +56,9 @@ project://src/app/classes/App/Locations/Controllers/HelperController.php
 	🪪  assign.propertyType (Líneas: 50)
 	🪪  method.nonObject (Líneas: 63, 64, 65)
 project://src/app/classes/App/Locations/Controllers/Point.php
-	🪪  method.notFound (Líneas: 199)
 	🪪  method.nonObject (Líneas: 366, 397)
 	🪪  foreach.nonIterable (Líneas: 473)
-project://src/app/classes/App/Locations/Controllers/Region.php
-	🪪  method.notFound (Líneas: 62, 120)
 project://src/app/classes/App/Locations/Controllers/State.php
-	🪪  method.notFound (Líneas: 201)
 	🪪  argument.type (Líneas: 260)
 	🪪  method.nonObject (Líneas: 355, 381)
 	🪪  foreach.nonIterable (Líneas: 458)
@@ -171,7 +165,6 @@ project://src/app/classes/EventsLog/Mappers/LogsMapper.php
 project://src/app/classes/EventsLog/Views/log/list.php
 	🪪  property.nonObject (Líneas: 10)
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
-	🪪  assign.propertyType (Líneas: 59)
 	🪪  argument.type (Líneas: 355)
 project://src/app/classes/FileManager/FileManagerRoutes.php
 	🪪  method.nonObject (Líneas: 107)
@@ -498,11 +491,11 @@ project://src/app/controller/AdminPanelController.php
 	🪪  argument.type (Líneas: 132)
 	🪪  method.nonObject (Líneas: 219)
 project://src/app/controller/AppConfigController.php
-	🪪  foreach.nonIterable (Líneas: 211, 1882)
-	🪪  argument.type (Líneas: 387, 388, 1508, 2039, 2040)
-	🪪  property.nonObject (Líneas: 1404, 1671)
-	🪪  method.nonObject (Líneas: 1555, 1654, 1659, 1670, 1674)
-	🪪  return.type (Líneas: 2085)
+	🪪  foreach.nonIterable (Líneas: 212, 1900)
+	🪪  argument.type (Líneas: 388, 389, 1509, 2057, 2058)
+	🪪  property.nonObject (Líneas: 1405, 1672)
+	🪪  method.nonObject (Líneas: 1556, 1655, 1660, 1671, 1675)
+	🪪  return.type (Líneas: 2103)
 project://src/app/controller/AvatarController.php
 	🪪  argument.type (Líneas: 241, 248, 257)
 project://src/app/controller/ContactFormsController.php
@@ -532,9 +525,9 @@ project://src/app/controller/UsersController.php
 	🪪  return.type (Líneas: 490, 590, 1885)
 	🪪  method.nonObject (Líneas: 1331, 1643)
 project://src/app/core/AppHelpers.php
-	🪪  return.type (Líneas: 487, 1308, 1400, 3268)
-	🪪  offsetAccess.notFound (Líneas: 743, 1237, 3044, 3045)
-	🪪  argument.type (Líneas: 2246, 2317, 3052, 3053, 3055, 3056, 3057, 3058, 3061, 3062, 3063, 3064, 3081, 3121, 3122, 3123, 3223, 3224)
+	🪪  return.type (Líneas: 487, 1308, 1400, 3287)
+	🪪  offsetAccess.notFound (Líneas: 743, 1237, 3063, 3064)
+	🪪  argument.type (Líneas: 2246, 2317, 3071, 3072, 3074, 3075, 3076, 3077, 3080, 3081, 3082, 3083, 3100, 3140, 3141, 3142, 3242, 3243)
 	🪪  offsetAccess.invalidOffset (Líneas: 2341)
 project://src/app/core/Config.php
 	🪪  argument.type (Líneas: 814, 1091)
@@ -551,8 +544,6 @@ project://src/app/core/bootstrap.php
 	🪪  method.nonObject (Líneas: 240)
 project://src/app/core/psr4/PiecesPHP/CSSVariables.php
 	🪪  return.type (Líneas: 58)
-project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
-	🪪  assign.propertyType (Líneas: 72, 78)
 project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
 	🪪  argument.type (Líneas: 36, 127, 130, 161, 173)
 	🪪  return.type (Líneas: 61)
@@ -570,9 +561,9 @@ project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
 	🪪  assign.propertyType (Líneas: 315)
 	🪪  return.type (Líneas: 324)
 project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php
-	🪪  argument.type (Líneas: 67, 114, 123, 124, 214, 215)
-	🪪  method.nonObject (Líneas: 69)
-	🪪  assign.propertyType (Líneas: 71)
+	🪪  argument.type (Líneas: 71, 124, 191, 192, 285)
+	🪪  method.nonObject (Líneas: 73)
+	🪪  assign.propertyType (Líneas: 75)
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
 	🪪  argument.type (Líneas: 295, 319)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php
@@ -583,18 +574,6 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
 project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	🪪  argument.type (Líneas: 234)
 	🪪  return.type (Líneas: 340)
-project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFilesStructureMapper.php
-	🪪  isset.offset (Líneas: 96, 101, 107)
-project://src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/DirectoryObject.php
-	🪪  assign.propertyType (Líneas: 71)
-	🪪  argument.type (Líneas: 75, 351)
-	🪪  offsetAssign.dimType (Líneas: 320, 336)
-	🪪  return.type (Líneas: 410, 421)
-project://src/app/core/psr4/PiecesPHP/Core/Helpers/Directories/FileObject.php
-	🪪  assign.propertyType (Líneas: 51)
-project://src/app/core/psr4/PiecesPHP/Core/Http/FreezeRequest.php
-	🪪  argument.type (Líneas: 166, 245, 246, 249, 250)
-	🪪  isset.offset (Líneas: 222)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
 	🪪  argument.type (Líneas: 341)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php

@@ -1,3 +1,26 @@
+# 7.0.1 (25-03-2026)
+
+- **Núcleo y Gestión de Archivos**:
+    - Implementada normalización de rutas manual en `DirectoryObject` y `FileObject` para soportar enlaces simbólicos sin resolver `realpath()`.
+    - Mejora en la seguridad de borrado recursivo para proteger las fuentes originales de los enlaces simbólicos.
+    - Actualización en `ServerStatics` para la creación de enlaces simbólicos dinámicos más robustos.
+- **Sistema de Logs**:
+    - Nuevo método `loggingUniqueMessage()` en `GenericHandler` para registrar errores únicos con una firma detallada de 5 líneas (Cabecera + 4 niveles de traza).
+    - Optimización del log JSON:
+        - Eliminado el anidamiento redundante por segundos, agrupando ahora por día.
+        - Limpieza automática de argumentos (`args`) en las trazas para reducir drásticamente el tamaño del archivo y mejorar la seguridad.
+        - Eliminación de ordenamientos costosos (`uksort`) en cada escritura para mejorar el rendimiento.
+- **ORM y Modelos**:
+    - Ajuste de sintaxis en `where()` del `OTPSecretsUsersMapper` para compatibilidad con PiecesPHP\Core\* en versiones futuras.
+- **Dependencias**:
+    - Actualización de librerías composer: `pragmarx/google2fa` (v9), `hubspot/api-client` (v14), `spatie/url` (v2.4), `slim/psr7` (v1.8), `guzzlehttp/guzzle` (v7.10), entre otras.
+    - Sincronización de la vista "About Framework" con las nuevas versiones.
+- **Pruebas**:
+    - Nueva suite de pruebas unitarias para validación de gestión de directorios y symlinks.
+```bash
+php index.php cli --local run-cronjobs unit-tests core/helpers-directories
+```
+
 # 7.0.0 (23-03-2026)
 
 - Migración a PHP 8.4 funcional. Con soporte hasta 8.1.

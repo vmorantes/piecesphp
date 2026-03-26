@@ -75,6 +75,7 @@ class CleanLogsTask extends TerminalTaskAbstract
             $oldsErrorLogsDirectory = basepath("app/logs/olds");
             $expiredSessionsLogsDirectory = basepath("app/logs/expired-sessions");
             $errorLogFile = basepath("app/logs/error.log.json");
+            $errorLogPlanFile = basepath("app/logs/error.plain.log");
 
             if (file_exists($baseLogsDirectory)) {
 
@@ -82,6 +83,11 @@ class CleanLogsTask extends TerminalTaskAbstract
                 file_put_contents($errorLogFile, '[]');
                 chmod($errorLogFile, 0777);
                 $message[] = "\e[34merror.log.json vaciado.\e[39m";
+
+                //Log de errores planto
+                file_put_contents($errorLogPlanFile, '');
+                chmod($errorLogPlanFile, 0777);
+                $message[] = "\e[34merror.plain.log vaciado.\e[39m";
 
                 //Histórico de logs de errores
                 $oldsErrorLogsHandler = new DirectoryObject($oldsErrorLogsDirectory);

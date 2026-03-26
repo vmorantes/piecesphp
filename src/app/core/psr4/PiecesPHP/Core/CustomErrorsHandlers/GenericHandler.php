@@ -53,6 +53,10 @@ class GenericHandler
      * @var string
      */
     protected $oldFileLocationPlain = '';
+    /**
+     * @var string
+     */
+    protected $fileLocationUniqueMessage = '';
 
     /**
      * @param Throwable $e
@@ -91,6 +95,8 @@ class GenericHandler
 
         $this->fileLocationPlain = $this->directory . '/error.plain.log';
         $this->oldFileLocationPlain = $this->directoryBackup . '/error.plain.{{DATE}}.log';
+
+        $this->fileLocationUniqueMessage = $this->directory . '/error.unique.message.log';
     }
 
     /**
@@ -108,80 +114,41 @@ class GenericHandler
     public function logging(bool $plainLog = true)
     {
         $exists = file_exists($this->fileLocation);
-
         $fileLogSizeMB = $exists ? filesize($this->fileLocation) / 1024 / 1024 : 0;
-
-        $fileLogJSON = $exists ? json_decode(file_get_contents($this->fileLocation), true) : [];
+        $fileLogJSON = [];
         $oldFileLogJSON = [];
         $backupOld = false;
 
-        $classException = get_class($this->exception);
-
-        if (json_last_error() == \JSON_ERROR_NONE) {
-
-            uksort($fileLogJSON, function ($a, $b) {
-                $aDate = \DateTime::createFromFormat('d-m-Y', $a);
-                $bDate = \DateTime::createFromFormat('d-m-Y', $b);
-                $result = 0;
-                $asc = false;
-
-                if ($aDate == $bDate) {
-                    $result = 0;
-                } else {
-                    $result = $aDate < $bDate ? -1 : 1;
-                }
-
-                if ($asc) {
-                    return $result;
-                } elseif ($result != 0) {
-                    return $result > 0 ? -1 : 1;
-                } else {
-                    return 0;
-                }
-            });
-
-            foreach ($fileLogJSON as $time => $value) {
-                uksort($value, function ($a, $b) {
-                    $aDate = \DateTime::createFromFormat('d-m-Y H:i:s.u', "01-01-1999 $a");
-                    $bDate = \DateTime::createFromFormat('d-m-Y H:i:s.u', "01-01-1999 $b");
-                    $result = 0;
-                    $asc = false;
-
-                    if ($aDate == $bDate) {
-                        $result = 0;
-                    } else {
-                        $result = $aDate < $bDate ? -1 : 1;
-                    }
-
-                    if ($asc) {
-                        return $result;
-                    } elseif ($result != 0) {
-                        return $result > 0 ? -1 : 1;
-                    } else {
-                        return 0;
-                    }
-                });
-                $fileLogJSON[$time] = $value;
-            }
-
-            if ($fileLogSizeMB > $this->maxSizeMB) {
-                $oldFileLogJSON = $fileLogJSON;
+        if ($exists) {
+            $content = file_get_contents($this->fileLocation);
+            $fileLogJSON = json_decode($content, true);
+            if (json_last_error() !== \JSON_ERROR_NONE) {
                 $fileLogJSON = [];
-                $backupOld = true;
             }
-        } else {
+        }
+
+        if ($fileLogSizeMB > $this->maxSizeMB) {
+            $oldFileLogJSON = $fileLogJSON;
             $fileLogJSON = [];
+            $backupOld = true;
         }
 
-        //Crear grupo por fecha
-        $date_current = $this->date->format('d-m-Y');
-        $time = $this->date->format('H:i:s');
+        $classException = get_class($this->exception);
+        $dateCurrent = $this->date->format('d-m-Y');
+        $timeCurrent = $this->date->format('H:i:s.u');
 
-        if (!array_key_exists($date_current, $fileLogJSON)) {
-            $fileLogJSON[$date_current] = [];
-        }
-        if (!array_key_exists($time, $fileLogJSON[$date_current])) {
-            $fileLogJSON[$date_current][$time] = [];
+        // Limpiar traza (eliminar argumentos para reducir tamaño y redundancia)
+        $cleanTrace = [];
+        foreach ($this->exception->getTrace() as $frame) {
+            $cleanFrame = [
+                'file' => $frame['file'] ?? 'unknown',
+                'line' => $frame['line'] ?? '?',
+                'function' => $frame['function'] ?? 'unknown',
+            ];
+            if (isset($frame['class'])) {
+                $cleanFrame['class'] = $frame['class'];
+            }
+            $cleanTrace[] = $cleanFrame;
         }
 
         $codeException = '-';
@@ -189,19 +156,29 @@ class GenericHandler
             $codeException = $this->exception->getCode();
         } catch (\Throwable $e) {}
 
-        $fileLogJSON[$date_current][$time][] = [
+        // Preparar entrada
+        $logEntry = [
+            'time' => $timeCurrent,
             'type' => $classException,
             'message' => $this->exception->getMessage(),
             'code' => $codeException,
             'file' => $this->exception->getFile(),
             'line' => $this->exception->getLine(),
             'extraData' => method_exists($this->exception, 'extraData') ? call_user_func([$this->exception, 'extraData']) : [],
-            'trace' => $this->exception->getTrace(),
+            'trace' => $cleanTrace,
         ];
 
-        $fileLogJSON = json_encode($fileLogJSON);
+        // Agrupar solo por fecha (evita el nivel extra de 'time' como clave)
+        if (!isset($fileLogJSON[$dateCurrent])) {
+            // Si es un día nuevo, lo ponemos al principio (orden cronológico inverso)
+            $fileLogJSON = array_merge([$dateCurrent => []], $fileLogJSON);
+        }
 
-        file_put_contents($this->fileLocation, $fileLogJSON);
+        // Añadir al principio del array del día (más reciente primero)
+        array_unshift($fileLogJSON[$dateCurrent], $logEntry);
+
+        // Guardar JSON
+        file_put_contents($this->fileLocation, json_encode($fileLogJSON, \JSON_PRETTY_PRINT  | \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
         @chmod($this->fileLocation, 0777);
 
         if ($backupOld) {
@@ -258,6 +235,63 @@ class GenericHandler
 
             file_put_contents($this->fileLocationPlain, $plainLogEntry, \FILE_APPEND);
             @chmod($this->fileLocationPlain, 0777);
+        }
+    }
+
+    /**
+     * Registra un mensaje de error único.
+     *
+     * Si el mensaje completo (incluyendo cabecera y traza de 4 niveles) ya existe en el log, no se vuelve a añadir.
+     * La firma de unicidad se basa en las 5 líneas del reporte (sin el timestamp).
+     *
+     * @return void
+     */
+    public function loggingUniqueMessage()
+    {
+        $classException = get_class($this->exception);
+        $message = $this->exception->getMessage();
+        $file = $this->exception->getFile();
+        $line = $this->exception->getLine();
+
+        // Código de excepción
+        $codeException = '-';
+        try {
+            $codeException = $this->exception->getCode();
+        } catch (\Throwable $e) {}
+
+        // Construir la firma de 5 líneas (sin el timestamp inicial)
+        // Línea 1: Cabecera
+        $headerSignature = sprintf("[%s] [%s] %s in %s:%s\n", $classException, $codeException, $message, $file, $line);
+
+        // Líneas 2 a 5: Traza
+        $traceLines = "";
+        $trace = $this->exception->getTrace();
+        for ($i = 0; $i < 4; $i++) {
+            if (isset($trace[$i])) {
+                $traceFile = $trace[$i]['file'] ?? 'unknown';
+                $traceLine = $trace[$i]['line'] ?? '?';
+                $traceLines .= sprintf("     in %s:%s\n", $traceFile, $traceLine);
+            } else {
+                $traceLines .= "     in unknown:?\n";
+            }
+        }
+
+        $fullSignature = $headerSignature . $traceLines;
+
+        $existsInFile = false;
+        if (file_exists($this->fileLocationUniqueMessage)) {
+            // Buscamos la firma completa de 5 líneas para evitar duplicados exactos de flujo
+            $content = file_get_contents($this->fileLocationUniqueMessage);
+            if (mb_strpos($content, $fullSignature) !== false) {
+                $existsInFile = true;
+            }
+        }
+
+        if (!$existsInFile) {
+            // Si no existe el flujo exacto, lo añadimos con el timestamp
+            $logEntry = sprintf("[%s] %s", $this->date->format('Y-m-d H:i:s.u'), $fullSignature);
+            file_put_contents($this->fileLocationUniqueMessage, $logEntry, \FILE_APPEND);
+            @chmod($this->fileLocationUniqueMessage, 0777);
         }
     }
 }

@@ -64,7 +64,7 @@ class Importer
      */
     public function __construct(Schema $schema, array $data, ?string $title = null)
     {
-        $this->$title = __(self::LANG_GROUP, $this->title);
+        $this->title = __(self::LANG_GROUP, $this->title);
         $this->schema = $schema;
         $this->data = $data;
         $this->responses = new ResponseCollection();

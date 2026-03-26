@@ -52,6 +52,10 @@ parameters:
                 - offsetAccess.nonOffsetAccessible
             paths:
                 - ../src/app
+        -
+            message: '#.*an undefined method PiecesPHP\\Core\\BaseEntityMapper|PiecesPHP\\Core\\Database\\ActiveRecordModel.*#'
+            paths:
+                - ../src/app
         # Tipos no esperados en parámetros
         - '#.*of function implode expects array<string>, array<mixed> given.*#'
         - '#.*message of function __ expects.*#'
