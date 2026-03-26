@@ -53,6 +53,8 @@ nav:
             - HttpClient: piecesphp/new-features/http-client.md
             - Eventos: piecesphp/new-features/events.md
             - CronJobs: piecesphp/new-features/cronjobs.md
+            - Pruebas Unitarias (CLI): piecesphp/new-features/unit-testing.md
+            - Archivos Protegidos: piecesphp/new-features/protected-files.md
     - Rendimiento: 
         - performance/index.md
         - ZRam: performance/content/zram.md

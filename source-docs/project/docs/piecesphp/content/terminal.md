@@ -13,11 +13,22 @@ Desde la carpeta `src`, ejecuta:
 php index.php cli <acción> [parámetro=valor ...]
 ```
 
-Por ejemplo:
+También puedes usar el atajo en bin/ (equivale al flag `--local`):
 
 ```bash
-php index.php cli bundle app=yes zip=yes
+bin/cli <acción> [parámetro=valor ...]
 ```
+
+---
+
+## ⚡ Orden de Preferencia
+
+Cuando ejecutas un comando en la terminal, PiecesPHP sigue este orden estricto de resolución:
+
+1.  **Rutas del Sistema:** Primero intenta hacer coincidir la acción contra las rutas registradas en el cargador de la aplicación.
+2.  **Acciones Personalizadas (`CliActions`):** Si no hay coincidencia en rutas, busca en las acciones registradas mediante `CliActions::make()`.
+3.  **Eventos desacoplados:** Si falla lo anterior, dispara el evento `EVENT_CLI_ROUTE_NOT_FOUND_NAME`.
+4.  **Error:** Si nada de lo anterior responde, muestra el mensaje de error de terminal.
 
 ---
 
@@ -184,6 +195,40 @@ QueueTask::dispatch('enviar-email', ['to' => 'user@example.com', 'template' => '
 ```
 
 3. **Ejecución:** Debe programarse un Cron del sistema (crontab) que ejecute `php index.php cli process-queue` con la frecuencia deseada (ej. cada minuto).
+
+---
+
+## 🛠️ Acciones CLI Personalizadas (Custom Actions)
+
+PiecesPHP permite registrar tus propias acciones de terminal mediante la clase `PiecesPHP\Terminal\CliActions`. Esto es ideal para integrar scripts de mantenimiento, migraciones o **motores reactivos**.
+
+### Registro de una acción
+Típicamente se definen en `src/app/config/final-configurations-includes/cli-actions.php`:
+
+```php
+use PiecesPHP\Terminal\CliActions;
+use React\EventLoop\Loop;
+
+// Ejemplo de un loop reactivo (ReactPHP)
+CliActions::make('mi-motor', function ($args) {
+    
+    echoTerminal("Iniciando motor reactivo...");
+    
+    Loop::addPeriodicTimer(1.0, function () {
+        echoTerminal("Revisando tareas...");
+    });
+    
+    Loop::run();
+    
+})->setDescription('Ejecuta un motor reactivo')->register();
+```
+
+### Ejecutar Acción
+```bash
+php index.php cli mi-motor
+```
+
+El framework primero prefiere las acciones mediante el sistema de rutas. Pero si no se encuentra la acción, buscará en las acciones personalizadas (cli-actions).
 
 ---
 
