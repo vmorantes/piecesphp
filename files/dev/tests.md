@@ -32,10 +32,10 @@ php index.php cli --local run-cronjobs unit-tests core/http-client
         - Segmentación automática
         - Envío de emails
     - Se deben configurar las credenciales de Mautic en secure-keys/mautic en el siguiente formato:
+    - src/app/core/system-controllers/local-tests/test-mautic-cronjob.php
 ```txt
 [API_URL]::[CLIENT_ID]::[CLIENT_SECRET]::[EMAIL_FROM]
 ```
-    - src/app/core/system-controllers/local-tests/test-mautic-cronjob.php
 ```bash
 php index.php cli --local run-cronjobs mautic run
 ```
