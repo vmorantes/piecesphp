@@ -23,6 +23,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\TerminalData;
+use PiecesPHP\Terminal\CliActions;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpMethodNotAllowedException;
@@ -848,6 +849,7 @@ if (TerminalData::getInstance()->isTerminal()) {
     $routeInformation = get_route_info($routeName);
     $_SERVER['REQUEST_URI'] = '';
 
+    //Por sistema de rutas
     if ($routeInformation !== null) {
 
         $routeURLSegment = str_replace([
@@ -868,8 +870,29 @@ if (TerminalData::getInstance()->isTerminal()) {
 
         $container->add('environment', \PiecesPHP\Core\Routing\Slim3Compatibility\Http\Environment::mock($basicServerVariables));
     } else {
-        echo "La ruta solicitada no existe\r\n";
-        exit;
+        //Por otras acciones desacopladas del sistema de rutas
+        $cliActionExists = CliActions::exists($actionName);
+        $cliActions = CliActions::getActions();
+        if ($cliActionExists || count($cliActions) > 0) {
+            if ($cliActionExists) {
+                CliActions::run($actionName, TerminalData::instance()->arguments());
+            } else {
+                echoTerminal("Acción no reconocida: {$actionName}", true, "\r\n", '33');
+                foreach ($cliActions as $action) {
+                    $name = $action->getName();
+                    $description = $action->getDescription();
+                    echoTerminal(" - {$name}\r\n\t{$description}", true, "\r\n\r\n", '32');
+                }
+            }
+            return;
+        } elseif (BaseEventDispatcher::hasDefaultListeners(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME)) {
+            //Por eventos desacoplados del sistema de rutas
+            BaseEventDispatcher::defaultDispatch(BaseEventDispatcher::EVENT_CLI_ROUTE_NOT_FOUND_NAME, null);
+            return;
+        } else {
+            echoTerminal("No coincide ninguna ruta y no hay órdenes disponibles", true, "\r\n", '33');
+            exit;
+        }
     }
 }
 

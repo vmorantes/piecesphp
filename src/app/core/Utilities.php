@@ -1775,6 +1775,37 @@ function base64EncodeOrDefault(?string $value, string $defaultValue = '')
     return $value !== null ? base64_encode($value) : $defaultValue;
 }
 
+/**
+ * Obtiene la ruta relativa entre dos rutas.
+ *
+ * @param string $from Ruta de origen.
+ * @param string $to Ruta de destino.
+ * @return string Ruta relativa.
+ */
+function getRelativePath(string $from, string $to): string
+{
+    // 1. Normalizar separadores y limpiar espacios
+    $from = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($from));
+    $to = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, trim($to));
+
+    $fromParts = explode(DIRECTORY_SEPARATOR, rtrim($from, DIRECTORY_SEPARATOR));
+    $toParts = explode(DIRECTORY_SEPARATOR, rtrim($to, DIRECTORY_SEPARATOR));
+
+    // 2. Encontrar el punto de divergencia
+    while (count($fromParts) && count($toParts) && ($fromParts[0] === $toParts[0])) {
+        array_shift($fromParts);
+        array_shift($toParts);
+    }
+
+    // 3. '..' por cada nivel que debemos subir en 'from'
+    $relPath = str_repeat('..' . DIRECTORY_SEPARATOR, count($fromParts));
+
+    // 4. Añadir los niveles que debemos bajar hacia 'to'
+    $relPath .= implode(DIRECTORY_SEPARATOR, $toParts);
+
+    return $relPath;
+}
+
 //========================================================================================
 /*                                                                                      *
  *                                       Polyfills                                      *

@@ -1,5 +1,7 @@
 # Pruebas útiles en desarrollo
 
+> Para fines de ejecución local se usa ```$ bin/cli ``` para declarar explícitamente que es loca, que es lo mismo que usar ```$ php index.php cli --local ```.
+
 ## Unitarias
 
 - PiecesPHP\Core\Helpers\Directories
@@ -11,7 +13,7 @@
         - Borrado Seguro (Trust the Path)
     - src/app/core/system-controllers/local-tests/UnitTest-Helpers_Directories.php
 ```bash
-php index.php cli --local run-cronjobs unit-tests core/helpers-directories
+bin/cli unit-tests:core/helpers-directories
 ```
 - PiecesPHP\Core\Http\HttpClient
     - Se probaron las siguientes funcionalidades:
@@ -22,7 +24,12 @@ php index.php cli --local run-cronjobs unit-tests core/helpers-directories
         - Timeout configurado
     - src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 ```bash
-php index.php cli --local run-cronjobs unit-tests core/http-client
+bin/cli unit-tests:core/http-client
+```
+- Pruebas variadas sobre funciones
+    - src/app/core/system-controllers/local-tests/UnitTest-Functions.php
+```bash
+bin/cli unit-tests:functions/systemOutFormatted
 ```
 
 ## Otras
@@ -37,5 +44,5 @@ php index.php cli --local run-cronjobs unit-tests core/http-client
 [API_URL]::[CLIENT_ID]::[CLIENT_SECRET]::[EMAIL_FROM]
 ```
 ```bash
-php index.php cli --local run-cronjobs mautic run
+bin/cli tests:mautic-batch-send
 ```

@@ -1,116 +1,104 @@
 <?php
-
 use PiecesPHP\Core\Http\HttpClient;
 use PiecesPHP\TerminalData;
-use PiecesPHP\Terminal\CronJobTask;
+use PiecesPHP\Terminal\CliActions;
 
 $langGroup = 'TestPCSPHP-Lang';
 $cliArguments = TerminalData::instance()->arguments();
-
 $cliTaskName = 'unit-tests';
 $cliTaskFlag = 'core/http-client';
-$jobName = uniqid("{$cliTaskFlag}/");
-if (($cliArguments[$cliTaskName] ?? false) && ($cliArguments[$cliTaskFlag] ?? false)) {
-    CronJobTask::addCronJob(CronJobTask::make($jobName, function () {
+$cliTaskDescription = 'Pruebas unitarias de ' . HttpClient::class;
+CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
+    echoTerminal('[TEST:HTTPClient] Iniciando suite de pruebas unitarias...');
+    echoTerminal('');
+    set_config('terminal_color', '33');
 
-        echoTerminal('[TEST:HTTPClient] Iniciando suite de pruebas unitarias...');
-        echoTerminal('');
-        set_config('terminal_color', '33');
+    $webhookURL = 'https://webhook.site/1948a039-b070-48f2-8ade-4421cdd7889c';
+    $client = new HttpClient($webhookURL);
 
-        $webhookURL = 'https://webhook.site/1948a039-b070-48f2-8ade-4421cdd7889c';
-        $client = new HttpClient($webhookURL);
+    // Cabeceras por defecto
+    $client->setDefaultRequestHeaders([
+        'Authorization' => 'Bearer DEFAULT_TOKEN',
+        'Accept' => 'application/json',
+    ]);
 
-        // Cabeceras por defecto
-        $client->setDefaultRequestHeaders([
-            'Authorization' => 'Bearer DEFAULT_TOKEN',
-            'Accept' => 'application/json',
-        ]);
+    $checkResult = function ($condition, $name) {
+        $status = $condition ? '[PASÓ]' : '[FALLÓ]';
+        echoTerminal("   $status $name");
+        return $condition;
+    };
 
-        $results = [];
+    // --- CASO 1: GET con Parámetros ---
+    echoTerminal('[1/5] Probando GET con parámetros de consulta...');
+    $params = ['search' => 'test@example.com', 'limit' => 1];
+    $client->request('', 'GET', $params);
 
-        $checkResult = function ($condition, $name) {
-            $status = $condition ? '[PASÓ]' : '[FALLÓ]';
-            echoTerminal("   $status $name");
-            return $condition;
-        };
+    $uri = $client->getRequestURI();
+    $hasParams = strpos($uri, 'search=test%40example.com') !== false && strpos($uri, 'limit=1') !== false;
+    $gotStatus = $client->getResponseStatus() !== null;
 
-        // --- CASO 1: GET con Parámetros ---
-        echoTerminal('[1/5] Probando GET con parámetros de consulta...');
-        $params = ['search' => 'test@example.com', 'limit' => 1];
-        $client->request('', 'GET', $params);
+    $checkResult($hasParams && $gotStatus, 'GET Params y Conectividad');
+    echoTerminal('   URL: ' . $uri);
+    echoTerminal('   Status: ' . ($client->getResponseStatus() ?? 'ERROR/TIMEOUT'));
+    echoTerminal('   Response: ' . ($client->getResponseBody()));
+    echoTerminal(' ');
 
-        $uri = $client->getRequestURI();
-        $hasParams = strpos($uri, 'search=test%40example.com') !== false && strpos($uri, 'limit=1') !== false;
-        $gotStatus = $client->getResponseStatus() !== null;
+    // --- CASO 2: POST con JSON ---
+    echoTerminal('[2/5] Probando POST con cuerpo JSON...');
+    $body = ['name' => 'Test Item', 'value' => 123];
+    $client->request('', 'POST', $body, ['Content-Type' => 'application/json']);
 
-        $checkResult($hasParams && $gotStatus, 'GET Params y Conectividad');
-        echoTerminal('   URL: ' . $uri);
-        echoTerminal('   Status: ' . ($client->getResponseStatus() ?? 'ERROR/TIMEOUT'));
-        echoTerminal('   Response: ' . ($client->getResponseBody()));
-        echoTerminal(' ');
+    $sentBody = $client->getRequestBody();
+    $isJson = @json_decode($sentBody) !== null;
+    $hasValues = strpos($sentBody, '"name":"Test Item"') !== false;
 
-        // --- CASO 2: POST con JSON ---
-        echoTerminal('[2/5] Probando POST con cuerpo JSON...');
-        $body = ['name' => 'Test Item', 'value' => 123];
-        $client->request('', 'POST', $body, ['Content-Type' => 'application/json']);
+    $checkResult($isJson && $hasValues, 'Cuerpo POST codificado como JSON');
+    echoTerminal('   Status: ' . $client->getResponseStatus());
+    echoTerminal('   Body: ' . $sentBody);
+    echoTerminal(' ');
 
-        $sentBody = $client->getRequestBody();
-        $isJson = @json_decode($sentBody) !== null;
-        $hasValues = strpos($sentBody, '"name":"Test Item"') !== false;
+    // --- CASO 3: Fusión de cabeceras (override_defaults = true) ---
+    echoTerminal('[3/5] Probando fusión con override_defaults = true...');
+    $client->request('', 'GET', [], ['Accept' => 'text/plain'], true, true);
+    $headers = $client->getRequestHeaders();
 
-        $checkResult($isJson && $hasValues, 'Cuerpo POST codificado como JSON');
-        echoTerminal('   Status: ' . $client->getResponseStatus());
-        echoTerminal('   Body: ' . $sentBody);
-        echoTerminal(' ');
+    $isOverridden = ($headers['Accept'] ?? '') === 'text/plain';
+    $authMissing = !isset($headers['Authorization']); // Si override=true y no lo pasamos, se pierde
 
-        // --- CASO 3: Fusión de cabeceras (override_defaults = true) ---
-        echoTerminal('[3/5] Probando fusión con override_defaults = true...');
-        $client->request('', 'GET', [], ['Accept' => 'text/plain'], true, true);
-        $headers = $client->getRequestHeaders();
+    $checkResult($isOverridden && $authMissing, 'Sobrescritura total de cabeceras');
+    echoTerminal('   Status: ' . $client->getResponseStatus());
+    echoTerminal('   Accept: ' . ($headers['Accept'] ?? 'N/A'));
+    echoTerminal('   Auth: ' . (isset($headers['Authorization']) ? 'Presente (Error)' : 'Ausente (OK)'));
+    echoTerminal(' ');
 
-        $isOverridden = ($headers['Accept'] ?? '') === 'text/plain';
-        $authMissing = !isset($headers['Authorization']); // Si override=true y no lo pasamos, se pierde
+    // --- CASO 4: Fusión de cabeceras (override_defaults = false) ---
+    echoTerminal('[4/5] Probando fusión con override_defaults = false...');
+    $client->request('', 'POST', ['hi' => 1], ['Content-Type' => 'application/json'], true, false);
+    $headers = $client->getRequestHeaders();
 
-        $checkResult($isOverridden && $authMissing, 'Sobrescritura total de cabeceras');
-        echoTerminal('   Status: ' . $client->getResponseStatus());
-        echoTerminal('   Accept: ' . ($headers['Accept'] ?? 'N/A'));
-        echoTerminal('   Auth: ' . (isset($headers['Authorization']) ? 'Presente (Error)' : 'Ausente (OK)'));
-        echoTerminal(' ');
+    $hasCustom = ($headers['Content-Type'] ?? '') === 'application/json';
+    $hasDefault = ($headers['Authorization'] ?? '') === 'Bearer DEFAULT_TOKEN';
 
-        // --- CASO 4: Fusión de cabeceras (override_defaults = false) ---
-        echoTerminal('[4/5] Probando fusión con override_defaults = false...');
-        $client->request('', 'POST', ['hi' => 1], ['Content-Type' => 'application/json'], true, false);
-        $headers = $client->getRequestHeaders();
+    $checkResult($hasCustom && $hasDefault, 'Fusión de cabeceras (Mantiene defaults)');
+    echoTerminal('   Status: ' . $client->getResponseStatus());
+    echoTerminal('   Content-Type: ' . ($headers['Content-Type'] ?? 'N/A'));
+    echoTerminal('   Auth: ' . ($headers['Authorization'] ?? 'N/A'));
+    echoTerminal(' ');
 
-        $hasCustom = ($headers['Content-Type'] ?? '') === 'application/json';
-        $hasDefault = ($headers['Authorization'] ?? '') === 'Bearer DEFAULT_TOKEN';
+    // --- CASO 5: Timeout ---
+    echoTerminal('[5/5] Probando Timeout configurado...');
+    $timeoutClient = new HttpClient('http://10.255.255.1');
+    $timeoutClient->timeout(2); // bajamos a 2s para rapidez
+    $startTime = microtime(true);
+    @$timeoutClient->request('', 'GET');
+    $duration = microtime(true) - $startTime;
 
-        $checkResult($hasCustom && $hasDefault, 'Fusión de cabeceras (Mantiene defaults)');
-        echoTerminal('   Status: ' . $client->getResponseStatus());
-        echoTerminal('   Content-Type: ' . ($headers['Content-Type'] ?? 'N/A'));
-        echoTerminal('   Auth: ' . ($headers['Authorization'] ?? 'N/A'));
-        echoTerminal(' ');
+    $worked = $duration >= 2 && $duration < 4; // Margen de error
+    $checkResult($worked, "Timeout detectado en ~$duration s");
+    echoTerminal(' ');
 
-        // --- CASO 5: Timeout ---
-        echoTerminal('[5/5] Probando Timeout configurado...');
-        $timeoutClient = new HttpClient('http://10.255.255.1');
-        $timeoutClient->timeout(2); // bajamos a 2s para rapidez
-        $startTime = microtime(true);
-        @$timeoutClient->request('', 'GET');
-        $duration = microtime(true) - $startTime;
+    set_config('terminal_color', null);
+    echoTerminal('[TEST:HTTPClient] Suite finalizada.');
+    echoTerminal('Pruebas completadas. Revisa logs de terminal y Webhook.site');
 
-        $worked = $duration >= 2 && $duration < 4; // Margen de error
-        $checkResult($worked, "Timeout detectado en ~$duration s");
-        echoTerminal(' ');
-
-        set_config('terminal_color', null);
-        echoTerminal('[TEST:HTTPClient] Suite finalizada.');
-        echoTerminal('');
-
-        return [
-            'success' => true,
-            'message' => 'Pruebas completadas. Revisa logs de terminal y Webhook.site',
-            'extra_data' => $results,
-        ];
-    }));
-}
+})->setDescription($cliTaskDescription)->register();

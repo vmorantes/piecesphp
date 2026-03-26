@@ -7,18 +7,19 @@
 1139
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (400)
+🪪  argument.type (401)
 🪪  property.nonObject (273)
 🪪  method.nonObject (191)
-🪪  return.type (88)
+🪪  return.type (86)
 🪪  property.notFound (64)
 🪪  assign.propertyType (51)
 🪪  foreach.nonIterable (41)
 🪪  method.notFound (7)
-🪪  offsetAccess.notFound (6)
 🪪  clone.nonObject (5)
 🪪  offsetAccess.invalidOffset (4)
+🪪  offsetAccess.notFound (4)
 🪪  binaryOp.invalid (3)
+🪪  variable.undefined (3)
 🪪  encapsedStringPart.nonString (2)
 🪪  staticMethod.nonObject (1)
 🪪  isset.offset (1)
@@ -525,10 +526,10 @@ project://src/app/controller/UsersController.php
 	🪪  return.type (Líneas: 490, 590, 1885)
 	🪪  method.nonObject (Líneas: 1331, 1643)
 project://src/app/core/AppHelpers.php
-	🪪  return.type (Líneas: 487, 1308, 1400, 3287)
-	🪪  offsetAccess.notFound (Líneas: 743, 1237, 3063, 3064)
-	🪪  argument.type (Líneas: 2246, 2317, 3071, 3072, 3074, 3075, 3076, 3077, 3080, 3081, 3082, 3083, 3100, 3140, 3141, 3142, 3242, 3243)
+	🪪  return.type (Líneas: 1308, 1400)
+	🪪  argument.type (Líneas: 2246, 2317, 2973, 3308, 3309, 3310, 3410, 3411)
 	🪪  offsetAccess.invalidOffset (Líneas: 2341)
+	🪪  offsetAccess.notFound (Líneas: 3203, 3204)
 project://src/app/core/Config.php
 	🪪  argument.type (Líneas: 814, 1091)
 	🪪  assign.propertyType (Líneas: 930)
@@ -632,11 +633,11 @@ project://src/app/core/psr4/PiecesPHP/Terminal/QueueTask.php
 project://src/app/core/system-controllers/Test.php
 	🪪  argument.type (Líneas: 83, 94, 111)
 	🪪  return.type (Líneas: 126)
+project://src/app/core/system-controllers/local-tests/UnitTest-Functions.php
+	🪪  argument.type (Líneas: 32, 40, 41, 49, 50, 56, 65, 74, 88, 97, 103, 113)
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
-	🪪  argument.type (Líneas: 57, 58)
-	🪪  binaryOp.invalid (Líneas: 62)
-project://src/app/core/system-controllers/local-tests/test-mautic-cronjob.php
-	🪪  argument.type (Líneas: 37)
+	🪪  argument.type (Líneas: 52, 53)
+	🪪  binaryOp.invalid (Líneas: 57)
 project://src/app/model/AvatarModel.php
 	🪪  return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
@@ -700,7 +701,8 @@ project://src/app/view/usuarios/utils/user-card.php
 	🪪  property.nonObject (Líneas: 12)
 	🪪  argument.type (Líneas: 13)
 project://src/index.php
-	🪪  property.notFound (Líneas: 362)
-	🪪  method.nonObject (Líneas: 389, 391, 392, 869, 885, 890, 896, 899, 904)
-	🪪  argument.type (Líneas: 585, 604, 640, 652, 669, 729, 739, 847, 857)
-	🪪  property.nonObject (Líneas: 612)
+	🪪  property.notFound (Líneas: 363)
+	🪪  method.nonObject (Líneas: 390, 392, 393, 871, 908, 913, 919, 922, 927)
+	🪪  argument.type (Líneas: 586, 605, 641, 653, 670, 730, 740, 848, 859)
+	🪪  property.nonObject (Líneas: 613)
+	🪪  variable.undefined (Líneas: 874, 878, 880)

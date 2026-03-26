@@ -93,6 +93,31 @@ class BaseEventDispatcher
         }
     }
 
+    /**
+     * Verifica si existe un escuchador para un evento específico.
+     *
+     * @param string $context El contexto en el que se registraron los escuchadores.
+     * @param string $event El nombre del evento que se va a verificar.
+     * @return bool True si existe un escuchador para el evento, false en caso contrario.
+     */
+    public static function hasListeners(string $context, string $event): bool
+    {
+        return array_key_exists($context, self::$listeners) && array_key_exists($event, self::$listeners[$context]);
+    }
+
+    /**
+     * Verifica si existe un escuchador para un evento específico.
+     *
+     * @param string $defaultEventName El nombre del evento por defecto que se va a verificar.
+     * @return bool True si existe un escuchador para el evento, false en caso contrario.
+     */
+    public static function hasDefaultListeners(string $defaultEventName): bool
+    {
+        $context = self::DEFAULT_EVENTS[$defaultEventName]['context'] ?? '';
+        $event = self::DEFAULT_EVENTS[$defaultEventName]['event'] ?? '';
+        return self::hasListeners($context, $event);
+    }
+
     /* Eventos por defecto del sistema */
     //Se dipara cuando se registran las rutas del sistema
     const EVENT_INIT_ROUTES_NAME = 'EVENT_INIT_ROUTES';
@@ -106,6 +131,12 @@ class BaseEventDispatcher
         'event' => 'added',
         'context' => 'AddDynamicTransaltions',
     ];
+    //Se dipara cuando no se encuentra una ruta en modo CLI (útil para comandos personalizados)
+    const EVENT_CLI_ROUTE_NOT_FOUND_NAME = 'EVENT_CLI_ROUTE_NOT_FOUND';
+    const EVENT_CLI_ROUTE_NOT_FOUND = [
+        'event' => 'CliRouteNotFound',
+        'context' => 'cli',
+    ];
 
     /**
      * Eventos por defecto del sistema. Se estructuran de la siguiente manera:
@@ -117,6 +148,7 @@ class BaseEventDispatcher
     const DEFAULT_EVENTS = [
         self::EVENT_INIT_ROUTES_NAME => self::EVENT_INIT_ROUTES,
         self::EVENT_ADD_DYNAMIC_TRANSLATIONS_NAME => self::EVENT_ADD_DYNAMIC_TRANSLATIONS,
+        self::EVENT_CLI_ROUTE_NOT_FOUND_NAME => self::EVENT_CLI_ROUTE_NOT_FOUND,
     ];
 
 }

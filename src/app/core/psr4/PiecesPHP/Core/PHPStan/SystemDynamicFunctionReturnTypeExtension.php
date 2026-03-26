@@ -217,6 +217,10 @@ class SystemDynamicFunctionReturnTypeExtension implements DynamicFunctionReturnT
                 new StringType(),
                 new NullType(),
             ]),
+            'terminal_format_options' => new UnionType([
+                new ArrayType(new MixedType(), new MixedType()),
+                new NullType(),
+            ]),
             //'terminalData' => new StringType(),
             //'terminalTaskAvailablesVerbose' => new StringType(),
             'title' => new StringType(),

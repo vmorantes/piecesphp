@@ -1,3 +1,27 @@
+# 7.0.2 (26-03-2026)
+
+- **CLI**:
+    - Mejor semántica en tareas de terminal que no son cronjobs y desacopladas del sistema de rutas con PiecesPHP\Terminal\CliActions.
+    - Tareas afectadas
+```bash
+#Antes
+bin/cli run-cronjobs unit-tests core/http-client
+#Ahora
+bin/cli unit-tests:core/http-client
+#Antes
+bin/cli run-cronjobs unit-tests core/helpers-directories
+#Ahora
+bin/cli unit-tests:core/helpers-directories
+#Antes
+bin/cli run-cronjobs mautic run
+#Ahora
+bin/cli tests:mautic-batch-send
+```
+- **Pruebas unitarias añadidas**:
+    - [Ver](./files/dev/tests.md)
+- **Eliminaciones**:
+    - Se elimina la función `objectToArray`.
+
 # 7.0.1 (25-03-2026)
 
 - **Núcleo y Gestión de Archivos**:

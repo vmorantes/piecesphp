@@ -483,7 +483,7 @@ function getPreferredLanguageByHeader(array $supportedLanguages, ?string $defaul
 
         //Si no hay coincidencia exacta, probar el código base (ej. "es" en vez de "es-ES")
         $baseLanguage = strtok($language, '-'); // Obtener solo la parte antes del guión
-        if (in_array($baseLanguage, $supportedLanguages)) {
+        if ($baseLanguage !== false && in_array($baseLanguage, $supportedLanguages)) {
             return $baseLanguage;
         }
     }
@@ -740,7 +740,7 @@ function load_js(array $config = [])
 
         }
 
-        $path = $configValues['baseURL'] . $src;
+        $path = ($configValues['baseURL'] ?? '') . $src;
         $attributes['src'] = $path;
         //Revisar si es tipo módulo
         foreach ($asModules as $asModule) {
@@ -993,7 +993,7 @@ function load_css(array $config = [])
 
         }
 
-        $path = $configValues['baseURL'] . $src;
+        $path = ($configValues['baseURL'] ?? '') . $src;
         $attributes['href'] = $path;
 
         $attributes = ($processAttr)($config, $attributes, $src);
@@ -1234,7 +1234,7 @@ function load_font(array $config = [])
 
         }
 
-        $path = $configValues['baseURL'] . $src;
+        $path = ($configValues['baseURL'] ?? '') . $src;
         $attributes['href'] = $path;
         $attributes['as'] = 'style';
 
@@ -2961,14 +2961,154 @@ function throw403(\PiecesPHP\Core\Routing\RequestRoute $request, array $extraDat
  */
 function echoTerminal(string $text, bool $newLine = true, string $newLineChars = "\r\n", ?string $color = null)
 {
-    $globalTerminalColor = get_config('terminal_color');
+    $format = [
+        'newLine' => $newLine,
+        'newLineChars' => $newLineChars,
+    ];
+
     if ($color !== null) {
-        $text = "\033[{$color}m{$text}\033[0m";
-    } else if ($globalTerminalColor !== null) {
-        $text = "\033[{$globalTerminalColor}m{$text}\033[0m";
+        $format['color'] = $color;
     }
-    fwrite(STDOUT, $text . ($newLine ? $newLineChars : ''));
-    flush();
+
+    systemOutFormatted($text, $format);
+}
+
+/**
+ * Genera una salida en la terminal con formato (colores y estilos)
+ *
+ * @param string $text Texto a mostrar
+ * @param array{
+ *  color?: string|int,
+ *  background?: string|int,
+ *  bold?: bool|int,
+ *  dim?: bool|int,
+ *  italic?: bool|int,
+ *  underline?: bool|int,
+ *  blink?: bool|int,
+ *  reverse?: bool|int,
+ *  hidden?: bool|int,
+ *  strike?: bool|int,
+ *  newLine?: bool,
+ *  newLineChars?: string
+ * }|string[]|int[] $format Configuración: color, background, estilos, o lista de formatos (nombres o códigos ANSI)
+ * @return string Texto formateado con secuencias ANSI
+ * @see https://misc.flogisoft.com/bash/tip_colors_and_formatting
+ */
+function systemOutFormatted(string $text, array $format = []): string
+{
+    $colorsMapping = [
+        'default' => 39,
+        'black' => 30,
+        'red' => 31,
+        'green' => 32,
+        'yellow' => 33,
+        'blue' => 34,
+        'magenta' => 35,
+        'cyan' => 36,
+        'light-gray' => 37,
+        'dark-gray' => 90,
+        'light-red' => 91,
+        'light-green' => 92,
+        'light-yellow' => 93,
+        'light-blue' => 94,
+        'light-magenta' => 95,
+        'light-cyan' => 96,
+        'white' => 97,
+    ];
+    $backgroundColorsMapping = [
+        'default' => 49,
+        'black' => 40,
+        'red' => 41,
+        'green' => 42,
+        'yellow' => 43,
+        'blue' => 44,
+        'magenta' => 45,
+        'cyan' => 46,
+        'light-gray' => 47,
+        'dark-gray' => 100,
+        'light-red' => 101,
+        'light-green' => 102,
+        'light-yellow' => 103,
+        'light-blue' => 104,
+        'light-magenta' => 105,
+        'light-cyan' => 106,
+        'white' => 107,
+    ];
+    $optionsMapping = [
+        'bold' => 1,
+        'dim' => 2,
+        'italic' => 3,
+        'underline' => 4,
+        'blink' => 5,
+        'reverse' => 7,
+        'hidden' => 8,
+        'strike' => 9,
+    ];
+
+    $globalColor = get_config('terminal_color');
+    $globalOptions = get_config('terminal_format_options');
+
+    $defaults = [
+        'background' => 'default',
+        'color' => $globalColor ?? 'default',
+        'newLine' => true,
+        'newLineChars' => "\r\n",
+    ];
+
+    if (is_array($globalOptions)) {
+        $defaults = array_merge($defaults, $globalOptions);
+    }
+
+    $format = array_merge($defaults, $format);
+
+    $codes = [];
+
+    foreach ($format as $key => $value) {
+
+        if (is_numeric($key)) {
+            // Valores de lista: systemOutFormatted('txt', ['red', 'bold'])
+            if (isset($colorsMapping[$value])) {
+                $codes[] = $colorsMapping[$value];
+            } elseif (isset($optionsMapping[$value])) {
+                $codes[] = $optionsMapping[$value];
+            } elseif (is_numeric($value)) {
+                $codes[] = (int) $value;
+            }
+        } else {
+            // Claves nominales: ['color' => 'red', 'bold' => true]
+            if ($key === 'color') {
+                if (isset($colorsMapping[$value])) {
+                    $codes[] = $colorsMapping[$value];
+                } elseif (is_numeric($value)) {
+                    $codes[] = (int) $value;
+                }
+            } elseif ($key === 'background') {
+                if (isset($backgroundColorsMapping[$value])) {
+                    $codes[] = $backgroundColorsMapping[$value];
+                } elseif (is_numeric($value)) {
+                    $codes[] = (int) $value;
+                }
+            } elseif (isset($optionsMapping[$key])) {
+                if ($value === true || $value === 1 || $value === (string) $optionsMapping[$key]) {
+                    $codes[] = $optionsMapping[$key];
+                }
+            }
+        }
+    }
+
+    $codes = array_unique($codes);
+    sort($codes); // Ordenar para consistencia
+    $prefix = count($codes) > 0 ? "\033[" . implode(';', $codes) . "m" : "";
+    $suffix = count($codes) > 0 ? "\033[0m" : "";
+
+    $formattedString = $prefix . $text . $suffix;
+
+    if (defined('STDOUT')) {
+        fwrite(STDOUT, $formattedString . ($format['newLine'] ? $format['newLineChars'] : ''));
+        flush();
+    }
+
+    return $formattedString;
 }
 
 /**
@@ -3068,19 +3208,45 @@ function var_dump_pretty($data, $label = '', $return = false)
     $c = ob_get_contents();
     ob_end_clean();
 
-    $c = preg_replace("/\r\n|\r/", "\n", $c);
-    $c = str_replace("]=>\n", '] = ', $c);
-    $c = preg_replace('/= {2,}/', '= ', $c);
-    $c = preg_replace("/\[\"(.*?)\"\] = /i", "[$1] = ", $c);
-    $c = preg_replace('/  /', "    ", $c);
-    $c = preg_replace("/\"\"(.*?)\"/i", "\"$1\"", $c);
-    $c = preg_replace("/(int|float)\(([0-9\.]+)\)/i", "$1() <span class=\"number\">$2</span>", $c);
+    $processOrder = [
+        /*1*/['preg_replace', ["/\r\n|\r/", "\n"], true],
+        /*2*/['str_replace', ["]=>\n", '] = '], true],
+        /*3*/['preg_replace', ['/= {2,}/', '= '], true],
+        /*4*/['preg_replace', ["/\[\"(.*?)\"\] = /i", "[$1] = "], true],
+        /*5*/['preg_replace', ['/  /', "    "], true],
+        /*6*/['preg_replace', ["/\"\"(.*?)\"/i", "\"$1\""], true],
+        /*7*/['preg_replace', ["/(int|float)\(([0-9\.]+)\)/i", "$1() <span class=\"number\">$2</span>"], true],
+        //Syntax Highlighting of Strings. This seems cryptic, but it will also allow non-terminated strings to get parsed.
+        /*8*/['preg_replace', ["/(\[[\w ]+\] = string\([0-9]+\) )\"(.*?)/sim", "$1<span class=\"string\">\""], true],
+        /*9*/['preg_replace', ["/(\"\n{1,})( {0,}\})/sim", "$1</span>$2"], true],
+        /*10*/['preg_replace', ["/(\"\n{1,})( {0,}\[)/sim", "$1</span>$2"], true],
+        /*11*/['preg_replace', ["/(string\([0-9]+\) )\"(.*?)\"\n/sim", "$1<span class=\"string\">\"$2\"</span>\n"], true],
+    ];
 
-    // Syntax Highlighting of Strings. This seems cryptic, but it will also allow non-terminated strings to get parsed.
-    $c = preg_replace("/(\[[\w ]+\] = string\([0-9]+\) )\"(.*?)/sim", "$1<span class=\"string\">\"", $c);
-    $c = preg_replace("/(\"\n{1,})( {0,}\})/sim", "$1</span>$2", $c);
-    $c = preg_replace("/(\"\n{1,})( {0,}\[)/sim", "$1</span>$2", $c);
-    $c = preg_replace("/(string\([0-9]+\) )\"(.*?)\"\n/sim", "$1<span class=\"string\">\"$2\"</span>\n", $c);
+    $currentProcessPosition = -1;
+    try {
+        foreach ($processOrder as $index => $step) {
+            $currentProcessPosition = $index;
+            $fn = $step[0];
+            $args = $step[1];
+            $addC = $step[2] ?? false;
+            if (is_callable($fn) && is_array($args) && is_bool($addC)) {
+                if ($addC) {
+                    $args[] = $c;
+                }
+                $c = call_user_func_array($fn, $args);
+            }
+        }
+    } catch (\Throwable $e) {
+        if (is_local()) {
+            var_dump([
+                'currentProcess' => $currentProcessPosition + 1,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+            ]);
+            exit;
+        }
+    }
 
     $regex = [
         // Numberrs
@@ -3097,7 +3263,9 @@ function var_dump_pretty($data, $label = '', $return = false)
     ];
 
     foreach ($regex as $x) {
-        $c = preg_replace($x[0], $x[1], $c);
+        if (is_string($c)) {
+            $c = preg_replace($x[0], $x[1], $c);
+        }
     }
 
     $style = '
@@ -3269,20 +3437,4 @@ function getKeyFromSecureKeys(string $name, ?string $fullDirectory = null)
     } catch (\Throwable) {
         return $key;
     }
-}
-
-/**
- * Convierte un objeto en un array
- * @param mixed $input
- * @return array
- */
-function objectToArray($input)
-{
-    if (is_object($input)) {
-        $input = get_object_vars($input);
-    }
-    if (is_array($input)) {
-        return array_map('objectToArray', $input);
-    }
-    return $input;
 }
