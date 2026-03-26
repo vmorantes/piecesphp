@@ -1,4 +1,20 @@
-# 7.0.2 (26-03-2026)
+# 7.0.3 (26-03-2026)
+
+- **Protección de archivos**:
+    - Se implementó un sistema de protección de archivos que permite restringir el acceso a ciertos directorios.
+    - Para ello se usa `ProtectFileMiddleware::protect`.
+        - El cual es validado por `ServerStatics::protectFileMiddleware`.
+    - El primer parámetro es la ruta del directorio a proteger.
+    - El segundo parámetro es una función que recibe como parámetros un objeto Request y la ruta del archivo.
+    - La función debe retornar true si se permite el acceso y false si se deniega.
+    - Se puede usar la función `SessionToken::isActiveSession(SessionToken::getJWTReceived())` para validar la sesión.
+```php
+ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, 'ruta/al/directorio'), function (Request $request, string $filePath) {
+    return true;
+});
+```
+
+# 7.0.2 (25-03-2026)
 
 - **CLI**:
     - Mejor semántica en tareas de terminal que no son cronjobs y desacopladas del sistema de rutas con PiecesPHP\Terminal\CliActions.

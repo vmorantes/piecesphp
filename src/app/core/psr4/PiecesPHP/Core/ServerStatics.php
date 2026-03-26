@@ -13,6 +13,8 @@
 
 namespace PiecesPHP\Core;
 
+use PiecesPHP\Core\Helpers\Directories\ProtectFileMiddleware;
+use Slim\Psr7\Factory\StreamFactory;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -440,6 +442,13 @@ class ServerStatics
         return self::verifyFile($resource, $request, $response, $path, $mustValidate);
     }
 
+    /**
+     * Obtiene el enlace simbólico dinámico para un recurso
+     *
+     * @param array $args Argumentos de la ruta
+     * @param string|null $path Ruta personalizada
+     * @return string|null URL del enlace simbólico o null si no se puede generar
+     */
     public static function getSymbolicLink(array $args, ?string $path = null): ?string
     {
         $resource = $args['params'];
@@ -464,6 +473,11 @@ class ServerStatics
     private static function shouldDelegateToWebServer(string $resource): bool
     {
         if (!self::isDelegationEnabled()) {
+            return false;
+        }
+
+        $filePath = self::buildFilePath($resource, null);
+        if (ProtectFileMiddleware::isProtected($filePath)) {
             return false;
         }
 
@@ -594,12 +608,24 @@ class ServerStatics
             return $response->withStatus(404)->write('<h1>404 El recurso no existe.</h1>');
         }
 
+        //Validación de acceso mediante ProtectFileMiddleware
+        $access = ProtectFileMiddleware::validateAccess($filePath, $request);
+        if ($access === false) {
+            finfo_close($fileInformation);
+            return $response->withStatus(403)->write('<h1>403 Prohibido. El acceso a este recurso no está permitido.</h1>');
+        }
+
         $extension = mb_strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
         $mimeType = finfo_file($fileInformation, $filePath);
         finfo_close($fileInformation);
 
         //Configurar headers básicos
         $headers = self::buildBasicHeaders($mimeType, $extension);
+
+        //Añadir header especias si es protegido
+        if ($access === true) {
+            $headers['PiecesPHP-Protected-File'] = 'true';
+        }
 
         //Procesar cache
         $cacheResult = self::processCache($request, $filePath, $extension, $mustValidate);
@@ -611,15 +637,24 @@ class ServerStatics
             $response = $response->withHeader($name, $values);
         }
 
-        //Leer y procesar archivo
+        //Si es 304, no cargar el archivo
+        if ($status === 304) {
+            return $response->withStatus(304);
+        }
+
+        //Leer y procesar archivo (modo stream o data)
         $readingResult = self::readFile($filePath, $status, $extension, $request);
 
         foreach ($readingResult['headers'] as $name => $values) {
             $response = $response->withHeader($name, $values);
         }
 
-        if ($readingResult['fileData'] !== null) {
-            $response = $response->write($readingResult['fileData']);
+        if ($readingResult['data'] !== null) {
+            if ($readingResult['isStream']) {
+                $response = $response->withBody($readingResult['data']);
+            } else {
+                $response = $response->write($readingResult['data']);
+            }
         }
 
         return $response->withStatus($status);
@@ -828,17 +863,22 @@ class ServerStatics
     private static function readFile(string $path, int $status, string $extension, Request $request): array
     {
         $headers = [];
-        $fileData = null;
+        $data = null;
+        $isStream = false;
 
         if ($status != 304) {
-            $fileData = file_get_contents($path);
+
+            $fileData = @file_get_contents($path);
 
             if ($fileData === false) {
                 return [
                     'headers' => [],
-                    'fileData' => null,
+                    'data' => null,
+                    'isStream' => false,
                 ];
             }
+
+            $preProcessedData = $fileData;
 
             // Procesar conversión de formato si es necesario
             $conversionResult = self::processFormatConversion($path, $extension, $request, $fileData);
@@ -849,11 +889,31 @@ class ServerStatics
             $compressionResult = self::processCompression($extension, $request, $fileData);
             $headers = array_merge($headers, $compressionResult['headers']);
             $fileData = $compressionResult['fileData'];
+
+            //Si los datos no han sido alterados por procesamiento, usamos streaming para mayor rendimiento
+            if ($preProcessedData === $fileData) {
+
+                $resource = @fopen($path, 'rb');
+
+                if ($resource !== false) {
+                    $streamFactory = new StreamFactory();
+                    $data = $streamFactory->createStreamFromResource($resource);
+                    $isStream = true;
+                } else {
+                    $data = $fileData;
+                    $isStream = false;
+                }
+
+            } else {
+                $data = $fileData;
+                $isStream = false;
+            }
         }
 
         return [
             'headers' => $headers,
-            'fileData' => $fileData,
+            'data' => $data,
+            'isStream' => $isStream,
         ];
     }
 
