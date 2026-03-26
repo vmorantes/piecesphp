@@ -69,6 +69,7 @@ class GenericHandler
         $this->exception = $e;
 
         $date = \DateTime::createFromFormat('U.u', microtime(true));
+        $date = $date !== false ? $date : new \DateTime();
         $dateTimeZone = new \DateTimeZone(date_default_timezone_get());
         $date->setTimezone($dateTimeZone);
 
