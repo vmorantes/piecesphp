@@ -107,7 +107,7 @@ class Cli
 
     /**
      * @param int $position Posiciones desde 0
-     * @return array{name:string,value:mixed}
+     * @return array{name:string,value:mixed}|null
      */
     public function getArgumentByPosition(int $position): ?array
     {
@@ -163,7 +163,7 @@ class Cli
     /**
      * Retorna la estructura de array compatible con la función original cli().
      *
-     * @return array{command:?string,arguments:array{name:string,value:mixed,order:int}[],operations:array{argumentExists:callable(string):bool,getArgumentValue:callable(string):mixed}}
+     * @return array{command:?string,arguments:array{name:string,value:mixed}[],operations:array{argumentExists:callable(string):bool,getArgumentValue:callable(string):mixed}}
      */
     public function toArray(): array
     {
@@ -307,13 +307,29 @@ class Cli
 
         $codes = array_unique($codes);
         sort($codes); // Ordenar para consistencia
-        $prefix = count($codes) > 0 ? "\033[" . implode(';', $codes) . "m" : "";
-        $suffix = count($codes) > 0 ? "\033[0m" : "";
+        $isTty = defined('STDOUT') && function_exists('stream_isatty') && stream_isatty(STDOUT);
+
+        if (!$isTty) {
+            // Sustitución de caracteres de dibujo (box-drawing) por ASCII
+            // ─ (U+2500), ═ (U+2550), ┌ (U+250C), ┐ (U+2510), └ (U+2514), ┘ (U+2518), ├ (U+251C), ┤ (U+2524), ┬ (U+252C), ┴ (U+2534), ┼ (U+253C)
+            $text = str_replace(
+                ["\xe2\x94\x80", "\xe2\x95\x90", "\xe2\x94\x8c", "\xe2\x94\x90", "\xe2\x94\x94", "\xe2\x94\x98", "\xe2\x94\x9c", "\xe2\x94\xa4", "\xe2\x94\xac", "\xe2\x94\xb4", "\xe2\x94\xbc"],
+                ['-', '=', '+', '+', '+', '+', '+', '+', '+', '+', '+'],
+                $text
+            );
+
+            // Eliminar códigos de escape ANSI que puedan existir en el texto
+            $text = preg_replace('/\033\[[0-9;]*[mK]/', '', $text);
+        }
+
+        $prefix = (count($codes) > 0 && $isTty) ? "\033[" . implode(';', $codes) . "m" : "";
+        $suffix = (count($codes) > 0 && $isTty) ? "\033[0m" : "";
 
         $formattedString = $prefix . $text . $suffix;
 
         if (defined('STDOUT')) {
-            fwrite(STDOUT, $formattedString . ($format['newLine'] ? $format['newLineChars'] : ''));
+            $newLineChars = $isTty ? $format['newLineChars'] : "\n";
+            fwrite(STDOUT, $formattedString . ($format['newLine'] ? $newLineChars : ''));
             flush();
         }
 
