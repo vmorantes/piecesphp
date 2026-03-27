@@ -137,6 +137,16 @@ class CliActions
     }
 
     /**
+     * Obtiene los nombres de todas las acciones registradas
+     *
+     * @return string[]
+     */
+    public static function listActionNames(): array
+    {
+        return array_keys(self::getActions());
+    }
+
+    /**
      * Obtiene una acción por su nombre
      *
      * @param string $name

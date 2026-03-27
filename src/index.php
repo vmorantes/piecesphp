@@ -880,6 +880,26 @@ if (TerminalData::getInstance()->isTerminal()) {
         $container->add('environment', \PiecesPHP\Core\Routing\Slim3Compatibility\Http\Environment::mock($basicServerVariables));
     } else {
         //Por otras acciones desacopladas del sistema de rutas
+        if ($actionName === '_list-actions') {
+            //Utilidad para autocompletado en CLI
+            $cliActionsNames = [];
+
+            //Se añaden tareas de CliActions
+            $cliActionsNames = [ ...$cliActionsNames, ...CliActions::listActionNames()];
+            //Tareas del sistema de rutas
+            $routeSystemTerminalTasks = get_config('terminalTaskAvailablesVerbose');
+            $routeSystemTerminalTasks = is_array($routeSystemTerminalTasks) ? $routeSystemTerminalTasks : [];
+            $routeSystemTerminalTasks = array_map(function ($e) {
+                return $e['name'];
+            }, $routeSystemTerminalTasks);
+            $cliActionsNames = [ ...$cliActionsNames, ...$routeSystemTerminalTasks];
+            //Ordenar alfabéticamente
+            sort($cliActionsNames);
+            foreach ($cliActionsNames as $name) {
+                echo "{$name}\n";
+            }
+            return;
+        }
         $cliActionExists = CliActions::exists($actionName);
         $cliActions = CliActions::getActions();
         if ($cliActionExists || count($cliActions) > 0) {
