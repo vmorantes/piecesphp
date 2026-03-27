@@ -8,6 +8,7 @@
  * @copyright   Copyright (c) 2018
  */
 
+use PiecesPHP\Cli;
 use PiecesPHP\Core\BaseController;
 use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseToken;
@@ -22,98 +23,70 @@ use PiecesPHP\TerminalData;
 require_once __DIR__ . "/../config/critical-definitions.php";
 
 //Preparación para solicitudes desde la terminal
+require_once __DIR__ . "/psr4/PiecesPHP/Cli.php"; //Incluye la clase Cli
+$cliHandler = new Cli($_SERVER['argv'], [
+    'addLines' => false,
+]);
+/**
+ * @var array{
+ *  isTerminal:bool,
+ *  arguments:array<string,mixed>,
+ *  route:string,
+ *  local:bool,
+ *  cli:Cli,
+ * }
+ */
 $_SERVER['PCSPHP_TERMINAL_DATA'] = [
     'isTerminal' => defined('STDIN'),
     'arguments' => [],
     'route' => '',
     'local' => true,
+    'cli' => $cliHandler,
 ];
-$_SERVER['argv'] = isset($_SERVER['argv']) ? $_SERVER['argv'] : [];
-$_SERVER['argc'] = isset($_SERVER['argc']) ? $_SERVER['argc'] : count($_SERVER['argv']);
-
 if (!isset($_SERVER['HTTP_HOST'])) {
 
     $fileEntry = basename($_SERVER['PHP_SELF']);
-    /**
-     * Genera una salida en la terminal
-     *
-     * @param string $text
-     * @param boolean $newLine
-     * @param string $newLineChars
-     * @return void
-     */
-    $echoStd = function (string $text, bool $newLine = true, string $newLineChars = "\r\n") {
-        fwrite(STDOUT, $text . ($newLine ? $newLineChars : ''));
-        flush();
-    };
 
     if ($fileEntry == 'index.php') {
 
-        $_SERVER['SCRIPT_NAME'] = '';
-        $argv = $_SERVER['argv'];
-        $argc = $_SERVER['argc'];
-        $firstArgument = $argc > 0 ? basename($argv[0]) : null;
-        $firstArgumentValid = $firstArgument == $fileEntry;
+        $startScriptOK = $cliHandler->scriptName == $fileEntry;
+        $commandIsCli = $cliHandler->getCommand() == 'cli';
+        $isLocalMode = $cliHandler->getArgumentValue('--local') ?? false;
+        $isValidCli = $startScriptOK && $commandIsCli;
 
-        $secondArgumentRequired = 'cli';
-        $secondArgument = $argc > 1 ? $argv[1] : null;
-        $secondArgumentValid = $secondArgumentRequired === $secondArgument;
-
-        $thirdArgumentOptionalLocal = '--local';
-        $thirdArgument = $argc > 2 ? $argv[2] : null;
-        $thirdArgumentValid = $thirdArgumentOptionalLocal === $thirdArgument;
-        $_SERVER['PCSPHP_TERMINAL_DATA']['local'] = $thirdArgumentValid;
-
-        if ($firstArgument !== null && $firstArgument) {
-            unset($argv[0]);
-            $argc--;
-        }
-        if ($secondArgumentValid) {
-            unset($argv[1]);
-            $argc--;
-        }
-        if ($thirdArgumentValid) {
-            unset($argv[2]);
-            $argc--;
+        if ($isValidCli) {
+            $cliHandler->removeArgument('--local'); //Eliminar el argumento --local para limpiar el array de argumentos
+            $firstArgument = $cliHandler->getArgumentByPosition(0); //Obtener el primer argumento para usarlo como comando
+            if ($firstArgument !== null) {
+                //Eliminar el primer argumento para limpiar el array de argumentos y usarlo como comando
+                $cliHandler->removeArgument($firstArgument['name']);
+                $cliHandler->setCommand($firstArgument['name']);
+            } else {
+                $isValidCli = false; //No se especificó ningún comando
+            }
         }
 
-        if ($argc > 0 && $firstArgumentValid && $secondArgumentValid) {
+        if ($isValidCli) {
 
             $terminalData = $_SERVER['PCSPHP_TERMINAL_DATA'];
-            $actionName = !$thirdArgumentValid ? $argv[2] : $argv[3];
-            if (!$thirdArgumentValid) {
-                unset($argv[2]);
-            } else {
-                unset($argv[3]);
-            }
+            $terminalData['local'] = $isLocalMode;
+            $actionName = $cliHandler->getCommand();
 
-            foreach ($argv as $i) {
-
-                $argParts = explode('=', $i);
-
-                if (count($argParts) == 2) {
-
-                    $argName = $argParts[0];
-                    $argValue = $argParts[1];
-                    if (is_string($argName) && is_string($argValue)) {
-                        $terminalData['arguments'][$argName] = $argValue;
-                    }
-
-                } elseif (count($argParts) == 1) {
-                    $argName = $argParts[0];
-                    $terminalData['arguments'][$argName] = true;
-                }
-
+            foreach ($cliHandler->getArguments() as $argument) {
+                $terminalData['arguments'][$argument['name']] = $argument['value'];
             }
 
             $terminalData['route'] = $actionName;
-
             $_SERVER['HTTP_HOST'] = 'localhost';
             $_SERVER['REQUEST_URI'] = '';
+            $_SERVER['SCRIPT_NAME'] = '';
             $_SERVER['PCSPHP_TERMINAL_DATA'] = $terminalData;
 
         } else {
-            $echoStd('No se ha especificado ninguna acción.');
+            Cli::systemOutFormatted('No se ha especificado ninguna acción.', [
+                'color' => 'red',
+                'newLine' => true,
+            ]);
             exit;
         }
     }
@@ -127,8 +100,8 @@ $isLocalBootstrap = (
         mb_substr($_SERVER['HTTP_HOST'], -10) === '.localhost'
     )
 );
-if ($_SERVER['PCSPHP_TERMINAL_DATA']['isTerminal']) {
-    $isLocalBootstrap = $_SERVER['PCSPHP_TERMINAL_DATA']['local'];
+if ($cliHandler->isCliPlatform) {
+    $isLocalBootstrap = $cliHandler->orginalArguments['--local'] ?? false;
 }
 ini_set('display_errors', $isLocalBootstrap);
 set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line) {
@@ -233,11 +206,11 @@ if (!defined('APP_VERSION')) {
     /**
      * Versión de la aplicación
      */
-    define('APP_VERSION', 'v7.0.4');
+    define('APP_VERSION', 'v7.0.5');
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '26-03-2026')->format('Y-m-d'));
+    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '27-03-2026')->format('Y-m-d'));
 }
 
 require $directories['utilities'];

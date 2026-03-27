@@ -28,6 +28,10 @@ class TerminalData
      */
     protected $local = false;
     /**
+     * @var ?Cli
+     */
+    protected $cli = null;
+    /**
      * @var array
      */
     protected $arguments = [];
@@ -136,9 +140,11 @@ class TerminalData
         foreach ($data as $k => $i) {
             if (!in_array($k, array_keys($dataConfig))) {
                 unset($data[$k]);
+            } else {
+                $dataConfig[$k]['set']($i);
             }
-            $dataConfig[$k]['set']($i);
         }
+
         return $this->syncWithGlobals();
     }
 
@@ -192,6 +198,19 @@ class TerminalData
             $this->syncWithGlobals();
         }
         return $value !== null ? $this : $this->local;
+    }
+
+    /**
+     * @param Cli $value
+     * @return Cli|static
+     */
+    public function cli(?Cli $value = null)
+    {
+        if ($value !== null) {
+            $this->cli = $value;
+            $this->syncWithGlobals();
+        }
+        return $value !== null ? $this : $this->cli;
     }
 
     /**
@@ -289,6 +308,11 @@ class TerminalData
             'local' => [
                 'value' => $this->local,
                 'set' => fn($value) => $this->local($value),
+                'registerGlobal' => true,
+            ],
+            'cli' => [
+                'value' => $this->cli,
+                'set' => fn($value) => $this->cli($value),
                 'registerGlobal' => true,
             ],
         ];

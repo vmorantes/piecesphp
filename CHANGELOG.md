@@ -1,3 +1,11 @@
+# 7.0.5 (27-03-2026)
+
+- **Sistema CLI y Terminal**:
+    - Implementación de la clase `PiecesPHP\Cli` para gestionar argumentos y salida formateada en terminal.
+    - Integración del soporte de `Cli` en `TerminalData` y actualización de `bootstrap.php`.
+    - Refactorización de la detección de entorno local en `AppHelpers` y `CustomSlimErrorHandler`.
+    - Se actualiza la versión de la aplicación a v7.0.5.
+
 # 7.0.3 (26-03-2026)
 
 - **Protección de archivos**:
