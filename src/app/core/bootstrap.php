@@ -24,7 +24,7 @@ require_once __DIR__ . "/../config/critical-definitions.php";
 
 //Preparación para solicitudes desde la terminal
 require_once __DIR__ . "/psr4/PiecesPHP/Cli.php"; //Incluye la clase Cli
-$cliHandler = new Cli($_SERVER['argv'], [
+$cliHandler = new Cli($argv ?? [], [
     'addLines' => false,
 ]);
 /**
