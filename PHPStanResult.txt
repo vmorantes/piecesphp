@@ -1,16 +1,6 @@
 
 ================[PHPSTAN]================
 
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
-project://src/app/classes/API/Adapters/MauticEmailAdapter.php
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :326   Method API\Adapters\MauticEmailAdapter::makeRequest() should return array{success: bool, status: int, data: array|null, response: string, httpClient:      
-         PiecesPHP\Core\Http\HttpClient} but returns array{httpClient: PiecesPHP\Core\Http\HttpClient, success: bool, status: string, data: array|stdClass|string,  
-         response: string}.                                                                                                                                         
-         🪪  return.type                                                                                                                                            
-         💡  Offset 'status' (int) does not accept type string.                                                                                                     
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
-
  ------ ------------------------------------------------------------------------------------ 
 project://src/app/classes/API/Adapters/MistralHandlerAdapter.php
  ------ ------------------------------------------------------------------------------------ 
@@ -22,36 +12,36 @@ project://src/app/classes/API/Adapters/MistralHandlerAdapter.php
          🪪  method.nonObject                                                                
  ------ ------------------------------------------------------------------------------------ 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :91    Cannot call method chat() on OpenAI\Client|null.                                                                                                                    
-         🪪  method.nonObject                                                                                                                                                
-  :117   Cannot call method files() on OpenAI\Client|null.                                                                                                                   
-         🪪  method.nonObject                                                                                                                                                
-  :146   Cannot call method threads() on OpenAI\Client|null.                                                                                                                 
-         🪪  method.nonObject                                                                                                                                                
-  :170   Cannot call method threads() on OpenAI\Client|null.                                                                                                                 
-         🪪  method.nonObject                                                                                                                                                
-  :170   Parameter Nr.1 $threadId of method OpenAI\Contracts\Resources\ThreadsRunsContract::retrieve() expects string, array<int|string, array<string, array<int|string,       
-         array<string, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                  
-         🪪  argument.type                                                                                                                                                   
-  :170   Parameter Nr.2 $runId of method OpenAI\Contracts\Resources\ThreadsRunsContract::retrieve() expects string, array<int|string, array<string, array<int|string, array<s  
-         tring, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                         
-         🪪  argument.type                                                                                                                                                   
-  :184   Cannot call method threads() on OpenAI\Client|null.                                                                                                                 
-         🪪  method.nonObject                                                                                                                                                
-  :184   Parameter Nr.1 $threadId of method OpenAI\Contracts\Resources\ThreadsMessagesContract::list() expects string, array<int|string, array<string, array<int|string,       
-         array<string, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                  
-         🪪  argument.type                                                                                                                                                   
-  :186   Cannot call method threads() on OpenAI\Client|null.                                                                                                                 
-         🪪  method.nonObject                                                                                                                                                
-  :186   Parameter Nr.1 $threadId of method OpenAI\Contracts\Resources\ThreadsMessagesContract::retrieve() expects string, array<int|string, array<string, array<int|string,   
-         array<string, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                  
-         🪪  argument.type                                                                                                                                                   
-  :190   Cannot call method files() on OpenAI\Client|null.                                                                                                                   
-         🪪  method.nonObject                                                                                                                                                
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :91    Cannot call method chat() on OpenAI\Client|null.                                                                                                                       
+         🪪  method.nonObject                                                                                                                                                   
+  :117   Cannot call method files() on OpenAI\Client|null.                                                                                                                      
+         🪪  method.nonObject                                                                                                                                                   
+  :146   Cannot call method threads() on OpenAI\Client|null.                                                                                                                    
+         🪪  method.nonObject                                                                                                                                                   
+  :170   Cannot call method threads() on OpenAI\Client|null.                                                                                                                    
+         🪪  method.nonObject                                                                                                                                                   
+  :170   Parameter Nr.1 $threadId of method OpenAI\Contracts\Resources\ThreadsRunsContract::retrieve() expects string, array<int|string, array<string, array<int|string, array<s  
+         tring, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                            
+         🪪  argument.type                                                                                                                                                      
+  :170   Parameter Nr.2 $runId of method OpenAI\Contracts\Resources\ThreadsRunsContract::retrieve() expects string, array<int|string, array<string, array<int|string, array<stri  
+         ng, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                               
+         🪪  argument.type                                                                                                                                                      
+  :184   Cannot call method threads() on OpenAI\Client|null.                                                                                                                    
+         🪪  method.nonObject                                                                                                                                                   
+  :184   Parameter Nr.1 $threadId of method OpenAI\Contracts\Resources\ThreadsMessagesContract::list() expects string, array<int|string, array<string, array<int|string, array<s  
+         tring, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                            
+         🪪  argument.type                                                                                                                                                      
+  :186   Cannot call method threads() on OpenAI\Client|null.                                                                                                                    
+         🪪  method.nonObject                                                                                                                                                   
+  :186   Parameter Nr.1 $threadId of method OpenAI\Contracts\Resources\ThreadsMessagesContract::retrieve() expects string, array<int|string, array<string, array<int|string,      
+         array<string, mixed>|string>|string>|int|string|null>|float|int|string|null given.                                                                                     
+         🪪  argument.type                                                                                                                                                      
+  :190   Cannot call method files() on OpenAI\Client|null.                                                                                                                      
+         🪪  method.nonObject                                                                                                                                                   
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------- 
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
@@ -212,69 +202,68 @@ project://src/app/classes/App/Presentations/Views/presentations/public/util/item
          🪪  method.nonObject                                                    
  ------ ------------------------------------------------------------------------ 
 
- ------- ------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+ ------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php
- ------- ------------------------------------------------------------------------------------------------------------------------------------------------------------ 
-  :219    Cannot access property $id on App\Locations\Mappers\CountryMapper|int.                                                                                      
-          🪪  property.nonObject                                                                                                                                      
-  :220    Cannot access property $id on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.                                                      
-          🪪  property.nonObject                                                                                                                                      
-  :722    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.            
-          🪪  argument.type                                                                                                                                           
-  :732    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.            
-          🪪  argument.type                                                                                                                                           
-  :752    Property ApplicationCalls\Mappers\AttachmentApplicationCallsMapper::$applicationCall (ApplicationCalls\Mappers\ApplicationCallsMapper|int) does not accept  
-          int|null.                                                                                                                                                   
-          🪪  assign.propertyType                                                                                                                                     
-  :793    Cannot clone stdClass|null.                                                                                                                                 
-          🪪  clone.nonObject                                                                                                                                         
-  :797    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.            
-          🪪  argument.type                                                                                                                                           
-  :807    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.            
-          🪪  argument.type                                                                                                                                           
-  :1306   Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                    
-          🪪  property.nonObject                                                                                                                                      
-  :1307   Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                  
-          🪪  property.nonObject                                                                                                                                      
-  :1308   Cannot access property $organizationMapper on PiecesPHP\UserSystem\UserDataPackage|null.                                                                    
-          🪪  property.nonObject                                                                                                                                      
-  :1398   Cannot access property $id on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                         
-          🪪  property.nonObject                                                                                                                                      
-  :1477   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                           
-          🪪  argument.type                                                                                                                                           
-  :1590   Cannot call method getTimestamp() on DateTime|false.                                                                                                        
-          🪪  method.nonObject                                                                                                                                        
-  :1648   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                               
-          🪪  argument.type                                                                                                                                           
-  :1656   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                       
-          🪪  method.nonObject                                                                                                                                        
-  :1657   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                       
-          🪪  method.nonObject                                                                                                                                        
-  :1740   Access to an undefined property object::$createdBy.                                                                                                         
-          🪪  property.notFound                                                                                                                                       
-          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                       
-  :1741   Access to an undefined property object::$createdBy.                                                                                                         
-          🪪  property.notFound                                                                                                                                       
-          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                       
-  :1741   Cannot access property $organization on App\Model\UsersModel|stdClass|null.                                                                                 
-          🪪  property.nonObject                                                                                                                                      
-  :1743   Access to an undefined property object::$administrator.                                                                                                     
-          🪪  property.notFound                                                                                                                                       
-          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                       
-  :1764   Access to an undefined property object::$createdBy.                                                                                                         
-          🪪  property.notFound                                                                                                                                       
-          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                       
-  :1765   Access to an undefined property object::$createdBy.                                                                                                         
-          🪪  property.notFound                                                                                                                                       
-          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                       
-  :1765   Cannot access property $organization on App\Model\UsersModel|stdClass|null.                                                                                 
-          🪪  property.nonObject                                                                                                                                      
-  :1767   Access to an undefined property object::$administrator.                                                                                                     
-          🪪  property.notFound                                                                                                                                       
-          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                       
-  :1812   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                                                  
-          🪪  argument.type                                                                                                                                           
- ------- ------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+ ------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :219    Cannot access property $id on App\Locations\Mappers\CountryMapper|int.                                                                                                
+          🪪  property.nonObject                                                                                                                                                
+  :220    Cannot access property $id on int|PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper.                                                                
+          🪪  property.nonObject                                                                                                                                                
+  :722    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+          🪪  argument.type                                                                                                                                                     
+  :732    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+          🪪  argument.type                                                                                                                                                     
+  :752    Property ApplicationCalls\Mappers\AttachmentApplicationCallsMapper::$applicationCall (ApplicationCalls\Mappers\ApplicationCallsMapper|int) does not accept int|null.  
+          🪪  assign.propertyType                                                                                                                                               
+  :793    Cannot clone stdClass|null.                                                                                                                                           
+          🪪  clone.nonObject                                                                                                                                                   
+  :797    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+          🪪  argument.type                                                                                                                                                     
+  :807    Parameter Nr.3 $langs of method ApplicationCalls\Mappers\ApplicationCallsMapper::addDataManyLangs() expects array<string>, list<int|string> given.                      
+          🪪  argument.type                                                                                                                                                     
+  :1306   Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                              
+          🪪  property.nonObject                                                                                                                                                
+  :1307   Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                            
+          🪪  property.nonObject                                                                                                                                                
+  :1308   Cannot access property $organizationMapper on PiecesPHP\UserSystem\UserDataPackage|null.                                                                              
+          🪪  property.nonObject                                                                                                                                                
+  :1398   Cannot access property $id on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                   
+          🪪  property.nonObject                                                                                                                                                
+  :1477   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                                     
+          🪪  argument.type                                                                                                                                                     
+  :1590   Cannot call method getTimestamp() on DateTime|false.                                                                                                                  
+          🪪  method.nonObject                                                                                                                                                  
+  :1648   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                                         
+          🪪  argument.type                                                                                                                                                     
+  :1656   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
+          🪪  method.nonObject                                                                                                                                                  
+  :1657   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
+          🪪  method.nonObject                                                                                                                                                  
+  :1740   Access to an undefined property object::$createdBy.                                                                                                                   
+          🪪  property.notFound                                                                                                                                                 
+          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                 
+  :1741   Access to an undefined property object::$createdBy.                                                                                                                   
+          🪪  property.notFound                                                                                                                                                 
+          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                 
+  :1741   Cannot access property $organization on App\Model\UsersModel|stdClass|null.                                                                                           
+          🪪  property.nonObject                                                                                                                                                
+  :1743   Access to an undefined property object::$administrator.                                                                                                               
+          🪪  property.notFound                                                                                                                                                 
+          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                 
+  :1764   Access to an undefined property object::$createdBy.                                                                                                                   
+          🪪  property.notFound                                                                                                                                                 
+          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                 
+  :1765   Access to an undefined property object::$createdBy.                                                                                                                   
+          🪪  property.notFound                                                                                                                                                 
+          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                 
+  :1765   Cannot access property $organization on App\Model\UsersModel|stdClass|null.                                                                                           
+          🪪  property.nonObject                                                                                                                                                
+  :1767   Access to an undefined property object::$administrator.                                                                                                               
+          🪪  property.notFound                                                                                                                                                 
+          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                 
+  :1812   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.                                                            
+          🪪  argument.type                                                                                                                                                     
+ ------- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------- ------------------------------------------------------------------------------------------------------------------ 
 project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php
@@ -427,44 +416,43 @@ project://src/app/classes/ContentNavigationHub/Views/contents/map-elements/profi
          🪪  argument.type                                                                                                                      
  ------ --------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/DataImportExportUtility/Controllers/DataImportExportUtilityController.php
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :155   Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                                      
-         🪪  argument.type                                                                                                                                                   
-  :225   Argument of an invalid type array|null supplied for foreach, only iterables are supported.                                                                          
-         🪪  foreach.nonIterable                                                                                                                                             
-  :284   Parameter Nr.1 $password of function password_hash expects string, int<100000, 999999>|string given.                                                                  
-         🪪  argument.type                                                                                                                                                   
-  :337   Access to an undefined property object::$username.                                                                                                                  
-         🪪  property.notFound                                                                                                                                               
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                               
-  :348   Access to an undefined property object::$id.                                                                                                                        
-         🪪  property.notFound                                                                                                                                               
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                               
-  :388   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string,                                                                          
-         DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|string given.                                                                                     
-         🪪  argument.type                                                                                                                                                   
-  :389   Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|stri  
-         ng given.                                                                                                                                                           
-         🪪  argument.type                                                                                                                                                   
-  :390   Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|stri  
-         ng given.                                                                                                                                                           
-         🪪  argument.type                                                                                                                                                   
-  :391   Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|stri  
-         ng given.                                                                                                                                                           
-         🪪  argument.type                                                                                                                                                   
-  :514   Parameter Nr.1 $name of static method DataImportExportUtility\Controllers\DataImportExportUtilityController::_allowedRoute() expects string, string|null given.       
-         🪪  argument.type                                                                                                                                                   
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :155   Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                                         
+         🪪  argument.type                                                                                                                                                      
+  :225   Argument of an invalid type array|null supplied for foreach, only iterables are supported.                                                                             
+         🪪  foreach.nonIterable                                                                                                                                                
+  :284   Parameter Nr.1 $password of function password_hash expects string, int<100000, 999999>|string given.                                                                     
+         🪪  argument.type                                                                                                                                                      
+  :337   Access to an undefined property object::$username.                                                                                                                     
+         🪪  property.notFound                                                                                                                                                  
+         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                  
+  :348   Access to an undefined property object::$id.                                                                                                                           
+         🪪  property.notFound                                                                                                                                                  
+         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                  
+  :388   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|string    
+         given.                                                                                                                                                                 
+         🪪  argument.type                                                                                                                                                      
+  :389   Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|string   
+         given.                                                                                                                                                                 
+         🪪  argument.type                                                                                                                                                      
+  :390   Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|string   
+         given.                                                                                                                                                                 
+         🪪  argument.type                                                                                                                                                      
+  :391   Parameter Nr.2 $value of method Slim\Psr7\Message::withHeader() expects array<string>|string, DataImportExportUtility\Controllers\ExportHandlers\BaseExportData|string   
+         given.                                                                                                                                                                 
+         🪪  argument.type                                                                                                                                                      
+  :514   Parameter Nr.1 $name of static method DataImportExportUtility\Controllers\DataImportExportUtilityController::_allowedRoute() expects string, string|null given.          
+         🪪  argument.type                                                                                                                                                      
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/DataImportExportUtility/Controllers/ExportHandlers/BaseExportData.php
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :31    Parameter Nr.2 $replace of function str_replace expects array<string>|string, static(DataImportExportUtility\Controllers\ExportHandlers\BaseExportData)|string given  
-         .                                                                                                                                                                   
-         🪪  argument.type                                                                                                                                                   
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :31    Parameter Nr.2 $replace of function str_replace expects array<string>|string, static(DataImportExportUtility\Controllers\ExportHandlers\BaseExportData)|string given.  
+         🪪  argument.type                                                                                                                                                    
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/DataImportExportUtility/Controllers/ExportHandlers/UsersExporter.php
@@ -844,51 +832,50 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
          🪪  property.nonObject                                                                                                                                           
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :115   Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                 
-         🪪  property.nonObject                                                                                                                                     
-  :345   Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                   
-         🪪  property.nonObject                                                                                                                                     
-  :372   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :373   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :374   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :375   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :376   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :377   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :378   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :379   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :380   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :381   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                   
-         🪪  method.nonObject                                                                                                                                       
-  :382   Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                       
-         🪪  property.nonObject                                                                                                                                     
-  :383   Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                     
-         🪪  property.nonObject                                                                                                                                     
-  :385   Cannot call method update() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                        
-         🪪  method.nonObject                                                                                                                                       
-  :673   Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                         
-         🪪  property.nonObject                                                                                                                                     
-  :673   Cannot access property $profile on PiecesPHP\UserSystem\UserDataPackage|null.                                                                              
-         🪪  property.nonObject                                                                                                                                     
-  :673   Property PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper::$profile (int|PiecesPHP\UserSystem\Profile\UserProfileMapper) does not accept  
-         int|null.                                                                                                                                                  
-         🪪  assign.propertyType                                                                                                                                    
-  :793   Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                         
-         🪪  property.nonObject                                                                                                                                     
-  :794   Cannot access property $profile on object|null.                                                                                                            
-         🪪  property.nonObject                                                                                                                                     
- ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :115   Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                           
+         🪪  property.nonObject                                                                                                                                               
+  :345   Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                             
+         🪪  property.nonObject                                                                                                                                               
+  :372   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :373   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :374   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :375   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :376   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :377   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :378   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :379   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :380   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :381   Cannot call method setLangData() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                             
+         🪪  method.nonObject                                                                                                                                                 
+  :382   Cannot access property $interestResearhAreas on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                 
+         🪪  property.nonObject                                                                                                                                               
+  :383   Cannot access property $affiliatedInstitutions on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                               
+         🪪  property.nonObject                                                                                                                                               
+  :385   Cannot call method update() on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                                  
+         🪪  method.nonObject                                                                                                                                                 
+  :673   Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                                   
+         🪪  property.nonObject                                                                                                                                               
+  :673   Cannot access property $profile on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                        
+         🪪  property.nonObject                                                                                                                                               
+  :673   Property PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper::$profile (int|PiecesPHP\UserSystem\Profile\UserProfileMapper) does not accept int|null.  
+         🪪  assign.propertyType                                                                                                                                              
+  :793   Cannot access property $id on PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                                                                                   
+         🪪  property.nonObject                                                                                                                                               
+  :794   Cannot access property $profile on object|null.                                                                                                                      
+         🪪  property.nonObject                                                                                                                                               
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Controllers/MySpaceController.php
@@ -1642,28 +1629,28 @@ project://src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApproval
          🪪  property.nonObject                                                                 
  ------ --------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :52    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getCo  
-         ntentTypeSpeci…'} given.                                                                                                                                            
-         🪪  argument.type                                                                                                                                                   
-  :81    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'isAut  
-         oApprovalSpeci…'} given.                                                                                                                                            
-         🪪  argument.type                                                                                                                                                   
-  :89    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onApp  
-         rovedSpecificM…'} given.                                                                                                                                            
-         🪪  argument.type                                                                                                                                                   
-  :96    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onRej  
-         ectedSpecificM…'} given.                                                                                                                                            
-         🪪  argument.type                                                                                                                                                   
-  :103   Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onUpd  
-         atedRecordSpec…'} given.                                                                                                                                            
-         🪪  argument.type                                                                                                                                                   
-  :110   Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getCo  
-         ntactUserSpeci…'} given.                                                                                                                                            
-         🪪  argument.type                                                                                                                                                   
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :52    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getConte  
+         ntTypeSpeci…'} given.                                                                                                                                                  
+         🪪  argument.type                                                                                                                                                      
+  :81    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'isAutoAp  
+         provalSpeci…'} given.                                                                                                                                                  
+         🪪  argument.type                                                                                                                                                      
+  :89    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onApprov  
+         edSpecificM…'} given.                                                                                                                                                  
+         🪪  argument.type                                                                                                                                                      
+  :96    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onReject  
+         edSpecificM…'} given.                                                                                                                                                  
+         🪪  argument.type                                                                                                                                                      
+  :103   Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'onUpdate  
+         dRecordSpec…'} given.                                                                                                                                                  
+         🪪  argument.type                                                                                                                                                      
+  :110   Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string<static(SystemApprovals\Util\Packages\BaseApprovalHandler)>, 'getConta  
+         ctUserSpeci…'} given.                                                                                                                                                  
+         🪪  argument.type                                                                                                                                                      
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php
@@ -1692,18 +1679,18 @@ project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
          🪪  method.nonObject                                                                    
  ------ ---------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :77    Cannot call method update() on stdClass|SystemApprovals\Mappers\SystemApprovalsMapper.                                                                              
-         🪪  method.nonObject                                                                                                                                                
-  :80    Parameter Nr.2 $approvalMapper of static method SystemApprovals\Util\ApprovalElementHandlerInterface::onUpdatedRecord() expects                                       
-         SystemApprovals\Mappers\SystemApprovalsMapper|null, stdClass|SystemApprovals\Mappers\SystemApprovalsMapper|null given.                                              
-         🪪  argument.type                                                                                                                                                   
-  :83    Property SystemApprovals\Util\SystemApprovalManager::$configurations (array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>>) does not accept a  
-         rray<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|SystemApprovals\Util\ApprovalElementHandlerInterface>.                                      
-         🪪  assign.propertyType                                                                                                                                             
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :77    Cannot call method update() on stdClass|SystemApprovals\Mappers\SystemApprovalsMapper.                                                                                 
+         🪪  method.nonObject                                                                                                                                                   
+  :80    Parameter Nr.2 $approvalMapper of static method SystemApprovals\Util\ApprovalElementHandlerInterface::onUpdatedRecord() expects                                          
+         SystemApprovals\Mappers\SystemApprovalsMapper|null, stdClass|SystemApprovals\Mappers\SystemApprovalsMapper|null given.                                                 
+         🪪  argument.type                                                                                                                                                      
+  :83    Property SystemApprovals\Util\SystemApprovalManager::$configurations (array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>>) does not accept arra  
+         y<class-string<SystemApprovals\Util\ApprovalElementHandlerInterface>|SystemApprovals\Util\ApprovalElementHandlerInterface>.                                            
+         🪪  assign.propertyType                                                                                                                                                
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------ 
 project://src/app/classes/SystemApprovals/Views/forms/approval-applications-calls.php
@@ -2224,88 +2211,88 @@ project://src/app/core/Config.php
           🪪  return.type                                                                                                              
  ------- ----------------------------------------------------------------------------------------------------------------------------- 
 
- ------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+ ------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/Utilities.php
- ------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
-  :328    Function get_url_parts() should return array{scheme: string|null, user: string|null, pass: string|null, host: string|null, port: string|null, path: string|null,  
-          query: string|null, fragment: string|null} but returns array{scheme: string|false|null, user: string|false|null, pass: string|false|null, host:                   
-          string|false|null, port: int<0, 65535>|false|null, path: string|false|null, query: string|false|null, fragment: string|false|null}.                               
-          🪪  return.type                                                                                                                                                   
-          💡  Offset 'scheme' (string|null) does not accept type string|false|null.                                                                                         
-          💡  Offset 'user' (string|null) does not accept type string|false|null.                                                                                           
-          💡  Offset 'pass' (string|null) does not accept type string|false|null.                                                                                           
-          💡  Offset 'host' (string|null) does not accept type string|false|null.                                                                                           
-          💡  Offset 'port' (string|null) does not accept type int<0, 65535>|false|null.                                                                                    
-          💡  Offset 'path' (string|null) does not accept type string|false|null.                                                                                           
-          💡  Offset 'query' (string|null) does not accept type string|false|null.                                                                                          
-          💡  Offset 'fragment' (string|null) does not accept type string|false|null.                                                                                       
-  :591    Function get_youtube_id() should return string but returns array<mixed>|string.                                                                                   
-          🪪  return.type                                                                                                                                                   
-  :866    Argument of an invalid type list<string>|false supplied for foreach, only iterables are supported.                                                                
-          🪪  foreach.nonIterable                                                                                                                                           
-  :994    Cannot call method addFile() on ZipArchive|null.                                                                                                                  
-          🪪  method.nonObject                                                                                                                                              
-  :1007   Cannot call method close() on ZipArchive|null.                                                                                                                    
-          🪪  method.nonObject                                                                                                                                              
-  :1056   Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.                                                                   
-          🪪  argument.type                                                                                                                                                 
-  :1362   Parameter Nr.1 $string of function sha1 expects string, int given.                                                                                                  
-          🪪  argument.type                                                                                                                                                 
-  :1440   Parameter Nr.1 $data of function imagecreatefromstring expects string, string|false given.                                                                          
-          🪪  argument.type                                                                                                                                                 
-  :1441   Parameter Nr.1 $image of function imagesx expects GdImage, GdImage|false given.                                                                                     
-          🪪  argument.type                                                                                                                                                 
-  :1442   Parameter Nr.1 $image of function imagesy expects GdImage, GdImage|false given.                                                                                     
-          🪪  argument.type                                                                                                                                                 
-  :1475   Parameter Nr.1 $data of function imagecreatefromstring expects string, string|false given.                                                                          
-          🪪  argument.type                                                                                                                                                 
-  :1476   Parameter Nr.1 $image of function imagesx expects GdImage, GdImage|false given.                                                                                     
-          🪪  argument.type                                                                                                                                                 
-  :1477   Parameter Nr.1 $image of function imagesy expects GdImage, GdImage|false given.                                                                                     
-          🪪  argument.type                                                                                                                                                 
-  :1506   Parameter Nr.1 $width of function imagecreatetruecolor expects int<1, max>, int given.                                                                              
-          🪪  argument.type                                                                                                                                                 
-  :1506   Parameter Nr.2 $height of function imagecreatetruecolor expects int<1, max>, int given.                                                                             
-          🪪  argument.type                                                                                                                                                 
-  :1510   Parameter Nr.4 $color of function imagefill expects int, int<0, max>|false given.                                                                                   
-          🪪  argument.type                                                                                                                                                 
-  :1521   Parameter Nr.2 $src_image of function imagecopyresampled expects GdImage, GdImage|false given.                                                                      
-          🪪  argument.type                                                                                                                                                 
-  :1546   Parameter Nr.3 $quality of function imagejpeg expects int, float given.                                                                                             
-          🪪  argument.type                                                                                                                                                 
-  :1565   Parameter Nr.1 $width of function imagecreatetruecolor expects int<1, max>, int given.                                                                              
-          🪪  argument.type                                                                                                                                                 
-  :1565   Parameter Nr.2 $height of function imagecreatetruecolor expects int<1, max>, int given.                                                                             
-          🪪  argument.type                                                                                                                                                 
-  :1570   Parameter Nr.4 $color of function imagefill expects int, int<0, max>|false given.                                                                                   
-          🪪  argument.type                                                                                                                                                 
-  :1610   Parameter Nr.2 $src_image of function imagecopyresampled expects GdImage, GdImage|false given.                                                                      
-          🪪  argument.type                                                                                                                                                 
-  :1611   Parameter Nr.3 $dst_x of function imagecopyresampled expects int, float|int given.                                                                                  
-          🪪  argument.type                                                                                                                                                 
-  :1611   Parameter Nr.4 $dst_y of function imagecopyresampled expects int, float|int given.                                                                                  
-          🪪  argument.type                                                                                                                                                 
-  :1613   Parameter Nr.7 $dst_width of function imagecopyresampled expects int, float|int given.                                                                              
-          🪪  argument.type                                                                                                                                                 
-  :1613   Parameter Nr.8 $dst_height of function imagecopyresampled expects int, float|int given.                                                                             
-          🪪  argument.type                                                                                                                                                 
-  :1632   Parameter Nr.1 $image of function imagedestroy expects GdImage, GdImage|false given.                                                                                
-          🪪  argument.type                                                                                                                                                 
-  :1681   Parameter Nr.1 $string of function mb_convert_case expects string, string|false given.                                                                              
-          🪪  argument.type                                                                                                                                                 
-  :1686   Parameter Nr.1 $string of function mb_convert_case expects string, string|false given.                                                                              
-          🪪  argument.type                                                                                                                                                 
-  :1697   Parameter Nr.1 $str of function preg_quote expects string, int|string given.                                                                                        
-          🪪  argument.type                                                                                                                                                 
-  :1701   Parameter Nr.3 $subject of function preg_replace_callback expects array<float|int|string>|string, string|false|null given.                                          
-          🪪  argument.type                                                                                                                                                 
-  :1705   Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                    
-          🪪  argument.type                                                                                                                                                 
-  :1738   Parameter Nr.1 $key of function array_key_exists expects int|string, bool|float|int|string given.                                                                   
-          🪪  argument.type                                                                                                                                                 
-  :1758   Parameter Nr.3 $depth of function json_encode expects int<1, max>, int given.                                                                                       
-          🪪  argument.type                                                                                                                                                 
- ------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
+ ------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :328    Function get_url_parts() should return array{scheme: string|null, user: string|null, pass: string|null, host: string|null, port: string|null, path: string|null,    
+          query: string|null, fragment: string|null} but returns array{scheme: string|false|null, user: string|false|null, pass: string|false|null, host: string|false|null,  
+          port: int<0, 65535>|false|null, path: string|false|null, query: string|false|null, fragment: string|false|null}.                                                    
+          🪪  return.type                                                                                                                                                     
+          💡  Offset 'scheme' (string|null) does not accept type string|false|null.                                                                                           
+          💡  Offset 'user' (string|null) does not accept type string|false|null.                                                                                             
+          💡  Offset 'pass' (string|null) does not accept type string|false|null.                                                                                             
+          💡  Offset 'host' (string|null) does not accept type string|false|null.                                                                                             
+          💡  Offset 'port' (string|null) does not accept type int<0, 65535>|false|null.                                                                                      
+          💡  Offset 'path' (string|null) does not accept type string|false|null.                                                                                             
+          💡  Offset 'query' (string|null) does not accept type string|false|null.                                                                                            
+          💡  Offset 'fragment' (string|null) does not accept type string|false|null.                                                                                         
+  :591    Function get_youtube_id() should return string but returns array<mixed>|string.                                                                                     
+          🪪  return.type                                                                                                                                                     
+  :866    Argument of an invalid type list<string>|false supplied for foreach, only iterables are supported.                                                                  
+          🪪  foreach.nonIterable                                                                                                                                             
+  :994    Cannot call method addFile() on ZipArchive|null.                                                                                                                    
+          🪪  method.nonObject                                                                                                                                                
+  :1007   Cannot call method close() on ZipArchive|null.                                                                                                                      
+          🪪  method.nonObject                                                                                                                                                
+  :1056   Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.                                                                     
+          🪪  argument.type                                                                                                                                                   
+  :1362   Parameter Nr.1 $string of function sha1 expects string, int given.                                                                                                    
+          🪪  argument.type                                                                                                                                                   
+  :1440   Parameter Nr.1 $data of function imagecreatefromstring expects string, string|false given.                                                                            
+          🪪  argument.type                                                                                                                                                   
+  :1441   Parameter Nr.1 $image of function imagesx expects GdImage, GdImage|false given.                                                                                       
+          🪪  argument.type                                                                                                                                                   
+  :1442   Parameter Nr.1 $image of function imagesy expects GdImage, GdImage|false given.                                                                                       
+          🪪  argument.type                                                                                                                                                   
+  :1475   Parameter Nr.1 $data of function imagecreatefromstring expects string, string|false given.                                                                            
+          🪪  argument.type                                                                                                                                                   
+  :1476   Parameter Nr.1 $image of function imagesx expects GdImage, GdImage|false given.                                                                                       
+          🪪  argument.type                                                                                                                                                   
+  :1477   Parameter Nr.1 $image of function imagesy expects GdImage, GdImage|false given.                                                                                       
+          🪪  argument.type                                                                                                                                                   
+  :1506   Parameter Nr.1 $width of function imagecreatetruecolor expects int<1, max>, int given.                                                                                
+          🪪  argument.type                                                                                                                                                   
+  :1506   Parameter Nr.2 $height of function imagecreatetruecolor expects int<1, max>, int given.                                                                               
+          🪪  argument.type                                                                                                                                                   
+  :1510   Parameter Nr.4 $color of function imagefill expects int, int<0, max>|false given.                                                                                     
+          🪪  argument.type                                                                                                                                                   
+  :1521   Parameter Nr.2 $src_image of function imagecopyresampled expects GdImage, GdImage|false given.                                                                        
+          🪪  argument.type                                                                                                                                                   
+  :1546   Parameter Nr.3 $quality of function imagejpeg expects int, float given.                                                                                               
+          🪪  argument.type                                                                                                                                                   
+  :1565   Parameter Nr.1 $width of function imagecreatetruecolor expects int<1, max>, int given.                                                                                
+          🪪  argument.type                                                                                                                                                   
+  :1565   Parameter Nr.2 $height of function imagecreatetruecolor expects int<1, max>, int given.                                                                               
+          🪪  argument.type                                                                                                                                                   
+  :1570   Parameter Nr.4 $color of function imagefill expects int, int<0, max>|false given.                                                                                     
+          🪪  argument.type                                                                                                                                                   
+  :1610   Parameter Nr.2 $src_image of function imagecopyresampled expects GdImage, GdImage|false given.                                                                        
+          🪪  argument.type                                                                                                                                                   
+  :1611   Parameter Nr.3 $dst_x of function imagecopyresampled expects int, float|int given.                                                                                    
+          🪪  argument.type                                                                                                                                                   
+  :1611   Parameter Nr.4 $dst_y of function imagecopyresampled expects int, float|int given.                                                                                    
+          🪪  argument.type                                                                                                                                                   
+  :1613   Parameter Nr.7 $dst_width of function imagecopyresampled expects int, float|int given.                                                                                
+          🪪  argument.type                                                                                                                                                   
+  :1613   Parameter Nr.8 $dst_height of function imagecopyresampled expects int, float|int given.                                                                               
+          🪪  argument.type                                                                                                                                                   
+  :1632   Parameter Nr.1 $image of function imagedestroy expects GdImage, GdImage|false given.                                                                                  
+          🪪  argument.type                                                                                                                                                   
+  :1681   Parameter Nr.1 $string of function mb_convert_case expects string, string|false given.                                                                                
+          🪪  argument.type                                                                                                                                                   
+  :1686   Parameter Nr.1 $string of function mb_convert_case expects string, string|false given.                                                                                
+          🪪  argument.type                                                                                                                                                   
+  :1697   Parameter Nr.1 $str of function preg_quote expects string, int|string given.                                                                                          
+          🪪  argument.type                                                                                                                                                   
+  :1701   Parameter Nr.3 $subject of function preg_replace_callback expects array<float|int|string>|string, string|false|null given.                                            
+          🪪  argument.type                                                                                                                                                   
+  :1705   Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                      
+          🪪  argument.type                                                                                                                                                   
+  :1738   Parameter Nr.1 $key of function array_key_exists expects int|string, bool|float|int|string given.                                                                     
+          🪪  argument.type                                                                                                                                                   
+  :1758   Parameter Nr.3 $depth of function json_encode expects int<1, max>, int given.                                                                                         
+          🪪  argument.type                                                                                                                                                   
+ ------- -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/autoload.php
@@ -2461,32 +2448,32 @@ project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.p
          🪪  argument.type                                                                                  
  ------ --------------------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :295   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\EntityMapperExtensible::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<  
-         PiecesPHP\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                   
-         🪪  argument.type                                                                                                                                                   
-  :319   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\EntityMapperExtensible::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<  
-         PiecesPHP\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                   
-         🪪  argument.type                                                                                                                                                   
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :295   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\EntityMapperExtensible::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<Pie  
+         cesPHP\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                         
+         🪪  argument.type                                                                                                                                                      
+  :319   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\EntityMapperExtensible::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<Pie  
+         cesPHP\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                         
+         🪪  argument.type                                                                                                                                                      
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  :105   Property PiecesPHP\Core\Database\Meta\MetaProperty::$mapperName (string) does not accept string|null.                                                               
-         🪪  assign.propertyType                                                                                                                                             
-  :326   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\Meta\MetaProperty::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<Piece  
-         sPHP\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                        
-         🪪  argument.type                                                                                                                                                   
-  :339   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\Meta\MetaProperty::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<Piece  
-         sPHP\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                        
-         🪪  argument.type                                                                                                                                                   
-  :576   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\Meta\MetaProperty::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<Piece  
-         sPHP\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                        
-         🪪  argument.type                                                                                                                                                   
- ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :105   Property PiecesPHP\Core\Database\Meta\MetaProperty::$mapperName (string) does not accept string|null.                                                                  
+         🪪  assign.propertyType                                                                                                                                                
+  :326   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\Meta\MetaProperty::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<PiecesPH  
+         P\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                              
+         🪪  argument.type                                                                                                                                                      
+  :339   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\Meta\MetaProperty::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<PiecesPH  
+         P\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                              
+         🪪  argument.type                                                                                                                                                      
+  :576   Parameter Nr.1 $mapper of method PiecesPHP\Core\Database\Meta\MetaProperty::recursiveHumanization() expects PiecesPHP\Core\Database\EntityMapper, class-string<PiecesPH  
+         P\Core\Database\EntityMapper>|PiecesPHP\Core\Database\EntityMapper given.                                                                                              
+         🪪  argument.type                                                                                                                                                      
+ ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
@@ -2512,21 +2499,21 @@ project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
          🪪  method.nonObject                                                  
  ------ ---------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Importer.php
- ------ ---------------------------------------------------------------------------------------------------------------------------------- 
-  :112   Cannot call method hasMetaProperties() on PiecesPHP\Core\Importer\Field|null.                                                     
-         🪪  method.nonObject                                                                                                              
-  :118   Cannot call method getName() on PiecesPHP\Core\Importer\Field|null.                                                               
-         🪪  method.nonObject                                                                                                              
-  :119   Cannot call method getHumanReadable() on PiecesPHP\Core\Importer\Field|null.                                                      
-         🪪  method.nonObject                                                                                                              
-  :123   Parameter Nr.1 $field of method PiecesPHP\Core\Importer\Importer::processValueAndResponse() expects PiecesPHP\Core\Importer\Field,  
-         PiecesPHP\Core\Importer\Field|null given.                                                                                         
-         🪪  argument.type                                                                                                                 
-  :306   Parameter Nr.1 $fieldName of method PiecesPHP\Core\Importer\Schema::setSubFieldValue() expects string, string|null given.           
-         🪪  argument.type                                                                                                                 
- ------ ---------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  :112   Cannot call method hasMetaProperties() on PiecesPHP\Core\Importer\Field|null.                                                                                        
+         🪪  method.nonObject                                                                                                                                                 
+  :118   Cannot call method getName() on PiecesPHP\Core\Importer\Field|null.                                                                                                  
+         🪪  method.nonObject                                                                                                                                                 
+  :119   Cannot call method getHumanReadable() on PiecesPHP\Core\Importer\Field|null.                                                                                         
+         🪪  method.nonObject                                                                                                                                                 
+  :123   Parameter Nr.1 $field of method PiecesPHP\Core\Importer\Importer::processValueAndResponse() expects PiecesPHP\Core\Importer\Field, PiecesPHP\Core\Importer\Field|null  
+         given.                                                                                                                                                               
+         🪪  argument.type                                                                                                                                                    
+  :306   Parameter Nr.1 $fieldName of method PiecesPHP\Core\Importer\Schema::setSubFieldValue() expects string, string|null given.                                              
+         🪪  argument.type                                                                                                                                                    
+ ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Schema.php
@@ -3139,5 +3126,5 @@ project://src/index.php
      Ignored error pattern throws.notThrowable was not matched in reported errors.                                                                                          
  -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 1038 errors                                                                                              
+ [ERROR] Found 1037 errors                                                                                              
 

@@ -1,16 +1,16 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-191
+190
 
 [TOTAL DE ERRORES VISIBLES]
-1016
+1015
 
 [TIPOS DE ERRORES Y CANTIDAD]
 🪪  argument.type (364)
 🪪  property.nonObject (266)
 🪪  method.nonObject (151)
-🪪  return.type (71)
+🪪  return.type (70)
 🪪  property.notFound (64)
 🪪  assign.propertyType (50)
 🪪  foreach.nonIterable (16)
@@ -29,8 +29,6 @@
 🪪  nullCoalesce.variable (1)
 
 [ERRORES POR ARCHIVO]
-project://src/app/classes/API/Adapters/MauticEmailAdapter.php
-	🪪  return.type (Líneas: 326)
 project://src/app/classes/API/Adapters/MistralHandlerAdapter.php
 	🪪  method.nonObject (Líneas: 82, 84, 85)
 project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php

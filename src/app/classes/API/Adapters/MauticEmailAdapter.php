@@ -311,8 +311,9 @@ class MauticEmailAdapter
 
         $httpClient->request($path, $method, $body, $headers, true, false);
 
-        $status = $httpClient->getResponseStatus();
+        $status = (int) $httpClient->getResponseStatus();
         $response = $httpClient->getResponseBody();
+        /** @var array $data */
         $data = $httpClient->getResponseParsedBody(HttpClient::MODE_PARSED_FROM_JSON_ASSOC);
 
         // Si es 401 y tenemos reintentos habilitados, invalidamos token y repetimos
