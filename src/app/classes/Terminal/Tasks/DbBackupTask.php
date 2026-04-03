@@ -136,11 +136,12 @@ class DbBackupTask extends TerminalTaskAbstract
                 }
 
                 if (!file_exists($htaccess)) {
-                    $htaccessContent = "<IfVersion > 2.4>\r\n";
-                    $htaccessContent .= "\tDeny from All\r\n";
-                    $htaccessContent .= "</IfVersion>\r\n";
-                    $htaccessContent .= "<IfVersion <= 2.4>\r\n";
+                    $htaccessContent = "<IfVersion >= 2.4>\r\n";
                     $htaccessContent .= "\tRequire all denied\r\n";
+                    $htaccessContent .= "</IfVersion>\r\n";
+                    $htaccessContent .= "<IfVersion < 2.4>\r\n";
+                    $htaccessContent .= "\tOrder deny,allow\r\n";
+                    $htaccessContent .= "\tDeny from All\r\n";
                     $htaccessContent .= "</IfVersion>";
                     @file_put_contents($htaccess, $htaccessContent);
                 }

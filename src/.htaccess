@@ -58,30 +58,32 @@ Options -Indexes
 #Prohibir acceso a algunos archivos
 <FilesMatch "\.(sass|scss|htaccess|php|gitignore|zip|ts)$">
 	<IfVersion >= 2.4>
-		Deny from All
+		Require all denied
 	</IfVersion>
 	<IfVersion < 2.4>
-		Require all denied
+		Order deny,allow
+		Deny from All
 	</IfVersion>
 </FilesMatch>
 
 #Prohibir acceso a composer.lock, composer.json y gulpfile.js
 <FilesMatch "^(composer\.lock|composer\.json|gulpfile\.js)$">
 	<IfVersion >= 2.4>
-		Deny from All
+		Require all denied
 	</IfVersion>
 	<IfVersion < 2.4>
-		Require all denied
+		Order deny,allow
+		Deny from All
 	</IfVersion>
 </FilesMatch>
 
 #Permitir acceso php solo a index.php
 <FilesMatch "^index.php$">
 	<IfVersion >= 2.4>
-		Allow from All
+		Require all granted
 	</IfVersion>
 	<IfVersion < 2.4>
-		Require all granted
+		Allow from All
 	</IfVersion>
 </FilesMatch>
 
