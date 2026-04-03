@@ -17,8 +17,6 @@ use PiecesPHP\Core\Routing\ResponseRoute;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
-use PiecesPHP\Core\Validation\Parameters\Parameter;
-use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 
@@ -54,7 +52,11 @@ class DbBackupTask extends TerminalTaskAbstract
         $this->description = new StringArray([
             "Respalda la base de datos por defecto.\r\n",
             "\tParámetros:\r\n",
-            "\t  gz (yes|no) define si se comprime o no. Por defecto: yes",
+            "\t  gz (yes|no) define si se comprime o no. Por defecto: yes\r\n",
+            "\t  data (yes|no) incluir datos de las tablas. Por defecto: yes\r\n",
+            "\t  routines (yes|no) incluir funciones y procedimientos. Por defecto: yes\r\n",
+            "\t  views (yes|no) incluir vistas. Por defecto: yes\r\n",
+            "\t  definer (yes|no) incluir DEFINER en los objetos. Por defecto: no\r\n",
         ]);
         $this->route = "{$startRoute}/db-backup[/]";
         $this->controller = self::class . '::main';
@@ -70,26 +72,6 @@ class DbBackupTask extends TerminalTaskAbstract
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
 
-        //──── Entrada ───────────────────────────────────────────────────────────────────────────
-
-        //Definición de validaciones y procesamiento
-        $expectedParameters = new Parameters([
-            new Parameter(
-                'gz',
-                true,
-                function ($value) {
-                    return is_string($value) || is_bool($value);
-                },
-                true,
-                function ($value) {
-                    return is_string($value) ? mb_strtolower(clean_string($value)) === 'yes' : $value === true;
-                }
-            ),
-        ]);
-
-        //Asignación de datos para procesar
-        $expectedParameters->setInputValues(TerminalData::getInstance()->arguments());
-
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
         //Mensajes de respuesta
@@ -98,14 +80,12 @@ class DbBackupTask extends TerminalTaskAbstract
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
 
-            //Intenta validar, si todo sale bien el código continúa
-            $expectedParameters->validate();
-
             //Información de los parámetros
-            /**
-             * @var string $gz
-             */
-            $gz = $expectedParameters->getValue('gz');
+            $gz = TerminalData::instance()->getArgument('gz', 'yes') === 'yes';
+            $withData = TerminalData::instance()->getArgument('data', 'yes') === 'yes';
+            $withRoutines = TerminalData::instance()->getArgument('routines', 'yes') === 'yes';
+            $withViews = TerminalData::instance()->getArgument('views', 'yes') === 'yes';
+            $withDefiner = TerminalData::instance()->getArgument('definer', 'no') === 'yes';
 
             $db = (new BaseModel())->getDatabase();
             $dbName = $db->getDatabaseName();
@@ -117,12 +97,26 @@ class DbBackupTask extends TerminalTaskAbstract
             $dumpSettingsDefault = [
                 'compress' => $gz ? Mysqldump::GZIP : Mysqldump::NONE,
                 'add-drop-table' => true,
-                'default-character-set' => Mysqldump::UTF8,
-                'routines' => true,
+                'default-character-set' => Mysqldump::UTF8MB4,
+                'routines' => $withRoutines,
                 'single-transaction' => true,
-                'skip-definer' => true,
+                'skip-definer' => !$withDefiner,
                 'disable-foreign-keys-check' => true,
+                'complete-insert' => true,
+                'no-data' => !$withData,
             ];
+
+            if (!$withViews) {
+
+                $pdo = new \PDO("mysql:host={$dbHost};dbname={$dbName}", $dbUser, (string)$dbPassword);
+                $queryViews = "SHOW FULL TABLES WHERE Table_type = 'VIEW'";
+                $stmt = $pdo->query($queryViews);
+                $viewsList = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+
+                if (count($viewsList) > 0) {
+                    $dumpSettingsDefault['exclude-tables'] = $viewsList;
+                }
+            }
 
             if ($dbUser !== null) {
 
@@ -189,7 +183,7 @@ class DbBackupTask extends TerminalTaskAbstract
 
         }
 
-        echoTerminal($responseText);
+        systemOutFormatted($responseText);
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
