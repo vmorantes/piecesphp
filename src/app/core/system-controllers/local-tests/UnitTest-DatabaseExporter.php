@@ -148,6 +148,56 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             }
         }
 
+        // 5. Pruebas de Funcionalidades Especiales (Solo SQL para brevedad)
+        systemOutFormatted('[TEST:DatabaseExporter] Probando nuevas funcionalidades (SQL)...', ['color' => '33']);
+        systemOutFormatted('');
+
+        $specialCases = [
+            [
+                'name' => 'Opción: include_data => false',
+                'options' => ['include_data' => false],
+                'suffix' => 'no_data',
+            ],
+            [
+                'name' => 'Opción: include_views => false',
+                'options' => ['include_views' => false],
+                'suffix' => 'no_views',
+            ],
+            [
+                'name' => 'Opción: single_transaction => true',
+                'options' => ['single_transaction' => true],
+                'suffix' => 'single_transaction',
+            ],
+        ];
+
+        $exporter->setFormatPlugin(new SqlFormat());
+        $exporter->setOutputPlugin(new FileOutput());
+
+        foreach ($specialCases as $index => $case) {
+            $num = $index + 1;
+            systemOutFormatted("[$num/" . count($specialCases) . "] Probando: {$case['name']}...");
+
+            $filename = "test_feature_{$case['suffix']}.sql";
+            $fullPath = append_to_path_system($outputDir, $filename);
+
+            $options = array_merge($baseOptions, $case['options'], [
+                'filename' => $fullPath,
+                'tables' => $tables,
+            ]);
+
+            $exporter->export($options);
+
+            $exists = file_exists($fullPath);
+            $hasSize = $exists ? filesize($fullPath) > 0 : false;
+
+            $checkResult($exists && $hasSize, "Generación de archivo: $fullPath");
+
+            if ($exists) {
+                systemOutFormatted("      Tamaño: " . filesize($fullPath) . " bytes");
+            }
+            systemOutFormatted('');
+        }
+
         systemOutFormatted('[TEST:DatabaseExporter] Suite finalizada.', ['color' => '32']);
         systemOutFormatted('Los archivos generados se encuentran en: ' . $outputDir);
 

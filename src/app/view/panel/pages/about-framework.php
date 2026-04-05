@@ -103,7 +103,6 @@ $langGroup = 'about-framework';
                     <li>phpmailer Ver. ^7.0 Licencia GNU</li>
                     <li>phpspreadsheet Ver. ^5.5 Licencia MIT</li>
                     <li>mpdf Ver. ^8.3 Licencia GNU</li>
-                    <li>mysqldump-php Ver. ^2.12 Licencia GNU</li>
                     <li>scssphp Ver. ^2.1 Licencia MIT</li>
                     <li>spatie/url Ver. ^2.4 Licencia MIT</li>
                     <li>microsoft/azure-storage-blob Ver. ^1.5 Licencia MIT</li>

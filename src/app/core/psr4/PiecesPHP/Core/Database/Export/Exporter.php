@@ -83,6 +83,9 @@ class Exporter implements ExporterInterface
      *     remove_definer?: bool,
      *     drop_if_exists_on_functions?: bool,
      *     create_if_not_exists?: bool,
+     *     include_data?: bool,
+     *     include_views?: bool,
+     *     single_transaction?: bool,
      *     filename?: string
      * } $options Configuración detallada de la exportación.
      * @return mixed El resultado depende del plugin de salida configurado.
@@ -103,10 +106,13 @@ class Exporter implements ExporterInterface
             'remove_definer' => true,
             'drop_if_exists_on_functions' => false,
             'create_if_not_exists' => true,
+            'include_data' => true,
+            'include_views' => true,
+            'single_transaction' => true,
         ];
 
         $opts = array_merge($defaults, $options);
-        
+
         // Convertir Enums a su valor string si es necesario
         if ($opts['table_style'] instanceof TableStyle) {
             $opts['table_style'] = $opts['table_style']->value;
@@ -119,7 +125,21 @@ class Exporter implements ExporterInterface
             $opts['tables'] = $this->getTables();
         }
 
+        // Filtrar vistas si no se deben incluir
+        if (!$opts['include_views']) {
+            $opts['tables'] = array_filter($opts['tables'], function ($table) {
+                return !$this->formatPlugin->isView($this->db, $table);
+            });
+            $opts['tables'] = array_values($opts['tables']);
+        }
+
         try {
+
+            if ($opts['single_transaction']) {
+                $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
+                $this->db->beginTransaction();
+            }
+
             if (!$this->outputPlugin->init($opts)) {
                 return false;
             }
@@ -149,23 +169,25 @@ class Exporter implements ExporterInterface
             // 3. Mezcla Alfabética (Tablas y Vistas Temporales)
             foreach ($allObjects as $obj) {
                 $isObjectView = $this->formatPlugin->isView($this->db, $obj);
-                
+
                 if ($isObjectView) {
                     // Vista como Tabla Temporal (para dependencias)
                     $this->outputPlugin->write($this->formatPlugin->getTableFakeView($this->db, $obj));
                 } else {
                     // Tabla Real
                     $this->outputPlugin->write($this->formatPlugin->getTableStructure($this->db, $obj, $opts));
-                    
+
                     // Disparadores
                     if ($opts['triggers']) {
-                       $this->outputPlugin->write($this->formatPlugin->getTableTriggers($this->db, $obj, $opts));
+                        $this->outputPlugin->write($this->formatPlugin->getTableTriggers($this->db, $obj, $opts));
                     }
 
                     // Datos (Bulk Insert)
-                    $this->formatPlugin->getTableData($this->db, $obj, $opts, function($chunk) {
-                        $this->outputPlugin->write($chunk);
-                    });
+                    if ($opts['include_data']) {
+                        $this->formatPlugin->getTableData($this->db, $obj, $opts, function ($chunk) {
+                            $this->outputPlugin->write($chunk);
+                        });
+                    }
                 }
             }
 
@@ -177,9 +199,16 @@ class Exporter implements ExporterInterface
             // 5. Pie
             $this->outputPlugin->write($this->formatPlugin->getFooter());
 
+            if ($opts['single_transaction']) {
+                $this->db->commit();
+            }
+
             return $this->outputPlugin->finalize();
 
         } catch (Exception $e) {
+            if (isset($opts) && $opts['single_transaction'] && $this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             $this->errors[] = $e->getMessage();
             return false;
         }

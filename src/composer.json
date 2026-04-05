@@ -30,7 +30,6 @@
         "ext-xmlwriter": "*",
         "ext-xmlreader": "*",
         "ext-curl": "*",
-        "ifsnop/mysqldump-php": "^2.12",
         "mpdf/mpdf": "^8.3",
         "phpmailer/phpmailer": "^7.0",
         "phpoffice/phpspreadsheet": "^5.5",

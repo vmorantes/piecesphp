@@ -7,16 +7,18 @@
 namespace Terminal\Tasks;
 
 use App\Model\UsersModel;
-use Ifsnop\Mysqldump\Mysqldump;
 use PiecesPHP\Core\BaseModel;
+use PiecesPHP\Core\Database\Export\Enums\DataStyle;
+use PiecesPHP\Core\Database\Export\Enums\TableStyle;
+use PiecesPHP\Core\Database\Export\Exporter;
+use PiecesPHP\Core\Database\Export\Plugins\FileOutput;
+use PiecesPHP\Core\Database\Export\Plugins\GzipFileOutput;
+use PiecesPHP\Core\Database\Export\Plugins\SqlFormat;
 use PiecesPHP\Core\DataStructures\IntegerArray;
 use PiecesPHP\Core\DataStructures\StringArray;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
-use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
 use PiecesPHP\TerminalData;
 use PiecesPHP\Terminal\Tasks\Abstracts\TerminalTaskAbstract;
 
@@ -69,13 +71,15 @@ class DbBackupTask extends TerminalTaskAbstract
         $this->middlewares = [];
     }
 
-    public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
+    public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = [], bool $throwExceptions = false): bool
     {
 
         //──── Estructura de respuesta ───────────────────────────────────────────────────────────
 
         //Mensajes de respuesta
         $responseText = "";
+        $success = false;
+        $exceptionToThrow = null;
 
         //──── Acciones ──────────────────────────────────────────────────────────────────────────
         try {
@@ -89,101 +93,94 @@ class DbBackupTask extends TerminalTaskAbstract
 
             $db = (new BaseModel())->getDatabase();
             $dbName = $db->getDatabaseName();
-            $dbHost = $db->getHost();
-            $dbUser = $db->getUsername();
-            $dbPassword = $db->getPassword();
-            $dbPassword = $dbPassword !== null ? $dbPassword : '';
 
-            $dumpSettingsDefault = [
-                'compress' => $gz ? Mysqldump::GZIP : Mysqldump::NONE,
-                'add-drop-table' => true,
-                'default-character-set' => Mysqldump::UTF8MB4,
-                'routines' => $withRoutines,
-                'single-transaction' => true,
-                'skip-definer' => !$withDefiner,
-                'disable-foreign-keys-check' => true,
-                'complete-insert' => true,
-                'no-data' => !$withData,
-            ];
+            // Preparar Exportador
+            $exporter = new Exporter($db, $dbName);
+            $exporter->setFormatPlugin(new SqlFormat());
 
-            if (!$withViews) {
+            // Seleccionar plugin de salida
+            $outputPlugin = $gz ? new GzipFileOutput() : new FileOutput();
+            $exporter->setOutputPlugin($outputPlugin);
 
-                $pdo = new \PDO("mysql:host={$dbHost};dbname={$dbName}", $dbUser, (string)$dbPassword);
-                $queryViews = "SHOW FULL TABLES WHERE Table_type = 'VIEW'";
-                $stmt = $pdo->query($queryViews);
-                $viewsList = $stmt->fetchAll(\PDO::FETCH_COLUMN);
+            // Nombre y ruta del archivo
+            $fileName = date('d-m-Y_H-i-s-A') . ($gz ? '.sql.gz' : '.sql');
+            $dumpDirectory = basepath("dumps");
+            $htaccess = "{$dumpDirectory}/.htaccess";
+            $outputFile = "{$dumpDirectory}/{$fileName}";
 
-                if (count($viewsList) > 0) {
-                    $dumpSettingsDefault['exclude-tables'] = $viewsList;
-                }
-            }
-
-            if ($dbUser !== null) {
-
-                $dump = new Mysqldump("mysql:host={$dbHost};dbname={$dbName}", $dbUser, $dbPassword, $dumpSettingsDefault);
-                $fileName = date('d-m-Y_H-i-s-A') . ($gz ? '.sql.gz' : '.sql');
-                $dumpDirectory = basepath("dumps");
-                $htaccess = "{$dumpDirectory}/.htaccess";
-
+            $umask = umask(0);
+            try {
                 if (!file_exists($dumpDirectory)) {
                     mkdir($dumpDirectory, 0777, true);
                 }
-
-                if (!file_exists($htaccess)) {
-                    $htaccessContent = "<IfVersion >= 2.4>\r\n";
-                    $htaccessContent .= "\tRequire all denied\r\n";
-                    $htaccessContent .= "</IfVersion>\r\n";
-                    $htaccessContent .= "<IfVersion < 2.4>\r\n";
-                    $htaccessContent .= "\tOrder deny,allow\r\n";
-                    $htaccessContent .= "\tDeny from All\r\n";
-                    $htaccessContent .= "</IfVersion>";
-                    @file_put_contents($htaccess, $htaccessContent);
-                }
-
-                try {
-
-                    $output = "{$dumpDirectory}/{$fileName}";
-                    $changePermissions = !file_exists($output);
-                    $dump->start($output);
-
-                    if ($changePermissions) {
-                        chmod($output, 0777);
-                    }
-
-                    $responseText = "Operación exitosa\r\n";
-
-                } catch (\Exception $e) {
-                    $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-                    log_exception($e);
-                }
-
-            } else {
-                $responseText = "No se pudo seleccionar ningún usuario para la conexión a la base de datos.\r\n";
+            } finally {
+                umask($umask);
             }
 
-        } catch (MissingRequiredParamaterException $e) {
+            if (!file_exists($htaccess)) {
+                $htaccessContent = "<IfVersion >= 2.4>\r\n";
+                $htaccessContent .= "\tRequire all denied\r\n";
+                $htaccessContent .= "</IfVersion>\r\n";
+                $htaccessContent .= "<IfVersion < 2.4>\r\n";
+                $htaccessContent .= "\tOrder deny,allow\r\n";
+                $htaccessContent .= "\tDeny from All\r\n";
+                $htaccessContent .= "</IfVersion>";
+                file_put_contents($htaccess, $htaccessContent);
+            }
 
-            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-            log_exception($e);
+            try {
 
-        } catch (ParsedValueException $e) {
+                $changePermissions = !file_exists($outputFile);
 
-            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-            log_exception($e);
+                // Ejecutar exportación
+                $exporter->export([
+                    'filename' => $outputFile,
+                    'include_data' => $withData,
+                    'include_views' => $withViews,
+                    'routines' => $withRoutines,
+                    'remove_definer' => !$withDefiner,
+                    'table_style' => TableStyle::DROP_CREATE,
+                    'data_style' => DataStyle::INSERT,
+                    'single_transaction' => true,
+                    'auto_increment' => true,
+                    'triggers' => true,
+                ]);
+                $outputPath = $outputPlugin->getFilename();
 
-        } catch (InvalidParameterValueException $e) {
+                if (file_exists($outputPath)) {
+                    if ($changePermissions) {
+                        chmod($outputPath, 0777);
+                    }
+                    $responseText = "Operación exitosa\r\n";
+                    $responseText .= "Archivo generado: " . basename($outputPath) . "\r\n";
+                    $success = true;
+                } else {
+                    $errors = implode("\n", $exporter->getErrors());
+                    $responseText = "Ha ocurrido un error durante la exportación:\n{$errors}\r\n";
+                    $exceptionToThrow = new \Exception($responseText);
+                }
 
-            $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-            log_exception($e);
+            } catch (\Exception $e) {
+                $exceptionToThrow = $e;
+                $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
+                log_exception($e);
+            }
 
         } catch (\Exception $e) {
 
+            $exceptionToThrow = $e;
             $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
             log_exception($e);
 
         }
 
         systemOutFormatted($responseText);
+
+        if ($throwExceptions && $exceptionToThrow !== null) {
+            throw $exceptionToThrow;
+        }
+
+        return $success;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

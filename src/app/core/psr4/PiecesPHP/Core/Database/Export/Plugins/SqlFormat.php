@@ -13,6 +13,14 @@ use Exception;
  * 
  * Plugin de formato encargado de generar sentencias SQL compatibles con MySQL/MariaDB.
  * Soporta remoción de DEFINER, Bulk Inserts y diferentes estilos de creación y datos.
+ * 
+ * Opciones soportadas:
+ * - table_style: Enums\TableStyle (DROP_CREATE, CREATE).
+ * - data_style: Enums\DataStyle (INSERT, REPLACE, TRUNCATE_INSERT).
+ * - auto_increment: bool (incluir o no AUTO_INCREMENT en CREATE TABLE).
+ * - remove_definer: bool (eliminar DEFINER de todos los objetos).
+ * - create_if_not_exists: bool (usar CREATE TABLE IF NOT EXISTS).
+ * - drop_if_exists_on_functions: bool (usar DROP FUNCTION/PROCEDURE IF EXISTS).
  */
 class SqlFormat implements FormatPluginInterface
 {
