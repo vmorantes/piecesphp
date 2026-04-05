@@ -86,7 +86,11 @@ class Exporter implements ExporterInterface
      *     include_data?: bool,
      *     include_views?: bool,
      *     single_transaction?: bool,
-     *     filename?: string
+     *     filename?: string,
+     *     exclude_tables?: string[],
+     *     where?: array<string, string>,
+     *     transformations?: array<string, array<string, callable>>,
+     *     hex_blob?: bool
      * } $options Configuración detallada de la exportación.
      * @return mixed El resultado depende del plugin de salida configurado.
      */
@@ -109,6 +113,10 @@ class Exporter implements ExporterInterface
             'include_data' => true,
             'include_views' => true,
             'single_transaction' => true,
+            'exclude_tables' => [],
+            'where' => [],
+            'transformations' => [],
+            'hex_blob' => true,
         ];
 
         $opts = array_merge($defaults, $options);
@@ -125,6 +133,14 @@ class Exporter implements ExporterInterface
             $opts['tables'] = $this->getTables();
         }
 
+        // Filtrar tablas excluidas
+        if (!empty($opts['exclude_tables'])) {
+            $opts['tables'] = array_filter($opts['tables'], function ($table) use ($opts) {
+                return !in_array($table, $opts['exclude_tables']);
+            });
+            $opts['tables'] = array_values($opts['tables']);
+        }
+
         // Filtrar vistas si no se deben incluir
         if (!$opts['include_views']) {
             $opts['tables'] = array_filter($opts['tables'], function ($table) {
@@ -136,7 +152,12 @@ class Exporter implements ExporterInterface
         try {
 
             if ($opts['single_transaction']) {
-                $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
+                try {
+                    // REPEATABLE READ para consistencia, READ ONLY para optimización (MySQL 5.6.5+)
+                    $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY");
+                } catch (Exception $e) {
+                    $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
+                }
                 $this->db->beginTransaction();
             }
 

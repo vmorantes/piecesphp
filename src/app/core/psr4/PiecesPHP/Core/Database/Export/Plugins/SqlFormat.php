@@ -94,15 +94,18 @@ class SqlFormat implements FormatPluginInterface
             return "";
         }
 
-        $stmt = $db->query("SELECT * FROM " . $this->idfEscape($table));
-        $fields = $this->getFields($db, $table);
-        
         $outputBuffer = "";
         $rowCount = 0;
         $insertHeader = "";
         
         $dataStyle = $options['data_style'] ?? DataStyle::INSERT->value;
         $verb = ($dataStyle === DataStyle::REPLACE->value) ? 'REPLACE' : 'INSERT';
+        $where = isset($options['where'][$table]) ? " WHERE " . $options['where'][$table] : "";
+        $transforms = $options['transformations'][$table] ?? [];
+        $useHexBlob = $options['hex_blob'] ?? true;
+        $fields = $this->getFields($db, $table);
+
+        $stmt = $db->query("SELECT * FROM " . $this->idfEscape($table) . $where);
 
         if ($dataStyle === DataStyle::TRUNCATE_INSERT->value) {
             $truncate = "TRUNCATE TABLE " . $this->idfEscape($table) . ";\n";
@@ -126,8 +129,17 @@ class SqlFormat implements FormatPluginInterface
 
             $values = [];
             foreach ($row as $key => $val) {
+
+                // Aplicar Transformaciones (GDPR / Masking)
+                if (isset($transforms[$key])) {
+                    $val = $transforms[$key]($val, $key);
+                }
+
                 if ($val === null) {
                     $values[] = "NULL";
+                } elseif ($useHexBlob && $this->isBinaryType($fields[$key] ?? '')) {
+                    // Exportar como literal hexadecimal (0x...) para integridad total en binarios
+                    $values[] = "0x" . bin2hex($val);
                 } elseif ($this->isNumericType($fields[$key] ?? '')) {
                     $values[] = $val;
                 } else {
@@ -317,6 +329,17 @@ class SqlFormat implements FormatPluginInterface
     protected function isNumericType(string $type): bool
     {
         return (bool) preg_match('~int|decimal|float|double|bit~i', $type);
+    }
+
+    /**
+     * Determina si un tipo de dato es binario para exportar como Hex.
+     * 
+     * @param string $type
+     * @return bool
+     */
+    protected function isBinaryType(string $type): bool
+    {
+        return (bool) preg_match('~binary|blob|varbinary~i', $type);
     }
 
     /**

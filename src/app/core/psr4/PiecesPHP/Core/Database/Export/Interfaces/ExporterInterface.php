@@ -23,6 +23,10 @@ use PDO;
  * - include_views: bool (incluir vistas).
  * - single_transaction: bool (usar una sola transacción para la exportación).
  * - filename: string (nombre del archivo de salida).
+ * - exclude_tables: string[] (lista de tablas a omitir).
+ * - where: array<string, string> (filtro WHERE por reporte, ej: ['users' => 'active = 1']).
+ * - transformations: array<string, array<string, callable>> (funciones de transformación por tabla y columna).
+ * - hex_blob: bool (si se deben exportar campos binarios como hexadecimal, default: true).
  */
 interface ExporterInterface
 {
@@ -42,7 +46,11 @@ interface ExporterInterface
      *     include_data?: bool,
      *     include_views?: bool,
      *     single_transaction?: bool,
-     *     filename?: string
+     *     filename?: string,
+     *     exclude_tables?: string[],
+     *     where?: array<string, string>,
+     *     transformations?: array<string, array<string, callable>>,
+     *     hex_blob?: bool
      * } $options Opciones de configuración.
      * @return mixed Depende del plugin de salida (string, bool, etc).
      */

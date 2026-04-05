@@ -6,23 +6,27 @@ use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
 use PDO;
 
 /**
- * Class JsonFormat
+ * Class CsvFormat
  * 
- * Plugin de formato para exportar datos en formato JSON.
- * Ideal para interoperabilidad con otros sistemas y APIs.
+ * Plugin de formato para exportar datos en formato CSV (Valores separados por comas).
+ * Soporta transformaciones de datos, filtros WHERE y detección de binarios.
  */
-class JsonFormat implements FormatPluginInterface
+class CsvFormat implements FormatPluginInterface
 {
-    /** @var bool Indica si ya se ha escrito alguna tabla para añadir comas */
-    protected bool $firstTable = true;
+    /** @var string Delimitador de columnas */
+    protected string $delimiter = ",";
+    /** @var string Encerramiento de campos */
+    protected string $enclosure = '"';
+    /** @var string Carácter de escape */
+    protected string $escape = "\\";
 
     /**
      * @inheritDoc
      */
     public function getHeader(PDO $db, string $database, string $charset): string
     {
-        // Abrir el objeto principal
-        return "{\n";
+        // El CSV no tiene un encabezado global de archivo en este contexto
+        return "";
     }
 
     /**
@@ -30,8 +34,7 @@ class JsonFormat implements FormatPluginInterface
      */
     public function getFooter(): string
     {
-        // Cerrar el objeto principal
-        return "\n}\n";
+        return "";
     }
 
     /**
@@ -39,14 +42,20 @@ class JsonFormat implements FormatPluginInterface
      */
     public function getTableStructure(PDO $db, string $table, array $options): string
     {
+        // En CSV no exportamos la sentencia CREATE TABLE.
+        // Pero podemos exportar los nombres de las columnas como primera fila si se desea.
         if ($this->isView($db, $table)) {
             return "";
         }
-        // Para JSON, no exportamos la estructura SQL, pero podríamos imprimir el nombre de la tabla
-        $prefix = $this->firstTable ? "" : ",\n";
-        $this->firstTable = false;
-        
-        return $prefix . "  \"" . addcslashes($table, "\r\n\"\\") . "\": [\n";
+
+        $stmt = $db->query("SELECT * FROM `" . str_replace("`", "``", $table) . "` LIMIT 0");
+        $cols = [];
+        for ($i = 0; $i < $stmt->columnCount(); $i++) {
+            $meta = $stmt->getColumnMeta($i);
+            $cols[] = $meta['name'];
+        }
+
+        return $this->arrayToCsvLine($cols) . "\n";
     }
 
     /**
@@ -57,9 +66,8 @@ class JsonFormat implements FormatPluginInterface
         $where = isset($options['where'][$table]) ? " WHERE " . $options['where'][$table] : "";
         $sql = "SELECT * FROM `" . str_replace("`", "``", $table) . "`" . $where;
         $stmt = $db->query($sql);
-
+        
         $outputBuffer = "";
-        $firstRow = true;
         $transforms = $options['transformations'][$table] ?? [];
         $useHexBlob = $options['hex_blob'] ?? true;
 
@@ -72,17 +80,17 @@ class JsonFormat implements FormatPluginInterface
                 }
             }
 
-            // Manejo de Binarios para evitar caracteres inválidos en JSON
+            // Manejo de Binarios (si no han sido transformados)
             if ($useHexBlob) {
                 foreach ($row as $col => &$val) {
                     if (is_string($val) && !mb_check_encoding($val, 'UTF-8')) {
+                        // Es probable que sea binario si no es UTF-8 válido
                         $val = "0x" . bin2hex($val);
                     }
                 }
             }
 
-            $line = ($firstRow ? "" : ",\n") . "    " . json_encode($row, JSON_UNESCAPED_UNICODE);
-            $firstRow = false;
+            $line = $this->arrayToCsvLine(array_values($row)) . "\n";
 
             if ($writeCallback) {
                 $writeCallback($line);
@@ -91,13 +99,7 @@ class JsonFormat implements FormatPluginInterface
             }
         }
 
-        $footer = "\n  ]";
-        if ($writeCallback) {
-            $writeCallback($footer);
-            return null;
-        }
-
-        return $outputBuffer . $footer;
+        return $writeCallback ? null : $outputBuffer;
     }
 
     /**
@@ -132,17 +134,8 @@ class JsonFormat implements FormatPluginInterface
      */
     public function getTableFakeView(PDO $db, string $table): string
     {
-        // En JSON las vistas son fuentes de datos normales. 
-        // Las exportamos completas aquí para aprovechar el flujo de 1 sola fase real para datos.
-        $output = $this->getTableStructure($db, $table, []); // Esto devolvería "" si isView es true, así que forzamos:
-        
-        $prefix = $this->firstTable ? "" : ",\n";
-        $this->firstTable = false;
-        $output = $prefix . "  \"" . addcslashes($table, "\r\n\"\\") . "\": [\n";
-
-        $data = $this->getTableData($db, $table, []);
-        
-        return $output . $data;
+        // En CSV las vistas se exportan como datos directamente
+        return $this->getTableStructure($db, $table, []) . $this->getTableData($db, $table, []);
     }
 
     /**
@@ -151,5 +144,21 @@ class JsonFormat implements FormatPluginInterface
     public function getTableTriggers(PDO $db, string $table, array $options): string
     {
         return "";
+    }
+
+    /**
+     * Convierte un array en una línea CSV válida.
+     * 
+     * @param array $fields
+     * @return string
+     */
+    protected function arrayToCsvLine(array $fields): string
+    {
+        $fp = fopen('php://temp', 'r+');
+        fputcsv($fp, $fields, $this->delimiter, $this->enclosure, $this->escape);
+        rewind($fp);
+        $line = rtrim(stream_get_contents($fp), "\n");
+        fclose($fp);
+        return $line;
     }
 }

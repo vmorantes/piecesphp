@@ -7,6 +7,7 @@
 namespace Terminal\Tasks;
 
 use App\Model\UsersModel;
+use PiecesPHP\Core\BaseHashEncryption;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Core\Database\Export\Enums\DataStyle;
 use PiecesPHP\Core\Database\Export\Enums\TableStyle;
@@ -144,6 +145,19 @@ class DbBackupTask extends TerminalTaskAbstract
                     'single_transaction' => true,
                     'auto_increment' => true,
                     'triggers' => true,
+                    'exclude_tables' => [
+                        'pcs_unit_tests_core_database_exporter_v1',
+                    ],
+                    'where' => [
+                        "TABLE_NAME" => 'WHERE COMPLETAMENTE FORMADO SIN LA PALABRA WHERE',
+                    ],
+                    'transformations' => [
+                        UsersModel::TABLE => [
+                            'password' => function ($val) {
+                                return BaseHashEncryption::encrypt($val, 'ENCRYPTION_KEY');
+                            },
+                        ],
+                    ],
                 ]);
                 $outputPath = $outputPlugin->getFilename();
 

@@ -48,10 +48,32 @@ class PhpFormat implements FormatPluginInterface
      */
     public function getTableData(PDO $db, string $table, array $options, ?callable $writeCallback = null): ?string
     {
-        $stmt = $db->query("SELECT * FROM `" . str_replace("`", "``", $table) . "`");
+        $where = isset($options['where'][$table]) ? " WHERE " . $options['where'][$table] : "";
+        $sql = "SELECT * FROM `" . str_replace("`", "``", $table) . "`" . $where;
+        $stmt = $db->query($sql);
+
         $outputBuffer = "";
+        $transforms = $options['transformations'][$table] ?? [];
+        $useHexBlob = $options['hex_blob'] ?? true;
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            
+            // Aplicar Transformaciones (GDPR / Masking)
+            foreach ($transforms as $col => $callback) {
+                if (array_key_exists($col, $row)) {
+                    $row[$col] = $callback($row[$col], $col);
+                }
+            }
+
+            // Manejo de Binarios
+            if ($useHexBlob) {
+                foreach ($row as $col => &$val) {
+                    if (is_string($val) && !mb_check_encoding($val, 'UTF-8')) {
+                        $val = "0x" . bin2hex($val);
+                    }
+                }
+            }
+
             // var_export genera la representación PHP
             $line = "    " . str_replace("\n", "\n    ", var_export($row, true)) . ",\n";
 
