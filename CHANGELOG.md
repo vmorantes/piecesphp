@@ -1,3 +1,16 @@
+# 7.0.6 (05-04-2026)
+
+- **Exportador de Base de Datos Nativo**:
+    - Se elimina el uso del ejecutable del sistema `mysqldump`.
+    - Integración de `PiecesPHP\Core\Database\Export\Exporter` como nuevo motor para respaldo y exportación de bases de datos de forma agnóstica al sistema operativo.
+    - Soporta múltiples formatos de salida (SQL, JSON, CSV, PHP, XML) y algoritmos de compresión (ZIP, Gzip, Bzip2, File).
+- **Sistema CLI y Terminal**:
+    - Novedades en el comando `db-backup` para elegir qué componentes backupear (`data`, `routines`, `views`, `definer`).
+    - Scripts de autocompletado nativos en terminal para bash (`bin/pieces-completion.bash`) y zsh (`bin/pieces-completion.zsh`).
+- **Sistema de Archivos y Logs**:
+    - Soporte completo de manipulación de enlaces simbólicos (`Symlinks`) en `DirectoryObject` y borrado seguro.
+    - Nuevo modelo de logs bajo demanda con trazas exclusivas y control de redundancia en formato plano para fácil lectura (`error.plain.log`).
+
 # 7.0.5 (27-03-2026)
 
 - **Sistema CLI y Terminal**:

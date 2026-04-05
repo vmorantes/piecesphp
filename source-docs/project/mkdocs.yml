@@ -55,6 +55,7 @@ nav:
             - CronJobs: piecesphp/new-features/cronjobs.md
             - Pruebas Unitarias (CLI): piecesphp/new-features/unit-testing.md
             - Archivos Protegidos: piecesphp/new-features/protected-files.md
+            - Exportador BBDD Nativo: piecesphp/new-features/database-exporter.md
     - Rendimiento: 
         - performance/index.md
         - ZRam: performance/content/zram.md

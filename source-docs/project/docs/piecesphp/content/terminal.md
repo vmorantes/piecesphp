@@ -32,6 +32,31 @@ Cuando ejecutas un comando en la terminal, PiecesPHP sigue este orden estricto d
 
 ---
 
+## 💻 Autocompletado
+
+PiecesPHP soporta autocompletado nativo para presionar la tecla `TAB` y descubrir comandos. Esto agiliza la escritura y evita errores en la terminal.
+
+**Linux / Mac OS (Bash y Zsh)**
+Simplemente ejecuta uno de estos comandos según tu shell para registrar el completador (puedes añadir la carga a tu `.bashrc` o `.zshrc`):
+```bash
+source bin/pieces-completion.bash
+# O para zsh:
+source bin/pieces-completion.zsh
+```
+
+**Windows**
+Para disfrutar del autocompletado en Windows, la opción recomendada y soportada oficialmente es utilizar **Git Bash** o **WSL (Subsistema de Windows para Linux)** y seguir las mismas instrucciones indicadas arriba (usando `bin/pieces-completion.bash`).
+
+---
+
+## 🎨 Salida Inteligente (Salida sin Color)
+
+La clase interna `PiecesPHP\Cli` detecta automáticamente si el comando está siendo redirigido a un archivo (Ej: `bin/cli ... > archivo.txt`) o encadenado en un pipe (`bin/cli ... | grep ...`). 
+
+Cuando detecta la tubería, **limpia los códigos ISO de colores** para evitar que se filtren símbolos de formato (`[0m33`, etc.) en tus archivos de texto.
+ 
+---
+
 ## Acciones disponibles
 
 ### 1. db-backup
@@ -40,6 +65,10 @@ Respalda la base de datos por defecto.
 **Parámetros:**
 
 - `gz` (yes|no) — Define si el respaldo se comprime en gzip. Por defecto: yes.
+- `data` (yes|no) — Incluir datos de las tablas (registros). Por defecto: yes.
+- `routines` (yes|no) — Incluir rutinas guardadas (funciones y procedimientos). Por defecto: yes.
+- `views` (yes|no) — Incluir la estructura de vistas de BD. Por defecto: yes.
+- `definer` (yes|no) — Incluir la etiqueta de DEFINER de MySQL/MariaDB en las sentencias de los objetos. Por defecto: no.
 
 **Ejemplo:**
 ```bash
