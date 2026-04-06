@@ -1,3 +1,8 @@
+# Eliminaciones
+
+- Remoción de módulo de chat interno obsoleto.
+- Remoción de módulo de presentaciones de capacitación obsoleto.
+    
 # 7.0.6 (05-04-2026)
 
 - **Exportador de Base de Datos Nativo**:

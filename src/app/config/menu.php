@@ -115,17 +115,6 @@ if (!in_array($current_type_user, $externalUsers)) {
                 'icon' => 'map marker alternate',
                 'position' => 1800,
             ]),
-            new MenuGroup([
-                'name' => __(ADMIN_MENU_LANG_GROUP, 'Mensajes'),
-                'attributes' => [
-                    'unread-threads' => get_route('messages-threads-status', [], true),
-                ],
-                'visible' => Roles::hasPermissions('messages-inbox', $current_type_user),
-                'asLink' => true,
-                'href' => get_route('messages-inbox', [], true),
-                'icon' => 'envelope outline',
-                'position' => 2000,
-            ]),
         ],
     ]);
 } else {

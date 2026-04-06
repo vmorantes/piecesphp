@@ -400,12 +400,6 @@ class AdminPanelController extends BaseController
         ]);
         add_global_asset(base_url(ADMIN_AREA_PATH_JS . '/main.js'), 'js');
 
-        if (MESSAGES_ENABLED) {
-            if (get_current_url() != get_route('messages-inbox') && REFRESH_MESSAGES_STATUS) {
-                add_global_asset(MESSAGES_PATH_JS . '/unread.js', 'js');
-            }
-        }
-
         if (LOCATIONS_ENABLED) {
             import_locations([], true, true);
         }

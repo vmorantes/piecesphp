@@ -13,7 +13,6 @@ Disallow: /organizations/
 Disallow: /configurations/
 Disallow: /tickets/
 Disallow: /timing/
-Disallow: /messages/
 Disallow: /locations/
 Disallow: /importers/
 Disallow: /avatars/

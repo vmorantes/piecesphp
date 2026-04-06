@@ -48,11 +48,9 @@ use App\Controller\AppConfigController;
 use App\Controller\AvatarController;
 use App\Controller\GenericTokenController;
 use App\Controller\LoginAttemptsController;
-use App\Controller\MessagesController;
 use App\Controller\PublicAreaController;
 use App\Controller\TimerController;
 use App\Locations\Controllers\Locations;
-use App\Presentations\PresentationsRoutes;
 use Components\ComponentProviderRoutes;
 use ContentNavigationHub\ContentNavigationHubRoutes;
 use DataImportExportUtility\DataImportExportUtilityRoutes;
@@ -69,7 +67,6 @@ use MySpace\MySpaceRoutes;
 use Newsletter\NewsletterRoutes;
 use News\NewsRoutes;
 use Organizations\OrganizationsRoutes;
-use Persons\PersonsRoutes;
 use PiecesPHP\BuiltIn\Banner\BuiltInBannerRoutes;
 use PiecesPHP\BuiltIn\Helpers\HelpersSystemRoutes;
 use PiecesPHP\Core\Route as PiecesRoute;
@@ -100,7 +97,6 @@ $configurations = new PiecesRouteGroup($prefix_lang . '/configurations'); //Conf
 $sistema_usuarios = new PiecesRouteGroup($prefix_lang . '/users/'); //Sistema de usuarios
 $tickets = new PiecesRouteGroup($prefix_lang . '/tickets'); //Sistema de tickets
 $timing = new PiecesRouteGroup($prefix_lang . '/timing'); //Temporizadores
-$mensajeria = new PiecesRouteGroup($prefix_lang . '/messages'); //Mensajería
 $locations = new PiecesRouteGroup($prefix_lang . '/locations'); //Ubicaciones
 $importadores = new PiecesRouteGroup($prefix_lang . '/importers'); //Importadores
 $sistema_avatares = new PiecesRouteGroup($prefix_lang . '/avatars'); //Sistema de usuarios-avatares
@@ -162,9 +158,6 @@ AdminPanelController::ticketsRoutes($tickets);
 //Temporizador
 TimerController::routes($timing);
 
-//Mensajería
-MessagesController::routes($mensajeria);
-
 //Ubicaciones
 Locations::routes($locations);
 
@@ -189,9 +182,6 @@ APIRoutes::routes($coreGroup);
 //Imágenes
 BuiltInBannerRoutes::routes($zona_administrativa, $zona_publica);
 
-//Módulo de presentaciones
-PresentationsRoutes::routes($zona_administrativa, $zona_publica);
-
 //Publicaciones
 PublicationsRoutes::routes($zona_administrativa, $zona_publica);
 
@@ -206,9 +196,6 @@ ImagesRepositoryRoutes::routes($zona_administrativa);
 
 //Formularios
 FormsRoutes::routes($zona_administrativa);
-
-//Personas
-PersonsRoutes::routes($zona_administrativa);
 
 //Log de acciones
 LogsRoutes::routes($zona_administrativa);

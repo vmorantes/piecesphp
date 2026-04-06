@@ -1,23 +1,23 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-200
+192
 
 [TOTAL DE ERRORES VISIBLES]
-1055
+1026
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (382)
-🪪  property.nonObject (264)
-🪪  method.nonObject (168)
+🪪  argument.type (375)
+🪪  property.nonObject (259)
+🪪  method.nonObject (162)
 🪪  return.type (72)
-🪪  property.notFound (64)
+🪪  property.notFound (57)
 🪪  assign.propertyType (52)
 🪪  foreach.nonIterable (17)
 🪪  offsetAccess.notFound (7)
-🪪  method.notFound (7)
 🪪  clone.nonObject (5)
 🪪  offsetAccess.invalidOffset (4)
+🪪  method.notFound (3)
 🪪  binaryOp.invalid (3)
 🪪  encapsedStringPart.nonString (2)
 🪪  staticMethod.nonObject (1)
@@ -62,14 +62,6 @@ project://src/app/classes/App/Locations/Controllers/State.php
 	🪪  foreach.nonIterable (Líneas: 458)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	🪪  property.nonObject (Líneas: 4)
-project://src/app/classes/App/Presentations/Controllers/PresentationsCategoryController.php
-	🪪  method.nonObject (Líneas: 493, 500, 505, 519)
-project://src/app/classes/App/Presentations/Controllers/PresentationsController.php
-	🪪  property.nonObject (Líneas: 183)
-project://src/app/classes/App/Presentations/Controllers/PresentationsPublicController.php
-	🪪  property.nonObject (Líneas: 179)
-project://src/app/classes/App/Presentations/Views/presentations/public/util/item.php
-	🪪  method.nonObject (Líneas: 18)
 project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php
 	🪪  property.nonObject (Líneas: 219, 220, 1306, 1307, 1308, 1398, 1741, 1765)
 	🪪  argument.type (Líneas: 722, 732, 797, 807, 1477, 1648, 1812)
@@ -242,13 +234,6 @@ project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	🪪  offsetAccess.invalidOffset (Líneas: 996)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	🪪  property.nonObject (Líneas: 11)
-project://src/app/classes/Persons/Controllers/PersonsController.php
-	🪪  property.nonObject (Líneas: 810)
-	🪪  property.notFound (Líneas: 1036, 1059)
-	🪪  argument.type (Líneas: 1122)
-project://src/app/classes/Persons/Mappers/PersonsMapper.php
-	🪪  argument.type (Líneas: 281)
-	🪪  property.nonObject (Líneas: 318, 344)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php
 	🪪  property.nonObject (Líneas: 916)
 	🪪  method.nonObject (Líneas: 996)
@@ -417,10 +402,6 @@ project://src/app/controller/LoginAttemptsController.php
 	🪪  return.type (Líneas: 157, 198, 246, 285, 328)
 	🪪  argument.type (Líneas: 198, 246, 329)
 	🪪  method.nonObject (Líneas: 235)
-project://src/app/controller/MessagesController.php
-	🪪  argument.type (Líneas: 111)
-	🪪  property.notFound (Líneas: 226, 227, 228, 278, 280)
-	🪪  method.notFound (Líneas: 229, 281)
 project://src/app/controller/RecoveryPasswordController.php
 	🪪  argument.type (Líneas: 100, 185, 318, 341, 372, 466, 516, 521, 565, 570, 600, 605)
 	🪪  property.nonObject (Líneas: 399, 405, 414)
@@ -573,10 +554,6 @@ project://src/app/model/AvatarModel.php
 	🪪  return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
 	🪪  property.nonObject (Líneas: 154, 164, 229, 244, 315, 329, 427)
-project://src/app/model/MessagesModel.php
-	🪪  argument.type (Líneas: 111, 141, 312, 383)
-	🪪  method.notFound (Líneas: 122, 276)
-	🪪  method.nonObject (Líneas: 368)
 project://src/app/model/RecoveryPasswordModel.php
 	🪪  property.notFound (Líneas: 86, 102)
 project://src/app/model/TimeOnPlatformModel.php

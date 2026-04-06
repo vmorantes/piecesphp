@@ -27,13 +27,6 @@ define('ADMIN_PATH_VIEWS', 'panel');
 //Importadores
 define('IMPORTS_MODULE_ENABLED', true);
 
-//Mensajería
-define('MESSAGES_ENABLED', true);
-define('MESSAGES_PATH_VIEWS', 'messages');
-define('MESSAGES_PATH_STATICS', 'statics/features/messages');
-define('MESSAGES_PATH_JS', MESSAGES_PATH_STATICS . '/js');
-define('REFRESH_MESSAGES_STATUS', true);
-
 //Módulo de imágenes integrado
 define('PIECES_PHP_DYNAMIC_IMAGES_ENABLE', true);
 
@@ -63,12 +56,6 @@ define('DOCUMENTS_MODULE_ENABLE', true);
 define('FORMS_MODULE_ENABLE', true);
 define('FORMS_MODULE_CATEGORIES_ENABLE', true);
 define('FORMS_MODULE_DOCUMENTS_TYPES_ENABLE', true);
-
-//Módulo de presentaciones para capacitaciones tipo diapositiva
-define('APP_PRESENTATIONS_ENABLE', true);
-
-//Personas
-define('PERSONS_MODULE', true);
 
 //Registro de eventos
 define('EVENTS_LOG_MODULE', true);

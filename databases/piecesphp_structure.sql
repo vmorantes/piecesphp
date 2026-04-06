@@ -80,29 +80,8 @@ CREATE TABLE `application_calls_elements` (
 
 
 DROP TABLE IF EXISTS `app_presentations`;
-CREATE TABLE `app_presentations` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `name` text NOT NULL,
-  `order` int(11) NOT NULL,
-  `category` int(11) NOT NULL,
-  `images` longtext NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `category` (`category`),
-  CONSTRAINT `app_presentations_ibfk_1` FOREIGN KEY (`category`) REFERENCES `app_presentations_categories` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
 
 DROP TABLE IF EXISTS `app_presentations_categories`;
-CREATE TABLE `app_presentations_categories` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `name` text NOT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
 
 DROP TABLE IF EXISTS `built_in_banner_elements`;
 CREATE TABLE `built_in_banner_elements` (
@@ -313,39 +292,8 @@ CREATE TABLE `login_attempts` (
 
 
 DROP TABLE IF EXISTS `messages`;
-CREATE TABLE `messages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `message_from` bigint(20) NOT NULL,
-  `message_to` bigint(20) DEFAULT NULL,
-  `date` datetime NOT NULL DEFAULT current_timestamp(),
-  `subject` text NOT NULL,
-  `message` text DEFAULT NULL,
-  `attachment` text DEFAULT NULL,
-  `readed` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `message_from` (`message_from`),
-  KEY `message_to` (`message_to`),
-  CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`message_from`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`message_to`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
 
 DROP TABLE IF EXISTS `messages_responses`;
-CREATE TABLE `messages_responses` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `message_id` int(11) NOT NULL,
-  `message_from` bigint(20) NOT NULL,
-  `message` text DEFAULT NULL,
-  `date` datetime NOT NULL DEFAULT current_timestamp(),
-  `attachment` text DEFAULT NULL,
-  `readed` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `message_from` (`message_from`),
-  KEY `message_id` (`message_id`),
-  CONSTRAINT `messages_responses_ibfk_1` FOREIGN KEY (`message_from`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `messages_responses_ibfk_2` FOREIGN KEY (`message_id`) REFERENCES `messages` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
 
 DROP TABLE IF EXISTS `newsletter_sucribers`;
 CREATE TABLE `newsletter_sucribers` (
@@ -582,31 +530,7 @@ CREATE TABLE `pcsphp_user_problems` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-
 DROP TABLE IF EXISTS `persons`;
-CREATE TABLE `persons` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preferSlug` text DEFAULT NULL,
-  `documentType` text NOT NULL,
-  `documentNumber` text NOT NULL,
-  `personName1` text NOT NULL,
-  `personName2` text NOT NULL,
-  `personLastName1` text NOT NULL,
-  `personLastName2` text NOT NULL,
-  `folder` text NOT NULL,
-  `status` int(11) NOT NULL,
-  `createdAt` datetime NOT NULL,
-  `updatedAt` datetime DEFAULT NULL,
-  `createdBy` bigint(20) NOT NULL,
-  `modifiedBy` bigint(20) DEFAULT NULL,
-  `meta` longtext DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `createdBy` (`createdBy`),
-  KEY `modifiedBy` (`modifiedBy`),
-  CONSTRAINT `persons_ibfk_1` FOREIGN KEY (`createdBy`) REFERENCES `pcsphp_users` (`id`),
-  CONSTRAINT `persons_ibfk_2` FOREIGN KEY (`modifiedBy`) REFERENCES `pcsphp_users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
-
 
 DROP TABLE IF EXISTS `previous_experiences`;
 CREATE TABLE `previous_experiences` (
