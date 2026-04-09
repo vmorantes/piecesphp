@@ -264,19 +264,18 @@ HestiaCP **no activa automáticamente** el cronjob para Restic al añadir el hos
         v-backup-user-restic [usuario]
         ```
 
-*   **Evitar la generación de archivos .tar (Recomendado):** Para ahorrar espacio sin que desaparezca la pestaña de **Backups** de la interfaz:
-    *   Vaya a **Packages** (Paquetes) y edite el paquete (ej. `default`).
-    *   Establezca el valor de **Backups** en **`0`**.
-    *   *Nota: Al ponerlo en 0, HestiaCP no generará los pesados archivos `.tar` locales, pero permitirá que el sistema incremental de Restic siga funcionando y mostrando los snapshots en la interfaz.*
+*   **¿Se pueden eliminar los .tar al 100%? (Realidad Técnica):**
+    *   Lamentablemente, HestiaCP requiere que el valor de **Backups** en el paquete sea al menos **`1`** para que el proceso capture datos reales. Si se pone en `0`, los respaldos de Restic resultarán en carpetas vacías.
+    *   Si se desactiva el backup local globalmente (`local = no`), la pestaña de **Backups** desaparecerá de la interfaz.
 
-> [!TIP]
-> **¿Por qué no usar "Local Backup = No"?**
-> Si desactiva los backups locales en la configuración global del servidor o vía CLI, la pestaña de **Backups** desaparecerá completamente de la interfaz. Usar el límite `0` en el paquete es el método más equilibrado.
-
+> [!IMPORTANT]
+> **La recomendación final:**
+> Para mantener la pestaña activa en la interfaz y que los respaldos contengan datos, lo ideal es configurar **`Backups = 1`** en el paquete y aceptar la existencia de un único archivo `.tar` residual. Es el pequeño precio a pagar por mantener la comodidad de la gestión vía web.
 
 ---
 
 ## 🔍 Solución de Problemas (Troubleshooting)
+
 
 ### Error: "User admin exists"
 Si la instalación falla porque el usuario `admin` ya existe:
