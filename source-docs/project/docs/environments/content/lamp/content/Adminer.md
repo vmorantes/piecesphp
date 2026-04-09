@@ -19,7 +19,7 @@ sudo mkdir $CARPETA_DE_INSTALACION/adminer
 cd $CARPETA_DE_INSTALACION/adminer
 
 #Descargar
-sudo git clone https://vmorantes@bitbucket.org/vmorantes/util-adminer.git $CARPETA_DE_INSTALACION/adminer
+sudo git clone https://github.com/vmorantes/adminer.git $CARPETA_DE_INSTALACION/adminer
 
 #Remover repositorio
 sudo rm -Rf $CARPETA_DE_INSTALACION/adminer/.git
