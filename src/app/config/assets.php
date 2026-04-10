@@ -25,12 +25,12 @@ $assets['semantic']['plugins'] = [
 ];
 
 /**
- * DataTables v1.13.5
+ * DataTables v2.3.7
  * https://datatables.net/
  * Con algunos plugins:
- * RowReorder v1.4.0
- * ColReorder v1.7.0
- * Responsive v2.5.0
+ * RowReorder v1.5.1
+ * ColReorder v2.1.2
+ * Responsive v3.0.8
  */
 $assets['datatables']['css'] = [
     'statics/plugins/datatables/dataTables.semanticui.min.css',

@@ -38,6 +38,7 @@
     "[javascript]": {
         "editor.formatOnSave": true
     },
+    "javascript.format.semicolons": "remove",
     "editor.wordWrap": "on",
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.multiCursorMergeOverlapping": true,

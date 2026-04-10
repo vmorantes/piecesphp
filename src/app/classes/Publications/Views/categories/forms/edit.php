@@ -15,6 +15,7 @@ use PiecesPHP\Core\Config;
  */
 
 $langs = Config::get_allowed_langs();
+$manyLangs = count($langs) > 1;
 $baseLang = $element->baseLang;
 $langsTabs = [];
 $translatableProperties = $element->getTranslatableProperties();
@@ -58,7 +59,9 @@ foreach ($otherLangs as $lang) {
                 <div class="field required">
                     <label>
                         <?= __($langGroup, 'Nombre'); ?>
+                        <?php if($manyLangs): ?>
                         <small>(<?= __('lang', $baseLang); ?>)</small>
+                        <?php endif; ?>
                     </label>
                     <input required type="text" name="name[<?= $baseLang ?>]" maxlength="300" value="<?= $element->getLangData($baseLang, 'name', false, ''); ?>">
                 </div>
