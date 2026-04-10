@@ -1421,13 +1421,28 @@ function configMirrorScrollX(namespace = 'default', selector = null) {
  * @param {String} selectSelector 
  * @param {Object} defaultOptions 
  * @param {Booloan} cacheOnAPI
- * @returns {$[]} 
+ * @returns {CustomDropdownConfig[]} 
  */
 function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI = false) {
 	selectSelector = typeof selectSelector == 'string' ? selectSelector : 'NONE_SELECTOR'
 	defaultOptions = typeof defaultOptions == 'object' ? defaultOptions : {}
 
 	let selects = Array.from(document.querySelectorAll(selectSelector))
+
+	/**
+	 * @typedef {Object} CustomDropdownConfig
+	 * @property {function():String} getText
+	 * @property {function():String|String[]|Number|Number[]} getValue
+	 * @property {function({String|String[]|Number|Number[], [String]}):CustomDropdownConfig} setValue
+	 * @property {function():CustomDropdownConfig} removeValues
+	 * @property {function({value: String|Number, text: String, selected: Boolean}):CustomDropdownConfig} addValue
+	 * @property {function({required: Boolean}):CustomDropdownConfig} setRequired
+	 * @property {function({removeItems: Boolean, searchURL: [String], options: Object}):CustomDropdownConfig} recreate
+	 * @property {function():HTMLSelectElement} getOriginalSelect
+	 */
+	/**
+	 * @var {CustomDropdownConfig[]}
+	 */
 	let dropdowns = []
 
 	for (let select of selects) {
@@ -1499,10 +1514,10 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 		}
 
 		dropdown = $(select).dropdown(options)
-		dropdown.getText = function (value, text = null) {
+		dropdown.getText = function () {
 			return dropdown.dropdown('get text')
 		}
-		dropdown.getValue = function (value, text = null) {
+		dropdown.getValue = function () {
 			return dropdown.dropdown('get value')
 		}
 		dropdown.setValue = function (value, text = null) {
@@ -1516,6 +1531,7 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 				dropdown.dropdown('refresh')
 			}
 			onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
+			return dropdown
 		}
 		dropdown.removeValues = function () {
 			const defaultPlaceholder = dropdown.dropdown("get placeholder text")
@@ -1524,6 +1540,7 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 			dropdown.find('select').append(`<option value="">${defaultPlaceholder}</option>`)
 			dropdown.dropdown("refresh")
 			selectSimulator.innerHTML = ''
+			return dropdown
 		}
 		dropdown.addValue = function (value, text, selected = false) {
 			if (selected) {
@@ -1533,10 +1550,12 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 				dropdown.find('select').append(`<option value="${value}">${text}</option>`)
 			}
 			dropdown.dropdown("refresh")
+			return dropdown
 		}
 		dropdown.setRequired = function (required = false) {
 			toggleRequiredSemanticDropdown(dropdown, required)
 			dropdown.find('select[data-simulator]').attr('required', false).removeAttr('required')
+			return dropdown
 		}
 		dropdown.recreate = function (removeItems = false, searchURL = null, options = {}) {
 
@@ -1560,7 +1579,7 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 			}
 
 			dropdown = configFomanticDropdown(selectSelector, optionsRecreate)[0]
-
+			return dropdown
 		}
 		dropdown.getOriginalSelect = function () {
 			return $(originalSelectHTML)
@@ -1581,7 +1600,6 @@ function configFomanticDropdown(selectSelector, defaultOptions = {}, cacheOnAPI 
 		onChange(dropdown.dropdown('get value'), dropdown.dropdown('get text'))
 
 	}
-
 	return dropdowns
 }
 
@@ -1846,12 +1864,87 @@ function setLocalStorageData(name, data) {
 
 /**
  * Recupera de localStorage
- * @param {String} name 
- * @return {Object|String|Number}
+ * @param {String} name
+ * @returns {Object|String|Number|null}
  */
 function getLocalStorageData(name) {
 	let data = localStorage.getItem(name)
 	return data !== null ? JSON.parse(data) : data
+}
+
+/**
+ * Elimina de localStorage
+ * @param {String} name
+ * @returns {void}
+ */
+function removeLocalStorageData(name) {
+	localStorage.removeItem(name)
+}
+
+/**
+ * Almacena en sessionStorage
+ * @param {String} name 
+ * @param {any} data 
+ * @return {String} El valor guardado convertido a string
+ */
+function setSessionStorageData(name, data) {
+	const toSave = JSON.stringify(data)
+	sessionStorage.setItem(name, toSave)
+	return toSave
+}
+
+/**
+ * Recupera de sessionStorage
+ * @param {String} name
+ * @returns {Object|String|Number|null}
+ */
+function getSessionStorageData(name) {
+	let data = sessionStorage.getItem(name)
+	return data !== null ? JSON.parse(data) : data
+}
+
+/**
+ * Elimina de sessionStorage
+ * @param {String} name
+ * @returns {void}
+ */
+function removeSessionStorageData(name) {
+	sessionStorage.removeItem(name)
+}
+
+/**
+ * Verifica si el dispositivo está en línea
+ * @param {String} [listeningFlagName] Nombre de la clave para verificar si se está escuchando
+ * @param {String} [connectionStatusFlagName] Nombre de la clave para verificar el estado de la conexión
+ * @param {Boolean} [showDebug] Mostrar información de depuración
+ * @returns {Boolean} Estado de la conexión
+ */
+function isOnline(listeningFlagName = null, connectionStatusFlagName = null, showDebug = false) {
+	listeningFlagName = listeningFlagName ?? 'pcsPHP:connectionStatus:listening'
+	connectionStatusFlagName = connectionStatusFlagName ?? 'pcsPHP:connectionStatus:status'
+	const sessionControlName = `${listeningFlagName}_timestamp`
+	let isListening = window[sessionControlName] == undefined ? false : true
+	let isConnected = getSessionStorageData(connectionStatusFlagName) ?? navigator.onLine
+	if (showDebug) {
+		console.log({
+			isListening: isListening,
+			isConnected: isConnected,
+			navigatorOnLine: navigator.onLine,
+			isConnectedReal: getSessionStorageData(connectionStatusFlagName),
+		})
+	}
+	if (!isListening) {
+		window.addEventListener('online', () => {
+			isConnected = true
+			setSessionStorageData(connectionStatusFlagName, isConnected)
+		})
+		window.addEventListener('offline', () => {
+			isConnected = false
+			setSessionStorageData(connectionStatusFlagName, isConnected)
+		})
+		window[sessionControlName] = true
+	}
+	return isConnected
 }
 
 /**
@@ -1925,8 +2018,9 @@ function getUniqueSelector(element) {
 	var path = []
 	while (element.nodeType === Node.ELEMENT_NODE) {
 		var selector = element.nodeName.toLowerCase()
-		if (element.id) {
-			selector += '#' + element.id
+		var elementId = element.getAttribute('id')
+		if (typeof elementId === 'string' && elementId.trim().length > 0) {
+			selector += '#' + elementId
 			path.unshift(selector)
 			break // ID garantiza unicidad
 		} else {

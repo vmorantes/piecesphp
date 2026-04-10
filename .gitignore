@@ -17,4 +17,5 @@ tasks/output
 .scannerwork
 vendor/**
 IGNORE.md
+IGNORE/
 docs/*

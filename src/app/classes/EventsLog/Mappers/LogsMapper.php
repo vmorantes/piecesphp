@@ -137,6 +137,14 @@ class LogsMapper extends EntityMapperExtensible
     /**
      * @return string
      */
+    public function getReadableMessage()
+    {
+        return $this->getMessage();
+    }
+
+    /**
+     * @return string
+     */
     public function createdByFullname()
     {
         $createdBy = $this->createdBy;
@@ -157,7 +165,7 @@ class LogsMapper extends EntityMapperExtensible
     {
 
         $formatDefault = __(self::LANG_GROUP, "F d {1} Y");
-        $createdAt = $this->createdAt instanceof \DateTime ? $this->createdAt : null;
+        $createdAt = $this->createdAt instanceof \DateTime  ? $this->createdAt : null;
         if ($format !== null) {
             $formated = localeDateFormat($format, $createdAt);
         } else {
@@ -271,8 +279,8 @@ class LogsMapper extends EntityMapperExtensible
 
         $createdAtFormatReplacements = json_encode([
             '{1}' => __(self::LANG_GROUP, 'de'),
-        ], \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
-        $moduleNameBySourceJSON = json_encode((object) self::MODULE_NAMES_EQUIVALENCES_BY_SOURCE, \JSON_UNESCAPED_UNICODE);
+        ], \JSON_UNESCAPED_SLASHES  | \JSON_UNESCAPED_UNICODE);
+        $moduleNameBySourceJSON = json_encode((object) self::moduleNamesEquivalencesBySource(), \JSON_UNESCAPED_UNICODE);
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",
@@ -350,6 +358,45 @@ class LogsMapper extends EntityMapperExtensible
     }
 
     /**
+     * @param string|int $value
+     * @param string $source
+     * @param bool $asMapper
+     * @return static[]|array
+     */
+    public static function allByReference($value, string $source, bool $asMapper = true)
+    {
+        $model = self::model();
+
+        $model->select()->where([
+            'referenceValue' => $value,
+            'referenceSource' => $source,
+        ])->orderBy(self::ORDER_BY_PREFERENCE)->execute();
+
+        $result = $model->result();
+        $result = is_array($result) ? $result : [];
+
+        if ($asMapper) {
+            foreach ($result as $key => $v) {
+                $result[$key] = self::objectToMapper($v);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return array
+     */
+    public static function moduleNamesEquivalencesBySource()
+    {
+        $options = self::MODULE_NAMES_EQUIVALENCES_BY_SOURCE;
+        foreach ($options as $key => $value) {
+            $options[$key] = __(self::LANG_GROUP, $value);
+        }
+        return $options;
+    }
+
+    /**
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
@@ -420,7 +467,7 @@ class LogsMapper extends EntityMapperExtensible
 
                 if ($property == 'meta') {
 
-                    $value = $value instanceof \stdClass ? $value : @json_decode($value);
+                    $value = $value instanceof \stdClass  ? $value : @json_decode($value);
 
                     if ($value instanceof \stdClass) {
                         foreach ($value as $metaPropertyName => $metaPropertyValue) {

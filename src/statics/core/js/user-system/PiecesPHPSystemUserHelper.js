@@ -1,5 +1,10 @@
 class PiecesPHPSystemUserHelper {
 
+	static localJWTAuthName = 'JWTAuth'
+	static localJWTAuthExtraDataName = 'JWTAuthExtraData'
+	static localUserDataName = 'JWTAuthUserData'
+	static remoteJWTAuthName = 'JWTAuth'
+
 	constructor(urlAuthenticate, urlVerification, urlTwoFactorAuthStatus, expectedLang) {
 
 		this.extraData = null
@@ -46,6 +51,7 @@ class PiecesPHPSystemUserHelper {
 
 						if (res.auth) {
 							instance.extraData = typeof res.extraData == 'object' ? res.extraData : null
+							instance.setUserData(res.userData ?? {})
 							instance.setJWT(res.token)
 						}
 
@@ -132,17 +138,31 @@ class PiecesPHPSystemUserHelper {
 
 	}
 
+	hasSession(destroyIfInvalid = false, reloadOnDestroy = false) {
+		const userData = this.getUserData()
+		const JWT = this.getJWT()
+		const hasUserData = userData !== null && typeof userData === 'object' && typeof userData.id === 'number'
+		const hasJWT = typeof JWT == 'string' && JWT.length > 0
+		const validSession = hasUserData && hasJWT
+		if (destroyIfInvalid) {
+			if (!validSession && hasJWT) {
+				this.deleteSession(reloadOnDestroy)
+			}
+		}
+		return validSession
+	}
+
 	setJWT(JWT) {
 		if (typeof JWT != 'string') {
 			JWT = ''
 		}
-		document.cookie = `JWTAuth=${encodeURI(JWT)};path=/`;
-		localStorage.setItem('JWTAuth', encodeURI(JWT))
-		localStorage.setItem('JWTAuthExtraData', this.extraData !== null ? JSON.stringify(this.extraData) : null)
+		document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=${encodeURI(JWT)};path=/`
+		localStorage.setItem(PiecesPHPSystemUserHelper.localJWTAuthName, encodeURI(JWT))
+		localStorage.setItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName, this.extraData !== null ? JSON.stringify(this.extraData) : null)
 	}
 
 	getJWT() {
-		let JWT = localStorage.getItem('JWTAuth')
+		let JWT = localStorage.getItem(PiecesPHPSystemUserHelper.localJWTAuthName)
 		if (typeof JWT != 'string') {
 			JWT = ''
 		}
@@ -150,18 +170,32 @@ class PiecesPHPSystemUserHelper {
 	}
 
 	getExtraData() {
-		let extraData = localStorage.getItem('JWTAuthExtraData')
-		extraData = extraData !== null ? JSON.parse(extraData) : null
+		const extraData = getLocalStorageData(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)
 		return extraData
 	}
 
 	setExtraDataProperty(property, value) {
 		let extraData = this.getExtraData()
 		extraData = typeof extraData == 'object' && extraData !== null ? extraData : {}
-
 		extraData[property] = value
+		setLocalStorageData(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName, extraData)
+	}
 
-		localStorage.setItem('JWTAuthExtraData', JSON.stringify(extraData))
+	/**
+	 * Obtiene los datos del usuario almacenados.
+	 * @returns {Object|null} Datos del usuario o null si no existe.
+	 */
+	getUserData() {
+		const userData = getLocalStorageData(PiecesPHPSystemUserHelper.localUserDataName)
+		return userData
+	}
+
+	/**
+	 * Guarda los datos del usuario en localStorage.
+	 * @param {Object} data - Datos del usuario.
+	 */
+	setUserData(data) {
+		setLocalStorageData(PiecesPHPSystemUserHelper.localUserDataName, data)
 	}
 
 	logout() {
@@ -195,19 +229,22 @@ class PiecesPHPSystemUserHelper {
 		return this
 	}
 
-	deleteSession() {
+	deleteSession(reload = true) {
 
 		let now = new Date().getTime()
 		let JWT = this.getJWT()
-		let JWTFromCookie = this.getCookie('JWTAuth')
+		let JWTFromCookie = this.getCookie(PiecesPHPSystemUserHelper.localJWTAuthName)
 		JWTFromCookie = typeof JWTFromCookie == 'string' ? JWTFromCookie.trim() : ''
 		JWT = JWT.length > 0 ? JWT : JWTFromCookie
 
 		if (JWT.length > 0) {
-			document.cookie = `JWTAuth=;expires=${now};path=/`;
-			localStorage.removeItem('JWTAuth')
-			localStorage.removeItem('JWTAuthExtraData')
-			window.location.reload()
+			document.cookie = `${PiecesPHPSystemUserHelper.localJWTAuthName}=;expires=${now};path=/`
+			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthName)
+			localStorage.removeItem(PiecesPHPSystemUserHelper.localJWTAuthExtraDataName)
+			localStorage.removeItem(PiecesPHPSystemUserHelper.localUserDataName)
+			if (reload) {
+				window.location.reload()
+			}
 		}
 
 	}
@@ -278,7 +315,7 @@ class PiecesPHPSystemUserHelper {
 
 	/**
 	 * @param {String|URL} url
-	 * @param {String|HTMLFormElement} data
+	 * @param {String|FormData} data
 	 * @param {Object} headers
 	 * @returns {Promise<Response>}
 	 */
@@ -417,7 +454,7 @@ class PiecesPHPSystemUserHelper {
 
 		}
 
-		mapHeaders.set('JWTAUTH', this.getJWT())
+		mapHeaders.set(PiecesPHPSystemUserHelper.remoteJWTAuthName, this.getJWT()) //Token de autenticación
 		mapHeaders.set('X-Requested-With', 'XMLHttpRequest')
 		if (this.expectedLang !== null) {
 			mapHeaders.set('PCSPHP-Response-Expected-Language', this.expectedLang)
