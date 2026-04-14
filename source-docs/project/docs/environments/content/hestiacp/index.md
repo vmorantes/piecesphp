@@ -274,6 +274,37 @@ HestiaCP **no activa automáticamente** el cronjob para Restic al añadir el hos
 
 ---
 
+## 🔒 Seguridad de Archivos Estáticos (Nginx Bypass)
+
+Por defecto, HestiaCP configura Nginx para servir una amplia lista de extensiones de forma directa (Proxy Static Extensions). Esto mejora el rendimiento, pero genera una **brecha de seguridad crítica**: Nginx ignora las reglas del archivo `.htaccess` de Apache.
+
+Si un archivo como `composer.json` o un backup `.sql.gz` coincide con una extensión en la lista de Nginx, cualquier persona podrá descargarlo incluso si Apache tiene prohibido el acceso.
+
+### Configuración Recomendada
+
+Para solucionar esto, edite la configuración de su **Web Domain** en HestiaCP y refine la lista de **Proxy Static Extensions** eliminando las extensiones sensibles.
+
+#### ✅ Mantener en Nginx (Seguro)
+
+Estas extensiones no suelen contener datos sensibles y se benefician del rendimiento de Nginx:
+`css, js, mjs, png, jpg, jpeg, gif, webp, svg, ico, avif, woff, woff2, ttf, otf, eot, mp3, mp4, ogg, webm`
+
+O:
+
+`none` Para que Apache maneje todas las extensiones.
+
+#### ❌ Eliminar de Nginx (Pasar a Apache)
+Estas extensiones deben ser manejadas por Apache para que el `.htaccess` o el framework (**ServerStatics**) puedan protegerlas:
+`json, xml, txt, gz, zip, rar, 7z, tar, tgz, sql, log, doc, docx, xls, xlsx, pdf`
+
+### Interacción con ServerStatics.php
+
+La clase `ServerStatics.php` de PiecesPHP tiene su propio sistema de delegación. Si desea seguridad máxima para archivos específicos (por ejemplo, PDFs protegidos por login):
+1. Asegúrese de que la extensión **NO** esté en la lista de Nginx del panel.
+2. La clase detectará si el archivo está en una ruta protegida y lo servirá vía PHP mediante el `ProtectFileMiddleware`, ignorando la delegación web.
+
+---
+
 ## 🔍 Solución de Problemas (Troubleshooting)
 
 
