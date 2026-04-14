@@ -5,7 +5,7 @@
 - Requerimientos
     - PiecesPHP
     - Composer
-    - NodeJS 22.x LTS con NVM
+    - NodeJS 22.x LTS con FNM
     - NPM
     - Gulp CLI
 
@@ -36,16 +36,19 @@ sudo mv composer.phar /usr/local/bin/composer
 
 #### NodeJS (v22.12.0) y NPM
 ```bash
-#Instalar NVM
+#Instalar FNM
 cd ~
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+curl -fsSL https://fnm.vercel.app/install | bash
 source ~/.bashrc
 #Instalar Node
-nvm install 22.12.0
-nvm use 22.12.0
+fnm install 22.12.0
+fnm use 22.12.0
 #Verificar versiones
 node --version
 npm --version
+## Aplicar medidas de seguridad a entorno Node
+npm config set ignore-scripts true --global
+npm config get ignore-scripts
 ```
 
 #### Gulp CLI y Typescript
