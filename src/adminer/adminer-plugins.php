@@ -1,5 +1,10 @@
 <?php // adminer-plugins.php
 
+require_once __DIR__ . '/includes/functions.php';
+
+loadEnv(__DIR__ . '/.env');
+$GEMINI_API_KEY = getenv('GEMINI_API_KEY');
+
 $plugins = [
     'AdminerDisplayForeignKeyName' => new AdminerDisplayForeignKeyName(),
     'AdminerDumpAlter' => new AdminerDumpAlter(),
@@ -22,6 +27,7 @@ $plugins = [
     'AdminerLoginPasswordLess' => new AdminerLoginPasswordLess(
         password_hash(sha1(uniqid("", true)), \PASSWORD_DEFAULT),
     ),
+    'AdminerSqlGemini' => new AdminerSqlGemini($GEMINI_API_KEY),
 ];
 if (_DEV_MODE_) {
     $lessPasswordLoginPhrase = '123456789456123456';
