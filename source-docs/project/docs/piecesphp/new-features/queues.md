@@ -62,7 +62,7 @@ $queueHandlers[] = QueueTask::make('nombre-de-la-cola', function($data) {
 Para comenzar a procesar las tareas pendientes, utiliza el comando CLI:
 
 ```bash
-php index.php cli --local run-cronjobs queue-processor run
+php index.php cli --local process-queue
 ```
 
 ---

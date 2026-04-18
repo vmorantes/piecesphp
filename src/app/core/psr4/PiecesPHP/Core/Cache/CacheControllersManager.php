@@ -195,7 +195,7 @@ class CacheControllersManager implements JsonSerializable
 
         if (!file_exists($fileConfig)) {
             file_put_contents($fileConfig, json_encode($this));
-            chmod($fileConfig, 0777);
+            chmod($fileConfig, 0644);
         } else {
             $this->jsonUnserialize(json_decode(file_get_contents($fileConfig), true));
         }
@@ -247,7 +247,7 @@ class CacheControllersManager implements JsonSerializable
 
         $fileConfig = $this->getCachedDataFileName(true);
         file_put_contents($fileConfig, $data);
-        chmod($fileConfig, 0777);
+        chmod($fileConfig, 0644);
 
         self::setGlobalConfigurationProperty($this->className, $this->methodName, 'shouldBeRecached', false);
         $this->setOwnConfigurationProperty('contentType', $this->contentType);
@@ -332,14 +332,14 @@ class CacheControllersManager implements JsonSerializable
         $this->folderCache = app_basepath('cache') . '/' . trim(implode('/', explode("\\", $this->className)), '') . '/' . $this->methodName;
 
         if (!file_exists($this->folderCache)) {
-            mkdir($this->folderCache, 0777, true);
+            mkdir($this->folderCache, 0755, true);
         }
 
         $this->globalConfigurationFile = append_to_url($this->folderCache, 'configuration.json');
 
         if (!file_exists($this->globalConfigurationFile)) {
             file_put_contents($this->globalConfigurationFile, json_encode($this->globalOptions));
-            chmod($this->globalConfigurationFile, 0777);
+            chmod($this->globalConfigurationFile, 0644);
         } else {
             $this->globalOptions = json_decode(file_get_contents($this->globalConfigurationFile), true);
         }

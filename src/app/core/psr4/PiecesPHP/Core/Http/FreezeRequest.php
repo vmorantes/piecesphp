@@ -157,17 +157,17 @@ class FreezeRequest
                 $finalDirectoryPath = append_to_path_system($instance->filesDirectoryBase, $instance->filesDirectoryRequest);
 
                 if (!file_exists($finalDirectoryPath)) {
-                    mkdir($finalDirectoryPath, 0777, true);
-                    chmod($finalDirectoryPath, 0777);
+                    mkdir($finalDirectoryPath, 0775, true);
+                    chmod($finalDirectoryPath, 0775);
                 }
 
                 $finalDirectoryPath = realpath($finalDirectoryPath);
                 if (is_string($finalDirectoryPath) && file_exists($finalDirectoryPath) && is_dir($finalDirectoryPath)) {
                     $instance->freezeFilesDirectory = $finalDirectoryPath;
                     $tmpName = $file['tmp_name'];
-                    $destinationFile = append_to_path_system($finalDirectoryPath, $file['name']);
+                    $destinationFile = append_to_path_system($finalDirectoryPath, uniqid('freeze_') . '_' . $file['name']);
                     if (file_exists($tmpName) && is_file($tmpName) && copy($tmpName, $destinationFile)) {
-                        chmod($destinationFile, 0777);
+                        chmod($destinationFile, 0644);
                         $file['tmp_name'] = $destinationFile;
                     }
                 }
@@ -246,7 +246,7 @@ class FreezeRequest
         try {
             $dir = realpath($this->freezeFilesDirectory);
             if (is_string($dir) && file_exists($dir) && is_dir($dir)) {
-                @chmod($dir, 0777);
+                @chmod($dir, 0775);
                 $directoryObject = new DirectoryObject($dir);
                 $directoryObject->process();
                 $directoryObject->delete(true);

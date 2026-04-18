@@ -657,7 +657,7 @@ class Config
                         array_map(fn($e) => (!file_exists($e) ? make_directory($e) : null), $missingMessagesFoldersPaths);
                         if (!file_exists($missingMessagesMessageFilePath)) {
                             file_put_contents($missingMessagesMessageFilePath, $message);
-                            chmod($missingMessagesMessageFilePath, 0777);
+                            chmod($missingMessagesMessageFilePath, 0644);
                         }
 
                     }

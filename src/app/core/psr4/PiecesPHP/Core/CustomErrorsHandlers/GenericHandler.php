@@ -180,7 +180,7 @@ class GenericHandler
 
         // Guardar JSON
         file_put_contents($this->fileLocation, json_encode($fileLogJSON, \JSON_PRETTY_PRINT  | \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
-        @chmod($this->fileLocation, 0777);
+        @chmod($this->fileLocation, 0644);
 
         if ($backupOld) {
             $file_old_output = str_replace(
@@ -191,7 +191,7 @@ class GenericHandler
             $fp = fopen($file_old_output, 'w+');
             fwrite($fp, json_encode($oldFileLogJSON));
             fclose($fp);
-            @chmod($file_old_output, 0777);
+            @chmod($file_old_output, 0644);
         }
 
         // Plain Log
@@ -231,11 +231,11 @@ class GenericHandler
                     $this->oldFileLocationPlain
                 );
                 rename($this->fileLocationPlain, $file_old_output_plain);
-                @chmod($file_old_output_plain, 0777);
+                @chmod($file_old_output_plain, 0644);
             }
 
             file_put_contents($this->fileLocationPlain, $plainLogEntry, \FILE_APPEND);
-            @chmod($this->fileLocationPlain, 0777);
+            @chmod($this->fileLocationPlain, 0644);
         }
     }
 
@@ -292,7 +292,7 @@ class GenericHandler
             // Si no existe el flujo exacto, lo añadimos con el timestamp
             $logEntry = sprintf("[%s] %s", $this->date->format('Y-m-d H:i:s.u'), $fullSignature);
             file_put_contents($this->fileLocationUniqueMessage, $logEntry, \FILE_APPEND);
-            @chmod($this->fileLocationUniqueMessage, 0777);
+            @chmod($this->fileLocationUniqueMessage, 0644);
         }
     }
 }

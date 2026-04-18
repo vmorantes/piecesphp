@@ -145,19 +145,19 @@ class FileManagerController extends AdminPanelController
                 'trashHash' => 't2_Lw',
                 'uploadDeny' => [],
                 'uploadAllow' => ['all'],
-                'permissions' => 0777,
+                'permissions' => 0755,
             ],
             [
                 'alias' => __(self::LANG_GROUP, 'Cargas'),
                 'relativePath' => 'statics/uploads',
                 'withBasePath' => false,
-                'permissions' => 0777,
+                'permissions' => 0755,
             ],
             [
                 'alias' => __(self::LANG_GROUP, 'Temporales'),
                 'relativePath' => 'tmp',
                 'withBasePath' => false,
-                'permissions' => 0777,
+                'permissions' => 0755,
             ],
         ];
         $trashes = [
@@ -340,20 +340,15 @@ class FileManagerController extends AdminPanelController
         }
         foreach ($createOrder as $iPath) {
             if (!file_exists($iPath)) {
-                mkdir($iPath, 0777);
+                mkdir($iPath, 0755, true);
+                chmod($iPath, 0755);
             }
         }
 
         foreach ($permissionsOrder as $iPathData) {
             $iPath = $iPathData['path'];
             $iToPermissionsOctal = $iPathData['permissions'];
-            $iToPermissionsDecimalRepresentation = decoct($iToPermissionsOctal & 0777);
-            $iCurrentPermissions = fileperms($iPath);
-            $iCurrentPermissionsDecimalRepresentation = decoct($iCurrentPermissions & 0777);
-
-            if ($iCurrentPermissionsDecimalRepresentation != $iToPermissionsDecimalRepresentation) {
-                @chmod($iPath, $iToPermissionsDecimalRepresentation);
-            }
+            @chmod($iPath, $iToPermissionsOctal);
         }
 
         return $options;

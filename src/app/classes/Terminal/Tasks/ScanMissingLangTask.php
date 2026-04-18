@@ -162,7 +162,7 @@ class ScanMissingLangTask extends TerminalTaskAbstract
                 $fileMissingLangMessagePath = app_basepath("logs/missing-lang-messages.json");
                 if (!file_exists($fileMissingLangMessagePath)) {
                     touch($fileMissingLangMessagePath);
-                    chmod($fileMissingLangMessagePath, 0777);
+                    chmod($fileMissingLangMessagePath, 0644);
                 }
                 file_put_contents($fileMissingLangMessagePath, json_encode($messagesDataByLang, \JSON_PRETTY_PRINT  | \JSON_UNESCAPED_UNICODE  | \JSON_UNESCAPED_SLASHES));
                 $message[] = "\e[34mArchivo generado en: {$fileMissingLangMessagePath}\e[39m";

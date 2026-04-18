@@ -1238,7 +1238,7 @@ class ServerStatics
 
             // Crear directorios si no existen
             if (!is_dir($symlinkDir)) {
-                mkdir($symlinkDir, 0777, true);
+                mkdir($symlinkDir, 0755, true);
             }
 
             //Crear enlace simbólico

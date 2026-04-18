@@ -112,7 +112,7 @@ class DbBackupTask extends TerminalTaskAbstract
             $umask = umask(0);
             try {
                 if (!file_exists($dumpDirectory)) {
-                    mkdir($dumpDirectory, 0777, true);
+                    mkdir($dumpDirectory, 0755, true);
                 }
             } finally {
                 umask($umask);
@@ -163,7 +163,7 @@ class DbBackupTask extends TerminalTaskAbstract
 
                 if (file_exists($outputPath)) {
                     if ($changePermissions) {
-                        chmod($outputPath, 0777);
+                        chmod($outputPath, 0644);
                     }
                     $responseText = "Operación exitosa\r\n";
                     $responseText .= "Archivo generado: " . basename($outputPath) . "\r\n";

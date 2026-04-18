@@ -24,7 +24,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $testBasePath = app_basepath('core/system-controllers/test-data/unit-testing-' . uniqid());
 
     if (!file_exists($testBasePath)) {
-        mkdir($testBasePath, 0777, true);
+        mkdir($testBasePath, 0755, true);
     }
 
     $checkResult = function ($condition, $name, $details = null) {
@@ -42,8 +42,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $dir1 = $sourcesPath . '/dir1';
     $subdir1 = $dir1 . '/subdir1';
-    mkdir($subdir1, 0777, true);
-    mkdir($scanAreaPath, 0777, true);
+    mkdir($subdir1, 0755, true);
+    mkdir($scanAreaPath, 0755, true);
 
     file_put_contents($dir1 . '/file1.txt', 'contenido 1');
     file_put_contents($subdir1 . '/file2.txt', 'contenido 2');

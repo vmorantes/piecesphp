@@ -149,7 +149,7 @@ class DirectoryObject implements \JsonSerializable
             if ($compress) {
 
                 if (!file_exists($destination)) {
-                    mkdir($destination, 0777, true);
+                    mkdir($destination, 0755, true);
                 }
 
                 if ($this->directoryExists()) {
@@ -166,7 +166,7 @@ class DirectoryObject implements \JsonSerializable
                 $destination = $destination . DIRECTORY_SEPARATOR . $this->basename;
 
                 if (!file_exists($destination)) {
-                    mkdir($destination, 0777, true);
+                    mkdir($destination, 0755, true);
                 }
 
                 $result['folders'][] = [
@@ -180,7 +180,7 @@ class DirectoryObject implements \JsonSerializable
 
                         $newPath = $destination . DIRECTORY_SEPARATOR . $file->getBasename();
                         copy($file->getPath(), $newPath);
-                        chmod($newPath, 0777);
+                        chmod($newPath, 0644);
 
                         $result['files'][] = [
                             'from' => $file->getPath(),
@@ -222,7 +222,7 @@ class DirectoryObject implements \JsonSerializable
         try {
 
             if (!file_exists($destination)) {
-                mkdir($destination, 0777, true);
+                mkdir($destination, 0755, true);
             }
 
             $result['folders'][] = [
@@ -236,7 +236,7 @@ class DirectoryObject implements \JsonSerializable
 
                     $newPath = $destination . DIRECTORY_SEPARATOR . $file->getBasename();
                     copy($file->getPath(), $newPath);
-                    chmod($newPath, 0777);
+                    chmod($newPath, 0644);
 
                     $result['files'][] = [
                         'from' => $file->getPath(),
@@ -327,7 +327,7 @@ class DirectoryObject implements \JsonSerializable
     /**
      * Cambia los permisos (chmod) de forma jerárquica.
      *
-     * @param int $mode Modo de permisos (ej. 0777).
+     * @param int $mode Modo de permisos (ej. 0755).
      * @param int $levels Niveles de profundidad (-1 para recursivo total, 0 para solo el directorio actual).
      * @param bool $onlyDirectories Si es true, solo afecta a carpetas.
      * @return array Registro de cambios realizados.

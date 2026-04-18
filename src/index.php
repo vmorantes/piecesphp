@@ -353,7 +353,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         $expiredSessionsFolder = basepath('app/logs/expired-sessions');
         if (!file_exists($expiredSessionsFolder)) {
-            @mkdir($expiredSessionsFolder, 0777, true);
+            @mkdir($expiredSessionsFolder, 0755, true);
         }
 
         $expiredSessionDataToJSON = [

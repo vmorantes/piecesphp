@@ -81,12 +81,12 @@ class CleanLogsTask extends TerminalTaskAbstract
 
                 //Log de errores
                 file_put_contents($errorLogFile, '[]');
-                chmod($errorLogFile, 0777);
+                chmod($errorLogFile, 0644);
                 $message[] = "\e[34merror.log.json vaciado.\e[39m";
 
                 //Log de errores planto
                 file_put_contents($errorLogPlanFile, '');
-                chmod($errorLogPlanFile, 0777);
+                chmod($errorLogPlanFile, 0644);
                 $message[] = "\e[34merror.plain.log vaciado.\e[39m";
 
                 //Histórico de logs de errores

@@ -45,7 +45,7 @@ class TestQueueRequest
 
         if (file_exists($baseUploadDir) && is_dir($baseUploadDir)) {
             if (!file_exists($uploadsDirectory)) {
-                mkdir($uploadsDirectory, 0777, true);
+                mkdir($uploadsDirectory, 0755, true);
             }
 
             $namesOnFiles = [
@@ -55,14 +55,31 @@ class TestQueueRequest
                 'portfolio',
                 'collection2',
             ];
+            $tmpDirectories = [];
             foreach ($namesOnFiles as $nameOnFiles) {
                 $associativePathUploade = UploadedFileAdapter::findAssociativePathsByName($nameOnFiles, $_FILES);
                 foreach ($associativePathUploade as $path) {
                     $file = new UploadedFileAdapter($path);
                     $file->validate(true);
-                    $file->copyTo($uploadsDirectory, null, null, false, true, true);
+                    $newPath = $file->copyTo($uploadsDirectory, null, null, false, true, true);
+                    if (mb_strlen($newPath) > 0 && file_exists($newPath)) {
+                        $original = $file->getFileInformation()['tmp_name'];
+                        if (file_exists($original)) {
+                            unlink($original);
+                        }
+                        $tmpDirectories[] = dirname($original);
+                    }
                 }
             }
+
+            $tmpDirectories = array_unique($tmpDirectories);
+            foreach ($tmpDirectories as $tmpDirectory) {
+                $isEmptyDir = (count(scandir($tmpDirectory)) == 2);
+                if ($isEmptyDir) {
+                    rmdir($tmpDirectory);
+                }
+            }
+
             $reponseJSON['success'] = true;
             $reponseJSON['message'] = 'Procesado';
         }
