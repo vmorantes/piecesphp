@@ -150,7 +150,7 @@ class BundleTask extends TerminalTaskAbstract
             $bundleDirectory = basepath("bundle");
 
             if (!file_exists($bundleDirectory)) {
-                mkdir($bundleDirectory, 0777, true);
+                mkdir($bundleDirectory, 0755, true);
             } else {
                 $bundleDirectoryObject = new DirectoryObject($bundleDirectory);
                 $bundleDirectoryObject->process();

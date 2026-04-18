@@ -848,8 +848,8 @@ function make_directory(string $path, ?string $name = null)
         }
     }
 
-    mkdir($path, 0777, true);
-    chmod($path, 0777);
+    mkdir($path, 0755, true);
+    chmod($path, 0755);
 
     return file_exists($path);
 }

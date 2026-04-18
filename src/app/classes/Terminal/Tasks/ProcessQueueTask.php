@@ -74,14 +74,14 @@ class ProcessQueueTask extends TerminalTaskAbstract
         //Gestión de cola de ejecución (Máximo 1 activa + 5 en espera, orden FIFO)
         $lockDir = basepath('tmp/process_queue_locks');
         if (!is_dir($lockDir)) {
-            mkdir($lockDir, 0777, true);
-            chmod($lockDir, 0777);
+            mkdir($lockDir, 0755, true);
+            chmod($lockDir, 0755);
         }
 
         //Registrar mi intento de ejecución
         $myLockFile = "{$lockDir}/" . microtime(true) . "_" . getmypid() . ".lock";
         touch($myLockFile);
-        chmod($myLockFile, 0777);
+        chmod($myLockFile, 0644);
 
         //Comprobar posición en la cola
         $waitLimit = 30; //Segundos máximos de espera por cada avance en la cola

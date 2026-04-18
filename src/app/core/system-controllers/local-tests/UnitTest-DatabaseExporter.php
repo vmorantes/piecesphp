@@ -139,7 +139,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $outputDir = basepath('tmp/database-exporter-tests');
 
         if (!is_dir($outputDir)) {
-            mkdir($outputDir, 0777, true);
+            mkdir($outputDir, 0755, true);
         }
 
         $checkResult = function (bool $condition, string $name) use (&$passed, &$failed) {

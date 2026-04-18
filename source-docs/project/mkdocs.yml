@@ -43,6 +43,7 @@ nav:
     - PiecesPHP Framework: 
         - piecesphp/index.md
         - Despliegue: piecesphp/content/general.md
+        - Permisos: piecesphp/content/permissions.md
         - Estructura: piecesphp/content/structure.md
         - Rutas: piecesphp/content/routing.md
         - Mappers: piecesphp/content/mappers.md

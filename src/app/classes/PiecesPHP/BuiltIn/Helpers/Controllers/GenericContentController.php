@@ -442,7 +442,7 @@ class GenericContentController extends AdminPanelController
                         $homeImageCurrentByLang = !is_null($homeImageCurrentByLang) && file_exists($homeImageCurrentByLang) ? $homeImageCurrentByLang : null;
                         $homeImageUploadedPath = $homeImageUploaded->copyTo($this->uploadDir, uniqid("home_image_"));
                         if (is_string($homeImageUploadedPath) && mb_strlen($homeImageUploadedPath) > 1 && file_exists($homeImageUploadedPath)) {
-                            chmod($homeImageUploadedPath, 0777);
+                            chmod($homeImageUploadedPath, 0644);
                             $uploadedRelativePath = trim(str_replace(basepath(), '', $homeImageUploadedPath), \DIRECTORY_SEPARATOR);
                             $homeImagePathByLang[$homeImageLang] = $uploadedRelativePath;
                             if ($homeImageCurrentByLang !== null) {

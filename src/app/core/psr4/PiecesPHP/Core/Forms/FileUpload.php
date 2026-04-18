@@ -480,7 +480,7 @@ class FileUpload
     public static function moveFileTo(string $directory, string $file, ?string $basename = null, ?string $extension = null, bool $overwrite = true)
     {
         if (!file_exists($directory)) {
-            mkdir($directory, 0777, true);
+            mkdir($directory, 0755, true);
         }
 
         if (is_null($extension)) {
@@ -521,7 +521,7 @@ class FileUpload
     public static function copyFileTo(string $directory, string $file, ?string $basename = null, ?string $extension = null, bool $overwrite = true)
     {
         if (!file_exists($directory)) {
-            mkdir($directory, 0777, true);
+            mkdir($directory, 0755, true);
         }
 
         if (is_null($extension)) {
