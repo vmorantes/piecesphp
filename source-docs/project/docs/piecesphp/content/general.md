@@ -92,12 +92,17 @@ Nota: En la eliminación se obtendrá una advertencia por los meta archivos . y 
 find . -depth -type d -name * -execdir mv {} tmp \;
 sudo mv ./tmp/{*,.*} ./;
 ```
-##### Eliminar
+##### Eliminar y Ajustar Permisos
 
 ```bash
 sudo rm -Rf tmp CHANGELOG.md README.md TODO TODO.md guides source-docs src/adminer LICENSE;
-sudo chmod -Rf 0777 src;
+# Ejecuta la utilidad de ajuste de permisos y propiedad
+chmod +x permissions-and-property.sh;
+./permissions-and-property.sh;
 ```
+
+> [!IMPORTANT]
+> **Permisos:** Para información sobre permisos ver la [Guía de Permisos y Propiedad](./permissions.md).
 
 #### Paso 4: Composer y Gulp
 
