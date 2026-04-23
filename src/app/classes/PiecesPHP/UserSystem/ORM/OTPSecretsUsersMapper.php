@@ -355,7 +355,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         $model = self::model();
         $where = [
             "user = {$userID}",
-            "AND method = {$method}",
+            "AND method = '{$method}'",
             "AND id != {$ignoreID}",
         ];
         $model->select()->where(implode(' ', $where));
