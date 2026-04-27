@@ -26,6 +26,7 @@ require_once __DIR__ . "/../config/critical-definitions.php";
 require_once __DIR__ . "/psr4/PiecesPHP/Cli.php"; //Incluye la clase Cli
 $cliHandler = new Cli($argv ?? [], [
     'addLines' => false,
+    'skipArgs' => 2, //El nombre del script y el comando cli
 ]);
 /**
  * @var array{
