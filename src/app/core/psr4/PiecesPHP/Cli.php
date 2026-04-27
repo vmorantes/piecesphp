@@ -36,15 +36,17 @@ class Cli
 
     /**
      * @param string[] $argv Debe ser el array global $argv
-     * @param array{addLines:bool} $options Opciones adicionales
+     * @param array{addLines:bool,skipArgs:int} $options Opciones adicionales
      * - option.addLines: Si es true, se le agrega -- a los argumentos que no lo tengan
+     * - option.skipArgs: Número de argumentos a saltar (por defecto 2)
      */
     public function __construct(array $argv, array $options = [])
     {
         $addLines = $options['addLines'] ?? true;
+        $skipArgs = $options['skipArgs'] ?? 2;
         $this->scriptPath = $argv[0] ?? uniqid('ERROR_');
         $this->scriptName = basename($this->scriptPath);
-        $this->parse($argv, $addLines);
+        $this->parse($argv, $addLines, $skipArgs);
         $this->orginalArguments = $this->arguments;
         $this->originalCommand = $this->command;
         $this->orginalArgumentsOrder = $this->argumentsOrder;
@@ -75,12 +77,13 @@ class Cli
      *
      * @param string[] $argv
      * @param bool $addLines
+     * @param int $skipArgs
      * @return void
      */
-    protected function parse(array $argv, bool $addLines): void
+    protected function parse(array $argv, bool $addLines, int $skipArgs): void
     {
         $this->command = $argv[1] ?? null;
-        $argvCopy = array_slice($argv, 2);
+        $argvCopy = array_slice($argv, $skipArgs);
         $this->argumentsOrder = [];
         foreach ($argvCopy as $arg) {
             $parts = explode('=', $arg);
