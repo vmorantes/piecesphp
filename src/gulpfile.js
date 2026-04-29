@@ -32,7 +32,7 @@ let sassCompileAdapter = function (options) {
 	const finalOptions = Object.assign({}, baseOptions)
 
 	for (const option in options) {
-		finalOptions.option = options[option]
+		finalOptions[option] = options[option]
 	}
 
 	return sass(finalOptions)
