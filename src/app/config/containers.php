@@ -1,5 +1,6 @@
 <?php
 
+use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Routing\DependenciesInjector;
 use PiecesPHP\Core\Routing\InvocationStrategy;
 use PiecesPHP\Core\Routing\RequestRoute;
@@ -8,6 +9,7 @@ use PiecesPHP\Core\Routing\Slim3Compatibility\Http\StatusCode;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\TerminalData;
+use PiecesPHP\UserSystem\UserDataPackage;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpForbiddenException;
 use Slim\Exception\HttpNotFoundException;
@@ -83,12 +85,30 @@ $container_configurations = [
         /* Ejecución antes de procesar la ruta: */
         //Do something
 
+        // NOTE: Para el caso de usuarios logueados pero sin propiedades obligatorias definidas
+        $getLoggerUser = fn(bool $reload = false) => getLoggedFrameworkUser($reload) ?? (new UserDataPackage(-1));
+        if (getLoggedFrameworkUser() !== null) {
+            $loggedUser = $getLoggerUser();
+            $userMapper = $loggedUser->getMapper();
+            $organizationId = $loggedUser->organization;
+            if ($organizationId === null) {
+                //Asignar la organización global al usuario si no tenía una
+                $userMapper->organization = OrganizationMapper::INITIAL_ID_GLOBAL;
+                $userMapper->update();
+                $loggedUser = $getLoggerUser(true);
+                $userMapper = $loggedUser->getMapper();
+            }
+        }
+
         $response = null;
         try {
             //Lanza excepción si el manejador no está devolviendo su respectivo objeto "response"
             $response = $handler->handle($request);
         } catch (\Error $e) {
+            $missingResponseError = preg_match("/^.*must be of type Psr\\\\Http\\\\Message\\\\ResponseInterface.*$/", $e->getMessage());
             if ($response instanceof ResponseRoute) {
+                throw $e;
+            } elseif (!$missingResponseError) {
                 throw $e;
             }
         }
