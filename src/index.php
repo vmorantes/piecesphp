@@ -183,6 +183,17 @@ $app->setBasePath($routerBasePath);
 
 /**
  * --------------------------------------------------------------------------
+ * Middleware de Parseo del Body (BodyParsingMiddleware)
+ * --------------------------------------------------------------------------
+ * Habilita la decodificación automática del cuerpo de la petición HTTP
+ * para Content-Types como application/json, application/xml y
+ * application/x-www-form-urlencoded. Sin esto, getParsedBody() devuelve
+ * null para peticiones con payload JSON.
+ */
+$app->addBodyParsingMiddleware();
+
+/**
+ * --------------------------------------------------------------------------
  * MIDDLEWARE GLOBAL PRINCIPAL (PRE-ENRUTAMIENTO)
  * --------------------------------------------------------------------------
  * Intercepta toda petición HTTP. Contiene la lógica core de seguridad,
