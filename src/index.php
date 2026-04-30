@@ -955,7 +955,23 @@ $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exce
     } elseif ($originalException instanceof HttpForbiddenException) {
         return get_router()->getDI()->get('forbiddenHandler')($originalException);
     } else {
-        global_custom_exception_handler($originalException, 'RouterSetErrorHandler');
+        $errorContext = 'RouterSetErrorHandler';
+        $contextsAvailables = [
+            [
+                'messageRegexp' => "/^.*must be of type Psr\\\\Http\\\\Message\\\\ResponseInterface.*$/",
+                'errorContext' => 'MissingResponseInController',
+            ],
+        ];
+        try {
+            foreach ($contextsAvailables as $context) {
+                if (preg_match($context['messageRegexp'], $originalException->getMessage())) {
+                    $errorContext = $context['errorContext'];
+                    break;
+                }
+            }
+        } catch (\Throwable $e) {}
+
+        global_custom_exception_handler($originalException, $errorContext);
         $response = new ResponseRoute();
         return $response->withStatus(500);
     }

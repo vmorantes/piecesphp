@@ -139,6 +139,11 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
 {
     $request = RequestRouteFactory::createFromGlobals();
     $stopAndShowError = function (\Exception $exception, RequestRoute $request) use ($context) {
+        // Limpiar todos los buffers de salida previos
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
         $customErrorHandler = new CustomSlimErrorHandler($exception, $context);
         $responseBody = $customErrorHandler->getResponse($request);
         $content = $responseBody->getLastWriteBodyData();
