@@ -43,6 +43,14 @@
     "editor.multiCursorModifier": "ctrlCmd",
     "editor.multiCursorMergeOverlapping": true,
     "intelephense.environment.phpVersion": "8.4",
+    "intelephense.diagnostics.exclude": {
+        "src/app/classes/**/Views/**/*.php": [
+            "P1008"
+        ],
+        "src/app/view/**/*.php": [
+            "P1008"
+        ]
+    },
     "[php]": {
         "editor.defaultFormatter": "kokororin.vscode-phpfmt",
         "editor.formatOnSave": false

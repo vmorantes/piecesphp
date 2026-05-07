@@ -19,7 +19,7 @@ export USER_OWNER=${INPUT_OWNER_USER:="$USER"}
 export GROUP_OWNER=${INPUT_OWNER_GROUP:="www-data"}
 
 # Moverse a carpeta src
-export SRC_DIR="$SCRIPT_DIR/src"
+export SRC_DIR="$SCRIPT_DIR"
 
 echo -e "\n[+] Carpeta src: $SRC_DIR"
 
@@ -60,35 +60,6 @@ for dir in "${WRITABLE_DIRS[@]}"; do
         find "$dir" -type d -exec chmod 2775 {} \;
         # Archivos
         find "$dir" -type f -exec chmod 664 {} \;
-    fi
-done
-
-# Permisos de scripts de utilidad
-export EXECUTABLES_DIR="${SCRIPT_DIR}/bin"
-
-cd "$EXECUTABLES_DIR"
-
-echo -e "\n[+] Estableciendo permisos de utilidades en $EXECUTABLES_DIR"
-echo -e "\n\t[+] scripts: +x"
-echo -e "\n\t[+] scripts: 744"
-echo -e "\n\t[+] scripts: $USER_OWNER:$USER_OWNER"
-
-EXECUTABLES_FILES=(
-    "bin/node/copyDependencies.sh"
-    "cli"
-    "package-css"
-    "phpstan"
-    "pieces-completion.zsh"
-    "pieces-completion.bash"
-)
-
-
-for file in "${EXECUTABLES_FILES[@]}"; do
-    if [ -f "$file" ]; then
-        echo -e "\n\t->[+] Permisos para $file"
-        sudo chmod +x "$file"
-        sudo chmod 744 "$file"
-        sudo chown "$USER_OWNER":"$USER_OWNER" "$file"
     fi
 done
 
