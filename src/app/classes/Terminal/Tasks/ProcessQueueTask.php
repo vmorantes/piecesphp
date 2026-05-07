@@ -81,7 +81,7 @@ class ProcessQueueTask extends TerminalTaskAbstract
         //Registrar mi intento de ejecución
         $myLockFile = "{$lockDir}/" . microtime(true) . "_" . getmypid() . ".lock";
         touch($myLockFile);
-        chmod($myLockFile, 0644);
+        chmod($myLockFile, 0664);
 
         //Comprobar posición en la cola
         $waitLimit = 30; //Segundos máximos de espera por cada avance en la cola

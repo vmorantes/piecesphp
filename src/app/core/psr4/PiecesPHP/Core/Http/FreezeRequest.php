@@ -167,7 +167,7 @@ class FreezeRequest
                     $tmpName = $file['tmp_name'];
                     $destinationFile = append_to_path_system($finalDirectoryPath, uniqid('freeze_') . '_' . $file['name']);
                     if (file_exists($tmpName) && is_file($tmpName) && copy($tmpName, $destinationFile)) {
-                        chmod($destinationFile, 0644);
+                        chmod($destinationFile, 0664);
                         $file['tmp_name'] = $destinationFile;
                     }
                 }

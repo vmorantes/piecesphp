@@ -180,7 +180,7 @@ class DirectoryObject implements \JsonSerializable
 
                         $newPath = $destination . DIRECTORY_SEPARATOR . $file->getBasename();
                         copy($file->getPath(), $newPath);
-                        chmod($newPath, 0644);
+                        chmod($newPath, 0664);
 
                         $result['files'][] = [
                             'from' => $file->getPath(),
@@ -236,7 +236,7 @@ class DirectoryObject implements \JsonSerializable
 
                     $newPath = $destination . DIRECTORY_SEPARATOR . $file->getBasename();
                     copy($file->getPath(), $newPath);
-                    chmod($newPath, 0644);
+                    chmod($newPath, 0664);
 
                     $result['files'][] = [
                         'from' => $file->getPath(),

@@ -163,7 +163,7 @@ class DbBackupTask extends TerminalTaskAbstract
 
                 if (file_exists($outputPath)) {
                     if ($changePermissions) {
-                        chmod($outputPath, 0644);
+                        chmod($outputPath, 0664);
                     }
                     $responseText = "Operación exitosa\r\n";
                     $responseText .= "Archivo generado: " . basename($outputPath) . "\r\n";

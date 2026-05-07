@@ -195,7 +195,7 @@ class CacheControllersManager implements JsonSerializable
 
         if (!file_exists($fileConfig)) {
             file_put_contents($fileConfig, json_encode($this));
-            chmod($fileConfig, 0644);
+            chmod($fileConfig, 0664);
         } else {
             $this->jsonUnserialize(json_decode(file_get_contents($fileConfig), true));
         }
@@ -247,7 +247,7 @@ class CacheControllersManager implements JsonSerializable
 
         $fileConfig = $this->getCachedDataFileName(true);
         file_put_contents($fileConfig, $data);
-        chmod($fileConfig, 0644);
+        chmod($fileConfig, 0664);
 
         self::setGlobalConfigurationProperty($this->className, $this->methodName, 'shouldBeRecached', false);
         $this->setOwnConfigurationProperty('contentType', $this->contentType);
@@ -339,7 +339,7 @@ class CacheControllersManager implements JsonSerializable
 
         if (!file_exists($this->globalConfigurationFile)) {
             file_put_contents($this->globalConfigurationFile, json_encode($this->globalOptions));
-            chmod($this->globalConfigurationFile, 0644);
+            chmod($this->globalConfigurationFile, 0664);
         } else {
             $this->globalOptions = json_decode(file_get_contents($this->globalConfigurationFile), true);
         }
