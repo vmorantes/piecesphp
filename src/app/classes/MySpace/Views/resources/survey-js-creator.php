@@ -1,4 +1,7 @@
 <?php
+
+use PiecesPHP\Core\Config;
+
 set_config('global_assets', [
     'js' => [],
     'css' => [],
@@ -42,7 +45,7 @@ set_custom_assets([
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= Config::get_lang(); ?>" dlang="<?= Config::get_default_lang(); ?>">
 
 <head>
     <meta charset="UTF-8">
@@ -60,16 +63,14 @@ set_custom_assets([
 
     <script>
     window.addEventListener('load', function() {
-
         surveyJSTest()
-
         /**
          * @link https://surveyjs.io/survey-creator/documentation/get-started-html-css-javascript
          */
         function surveyJSTest() {
-
             /** Idiomas**/
-            const defaultLang = "es"
+            const defaultLang = document.querySelector('html').getAttribute('dlang')
+            const lang = document.querySelector('html').getAttribute('lang')
             const langsNames = {
                 es: 'español',
                 en: 'inglés',
@@ -80,14 +81,12 @@ set_custom_assets([
                 "en",
                 "de",
             ]
-
-            Survey.surveyLocalization.currentLocale = defaultLang
+            Survey.surveyLocalization.currentLocaleValue = lang
             Survey.surveyLocalization.defaultLocaleValue = defaultLang
             Survey.surveyLocalization.localeNames = langsNames
             Survey.surveyLocalization.supportedLocales = supportedLangs
-            SurveyCreator.editorLocalization.currentLocale = Survey.surveyLocalization.currentLocale
-            SurveyCreator.editorLocalization.defaultLocaleValue = Survey.surveyLocalization.defaultLocaleValue
-
+            SurveyCreator.editorLocalization.currentLocaleValue = Survey.surveyLocalization.currentLocaleValue
+            SurveyCreator.editorLocalization.defaultLocaleValue = Survey.surveyLocalization.currentLocaleValue
             //Instanciación
             const creatorOptions = {
                 showLogicTab: true,
@@ -96,7 +95,6 @@ set_custom_assets([
             }
             const creator = new SurveyCreator.SurveyCreator(creatorOptions)
             creator.render(document.getElementById("surveyCreator"))
-
             //Escuchador de cambios
             creator.saveSurveyFunc = (currentChangeNumber, callback) => {
                 console.log({
@@ -110,12 +108,10 @@ set_custom_assets([
                     callback
                 )
             }
-
             console.log({
                 Survey: Survey.surveyLocalization,
                 SurveyCreator: SurveyCreator.editorLocalization,
             })
-            
             //Comunicación con backend callback debe recibir en 2do argumento false o true en función del resultado en backend
             function saveSurveyJson(url, json, currentChangeNumber, callback) {
                 callback(currentChangeNumber, true)
