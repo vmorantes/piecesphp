@@ -26,6 +26,10 @@ class LangInjector
      * @var array
      */
     protected $allowedLangs = [];
+    /**
+     * @var array
+     */
+    protected $langFilesContents = [];
 
     /**
      * @param string $fullPathLangDirectorty
@@ -51,7 +55,7 @@ class LangInjector
 
             if (file_exists($langFile)) {
 
-                $langData = include_once $langFile;
+                $langData = $this->loadLangFiles($langFile);
 
                 if (is_array($langData)) {
 
@@ -127,7 +131,7 @@ class LangInjector
 
             if (file_exists($langFile)) {
 
-                $messages = include_once $langFile;
+                $messages = $this->loadLangFiles($langFile);
 
                 if (is_array($messages)) {
 
@@ -173,6 +177,24 @@ class LangInjector
 
         }
 
+    }
+
+    /**
+     * Carga un archivo de idioma y devuelve el contenido
+     *
+     * @param string $filePath
+     * @return array
+     */
+    protected function loadLangFiles(string $filePath)
+    {
+        $langData = [];
+        if (file_exists($filePath) && !array_key_exists($filePath, $this->langFilesContents)) {
+            $langData = include $filePath;
+            $this->langFilesContents[$filePath] = $langData;
+        } else {
+            $langData = $this->langFilesContents[$filePath] ?? [];
+        }
+        return $langData;
     }
 
 }
