@@ -116,7 +116,7 @@ class HelpersSystemRoutes
                         'visible' => GenericContentController::allowedRoute('forms-mapbox-keys'),
                     ]),
                 ],
-                'position' => 100,
+                'position' => 110,
             ]));
 
         }

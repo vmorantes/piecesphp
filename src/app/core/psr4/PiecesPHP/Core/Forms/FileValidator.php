@@ -30,6 +30,8 @@ class FileValidator
     const TYPE_GIF = 'gif';
     const TYPE_PNG = 'png';
     const TYPE_SVG = 'svg';
+    const TYPE_GEOJSON = 'geojson';
+    const TYPE_JSON = 'json';
 
     const TYPE_XLSX = 'xlsx';
     const TYPE_XLS = 'xls';
@@ -183,6 +185,13 @@ class FileValidator
         self::TYPE_FLV => [
             'video/x-flv',
         ],
+        self::TYPE_GEOJSON => [
+            'application/geo+json',
+            'application/json',
+        ],
+        self::TYPE_JSON => [
+            'application/json',
+        ],
     ];
 
     /**
@@ -291,6 +300,13 @@ class FileValidator
         self::TYPE_FLV => [
             'flv',
         ],
+        self::TYPE_GEOJSON => [
+            'geojson',
+            'json',
+        ],
+        self::TYPE_JSON => [
+            'json',
+        ],
     ];
 
     /**
@@ -323,6 +339,8 @@ class FileValidator
         self::TYPE_MOV => 'MOV',
         self::TYPE_WMV => 'WMV',
         self::TYPE_FLV => 'FLV',
+        self::TYPE_GEOJSON => 'GEOJSON',
+        self::TYPE_JSON => 'JSON',
     ];
 
     /**

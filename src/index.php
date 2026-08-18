@@ -219,6 +219,8 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
     // Plantilla de respuesta HTTP vacía para mutarla y retornar en caso de rechazos 403 o 404
     $emptyResponse = new ResponseRoute();
+    $emptyResponse = ($handleCors)($request, $emptyResponse);
+
     // Obtiene el objeto ruta resuelto tras machear la URI solicitada
     $route = $request->getRoute();
 
@@ -749,6 +751,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         if (SystemApprovalsRoutes::ENABLE) {
             $systemApprovalsReturnValue = SystemApprovalsMiddleware::handle($request, (new ResponseRouteFactory())->createResponse(), [], $handler);
             if ($systemApprovalsReturnValue instanceof ResponseRoute) {
+                $systemApprovalsReturnValue = ($handleCors)($request, $systemApprovalsReturnValue);
                 return $systemApprovalsReturnValue;
             }
         }
@@ -783,6 +786,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
      * @var ResponseRoute $response
      */
     $response = $handler->handle($request);
+    $response = ($handleCors)($request, $response);
     return $response;
 });
 
@@ -826,7 +830,7 @@ $routeCollector->setDefaultInvocationStrategy(new InvocationStrategy());
  * Middleware Pre/Post de Inserción de Cabeceras Custom (Idioma esperado)
  * --------------------------------------------------------------------------
  */
-$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
+$app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use ($globalDI) {
     //Obtener el idioma deseado de las solicitudes
     // Inspecciona si el cliente demandó una respuesta en idioma estricto por Cabecera HTTP (Práctico para integraciones API/Móvil)
     $responseExpectedLang = $request->getHeaderLine('PCSPHP-Response-Expected-Language');
@@ -840,6 +844,11 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) {
     }
     //Continuar
     $response = $handler->handle($request);
+    if (API_MODULE) {
+        if ($globalDI instanceof DependenciesInjector) {
+            $response = $globalDI->get('cors')($request, $response);
+        }
+    }
     return $response;
 });
 

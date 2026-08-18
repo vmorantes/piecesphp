@@ -42,6 +42,11 @@ class MetaProperty
     ];
 
     /**
+     * @var string $internalName
+     */
+    protected $internalName = '{PROPERTY_NAME}';
+
+    /**
      * @var string $type
      */
     protected $type = self::TYPE_TEXT;
@@ -98,12 +103,13 @@ class MetaProperty
      * @return static
      * @throws \Exception
      */
-    public function __construct(string $type = 'TEXT', $defaultValue = null, bool $nullable = true, ?string $mapperName = null, string $propertyMapper = 'id')
+    public function __construct(string $type = 'TEXT', $defaultValue = null, bool $nullable = true, ?string $mapperName = null, string $propertyMapper = 'id', ?string $internalName = null)
     {
 
         $this->nullable = $nullable;
         $this->mapperName = $mapperName;
         $this->propertyMapper = $propertyMapper;
+        $this->internalName = $internalName ?? $this->internalName;
 
         if (in_array($type, self::TYPES)) {
 
@@ -145,6 +151,32 @@ class MetaProperty
 
         }
 
+    }
+
+    /**
+     * @param string $internalName
+     * @return static
+     */
+    public function setInternalName(string $internalName): static
+    {
+        $this->internalName = $internalName;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInternalName(): string
+    {
+        return $this->internalName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
     }
 
     /**
@@ -279,14 +311,14 @@ class MetaProperty
 
             if (!$valid) {
 
-                throw new \Exception('El valor proporcionado no es compatible con el campo.');
+                throw new \Exception('El valor proporcionado no es compatible con el campo: ' . $this->internalName);
 
             } elseif (!$existsOnMapper) {
 
                 if ($this->type == self::TYPE_MAPPER) {
-                    throw new \Exception('El valor proporcionado no puede ser encontrado en el mapper.');
+                    throw new \Exception('El valor proporcionado no puede ser encontrado en el mapper: ' . $this->internalName);
                 } else {
-                    throw new \Exception('Uno o varios de los valores proporcionados no puede ser encontrado en el mapper.');
+                    throw new \Exception('Uno o varios de los valores proporcionados no puede ser encontrado en el mapper: ' . $this->internalName);
                 }
 
             }

@@ -889,7 +889,7 @@ class UsersController extends AdminPanelController
                         if ($organizationMapper == null || in_array($organizationMapper->status, OrganizationMapper::STATUSES_FOR_LOGIN)) {
 
                             if ($isExternalLogin) {
-                                if ($user->type != UsersModel::TYPE_USER_GENERAL) {
+                                if (!in_array($user->type, UsersModel::TYPES_WITH_EXTERNAL_LOGIN)) {
                                     $resultOperation->setValue('error', self::NO_EXTERNAL_LOGIN_AVAILABLE);
                                     $resultOperation->setValue('message', __(self::LANG_GROUP, 'El usuario no está habilitado para usar la este método de inicio de sesión'));
                                     return $response->withJson($resultOperation->getValues());

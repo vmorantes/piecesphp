@@ -1,4 +1,4 @@
--- Adminer 5.3.0 MariaDB 10.11.13-MariaDB-0ubuntu0.24.04.1 dump
+-- Adminer 5.4.2 MariaDB 10.11.14-MariaDB-0ubuntu0.24.04.1 dump
 
 SET NAMES utf8;
 SET time_zone = '+00:00';
@@ -496,6 +496,24 @@ CREATE TABLE `pcsphp_app_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
+DROP TABLE IF EXISTS `pcsphp_jobs_queue`;
+CREATE TABLE `pcsphp_jobs_queue` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` text NOT NULL,
+  `data` longtext DEFAULT NULL,
+  `status` text NOT NULL,
+  `attempts` int(11) NOT NULL,
+  `maxAttempts` int(11) NOT NULL,
+  `errorMessage` text DEFAULT NULL,
+  `createdAt` datetime DEFAULT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `scheduledAt` datetime DEFAULT NULL,
+  `startedAt` datetime DEFAULT NULL,
+  `finishedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+
+
 DROP TABLE IF EXISTS `pcsphp_recovery_password`;
 CREATE TABLE `pcsphp_recovery_password` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -779,4 +797,4 @@ CREATE TABLE `user_system_profile` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
--- 2025-09-18 22:10:13 UTC
+-- 2026-07-30 21:46:30 UTC

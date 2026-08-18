@@ -32,11 +32,11 @@ $previousExperiences = PreviousExperiencesMapper::allBy('profile', $profileMappe
 $organizationText = $organizationMapper->currentLangData('name');
 $userTypeText = UsersModel::getTypeUserName($userPackage->type);
 $isBaseOrganization = $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
-if($isBaseOrganization){
+if($isBaseOrganization && ORGANIZATIONS_MODULE){
     $organizationText = __($langGroup, 'N/A');
 }
 if($userPackage->type == UsersModel::TYPE_USER_GENERAL){
-    if($isBaseOrganization){
+    if($isBaseOrganization && ORGANIZATIONS_MODULE){
         $userTypeText = __($langGroup, 'Usuario independiente');
     }
 }

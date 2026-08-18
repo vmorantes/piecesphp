@@ -21,7 +21,7 @@ $statusClass = "status-{$mapper->status}-number";
 $userTypeText = UsersModel::getTypeUserName($mapper->type);
 $isBaseOrganization = $organizationMapper !== null && $organizationMapper->id == OrganizationMapper::INITIAL_ID_GLOBAL;
 if($mapper->type == UsersModel::TYPE_USER_GENERAL){
-    if($isBaseOrganization){
+    if($isBaseOrganization && ORGANIZATIONS_MODULE){
         $userTypeText = __(SystemApprovalsLang::LANG_GROUP, 'Usuario independiente');
     }
 }
