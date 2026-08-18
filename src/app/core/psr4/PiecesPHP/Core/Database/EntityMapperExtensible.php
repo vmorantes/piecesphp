@@ -47,7 +47,7 @@ class EntityMapperExtensible extends BaseEntityMapper
         parent::__construct($value, $field_compare);
 
         $metaColumnName = $this->metaColumnName;
-        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : null;
+        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass  ? (object) $this->$metaColumnName : null;
 
         if (!is_null($metaColumnValue)) {
 
@@ -78,6 +78,11 @@ class EntityMapperExtensible extends BaseEntityMapper
             throw new \Exception('Ya existe una propiedad con ese nombre: ' . $name);
         }
 
+        $currentInternalName = $property->getInternalName();
+        if ($currentInternalName == '{PROPERTY_NAME}') {
+            $property->setInternalName($name);
+        }
+
         $this->metaProperties[$name] = $property;
 
         return $this;
@@ -97,6 +102,21 @@ class EntityMapperExtensible extends BaseEntityMapper
         }
 
         return $this->metaProperties[$name];
+
+    }
+
+    /**
+     * @param string $name
+     * @return static
+     */
+    public function removeMetaProperty(string $name)
+    {
+
+        if ($this->hasMetaProperty($name)) {
+            unset($this->metaProperties[$name]);
+        }
+
+        return $this;
 
     }
 
@@ -165,7 +185,7 @@ class EntityMapperExtensible extends BaseEntityMapper
     public function metaValueToSave()
     {
         $metaColumnName = $this->metaColumnName;
-        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : new \stdClass();
+        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass  ? (object) $this->$metaColumnName : new \stdClass();
         $metaIsArray = is_array($metaColumnValue);
 
         foreach ($this->metaProperties as $name => $property) {
@@ -221,7 +241,7 @@ class EntityMapperExtensible extends BaseEntityMapper
     public function metaValueToUpdate()
     {
         $metaColumnName = $this->metaColumnName;
-        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass ? (object) $this->$metaColumnName : new \stdClass();
+        $metaColumnValue = is_array($this->$metaColumnName) || $this->$metaColumnName instanceof \stdClass  ? (object) $this->$metaColumnName : new \stdClass();
         $metaIsArray = is_array($metaColumnValue);
 
         foreach ($this->metaProperties as $name => $property) {

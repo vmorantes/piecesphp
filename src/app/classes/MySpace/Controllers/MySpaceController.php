@@ -86,6 +86,7 @@ class MySpaceController extends AdminPanelController
             UsersModel::TYPE_USER_GENERAL,
             UsersModel::TYPE_USER_ADMIN_ORG,
             UsersModel::TYPE_USER_COMUNICACIONES,
+            UsersModel::TYPE_USER_GOOGLE_PLAY,
         ];
 
         if (!in_array($currentUserType, $noBaseView) && ReportsManageRoutes::ENABLE) {

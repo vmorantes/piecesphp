@@ -107,7 +107,18 @@ $config['roles']['types'] = [
         'all' => false,
         'allowed_routes' => $permisosGenerales,
     ],
+    [
+        'code' => UsersModel::TYPE_USER_GOOGLE_PLAY,
+        'name' => UsersModel::TYPES_USERS[UsersModel::TYPE_USER_GOOGLE_PLAY] ?? null,
+        'all' => false,
+        'allowed_routes' => $permisosGenerales,
+    ],
 ];
+
+//Depurar los que no tengan "name" (por exclusión desde UsersModel.php)
+$config['roles']['types'] = array_filter($config['roles']['types'], function ($type) {
+    return $type['name'] != null;
+});
 
 //Si no se está usando el módulo de organizaciones, se elimina el tipo de usuario administrador de organización
 if (!CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']) {
@@ -118,7 +129,7 @@ if (!CRITICAL_CONSTANTS['ORGANIZATIONS_MODULE']) {
 
 $config['control_access_login'] = true;
 $config['admin_url']['relative'] = true;
-$config['admin_url']['url'] = 'admin';
+$config['admin_url']['url'] = '';
 
 //Definir fecha mínima del token de inicio de sesión
-SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '05-02-2024 00:00:00 AM'));
+SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '02-03-2026 00:00:00 AM'));

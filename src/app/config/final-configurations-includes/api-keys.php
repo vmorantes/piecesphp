@@ -26,6 +26,10 @@ $keysToSet = [
 
 foreach ($keysToSet as $keysToSet) {
     $directoryKeys = '';
+    try {
+        //Fallback HestiaCP para plataformas en subdirectorio directo [domain]/public_html/../../private/
+        //$directoryKeys = !is_local() ? basepath('../../private') : '';
+    } catch (\Throwable $e) {}
     $configName = $keysToSet['configName'] ?? null;
     $fileKeyName = $keysToSet['fileKeyName'] ?? null;
     $override = $keysToSet['override'] ?? false;

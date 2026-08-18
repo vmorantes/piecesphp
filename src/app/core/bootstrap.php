@@ -155,6 +155,16 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
             header('Content-Type: text/html');
             http_response_code(500);
         }
+
+        //CORS para API
+        if (defined('API_MODULE') && API_MODULE) {
+            $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*';
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization, isWebApp, isExternalLogin, JWTAuth');
+            header('Vary: Origin');
+        }
         die($content);
     };
 

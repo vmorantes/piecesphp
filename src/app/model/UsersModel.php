@@ -109,6 +109,7 @@ class UsersModel extends EntityMapperExtensible
     const TYPE_USER_GENERAL = 2;
     const TYPE_USER_INSTITUCIONAL = 3;
     const TYPE_USER_COMUNICACIONES = 4;
+    const TYPE_USER_GOOGLE_PLAY = 50;
 
     /**
      * @var array<int,string>
@@ -120,6 +121,7 @@ class UsersModel extends EntityMapperExtensible
         self::TYPE_USER_GENERAL => 'Usuario general',
         self::TYPE_USER_INSTITUCIONAL => 'Institucional',
         self::TYPE_USER_COMUNICACIONES => 'Comunicaciones',
+        //self::TYPE_USER_GOOGLE_PLAY => 'Google Play',
     ];
 
     const TYPES_USER_PRIORITY = [
@@ -129,6 +131,7 @@ class UsersModel extends EntityMapperExtensible
         self::TYPE_USER_GENERAL => 1,
         self::TYPE_USER_INSTITUCIONAL => 100,
         self::TYPE_USER_COMUNICACIONES => 2,
+        self::TYPE_USER_GOOGLE_PLAY => -50,
     ];
 
     const TYPES_USER_DO_NOT_HAVE_AUTHORITY_OVER_SAME_TYPE = [
@@ -138,11 +141,17 @@ class UsersModel extends EntityMapperExtensible
     const TYPES_USER_DONT_REQUIRE_ORGANIZATION = [
         self::TYPE_USER_ROOT,
         self::TYPE_USER_ADMIN_GRAL,
+        self::TYPE_USER_GOOGLE_PLAY,
     ];
 
     const TYPES_USER_SHOULD_HAVE_PROFILE = [
         self::TYPE_USER_ADMIN_ORG,
         self::TYPE_USER_GENERAL,
+    ];
+
+    const TYPES_WITH_EXTERNAL_LOGIN = [
+        self::TYPE_USER_GENERAL,
+        self::TYPE_USER_GOOGLE_PLAY,
     ];
 
     const LANG_GROUP = UserDataPackage::LANG_GROUP;
