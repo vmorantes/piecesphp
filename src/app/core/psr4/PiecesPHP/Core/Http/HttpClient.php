@@ -183,7 +183,12 @@ class HttpClient
         } catch (\Exception $e) {
             $response = $e->getMessage();
         }
-        $this->response['headers'] = $this->parseReponseHeaders(isset($http_response_header) && is_array($http_response_header) ? $http_response_header : []);
+        // http_get_last_response_headers() sustituye a $http_response_header, deprecada
+        // en 8.5. Devuelve null si la petición no llegó a hacerse —donde la variable
+        // mágica simplemente no existía—, y se reinicia en cada intento, así que no
+        // arrastra las cabeceras de una petición anterior.
+        $responseHeaders = http_get_last_response_headers();
+        $this->response['headers'] = $this->parseReponseHeaders(is_array($responseHeaders) ? $responseHeaders : []);
         $this->response['status'] = isset($this->response['headers']['response_code']) ? $this->response['headers']['response_code'] : null;
         $this->response['body'] = $response;
 
