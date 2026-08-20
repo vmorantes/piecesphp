@@ -1,2 +1,3 @@
-composer.lock
+# composer.lock SÍ se versiona: estas son las herramientas de análisis del
+# proyecto y queremos que PHPStan y Rector den el mismo resultado en toda máquina.
 vendor/*

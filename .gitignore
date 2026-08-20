@@ -9,6 +9,12 @@ src/statics/login-and-recovery/css/*
 src/statics/features/avatars/css/*
 **/node_modules/*
 **/composer.lock
+# Excepciones: src/ es la APLICACIÓN, no una librería, y bin/tools/ fija las
+# herramientas de análisis. En ambos casos queremos versiones reproducibles entre
+# máquinas y en despliegue — más aún desde que Symfony saltó de 6.4 a 8.1.
+# Los paquetes piecesphp/* sí siguen sin lock: son librerías.
+!src/composer.lock
+!bin/tools/composer.lock
 **/package-lock*
 **/pnpm-lock*
 **/.sass-cache
