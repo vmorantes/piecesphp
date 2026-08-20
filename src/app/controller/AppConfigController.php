@@ -1990,7 +1990,7 @@ class AppConfigController extends AdminPanelController
             case self::PARSE_TYPE_DOUBLE:
 
                 if (is_scalar($value) && is_numeric($value)) {
-                    return (double) $value;
+                    return (float) $value;
                 }
                 return $value;
 

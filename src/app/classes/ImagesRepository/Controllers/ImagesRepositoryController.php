@@ -194,7 +194,7 @@ class ImagesRepositoryController extends AdminPanelController
         $modes = self::MODES_PUBLIC_IMAGE;
         $mode = in_array($mode, $modes) ? $mode : null;
         $modeValue = $request->getQueryParam('modeValue', null);
-        $modeValue = Validator::isDouble($modeValue) ? (double) $modeValue : null;
+        $modeValue = Validator::isDouble($modeValue) ? (float) $modeValue : null;
         $defaultModeValues = [
             self::MODE_PUBLIC_IMAGE_FIXED => 1200,
             self::MODE_PUBLIC_IMAGE_PERCENT => 100,

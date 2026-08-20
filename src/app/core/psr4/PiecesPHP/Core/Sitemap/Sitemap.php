@@ -77,7 +77,7 @@ class Sitemap
                                 $changeFreq = (string) $tag;
                             }
                             if ($name == 'priority') {
-                                $priority = (double) ((string) $tag);
+                                $priority = (float) ((string) $tag);
                             }
 
                         }

@@ -49,7 +49,7 @@ class TimerController extends BaseController
         ];
 
         if ($valid_time && $valid_user) {
-            $seconds = (double) $seconds;
+            $seconds = (float) $seconds;
             $response_json['success'] = TimeOnPlatformModel::addTime($user_id, $seconds / 60);
             return $response->withJson($response_json);
         } else {

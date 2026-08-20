@@ -470,7 +470,7 @@ class ApplicationCallsController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return Validator::isDouble($value) ? (double) $value : $value;
+                    return Validator::isDouble($value) ? (float) $value : $value;
                 }
             ),
             new Parameter(

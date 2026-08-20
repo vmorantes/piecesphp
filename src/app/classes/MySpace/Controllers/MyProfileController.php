@@ -229,7 +229,7 @@ class MyProfileController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return Validator::isDouble($value) ? (double) $value : null;
+                    return Validator::isDouble($value) ? (float) $value : null;
                 }
             ),
             new Parameter(
@@ -240,7 +240,7 @@ class MyProfileController extends AdminPanelController
                 },
                 false,
                 function ($value) {
-                    return Validator::isDouble($value) ? (double) $value : null;
+                    return Validator::isDouble($value) ? (float) $value : null;
                 }
             ),
             new Parameter(
