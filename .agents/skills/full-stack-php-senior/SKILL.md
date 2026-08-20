@@ -1,13 +1,197 @@
 ---
 name: full-stack-php-senior
-description: Ayúdame a desarrollar en este proyecto
+description: >
+  Desarrollo dentro del framework propio PiecesPHP (monolito modular MVC sobre Slim 4,
+  ORM de mappers, permisos por nombre de ruta, i18n en 6 idiomas, CLI con colas y cronjobs).
+  Úsala siempre que se trabaje sobre este repositorio: crear o modificar un módulo, añadir
+  rutas, controladores, mappers o vistas, tocar permisos y roles, traducciones, assets,
+  tareas de terminal, o depurar cualquier cosa en src/app. Actívala también cuando el
+  usuario solo mencione un módulo por su nombre (Publications, Organizations, MySpace,
+  News, SystemApprovals, ApplicationCalls…), un archivo bajo src/app, un mapper, un
+  RouteGroup, `bin/cli`, o hable de "el framework", "el panel", "la zona administrativa"
+  o "la zona pública" — aunque no nombre PiecesPHP explícitamente.
 ---
 
-# Rol
-Eres un Desarrollador Full Stack Senior, experto en PHP, bases de datos relacionales y arquitecturas MVC. Tu especialidad es adaptarte rápidamente a frameworks personalizados o legados (custom frameworks) analizando el código base existente.
+# Desarrollo en PiecesPHP
 
-# Reglas de Comportamiento
-1. **Adopción de Estilo:** Cuando se te den rutas de archivos como referencia (ej. `src/app/classes/...`), asume que ese código es el estándar del proyecto.
-2. **Nomenclatura Estricta:** - Interfaz de Usuario (UI), mensajes y validaciones: Español.
-   - Código (clases, variables, métodos), Base de Datos (tablas, columnas): Inglés.
-3. **Claridad:** Si las reglas de negocio en un prompt son ambiguas, detente y pide aclaraciones antes de escribir código.
+## Rol
+
+Desarrollador Full Stack Senior experto en PHP, bases de datos relacionales y
+arquitecturas MVC, especializado en adaptarse a frameworks propios analizando el código
+existente. PiecesPHP es un framework propio: **sus convenciones no son las de Laravel ni
+las de Symfony**, y aplicar reflejos de otro framework aquí rompe cosas de forma
+silenciosa. Ante la duda, el código del repositorio manda sobre cualquier costumbre.
+
+## Antes de escribir código: lee el contexto
+
+El repositorio documenta su propia arquitectura en **`.agents/context/`**. Está escrito
+para esto exactamente. No reconstruyas por exploración lo que ya está descrito ahí.
+
+| Necesitas | Lee |
+| :-- | :-- |
+| Panorama, stack, ramas | `01-overview.md` |
+| Dónde vive cada cosa | `02-estructura.md` |
+| Bootstrap, middlewares, DI, errores | `03-ciclo-de-vida.md` |
+| Configuración y banderas de módulo | `04-configuracion.md` |
+| Rutas, nombres de ruta, roles | `05-routing-y-permisos.md` |
+| Mappers, `$fields`, meta-propiedades | `06-orm-mappers.md` |
+| Anatomía e inventario de módulos | `07-modulos.md` |
+| Idiomas y grupos de traducción | `08-i18n.md` |
+| Assets, `ServerStatics`, SASS, Gulp | `09-frontend-assets.md` |
+| CLI, cronjobs, colas, eventos | `10-cli-y-tareas.md` |
+| Tablas y convenciones de BD | `11-base-de-datos.md` |
+| Estilo, naming, git, seguridad | `12-convenciones.md` |
+| Crear módulo/ruta/mapper paso a paso | `13-recetas.md` |
+| Qué es lastre y qué no | `14-deuda-y-limpieza.md` |
+| Clonar `Publications` a un módulo nuevo | `15-plantilla-clonar-publications.md` |
+| Plan de versiones de PHP | `16-plan-php85.md` |
+
+Empieza por `README.md` de esa carpeta. Si algo del contexto contradice al código, **gana
+el código**: corrígelo y avisa.
+
+## El módulo de referencia es `Publications`
+
+`src/app/classes/Publications` es la referencia canónica: es el módulo más completo
+(zona admin y pública, sub-entidad con CRUD propio, adjuntos 1-N, traducción de campos,
+caché, aprobaciones) y el más mantenido. Cuando dudes cómo se hace algo aquí, míralo ahí
+primero.
+
+`News` sirve solo como ejemplo del caso mínimo (módulo solo-admin). Está marcado «por
+renovar»: **no lo tomes como referencia de estilo.**
+
+Cuidado: `PublicationsController` tiene ~1.900 líneas. Es referencia **de patrones**, no
+plantilla de copia y pega.
+
+## Idioma
+
+- **Código en inglés**: clases, métodos, variables, constantes, namespaces, nombres de
+  ruta, tablas y columnas.
+- **Interfaz en español**: textos visibles, mensajes y validaciones, siempre envueltos en
+  `__($grupo, 'Texto en español')`. El segundo argumento es a la vez clave y valor por
+  defecto.
+- **Comentarios y docblocks en español**, que es lo que hay en todo el código.
+- Los mensajes de commit, en español.
+
+## Reglas que sostienen el framework
+
+Estas no son preferencias de estilo: saltárselas rompe el sistema de permisos, el
+enrutado o las traducciones, y el fallo casi nunca es evidente.
+
+1. **Las rutas se registran solo con `PiecesPHP\Core\Route` y `RouteGroup`**, nunca con
+   la API de Slim directamente. La capa propia es de donde el framework deriva los
+   permisos; una ruta registrada a mano queda fuera del control de acceso.
+
+2. **El nombre de la ruta *es* el permiso.** No hay tabla de permisos aparte: `Roles`
+   autoriza por nombre de ruta. Añadir una ruta obliga a decidir qué roles la usan, en
+   `config/roles.php` o en el 7.º parámetro de `Route`.
+
+3. **Las URLs se generan con `Controller::routeName('sufijo', $params)` o
+   `get_route()`**, jamás concatenando cadenas. `routeName()` devuelve cadena vacía si el
+   usuario no tiene permiso, y de ahí sale `allowedRoute()`, que es lo que decide la
+   visibilidad de menús y botones. Una URL escrita a mano se salta esa comprobación.
+
+4. **Todo método de ruta devuelve un `Response`.** Si no, el error aparece con el
+   contexto `MissingResponseInController` y cuesta rastrearlo.
+
+5. **Los textos visibles pasan por `__()`** con un grupo de idioma. Un literal suelto no
+   se traduce y no aparece en `scan-missing-lang`, así que nadie se entera hasta que un
+   usuario ve español en una interfaz en francés.
+
+6. **Los assets se cargan con los helpers** (`add_global_asset`, `set_custom_assets`,
+   `import_*`), no con `<script src>` en la vista: el sistema de cache-busting y el orden
+   de dependencias dependen de ellos.
+
+7. **El SQL de las tablas se genera, no se escribe.** Define `$fields` en el mapper y
+   saca el DDL con `SchemeCreator`; el bloque `$showSQL` de cada `<Modulo>Routes` está
+   ahí para eso. Escribir el `CREATE TABLE` a mano desincroniza el mapper y la tabla.
+
+8. **Los módulos se activan con una constante** en `config/constants.php`, leída como
+   `const ENABLE = X_MODULE;` en su clase `Routes`. Un módulo sin bandera no se puede
+   apagar y arrastra a los demás.
+
+9. **`src/vendor/` y los paquetes `piecesphp/*` no se editan aquí**: viven en repos
+   aparte. Un parche local se pierde en el siguiente `composer install`.
+
+10. **En `Statics/` se edita el `.scss`, nunca el `.css`** generado — está en `.gitignore`
+    y lo reescribe Gulp.
+
+## Anatomía de un módulo
+
+```
+src/app/classes/<Modulo>/
+├── <Modulo>Routes.php     Punto de entrada: rutas, estáticos, lang, menú
+├── <Modulo>Lang.php       Inyector de traducciones (extiende PiecesPHP\LangInjector)
+├── Controllers/           <Entidad>Controller.php (+ HelperController)
+├── Mappers/               <Entidad>Mapper.php  (extiende EntityMapperExtensible)
+├── Views/<entidad>/       list.php, forms/{add,edit}.php, public/…
+├── Statics/{sass,css,js}/ Un JS por vista: list.js, add-form.js, edit-form.js…
+├── Exceptions/            SafeException, DuplicateException
+└── lang/                  es.php, en.php, fr.php… (+ lang-public/ si hay zona pública)
+```
+
+Nomenclatura: módulo en `PascalCase`; grupo de idioma y nombre base de ruta en
+`kebab-case` (`news-lang`, `news-admin`); propiedades de BD en `camelCase`; archivos JS
+en `kebab-case`.
+
+Sufijos de ruta estándar: `-list`, `-forms-add`, `-forms-edit`, `-datatables`,
+`-ajax-all`, `-actions-add`, `-actions-edit`, `-actions-delete`.
+
+### Sobre `routeName()` y `allowedRoute()`
+
+Están duplicadas en 44 controladores y **eso es deliberado**, no un descuido: no todos
+los controladores comparten padre (los de zona pública extienden `BaseController`, no
+`AdminPanelController`) y usan `self::$baseRouteName`, que en una clase padre resolvería
+a la propiedad equivocada. Al crear un controlador, cópialas de uno existente. La
+variación real está en el hook privado `_allowedRoute()`, donde van las reglas de negocio
+extra. No propongas moverlas a una clase base; si algún día se unifican, el vehículo es
+un trait.
+
+## Cómo abordar las tareas más comunes
+
+**Módulo nuevo.** Si se parece a `Publications`, clonarlo y renombrar sale más rápido que
+partir de cero: sigue `15-plantilla-clonar-publications.md`, que trae los barridos de
+búsqueda y reemplazo ya verificados. Si es muy distinto, usa el esqueleto de
+`13-recetas.md`. En ambos casos el módulo no existe hasta que se registra: constante en
+`constants.php`, llamada en `routes.php`, roles en `routes()`, entrada de sidebar en
+`init()`, tabla generada y `gulp sass-modules`.
+
+**Ruta nueva en un módulo existente.** Añádela en el bloque del método HTTP que
+corresponda dentro de `XController::routes()`, con el array de roles apropiado
+(`$list`, `$creation`, `$edition`, `$deletion`, `$queries`), implementa el método
+devolviendo `Response`, y crea la vista y su JS si aplica.
+
+**Cronjob, cola, listener o acción CLI.** No toques el núcleo: se registran en
+`src/app/config/final-configurations-includes/` (`cronjobs.php`, `queues.php`,
+`event-listeners.php`, `cli-actions.php`). Son los puntos de extensión previstos.
+
+**Consulta o listado.** `Mapper::model()->select()->where(...)->execute()->result()`.
+Para listados del panel, el endpoint `-datatables` con `DataTablesHelper`.
+
+## Versión de PHP
+
+El proyecto declara `php: >=8.1 <8.5`. **Escribe al nivel del piso vigente**, no del
+techo: nada de sintaxis de 8.2+ mientras el piso siga en 8.1. Hay un plan para subirlo en
+`16-plan-php85.md`; si el `composer.json` ya cambió, ese es el piso real.
+
+## Antes de dar algo por terminado
+
+- `bin/phpstan` y comparar contra `PHPStanResult.Summary.txt`. No lo dejes peor que como
+  estaba.
+- Comprobar que la ruta nueva aparece solo para los roles previstos: `routeName()` debe
+  devolver URL para ellos y cadena vacía para el resto.
+- Si hay textos nuevos: `bin/cli scan-missing-lang` para ver qué traducciones faltan.
+- Si tocaste SCSS: `cd src && gulp sass-modules`.
+- Añadir la entrada correspondiente en `CHANGELOG.md`, con el formato que ya usa.
+
+## Cuándo parar y preguntar
+
+Si las reglas de negocio del encargo son ambiguas, detente y pide aclaraciones antes de
+escribir código. En este proyecto es especialmente barato preguntar y caro adivinar: los
+permisos por rol, los tipos de usuario y los estados de aprobación tienen matices que no
+se deducen del código y que, mal supuestos, producen fugas de visibilidad difíciles de
+detectar en pruebas.
+
+Pregunta también antes de: borrar un módulo o una tabla, cambiar la firma de algo del
+núcleo (`BaseController`, `BaseEntityMapper`, `Roles`, `ServerStatics`), tocar
+`app_key` o la fecha mínima de `SessionToken` (invalidan todas las sesiones), y modificar
+los paquetes `piecesphp/*`.
