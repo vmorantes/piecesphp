@@ -64,6 +64,56 @@ entre `BlobStorageAzureAdapter` y `BlobStorageFileAzurePackage`.
 El sondeo contra 8.5 es lo más valioso de esta fase: convierte el riesgo de la fase F en
 información de la fase A, y puede reordenar las fases D y E.
 
+#### Resultado del sondeo — 2026-08-20
+
+Y en efecto, las reordena. **El hallazgo que manda sobre todo lo demás no es una
+deprecación concreta, sino cómo las trata el framework.**
+
+##### Toda deprecación es fatal
+
+[`bootstrap.php:108-133`](../../src/app/core/bootstrap.php) mete `E_DEPRECATED` en la
+tabla de niveles y luego hace `$stopExcutionErrors = array_keys(...)`, así que **cada
+deprecación se promueve a `ErrorException` y se lanza**. No es un aviso ignorable:
+mata la petición.
+
+El primer sondeo (`php8.5 index.php cli help`) murió en la **primera** deprecación que
+encontró —`Config.php:712`, `ReflectionProperty::setAccessible()`— dentro de
+`set_config`, antes de registrar una sola ruta. Para obtener el inventario hubo que
+degradar temporalmente esa promoción.
+
+Agravante: la deprecación de cast no canónico se emite **en tiempo de compilación**, al
+cargar el archivo, sin ejecutar la función que lo contiene. Comprobado. Es decir, bajo
+8.5 **autocargar cualquiera de los 9 archivos con `(double)` mata la petición**.
+
+**Consecuencia para el plan**: la fase D deja de ser «limpieza mecánica» y pasa a ser
+**bloqueante duro**. No se puede validar nada en 8.5 —fase F— hasta que esté hecha.
+
+##### Inventario (11 sitios, 49 ocurrencias, solo con `cli --local help`)
+
+| Dónde | Qué | Fase |
+| :-- | :-- | :-- |
+| `Config.php:712` | `ReflectionProperty::setAccessible()` | D |
+| 8 controladores (ver lint) | Cast no canónico `(double)` | D |
+| `piecesphp/database` `EntityMapper.php:1406` | `DateTime::__construct()`: null a `$datetime` | **B** |
+| `piecesphp/database` `SchemeCreator.php:88` | `setAccessible()` | **B** |
+
+`EntityMapper.php:1406` **no estaba en el diagnóstico** de
+[16](./16-plan-php85.md): son 3 puntos en `database`, no 2. Va al camino crítico.
+
+##### Lint de los 778 archivos propios
+
+`php8.5 -l` **con `-d error_reporting=E_ALL -d display_errors=1`** — sin esos flags
+descarta las deprecaciones en silencio y da un falso «limpio»:
+
+- **Cero errores de sintaxis.** El código propio parsea bien en 8.5.
+- **10 deprecaciones de compilación**: los 9 `(double)` —incluido
+  `Sitemap/Sitemap.php:80`, que el sondeo en runtime no ve porque nunca se carga— y
+  `$http_response_header` en `Http/HttpClient.php:186`.
+
+El lint cubre los 778 archivos; el sondeo solo los que se ejecutan. **Son
+complementarios, no redundantes**: el sondeo aporta las deprecaciones de runtime
+(`setAccessible`, `DateTime`), que el lint no puede ver.
+
 ### Fase B — `piecesphp/database` v3.1.0
 
 | | |

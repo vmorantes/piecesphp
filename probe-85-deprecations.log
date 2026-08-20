@@ -1,0 +1,49 @@
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/controller/AppConfigController.php:1993	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/core/Config.php:712	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/classes/Organizations/Controllers/OrganizationsController.php:481	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/app/classes/Organizations/Controllers/OrganizationsController.php:492	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/controller/TimerController.php:52	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php:197	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/classes/MySpace/Controllers/MyProfileController.php:232	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/app/classes/MySpace/Controllers/MyProfileController.php:243	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php:473	Non-canonical cast (double) is deprecated, use the (float) cast instead
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88	Method ReflectionProperty::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated
+src/vendor/piecesphp/database/src/Core/Database/EntityMapper.php:1406	DateTime::__construct(): Passing null to parameter #1 ($datetime) of type string is deprecated

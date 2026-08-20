@@ -1,0 +1,11 @@
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/controller/TimerController.php on line 52
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/controller/AppConfigController.php on line 1993
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/classes/Organizations/Controllers/OrganizationsController.php on line 481
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/classes/Organizations/Controllers/OrganizationsController.php on line 492
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php on line 197
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/classes/MySpace/Controllers/MyProfileController.php on line 232
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/classes/MySpace/Controllers/MyProfileController.php on line 243
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php on line 473
+Deprecated: Non-canonical cast (double) is deprecated, use the (float) cast instead in src/app/core/psr4/PiecesPHP/Core/Sitemap/Sitemap.php on line 80
+Deprecated: The predefined locally scoped $http_response_header variable is deprecated, call http_get_last_response_headers() instead in src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php on line 186
+Deprecated: The predefined locally scoped $http_response_header variable is deprecated, call http_get_last_response_headers() instead in src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php on line 186

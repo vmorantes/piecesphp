@@ -1,0 +1,62 @@
+*** Tareas disponibles ***
+Tarea: bundle
+  Descripción: Empaqueta la aplicación.
+	Parámetros:
+	  app (yes|no) solo carpeta app. Por defecto: no
+	  statics (yes|no) solo carpeta statics (sin filemanager, uploads ni plugins). Por defecto: no
+	  all (yes|no) app y statics. Por defecto: no
+	  zip (yes|no) define si solo copia los archivos o los comprime como zip. Por defecto: no
+Tarea: clean-all
+  Descripción: Limpia: caché, logs...
+	Parámetros:
+	  N/A
+Tarea: clean-cache
+  Descripción: Fuerza la limpieza de caché de estáticos mediante la renovación del token.
+	Parámetros:
+	  N/A
+
+Tarea: clean-logs
+  Descripción: Limpia los archivos de logs.
+	Parámetros:
+	  N/A
+Tarea: db-backup
+  Descripción: Respalda la base de datos por defecto.
+	Parámetros:
+	  gz (yes|no) define si se comprime o no. Por defecto: yes
+	  data (yes|no) incluir datos de las tablas. Por defecto: yes
+	  routines (yes|no) incluir funciones y procedimientos. Por defecto: yes
+	  views (yes|no) incluir vistas. Por defecto: yes
+	  definer (yes|no) incluir DEFINER en los objetos. Por defecto: no
+
+Tarea: fix-webm-duration
+  Descripción: Corrige iterativamente el tiempo de duración en metadatos de archivos guardados en formato WebM.
+	Parámetros soportados (mediante variables GET):
+	  --updir=<directorio>		Directorio padre donde buscar 
+	  --glob=<pattern>		Patrón de búsqueda (default **/*.webm)
+	  --absolute			Trata updir como ruta absoluta del sistema
+	  --bkext=<ext>			Extensión para el respaldo (default .bk.webm)
+	  --fixext=<ext>		Extensión de archivo reparado (default .fix.webm)
+	  --restorebk			Restaura todos los archivos de respaldo
+	  --preserveall			Mantiene archivos intermedios listos
+	  --preservefix			Mantiene el archivo .fix.webm original 
+	  --force			Reprocesa los archivos
+
+Tarea: help
+  Descripción: 
+Tarea: process-queue
+  Descripción: Procesa las tareas pendientes en la cola (pcs_queue).
+	Parámetros:
+	  limit (opcional): Cantidad máxima de tareas a procesar.
+
+Tarea: run-cronjobs
+  Descripción: Ejecuta las tareas cronjobs en segundo plano sin límites de tiempo HTTP.
+	Parámetros:
+	  N/A
+
+Tarea: scan-missing-lang
+  Descripción: Revisa los mensajes faltantes por traducción y genera un archivo php con ellos.
+	Parámetros:
+	  --exclude-lang Cadena separada por comas de idiomas a ignorar, i.e.: --exclude-lang=es,en
+	  --exclude-group Cadena separada por comas de grupos a ignorar, i.e.: --exclude-group=general,public
+
+*** Tareas disponibles, tarea finalizada ***
