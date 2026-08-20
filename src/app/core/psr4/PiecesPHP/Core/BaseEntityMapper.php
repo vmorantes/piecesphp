@@ -156,7 +156,6 @@ class BaseEntityMapper extends EntityMapper
 
         $className = static::class;
         $reflection = new ReflectionMethod($className, $name);
-        $reflection->setAccessible(true);
         $result = $reflection->invokeArgs(null, $arguments);
 
         if ($name === 'fieldsToSelect') {

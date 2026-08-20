@@ -335,7 +335,6 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             if (property_exists($classname, 'baseRouteName')) {
                 $reflectionClass = new ReflectionClass($classname);
                 $reflectionProperty = $reflectionClass->getProperty('baseRouteName');
-                $reflectionProperty->setAccessible(true);
                 $prefix = $reflectionProperty->getValue();
             }
         } else {

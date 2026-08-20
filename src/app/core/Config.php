@@ -709,7 +709,6 @@ class Config
 
             $propertyToSet = $namesOnStatic[$name];
             $reflectedProperty = self::$reflectedClass->getProperty($propertyToSet);
-            $reflectedProperty->setAccessible(true);
             $reflectedProperty->setValue(null, $value);
 
             if ($name == 'app_lang') {
