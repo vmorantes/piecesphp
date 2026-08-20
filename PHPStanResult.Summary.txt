@@ -422,9 +422,9 @@ project://src/app/core/AppHelpers.php
 	🪪  offsetAccess.invalidOffset (Líneas: 2346)
 	🪪  offsetAccess.notFound (Líneas: 3105, 3106)
 project://src/app/core/Config.php
-	🪪  argument.type (Líneas: 814, 1091)
-	🪪  assign.propertyType (Líneas: 930)
-	🪪  return.type (Líneas: 1019, 1121, 1140, 1177)
+	🪪  argument.type (Líneas: 813, 1090)
+	🪪  assign.propertyType (Líneas: 929)
+	🪪  return.type (Líneas: 1018, 1120, 1139, 1176)
 project://src/app/core/Utilities.php
 	🪪  return.type (Líneas: 328, 591)
 	🪪  foreach.nonIterable (Líneas: 867)
@@ -493,7 +493,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	🪪  argument.type (Líneas: 234)
 	🪪  return.type (Líneas: 340)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
-	🪪  offsetAssign.dimType (Líneas: 274)
+	🪪  offsetAssign.dimType (Líneas: 279)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
 	🪪  method.nonObject (Líneas: 139)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Importer.php
@@ -620,8 +620,8 @@ project://src/app/view/usuarios/utils/user-card.php
 	🪪  property.nonObject (Líneas: 12)
 	🪪  argument.type (Líneas: 13)
 project://src/index.php
-	🪪  property.notFound (Líneas: 385)
-	🪪  method.nonObject (Líneas: 412, 414, 415)
-	🪪  argument.type (Líneas: 608, 627, 663, 675, 752, 763, 877, 888)
-	🪪  property.nonObject (Líneas: 635)
-	🪪  variable.undefined (Líneas: 903)
+	🪪  property.notFound (Líneas: 384)
+	🪪  method.nonObject (Líneas: 411, 413, 414)
+	🪪  argument.type (Líneas: 607, 626, 662, 674, 751, 762, 876, 887)
+	🪪  property.nonObject (Líneas: 634)
+	🪪  variable.undefined (Líneas: 902)

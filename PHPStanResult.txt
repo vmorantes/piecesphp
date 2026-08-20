@@ -1,9 +1,6 @@
 
 ================[PHPSTAN]================
 
-
-================[PHPSTAN]================
-
  ------ ---------------------------------------------------------------------- 
 project://src/app/classes/API/Adapters/MistralHandlerAdapter.php
  ------ ---------------------------------------------------------------------- 
@@ -2969,25 +2966,25 @@ project://src/app/core/AppHelpers.php
  ------ ----------------------------------------------------------------------- 
 project://src/app/core/Config.php
  ------ ----------------------------------------------------------------------- 
-  814    Parameter Nr.1 $category of function setlocale expects int,              
+  813    Parameter Nr.1 $category of function setlocale expects int,              
          int|string|null given.                                                 
          🪪  argument.type                                                      
-  930    Static property PiecesPHP\Core\Config::$appLang (string) does not      
+  929    Static property PiecesPHP\Core\Config::$appLang (string) does not      
          accept string|null.                                                    
          🪪  assign.propertyType                                                
-  1019   Method PiecesPHP\Core\Config::app_path() should return string but      
+  1018   Method PiecesPHP\Core\Config::app_path() should return string but      
          returns string|false.                                                  
          🪪  return.type                                                        
-  1091   Parameter Nr.1 $string of function mb_strlen expects string, bool        
+  1090   Parameter Nr.1 $string of function mb_strlen expects string, bool        
          given.                                                                 
          🪪  argument.type                                                      
-  1121   Method PiecesPHP\Core\Config::basepath() should return string but      
+  1120   Method PiecesPHP\Core\Config::basepath() should return string but      
          returns string|false.                                                  
          🪪  return.type                                                        
-  1140   Method PiecesPHP\Core\Config::app_basepath() should return string but  
+  1139   Method PiecesPHP\Core\Config::app_basepath() should return string but  
          returns string|false.                                                  
          🪪  return.type                                                        
-  1177   Method PiecesPHP\Core\Config::get_instance() should return             
+  1176   Method PiecesPHP\Core\Config::get_instance() should return             
          static(PiecesPHP\Core\Config) but returns PiecesPHP\Core\Config.       
          🪪  return.type                                                        
  ------ ----------------------------------------------------------------------- 
@@ -3570,7 +3567,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
  ------ -------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
  ------ -------------------------------------------------- 
-  274    Cannot assign new offset to list<string>|string.  
+  279    Cannot assign new offset to list<string>|string.  
          🪪  offsetAssign.dimType                          
  ------ -------------------------------------------------- 
 
@@ -4341,48 +4338,48 @@ project://src/app/view/usuarios/utils/user-card.php
  ------ ----------------------------------------------------------------------- 
 project://src/index.php
  ------ ----------------------------------------------------------------------- 
-  385    Access to an undefined property object::$iat.                          
+  384    Access to an undefined property object::$iat.                          
          🪪  property.notFound                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
          efined-property                                                        
-  412    Cannot call method setTimezone() on DateTime|false.                    
+  411    Cannot call method setTimezone() on DateTime|false.                    
          🪪  method.nonObject                                                   
-  414    Cannot call method setTimezone() on DateTime|false.                    
+  413    Cannot call method setTimezone() on DateTime|false.                    
          🪪  method.nonObject                                                   
-  415    Cannot call method modify() on DateTime|false.                         
+  414    Cannot call method modify() on DateTime|false.                         
          🪪  method.nonObject                                                   
-  608    Parameter Nr.2 $value of function setCookieByConfig expects              
+  607    Parameter Nr.2 $value of function setCookieByConfig expects              
          string|null, int<1, max> given.                                        
          🪪  argument.type                                                      
-  627    Parameter Nr.1 $element of static method                                 
+  626    Parameter Nr.1 $element of static method                                 
          Organizations\Mappers\OrganizationMapper::objectToMapper() expects     
          stdClass, object|null given.                                           
          🪪  argument.type                                                      
-  635    Cannot access property $id on App\Model\UsersModel|int.                
+  634    Cannot access property $id on App\Model\UsersModel|int.                
          🪪  property.nonObject                                                 
-  663    Parameter Nr.1 $name of function get_route_info expects string,          
+  662    Parameter Nr.1 $name of function get_route_info expects string,          
          string|null given.                                                     
          🪪  argument.type                                                      
-  675    Parameter Nr.2 $string of function remove_last_char_on expects string,   
+  674    Parameter Nr.2 $string of function remove_last_char_on expects string,   
          string|null given.                                                     
          🪪  argument.type                                                      
-  752    Parameter Nr.2 $response of static method                                
+  751    Parameter Nr.2 $response of static method                                
          SystemApprovals\SystemApprovalsMiddleware::handle() expects            
          PiecesPHP\Core\Routing\ResponseRoute,                                  
          Psr\Http\Message\ResponseInterface given.                              
          🪪  argument.type                                                      
-  763    Parameter Nr.1 $request_route of static method                           
+  762    Parameter Nr.1 $request_route of static method                           
          PiecesPHP\Core\Roles::hasPermissions() expects                         
          PiecesPHP\Core\Routing\RequestRoute|string, string|null given.         
          🪪  argument.type                                                      
-  877    Parameter Nr.1 $name of static method                                    
+  876    Parameter Nr.1 $name of static method                                    
          Terminal\Controllers\TerminalController::routeID() expects string,     
          PiecesPHP\TerminalData|string given.                                   
          🪪  argument.type                                                      
-  888    Parameter Nr.3 $subject of function str_replace expects array<string>|s  
+  887    Parameter Nr.3 $subject of function str_replace expects array<string>|s  
          tring, string|null given.                                              
          🪪  argument.type                                                      
-  903    Variable $actionName might not be defined.                             
+  902    Variable $actionName might not be defined.                             
          🪪  variable.undefined                                                 
  ------ ----------------------------------------------------------------------- 
 
