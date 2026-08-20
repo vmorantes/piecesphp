@@ -185,6 +185,67 @@ database            (independiente)
 geojson             (independiente)
 ```
 
+### Resultado real con piso 8.4 — 2026-08-20
+
+**Con el piso en 8.4, Symfony no sube a 7.4: sube a 8.1.** La simulación de abajo usaba
+`platform.php 8.3.0`; con 8.4 el resolvedor alcanza la rama 8.
+
+```
+maennchen/zipstream-php     3.1.1   -> 3.2.2
+phpoffice/phpspreadsheet    5.8.1   -> 5.9.0
+spatie/macroable            2.0.0   -> 2.1.0
+symfony/cache               v6.4.43 -> v8.1.4
+symfony/filesystem          v6.4.43 -> v8.1.2
+symfony/process             v6.4.41 -> v8.1.0
+symfony/var-exporter        v6.4.42 -> v8.1.4
+symfony/polyfill-deepclone          +  v1.40.0   (paquete nuevo)
+```
+
+Quien lo permite es `php-ffmpeg/php-ffmpeg` v1.4.0 (`^5.4 || ^6.0 || ^7.0 || ^8.0`).
+Los cuatro Symfony entran **solo como transitivos**: ningún archivo de `src/app` importa
+`Symfony\Component\*`.
+
+**Efecto colateral: el piso efectivo pasa a 8.4.1**, porque Symfony 8.1 exige `>=8.4.1`
+y `composer.json` declara `>=8.4`. `vendor/composer/platform_check.php` se genera con
+`PHP_VERSION_ID >= 80401`.
+
+#### Qué ejercita realmente cada paquete que subió
+
+| Paquete | Llega por | Se ejercita con |
+| :-- | :-- | :-- |
+| `phpspreadsheet` + `zipstream` | requisito directo | Exportación a Excel |
+| `symfony/filesystem` | `scssphp` | SASS compilado **en PHP** (`ServerStatics`) |
+| `symfony/cache`, `process`, `var-exporter` | `php-ffmpeg` | `FfmpegAudioAdapter` |
+| `spatie/macroable` | `spatie/url` | `get_route()` — cada petición |
+
+**`gulp sass-all` no sirve como humo de esto**: compila con Dart Sass, cadena JS, y no
+toca `scssphp` ni `symfony/filesystem`. Lo que sí queda cubierto es `spatie/macroable`,
+porque `spatie/url` entra en cada petición.
+
+#### El `platform_check` de Composer está neutralizado
+
+El `php` por defecto del PATH de la máquina de desarrollo es **8.1.34**, por debajo del
+piso. `bin/cli:4` invoca `php` a secas, así que el CLI corre en 8.1 — y **nadie avisa**.
+
+`vendor/composer/platform_check.php:26-29` avisa con `trigger_error(..., E_USER_ERROR)`,
+pero `E_USER_ERROR` **no está** en la tabla de `bootstrap.php:109-115`, así que el
+`set_error_handler` devuelve `true`, PHP lo da por manejado y la ejecución continúa.
+Tampoco imprime el aviso, porque `platform_check` solo lo escribe si `display_errors`
+está apagado y `bootstrap.php:107` lo enciende con `--local`.
+
+Comprobado: mismo PHP 8.1, mismo `vendor/` — `php -r 'require "src/vendor/autoload.php";'`
+da fatal; `./bin/cli help` completa sin una palabra.
+
+Es el espejo del hallazgo de la fase A: el mismo handler que convierte deprecaciones
+inofensivas en fatales convierte un fatal real en silencio.
+
+#### `composer.lock` no se versiona
+
+`.gitignore:11` excluye `**/composer.lock`. Las versiones resueltas no son reproducibles
+entre máquinas ni en despliegue: cada `composer install` puede dar un árbol distinto.
+Anotado aquí porque afecta a la validación en dos versiones de PHP — no se puede
+garantizar que la máquina de pruebas y la de despliegue tengan el mismo árbol.
+
 ### Subir el piso a 8.3 desbloquea Symfony 7
 
 Simulando la resolución con el piso en 8.3:
