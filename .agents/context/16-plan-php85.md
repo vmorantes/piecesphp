@@ -396,9 +396,18 @@ commit aparte, para poder atribuir cualquier regresión.
 
 ### Estado de las herramientas
 
-- **PHPStan** ^2.1, nivel 8, `phpVersion: 80400` (escalar). 1.026 errores en 192
-  archivos, dominados por `argument.type` (375), `property.nonObject` (259) y
-  `method.nonObject` (162) — típico de un ORM con `__get`/`__set`.
+- **PHPStan** ^2.2, nivel 8. **Actualizado el 2026-08-20 (fase A)**: `phpVersion` pasó de
+  escalar `80400` al rango `{min: 80400, max: 80500}`, y se añadió
+  `phpstan/phpstan-deprecation-rules` ^2.0, incluido a mano en `bin/phpstan.neon` porque
+  no hay `phpstan/extension-installer`.
+  **Línea base: 1.078 errores totales / 1.060 visibles en 192 archivos**
+  (`PHPStanResult.Summary.baseline.txt`), dominados por `argument.type` (369),
+  `property.nonObject` (261) y `method.nonObject` (168) — típico de un ORM con
+  `__get`/`__set`.
+  El «1.026» que citaba este documento no era una ejecución: era el
+  `PHPStanResult.Summary.txt` commiteado el 2026-04-06 (`68c52a68`). Los ~30 de
+  diferencia son cuatro meses de commits, no el cambio de piso. **PHPStan no lee el
+  `composer.json`**: subir el piso a 8.4 no altera su salida.
 - **Rector** ^2.3, **ya configurado exactamente para este escenario**:
   `phpVersion(PhpVersion::PHP_81)` como techo de emisión, `LevelSetList::UP_TO_PHP_85`
   para detección, y reglas explícitas para nullables implícitos, `get_class()` sin
@@ -520,11 +529,30 @@ no devuelve nada, y `composer audit` no reporta nada crítico.
    ```
 
    *Verificar la sintaxis contra la versión de PHPStan instalada antes de fijarla.*
-2. **Reactivar los `cast.*` de `ignoreErrors`.** Hoy están silenciados `cast.int`,
-   `cast.string`, `cast.bool`, `cast.array`, `cast.double` y `cast.float` — que es
-   justo la familia de los casts no canónicos deprecados en 8.5.
-3. Añadir `phpstan/phpstan-deprecation-rules` a `bin/tools`: hoy PHPStan no reporta
-   deprecaciones, que son el objeto de todo este trabajo.
+2. ~~**Reactivar los `cast.*` de `ignoreErrors`**, «que es justo la familia de los casts
+   no canónicos deprecados en 8.5».~~ **Refutado y hecho el 2026-08-20 (fase A).**
+   La premisa era falsa por partida doble:
+   - `cast.*` en PHPStan identifica **«Cannot cast X to Y»** —operandos inválidos, una
+     familia de seguridad de tipos—, no la sintaxis no canónica. Comprobado: con
+     `phpVersion.max: 80500` y las reglas de deprecación activas, `(double)`,
+     `(integer)`, `(boolean)` y `(binary)` producen **cero** salida.
+   - Los seis patrones **no casaban con ningún error**: PHPStan los reportaba como
+     `Ignored error pattern … was not matched`, y cada uno contaba como error. Se
+     retiraron; el total bajó de 1.084 a 1.078.
+
+   **Los 9 `(double)` de la tabla de diagnóstico hay que localizarlos con Rector o
+   `grep`, no con PHPStan.**
+3. ~~Añadir `phpstan/phpstan-deprecation-rules` a `bin/tools`.~~ **Hecho el 2026-08-20
+   (fase A)**: v2.0.5, incluido a mano en `bin/phpstan.neon` (no hay
+   `phpstan/extension-installer`). Encontró 4 deprecaciones reales, ninguna de ellas
+   en la tabla de diagnóstico de este documento:
+   - `Utilities.php:1681,1686,1694` — `strftime()`, deprecada desde **8.1**.
+     `Utilities.php` está en el `skip` de Rector, por eso nadie la había visto.
+   - `Terminal/Tasks/ScanMissingLangTask.php:377` — `PhpParser\NodeAbstract::getLine()`,
+     usar `getStartLine()`.
+
+   Ojo con la lectura: estas reglas detectan `@deprecated` de userland y vendor, **no**
+   las deprecaciones del motor. Las del motor siguen siendo trabajo de Rector y grep.
 4. Revisar el resto de `ignoreErrors` y documentar qué silencia cada línea y por qué.
 
 **Puerta**: PHPStan verde en el rango completo.

@@ -29,7 +29,11 @@ if (file_exists($resultPath)) {
     $lastFile = '';
     $prevLine = '';
     $prevLineWithNumber = '';
-    $regExpLineNumber = '/ :(\d{1,5}).*/';
+    // El formateador de tabla de PHPStan emite la línea como primera columna,
+    // con dos espacios de sangría y relleno a la derecha.
+    // Las continuaciones de un mensaje largo van sangradas con más espacios, así
+    // que exigir el dígito en la tercera posición las descarta sola.
+    $regExpLineNumber = '/^\s{2}(\d{1,6})\s+\S.*$/';
     foreach ($lines as $index => $line) {
         if (mb_strpos($line, 'project://') !== false) {
             $lines[$index] = str_replace(' ', '', $line);
@@ -151,7 +155,17 @@ if (file_exists($resultPath)) {
                 }
                 $copyContent[] = "//" . $error;
                 foreach ($lines as $line) {
-                    $copyContent[] = "/* Línea " . $line . ": */" . $originalContent[$line - 1];
+                    // No todo error trae línea: los de ámbito de archivo llegan sin
+                    // número. Sin esta guarda, `'' - 1` lanza un TypeError y aborta
+                    // la generación completa de Preview.
+                    if (!is_int($line) && !(is_string($line) && ctype_digit($line))) {
+                        continue;
+                    }
+                    $lineIndex = ((int) $line) - 1;
+                    if (!isset($originalContent[$lineIndex])) {
+                        continue;
+                    }
+                    $copyContent[] = "/* Línea " . $line . ": */" . $originalContent[$lineIndex];
                 }
             }
             $copyContent[] = '```';

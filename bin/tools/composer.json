@@ -9,8 +9,9 @@
     },
     "require": {
         "php": ">=8.4 <8.5",
+        "nikic/php-parser": "^5.5",
         "phpstan/phpstan": "^2.1",
-        "nikic/php-parser": "^5.5"
+        "phpstan/phpstan-deprecation-rules": "^2.0"
     },
     "require-dev": {
         "rector/rector": "^2.3"

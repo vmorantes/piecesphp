@@ -1,8 +1,15 @@
 includes:
     - phpstan.services.neon
+    # Sin phpstan/extension-installer, la regla se incluye a mano.
+    - tools/vendor/phpstan/phpstan-deprecation-rules/rules.neon
 parameters:
     level: 8
-    phpVersion: 80400 # PHP 8.4
+    # Rango completo soportado, no una sola versión: el código debe correr
+    # igual en el piso (8.4) y en el techo (8.5). Con un escalar, PHPStan
+    # analiza una sola y las deprecaciones de la otra pasan desapercibidas.
+    phpVersion:
+        min: 80400 # PHP 8.4 — piso declarado en src/composer.json
+        max: 80500 # PHP 8.5 — techo objetivo de la migración
     paths:
         - ../src/app
         - ../src/index.php
@@ -67,13 +74,13 @@ parameters:
         # Validaciones típicas de criterios en ORM
         - '#.*where in empty\(\) always exists.*#'
         - '#.*having in empty\(\) always exists.*#'
-        # Conversiones
-        - identifier: cast.int
-        - identifier: cast.string
-        - identifier: cast.bool
-        - identifier: cast.array
-        - identifier: cast.double
-        - identifier: cast.float
+        # Conversiones: los seis `cast.*` estuvieron silenciados aquí y se
+        # retiraron tras comprobar que no casaban con ningún error (PHPStan los
+        # reportaba como «Ignored error pattern … was not matched»).
+        # No se reintroducen: `cast.*` significa «Cannot cast X to Y» —operandos
+        # inválidos—, no la sintaxis no canónica `(double)`/`(integer)`/
+        # `(boolean)`/`(binary)` deprecada en PHP 8.5, que PHPStan no detecta.
+        # Esos casts se localizan con Rector o grep, no con este análisis.
 
         # Declaraciones en docblocks inconsistentes
         - identifier: varTag.variableNotFound 

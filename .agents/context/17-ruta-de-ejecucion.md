@@ -45,13 +45,21 @@ entre `BlobStorageAzureAdapter` y `BlobStorageFileAzurePackage`.
 
 ## Fases
 
-### Fase A — Piso 8.3 y sondeo de 8.5
+### Fase A — Piso 8.4 y sondeo de 8.5
+
+> **Piso decidido el 2026-08-20: 8.4**, no 8.3. Se controlan todos los despliegues, así
+> que la matriz baja a dos versiones y el margen llega a dic-2028. El techo sigue en
+> `<8.5` hasta que exista `piecesphp/database` v3.1.0 (fase C).
 
 | | |
 | :-- | :-- |
 | **Se prepara** | Diffs de `composer.json` para los 5 repos · script de arranque multiversión sobre los PHP ya instalados · checklist de humo |
 | **Se ejecuta** | **Primero: cargar el panel bajo `php8.5` y guardar la salida, aunque reviente** · aplicar diffs · `composer update` · probar exportación a Excel y `gulp sass-all` |
-| **Puerta** | La aplicación arranca en 8.3 · Symfony 6.4 → 7.4 aplicado · hay registro de cómo se comporta hoy bajo 8.5 |
+| **Puerta** | La aplicación arranca en 8.4 · Symfony 6.4 → 7.4 aplicado · hay registro de cómo se comporta hoy bajo 8.5 |
+
+> **Todo `composer` de este repo corre con `php8.4`.** El requisito raíz es `>=8.4 <8.5`
+> y Composer lo valida contra el binario que lo ejecuta: con `php8.5` se niega a
+> resolver. `php8.5` solo entra donde no hay Composer de por medio (sondeo y `php -l`).
 
 El sondeo contra 8.5 es lo más valioso de esta fase: convierte el riesgo de la fase F en
 información de la fase A, y puede reordenar las fases D y E.
@@ -88,8 +96,8 @@ Commits por familia, no un diff único: si algo rompe, se revierte solo esa fami
 
 | | |
 | :-- | :-- |
-| **Se prepara** | Barrido manual de los 100 KB que Rector tiene en `skip` · PHPStan con `phpVersion: {min, max}` · `cast.*` reactivados en `ignoreErrors` · `phpstan/phpstan-deprecation-rules` · `BlobStorageAzureAdapter` y `BlobStorageFileAzurePackage` reescritos sobre `azure-oss/storage-blob`, con `read()` como `getBlob` directo y la recursión de `blob()` corregida |
-| **Se ejecuta** | `composer require --dev` de la regla nueva en `bin/tools/` · `composer require azure-oss/storage-blob` y `composer remove microsoft/azure-storage-blob` · `bin/phpstan` · probar la lectura contra la cuenta real de Azure |
+| **Se prepara** | Barrido manual de los 100 KB que Rector tiene en `skip` · ~~PHPStan con `phpVersion: {min, max}`~~ **hecho en fase A** · ~~`cast.*` reactivados~~ **refutado, ver [16](./16-plan-php85.md)** · ~~`phpstan/phpstan-deprecation-rules`~~ **hecho en fase A** · `BlobStorageAzureAdapter` y `BlobStorageFileAzurePackage` reescritos sobre `azure-oss/storage-blob`, con `read()` como `getBlob` directo y la recursión de `blob()` corregida |
+| **Se ejecuta** | ~~`composer require --dev` de la regla nueva en `bin/tools/`~~ **hecho en fase A** · `composer require azure-oss/storage-blob` y `composer remove microsoft/azure-storage-blob` · `bin/phpstan` · probar la lectura contra la cuenta real de Azure |
 | **Puerta** | PHPStan verde en el rango completo con deprecaciones activadas · lectura de blob funcionando · cero paquetes abandonados en `composer audit` |
 
 Aquí aparecerán deprecaciones que hoy nadie ve, porque PHPStan no las reporta.
