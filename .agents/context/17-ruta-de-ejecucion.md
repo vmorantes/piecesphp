@@ -142,6 +142,62 @@ Camino crítico: hasta que exista, el framework no puede subir el techo.
 
 Commits por familia, no un diff único: si algo rompe, se revierte solo esa familia.
 
+#### Ejecutada el 2026-08-20 — 13 sitios, no 11
+
+El diagnóstico de [16](./16-plan-php85.md) contaba 2 `setAccessible`. Son **3**:
+`src/index.php:338` faltaba, dentro del closure que resuelve el prefijo de nombres de
+ruta. No apareció en el sondeo porque su `if (property_exists(...))` no se cumplió.
+
+| Familia | Sitios | Commit |
+| :-- | --: | :-- |
+| `(double)` → `(float)` | 9 en 7 archivos | `43a75317` |
+| Borrar `Reflection*::setAccessible()` | 3 | `631f096b` |
+| `$http_response_header` → `http_get_last_response_headers()` | 1 | `72cf4ae4` |
+
+Notas de ejecución:
+
+- **Las tres familias no se comportan igual.** Los casts se emiten en **compilación**
+  (basta autocargar el archivo); `setAccessible` y `$http_response_header` en **runtime**
+  (solo si el camino se ejecuta). Por eso el lint ve los primeros y no los segundos, y el
+  sondeo al revés.
+- `http_get_last_response_headers()` **no es un reemplazo idéntico**: devuelve `null` si
+  la petición no llegó a hacerse, donde la variable mágica simplemente no se creaba. Se
+  comprobó además que no arrastra estado entre peticiones, así que no hace falta
+  `http_clear_last_response_headers()`.
+- Validado con la suite integrada en el piso:
+  `php8.4 index.php cli --local unit-tests:core/http-client` → 5/5.
+
+#### Estado de la puerta
+
+| | Comprobación | Resultado |
+| :-- | :-- | :-- |
+| a | `grep -rnE '\((double\|integer\|boolean\|binary\|real)\)' src/app src/index.php` | ✅ vacío |
+| b | `php8.5 -d error_reporting=E_ALL -d display_errors=1 -l` × 778 archivos | ✅ vacío |
+| c | Sondeo en runtime con la promoción activa | ⛔ **bloqueada por la fase B** |
+
+**(c) no puede cerrarse todavía, y no por culpa del código propio.** Bajo 8.5 la
+aplicación muere en `vendor/piecesphp/database/src/Core/Database/SchemeCreator.php:88`,
+alcanzado desde `OrganizationsRoutes.php:50` → `routes.php:137` → `index.php:806`.
+
+Dato nuevo: **`SchemeCreator` se instancia durante el registro de rutas**, así que
+dispara en *toda* petición, no solo en operaciones de esquema. Ningún recorrido en 8.5
+es posible hasta que exista v3.1.0.
+
+Lo que sí demuestra la fase D: antes, el primer fallo en 8.5 estaba en código propio
+(`Config.php:712`); ahora está en `vendor`. La aguja salió de nuestro código.
+
+##### Inventario para la fase B — barrido de los 4 paquetes propios
+
+`datastructures`, `geojson` y `html` están **limpios**. Todo está en `database`, y son
+**4 sitios, no los 3** que contaba [16](./16-plan-php85.md):
+
+| Sitio | Familia | Cuándo dispara |
+| :-- | :-- | :-- |
+| `SchemeCreator.php:88` | `setAccessible` | runtime, en registro de rutas |
+| `ORM/Fields/DataProcess.php:205` | `(double)` | compilación, al autocargar |
+| `ORM/Fields/DataProcess.php:209` | `(double)` | compilación, al autocargar |
+| `EntityMapper.php:1406` | `DateTime` con `null` | runtime |
+
 ### Fase E — `AppHelpers`, `Utilities`, herramientas y Azure
 
 | | |
