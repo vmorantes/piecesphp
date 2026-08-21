@@ -2110,23 +2110,23 @@
         },
         {
             "name": "piecesphp/datastructures",
-            "version": "v3.0.0",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/datastructures.git",
-                "reference": "264eb2847560f21b3abb6cbb4521c004917210cb"
+                "reference": "badf7743518a99eb8591ea5c98100e356b26e60c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/datastructures/get/264eb2847560f21b3abb6cbb4521c004917210cb.zip",
-                "reference": "264eb2847560f21b3abb6cbb4521c004917210cb",
+                "url": "https://bitbucket.org/piecesphp/datastructures/get/badf7743518a99eb8591ea5c98100e356b26e60c.zip",
+                "reference": "badf7743518a99eb8591ea5c98100e356b26e60c",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.4.0 | ^8.1.0"
+                "php": ">=8.4 <9.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.4",
+                "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^10.0"
             },
             "type": "library",
@@ -2154,22 +2154,22 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/datastructures/src/264eb2847560f21b3abb6cbb4521c004917210cb/?at=v3.0.0"
+                "source": "https://bitbucket.org/piecesphp/datastructures/src/badf7743518a99eb8591ea5c98100e356b26e60c/?at=v3.1.0"
             },
-            "time": "2026-03-23T02:35:41+00:00"
+            "time": "2026-08-20T23:14:38+00:00"
         },
         {
             "name": "piecesphp/geojson",
-            "version": "v2.0.0",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/geojson.git",
-                "reference": "3ea1ed1b67e568ff330f00c0d9e6a3514be12de9"
+                "reference": "70b67280ab9edf5ab446fa1bccd921e43104696d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/geojson/get/3ea1ed1b67e568ff330f00c0d9e6a3514be12de9.zip",
-                "reference": "3ea1ed1b67e568ff330f00c0d9e6a3514be12de9",
+                "url": "https://bitbucket.org/piecesphp/geojson/get/70b67280ab9edf5ab446fa1bccd921e43104696d.zip",
+                "reference": "70b67280ab9edf5ab446fa1bccd921e43104696d",
                 "shasum": ""
             },
             "require": {
@@ -2178,7 +2178,7 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "ext-pcre": "*",
-                "php": "^8.4.0 | ^8.1.0"
+                "php": ">=8.4 <9.0"
             },
             "require-dev": {
                 "phpstan/phpstan": "^2.1"
@@ -2208,30 +2208,30 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/geojson/src/3ea1ed1b67e568ff330f00c0d9e6a3514be12de9/?at=v2.0.0"
+                "source": "https://bitbucket.org/piecesphp/geojson/src/70b67280ab9edf5ab446fa1bccd921e43104696d/?at=v2.1.0"
             },
-            "time": "2026-03-23T04:06:57+00:00"
+            "time": "2026-08-20T23:16:32+00:00"
         },
         {
             "name": "piecesphp/html",
-            "version": "v2.0.0",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/html.git",
-                "reference": "47f50a6eae441975b270b124c256a1b2411ae1b7"
+                "reference": "92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/html/get/47f50a6eae441975b270b124c256a1b2411ae1b7.zip",
-                "reference": "47f50a6eae441975b270b124c256a1b2411ae1b7",
+                "url": "https://bitbucket.org/piecesphp/html/get/92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a.zip",
+                "reference": "92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a",
                 "shasum": ""
             },
             "require": {
-                "php": "^8.4.0 | ^8.1.0",
-                "piecesphp/datastructures": "~3"
+                "php": ">=8.4 <9.0",
+                "piecesphp/datastructures": "^3.1"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.4",
+                "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^10.5"
             },
             "type": "library",
@@ -2258,9 +2258,9 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/html/src/47f50a6eae441975b270b124c256a1b2411ae1b7/?at=v2.0.0"
+                "source": "https://bitbucket.org/piecesphp/html/src/92aa1f5ff4d4baf1d2dba09fdee3e4df825a955a/?at=v2.1.0"
             },
-            "time": "2026-03-23T03:23:54+00:00"
+            "time": "2026-08-20T23:14:53+00:00"
         },
         {
             "name": "pragmarx/google2fa",
