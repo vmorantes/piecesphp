@@ -163,6 +163,12 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   pudiera notarlo**. Los eclipses aceptados se registran en `KNOWN_ECLIPSES` con su razón y
   la condición que los retira; una entrada cuyo eclipse desaparezca también hace fallar la
   tarea, porque una supresión que sobrevive a su motivo es una mentira que nadie relee.
+- **Suite nueva `bin/cli unit-tests:core/meta-property-hybrid`.** Prueba `MetaProperty`
+  **tal como se ejecuta en el framework**, que no es como lo prueba nadie: lo que corre
+  aquí es la copia del núcleo llamando a `EntityMapper::validateType()` del paquete, y esa
+  combinación no la cubre ninguno de los dos repositorios. El arreglo de la deprecación de
+  PHP 8.5 llegó a este código **de rebote**, por el único hilo que quedaba. Doce
+  comprobaciones, todas de solo lectura.
 
 # 7.1.0 (20-08-2026)
 

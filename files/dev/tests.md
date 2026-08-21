@@ -109,6 +109,43 @@ bin/cli unit-tests:core/mapper-finders
 ```bash
 bin/cli unit-tests:core/session-user
 ```
+- Separación de lectura y escritura en OTP
+    - **Dos comprobaciones son ESTRUCTURALES a propósito**: la versión de comportamiento
+      exigiría crear un usuario sin registros —escribir en una base ajena— y además no
+      fallaría, porque el relleno masivo que había en `routes()` tapaba el defecto.
+    - Se probaron:
+        - `getOTPData()` y `getTOTPData()` no contienen ninguna escritura
+        - `UserSystemFeaturesRoutes::routes()` no consulta ni escribe
+        - Un intento de credenciales fallido no cambia el conteo de filas (solo lectura)
+    - src/app/core/system-controllers/local-tests/UnitTest-OTPWriteSeparation.php
+```bash
+bin/cli unit-tests:core/otp-write-separation
+```
+- `MetaProperty` tal como se ejecuta AQUÍ (el híbrido)
+    - **Existe porque nadie prueba esta combinación.** `MetaProperty` está declarada dos
+      veces —núcleo y `piecesphp/database`— y PSR-4 hace ganar siempre a la del núcleo por
+      prefijo más largo. Lo que corre es `MetaProperty` del núcleo llamando a
+      `EntityMapper::validateType()` del paquete, y **ninguno de los dos repositorios prueba
+      eso**: la suite del paquete llama a `MetaProperty::validateType()`, un estático que en
+      la copia que corre aquí no existe.
+    - Se probaron:
+        - `MetaProperty` resuelve al archivo del núcleo y `EntityMapper` al del paquete
+        - Existen los métodos que `EntityMapperExtensible::addMetaProperty()` consume, y el
+          mensaje de error nombra el campo
+        - La ruta de fecha —por donde llegó **de rebote** el arreglo de PHP 8.5— acepta
+          `null` y guarda la cadena TAL CUAL, sin convertirla en `DateTime`
+        - `null` en un campo mapper anulable no instancia nada
+        - Nada de lo anterior emite una deprecación
+    - **Es de solo lectura**: el caso de tipo mapper usa `null` justamente porque es el
+      camino que no llega a tocar la base de datos.
+    - **Contraste comprobado**, no supuesto: cargando la copia del paquete en aislamiento,
+      `getInternalName()` no existe, `validateType()` sí, y una fecha vuelve como `DateTime`
+      en vez de como cadena. Cuatro de las doce comprobaciones cambian de resultado según
+      qué copia se cargue, que es exactamente lo que se quería fijar.
+    - src/app/core/system-controllers/local-tests/UnitTest-MetaPropertyHybrid.php
+```bash
+bin/cli unit-tests:core/meta-property-hybrid
+```
 - Pruebas variadas sobre funciones
     - src/app/core/system-controllers/local-tests/UnitTest-Functions.php
 ```bash
