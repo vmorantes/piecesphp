@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c3f4521dce59c110ed4c5923ee66251",
+    "content-hash": "469bdb124b7f7f60a8b1d333ec93e86d",
     "packages": [
         {
             "name": "aminyazdanpanah/php-ffmpeg-video-streaming",
@@ -2044,16 +2044,16 @@
         },
         {
             "name": "piecesphp/database",
-            "version": "v3.0.4",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://bitbucket.org/piecesphp/database.git",
-                "reference": "67dad545558e603393a30dff983cfa49c56a7fdb"
+                "reference": "ac6c5245b4e622cf039ad20ccbe11b500c79807a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/piecesphp/database/get/67dad545558e603393a30dff983cfa49c56a7fdb.zip",
-                "reference": "67dad545558e603393a30dff983cfa49c56a7fdb",
+                "url": "https://bitbucket.org/piecesphp/database/get/ac6c5245b4e622cf039ad20ccbe11b500c79807a.zip",
+                "reference": "ac6c5245b4e622cf039ad20ccbe11b500c79807a",
                 "shasum": ""
             },
             "require": {
@@ -2069,11 +2069,12 @@
                 "ext-pdo_sqlite": "*",
                 "ext-sqlite3": "*",
                 "ext-zip": "*",
-                "php": ">=8.1 <8.5"
+                "php": ">=8.4 <9.0"
             },
             "require-dev": {
                 "nikic/php-parser": "^5.5",
                 "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
                 "phpunit/phpunit": "^10.5",
                 "rector/rector": "^2.3"
             },
@@ -2103,9 +2104,9 @@
             ],
             "support": {
                 "email": "sir.vamb@gmail.com",
-                "source": "https://bitbucket.org/piecesphp/database/src/67dad545558e603393a30dff983cfa49c56a7fdb/?at=v3.0.3"
+                "source": "https://bitbucket.org/piecesphp/database/src/ac6c5245b4e622cf039ad20ccbe11b500c79807a/?at=v3.1.0"
             },
-            "time": "2026-03-27T22:12:05+00:00"
+            "time": "2026-08-20T22:34:37+00:00"
         },
         {
             "name": "piecesphp/datastructures",
@@ -4465,7 +4466,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=8.4 <8.5",
+        "php": ">=8.4.1 <8.6",
         "ext-date": "*",
         "ext-openssl": "*",
         "ext-pcre": "*",
