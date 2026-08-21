@@ -126,7 +126,7 @@ class UsersController extends AdminPanelController
         $flash = get_flash_messages();
 
         $global_variables = $this->getGlobalVariables();
-        $global_variables['requested_uri'] = isset($flash['requested_uri']) ? $flash['requested_uri'] : '';
+        $global_variables['requested_uri'] = $flash['requested_uri'] ?? '';
         $this->setVariables($global_variables);
     }
 
@@ -808,7 +808,7 @@ class UsersController extends AdminPanelController
                 'w' => !is_null($resolutionWidth) ? (int) $resolutionWidth : null,
                 'h' => !is_null($resolutionHeight) ? (int) $resolutionHeight : null,
             ],
-            'userAgent' => !is_null($userAgent) ? base64_decode($userAgent) : (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : null),
+            'userAgent' => !is_null($userAgent) ? base64_decode($userAgent) : ($_SERVER['HTTP_USER_AGENT'] ?? null),
         ];
 
         $isExternalLogin = $request->getHeaderLine('isExternalLogin') === 'yes';
@@ -925,7 +925,7 @@ class UsersController extends AdminPanelController
                                     unset($userLoginData['meta']);
 
                                     foreach ($userLoginData as $k => $i) {
-                                        if (strpos($k, 'META:') !== false) {
+                                        if (str_contains($k, 'META:')) {
                                             unset($userLoginData[$k]);
                                             $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
                                         }

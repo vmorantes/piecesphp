@@ -233,7 +233,7 @@ class DataImportExportUtilityController extends AdminPanelController
                 $PrimerApellido = clean_string($element->PrimerApellido);
                 $SegundoApellido = ($validateString)($element->SegundoApellido, true) ? clean_string($element->SegundoApellido) : '';
                 $elementByID = (new UsersModel())->getByID($ID);
-                $username = $Usuario === null ? (function ($a, $b, $c, $d) {
+                $username = $Usuario ?? (function ($a, $b, $c, $d) {
 
                     $option1 = mb_strtolower(clean_string(str_replace(' ', '', clean_string($a . $c))));
                     $option2 = mb_strtolower(clean_string(str_replace(' ', '', clean_string($b . $c))));
@@ -271,7 +271,7 @@ class DataImportExportUtilityController extends AdminPanelController
 
                     return $result;
 
-                })($PrimerNombre, $SegundoNombre, $PrimerApellido, $SegundoApellido) : $Usuario;
+                })($PrimerNombre, $SegundoNombre, $PrimerApellido, $SegundoApellido);
 
                 if ($elementByID === null) {
 
@@ -280,9 +280,9 @@ class DataImportExportUtilityController extends AdminPanelController
                     if ($validations) {
 
                         $model = UsersModel::model();
-                        $password = $Contraseña !== null ? $Contraseña : rand(100000, 999999);
+                        $password = $Contraseña ?? rand(100000, 999999);
                         $passwordEncrypt = password_hash($password, PASSWORD_DEFAULT);
-                        $email = $Email !== null ? $Email : uniqid() . "@localhost";
+                        $email = $Email ?? uniqid() . "@localhost";
                         $type = UsersModel::TYPE_USER_GENERAL;
                         $meta = [];
 
@@ -429,7 +429,7 @@ class DataImportExportUtilityController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -447,13 +447,13 @@ class DataImportExportUtilityController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -486,7 +486,7 @@ class DataImportExportUtilityController extends AdminPanelController
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

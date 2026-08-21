@@ -219,9 +219,6 @@ class UserProblemsController extends UsersController
             //Se verifica que el tipo esté implementado
             if (in_array(trim($type), [self::TYPE_USER_FORGET, self::TYPE_USER_BLOCKED])) {
 
-                //Se selecciona un elemento que concuerde con el usuario
-                $usuario = null;
-
                 $usuario = $this->userMapper->getWhere([
                     'username' => [
                         '=' => $username,
@@ -254,7 +251,7 @@ class UserProblemsController extends UsersController
                     $logRequest->information = [
                         'code' => $problems->code,
                         'email_sended' => $json_response['send_mail'],
-                        'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+                        'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
                     ];
                     if ($type == self::TYPE_USER_FORGET) {
                         $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud por nombre de usuario olvidado.');
@@ -426,7 +423,7 @@ class UserProblemsController extends UsersController
             $name = $params['name'] . (isset($params['lastname']) ? ' ' . $params['lastname'] : '');
             $email = $params['email'];
             $message = $params['message'];
-            $extra = isset($params['extra']) ? $params['extra'] : null;
+            $extra = $params['extra'] ?? null;
 
             //Envío de ticket
             /**
@@ -453,7 +450,7 @@ class UserProblemsController extends UsersController
             $logRequest->message = $message;
             $logRequest->information = [
                 'email_sended' => $success,
-                'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             ];
             $logRequest->type = __(self::LANG_GROUP, 'Otros inconvenientes (osTicket).');
             $logRequest->save();
@@ -613,7 +610,7 @@ class UserProblemsController extends UsersController
 
         return [
             'success' => $success,
-            'instance' => isset($osTicket) ? $osTicket : null,
+            'instance' => $osTicket ?? null,
         ];
     }
 }

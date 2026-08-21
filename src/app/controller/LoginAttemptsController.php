@@ -275,7 +275,7 @@ class LoginAttemptsController extends AdminPanelController
 
         foreach ($data as $e) {
 
-            foreach ($columns as $key => $columnInfo) {
+            foreach ($columns as $columnInfo) {
 
                 if (key_exists('format', $columnInfo)) {
                     $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $columnInfo['format']($e), \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);

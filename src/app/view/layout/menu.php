@@ -58,7 +58,7 @@ if (PublicationsRoutes::ENABLE) {
 
     $categories = PublicationsCategoryController::_all()->elements();
 
-    foreach ($categories as $k => $i) {
+    foreach ($categories as $i) {
 
         $categoryMapper = PublicationCategoryMapper::objectToMapper($i);
 

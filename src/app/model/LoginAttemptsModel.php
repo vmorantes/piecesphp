@@ -116,7 +116,7 @@ class LoginAttemptsModel extends BaseEntityMapper
         $mapper->username_attempt = $username;
         $mapper->success = $success ? self::SUCCESS_ATTEMPT : self::FAIL_ATTEMPT;
         $mapper->message = $message;
-        $mapper->ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+        $mapper->ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
         try {
             $mapper->extra_data = $extraData;
         } catch (DatabaseClassesExceptions $e) {
@@ -151,7 +151,7 @@ class LoginAttemptsModel extends BaseEntityMapper
     public static function getAttempts(Request $request)
     {
         $currentUser = getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
         $havingString = null;
@@ -226,7 +226,7 @@ class LoginAttemptsModel extends BaseEntityMapper
     {
 
         $currentUser = getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
         $havingString = null;
@@ -312,7 +312,7 @@ class LoginAttemptsModel extends BaseEntityMapper
     public static function getNotLoggedUsers(Request $request)
     {
         $currentUser = getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $whereString = null;
         $havingString = null;
@@ -390,7 +390,7 @@ class LoginAttemptsModel extends BaseEntityMapper
     protected static function fieldsToSelect(?string $formatDate = null)
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
 
         $mapper = (new LoginAttemptsModel);
         $model = $mapper->getModel();
@@ -424,7 +424,7 @@ class LoginAttemptsModel extends BaseEntityMapper
     {
 
         $currentUser = getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $model = self::model();
         $table = self::TABLE;

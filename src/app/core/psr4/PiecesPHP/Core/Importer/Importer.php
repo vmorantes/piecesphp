@@ -131,7 +131,7 @@ class Importer
                 $hasInput = false; //bool[]
 
                 //Aplicar valores y verificar subcampos
-                foreach ($subFieldExpecteds as $parentName => $subFields) {
+                foreach ($subFieldExpecteds as $subFields) {
 
                     //Recorrer subcampos
                     foreach ($subFields as $subField) {

@@ -350,7 +350,7 @@ class ServerStatics
     {
         self::$extensionIndex = [];
 
-        foreach (self::DATA_TYPES as $code => $dataType) {
+        foreach (self::DATA_TYPES as $dataType) {
             foreach ($dataType['extensions'] as $extension) {
                 self::$extensionIndex[$extension] = $dataType;
             }
@@ -482,13 +482,8 @@ class ServerStatics
         }
 
         $extension = mb_strtolower(pathinfo($resource, PATHINFO_EXTENSION));
-
         // Verificar si la extensión está en la lista de delegación
-        if (!in_array($extension, self::DELEGATE_TO_WEB_SERVER['extensions'])) {
-            return false;
-        }
-
-        return true;
+        return in_array($extension, self::DELEGATE_TO_WEB_SERVER['extensions']);
     }
 
     /**
@@ -724,7 +719,7 @@ class ServerStatics
 
             if ($dataTypeConvertible !== null) {
 
-                $dataTypeConvertion = isset(self::DATA_TYPES[$dataTypeConvertible['convertTo']]) ? self::DATA_TYPES[$dataTypeConvertible['convertTo']] : null;
+                $dataTypeConvertion = self::DATA_TYPES[$dataTypeConvertible['convertTo']] ?? null;
 
                 if ($dataTypeConvertion !== null) {
                     $allowCaching = $dataTypeConvertion['caching'];
@@ -787,12 +782,12 @@ class ServerStatics
         $headers['Expires'] = $expiresGMT;
 
         //Verificar If-Modified-Since
-        if (is_string($ifModifiedSince) && strlen($ifModifiedSince) > 0) {
+        if (is_string($ifModifiedSince) && $ifModifiedSince !== '') {
             $status = self::checkIfModifiedSince($ifModifiedSince, $lastModification, $headers);
         }
 
         //Verificar If-None-Match
-        if (is_string($ifNoneMatch) && strlen($ifNoneMatch) > 0) {
+        if (is_string($ifNoneMatch) && $ifNoneMatch !== '') {
             $status = self::checkIfNoneMatch($ifNoneMatch, $eTag, $headers);
         }
 
@@ -825,7 +820,7 @@ class ServerStatics
                 ];
                 return 200;
             }
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return 200;
         }
     }
@@ -1026,7 +1021,7 @@ class ServerStatics
         }
 
         $acceptEncoding = $request->getHeaderLine('Accept-Encoding');
-        if (!is_string($acceptEncoding) || strlen($acceptEncoding) === 0) {
+        if (!is_string($acceptEncoding) || $acceptEncoding === '') {
             return ['headers' => $headers, 'fileData' => $fileData];
         }
 

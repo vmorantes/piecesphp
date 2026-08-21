@@ -120,7 +120,7 @@ class TimeOnPlatformModel extends BaseEntityMapper
     public static function getAllHoursOnPlatform()
     {
         $currentUser = getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization !== null ? $currentUser->organization : -1;
+        $currentOrganizationID = $currentUser->organization ?? -1;
 
         $model = (new TimeOnPlatformModel())->getModel();
         $tableUsers = UsersModel::TABLE;

@@ -18,7 +18,7 @@
     $researchAreas = is_array($mapper->interestResearhAreas) ? $mapper->interestResearhAreas : [];
     $researchAreas = !empty($researchAreas) ? implode(', ', array_map(fn($e) => $e->currentLangData('areaName'), $researchAreas)) : '-';
     $affiliatedInstitutions = $mapper->affiliatedInstitutions;
-    $affiliatedInstitutions = $affiliatedInstitutions !== null ? $affiliatedInstitutions : [];
+    $affiliatedInstitutions ??= [];
     /**
      * @var OrganizationPreviousExperiencesMapper[]
      */

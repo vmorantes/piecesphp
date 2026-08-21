@@ -201,7 +201,7 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
 
         //CORS para API
         if (defined('API_MODULE') && API_MODULE) {
-            $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*';
+            $origin = $_SERVER['HTTP_ORIGIN'] ?? '*';
             header('Access-Control-Allow-Origin: ' . $origin);
             header('Access-Control-Allow-Credentials: true');
             header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE, CONNECT');
@@ -213,7 +213,7 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
 
     //Manejo de errores lanzados por throw
     if ($exception instanceof \Error) {
-        $errorClass = get_class($exception);
+        $errorClass = $exception::class;
         $exception = new \ErrorException("({$errorClass}) " . $exception->getMessage(), $exception->getCode(), E_WARNING, $exception->getFile(), $exception->getLine(), $exception->getPrevious());
     }
 

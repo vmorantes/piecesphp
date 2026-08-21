@@ -284,7 +284,7 @@ class ImporterController extends AdminPanelController
             if ($this->isValidImporter($type)) {
 
                 $importer = $this->getImporter($type, []);
-                $importerClassname = get_class($importer);
+                $importerClassname = $importer::class;
                 $schema = $importer->getSchema();
                 $template = $schema->template();
                 $name = method_exists($importerClassname, 'templateTitle') ? call_user_func("{$importerClassname}::templateTitle") : __(self::LANG_GROUP, 'plantilla');
@@ -477,7 +477,7 @@ class ImporterController extends AdminPanelController
             foreach ($cell_iterator as $index_cell => $cell) {
 
                 $cellValue = $cell->getValue();
-                $cellValue = !is_null($cellValue) ? $cellValue : 'NULL';
+                $cellValue ??= 'NULL';
                 $cellValue = is_scalar($cellValue) ? (string) $cellValue : 'NULL';
 
                 if ($index_row == 1) {

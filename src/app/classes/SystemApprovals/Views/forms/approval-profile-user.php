@@ -23,7 +23,7 @@ $organizationMapper = $userPackage->organizationMapper;
 $researchAreas = is_array($profileMapper->interestResearhAreas) ? $profileMapper->interestResearhAreas : [];
 $researchAreas = !empty($researchAreas) ? implode(', ', array_map(fn($e) => $e->currentLangData('areaName'), $researchAreas)) : '-';
 $affiliatedInstitutions = $profileMapper->affiliatedInstitutions;
-$affiliatedInstitutions = $affiliatedInstitutions !== null ? $affiliatedInstitutions : [];
+$affiliatedInstitutions ??= [];
 /**
  * @var PreviousExperiencesMapper[]
  */

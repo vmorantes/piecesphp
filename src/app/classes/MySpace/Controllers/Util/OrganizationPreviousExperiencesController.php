@@ -60,7 +60,7 @@ class OrganizationPreviousExperiencesController extends AdminPanelController
 
         $currentUser = getLoggedFrameworkUser();
         $adminUser = $currentUser;
-        $organizationID = $adminUser->organization !== null ? $adminUser->organization : -1;
+        $organizationID = $adminUser->organization ?? -1;
         //Verificar si tiene privilegios superiores
         if (MyOrganizationProfileController::hasSuperPrivileges($currentUser)) {
             $organizationMapper = MyOrganizationProfileController::getOrganizationFromParams($args);

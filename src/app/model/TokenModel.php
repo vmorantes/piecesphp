@@ -189,7 +189,7 @@ class TokenModel extends BaseModel
      */
     public static function addJWTWithCode(array $data = [], ?string $code = null, int $duration = 60, string $type = TokenController::TOKEN_GENERIC_CONTROLLER)
     {
-        $code = !is_null($code) ? $code : generate_code(6, true);
+        $code ??= generate_code(6, true);
         $data['code'] = $code;
         $jwt = self::generateJWT($data, $duration);
         $addedTokenID = self::add($jwt, $type);

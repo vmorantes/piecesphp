@@ -47,7 +47,7 @@ class AvatarController extends BaseController
         $user_id = $request->getParsedBodyParam('user_id', null);
 
         $files_uploaded = $request->getUploadedFiles();
-        $image = isset($files_uploaded['image']) ? $files_uploaded['image'] : null;
+        $image = $files_uploaded['image'] ?? null;
 
         $json_response = [
             'success' => false,

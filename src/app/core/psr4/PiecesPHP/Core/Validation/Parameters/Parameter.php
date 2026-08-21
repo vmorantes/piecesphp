@@ -68,7 +68,7 @@ class Parameter implements \JsonSerializable
         if (self::$NOT_SETTED_VALUE === null) {
             self::$NOT_SETTED_VALUE = uniqid('NOT_SETTED_VALUE_', true);
         }
-        $this->name = !is_null($name) ? $name : uniqid();
+        $this->name = $name ?? uniqid();
         $this->default = $default;
         $this->validate = is_callable($validate) ? $validate : true;
         $this->optional = $optional;

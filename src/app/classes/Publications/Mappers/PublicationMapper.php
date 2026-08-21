@@ -520,7 +520,7 @@ class PublicationMapper extends EntityMapperExtensible
     public function save()
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
         if (self::existsByTitle($this->title, $categoryID, -1)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
         }
@@ -549,7 +549,7 @@ class PublicationMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
         if (self::existsByTitle($this->title, $categoryID, $this->id)) {
             throw new DuplicateException(__(self::LANG_GROUP, 'Ya existe la publicación.'));
         }
@@ -739,7 +739,7 @@ class PublicationMapper extends EntityMapperExtensible
     protected static function fieldsToSelect(?string $formatDate = null)
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new PublicationMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -875,7 +875,7 @@ class PublicationMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof PublicationMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('title') : $elementOrID->getLangData($lang, 'title'));
 
             $slug = "{$title}-{$uniqid}";
@@ -1165,7 +1165,7 @@ class PublicationMapper extends EntityMapperExtensible
     public static function existsByTitle(string $title, int $categoryID, ?int $ignoreID = null, bool $onlyActives = true)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
         $title = escapeString($title);

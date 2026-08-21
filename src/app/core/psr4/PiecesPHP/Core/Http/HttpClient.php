@@ -136,7 +136,7 @@ class HttpClient
         $headers_string = $this->headersArrayToString($this->requestHeaders);
 
         $contentTypeText = $this->parseNameHeader('Content-Type');
-        $contentType = isset($headers[$contentTypeText]) ? $headers[$contentTypeText] : self::DEFAULT_CONTENT_TYPE;
+        $contentType = $headers[$contentTypeText] ?? self::DEFAULT_CONTENT_TYPE;
 
         switch ($contentType) {
             case self::JSON_CONTENT_TYPE:
@@ -189,7 +189,7 @@ class HttpClient
         // arrastra las cabeceras de una petición anterior.
         $responseHeaders = http_get_last_response_headers();
         $this->response['headers'] = $this->parseReponseHeaders(is_array($responseHeaders) ? $responseHeaders : []);
-        $this->response['status'] = isset($this->response['headers']['response_code']) ? $this->response['headers']['response_code'] : null;
+        $this->response['status'] = $this->response['headers']['response_code'] ?? null;
         $this->response['body'] = $response;
 
         return $response;
@@ -451,7 +451,7 @@ class HttpClient
     protected function parseReponseHeaders(array $response_headers)
     {
         $head = [];
-        foreach ($response_headers as $k => $v) {
+        foreach ($response_headers as $v) {
             $t = explode(':', $v, 2);
             if (isset($t[1])) {
                 $head[trim($t[0])] = trim($t[1]);

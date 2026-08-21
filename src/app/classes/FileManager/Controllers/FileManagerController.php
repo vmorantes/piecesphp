@@ -269,7 +269,7 @@ class FileManagerController extends AdminPanelController
             }
 
             $withBasePath = isset($i['withBasePath']) ? $i['withBasePath'] === true : true;
-            $permissions = isset($i['permissions']) ? $i['permissions'] : null;
+            $permissions = $i['permissions'] ?? null;
 
             $i['path'] = $withBasePath ? basepath("{$base}/{$i['relativePath']}") : basepath("{$i['relativePath']}");
             $i['URL'] = $withBasePath ? baseurl("{$base}/{$i['relativePath']}") : baseurl("{$i['relativePath']}");
@@ -309,7 +309,7 @@ class FileManagerController extends AdminPanelController
             }
 
             $withBasePath = isset($i['withBasePath']) ? $i['withBasePath'] === true : true;
-            $permissions = isset($i['permissions']) ? $i['permissions'] : null;
+            $permissions = $i['permissions'] ?? null;
 
             $i['path'] = $withBasePath ? basepath("{$base}/{$i['relativePath']}") : basepath("{$i['relativePath']}");
             $i['tmbURL'] = $withBasePath ? baseurl("{$base}/{$i['relativePath']}/.tmb") : baseurl("{$i['relativePath']}/.tmb");
@@ -398,7 +398,7 @@ class FileManagerController extends AdminPanelController
     {
 
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
 
         if ($allow) {
 
@@ -420,7 +420,7 @@ class FileManagerController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

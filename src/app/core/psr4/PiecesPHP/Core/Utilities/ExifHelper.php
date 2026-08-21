@@ -42,7 +42,7 @@ class ExifHelper
         $value = null;
         $exifData = $this->exifData;
         $requiredKey = 'DateTimeOriginal';
-        $DateTimeOriginal = isset($exifData[$requiredKey]) ? $exifData[$requiredKey] : null;
+        $DateTimeOriginal = $exifData[$requiredKey] ?? null;
 
         if (!is_null($DateTimeOriginal)) {
 
@@ -71,7 +71,7 @@ class ExifHelper
         $value = null;
         $exifData = $this->exifData;
         $requiredKey = 'DateTimeDigitized';
-        $DateTimeDigitized = isset($exifData[$requiredKey]) ? $exifData[$requiredKey] : null;
+        $DateTimeDigitized = $exifData[$requiredKey] ?? null;
 
         if (!is_null($DateTimeDigitized)) {
 
@@ -127,7 +127,7 @@ class ExifHelper
     public function getGPSLongitude()
     {
         $result = null;
-        $value = isset($this->exifData['GPSLongitude']) ? $this->exifData['GPSLongitude'] : null;
+        $value = $this->exifData['GPSLongitude'] ?? null;
         $sign = $this->getGPSSign(self::GPS_TYPE_LONGITUDE);
         $number = $this->getGPSDataToNumber(self::GPS_TYPE_LONGITUDE);
 
@@ -144,7 +144,7 @@ class ExifHelper
     public function getGPSLatitude()
     {
         $result = null;
-        $value = isset($this->exifData['GPSLatitude']) ? $this->exifData['GPSLatitude'] : null;
+        $value = $this->exifData['GPSLatitude'] ?? null;
         $sign = $this->getGPSSign(self::GPS_TYPE_LATITUDE);
         $number = $this->getGPSDataToNumber(self::GPS_TYPE_LATITUDE);
 
@@ -171,14 +171,14 @@ class ExifHelper
         if ($type == self::GPS_TYPE_LONGITUDE || $type === null) {
 
             $type = 'GPSLongitudeRef';
-            $value = isset($this->exifData[$type]) ? $this->exifData[$type] : null;
+            $value = $this->exifData[$type] ?? null;
             $positiveReference = 'E';
             $negativeReference = 'W';
 
         } elseif ($type == self::GPS_TYPE_LATITUDE) {
 
             $type = 'GPSLatitudeRef';
-            $value = isset($this->exifData[$type]) ? $this->exifData[$type] : null;
+            $value = $this->exifData[$type] ?? null;
             $positiveReference = 'N';
             $negativeReference = 'S';
 
@@ -225,7 +225,7 @@ class ExifHelper
             $type = 'GPSLatitude';
         }
 
-        $value = isset($this->exifData[$type]) ? $this->exifData[$type] : null;
+        $value = $this->exifData[$type] ?? null;
 
         if ($value !== null) {
 

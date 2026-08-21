@@ -351,7 +351,7 @@ class RouteAdapter
 
         $route_info = get_route_info($this->name);
 
-        $router = $router === null ? static::$router : $router;
+        $router ??= static::$router;
 
         if ($route_info === null) {
             register_route($this->toArray(), $router);
@@ -411,14 +411,14 @@ class RouteAdapter
         $routeSegment = $route['route'];
         $controller = $route['controller'];
         $method = $route['method'];
-        $name = isset($route['name']) ? $route['name'] : null;
-        $alias = isset($route['route_alias']) ? $route['route_alias'] : null;
+        $name = $route['name'] ?? null;
+        $alias = $route['route_alias'] ?? null;
         $requireLogin = isset($route['require_login']) ? $route['require_login'] === true : false;
-        $rolesAllowed = isset($route['roles_allowed']) ? $route['roles_allowed'] : [];
+        $rolesAllowed = $route['roles_allowed'] ?? [];
         $rolesAllowed = is_array($rolesAllowed) ? $rolesAllowed : [$rolesAllowed];
-        $parameters = isset($route['parameters']) ? $route['parameters'] : [];
+        $parameters = $route['parameters'] ?? [];
         $parameters = is_array($parameters) ? $parameters : [$parameters];
-        $middlewares = isset($route['middlewares']) ? $route['middlewares'] : [];
+        $middlewares = $route['middlewares'] ?? [];
         $middlewares = is_array($middlewares) ? $middlewares : [$middlewares];
 
         $instance = new RouteAdapter($routeSegment, $controller);

@@ -344,7 +344,7 @@ class UserSystemFeaturesController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -362,13 +362,13 @@ class UserSystemFeaturesController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -397,11 +397,11 @@ class UserSystemFeaturesController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

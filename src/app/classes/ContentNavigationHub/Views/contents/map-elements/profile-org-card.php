@@ -15,7 +15,7 @@ $location = [
 $location = array_filter($location, fn($e) => $e !== null);
 $location = !empty($location) ? trim(implode(', ', $location)) : '';
 $activitySector = $mapper->currentLangData('activitySector');
-$activitySector = $activitySector !== null ? $activitySector : '';
+$activitySector ??= '';
 ?>
 <div class='custom-card profile-org'>
     <div class="avatar">

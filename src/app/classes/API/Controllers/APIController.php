@@ -721,7 +721,7 @@ class APIController extends AdminPanelController
 
                         //Actualizar el uso de tokens
                         $currentUsageData = (array) GenericContentPseudoMapper::getContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED);
-                        $currentUsageData[$translationAI] = $currentUsageData[$translationAI] + $tokensUsed;
+                        $currentUsageData[$translationAI] += $tokensUsed;
                         GenericContentPseudoMapper::setContentData(GenericContentPseudoMapper::CONTENT_TOKENS_USED, $currentUsageData);
 
                         if ($translation !== null) {
@@ -1036,7 +1036,7 @@ class APIController extends AdminPanelController
             ];
             foreach ($equivalences as $targetName => $configEquivalence) {
                 $fromName = $configEquivalence['from'];
-                $fromValue = array_key_exists($fromName, $parsedBody) ? $parsedBody[$fromName] : null;
+                $fromValue = $parsedBody[$fromName] ?? null;
                 if ($fromValue !== null) {
                     $fromValueParsed = $configEquivalence['parse']($fromValue);
                     if ($fromValueParsed !== null) {
@@ -1047,8 +1047,8 @@ class APIController extends AdminPanelController
                     }
                 }
             }
-            $organizationID = array_key_exists('organizationID', $parsedBody) ? $parsedBody['organizationID'] : null;
-            $organizationName = array_key_exists('organizationName', $parsedBody) ? $parsedBody['organizationName'] : null;
+            $organizationID = $parsedBody['organizationID'] ?? null;
+            $organizationName = $parsedBody['organizationName'] ?? null;
             $organizationCreatedID = null;
             if ($organizationID == 'NONE') {
                 if (is_string($organizationName) && mb_strlen($organizationName) > 0) {
@@ -1338,7 +1338,7 @@ class APIController extends AdminPanelController
                         unset($userLoginData['meta']);
 
                         foreach ($userLoginData as $k => $i) {
-                            if (strpos($k, 'META:') !== false) {
+                            if (str_contains($k, 'META:')) {
                                 unset($userLoginData[$k]);
                                 $userLoginData['misc'][str_replace('META:', '', $k)] = $i;
                             }
@@ -1429,7 +1429,7 @@ class APIController extends AdminPanelController
                     $logRequest->information = [
                         'code' => $recoveryPassword->code,
                         'email_sended' => $json_response['send_mail'],
-                        'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+                        'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
                     ];
                     $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de restablecimiento de contraseña.');
                     $logRequest->save();
@@ -1587,7 +1587,7 @@ class APIController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -1605,13 +1605,13 @@ class APIController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1638,11 +1638,11 @@ class APIController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

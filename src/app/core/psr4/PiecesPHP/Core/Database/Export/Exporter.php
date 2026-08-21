@@ -158,7 +158,7 @@ class Exporter implements ExporterInterface
                 try {
                     // REPEATABLE READ para consistencia, READ ONLY para optimización (MySQL 5.6.5+)
                     $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY");
-                } catch (Exception $e) {
+                } catch (Exception) {
                     $this->db->exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ");
                 }
                 $this->db->beginTransaction();

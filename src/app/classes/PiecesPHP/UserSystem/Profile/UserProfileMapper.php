@@ -270,7 +270,7 @@ class UserProfileMapper extends EntityMapperExtensible
     public function save()
     {
         $belongsTo = is_object($this->belongsTo) ? $this->belongsTo->id : $this->belongsTo;
-        $belongsTo = $belongsTo !== null ? $belongsTo : -1;
+        $belongsTo ??= -1;
 
         if (!self::existsByUser($belongsTo, -1)) {
 
@@ -303,7 +303,7 @@ class UserProfileMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         $belongsTo = is_object($this->belongsTo) ? $this->belongsTo->id : $this->belongsTo;
-        $belongsTo = $belongsTo !== null ? $belongsTo : -1;
+        $belongsTo ??= -1;
         if (self::existsByUser($belongsTo)) {
             if (!$noDateUpdate) {
                 $currentUser = UserDataPackage::getConfigCurrentUser(); //Importante para no generar recursividad con UserDataPackage
@@ -478,7 +478,7 @@ class UserProfileMapper extends EntityMapperExtensible
     protected static function fieldsToSelect(?string $formatDate = null, string $locationSeparator = ' - ')
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new UserProfileMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -772,7 +772,7 @@ class UserProfileMapper extends EntityMapperExtensible
     public static function existsByUser(int $userID, ?int $ignoreID = null)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
         $where = [

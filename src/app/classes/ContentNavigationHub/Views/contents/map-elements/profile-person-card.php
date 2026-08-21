@@ -19,7 +19,7 @@ $location = [
 $location = array_filter($location, fn($e) => $e !== null);
 $location = !empty($location) ? trim(implode(', ', $location)) : '';
 $jobPosition = $mapper->currentLangData('jobPosition');
-$jobPosition = $jobPosition !== null ? $jobPosition : '';
+$jobPosition ??= '';
 ?>
 <div class='custom-card profile-user'>
     <div class="avatar">

@@ -223,7 +223,7 @@ class MailjetHandler
     public function addAtachment(string $contentType, string $filename, string $base64Content, ?string $uniqueID = null)
     {
 
-        $uniqueID = $uniqueID !== null ? $uniqueID : uniqid();
+        $uniqueID ??= uniqid();
 
         $attachment = [
             'ContentType' => $contentType,
@@ -258,7 +258,7 @@ class MailjetHandler
     public function addInlineAtachment(string $contentType, string $filename, string $base64Content, string $contentID, ?string $uniqueID = null)
     {
 
-        $uniqueID = $uniqueID !== null ? $uniqueID : uniqid();
+        $uniqueID ??= uniqid();
 
         $attachment = [
             'ContentType' => $contentType,

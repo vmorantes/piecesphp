@@ -318,8 +318,8 @@ class GenericContentController extends AdminPanelController
                 [],
                 function ($value) {
                     $valid = Validator::isArray($value, function ($key, $value) {
-                        $local = isset($value['keyLocal']) ? $value['keyLocal'] : null;
-                        $domain = isset($value['keyDomain']) ? $value['keyDomain'] : null;
+                        $local = $value['keyLocal'] ?? null;
+                        $domain = $value['keyDomain'] ?? null;
                         return Config::is_allowed_lang($key) && Validator::isString($local) && Validator::isString($domain);
                     });
                     return $valid;
@@ -548,7 +548,7 @@ class GenericContentController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -566,13 +566,13 @@ class GenericContentController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -618,7 +618,7 @@ class GenericContentController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {
@@ -713,11 +713,11 @@ class GenericContentController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

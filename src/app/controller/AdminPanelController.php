@@ -206,7 +206,7 @@ class AdminPanelController extends BaseController
             $logRequest->information = [
                 'subject' => $subject,
                 'email_sended' => $success,
-                'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             ];
             $logRequest->type = (string) __(self::ADMIN_LANG_GROUP, 'Ticket soporte dentro del panel administrativo (osTicket).');
             $logRequest->save();

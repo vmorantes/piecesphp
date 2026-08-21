@@ -34,7 +34,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $client->request('', 'GET', $params);
 
     $uri = $client->getRequestURI();
-    $hasParams = strpos($uri, 'search=test%40example.com') !== false && strpos($uri, 'limit=1') !== false;
+    $hasParams = str_contains($uri, 'search=test%40example.com') && str_contains($uri, 'limit=1');
     $gotStatus = $client->getResponseStatus() !== null;
 
     $checkResult($hasParams && $gotStatus, 'GET Params y Conectividad');
@@ -50,7 +50,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $sentBody = $client->getRequestBody();
     $isJson = @json_decode($sentBody) !== null;
-    $hasValues = strpos($sentBody, '"name":"Test Item"') !== false;
+    $hasValues = str_contains($sentBody, '"name":"Test Item"');
 
     $checkResult($isJson && $hasValues, 'Cuerpo POST codificado como JSON');
     echoTerminal('   Status: ' . $client->getResponseStatus());

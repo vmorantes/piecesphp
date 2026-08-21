@@ -340,7 +340,7 @@ class NewsMapper extends EntityMapperExtensible
     public function save()
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
 
         $this->createdAt = new \DateTime();
         $this->createdBy = getLoggedFrameworkUser() != null ? getLoggedFrameworkUser()->id : 1;
@@ -366,7 +366,7 @@ class NewsMapper extends EntityMapperExtensible
     public function update(bool $noDateUpdate = false)
     {
         $categoryID = is_object($this->category) ? $this->category->id : $this->category;
-        $categoryID = $categoryID !== null ? $categoryID : -1;
+        $categoryID ??= -1;
 
         if (!$noDateUpdate) {
             $this->modifiedBy = getLoggedFrameworkUser()->id;
@@ -553,7 +553,7 @@ class NewsMapper extends EntityMapperExtensible
     protected static function fieldsToSelect(?string $formatDate = null)
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new NewsMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -660,7 +660,7 @@ class NewsMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof NewsMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('newsTitle') : $elementOrID->getLangData($lang, 'newsTitle'));
 
             $slug = "{$title}-{$uniqid}";

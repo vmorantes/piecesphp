@@ -288,7 +288,7 @@ class ResultOperations implements \JsonSerializable
      */
     public function getValue(string $name)
     {
-        return isset($this->values[$name]) ? $this->values[$name] : null;
+        return $this->values[$name] ?? null;
     }
 
     /**

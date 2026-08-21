@@ -54,7 +54,7 @@ class SystemApprovalManager
                     //Escuchar eventos de cambios
                     BaseEventDispatcher::listen('updated', function ($payload) use ($class) {
                         $mapperName = $class::getMapperClass();
-                        if (get_class($payload) == $mapperName) {
+                        if ($payload::class == $mapperName) {
                             $contentTypeName = $class::getContentType($payload);
                             $referenceTable = $class::getReferenceTable();
                             $referenceColumn = $class::getReferenceColumn();

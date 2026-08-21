@@ -49,7 +49,7 @@ class TerminalController extends AdminPanelController
     public static function allowedRoute(string $name)
     {
         $route = self::routeName($name, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -63,7 +63,7 @@ class TerminalController extends AdminPanelController
     private static function _allowedRoute(string $name, string $route)
     {
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -85,7 +85,7 @@ class TerminalController extends AdminPanelController
     public static function routeName(?string $name = null, bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
         $name = self::routeID($name);
 
         $allowed = false;
@@ -121,7 +121,7 @@ class TerminalController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         return !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
@@ -179,7 +179,7 @@ class TerminalController extends AdminPanelController
                             'name' => str_replace(self::$baseRouteName . '-', '', $taskInstance->getName()),
                             'description' => $descriptionRoute,
                         ];
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable) {}
                 }
             }
 

@@ -144,7 +144,7 @@ $container_configurations = [
         $extraData = $request->getAttribute($extraDataKey, []);
         $extraData = is_array($extraData) ? $extraData : [];
 
-        $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
+        $url = $extraData['url'] ?? null;
         $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
 
         //Cabeceras CORS para peticiones desde otros orígenes (Solo en "modo API")
@@ -202,10 +202,10 @@ $container_configurations = [
             }
         }
 
-        $url = array_key_exists('url', $extraData) ? $extraData['url'] : null;
+        $url = $extraData['url'] ?? null;
         $url = is_string($url) && mb_strlen($url) > 0 ? $url : null;
-        $line = array_key_exists('line', $extraData) ? $extraData['line'] : null;
-        $file = array_key_exists('file', $extraData) ? $extraData['file'] : null;
+        $line = $extraData['line'] ?? null;
+        $file = $extraData['file'] ?? null;
 
         $requestTypeIsJSON = mb_strtolower($request->getHeaderLine('Accept')) == 'application/json';
 

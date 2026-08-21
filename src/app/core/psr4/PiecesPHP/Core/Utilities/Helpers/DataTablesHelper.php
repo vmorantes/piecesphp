@@ -392,7 +392,7 @@ class DataTablesHelper
 
                 //Verificar si cada elemento sera instanciado con su mapeador
                 if ($as_mapper) {
-                    $class_mapper = get_class($mapper);
+                    $class_mapper = $mapper::class;
                     $primary_key = $mapper->getPrimaryKey();
                     $element = new $class_mapper($element->$primary_key, $primary_key);
                 }
@@ -489,13 +489,13 @@ class DataTablesHelper
 
                 foreach ($order as $value) {
 
-                    $column_index = isset($value['column']) ? $value['column'] : null;
-                    $direction_ordering = isset($value['dir']) ? $value['dir'] : null;
+                    $column_index = $value['column'] ?? null;
+                    $direction_ordering = $value['dir'] ?? null;
 
                     if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
                         $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
-                        $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
+                        $column_name = $columns_order[$column_index] ?? null;
 
                         if (!is_null($column_name) && $column_name == self::INGNORE) {
 
@@ -872,7 +872,6 @@ class DataTablesHelper
              * Configuración de la consulta principal
              */
             if ($select_fields !== null) {
-                $select_fields = $select_fields;
             } else {
                 $select_fields = "$tableName.*";
             }
@@ -982,13 +981,13 @@ class DataTablesHelper
 
                 foreach ($order as $value) {
 
-                    $column_index = isset($value['column']) ? $value['column'] : null;
-                    $direction_ordering = isset($value['dir']) ? $value['dir'] : null;
+                    $column_index = $value['column'] ?? null;
+                    $direction_ordering = $value['dir'] ?? null;
 
                     if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
                         $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
-                        $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
+                        $column_name = $columns_order[$column_index] ?? null;
 
                         if (!is_null($column_name) && $column_name == self::INGNORE) {
 
@@ -1101,7 +1100,7 @@ class DataTablesHelper
 
             foreach ($columns_order as $index => $column_name) {
 
-                $column = isset($columns[$index]) ? $columns[$index] : null;
+                $column = $columns[$index] ?? null;
 
                 if (!is_null($column)) {
 
@@ -1207,13 +1206,13 @@ class DataTablesHelper
 
             foreach ($order as $value) {
 
-                $column_index = isset($value['column']) ? $value['column'] : null;
-                $direction_ordering = isset($value['dir']) ? $value['dir'] : null;
+                $column_index = $value['column'] ?? null;
+                $direction_ordering = $value['dir'] ?? null;
 
                 if (!is_null($columns_order) && !is_null($direction_ordering)) {
 
                     $direction_ordering = trim(mb_strtoupper($direction_ordering)) == 'ASC' ? 'ASC' : 'DESC';
-                    $column_name = isset($columns_order[$column_index]) ? $columns_order[$column_index] : null;
+                    $column_name = $columns_order[$column_index] ?? null;
 
                     if (!is_null($column_name)) {
                         $column_name = is_array($column_name) ? $column_name : [$column_name];
@@ -1237,7 +1236,7 @@ class DataTablesHelper
 
         foreach ($custom_order as $column => $direction) {
             $exists_order = false;
-            foreach ($order_by as $index => $order_item) {
+            foreach ($order_by as $order_item) {
                 if (mb_strpos($order_item, $column) !== false) {
                     $exists_order = true;
                     break;

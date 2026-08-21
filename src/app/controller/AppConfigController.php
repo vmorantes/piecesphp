@@ -210,7 +210,7 @@ class AppConfigController extends AdminPanelController
             $currentBackgroundConfigValues = $currentBackgroundConfigMapper->value;
 
             foreach ($currentBackgroundConfigValues as $i => $v) {
-                if (mb_strlen($nameImage) > 0 && strpos($v, $nameImage) !== false) {
+                if (mb_strlen($nameImage) > 0 && str_contains($v, $nameImage)) {
                     $currentBackgroundConfigValues[$i] = $relativePath;
                     $oldImage = $v != $relativePath ? $v : '';
                     break;
@@ -445,7 +445,7 @@ class AppConfigController extends AdminPanelController
 
                 foreach ($values as $name => $value) {
 
-                    if (strpos($name, self::SEO_OPTION_KEYWORDS_ON_FORM) !== false) {
+                    if (str_contains($name, self::SEO_OPTION_KEYWORDS_ON_FORM)) {
 
                         $keywordsToSelect = [];
 
@@ -1598,7 +1598,7 @@ class AppConfigController extends AdminPanelController
 
         $getAlternativesURLs = function ($url,  ? callable $existOnLangVerify = null) {
 
-            $existOnLangVerify = $existOnLangVerify !== null ? $existOnLangVerify : function ($lang) {
+            $existOnLangVerify ??= function ($lang) {
                 return true;
             };
             $currentLang = Config::get_lang();
@@ -1669,7 +1669,7 @@ class AppConfigController extends AdminPanelController
         foreach ($articles as $article) {
             $article = PublicationMapper::objectToMapper($article);
             $url = PublicationsPublicController::routeName('single', ['slug' => $article->getSlug()]);
-            $date = !is_null($article->updatedAt) ? $article->updatedAt : $article->createdAt;
+            $date = $article->updatedAt ?? $article->createdAt;
             $date = is_object($date) ? $date : new \DateTime($date);
             $sitemap->addItem(new SitemapItem($url, $date, SitemapItem::FREQ_WEEK));
             foreach ($article->getURLAlternatives() as $url) {
@@ -1871,7 +1871,7 @@ class AppConfigController extends AdminPanelController
 
                 foreach ($valuesOnLang as $name => $value) {
 
-                    if (strpos($name, self::SEO_OPTION_TITLE_APP_ON_FORM) !== false || strpos($name, self::SEO_OPTION_OWNER_ON_FORM) !== false) {
+                    if (str_contains($name, self::SEO_OPTION_TITLE_APP_ON_FORM) || str_contains($name, self::SEO_OPTION_OWNER_ON_FORM)) {
                         $value = htmlentities($value);
                     }
 
@@ -1947,7 +1947,7 @@ class AppConfigController extends AdminPanelController
      */
     public static function parseTo($value, ?string $to = null)
     {
-        $to = is_null($to) ? self::PARSE_TYPE_STRING : $to;
+        $to ??= self::PARSE_TYPE_STRING;
 
         switch ($to) {
 
@@ -2113,7 +2113,7 @@ class AppConfigController extends AdminPanelController
     {
 
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
 
         if ($allow) {
 
@@ -2135,7 +2135,7 @@ class AppConfigController extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

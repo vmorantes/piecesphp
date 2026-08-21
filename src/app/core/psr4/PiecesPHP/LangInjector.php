@@ -96,7 +96,7 @@ class LangInjector
 
                 $filename = $file->getBasename();
 
-                if (strpos(mb_strtolower($filename), '.html') !== false) {
+                if (str_contains(mb_strtolower($filename), '.html')) {
 
                     $messageKey = preg_replace("|^(.*)\.html$|i", '$1', $filename);
                     $belongToLang = mb_strtolower(preg_replace("|^.*\-(.*)\.html$|i", '$1', $filename));
@@ -159,7 +159,7 @@ class LangInjector
 
             $filename = $file->getBasename();
 
-            if (strpos(mb_strtolower($filename), '.html') !== false) {
+            if (str_contains(mb_strtolower($filename), '.html')) {
 
                 $messageKey = preg_replace("|^(.*)\.html$|i", '$1', $filename);
                 $belongToLang = mb_strtolower(preg_replace("|^.*\-(.*)\.html$|i", '$1', $filename));

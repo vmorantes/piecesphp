@@ -283,7 +283,7 @@ class BuiltInBannerController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
@@ -333,7 +333,7 @@ class BuiltInBannerController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -344,7 +344,7 @@ class BuiltInBannerController extends AdminPanelController
                 'title',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 true,
                 function ($value) {
@@ -355,7 +355,7 @@ class BuiltInBannerController extends AdminPanelController
                 'content',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 true,
                 function ($value) {
@@ -964,9 +964,9 @@ class BuiltInBannerController extends AdminPanelController
         bool $ignoreStatus = false,
         bool $ignoreDateLimit = false
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? BuiltInBannerMapper::ACTIVE : $status;
+        $page ??= 1;
+        $perPage ??= 10;
+        $status ??= BuiltInBannerMapper::ACTIVE;
 
         $table = BuiltInBannerMapper::TABLE;
         $fields = BuiltInBannerMapper::fieldsToSelect();
@@ -1102,7 +1102,7 @@ class BuiltInBannerController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -1120,13 +1120,13 @@ class BuiltInBannerController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1189,7 +1189,7 @@ class BuiltInBannerController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {
@@ -1284,11 +1284,11 @@ class BuiltInBannerController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

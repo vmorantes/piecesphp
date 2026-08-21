@@ -247,9 +247,9 @@ class NewsController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['listCategoriesLink'] = $listCategoriesLink;
-        $data['hasPermissionsListCategories'] = strlen($listCategoriesLink) > 0;
+        $data['hasPermissionsListCategories'] = (string) $listCategoriesLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
@@ -318,7 +318,7 @@ class NewsController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -335,7 +335,7 @@ class NewsController extends AdminPanelController
                 function ($value) {
                     $parse = [];
                     if (is_array($value)) {
-                        foreach ($value as $k => $i) {
+                        foreach ($value as $i) {
                             if (Validator::isInteger($i)) {
                                 $parse[] = (int) $i;
                             }
@@ -555,7 +555,7 @@ class NewsController extends AdminPanelController
                     //Nuevo
 
                     //En creación $lang es el idioma base
-                    $lang = $baseLang !== null ? $baseLang : $lang;
+                    $lang = $baseLang ?? $lang;
                     $mapper = new NewsMapper();
 
                     $mapper->setLangData($lang, 'profilesTarget', $profilesTarget);
@@ -874,7 +874,7 @@ class NewsController extends AdminPanelController
 
                     try {
                         NewsReadedMapper::addRecord($userID, $newsID);
-                    } catch (\PDOException $e) {}
+                    } catch (\PDOException) {}
 
                     $resultOperation->setSuccessOnSingleOperation(true);
 
@@ -1159,9 +1159,9 @@ class NewsController extends AdminPanelController
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = []
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? NewsMapper::ACTIVE : $status;
+        $page ??= 1;
+        $perPage ??= 10;
+        $status ??= NewsMapper::ACTIVE;
 
         $table = NewsMapper::TABLE;
         $tableNewsReaded = NewsReadedMapper::TABLE;
@@ -1335,7 +1335,7 @@ class NewsController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -1353,13 +1353,13 @@ class NewsController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1412,11 +1412,11 @@ class NewsController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

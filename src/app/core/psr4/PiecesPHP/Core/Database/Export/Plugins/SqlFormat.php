@@ -214,7 +214,7 @@ class SqlFormat implements FormatPluginInterface
                     $output .= "DELIMITER ;\n\n";
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception) {}
         return $output;
     }
 
@@ -243,7 +243,7 @@ class SqlFormat implements FormatPluginInterface
                     $output .= "DELIMITER ;\n\n";
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception) {}
         return $output;
     }
 
@@ -253,7 +253,7 @@ class SqlFormat implements FormatPluginInterface
     public function isView(Database $db, string $table): bool
     {
         $status = $this->getTableStatus($db, $table);
-        return empty($status['Engine']) && !empty($status['Comment']) && strpos(mb_strtolower($status['Comment']), 'view') !== false;
+        return empty($status['Engine']) && !empty($status['Comment']) && str_contains(mb_strtolower($status['Comment']), 'view');
     }
 
     /**
@@ -270,7 +270,7 @@ class SqlFormat implements FormatPluginInterface
                 $create = $createStmt->fetch(PDO::FETCH_ASSOC);
                 if ($create) {
                     $output .= "\nDELIMITER ;;\n\n";
-                    $statement = (isset($create['SQL Original Statement']) ? $create['SQL Original Statement'] : $create['Create Trigger']);
+                    $statement = ($create['SQL Original Statement'] ?? $create['Create Trigger']);
                     if (!empty($options['remove_definer'])) {
                         $statement = preg_replace('~ DEFINER=`[^`]+`@`[^`]+`~i', '', $statement);
                     }
@@ -278,7 +278,7 @@ class SqlFormat implements FormatPluginInterface
                     $output .= "DELIMITER ;\n\n";
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Exception) {}
         return $output;
     }
 

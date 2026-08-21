@@ -374,9 +374,9 @@ class UploadedFileAdapter
             }
         }
 
-        $directory = is_null($directory) ? $this->directoryMove : $directory;
-        $name = is_null($name) ? $this->nameOnMove : $name;
-        $extension = is_null($extension) ? $this->extensionOnMove : $extension;
+        $directory ??= $this->directoryMove;
+        $name ??= $this->nameOnMove;
+        $extension ??= $this->extensionOnMove;
 
         if ($move) {
             $newName = $name;
@@ -418,9 +418,9 @@ class UploadedFileAdapter
             }
         }
 
-        $directory = is_null($directory) ? $this->directoryMove : $directory;
-        $name = is_null($name) ? $this->nameOnMove : $name;
-        $extension = is_null($extension) ? $this->extensionOnMove : $extension;
+        $directory ??= $this->directoryMove;
+        $name ??= $this->nameOnMove;
+        $extension ??= $this->extensionOnMove;
 
         if ($move) {
             $newName = $name;
@@ -534,7 +534,7 @@ class UploadedFileAdapter
     public static function findAssociativePathsByName(string $name, ?array $uploadedFiles = null)
     {
         $files = $uploadedFiles ?? $_FILES;
-        $filesByName = array_key_exists($name, $files) ? $files[$name] : null;
+        $filesByName = $files[$name] ?? null;
         $associativePaths = [];
         if ($filesByName !== null) {
             $fileTmpNames = array_key_exists('name', $filesByName) ? $filesByName['tmp_name'] : null;

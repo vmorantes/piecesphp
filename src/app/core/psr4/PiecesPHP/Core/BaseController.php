@@ -55,7 +55,7 @@ class BaseController
         $base_name_controller = str_replace([
             "App\\Controller\\",
             "Controller",
-        ], "", get_class($this));
+        ], "", $this::class);
 
         $class_model = '\\App\\Model\\' . $base_name_controller . "Model";
         $class_model_system = $base_name_controller . "Model";
@@ -174,7 +174,7 @@ class BaseController
 
                 }
 
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $output = $outputBase;
             }
 
@@ -275,7 +275,7 @@ class BaseController
 
                 }
 
-            } catch (\Exception $e) {
+            } catch (\Exception) {
                 $output = $outputBase;
             }
 
@@ -330,7 +330,7 @@ class BaseController
      */
     public function getInstanceViewDir()
     {
-        return $this->instance_view_folder !== null ? $this->instance_view_folder : self::$view_folder;
+        return $this->instance_view_folder ?? self::$view_folder;
     }
 
     /**

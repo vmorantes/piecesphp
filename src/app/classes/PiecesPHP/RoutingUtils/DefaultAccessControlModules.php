@@ -46,7 +46,7 @@ class DefaultAccessControlModules
         $routeArguments = is_array($routeArguments) ? $routeArguments : [];
         $basenameRoute = $this->baseRouteName;
 
-        if (strpos($routeName, $basenameRoute) !== false && strpos($routeName, $basenameRoute) == 0) {
+        if (str_contains($routeName, $basenameRoute) && str_starts_with($routeName, $basenameRoute)) {
 
             $simpleName = str_replace($basenameRoute, '', $routeName);
             $routeURL = ($this->routeNameValidator)($simpleName, $routeArguments);

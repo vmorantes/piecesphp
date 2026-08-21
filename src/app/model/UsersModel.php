@@ -771,7 +771,7 @@ class UsersModel extends EntityMapperExtensible
     public static function getTypeUserName(int $type)
     {
         $userTypes = self::getTypesUser();
-        return array_key_exists($type, $userTypes) ? $userTypes[$type] : null;
+        return $userTypes[$type] ?? null;
     }
 
     /**
@@ -782,7 +782,7 @@ class UsersModel extends EntityMapperExtensible
      */
     public static function typesUserForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tipos de usuario');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Tipos de usuario');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -809,7 +809,7 @@ class UsersModel extends EntityMapperExtensible
         $table = self::TABLE;
         $allowerdTypes = implode(', ', OrganizationMapper::PROFILE_EDITOR);
 
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Usuarios');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Usuarios');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -946,7 +946,7 @@ class UsersModel extends EntityMapperExtensible
     public static function all(?UserDataPackage $currentUser = null, bool $asMapper = false)
     {
 
-        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
+        $currentUser ??= getLoggedFrameworkUser();
         $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
@@ -996,7 +996,7 @@ class UsersModel extends EntityMapperExtensible
 
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
         $orderBy = array_filter($orderBy, fn($e) => $e !== null);
-        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
+        $currentUser ??= getLoggedFrameworkUser();
         $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
@@ -1007,8 +1007,8 @@ class UsersModel extends EntityMapperExtensible
 
         if (!empty($criteries)) {
             foreach ($criteries as $critery) {
-                $column = array_key_exists('column', $critery) ? $critery['column'] : null;
-                $value = array_key_exists('value', $critery) ? $critery['value'] : null;
+                $column = $critery['column'] ?? null;
+                $value = $critery['value'] ?? null;
                 $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
                 if ($column !== null && $value !== null) {
                     $isNumber = is_double($value) || is_int($value);
@@ -1071,7 +1071,7 @@ class UsersModel extends EntityMapperExtensible
 
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
         $orderBy = array_filter($orderBy, fn($e) => $e !== null);
-        $currentUser = $currentUser !== null ? $currentUser : null;
+        $currentUser ??= null;
         $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
@@ -1127,7 +1127,7 @@ class UsersModel extends EntityMapperExtensible
 
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
         $orderBy = array_filter($orderBy, fn($e) => $e !== null);
-        $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
+        $currentUser ??= getLoggedFrameworkUser();
         $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
@@ -1138,8 +1138,8 @@ class UsersModel extends EntityMapperExtensible
 
         if (!empty($criteries)) {
             foreach ($criteries as $critery) {
-                $column = array_key_exists('column', $critery) ? $critery['column'] : null;
-                $value = array_key_exists('value', $critery) ? $critery['value'] : null;
+                $column = $critery['column'] ?? null;
+                $value = $critery['value'] ?? null;
                 $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
                 if ($column !== null && $value !== null) {
                     $isNumber = is_double($value) || is_int($value);

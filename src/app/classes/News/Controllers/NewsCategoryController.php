@@ -245,7 +245,7 @@ class NewsCategoryController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $formVariables = [
@@ -323,7 +323,7 @@ class NewsCategoryController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -334,7 +334,7 @@ class NewsCategoryController extends AdminPanelController
                 'name',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -345,7 +345,7 @@ class NewsCategoryController extends AdminPanelController
                 'color',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -418,7 +418,7 @@ class NewsCategoryController extends AdminPanelController
                     //Nuevo
 
                     //En creación $lang es el idioma base
-                    $lang = $baseLang !== null ? $baseLang : $lang;
+                    $lang = $baseLang ?? $lang;
                     $mapper = new NewsCategoryMapper();
 
                     $mapper->setLangData($lang, 'name', $name);
@@ -868,8 +868,8 @@ class NewsCategoryController extends AdminPanelController
     public static function _all(int $page = 1, int $perPage = 10, bool $absolutePathUrl = false)
     {
 
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
+        $page ??= 1;
+        $perPage ??= 10;
 
         $table = NewsCategoryMapper::TABLE;
         $fields = NewsCategoryMapper::fieldsToSelect();
@@ -962,7 +962,7 @@ class NewsCategoryController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -980,13 +980,13 @@ class NewsCategoryController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1020,11 +1020,11 @@ class NewsCategoryController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

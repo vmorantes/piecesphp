@@ -260,7 +260,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      */
     public static function getOTPData(int $userID, string $method)
     {
-        if (!in_array($method, [self::METHOD_ONE_USE_CODE], true)) {
+        if ($method !== self::METHOD_ONE_USE_CODE) {
             return null;
         }
         $model = self::model();
@@ -286,7 +286,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      */
     public static function createOTPData(int $userID, string $method)
     {
-        if (!in_array($method, [self::METHOD_ONE_USE_CODE], true)) {
+        if ($method !== self::METHOD_ONE_USE_CODE) {
             return null;
         }
         $existing = self::getOTPData($userID, $method);

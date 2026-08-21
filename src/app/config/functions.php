@@ -258,7 +258,7 @@ function getAllUsers(array $ignoreTypes = [])
  */
 function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = '', array $ignoreTypes = [], $elementStrategy = null)
 {
-    $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(LANG_GROUP, 'Usuarios');
+    $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(LANG_GROUP, 'Usuarios');
     $options = [];
     $options[$defaultValue] = $defaultLabel;
 
@@ -285,12 +285,12 @@ function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = 
  */
 function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null)
 {
-    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Código de área');
+    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Código de área');
     $options = [];
     if ($withEmptyOption) {
         $options[''] = $emptyOptionText;
     }
-    foreach (PHONE_AREA_CODES as $country => $area) {
+    foreach (PHONE_AREA_CODES as $area) {
         $options[$area] = $area;
     }
     return $options;
@@ -306,7 +306,7 @@ function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText =
  */
 function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionText = null, bool $useMultilang = false)
 {
-    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad');
+    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad');
     $options = [];
 
     if ($withEmptyOption) {
@@ -332,7 +332,7 @@ function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionTex
  */
 function getInteresResearchAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null, array $ignoreIDs = [], bool $returnObjects = false)
 {
-    $emptyOptionText = $emptyOptionText !== null ? $emptyOptionText : __(GLOBAL_LANG_GROUP, 'Seleccione las áreas de interes');
+    $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Seleccione las áreas de interes');
     $options = [];
 
     if ($withEmptyOption) {

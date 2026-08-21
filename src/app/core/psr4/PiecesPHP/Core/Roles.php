@@ -94,7 +94,7 @@ class Roles
 
         if (!$duplicate) {
             self::$roles[] = [
-                'code' => is_null($code) ? uniqid('pcs_roles') : $code,
+                'code' => $code ?? uniqid('pcs_roles'),
                 'name' => $name,
                 'all' => $all_access,
                 'allowed_routes' => array_filter($allowed_routes, function ($allowed) {

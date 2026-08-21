@@ -300,11 +300,11 @@ class PublicationsController extends AdminPanelController
         $data['processTableScheduledLink'] = $processTableScheduledLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['addCategoryLink'] = $addCategoryLink;
-        $data['hasPermissionsAddCategory'] = strlen($addCategoryLink) > 0;
+        $data['hasPermissionsAddCategory'] = (string) $addCategoryLink !== '';
         $data['listCategoriesLink'] = $listCategoriesLink;
-        $data['hasPermissionsListCategories'] = strlen($listCategoriesLink) > 0;
+        $data['hasPermissionsListCategories'] = (string) $listCategoriesLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
@@ -384,7 +384,7 @@ class PublicationsController extends AdminPanelController
                 'lang',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -395,7 +395,7 @@ class PublicationsController extends AdminPanelController
                 'title',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -406,7 +406,7 @@ class PublicationsController extends AdminPanelController
                 'content',
                 null,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0;
+                    return is_string($value) && trim($value) !== '';
                 },
                 false,
                 function ($value) {
@@ -421,7 +421,7 @@ class PublicationsController extends AdminPanelController
                 },
                 true,
                 function ($value) {
-                    return is_string($value) && strlen(trim($value)) > 0 ? clean_string($value) : '';
+                    return is_string($value) && trim($value) !== '' ? clean_string($value) : '';
                 }
             ),
             new Parameter(
@@ -536,10 +536,10 @@ class PublicationsController extends AdminPanelController
         };
         $attachmentIndexes = array_map(fn($e) => explode('_', $e)[1], $attachmentNamesKeys);
         $attachmentsUploaded = array_map(fn($e) => ($attachmentExistsByIndex)($e) ? [
-            'id' => array_key_exists("{$baseAttachmentIDKey}{$e}", $_POST) ? $_POST["{$baseAttachmentIDKey}{$e}"] : null,
+            'id' => $_POST["{$baseAttachmentIDKey}{$e}"] ?? null,
             'nameOnFiles' => array_key_exists("{$baseAttachmentFileKey}{$e}", $_FILES) ? "{$baseAttachmentFileKey}{$e}" : null,
             'name' => $_POST["{$baseAttachmentNameKey}{$e}"],
-            'file' => array_key_exists("{$baseAttachmentFileKey}{$e}", $_FILES) ? $_FILES["{$baseAttachmentFileKey}{$e}"] : null,
+            'file' => $_FILES["{$baseAttachmentFileKey}{$e}"] ?? null,
         ] : null, $attachmentIndexes);
         $attachmentsUploaded = array_filter($attachmentsUploaded, fn($e) => $e !== null);
 
@@ -641,7 +641,7 @@ class PublicationsController extends AdminPanelController
                             if ($attachmentUploaded['file'] !== null) {
                                 $attachmentConfig = new AttachmentPackage($mapper->id, -1, $attachmentUploaded['name'], false, $lang);
                                 $attachMapper = $attachmentConfig->getMapper();
-                                $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
+                                $attachMapper ??= new AttachmentPublicationMapper();
                                 $attachMapper->publication = $mapper->id;
                                 $attachMapper->lang = $lang;
                                 $attachMapper->attachmentName = $attachmentConfig->getDisplayName();
@@ -760,7 +760,7 @@ class PublicationsController extends AdminPanelController
                             $attachmentID = Validator::isInteger($attachmentID) ? (int) $attachmentID : -1;
                             $attachmentConfig = new AttachmentPackage($mapper->id, $attachmentID, $attachmentUploaded['name'], false, $lang);
                             $attachMapper = $attachmentConfig->getMapper();
-                            $attachMapper = $attachMapper !== null ? $attachMapper : new AttachmentPublicationMapper();
+                            $attachMapper ??= new AttachmentPublicationMapper();
                             $langSuffix = $baseLang != $lang ? "_{$lang}" : '';
                             $attachMapper->publication = $mapper->id;
                             $attachMapper->lang = $lang;
@@ -1137,7 +1137,7 @@ class PublicationsController extends AdminPanelController
             $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
             $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', '01-01-1990 00:00:00');
             if ($lastModifiedElement !== null) {
-                $lastModification = $lastModifiedElement->updatedAt !== null ? $lastModifiedElement->updatedAt : $lastModifiedElement->createdAt;
+                $lastModification = $lastModifiedElement->updatedAt ?? $lastModifiedElement->createdAt;
             }
             $checksumData = [
                 $currentLang,
@@ -1379,9 +1379,9 @@ class PublicationsController extends AdminPanelController
         bool $ignoreDateLimit = false,
         array $ignoreSlugs = []
     ) {
-        $page = $page === null ? 1 : $page;
-        $perPage = $perPage === null ? 10 : $perPage;
-        $status = $status === null ? PublicationMapper::ACTIVE : $status;
+        $page ??= 1;
+        $perPage ??= 10;
+        $status ??= PublicationMapper::ACTIVE;
 
         $table = PublicationMapper::TABLE;
         $fields = PublicationMapper::fieldsToSelect();
@@ -1551,7 +1551,7 @@ class PublicationsController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -1569,13 +1569,13 @@ class PublicationsController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -1672,7 +1672,7 @@ class PublicationsController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         $filesAssociativePathsToUpload = UploadedFileAdapter::findAssociativePathsByName($nameOnFiles);
@@ -1760,11 +1760,11 @@ class PublicationsController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

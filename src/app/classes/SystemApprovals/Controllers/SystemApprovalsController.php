@@ -466,7 +466,7 @@ class SystemApprovalsController extends AdminPanelController
 
         //Verificar permisos sobre organization
         if ($currentUser !== null) {
-            $currentOrganizationID = $currentOrganizationID !== null ? $currentOrganizationID : -1;
+            $currentOrganizationID ??= -1;
             $canModifyOrganizations = OrganizationMapper::canModifyAnyOrganization($currentUserType);
             $canApprovalAll = in_array($currentUserType, SystemApprovalsMapper::CAN_APPROVAL_ALL);
             if (!$canModifyOrganizations && !$canApprovalAll) {
@@ -539,7 +539,7 @@ class SystemApprovalsController extends AdminPanelController
                 $columns = [];
 
                 $avatar = AvatarModel::getAvatar($e->referenceCreatedBy);
-                $avatar = !is_null($avatar) ? $avatar : baseurl('statics/images/default-avatar.png');
+                $avatar ??= baseurl('statics/images/default-avatar.png');
                 $avatar = "<div class='avatar'><img src='{$avatar}' /></div>";
                 $userName = "<div class='name'>{$e->referenceUserFullName}</div>";
 
@@ -575,7 +575,7 @@ class SystemApprovalsController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -593,13 +593,13 @@ class SystemApprovalsController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -652,7 +652,7 @@ class SystemApprovalsController extends AdminPanelController
         $valid = false;
         $relativeURL = '';
 
-        $name = $name !== null ? $name : 'file_' . uniqid();
+        $name ??= 'file_' . uniqid();
         $oldFile = null;
 
         if ($handler->hasInput()) {
@@ -750,11 +750,11 @@ class SystemApprovalsController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

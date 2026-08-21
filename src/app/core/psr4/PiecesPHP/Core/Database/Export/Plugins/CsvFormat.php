@@ -83,7 +83,7 @@ class CsvFormat implements FormatPluginInterface
 
             // Manejo de Binarios (si no han sido transformados)
             if ($useHexBlob) {
-                foreach ($row as $col => &$val) {
+                foreach ($row as &$val) {
                     if (is_string($val) && !mb_check_encoding($val, 'UTF-8')) {
                         // Es probable que sea binario si no es UTF-8 válido
                         $val = "0x" . bin2hex($val);
@@ -127,7 +127,7 @@ class CsvFormat implements FormatPluginInterface
         $stmt = $db->prepare("SHOW TABLE STATUS LIKE ?");
         $stmt->execute([$table]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return empty($row['Engine']) && !empty($row['Comment']) && strpos(mb_strtolower($row['Comment']), 'view') !== false;
+        return empty($row['Engine']) && !empty($row['Comment']) && str_contains(mb_strtolower($row['Comment']), 'view');
     }
 
     /**

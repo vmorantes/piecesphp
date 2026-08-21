@@ -45,7 +45,7 @@ use App\Model\UsersModel;
 
     <div class="print-view">
 
-        <?php foreach($dataPaginated as $page => $pageElements): ?>
+        <?php foreach($dataPaginated as $pageElements): ?>
         <div class="content">
             <?php foreach($pageElements as $dataElement): ?>
             <?php $checkPasswordResult = ''; ?>

@@ -4,17 +4,18 @@
 190
 
 [TOTAL DE ERRORES VISIBLES]
-900
+892
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (341)
-🪪  property.nonObject (214)
+🪪  argument.type (340)
+🪪  property.nonObject (200)
 🪪  method.nonObject (143)
 🪪  return.type (68)
 🪪  assign.propertyType (38)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
+🪪  nullCoalesce.variable (7)
 🪪  clone.nonObject (5)
 🪪  binaryOp.invalid (5)
 🪪  offsetAccess.invalidOffset (4)
@@ -28,9 +29,9 @@
 🪪  nullCoalesce.offset (1)
 🪪  isset.offset (1)
 🪪  parameter.defaultValue (1)
+🪪  nullCoalesce.property (1)
 🪪  callable.nonCallable (1)
 🪪  nullCoalesce.expr (1)
-🪪  nullCoalesce.variable (1)
 🪪  variable.undefined (1)
 
 [ERRORES POR ARCHIVO]
@@ -42,7 +43,7 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	🪪  method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	🪪  argument.type (Líneas: 577, 700, 805, 846, 1039, 1096, 1115, 1136, 1200, 1227, 1293, 1385)
+	🪪  argument.type (Líneas: 577, 700, 805, 846, 1096, 1115, 1136, 1200, 1227, 1293, 1385)
 	🪪  assign.propertyType (Líneas: 1144)
 project://src/app/classes/API/Controllers/HelperController.php
 	🪪  property.nonObject (Líneas: 146)
@@ -177,8 +178,8 @@ project://src/app/classes/MySpace/Controllers/ProfileController.php
 	🪪  argument.type (Líneas: 77)
 	🪪  method.nonObject (Líneas: 105)
 project://src/app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php
-	🪪  property.nonObject (Líneas: 63, 68)
 	🪪  argument.type (Líneas: 65)
+	🪪  property.nonObject (Líneas: 68)
 	🪪  method.nonObject (Líneas: 231, 238, 243, 250)
 project://src/app/classes/MySpace/Controllers/Util/PreviousExperiencesController.php
 	🪪  property.nonObject (Líneas: 60)
@@ -197,6 +198,7 @@ project://src/app/classes/News/Controllers/NewsCategoryController.php
 	🪪  assign.propertyType (Líneas: 440)
 	🪪  method.nonObject (Líneas: 663, 670, 675, 685)
 	🪪  property.nonObject (Líneas: 837, 913)
+	🪪  nullCoalesce.variable (Líneas: 871, 872)
 project://src/app/classes/News/Controllers/NewsController.php
 	🪪  property.nonObject (Líneas: 185, 1111, 1295, 1296, 1297, 1298)
 	🪪  argument.type (Líneas: 563, 564, 594, 595, 1287, 1295)
@@ -262,7 +264,7 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 	🪪  assign.propertyType (Líneas: 217)
 	🪪  return.type (Líneas: 298)
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
-	🪪  method.nonObject (Líneas: 565, 572, 577, 587)
+	🪪  method.nonObject (Líneas: 564, 571, 576, 586)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
 	🪪  argument.type (Líneas: 138, 1155, 1189, 1504, 1678)
 	🪪  property.nonObject (Líneas: 234, 1328, 1600, 1602, 1625, 1627)
@@ -386,7 +388,7 @@ project://src/app/controller/RecoveryPasswordController.php
 	🪪  method.nonObject (Líneas: 414)
 	🪪  assign.propertyType (Líneas: 520, 569, 604)
 project://src/app/controller/UserProblemsController.php
-	🪪  property.notFound (Líneas: 337, 338, 343, 344, 347)
+	🪪  property.notFound (Líneas: 334, 335, 340, 341, 344)
 project://src/app/controller/UsersController.php
 	🪪  argument.type (Líneas: 487, 542, 888, 922, 1108, 1259, 1537, 1865)
 	🪪  method.resultUnused (Líneas: 1293, 1335, 1345, 1351, 1357, 1363, 1373, 1380, 1592, 1647, 1657, 1663, 1669, 1675, 1681, 1691, 1699, 1706)
@@ -418,6 +420,7 @@ project://src/app/core/psr4/PiecesPHP/Cli.php
 project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
 	🪪  argument.type (Líneas: 72)
 	🪪  assign.propertyType (Líneas: 78)
+	🪪  nullCoalesce.property (Líneas: 333)
 project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
 	🪪  argument.type (Líneas: 36, 127, 130, 161, 173)
 	🪪  return.type (Líneas: 61)
@@ -457,9 +460,11 @@ project://src/app/core/psr4/PiecesPHP/Core/Email/Mailgun.php
 	🪪  argument.type (Líneas: 92)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
 	🪪  argument.type (Líneas: 210)
+	🪪  nullCoalesce.variable (Líneas: 387, 444)
 project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	🪪  argument.type (Líneas: 234)
 	🪪  return.type (Líneas: 340)
+	🪪  nullCoalesce.variable (Líneas: 377, 421)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
 	🪪  offsetAssign.dimType (Líneas: 279)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
@@ -497,8 +502,8 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/
 	🪪  argument.type (Líneas: 41)
 	🪪  assign.propertyType (Líneas: 51)
 project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
-	🪪  argument.type (Líneas: 623, 1003, 1007)
-	🪪  return.type (Líneas: 1090, 1092)
+	🪪  argument.type (Líneas: 618, 998, 1002)
+	🪪  return.type (Líneas: 1085, 1087)
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 	🪪  return.type (Líneas: 85)
 	🪪  argument.type (Líneas: 110, 161, 162, 178)
@@ -530,12 +535,11 @@ project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 project://src/app/model/AvatarModel.php
 	🪪  return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
-	🪪  property.nonObject (Líneas: 154, 164, 229, 244, 315, 329, 427)
+	🪪  property.nonObject (Líneas: 164, 244, 329)
 project://src/app/model/RecoveryPasswordModel.php
 	🪪  property.notFound (Líneas: 86, 102)
 project://src/app/model/TimeOnPlatformModel.php
 	🪪  property.notFound (Líneas: 114)
-	🪪  property.nonObject (Líneas: 123)
 	🪪  argument.type (Líneas: 153)
 	🪪  return.type (Líneas: 155)
 project://src/app/model/TokenModel.php

@@ -550,7 +550,7 @@ class CategoriesMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof CategoriesMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = 'category';
 
             $slug = "{$title}-{$uniqid}";
@@ -597,7 +597,7 @@ class CategoriesMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Categorías');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Categorías');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -741,7 +741,7 @@ class CategoriesMapper extends EntityMapperExtensible
     public static function existsByName(string $name, ?int $ignoreID = null)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
         $where = [

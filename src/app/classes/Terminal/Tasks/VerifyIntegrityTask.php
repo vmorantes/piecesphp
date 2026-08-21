@@ -227,7 +227,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue;
                 }
                 $texto = $token[1];
-                if (strpos($texto, '/*') !== 0) {
+                if (!str_starts_with($texto, '/*')) {
                     continue; //comentario de línea
                 }
 

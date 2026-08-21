@@ -448,7 +448,7 @@ class PreviousExperiencesMapper extends EntityMapperExtensible
     protected static function fieldsToSelect(?string $formatDate = null)
     {
 
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new PreviousExperiencesMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -542,7 +542,7 @@ class PreviousExperiencesMapper extends EntityMapperExtensible
      */
     public static function experienceTypes(?string $lang = null)
     {
-        $lang = $lang ?? Config::get_lang();
+        $lang ??= Config::get_lang();
         $options = [];
         foreach (self::EXPERIENCE_TYPES as $value => $text) {
             $options[$value] = lang(self::LANG_GROUP, $text, $lang);
@@ -559,7 +559,7 @@ class PreviousExperiencesMapper extends EntityMapperExtensible
      */
     public static function experienceTypesForSelect(string $defaultLabel = '', string $defaultValue = '', ?string $lang = null)
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tipos de experiencia');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Tipos de experiencia');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 

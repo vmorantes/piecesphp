@@ -301,7 +301,7 @@ class City extends AdminPanelController
 
                 return [
                     $e->id,
-                    !is_null($e->code) ? $e->code : '-',
+                    $e->code ?? '-',
                     stripslashes($e->name),
                     $e->countryName,
                     $e->stateName,

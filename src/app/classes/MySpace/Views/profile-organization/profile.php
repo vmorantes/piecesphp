@@ -17,7 +17,7 @@ use PiecesPHP\UserSystem\UserDataPackage;
  * @var string $action
  */
 $affiliatedInstitutions = $organizationMapper->affiliatedInstitutions;
-$affiliatedInstitutions = $affiliatedInstitutions !== null ? $affiliatedInstitutions : [];
+$affiliatedInstitutions ??= [];
 $interestResearhAreas = $organizationMapper->interestResearhAreas;
 /**
  * @var OrganizationPreviousExperiencesMapper[]

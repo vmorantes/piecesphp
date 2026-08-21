@@ -187,7 +187,7 @@ class OTPHandler
         $userDataPackage = getLoggedFrameworkUser();
         try {
             $userDataPackage = $userID !== null ? new UserDataPackage($userID) : $userDataPackage;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $userDataPackage = null;
         }
         if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
@@ -206,7 +206,7 @@ class OTPHandler
         $userDataPackage = getLoggedFrameworkUser();
         try {
             $userDataPackage = $userID !== null ? new UserDataPackage($userID) : $userDataPackage;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $userDataPackage = null;
         }
         if ($userDataPackage !== null) {

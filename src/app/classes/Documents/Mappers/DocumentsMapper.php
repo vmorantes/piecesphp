@@ -573,7 +573,7 @@ class DocumentsMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof DocumentsMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $title = 'document';
 
             $slug = "{$title}-{$uniqid}";
@@ -763,7 +763,7 @@ class DocumentsMapper extends EntityMapperExtensible
     public static function existsByDocumentName(string $documentName, ?int $ignoreID = null, bool $onlyActives = true)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
         $documentName = escapeString($documentName);

@@ -230,7 +230,7 @@ class RecoveryPasswordController extends UsersController
                 $logRequest->information = [
                     'code' => $recoveryPassword->code,
                     'email_sended' => $json_response['send_mail'],
-                    'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+                    'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
                 ];
                 $logRequest->type = (string) __(self::LANG_GROUP, 'Solicitud de restablecimiento de contraseña.');
                 $logRequest->save();

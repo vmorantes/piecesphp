@@ -216,7 +216,7 @@ class PublicationsCategoryController extends AdminPanelController
         $data['processTableLink'] = $processTableLink;
         $data['langGroup'] = self::LANG_GROUP;
         $data['addLink'] = $addLink;
-        $data['hasPermissionsAdd'] = strlen($addLink) > 0;
+        $data['hasPermissionsAdd'] = (string) $addLink !== '';
         $data['title'] = $title;
         $data['description'] = $description;
         $data['breadcrumbs'] = get_breadcrumbs([
@@ -271,7 +271,6 @@ class PublicationsCategoryController extends AdminPanelController
                     $valid = is_array($value);
                     if ($valid) {
                         foreach ($value as $langCode => $text) {
-                            $valid = is_string($text);
                             $valid = $langCode == $baseLang ? mb_strlen(trim($text)) > 0 : true;
                             if (!$valid) {
                                 break;
@@ -801,7 +800,7 @@ class PublicationsCategoryController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -816,7 +815,7 @@ class PublicationsCategoryController extends AdminPanelController
     private static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -850,11 +849,11 @@ class PublicationsCategoryController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

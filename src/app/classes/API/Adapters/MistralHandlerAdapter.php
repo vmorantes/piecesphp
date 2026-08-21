@@ -51,7 +51,7 @@ class MistralHandlerAdapter
                 'type' => 'json_object',
             ],
         ]);
-        $parseJSON = $parseJSON ?? fn($e) => @json_decode($e, true);
+        $parseJSON ??= fn($e) => @json_decode($e, true);
         return ($parseJSON)($jsonResponse);
     }
 
@@ -86,7 +86,7 @@ class MistralHandlerAdapter
 
         $choice = !empty($response['choices']) ? $response['choices'][0] : null;
         $content = $choice !== null && is_string($choice['message']['content']) ? $choice['message']['content'] : '';
-        $usage = isset($response['usage']) ? $response['usage'] : null;
+        $usage = $response['usage'] ?? null;
         $this->lastAskToChatOriginalResponse = is_array($response) ? $response : (
             is_array($rawResponse) ? $rawResponse : [$rawResponse]
         );
@@ -94,7 +94,7 @@ class MistralHandlerAdapter
 
         //Intenta decodificar como JSON si es posible
         $decoded = json_decode($content, true);
-        return $decoded !== null ? $decoded : $content;
+        return $decoded ?? $content;
     }
 
     /**

@@ -69,10 +69,18 @@ return static function (RectorConfig $rectorConfig): void {
     // y este se quedó atrás. Rector no emitirá sintaxis por encima del piso.
     $rectorConfig->phpVersion(PhpVersion::PHP_84);
 
+    /**
+     * Los módulos marcados para borrarse no reciben NADA, tampoco de Rector: refactorizar
+     * código que va a desaparecer es trabajo tirado. Ver `.agents/context/18-siguientes-ventanas.md`,
+     * sección T6, que es donde se decide el destino de cada módulo.
+     */
     $rectorConfig->skip([
         $baseDir . '/src/app/vendor',
         $baseDir . '/src/app/core/Utilities.php',
         $baseDir . '/src/app/core/AppHelpers.php',
+        $baseDir . '/src/app/classes/ImagesRepository',
+        $baseDir . '/src/app/classes/ApplicationCalls',
+        $baseDir . '/src/app/classes/InterestResearchAreas',
     ]);
 
     $rectorConfig->sets([

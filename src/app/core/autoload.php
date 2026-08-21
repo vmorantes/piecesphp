@@ -44,8 +44,8 @@ function loader_classes($class)
     ];
 
     foreach ($scheme as $element) {
-        $psr4 = isset($element['psr4']) ? $element['psr4'] : false;
-        $namespaces = isset($element['namespaces']) ? $element['namespaces'] : [];
+        $psr4 = $element['psr4'] ?? false;
+        $namespaces = $element['namespaces'] ?? [];
         $namespaces = is_array($namespaces) ? $namespaces : [$namespaces];
 
         foreach ($namespaces as $index => $namespace) {

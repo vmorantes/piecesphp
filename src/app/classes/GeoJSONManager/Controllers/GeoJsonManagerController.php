@@ -118,9 +118,9 @@ class GeoJsonManagerController extends AdminPanelController
          * @var int[]|null $researchAreas
          * @var int[]|null $organizations
          */
-        $search = array_key_exists('search', $params) ? $params['search'] : null;
-        $researchAreas = array_key_exists('researchAreas', $params) ? $params['researchAreas'] : null;
-        $organizations = array_key_exists('organizations', $params) ? $params['organizations'] : null;
+        $search = $params['search'] ?? null;
+        $researchAreas = $params['researchAreas'] ?? null;
+        $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
         $havingString = null;
@@ -235,9 +235,9 @@ class GeoJsonManagerController extends AdminPanelController
          * @var int[]|null $researchAreas
          * @var int[]|null $organizations
          */
-        $search = array_key_exists('search', $params) ? $params['search'] : null;
-        $researchAreas = array_key_exists('researchAreas', $params) ? $params['researchAreas'] : null;
-        $organizations = array_key_exists('organizations', $params) ? $params['organizations'] : null;
+        $search = $params['search'] ?? null;
+        $researchAreas = $params['researchAreas'] ?? null;
+        $organizations = $params['organizations'] ?? null;
 
         $whereString = null;
         $havingString = null;
@@ -350,13 +350,13 @@ class GeoJsonManagerController extends AdminPanelController
          * @var \DateTime|null $startDate
          * @var \DateTime|null $endDate
          */
-        $search = array_key_exists('search', $params) ? $params['search'] : null;
-        $researchAreas = array_key_exists('researchAreas', $params) ? $params['researchAreas'] : null;
-        $organizations = array_key_exists('organizations', $params) ? $params['organizations'] : null;
-        $contentType = array_key_exists('contentType', $params) ? $params['contentType'] : null;
-        $financingType = array_key_exists('financingType', $params) ? $params['financingType'] : null;
-        $startDate = array_key_exists('startDate', $params) ? $params['startDate'] : null;
-        $endDate = array_key_exists('endDate', $params) ? $params['endDate'] : null;
+        $search = $params['search'] ?? null;
+        $researchAreas = $params['researchAreas'] ?? null;
+        $organizations = $params['organizations'] ?? null;
+        $contentType = $params['contentType'] ?? null;
+        $financingType = $params['financingType'] ?? null;
+        $startDate = $params['startDate'] ?? null;
+        $endDate = $params['endDate'] ?? null;
 
         $whereString = null;
         $havingString = null;
@@ -672,7 +672,7 @@ class GeoJsonManagerController extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -690,13 +690,13 @@ class GeoJsonManagerController extends AdminPanelController
         $getParam = function ($paramName) use ($params) {
             $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
             $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = isset($params[$paramName]) ? $params[$paramName] : null;
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_GET[$paramName]) ? $_GET[$paramName] : null);
-            $paramValue = $paramValue !== null ? $paramValue : (isset($_POST[$paramName]) ? $_POST[$paramName] : null);
+            $paramValue = $params[$paramName] ?? null;
+            $paramValue ??= $_GET[$paramName] ?? null;
+            $paramValue ??= $_POST[$paramName] ?? null;
             return $paramValue;
         };
 
-        $allow = strlen($route) > 0;
+        $allow = $route !== '';
 
         if ($allow) {
 
@@ -729,11 +729,11 @@ class GeoJsonManagerController extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

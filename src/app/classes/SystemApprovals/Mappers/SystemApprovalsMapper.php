@@ -251,7 +251,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
      */
     protected static function fieldsToSelect(?string $formatDate = null)
     {
-        $formatDate = $formatDate ?? get_default_format_date(null, true);
+        $formatDate ??= get_default_format_date(null, true);
         $mapper = (new SystemApprovalsMapper);
         $model = $mapper->getModel();
         $table = $model->getTable();
@@ -357,7 +357,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     public static function getReferencesAliasesForSelect(string $defaultLabel = '', string $defaultValue = '', bool $withOptionAny = false)
     {
         $sourceOptions = self::getReferencesAliases();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tipo de contenido');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Tipo de contenido');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         if ($withOptionAny) {
@@ -379,7 +379,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
     public static function getElapsepDaysExistentsForSelect(string $defaultLabel = '', string $defaultValue = '', bool $withOptionAny = false)
     {
         $sourceOptions = self::getElapsepDaysExistents();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Tiempo');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Tiempo');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         if ($withOptionAny) {
@@ -495,8 +495,8 @@ class SystemApprovalsMapper extends EntityMapperExtensible
 
         if (!empty($criteries)) {
             foreach ($criteries as $critery) {
-                $column = array_key_exists('column', $critery) ? $critery['column'] : null;
-                $value = array_key_exists('value', $critery) ? $critery['value'] : null;
+                $column = $critery['column'] ?? null;
+                $value = $critery['value'] ?? null;
                 $beforeOperatorBase = array_key_exists('beforeOperator', $critery) ? $critery['beforeOperator'] : 'AND';
                 if ($column !== null && $value !== null) {
                     $isNumber = is_double($value) || is_int($value);

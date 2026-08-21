@@ -300,9 +300,9 @@ class Country extends AdminPanelController
 
                 return [
                     $e->id,
-                    !is_null($e->code) ? $e->code : '-',
+                    $e->code ?? '-',
                     stripslashes($e->name),
-                    !is_null($e->region) ? $e->region : '-',
+                    $e->region ?? '-',
                     __(LOCATIONS_LANG_GROUP, CountryMapper::STATUS[$e->active]),
                     $editButton,
                 ];

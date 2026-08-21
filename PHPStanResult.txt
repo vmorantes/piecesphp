@@ -57,8 +57,6 @@ project://src/app/classes/API/Controllers/APIController.php
          🪪  argument.type                                                                                                                              
   846    Parameter Nr.2 ...$arrays of function array_merge expects array, array<string, string>|null given.                                               
          🪪  argument.type                                                                                                                              
-  1039   Parameter Nr.2 $array of function array_key_exists expects array, array|object|null given.                                                       
-         🪪  argument.type                                                                                                                              
   1096   Parameter Nr.2 $array of function array_key_exists expects array, array|ArrayAccess given.                                                       
          🪪  argument.type                                                                                                                              
   1115   Parameter Nr.1 $userID of static method PiecesPHP\UserSystem\Profile\UserProfileMapper::getProfile() expects int, int|null given.                
@@ -548,7 +546,7 @@ project://src/app/classes/Importers/Controller/ImporterController.php
          🪪  encapsedStringPart.nonString                                                                                                                                                  
   165    Parameter Nr.1 $user of class Importers\Controller\HelperController constructor expects stdClass|null, PiecesPHP\UserSystem\UserDataPackage|null given.                             
          🪪  argument.type                                                                                                                                                                 
-  290    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, non-falsy-string given.                                                                              
+  290    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, literal-string&non-falsy-string given.                                                               
          🪪  argument.type                                                                                                                                                                 
   297    Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, string|false given.                                                                    
          🪪  argument.type                                                                                                                                                                 
@@ -728,10 +726,6 @@ project://src/app/classes/MySpace/Controllers/ProfileController.php
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  63     Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                                                            
-         🪪  property.nonObject                                                                                                                                                                                        
-  63     Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.                                                                                                                            
-         🪪  property.nonObject                                                                                                                                                                                        
   65     Parameter Nr.1 $user of static method MySpace\Controllers\MyOrganizationProfileController::hasSuperPrivileges() expects PiecesPHP\UserSystem\UserDataPackage, PiecesPHP\UserSystem\UserDataPackage|null given.  
          🪪  argument.type                                                                                                                                                                                             
   68     Cannot access property $administrator on Organizations\Mappers\OrganizationMapper|null.                                                                                                                       
@@ -823,6 +817,10 @@ project://src/app/classes/News/Controllers/NewsCategoryController.php
          🪪  method.nonObject                                                                        
   837    Cannot access property $id on News\Mappers\NewsCategoryMapper|null.                         
          🪪  property.nonObject                                                                      
+  871    Variable $page on left side of ??= always exists and is not nullable.                       
+         🪪  nullCoalesce.variable                                                                   
+  872    Variable $perPage on left side of ??= always exists and is not nullable.                    
+         🪪  nullCoalesce.variable                                                                   
   913    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
          🪪  property.nonObject                                                                      
   913    Cannot access property $iconImage on News\Mappers\NewsCategoryMapper|null.                  
@@ -1006,9 +1004,9 @@ project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
          🪪  method.nonObject                                                                                                                                                         
   45     Cannot call method getArguments() on Slim\Routing\Route|null.                                                                                                                
          🪪  method.nonObject                                                                                                                                                         
-  49     Parameter Nr.1 $haystack of function strpos expects string, string|null given.                                                                                                 
+  49     Parameter Nr.1 $haystack of function str_contains expects string, string|null given.                                                                                           
          🪪  argument.type                                                                                                                                                            
-  49     Parameter Nr.1 $haystack of function strpos expects string, string|null given.                                                                                                 
+  49     Parameter Nr.1 $haystack of function str_starts_with expects string, string|null given.                                                                                        
          🪪  argument.type                                                                                                                                                            
   51     Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                               
          🪪  argument.type                                                                                                                                                            
@@ -1087,13 +1085,13 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
  ------ --------------------------------------------------------------------------------- 
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
  ------ --------------------------------------------------------------------------------- 
-  565    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.  
+  564    Cannot call method beginTransaction() on PiecesPHP\Core\Database\Database|null.  
          🪪  method.nonObject                                                             
-  572    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.           
+  571    Cannot call method prepare() on PiecesPHP\Core\Database\Database|null.           
          🪪  method.nonObject                                                             
-  577    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.            
+  576    Cannot call method commit() on PiecesPHP\Core\Database\Database|null.            
          🪪  method.nonObject                                                             
-  587    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.          
+  586    Cannot call method rollBack() on PiecesPHP\Core\Database\Database|null.          
          🪪  method.nonObject                                                             
  ------ --------------------------------------------------------------------------------- 
 
@@ -1151,7 +1149,7 @@ project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
          🪪  argument.type                                                                                                           
   228    Method Publications\Mappers\AttachmentPublicationMapper::getMimeType() should return string|null but returns string|false.  
          🪪  return.type                                                                                                             
-  244    Parameter Nr.1 $haystack of function strpos expects string, string|null given.                                                
+  244    Parameter Nr.1 $haystack of function str_contains expects string, string|null given.                                          
          🪪  argument.type                                                                                                           
   259    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                    
          🪪  property.nonObject                                                                                                      
@@ -1571,10 +1569,6 @@ project://src/app/controller/AppConfigController.php
          🪪  method.nonObject                                                                                                                           
   1672   Cannot access property $createdAt on Publications\Mappers\PublicationMapper|null.                                                              
          🪪  property.nonObject                                                                                                                         
-  1672   Cannot access property $updatedAt on Publications\Mappers\PublicationMapper|null.                                                              
-         🪪  property.nonObject                                                                                                                         
-  1672   Cannot access property $updatedAt on Publications\Mappers\PublicationMapper|null.                                                              
-         🪪  property.nonObject                                                                                                                         
   1675   Cannot call method getURLAlternatives() on Publications\Mappers\PublicationMapper|null.                                                        
          🪪  method.nonObject                                                                                                                           
   2057   Parameter Nr.2 $array of function array_key_exists expects array, array|stdClass given.                                                          
@@ -1715,19 +1709,19 @@ project://src/app/controller/RecoveryPasswordController.php
  ------ --------------------------------------------------------------------------------------- 
 project://src/app/controller/UserProblemsController.php
  ------ --------------------------------------------------------------------------------------- 
-  337    Access to an undefined property object::$username.                                     
+  334    Access to an undefined property object::$username.                                     
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  338    Access to an undefined property object::$username.                                     
+  335    Access to an undefined property object::$username.                                     
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  343    Access to an undefined property object::$status.                                       
+  340    Access to an undefined property object::$status.                                       
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  344    Access to an undefined property object::$failed_attempts.                              
+  341    Access to an undefined property object::$failed_attempts.                              
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
-  347    Access to an undefined property object::$id.                                           
+  344    Access to an undefined property object::$id.                                           
          🪪  property.notFound                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property  
  ------ --------------------------------------------------------------------------------------- 
@@ -1965,6 +1959,8 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
          🪪  argument.type                                                                                                                                   
   78     Property PiecesPHP\Core\BaseController::$model (PiecesPHP\Core\BaseEntityMapper|PiecesPHP\Core\Database\ActiveRecordModel) does not accept object.  
          🪪  assign.propertyType                                                                                                                             
+  333    Property PiecesPHP\Core\BaseController::$instance_view_folder (string) on left side of ?? is not nullable.                                          
+         🪪  nullCoalesce.property                                                                                                                           
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
@@ -2181,6 +2177,10 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php
  ------ ------------------------------------------------------------------------------------------------- 
   210    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.  
          🪪  argument.type                                                                                
+  387    Variable $directory on left side of ??= always exists and is not nullable.                       
+         🪪  nullCoalesce.variable                                                                        
+  444    Variable $directory on left side of ??= always exists and is not nullable.                       
+         🪪  nullCoalesce.variable                                                                        
  ------ ------------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -2190,6 +2190,10 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
          🪪  argument.type                                                                                                                                                                                                                                    
   340    Method PiecesPHP\Core\Forms\UploadedFileAdapter::getFileInformation() should return array{name: string, type: string, size: int, tmp_name: string, error: int, full_path: string, associativePath: array<string>|null} but returns non-empty-array.  
          🪪  return.type                                                                                                                                                                                                                                      
+  377    Variable $directory on left side of ??= always exists and is not nullable.                                                                                                                                                                           
+         🪪  nullCoalesce.variable                                                                                                                                                                                                                            
+  421    Variable $directory on left side of ??= always exists and is not nullable.                                                                                                                                                                           
+         🪪  nullCoalesce.variable                                                                                                                                                                                                                            
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------- 
@@ -2303,7 +2307,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Router.php
          🪪  return.type                                                                                                                                               
   39     Expression on left side of ?? is not nullable.                                                                                                                
          🪪  nullCoalesce.expr                                                                                                                                         
-  61     Variable $container on left side of ?? is never defined.                                                                                                      
+  61     Variable $container on left side of ??= is never defined.                                                                                                     
          🪪  nullCoalesce.variable                                                                                                                                     
  ------ -------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2319,15 +2323,15 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
-  623    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
+  618    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
          🪪  argument.type                                                                                                              
-  1003   Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
+  998    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
          🪪  argument.type                                                                                                              
-  1007   Parameter Nr.1 $image of function imagedestroy expects GdImage, GdImage|null given.                                              
+  1002   Parameter Nr.1 $image of function imagedestroy expects GdImage, GdImage|null given.                                              
          🪪  argument.type                                                                                                              
-  1090   Method PiecesPHP\Core\ServerStatics::compressData() should return string|null but returns string|false.                        
+  1085   Method PiecesPHP\Core\ServerStatics::compressData() should return string|null but returns string|false.                        
          🪪  return.type                                                                                                                
-  1092   Method PiecesPHP\Core\ServerStatics::compressData() should return string|null but returns string|false.                        
+  1087   Method PiecesPHP\Core\ServerStatics::compressData() should return string|null but returns string|false.                        
          🪪  return.type                                                                                                                
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2459,16 +2463,16 @@ project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ --------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------------------- 
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
- ------ --------------------------------------------------------------------------------------- 
-  52     Parameter Nr.1 $json of function json_decode expects string, array|object|string given.  
-         🪪  argument.type                                                                      
-  53     Parameter Nr.1 $haystack of function strpos expects string, array|object|string given.   
-         🪪  argument.type                                                                      
-  57     Binary operation "." between '   Body: ' and array|object|string results in an error.  
-         🪪  binaryOp.invalid                                                                   
- ------ --------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------------------- 
+  52     Parameter Nr.1 $json of function json_decode expects string, array|object|string given.       
+         🪪  argument.type                                                                           
+  53     Parameter Nr.1 $haystack of function str_contains expects string, array|object|string given.  
+         🪪  argument.type                                                                           
+  57     Binary operation "." between '   Body: ' and array|object|string results in an error.       
+         🪪  binaryOp.invalid                                                                        
+ ------ -------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------- 
 project://src/app/model/AvatarModel.php
@@ -2477,32 +2481,16 @@ project://src/app/model/AvatarModel.php
          🪪  return.type                                                                                              
  ------ ------------------------------------------------------------------------------------------------------------- 
 
- ------ ------------------------------------------------------------------------------------ 
+ ------ ---------------------------------------------------------------------------- 
 project://src/app/model/LoginAttemptsModel.php
- ------ ------------------------------------------------------------------------------------ 
-  154    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
-  154    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
-  164    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.          
-         🪪  property.nonObject                                                              
-  229    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
-  229    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
-  244    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.          
-         🪪  property.nonObject                                                              
-  315    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
-  315    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
-  329    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.          
-         🪪  property.nonObject                                                              
-  427    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
-  427    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
-         🪪  property.nonObject                                                              
- ------ ------------------------------------------------------------------------------------ 
+ ------ ---------------------------------------------------------------------------- 
+  164    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.  
+         🪪  property.nonObject                                                      
+  244    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.  
+         🪪  property.nonObject                                                      
+  329    Cannot access property $type on PiecesPHP\UserSystem\UserDataPackage|null.  
+         🪪  property.nonObject                                                      
+ ------ ---------------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------- 
 project://src/app/model/RecoveryPasswordModel.php
@@ -2521,10 +2509,6 @@ project://src/app/model/TimeOnPlatformModel.php
   114    Access to an undefined property object::$id.                                                           
          🪪  property.notFound                                                                                  
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                  
-  123    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.                     
-         🪪  property.nonObject                                                                                 
-  123    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.                     
-         🪪  property.nonObject                                                                                 
   153    Parameter Nr.1 $array of function array_column expects array, array|null given.                          
          🪪  argument.type                                                                                      
   155    Method App\Model\TimeOnPlatformModel::getAllHoursOnPlatform() should return float but returns string.  
@@ -2781,5 +2765,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 900 errors                                                                                               
+ [ERROR] Found 892 errors                                                                                               
 

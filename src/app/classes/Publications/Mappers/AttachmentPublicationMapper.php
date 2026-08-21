@@ -241,7 +241,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $result = false;
 
         if ($this->fileExists()) {
-            $result = strpos($this->getMimeType(), 'image/') !== false;
+            $result = str_contains($this->getMimeType(), 'image/');
         }
 
         return $result;
@@ -517,7 +517,7 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
     public static function existsByPublication(int $publicationID, ?string $lang = null, ?int $ignoreID = null)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
         $where = [

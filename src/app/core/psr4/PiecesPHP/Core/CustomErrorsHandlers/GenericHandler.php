@@ -134,7 +134,7 @@ class GenericHandler
             $backupOld = true;
         }
 
-        $classException = get_class($this->exception);
+        $classException = $this->exception::class;
         $dateCurrent = $this->date->format('d-m-Y');
         $timeCurrent = $this->date->format('H:i:s.u');
 
@@ -155,7 +155,7 @@ class GenericHandler
         $codeException = '-';
         try {
             $codeException = $this->exception->getCode();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable) {}
 
         // Preparar entrada
         $logEntry = [
@@ -207,9 +207,9 @@ class GenericHandler
                 if ($i > 2) {
                     break;
                 }
-                $file = isset($frame['file']) ? $frame['file'] : 'unknown';
-                $line = isset($frame['line']) ? $frame['line'] : '?';
-                $function = isset($frame['function']) ? $frame['function'] : 'unknown';
+                $file = $frame['file'] ?? 'unknown';
+                $line = $frame['line'] ?? '?';
+                $function = $frame['function'] ?? 'unknown';
                 $traceSummary[] = "{$file}:{$line} ({$function})";
             }
             $traceString = count($traceSummary) > 0 ? " | Trace: " . implode(" <- ", $traceSummary) : "";
@@ -253,7 +253,7 @@ class GenericHandler
      */
     public function loggingUniqueMessage()
     {
-        $classException = get_class($this->exception);
+        $classException = $this->exception::class;
         $message = $this->exception->getMessage();
         $file = $this->exception->getFile();
         $line = $this->exception->getLine();
@@ -262,7 +262,7 @@ class GenericHandler
         $codeException = '-';
         try {
             $codeException = $this->exception->getCode();
-        } catch (\Throwable $e) {}
+        } catch (\Throwable) {}
 
         // Construir la firma de 5 líneas (sin el timestamp inicial)
         // Línea 1: Cabecera

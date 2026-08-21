@@ -625,7 +625,7 @@ class Config
                         if (array_key_exists($message, $groupData) || $messageIsEmpty) {
 
                             //Si el mensaje existe pero no es el idioma de revisión, se marca como faltante
-                            $isMissingMessage = $lang == $reviewLang ? false : true;
+                            $isMissingMessage = $lang != $reviewLang;
                             if ($messageIsEmpty) {
                                 $str = $groupData;
                             } else {
@@ -777,7 +777,7 @@ class Config
         ];
 
         $usedCategories = [];
-        $localeLang = isset(self::$appLocaleLangs[self::$appLang]) ? self::$appLocaleLangs[self::$appLang] : null;
+        $localeLang = self::$appLocaleLangs[self::$appLang] ?? null;
         $localeLang = is_scalar($localeLang) ? [$localeLang] : (is_array($localeLang) ? $localeLang : null);
 
         if (is_array($localeLang)) {
@@ -875,7 +875,7 @@ class Config
 
             //Configurar cookie desde URL o usar el último valor
             $i18nURLValue = isset($_GET) && array_key_exists($urlParamLangName, $_GET) ? $_GET[$urlParamLangName] : null;
-            $i18nURLValue = $i18nURLValue !== null ? $i18nURLValue : getCookie($cookieName);
+            $i18nURLValue ??= getCookie($cookieName);
             $selectedLang = null;
             if (is_string($i18nURLValue)) {
                 if ($i18nURLValue == 'default') {

@@ -48,7 +48,7 @@ class SpeechToTextGroqAdapter
      */
     public function __construct(?string $apiKey = null, string $language = 'es', string $model = 'whisper-large-v3-turbo')
     {
-        $this->apiKey = $apiKey !== null ? $apiKey : self::$BASE_API_KEY;
+        $this->apiKey = $apiKey ?? self::$BASE_API_KEY;
         $this->language = $language;
         $this->model = $model;
         $this->httpClient = new Client([

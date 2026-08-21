@@ -237,7 +237,7 @@ class UserDataPackage
         $this->createdAtString = $this->createdAt->format('Y-m-d H:i:s');
         $this->modifiedAtString = $this->modifiedAt !== null ? $this->modifiedAt->format('Y-m-d H:i:s') : '';
         $avatar = AvatarModel::getAvatar($userID);
-        $avatar = !is_null($avatar) ? $avatar : '';
+        $avatar ??= '';
         $this->avatar = $avatar;
         $this->hasAvatar = mb_strlen($avatar) > 0;
         $this->TOTPData = OTPSecretsUsersMapper::getTOTPData($this->id);

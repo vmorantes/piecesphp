@@ -809,7 +809,7 @@ class OrganizationMapper extends EntityMapperExtensible
 
         if ($elementOrID instanceof OrganizationMapper && $elementOrID->id !== null) {
 
-            $uniqid = $elementOrID->preferSlug !== null ? $elementOrID->preferSlug : self::getEncryptIDForSlug($elementOrID->id);
+            $uniqid = $elementOrID->preferSlug ?? self::getEncryptIDForSlug($elementOrID->id);
             $name = StringManipulate::friendlyURLString($lang === null ? $elementOrID->currentLangData('name') : $elementOrID->getLangData($lang, 'name'));
 
             $slug = "{$name}-{$uniqid}";
@@ -859,7 +859,7 @@ class OrganizationMapper extends EntityMapperExtensible
      */
     public static function allForSelect(string $defaultLabel = '', string $defaultValue = '', bool $encryptValue = false, bool $ignoreInitial = false, ?string $nameForInitial = null)
     {
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Organizaciones');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Organizaciones');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
 
@@ -874,7 +874,7 @@ class OrganizationMapper extends EntityMapperExtensible
             if (!$ignore) {
                 $value = $e->currentLangData('name');
                 if ($isGlobalElement) {
-                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $nameForInitial !== null ? $nameForInitial : $value;
+                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $nameForInitial ?? $value;
                 } else {
                     $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $value;
                 }
@@ -942,7 +942,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function statusesForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
         $sourceOptions = self::statuses();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Estados');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Estados');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
@@ -963,7 +963,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function sizesForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
         $sourceOptions = self::sizes();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
@@ -982,13 +982,13 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function actionLinesForSelect(string $defaultLabel = '', string $defaultValue = '', array $checkAdditionsFromData = [])
     {
         $sourceOptions = self::actionLines();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
             $options[$value] = $text;
         }
-        foreach ($checkAdditionsFromData as $i => $additionalValue) {
+        foreach ($checkAdditionsFromData as $additionalValue) {
             if (is_scalar($additionalValue)) {
                 $additionalValueIntegerVersion = Validator::isInteger($additionalValue) ? (int) $additionalValue : null;
                 $hasAdditionalValueIntegerVersion = $additionalValueIntegerVersion !== null ? array_key_exists($additionalValueIntegerVersion, $sourceOptions) : false;
@@ -1009,7 +1009,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function esalOptionsForSelect(string $defaultLabel = '', string $defaultValue = '')
     {
         $sourceOptions = self::esalOptions();
-        $defaultLabel = strlen($defaultLabel) > 0 ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
+        $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(self::LANG_GROUP, 'Seleccione una opción');
         $options = [];
         $options[$defaultValue] = $defaultLabel;
         foreach ($sourceOptions as $value => $text) {
@@ -1185,7 +1185,7 @@ class OrganizationMapper extends EntityMapperExtensible
     public static function existsByNit(string $nit, ?int $ignoreID = null, bool $onlyNoDeleted = true)
     {
 
-        $ignoreID = $ignoreID !== null ? $ignoreID : -1;
+        $ignoreID ??= -1;
         $model = self::model();
 
         $nit = escapeString($nit);

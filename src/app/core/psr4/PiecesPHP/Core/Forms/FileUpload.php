@@ -384,9 +384,9 @@ class FileUpload
             }
         }
 
-        $directory = is_null($directory) ? $this->directoryMove : $directory;
-        $name = is_null($name) ? $this->nameOnMove : $name;
-        $extension = is_null($extension) ? $this->extensionOnMove : $extension;
+        $directory ??= $this->directoryMove;
+        $name ??= $this->nameOnMove;
+        $extension ??= $this->extensionOnMove;
 
         if ($move) {
             foreach ($files as $file) {
@@ -441,9 +441,9 @@ class FileUpload
             }
         }
 
-        $directory = is_null($directory) ? $this->directoryMove : $directory;
-        $name = is_null($name) ? $this->nameOnMove : $name;
-        $extension = is_null($extension) ? $this->extensionOnMove : $extension;
+        $directory ??= $this->directoryMove;
+        $name ??= $this->nameOnMove;
+        $extension ??= $this->extensionOnMove;
 
         if ($move) {
             foreach ($files as $file) {
