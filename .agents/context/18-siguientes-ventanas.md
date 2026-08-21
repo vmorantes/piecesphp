@@ -56,6 +56,25 @@ lo obtiene parseando **la tabla** con otro código —`bin/phpstan-process-resul
 los mismos **877 y 190**. Distinto formateador y distinto parser, así que el acuerdo no es
 tautológico.
 
+### Las tres unidades, y por qué hay que decir cuál se usa
+
+Casi todas las discrepancias de esta campaña han sido **la misma cifra en otra unidad**, no
+un error. Estas son las únicas tres que se usan, y **ninguna cifra publicada puede omitir la
+suya**:
+
+| Unidad | Qué cuenta | Cómo se obtiene |
+| :-- | :-- | :-- |
+| **Instancia** | Cada error reportado, aunque otro sea idéntico | `totals.file_errors` de `PHPStanResult.json` |
+| **Tripleta** | Cada `(ruta, línea, mensaje)` **distinta** | Deduplicar las instancias por esa clave |
+| **Archivo** | Cada archivo con al menos un error | Número de claves de `files` |
+
+La diferencia entre instancia y tripleta son los **duplicados exactos**: dos errores en la
+misma línea con el mismo mensaje. Hoy hay **9** (877 contra 868). No es ruido de medición:
+son reales, y se cuentan dos veces cuando lo que importa es el volumen de trabajo y una sola
+cuando lo que importa es el número de sitios a tocar.
+
+**Es la reconciliación del «469 contra 464»**: las dos eran correctas, en unidades distintas.
+
 ### Refinamiento del marco de las cuatro respuestas
 
 **«CONTRATO» solo está disponible cuando el lenguaje OFRECE una expresión para la garantía.**
@@ -893,7 +912,7 @@ serie apta empieza aquí. No se reconstruyen hacia atrás: sería inventar la re
 el mismo error que derogó el 148.
 ### Recorrido, medido commit a commit
 
-| Commit | Errores | Con `false` | Qué resolvió |
+| Commit | Errores *(instancias)* | Con `false` *(instancias)* | Qué resolvió |
 | :-- | --: | --: | :-- |
 | `89030cb6` | 968 | **157** | *(punto de partida bajo el pipeline corregido)* |
 | `61a0a474` | 968 | 157 | D2 — nulabilidad, no `false` |
@@ -903,9 +922,14 @@ el mismo error que derogó el 148.
 | `7ac91445` | 907 | **114** | Familia `strpos` (−9) |
 | `d6924b39` | 900 | **107** | `realpath` y `createFromFormat` (−7) |
 
-**Resueltos: 50 de 157. Quedan 107.**
+**Resueltos: 50 de 157. Quedan 107.** Todas las cifras de esta tabla son **instancias**,
+no tripletas: se midieron sobre `totals.file_errors` y sobre el conteo de mensajes, sin
+deduplicar. La serie apta para el trinquete empieza donde el método quedó escrito, más
+arriba.
 
 ### Los 107 que quedan, por grupo y destino
+
+Las columnas de abajo cuentan **instancias** agrupadas por función de origen, no archivos:
 
 | Grupo | Trato completo | Se reescribe | Se borra | Total |
 | :-- | --: | --: | --: | --: |
@@ -1083,7 +1107,7 @@ De uno en uno, **empezando por los archivos que tengan cobertura de pruebas**, y
 lote. El orden natural es: primero lo que cubren las suites del framework y la del
 exportador; después el núcleo; los módulos, al final, y los condenados nunca.
 
-## T12 · `routeName` / `allowedRoute` — PASO A MEDIDO, PASO B HECHO
+## T12 · `routeName` / `allowedRoute` — **CERRADO**: medido, normalizado y unificado en dos traits
 
 **La duplicación era deliberada; las diferencias no.** Ese es el corte que decide el lote.
 
@@ -1179,7 +1203,7 @@ funcionando.
   descendientes se tipan EN EL MISMO COMMIT.** Si se tipa la base y un hijo redeclara sin
   tipo, el hijo ensancha y **PHP falla al declarar la clase**, no al llamarla.
 
-## T13 · Ramas muertas — TRIAJE HECHO, supresión NO autorizada
+## T13 · Ramas muertas — TRIAJE HECHO y VUELTO A MEDIR; supresión NO autorizada
 
 **Son 464, no ~357.** Medidas destapando los 27 identificadores silenciados en `phpstan.neon`:
 1.347 errores con ellos fuera contra 878 con ellos dentro.
@@ -1327,6 +1351,10 @@ sustituir parte de esa comprobación por `--strict-psr` nativo.
 framework; registrar la misma carpeta en los dos puede provocar resoluciones ambiguas —ya hay
 una, `PiecesPHP\Core\Database\Meta\MetaProperty`, declarada en `src/app` y en el paquete
 `piecesphp/database`—.
+
+**Ese riesgo ya no es ciego**: `bin/cli verify-integrity` falla si el núcleo eclipsa una
+clase de cualquier paquete, con los eclipses aceptados registrados en `KNOWN_ECLIPSES`. Si
+registrar la carpeta creara colisiones nuevas, la puerta las nombra en vez de dejarlas pasar.
 
 ## T16 · COLISIÓN DE CLASE `MetaProperty` — verificada, viva y silenciosa
 
@@ -1590,4 +1618,50 @@ construido encima. Ya obligó a derogar el «148» y a reconciliar «469 contra 
 
 **Corolario**: cada cifra que se publique en un documento debería poder decir con qué se
 midió. Ver T8 y T18, donde la unidad y el método están escritos junto al número.
+
+Ese corolario **subió al criterio de cierre**: es el punto 5 de T0. La razón no es la
+simetría con la regla de las supresiones, es que **el trinquete no funciona sin él**:
+comparar dos baselines solo significa algo si se midieron igual.
+
+## T21 · PEDIR LA DEMOSTRACIÓN NO ES CEREMONIA, ES UN DETECTOR
+
+**El peor defecto de esta campaña no apareció revisando. Apareció al intentar ENSEÑAR.**
+
+Los scripts que normalizaron los cuerpos de `routeName` convirtieron de paso CRLF a LF en
+**20 archivos**. El commit declaraba **4.185 inserciones para 41 líneas reales** —
+irrevisable, y por eso mismo invisible en una revisión: nadie lee cuatro mil líneas para
+comprobar que sobran. Salió cuando el propietario dijo **«enséñame el Paso B»** y hubo que
+producir el diff.
+
+### No fue una casualidad. Pasa cada vez
+
+| Lo que se afirmaba | Qué lo tumbó |
+| :-- | :-- |
+| «El Paso B son 41 líneas» | **Enseñar el diff**: 4.185 inserciones |
+| «Con `.gitattributes` ya está arreglado» | **Correrlo de verdad**: `dos2unix` + `git add` seguía preparando 1.181 líneas. Faltaba renormalizar |
+| «Con `-X renormalize` no habrá conflictos» | **La fusión de prueba en un clon aislado**: 2 conflictos sin la opción, 0 con ella. El propietario lo exigió con «no lo escribas porque yo lo diga» |
+| «La tercera comprobación de integridad detecta un `namespace` perdido» | **Provocar el fallo**: la primera versión derivaba el FQCN del propio archivo y no detectaba nada |
+| «Hay hooks `_allowedRoute` muertos» | **Contarlos**: de 32 que lo declaran, los 32 lo llaman |
+| «El guardián de eclipses funciona» | **Fabricar una colisión**: la primera sonda tumbó la aplicación entera antes de llegar a la comprobación — que demostró el mecanismo, pero no el guardián |
+
+### La regla
+
+> **Antes de dar algo por hecho, produce el artefacto que lo demostraría** —el diff que
+> enseñarías, la corrida que lo prueba, el fallo provocado a mano— **aunque nadie lo haya
+> pedido.** Si no puedes producirlo, no está hecho: está supuesto.
+
+Y para los cambios que se prueban con una puerta —una comprobación, un test, un guardián—,
+la demostración tiene **dos direcciones y hacen falta las dos**: que **pase** cuando debe
+pasar, y que **falle** cuando debe fallar. Una puerta que solo se ha visto en verde no se ha
+visto funcionar; solo se ha visto callar.
+
+### Por qué funciona
+
+Revisar comprueba **la afirmación que uno hace**. Demostrar obliga a fabricar el artefacto, y
+**el artefacto trae consigo todo lo que la afirmación omitía** — incluido lo que uno no sabía
+que estaba omitiendo. Por eso pedir la demostración detecta una clase de fallo que ninguna
+revisión alcanza: **la de los errores que uno no sabe que cometió.**
+
+**Relación con T20**: T20 dice de qué desconfiar cuando un número sorprende. T21 dice qué
+hacer cuando **nada** sorprende, que es el caso peligroso.
 
