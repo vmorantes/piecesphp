@@ -1,17 +1,17 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-192
+190
 
 [TOTAL DE ERRORES VISIBLES]
-933
+916
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (368)
+🪪  argument.type (352)
 🪪  property.nonObject (214)
 🪪  method.nonObject (144)
 🪪  return.type (71)
-🪪  assign.propertyType (40)
+🪪  assign.propertyType (39)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
@@ -220,7 +220,7 @@ project://src/app/classes/Organizations/Controllers/OrganizationsController.php
 	🪪  property.nonObject (Líneas: 214, 1306, 1543)
 	🪪  argument.type (Líneas: 852, 1324, 1599)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
-	🪪  argument.type (Líneas: 434, 671, 672, 673, 674, 877, 879, 995)
+	🪪  argument.type (Líneas: 434, 877, 879, 995)
 	🪪  offsetAccess.invalidOffset (Líneas: 996)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
 	🪪  property.nonObject (Líneas: 122, 125)
@@ -238,8 +238,6 @@ project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.p
 project://src/app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php
 	🪪  property.nonObject (Líneas: 404)
 	🪪  argument.type (Líneas: 617)
-project://src/app/classes/PiecesPHP/LocalizationSystem/Controllers/LocalizationSystemController.php
-	🪪  argument.type (Líneas: 90)
 project://src/app/classes/PiecesPHP/LocalizationSystem/Util/DynamicTranslationsHelper.php
 	🪪  argument.type (Líneas: 36)
 project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
@@ -267,7 +265,7 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	🪪  method.nonObject (Líneas: 565, 572, 577, 587)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	🪪  argument.type (Líneas: 138, 1152, 1155, 1184, 1189, 1388, 1503, 1677)
+	🪪  argument.type (Líneas: 138, 1155, 1189, 1388, 1503, 1677)
 	🪪  property.nonObject (Líneas: 234, 1328, 1599, 1601, 1624, 1626)
 	🪪  assign.propertyType (Líneas: 645)
 	🪪  clone.nonObject (Líneas: 701)
@@ -287,7 +285,7 @@ project://src/app/classes/Publications/Util/AttachmentPackage.php
 	🪪  assign.propertyType (Líneas: 62, 63, 171)
 	🪪  return.type (Líneas: 174)
 project://src/app/classes/Publications/Views/publications/forms/edit.php
-	🪪  argument.type (Líneas: 45, 46, 62, 63)
+	🪪  argument.type (Líneas: 45, 46)
 	🪪  offsetAccess.invalidOffset (Líneas: 54)
 	🪪  property.nonObject (Líneas: 356, 361)
 	🪪  method.nonObject (Líneas: 357)
@@ -431,17 +429,17 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php
 	🪪  argument.type (Líneas: 43, 72, 73)
 	🪪  return.type (Líneas: 74, 76, 129, 166)
 project://src/app/core/psr4/PiecesPHP/Core/BaseToken.php
-	🪪  argument.type (Líneas: 41, 339, 340, 343, 445, 448, 479, 491, 545)
 	🪪  return.type (Líneas: 141, 474, 519)
 	🪪  property.notFound (Líneas: 177, 226, 273)
+	🪪  argument.type (Líneas: 339, 340, 343, 445, 448, 479, 491, 545)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCriteries.php
 	🪪  argument.type (Líneas: 51, 52)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
-	🪪  argument.type (Líneas: 130, 162, 164, 166, 168, 169, 200, 219, 274, 344, 370)
+	🪪  argument.type (Líneas: 162, 164, 166, 168, 169, 200, 219, 274, 344, 370)
 	🪪  assign.propertyType (Líneas: 315)
 	🪪  return.type (Líneas: 324)
 project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php
-	🪪  argument.type (Líneas: 71, 125, 192, 193, 286)
+	🪪  argument.type (Líneas: 71, 125, 295)
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
 	🪪  argument.type (Líneas: 315, 339)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Exporter.php
@@ -523,8 +521,6 @@ project://src/app/core/psr4/PiecesPHP/Core/Validation/Parameters/Parameter.php
 	🪪  assign.propertyType (Líneas: 73)
 project://src/app/core/psr4/PiecesPHP/LangInjector.php
 	🪪  argument.type (Líneas: 69, 102, 106, 111, 141, 165, 169, 174)
-project://src/app/core/psr4/PiecesPHP/Terminal/QueueTask.php
-	🪪  assign.propertyType (Líneas: 116)
 project://src/app/core/psr4/PiecesPHP/TerminalData.php
 	🪪  return.type (Líneas: 213)
 project://src/app/core/system-controllers/Test.php
@@ -560,7 +556,6 @@ project://src/app/view/layout/menu.php
 	🪪  method.nonObject (Líneas: 68, 70)
 project://src/app/view/panel/layout/header.php
 	🪪  property.nonObject (Líneas: 42, 43, 60)
-	🪪  argument.type (Líneas: 60)
 project://src/app/view/panel/layout/menu.php
 	🪪  argument.type (Líneas: 35, 72, 99)
 project://src/app/view/panel/layout/topbar.php

@@ -57,7 +57,7 @@ if(isset($bodyClasses) && is_array($bodyClasses)){
     </div>
 
     <?php if(ACTIVE_TIMER): ?>
-    <div timer-platform-js="<?=base64_encode(json_encode(['user_id' => $currentUserLogged->id, 'url' => get_route('timing-add')]));?>">
+    <div timer-platform-js="<?=base64_encode(json_encode(['user_id' => $currentUserLogged->id, 'url' => get_route('timing-add')], \JSON_THROW_ON_ERROR));?>">
     </div>
     <?php endif;?>
 

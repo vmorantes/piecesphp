@@ -668,10 +668,10 @@ class OrganizationMapper extends EntityMapperExtensible
         $cityName = "SELECT {$tableCity}.name FROM {$tableCity} WHERE {$tableCity}.id = {$table}.city";
 
         //Otros
-        $statusesJSON = escapeString(json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE));
-        $sizesJSON = escapeString(json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE));
-        $actionLinesJSON = escapeString(json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE));
-        $esalOptionsJSON = escapeString(json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE));
+        $statusesJSON = escapeString(json_encode((object) self::statuses(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
+        $sizesJSON = escapeString(json_encode((object) self::sizes(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
+        $actionLinesJSON = escapeString(json_encode((object) self::actionLines(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
+        $esalOptionsJSON = escapeString(json_encode((object) self::esalOptions(), \JSON_UNESCAPED_UNICODE | \JSON_THROW_ON_ERROR));
 
         $fields = [
             "LPAD({$table}.id, 5, 0) AS idPadding",

@@ -933,14 +933,6 @@ project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
   434    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                                        
          🪪  argument.type                                                                                                                    
-  671    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                                       
-         🪪  argument.type                                                                                                                    
-  672    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                                       
-         🪪  argument.type                                                                                                                    
-  673    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                                       
-         🪪  argument.type                                                                                                                    
-  674    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                                       
-         🪪  argument.type                                                                                                                    
   877    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
          🪪  argument.type                                                                                                                    
   879    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
@@ -1001,13 +993,6 @@ project://src/app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentCo
   617    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
-
- ------ ---------------------------------------------------------------------------------------------------------------- 
-project://src/app/classes/PiecesPHP/LocalizationSystem/Controllers/LocalizationSystemController.php
- ------ ---------------------------------------------------------------------------------------------------------------- 
-  90     Parameter Nr.3 $eTagContent of function generateCachingHeadersAndStatus expects string|null, string|false given.  
-         🪪  argument.type                                                                                               
- ------ ---------------------------------------------------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/PiecesPHP/LocalizationSystem/Util/DynamicTranslationsHelper.php
@@ -1127,11 +1112,7 @@ project://src/app/classes/Publications/Controllers/PublicationsController.php
          🪪  clone.nonObject                                                                                                                             
   1150   Cannot call method getTimestamp() on DateTime|string|false.                                                                                     
          🪪  method.nonObject                                                                                                                            
-  1152   Parameter Nr.1 $string of function sha1 expects string, string|false given.                                                                       
-         🪪  argument.type                                                                                                                               
   1155   Parameter Nr.2 $lastModification of function generateCachingHeadersAndStatus expects DateTime, DateTime|string|false given.                       
-         🪪  argument.type                                                                                                                               
-  1184   Parameter Nr.1 $data of method PiecesPHP\Core\Cache\CacheControllersManager::setDataCache() expects string, string|false given.                   
          🪪  argument.type                                                                                                                               
   1189   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
          🪪  argument.type                                                                                                                               
@@ -1228,10 +1209,6 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
          🪪  argument.type                                                                                                                                             
   54     Possibly invalid array key type Publications\Util\FieldTranslationUtility|string.                                                                             
          🪪  offsetAccess.invalidOffset                                                                                                                                
-  62     Parameter Nr.1 $string of function base64_encode expects string, string|false given.                                                                            
-         🪪  argument.type                                                                                                                                             
-  63     Parameter Nr.1 $string of function base64_encode expects string, string|false given.                                                                            
-         🪪  argument.type                                                                                                                                             
   356    Cannot access property $fileLocation on Publications\Mappers\AttachmentPublicationMapper|null.                                                                
          🪪  property.nonObject                                                                                                                                        
   357    Cannot call method fileIsImage() on Publications\Mappers\AttachmentPublicationMapper|null.                                                                    
@@ -2047,8 +2024,6 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
 project://src/app/core/psr4/PiecesPHP/Core/BaseToken.php
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
-  41     Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encrypt() expects string, string|false given.                    
-         🪪  argument.type                                                                                                                         
   141    Method PiecesPHP\Core\BaseToken::isExpire() should return bool|string but returns int|object|string.                                      
          🪪  return.type                                                                                                                           
   177    Access to an undefined property object::$data.                                                                                            
@@ -2094,8 +2069,6 @@ project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCriteries.php
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  130    Parameter Nr.1 $input of static method PiecesPHP\Core\StringManipulate::urlSafeB64Encode() expects string, string|false given.                               
-         🪪  argument.type                                                                                                                                          
   162    Parameter Nr.1 $filename of function file_exists expects string, string|false given.                                                                         
          🪪  argument.type                                                                                                                                          
   164    Parameter Nr.1 $filename of function is_dir expects string, string|false given.                                                                              
@@ -2129,13 +2102,7 @@ project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.p
          🪪  argument.type                                                                                  
   125    Parameter Nr.1 $json of function json_decode expects string, string|false given.                     
          🪪  argument.type                                                                                  
-  192    Parameter Nr.1 $stream of function fwrite expects resource, resource|false given.                    
-         🪪  argument.type                                                                                  
-  192    Parameter Nr.2 $data of function fwrite expects string, string|false given.                          
-         🪪  argument.type                                                                                  
-  193    Parameter Nr.1 $stream of function fclose expects resource, resource|false given.                    
-         🪪  argument.type                                                                                  
-  286    Parameter Nr.1 $haystack of function mb_strpos expects string, string|false given.                   
+  295    Parameter Nr.1 $haystack of function mb_strpos expects string, string|false given.                   
          🪪  argument.type                                                                                  
  ------ --------------------------------------------------------------------------------------------------- 
 
@@ -2298,8 +2265,6 @@ project://src/app/core/psr4/PiecesPHP/Core/MailjetHandler.php
  ------ --------------------------------------------------------------------------------------------------------- 
   373    Method PiecesPHP\Core\MailjetHandler::getLastSendedData() should return array but returns array|string.  
          🪪  return.type                                                                                          
-  373    Parameter Nr.1 $data of function gzcompress expects string, string|false given.                            
-         🪪  argument.type                                                                                        
   373    Parameter Nr.1 $string of function base64_encode expects string, string|false given.                       
          🪪  argument.type                                                                                        
   382    Parameter Nr.1 $json of function json_decode expects string, string|false given.                           
@@ -2478,13 +2443,6 @@ project://src/app/core/psr4/PiecesPHP/LangInjector.php
   174    Parameter Nr.4 $messageValue of static method PiecesPHP\Core\Config::addLangMessage() expects string, string|false given.           
          🪪  argument.type                                                                                                                 
  ------ ---------------------------------------------------------------------------------------------------------------------------------- 
-
- ------ ------------------------------------------------------------------------------------------------------------ 
-project://src/app/core/psr4/PiecesPHP/Terminal/QueueTask.php
- ------ ------------------------------------------------------------------------------------------------------------ 
-  116    Property Terminal\Mappers\QueueJobMapper::$data (array|stdClass|string|null) does not accept string|false.  
-         🪪  assign.propertyType                                                                                     
- ------ ------------------------------------------------------------------------------------------------------------ 
 
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/TerminalData.php
@@ -2693,8 +2651,6 @@ project://src/app/view/panel/layout/header.php
          🪪  property.nonObject                                                               
   60     Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.             
          🪪  property.nonObject                                                               
-  60     Parameter Nr.1 $string of function base64_encode expects string, string|false given.   
-         🪪  argument.type                                                                    
  ------ ------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------- 
@@ -2857,5 +2813,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 933 errors                                                                                               
+ [ERROR] Found 916 errors                                                                                               
 

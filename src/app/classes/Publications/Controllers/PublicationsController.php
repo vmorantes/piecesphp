@@ -1149,7 +1149,7 @@ class PublicationsController extends AdminPanelController
                 $featured,
                 sha1($activesByDateIDs . ':' . $lastModification->getTimestamp()),
             ];
-            $checksum = sha1(json_encode($checksumData));
+            $checksum = sha1(json_encode($checksumData, \JSON_THROW_ON_ERROR));
 
             //Validar cacheo por cabeceras
             $headersAndStatus = generateCachingHeadersAndStatus($request, $lastModification, $checksum);
@@ -1181,7 +1181,7 @@ class PublicationsController extends AdminPanelController
                     $response = $response->withJson($result);
 
                     //Definir respuesta para la generación del archivo estático
-                    $cacheHandler->setDataCache(json_encode($result), CacheControllersManager::CONTENT_TYPE_JSON);
+                    $cacheHandler->setDataCache(json_encode($result, \JSON_THROW_ON_ERROR), CacheControllersManager::CONTENT_TYPE_JSON);
 
                 } else {
                     $response = $response

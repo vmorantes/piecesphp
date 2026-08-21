@@ -370,7 +370,7 @@ class MailjetHandler
      */
     public function getLastSendedData(bool $b64 = false)
     {
-        return !$b64 ? $this->lastSended : base64_encode(gzcompress(json_encode($this->lastSended), 9));
+        return !$b64 ? $this->lastSended : base64_encode(gzcompress(json_encode($this->lastSended, \JSON_THROW_ON_ERROR), 9));
     }
 
     /**

@@ -59,8 +59,8 @@ $withAttachments = PublicationMapper::WITH_ATTACHMENTS;
 
 <template variables>
     <var name="baseLang" value="<?= base64_encode($baseLang); ?>"></var>
-    <var name="translatableProperties" value="<?= base64_encode(json_encode($translatableProperties)); ?>"></var>
-    <var name="translationsLangs" value="<?= base64_encode(json_encode($langsTabs)); ?>"></var>
+    <var name="translatableProperties" value="<?= base64_encode(json_encode($translatableProperties, \JSON_THROW_ON_ERROR)); ?>"></var>
+    <var name="translationsLangs" value="<?= base64_encode(json_encode($langsTabs, \JSON_THROW_ON_ERROR)); ?>"></var>
 </template>
 
 <section class="module-view-container">

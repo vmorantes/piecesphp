@@ -188,10 +188,19 @@ class GenericHandler
                 $this->date->format('d-m-Y h-i-s.u'),
                 $this->oldFileLocation
             );
-            $fp = fopen($file_old_output, 'w+');
-            fwrite($fp, json_encode($oldFileLogJSON));
-            fclose($fp);
-            @chmod($file_old_output, 0664);
+            /**
+             * MANEJO EXPLÍCITO, NO EXCEPCIÓN. Esto corre DENTRO del manejador de errores:
+             * lanzar aquí rompería justo el registro que estamos intentando escribir, y el
+             * fallo original se perdería con él. Si el respaldo no se puede escribir, se
+             * abandona en silencio y el log principal —que ya se guardó arriba— sobrevive.
+             */
+            $oldLogJSON = json_encode($oldFileLogJSON);
+            $fp = $oldLogJSON !== false ? fopen($file_old_output, 'w+') : false;
+            if ($fp !== false) {
+                fwrite($fp, (string) $oldLogJSON);
+                fclose($fp);
+                @chmod($file_old_output, 0664);
+            }
         }
 
         // Plain Log

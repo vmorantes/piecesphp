@@ -127,7 +127,7 @@ class CacheControllersManager implements JsonSerializable
     public function process()
     {
 
-        $serialized = StringManipulate::urlSafeB64Encode(json_encode($this));
+        $serialized = StringManipulate::urlSafeB64Encode(json_encode($this, \JSON_THROW_ON_ERROR));
         $this->hash = sha1($serialized);
         $this->ownConfigurationFileName = $this->hash . '.json';
         $this->creationTime = time();

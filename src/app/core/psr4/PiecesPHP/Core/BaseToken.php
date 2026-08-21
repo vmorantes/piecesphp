@@ -38,7 +38,7 @@ class BaseToken
             $expire = $time + self::$expire_time;
         }
 
-        $data = BaseHashEncryption::encrypt(json_encode($data), $key);
+        $data = BaseHashEncryption::encrypt(json_encode($data, \JSON_THROW_ON_ERROR), $key);
 
         if ($aud) {
             $token = array(

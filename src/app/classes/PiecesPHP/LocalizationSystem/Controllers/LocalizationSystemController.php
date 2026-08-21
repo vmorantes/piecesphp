@@ -87,7 +87,7 @@ class LocalizationSystemController extends AdminPanelController
                 $translationsByGroups[$langGroup][$lang] = array_key_exists($langGroup, $langData) ? $langData[$langGroup] : [];
             }
         }
-        $headersAndStatus = generateCachingHeadersAndStatus($request, new \DateTime(date('Y-m-d 00:00:00')), json_encode($translationsByGroups));
+        $headersAndStatus = generateCachingHeadersAndStatus($request, new \DateTime(date('Y-m-d 00:00:00')), json_encode($translationsByGroups, \JSON_THROW_ON_ERROR));
         foreach ($headersAndStatus['headers'] as $header => $value) {
             $response = $response->withHeader($header, $value);
         }

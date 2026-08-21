@@ -113,7 +113,7 @@ class QueueTask
     {
         $task = new QueueJobMapper();
         $task->name = $name;
-        $task->data = json_encode($data);
+        $task->data = json_encode($data, \JSON_THROW_ON_ERROR);
         $task->status = QueueJobMapper::STATUS_PENDING;
         $task->attempts = 0;
         $task->maxAttempts = $maxAttempts;
