@@ -102,6 +102,32 @@ php index.php cli <acción> [...]     # forma explícita
 
 Autocompletado disponible con `source bin/pieces-completion.bash` (o `.zsh`).
 
+## Configuración de git, una vez por copia
+
+El repositorio fija los finales de línea con `.gitattributes` —CRLF por defecto, LF en
+`*.sh` y en los ejecutables de `bin/`—, así que **no hay que configurar nada para que
+funcione**. Pero hay dos ajustes locales que conviene poner una sola vez:
+
+```bash
+# 1. Que `git blame` se salte la renormalización de finales de línea.
+#    Sin esto, los archivos grandes atribuyen TODAS sus líneas a ese commit.
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# 2. Que las fusiones ignoren las diferencias de finales de línea.
+#    Imprescindible al ACTUALIZAR UN DESPLIEGUE que venga de antes de la renormalización:
+#    sin esto salen conflictos en cada archivo que el despliegue haya tocado.
+git config merge.renormalize true
+```
+
+El segundo también se puede dar por fusión suelta, sin configurarlo:
+
+```bash
+git merge -X renormalize <rama>
+```
+
+**Comprobado en una fusión de prueba**: un despliegue con cambios propios sobre archivos
+afectados da **2 conflictos sin la opción y 0 con ella**, conservando sus cambios locales.
+
 ## Documentación
 
 | Recurso | Contenido |

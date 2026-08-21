@@ -5,6 +5,39 @@
     
 # Sin publicar
 
+## CÓMO ACTUALIZAR — LEER ANTES DE FUSIONAR
+
+Esta versión **renormaliza los finales de línea de todo el repositorio**: 1.126 archivos,
+**cero cambio de contenido** (verificado con `git diff --ignore-cr-at-eol`, que sale vacío).
+El motivo está en el commit `0ac751b9`.
+
+**Si fusionas sin más, cada archivo que tu despliegue haya tocado dará conflicto.** No por
+el código: por los finales de línea.
+
+```bash
+git merge -X renormalize <rama-del-framework>
+```
+
+o, si prefieres dejarlo puesto de una vez:
+
+```bash
+git config merge.renormalize true
+```
+
+**Comprobado en una fusión de prueba**, no supuesto: un despliegue con cambios propios sobre
+archivos afectados da **2 conflictos sin la opción y 0 con ella**, y **conserva sus cambios
+locales** en ambos archivos.
+
+Y una vez fusionado, para que la arqueología no se pierda:
+
+```bash
+git config blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
+Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **todas** sus
+líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
+a la historia real al activarlo.
+
 ## AVISO PARA DESPLIEGUES EXISTENTES
 
 **Versiones afectadas: todas hasta la `v7.1.0` incluida.** El framework es una plantilla que

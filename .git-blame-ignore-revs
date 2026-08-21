@@ -1,0 +1,17 @@
+# Revisiones que `git blame` debe SALTARSE.
+#
+# Aquí van solo commits que no cambian contenido: renormalizaciones, reformateos masivos.
+# Sin este archivo, la arqueología de los archivos grandes se pierde — OrganizationMapper.php
+# (1.342 líneas) y PublicationsController.php (1.935) atribuirían TODAS sus líneas al commit
+# de renormalización, y son justo los dos donde más falta hace saber por qué algo está como
+# está.
+#
+# Para que git lo use, cada quien lo activa una vez en su copia:
+#
+#     git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# No se activa solo: es configuración local, no del repositorio.
+
+# chore(git): .gitattributes y renormalización de finales de línea
+# 1.126 archivos, cero cambio de contenido (verificado con --ignore-cr-at-eol).
+0ac751b92330221e06a1bbee77de8fb001dff54b
