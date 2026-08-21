@@ -1,15 +1,15 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-192
+193
 
 [TOTAL DE ERRORES VISIBLES]
 1011
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (371)
+🪪  argument.type (372)
 🪪  property.nonObject (267)
-🪪  method.nonObject (164)
+🪪  method.nonObject (163)
 🪪  return.type (71)
 🪪  assign.propertyType (40)
 🪪  method.resultUnused (26)
@@ -351,6 +351,8 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	🪪  property.notFound (Líneas: 328)
 	🪪  binaryOp.invalid (Líneas: 366)
 	🪪  method.deprecated (Líneas: 377)
+project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
+	🪪  argument.type (Líneas: 187)
 project://src/app/config/containers.php
 	🪪  argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
@@ -537,7 +539,6 @@ project://src/app/core/system-controllers/Test.php
 	🪪  argument.type (Líneas: 83, 94, 111)
 	🪪  return.type (Líneas: 126)
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
-	🪪  method.nonObject (Líneas: 40)
 	🪪  argument.type (Líneas: 53, 178, 179, 183, 188, 196, 204, 213)
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 	🪪  argument.type (Líneas: 52, 53)

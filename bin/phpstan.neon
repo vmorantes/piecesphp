@@ -55,6 +55,16 @@ parameters:
             identifier: argument.unresolvableType
             paths:
                 - ../src/app/**/*Mapper.php
+        # Las suites de caracterización ejercitan A PROPÓSITO el patrón defectuoso que
+        # documentan —encadenar sobre un resultado nulable sin comprobarlo—, así que
+        # PHPStan lo señala con razón. Silenciarlo solo ahí mantiene la línea base limpia
+        # sin ocultar el mismo patrón en el código de producción.
+        -
+            identifiers:
+                - property.nonObject
+                - method.nonObject
+            paths:
+                - ../src/app/core/system-controllers/local-tests/*
         -
             identifiers: 
                 - offsetAccess.nonOffsetAccessible

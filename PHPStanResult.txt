@@ -2262,6 +2262,14 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
          🪪  method.deprecated                                                  
  ------ ----------------------------------------------------------------------- 
 
+ ------ ----------------------------------------------------------------------- 
+project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
+ ------ ----------------------------------------------------------------------- 
+  187    Parameter Nr.1 $string of function ltrim expects string, array<string>|  
+         string given.                                                          
+         🪪  argument.type                                                      
+ ------ ----------------------------------------------------------------------- 
+
  ------ ------------------------------------------------------------------- 
 project://src/app/config/containers.php
  ------ ------------------------------------------------------------------- 
@@ -3716,9 +3724,6 @@ project://src/app/core/system-controllers/Test.php
  ------ ----------------------------------------------------------------------- 
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
  ------ ----------------------------------------------------------------------- 
-  40     Cannot call method getDatabaseName() on                                
-         PiecesPHP\Core\Database\Database|null.                                 
-         🪪  method.nonObject                                                   
   53     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter      
          constructor expects PDO, PiecesPHP\Core\Database\Database|null given.  
          🪪  argument.type                                                      
