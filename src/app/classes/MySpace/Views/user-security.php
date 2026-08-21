@@ -10,8 +10,13 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
 $currentUser = getLoggedFrameworkUser();
 $isEnabled2FA = OTPHandler::isEnabled2FA();
 $wasViewedQRData = OTPHandler::wasViewedCurrentUserQRData();
+/**
+ * `TOTPData` es null mientras el usuario no haya configurado su 2FA: los buscadores del
+ * mapper dejaron de crear el registro al leerlo. El alias por defecto ya era el del
+ * propietario, así que el null cae en la misma rama sin cambiar lo que ve el usuario.
+ */
 $totpData = $currentUser->TOTPData;
-$totpAlias = $totpData->twoAuthFactorAlias !== null ? $totpData->twoAuthFactorAlias : get_config('owner');
+$totpAlias = $totpData !== null && $totpData->twoAuthFactorAlias !== null ? $totpData->twoAuthFactorAlias : get_config('owner');
 $username = $currentUser->username;
 if($isEnabled2FA && !$wasViewedQRData){
     //Si está activado pero no confirmado, se revierte el proceso porque ya se ha refrescado la página

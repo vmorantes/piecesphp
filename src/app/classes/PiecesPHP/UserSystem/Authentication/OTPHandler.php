@@ -66,6 +66,17 @@ class OTPHandler
         $userDataPackage = $userData !== null ? new UserDataPackage($userData->id) : null;
         if ($userDataPackage !== null) {
             $otpData = OTPSecretsUsersMapper::getOTPData($userData->id, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE);
+            /**
+             * Ahora el buscador puede devolver null, porque ya no crea el registro al
+             * leerlo. Si no hay registro no hay código de un uso que caducar: la
+             * intención de este método —que ninguno quede vigente— ya se cumple. Se
+             * registra y se sigue; crear una fila aquí sería volver a escribir desde un
+             * camino que solo debía leer.
+             */
+            if ($otpData === null) {
+                log_exception(new \Exception("toExpireOTP: el usuario {$userData->id} no tiene registro ONE_USE_CODE; no hay código que caducar."), false);
+                return;
+            }
             $otpData->maxDate = new \DateTime('2000-01-01');
             $otpData->oneUseCode = "";
             $otpData->update();
@@ -82,7 +93,12 @@ class OTPHandler
         $valid = false;
         $userData = self::getUserDataByUsername($username);
         $userDataPackage = $userData !== null ? new UserDataPackage($userData->id) : null;
-        if ($userDataPackage !== null) {
+        /**
+         * Sin registro TOTP no hay segundo factor configurado, así que no hay nada que
+         * validar y la respuesta correcta es «no válido». Antes se llegaba aquí siempre
+         * con registro porque leerlo lo creaba —incluido para quien nunca activó el 2FA—.
+         */
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $secret = $userDataPackage->TOTPData->secret;
             $totpManager = new TOTPStandard($secret);
             $valid = $totpManager->verifyTOTP($totp, $secret, 1);
@@ -150,7 +166,7 @@ class OTPHandler
     {
         $totp = "";
         $userDataPackage = getLoggedFrameworkUser();
-        if ($userDataPackage !== null) {
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
             $totp = $totpManager->generateTOTP();
         }
@@ -164,7 +180,7 @@ class OTPHandler
     {
         $qrData = "";
         $userDataPackage = getLoggedFrameworkUser();
-        if ($userDataPackage !== null) {
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
             $qrData = $totpManager->getQRCodeUrl($userDataPackage->username, $userDataPackage->TOTPData->twoAuthFactorAlias);
         }
@@ -184,7 +200,8 @@ class OTPHandler
         } catch (\Exception $e) {
             $userDataPackage = null;
         }
-        if ($userDataPackage !== null) {
+        /** Sin registro, el QR no se ha visto: false es la respuesta correcta. */
+        if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $wasViewed = $userDataPackage->TOTPData->twoAuthFactorQRViewed == 1;
         }
         return $wasViewed;
@@ -222,8 +239,15 @@ class OTPHandler
         if ($userDataPackage !== null) {
             OTPSecretsUsersMapper::toggle2FA($userDataPackage->id, $enable, $securityCode, $alias);
             if ($enable) {
+                /**
+                 * `toggle2FA()` acaba de crear el registro si faltaba, así que al recargar
+                 * tiene que estar. La guarda es por si la escritura falló: preferimos
+                 * devolver null a reventar encadenando.
+                 */
                 $userDataPackage = getLoggedFrameworkUser(true);
-                $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+                if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
+                    $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
+                }
             }
         }
         return $totpManager;

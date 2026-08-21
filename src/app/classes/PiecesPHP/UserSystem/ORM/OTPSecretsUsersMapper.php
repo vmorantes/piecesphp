@@ -251,73 +251,126 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
+     * BUSCADOR PURO: devuelve el registro OTP del usuario, o null si no existe.
+     *
+     * Era un get-or-create. Como lo alcanza `UserDataPackage` —y a este, el camino de
+     * login ANTES de verificar la contraseña—, comprobar credenciales insertaba filas
+     * sin autenticación. Un buscador no escribe: quien necesite crear el registro llama
+     * a {@see self::createOTPData()}, y ese sitio es la configuración del 2FA.
+     *
+     * @param int $userID
+     * @param string $method
+     * @return OTPSecretsUsersMapper|null null si no hay registro o el método no es válido
+     */
+    public static function getOTPData(int $userID, string $method)
+    {
+        if (!in_array($method, [self::METHOD_ONE_USE_CODE], true)) {
+            return null;
+        }
+        $model = self::model();
+        $model->select()->where([
+            "user" => $userID,
+            "method" => "{$method}",
+        ]);
+        $model->execute();
+        $result = $model->result();
+        if (empty($result)) {
+            return null;
+        }
+        $mapper = new OTPSecretsUsersMapper($result[0]->id);
+        return $mapper->id !== null ? $mapper : null;
+    }
+
+    /**
+     * Mitad de ESCRITURA de {@see self::getOTPData()}: crea el registro si falta y lo
+     * devuelve. Solo debe llamarse desde un camino ya autenticado.
+     *
      * @param int $userID
      * @param string $method
      * @return OTPSecretsUsersMapper|null
      */
-    public static function getOTPData(int $userID, string $method)
+    public static function createOTPData(int $userID, string $method)
     {
-        $model = self::model();
-        $method = in_array($method, [
-            self::METHOD_ONE_USE_CODE,
-        ]) ? $method : null;
-        if ($method !== null) {
-            $where = [
-                "user" => $userID,
-                "method" => "{$method}",
-            ];
-            $model->select()->where($where);
-            $model->execute();
-            $result = $model->result();
-            $result = !empty($result) ? $result[0]->id : null;
-            $mapper = new OTPSecretsUsersMapper($result);
-            if ($mapper->id === null) {
-                $mapper = new OTPSecretsUsersMapper();
-                $mapper->user = $userID;
-                $mapper->secret = TOTPStandard::generateSecret();
-                $mapper->intervalTOTP = self::DEFAULT_INTERVAL_TOTP;
-                $mapper->oneUseCode = "";
-                $mapper->maxDate = null;
-                $mapper->method = $method;
-                $mapper->save();
-            }
-            return $mapper->id !== null ? $mapper : null;
-        } else {
+        if (!in_array($method, [self::METHOD_ONE_USE_CODE], true)) {
             return null;
         }
+        $existente = self::getOTPData($userID, $method);
+        if ($existente !== null) {
+            return $existente;
+        }
+        $mapper = new OTPSecretsUsersMapper();
+        $mapper->user = $userID;
+        $mapper->secret = "";
+        $mapper->intervalTOTP = self::DEFAULT_INTERVAL_TOTP;
+        $mapper->oneUseCode = "";
+        $mapper->maxDate = null;
+        $mapper->method = $method;
+        $mapper->save();
+        return $mapper->id !== null ? $mapper : null;
     }
 
     /**
+     * BUSCADOR PURO: devuelve el registro TOTP del usuario, o null si no existe.
+     *
+     * Este era el peor de los dos: lo llama sin condiciones el constructor de
+     * `UserDataPackage`, así que **construir un paquete de usuario escribía en base de
+     * datos**, generando de paso un secreto TOTP para una cuenta que nadie había pedido
+     * proteger. El constructor ahora acepta el null.
+     *
      * @param int $userID
-     * @return OTPSecretsUsersMapper|null
+     * @return OTPSecretsUsersMapper|null null si el usuario no tiene registro TOTP
      */
     public static function getTOTPData(int $userID)
     {
         $model = self::model();
         $method = self::METHOD_TOTP;
-        $where = [
+        $model->select()->where([
             "user" => $userID,
             "method" => "{$method}",
-        ];
-        $model->select()->where($where);
+        ]);
         $model->execute();
         $result = $model->result();
-        $result = !empty($result) ? $result[0]->id : null;
-        $mapper = new OTPSecretsUsersMapper($result);
-        if ($mapper->id === null) {
-            $mapper = new OTPSecretsUsersMapper();
-            $mapper->user = $userID;
-            $mapper->secret = TOTPStandard::generateSecret();
-            $mapper->intervalTOTP = self::DEFAULT_INTERVAL_TOTP;
-            $mapper->oneUseCode = "";
-            $mapper->maxDate = null;
-            $mapper->method = $method;
-            $mapper->save();
+        if (empty($result)) {
+            return null;
         }
+        $mapper = new OTPSecretsUsersMapper($result[0]->id);
         return $mapper->id !== null ? $mapper : null;
     }
 
     /**
+     * Mitad de ESCRITURA de {@see self::getTOTPData()}: crea el registro TOTP si falta.
+     *
+     * El secreto se genera aquí, en un camino autenticado, y no al leer. Da igual que
+     * {@see self::toggle2FA()} lo regenere después: generar material criptográfico por
+     * cuenta de alguien que no lo ha pedido no es aceptable aunque nunca llegue a usarse.
+     *
+     * @param int $userID
+     * @return OTPSecretsUsersMapper|null
+     */
+    public static function createTOTPData(int $userID)
+    {
+        $existente = self::getTOTPData($userID);
+        if ($existente !== null) {
+            return $existente;
+        }
+        $mapper = new OTPSecretsUsersMapper();
+        $mapper->user = $userID;
+        $mapper->secret = TOTPStandard::generateSecret();
+        $mapper->intervalTOTP = self::DEFAULT_INTERVAL_TOTP;
+        $mapper->oneUseCode = "";
+        $mapper->maxDate = null;
+        $mapper->method = self::METHOD_TOTP;
+        $mapper->save();
+        return $mapper->id !== null ? $mapper : null;
+    }
+
+    /**
+     * Activa o desactiva el 2FA del usuario.
+     *
+     * ESTE ES EL HOGAR LEGÍTIMO DE LA CREACIÓN. Al llegar aquí el usuario ya está
+     * autenticado y está pidiendo explícitamente configurar su segundo factor, así que
+     * es el único sitio donde tiene sentido crear el registro TOTP si aún no existe.
+     *
      * @param int $userID
      * @param bool $enable
      * @param string $securityCode
@@ -326,22 +379,32 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      */
     public static function toggle2FA(int $userID, bool $enable, string $securityCode, ?string $alias = null)
     {
-        $result = false;
-        $totpElement = self::getTOTPData($userID);
-        if ($totpElement !== null) {
-            $totpElement->secret = TOTPStandard::generateSecret();
-            $totpElement->twoAuthFactorAlias = $alias;
-            $totpElement->twoAuthFactorQRViewed = 0;
-            if ($enable) {
-                $totpElement->twoAuthFactor = self::TWOAF_STATUS_ENABLED;
-                $totpElement->twoAuthFactorSecurityCode = password_hash($securityCode, \PASSWORD_DEFAULT);
-            } else {
-                $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
-                $totpElement->twoAuthFactorSecurityCode = "";
-            }
-            $totpElement->update();
+        /**
+         * `createTOTPData()` devuelve el registro existente si lo hay, y lo crea si no.
+         * Antes se dependía de que `getTOTPData()` creara por su cuenta al leer, que es
+         * justo lo que había que quitar.
+         */
+        $totpElement = self::createTOTPData($userID);
+        if ($totpElement === null) {
+            return false;
         }
-        return $result;
+        $totpElement->secret = TOTPStandard::generateSecret();
+        $totpElement->twoAuthFactorAlias = $alias;
+        $totpElement->twoAuthFactorQRViewed = 0;
+        if ($enable) {
+            $totpElement->twoAuthFactor = self::TWOAF_STATUS_ENABLED;
+            $totpElement->twoAuthFactorSecurityCode = password_hash($securityCode, \PASSWORD_DEFAULT);
+        } else {
+            $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
+            $totpElement->twoAuthFactorSecurityCode = "";
+        }
+        /**
+         * El retorno mentía: `$result` se inicializaba en false y no se reasignaba nunca,
+         * así que el método devolvía false incluso cuando el cambio se había guardado.
+         * Su único llamante ignoraba el valor, de modo que no rompía nada — pero era una
+         * trampa esperando al primero que se fiara del docblock.
+         */
+        return $totpElement->update();
     }
 
     /**
