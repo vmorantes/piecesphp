@@ -44,7 +44,9 @@ para esto exactamente. No reconstruyas por exploración lo que ya está descrito
 | Crear módulo/ruta/mapper paso a paso | `13-recetas.md` |
 | Qué es lastre y qué no | `14-deuda-y-limpieza.md` |
 | Clonar `Publications` a un módulo nuevo | `15-plantilla-clonar-publications.md` |
-| Plan de versiones de PHP | `16-plan-php85.md` |
+| Plan de versiones de PHP *(ejecutado)* | `16-plan-php85.md` |
+| Ruta de esa migración *(ejecutada)* | `17-ruta-de-ejecucion.md` |
+| **Qué queda por hacer y en qué orden** | `18-siguientes-ventanas.md` |
 
 Empieza por `README.md` de esa carpeta. Si algo del contexto contradice al código, **gana
 el código**: corrígelo y avisa.
@@ -115,6 +117,13 @@ enrutado o las traducciones, y el fallo casi nunca es evidente.
 10. **En `Statics/` se edita el `.scss`, nunca el `.css`** generado — está en `.gitignore`
     y lo reescribe Gulp.
 
+11. **Un warning mata la petición.** `bootstrap.php` promueve `E_WARNING`, `E_NOTICE`,
+    `E_RECOVERABLE_ERROR` y `E_USER_ERROR` a `ErrorException` y la lanza, en los dos
+    entornos. Las deprecaciones abortan solo en local y en producción van a
+    `app/logs/deprecations.log`. Consecuencia práctica: **acceder a una propiedad de
+    `null` no devuelve `null` aquí, tumba la petición**. Trata cada valor nulable como
+    un fallo real, no como un aviso del analizador.
+
 ## Anatomía de un módulo
 
 ```
@@ -169,17 +178,31 @@ Para listados del panel, el endpoint `-datatables` con `DataTablesHelper`.
 
 ## Versión de PHP
 
-El proyecto declara `php: >=8.1 <8.5`. **Escribe al nivel del piso vigente**, no del
-techo: nada de sintaxis de 8.2+ mientras el piso siga en 8.1. Hay un plan para subirlo en
-`16-plan-php85.md`; si el `composer.json` ya cambió, ese es el piso real.
+El proyecto declara **`php: >=8.4.1 <8.6`** desde la versión 7.1.0. El piso efectivo es
+8.4.1 porque lo exige Symfony 8.1.
+
+**Escribe al nivel del piso, no del techo**: nada de sintaxis exclusiva de 8.5 —ni
+operador pipe, ni `clone with`, ni `array_first()`— mientras el piso siga en 8.4. Las
+funciones nuevas se polirrellenan en `AppHelpers.php` con `function_exists()`.
+
+Si el `composer.json` cambia, ese es el piso real: manda sobre este documento.
 
 ## Antes de dar algo por terminado
 
-- `bin/phpstan` y comparar contra `PHPStanResult.Summary.txt`. No lo dejes peor que como
-  estaba.
+- **`bin/cli verify-integrity`** — comprueba docblocks sin cerrar y firmas de método
+  desaparecidas sobre todo el árbol. Existe porque `php -l` es ciego a un docblock sin
+  cerrar: el archivo sigue siendo válido y el método simplemente deja de existir. Sale
+  con código 1 si falla.
+- **Las suites**: `bin/cli unit-tests:core/mapper-finders` y
+  `bin/cli unit-tests:core/session-user`, más las que apliquen a lo que tocaste.
+  `files/dev/tests.md` tiene el listado.
+- **`bin/phpstan`**, comparando contra `PHPStanResult.Summary.baseline.txt`. No lo dejes
+  peor que como estaba. Ojo: el número visible oculta lo silenciado por `ignoreErrors`,
+  y PHPStan **no** reporta deprecaciones del motor — para eso están el lint con
+  `-d error_reporting=E_ALL` y `grep`.
 - Comprobar que la ruta nueva aparece solo para los roles previstos: `routeName()` debe
   devolver URL para ellos y cadena vacía para el resto.
-- Si hay textos nuevos: `bin/cli scan-missing-lang` para ver qué traducciones faltan.
+- Si hay textos nuevos: `bin/cli scan-missing-lang`.
 - Si tocaste SCSS: `cd src && gulp sass-modules`.
 - Añadir la entrada correspondiente en `CHANGELOG.md`, con el formato que ya usa.
 
