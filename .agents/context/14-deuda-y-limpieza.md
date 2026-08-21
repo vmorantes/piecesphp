@@ -218,6 +218,7 @@ extienden. Es la limpieza de mejor relación esfuerzo/beneficio de todo el lista
 | **`Components`** | 489 | Stub: 2 vistas, una de ellas `sample/components.php` con *lorem ipsum*. Un solo consumidor (`PublicAreaController`). O se completa o se borra |
 | **Restos de Webflow** | — | `src/app/view/webflow/` (4 archivos, solo se referencian entre sí), `src/statics/wf/` (5 archivos), `files/Webflow/`. Ningún controlador los usa |
 | **`scssphp/scssphp`** | — | **Dependencia directa que nadie usa.** Ver abajo |
+| **`PDFManager` + `mpdf/mpdf`** | 67 | **Mismo patrón que `scssphp`.** Ver abajo |
 
 **Subtotal inmediato: ~2.600 LOC sin tocar nada funcional.**
 
@@ -254,6 +255,27 @@ quiso) o eliminar la dependencia y el bloque muerto. Mientras siga así, arrastr
 > [09-frontend-assets.md](./09-frontend-assets.md), que describía la compilación en
 > servidor como funcional.
 
+#### `PDFManager` y `mpdf`: la misma historia que `scssphp`
+
+Descubierto el 2026-08-20 buscando una ruta de generación de PDF que ejercitar en la
+validación de la fase F. No hay ninguna.
+
+`PiecesPHP\Core\PDFManager` (67 líneas) **solo se declara**: cero referencias en todo
+`src/app` fuera del propio archivo. Y `mpdf/mpdf` —requisito directo, con su carga de
+fuentes y su dependencia de GD— **solo lo toca esa clase**:
+
+```
+$ grep -rn "Mpdf" --include=*.php src/app
+app/core/psr4/PiecesPHP/Core/PDFManager.php:8:use \Mpdf\Mpdf as PDF;
+```
+
+Es decir: una dependencia pesada sostenida por una clase que nadie instancia.
+
+**Acción**: la misma decisión que con `scssphp` —usarlo o quitarlo—, y conviene tomarlas
+juntas porque son el mismo patrón. Si se quita, desaparece también un sospechoso
+recurrente de las migraciones de PHP: mPDF es de los paquetes que más sufren con los
+cambios de GD y de manejo de fuentes.
+
 ### Riesgo medio — decisión de producto
 
 | Qué | LOC | Consideración |
@@ -270,6 +292,48 @@ El cluster del punto 3 y la inversión de dependencia del punto 2.
 
 ---
 
+## `strftime()`: lo único con fecha de caducidad
+
+Descubierto el 2026-08-20 al activar `phpstan/phpstan-deprecation-rules` en la fase A.
+**Es la única deuda de este documento que va a romper sola**, sin que nadie la toque.
+
+`Utilities.php:1681, 1686, 1694`, las tres dentro de `localeDateFormat()`:
+
+```php
+$value = @strftime($value, $time->getTimestamp());
+```
+
+| | |
+| :-- | :-- |
+| Deprecada desde | **PHP 8.1** |
+| Eliminada en | **PHP 9** |
+| Ocurrencias | 3, todas en `localeDateFormat()` |
+| Puntos de llamada de esa función | **47** |
+
+Hoy no molesta por una casualidad: están escritas con **`@`**, y el manejador de errores
+de `bootstrap.php` respeta la supresión, así que ni siquiera en local abortan. Ver
+[16-plan-php85.md](./16-plan-php85.md).
+
+**Pero el `@` no salva de la eliminación.** Cuando la función desaparezca, la llamada
+será `Call to undefined function strftime()`, que es un `Error` —no un diagnóstico— y no
+hay operador que lo suprima. Y como los 47 puntos de llamada pasan por un solo helper,
+el fallo llega de golpe en toda la aplicación: fechas del panel, mappers de Banner,
+perfiles de organización.
+
+**Reemplazo natural: `IntlDateFormatter`.** No es una elección arbitraria — lo que
+`localeDateFormat()` intenta hacer a mano (nombres de día y mes según el idioma activo,
+con `mb_convert_case` para capitalizar) es exactamente lo que `IntlDateFormatter`
+resuelve de forma nativa y correcta por locale. Y `ext-intl` **ya está cargado**,
+comprobado en el entorno.
+
+**Por qué no se hizo en la migración a 8.5**: `strftime` sigue existiendo en 8.5 y las
+llamadas están suprimidas, así que no bloqueaba nada. Reescribir `localeDateFormat()`
+con 47 consumidores es un cambio de comportamiento en el formato de fechas de toda la
+aplicación, y eso merece su propia ventana de pruebas, no ir de polizón en un cambio de
+versión de lenguaje.
+
+---
+
 ## Otras deudas detectadas (no son borrados)
 
 - **El namespace `App\` está partido en tres raíces físicas**:
@@ -283,6 +347,20 @@ El cluster del punto 3 y la inversión de dependencia del punto 2.
   un trait, no una clase base.
 - **`src/statics/plugins/` pesa 40 MB** — el 85 % de los estáticos. Vale la pena
   auditar qué plugins se cargan realmente desde `config/assets.php`.
+- **`DataTablesHelper` revienta si faltan los parámetros de DataTables**:
+  `DataTablesHelper.php:230` lee `$columns = $request->getQueryParam('columns', null)`
+  con defecto `null`, y `:1090` declara `generateHaving(array $columns_order, array
+  $columns, ...)` exigiendo `array`. Una llamada a cualquier endpoint `-datatables` sin
+  esos parámetros da **500** (`TypeError`). Comprobado en 8.4 y en 8.5: **es
+  preexistente, no de la migración**. Con los parámetros que envía DataTables responde
+  200 con normalidad, así que no afecta al uso real — es una carencia de robustez que
+  aparece en cuanto alguien llama el endpoint a mano o un bot lo indexa.
+- **`/admin/reports-access/` responde 404** pese a estar registrada
+  (`informes-acceso` → `App\Controller\LoginAttemptsController::reportsAccess`) y a que
+  el rol tiene permiso. **El menú del panel enlaza ahí.** Comprobado en 8.4 y en 8.5:
+  preexistente. Las tres exportaciones del mismo controlador
+  (`admin/logged-export/`, `not-logged-export/`, `attempts-export/`) sí responden 200,
+  así que no es el grupo de rutas entero.
 - **Tres versiones de Mapbox GL en paralelo** en `package.json` (v2.6.0, v3.4.0 y la
   actual v3.19.0). Consolidar en una.
 
