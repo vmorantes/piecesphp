@@ -1,10 +1,32 @@
-# 17 — Ruta de ejecución: PHP 8.3 → 8.5
+# 17 — Ruta de ejecución: PHP 8.1 → 8.5 (ejecutada: piso final 8.4.1)
 
 Plan de ejecución para [16-plan-php85.md](./16-plan-php85.md).
-Estado: **propuesta**. Última revisión: 2026-08-20.
+Estado: **ejecutado**. Última revisión: 2026-08-20.
 
-Objetivo final: **`dev` corriendo y validado en el rango 8.3 – 8.5**, con los cuatro
-paquetes `piecesphp/*` publicados y alineados.
+> ## ✅ EJECUTADO — 2026-08-20
+>
+> | Fase | Estado |
+> | :-- | :-- |
+> | **A** — piso y sondeo de 8.5 | ✅ |
+> | **B** — `piecesphp/database` v3.1.0 | ✅ publicada |
+> | **C** — los otros tres paquetes y el techo | ✅ `datastructures` v3.1.0, `html` v2.1.0, `geojson` v2.1.0; techo a `<8.6` |
+> | **D** — barrido de deprecaciones | ✅ 13 sitios, un commit por familia |
+> | **E** — Azure, `AppHelpers`, herramientas | ⛔ **pendiente, fuera de esta rama** |
+> | **F** — validación en runtime | ✅ panel y CLI en 8.4 y 8.5, cero deprecaciones |
+> | **G** — cierre | ✅ |
+>
+> La fase E se dejó fuera a propósito: Azure no bloquea el rango de PHP, y alargar la
+> rama por eso era peor que abrir otra. El barrido manual de `AppHelpers` y `Utilities`
+> se da por cubierto por el lint de los 778 archivos más el recorrido completo.
+>
+> **El punto único de fallo que este documento anticipaba —la fase F— no se materializó**,
+> y la razón es que la fase A abrió sondeando 8.5. Lo que sí apareció fue lo contrario de
+> lo esperado: el riesgo no estaba en elFinder ni en mPDF, sino en el manejador de errores
+> del propio `bootstrap.php`.
+
+Objetivo final: **`dev` corriendo y validado en el rango 8.4.1 – 8.5**, con los cuatro
+paquetes `piecesphp/*` publicados y alineados. *(El objetivo original decía 8.3; el piso
+se fijó en 8.4.1 al decidirse la fase A.)*
 
 El plan está ordenado por dependencias, no por calendario. Cada fase termina en una
 **puerta** verificable: mientras no cierre, la siguiente no empieza.
@@ -225,7 +247,7 @@ sobre 8.5 de punta a punta.
 | :-- | :-- |
 | **Se prepara** | Correcciones de lo que salga de la fase F · entrada de `CHANGELOG.md` · `APP_VERSION` · docs de despliegue actualizadas · `.agents/context` al día |
 | **Se ejecuta** | Merge a `dev` · tag · sincronizar ramas |
-| **Puerta** | `dev` corriendo y validado en 8.3 – 8.5 |
+| **Puerta** | `dev` corriendo y validado en **8.4.1 – 8.5** |
 
 ---
 

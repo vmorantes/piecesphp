@@ -4,6 +4,7 @@
 
 - Requerimientos
     - PiecesPHP
+    - **PHP 8.4.1 – 8.5** (`>=8.4.1 <8.6`)
     - Composer
     - NodeJS 22.x LTS con FNM
     - NPM
@@ -143,6 +144,20 @@ sudo systemctl restart apache2
     - En el archivo src/app/constants.php se pueden activar/desactivar algunas características integradas.
 
 ## Despliegue de PiecesPHP (Ubuntu 24.04 LTS)
+
+!!! warning "PHP: Ubuntu 24.04 no basta por defecto"
+    Desde la versión 7.1.0 el piso es **PHP 8.4.1**, y Ubuntu 24.04 LTS trae **8.3** en
+    sus repositorios. Hay que añadir el repositorio de ondrej antes de desplegar:
+
+    ```bash
+    sudo add-apt-repository ppa:ondrej/php -y
+    sudo apt update
+    sudo apt install php8.4 php8.4-{mysql,xml,mbstring,curl,gd,zip,intl,sqlite3,bcmath} -y
+    ```
+
+    El `.1` del piso no es capricho: lo exige `symfony/cache` 8.1, que entra como
+    dependencia transitiva. `vendor/composer/platform_check.php` lo verifica en cada
+    arranque.
 
 ## Notas adicionales
 - Configura la base de datos en `src/app/database.php`.

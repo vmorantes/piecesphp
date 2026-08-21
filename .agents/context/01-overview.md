@@ -21,7 +21,7 @@ montado encima de Slim 4**.
 
 | Capa | Tecnología |
 | :-- | :-- |
-| Lenguaje | PHP `>=8.1 <8.5` |
+| Lenguaje | PHP `>=8.4.1 <8.6` |
 | HTTP / routing | Slim 4 (`slim/slim`, `slim/psr7`) + capa propia `PiecesPHP\Core\Route*` |
 | DI | `PiecesPHP\Core\Routing\DependenciesInjector` (PSR-11) |
 | Base de datos | MySQL/MariaDB vía PDO; ORM propio (`piecesphp/database`) |
@@ -47,9 +47,12 @@ archivos), `spatie/url`, `pragmarx/google2fa` (OTP/2FA),
 
 ## Requisitos de entorno
 
-- PHP 8.1–8.4 con: `openssl, pcre, hash, session, json, pdo, pdo_mysql, mysqli,
+- **PHP 8.4.1 – 8.5** con: `openssl, pcre, hash, session, json, pdo, pdo_mysql, mysqli,
   pdo_sqlite, sqlite3, xml, xsl, xmlwriter, xmlreader, ctype, mbstring, fileinfo,
   gd, zip, curl`.
+    - El `.1` del piso lo impone Symfony 8.1, que exige `>=8.4.1`.
+    - **Ubuntu 24.04 LTS trae 8.3 por defecto**, así que hace falta el repositorio de
+      ondrej. Ver `general.md`.
 - Composer, Node 22.x LTS (recomendado 22.12.0, vía fnm), npm, Gulp CLI, TypeScript.
 - Apache con `rewrite`, `headers`, `ssl` habilitados.
 - Ver `source-docs/project/docs/piecesphp/content/general.md` para el despliegue
@@ -66,7 +69,8 @@ archivos), `spatie/url`, `pragmarx/google2fa` (OTP/2FA),
 | `last-stable` | Versión estable publicada (la que se descarga para desplegar) |
 | `modificacion-docs` | Trabajo sobre documentación |
 | `redesign` | Rediseño de UI |
-| `updagre-to-php84` | Migración a PHP 8.4 |
+| ~~`updagre-to-php84`~~ | Marcador vacío, 0 commits por delante de `dev`. Retirar |
+| `upgrade-to-php85` | Migración al rango 8.4.1–8.5. **Ejecutada** el 2026-08-20, mergeada a `dev` |
 
 Flujo habitual (documentado en `IGNORE.md`): se trabaja en `dev` y se mergea hacia
 las ramas temáticas (`git checkout <rama> && git merge dev`), y finalmente

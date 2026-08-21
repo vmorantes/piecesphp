@@ -3,7 +3,32 @@
 Ruta para modernizar el rango de PHP soportado por PiecesPHP, combinada con la
 limpieza de [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md).
 
-Documento de planificación. Estado: **propuesta, sin ejecutar**.
+> ## ✅ EJECUTADO — 2026-08-20
+>
+> Este plan **está cumplido**. El rango soportado es **`>=8.4.1 <8.6`** y
+> `composer why-not php 8.5` no devuelve nada. Ver `CHANGELOG.md` 7.1.0.
+>
+> Se conserva íntegro a propósito: el valor que queda no es la lista de tareas, sino el
+> **razonamiento de por qué se decidió cada cosa** —y dónde ese razonamiento se demostró
+> equivocado, que está anotado en el sitio correspondiente en vez de borrado.
+>
+> Desviaciones respecto a lo planificado, todas justificadas en su sección:
+>
+> | Se planificó | Ocurrió |
+> | :-- | :-- |
+> | Piso 8.3 (recomendado) | **8.4.1** — se controlan todos los despliegues, y Symfony 8.1 impone el `.1` |
+> | Symfony 6.4 → 7.4 | **6.4 → 8.1** — la simulación usaba `platform.php 8.3.0` |
+> | ~25 correcciones mecánicas | **13 en el framework, 4 en `database`** |
+> | Reactivar los `cast.*` de PHPStan | **Refutado**: no detectan la sintaxis no canónica |
+> | `database`: 3 puntos | **4** — faltaba `EntityMapper.php:1406` |
+> | 2 `setAccessible` | **3** — faltaba `index.php:338` |
+>
+> **Queda fuera y sigue pendiente**: la fase E (Azure) y Guzzle 8. No bloquean el rango
+> de PHP, que era el objetivo.
+
+---
+
+Documento de planificación. Estado: **ejecutado** (era: propuesta, sin ejecutar).
 Análisis: 2026-08-19. Base: `limpieza-modulos`, `APP_VERSION v7.0.6`,
 `composer.json` con `php: >=8.1 <8.5`.
 

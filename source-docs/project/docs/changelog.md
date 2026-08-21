@@ -4,6 +4,28 @@ Registro detallado de las actualizaciones y mejoras del framework PiecesPHP.
 
 ---
 
+## 🚀 7.1.0 (20-08-2026)
+
+- **Rango de PHP soportado: `>=8.4.1 <8.6`.** Antes era `>=8.1 <8.5`.
+    - Se abandona PHP 8.1, sin parches de seguridad desde el 31-dic-2025.
+    - El `.1` del piso lo exige `symfony/cache` 8.1, que entra como transitiva.
+    - **Ubuntu 24.04 LTS trae 8.3**: el despliegue requiere el repositorio de ondrej.
+      Ver [general.md](piecesphp/content/general.md).
+- **Compatibilidad con PHP 8.5**: 13 correcciones de deprecaciones en el código propio
+  (casts no canónicos, `Reflection*::setAccessible()`, `$http_response_header`).
+- **Manejo de errores** (`bootstrap.php`), con efecto en producción:
+    - `E_USER_ERROR` y `E_RECOVERABLE_ERROR` ya no se descartan en silencio: abortan.
+      Eso incluye el `platform_check` de Composer, que antes se perdía y permitía arrancar
+      sobre una versión de PHP no soportada.
+    - Las deprecaciones solo abortan en local; en producción van a
+      `app/logs/deprecations.log`, que `bin/cli clean-logs` ya limpia.
+- **Paquetes propios** alineados a `">=8.4 <9.0"`: `database` v3.1.0, `datastructures`
+  v3.1.0, `html` v2.1.0, `geojson` v2.1.0.
+- **Symfony pasa de 6.4 a 8.1**, más PhpSpreadsheet 5.9.0 y ZipStream 3.2.2.
+- Los `composer.lock` de la aplicación y de las herramientas pasan a versionarse.
+
+---
+
 ## 🚀 7.0.0 (23-03-2026)
 
 - **Migración a PHP 8.4 funcional.** Con soporte extendido hasta PHP 8.1.

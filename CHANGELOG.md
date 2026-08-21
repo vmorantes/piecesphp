@@ -3,6 +3,90 @@
 - Remoción de módulo de chat interno obsoleto.
 - Remoción de módulo de presentaciones de capacitación obsoleto.
     
+# 7.1.0 (20-08-2026)
+
+**Rango de PHP soportado: `>=8.4.1 <8.6`** (antes `>=8.1 <8.5`).
+
+## Cambios que rompen compatibilidad
+
+- **El piso de PHP sube de 8.1 a 8.4.1.** No es una elección estética: 8.1 lleva sin
+  parches de seguridad desde el 31-dic-2025. El `.1` lo impone Symfony 8.1, que exige
+  `>=8.4.1`; declarar `>=8.4` a secas mentía sobre lo que la aplicación necesita.
+    - **Ubuntu 24.04 LTS trae PHP 8.3 por defecto**, así que el despliegue ahora requiere
+      el repositorio de ondrej. Ver `source-docs/.../general.md`.
+- **`bootstrap.php` cambia cómo trata los errores.** Ver abajo, es el único cambio de
+  esta versión que altera el comportamiento en producción.
+
+## Corregido — compatibilidad con PHP 8.5
+
+13 sitios en el código propio, en tres familias:
+
+- **9 casts no canónicos `(double)` → `(float)`** en 7 archivos. Es el mismo cast; solo
+  cambia la grafía. Importaba porque la deprecación se emite **en tiempo de compilación**:
+  bastaba con que el autoloader tocara el archivo.
+- **3 llamadas a `Reflection*::setAccessible()` eliminadas** (`Config.php:712`,
+  `BaseEntityMapper.php:159`, `index.php:338`). Desde 8.1 no tienen efecto. La de
+  `BaseEntityMapper` era la grave: `__callStatic` la ejecutaba en cada `fieldsToSelect()`,
+  o sea en el camino de **todo `SELECT` de mapper**.
+- **`$http_response_header` → `http_get_last_response_headers()`** en `HttpClient.php:186`.
+  Sin guarda `function_exists()`: la función existe desde 8.4, que es el piso.
+
+## Manejo de errores — cambio de comportamiento en producción
+
+`bootstrap.php` promovía a excepción cualquier nivel de su tabla, y **devolvía `true`
+para todo lo demás**, de modo que lo descartaba en silencio.
+
+- **`E_USER_ERROR` ya no se traga.** Se perdían todos los `trigger_error()` de librerías,
+  incluido el `platform_check` de Composer: la aplicación arrancaba sin decir nada sobre
+  PHP 8.1 con un `vendor/` que declara necesitar 8.4.1. Ahora aborta.
+- **`E_RECOVERABLE_ERROR` ahora aborta**; antes se descartaba en silencio.
+- **Las deprecaciones solo abortan en local.** En producción se registran en
+  `app/logs/deprecations.log` y la petición continúa. Un cronjob lanzado sin `--local`
+  cae en la rama de producción.
+- `CleanLogsTask` limpia el log nuevo; limpiaba por nombre explícito y no lo conocía.
+- **Deuda anotada**: `E_WARNING` y `E_NOTICE` siguen abortando. Es herencia, y cambiarlo
+  merece su propia ventana de pruebas.
+
+## Dependencias
+
+- **Los cuatro paquetes propios** pasan a la misma forma canónica `">=8.4 <9.0"`, sin
+  techo por minor. `piecesphp/database` era el único bloqueante real de 8.5.
+
+| Paquete | Antes | Ahora |
+| :-- | :-- | :-- |
+| `piecesphp/database` | v3.0.4 | **v3.1.0** |
+| `piecesphp/datastructures` | v3.0.0 | **v3.1.0** |
+| `piecesphp/html` | v2.0.0 | **v2.1.0** |
+| `piecesphp/geojson` | v2.0.0 | **v2.1.0** |
+
+- **Symfony salta de 6.4 a 8.1** (`cache`, `filesystem`, `process`, `var-exporter`), más
+  `phpspreadsheet` 5.9.0, `zipstream` 3.2.2 y `macroable` 2.1.0. Entran como transitivos:
+  ningún archivo de `src/app` importa `Symfony\Component\*`.
+- **`src/composer.lock` y `bin/tools/composer.lock` pasan a versionarse.** `src/` es la
+  aplicación, no una librería, y con Symfony saltando dos majors hace falta
+  reproducibilidad entre máquinas y despliegue.
+- `composer why-not php 8.5` no devuelve nada.
+
+## Herramientas
+
+- PHPStan analiza el **rango** `{min: 80400, max: 80500}`, no una sola versión, y se añade
+  `phpstan/phpstan-deprecation-rules`. Línea base congelada en
+  `PHPStanResult.Summary.baseline.txt`: 1.078 errores en 192 archivos.
+- Se retiran seis `ignoreErrors` de `cast.*` que no casaban con ningún error. `cast.*`
+  significa «Cannot cast X to Y», no la sintaxis no canónica: esa PHPStan no la detecta.
+- `bin/phpstan-process-result.php`: el regex de número de línea buscaba un formato que
+  PHPStan no emite, así que el resumen imprimía `Líneas: , ,` y abortaba la generación de
+  `bin/Preview`.
+- `bin/cli` prefiere `php8.4` con fallback a `php`.
+- `src/dumps/` (volcados de base de datos) pasa a estar ignorado por git.
+
+## Validado
+
+Recorrido completo del panel en **8.4 y 8.5**, con la promoción de deprecaciones activa:
+login, panel, listado de Publications y su endpoint `-datatables`, formularios, las tres
+exportaciones a Excel y el CLI completo. **Cero deprecaciones y cero 500.**
+Las 9 suites de `piecesphp/database` (72 pruebas) verdes en ambas versiones.
+
 # 7.0.6 (05-04-2026)
 
 - **Exportador de Base de Datos Nativo**:
