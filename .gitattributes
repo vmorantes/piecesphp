@@ -1,0 +1,49 @@
+# .gitattributes
+#
+# POR QUÉ EXISTE ESTE ARCHIVO
+# .editorconfig es una SUGERENCIA para editores: quien no lo respete, o cualquier script
+# que reescriba un archivo, puede cambiarle los finales de línea sin que nadie lo note.
+# Esto es git IMPONIÉNDOLO en cada `add`.
+#
+# El incidente que lo motiva: un script de edición convirtió CRLF a LF en 20 archivos, y
+# un commit acabó declarando 4.185 inserciones para 41 líneas de cambio real. No era
+# difícil de revisar: era IRREVISABLE.
+#
+# Con estas reglas git normaliza a LF en el índice y devuelve la convención declarada al
+# extraer, así que un cambio de finales de línea deja de producir diff. Si se toca aquí,
+# se toca igual en los cuatro paquetes: la política es común a los cinco repositorios.
+
+#──── Por defecto ────────────────────────────────────────────────────────────────────────
+# Coincide con `[*] end_of_line = crlf` de .editorconfig.
+* text=auto eol=crlf
+
+#──── Excepciones en LF, tal como las declara .editorconfig ──────────────────────────────
+*.sh            text eol=lf
+bin/cli         text eol=lf
+bin/phpstan     text eol=lf
+bin/rector      text eol=lf
+bin/package-css text eol=lf
+
+# Archivos generados por herramientas que siempre escriben LF. Forzar CRLF aquí sería
+# pelearse con la herramienta en cada ejecución.
+*.lock          text eol=lf
+
+#──── Binarios: git nunca debe tocarles un byte ──────────────────────────────────────────
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.ico    binary
+*.webp   binary
+*.pdf    binary
+*.zip    binary
+*.gz     binary
+*.bz2    binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.eot    binary
+*.otf    binary
+*.mp4    binary
+*.webm   binary
+*.xlsx   binary
