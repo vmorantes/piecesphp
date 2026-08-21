@@ -220,45 +220,76 @@ y tres leían `->organization` en la línea siguiente. Corregido con la forma qu
 
 ---
 
-## 5quater. Triaje de los `false` de funciones nativas — 2026-08-21
+## 5quater. Triaje de los `false` — por MECANISMO DE FALLA — 2026-08-21
 
-**148 errores**, no 144: el recuento anterior salía de una clasificación más gruesa.
+**148 errores.** Ordenarlos por función no basta: lo que determina la respuesta es **cómo
+falla** cada una en ESTE framework, donde `bootstrap.php` promueve `E_WARNING` a
+excepción.
 
-Aquí el marco del null aplica igual, y por la misma razón: `bootstrap.php` promueve
-`E_WARNING` a excepción, así que **un `false` usado como si fuera el valor bueno no
-avisa: aborta la petición**.
+### Verificado, no supuesto
 
-### Por función de origen y respuesta que le toca
+Ejercitando el handler real del framework en modo producción:
 
-| Función | Errores | Archivos | Respuesta | Por qué |
-| :-- | --: | --: | :-- | :-- |
-| *(sin identificar)* | 63 | 35 | — | La ventana de análisis no alcanzó la llamada. Hay que mirarlos |
-| `json_encode()` | 23 | 13 | **1 y 3, mezclados** | Solo falla con UTF-8 inválido o recursión. Sobre datos que construimos, es contrato; sobre datos de entrada, defecto |
-| **`DateTime::createFromFormat()`** | **12** | **10** | **3 · mayor cosecha esperada** | Devuelve `false` cuando la cadena no casa el formato. Fechas de BD o de formulario que no encajan revientan al desreferenciar |
-| `realpath()` | 10 | 6 | **2 o 3** | `false` si la ruta no existe. Depende de si está garantizada |
-| **`file_get_contents()`** | **10** | **5** | **3 · candidato fuerte** | `false` si el archivo no está o no se puede leer. Es justo el caso que «rara vez está pensado» |
-| **`query()` / `prepare()`** | **11** | **4** | **1 · resuelto de un golpe** | **No pueden devolver `false`**: `Database.php:188` fija `ERRMODE_EXCEPTION` en cada instancia, así que lanzan. Ver abajo |
-| `fopen()` / `opendir()` | 7 | 3 | **2 o 3** | `false` si no se puede abrir |
-| `imagecreatefromstring()` | 4 | 1 | **3** | `false` con datos que no son una imagen válida |
-| `gzencode()`, `base64_decode()`, `finfo_open()`, `array_search()`, `mb_strpos()` | 8 | 8 | caso a caso | Cola |
+| Función | Qué hace al fallar |
+| :-- | :-- |
+| `file_get_contents()` ruta inexistente | **ABORTA** — `ErrorException` |
+| `fopen()` ruta inexistente | **ABORTA** |
+| `imagecreatefromstring()` con basura | **ABORTA** |
+| `unlink()` ruta inexistente | **ABORTA** |
+| `createFromFormat()` que no casa | devuelve `false` |
+| `realpath()` ruta inexistente | devuelve `false` |
+| `json_encode()` UTF-8 inválido | devuelve `false` |
+| `strpos()` no encontrado | devuelve `false` |
 
-### El hallazgo que decide 11 de golpe
+La separación es limpia: **o abortan siempre, o devuelven `false` siempre.**
 
-`query()` y `prepare()` declaran `PDOStatement|false` porque así lo declara PDO. Pero
-**esta base de datos nunca opera en ese modo**: `Database.php:188` hace
-`setAttribute(ATTR_ERRMODE, ERRMODE_EXCEPTION)` sobre cada instancia, así que un error
-lanza en vez de devolver `false`.
+### GRUPO A — fallan con warning: la petición ya murió (40)
 
-Es la respuesta 1 del marco —no puede ser `false` por contrato— y el sitio correcto para
-expresarlo **no es cada llamada**, sino un override de `query()` y `prepare()` en la clase
-`Database` de `piecesphp/database` con el `@return` estrechado. Un cambio, once errores.
+| Función | Err | Arch |
+| :-- | --: | --: |
+| `file_get_contents()` | 19 | 9 |
+| `fopen()` | 8 | 3 |
+| `finfo_open()` | 4 | 2 |
+| `imagecopyresampled()`, `unlink()`, `glob()`, `opendir()`, `readdir()`, `imagecreatetruecolor()`, `imagesavealpha()` | 9 | 6 |
 
-### Nota de método
+**Aquí el `false` nunca llega.** La pregunta en cada sitio no es cómo silenciarlo, sino
+**¿queremos que esto sea un 500?** Para una operación de usuario casi nunca: un adjunto
+que no está no debería tumbar la petición. La respuesta es **manejo explícito real**
+—`is_file()` antes, o `@` más comprobación—, no una anotación.
 
-`createFromFormat` y `file_get_contents` son los dos grupos donde más defectos reales
-espero, por la razón que motiva esta ventana: **un `false` de una función nativa casi
-siempre significa que algo del entorno falló** —un archivo que no está, una fecha con
-otro formato—, y ese caso rara vez está previsto. Empezar por ahí.
+### GRUPO B — fallan en silencio: el `false` llega y es información (80)
+
+| Función | Err | Arch | Respuesta canónica |
+| :-- | --: | --: | :-- |
+| `json_encode()` | 24 | 14 | `JSON_THROW_ON_ERROR` donde el sitio pueda permitirse la excepción |
+| **`createFromFormat()`** | **15** | **13** | Casi siempre entrada de usuario mal formada: **necesita rama** |
+| `realpath()` | 10 | 6 | Suele ser un `is_dir()`/`is_file()` mal ordenado |
+| `fetch()` | 6 | 5 | **No es error**: `false` significa «no hay más filas» |
+| `strpos()` / `mb_strpos()` | 9 | 5 | `!== false`, nunca `if ($pos)` |
+| `ob_get_contents()`, `array_search()`, `strftime()`, `gzencode()`, `json_decode()`, `ini_get()`, `saveHTML()`, `preg_match()` | 16 | — | Cola |
+
+### GRUPO C — no pueden devolver `false` (11)
+
+`query()` y `prepare()`. **Resuelto en `piecesphp/database` v3.1.1**: se estrecha el tipo
+de retorno con tipo nativo. `false` es el retorno del modo `ERRMODE_SILENT`, y desde
+**PHP 8.0 el default de PDO es `ERRMODE_EXCEPTION`**; el paquete declara `>=8.4 <9.0`.
+
+> **`fetch()` NO entra aquí**, aunque lo pareciera: `ERRMODE_EXCEPTION` cubre los errores,
+> pero `fetch()` devuelve `false` legítimamente cuando se acaban las filas. Va al grupo B.
+
+### Sin identificar (17)
+
+Bajaron de 63 al resolver un artefacto propio: **PHPStan trunca las rutas largas** en su
+salida de tabla, así que 18 errores apuntaban a archivos inexistentes y no se les podía
+leer el contexto. Resueltas contra el árbol real.
+
+Los 17 que quedan necesitan lectura directa; no son una categoría.
+
+### Por dónde empezar
+
+**Grupo B, `createFromFormat`**: 15 errores en 13 archivos, y un `false` ahí casi siempre
+significa una fecha que no encaja con el formato esperado —entrada de usuario o dato de
+BD—, que es justo el caso que nadie previó.
 
 ---
 
