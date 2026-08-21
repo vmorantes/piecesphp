@@ -105,30 +105,73 @@ if ($cliHandler->isCliPlatform) {
     $isLocalBootstrap = $cliHandler->orginalArguments['--local'] ?? false;
 }
 ini_set('display_errors', $isLocalBootstrap);
-set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line) {
+set_error_handler(function ($int_error_type, $string_error_message, $string_error_file, $int_error_line) use ($isLocalBootstrap) {
     $errorLevelTypeReferencesByType = [
         E_ERROR => 'Fatal error',
         E_WARNING => 'Warning',
         E_PARSE => 'Compile-time',
         E_NOTICE => 'Notice -possible false positive-',
         E_DEPRECATED => 'Deprecated',
+        //Niveles que la tabla anterior no cubría y que por tanto se descartaban
+        //en silencio, incluido E_USER_ERROR: todo trigger_error() de una librería
+        //—entre ellos el platform_check de Composer— se perdía sin dejar rastro.
+        E_RECOVERABLE_ERROR => 'Recoverable error',
+        E_USER_ERROR => 'Fatal error (trigger_error)',
+        E_USER_WARNING => 'Warning (trigger_error)',
+        E_USER_NOTICE => 'Notice (trigger_error)',
+        E_USER_DEPRECATED => 'Deprecated (trigger_error)',
     ];
-    $stopExcutionErrors = array_keys($errorLevelTypeReferencesByType);
 
-    if (error_reporting() & $int_error_type) {
+    //Niveles que abortan la ejecución.
+    $stopExcutionErrors = [
+        E_ERROR,
+        E_WARNING,
+        E_PARSE,
+        E_NOTICE,
+        E_RECOVERABLE_ERROR,
+        E_USER_ERROR,
+    ];
 
-        $message = $string_error_message;
-        if (isset($errorLevelTypeReferencesByType[$int_error_type])) {
-            $levelTypeError = $errorLevelTypeReferencesByType[$int_error_type];
-            $message = "(Level: {$levelTypeError}) {$message}";
-        }
-        $exception = new \ErrorException($message, 0, $int_error_type, $string_error_file, $int_error_line);;
-
-        if (in_array($int_error_type, $stopExcutionErrors)) {
-            throw $exception;
-        }
-
+    //Las deprecaciones solo abortan en local, donde queremos enterarnos de
+    //inmediato. En producción se registran y la petición continúa: una
+    //deprecación es un aviso sobre una versión futura de PHP, no un fallo de
+    //la petición en curso, y tumbar producción por ella es desproporcionado.
+    //OJO: un cronjob lanzado sin --local cae en la rama de producción.
+    if ($isLocalBootstrap) {
+        $stopExcutionErrors[] = E_DEPRECATED;
+        $stopExcutionErrors[] = E_USER_DEPRECATED;
     }
+
+    //Silenciado con @ o fuera de error_reporting: se respeta la supresión.
+    //Importa: bootstrap.php carga el autoload de bin/tools con @require_once
+    //precisamente para que sea opcional.
+    if (!(error_reporting() & $int_error_type)) {
+        return true;
+    }
+
+    $message = $string_error_message;
+    if (isset($errorLevelTypeReferencesByType[$int_error_type])) {
+        $levelTypeError = $errorLevelTypeReferencesByType[$int_error_type];
+        $message = "(Level: {$levelTypeError}) {$message}";
+    }
+
+    if (in_array($int_error_type, $stopExcutionErrors, true)) {
+        throw new \ErrorException($message, 0, $int_error_type, $string_error_file, $int_error_line);
+    }
+
+    //No aborta: se deja constancia. Las deprecaciones van a un archivo propio
+    //para poder vaciarlo como puerta de la migración; el resto, al log de PHP.
+    $logLine = "[" . date('c') . "] {$message} en {$string_error_file}:{$int_error_line}" . PHP_EOL;
+    $deprecationLevels = [E_DEPRECATED, E_USER_DEPRECATED];
+    $writtenToOwnLog = false;
+    if (in_array($int_error_type, $deprecationLevels, true) && defined('LOG_ERRORS_PATH')) {
+        $deprecationsLog = rtrim((string) constant('LOG_ERRORS_PATH'), '/\\') . DIRECTORY_SEPARATOR . 'deprecations.log';
+        $writtenToOwnLog = @file_put_contents($deprecationsLog, $logLine, FILE_APPEND | LOCK_EX) !== false;
+    }
+    if (!$writtenToOwnLog) {
+        error_log(rtrim($logLine));
+    }
+
     return true;
 });
 /**

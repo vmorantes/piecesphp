@@ -76,6 +76,7 @@ class CleanLogsTask extends TerminalTaskAbstract
             $expiredSessionsLogsDirectory = basepath("app/logs/expired-sessions");
             $errorLogFile = basepath("app/logs/error.log.json");
             $errorLogPlanFile = basepath("app/logs/error.plain.log");
+            $deprecationsLogFile = basepath("app/logs/deprecations.log");
 
             if (file_exists($baseLogsDirectory)) {
 
@@ -88,6 +89,13 @@ class CleanLogsTask extends TerminalTaskAbstract
                 file_put_contents($errorLogPlanFile, '');
                 chmod($errorLogPlanFile, 0664);
                 $message[] = "\e[34merror.plain.log vaciado.\e[39m";
+                //Log de deprecaciones de PHP. Lo escribe el manejador de errores de
+                //bootstrap.php cuando NO estamos en local: allí las deprecaciones
+                //abortan, aquí solo se registran. Sin esta limpieza crecería sin
+                //límite en producción.
+                file_put_contents($deprecationsLogFile, '');
+                chmod($deprecationsLogFile, 0664);
+                $message[] = "\e[34mdeprecations.log vaciado.\e[39m";
 
                 //Histórico de logs de errores
                 $oldsErrorLogsHandler = new DirectoryObject($oldsErrorLogsDirectory);
