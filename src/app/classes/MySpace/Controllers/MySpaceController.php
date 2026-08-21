@@ -79,7 +79,7 @@ class MySpaceController extends AdminPanelController
     public function mySpaceView(Request $request, Response $response)
     {
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $noBaseView = [
@@ -132,7 +132,7 @@ class MySpaceController extends AdminPanelController
                         MySpaceRoutes::staticRoute(self::BASE_CSS_DIR . '/my-space.css'),
                     ], 'css');
 
-                    $currentUser = getLoggedFrameworkUser();
+                    $currentUser = getLoggedFrameworkUserOrFail();
                     $qtyDocuments = DocumentsMapper::countAll();
                     $qtyImages = ImagesRepositoryMapper::countAll();
 
@@ -183,7 +183,7 @@ class MySpaceController extends AdminPanelController
         import_apexcharts();
         import_qrcodejs();
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
 
         $data = [];
         $data['langGroup'] = UserSystemFeaturesLang::LANG_GROUP;
@@ -224,7 +224,7 @@ class MySpaceController extends AdminPanelController
         import_apexcharts();
         import_qrcodejs();
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
 
         $data = [];
         $data['langGroup'] = self::LANG_GROUP;

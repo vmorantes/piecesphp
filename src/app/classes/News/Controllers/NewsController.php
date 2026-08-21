@@ -862,7 +862,7 @@ class NewsController extends AdminPanelController
              * @var int $newsID
              * @var int $userID
              */
-            $currentUser = getLoggedFrameworkUser();
+            $currentUser = getLoggedFrameworkUserOrFail();
             $newsID = $expectedParameters->getValue('newsID');
             $userID = $currentUser->id;
 

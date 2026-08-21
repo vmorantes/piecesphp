@@ -878,7 +878,7 @@ class OrganizationsController extends AdminPanelController
                         if ($billingEmail !== $invalidVal) {$mapper->setLangData($lang, 'billingEmail', $billingEmail);}
                         if ($interestResearhAreas !== $invalidVal) {$mapper->interestResearhAreas = $interestResearhAreas;}
                         if ($affiliatedInstitutions !== $invalidVal) {$mapper->affiliatedInstitutions = $affiliatedInstitutions;}
-                        if (OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUser()->type)) {
+                        if (OrganizationMapper::canModifyAnyOrganization(getLoggedFrameworkUserOrFail()->type)) {
                             if ($status !== null) {
                                 if ($status !== $invalidVal) {$mapper->setLangData($lang, 'status', $status);}
                             }

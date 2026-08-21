@@ -87,7 +87,7 @@ class MyProfileController extends AdminPanelController
             MySpaceRoutes::staticRoute(self::BASE_JS_DIR . '/my-profile.js'),
         ], 'js');
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $action = self::routeName('actions-save-profile');
         $actionExperience = self::routeName('actions-save-experience');
         $dataTablesExperienceLink = self::routeName('datatables-experience');
@@ -342,7 +342,7 @@ class MyProfileController extends AdminPanelController
              * @var InterestResearchAreasMapper[] $interestResearhAreas
              * @var string[] $affiliatedInstitutions
              */
-            $id = getLoggedFrameworkUser()->id;
+            $id = getLoggedFrameworkUserOrFail()->id;
             $jobPosition = $expectedParameters->getValue('jobPosition');
             $phoneCode = $expectedParameters->getValue('phoneCode');
             $phoneNumber = $expectedParameters->getValue('phoneNumber');
@@ -670,7 +670,7 @@ class MyProfileController extends AdminPanelController
                 $mapper = new PreviousExperiencesMapper();
                 $lang = Config::get_default_lang();
 
-                $mapper->profile = getLoggedFrameworkUser()->profile->id;
+                $mapper->profile = getLoggedFrameworkUserOrFail()->profile->id;
                 $mapper->setLangData($lang, 'experienceType', $experienceType);
                 $mapper->setLangData($lang, 'researchAreas', $researchAreas);
                 $mapper->setLangData($lang, 'institutionsParticipated', $institutionsParticipated);

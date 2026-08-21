@@ -82,7 +82,7 @@ class MyOrganizationProfileController extends AdminPanelController
     public function myOrganizationProfileView(Request $request, Response $response, array $args)
     {
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $adminUser = $currentUser;
         $organizationID = $adminUser->organization;
         $organizationMapper = null;
@@ -205,7 +205,7 @@ class MyOrganizationProfileController extends AdminPanelController
      */
     public function saveProfileAction(Request $request, Response $response, array $args)
     {
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $adminUser = $currentUser;
         $organizationID = $currentUser->organization;
         //Verificar si tiene privilegios superiores
@@ -469,7 +469,7 @@ class MyOrganizationProfileController extends AdminPanelController
             $endDate = $expectedParameters->getValue('endDate');
             $description = $expectedParameters->getValue('description');
 
-            $currentUser = getLoggedFrameworkUser();
+            $currentUser = getLoggedFrameworkUserOrFail();
             $adminUser = $currentUser;
             $organizationID = $adminUser->organization;
             //Verificar si tiene privilegios superiores
@@ -618,7 +618,7 @@ class MyOrganizationProfileController extends AdminPanelController
             $newUserAdminID = $expectedParameters->getValue('newUserAdminID');
             $newAdminUserExists = UsersModel::getBy($newUserAdminID) !== null;
 
-            $currentUser = getLoggedFrameworkUser();
+            $currentUser = getLoggedFrameworkUserOrFail();
             $adminUser = $currentUser;
             $organizationMapper = null;
             $organizationID = $adminUser->organization;

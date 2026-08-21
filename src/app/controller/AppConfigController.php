@@ -1399,7 +1399,7 @@ class AppConfigController extends AdminPanelController
         $tabsTitles = [];
         $tabsItems = [];
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $baseViewDir = 'panel/pages/app_configurations';
 
         if (in_array($currentUser->type, self::ROLES_VIEW_CONFIGURATIONS_VIEW)) {

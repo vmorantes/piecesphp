@@ -852,24 +852,10 @@ project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMap
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
  ------ ----------------------------------------------------------------------- 
-  87     Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  93     Parameter Nr.1 $user of static method                                    
-         MySpace\Controllers\MyOrganizationProfileController::hasSuperPrivileg  
-         es() expects PiecesPHP\UserSystem\UserDataPackage,                     
-         PiecesPHP\UserSystem\UserDataPackage|null given.                       
-         🪪  argument.type                                                      
   97     Cannot access property $administrator on                               
          Organizations\Mappers\OrganizationMapper|null.                         
          🪪  property.nonObject                                                 
   97     Cannot access property $id on App\Model\UsersModel|int|null.           
-         🪪  property.nonObject                                                 
-  122    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  122    Cannot access property $type on                                        
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
          🪪  property.nonObject                                                 
   123    Cannot access property $administrator on                               
          Organizations\Mappers\OrganizationMapper|null.                         
@@ -886,14 +872,6 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
          App\Model\UsersModel::allOrganizationUsersCanBeAdminForSelect()        
          expects int, int|null given.                                           
          🪪  argument.type                                                      
-  210    Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  212    Parameter Nr.1 $user of static method                                    
-         MySpace\Controllers\MyOrganizationProfileController::hasSuperPrivileg  
-         es() expects PiecesPHP\UserSystem\UserDataPackage,                     
-         PiecesPHP\UserSystem\UserDataPackage|null given.                       
-         🪪  argument.type                                                      
   215    Cannot access property $administrator on                               
          Organizations\Mappers\OrganizationMapper|null.                         
          🪪  property.nonObject                                                 
@@ -904,26 +882,9 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
          🪪  property.nonObject                                                 
   220    Cannot access property $id on App\Model\UsersModel|int|null.           
          🪪  property.nonObject                                                 
-  220    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  220    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  221    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   223    Cannot access property $id on                                          
          Organizations\Mappers\OrganizationMapper|null.                         
          🪪  property.nonObject                                                 
-  474    Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  476    Parameter Nr.1 $user of static method                                    
-         MySpace\Controllers\MyOrganizationProfileController::hasSuperPrivileg  
-         es() expects PiecesPHP\UserSystem\UserDataPackage,                     
-         PiecesPHP\UserSystem\UserDataPackage|null given.                       
-         🪪  argument.type                                                      
   479    Cannot access property $administrator on                               
          Organizations\Mappers\OrganizationMapper|null.                         
          🪪  property.nonObject                                                 
@@ -934,50 +895,21 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
          🪪  property.nonObject                                                 
   485    Cannot access property $id on App\Model\UsersModel|int|null.           
          🪪  property.nonObject                                                 
-  485    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  485    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   486    Cannot access property $id on                                          
          Organizations\Mappers\OrganizationMapper|null.                         
-         🪪  property.nonObject                                                 
-  486    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
          🪪  property.nonObject                                                 
   496    Property                                                               
          PiecesPHP\UserSystem\Profile\SubMappers\OrganizationPreviousExperienc  
          esMapper::$profile (int|Organizations\Mappers\OrganizationMapper)      
          does not accept int|null.                                              
          🪪  assign.propertyType                                                
-  624    Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  625    Parameter Nr.1 $user of static method                                    
-         MySpace\Controllers\MyOrganizationProfileController::hasSuperPrivileg  
-         es() expects PiecesPHP\UserSystem\UserDataPackage,                     
-         PiecesPHP\UserSystem\UserDataPackage|null given.                       
-         🪪  argument.type                                                      
   630    Cannot access property $administrator on                               
          Organizations\Mappers\OrganizationMapper|null.                         
          🪪  property.nonObject                                                 
   630    Cannot access property $id on App\Model\UsersModel|int|null.           
          🪪  property.nonObject                                                 
-  630    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  630    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   631    Cannot access property $id on                                          
          Organizations\Mappers\OrganizationMapper|null.                         
-         🪪  property.nonObject                                                 
-  631    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  632    Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
          🪪  property.nonObject                                                 
   650    Cannot access property $administrator on                               
          Organizations\Mappers\OrganizationMapper|null.                         
@@ -997,12 +929,6 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
  ------ ----------------------------------------------------------------------- 
-  115    Cannot access property $type on                                        
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  345    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   372    Cannot call method setLangData() on                                    
          PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                   
          🪪  method.nonObject                                                   
@@ -1045,9 +971,6 @@ project://src/app/classes/MySpace/Controllers/MyProfileController.php
   673    Cannot access property $id on                                          
          PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                   
          🪪  property.nonObject                                                 
-  673    Cannot access property $profile on                                     
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   673    Property                                                               
          PiecesPHP\UserSystem\Profile\SubMappers\PreviousExperiencesMapper::$p  
          rofile (int|PiecesPHP\UserSystem\Profile\UserProfileMapper) does not   
@@ -1059,26 +982,6 @@ project://src/app/classes/MySpace/Controllers/MyProfileController.php
   794    Cannot access property $profile on stdClass|null.                      
          🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
-
- ------ ------------------------------------------------------- 
-project://src/app/classes/MySpace/Controllers/MySpaceController.php
- ------ ------------------------------------------------------- 
-  83     Cannot access property $id on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.             
-         🪪  property.nonObject                                 
-  84     Cannot access property $type on                        
-         PiecesPHP\UserSystem\UserDataPackage|null.             
-         🪪  property.nonObject                                 
-  141    Cannot access property $fullName on                    
-         PiecesPHP\UserSystem\UserDataPackage|null.             
-         🪪  property.nonObject                                 
-  190    Cannot access property $fullName on                    
-         PiecesPHP\UserSystem\UserDataPackage|null.             
-         🪪  property.nonObject                                 
-  231    Cannot access property $fullName on                    
-         PiecesPHP\UserSystem\UserDataPackage|null.             
-         🪪  property.nonObject                                 
- ------ ------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Controllers/OrganizationProfileController.php
@@ -1263,9 +1166,6 @@ project://src/app/classes/News/Controllers/NewsController.php
          News\Mappers\NewsMapper::addDataManyLangs() expects array<string>, li  
          st<int|string> given.                                                  
          🪪  argument.type                                                      
-  867    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   1111   Cannot access property $id on News\Mappers\NewsMapper|null.            
          🪪  property.nonObject                                                 
   1225   Cannot call method getTimestamp() on DateTime|false.                   
@@ -1353,9 +1253,6 @@ project://src/app/classes/Organizations/Controllers/OrganizationsController.php
   852    Parameter Nr.2 $array of function array_key_exists expects array,      
          array|object|null given.                                             
          🪪  argument.type                                                    
-  881    Cannot access property $type on                                      
-         PiecesPHP\UserSystem\UserDataPackage|null.                           
-         🪪  property.nonObject                                               
   1306   Cannot access property $id on                                        
          Organizations\Mappers\OrganizationMapper|null.                       
          🪪  property.nonObject                                               
@@ -1692,15 +1589,6 @@ project://src/app/classes/Publications/Controllers/PublicationsController.php
          PiecesPHP\Core\Routing\ResponseRoute::write() expects string,          
          array|stdClass|string given.                                           
          🪪  argument.type                                                      
-  1218   Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  1219   Cannot access property $type on                                        
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  1220   Cannot access property $organizationMapper on                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   1311   Cannot call method getSlug() on                                        
          Publications\Mappers\PublicationMapper|null.                           
          🪪  method.nonObject                                                   
@@ -1857,18 +1745,9 @@ project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
  ------ ----------------------------------------------------------------------- 
-  135    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  136    Cannot access property $type on                                        
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   141    Cannot call static method getContactUser() on class-string<SystemAppr  
          ovals\Util\ApprovalElementHandlerInterface>|null.                      
          🪪  staticMethod.nonObject                                             
-  334    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   365    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom()       
          expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                      
@@ -1878,15 +1757,6 @@ project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.
   372    Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not        
          accept string|null.                                                    
          🪪  assign.propertyType                                                
-  441    Cannot access property $id on                                          
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  442    Cannot access property $type on                                        
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  443    Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   546    Cannot call method getTimeTag() on                                     
          SystemApprovals\Mappers\SystemApprovalsMapper|null.                    
          🪪  method.nonObject                                                   
@@ -2332,9 +2202,6 @@ project://src/app/controller/AppConfigController.php
   389    Parameter Nr.1 $resource of function basepath expects string,            
          array|stdClass|string given.                                           
          🪪  argument.type                                                      
-  1405   Cannot access property $type on                                        
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   1509   Parameter Nr.1 $inputValues of method                                    
          PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues()      
          expects array, array|object|null given.                                
@@ -2741,27 +2608,27 @@ project://src/app/core/AppHelpers.php
          🪪  argument.type                                                      
   2346   Possibly invalid array key type (callable)|string.                     
          🪪  offsetAccess.invalidOffset                                         
-  3105   Offset 'file' might not exist on array{function: string, line?: int,   
+  3139   Offset 'file' might not exist on array{function: string, line?: int,   
          file?: string, class?: class-string, type?: '->'|'::', args?: list<mi  
          xed>, object?: object}.                                                
          🪪  offsetAccess.notFound                                              
-  3106   Offset 'line' might not exist on array{function: string, line?: int,   
+  3140   Offset 'line' might not exist on array{function: string, line?: int,   
          file?: string, class?: class-string, type?: '->'|'::', args?: list<mi  
          xed>, object?: object}.                                                
          🪪  offsetAccess.notFound                                              
-  3210   Parameter Nr.3 $subject of function preg_replace expects array<float|in  
+  3244   Parameter Nr.3 $subject of function preg_replace expects array<float|in  
          t|string>|string, string|null given.                                   
          🪪  argument.type                                                      
-  3211   Parameter Nr.3 $subject of function preg_replace expects array<float|in  
+  3245   Parameter Nr.3 $subject of function preg_replace expects array<float|in  
          t|string>|string, string|null given.                                   
          🪪  argument.type                                                      
-  3212   Parameter Nr.3 $subject of function str_replace expects array<string>|s  
+  3246   Parameter Nr.3 $subject of function str_replace expects array<string>|s  
          tring, string|null given.                                              
          🪪  argument.type                                                      
-  3312   Parameter Nr.1 $filename of function file_exists expects string,         
+  3346   Parameter Nr.1 $filename of function file_exists expects string,         
          string|false given.                                                    
          🪪  argument.type                                                      
-  3313   Parameter Nr.1 $locationPath of function append_to_path_system expects   
+  3347   Parameter Nr.1 $locationPath of function append_to_path_system expects   
          string, string|false given.                                            
          🪪  argument.type                                                      
  ------ ----------------------------------------------------------------------- 
@@ -3936,18 +3803,9 @@ project://src/app/model/UsersModel.php
   919    Parameter Nr.1 $string of function addslashes expects string,            
          string|false given.                                                    
          🪪  argument.type                                                      
-  950    Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  1000   Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
   1050   Argument of an invalid type array|null supplied for foreach, only      
          iterables are supported.                                               
          🪪  foreach.nonIterable                                                
-  1131   Cannot access property $organization on                                
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------ 
@@ -4187,5 +4045,5 @@ project://src/index.php
          🪪  variable.undefined                                                 
  ------ ----------------------------------------------------------------------- 
 
- [ERROR] Found 1011 errors                                                      
+ [ERROR] Found 968 errors                                                       
 

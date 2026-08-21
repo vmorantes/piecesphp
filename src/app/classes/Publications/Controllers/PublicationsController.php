@@ -1214,7 +1214,7 @@ class PublicationsController extends AdminPanelController
     public function dataTables(Request $request, Response $response)
     {
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationMapper = $currentUser->organizationMapper;

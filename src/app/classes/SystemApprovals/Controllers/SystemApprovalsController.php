@@ -131,7 +131,7 @@ class SystemApprovalsController extends AdminPanelController
         $approvalMapper = new SystemApprovalsMapper($elementID);
         $referenceMapper = SystemApprovalManager::getInstance()->getMapperInstance($approvalMapper->referenceTable, $approvalMapper->referenceValue);
         $approvalHandler = SystemApprovalManager::getInstance()->getHandler($approvalMapper->referenceTable);
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;
         $currenUserType = $currentUser->type;
 
@@ -326,7 +326,7 @@ class SystemApprovalsController extends AdminPanelController
 
                 if ($exists) {
 
-                    $currentUser = getLoggedFrameworkUser();
+                    $currentUser = getLoggedFrameworkUserOrFail();
                     $previousStatus = $mapper->status;
                     $contactUser = SystemApprovalManager::getInstance()->getContactUser($mapper);
 
@@ -437,7 +437,7 @@ class SystemApprovalsController extends AdminPanelController
         $elapsedDaysFilter = $request->getQueryParam('elapsedDays', null);
         $elapsedDaysFilter = is_string($elapsedDaysFilter) && mb_strlen(trim($elapsedDaysFilter)) > 0 ? trim($elapsedDaysFilter) : null;
 
-        $currentUser = getLoggedFrameworkUser();
+        $currentUser = getLoggedFrameworkUserOrFail();
         $currentUserID = $currentUser->id;
         $currentUserType = $currentUser->type;
         $currentOrganizationID = $currentUser->organization;
