@@ -1,5 +1,131 @@
 # 18 — Siguientes ventanas
 
+> ## TRASPASO — 2026-08-21
+>
+> Escrito para que alguien que llega en frío ejecute sin preguntar. Lo de aquí no está en
+> el código y se pierde si no se lee.
+
+## T1 · La garantía de `ERRMODE_EXCEPTION`, con su razón real
+
+`Database::query()` y `Database::prepare()` declaran `\PDOStatement` con **tipo nativo**
+desde `piecesphp/database` **v3.2.0**. La garantía de que nunca devuelven `false` **no
+viene de `Database.php` fijando el atributo**: viene de que **PDO usa
+`ERRMODE_EXCEPTION` por defecto desde PHP 8.0**, y el paquete declara `php: >=8.4 <9.0`.
+
+Verificado empíricamente con un `new PDO(...)` pelado, sin tocar atributos:
+**modo 2 en PHP 8.1 y en 8.4**.
+
+El `setAttribute(ATTR_ERRMODE, ERRMODE_EXCEPTION)` de `instance()` **se conservó** aunque
+hoy sea redundante: si la garantía descansara solo en un valor por defecto del lenguaje,
+dependería de una decisión que podría volver a cambiar. Fijarlo en el paquete la vuelve
+local y verificable.
+
+**Es minor, no parche**, porque estrechar un retorno rompe a quien hereda: una subclase
+que redeclare `query(): PDOStatement|false` deja de ser legal por covarianza y **PHP falla
+al declarar la clase**. Comprobado que ninguna clase de los cinco repos hereda de
+`Database` — `ActiveRecord` la compone.
+
+## T2 · PHPStan TRUNCA las rutas largas en su salida de tabla — **primer punto del lote siguiente**
+
+**Esto es un defecto de herramienta, no una anécdota.** Al parsear `PHPStanResult.txt`,
+**18 de 148 errores apuntaban a archivos que no existen**: rutas cortadas a media palabra
+(`UsersE`, `ApplicationCallsController.p`). Produjeron 46 «errores fantasma» en un triaje.
+
+**Por qué importa más de lo que parece:**
+`bin/tools/refactorization/Rector.php` construye su lista de archivos leyendo las rutas
+`project://` de ese mismo archivo. **Si las rutas vienen truncadas, Rector lleva tiempo
+saltándose archivos en silencio** — no falla, simplemente no los analiza.
+
+**Sin investigar todavía. Empezar por aquí.** Lo que hay que responder:
+1. ¿Cuántas de las rutas de `PHPStanResult.txt` no resuelven a un archivo real?
+2. ¿Cuántos archivos deja de ver Rector por eso?
+3. ¿Se arregla con un formateador de salida distinto (`--error-format=json`) en vez de
+   parsear la tabla?
+
+La tercera es probablemente la respuesta, y cambiaría también
+`bin/phpstan-process-result.php`.
+
+## T3 · D2 — escritura en base de datos desde una ruta NO autenticada
+
+**Verificado, no heredado de una lectura ajena.**
+
+`UsersController.php:899` llama a `OTPHandler::checkValidityOTP($password, $username)`.
+La línea **900** es `if (password_verify($password, $user->password) || $otpIsValid)`.
+Es decir: **la comprobación OTP se ejecuta ANTES de verificar la contraseña.**
+
+`checkValidityOTP()` llama sin condiciones a
+`OTPSecretsUsersMapper::getOTPData($userData->id, METHOD_ONE_USE_CODE)`, y ese método,
+cuando no encuentra registro, **crea uno y lo guarda**:
+
+```php
+if ($mapper->id === null) {
+    $mapper = new OTPSecretsUsersMapper();
+    $mapper->secret = TOTPStandard::generateSecret();
+    ...
+    $mapper->save();          // INSERT
+}
+```
+
+**Consecuencia**: una petición de login **sin autenticar**, con solo un nombre de usuario
+existente y activo, provoca un `INSERT` y **genera material criptográfico** (un secreto
+TOTP) para un usuario que no lo pidió.
+
+**Prueba empírica en el entorno de pruebas**, sin escribir nada:
+
+| | |
+| :-- | :-- |
+| Filas en `OTPSecretsUsers` | 68 = 34 `TOTP` + 34 `ONE_USE_CODE` |
+| Usuarios | 34 |
+| **Usuarios con `twoAuthFactor` activo** | **0** |
+| **Filas con secreto TOTP generado** | **34** |
+
+Nadie ha activado el 2FA y aun así **los 34 usuarios tienen secreto generado**. Esas filas
+no las creó nadie configurando nada.
+
+**Qué es y qué no**: no es crecimiento sin límite —hay como mucho una fila por usuario y
+método, y ya están todas creadas—, pero sí es **escritura no autenticada**, **generación
+de secretos por cuenta ajena** y un **canal de enumeración de usuarios**: el estado de la
+base cambia solo si el nombre existe.
+
+**Queda como hallazgo de seguridad, no como deuda de tipos.** El nivel lo decide el
+propietario.
+
+La decisión sobre el `null` sigue en pie y es aparte: `toExpireOTP()` desreferencia el
+resultado sin comprobar, y ahí lo correcto es **registrar y continuar**, porque en la ruta
+crítica `checkValidityOTP` ya encontró el registro.
+
+## T4 · El token de GitHub sigue sin rotar
+
+El remoto del framework tiene un **token de acceso personal de GitHub en texto plano en
+`.git/config`**. Avisado el 2026-08-20 y **sigue ahí**.
+
+**Pendiente del propietario del repositorio, no de un agente.** No lo toques: rótalo en
+GitHub y guarda la credencial en un *credential helper*, no en la URL del remoto.
+
+## T5 · Por qué las puertas son las que son
+
+`bin/cli verify-integrity`, las dos suites y `PHPStanResult.Summary.baseline.txt` no son
+ceremonia. Existen porque en esta migración **hubo diagnósticos que se sostenían al leer
+el código y se caían al ejecutarlo**:
+
+- El `E_DEPRECATED` escondido en un `array_keys()` de `bootstrap.php`: leyendo la tabla de
+  niveles parecía informativa; ejecutando, promovía **toda** deprecación a excepción y
+  tumbaba la aplicación en 8.5.
+- **D1**, un defecto de reconexión que se argumentó, se documentó y **no existía**: la
+  prueba que iba a confirmarlo lo desmintió.
+- El `setAttribute` del constructor: se añadió creyéndolo necesario y **ninguna prueba
+  notó la diferencia**, porque la garantía venía de otro sitio.
+- Los **46 errores que apuntaban a archivos inexistentes**, que parecían una categoría del
+  triaje y eran un defecto del parseo.
+
+**La regla que queda escrita: una afirmación sobre comportamiento en ejecución no se da
+por cierta hasta que se ejecuta.** Escribir la prueba primero no es rigor ceremonial —
+tres veces evitó un cambio que no hacía falta.
+
+---
+
+
+
 Backlog posterior a la migración de PHP, ordenado por dependencias y por lo que
 desbloquea cada cosa. **Sin fechas ni estimaciones de calendario**: el orden es la
 información, no el plazo.
