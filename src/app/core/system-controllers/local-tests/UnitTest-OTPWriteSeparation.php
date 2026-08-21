@@ -84,7 +84,28 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         }
         $desde = $r->getStartLine() - 1;
         $cuantas = $r->getEndLine() - $r->getStartLine() + 1;
-        return implode('', array_slice($lineas, $desde, $cuantas));
+        $fuente = implode('', array_slice($lineas, $desde, $cuantas));
+
+        /**
+         * SE QUITAN LOS COMENTARIOS. Buscar por texto plano no distingue una llamada de
+         * una mención, y este arreglo deja precisamente comentarios que NOMBRAN lo que se
+         * quitó, para que quien lea el módulo sepa por qué ya no está. Un test que
+         * confunde documentar con hacer obliga a no documentar, que es peor que el test.
+         * Es la misma lección que `verify-integrity`: se tokeniza, no se busca a ojo.
+         */
+        $tokens = @token_get_all('<?php ' . $fuente);
+        $limpio = '';
+        foreach ($tokens as $token) {
+            if (is_array($token)) {
+                if ($token[0] === T_COMMENT || $token[0] === T_DOC_COMMENT) {
+                    continue;
+                }
+                $limpio .= $token[1];
+            } else {
+                $limpio .= $token;
+            }
+        }
+        return $limpio;
     };
 
     /** Busca llamadas de escritura del ORM en un fragmento de código. */

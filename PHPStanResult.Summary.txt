@@ -4,21 +4,21 @@
 195
 
 [TOTAL DE ERRORES VISIBLES]
-968
+950
 
 [TIPOS DE ERRORES Y CANTIDAD]
 🪪  argument.type (368)
-🪪  property.nonObject (228)
-🪪  method.nonObject (163)
+🪪  property.nonObject (214)
+🪪  method.nonObject (161)
 🪪  return.type (71)
 🪪  assign.propertyType (40)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
 🪪  clone.nonObject (5)
-🪪  offsetAccess.notFound (5)
 🪪  binaryOp.invalid (5)
 🪪  offsetAccess.invalidOffset (4)
+🪪  offsetAccess.notFound (3)
 🪪  function.deprecated (3)
 🪪  encapsedStringPart.nonString (2)
 🪪  method.notFound (2)
@@ -187,13 +187,13 @@ project://src/app/classes/MySpace/Controllers/Util/PreviousExperiencesController
 project://src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php
 	🪪  foreach.nonIterable (Líneas: 94)
 project://src/app/classes/MySpace/Views/example-resources.php
-	🪪  property.nonObject (Líneas: 12, 13, 14)
+	🪪  property.nonObject (Líneas: 16, 18)
 project://src/app/classes/MySpace/Views/profile-organization/profile.php
 	🪪  property.nonObject (Líneas: 218, 219)
 project://src/app/classes/MySpace/Views/profile/profile.php
 	🪪  property.nonObject (Líneas: 199, 200)
 project://src/app/classes/MySpace/Views/user-security.php
-	🪪  property.nonObject (Líneas: 13, 14, 15)
+	🪪  property.nonObject (Líneas: 18, 20)
 project://src/app/classes/News/Controllers/NewsCategoryController.php
 	🪪  assign.propertyType (Líneas: 440)
 	🪪  method.nonObject (Líneas: 663, 670, 675, 685)
@@ -247,18 +247,14 @@ project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
 	🪪  argument.type (Líneas: 49, 51)
 	🪪  return.type (Líneas: 61)
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
-	🪪  property.nonObject (Líneas: 69, 70, 86, 90, 154, 168, 169, 188, 226)
-	🪪  method.nonObject (Líneas: 71)
-	🪪  argument.type (Líneas: 119, 124, 169)
+	🪪  argument.type (Líneas: 135, 140, 185)
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
 	🪪  return.type (Líneas: 65)
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php
-	🪪  property.nonObject (Líneas: 126)
-	🪪  method.nonObject (Líneas: 127)
-	🪪  argument.type (Líneas: 288)
+	🪪  assign.propertyType (Líneas: 136)
+	🪪  argument.type (Líneas: 299)
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
-	🪪  assign.propertyType (Líneas: 334, 416)
-	🪪  offsetAccess.notFound (Líneas: 398, 410)
+	🪪  assign.propertyType (Líneas: 393)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
 	🪪  property.nonObject (Líneas: 271, 294)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php

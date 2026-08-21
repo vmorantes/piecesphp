@@ -3,6 +3,50 @@
 - Remoción de módulo de chat interno obsoleto.
 - Remoción de módulo de presentaciones de capacitación obsoleto.
     
+# Sin publicar
+
+## Seguridad
+
+- **Comprobar credenciales dejaba de escribir en base de datos.**
+  `OTPSecretsUsersMapper::getOTPData()` y `getTOTPData()` eran get-or-create: si no
+  encontraban registro, lo insertaban generando un secreto TOTP. Como
+  `UserDataPackage::__construct()` llama al segundo sin condiciones, **construir un paquete
+  de usuario escribía**, y lo alcanzan sin autenticar `checkValidityOTP`,
+  `checkValidityTOTP`, `toExpireOTP` y `generateOTP`. Los dos buscadores son ahora puros y
+  devuelven `null`; la creación vive en `createOTPData()` / `createTOTPData()` y solo la
+  llama `toggle2FA()`, donde el usuario ya autenticado configura su segundo factor.
+    - Severidad **baja** en seguridad: el secreto se regenera al activar el 2FA, así que el
+      material pregenerado nunca llega a ser credencial viva.
+    - `TOTPData` pasa a ser nulable de verdad; seis sitios lo manejan de forma explícita.
+
+## Rendimiento
+
+- **`createOTPAlternativesRecords()` sale del registro de rutas.** Se llamaba desde
+  `UserSystemFeaturesRoutes::routes()`, que corre **en cada petición**: dos consultas con
+  `GROUP_CONCAT` y `LEFT JOIN` sobre la tabla entera de usuarios por cada carga de página.
+  Ahora es la tarea `bin/cli sync-otp-records`, que **solo informa** salvo que se le pase
+  `apply=yes`.
+
+## Corregido
+
+- **Rector dejaba fuera 34 de 195 archivos.** El formateador de tabla de PHPStan recorta las
+  rutas al ancho de terminal (80 al redirigir), y `Rector.php` descartaba con `file_exists()`
+  lo que no resolvía **sin avisar**: el 17 % de la superficie con errores no entraba al
+  análisis. `bin/phpstan` fija `COLUMNS=400` y emite `PHPStanResult.json`; Rector lee el JSON
+  y ya no descarta en silencio. `bin/rector` pasa a usar `php8.4`, no el `php` por defecto.
+- **`toggle2FA()` devolvía siempre `false`**, incluso al guardar bien: inicializaba
+  `$result = false` y no lo reasignaba nunca.
+
+## Dependencias
+
+- `piecesphp/database` sube a **v3.2.0**: `query()` y `prepare()` declaran `\PDOStatement`
+  en vez de `\PDOStatement|false`.
+
+## Pruebas
+
+- Suite nueva `bin/cli unit-tests:core/otp-write-separation`: comprobar credenciales y
+  registrar rutas no deben escribir en base de datos.
+
 # 7.1.0 (20-08-2026)
 
 **Rango de PHP soportado: `>=8.4.1 <8.6`** (antes `>=8.1 <8.5`).

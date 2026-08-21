@@ -446,22 +446,22 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * Crea los registros para cada tipo de autenticación OTP disponible para los usuarios existentes
+     * INVENTARIO DE SOLO LECTURA: qué usuarios carecen de registro, por método.
+     *
+     * Se separó de la creación para que la tarea de terminal pueda informar sin escribir.
+     * Un inventario que además crea lo que cuenta no se puede usar para decidir si hay
+     * que crear algo.
+     *
+     * @return array<string,int[]> método => ids de usuario sin registro
      */
-    public static function createOTPAlternativesRecords()
+    public static function missingOTPRecords(): array
     {
-        $modelUsers = UsersModel::model();
         $table = self::TABLE;
         $usersTable = UsersModel::TABLE;
+        $faltantes = [];
 
-        //Métodos disponibles
-        $otpAuthMethods = array_keys(self::METHODS);
-        //Obtener los usuarios (IDs)
-        $modelUsers->select("GROUP_CONCAT(id SEPARATOR ',') AS usersIDs")->execute();
-        $usersIDs = $modelUsers->result()[0]->usersIDs;
-        $usersIDs = $usersIDs !== null ? $usersIDs : '-1';
-        //Verificar los ids que carecen de registros por método
-        foreach ($otpAuthMethods as $otpAuthMethod) {
+        foreach (array_keys(self::METHODS) as $otpAuthMethod) {
+            $modelUsers = UsersModel::model();
             $modelUsers
                 ->select("GROUP_CONCAT({$usersTable}.id SEPARATOR ',') AS usersIDs")
                 ->leftJoin(
@@ -470,13 +470,35 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
                 )
                 ->where("{$table}.user IS NULL")
                 ->execute();
-            $userIDsWhitoutMethod = $modelUsers->result()[0]->usersIDs;
-            $userIDsWhitoutMethod = $userIDsWhitoutMethod !== null ? $userIDsWhitoutMethod : null;
-            $userIDsWhitoutMethod = is_string($userIDsWhitoutMethod) ? explode(',', $userIDsWhitoutMethod) : [];
+            $result = $modelUsers->result();
+            $ids = isset($result[0]) ? $result[0]->usersIDs : null;
+            $faltantes[$otpAuthMethod] = is_string($ids) && $ids !== ''
+                ? array_map('intval', explode(',', $ids))
+                : [];
+        }
 
-            foreach ($userIDsWhitoutMethod as $userIDWhitoutMethod) {
+        return $faltantes;
+    }
+
+    /**
+     * Crea los registros para cada tipo de autenticación OTP disponible para los usuarios
+     * existentes.
+     *
+     * NO SE LLAMA DESDE EL REGISTRO DE RUTAS. Vivía en `UserSystemFeaturesRoutes::routes()`,
+     * que corre en cada petición, así que esta migración se ejecutaba en bucle infinito con
+     * dos barridos sobre la tabla de usuarios por carga de página. Su sitio es la tarea de
+     * terminal `sync-otp-records`, que se ejecuta cuando hace falta y avisa antes de escribir.
+     *
+     * @return int cuántos registros se crearon
+     */
+    public static function createOTPAlternativesRecords(): int
+    {
+        $creados = 0;
+
+        foreach (self::missingOTPRecords() as $otpAuthMethod => $userIDs) {
+            foreach ($userIDs as $userID) {
                 $mapper = new OTPSecretsUsersMapper();
-                $mapper->user = $userIDWhitoutMethod;
+                $mapper->user = $userID;
                 $mapper->secret = "";
                 $mapper->intervalTOTP = self::DEFAULT_INTERVAL_TOTP;
                 $mapper->oneUseCode = "";
@@ -485,10 +507,13 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
                 if ($otpAuthMethod == self::METHOD_TOTP) {
                     $mapper->secret = TOTPStandard::generateSecret();
                 }
-                $mapper->save();
+                if ($mapper->save()) {
+                    $creados++;
+                }
             }
-
         }
+
+        return $creados;
     }
 
     /**

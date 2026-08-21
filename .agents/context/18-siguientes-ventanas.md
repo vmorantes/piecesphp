@@ -58,54 +58,81 @@ a decir **195**. El truncado también estaba corrompiendo el conteo que leíamos
 **La regla que deja:** una herramienta que descarta entradas en silencio es peor que una
 que falla. «0 cambios propuestos» y «no miré nada» son indistinguibles desde fuera.
 
-## T3 · D2 — escritura en base de datos desde una ruta NO autenticada
+## T3 · D2 — comprobar credenciales escribía en base de datos — **RESUELTO**
 
-**Verificado, no heredado de una lectura ajena.**
+**El caso más instructivo de toda la campaña, porque la primera evidencia era falsa.**
 
-`UsersController.php:899` llama a `OTPHandler::checkValidityOTP($password, $username)`.
-La línea **900** es `if (password_verify($password, $user->password) || $otpIsValid)`.
-Es decir: **la comprobación OTP se ejecuta ANTES de verificar la contraseña.**
+El diagnóstico inicial decía que el defecto estaba en `getOTPData()`, alcanzado desde
+`checkValidityOTP()` en el login. Al ir a comprobarlo antes de arreglarlo, se cayó:
+`getOTPData()` filtra el método y **solo acepta `METHOD_ONE_USE_CODE`**, así que no puede
+crear las 34 filas `TOTP` que se le atribuían. La atribución era imposible.
 
-`checkValidityOTP()` llama sin condiciones a
-`OTPSecretsUsersMapper::getOTPData($userData->id, METHOD_ONE_USE_CODE)`, y ese método,
-cuando no encuentra registro, **crea uno y lo guarda**:
-
-```php
-if ($mapper->id === null) {
-    $mapper = new OTPSecretsUsersMapper();
-    $mapper->secret = TOTPStandard::generateSecret();
-    ...
-    $mapper->save();          // INSERT
-}
-```
-
-**Consecuencia**: una petición de login **sin autenticar**, con solo un nombre de usuario
-existente y activo, provoca un `INSERT` y **genera material criptográfico** (un secreto
-TOTP) para un usuario que no lo pidió.
-
-**Prueba empírica en el entorno de pruebas**, sin escribir nada:
+**Dónde estaba de verdad**, que resultó ser peor:
 
 | | |
 | :-- | :-- |
-| Filas en `OTPSecretsUsers` | 68 = 34 `TOTP` + 34 `ONE_USE_CODE` |
-| Usuarios | 34 |
-| **Usuarios con `twoAuthFactor` activo** | **0** |
-| **Filas con secreto TOTP generado** | **34** |
+| `getTOTPData()` | Mismo patrón get-or-create, y lo llama **sin condiciones el constructor de `UserDataPackage`** (línea 243). **Construir un paquete de usuario escribía en base de datos.** |
+| `createOTPAlternativesRecords()` | Llamada desde `UserSystemFeaturesRoutes::routes():67`. `routes()` corre **en cada petición**: dos `GROUP_CONCAT` + `LEFT JOIN` sobre la tabla entera de usuarios por carga de página. |
 
-Nadie ha activado el 2FA y aun así **los 34 usuarios tienen secreto generado**. Esas filas
-no las creó nadie configurando nada.
+La superficie no era una función: era **el constructor del paquete de usuario**, que
+alcanzan sin autenticar `checkValidityOTP`, `checkValidityTOTP`, `toExpireOTP` y
+`generateOTP` — todos con `new UserDataPackage($id)` antes de verificar credencial alguna.
 
-**Qué es y qué no**: no es crecimiento sin límite —hay como mucho una fila por usuario y
-método, y ya están todas creadas—, pero sí es **escritura no autenticada**, **generación
-de secretos por cuenta ajena** y un **canal de enumeración de usuarios**: el estado de la
-base cambia solo si el nombre existe.
+**Lo que NO era el defecto**, y conviene dejarlo escrito para que nadie lo «arregle»: el
+orden de `UsersController` 899/900 es correcto. La condición es
+`password_verify(...) || $otpIsValid`, así que el código de un solo uso es una vía de
+autenticación alternativa y la comprobación OTP **tiene** que correr en todo intento. El
+defecto nunca fue cuándo se comprueba: era que **comprobar escribía**.
 
-**Queda como hallazgo de seguridad, no como deuda de tipos.** El nivel lo decide el
-propietario.
+### Severidad, reencuadrada tras comprobar
 
-La decisión sobre el `null` sigue en pie y es aparte: `toExpireOTP()` desreferencia el
-resultado sin comprobar, y ahí lo correcto es **registrar y continuar**, porque en la ruta
-crítica `checkValidityOTP` ya encontró el registro.
+| Eje | Nivel | Por qué |
+| :-- | :-- | :-- |
+| Seguridad | **BAJA** | El secreto se regenera al activar el 2FA (`toggle2FA()` hace `generateSecret()` incondicional), así que el material pregenerado **nunca llega a ser credencial viva**. Y como el relleno masivo ya había creado todas las filas, al sondear no había escritura diferencial: el oráculo de enumeración por temporización tampoco existía. |
+| Rendimiento | **ALTO** | Dos barridos sobre la tabla de usuarios por petición. Con 34 usuarios no se nota; con cien mil es un incendio. |
+| Arquitectura | **ALTO** | Una migración de datos ejecutándose en bucle infinito dentro del registro de rutas, que debe ser puro. |
+
+### La trampa de orden
+
+**(b) tapaba a (a).** Si se hubiera sacado el relleno de `routes()` sin arreglar los
+buscadores, los usuarios nuevos habrían dejado de tener filas precreadas, el get-or-create
+habría vuelto a escribir en la ruta no autenticada y el oráculo de enumeración habría
+**renacido**. Los dos cambios aterrizan juntos, y si hay que partirlos, **(a) primero**.
+
+### Qué se hizo
+
+- Los dos buscadores del mapper son **puros** y devuelven `null`. La mitad de escritura
+  vive en `createOTPData()` / `createTOTPData()`, y su único llamante es `toggle2FA()`,
+  que es donde el usuario ya autenticado pide configurar su segundo factor.
+- `TOTPData` pasa a ser nulable de verdad: seis sitios que encadenaban sobre él lo manejan
+  ahora de forma explícita. En `toExpireOTP()` la respuesta al `null` es **registrar y
+  continuar** — sin registro no hay código de un uso que caducar.
+- `createOTPAlternativesRecords()` sale de `routes()` y pasa a la tarea
+  **`bin/cli sync-otp-records`**, que por defecto **solo informa** y exige `apply=yes` para
+  escribir. El inventario se separó en `missingOTPRecords()`, de solo lectura.
+- `toggle2FA()` inicializaba `$result = false` y no lo reasignaba nunca: devolvía `false`
+  incluso al guardar bien. Su único llamante ignoraba el valor, así que no rompía nada —
+  pero era una trampa esperando al primero que se fiara del docblock.
+
+**Suite nueva:** `bin/cli unit-tests:core/otp-write-separation`. Falla antes del arreglo.
+Las dos primeras comprobaciones son **estructurales**, no de comportamiento, y a propósito:
+la versión de comportamiento exigiría crear un usuario sin filas —escribir datos de prueba
+en una base ajena— y además **hoy no fallaría**, porque el relleno masivo tapaba el
+defecto. Ese es justo el motivo por el que las dos reglas se comprueban por separado.
+
+**Detalle del test que merece recordarse:** la primera versión buscaba por texto plano y
+fallaba contra el propio comentario que documenta lo que se quitó. Se tokeniza con
+`token_get_all()` y se descartan `T_COMMENT`/`T_DOC_COMMENT`. Un test que confunde
+documentar con hacer obliga a no documentar, que es peor que el test.
+
+### Las 34 filas huérfanas: no se purgan
+
+Son basura **inerte**: el secreto se regenera al activar, así que nunca serán credenciales.
+Y borrarlas antes del arreglo no servía de nada, porque el relleno las recreaba en la
+siguiente petición. Vaciar la columna `secret` de las filas `TOTP` con
+`twoAuthFactor = 'DISABLED'` es **higiene, no arreglo**: prioridad baja. Las
+`ONE_USE_CODE` **no se tocan** — pueden sostener códigos vigentes; mirar `maxDate` antes
+de nada.
 
 ## T4 · El token de GitHub sigue sin rotar
 
@@ -536,3 +563,47 @@ C  Las 357 ramas muertas
    Azure, strftime, sueltos       cuando convenga
    Limpieza de módulos            la última, cuando ya haya red
 ```
+
+## T6 · Mapa de destino de los módulos — **léelo antes de arreglar nada**
+
+Arreglar código que va a desaparecer es trabajo tirado, y **reescribir un módulo que en
+realidad hay que fusionar es peor**: se pierde lo que había que conservar. Este mapa decide
+qué trato recibe cada error antes de mirarlo.
+
+| Destino | Módulos | Trato |
+| :-- | :-- | :-- |
+| **Se borran completos** | `ImagesRepository`, `ApplicationCalls`, `InterestResearchAreas` | **Nada.** Ni un ignore cosmético. Se anota que el error muere con el módulo. |
+| **Se borran parciales** | `MySpace`, `ContentNavigationHub`, `ReportsManage` | Solo se retira lo relacionado con los de arriba. El resto, trato completo. |
+| **Se reescribe** | `DataImportExportUtility` | Atención **solo si el error es un defecto real**, no si es un tipo mal declarado. |
+| **Trato completo** | todo lo demás | Las cuatro respuestas: contrato / manejo explícito / defecto / protocolo. |
+
+### La fusión `DataImportExportUtility` + `Importers` es una REFACTORIZACIÓN PLANIFICADA
+
+**No borres ninguno de los dos.** El reparto de piezas:
+
+- **`PiecesPHP\Core\Importer` (1.586 líneas, en el núcleo) SE QUEDA.** Es el motor
+  extensible y no es código de módulo.
+- **`Importers` SE QUEDA.** Es la única implementación viva del motor.
+- **`DataImportExportUtility` se FUSIONA en `Importers`**, no se elimina: hay que llevarse
+  lo que aporta antes de que desaparezca su carpeta.
+
+Quien llegue después y vea `DataImportExportUtility` en una lista de «módulos a limpiar»
+tiene que leer esto primero. Borrarlo sin fusionar pierde trabajo que nadie va a echar de
+menos hasta que haga falta.
+
+### Cuánta cola se lleva el filtro
+
+De los **157** errores de la familia `false` (el conteo anterior de 148 salía de la tabla
+truncada de PHPStan y estaba contaminado, ver T2):
+
+| Destino | Errores | Archivos |
+| :-- | --: | --: |
+| Se borra completo — `ApplicationCalls` | 8 | 3 |
+| Se borra completo — `ImagesRepository` | 4 | 1 |
+| Se borra completo — `InterestResearchAreas` | 3 | 2 |
+| Se reescribe — `DataImportExportUtility` | 2 | 2 |
+| Se reescribe — `Importers` | 1 | 1 |
+| **Trato completo** | **139** | **52** |
+
+**15 errores mueren con su módulo sin que nadie los toque.** Ninguno de los tres módulos
+de borrado parcial aporta errores a esta familia.

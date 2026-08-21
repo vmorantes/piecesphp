@@ -774,16 +774,14 @@ project://src/app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Views/example-resources.php
- ------ ---------------------------------------------------------------------------------------- 
-  12     Cannot access property $TOTPData on PiecesPHP\UserSystem\UserDataPackage|null.          
-         🪪  property.nonObject                                                                  
-  13     Cannot access property $secret on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.  
-         🪪  property.nonObject                                                                  
-  14     Cannot access property $username on PiecesPHP\UserSystem\UserDataPackage|null.          
-         🪪  property.nonObject                                                                  
- ------ ---------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------- 
+  16     Cannot access property $TOTPData on PiecesPHP\UserSystem\UserDataPackage|null.  
+         🪪  property.nonObject                                                          
+  18     Cannot access property $username on PiecesPHP\UserSystem\UserDataPackage|null.  
+         🪪  property.nonObject                                                          
+ ------ -------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Views/profile-organization/profile.php
@@ -803,18 +801,14 @@ project://src/app/classes/MySpace/Views/profile/profile.php
          🪪  property.nonObject                                                    
  ------ -------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------- 
 project://src/app/classes/MySpace/Views/user-security.php
- ------ ---------------------------------------------------------------------------------------------------- 
-  13     Cannot access property $TOTPData on PiecesPHP\UserSystem\UserDataPackage|null.                      
-         🪪  property.nonObject                                                                              
-  14     Cannot access property $twoAuthFactorAlias on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.  
-         🪪  property.nonObject                                                                              
-  14     Cannot access property $twoAuthFactorAlias on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.  
-         🪪  property.nonObject                                                                              
-  15     Cannot access property $username on PiecesPHP\UserSystem\UserDataPackage|null.                      
-         🪪  property.nonObject                                                                              
- ------ ---------------------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------- 
+  18     Cannot access property $TOTPData on PiecesPHP\UserSystem\UserDataPackage|null.  
+         🪪  property.nonObject                                                          
+  20     Cannot access property $username on PiecesPHP\UserSystem\UserDataPackage|null.  
+         🪪  property.nonObject                                                          
+ ------ -------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------- 
 project://src/app/classes/News/Controllers/NewsCategoryController.php
@@ -1042,34 +1036,12 @@ project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  69     Cannot access property $maxDate on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                                 
-         🪪  property.nonObject                                                                                                                  
-  70     Cannot access property $oneUseCode on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                              
-         🪪  property.nonObject                                                                                                                  
-  71     Cannot call method update() on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                                     
-         🪪  method.nonObject                                                                                                                    
-  86     Cannot access property $secret on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                                  
-         🪪  property.nonObject                                                                                                                  
-  90     Cannot access property $twoAuthFactorSecurityCode on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                               
-         🪪  property.nonObject                                                                                                                  
-  119    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
+  135    Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                           
          🪪  argument.type                                                                                                                       
-  124    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
+  140    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
-  154    Cannot access property $secret on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                                  
-         🪪  property.nonObject                                                                                                                  
-  168    Cannot access property $secret on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                                  
-         🪪  property.nonObject                                                                                                                  
-  169    Cannot access property $twoAuthFactorAlias on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                      
-         🪪  property.nonObject                                                                                                                  
-  169    Parameter Nr.2 $issuer of method PiecesPHP\UserSystem\Authentication\TOTPStandard::getQRCodeUrl() expects string, string|null given.      
+  185    Parameter Nr.2 $issuer of method PiecesPHP\UserSystem\Authentication\TOTPStandard::getQRCodeUrl() expects string, string|null given.      
          🪪  argument.type                                                                                                                       
-  188    Cannot access property $twoAuthFactorQRViewed on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                   
-         🪪  property.nonObject                                                                                                                  
-  226    Cannot access property $TOTPData on PiecesPHP\UserSystem\UserDataPackage|null.                                                          
-         🪪  property.nonObject                                                                                                                  
-  226    Cannot access property $secret on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                                  
-         🪪  property.nonObject                                                                                                                  
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------------------- 
@@ -1082,26 +1054,18 @@ project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
  ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php
  ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
-  126    Cannot access property $twoAuthFactorQRViewed on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                       
-         🪪  property.nonObject                                                                                                                      
-  127    Cannot call method update() on PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                                                         
-         🪪  method.nonObject                                                                                                                        
-  288    Parameter Nr.1 $totp of static method PiecesPHP\UserSystem\Authentication\OTPHandler::checkValidityTOTP() expects string, string|null given.  
+  136    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.                               
+         🪪  assign.propertyType                                                                                                                     
+  299    Parameter Nr.1 $totp of static method PiecesPHP\UserSystem\Authentication\OTPHandler::checkValidityTOTP() expects string, string|null given.  
          🪪  argument.type                                                                                                                           
  ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
- ------ ------------------------------------------------------------------------------------------------------------------- 
-  334    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.      
-         🪪  assign.propertyType                                                                                            
-  398    Offset 0 might not exist on array|null.                                                                            
-         🪪  offsetAccess.notFound                                                                                          
-  410    Offset 0 might not exist on array|null.                                                                            
-         🪪  offsetAccess.notFound                                                                                          
-  416    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$user (App\Model\UsersModel|int) does not accept string.  
-         🪪  assign.propertyType                                                                                            
- ------ ------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------- 
+  393    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
+         🪪  assign.propertyType                                                                                        
+ ------ --------------------------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------- 
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
@@ -2942,5 +2906,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 968 errors                                                                                               
+ [ERROR] Found 950 errors                                                                                               
 
