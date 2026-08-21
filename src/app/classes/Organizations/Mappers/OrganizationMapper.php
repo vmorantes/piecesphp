@@ -1106,8 +1106,8 @@ class OrganizationMapper extends EntityMapperExtensible
     /**
      * @param bool $asMapper
      * @param bool $onlyActives
-     * @return \stdClass|static|null
-     *@return ($asMapper is true ? static : \stdClass)|null
+     * @return ($asMapper is true ? static : \stdClass)|null
+     */
     public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {
         $table = self::TABLE;
