@@ -248,14 +248,15 @@ class LoginAttemptsController extends AdminPanelController
     }
 
     /**
-     * Genera un archivo excel
+     * Genera un archivo excel y lo devuelve como descarga.
      *
      * @param Response $response
-     * @param Array $columns [format|dataKey]
-     * @param Array $data
-     * @return String $fileName
+     * @param array $columns Cada entrada DEBE traer 'format' o 'dataKey'.
+     * @param array $data
+     * @param string $fileName
+     * @return Response
      */
-    public static function exportExcelFile(Response $response, array $columns, array $data, String $fileName)
+    public static function exportExcelFile(Response $response, array $columns, array $data, string $fileName)
     {
 
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();

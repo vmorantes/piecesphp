@@ -1622,28 +1622,20 @@ project://src/app/controller/GenericTokenController.php
          🪪  return.type                                                                                                                                    
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/controller/LoginAttemptsController.php
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
-  157    Method App\Controller\LoginAttemptsController::attemptsExport() should return PiecesPHP\Core\Routing\ResponseRoute but returns string.   
-         🪪  return.type                                                                                                                          
-  198    Method App\Controller\LoginAttemptsController::notLoggedExport() should return PiecesPHP\Core\Routing\ResponseRoute but returns string.  
-         🪪  return.type                                                                                                                          
-  198    Parameter Nr.3 $data of static method App\Controller\LoginAttemptsController::exportExcelFile() expects array, array|null given.           
-         🪪  argument.type                                                                                                                        
-  235    Cannot call method format() on DateTime|null.                                                                                            
-         🪪  method.nonObject                                                                                                                     
-  246    Method App\Controller\LoginAttemptsController::loggedExport() should return PiecesPHP\Core\Routing\ResponseRoute but returns string.     
-         🪪  return.type                                                                                                                          
-  246    Parameter Nr.3 $data of static method App\Controller\LoginAttemptsController::exportExcelFile() expects array, array|null given.           
-         🪪  argument.type                                                                                                                        
-  285    Method App\Controller\LoginAttemptsController::exportExcelFile() should return string but returns false.                                 
-         🪪  return.type                                                                                                                          
-  328    Method App\Controller\LoginAttemptsController::exportExcelFile() should return string but returns PiecesPHP\Core\Routing\ResponseRoute.  
-         🪪  return.type                                                                                                                          
-  329    Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, string|false given.                           
-         🪪  argument.type                                                                                                                        
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
+  198    Parameter Nr.3 $data of static method App\Controller\LoginAttemptsController::exportExcelFile() expects array, array|null given.          
+         🪪  argument.type                                                                                                                       
+  235    Cannot call method format() on DateTime|null.                                                                                           
+         🪪  method.nonObject                                                                                                                    
+  246    Parameter Nr.3 $data of static method App\Controller\LoginAttemptsController::exportExcelFile() expects array, array|null given.          
+         🪪  argument.type                                                                                                                       
+  286    Method App\Controller\LoginAttemptsController::exportExcelFile() should return PiecesPHP\Core\Routing\ResponseRoute but returns false.  
+         🪪  return.type                                                                                                                         
+  330    Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, string|false given.                          
+         🪪  argument.type                                                                                                                       
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/controller/RecoveryPasswordController.php
@@ -2745,5 +2737,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 882 errors                                                                                               
+ [ERROR] Found 878 errors                                                                                               
 

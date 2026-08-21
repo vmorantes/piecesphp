@@ -137,7 +137,7 @@ class ComponentProvider extends AdminPanelController
     public static function allowedRoute(string $name, array $params = [])
     {
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
         return $allow;
     }
 
@@ -152,7 +152,7 @@ class ComponentProvider extends AdminPanelController
     private static function _allowedRoute(string $name, string $route, array $params = [])
     {
 
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
 
         if ($allow) {
 
@@ -192,11 +192,11 @@ class ComponentProvider extends AdminPanelController
     public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
     {
 
-        $simpleName = !is_null($name) ? $name : '';
+        $simpleName = $name ?? '';
 
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;

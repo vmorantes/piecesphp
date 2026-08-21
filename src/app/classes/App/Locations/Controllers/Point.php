@@ -635,7 +635,7 @@ class Point extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixParentEntity . '-' . self::$prefixEntity . $name : self::$prefixParentEntity;

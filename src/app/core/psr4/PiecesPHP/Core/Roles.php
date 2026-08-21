@@ -74,7 +74,7 @@ class Roles
      *
      * @param string $name Nombre del rol
      * @param int $code Código del rol
-     * @param Array<string> $allowed_routes Nombres de rutas permitidas
+     * @param array<string> $allowed_routes Nombres de rutas permitidas
      * @param bool $all_access Si es true se le da acceso total
      * @return void
      * @throws RoleDuplicateException Si code o name están repetidos

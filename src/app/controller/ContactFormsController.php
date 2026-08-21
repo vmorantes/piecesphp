@@ -290,7 +290,7 @@ class ContactFormsController extends PublicAreaController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = mb_strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$prefixNameRoutes . $name : self::$prefixNameRoutes;

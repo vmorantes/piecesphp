@@ -220,7 +220,7 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
     {
 
         $route = self::routeName($name, $params, true);
-        $allow = strlen($route) > 0;
+        $allow = (string) $route !== '';
 
         if ($allow) {
 
@@ -242,7 +242,7 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
     {
         if (!is_null($name)) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
