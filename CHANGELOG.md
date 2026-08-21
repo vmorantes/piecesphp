@@ -5,6 +5,38 @@
     
 # Sin publicar
 
+## AVISO PARA DESPLIEGUES EXISTENTES
+
+**Versiones afectadas: todas hasta la `v7.1.0` incluida.** El framework es una plantilla que
+se clona, así que este defecto **existe en cualquier despliegue anterior a esta entrada**.
+No se puede corregir a distancia; quien actualice debe saber qué está corrigiendo.
+
+**Qué es:** un **defecto de diseño con escritura no autenticada acotada.** Comprobar
+credenciales en el login insertaba filas en `pcsphp_users_otp_secrets`, generando de paso un
+secreto TOTP, sin que nadie se hubiera autenticado. La causa es que
+`UserDataPackage::__construct()` llamaba a un buscador que creaba el registro al leerlo.
+
+**Qué NO es:** no hay toma de cuentas. El secreto pregenerado **nunca llega a ser una
+credencial viva**, porque activar el 2FA lo regenera. Tampoco hay crecimiento sin límite: como
+mucho una fila por usuario y método.
+
+**Qué implica en la práctica:**
+
+- Filas y secretos TOTP creados para cuentas que nunca pidieron 2FA.
+- Una primitiva de escritura alcanzable sin autenticar, acotada pero real.
+- Un canal de enumeración de usuarios **débil**: el estado de la base cambia solo si el
+  nombre existe. En la mayoría de despliegues estará tapado, porque una rutina de relleno que
+  corría en cada petición ya había creado todas las filas.
+
+**Al actualizar:** las filas existentes son inertes y **no hace falta purgarlas**. Vaciar la
+columna `secret` de las filas `TOTP` con `twoAuthFactor = 'DISABLED'` es higiene opcional, de
+prioridad baja. **Las filas `ONE_USE_CODE` no se tocan**: pueden sostener códigos vigentes;
+mirar `maxDate` antes de nada.
+
+**Antes de actualizar**, `bin/cli scan-invalid-utf8` avisa de otra cosa que sí puede romper:
+desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
+UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
+
 ## Seguridad
 
 - **Comprobar credenciales dejaba de escribir en base de datos.**

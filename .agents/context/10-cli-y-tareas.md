@@ -195,9 +195,44 @@ bin/cli verify-integrity
 métodos que han desaparecido**, comparando contra `files/dev/integrity-signatures.json`.
 Sale con código 1 si algo falla, para CI.
 
-Cubre un hueco real: un docblock sin cerrar **no es un error de sintaxis**, así que
-`php -l` lo da por bueno mientras el comentario se traga el método siguiente. Ver
-`files/dev/tests.md`.
+Comprueba **tres** cosas: docblocks sin cerrar, firmas desaparecidas, y que **toda clase
+bajo una raíz PSR-4 se llame como su ruta manda y se pueda cargar**.
+
+Cubre un hueco real: ni un docblock sin cerrar ni un `namespace` perdido son errores de
+sintaxis, así que `php -l` los da por buenos. Ver `files/dev/tests.md` y, para lo que la
+puerta **no** atrapa, `.agents/context/18-siguientes-ventanas.md` (T10).
+
+## Comprobación previa a actualizar
+
+```bash
+bin/cli scan-invalid-utf8                 # solo informa, no escribe
+bin/cli scan-invalid-utf8 table=usuarios  # una tabla
+bin/cli scan-invalid-utf8 limit=50000     # más filas por tabla
+```
+
+`Terminal\Tasks\ScanInvalidUtf8Task`. **De SOLO LECTURA.** Busca UTF-8 inválido en las
+columnas de texto de la base de datos y sale con código 1 si encuentra alguna.
+
+**VIAJA CON EL FRAMEWORK como comprobación previa a actualizar.** Desde que los sitios de
+codificación llevan `JSON_THROW_ON_ERROR`, un texto con UTF-8 inválido deja de servir un dato
+ligeramente mal y pasa a **cortar la petición con un 500**. Cualquier despliegue congelado que
+vaya a descongelarse debería correr esto **antes**, no después.
+
+La comprobación se hace con `mb_check_encoding()` y no en SQL a propósito: quien tiene que
+aceptar el dato es PHP, así que preguntárselo a PHP es la única respuesta que vale.
+
+## Sincronización de registros OTP
+
+```bash
+bin/cli sync-otp-records            # solo informa
+bin/cli sync-otp-records apply=yes  # aplica
+```
+
+`Terminal\Tasks\SyncOTPRecordsTask`. Crea los registros OTP que falten, uno por usuario y
+método. **Por defecto no escribe nada.**
+
+Vivía dentro del registro de rutas, que corre en cada petición: dos barridos sobre la tabla
+de usuarios por carga de página. **No la llames desde una petición.**
 
 ## Análisis estático
 

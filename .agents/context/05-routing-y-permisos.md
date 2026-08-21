@@ -136,20 +136,35 @@ descuido — es consecuencia de tres cosas del diseño:
 3. **Usan `self::$baseRouteName`, no `static::`.** En una clase padre `self::`
    resolvería a la propiedad del padre, no a la del hijo — se rompería.
 
-Hay **dos variantes** en circulación:
+**Medido por tokens** (`.agents/context/18-siguientes-ventanas.md`, T12), no estimado:
 
-| Variante | Dónde | Diferencia |
-| :-- | :-- | :-- |
-| Básica (~29 líneas) | `FileManagerController`, `GoogleReCaptchaV3Controller`, `Locations\*`, `AppConfigController`, los `*PublicController`… | Rol + `get_route()` |
-| Con hook (~36 líneas) | `News`, `Publications`, `MySpace`, `Organizations`, `SystemApprovals`… | Además llama a `self::_allowedRoute($simpleName, $route, $params)`, un método **privado por controlador** con reglas de negocio extra (propiedad del recurso, estado de aprobación, etc.) |
+| Método | Cuerpos distintos | Archivos |
+| :-- | --: | --: |
+| `routeName` | **9** | 44 |
+| `allowedRoute` | **5** | 38 |
+| `_allowedRoute` | **26** | 32 |
 
-**El punto de variación real es `_allowedRoute()`**, no `routeName()`.
+**Corrección:** este documento afirmaba que «el punto de variación real es `_allowedRoute()`,
+no `routeName()`». **Es cierto para `_allowedRoute` y falso para los otros dos**: se escribió
+sin medirlo. `_allowedRoute` sí es el punto de variación legítimo —26 cuerpos en 32 archivos,
+uno por módulo—, pero `routeName` tiene **9 cuerpos distintos** y `allowedRoute` **5**, y la
+mayor parte de esa diferencia es **deriva, no intención**.
 
-> Si algún día se unifica, el vehículo correcto es un **trait**
-> (`RouteNamingTrait`) y no una clase base: el trait se compone en cualquier
-> jerarquía, `self::` sigue resolviendo a la clase que lo usa, y el hook
-> `_allowedRoute()` pasa a ser un método `protected` con implementación por defecto
-> `return true;` que cada controlador sobrescribe si lo necesita.
+La distinción que importa: **la duplicación era deliberada** —boilerplate visible que impone
+la convención y ahorra reescritura al clonar—, **las diferencias no**.
+
+> **RUTA APROBADA, ya no es un «si algún día».** El vehículo es un **trait**
+> (`RouteNamingTrait`) y no una clase base: el trait se compone en cualquier jerarquía
+> —los `*PublicController` extienden `BaseController`, no `AdminPanelController`—, `self::`
+> sigue resolviendo a la clase que lo usa, y el hook `_allowedRoute()` pasa a ser un método
+> `protected` con implementación por defecto `return true;`.
+>
+> Lo que compra: hoy quien clona un módulo copia sesenta líneas sin saber cuáles debe tocar,
+> porque son todas ruido idéntico. Con el trait, lo único escrito en su controlador es
+> `_allowedRoute()` — exactamente la parte que sí debe pensar. **La convención no se pierde,
+> se afila.**
+>
+> Estado y variantes que el trait NO cubre: T12 del doc 18.
 >
 > Mientras tanto: **al crear un módulo nuevo, cópialas de un módulo existente**
 > (`Publications\Controllers\PublicationsController` para la variante con hook —

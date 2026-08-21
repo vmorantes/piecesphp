@@ -5,6 +5,40 @@
 > Escrito para que alguien que llega en frío ejecute sin preguntar. Lo de aquí no está en
 > el código y se pierde si no se lee.
 
+## T0 · CRITERIO DE CIERRE DE LA FASE — decidido por el propietario
+
+**El framework es una PLANTILLA QUE SE CLONA.** Hay muchos despliegues, cada uno congelado
+en su versión. Nadie se rompe hoy con lo que tocamos aquí, pero **cada despliegue es un
+consumidor futuro**, así que la regla no es «no rompas producción»: es
+
+> **NO EMBARQUES UNA TRAMPA.**
+
+Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticarlo.
+
+### La fase no cierra con un número. Cierra con esto:
+
+1. **Cero errores que señalen un defecto real.**
+2. **Todo lo demás arreglado, o suprimido CON RAZÓN ESCRITA** y, si la supresión es
+   temporal, **con la condición que la retira**.
+3. **Los `.neon` dejan de ser cajón de sastre y pasan a ser registro documentado.** La
+   auditoría de los 67 `ignoreErrors` —48 vivos silenciando 3.083 errores, 19 muertos— es
+   el formato de referencia. **Los cinco repositorios al mismo estándar.**
+4. **TRINQUETE: el baseline solo baja.** Un error nuevo se arregla o se justifica por
+   escrito. El que no cumpla ninguna de las dos cosas, no entra.
+
+### Refinamiento del marco de las cuatro respuestas
+
+**«CONTRATO» solo está disponible cuando el lenguaje OFRECE una expresión para la garantía.**
+
+Para `createFromFormat` existía: `new \DateTime(...)` devuelve `DateTime` sin condiciones.
+Para `json_encode` no hay ninguna función que devuelva `string` incondicionalmente, así que
+las opciones eran la bandera, un cast, un ignore o una rama inalcanzable — y solo una es
+honesta.
+
+> **Cuando el lenguaje no ofrece la expresión, la forma honesta más cercana es convertir el
+> fallo imposible en un fallo RUIDOSO. No sustituye al contrato: es el contrato escrito de
+> la única forma disponible.**
+
 ## T1 · La garantía de `ERRMODE_EXCEPTION`, con su razón real
 
 `Database::query()` y `Database::prepare()` declaran `\PDOStatement` con **tipo nativo**
@@ -997,4 +1031,138 @@ escribe con la regla puesta.
 De uno en uno, **empezando por los archivos que tengan cobertura de pruebas**, y nunca en
 lote. El orden natural es: primero lo que cubren las suites del framework y la del
 exportador; después el núcleo; los módulos, al final, y los condenados nunca.
+
+## T12 · `routeName` / `allowedRoute` — PASO A MEDIDO, PASO B HECHO
+
+**La duplicación era deliberada; las diferencias no.** Ese es el corte que decide el lote.
+
+### Medición por tokens (no por sangría)
+
+| Método | Cuerpos distintos ANTES | Archivos | Cuerpos DESPUÉS del paso B |
+| :-- | --: | --: | --: |
+| `routeName` | 10 | 44 | **9** (dominante: 21 → **26** archivos) |
+| `allowedRoute` | 5 | 38 | **5** (dominante: 22 → **28** archivos) |
+| `_allowedRoute` | **26** | 32 | 26 (no se toca) |
+
+**La estimación anterior con `awk` se quedaba CORTA en `routeName`** —decía 6, son 10—, no
+inflada como se temía. Cortar en la primera llave a cuatro espacios pierde cuerpos con
+bloques anidados en vez de inventarlos.
+
+### Diferencias clasificadas
+
+**DERIVA — normalizadas en el paso B, todas demostrablemente equivalentes:**
+
+| Forma encontrada | Forma canónica | Por qué es equivalente |
+| :-- | :-- | :-- |
+| `!is_null($name) ? $name : ''` | `$name ?? ''` | Idénticas por definición de `??` |
+| `strlen($name) > 0` | `$name !== ''` | Va tras `trim()`: `$name` es string |
+| `mb_strlen($name) > 0` | `$name !== ''` | `mb_strlen` vale 0 solo con cadena vacía |
+| `strlen($route) > 0` | `(string) $route !== ''` | Mismo predicado |
+| `is_string($route) ? $route : ''` | `!is_string($route) ? '' : $route` | Ternario invertido |
+
+**Parte de esa divergencia la introdujo el lote 1 de Rector**: antes había 39 archivos con
+`strlen($route) > 0`; Rector convirtió 25 y dejó 14, porque solo pudo probar el tipo en
+esos. Un lote mecánico partió en dos un grupo homogéneo. El paso B lo deshace.
+
+**INTENCIONAL — se quedan como están, y el trait NO las cubre:**
+
+| Grupo | Archivos | Qué hace distinto |
+| :-- | :-- | :-- |
+| Controladores públicos | `PublicationsPublicController`, `ApplicationCallsPublicController`, `BuiltInBannerPublicController`, `GoogleReCaptchaV3Controller`, `FileManagerController`, `AppConfigController` | **No llaman a `_allowedRoute()`**: devuelven la ruta sin pasar por el hook |
+| `App/Locations/*` (5) | `City`, `Country`, `Point`, `Region`, `State` | Prefijo de **dos niveles**: `$prefixParentEntity . '-' . $prefixEntity` |
+| `ContactFormsController`, `PublicAreaController` | 2 | Usan `self::$prefixNameRoutes` en vez de `self::$baseRouteName` |
+| `TerminalController` | 1 | **Otra firma**: `routeName(?string, bool)` sin `$params`, y usa `self::routeID()` |
+| `DataImportExportUtilityController` | 1 | `get_config('current_user')` y `!= false` en vez de `getLoggedFrameworkUser()` y `!== null`. Legado; el módulo se reescribe (T6) |
+
+**`TerminalController` merece una nota**: su `allowedRoute` llama a `self::routeName($name, true)`
+con dos argumentos, lo que parece un error hasta que se mira su firma — que efectivamente
+tiene dos parámetros. **Es coherente consigo mismo, no un defecto.**
+
+### El destino aprobado: `RouteNamingTrait`
+
+`_allowedRoute()` como **hook `protected` con implementación por defecto `return true;`**.
+
+El razonamiento: hoy quien clona un módulo copia sesenta líneas sin saber cuáles debe tocar,
+porque son todas ruido idéntico. Con el trait, lo único escrito en su controlador es
+`_allowedRoute()` — **exactamente la parte que sí debe pensar**. La convención no se pierde,
+se afila.
+
+Es **trait y no clase base** porque los controladores públicos extienden `BaseController`,
+no `AdminPanelController`: componen en vez de heredar. Dentro del trait, `self::` y `static::`
+siguen resolviendo a la clase que lo usa, así que las constantes por módulo siguen
+funcionando.
+
+### Pasos pendientes
+
+- **C.1** Añadir `use RouteNamingTrait;` a los controladores. Cambio de comportamiento CERO:
+  el método declarado en la clase gana al del trait. Si PHPStan o las suites se mueven un
+  punto, algo se entendió mal y se para.
+- **C.2** Borrar las copias locales **una a una**, solo las idénticas al cuerpo canónico.
+- **C.3** *(no autorizado)* Las variantes intencionales conservan su método local.
+- **D** Tipar. **`AdminPanelController` es base de varios controladores: la base y todos sus
+  descendientes se tipan EN EL MISMO COMMIT.** Si se tipa la base y un hijo redeclara sin
+  tipo, el hijo ensancha y **PHP falla al declarar la clase**, no al llamarla.
+
+## T13 · Ramas muertas — TRIAJE HECHO, supresión NO autorizada
+
+**Son 464, no ~357.** Medidas destapando los 27 identificadores silenciados en `phpstan.neon`:
+1.347 errores con ellos fuera contra 878 con ellos dentro.
+
+### Un dato que reduce el miedo
+
+**`treatPhpDocTypesAsCertain: false` está activo.** PHPStan **no se fía de nuestros
+docblocks** para decir «siempre verdadero»: solo usa tipos nativos e inferencia real. Eso
+recorta estructuralmente la clase (b) —«el tipo declarado miente»— porque los tipos nativos
+los impone PHP en ejecución.
+
+Donde (b) **sí** puede darse en este código base es donde la inferencia es incompleta por
+diseño: `__get`/`__set` de los mappers, y variables inyectadas en vistas por `extract()`.
+
+### Reparto estimado
+
+| Clase | Cantidad | % | Trato |
+| :-- | --: | --: | :-- |
+| **(a)** Resto defensivo de la era PHP 5/7 | **300** | 64,7 % | Se borra la rama |
+| **(b)** Vistas y `extract()`, variable inyectada | **105** | 22,6 % | **No tocar**: la variable existe, PHPStan no puede verlo |
+| **(b)** Clase con `__get`/`__set` o mapper | **59** | 12,7 % | **Mirar una a una**: aquí es donde la rama puede estar protegiendo de la realidad |
+
+**Dos tercios son (a).** El tercio restante no se suprime en bloque: en las vistas la
+supresión ya existe por ruta y es correcta; en los mappers cada una es una pregunta.
+
+Archivos con más ramas de la clase magia: `ImagesRepositoryMapper` (4, **condenado**),
+`BuiltInBannerMapper` (4), `ApplicationCallsMapper` (3, **condenado**), `CategoriesMapper` (3),
+`DocumentTypesMapper` (3), `NewsMapper` (3).
+
+## T14 · `scan-invalid-utf8` VIAJA CON EL FRAMEWORK
+
+`bin/cli scan-invalid-utf8` es **comprobación previa a actualizar**, no una herramienta de
+esta ventana.
+
+Cualquier despliegue congelado que vaya a descongelarse puede mirarse antes de hacerlo:
+desde que los sitios de codificación llevan `JSON_THROW_ON_ERROR`, un texto con UTF-8
+inválido en base de datos deja de servir un dato ligeramente mal y pasa a **cortar la
+petición con un 500**. Esta tarea dice si hay pólvora **antes** de actualizar.
+
+Es de **solo lectura** y comprueba con `mb_check_encoding()`, no en SQL: quien tiene que
+aceptar el dato es PHP.
+
+**El entregable es la tarea, no su resultado.** El cero que da aquí no prueba nada —763 filas
+en 41 tablas es una base de juguete—; el valor está en poder correrla contra una base real.
+
+## T15 · CANDIDATO FUTURO — registrar `src/app/classes` en el `psr-4` de Composer
+
+**No hacer todavía. Ventana propia, con su riesgo evaluado.**
+
+El `psr-4` de `src/composer.json` declara únicamente `PiecesPHP\Core\`. **Composer no ve
+`src/app/classes`, donde vive el código de negocio entero.** Por eso todas las herramientas
+estándar necesitan aquí trabajo a medida: fue el motivo de que `--strict-psr` no sirviera
+para la tercera comprobación de integridad (T10).
+
+Registrarlo como **prefijo vacío** devolvería visibilidad a todo el instrumental y podría
+sustituir parte de esa comprobación por `--strict-psr` nativo.
+
+**El riesgo a evaluar antes**: hoy conviven el autoloader de Composer y el propio del
+framework; registrar la misma carpeta en los dos puede provocar resoluciones ambiguas —ya hay
+una, `PiecesPHP\Core\Database\Meta\MetaProperty`, declarada en `src/app` y en el paquete
+`piecesphp/database`—.
 
