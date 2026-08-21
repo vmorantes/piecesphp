@@ -96,13 +96,11 @@
     "app/classes/API/Controllers/APIController.php": [
         "APIController::__construct",
         "APIController::_allowedRoute",
-        "APIController::allowedRoute",
         "APIController::cronJobs",
         "APIController::externalActions",
         "APIController::news",
         "APIController::publications",
         "APIController::reports",
-        "APIController::routeName",
         "APIController::routes",
         "APIController::translations",
         "APIController::usersActions"
@@ -391,10 +389,8 @@
     "app/classes/Components/Controllers/ComponentProvider.php": [
         "ComponentProvider::__construct",
         "ComponentProvider::_allowedRoute",
-        "ComponentProvider::allowedRoute",
         "ComponentProvider::pathJSModule",
         "ComponentProvider::provide",
-        "ComponentProvider::routeName",
         "ComponentProvider::routes"
     ],
     "app/classes/Components/Controllers/HelperController.php": [
@@ -412,13 +408,11 @@
     "app/classes/ContentNavigationHub/Controllers/ContentNavigationHubController.php": [
         "ContentNavigationHubController::__construct",
         "ContentNavigationHubController::_allowedRoute",
-        "ContentNavigationHubController::allowedRoute",
         "ContentNavigationHubController::applicationCallDetailView",
         "ContentNavigationHubController::applicationCallsListView",
         "ContentNavigationHubController::contentsMapView",
         "ContentNavigationHubController::profileListView",
         "ContentNavigationHubController::render",
-        "ContentNavigationHubController::routeName",
         "ContentNavigationHubController::routes",
         "ContentNavigationHubController::view"
     ],
@@ -432,7 +426,6 @@
     "app/classes/DataImportExportUtility/Controllers/DataImportExportUtilityController.php": [
         "DataImportExportUtilityController::__construct",
         "DataImportExportUtilityController::_allowedRoute",
-        "DataImportExportUtilityController::allowedRoute",
         "DataImportExportUtilityController::getUsersImportGeneratedFiles",
         "DataImportExportUtilityController::routeName",
         "DataImportExportUtilityController::routes",
@@ -473,14 +466,12 @@
         "DocumentsController::addForm",
         "DocumentsController::all",
         "DocumentsController::allowedLangsForSelect",
-        "DocumentsController::allowedRoute",
         "DocumentsController::dataTables",
         "DocumentsController::dataTablesExplorer",
         "DocumentsController::editForm",
         "DocumentsController::explorerView",
         "DocumentsController::handlerUpload",
         "DocumentsController::listView",
-        "DocumentsController::routeName",
         "DocumentsController::routes",
         "DocumentsController::searchDropdown",
         "DocumentsController::toDelete",
@@ -542,10 +533,8 @@
     "app/classes/EventsLog/Controllers/LogsController.php": [
         "LogsController::__construct",
         "LogsController::_allowedRoute",
-        "LogsController::allowedRoute",
         "LogsController::dataTables",
         "LogsController::listView",
-        "LogsController::routeName",
         "LogsController::routes",
         "LogsController::view"
     ],
@@ -619,12 +608,10 @@
         "CategoriesController::addForm",
         "CategoriesController::all",
         "CategoriesController::allowedLangsForSelect",
-        "CategoriesController::allowedRoute",
         "CategoriesController::dataTables",
         "CategoriesController::editForm",
         "CategoriesController::handlerUpload",
         "CategoriesController::listView",
-        "CategoriesController::routeName",
         "CategoriesController::routes",
         "CategoriesController::toDelete",
         "CategoriesController::view"
@@ -678,12 +665,10 @@
         "DocumentTypesController::addForm",
         "DocumentTypesController::all",
         "DocumentTypesController::allowedLangsForSelect",
-        "DocumentTypesController::allowedRoute",
         "DocumentTypesController::dataTables",
         "DocumentTypesController::editForm",
         "DocumentTypesController::handlerUpload",
         "DocumentTypesController::listView",
-        "DocumentTypesController::routeName",
         "DocumentTypesController::routes",
         "DocumentTypesController::toDelete",
         "DocumentTypesController::view"
@@ -744,11 +729,9 @@
     "app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php": [
         "GeoJsonManagerController::__construct",
         "GeoJsonManagerController::_allowedRoute",
-        "GeoJsonManagerController::allowedRoute",
         "GeoJsonManagerController::contentsGeoJsonFeatures",
         "GeoJsonManagerController::handleRequestContentsGeoJsonFeaturesParam",
         "GeoJsonManagerController::render",
-        "GeoJsonManagerController::routeName",
         "GeoJsonManagerController::routes",
         "GeoJsonManagerController::withApplicationCalls",
         "GeoJsonManagerController::withOrganizationsProfiles",
@@ -999,10 +982,8 @@
     "app/classes/MySpace/Controllers/AllProfilesController.php": [
         "AllProfilesController::__construct",
         "AllProfilesController::_allowedRoute",
-        "AllProfilesController::allowedRoute",
         "AllProfilesController::dataTables",
         "AllProfilesController::render",
-        "AllProfilesController::routeName",
         "AllProfilesController::routes"
     ],
     "app/classes/MySpace/Controllers/HelperController.php": [
@@ -1012,14 +993,12 @@
         "MyOrganizationProfileController::__construct",
         "MyOrganizationProfileController::_allowedRoute",
         "MyOrganizationProfileController::addExperienceAction",
-        "MyOrganizationProfileController::allowedRoute",
         "MyOrganizationProfileController::changeOrganizationAdminAction",
         "MyOrganizationProfileController::getOrganizationAdministratorID",
         "MyOrganizationProfileController::getOrganizationFromParams",
         "MyOrganizationProfileController::hasSuperPrivileges",
         "MyOrganizationProfileController::myOrganizationProfileView",
         "MyOrganizationProfileController::render",
-        "MyOrganizationProfileController::routeName",
         "MyOrganizationProfileController::routes",
         "MyOrganizationProfileController::saveProfileAction"
     ],
@@ -1027,41 +1006,33 @@
         "MyProfileController::__construct",
         "MyProfileController::_allowedRoute",
         "MyProfileController::addExperienceAction",
-        "MyProfileController::allowedRoute",
         "MyProfileController::myProfileView",
         "MyProfileController::render",
-        "MyProfileController::routeName",
         "MyProfileController::routes",
         "MyProfileController::saveProfileAction"
     ],
     "app/classes/MySpace/Controllers/MySpaceController.php": [
         "MySpaceController::__construct",
         "MySpaceController::_allowedRoute",
-        "MySpaceController::allowedRoute",
         "MySpaceController::exampleResources",
         "MySpaceController::iframesSources",
         "MySpaceController::mySpaceView",
         "MySpaceController::render",
-        "MySpaceController::routeName",
         "MySpaceController::routes",
         "MySpaceController::userSecurity"
     ],
     "app/classes/MySpace/Controllers/OrganizationProfileController.php": [
         "OrganizationProfileController::__construct",
         "OrganizationProfileController::_allowedRoute",
-        "OrganizationProfileController::allowedRoute",
         "OrganizationProfileController::profileView",
         "OrganizationProfileController::render",
-        "OrganizationProfileController::routeName",
         "OrganizationProfileController::routes"
     ],
     "app/classes/MySpace/Controllers/ProfileController.php": [
         "ProfileController::__construct",
         "ProfileController::_allowedRoute",
-        "ProfileController::allowedRoute",
         "ProfileController::profileView",
         "ProfileController::render",
-        "ProfileController::routeName",
         "ProfileController::routes"
     ],
     "app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php": [
@@ -1104,12 +1075,10 @@
         "NewsCategoryController::addForm",
         "NewsCategoryController::all",
         "NewsCategoryController::allowedLangsForSelect",
-        "NewsCategoryController::allowedRoute",
         "NewsCategoryController::dataTables",
         "NewsCategoryController::editForm",
         "NewsCategoryController::listView",
         "NewsCategoryController::render",
-        "NewsCategoryController::routeName",
         "NewsCategoryController::routes",
         "NewsCategoryController::toDelete"
     ],
@@ -1120,14 +1089,12 @@
         "NewsController::action",
         "NewsController::addForm",
         "NewsController::all",
-        "NewsController::allowedRoute",
         "NewsController::dataTables",
         "NewsController::editForm",
         "NewsController::listView",
         "NewsController::markAsRead",
         "NewsController::pathFrontNewsAdapter",
         "NewsController::render",
-        "NewsController::routeName",
         "NewsController::routes",
         "NewsController::toDelete"
     ],
@@ -1237,11 +1204,9 @@
         "NewsletterController::addSuscriber",
         "NewsletterController::all",
         "NewsletterController::allowedLangsForSelect",
-        "NewsletterController::allowedRoute",
         "NewsletterController::dataTables",
         "NewsletterController::editForm",
         "NewsletterController::listView",
-        "NewsletterController::routeName",
         "NewsletterController::routes",
         "NewsletterController::toDelete",
         "NewsletterController::view"
@@ -1288,13 +1253,11 @@
         "OrganizationsController::addForm",
         "OrganizationsController::all",
         "OrganizationsController::allowedLangsForSelect",
-        "OrganizationsController::allowedRoute",
         "OrganizationsController::dataTables",
         "OrganizationsController::editForm",
         "OrganizationsController::handlerUpload",
         "OrganizationsController::listView",
         "OrganizationsController::render",
-        "OrganizationsController::routeName",
         "OrganizationsController::routes",
         "OrganizationsController::toDelete"
     ],
@@ -1372,14 +1335,12 @@
         "BuiltInBannerController::addForm",
         "BuiltInBannerController::all",
         "BuiltInBannerController::allowedLangsForSelect",
-        "BuiltInBannerController::allowedRoute",
         "BuiltInBannerController::dataTables",
         "BuiltInBannerController::editForm",
         "BuiltInBannerController::handlerUpload",
         "BuiltInBannerController::listView",
         "BuiltInBannerController::pathFrontBuiltInBannerAdapter",
         "BuiltInBannerController::render",
-        "BuiltInBannerController::routeName",
         "BuiltInBannerController::routes",
         "BuiltInBannerController::toDelete"
     ],
@@ -1438,12 +1399,10 @@
         "GenericContentController::_allowedRoute",
         "GenericContentController::action",
         "GenericContentController::allowedLangsForSelect",
-        "GenericContentController::allowedRoute",
         "GenericContentController::handlerUpload",
         "GenericContentController::homeImage",
         "GenericContentController::mapboxKeysForm",
         "GenericContentController::render",
-        "GenericContentController::routeName",
         "GenericContentController::routes",
         "GenericContentController::tokensLimitForm"
     ],
@@ -1489,10 +1448,8 @@
     "app/classes/PiecesPHP/LocalizationSystem/Controllers/LocalizationSystemController.php": [
         "LocalizationSystemController::__construct",
         "LocalizationSystemController::_allowedRoute",
-        "LocalizationSystemController::allowedRoute",
         "LocalizationSystemController::getLangMessagesByGroup",
         "LocalizationSystemController::render",
-        "LocalizationSystemController::routeName",
         "LocalizationSystemController::routes"
     ],
     "app/classes/PiecesPHP/LocalizationSystem/LocalizationSystemFeaturesLang.php": [
@@ -1546,7 +1503,6 @@
     "app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php": [
         "UserSystemFeaturesController::__construct",
         "UserSystemFeaturesController::_allowedRoute",
-        "UserSystemFeaturesController::allowedRoute",
         "UserSystemFeaturesController::checkTOTP",
         "UserSystemFeaturesController::checkTwoFactorAuthStatus",
         "UserSystemFeaturesController::configureTOTP",
@@ -1554,7 +1510,6 @@
         "UserSystemFeaturesController::getCurrentTOTP",
         "UserSystemFeaturesController::getTOTPDataQR",
         "UserSystemFeaturesController::markQRDataAsViewed",
-        "UserSystemFeaturesController::routeName",
         "UserSystemFeaturesController::routes",
         "UserSystemFeaturesController::view"
     ],
@@ -1690,12 +1645,10 @@
         "PublicationsCategoryController::action",
         "PublicationsCategoryController::addForm",
         "PublicationsCategoryController::all",
-        "PublicationsCategoryController::allowedRoute",
         "PublicationsCategoryController::dataTables",
         "PublicationsCategoryController::editForm",
         "PublicationsCategoryController::listView",
         "PublicationsCategoryController::render",
-        "PublicationsCategoryController::routeName",
         "PublicationsCategoryController::routes",
         "PublicationsCategoryController::toDelete"
     ],
@@ -1706,14 +1659,12 @@
         "PublicationsController::action",
         "PublicationsController::addForm",
         "PublicationsController::all",
-        "PublicationsController::allowedRoute",
         "PublicationsController::dataTables",
         "PublicationsController::editForm",
         "PublicationsController::handlerUpload",
         "PublicationsController::listView",
         "PublicationsController::pathFrontPublicationsAdapter",
         "PublicationsController::render",
-        "PublicationsController::routeName",
         "PublicationsController::routes",
         "PublicationsController::toDelete"
     ],
@@ -1867,10 +1818,8 @@
     "app/classes/ReportsManage/Controllers/ReportsManageController.php": [
         "ReportsManageController::__construct",
         "ReportsManageController::_allowedRoute",
-        "ReportsManageController::allowedRoute",
         "ReportsManageController::genericReportView",
         "ReportsManageController::render",
-        "ReportsManageController::routeName",
         "ReportsManageController::routes"
     ],
     "app/classes/ReportsManage/Exceptions/DuplicateException.php": [
@@ -1903,14 +1852,12 @@
     "app/classes/SystemApprovals/Controllers/SystemApprovalsController.php": [
         "SystemApprovalsController::__construct",
         "SystemApprovalsController::_allowedRoute",
-        "SystemApprovalsController::allowedRoute",
         "SystemApprovalsController::approvalAction",
         "SystemApprovalsController::approvalForm",
         "SystemApprovalsController::dataTables",
         "SystemApprovalsController::handlerUpload",
         "SystemApprovalsController::listView",
         "SystemApprovalsController::render",
-        "SystemApprovalsController::routeName",
         "SystemApprovalsController::routes"
     ],
     "app/classes/SystemApprovals/Exceptions/DuplicateException.php": [
@@ -2191,7 +2138,6 @@
     "app/controller/PublicAreaController.php": [
         "PublicAreaController::__construct",
         "PublicAreaController::_allowedRoute",
-        "PublicAreaController::allowedRoute",
         "PublicAreaController::contactView",
         "PublicAreaController::genericViewExists",
         "PublicAreaController::genericViews",
@@ -3316,6 +3262,13 @@
         "RouteGroupAdapter::register",
         "RouteGroupAdapter::setRouter",
         "RouteGroupAdapter::withMiddleware"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/RouteGuardTrait.php": [
+        "RouteGuardTrait::allowedRoute"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/RouteNamingTrait.php": [
+        "RouteNamingTrait::_allowedRoute",
+        "RouteNamingTrait::routeName"
     ],
     "app/core/psr4/PiecesPHP/Core/Routing/Router.php": [
         "Router::createRouter",

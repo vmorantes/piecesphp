@@ -22,6 +22,8 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\RouteGuardTrait;
+use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\ExifHelper;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
@@ -43,6 +45,10 @@ use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
  */
 class ImagesRepositoryController extends AdminPanelController
 {
+
+    use RouteGuardTrait;
+
+    use RouteNamingTrait;
 
     /**
      * @var string

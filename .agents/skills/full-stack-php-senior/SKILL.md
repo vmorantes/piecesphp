@@ -147,13 +147,24 @@ Sufijos de ruta estándar: `-list`, `-forms-add`, `-forms-edit`, `-datatables`,
 
 ### Sobre `routeName()` y `allowedRoute()`
 
-Están duplicadas en 44 controladores y **eso es deliberado**, no un descuido: no todos
-los controladores comparten padre (los de zona pública extienden `BaseController`, no
-`AdminPanelController`) y usan `self::$baseRouteName`, que en una clase padre resolvería
-a la propiedad equivocada. Al crear un controlador, cópialas de uno existente. La
-variación real está en el hook privado `_allowedRoute()`, donde van las reglas de negocio
-extra. No propongas moverlas a una clase base; si algún día se unifican, el vehículo es
-un trait.
+**Ya no se escriben en el controlador.** Las aportan dos traits de
+`PiecesPHP\Core\Routing`: `RouteNamingTrait` (`routeName()` más el hook `_allowedRoute()`
+con `return true;` por defecto) y `RouteGuardTrait` (`allowedRoute()`).
+
+Son **traits y no una clase base** porque los controladores no comparten padre: los de zona
+pública extienden `BaseController` y los de panel `AdminPanelController`. Dentro del trait
+`self::` sigue resolviendo a la clase que lo usa, así que `self::$baseRouteName` sigue
+siendo la del módulo.
+
+Al crear un controlador: `use RouteNamingTrait;`, `use RouteGuardTrait;` si expone guardián,
+y **escribe `_allowedRoute()` solo si el módulo tiene reglas de negocio extra** — ese es el
+único punto de variación real (26 cuerpos distintos en 32 módulos).
+
+Quedan **18 controladores con `routeName()` propio y 10 con `allowedRoute()` propio**: son
+variantes intencionales (públicos sin hook, `App\Locations` con prefijo de dos niveles,
+`TerminalController` con otra firma). **No las unifiques**: el método declarado en la clase
+gana al del trait, y esa diferencia está ahí a propósito. Ver
+`.agents/context/05-routing-y-permisos.md`.
 
 ## Cómo abordar las tareas más comunes
 

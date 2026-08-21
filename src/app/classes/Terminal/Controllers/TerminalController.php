@@ -12,6 +12,8 @@ use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\RouteGuardTrait;
+use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\TerminalData;
 
 /**
@@ -24,6 +26,10 @@ use PiecesPHP\TerminalData;
  */
 class TerminalController extends AdminPanelController
 {
+
+    use RouteGuardTrait;
+
+    use RouteNamingTrait;
 
     /**
      * @var string

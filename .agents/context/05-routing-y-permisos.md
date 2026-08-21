@@ -153,23 +153,45 @@ mayor parte de esa diferencia es **deriva, no intención**.
 La distinción que importa: **la duplicación era deliberada** —boilerplate visible que impone
 la convención y ahorra reescritura al clonar—, **las diferencias no**.
 
-> **RUTA APROBADA, ya no es un «si algún día».** El vehículo es un **trait**
-> (`RouteNamingTrait`) y no una clase base: el trait se compone en cualquier jerarquía
-> —los `*PublicController` extienden `BaseController`, no `AdminPanelController`—, `self::`
-> sigue resolviendo a la clase que lo usa, y el hook `_allowedRoute()` pasa a ser un método
-> `protected` con implementación por defecto `return true;`.
->
-> Lo que compra: hoy quien clona un módulo copia sesenta líneas sin saber cuáles debe tocar,
-> porque son todas ruido idéntico. Con el trait, lo único escrito en su controlador es
-> `_allowedRoute()` — exactamente la parte que sí debe pensar. **La convención no se pierde,
-> se afila.**
->
-> Estado y variantes que el trait NO cubre: T12 del doc 18.
->
-> Mientras tanto: **al crear un módulo nuevo, cópialas de un módulo existente**
-> (`Publications\Controllers\PublicationsController` para la variante con hook —
-> es la referencia canónica del proyecto;
-> `FileManager\Controllers\FileManagerController` para la básica).
+> **HECHO.** El vehículo es un **trait** y no una clase base: los `*PublicController`
+> extienden `BaseController`, no `AdminPanelController`, así que componer es lo único que
+> funciona en las dos jerarquías. Dentro del trait `self::` sigue resolviendo a la clase que
+> lo usa, de modo que `self::$baseRouteName` sigue siendo la del módulo.
+
+### Los dos traits, y a quién se aplica cada uno
+
+| Trait | Aporta | Lo usan |
+| :-- | :-- | --: |
+| `PiecesPHP\Core\Routing\RouteNamingTrait` | `routeName()` y el hook `_allowedRoute()` con `return true;` por defecto | **44** |
+| `PiecesPHP\Core\Routing\RouteGuardTrait` | `allowedRoute()` | **38** |
+
+Son dos y no uno porque **seis de los cuarenta y cuatro nombran rutas y no exponen
+guardián**: los cinco de `App\Locations` y `ContactFormsController`.
+
+`_allowedRoute()` vive en el trait de nombrado, no en el de guarda, por una razón de
+funcionamiento: **`routeName()` lo llama siempre**, así que quien usara el trait sin
+declararlo tendría un fatal. Con el valor por defecto, quien no quiera reglas extra no
+escribe nada.
+
+### Qué se borró y qué se conserva
+
+| Método | Copias borradas | Copias conservadas | Por qué se conservan |
+| :-- | --: | --: | :-- |
+| `routeName` | **26** | **18** | No son idénticas al cuerpo del trait |
+| `allowedRoute` | **28** | **10** | Ídem |
+| `_allowedRoute` | **0** | 32 | Es el punto de variación: 26 cuerpos distintos |
+
+**El criterio de borrado fue la identidad por TOKENS, no el parecido.** Cada copia se
+comparó con el cuerpo del trait —firma incluida, comentarios fuera— y solo se borró si
+coincidía exactamente. Las variantes intencionales de T12 —controladores públicos sin hook,
+`App\Locations` con prefijo de dos niveles, `TerminalController` con otra firma— **quedan
+intactas**, y su `use` del trait no las cambia: **el método declarado en la clase gana
+siempre al del trait**.
+
+> **Al crear un módulo nuevo ya no se copian esos métodos.** Se añade
+> `use RouteNamingTrait;` y `use RouteGuardTrait;`, y se escribe `_allowedRoute()` solo si
+> hay reglas de negocio extra. La referencia sigue siendo
+> `Publications\Controllers\PublicationsController`.
 
 ## Roles
 

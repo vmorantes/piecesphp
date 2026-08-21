@@ -1145,11 +1145,36 @@ funcionando.
 
 ### Pasos pendientes
 
-- **C.1** Añadir `use RouteNamingTrait;` a los controladores. Cambio de comportamiento CERO:
-  el método declarado en la clase gana al del trait. Si PHPStan o las suites se mueven un
-  punto, algo se entendió mal y se para.
-- **C.2** Borrar las copias locales **una a una**, solo las idénticas al cuerpo canónico.
-- **C.3** *(no autorizado)* Las variantes intencionales conservan su método local.
+- **C.1 · HECHO.** Dos traits en `PiecesPHP\Core\Routing`: `RouteNamingTrait` —`routeName()`
+  más el hook `_allowedRoute()` con `return true;` por defecto— en los **44**, y
+  `RouteGuardTrait` —`allowedRoute()`— en los **38** que exponen guardián. Los otros seis
+  nombran rutas y no guardan: los cinco de `App\Locations` y `ContactFormsController`.
+
+  **Medido con C.1 solo, antes de borrar nada: 877 instancias, 868 tripletas, 190 archivos.
+  Idéntico al estado anterior, sin mover un punto.** Suites 20/20, 13/13, 6/6, 12/12.
+
+  El hook vive en el trait de NOMBRADO y no en el de guarda por funcionamiento, no por
+  gusto: `routeName()` lo llama siempre, así que un controlador que usara el trait sin
+  declararlo tendría un fatal.
+
+- **C.2 · HECHO.** Borradas **26** copias de `routeName` y **28** de `allowedRoute`. El
+  criterio fue **identidad por TOKENS contra el cuerpo del trait** —firma incluida,
+  comentarios fuera—, comprobada archivo a archivo justo antes de borrar; la herramienta se
+  niega y deja el archivo intacto si no coincide. Por eso **18 y 10 se conservaron**, y son
+  exactamente los grupos no dominantes ya clasificados arriba.
+
+  **Después de borrar 54 métodos: 877 / 868 / 190 otra vez.** Con **606 sitios de llamada**
+  a `routeName(` / `allowedRoute(` en el código, que PHPStan resuelve en nivel 8: si alguno
+  hubiera quedado sin método, habría salido como `staticMethod.notFound`. Los dos únicos
+  `method.notFound` del informe son de `TerminalController` y ya estaban.
+
+  `verify-integrity` reportó **54 firmas desaparecidas**, que es justo `26 + 28`. La
+  instantánea se regeneró: las firmas no desaparecieron, se mudaron al trait.
+
+- **C.3** *(no autorizado)* Las variantes intencionales conservan su método local. **Su `use`
+  del trait no las cambia**: el método declarado en la clase gana siempre. Comprobado en
+  aislamiento, no supuesto — una clase con método propio devuelve el suyo y una sin él, el
+  del trait.
 - **D** Tipar. **`AdminPanelController` es base de varios controladores: la base y todos sus
   descendientes se tipan EN EL MISMO COMMIT.** Si se tipa la base y un hijo redeclara sin
   tipo, el hijo ensancha y **PHP falla al declarar la clase**, no al llamarla.

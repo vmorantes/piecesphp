@@ -17,6 +17,8 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\RouteGuardTrait;
+use PiecesPHP\Core\Routing\RouteNamingTrait;
 
 /**
  * FileManagerController.
@@ -27,6 +29,10 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
  */
 class FileManagerController extends AdminPanelController
 {
+
+    use RouteGuardTrait;
+
+    use RouteNamingTrait;
 
     /**
      * @var string

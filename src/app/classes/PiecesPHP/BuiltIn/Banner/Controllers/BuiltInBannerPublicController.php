@@ -17,6 +17,8 @@ use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\RouteGuardTrait;
+use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
 
 /**
@@ -28,6 +30,10 @@ use PiecesPHP\Core\Utilities\OsTicket\OsTicketAPI;
  */
 class BuiltInBannerPublicController extends BaseController
 {
+
+    use RouteGuardTrait;
+
+    use RouteNamingTrait;
 
     /**
      * @var string

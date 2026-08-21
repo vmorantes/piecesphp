@@ -21,6 +21,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\RouteNamingTrait;
 
 /**
  * Point.
@@ -33,6 +34,8 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  */
 class Point extends AdminPanelController
 {
+
+    use RouteNamingTrait;
 
     /**
      * @var string

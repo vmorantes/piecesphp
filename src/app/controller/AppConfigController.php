@@ -36,6 +36,8 @@ use Publications\Mappers\PublicationCategoryMapper;
 use Publications\Mappers\PublicationMapper;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\RouteGuardTrait;
+use PiecesPHP\Core\Routing\RouteNamingTrait;
 
 /**
  * AppConfigController.
@@ -46,6 +48,10 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  */
 class AppConfigController extends AdminPanelController
 {
+
+    use RouteGuardTrait;
+
+    use RouteNamingTrait;
     const PARSE_TYPE_STRING = 'string';
     const PARSE_TYPE_BOOL = 'bool';
     const PARSE_TYPE_INT = 'int';

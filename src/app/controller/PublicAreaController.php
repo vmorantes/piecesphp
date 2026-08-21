@@ -27,6 +27,8 @@ use Publications\Controllers\PublicationsPublicController;
 use Publications\PublicationsRoutes;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
+use PiecesPHP\Core\Routing\RouteGuardTrait;
+use PiecesPHP\Core\Routing\RouteNamingTrait;
 
 /**
  * PublicAreaController.
@@ -39,6 +41,10 @@ use \PiecesPHP\Core\Routing\ResponseRoute as Response;
  */
 class PublicAreaController extends BaseController
 {
+
+    use RouteGuardTrait;
+
+    use RouteNamingTrait;
 
     /**
      * @var string
@@ -376,20 +382,6 @@ class PublicAreaController extends BaseController
         }
 
         return $exists;
-    }
-
-    /**
-     * Verificar si una ruta es permitida
-     *
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-        $route = self::routeName($name, $params, true);
-        $allow = (string) $route !== '';
-        return $allow;
     }
 
     /**
