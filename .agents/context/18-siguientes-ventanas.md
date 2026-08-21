@@ -26,6 +26,33 @@ Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticar
 4. **TRINQUETE: el baseline solo baja.** Un error nuevo se arregla o se justifica por
    escrito. El que no cumpla ninguna de las dos cosas, no entra.
 
+5. **TODA CIFRA QUE SOBREVIVE A LA SESIÓN LLEVA SU MÉTODO ESCRITO.** No es un paralelismo
+   con la regla 2: **es lo que hace funcionar el trinquete.** Comparar dos baselines solo
+   significa algo si se midieron igual, y ya falló una vez — cuando el pipeline pasó de
+   tabla a JSON, la pregunta «¿es comparable?» no tuvo respuesta hasta que alguien fue a
+   averiguarla. Un trinquete que compara peras con manzanas no impide nada.
+
+   Con dos límites, para que no se vuelva burocracia:
+
+   - **Solo las cifras que SOBREVIVEN a la sesión**: las que entran en un documento, en un
+     baseline o en el `CHANGELOG`. Un número dicho en un reporte se explica por su contexto
+     y muere con él; ese no lleva método.
+   - **El método debe ser REPRODUCIBLE, NO DESCRIPTIVO**: el comando o la herramienta
+     nombrada, no una frase. «Medido sobre la salida de PHPStan» no sirve; «`bin/phpstan`,
+     contando instancias en `PHPStanResult.json`» sí.
+
+### El baseline vigente y su método
+
+| Cifra | Con qué se midió |
+| :-- | :-- |
+| **877 errores** | `bin/phpstan`, leyendo `PHPStanResult.json`: `totals.file_errors`. Cuenta **instancias**, no tripletas distintas. |
+| **190 archivos** | El mismo JSON: número de claves de `files`. |
+
+Verificado con un segundo método independiente, como manda T20: `PHPStanResult.Summary.txt`
+lo obtiene parseando **la tabla** con otro código —`bin/phpstan-process-result.php`— y da
+los mismos **877 y 190**. Distinto formateador y distinto parser, así que el acuerdo no es
+tautológico.
+
 ### Refinamiento del marco de las cuatro respuestas
 
 **«CONTRATO» solo está disponible cuando el lenguaje OFRECE una expresión para la garantía.**
@@ -840,6 +867,27 @@ Lo que sí venía mal era el conteo de ARCHIVOS —192 en vez de 195—, porque 
 `PHPStanResult.Summary.baseline.txt` lleva ahora una nota de medición con esto y el conteo
 de archivos corregido. **El total de errores no se regenera: 968 nunca fue otro número.**
 
+### El método de la columna «Con `false`» — escrito, porque no lo estaba
+
+El «157» se anotó como «medido sobre `PHPStanResult.json`», que es **descriptivo, no
+reproducible**: no dice qué se contaba dentro del JSON. Bajo el punto 5 de T0 eso ya no
+vale. La expresión autorizada de aquí en adelante:
+
+```bash
+php -r '$j=json_decode(file_get_contents("PHPStanResult.json"),true);
+$n=0; foreach($j["files"] as $d) foreach($d["messages"] as $m)
+if (str_contains($m["message"],"false")) $n++; echo $n,"\n";'
+```
+
+Cuenta **instancias** cuyo mensaje menciona `false`. Hoy da **100**, repartidas en cinco
+identificadores —`argument.type` (74), `method.nonObject` (14), `return.type` (6),
+`foreach.nonIterable` (4), `assign.propertyType` (2)—, todos coherentes con «un `false` se
+coló en un valor».
+
+**Advertencia de comparabilidad:** las filas anteriores de la tabla (157 → 107) se midieron
+antes de fijar esta expresión, así que **son indicativas, no aptas para el trinquete**. La
+serie apta empieza aquí. No se reconstruyen hacia atrás: sería inventar la reconciliación,
+el mismo error que derogó el 148.
 ### Recorrido, medido commit a commit
 
 | Commit | Errores | Con `false` | Qué resolvió |
