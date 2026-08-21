@@ -513,8 +513,9 @@ class BaseToken
     public static function jsonEncode($input)
     {
         $json = json_encode($input);
-        if (function_exists('json_last_error') && $errno = json_last_error()) {
-            return $errno;
+        //Se mira el VALOR, no json_last_error(): es el único signo directo de que falló.
+        if ($json === false) {
+            return json_last_error();
         }
         return $json;
     }

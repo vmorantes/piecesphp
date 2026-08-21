@@ -56,7 +56,9 @@ class BaseHashEncryption
         $decrypt_string = @openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
         $decrypt_string = is_string($decrypt_string) ? $decrypt_string : null;
         if (extension_loaded('zlib') && function_exists('gzdecode') && is_string($decrypt_string)) {
-            $decrypt_string = gzdecode($decrypt_string);
+            $inflated = gzdecode($decrypt_string);
+            //Un texto que no descomprime no es texto descifrado: null, no false.
+            $decrypt_string = $inflated !== false ? $inflated : null;
         }
         return $decrypt_string;
     }

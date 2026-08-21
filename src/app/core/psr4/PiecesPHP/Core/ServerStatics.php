@@ -1081,13 +1081,16 @@ class ServerStatics
      */
     private static function compressData(string $data, string $algorithm): ?string
     {
+        $compressed = false;
+
         if ($algorithm === 'deflate' && extension_loaded('zlib') && function_exists('gzdeflate')) {
-            return gzdeflate($data);
+            $compressed = gzdeflate($data);
         } elseif ($algorithm === 'gzip' && extension_loaded('zlib') && function_exists('gzencode')) {
-            return gzencode($data);
+            $compressed = gzencode($data);
         }
 
-        return null;
+        //El docblock promete «null si falla»: el false de las nativas ES ese fallo.
+        return $compressed !== false ? $compressed : null;
     }
 
     /**

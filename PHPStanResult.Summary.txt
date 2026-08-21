@@ -4,13 +4,13 @@
 190
 
 [TOTAL DE ERRORES VISIBLES]
-889
+882
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (341)
+🪪  argument.type (340)
 🪪  property.nonObject (200)
 🪪  method.nonObject (143)
-🪪  return.type (66)
+🪪  return.type (60)
 🪪  assign.propertyType (38)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
@@ -272,9 +272,8 @@ project://src/app/classes/Publications/Controllers/PublicationsController.php
 	🪪  clone.nonObject (Líneas: 701)
 	🪪  method.nonObject (Líneas: 1150, 1311, 1321, 1448, 1511, 1512, 1513)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
-	🪪  argument.type (Líneas: 165, 227, 244)
-	🪪  return.type (Líneas: 228)
-	🪪  property.nonObject (Líneas: 259, 279)
+	🪪  argument.type (Líneas: 165, 248)
+	🪪  property.nonObject (Líneas: 263, 283)
 project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
 	🪪  argument.type (Líneas: 395)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
@@ -421,15 +420,14 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
 	🪪  assign.propertyType (Líneas: 78)
 	🪪  nullCoalesce.property (Líneas: 333)
 project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
-	🪪  argument.type (Líneas: 36, 127, 130, 161, 173)
-	🪪  return.type (Líneas: 61)
+	🪪  argument.type (Líneas: 36, 129, 132, 163, 175)
 project://src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php
 	🪪  argument.type (Líneas: 43, 72, 73)
 	🪪  return.type (Líneas: 74, 76, 129, 166)
 project://src/app/core/psr4/PiecesPHP/Core/BaseToken.php
-	🪪  return.type (Líneas: 141, 474, 519)
+	🪪  return.type (Líneas: 141, 474)
 	🪪  property.notFound (Líneas: 177, 226, 273)
-	🪪  argument.type (Líneas: 339, 340, 343, 445, 448, 479, 491, 545)
+	🪪  argument.type (Líneas: 339, 340, 343, 445, 448, 479, 491, 546)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCriteries.php
 	🪪  argument.type (Líneas: 51, 52)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
@@ -502,10 +500,8 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/
 	🪪  assign.propertyType (Líneas: 51)
 project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
 	🪪  argument.type (Líneas: 618, 998, 1002)
-	🪪  return.type (Líneas: 1085, 1087)
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
-	🪪  return.type (Líneas: 85)
-	🪪  argument.type (Líneas: 110, 161, 162, 178)
+	🪪  argument.type (Líneas: 111, 162, 163, 179)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
 	🪪  argument.type (Líneas: 33)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php

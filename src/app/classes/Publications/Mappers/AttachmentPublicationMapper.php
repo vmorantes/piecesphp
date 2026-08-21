@@ -222,10 +222,14 @@ class AttachmentPublicationMapper extends EntityMapperExtensible
         $hasFile = $this->fileExists();
 
         if ($hasFile) {
+            //finfo_open() y finfo_file() devuelven false; el contrato aquí es string|null.
             $fileInformation = finfo_open(FILEINFO_MIME_TYPE);
+            if ($fileInformation === false) {
+                return null;
+            }
             $filePath = basepath($this->fileLocation);
             $mimeType = finfo_file($fileInformation, $filePath);
-            return $mimeType;
+            return $mimeType !== false ? $mimeType : null;
         } else {
             return null;
         }

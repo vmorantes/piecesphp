@@ -1140,22 +1140,18 @@ project://src/app/classes/Publications/Controllers/PublicationsController.php
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
- ------ ---------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------- 
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
- ------ ---------------------------------------------------------------------------------------------------------------------------- 
-  165    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                               
-         🪪  argument.type                                                                                                           
-  227    Parameter Nr.1 $finfo of function finfo_file expects finfo, finfo|false given.                                                
-         🪪  argument.type                                                                                                           
-  228    Method Publications\Mappers\AttachmentPublicationMapper::getMimeType() should return string|null but returns string|false.  
-         🪪  return.type                                                                                                             
-  244    Parameter Nr.1 $haystack of function str_contains expects string, string|null given.                                          
-         🪪  argument.type                                                                                                           
-  259    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                    
-         🪪  property.nonObject                                                                                                      
-  279    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                                    
-         🪪  property.nonObject                                                                                                      
- ------ ---------------------------------------------------------------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------------------------------- 
+  165    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+         🪪  argument.type                                                                              
+  248    Parameter Nr.1 $haystack of function str_contains expects string, string|null given.             
+         🪪  argument.type                                                                              
+  263    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+         🪪  property.nonObject                                                                         
+  283    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+         🪪  property.nonObject                                                                         
+ ------ ----------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
@@ -1966,15 +1962,13 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
   36     Parameter Nr.1 $data of function openssl_encrypt expects string, string|false given.                                                        
          🪪  argument.type                                                                                                                         
-  61     Method PiecesPHP\Core\BaseHashEncryption::decryptBidirectionalHash() should return string|null but returns string|false|null.             
-         🪪  return.type                                                                                                                           
-  127    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  129    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
-  130    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
+  132    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
          🪪  argument.type                                                                                                                         
-  161    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
+  163    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
          🪪  argument.type                                                                                                                         
-  173    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  175    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -2027,9 +2021,7 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseToken.php
          🪪  argument.type                                                                                                                         
   491    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
-  519    Method PiecesPHP\Core\BaseToken::jsonEncode() should return int|string but returns string|false.                                          
-         🪪  return.type                                                                                                                           
-  545    Parameter Nr.1 $json of function json_decode expects string, string|null given.                                                             
+  546    Parameter Nr.1 $json of function json_decode expects string, string|null given.                                                             
          🪪  argument.type                                                                                                                         
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -2329,24 +2321,18 @@ project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
          🪪  argument.type                                                                                                              
   1002   Parameter Nr.1 $image of function imagedestroy expects GdImage, GdImage|null given.                                              
          🪪  argument.type                                                                                                              
-  1085   Method PiecesPHP\Core\ServerStatics::compressData() should return string|null but returns string|false.                        
-         🪪  return.type                                                                                                                
-  1087   Method PiecesPHP\Core\ServerStatics::compressData() should return string|null but returns string|false.                        
-         🪪  return.type                                                                                                                
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
  ------ ----------------------------------------------------------------------------------------------------------- 
-  85     Method PiecesPHP\Core\StringManipulate::jsonEncode() should return int|string but returns string|false.    
-         🪪  return.type                                                                                            
-  110    Parameter Nr.1 $json of function json_decode expects string, string|null given.                              
+  111    Parameter Nr.1 $json of function json_decode expects string, string|null given.                              
          🪪  argument.type                                                                                          
-  161    Parameter Nr.3 $subject of function preg_replace expects array<float|int|string>|string, string|null given.  
+  162    Parameter Nr.3 $subject of function preg_replace expects array<float|int|string>|string, string|null given.  
          🪪  argument.type                                                                                          
-  162    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.             
+  163    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.             
          🪪  argument.type                                                                                          
-  178    Parameter Nr.2 $string of function explode expects string, string|null given.                                
+  179    Parameter Nr.2 $string of function explode expects string, string|null given.                                
          🪪  argument.type                                                                                          
  ------ ----------------------------------------------------------------------------------------------------------- 
 
@@ -2759,5 +2745,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 889 errors                                                                                               
+ [ERROR] Found 882 errors                                                                                               
 
