@@ -124,7 +124,7 @@ class ExifHelper
     /**
      * @return float|null
      */
-    public function getGPSLongitude()
+    public function getGPSLongitude(): int|float|null
     {
         $result = null;
         $value = $this->exifData['GPSLongitude'] ?? null;
@@ -141,7 +141,7 @@ class ExifHelper
     /**
      * @return float|null
      */
-    public function getGPSLatitude()
+    public function getGPSLatitude(): int|float|null
     {
         $result = null;
         $value = $this->exifData['GPSLatitude'] ?? null;
@@ -213,7 +213,7 @@ class ExifHelper
      * - GPS_TYPE_LATITUDE
      * @return float|int|null
      */
-    public function getGPSDataToNumber(?string $type = null)
+    public function getGPSDataToNumber(?string $type = null): float|int|null
     {
 
         $value = null;
@@ -237,12 +237,14 @@ class ExifHelper
 
             foreach ($segments as $segment => $segmentValue) {
 
-                $parts = explode('/', $segmentValue);
+                //Cada segmento DEBE quedar numérico: sumar arrays en PHP produce un array,
+                //y este método promete float|int|null.
+                $parts = explode('/', (string) $segmentValue);
 
                 if (count($parts) <= 0) {
                     $segments[$segment] = 0;
                 } elseif (count($parts) == 1) {
-                    $segments[$segment] = $parts[0];
+                    $segments[$segment] = (float) $parts[0];
                 } else {
                     $partOne = floatval($parts[0]);
                     $partTwo = floatval($parts[1]);
@@ -264,7 +266,7 @@ class ExifHelper
      * @param array $array
      * @return array
      */
-    public function convertArrayToUTF8(array $array)
+    public function convertArrayToUTF8(array $array): array
     {
 
         foreach ($array as $index => $element) {

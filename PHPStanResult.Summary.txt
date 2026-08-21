@@ -4,21 +4,21 @@
 190
 
 [TOTAL DE ERRORES VISIBLES]
-892
+889
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (340)
+🪪  argument.type (341)
 🪪  property.nonObject (200)
 🪪  method.nonObject (143)
-🪪  return.type (68)
+🪪  return.type (66)
 🪪  assign.propertyType (38)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
 🪪  nullCoalesce.variable (7)
 🪪  clone.nonObject (5)
-🪪  binaryOp.invalid (5)
 🪪  offsetAccess.invalidOffset (4)
+🪪  binaryOp.invalid (3)
 🪪  offsetAccess.notFound (3)
 🪪  function.deprecated (3)
 🪪  encapsedStringPart.nonString (2)
@@ -402,7 +402,6 @@ project://src/app/core/AppHelpers.php
 project://src/app/core/Config.php
 	🪪  argument.type (Líneas: 813, 1092)
 	🪪  assign.propertyType (Líneas: 929)
-	🪪  return.type (Líneas: 1173)
 project://src/app/core/Utilities.php
 	🪪  return.type (Líneas: 328, 591)
 	🪪  foreach.nonIterable (Líneas: 867)
@@ -509,8 +508,6 @@ project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 	🪪  argument.type (Líneas: 110, 161, 162, 178)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
 	🪪  argument.type (Líneas: 33)
-	🪪  binaryOp.invalid (Líneas: 255)
-	🪪  return.type (Líneas: 259)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php
 	🪪  clone.nonObject (Líneas: 325, 559, 605)
 	🪪  method.nonObject (Líneas: 376, 377, 378, 383)

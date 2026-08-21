@@ -62,7 +62,7 @@ class ProfileTasksUtilities extends AdminPanelController
      *
      * @param bool $doIt Si es verdadero, el método ejecuta la generación de perfiles faltantes. Si es falso, no hace nada.
      */
-    public static function generateMissingProfiles(bool $doIt = true)
+    public static function generateMissingProfiles(bool $doIt = true): void
     {
 
         if ($doIt) {

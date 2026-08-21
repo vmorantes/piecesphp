@@ -47,7 +47,7 @@ class Roles
      * @return void
      * @throws RoleNotExistsException
      */
-    public static function setCurrentRole($name_or_code)
+    public static function setCurrentRole($name_or_code): void
     {
 
         $roles = self::getRoles();
@@ -79,7 +79,7 @@ class Roles
      * @return void
      * @throws RoleDuplicateException Si code o name están repetidos
      */
-    public static function registerRole(string $name, ?int $code = null, array $allowed_routes = [], bool $all_access = false)
+    public static function registerRole(string $name, ?int $code = null, array $allowed_routes = [], bool $all_access = false): void
     {
 
         $duplicate = false;
@@ -125,7 +125,7 @@ class Roles
      * @return void
      * @throws RoleMalformedException
      */
-    public static function registerRoles(array $roles, bool $override = false)
+    public static function registerRoles(array $roles, bool $override = false): void
     {
         if ($override) {
             self::$roles = [];
@@ -222,7 +222,7 @@ class Roles
      * @return void
      * @throws RoleNotExistsException
      */
-    public static function addPermission(string $name_route, $identifier, $type = self::IDENTIFIER_TYPE_CODE)
+    public static function addPermission(string $name_route, $identifier, $type = self::IDENTIFIER_TYPE_CODE): void
     {
         if ($type == self::IDENTIFIER_TYPE_NAME) {
             $identifier = (string) $identifier;
@@ -259,7 +259,7 @@ class Roles
      * @return void
      * @throws RoleNotExistsException
      */
-    public static function addPermissions(array $routes, $identifier, $type = self::IDENTIFIER_TYPE_CODE)
+    public static function addPermissions(array $routes, $identifier, $type = self::IDENTIFIER_TYPE_CODE): void
     {
         foreach ($routes as $route) {
             if (is_string($route)) {
@@ -274,7 +274,7 @@ class Roles
      * @param bool $mode
      * @return void
      */
-    public static function setSilentMode(bool $mode)
+    public static function setSilentMode(bool $mode): void
     {
         self::$silentMode = $mode;
     }

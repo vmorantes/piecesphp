@@ -548,7 +548,7 @@ class UserProblemsController extends UsersController
      * @param array $extra
      * @return array
      */
-    private function sendMessageOtherProblems(string $email, string $name, string $message, ?array $extra = null)
+    private function sendMessageOtherProblems(string $email, string $name, string $message, ?array $extra = null): array
     {
         $subject = __(self::LANG_GROUP, 'Ticket genérico') . ' - ' . Config::app_title();
 

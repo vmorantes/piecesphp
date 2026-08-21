@@ -92,7 +92,7 @@ class HttpClient
      * @param int|null $value Timeout en segundos
      * @return self|int|null Si se pasa un valor se retorna self, si no se retorna el timeout actual
      */
-    public function timeout(?int $value)
+    public function timeout(?int $value): self|int|null
     {
         if ($value !== null) {
             $this->setOption('timeout', $value);
@@ -107,7 +107,7 @@ class HttpClient
      * @param mixed $value Valor de la configuración
      * @return self
      */
-    public function setOption(string $name, $value)
+    public function setOption(string $name, $value): static
     {
         $availableConfigurations = $this->defaultConfigurations();
         if (isset($availableConfigurations[$name])) {
@@ -127,7 +127,7 @@ class HttpClient
      * @param bool $shared_cookies
      * @return mixed raw body
      */
-    public function request(string $request_uri, string $method, array $contents = [], array $headers = [], bool $shared_cookies = true, bool $override_defaults = true)
+    public function request(string $request_uri, string $method, array $contents = [], array $headers = [], bool $shared_cookies = true, bool $override_defaults = true): string|false
     {
 
         $this->processHeaders($headers, $shared_cookies, $override_defaults);
@@ -198,7 +198,7 @@ class HttpClient
     /**
      * @return string
      */
-    public function cookiesToHeaderString()
+    public function cookiesToHeaderString(): string
     {
         $http_cookie_header = [];
 
@@ -214,7 +214,7 @@ class HttpClient
      * o array.
      * @return string
      */
-    public function headersArrayToString(array $headers)
+    public function headersArrayToString(array $headers): string
     {
         $was_added = false;
         $headers_process = [];
@@ -257,7 +257,7 @@ class HttpClient
      * en un string o valores en un array de strings, de lo contrario no surtirá efecto.
      * @return void
      */
-    public function setDefaultRequestHeaders(array $headers)
+    public function setDefaultRequestHeaders(array $headers): void
     {
         $valid = true;
         $_headers = [];
@@ -396,7 +396,7 @@ class HttpClient
      *
      * @return array
      */
-    protected function defaultConfigurations()
+    protected function defaultConfigurations(): array
     {
         return [
             'timeout' => [
@@ -448,7 +448,7 @@ class HttpClient
      * @param array $response_headers
      * @return array
      */
-    protected function parseReponseHeaders(array $response_headers)
+    protected function parseReponseHeaders(array $response_headers): array
     {
         $head = [];
         foreach ($response_headers as $v) {
@@ -517,7 +517,7 @@ class HttpClient
      * @param string $name
      * @return string
      */
-    protected function parseNameHeader(string $name)
+    protected function parseNameHeader(string $name): string
     {
         $name = trim($name);
         $name = explode('-', $name);

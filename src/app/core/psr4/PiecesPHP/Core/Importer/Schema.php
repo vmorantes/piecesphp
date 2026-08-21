@@ -228,7 +228,7 @@ class Schema
 
     }
 
-    public function setPrimaryKey(string $name, bool $isSubField = false, string $parentField = '')
+    public function setPrimaryKey(string $name, bool $isSubField = false, string $parentField = ''): static
     {
         $this->primaryKey = $name;
         $this->primaryKeyIsSubField = $isSubField;
@@ -240,7 +240,7 @@ class Schema
      * @param callable $insertMethod
      * @return void
      */
-    public function setAlternativeInsert(callable $insertMethod)
+    public function setAlternativeInsert(callable $insertMethod): void
     {
         $this->insertMethod = $insertMethod;
     }
@@ -249,7 +249,7 @@ class Schema
      * @param callable $updateMethod
      * @return void
      */
-    public function setAlternativeUpdate(callable $updateMethod)
+    public function setAlternativeUpdate(callable $updateMethod): void
     {
         $this->updateMethod = $updateMethod;
     }
@@ -260,7 +260,7 @@ class Schema
      * @return void
      * @throws \Exception
      */
-    public function setFieldValue(string $name, $value)
+    public function setFieldValue(string $name, $value): void
     {
         $position = $this->fields->getPositionField($name);
 
@@ -278,7 +278,7 @@ class Schema
      * @return void
      * @throws \Exception
      */
-    public function setSubFieldValue(string $fieldName, string $subFieldName, $value)
+    public function setSubFieldValue(string $fieldName, string $subFieldName, $value): void
     {
         $position = $this->fields->getPositionField($fieldName);
         $field = $this->fields->getByName($fieldName);
@@ -298,7 +298,7 @@ class Schema
      * @param bool $set
      * @return static
      */
-    public function setTemplateWithHumanReadable(bool $set)
+    public function setTemplateWithHumanReadable(bool $set): static
     {
         $this->templateWithHumanReadable = $set;
         return $this;
@@ -400,7 +400,7 @@ class Schema
     /**
      * @return array
      */
-    public function getSubFieldsNames()
+    public function getSubFieldsNames(): array
     {
         $subFields = [];
         foreach ($this->fields as $field) {
@@ -422,7 +422,7 @@ class Schema
     /**
      * @return bool
      */
-    public function hasSubFields()
+    public function hasSubFields(): bool
     {
         foreach ($this->fields as $field) {
             if ($field->hasMetaProperties()) {
@@ -436,7 +436,7 @@ class Schema
      * @param callable $callable
      * @return static
      */
-    public function setBeforeExecuteUpdate(callable $callable)
+    public function setBeforeExecuteUpdate(callable $callable): static
     {
         $this->beforeExecuteUpdate = $callable;
         return $this;
@@ -445,7 +445,7 @@ class Schema
     /**
      * @return void
      */
-    public function runBefore()
+    public function runBefore(): void
     {
         if ($this->isBefore()) {
             ($this->before)($this);
@@ -455,7 +455,7 @@ class Schema
     /**
      * @return bool
      */
-    public function isBefore()
+    public function isBefore(): bool
     {
         return is_callable($this->before);
     }

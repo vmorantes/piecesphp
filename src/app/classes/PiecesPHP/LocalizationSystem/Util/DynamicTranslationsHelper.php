@@ -44,7 +44,7 @@ class DynamicTranslationsHelper
      * @param JSONTranslationsPackage $currentJSONData
      * @return void
      */
-    public static function saveCurrentDynamicTranslationsJSON(JSONTranslationsPackage $currentJSONData)
+    public static function saveCurrentDynamicTranslationsJSON(JSONTranslationsPackage $currentJSONData): void
     {
         $DYNAMIC_TRANSLATIONS_CONFIG = get_config('DYNAMIC_TRANSLATIONS');
         $baseFolderName = $DYNAMIC_TRANSLATIONS_CONFIG['folderName'];

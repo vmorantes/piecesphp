@@ -233,7 +233,7 @@ class AvatarController extends BaseController
      * @param string $folderRelativePath
      * @return array
      */
-    public function listFiles(string $folderRelativePath)
+    public function listFiles(string $folderRelativePath): array
     {
         $path = basepath($folderRelativePath);
 

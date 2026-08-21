@@ -86,7 +86,7 @@ function datatables_proccessing(
  * @param bool $key_as_value
  * @return string
  */
-function array_to_html_options(array $values, $selected_values = null, bool $multiple = false, bool $key_as_value = true)
+function array_to_html_options(array $values, $selected_values = null, bool $multiple = false, bool $key_as_value = true): string
 {
     foreach ($values as $key => $value) {
         if (!is_scalar($key) || !is_scalar($value)) {
@@ -149,7 +149,7 @@ function array_to_html_options(array $values, $selected_values = null, bool $mul
  * @param int $position Empezando desde 0
  * @return array
  */
-function addElementInPosition(array $array, $key = null, $element = null, int $position = 0)
+function addElementInPosition(array $array, $key = null, $element = null, int $position = 0): array
 {
     $currentPosition = 0;
     $position = $position < 0 ? 0 : $position;
@@ -256,7 +256,7 @@ function getAllUsers(array $ignoreTypes = [])
  * @param callable $elementStrategy
  * @return array
  */
-function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = '', array $ignoreTypes = [], $elementStrategy = null)
+function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = '', array $ignoreTypes = [], $elementStrategy = null): array
 {
     $defaultLabel = $defaultLabel !== '' ? $defaultLabel : __(LANG_GROUP, 'Usuarios');
     $options = [];
@@ -283,7 +283,7 @@ function getAllUsersForSelect(string $defaultLabel = '', string $defaultValue = 
  * @param string|null $emptyOptionText El texto de la opción vacía.
  * @return array
  */
-function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null)
+function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null): array
 {
     $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Código de área');
     $options = [];
@@ -304,7 +304,7 @@ function getPhoneAreas(bool $withEmptyOption = false, ?string $emptyOptionText =
  * @param bool $useMultilang Indica si se deben mostrar las versiones multilenguaje
  * @return array
  */
-function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionText = null, bool $useMultilang = false)
+function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionText = null, bool $useMultilang = false): array
 {
     $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Seleccione una nacionalidad');
     $options = [];
@@ -330,7 +330,7 @@ function getNationalities(bool $withEmptyOption = false, ?string $emptyOptionTex
  * @param bool $returnObjects
  * @return array
  */
-function getInteresResearchAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null, array $ignoreIDs = [], bool $returnObjects = false)
+function getInteresResearchAreas(bool $withEmptyOption = false, ?string $emptyOptionText = null, array $ignoreIDs = [], bool $returnObjects = false): array
 {
     $emptyOptionText ??= __(GLOBAL_LANG_GROUP, 'Seleccione las áreas de interes');
     $options = [];

@@ -293,7 +293,7 @@ class BaseController
      * @param array $config Un array asociativo que designa las configuraciones en orden nombre:valor
      * @return void
      */
-    public function setConfig(array $config = [])
+    public function setConfig(array $config = []): void
     {
         $this->config = $config;
     }
@@ -306,7 +306,7 @@ class BaseController
      * @param array $variables Un array asociativo que designa las variables que estarán disponibles dentro de los archivos
      * @return void
      */
-    public function setVariables(array $variables = [])
+    public function setVariables(array $variables = []): void
     {
         $this->global_variables = $variables;
     }
@@ -316,7 +316,7 @@ class BaseController
      * @param string $dir Directorio de las vistas
      * @return static
      */
-    public function setInstanceViewDir(string $dir)
+    public function setInstanceViewDir(string $dir): static
     {
         $last_char = mb_substr($dir, mb_strlen($dir) - 1);
         $is_bar = ($last_char == '/' || $last_char == '\\');
@@ -338,7 +338,7 @@ class BaseController
      * @param string $dir Directorio de las vistas
      * @return void
      */
-    public static function setViewDir(string $dir)
+    public static function setViewDir(string $dir): void
     {
         $last_char = mb_substr($dir, mb_strlen($dir) - 1);
         $is_bar = ($last_char == '/' || $last_char == '\\');

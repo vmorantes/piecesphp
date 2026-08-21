@@ -109,7 +109,7 @@ class LoginAttemptsModel extends BaseEntityMapper
      * @param array $extraData
      * @return void
      */
-    public static function addLogin(?int $user_id = null, string $username = '', bool $success = false, string $message = '', array $extraData = [])
+    public static function addLogin(?int $user_id = null, string $username = '', bool $success = false, string $message = '', array $extraData = []): void
     {
         $mapper = new LoginAttemptsModel();
         $mapper->user_id = $user_id;

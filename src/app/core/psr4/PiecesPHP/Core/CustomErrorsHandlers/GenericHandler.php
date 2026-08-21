@@ -112,7 +112,7 @@ class GenericHandler
      * @param bool $plainLog
      * @return void
      */
-    public function logging(bool $plainLog = true)
+    public function logging(bool $plainLog = true): void
     {
         $exists = file_exists($this->fileLocation);
         $fileLogSizeMB = $exists ? filesize($this->fileLocation) / 1024 / 1024 : 0;
@@ -251,7 +251,7 @@ class GenericHandler
      *
      * @return void
      */
-    public function loggingUniqueMessage()
+    public function loggingUniqueMessage(): void
     {
         $classException = $this->exception::class;
         $message = $this->exception->getMessage();

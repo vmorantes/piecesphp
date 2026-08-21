@@ -1822,18 +1822,16 @@ project://src/app/core/AppHelpers.php
          🪪  argument.type                                                                                                                                                  
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------- 
 project://src/app/core/Config.php
- ------ ----------------------------------------------------------------------------------------------------------------------------- 
-  813    Parameter Nr.1 $category of function setlocale expects int, int|string|null given.                                             
-         🪪  argument.type                                                                                                            
-  929    Static property PiecesPHP\Core\Config::$appLang (string) does not accept string|null.                                        
-         🪪  assign.propertyType                                                                                                      
-  1092   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                                                       
-         🪪  argument.type                                                                                                            
-  1173   Method PiecesPHP\Core\Config::get_instance() should return static(PiecesPHP\Core\Config) but returns PiecesPHP\Core\Config.  
-         🪪  return.type                                                                                                              
- ------ ----------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------- 
+  813    Parameter Nr.1 $category of function setlocale expects int, int|string|null given.       
+         🪪  argument.type                                                                      
+  929    Static property PiecesPHP\Core\Config::$appLang (string) does not accept string|null.  
+         🪪  assign.propertyType                                                                
+  1092   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                 
+         🪪  argument.type                                                                      
+ ------ --------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/Utilities.php
@@ -2249,6 +2247,8 @@ project://src/app/core/psr4/PiecesPHP/Core/MailjetHandler.php
  ------ --------------------------------------------------------------------------------------------------------- 
   373    Method PiecesPHP\Core\MailjetHandler::getLastSendedData() should return array but returns array|string.  
          🪪  return.type                                                                                          
+  373    Parameter Nr.1 $data of function gzcompress expects string, string|false given.                            
+         🪪  argument.type                                                                                        
   373    Parameter Nr.1 $string of function base64_encode expects string, string|false given.                       
          🪪  argument.type                                                                                        
   382    Parameter Nr.1 $json of function json_decode expects string, string|false given.                           
@@ -2350,18 +2350,12 @@ project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
          🪪  argument.type                                                                                          
  ------ ----------------------------------------------------------------------------------------------------------- 
 
- ------ --------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
- ------ --------------------------------------------------------------------------------------------------------------------------------- 
-  33     Parameter Nr.1 $array of method PiecesPHP\Core\Utilities\ExifHelper::convertArrayToUTF8() expects array, array|false given.        
-         🪪  argument.type                                                                                                                
-  255    Binary operation "/" between 0|float|string and 3600 results in an error.                                                        
-         🪪  binaryOp.invalid                                                                                                             
-  255    Binary operation "/" between 0|float|string and 60 results in an error.                                                          
-         🪪  binaryOp.invalid                                                                                                             
-  259    Method PiecesPHP\Core\Utilities\ExifHelper::getGPSDataToNumber() should return float|int|null but returns array|float|int|null.  
-         🪪  return.type                                                                                                                  
- ------ --------------------------------------------------------------------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------------------------------------------------------------- 
+  33     Parameter Nr.1 $array of method PiecesPHP\Core\Utilities\ExifHelper::convertArrayToUTF8() expects array, array|false given.  
+         🪪  argument.type                                                                                                          
+ ------ --------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------ 
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php
@@ -2765,5 +2759,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 892 errors                                                                                               
+ [ERROR] Found 889 errors                                                                                               
 

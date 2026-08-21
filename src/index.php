@@ -479,7 +479,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @param \stdClass $user
              */
-            public function setUser(\stdClass $user)
+            public function setUser(\stdClass $user): void
             {
                 $this->element = $user;
             }
@@ -525,7 +525,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @return bool
              */
-            public function isValid()
+            public function isValid(): bool
             {
                 return $this->hasID() && $this->validType();
             }
@@ -534,7 +534,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @return bool
              */
-            public function isObject()
+            public function isObject(): bool
             {
                 return $this->element instanceof \stdClass;
             }
@@ -543,7 +543,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @return bool
              */
-            public function hasID()
+            public function hasID(): bool
             {
                 $e = $this->element;
                 return $this->isObject() && isset($e->id) && $this->isInteger($e->id);
@@ -553,7 +553,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @return bool
              */
-            public function hasType()
+            public function hasType(): bool
             {
                 $e = $this->element;
                 return $this->isObject() && isset($e->type) && $this->isInteger($e->type);
@@ -563,7 +563,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              *
              * @return bool
              */
-            public function validType()
+            public function validType(): bool
             {
                 $e = $this->element;
                 return $this->hasType() && in_array((int) $e->type, array_keys(UsersModel::TYPES_USERS));
@@ -574,7 +574,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
              * @param string|int $value
              * @return bool
              */
-            public function isInteger($value)
+            public function isInteger($value): bool
             {
                 return (is_string($value) && ctype_digit((string) $value)) || is_int($value);
             }

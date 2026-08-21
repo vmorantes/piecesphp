@@ -81,6 +81,25 @@ return static function (RectorConfig $rectorConfig): void {
         $baseDir . '/src/app/classes/ImagesRepository',
         $baseDir . '/src/app/classes/ApplicationCalls',
         $baseDir . '/src/app/classes/InterestResearchAreas',
+        /**
+         * SKIP CANÓNICO — IDÉNTICO EN LOS CINCO REPOSITORIOS.
+         * Decisión registrada en piecesphp/.agents/context/18-siguientes-ventanas.md (T10).
+         * Si se toca aquí, se toca en los cinco; divergir la política de estilo entre repos
+         * del mismo autor es peor que cualquiera de las dos opciones.
+         *
+         * Las tres primeras, porque los mappers usan __get/__set: una propiedad tipada sin
+         * inicializar LANZA al leerla en vez de devolver null, y quitar el `= null` la deja
+         * justo en ese estado. Cambia el comportamiento sin tocar una línea de lógica.
+         * Las dos de docblocks, porque retirar @param/@return en masa es estilo, no
+         * corrección. La última, porque `new Foo()->bar()` es cosmética que ata la sintaxis
+         * al piso sin comprar nada.
+         */
+        \Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector::class,
+        \Rector\DeadCode\Rector\PropertyProperty\RemoveNullPropertyInitializationRector::class,
+        \Rector\TypeDeclaration\Rector\Property\TypedPropertyFromStrictConstructorRector::class,
+        \Rector\DeadCode\Rector\ClassMethod\RemoveUselessParamTagRector::class,
+        \Rector\DeadCode\Rector\ClassMethod\RemoveUselessReturnTagRector::class,
+        \Rector\Php84\Rector\MethodCall\NewMethodCallWithoutParenthesesRector::class,
     ]);
 
     $rectorConfig->sets([

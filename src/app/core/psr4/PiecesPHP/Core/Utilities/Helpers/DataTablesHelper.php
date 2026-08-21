@@ -1254,7 +1254,7 @@ class DataTablesHelper
      * @param bool $value
      * @return void
      */
-    public static function setTablePrefixOnOrder(bool $value)
+    public static function setTablePrefixOnOrder(bool $value): void
     {
         self::$tableOnOrder = $value;
     }
@@ -1263,7 +1263,7 @@ class DataTablesHelper
      * @param bool $value
      * @return void
      */
-    public static function setTablePrefixOnSearch(bool $value)
+    public static function setTablePrefixOnSearch(bool $value): void
     {
         self::$tableOnSearch = $value;
     }

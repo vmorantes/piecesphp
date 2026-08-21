@@ -23,7 +23,7 @@ class UsersExporter
     /**
      * @return BaseExportData
      */
-    public static function exportData()
+    public static function exportData(): \DataImportExportUtility\Controllers\ExportHandlers\BaseExportData
     {
 
         $whereString = null;
