@@ -215,7 +215,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
     // Atrapa mensajes 'flash' (sesiones volátiles de una sola vez) y excepciones previas al enrutamiento
     $flashMessagesExceptionRender = get_flash_messages(BaseController::class);
     /** @var \Throwable|null */
-    $flashMessagesExceptionRender = array_key_exists('render_exception', $flashMessagesExceptionRender) ? $flashMessagesExceptionRender['render_exception'] : null;
+    $flashMessagesExceptionRender = $flashMessagesExceptionRender['render_exception'] ?? null;
 
     // Plantilla de respuesta HTTP vacía para mutarla y retornar en caso de rechazos 403 o 404
     $emptyResponse = new ResponseRoute();
@@ -327,7 +327,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         if (!is_null($name) && $withPrefix) {
             $name = trim($name);
-            $name = strlen($name) > 0 ? "-{$name}" : '';
+            $name = $name !== '' ? "-{$name}" : '';
         }
 
         if ($withPrefix) {
@@ -372,7 +372,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             'token' => $JWT,
             'decodeToken' => BaseToken::decode($JWT, BaseToken::getSecretKey(), BaseToken::$encrypt, true),
             'data' => $expiredUserData,
-            'ip' => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             'routeName' => $route->getName(),
             'requestURL' => $request->getRequestTarget(),
             'ignoreCandidates' => $ignoreExpiredForRoutesName,
@@ -597,7 +597,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         // en el contexto del sistema como si fuera otro usuario en tiempo de ejecución.
         // Intercepción de parámetros GET o Cookies para activar la Suplantación de Identidad (Impersonation)
         $anotherUserID = isset($_GET) && array_key_exists(CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME, $_GET) ? $_GET[CONNECT_AS_ANOTHER_USER_ID_GET_PARAM_NAME] : null;
-        $anotherUserID = $anotherUserID !== null ? $anotherUserID : getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
+        $anotherUserID ??= getCookie(CONNECT_AS_ANOTHER_USER_ID_COOKIE_NAME);
         set_config(ROOT_ORIGINAL_ID_CONFIG_NAME, null);
         // El privilegio ROOT es el único autorizado a intercambiar su variable en memoria y operar del lado del servidor simulando ser otro usuario de menor rango.
         if ($user !== null && $user->type == UsersModel::TYPE_USER_ROOT) {
@@ -673,7 +673,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
                         $url_login = remove_last_char_on('/', get_route('users-form-login'));
                         $referer = $request->getHeader('HTTP_REFERER');
-                        $referer = isset($referer[0]) ? $referer[0] : '';
+                        $referer = $referer[0] ?? '';
                         $referer = remove_last_char_on('/', $referer);
 
                         if ($referer != $url_login) {
@@ -699,9 +699,9 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
 
         //Redirección al area administrativa desde formulario de logueo en caso de haber una session
         $login_redirect = get_config('admin_url');
-        $relative_url = $login_redirect !== false ? (isset($login_redirect['relative']) ? $login_redirect['relative'] : true) : true;
+        $relative_url = $login_redirect !== false ? ($login_redirect['relative'] ?? true) : true;
         $relative_url = !is_bool($relative_url)  ?true : $relative_url;
-        $admin_url = $login_redirect !== false ? (isset($login_redirect['url']) ? $login_redirect['url'] : '') : '';
+        $admin_url = $login_redirect !== false ? ($login_redirect['url'] ?? '') : '';
         if ($relative_url) {
             $admin_url = baseurl($admin_url);
         }
@@ -719,7 +719,7 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
         //Control de permisos por roles
         // --- Inicia Pipeline de Autorización Dinámica de Roles (RBAC) ---
         $roles_control = get_config('roles');
-        $active_roles_control = isset($roles_control['active']) ? $roles_control['active'] : false;
+        $active_roles_control = $roles_control['active'] ?? false;
         $current_role = $user !== null  ?Roles::getCurrentRole() : null;
         $has_permissions = null;
 
@@ -988,7 +988,7 @@ $customGlobalExceptionHandler = function (RequestRoute $request, Throwable $exce
                     break;
                 }
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable) {}
 
         global_custom_exception_handler($originalException, $errorContext);
         $response = new ResponseRoute();
