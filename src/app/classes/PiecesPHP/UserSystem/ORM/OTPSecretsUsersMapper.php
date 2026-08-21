@@ -19,13 +19,13 @@ use PiecesPHP\UserSystem\Authentication\TOTPStandard;
  * @property int|null $id
  * @property int|UsersModel $user
  * @property string $secret
- * @property string $intervalTOTP Solo para METHOD_TOTP
+ * @property int $intervalTOTP Solo para METHOD_TOTP
  * @property string $oneUseCode Solo para METHOD_ONE_USE_CODE
- * @property string $maxDate Fecha máxima solo para METHOD_ONE_USE_CODE
+ * @property \DateTime|string|null $maxDate Fecha máxima solo para METHOD_ONE_USE_CODE
  * @property string $method Método de código
  * @property string $twoAuthFactor Define si tiene el 2FA activado este usuario
  * @property string $twoAuthFactorQRViewed 1|0 Define si ya código QR fue visto para su configuración
- * @property string $twoAuthFactorAlias Define el alias para el QR en las aplicaciones
+ * @property string|null $twoAuthFactorAlias Define el alias para el QR en las aplicaciones
  * @property string $twoAuthFactorSecurityCode Define el código de respaldo en caso de perder la app 2FA (HASH)
  */
 class OTPSecretsUsersMapper extends BaseEntityMapper

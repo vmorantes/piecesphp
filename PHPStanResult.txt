@@ -144,25 +144,19 @@ project://src/app/classes/App/Locations/Controllers/City.php
          🪪  foreach.nonIterable                                            
  ------ ------------------------------------------------------------------- 
 
- ------ --------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------- 
 project://src/app/classes/App/Locations/Controllers/Country.php
- ------ --------------------------------------------------------------------- 
-  377    Property App\Locations\Mappers\CountryMapper::$region (string) does  
-         not accept string|null.                                              
-         🪪  assign.propertyType                                              
-  385    Cannot call method setSuccess() on                                   
-         PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                 
-         🪪  method.nonObject                                                 
-  410    Property App\Locations\Mappers\CountryMapper::$region (string) does  
-         not accept string|null.                                              
-         🪪  assign.propertyType                                              
-  417    Cannot call method setSuccess() on                                   
-         PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                 
-         🪪  method.nonObject                                                 
-  503    Argument of an invalid type array|null supplied for foreach, only    
-         iterables are supported.                                             
-         🪪  foreach.nonIterable                                              
- ------ --------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------- 
+  385    Cannot call method setSuccess() on                                 
+         PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.               
+         🪪  method.nonObject                                               
+  417    Cannot call method setSuccess() on                                 
+         PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.               
+         🪪  method.nonObject                                               
+  503    Argument of an invalid type array|null supplied for foreach, only  
+         iterables are supported.                                           
+         🪪  foreach.nonIterable                                            
+ ------ ------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------- 
 project://src/app/classes/App/Locations/Controllers/HelperController.php
@@ -1538,6 +1532,10 @@ project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
   169    Cannot access property $twoAuthFactorAlias on                          
          PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                   
          🪪  property.nonObject                                                 
+  169    Parameter Nr.2 $issuer of method                                         
+         PiecesPHP\UserSystem\Authentication\TOTPStandard::getQRCodeUrl()       
+         expects string, string|null given.                                     
+         🪪  argument.type                                                      
   188    Cannot access property $twoAuthFactorQRViewed on                       
          PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper|null.                   
          🪪  property.nonObject                                                 
@@ -1576,34 +1574,6 @@ project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesCon
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
  ------ ----------------------------------------------------------------------- 
-  235    Property                                                               
-         PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$intervalTOTP          
-         (string) does not accept int.                                          
-         🪪  assign.propertyType                                                
-  237    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$maxDate      
-         (string) does not accept null.                                         
-         🪪  assign.propertyType                                                
-  246    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$maxDate      
-         (string) does not accept DateTime.                                     
-         🪪  assign.propertyType                                                
-  278    Property                                                               
-         PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$intervalTOTP          
-         (string) does not accept int.                                          
-         🪪  assign.propertyType                                                
-  280    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$maxDate      
-         (string) does not accept null.                                         
-         🪪  assign.propertyType                                                
-  311    Property                                                               
-         PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$intervalTOTP          
-         (string) does not accept int.                                          
-         🪪  assign.propertyType                                                
-  313    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$maxDate      
-         (string) does not accept null.                                         
-         🪪  assign.propertyType                                                
-  333    Property                                                               
-         PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorAlias    
-         (string) does not accept string|null.                                  
-         🪪  assign.propertyType                                                
   334    Property                                                               
          PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewe  
          d (string) does not accept int.                                        
@@ -1614,13 +1584,6 @@ project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
          🪪  offsetAccess.notFound                                              
   416    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$user         
          (App\Model\UsersModel|int) does not accept string.                     
-         🪪  assign.propertyType                                                
-  418    Property                                                               
-         PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$intervalTOTP          
-         (string) does not accept int.                                          
-         🪪  assign.propertyType                                                
-  420    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$maxDate      
-         (string) does not accept null.                                         
          🪪  assign.propertyType                                                
  ------ ----------------------------------------------------------------------- 
 
@@ -1987,9 +1950,6 @@ project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHand
  ------ ----------------------------------------------------------------------- 
   62     Cannot access property $type on App\Model\UsersModel|int.              
          🪪  property.nonObject                                                 
-  101    Property SystemApprovals\Mappers\SystemApprovalsMapper::$status (int)  
-         does not accept string.                                                
-         🪪  assign.propertyType                                                
  ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
@@ -2000,24 +1960,18 @@ project://src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHand
          🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
- ------ ----------------------------------------------------------------------- 
-  49     Cannot access property $organization on App\Model\UsersModel|null.     
-         🪪  property.nonObject                                                 
-  53     Cannot access property $type on App\Model\UsersModel|null.             
-         🪪  property.nonObject                                                 
-  96     Property SystemApprovals\Mappers\SystemApprovalsMapper::$status (int)  
-         does not accept string.                                                
-         🪪  assign.propertyType                                                
- ------ ----------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------- 
+  49     Cannot access property $organization on App\Model\UsersModel|null.  
+         🪪  property.nonObject                                              
+  53     Cannot access property $type on App\Model\UsersModel|null.          
+         🪪  property.nonObject                                              
+ ------ -------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
  ------ ----------------------------------------------------------------------- 
-  75     Property SystemApprovals\Mappers\SystemApprovalsMapper::$status (int)  
-         does not accept string.                                                
-         🪪  assign.propertyType                                                
   83     Property SystemApprovals\Util\SystemApprovalManager::$configurations   
          (array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterf  
          ace>>) does not accept array<class-string<SystemApprovals\Util\Approv  
@@ -2269,9 +2223,6 @@ project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php
   180    Parameter Nr.1 $json of function json_decode expects string,             
          string|false given.                                                    
          🪪  argument.type                                                      
-  189    Property Terminal\Mappers\QueueJobMapper::$errorMessage (string) does  
-         not accept null.                                                       
-         🪪  assign.propertyType                                                
  ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
@@ -4270,5 +4221,5 @@ project://src/index.php
      errors.                                                                    
  -- --------------------------------------------------------------------------- 
 
- [ERROR] Found 1042 errors                                                      
+ [ERROR] Found 1027 errors                                                      
 

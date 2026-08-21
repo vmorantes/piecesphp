@@ -22,7 +22,7 @@ use PiecesPHP\Core\Database\ORM\Statements\WhereSegment;
  * @property int|null $id
  * @property string|null $code
  * @property string $name
- * @property string $region
+ * @property string|null $region
  * @property int $active
  */
 class CountryMapper extends BaseEntityMapper

@@ -29,7 +29,7 @@ use SystemApprovals\Util\SystemApprovalManager;
  * @property string|\DateTime|null $approvalAt
  * @property int|UsersModel $createdBy
  * @property int|UsersModel|null $approvalBy
- * @property int $status
+ * @property string $status
  * @property \stdClass|string|null $meta
  */
 class SystemApprovalsMapper extends EntityMapperExtensible

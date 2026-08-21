@@ -19,7 +19,7 @@ use PiecesPHP\Core\Database\ActiveRecordModel;
  * @property string $status
  * @property int $attempts
  * @property int $maxAttempts
- * @property string $errorMessage
+ * @property string|null $errorMessage
  * @property \DateTime|string|null $createdAt
  * @property \DateTime|string|null $updatedAt
  * @property \DateTime|string|null $scheduledAt

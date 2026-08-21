@@ -4,14 +4,14 @@
 191
 
 [TOTAL DE ERRORES VISIBLES]
-1024
+1009
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (370)
+🪪  argument.type (371)
 🪪  property.nonObject (267)
 🪪  method.nonObject (164)
 🪪  return.type (71)
-🪪  assign.propertyType (54)
+🪪  assign.propertyType (38)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
@@ -51,7 +51,6 @@ project://src/app/classes/App/Locations/Controllers/City.php
 	🪪  method.nonObject (Líneas: 388, 420)
 	🪪  foreach.nonIterable (Líneas: 579)
 project://src/app/classes/App/Locations/Controllers/Country.php
-	🪪  assign.propertyType (Líneas: 377, 410)
 	🪪  method.nonObject (Líneas: 385, 417)
 	🪪  foreach.nonIterable (Líneas: 503)
 project://src/app/classes/App/Locations/Controllers/HelperController.php
@@ -243,7 +242,7 @@ project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
 	🪪  property.nonObject (Líneas: 69, 70, 86, 90, 154, 168, 169, 188, 226)
 	🪪  method.nonObject (Líneas: 71)
-	🪪  argument.type (Líneas: 119, 124)
+	🪪  argument.type (Líneas: 119, 124, 169)
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
 	🪪  return.type (Líneas: 65)
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesContro
@@ -251,7 +250,7 @@ project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesCon
 	🪪  method.nonObject (Líneas: 127)
 	🪪  argument.type (Líneas: 288)
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
-	🪪  assign.propertyType (Líneas: 235, 237, 246, 278, 280, 311, 313, 333, 334, 416, 418, 420)
+	🪪  assign.propertyType (Líneas: 334, 416)
 	🪪  offsetAccess.notFound (Líneas: 398, 410)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPrevi
 	🪪  property.nonObject (Líneas: 271, 294)
@@ -307,14 +306,12 @@ project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
 	🪪  argument.type (Líneas: 52, 81, 89, 96, 103, 110)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler
 	🪪  property.nonObject (Líneas: 62)
-	🪪  assign.propertyType (Líneas: 101)
 project://src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler
 	🪪  property.nonObject (Líneas: 59)
 project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
 	🪪  property.nonObject (Líneas: 49, 53)
-	🪪  assign.propertyType (Líneas: 96)
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
-	🪪  assign.propertyType (Líneas: 75, 83)
+	🪪  assign.propertyType (Líneas: 83)
 project://src/app/classes/SystemApprovals/Views/forms/approval-applications-calls.p
 	🪪  method.nonObject (Líneas: 13, 153)
 	🪪  argument.type (Líneas: 74, 78)
@@ -343,7 +340,7 @@ project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
 	🪪  foreach.nonIterable (Líneas: 121)
 	🪪  argument.type (Líneas: 130)
 project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php
-	🪪  assign.propertyType (Líneas: 61, 189)
+	🪪  assign.propertyType (Líneas: 61)
 	🪪  argument.type (Líneas: 69, 94, 180)
 	🪪  method.nonObject (Líneas: 150)
 project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
