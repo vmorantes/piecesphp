@@ -40,7 +40,6 @@ return static function (RectorConfig $rectorConfig): void {
         SetList::CODE_QUALITY,
         SetList::DEAD_CODE,
         SetList::TYPE_DECLARATION,
-        SetList::PRIVATIZATION,
     ]);
 
     // Reglas específicas para compatibilidad futura (8.2, 8.3, 8.4 -> 8.5)
