@@ -599,6 +599,95 @@ qué trato recibe cada error antes de mirarlo.
 | **Se reescribe** | `DataImportExportUtility` | Atención **solo si el error es un defecto real**, no si es un tipo mal declarado. |
 | **Trato completo** | todo lo demás | Las cuatro respuestas: contrato / manejo explícito / defecto / protocolo. |
 
+### Experiencias previas — **se borran, y el trabajo con riesgo NO es el borrado**
+
+`PreviousExperiencesMapper` y `OrganizationPreviousExperiencesMapper` se van, con sus dos
+tablas: **`previous_experiences`** y **`organization_previous_experiences`**.
+
+#### Frontera limpia: el directorio entero desaparece
+
+`PiecesPHP/UserSystem/Profile/SubMappers/` tiene **exactamente tres archivos**, y los tres
+mueren juntos:
+
+| Archivo | Líneas |
+| :-- | --: |
+| `PreviousExperiencesMapper.php` | 768 |
+| `OrganizationPreviousExperiencesMapper.php` | 768 |
+| `InterestResearchAreasMapper.php` | 30 |
+
+**El directorio se borra completo.** No queda nada que reubicar.
+
+#### AVISO: LOS MAPPERS NO VIVEN EN `MySpace`
+
+Los controladores, vistas y JS sí están en `MySpace`. **Los mappers están en el núcleo del
+sistema de usuarios.** Quien borre los parciales de `MySpace` sin saber esto deja
+**1.536 líneas huérfanas** en `PiecesPHP/UserSystem/` que nadie va a echar de menos hasta
+que alguien pregunte qué hace ese directorio.
+
+#### Inventario medido
+
+**Se borran (9 archivos):**
+
+```
+PiecesPHP/UserSystem/Profile/SubMappers/            (los 3, el directorio entero)
+MySpace/Controllers/Util/PreviousExperiencesController.php              (283)
+MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php  (296)
+MySpace/Views/my-profile/util/experience-list-card.php
+MySpace/Views/my-organization-profile/util/experience-list-card.php
+MySpace/Statics/js/experience/delete-config.js
+MySpace/Statics/js/experience-organization/delete-config.js
+```
+
+**Se EDITAN (9 archivos) — aquí está el riesgo del lote:**
+
+```
+SystemApprovals/Views/forms/approval-profile-user.php          ← módulo que SE CONSERVA
+SystemApprovals/Views/forms/approval-profile-organization.php  ← módulo que SE CONSERVA
+MySpace/Controllers/MyProfileController.php
+MySpace/Controllers/MyOrganizationProfileController.php
+MySpace/Controllers/Util/ProfileTasksUtilities.php
+MySpace/Views/my-profile/my-profile.php
+MySpace/Views/my-organization-profile/my-organization-profile.php
+MySpace/Views/profile/profile.php
+MySpace/Views/profile-organization/profile.php
+```
+
+**Dos correcciones al inventario que circulaba**, comprobadas archivo a archivo:
+
+1. **`ProfileTasksUtilities.php` NO se borra: se edita.** Además de las experiencias genera
+   el SQL de `UserProfileMapper`, que se queda. Borrarlo se lleva por delante la creación
+   del esquema de perfiles.
+2. **`MyProfileController` y `MyOrganizationProfileController` también se editan**, y no
+   estaban señalados. Importan el mapper, lo instancian, llaman a `getBy()` y registran
+   rutas hacia los controladores que sí se borran. Son los controladores principales de
+   `MySpace`: se quedan.
+
+#### La parte delicada
+
+`SystemApprovals` **SE CONSERVA** y su acoplamiento es **estructural, no un import**:
+`approval-profile-user.php` y `approval-profile-organization.php` llaman a
+`allBy('profile', ...)`, instancian el mapper y tienen bucles de render. **Hay que editar un
+módulo que se queda.** Ese es el trabajo con riesgo del lote, no el borrado — borrar no
+puede romper lo que no existe, editar sí.
+
+#### Nota de diseño, para el día que vuelva
+
+Los dos mappers son **gemelos de copia y pega**: 768 líneas cada uno, diferenciándose en un
+`reference_table` (`UserProfileMapper::TABLE` contra `OrganizationMapper::TABLE`). **Si la
+funcionalidad vuelve, vuelve como una clase parametrizada, no como dos.**
+
+#### `CountryMapper` y `CityMapper`: comprobado, no quedan huérfanos
+
+Ambos los referencian los dos mappers que se van, pero **los dos conservan consumidores que
+sobreviven al lote**: `App/Locations/` (su propio módulo), `Organizations/OrganizationMapper`
+y `PiecesPHP/UserSystem/Profile/UserProfileMapper`. **No hay nada que borrar detrás.**
+
+#### Efecto inmediato
+
+Los archivos entran **ya** en el cubo «se borra»: el grupo B no los trabaja y Rector tampoco.
+Se llevan **17 errores de PHPStan** que nadie tiene que arreglar — **ninguno** de la familia
+`false`, así que la contabilidad de T8 no se mueve.
+
 ### La fusión `DataImportExportUtility` + `Importers` es una REFACTORIZACIÓN PLANIFICADA
 
 **No borres ninguno de los dos.** El reparto de piezas:
