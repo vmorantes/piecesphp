@@ -761,3 +761,68 @@ atención si son defecto real, no si son un tipo mal declarado. **El trabajo rea
   el `E_WARNING` a excepción, así que abortan en vez de devolver `false`—, de modo que son
   volumen mecánico, no caza.
 
+## T9 · Rector — lote 1 aplicado, y las 98 reglas que faltan
+
+Tras arreglar el truncado (T2) y excluir los módulos condenados (T6), Rector ve **175
+archivos**. El primer lote —17 reglas mecánicas en 103 archivos— ya está aplicado.
+
+**Quedan 98 reglas en 103 archivos.** No se aplican en bloque: están dominadas por
+categorías que cambian comportamiento observable, y en este código base concreto hay dos
+trampas que las hacen peligrosas.
+
+### Trampa 1 · Los tipos de retorno y la covarianza
+
+| Regla | Archivos |
+| :-- | --: |
+| `AddVoidReturnTypeWhereNoReturnRector` | 37 |
+| `StringReturnTypeFromStrictStringReturnsRector` | 35 |
+| `ClosureReturnTypeRector` | 32 |
+| `ReturnTypeFromStrictParamRector` | 32 |
+| `BoolReturnTypeFromBooleanStrictReturnsRector` | 28 |
+| `AddArrowFunctionReturnTypeRector` | 19 |
+| `ReturnTypeFromStrictNewArrayRector` | 18 |
+| `AddClosureVoidReturnTypeWhereNoReturnRector` | 17 |
+| `ReturnTypeFromStrictFluentReturnRector` | 14 |
+| `ReturnUnionTypeRector` | 10 |
+
+**Es la misma lección que costó la minor de `piecesphp/database` v3.2.0**: estrechar el
+retorno de un método rompe a quien lo hereda **al declarar la clase, no al llamarla**. Y
+este código base es especialmente vulnerable: `routeName()` y `allowedRoute()` están
+**copiadas en 36 controladores** a propósito (ver `07-modulos.md`), y los buscadores de
+mapper están copiados en 26. Si Rector tipa una copia y no las demás, el fallo aparece al
+cargar la clase, lejos del cambio.
+
+**Antes de aplicar cualquiera de estas hay que comprobar, por cada método tocado, si
+alguien lo redeclara.**
+
+### Trampa 2 · Las propiedades tipadas contra `__get`/`__set`
+
+| Regla | Archivos |
+| :-- | --: |
+| `RemoveNullPropertyInitializationRector` | 40 |
+| `TypedPropertyFromStrictConstructorRector` | 29 |
+| `ClassPropertyAssignToConstructorPromotionRector` | 12 |
+
+Las tres están **explícitamente en el `skip()` del Rector de `piecesphp/database`**, y por
+un motivo que aplica igual aquí: los mappers usan `__get`/`__set` con intensidad. Una
+propiedad tipada **sin inicializar lanza `Error` al leerla** en vez de devolver `null`, y
+quitar la inicialización `= null` de una propiedad tipada la deja justo en ese estado.
+Cambia el comportamiento en tiempo de ejecución sin tocar ninguna línea de lógica.
+
+**Propuesta: alinear el `skip()` de este repositorio con el del paquete.**
+
+### El resto, por decidir
+
+| Regla | Archivos | Por qué no es automática |
+| :-- | --: | :-- |
+| `RemoveUselessParamTagRector` | 83 | Retira `@param`/`@return` en masa. Es una decisión de estilo, no una corrección; el Rector del paquete la salta. |
+| `RemoveUselessReturnTagRector` | 72 | Igual. |
+| `SimplifyUselessVariableRector` | 61 | Reestructura flujo; seguro en general, conviene lote propio. |
+| `UseIdenticalOverEqualWithSameTypeRector` | 55 | `==` → `===`. Si la inferencia de tipo falla, cambia el resultado. |
+| `RemoveAlwaysElseRector` | 52 | Reestructura flujo. |
+| `ClosureToArrowFunctionRector` | 49 | Cambia la semántica de captura. |
+| `SimplifyEmptyCheckOnEmptyArrayRector` | 48 | `empty($a)` → `$a === []`; difieren si `$a` no es array. |
+| `NewMethodCallWithoutParenthesesRector` | 36 | Emite **sintaxis de PHP 8.4** (`new Foo()->bar()`). Legal en el piso actual, pero es un cambio visual grande y ata al piso. |
+| `RemoveUnusedVariableAssignRector` | 35 | Borra según inferencia: si falla, borra código vivo. |
+| `RemoveAlwaysTrueIfConditionRector` | 25 | Igual, sobre condiciones. |
+
