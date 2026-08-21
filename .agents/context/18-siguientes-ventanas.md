@@ -1327,3 +1327,34 @@ Y una corrección a lo que se dijo antes: los seis controladores públicos **no 
 muerto — no tienen hook**. Ni lo declaran ni lo llaman, así que son coherentes consigo mismos.
 Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla no.
 
+## T20 · CUANDO UNA MEDICIÓN SORPRENDE, SE SOSPECHA PRIMERO DE LA MEDICIÓN
+
+**Cuatro veces en esta campaña el defecto estaba en el INSTRUMENTO, no en lo medido.**
+
+| Instrumento | Qué medía mal | Qué llegó a afirmarse |
+| :-- | :-- | :-- |
+| `awk` cortando en la primera llave a cuatro espacios | Perdía los cuerpos con bloques anidados | «`routeName` tiene 6 variantes». Por tokens son **10** |
+| Contar `/*` contra `*/` en texto plano | Contaba las apariciones dentro de cadenas — `'image/*'` | **32 falsos positivos** en la primera `verify-integrity` |
+| La tabla de PHPStan | Recorta la ruta al ancho de terminal | «192 archivos con errores». Son **195**, y Rector no veía 34 |
+| `git diff --name-only --ignore-cr-at-eol` | **Lista el archivo aunque el filtro no encuentre diferencias**; el filtro lo aplica `--stat`, no `--name-only` | «58 de 59 archivos del paquete cambian de contenido». Cambian **cero** |
+
+### La regla
+
+> **Antes de reportar un hallazgo inesperado, verifícalo con un SEGUNDO MÉTODO
+> INDEPENDIENTE.** Una cifra que sorprende es, con más frecuencia de la que parece, una
+> herramienta que no mide lo que uno cree.
+
+«Independiente» significa que no comparta mecanismo con el primero: `--stat` contra
+`--name-only` sirve porque aplican el filtro en sitios distintos; repetir el mismo comando
+con otra bandera cosmética, no.
+
+### Por qué importa aquí más que en otro sitio
+
+Una alarma falsa cuesta el doble: se pierde la confianza en la medición **y** en las que
+vengan después. En una campaña que se sostiene sobre cifras —877 errores, 464 ramas, 107
+`false`, 44 controladores—, un instrumento que miente contamina todo el razonamiento
+construido encima. Ya obligó a derogar el «148» y a reconciliar «469 contra 464».
+
+**Corolario**: cada cifra que se publique en un documento debería poder decir con qué se
+midió. Ver T8 y T18, donde la unidad y el método están escritos junto al número.
+
