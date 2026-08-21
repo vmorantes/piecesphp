@@ -99,6 +99,38 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     );
     echoTerminal(' ');
 
+    //──── 3bis. getLoggedFrameworkUserOrFail() ──────────────────────────────────────────
+    echoTerminal('[3bis] getLoggedFrameworkUserOrFail() sin sesión debe lanzar...');
+    $lanzo = false;
+    $clase = '';
+    $msg = '';
+    try {
+        getLoggedFrameworkUserOrFail();
+    } catch (\Throwable $e) {
+        $lanzo = true;
+        $clase = get_class($e);
+        $msg = $e->getMessage();
+    }
+    $comprobar($lanzo, 'sin sesión LANZA en vez de devolver null',
+        'Excepción: ' . $clase . ' — ' . substr($msg, 0, 60));
+
+    /**
+     * La razón por la que sustituir es seguro: el código de HOY ya aborta en esos
+     * sitios. Se comprueba que los dos caminos fallan, para que quede escrito que el
+     * cambio afecta al MENSAJE, no a si la petición sobrevive.
+     */
+    $fallaEncadenando = false;
+    try {
+        $x = getLoggedFrameworkUser()->type;
+        unset($x);
+    } catch (\Throwable $e) {
+        $fallaEncadenando = true;
+    }
+    $comprobar($fallaEncadenando && $lanzo,
+        'los DOS caminos abortan sin sesión: el cambio mejora el diagnóstico, no el resultado',
+        'Encadenar sobre null ya lanzaba ErrorException porque bootstrap.php promueve E_WARNING en ambos entornos.');
+    echoTerminal(' ');
+
     //──── 4. SessionToken sin cabecera ni cookie ────────────────────────────────────────
     echoTerminal('[4/6] SessionToken::getJWTReceived() sin cabecera ni cookie...');
     $jwt = SessionToken::getJWTReceived();

@@ -3063,6 +3063,40 @@ function getLoggedFrameworkUser(bool $reload = false)
 }
 
 /**
+ * Devuelve el usuario conectado, o lanza una excepción si no hay sesión.
+ *
+ * Complementa a `getLoggedFrameworkUser()`, que devuelve `UserDataPackage|null`. Esa
+ * sigue existiendo y no cambia: úsala donde la ausencia de sesión sea un caso previsto
+ * que haya que manejar.
+ *
+ * Esta otra es para el caso contrario, que es el mayoritario: código al que solo se
+ * llega con sesión activa —típicamente rutas con `requireLogin = true`—, donde el null
+ * no es un estado posible sino una violación del contrato.
+ *
+ * NO CAMBIA CUÁNDO FALLA EL CÓDIGO, SOLO POR QUÉ.
+ * Hoy, encadenar sobre el resultado nulo ya aborta la petición: leer una propiedad de
+ * null emite `E_WARNING`, y el manejador de `bootstrap.php` promueve ese nivel a
+ * `ErrorException` **en local y en producción** (está en la lista incondicional, no en
+ * la que depende de `$isLocalBootstrap`). Lo que hoy se ve es
+ * «Attempt to read property "type" on null» en una línea cualquiera; con esta función
+ * se ve que faltaba la sesión, que es la causa real.
+ *
+ * @param bool $reload Si es true consultará nuevamente la base de datos
+ * @return UserDataPackage
+ * @throws \Exception Si no hay un usuario conectado
+ */
+function getLoggedFrameworkUserOrFail(bool $reload = false): UserDataPackage
+{
+    $currentUser = getLoggedFrameworkUser($reload);
+
+    if (!$currentUser instanceof UserDataPackage) {
+        throw new \Exception(__(UserDataPackage::LANG_GROUP, 'No hay una sesión de usuario activa.'));
+    }
+
+    return $currentUser;
+}
+
+/**
  * Devuelve el html del breadcrumb a partir de un arreglo
  *
  * El arreglo puede contener una cadena de texto simple o una llave (que se usará para el título mostrado) con un arreglo asignado que contenga un elemento llamado 'url'
