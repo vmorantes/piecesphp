@@ -1,27 +1,27 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-192
+191
 
 [TOTAL DE ERRORES VISIBLES]
-1060
+1024
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (369)
-🪪  property.nonObject (261)
-🪪  method.nonObject (168)
-🪪  return.type (72)
-🪪  property.notFound (57)
-🪪  assign.propertyType (52)
+🪪  argument.type (370)
+🪪  property.nonObject (267)
+🪪  method.nonObject (164)
+🪪  return.type (71)
+🪪  assign.propertyType (54)
 🪪  method.resultUnused (26)
+🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
 🪪  clone.nonObject (5)
 🪪  offsetAccess.notFound (5)
 🪪  binaryOp.invalid (5)
 🪪  offsetAccess.invalidOffset (4)
-🪪  method.notFound (3)
 🪪  function.deprecated (3)
 🪪  encapsedStringPart.nonString (2)
+🪪  method.notFound (2)
 🪪  offsetAssign.dimType (2)
 🪪  staticMethod.nonObject (1)
 🪪  method.deprecated (1)
@@ -42,8 +42,7 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	🪪  method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	🪪  argument.type (Líneas: 577, 700, 805, 846, 1039, 1096, 1136, 1200, 1227, 1293, 1385)
-	🪪  method.nonObject (Líneas: 1129, 1137)
+	🪪  argument.type (Líneas: 577, 700, 805, 846, 1039, 1096, 1115, 1136, 1200, 1227, 1293, 1385)
 	🪪  assign.propertyType (Líneas: 1144)
 project://src/app/classes/API/Controllers/HelperController.php
 	🪪  property.nonObject (Líneas: 146)
@@ -67,12 +66,11 @@ project://src/app/classes/App/Locations/Controllers/State.php
 project://src/app/classes/App/Locations/Views/locations/main.php
 	🪪  property.nonObject (Líneas: 4)
 project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.p
-	🪪  property.nonObject (Líneas: 219, 220, 1306, 1307, 1308, 1398, 1741, 1765)
+	🪪  property.nonObject (Líneas: 219, 220, 1306, 1307, 1308, 1398, 1741, 1743, 1765, 1767)
 	🪪  argument.type (Líneas: 722, 732, 797, 807, 1477, 1648, 1812)
 	🪪  assign.propertyType (Líneas: 752)
 	🪪  clone.nonObject (Líneas: 793)
 	🪪  method.nonObject (Líneas: 1590, 1656, 1657)
-	🪪  property.notFound (Líneas: 1740, 1741, 1743, 1764, 1765, 1767)
 project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php
 	🪪  return.type (Líneas: 443)
 	🪪  argument.type (Líneas: 454, 777, 778, 779)
@@ -83,8 +81,7 @@ project://src/app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMap
 	🪪  return.type (Líneas: 228, 247)
 	🪪  property.nonObject (Líneas: 259, 279)
 project://src/app/classes/ApplicationCalls/Util/AttachmentPackage.php
-	🪪  assign.propertyType (Líneas: 62, 63, 171)
-	🪪  return.type (Líneas: 174)
+	🪪  assign.propertyType (Líneas: 62, 63)
 project://src/app/classes/ApplicationCalls/Views/application-calls/forms/edit.php
 	🪪  property.nonObject (Líneas: 250, 255)
 	🪪  method.nonObject (Líneas: 251)
@@ -118,7 +115,6 @@ project://src/app/classes/DataImportExportUtility/Views/imported-generated.php
 project://src/app/classes/Documents/Controllers/DocumentsController.php
 	🪪  property.nonObject (Líneas: 277, 854)
 	🪪  argument.type (Líneas: 939, 1251)
-	🪪  property.notFound (Líneas: 1165, 1188)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	🪪  argument.type (Líneas: 241)
 	🪪  property.nonObject (Líneas: 278, 304)
@@ -126,14 +122,12 @@ project://src/app/classes/EventsLog/Views/log/list.php
 	🪪  property.nonObject (Líneas: 10)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 	🪪  property.nonObject (Líneas: 711)
-	🪪  property.notFound (Líneas: 879, 902)
 	🪪  argument.type (Líneas: 965)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
 	🪪  argument.type (Líneas: 222)
 	🪪  property.nonObject (Líneas: 259, 286)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.p
 	🪪  property.nonObject (Líneas: 712)
-	🪪  property.notFound (Líneas: 880, 903)
 	🪪  argument.type (Líneas: 966)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	🪪  argument.type (Líneas: 222)
@@ -143,7 +137,6 @@ project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.ph
 	🪪  method.nonObject (Líneas: 448)
 project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.p
 	🪪  argument.type (Líneas: 169, 245, 247, 248, 250, 267)
-	🪪  property.notFound (Líneas: 1513, 1536)
 project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php
 	🪪  property.nonObject (Líneas: 393, 416)
 project://src/app/classes/ImagesRepository/Views/images-repository/filter-view.php
@@ -158,9 +151,8 @@ project://src/app/classes/Importers/Managers/ImporterUsers.php
 	🪪  method.nonObject (Líneas: 69, 70, 71)
 project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchAreasCo
 	🪪  argument.type (Líneas: 416, 441, 1042)
-	🪪  property.nonObject (Líneas: 874, 875, 876, 965, 977, 1286, 1310)
+	🪪  property.nonObject (Líneas: 874, 875, 876, 965, 977, 1286, 1288, 1310, 1312)
 	🪪  method.nonObject (Líneas: 1145)
-	🪪  property.notFound (Líneas: 1285, 1286, 1288, 1309, 1310, 1312)
 project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper
 	🪪  argument.type (Líneas: 170, 196, 400)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
@@ -168,7 +160,6 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
 	🪪  argument.type (Líneas: 93, 131, 212, 476, 625)
 	🪪  assign.propertyType (Líneas: 496)
 	🪪  method.nonObject (Líneas: 651)
-	🪪  property.notFound (Líneas: 729)
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
 	🪪  property.nonObject (Líneas: 115, 345, 382, 383, 673, 793, 794)
 	🪪  method.nonObject (Líneas: 372, 373, 374, 375, 376, 377, 378, 379, 380, 381, 385)
@@ -205,7 +196,6 @@ project://src/app/classes/News/Controllers/NewsController.php
 	🪪  property.nonObject (Líneas: 185, 867, 1111, 1295, 1296, 1297, 1298)
 	🪪  argument.type (Líneas: 563, 564, 594, 595, 1287, 1295)
 	🪪  method.nonObject (Líneas: 1225)
-	🪪  property.notFound (Líneas: 1381)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
 	🪪  argument.type (Líneas: 438)
 project://src/app/classes/News/Mappers/NewsMapper.php
@@ -223,7 +213,6 @@ project://src/app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php
 project://src/app/classes/Organizations/Controllers/OrganizationsController.php
 	🪪  property.nonObject (Líneas: 214, 881, 1306, 1543)
 	🪪  argument.type (Líneas: 852, 1324, 1599)
-	🪪  property.notFound (Líneas: 1528, 1552)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	🪪  argument.type (Líneas: 434, 671, 672, 673, 674, 877, 879, 995)
 	🪪  offsetAccess.invalidOffset (Líneas: 996)
@@ -234,7 +223,6 @@ project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerControl
 	🪪  property.nonObject (Líneas: 916)
 	🪪  method.nonObject (Líneas: 996)
-	🪪  property.notFound (Líneas: 1148)
 	🪪  argument.type (Líneas: 1188)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php
 	🪪  return.type (Líneas: 247)
@@ -263,7 +251,6 @@ project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesCon
 	🪪  method.nonObject (Líneas: 127)
 	🪪  argument.type (Líneas: 288)
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
-	🪪  property.notFound (Líneas: 145)
 	🪪  assign.propertyType (Líneas: 235, 237, 246, 278, 280, 311, 313, 333, 334, 416, 418, 420)
 	🪪  offsetAccess.notFound (Líneas: 398, 410)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPrevi
@@ -278,12 +265,11 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.p
 	🪪  method.nonObject (Líneas: 565, 572, 577, 587)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	🪪  argument.type (Líneas: 138, 1152, 1184, 1189, 1388, 1503, 1677)
-	🪪  property.nonObject (Líneas: 234, 1218, 1219, 1220, 1328, 1599, 1624)
+	🪪  argument.type (Líneas: 138, 1152, 1155, 1184, 1189, 1388, 1503, 1677)
+	🪪  property.nonObject (Líneas: 234, 1218, 1219, 1220, 1328, 1599, 1601, 1624, 1626)
 	🪪  assign.propertyType (Líneas: 645)
 	🪪  clone.nonObject (Líneas: 701)
-	🪪  method.nonObject (Líneas: 1311, 1321, 1447, 1510, 1511, 1512)
-	🪪  property.notFound (Líneas: 1597, 1598, 1599, 1601, 1622, 1623, 1624, 1626)
+	🪪  method.nonObject (Líneas: 1150, 1311, 1321, 1447, 1510, 1511, 1512)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	🪪  argument.type (Líneas: 165, 227, 244)
 	🪪  return.type (Líneas: 228)
@@ -305,8 +291,6 @@ project://src/app/classes/Publications/Views/publications/forms/edit.php
 	🪪  method.nonObject (Líneas: 357)
 project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
 	🪪  method.nonObject (Líneas: 82)
-project://src/app/classes/ReportsManage/Queries/ReportsManageQueries.php
-	🪪  property.notFound (Líneas: 56, 57, 62, 63)
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
 	🪪  property.nonObject (Líneas: 135, 136, 334, 441, 442, 443)
 	🪪  staticMethod.nonObject (Líneas: 141)
@@ -318,23 +302,19 @@ project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 	🪪  property.nonObject (Líneas: 206)
 	🪪  argument.type (Líneas: 314, 315)
 project://src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHan
-	🪪  property.notFound (Líneas: 48)
-	🪪  method.notFound (Líneas: 49)
 	🪪  property.nonObject (Líneas: 66)
 project://src/app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php
 	🪪  argument.type (Líneas: 52, 81, 89, 96, 103, 110)
 project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler
 	🪪  property.nonObject (Líneas: 62)
-	🪪  method.nonObject (Líneas: 102)
+	🪪  assign.propertyType (Líneas: 101)
 project://src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler
 	🪪  property.nonObject (Líneas: 59)
 project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
 	🪪  property.nonObject (Líneas: 49, 53)
-	🪪  method.nonObject (Líneas: 97)
+	🪪  assign.propertyType (Líneas: 96)
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
-	🪪  method.nonObject (Líneas: 77)
-	🪪  argument.type (Líneas: 80)
-	🪪  assign.propertyType (Líneas: 83)
+	🪪  assign.propertyType (Líneas: 75, 83)
 project://src/app/classes/SystemApprovals/Views/forms/approval-applications-calls.p
 	🪪  method.nonObject (Líneas: 13, 153)
 	🪪  argument.type (Líneas: 74, 78)
@@ -435,7 +415,7 @@ project://src/app/core/autoload.php
 	🪪  isset.offset (Líneas: 60)
 project://src/app/core/bootstrap.php
 	🪪  offsetAccess.notFound (Líneas: 49)
-	🪪  method.nonObject (Líneas: 229)
+	🪪  method.nonObject (Líneas: 272)
 project://src/app/core/psr4/PiecesPHP/CSSVariables.php
 	🪪  return.type (Líneas: 58)
 project://src/app/core/psr4/PiecesPHP/Cli.php

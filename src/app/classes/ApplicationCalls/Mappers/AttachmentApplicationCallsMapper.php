@@ -378,7 +378,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
      * @param mixed $value
      * @param string $column
      * @param boolean $as_mapper
-     * @return static|object|null
+     * @return ($as_mapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', bool $as_mapper = false)
     {
@@ -408,7 +408,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
      * @param int $attachmentID
      * @param string $lang
      * @param boolean $asMapper
-     * @return static|object|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function getExactAttachment(int $applicationCallID, int $attachmentID, string $lang, bool $asMapper = false)
     {
@@ -438,7 +438,7 @@ class AttachmentApplicationCallsMapper extends EntityMapperExtensible
     /**
      * @param bool $asMapper
      * @param bool $onlyActives
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function lastModifiedElement(bool $asMapper = false, bool $onlyActives = false)
     {

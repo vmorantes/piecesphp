@@ -1064,7 +1064,7 @@ class UsersModel extends EntityMapperExtensible
      * @param string[] $orderBy
      * @param UserDataPackage $currentUser
      * @param bool $asMapper
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function getBy($value, string $column = 'id', array $orderBy = [], ?UserDataPackage $currentUser = null, bool $asMapper = false)
     {
@@ -1120,7 +1120,7 @@ class UsersModel extends EntityMapperExtensible
      * @param string[] $orderBy
      * @param UserDataPackage $currentUser
      * @param bool $asMapper
-     * @return \stdClass|static|null
+     * @return ($asMapper is true ? static : \stdClass)|null
      */
     public static function getByMultipleCriteries(array $criteries = [], array $orderBy = [], ?UserDataPackage $currentUser = null, bool $asMapper = false)
     {

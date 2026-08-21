@@ -88,16 +88,16 @@ project://src/app/classes/API/Controllers/APIController.php
   1096   Parameter Nr.2 $array of function array_key_exists expects array,        
          array|ArrayAccess given.                                               
          🪪  argument.type                                                      
-  1129   Cannot call method getFullName() on App\Model\UsersModel|stdClass.     
-         🪪  method.nonObject                                                   
+  1115   Parameter Nr.1 $userID of static method                                  
+         PiecesPHP\UserSystem\Profile\UserProfileMapper::getProfile() expects   
+         int, int|null given.                                                   
+         🪪  argument.type                                                      
   1136   Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom()       
          expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                      
   1136   Parameter Nr.2 $name of method PiecesPHP\Core\Mailer::setFrom() expects  
          string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.          
          🪪  argument.type                                                      
-  1137   Cannot call method getFullName() on App\Model\UsersModel|stdClass.     
-         🪪  method.nonObject                                                   
   1144   Property PHPMailer\PHPMailer\PHPMailer::$Body (string) does not        
          accept string|null.                                                    
          🪪  assign.propertyType                                                
@@ -277,36 +277,14 @@ project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsControlle
   1657   Cannot call method excerpt() on                                        
          ApplicationCalls\Mappers\ApplicationCallsMapper|null.                  
          🪪  method.nonObject                                                   
-  1740   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1741   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1741   Cannot access property $organization on                                
-         App\Model\UsersModel|stdClass|null.                                    
+  1741   Cannot access property $organization on stdClass|null.                 
          🪪  property.nonObject                                                 
-  1743   Access to an undefined property object::$administrator.                
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1764   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1765   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1765   Cannot access property $organization on                                
-         App\Model\UsersModel|stdClass|null.                                    
+  1743   Cannot access property $id on App\Model\UsersModel|int|null.           
          🪪  property.nonObject                                                 
-  1767   Access to an undefined property object::$administrator.                
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
+  1765   Cannot access property $organization on stdClass|null.                 
+         🪪  property.nonObject                                                 
+  1767   Cannot access property $id on App\Model\UsersModel|int|null.           
+         🪪  property.nonObject                                                 
   1812   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload            
          constructor expects string, string|null given.                         
          🪪  argument.type                                                      
@@ -379,14 +357,6 @@ project://src/app/classes/ApplicationCalls/Util/AttachmentPackage.php
   63     Property ApplicationCalls\Util\AttachmentPackage::$attachmentID (int)  
          does not accept int|null.                                              
          🪪  assign.propertyType                                                
-  171    Property ApplicationCalls\Util\AttachmentPackage::$mapper              
-         (ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null) does  
-         not accept object|null.                                                
-         🪪  assign.propertyType                                                
-  174    Method ApplicationCalls\Util\AttachmentPackage::getMapper() should     
-         return ApplicationCalls\Mappers\AttachmentApplicationCallsMapper|null  
-         but returns object|null.                                               
-         🪪  return.type                                                        
  ------ ----------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------- 
@@ -621,14 +591,6 @@ project://src/app/classes/Documents/Controllers/DocumentsController.php
   939    Parameter Nr.1 $string of function mb_convert_encoding expects           
          array|string, string|null given.                                       
          🪪  argument.type                                                      
-  1165   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1188   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
   1251   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload            
          constructor expects string, string|null given.                         
          🪪  argument.type                                                      
@@ -656,24 +618,16 @@ project://src/app/classes/EventsLog/Views/log/list.php
          🪪  property.nonObject                      
  ------ -------------------------------------------- 
 
- ------ ----------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------- 
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
- ------ ----------------------------------------------------------------------- 
-  711    Cannot access property $id on                                          
-         Forms\Categories\Mappers\CategoriesMapper|null.                        
-         🪪  property.nonObject                                                 
-  879    Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  902    Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  965    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload            
-         constructor expects string, string|null given.                         
-         🪪  argument.type                                                      
- ------ ----------------------------------------------------------------------- 
+ ------ ------------------------------------------------------------------- 
+  711    Cannot access property $id on                                      
+         Forms\Categories\Mappers\CategoriesMapper|null.                    
+         🪪  property.nonObject                                             
+  965    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload        
+         constructor expects string, string|null given.                     
+         🪪  argument.type                                                  
+ ------ ------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------- 
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
@@ -696,14 +650,6 @@ project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesControlle
   712    Cannot access property $id on                                          
          Forms\DocumentTypes\Mappers\DocumentTypesMapper|null.                  
          🪪  property.nonObject                                                 
-  880    Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  903    Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
   966    Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload            
          constructor expects string, string|null given.                         
          🪪  argument.type                                                      
@@ -763,14 +709,6 @@ project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryControlle
          PiecesPHP\Core\Routing\ResponseRoute::write() expects string,          
          string|false given.                                                    
          🪪  argument.type                                                      
-  1513   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1536   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
  ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------- 
@@ -881,36 +819,14 @@ project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchArea
          🪪  argument.type                                                      
   1145   Cannot call method getTimestamp() on DateTime|false.                   
          🪪  method.nonObject                                                   
-  1285   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1286   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1286   Cannot access property $organization on                                
-         App\Model\UsersModel|stdClass|null.                                    
+  1286   Cannot access property $organization on stdClass|null.                 
          🪪  property.nonObject                                                 
-  1288   Access to an undefined property object::$administrator.                
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1309   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1310   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1310   Cannot access property $organization on                                
-         App\Model\UsersModel|stdClass|null.                                    
+  1288   Cannot access property $id on App\Model\UsersModel|int|null.           
          🪪  property.nonObject                                                 
-  1312   Access to an undefined property object::$administrator.                
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
+  1310   Cannot access property $organization on stdClass|null.                 
+         🪪  property.nonObject                                                 
+  1312   Cannot access property $id on App\Model\UsersModel|int|null.           
+         🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
@@ -1066,16 +982,12 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
   651    Cannot call method update() on                                         
          Organizations\Mappers\OrganizationMapper|null.                         
          🪪  method.nonObject                                                   
-  729    Access to an undefined property object::$meta.                         
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
   818    Cannot access property $administrator on                               
          Organizations\Mappers\OrganizationMapper|null.                         
          🪪  property.nonObject                                                 
   818    Cannot access property $id on App\Model\UsersModel|int|null.           
          🪪  property.nonObject                                                 
-  824    Cannot access property $profile on object|null.                        
+  824    Cannot access property $profile on stdClass|null.                      
          🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
 
@@ -1141,7 +1053,7 @@ project://src/app/classes/MySpace/Controllers/MyProfileController.php
   793    Cannot access property $id on                                          
          PiecesPHP\UserSystem\Profile\UserProfileMapper|null.                   
          🪪  property.nonObject                                                 
-  794    Cannot access property $profile on object|null.                        
+  794    Cannot access property $profile on stdClass|null.                      
          🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
 
@@ -1371,10 +1283,6 @@ project://src/app/classes/News/Controllers/NewsController.php
          🪪  property.nonObject                                                 
   1298   Cannot access property $modifiedBy on News\Mappers\NewsMapper|null.    
          🪪  property.nonObject                                                 
-  1381   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
  ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
@@ -1434,36 +1342,28 @@ project://src/app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php
          🪪  method.nonObject                                          
  ------ -------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------- 
 project://src/app/classes/Organizations/Controllers/OrganizationsController.php
- ------ ----------------------------------------------------------------------- 
-  214    Cannot access property $id on App\Model\UsersModel|int|null.           
-         🪪  property.nonObject                                                 
-  852    Parameter Nr.2 $array of function array_key_exists expects array,        
-         array|object|null given.                                               
-         🪪  argument.type                                                      
-  881    Cannot access property $type on                                        
-         PiecesPHP\UserSystem\UserDataPackage|null.                             
-         🪪  property.nonObject                                                 
-  1306   Cannot access property $id on                                          
-         Organizations\Mappers\OrganizationMapper|null.                         
-         🪪  property.nonObject                                                 
-  1324   Parameter Nr.1 $string of function str_pad expects string, int given.    
-         🪪  argument.type                                                      
-  1528   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1543   Cannot access property $meta on object|null.                           
-         🪪  property.nonObject                                                 
-  1552   Access to an undefined property object::$id.                           
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1599   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload            
-         constructor expects string, string|null given.                         
-         🪪  argument.type                                                      
- ------ ----------------------------------------------------------------------- 
+ ------ --------------------------------------------------------------------- 
+  214    Cannot access property $id on App\Model\UsersModel|int|null.         
+         🪪  property.nonObject                                               
+  852    Parameter Nr.2 $array of function array_key_exists expects array,      
+         array|object|null given.                                             
+         🪪  argument.type                                                    
+  881    Cannot access property $type on                                      
+         PiecesPHP\UserSystem\UserDataPackage|null.                           
+         🪪  property.nonObject                                               
+  1306   Cannot access property $id on                                        
+         Organizations\Mappers\OrganizationMapper|null.                       
+         🪪  property.nonObject                                               
+  1324   Parameter Nr.1 $string of function str_pad expects string, int given.  
+         🪪  argument.type                                                    
+  1543   Cannot access property $meta on stdClass|null.                       
+         🪪  property.nonObject                                               
+  1599   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload          
+         constructor expects string, string|null given.                       
+         🪪  argument.type                                                    
+ ------ --------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
@@ -1526,10 +1426,6 @@ project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerCont
          🪪  property.nonObject                                                 
   996    Cannot call method getTimestamp() on DateTime|false.                   
          🪪  method.nonObject                                                   
-  1148   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
   1188   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload            
          constructor expects string, string|null given.                         
          🪪  argument.type                                                      
@@ -1680,10 +1576,6 @@ project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesCon
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
  ------ ----------------------------------------------------------------------- 
-  145    Access to an undefined property object::$method.                       
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
   235    Property                                                               
          PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$intervalTOTP          
          (string) does not accept int.                                          
@@ -1811,8 +1703,14 @@ project://src/app/classes/Publications/Controllers/PublicationsController.php
          🪪  assign.propertyType                                                
   701    Cannot clone stdClass|null.                                            
          🪪  clone.nonObject                                                    
+  1150   Cannot call method getTimestamp() on DateTime|string|false.            
+         🪪  method.nonObject                                                   
   1152   Parameter Nr.1 $string of function sha1 expects string, string|false     
          given.                                                                 
+         🪪  argument.type                                                      
+  1155   Parameter Nr.2 $lastModification of function                             
+         generateCachingHeadersAndStatus expects DateTime,                      
+         DateTime|string|false given.                                           
          🪪  argument.type                                                      
   1184   Parameter Nr.1 $data of method                                           
          PiecesPHP\Core\Cache\CacheControllersManager::setDataCache() expects   
@@ -1858,44 +1756,14 @@ project://src/app/classes/Publications/Controllers/PublicationsController.php
   1512   Cannot call method excerpt() on                                        
          Publications\Mappers\PublicationMapper|null.                           
          🪪  method.nonObject                                                   
-  1597   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1598   Access to an undefined property object::$author.                       
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1599   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1599   Cannot access property $organization on                                
-         App\Model\UsersModel|stdClass|null.                                    
+  1599   Cannot access property $organization on stdClass|null.                 
          🪪  property.nonObject                                                 
-  1601   Access to an undefined property object::$administrator.                
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1622   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1623   Access to an undefined property object::$author.                       
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1624   Access to an undefined property object::$createdBy.                    
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  1624   Cannot access property $organization on                                
-         App\Model\UsersModel|stdClass|null.                                    
+  1601   Cannot access property $id on App\Model\UsersModel|int|null.           
          🪪  property.nonObject                                                 
-  1626   Access to an undefined property object::$administrator.                
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
+  1624   Cannot access property $organization on stdClass|null.                 
+         🪪  property.nonObject                                                 
+  1626   Cannot access property $id on App\Model\UsersModel|int|null.           
+         🪪  property.nonObject                                                 
   1677   Parameter Nr.1 $name of static method                                    
          PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName(  
          ) expects string, string|null given.                                   
@@ -2015,27 +1883,6 @@ project://src/app/classes/ReportsManage/Controllers/ReportsManageController.php
  ------ ------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
-project://src/app/classes/ReportsManage/Queries/ReportsManageQueries.php
- ------ ----------------------------------------------------------------------- 
-  56     Access to an undefined property object::$id.                           
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  57     Access to an undefined property object::$id.                           
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  62     Access to an undefined property object::$id.                           
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  63     Access to an undefined property object::$id.                           
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
- ------ ----------------------------------------------------------------------- 
-
- ------ ----------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Controllers/SystemApprovalsController.php
  ------ ----------------------------------------------------------------------- 
   135    Cannot access property $id on                                          
@@ -2101,12 +1948,6 @@ project://src/app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php
 project://src/app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHan
          dler.php                                                               
  ------ ----------------------------------------------------------------------- 
-  48     Access to an undefined property object::$id.                           
-         🪪  property.notFound                                                  
-         💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-und  
-         efined-property                                                        
-  49     Call to an undefined method object::contentTypeText().                 
-         🪪  method.notFound                                                    
   66     Cannot access property $type on App\Model\UsersModel|int.              
          🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
@@ -2146,9 +1987,9 @@ project://src/app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHand
  ------ ----------------------------------------------------------------------- 
   62     Cannot access property $type on App\Model\UsersModel|int.              
          🪪  property.nonObject                                                 
-  102    Cannot call method update() on                                         
-         stdClass|SystemApprovals\Mappers\SystemApprovalsMapper.                
-         🪪  method.nonObject                                                   
+  101    Property SystemApprovals\Mappers\SystemApprovalsMapper::$status (int)  
+         does not accept string.                                                
+         🪪  assign.propertyType                                                
  ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
@@ -2159,30 +2000,24 @@ project://src/app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHand
          🪪  property.nonObject                                                 
  ------ ----------------------------------------------------------------------- 
 
- ------ --------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php
- ------ --------------------------------------------------------------------- 
-  49     Cannot access property $organization on                              
-         App\Model\UsersModel|stdClass|null.                                  
-         🪪  property.nonObject                                               
-  53     Cannot access property $type on App\Model\UsersModel|stdClass|null.  
-         🪪  property.nonObject                                               
-  97     Cannot call method update() on                                       
-         stdClass|SystemApprovals\Mappers\SystemApprovalsMapper.              
-         🪪  method.nonObject                                                 
- ------ --------------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------- 
+  49     Cannot access property $organization on App\Model\UsersModel|null.     
+         🪪  property.nonObject                                                 
+  53     Cannot access property $type on App\Model\UsersModel|null.             
+         🪪  property.nonObject                                                 
+  96     Property SystemApprovals\Mappers\SystemApprovalsMapper::$status (int)  
+         does not accept string.                                                
+         🪪  assign.propertyType                                                
+ ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
 project://src/app/classes/SystemApprovals/Util/SystemApprovalManager.php
  ------ ----------------------------------------------------------------------- 
-  77     Cannot call method update() on                                         
-         stdClass|SystemApprovals\Mappers\SystemApprovalsMapper.                
-         🪪  method.nonObject                                                   
-  80     Parameter Nr.2 $approvalMapper of static method                          
-         SystemApprovals\Util\ApprovalElementHandlerInterface::onUpdatedRecord  
-         () expects SystemApprovals\Mappers\SystemApprovalsMapper|null,         
-         stdClass|SystemApprovals\Mappers\SystemApprovalsMapper|null given.     
-         🪪  argument.type                                                      
+  75     Property SystemApprovals\Mappers\SystemApprovalsMapper::$status (int)  
+         does not accept string.                                                
+         🪪  assign.propertyType                                                
   83     Property SystemApprovals\Util\SystemApprovalManager::$configurations   
          (array<class-string<SystemApprovals\Util\ApprovalElementHandlerInterf  
          ace>>) does not accept array<class-string<SystemApprovals\Util\Approv  
@@ -2809,14 +2644,14 @@ project://src/app/controller/UsersController.php
          🪪  argument.type                                                      
   888    Parameter Nr.1 $element of static method                                 
          Organizations\Mappers\OrganizationMapper::objectToMapper() expects     
-         stdClass, object|null given.                                           
+         stdClass, stdClass|null given.                                         
          🪪  argument.type                                                      
   922    Parameter Nr.1 $id of static method App\Model\AvatarModel::getAvatar()   
          expects int, int|null given.                                           
          🪪  argument.type                                                      
   1108   Parameter Nr.1 $element of static method                                 
          Organizations\Mappers\OrganizationMapper::objectToMapper() expects     
-         stdClass, object|null given.                                           
+         stdClass, stdClass|null given.                                         
          🪪  argument.type                                                      
   1259   Parameter Nr.1 $inputValues of method                                    
          PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues()      
@@ -3137,7 +2972,7 @@ project://src/app/core/bootstrap.php
          arguments: array<string, mixed>, route: string, local: bool, cli: Pie  
          cesPHP\Cli}.                                                           
          🪪  offsetAccess.notFound                                              
-  229    Cannot call method format() on DateTime|false.                         
+  272    Cannot call method format() on DateTime|false.                         
          🪪  method.nonObject                                                   
  ------ ----------------------------------------------------------------------- 
 
@@ -4331,7 +4166,7 @@ project://src/app/view/usuarios/utils/user-card.php
          🪪  property.nonObject                                              
   13     Parameter Nr.1 $element of static method                              
          Organizations\Mappers\OrganizationMapper::objectToMapper() expects  
-         stdClass, object|null given.                                        
+         stdClass, stdClass|null given.                                      
          🪪  argument.type                                                   
  ------ -------------------------------------------------------------------- 
 
@@ -4353,7 +4188,7 @@ project://src/index.php
          🪪  argument.type                                                      
   626    Parameter Nr.1 $element of static method                                 
          Organizations\Mappers\OrganizationMapper::objectToMapper() expects     
-         stdClass, object|null given.                                           
+         stdClass, stdClass|null given.                                         
          🪪  argument.type                                                      
   634    Cannot access property $id on App\Model\UsersModel|int.                
          🪪  property.nonObject                                                 
@@ -4435,5 +4270,5 @@ project://src/index.php
      errors.                                                                    
  -- --------------------------------------------------------------------------- 
 
- [ERROR] Found 1078 errors                                                      
+ [ERROR] Found 1042 errors                                                      
 

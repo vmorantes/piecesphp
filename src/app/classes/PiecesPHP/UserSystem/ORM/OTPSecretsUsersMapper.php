@@ -168,7 +168,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     /**
      * @param mixed $value
      * @param string $column
-     * @return object|null
+     * @return \stdClass|null
      */
     public static function getBy($value, string $column = 'id')
     {
