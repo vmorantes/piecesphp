@@ -612,6 +612,15 @@ project://src/app/classes/EventsLog/Views/log/list.php
          🪪  property.nonObject                      
  ------ -------------------------------------------- 
 
+ ------ ----------------------------------------------------------------------- 
+project://src/app/classes/FileManager/Controllers/FileManagerController.php
+ ------ ----------------------------------------------------------------------- 
+  59     Property PiecesPHP\Core\BaseController::$model                         
+         (PiecesPHP\Core\BaseEntityMapper|PiecesPHP\Core\Database\ActiveRecord  
+         Model) does not accept null.                                           
+         🪪  assign.propertyType                                                
+ ------ ----------------------------------------------------------------------- 
+
  ------ ------------------------------------------------------------------- 
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
  ------ ------------------------------------------------------------------- 
@@ -2945,13 +2954,17 @@ project://src/app/core/psr4/PiecesPHP/Cli.php
          💡  Array does not have offset 'addLines'.                      
  ------ ---------------------------------------------------------------- 
 
- ------ -------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
- ------ -------------------------------------------------------------- 
-  72     Parameter Nr.6 $set_database of class PiecesPHP\Core\BaseModel  
-         constructor expects bool, null given.                         
-         🪪  argument.type                                             
- ------ -------------------------------------------------------------- 
+ ------ ----------------------------------------------------------------------- 
+  72     Parameter Nr.6 $set_database of class PiecesPHP\Core\BaseModel           
+         constructor expects bool, null given.                                  
+         🪪  argument.type                                                      
+  78     Property PiecesPHP\Core\BaseController::$model                         
+         (PiecesPHP\Core\BaseEntityMapper|PiecesPHP\Core\Database\ActiveRecord  
+         Model) does not accept object.                                         
+         🪪  assign.propertyType                                                
+ ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
@@ -4169,57 +4182,5 @@ project://src/index.php
          🪪  variable.undefined                                                 
  ------ ----------------------------------------------------------------------- 
 
- -- --------------------------------------------------------------------------- 
-     Error                                                                      
- -- --------------------------------------------------------------------------- 
-     Ignored error pattern class.notFound in paths:                             
-     /var/www/html/vicsen/piecesphp/src/app/view/**/*,                          
-     /var/www/html/vicsen/piecesphp/src/app/classes/**/Views/**/* was not       
-     matched in reported errors.                                                
-     Ignored error pattern variable.undefined in paths:                         
-     /var/www/html/vicsen/piecesphp/src/app/view/**/*,                          
-     /var/www/html/vicsen/piecesphp/src/app/classes/**/Views/**/*,              
-     /var/www/html/vicsen/piecesphp/src/**/BaseMongoModel.php was not matched   
-     in reported errors.                                                        
-     Ignored error pattern echo.nonString in paths:                             
-     /var/www/html/vicsen/piecesphp/src/app/view/**/*,                          
-     /var/www/html/vicsen/piecesphp/src/app/classes/**/Views/**/*,              
-     /var/www/html/vicsen/piecesphp/src/**/BaseMongoModel.php was not matched   
-     in reported errors.                                                        
-     Ignored error pattern staticMethod.notFound in path                        
-     /var/www/html/vicsen/piecesphp/src/app/classes/SystemApprovals/**/* was    
-     not matched in reported errors.                                            
-     Ignored error pattern #.*Constant LOG_ERRORS_PATH not found.*# in path     
-     /var/www/html/vicsen/piecesphp/src/app/controller/**/* was not matched in  
-     reported errors.                                                           
-     Ignored error pattern #.*of function implode expects array<string>,        
-     array<mixed> given.*# was not matched in reported errors.                  
-     Ignored error pattern #.*message of function __ expects.*# was not         
-     matched in reported errors.                                                
-     Ignored error pattern new.static in path                                   
-     /var/www/html/vicsen/piecesphp/src/app/**/* was not matched in reported    
-     errors.                                                                    
-     Ignored error pattern instanceof.alwaysTrue was not matched in reported    
-     errors.                                                                    
-     Ignored error pattern notEqual.alwaysTrue was not matched in reported      
-     errors.                                                                    
-     Ignored error pattern booleanOr.alwaysTrue was not matched in reported     
-     errors.                                                                    
-     Ignored error pattern booleanOr.leftAlwaysFalse was not matched in         
-     reported errors.                                                           
-     Ignored error pattern phpDoc.parseError was not matched in reported        
-     errors.                                                                    
-     Ignored error pattern parameter.phpDocType was not matched in reported     
-     errors.                                                                    
-     Ignored error pattern return.phpDocType was not matched in reported        
-     errors.                                                                    
-     Ignored error pattern varTag.misplaced was not matched in reported         
-     errors.                                                                    
-     Ignored error pattern varTag.noVariable was not matched in reported        
-     errors.                                                                    
-     Ignored error pattern throws.notThrowable was not matched in reported      
-     errors.                                                                    
- -- --------------------------------------------------------------------------- 
-
- [ERROR] Found 1027 errors                                                      
+ [ERROR] Found 1011 errors                                                      
 

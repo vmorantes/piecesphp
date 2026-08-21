@@ -1,17 +1,17 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-191
+192
 
 [TOTAL DE ERRORES VISIBLES]
-1009
+1011
 
 [TIPOS DE ERRORES Y CANTIDAD]
 🪪  argument.type (371)
 🪪  property.nonObject (267)
 🪪  method.nonObject (164)
 🪪  return.type (71)
-🪪  assign.propertyType (38)
+🪪  assign.propertyType (40)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
@@ -119,6 +119,8 @@ project://src/app/classes/Documents/Mappers/DocumentsMapper.php
 	🪪  property.nonObject (Líneas: 278, 304)
 project://src/app/classes/EventsLog/Views/log/list.php
 	🪪  property.nonObject (Líneas: 10)
+project://src/app/classes/FileManager/Controllers/FileManagerController.php
+	🪪  assign.propertyType (Líneas: 59)
 project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 	🪪  property.nonObject (Líneas: 711)
 	🪪  argument.type (Líneas: 965)
@@ -419,6 +421,7 @@ project://src/app/core/psr4/PiecesPHP/Cli.php
 	🪪  parameter.defaultValue (Líneas: 43)
 project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
 	🪪  argument.type (Líneas: 72)
+	🪪  assign.propertyType (Líneas: 78)
 project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
 	🪪  argument.type (Líneas: 36, 127, 130, 161, 173)
 	🪪  return.type (Líneas: 61)

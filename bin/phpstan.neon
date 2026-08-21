@@ -35,21 +35,22 @@ parameters:
                 - echo.nonString
             paths:
                 - ../src/app/view/*
-                - ../src/app/view/**/*
                 - ../src/app/classes/**/Views/*
-                - ../src/app/classes/**/Views/**/*
+        # En BaseMongoModel solo casa class.notFound; incluir los otros dos aquí
+        # generaba dos avisos de «patrón no casado», que PHPStan cuenta como errores.
+        -
+            identifier: class.notFound
+            paths:
                 - ../src/**/BaseMongoModel.php
         -
             identifiers: 
                 - staticMethod.notFound
             paths:
                 - ../src/app/classes/SystemApprovals/*
-                - ../src/app/classes/SystemApprovals/**/*
         -
             message: '#.*Constant LOG_ERRORS_PATH not found.*#'
             paths:
                 - ../src/app/controller/*
-                - ../src/app/controller/**/*
         -
             identifier: argument.unresolvableType
             paths:
@@ -64,8 +65,6 @@ parameters:
             paths:
                 - ../src/app
         # Tipos no esperados en parámetros
-        - '#.*of function implode expects array<string>, array<mixed> given.*#'
-        - '#.*message of function __ expects.*#'
 
         #──── Generales
         - "#.*protected static method fieldsToSelect.*#"
@@ -91,7 +90,6 @@ parameters:
                 - new.static
             paths:
                 - ../src/app/*
-                - ../src/app/**/*
         # Irrelevantes
         - identifier: missingType.iterableValue
         - identifier: missingType.return
@@ -110,11 +108,8 @@ parameters:
         - identifier: booleanOr.rightAlwaysTrue
         - identifier: booleanOr.leftAlwaysTrue
         - identifier: booleanAnd.alwaysTrue
-        - identifier: instanceof.alwaysTrue
         - identifier: identical.alwaysTrue
-        - identifier: notEqual.alwaysTrue
         - identifier: equal.alwaysTrue
-        - identifier: booleanOr.alwaysTrue
         - identifier: isset.variable
         - identifier: function.alreadyNarrowedType
         - identifier: if.alwaysFalse
@@ -124,7 +119,6 @@ parameters:
         - identifier: booleanAnd.leftAlwaysFalse
         - identifier: booleanNot.alwaysFalse
         - identifier: booleanOr.rightAlwaysFalse
-        - identifier: booleanOr.leftAlwaysFalse
         - identifier: booleanAnd.alwaysFalse
         - identifier: instanceof.alwaysFalse
         - identifier: identical.alwaysFalse
@@ -135,12 +129,6 @@ parameters:
 
         # ── PHPDoc ──────────
         - '#.*PHPDoc tag @.*#'
-        - identifier: phpDoc.parseError
-        - identifier: parameter.phpDocType
-        - identifier: return.phpDocType
-        - identifier: varTag.misplaced
-        - identifier: varTag.noVariable
-        - identifier: throws.notThrowable
 
         # ── Diseño estricto ──────────
         - identifier: return.void
