@@ -1238,3 +1238,92 @@ detalle de estilo, es otra jerarquía. Antes de tocar nada hay que responder:
 **Lo que NO se puede hacer**: borrar la del paquete «porque no se usa». Sí se usa —en el
 paquete, con sus propias pruebas— y borrarla lo rompe como librería independiente.
 
+## T17 · REGLA — una regla mecánica se aplica a TODA la familia o a ninguna
+
+**La mejor lección del lote, y salió de un error propio.**
+
+Antes del primer lote de Rector había **39 archivos** con `strlen($route) > 0`. Rector
+convirtió **25** y dejó **14**, porque solo pudo probar el tipo en esos.
+
+**Cada cambio individual era correcto. El resultado agregado fue peor:** un lote mecánico
+**partió en dos un grupo homogéneo**, justo en el código que se estaba a punto de unificar.
+
+> **Antes de correr una regla mecánica, cuenta a cuántos sitios de la familia alcanza. Si no
+> los cubre todos: o completas el resto a mano EN EL MISMO COMMIT, o no la corres.**
+
+La aplicación parcial **fabrica divergencia** aunque acierte caso por caso. Y en una plantilla
+que se clona, la divergencia fabricada se hereda.
+
+### Corolario medido en la misma sesión
+
+Los scripts de edición en Python convirtieron **CRLF a LF en 20 archivos**, entre ellos
+`OrganizationMapper.php` (1.342 líneas) y `PublicationsController.php` (1.935). PHP no
+distingue, pero el commit del paso B declaraba **4.185 inserciones para 41 líneas de cambio
+real**: imposible de revisar. **Hay que abrir con `newline=''`.** Es la misma familia que
+T10 —editar por estructura y no por posición—, aplicada a los finales de línea.
+
+## T18 · Las 300 ramas de clase (a) — MUESTRA VERIFICADA, EL LOTE NO SE APLICA
+
+Muestra determinista de 20, repartida por todo el conjunto y **verificada a mano**.
+**No sale limpia**, y el motivo invalida el borrado en lote.
+
+### El hallazgo: 6 de 20 dependen de configuración por despliegue
+
+| Muestra | Código | Por qué PHPStan dice «siempre verdadero» |
+| :-- | :-- | :-- |
+| `APIRoutes.php:43` | `if (self::ENABLE \|\| self::ENABLE_TRANSLATIONS \|\| …)` | Las constantes valen `true` **en este despliegue** |
+| `FileManagerRoutes.php:42` | `if (self::FILE_MANAGER_ENABLE)` | Ídem |
+| `NewsletterRoutes.php:43` | `if (self::ENABLE)` | `NEWSLETTER_MODULE` está en `true` |
+| `ImagesRepositoryRoutes.php:35` | `const ENABLE = IMAGES_REPOSITORY && LOCATIONS_ENABLED` | Las dos en `true` |
+| `HelpersSystemRoutes.php:43` | `if (self::ENABLE)` | Ídem |
+| `APIController.php:1828` | `if (APIRoutes::ENABLE_USERS)` | Ídem |
+
+**Esas constantes son los interruptores de módulo** (`config/constants.php`, regla 8 de
+`CLAUDE.md`), y **cada despliegue las configura**. PHPStan las resuelve al valor de *este*
+árbol. **Borrar esos `if` cablearía todos los módulos en ENCENDIDO**, y un despliegue que
+apague `NEWSLETTER_MODULE` se rompería sin que nadie pueda ver por qué.
+
+**Es exactamente «embarcar una trampa»** (T0).
+
+### Reparto corregido
+
+| | Cantidad |
+| :-- | --: |
+| Clase (a) medida | **300** |
+| **De ellas, la condición depende de una constante de configuración** | **65 (21,7 %)** |
+| Borrables sin tocar configuración | **235** |
+
+### Qué hacer con cada parte
+
+- **Las 65 NO se borran nunca.** Van a **supresión documentada** en el `.neon` con su razón:
+  *«la condición depende de una constante de `config/constants.php`, que cada despliegue
+  configura; PHPStan la resuelve al valor de este árbol»*. Esa razón es permanente, no
+  temporal, así que **no lleva condición de retirada**.
+- **Las 235 restantes**: la muestra de 20 dejó 14 verificadas como resto defensivo real
+  —`is_array()` sobre `array`, `is_null()` sobre `string`, `if (false)`, `Dead catch`—.
+  Borrables, pero **por familia y con una muestra por familia**, no las 235 de una vez.
+
+### Reconciliación de la resta, que estaba pendiente
+
+| | |
+| :-- | --: |
+| Errores con los ignores **dentro** | 878 (869 claves únicas) |
+| Errores con los ignores **fuera** | 1.347 (1.333 claves únicas) |
+| **Resta de totales** | **469** |
+| **Resta de claves únicas** | **464** |
+
+**Las dos cifras son correctas en unidades distintas**: 469 son *instancias* de error y 464
+son *tripletas distintas* (ruta, línea, mensaje). La diferencia de 5 son duplicados exactos:
+14 en la corrida nueva contra 9 en la vieja.
+
+## T19 · Los hooks `_allowedRoute` — comprobado, NO hay ninguno muerto
+
+La sospecha era razonable: un `_allowedRoute()` declarado que nadie invoca sería **una
+restricción escrita y jamás cumplida**, es decir un hallazgo de seguridad y no limpieza.
+
+**Medido: de los 32 archivos que declaran `_allowedRoute()`, los 32 lo llaman. Cero muertos.**
+
+Y una corrección a lo que se dijo antes: los seis controladores públicos **no tienen el hook
+muerto — no tienen hook**. Ni lo declaran ni lo llaman, así que son coherentes consigo mismos.
+Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla no.
+

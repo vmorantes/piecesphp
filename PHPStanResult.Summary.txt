@@ -4,13 +4,13 @@
 190
 
 [TOTAL DE ERRORES VISIBLES]
-878
+877
 
 [TIPOS DE ERRORES Y CANTIDAD]
 🪪  argument.type (340)
 🪪  property.nonObject (200)
 🪪  method.nonObject (143)
-🪪  return.type (56)
+🪪  return.type (55)
 🪪  assign.propertyType (38)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
@@ -378,9 +378,8 @@ project://src/app/controller/GenericTokenController.php
 	🪪  method.resultUnused (Líneas: 363, 371, 378)
 	🪪  return.type (Líneas: 416)
 project://src/app/controller/LoginAttemptsController.php
-	🪪  argument.type (Líneas: 198, 246, 330)
+	🪪  argument.type (Líneas: 198, 246, 335)
 	🪪  method.nonObject (Líneas: 235)
-	🪪  return.type (Líneas: 286)
 project://src/app/controller/RecoveryPasswordController.php
 	🪪  argument.type (Líneas: 100, 185, 318, 341, 372, 466, 516, 521, 565, 570, 600, 605)
 	🪪  property.nonObject (Líneas: 399, 405, 414)
