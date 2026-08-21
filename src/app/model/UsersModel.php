@@ -947,7 +947,7 @@ class UsersModel extends EntityMapperExtensible
     {
 
         $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization;
+        $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
         $selectFields = self::fieldsToSelect();
@@ -997,7 +997,7 @@ class UsersModel extends EntityMapperExtensible
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
         $orderBy = array_filter($orderBy, fn($e) => $e !== null);
         $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization;
+        $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
         $selectFields = self::fieldsToSelect();
@@ -1128,7 +1128,7 @@ class UsersModel extends EntityMapperExtensible
         $orderBy = array_map(fn($e) => is_string($e) && mb_strlen($e) > 1 ? $e : null, $orderBy);
         $orderBy = array_filter($orderBy, fn($e) => $e !== null);
         $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
-        $currentOrganizationID = $currentUser->organization;
+        $currentOrganizationID = $currentUser !== null ? $currentUser->organization : null;
 
         $model = self::model();
         $selectFields = self::fieldsToSelect();

@@ -203,32 +203,50 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     }
 
     /**
-     * CARACTERIZACIÓN, no aspiración.
+     * UsersModel y sus hermanos aceptan `?UserDataPackage $currentUser = null` y caen a
+     * `getLoggedFrameworkUser()`, así que DEBEN funcionar sin sesión.
      *
-     * UsersModel::getByMultipleCriteries() NO devuelve null cuando no hay coincidencia:
-     * revienta antes de consultar. En UsersModel.php:1130-1131 hace
+     * Hasta 2026-08-21 no lo hacían: desreferenciaban `->organization` antes de la guarda
+     * `if ($currentUser !== null)` que ya existía unas líneas más abajo. Esta prueba
+     * afirmaba ese fallo como caracterización; ahora afirma el comportamiento corregido.
      *
-     *     $currentUser = $currentUser !== null ? $currentUser : getLoggedFrameworkUser();
-     *     $currentOrganizationID = $currentUser->organization;
-     *
-     * y `getLoggedFrameworkUser()` devuelve null sin sesión, así que la línea siguiente
-     * lee una propiedad sobre null. Es uno de los 123 errores de esa función.
-     *
-     * Hoy el método NO tiene ningún llamante, así que el defecto es latente. Se congela
-     * el comportamiento actual a propósito: cuando la ventana de nulabilidad lo arregle,
-     * esta prueba fallará, y ese fallo es la señal de que hay que actualizarla.
+     * Sin sesión, el filtro por organización se omite y la consulta se ejecuta igual.
      */
-    if (class_exists('App\Model\UsersModel') && method_exists('App\Model\UsersModel', 'getByMultipleCriteries')) {
-        $revento = false;
+    foreach ([
+        'App\\Model\\UsersModel',
+    ] as $cls) {
+        if (!class_exists($cls) || !method_exists($cls, 'getByMultipleCriteries')) {
+            $omitir("getByMultipleCriteries — {$cls}", 'la clase o el método no existen');
+            continue;
+        }
         try {
-            \App\Model\UsersModel::getByMultipleCriteries([
+            $r = $cls::getByMultipleCriteries([
                 ['column' => 'id', 'value' => $idInexistente],
             ]);
+            $comprobar($r === null, 'getByMultipleCriteries SIN SESIÓN devuelve null — ' . basename(str_replace('\\', '/', $cls)),
+                'Antes reventaba leyendo ->organization sobre null. Obtenido: ' . (is_object($r) ? get_class($r) : gettype($r)));
         } catch (\Throwable $e) {
-            $revento = true;
+            $comprobar(false, "getByMultipleCriteries sin sesión — {$cls}", 'Excepción: ' . $e->getMessage());
         }
-        $comprobar($revento, 'UsersModel::getByMultipleCriteries sin sesión falla — comportamiento ACTUAL congelado',
-            'Depende de getLoggedFrameworkUser(), que devuelve null fuera de una sesión. Sin llamantes hoy.');
+    }
+
+    /**
+     * Los otros tres métodos de UsersModel con la misma forma. all() y
+     * allByMultipleCriteries() devuelven colecciones, no un elemento.
+     */
+    if (class_exists('App\\Model\\UsersModel')) {
+        foreach (['all', 'allByMultipleCriteries'] as $metodo) {
+            if (!method_exists('App\\Model\\UsersModel', $metodo)) { continue; }
+            try {
+                $r = $metodo === 'all'
+                    ? \App\Model\UsersModel::all()
+                    : \App\Model\UsersModel::allByMultipleCriteries([['column' => 'id', 'value' => $idInexistente]]);
+                $comprobar(is_array($r), "UsersModel::{$metodo}() SIN SESIÓN devuelve un array",
+                    'Obtenido: ' . gettype($r) . (is_array($r) ? ' de ' . count($r) . ' elementos' : ''));
+            } catch (\Throwable $e) {
+                $comprobar(false, "UsersModel::{$metodo}() sin sesión", 'Excepción: ' . $e->getMessage());
+            }
+        }
     }
     echoTerminal(' ');
 
