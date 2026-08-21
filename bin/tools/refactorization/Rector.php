@@ -11,7 +11,7 @@ return static function (RectorConfig $rectorConfig): void {
 
     $baseDir = realpath(dirname(__FILE__) . '/../../../');
     $filePaths = [];
-    $descartadas = [];
+    $droppedPaths = [];
 
     /**
      * DE DÓNDE SALE LA LISTA DE ARCHIVOS.
@@ -32,13 +32,13 @@ return static function (RectorConfig $rectorConfig): void {
     $txtPath = $baseDir . '/PHPStanResult.txt';
 
     if (is_file($jsonPath)) {
-        $reporte = json_decode((string) file_get_contents($jsonPath), true);
-        foreach (array_keys($reporte['files'] ?? []) as $rutaAbsoluta) {
-            $real = realpath((string) $rutaAbsoluta);
-            if ($real !== false) {
-                $filePaths[] = $real;
+        $report = json_decode((string) file_get_contents($jsonPath), true);
+        foreach (array_keys($report['files'] ?? []) as $absolutePath) {
+            $resolved = realpath((string) $absolutePath);
+            if ($resolved !== false) {
+                $filePaths[] = $resolved;
             } else {
-                $descartadas[] = (string) $rutaAbsoluta;
+                $droppedPaths[] = (string) $absolutePath;
             }
         }
     } elseif (is_file($txtPath)) {
@@ -46,11 +46,11 @@ return static function (RectorConfig $rectorConfig): void {
         $filePathsMatch = [];
         preg_match_all('/^project:\/\/(.*)$/m', (string) file_get_contents($txtPath), $filePathsMatch);
         foreach ($filePathsMatch[1] ?? [] as $filePath) {
-            $real = realpath($baseDir . '/' . $filePath);
-            if ($real !== false) {
-                $filePaths[] = $real;
+            $resolved = realpath($baseDir . '/' . $filePath);
+            if ($resolved !== false) {
+                $filePaths[] = $resolved;
             } else {
-                $descartadas[] = $filePath;
+                $droppedPaths[] = $filePath;
             }
         }
     }
@@ -62,10 +62,10 @@ return static function (RectorConfig $rectorConfig): void {
      * resuelve, que se vea: sin lista de archivos Rector no analiza nada y devolvería
      * «0 cambios», que es indistinguible de «todo está bien».
      */
-    if ($descartadas !== []) {
-        fwrite(STDERR, '[Rector] AVISO: ' . count($descartadas) . " ruta(s) del reporte no resuelven a un archivo y quedan FUERA del análisis:\n");
-        foreach ($descartadas as $ruta) {
-            fwrite(STDERR, '  - ' . $ruta . "\n");
+    if ($droppedPaths !== []) {
+        fwrite(STDERR, '[Rector] AVISO: ' . count($droppedPaths) . " ruta(s) del reporte no resuelven a un archivo y quedan FUERA del análisis:\n");
+        foreach ($droppedPaths as $path) {
+            fwrite(STDERR, '  - ' . $path . "\n");
         }
     }
 

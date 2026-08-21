@@ -294,9 +294,9 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         if (!in_array($method, [self::METHOD_ONE_USE_CODE], true)) {
             return null;
         }
-        $existente = self::getOTPData($userID, $method);
-        if ($existente !== null) {
-            return $existente;
+        $existing = self::getOTPData($userID, $method);
+        if ($existing !== null) {
+            return $existing;
         }
         $mapper = new OTPSecretsUsersMapper();
         $mapper->user = $userID;
@@ -349,9 +349,9 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      */
     public static function createTOTPData(int $userID)
     {
-        $existente = self::getTOTPData($userID);
-        if ($existente !== null) {
-            return $existente;
+        $existing = self::getTOTPData($userID);
+        if ($existing !== null) {
+            return $existing;
         }
         $mapper = new OTPSecretsUsersMapper();
         $mapper->user = $userID;
@@ -458,7 +458,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     {
         $table = self::TABLE;
         $usersTable = UsersModel::TABLE;
-        $faltantes = [];
+        $missing = [];
 
         foreach (array_keys(self::METHODS) as $otpAuthMethod) {
             $modelUsers = UsersModel::model();
@@ -472,12 +472,12 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
                 ->execute();
             $result = $modelUsers->result();
             $ids = isset($result[0]) ? $result[0]->usersIDs : null;
-            $faltantes[$otpAuthMethod] = is_string($ids) && $ids !== ''
+            $missing[$otpAuthMethod] = is_string($ids) && $ids !== ''
                 ? array_map('intval', explode(',', $ids))
                 : [];
         }
 
-        return $faltantes;
+        return $missing;
     }
 
     /**
@@ -493,7 +493,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      */
     public static function createOTPAlternativesRecords(): int
     {
-        $creados = 0;
+        $created = 0;
 
         foreach (self::missingOTPRecords() as $otpAuthMethod => $userIDs) {
             foreach ($userIDs as $userID) {
@@ -508,12 +508,12 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
                     $mapper->secret = TOTPStandard::generateSecret();
                 }
                 if ($mapper->save()) {
-                    $creados++;
+                    $created++;
                 }
             }
         }
 
-        return $creados;
+        return $created;
     }
 
     /**

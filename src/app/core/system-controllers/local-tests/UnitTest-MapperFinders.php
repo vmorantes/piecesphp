@@ -32,26 +32,26 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[TEST:MapperFinders] Iniciando suite...', true, "\r\n", '33');
     echoTerminal('');
 
-    $pasadas = 0;
-    $fallidas = 0;
+    $passed = 0;
+    $failed = 0;
     $omitidas = 0;
 
-    $comprobar = function (bool $condicion, string $nombre, ?string $detalle = null) use (&$pasadas, &$fallidas) {
-        if ($condicion) {
-            $pasadas++;
-            echoTerminal("   \e[32m[PASÓ]\e[39m {$nombre}");
+    $check = function (bool $condition, string $name, ?string $detail = null) use (&$passed, &$failed) {
+        if ($condition) {
+            $passed++;
+            echoTerminal("   \e[32m[PASÓ]\e[39m {$name}");
         } else {
-            $fallidas++;
-            echoTerminal("   \e[31m[FALLÓ]\e[39m {$nombre}");
+            $failed++;
+            echoTerminal("   \e[31m[FALLÓ]\e[39m {$name}");
         }
-        if ($detalle !== null) {
-            echoTerminal("      - {$detalle}");
+        if ($detail !== null) {
+            echoTerminal("      - {$detail}");
         }
-        return $condicion;
+        return $condition;
     };
-    $omitir = function (string $nombre, string $motivo) use (&$omitidas) {
+    $omitir = function (string $name, string $motivo) use (&$omitidas) {
         $omitidas++;
-        echoTerminal("   \e[33m[OMITIDA]\e[39m {$nombre}");
+        echoTerminal("   \e[33m[OMITIDA]\e[39m {$name}");
         echoTerminal("      - {$motivo}");
     };
 
@@ -83,16 +83,16 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
      * @param string $cls
      * @return int|string|null
      */
-    $idDeMuestra = function (string $cls) {
+    $sampleID = function (string $cls) {
         try {
             $model = $cls::model();
             $model->select(['id']);
             $model->execute();
-            $filas = $model->result();
-            if (!is_array($filas) || count($filas) === 0) {
+            $rows = $model->result();
+            if (!is_array($rows) || count($rows) === 0) {
                 return null;
             }
-            return $filas[0]->id ?? null;
+            return $rows[0]->id ?? null;
         } catch (\Throwable $e) {
             return null;
         }
@@ -107,10 +107,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         }
         try {
             $r = $cls::getBy($idInexistente, 'id');
-            $comprobar($r === null, "getBy(inexistente) === null — " . basename(str_replace('\\', '/', $cls)),
+            $check($r === null, "getBy(inexistente) === null — " . basename(str_replace('\\', '/', $cls)),
                 'Obtenido: ' . (is_object($r) ? get_class($r) : gettype($r)));
         } catch (\Throwable $e) {
-            $comprobar(false, "getBy(inexistente) — {$cls}", 'Excepción: ' . $e->getMessage());
+            $check(false, "getBy(inexistente) — {$cls}", 'Excepción: ' . $e->getMessage());
         }
     }
     echoTerminal(' ');
@@ -119,17 +119,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[2/5] getBy() sin el flag debe devolver \stdClass...');
     foreach ($mappers as $cls) {
         if (!class_exists($cls)) { continue; }
-        $id = $idDeMuestra($cls);
+        $id = $sampleID($cls);
         if ($id === null) {
             $omitir('getBy stdClass — ' . basename(str_replace('\\', '/', $cls)), 'la tabla no tiene filas');
             continue;
         }
         try {
             $r = $cls::getBy($id, 'id', false);
-            $comprobar($r instanceof \stdClass, 'getBy(id, false) devuelve \stdClass — ' . basename(str_replace('\\', '/', $cls)),
+            $check($r instanceof \stdClass, 'getBy(id, false) devuelve \stdClass — ' . basename(str_replace('\\', '/', $cls)),
                 'Obtenido: ' . (is_object($r) ? get_class($r) : gettype($r)));
         } catch (\Throwable $e) {
-            $comprobar(false, "getBy(id, false) — {$cls}", 'Excepción: ' . $e->getMessage());
+            $check(false, "getBy(id, false) — {$cls}", 'Excepción: ' . $e->getMessage());
         }
     }
     echoTerminal(' ');
@@ -138,17 +138,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[3/5] getBy() con el flag debe devolver una instancia del propio mapper...');
     foreach ($mappers as $cls) {
         if (!class_exists($cls)) { continue; }
-        $id = $idDeMuestra($cls);
+        $id = $sampleID($cls);
         if ($id === null) {
             $omitir('getBy mapper — ' . basename(str_replace('\\', '/', $cls)), 'la tabla no tiene filas');
             continue;
         }
         try {
             $r = $cls::getBy($id, 'id', true);
-            $comprobar($r instanceof $cls, 'getBy(id, true) devuelve ' . basename(str_replace('\\', '/', $cls)),
+            $check($r instanceof $cls, 'getBy(id, true) devuelve ' . basename(str_replace('\\', '/', $cls)),
                 'Obtenido: ' . (is_object($r) ? get_class($r) : gettype($r)));
         } catch (\Throwable $e) {
-            $comprobar(false, "getBy(id, true) — {$cls}", 'Excepción: ' . $e->getMessage());
+            $check(false, "getBy(id, true) — {$cls}", 'Excepción: ' . $e->getMessage());
         }
     }
     echoTerminal(' ');
@@ -162,21 +162,21 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         try {
             $crudo = $cls::lastModifiedElement(false);
             $mapper = $cls::lastModifiedElement(true);
-            $nombre = basename(str_replace('\\', '/', $cls));
+            $name = basename(str_replace('\\', '/', $cls));
 
             $okCrudo = $crudo === null || $crudo instanceof \stdClass;
             $okMapper = $mapper === null || $mapper instanceof $cls;
 
-            $comprobar($okCrudo, "lastModifiedElement(false) es \stdClass o null — {$nombre}",
+            $check($okCrudo, "lastModifiedElement(false) es \stdClass o null — {$name}",
                 'Obtenido: ' . (is_object($crudo) ? get_class($crudo) : gettype($crudo)));
-            $comprobar($okMapper, "lastModifiedElement(true) es {$nombre} o null",
+            $check($okMapper, "lastModifiedElement(true) es {$name} o null",
                 'Obtenido: ' . (is_object($mapper) ? get_class($mapper) : gettype($mapper)));
 
             //Coherencia entre las dos ramas: o las dos encuentran algo, o ninguna.
-            $comprobar(($crudo === null) === ($mapper === null),
-                "las dos ramas coinciden en si hay resultado — {$nombre}");
+            $check(($crudo === null) === ($mapper === null),
+                "las dos ramas coinciden en si hay resultado — {$name}");
         } catch (\Throwable $e) {
-            $comprobar(false, "lastModifiedElement — {$cls}", 'Excepción: ' . $e->getMessage());
+            $check(false, "lastModifiedElement — {$cls}", 'Excepción: ' . $e->getMessage());
         }
     }
     echoTerminal(' ');
@@ -195,10 +195,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             $r = $cls::getByMultipleCriteries([
                 ['column' => 'id', 'value' => $idInexistente],
             ]);
-            $comprobar($r === null, 'getByMultipleCriteries(sin coincidencia) === null — ' . basename(str_replace('\\', '/', $cls)),
+            $check($r === null, 'getByMultipleCriteries(sin coincidencia) === null — ' . basename(str_replace('\\', '/', $cls)),
                 'Obtenido: ' . (is_object($r) ? get_class($r) : gettype($r)));
         } catch (\Throwable $e) {
-            $comprobar(false, "getByMultipleCriteries — {$cls}", 'Excepción: ' . $e->getMessage());
+            $check(false, "getByMultipleCriteries — {$cls}", 'Excepción: ' . $e->getMessage());
         }
     }
 
@@ -223,10 +223,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             $r = $cls::getByMultipleCriteries([
                 ['column' => 'id', 'value' => $idInexistente],
             ]);
-            $comprobar($r === null, 'getByMultipleCriteries SIN SESIÓN devuelve null — ' . basename(str_replace('\\', '/', $cls)),
+            $check($r === null, 'getByMultipleCriteries SIN SESIÓN devuelve null — ' . basename(str_replace('\\', '/', $cls)),
                 'Antes reventaba leyendo ->organization sobre null. Obtenido: ' . (is_object($r) ? get_class($r) : gettype($r)));
         } catch (\Throwable $e) {
-            $comprobar(false, "getByMultipleCriteries sin sesión — {$cls}", 'Excepción: ' . $e->getMessage());
+            $check(false, "getByMultipleCriteries sin sesión — {$cls}", 'Excepción: ' . $e->getMessage());
         }
     }
 
@@ -235,16 +235,16 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
      * allByMultipleCriteries() devuelven colecciones, no un elemento.
      */
     if (class_exists('App\\Model\\UsersModel')) {
-        foreach (['all', 'allByMultipleCriteries'] as $metodo) {
-            if (!method_exists('App\\Model\\UsersModel', $metodo)) { continue; }
+        foreach (['all', 'allByMultipleCriteries'] as $method) {
+            if (!method_exists('App\\Model\\UsersModel', $method)) { continue; }
             try {
-                $r = $metodo === 'all'
+                $r = $method === 'all'
                     ? \App\Model\UsersModel::all()
                     : \App\Model\UsersModel::allByMultipleCriteries([['column' => 'id', 'value' => $idInexistente]]);
-                $comprobar(is_array($r), "UsersModel::{$metodo}() SIN SESIÓN devuelve un array",
+                $check(is_array($r), "UsersModel::{$method}() SIN SESIÓN devuelve un array",
                     'Obtenido: ' . gettype($r) . (is_array($r) ? ' de ' . count($r) . ' elementos' : ''));
             } catch (\Throwable $e) {
-                $comprobar(false, "UsersModel::{$metodo}() sin sesión", 'Excepción: ' . $e->getMessage());
+                $check(false, "UsersModel::{$method}() sin sesión", 'Excepción: ' . $e->getMessage());
             }
         }
     }
@@ -252,17 +252,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
     echoTerminal(str_repeat('=', 80));
-    echoTerminal(" BALANCE FINAL: {$pasadas}/" . ($pasadas + $fallidas) . " PASADAS, {$omitidas} OMITIDAS ");
+    echoTerminal(" BALANCE FINAL: {$passed}/" . ($passed + $failed) . " PASADAS, {$omitidas} OMITIDAS ");
     echoTerminal(str_repeat('=', 80));
     echoTerminal('');
-    echoTerminal('[TEST:MapperFinders] Suite finalizada.', true, "\r\n", $fallidas === 0 ? '32' : '31');
+    echoTerminal('[TEST:MapperFinders] Suite finalizada.', true, "\r\n", $failed === 0 ? '32' : '31');
     echoTerminal('');
 
     return [
-        'success' => $fallidas === 0,
-        'message' => $fallidas === 0
-            ? "Contrato de los buscadores de mapper verificado ({$pasadas} comprobaciones, {$omitidas} omitidas)."
-            : "{$fallidas} comprobaciones fallaron.",
+        'success' => $failed === 0,
+        'message' => $failed === 0
+            ? "Contrato de los buscadores de mapper verificado ({$passed} comprobaciones, {$omitidas} omitidas)."
+            : "{$failed} comprobaciones fallaron.",
     ];
 
 })->setDescription($cliTaskDescription)->register();

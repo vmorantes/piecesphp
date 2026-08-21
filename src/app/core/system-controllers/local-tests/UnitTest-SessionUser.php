@@ -35,33 +35,33 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[TEST:SessionUser] Iniciando suite...', true, "\r\n", '33');
     echoTerminal('');
 
-    $pasadas = 0;
-    $fallidas = 0;
+    $passed = 0;
+    $failed = 0;
 
-    $comprobar = function (bool $condicion, string $nombre, ?string $detalle = null) use (&$pasadas, &$fallidas) {
-        if ($condicion) {
-            $pasadas++;
-            echoTerminal("   \e[32m[PASÓ]\e[39m {$nombre}");
+    $check = function (bool $condition, string $name, ?string $detail = null) use (&$passed, &$failed) {
+        if ($condition) {
+            $passed++;
+            echoTerminal("   \e[32m[PASÓ]\e[39m {$name}");
         } else {
-            $fallidas++;
-            echoTerminal("   \e[31m[FALLÓ]\e[39m {$nombre}");
+            $failed++;
+            echoTerminal("   \e[31m[FALLÓ]\e[39m {$name}");
         }
-        if ($detalle !== null) {
-            echoTerminal("      - {$detalle}");
+        if ($detail !== null) {
+            echoTerminal("      - {$detail}");
         }
-        return $condicion;
+        return $condition;
     };
 
     //──── 1. getLoggedFrameworkUser() sin sesión ────────────────────────────────────────
     echoTerminal('[1/6] getLoggedFrameworkUser() sin sesión...');
-    $usuario = getLoggedFrameworkUser();
-    $comprobar(
-        $usuario === null || $usuario instanceof UserDataPackage,
+    $user = getLoggedFrameworkUser();
+    $check(
+        $user === null || $user instanceof UserDataPackage,
         'devuelve UserDataPackage o null, nunca otra cosa',
-        'Obtenido: ' . (is_object($usuario) ? get_class($usuario) : gettype($usuario))
+        'Obtenido: ' . (is_object($user) ? get_class($user) : gettype($user))
     );
-    $comprobar(
-        $usuario === null,
+    $check(
+        $user === null,
         'sin sesión devuelve null — CONTRATO ACTUAL',
         'Si la ventana de nulabilidad añade una variante que garantice usuario, esta prueba debe seguir pasando: la función original no cambia.'
     );
@@ -69,11 +69,11 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     //──── 2. Es estable entre llamadas ──────────────────────────────────────────────────
     echoTerminal('[2/6] La función debe ser estable sin sesión...');
-    $comprobar(
+    $check(
         getLoggedFrameworkUser() === getLoggedFrameworkUser(),
         'dos llamadas seguidas devuelven lo mismo'
     );
-    $comprobar(
+    $check(
         getLoggedFrameworkUser(true) === null,
         'con $reload = true sigue devolviendo null',
         'El parámetro fuerza reconsulta a base de datos; sin sesión no hay a quién consultar.'
@@ -82,51 +82,51 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     //──── 3. Ese null es la causa de 123 errores ────────────────────────────────────────
     echoTerminal('[3/6] Encadenar sobre el resultado sin comprobar debe fallar...');
-    $revento = false;
-    $mensaje = '';
+    $threw = false;
+    $message = '';
     try {
         /** Exactamente el patrón que aparece 123 veces en el código. */
         $x = getLoggedFrameworkUser()->type;
         unset($x);
     } catch (\Throwable $e) {
-        $revento = true;
-        $mensaje = $e->getMessage();
+        $threw = true;
+        $message = $e->getMessage();
     }
-    $comprobar(
-        $revento,
+    $check(
+        $threw,
         'getLoggedFrameworkUser()->type sin sesión FALLA — comportamiento actual congelado',
-        'Es la forma exacta de los 123 errores de nulabilidad. Excepción: ' . substr($mensaje, 0, 80)
+        'Es la forma exacta de los 123 errores de nulabilidad. Excepción: ' . substr($message, 0, 80)
     );
     echoTerminal(' ');
 
     //──── 3bis. getLoggedFrameworkUserOrFail() ──────────────────────────────────────────
     echoTerminal('[3bis] getLoggedFrameworkUserOrFail() sin sesión debe lanzar...');
-    $lanzo = false;
-    $clase = '';
+    $threw = false;
+    $className = '';
     $msg = '';
     try {
         getLoggedFrameworkUserOrFail();
     } catch (\Throwable $e) {
-        $lanzo = true;
-        $clase = get_class($e);
+        $threw = true;
+        $className = get_class($e);
         $msg = $e->getMessage();
     }
-    $comprobar($lanzo, 'sin sesión LANZA en vez de devolver null',
-        'Excepción: ' . $clase . ' — ' . substr($msg, 0, 60));
+    $check($threw, 'sin sesión LANZA en vez de devolver null',
+        'Excepción: ' . $className . ' — ' . substr($msg, 0, 60));
 
     /**
      * La razón por la que sustituir es seguro: el código de HOY ya aborta en esos
      * sitios. Se comprueba que los dos caminos fallan, para que quede escrito que el
      * cambio afecta al MENSAJE, no a si la petición sobrevive.
      */
-    $fallaEncadenando = false;
+    $failsOnChain = false;
     try {
         $x = getLoggedFrameworkUser()->type;
         unset($x);
     } catch (\Throwable $e) {
-        $fallaEncadenando = true;
+        $failsOnChain = true;
     }
-    $comprobar($fallaEncadenando && $lanzo,
+    $check($failsOnChain && $threw,
         'los DOS caminos abortan sin sesión: el cambio mejora el diagnóstico, no el resultado',
         'Encadenar sobre null ya lanzaba ErrorException porque bootstrap.php promueve E_WARNING en ambos entornos.');
     echoTerminal(' ');
@@ -134,12 +134,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //──── 4. SessionToken sin cabecera ni cookie ────────────────────────────────────────
     echoTerminal('[4/6] SessionToken::getJWTReceived() sin cabecera ni cookie...');
     $jwt = SessionToken::getJWTReceived();
-    $comprobar(
+    $check(
         is_string($jwt),
         'devuelve siempre una cadena, nunca null',
         'Obtenido: ' . gettype($jwt) . ' de longitud ' . (is_string($jwt) ? mb_strlen($jwt) : 0)
     );
-    $comprobar(
+    $check(
         $jwt === '',
         'sin cabecera JWTAuth ni cookie devuelve cadena vacía',
         'Importa: el consumidor debe comprobar la cadena vacía, no un null.'
@@ -152,19 +152,19 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         '' => 'cadena vacía',
         'no-es-un-jwt' => 'texto que no es un JWT',
         'aaa.bbb.ccc' => 'tres segmentos pero basura',
-    ] as $entrada => $descripcion) {
+    ] as $input => $description) {
         try {
-            $activa = SessionToken::isActiveSession((string) $entrada);
-            $comprobar(
-                $activa === false,
-                "isActiveSession({$descripcion}) === false",
-                'Obtenido: ' . var_export($activa, true)
+            $isActive = SessionToken::isActiveSession((string) $input);
+            $check(
+                $isActive === false,
+                "isActiveSession({$description}) === false",
+                'Obtenido: ' . var_export($isActive, true)
             );
         } catch (\Throwable $e) {
             //Que lance también es un contrato; se congela cuál de los dos es.
-            $comprobar(
+            $check(
                 false,
-                "isActiveSession({$descripcion}) lanzó excepción en vez de devolver false",
+                "isActiveSession({$description}) lanzó excepción en vez de devolver false",
                 'Excepción: ' . substr($e->getMessage(), 0, 80)
             );
         }
@@ -173,7 +173,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     //──── 6. Coherencia entre las dos ───────────────────────────────────────────────────
     echoTerminal('[6/6] Coherencia entre SessionToken y el usuario del framework...');
-    $comprobar(
+    $check(
         SessionToken::isActiveSession(SessionToken::getJWTReceived()) === false && getLoggedFrameworkUser() === null,
         'sin sesión activa, no hay usuario: las dos coinciden',
         'Si divergen, hay un camino que devuelve usuario sin sesión válida, o al revés.'
@@ -182,17 +182,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
     echoTerminal(str_repeat('=', 80));
-    echoTerminal(" BALANCE FINAL: {$pasadas}/" . ($pasadas + $fallidas) . " PASADAS ");
+    echoTerminal(" BALANCE FINAL: {$passed}/" . ($passed + $failed) . " PASADAS ");
     echoTerminal(str_repeat('=', 80));
     echoTerminal('');
-    echoTerminal('[TEST:SessionUser] Suite finalizada.', true, "\r\n", $fallidas === 0 ? '32' : '31');
+    echoTerminal('[TEST:SessionUser] Suite finalizada.', true, "\r\n", $failed === 0 ? '32' : '31');
     echoTerminal('');
 
     return [
-        'success' => $fallidas === 0,
-        'message' => $fallidas === 0
-            ? "Contrato actual de sesión y usuario congelado ({$pasadas} comprobaciones)."
-            : "{$fallidas} comprobaciones fallaron.",
+        'success' => $failed === 0,
+        'message' => $failed === 0
+            ? "Contrato actual de sesión y usuario congelado ({$passed} comprobaciones)."
+            : "{$failed} comprobaciones fallaron.",
     ];
 
 })->setDescription($cliTaskDescription)->register();

@@ -46,21 +46,21 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[TEST:OTPWriteSeparation] Iniciando suite...', true, "\r\n", '33');
     echoTerminal('');
 
-    $pasadas = 0;
-    $fallidas = 0;
+    $passed = 0;
+    $failed = 0;
 
-    $comprobar = function (bool $condicion, string $nombre, ?string $detalle = null) use (&$pasadas, &$fallidas) {
-        if ($condicion) {
-            $pasadas++;
-            echoTerminal("   \e[32m[PASÓ]\e[39m {$nombre}");
+    $check = function (bool $condition, string $name, ?string $detail = null) use (&$passed, &$failed) {
+        if ($condition) {
+            $passed++;
+            echoTerminal("   \e[32m[PASÓ]\e[39m {$name}");
         } else {
-            $fallidas++;
-            echoTerminal("   \e[31m[FALLÓ]\e[39m {$nombre}");
+            $failed++;
+            echoTerminal("   \e[31m[FALLÓ]\e[39m {$name}");
         }
-        if ($detalle !== null) {
-            echoTerminal("      - {$detalle}");
+        if ($detail !== null) {
+            echoTerminal("      - {$detail}");
         }
-        return $condicion;
+        return $condition;
     };
 
     /**
@@ -68,23 +68,23 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
      * y con `file()`, que respeta la numeración de PHP tanto con LF como con CRLF —el
      * repositorio mezcla los dos y partir por `\r\n` a mano desplaza los índices.
      */
-    $fuenteDelMetodo = function (string $clase, string $metodo): string {
+    $methodSource = function (string $className, string $method): string {
         try {
-            $r = new \ReflectionMethod($clase, $metodo);
+            $r = new \ReflectionMethod($className, $method);
         } catch (\ReflectionException $e) {
             return '';
         }
-        $archivo = $r->getFileName();
-        if (!is_string($archivo) || !is_file($archivo)) {
+        $file = $r->getFileName();
+        if (!is_string($file) || !is_file($file)) {
             return '';
         }
-        $lineas = file($archivo);
-        if ($lineas === false) {
+        $lines = file($file);
+        if ($lines === false) {
             return '';
         }
-        $desde = $r->getStartLine() - 1;
-        $cuantas = $r->getEndLine() - $r->getStartLine() + 1;
-        $fuente = implode('', array_slice($lineas, $desde, $cuantas));
+        $from = $r->getStartLine() - 1;
+        $howMany = $r->getEndLine() - $r->getStartLine() + 1;
+        $source = implode('', array_slice($lines, $from, $howMany));
 
         /**
          * SE QUITAN LOS COMENTARIOS. Buscar por texto plano no distingue una llamada de
@@ -93,48 +93,48 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
          * confunde documentar con hacer obliga a no documentar, que es peor que el test.
          * Es la misma lección que `verify-integrity`: se tokeniza, no se busca a ojo.
          */
-        $tokens = @token_get_all('<?php ' . $fuente);
-        $limpio = '';
+        $tokens = @token_get_all('<?php ' . $source);
+        $clean = '';
         foreach ($tokens as $token) {
             if (is_array($token)) {
                 if ($token[0] === T_COMMENT || $token[0] === T_DOC_COMMENT) {
                     continue;
                 }
-                $limpio .= $token[1];
+                $clean .= $token[1];
             } else {
-                $limpio .= $token;
+                $clean .= $token;
             }
         }
-        return $limpio;
+        return $clean;
     };
 
     /** Busca llamadas de escritura del ORM en un fragmento de código. */
-    $escribe = function (string $fuente): array {
-        $encontradas = [];
-        foreach (['->save(', '->update(', '->delete('] as $llamada) {
-            if (mb_strpos($fuente, $llamada) !== false) {
-                $encontradas[] = rtrim($llamada, '(') . '()';
+    $writeCalls = function (string $source): array {
+        $found = [];
+        foreach (['->save(', '->update(', '->delete('] as $call) {
+            if (mb_strpos($source, $call) !== false) {
+                $found[] = rtrim($call, '(') . '()';
             }
         }
-        return $encontradas;
+        return $found;
     };
 
     //──── 1. Los buscadores del mapper son de lectura ───────────────────────────────────
     echoTerminal('[1/3] getOTPData() y getTOTPData() no deben escribir...');
 
-    foreach (['getOTPData', 'getTOTPData'] as $metodo) {
-        $fuente = $fuenteDelMetodo(OTPSecretsUsersMapper::class, $metodo);
-        if ($fuente === '') {
-            $comprobar(false, "{$metodo}() existe y su fuente es legible");
+    foreach (['getOTPData', 'getTOTPData'] as $method) {
+        $source = $methodSource(OTPSecretsUsersMapper::class, $method);
+        if ($source === '') {
+            $check(false, "{$method}() existe y su fuente es legible");
             continue;
         }
-        $escrituras = $escribe($fuente);
-        $comprobar(
-            $escrituras === [],
-            "{$metodo}() no contiene ninguna escritura del ORM",
-            $escrituras === []
+        $writes = $writeCalls($source);
+        $check(
+            $writes === [],
+            "{$method}() no contiene ninguna escritura del ORM",
+            $writes === []
                 ? 'Es un buscador puro: devuelve el registro o null.'
-                : 'ESCRIBE con ' . implode(', ', $escrituras) . '. Lo alcanza una ruta NO autenticada a través de UserDataPackage.'
+                : 'ESCRIBE con ' . implode(', ', $writes) . '. Lo alcanza una ruta NO autenticada a través de UserDataPackage.'
         );
     }
     echoTerminal(' ');
@@ -142,17 +142,17 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //──── 2. El registro de rutas es puro ───────────────────────────────────────────────
     echoTerminal('[2/3] Registrar rutas no debe disparar una migración de datos...');
 
-    $fuenteRutas = $fuenteDelMetodo(UserSystemFeaturesRoutes::class, 'routes');
-    if ($fuenteRutas === '') {
-        $comprobar(false, 'UserSystemFeaturesRoutes::routes() existe y su fuente es legible');
+    $routesSource = $methodSource(UserSystemFeaturesRoutes::class, 'routes');
+    if ($routesSource === '') {
+        $check(false, 'UserSystemFeaturesRoutes::routes() existe y su fuente es legible');
     } else {
-        $comprobar(
-            mb_strpos($fuenteRutas, 'createOTPAlternativesRecords') === false,
+        $check(
+            mb_strpos($routesSource, 'createOTPAlternativesRecords') === false,
             'routes() no llama a createOTPAlternativesRecords()',
             'Ese método recorre la tabla de usuarios con dos GROUP_CONCAT + LEFT JOIN. En routes() eso corre EN CADA PETICIÓN. Su sitio es una tarea de terminal.'
         );
-        $comprobar(
-            $escribe($fuenteRutas) === [],
+        $check(
+            $writeCalls($routesSource) === [],
             'routes() no contiene escrituras del ORM',
             'El registro de rutas debe ser puro: describe el mapa, no lo modifica.'
         );
@@ -166,77 +166,77 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
      * Solo lectura: se descubre un usuario real en ejecución, se cuenta, se falla el
      * login a propósito y se vuelve a contar. No se crea ni se borra nada.
      */
-    $contar = function (): ?int {
+    $countRows = function (): ?int {
         try {
-            $modelo = OTPSecretsUsersMapper::model();
-                $modelo->select('COUNT(*) AS total');
-            $modelo->execute();
-            $filas = $modelo->result();
-            return isset($filas[0]) ? (int) $filas[0]->total : null;
+            $model = OTPSecretsUsersMapper::model();
+                $model->select('COUNT(*) AS total');
+            $model->execute();
+            $rows = $model->result();
+            return isset($rows[0]) ? (int) $rows[0]->total : null;
         } catch (\Throwable $e) {
             return null;
         }
     };
 
-    $usuario = null;
+    $user = null;
     try {
         /** Mismo patrón de descubrimiento que UnitTest-MapperFinders: sin escribir nada. */
-        $modeloUsuarios = \App\Model\UsersModel::model();
-        $modeloUsuarios->select(['id', 'username']);
-        $modeloUsuarios->execute();
-        $encontrados = $modeloUsuarios->result();
-        $usuario = is_array($encontrados) && count($encontrados) > 0 ? $encontrados[0] : null;
+        $usersModel = \App\Model\UsersModel::model();
+        $usersModel->select(['id', 'username']);
+        $usersModel->execute();
+        $foundUsers = $usersModel->result();
+        $user = is_array($foundUsers) && count($foundUsers) > 0 ? $foundUsers[0] : null;
     } catch (\Throwable $e) {
-        $usuario = null;
+        $user = null;
     }
 
-    $antes = $contar();
+    $before = $countRows();
 
-    if ($usuario === null || $antes === null) {
+    if ($user === null || $before === null) {
         echoTerminal("   \e[33m[OMITIDA]\e[39m sin base de datos o sin usuarios: nada que contar.");
     } else {
-        $comprobar(
+        $check(
             true,
-            "usuario de prueba descubierto en ejecución (id {$usuario->id})",
-            "Filas en " . OTPSecretsUsersMapper::TABLE . " antes: {$antes}"
+            "usuario de prueba descubierto en ejecución (id {$user->id})",
+            "Filas en " . OTPSecretsUsersMapper::TABLE . " antes: {$before}"
         );
 
         /** Contraseña deliberadamente incorrecta: el camino no autenticado. */
         try {
-            OTPHandler::checkValidityOTP('contraseña-que-no-es-la-suya-' . bin2hex(random_bytes(4)), (string) $usuario->username);
+            OTPHandler::checkValidityOTP('contraseña-que-no-es-la-suya-' . bin2hex(random_bytes(4)), (string) $user->username);
         } catch (\Throwable $e) {
             echoTerminal('      - checkValidityOTP lanzó: ' . mb_substr($e->getMessage(), 0, 60));
         }
 
         /** Y el constructor, que es donde estaba de verdad la escritura. */
         try {
-            new UserDataPackage((int) $usuario->id);
+            new UserDataPackage((int) $user->id);
         } catch (\Throwable $e) {
             echoTerminal('      - UserDataPackage lanzó: ' . mb_substr($e->getMessage(), 0, 60));
         }
 
-        $despues = $contar();
-        $comprobar(
-            $despues === $antes,
+        $after = $countRows();
+        $check(
+            $after === $before,
             'el conteo de filas no cambia tras un intento fallido',
-            "antes={$antes} despues=" . var_export($despues, true)
+            "antes={$before} despues=" . var_export($after, true)
         );
     }
     echoTerminal(' ');
 
     //──── Balance ───────────────────────────────────────────────────────────────────────
     echoTerminal(str_repeat('=', 80));
-    echoTerminal(" BALANCE FINAL: {$pasadas}/" . ($pasadas + $fallidas) . " PASADAS ");
+    echoTerminal(" BALANCE FINAL: {$passed}/" . ($passed + $failed) . " PASADAS ");
     echoTerminal(str_repeat('=', 80));
     echoTerminal('');
-    echoTerminal('[TEST:OTPWriteSeparation] Suite finalizada.', true, "\r\n", $fallidas === 0 ? '32' : '31');
+    echoTerminal('[TEST:OTPWriteSeparation] Suite finalizada.', true, "\r\n", $failed === 0 ? '32' : '31');
     echoTerminal('');
 
     return [
-        'success' => $fallidas === 0,
-        'message' => $fallidas === 0
-            ? "Comprobar no escribe y registrar rutas es puro ({$pasadas} comprobaciones)."
-            : "{$fallidas} comprobaciones fallaron.",
+        'success' => $failed === 0,
+        'message' => $failed === 0
+            ? "Comprobar no escribe y registrar rutas es puro ({$passed} comprobaciones)."
+            : "{$failed} comprobaciones fallaron.",
     ];
 
 })->setDescription($cliTaskDescription)->register();

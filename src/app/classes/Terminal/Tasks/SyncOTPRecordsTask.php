@@ -85,12 +85,12 @@ class SyncOTPRecordsTask extends TerminalTaskAbstract
 
         $apply = TerminalData::instance()->getArgument('apply', 'no') === 'yes';
 
-        $faltantes = OTPSecretsUsersMapper::missingOTPRecords();
+        $missing = OTPSecretsUsersMapper::missingOTPRecords();
         $total = 0;
-        foreach ($faltantes as $metodo => $usuarios) {
-            $cuantos = count($usuarios);
-            $total += $cuantos;
-            echoTerminal("\e[94mINFO:\e[39m método {$metodo}: {$cuantos} usuario(s) sin registro.");
+        foreach ($missing as $method => $userIDs) {
+            $count = count($userIDs);
+            $total += $count;
+            echoTerminal("\e[94mINFO:\e[39m método {$method}: {$count} usuario(s) sin registro.");
         }
 
         if ($total === 0) {
@@ -107,8 +107,8 @@ class SyncOTPRecordsTask extends TerminalTaskAbstract
             exit(0);
         }
 
-        $creados = OTPSecretsUsersMapper::createOTPAlternativesRecords();
-        echoTerminal("\e[32mOK:\e[39m {$creados} registro(s) creados.");
+        $created = OTPSecretsUsersMapper::createOTPAlternativesRecords();
+        echoTerminal("\e[32mOK:\e[39m {$created} registro(s) creados.");
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(0);
     }

@@ -112,43 +112,43 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $updateSnapshot = TerminalData::instance()->getArgument('update-snapshot', 'no') === 'yes';
 
-        $archivos = self::collectFiles();
-        echoTerminal("\e[94mINFO:\e[39m " . count($archivos) . " archivos PHP analizados.");
+        $files = self::collectFiles();
+        echoTerminal("\e[94mINFO:\e[39m " . count($files) . " archivos PHP analizados.");
 
         //──── 1. Docblocks sin cerrar ───────────────────────────────────────────────────
-        $docblockFallos = self::checkDocblocks($archivos);
+        $docblockFailures = self::checkDocblocks($files);
 
         //──── 2. Inventario de firmas ───────────────────────────────────────────────────
-        $firmas = self::collectSignatures($archivos);
+        $signatures = self::collectSignatures($files);
         $snapshotPath = self::snapshotPath();
 
         if ($updateSnapshot) {
-            self::writeSnapshot($snapshotPath, $firmas);
-            $total = array_sum(array_map('count', $firmas));
-            echoTerminal("\e[34mInstantánea regenerada:\e[39m {$total} firmas en " . count($firmas) . " archivos.");
+            self::writeSnapshot($snapshotPath, $signatures);
+            $total = array_sum(array_map('count', $signatures));
+            echoTerminal("\e[34mInstantánea regenerada:\e[39m {$total} firmas en " . count($signatures) . " archivos.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
 
-        $firmaFallos = self::compareSignatures($snapshotPath, $firmas);
+        $signatureFailures = self::compareSignatures($snapshotPath, $signatures);
 
         //──── Resultado ─────────────────────────────────────────────────────────────────
-        $fallos = count($docblockFallos) + count($firmaFallos);
+        $failures = count($docblockFailures) + count($signatureFailures);
 
-        foreach ($docblockFallos as $linea) {
-            echoTerminal("\e[31mDOCBLOCK:\e[39m {$linea}");
+        foreach ($docblockFailures as $line) {
+            echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
         }
-        foreach ($firmaFallos as $linea) {
-            echoTerminal("\e[31mFIRMA:\e[39m {$linea}");
+        foreach ($signatureFailures as $line) {
+            echoTerminal("\e[31mFIRMA:\e[39m {$line}");
         }
 
-        if ($fallos === 0) {
+        if ($failures === 0) {
             echoTerminal("\e[32mOK:\e[39m sin docblocks sin cerrar y sin firmas desaparecidas.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
 
-        echoTerminal("\e[31mFALLOS: {$fallos}\e[39m");
+        echoTerminal("\e[31mFALLOS: {$failures}\e[39m");
         echoTerminal("\e[33mSi los cambios son intencionados, regenera la instantánea con:\e[39m");
         echoTerminal("  bin/cli verify-integrity update-snapshot=yes");
         echoTerminal("\e[31m*** {$titleTask}, tarea finalizada CON FALLOS ***\e[39m");
@@ -179,11 +179,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $iterador = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($absoluto, \RecursiveDirectoryIterator::SKIP_DOTS)
             );
-            foreach ($iterador as $archivo) {
-                if (!$archivo->isFile() || strtolower($archivo->getExtension()) !== 'php') {
+            foreach ($iterador as $file) {
+                if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') {
                     continue;
                 }
-                $ruta = str_replace('\\', '/', $archivo->getPathname());
+                $ruta = str_replace('\\', '/', $file->getPathname());
                 $resultado[] = ltrim(str_replace($base, '', $ruta), '/');
             }
         }
@@ -202,15 +202,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      *   b) Un token de docblock que contiene `function `. Eso solo puede pasar si el
      *      comentario se tragó código, que es el daño real: el método deja de existir.
      *
-     * @param string[] $archivos
+     * @param string[] $files
      * @return string[]
      */
-    protected static function checkDocblocks(array $archivos): array
+    protected static function checkDocblocks(array $files): array
     {
-        $fallos = [];
+        $failures = [];
         $base = rtrim(str_replace('\\', '/', basepath('')), '/');
 
-        foreach ($archivos as $relativo) {
+        foreach ($files as $relativo) {
             $contenido = @file_get_contents($base . '/' . $relativo);
             if (!is_string($contenido)) {
                 continue;
@@ -233,7 +233,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
                 //(a) Comentario de bloque sin cerrar hasta el final del archivo.
                 if (substr(rtrim($texto), -2) !== '*/') {
-                    $fallos[] = "{$relativo}:{$token[2]}: comentario de bloque sin cerrar";
+                    $failures[] = "{$relativo}:{$token[2]}: comentario de bloque sin cerrar";
                     continue;
                 }
 
@@ -242,12 +242,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 //    del docblock de más abajo. El método deja de existir sin que ni
                 //    'php -l' ni PHPStan digan nada.
                 if (preg_match('/\bfunction\s+\w+\s*\(/', $texto)) {
-                    $fallos[] = "{$relativo}:{$token[2]}: un docblock se tragó una declaración de función; le falta el cierre";
+                    $failures[] = "{$relativo}:{$token[2]}: un docblock se tragó una declaración de función; le falta el cierre";
                 }
             }
         }
 
-        return $fallos;
+        return $failures;
     }
 
     /**
@@ -256,15 +256,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * Se usa el analizador léxico de PHP en vez de expresiones regulares: así una
      * declaración comentada no cuenta, que es justo lo que hay que distinguir.
      *
-     * @param string[] $archivos
+     * @param string[] $files
      * @return array<string,string[]>
      */
-    protected static function collectSignatures(array $archivos): array
+    protected static function collectSignatures(array $files): array
     {
         $base = rtrim(str_replace('\\', '/', basepath('')), '/');
         $inventario = [];
 
-        foreach ($archivos as $relativo) {
+        foreach ($files as $relativo) {
             $contenido = @file_get_contents($base . '/' . $relativo);
             if (!is_string($contenido)) {
                 continue;
@@ -275,7 +275,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 continue;
             }
 
-            $firmas = [];
+            $signatures = [];
             $contexto = '';
             $total = count($tokens);
 
@@ -287,9 +287,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
                 //Contexto: clase, interfaz, trait o enum
                 if (in_array($token[0], [\T_CLASS, \T_INTERFACE, \T_TRAIT, \T_ENUM], true)) {
-                    $nombre = self::nextName($tokens, $i, $total);
-                    if ($nombre !== null) {
-                        $contexto = $nombre;
+                    $name = self::nextName($tokens, $i, $total);
+                    if ($name !== null) {
+                        $contexto = $name;
                     }
                     continue;
                 }
@@ -298,17 +298,17 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue;
                 }
 
-                $nombre = self::nextName($tokens, $i, $total);
-                if ($nombre === null) {
+                $name = self::nextName($tokens, $i, $total);
+                if ($name === null) {
                     continue; //closure o función flecha: no tiene nombre que vigilar
                 }
 
-                $firmas[] = $contexto !== '' ? "{$contexto}::{$nombre}" : $nombre;
+                $signatures[] = $contexto !== '' ? "{$contexto}::{$name}" : $name;
             }
 
-            if (count($firmas) > 0) {
-                sort($firmas);
-                $inventario[$relativo] = array_values(array_unique($firmas));
+            if (count($signatures) > 0) {
+                sort($signatures);
+                $inventario[$relativo] = array_values(array_unique($signatures));
             }
         }
 
@@ -345,16 +345,16 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
     /**
      * @param string $path
-     * @param array<string,string[]> $firmas
+     * @param array<string,string[]> $signatures
      * @return void
      */
-    protected static function writeSnapshot(string $path, array $firmas): void
+    protected static function writeSnapshot(string $path, array $signatures): void
     {
         $directorio = dirname($path);
         if (!is_dir($directorio)) {
             mkdir($directorio, 0775, true);
         }
-        $contenido = json_encode($firmas, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+        $contenido = json_encode($signatures, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
         file_put_contents($path, is_string($contenido) ? $contenido . "\n" : '{}');
     }
 
@@ -365,10 +365,10 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * normal. Lo que nunca debe pasar en silencio es que algo deje de existir.
      *
      * @param string $path
-     * @param array<string,string[]> $firmas
+     * @param array<string,string[]> $signatures
      * @return string[]
      */
-    protected static function compareSignatures(string $path, array $firmas): array
+    protected static function compareSignatures(string $path, array $signatures): array
     {
         if (!is_file($path)) {
             return [
@@ -382,30 +382,30 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             return ["la instantánea " . self::SNAPSHOT_RELATIVE_PATH . " no es JSON válido"];
         }
 
-        $fallos = [];
+        $failures = [];
 
-        foreach ($previo as $archivo => $antes) {
-            if (!is_array($antes)) {
+        foreach ($previo as $file => $before) {
+            if (!is_array($before)) {
                 continue;
             }
 
             //Un archivo borrado a propósito no es un fallo estructural, pero sí conviene
             //verlo: es la diferencia entre «lo borré» y «se lo tragó un comentario».
-            if (!array_key_exists($archivo, $firmas)) {
-                if (!is_file(rtrim(str_replace('\\', '/', basepath('')), '/') . '/' . $archivo)) {
+            if (!array_key_exists($file, $signatures)) {
+                if (!is_file(rtrim(str_replace('\\', '/', basepath('')), '/') . '/' . $file)) {
                     continue; //archivo eliminado; nada que comparar
                 }
-                $fallos[] = "{$archivo}: el archivo existe pero ya no declara ninguna función (antes: " . count($antes) . ")";
+                $failures[] = "{$file}: el archivo existe pero ya no declara ninguna función (antes: " . count($before) . ")";
                 continue;
             }
 
-            $perdidas = array_diff($antes, $firmas[$archivo]);
+            $perdidas = array_diff($before, $signatures[$file]);
             foreach ($perdidas as $perdida) {
-                $fallos[] = "{$archivo}: desapareció {$perdida}()";
+                $failures[] = "{$file}: desapareció {$perdida}()";
             }
         }
 
-        return $fallos;
+        return $failures;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
