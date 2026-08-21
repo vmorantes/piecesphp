@@ -1166,3 +1166,75 @@ framework; registrar la misma carpeta en los dos puede provocar resoluciones amb
 una, `PiecesPHP\Core\Database\Meta\MetaProperty`, declarada en `src/app` y en el paquete
 `piecesphp/database`—.
 
+## T16 · COLISIÓN DE CLASE `MetaProperty` — verificada, viva y silenciosa
+
+**No es una «resolución ambigua». Son dos clases distintas con el mismo FQCN.**
+
+`PiecesPHP\Core\Database\Meta\MetaProperty` está declarada en dos sitios y **los archivos
+difieren de raíz**:
+
+| Dónde | Líneas | Se construye sobre | Tiene en exclusiva |
+| :-- | --: | :-- | :-- |
+| `src/app/core/psr4/.../Meta/MetaProperty.php` | 617 | `EntityMapper` | `$internalName`, `setInternalName()`, `getInternalName()`, `getType()`, excepciones que nombran el campo |
+| `src/vendor/piecesphp/database/src/.../Meta/MetaProperty.php` | 636 | `ORM` | `TYPE_DATE` con `'now'`, `validateType()` propia, `call_user_func($mapper, 'getInstance', ...)` |
+
+### Cuál gana — AVERIGUADO, no deducido
+
+`(new \ReflectionClass(MetaProperty::class))->getFileName()` devuelve **la del núcleo**. La
+del paquete queda eclipsada dentro de piecesphp.
+
+### El mecanismo, y por qué es general
+
+| Repositorio | Prefijo PSR-4 |
+| :-- | :-- |
+| Los cuatro paquetes | `PiecesPHP\` → `src/` |
+| **piecesphp (raíz)** | **`PiecesPHP\Core\`** → `./app/core/psr4/PiecesPHP/Core` |
+
+PSR-4 resuelve por **prefijo más largo**. **Cualquier clase que el núcleo declare bajo
+`PiecesPHP\Core\` eclipsa a la del paquete, siempre.** No es un accidente de este archivo:
+es la regla.
+
+### Barrido de los cuatro paquetes
+
+| Paquete | Clases bajo `Core/` | Eclipsadas y **distintas** |
+| :-- | --: | --: |
+| `database` | 32 | **1** — `Database/Meta/MetaProperty.php` |
+| `datastructures` | 5 | 0 |
+| `html` | 16 | 0 |
+| `geojson` | — | sin `Core/` |
+
+**Una sola colisión en los cinco repositorios**: un archivo suelto y no un subárbol
+duplicado, que es justo lo que la hace difícil de sospechar.
+
+### Lo que corre en piecesphp es un HÍBRIDO
+
+`ExtensibleORM.php` —del **paquete**— usa `MetaProperty` y recibe la del **núcleo**. Y la del
+núcleo llama a `EntityMapper::validateType()`, clase que **solo existe en el paquete**
+(verificado por reflexión).
+
+Es decir: **`MetaProperty` del núcleo + `EntityMapper` del paquete**, una combinación que
+**ninguno de los dos repositorios prueba**. Las suites del paquete (`UnitTest-MetaUtil`,
+`UnitTest-ActiveRecord`) corren con su propio autoloader y validan el `MetaProperty` **del
+paquete**, que dentro de piecesphp no se ejecuta nunca.
+
+### Consecuencia concreta, ya medida
+
+El arreglo de la deprecación de PHP 8.5 —`new \DateTime($value ?? 'now')`— se aplicó a los
+**dos** archivos del paquete. En `MetaProperty` **no tiene ningún efecto en piecesphp**; en
+`EntityMapper` sí, porque esa clase no está eclipsada y es la que el núcleo acaba llamando.
+
+**Esta vez el arreglo llegó por el otro camino. La próxima puede no llegar.**
+
+### Cuál es la buena — NO DECIDIDO. No se borra nada todavía
+
+No son dos versiones de lo mismo: son **dos linajes**. `EntityMapper` contra `ORM` no es un
+detalle de estilo, es otra jerarquía. Antes de tocar nada hay que responder:
+
+1. ¿`ORM` y `EntityMapper` son el mismo concepto con dos nombres, o dos abstracciones vivas?
+2. `$internalName` (solo núcleo) y `TYPE_DATE` con `'now'` (solo paquete): ¿alguna es
+   funcionalidad viva que se perdería al unificar?
+3. En piecesphp hay **28 mappers** usando `MetaProperty`; **todos** reciben la del núcleo.
+
+**Lo que NO se puede hacer**: borrar la del paquete «porque no se usa». Sí se usa —en el
+paquete, con sus propias pruebas— y borrarla lo rompe como librería independiente.
+
