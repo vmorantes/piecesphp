@@ -1,15 +1,15 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-195
+192
 
 [TOTAL DE ERRORES VISIBLES]
-950
+933
 
 [TIPOS DE ERRORES Y CANTIDAD]
 🪪  argument.type (368)
 🪪  property.nonObject (214)
-🪪  method.nonObject (161)
+🪪  method.nonObject (144)
 🪪  return.type (71)
 🪪  assign.propertyType (40)
 🪪  method.resultUnused (26)
@@ -445,23 +445,15 @@ project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.p
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
 	🪪  argument.type (Líneas: 315, 339)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Exporter.php
-	🪪  method.nonObject (Líneas: 147, 196, 199, 203, 209, 217, 221, 227, 248)
+	🪪  method.nonObject (Líneas: 152, 201, 204, 208, 214, 222, 226, 232)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/Bz2FileOutput.php
 	🪪  assign.propertyType (Líneas: 35)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/CsvFormat.php
-	🪪  method.nonObject (Líneas: 53, 54, 74)
-	🪪  argument.type (Líneas: 158, 159, 160, 161)
-project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/JsonFormat.php
-	🪪  method.nonObject (Líneas: 66)
-project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/PhpFormat.php
-	🪪  method.nonObject (Líneas: 59)
+	🪪  argument.type (Líneas: 159, 160, 161, 162)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/SqlFormat.php
-	🪪  method.nonObject (Líneas: 54, 119, 153, 182, 199, 201, 228, 230, 269, 317)
-	🪪  return.type (Líneas: 365)
-	🪪  foreach.nonIterable (Líneas: 369)
-	🪪  argument.type (Líneas: 383, 385)
-project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/XmlFormat.php
-	🪪  method.nonObject (Líneas: 56)
+	🪪  return.type (Líneas: 366)
+	🪪  foreach.nonIterable (Líneas: 370)
+	🪪  argument.type (Líneas: 384, 386)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/ZipFileOutput.php
 	🪪  assign.propertyType (Líneas: 45)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php

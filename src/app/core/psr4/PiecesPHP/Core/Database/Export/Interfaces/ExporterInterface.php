@@ -2,6 +2,7 @@
 
 namespace PiecesPHP\Core\Database\Export\Interfaces;
 
+use PiecesPHP\Core\Database\Database;
 use PDO;
 
 /**

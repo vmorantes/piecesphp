@@ -1471,20 +1471,20 @@ project://src/app/classes/Terminal/Tasks/BundleTask.php
          🪪  argument.type                                                                                                                                         
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/classes/Terminal/Tasks/DbBackupTask.php
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
-  96     Cannot call method getDatabaseName() on PiecesPHP\Core\Database\Database|null.                                                           
-         🪪  method.nonObject                                                                                                                     
-  99     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PDO, PiecesPHP\Core\Database\Database|null given.  
-         🪪  argument.type                                                                                                                        
-  164    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                        
-         🪪  argument.type                                                                                                                        
-  166    Parameter Nr.1 $filename of function chmod expects string, string|null given.                                                              
-         🪪  argument.type                                                                                                                        
-  169    Parameter Nr.1 $path of function basename expects string, string|null given.                                                               
-         🪪  argument.type                                                                                                                        
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  96     Cannot call method getDatabaseName() on PiecesPHP\Core\Database\Database|null.                                                                                        
+         🪪  method.nonObject                                                                                                                                                  
+  99     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PiecesPHP\Core\Database\Database, PiecesPHP\Core\Database\Database|null given.  
+         🪪  argument.type                                                                                                                                                     
+  164    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
+         🪪  argument.type                                                                                                                                                     
+  166    Parameter Nr.1 $filename of function chmod expects string, string|null given.                                                                                           
+         🪪  argument.type                                                                                                                                                     
+  169    Parameter Nr.1 $path of function basename expects string, string|null given.                                                                                            
+         🪪  argument.type                                                                                                                                                     
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------- 
 project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
@@ -2151,23 +2151,21 @@ project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
  ------ -------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Exporter.php
  ------ -------------------------------------------------------------------------------------------------------- 
-  147    Cannot call method isView() on PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface|null.    
+  152    Cannot call method isView() on PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface|null.    
          🪪  method.nonObject                                                                                    
-  196    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
+  201    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
          🪪  method.nonObject                                                                                    
-  199    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
+  204    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
          🪪  method.nonObject                                                                                    
-  203    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
+  208    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
          🪪  method.nonObject                                                                                    
-  209    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
+  214    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
          🪪  method.nonObject                                                                                    
-  217    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
+  222    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
          🪪  method.nonObject                                                                                    
-  221    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
+  226    Cannot call method write() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.     
          🪪  method.nonObject                                                                                    
-  227    Cannot call method finalize() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.  
-         🪪  method.nonObject                                                                                    
-  248    Cannot call method fetch() on PDOStatement|false.                                                       
+  232    Cannot call method finalize() on PiecesPHP\Core\Database\Export\Interfaces\OutputPluginInterface|null.  
          🪪  method.nonObject                                                                                    
  ------ -------------------------------------------------------------------------------------------------------- 
 
@@ -2181,75 +2179,28 @@ project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/Bz2FileOutput
  ------ ---------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/CsvFormat.php
  ------ ---------------------------------------------------------------------------------------------- 
-  53     Cannot call method columnCount() on PDOStatement|false.                                       
-         🪪  method.nonObject                                                                          
-  54     Cannot call method getColumnMeta() on PDOStatement|false.                                     
-         🪪  method.nonObject                                                                          
-  74     Cannot call method fetch() on PDOStatement|false.                                             
-         🪪  method.nonObject                                                                          
-  158    Parameter Nr.1 $stream of function fputcsv expects resource, resource|false given.              
+  159    Parameter Nr.1 $stream of function fputcsv expects resource, resource|false given.              
          🪪  argument.type                                                                             
-  159    Parameter Nr.1 $stream of function rewind expects resource, resource|false given.               
+  160    Parameter Nr.1 $stream of function rewind expects resource, resource|false given.               
          🪪  argument.type                                                                             
-  160    Parameter Nr.1 $stream of function stream_get_contents expects resource, resource|false given.  
+  161    Parameter Nr.1 $stream of function stream_get_contents expects resource, resource|false given.  
          🪪  argument.type                                                                             
-  161    Parameter Nr.1 $stream of function fclose expects resource, resource|false given.               
+  162    Parameter Nr.1 $stream of function fclose expects resource, resource|false given.               
          🪪  argument.type                                                                             
  ------ ---------------------------------------------------------------------------------------------- 
-
- ------ --------------------------------------------------------------------- 
-project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/JsonFormat.php
- ------ --------------------------------------------------------------------- 
-  66     Cannot call method fetch() on PDOStatement|false.                    
-         🪪  method.nonObject                                                 
- ------ --------------------------------------------------------------------- 
-
- ------ -------------------------------------------------------------------- 
-project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/PhpFormat.php
- ------ -------------------------------------------------------------------- 
-  59     Cannot call method fetch() on PDOStatement|false.                   
-         🪪  method.nonObject                                                
- ------ -------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/SqlFormat.php
  ------ -------------------------------------------------------------------------------------------------------------------------------- 
-  54     Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  119    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  153    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  182    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  199    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  201    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  228    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  230    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  269    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  317    Cannot call method fetch() on PDOStatement|false.                                                                               
-         🪪  method.nonObject                                                                                                            
-  365    Method PiecesPHP\Core\Database\Export\Plugins\SqlFormat::wrapRoutineParameters() should return string but returns string|null.  
+  366    Method PiecesPHP\Core\Database\Export\Plugins\SqlFormat::wrapRoutineParameters() should return string but returns string|null.  
          🪪  return.type                                                                                                                 
-  369    Argument of an invalid type list<string>|false supplied for foreach, only iterables are supported.                              
+  370    Argument of an invalid type list<string>|false supplied for foreach, only iterables are supported.                              
          🪪  foreach.nonIterable                                                                                                         
-  383    Parameter Nr.2 $array of function implode expects array, list<string>|false given.                                                
+  384    Parameter Nr.2 $array of function implode expects array, list<string>|false given.                                                
          🪪  argument.type                                                                                                               
-  385    Parameter Nr.3 $subject of function preg_replace_callback expects array<float|int|string>|string, string|null given.              
+  386    Parameter Nr.3 $subject of function preg_replace_callback expects array<float|int|string>|string, string|null given.              
          🪪  argument.type                                                                                                               
  ------ -------------------------------------------------------------------------------------------------------------------------------- 
-
- ------ -------------------------------------------------------------------- 
-project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/XmlFormat.php
- ------ -------------------------------------------------------------------- 
-  56     Cannot call method fetch() on PDOStatement|false.                   
-         🪪  method.nonObject                                                
- ------ -------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------------ 
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/ZipFileOutput.php
@@ -2557,30 +2508,30 @@ project://src/app/core/system-controllers/Test.php
          🪪  return.type                                                                                      
  ------ ----------------------------------------------------------------------------------------------------- 
 
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
-  53     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PDO, PiecesPHP\Core\Database\Database|null given.  
-         🪪  argument.type                                                                                                                        
-  178    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                        
-         🪪  argument.type                                                                                                                        
-  179    Parameter Nr.1 $filename of function filesize expects string, string|null given.                                                           
-         🪪  argument.type                                                                                                                        
-  183    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                  
-         🪪  argument.type                                                                                                                        
-  188    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                            
-         🪪  argument.type                                                                                                                        
-  188    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                            
-         🪪  argument.type                                                                                                                        
-  196    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                            
-         🪪  argument.type                                                                                                                        
-  204    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                            
-         🪪  argument.type                                                                                                                        
-  204    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                            
-         🪪  argument.type                                                                                                                        
-  213    Parameter Nr.2 $subject of function preg_match expects string, string|false given.                                                         
-         🪪  argument.type                                                                                                                        
- ------ ----------------------------------------------------------------------------------------------------------------------------------------- 
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+  53     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PiecesPHP\Core\Database\Database, PiecesPHP\Core\Database\Database|null given.  
+         🪪  argument.type                                                                                                                                                     
+  178    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
+         🪪  argument.type                                                                                                                                                     
+  179    Parameter Nr.1 $filename of function filesize expects string, string|null given.                                                                                        
+         🪪  argument.type                                                                                                                                                     
+  183    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                                               
+         🪪  argument.type                                                                                                                                                     
+  188    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
+         🪪  argument.type                                                                                                                                                     
+  188    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
+         🪪  argument.type                                                                                                                                                     
+  196    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
+         🪪  argument.type                                                                                                                                                     
+  204    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
+         🪪  argument.type                                                                                                                                                     
+  204    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
+         🪪  argument.type                                                                                                                                                     
+  213    Parameter Nr.2 $subject of function preg_match expects string, string|false given.                                                                                      
+         🪪  argument.type                                                                                                                                                     
+ ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------- 
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
@@ -2906,5 +2857,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 950 errors                                                                                               
+ [ERROR] Found 933 errors                                                                                               
 

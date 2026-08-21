@@ -2,6 +2,7 @@
 
 namespace PiecesPHP\Core\Database\Export;
 
+use PiecesPHP\Core\Database\Database;
 use PDO;
 use PiecesPHP\Core\Database\Export\Interfaces\ExporterInterface;
 use PiecesPHP\Core\Database\Export\Interfaces\FormatPluginInterface;
@@ -28,12 +29,16 @@ class Exporter implements ExporterInterface
     /**
      * Constructor de la clase Exporter.
      * 
-     * @param PDO $db Instancia de PDO ya configurada y conectada.
+     * @param Database $db Conexión ya configurada. Se declara `Database` y no `PDO` porque
+     *                       los dos llamantes pasan el resultado de `getDatabase()` y uno de
+     *                       ellos ya usa `getDatabaseName()`, que solo existe en `Database`.
+     *                       El tipo laxo hacía que `query()` y `prepare()` se vieran como
+     *                       `PDOStatement|false` pese a que el paquete los estrechó en v3.2.0.
      * @param string $database Nombre de la base de datos a exportar.
      * @param string $charset Juego de caracteres para el volcado (default: utf8mb4).
      */
     public function __construct(
-        protected PDO $db,
+        protected Database $db,
         protected string $database,
         protected string $charset = 'utf8mb4'
     ) {
