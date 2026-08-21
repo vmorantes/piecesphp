@@ -1,6 +1,10 @@
 src/vendor/*
 src/vendor-dev/*
 src/statics/uploads/*
+# Sondeos y volcados de diagnóstico: se generan al investigar y su sitio es
+# files/dev/, nunca la raíz. Ahí sí se versionan cuando documentan algo.
+/probe-*.log
+/*.probe.log
 # Respaldos de base de datos: datos reales, nunca se versionan.
 src/dumps/
 src/statics/css/*
