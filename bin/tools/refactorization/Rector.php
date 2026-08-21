@@ -24,10 +24,10 @@ return static function (RectorConfig $rectorConfig): void {
     // 1. Dónde tiene que buscar (las rutas de tu reporte)
     $rectorConfig->paths($filePaths);
 
-    // FUERZA la compatibilidad de salida a PHP 8.1
-    // Al mantener 8.1 aquí, Rector evitará usar características de 8.2+ (como clases readonly o constantes con tipo)
-    // pero permitirá corregir deprecaciones que son válidas en ambas versiones.
-    $rectorConfig->phpVersion(PhpVersion::PHP_81);
+    // FUERZA la compatibilidad de salida al PISO de src/composer.json (>=8.4.1 <8.6).
+    // Estaba en PHP_81 desde antes de la migración a 8.4: se corrigió el de piecesphp/database
+    // y este se quedó atrás. Rector no emitirá sintaxis por encima del piso.
+    $rectorConfig->phpVersion(PhpVersion::PHP_84);
 
     $rectorConfig->skip([
         $baseDir . '/src/app/vendor',
