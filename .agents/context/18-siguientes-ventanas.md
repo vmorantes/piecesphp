@@ -607,3 +607,64 @@ truncada de PHPStan y estaba contaminado, ver T2):
 
 **15 errores mueren con su módulo sin que nadie los toque.** Ninguno de los tres módulos
 de borrado parcial aporta errores a esta familia.
+
+## T7 · Ventana de pruebas de correo — **planificada, no empezada**
+
+Nueve o diez sitios envían correo. **Medido: 10 llamadas en 7 archivos** —
+`RecoveryPasswordController` tiene 3 y `UserProblemsController` 2, de ahí que un recuento
+por archivo dé menos. Transporte vivo: **`phpmailer/phpmailer` v7.1.1**. Ya existe
+`Mailer::checkSMTP(string $host, int $port)` como sonda, y `checkSettedSMTP()` para saber
+si hay configuración.
+
+| Archivo | Sitios |
+| :-- | --: |
+| `controller/RecoveryPasswordController.php` | 3 |
+| `controller/UserProblemsController.php` | 2 |
+| `classes/API/Controllers/APIController.php` | 1 |
+| `classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php` | 1 |
+| `classes/SystemApprovals/Controllers/SystemApprovalsController.php` | 1 |
+| `controller/ContactFormsController.php` | 1 |
+| `controller/GenericTokenController.php` | 1 |
+
+### Tres capas, y solo la tercera necesita a un humano
+
+**1 · Composición — el grueso del trabajo.** Plantilla, sustitución de variables, grupo de
+traducción correcto, y enlaces generados con `get_route()` y no concatenados. Suite normal
+del framework, **sin red**: se sustituye el transporte por uno que capture el mensaje en vez
+de enviarlo. Aquí cabe casi todo lo que de verdad se rompe.
+
+**2 · Transporte — sumidero SMTP local.** Mailpit o MailHog. Tienen API HTTP, así que la
+suite **afirma sobre el mensaje recibido sin que nadie mire**. Es la capa que demuestra que
+el sobre sale bien formado, no solo que el cuerpo se compuso bien.
+
+**3 · Entrega real — un puñado de casos.** Buzones temporales de mailinator, autorizados por
+el propietario, que confirma la recepción por ojo. Solo lo que no se puede afirmar de otra
+forma.
+
+### REGLA DE SEGURIDAD — INNEGOCIABLE
+
+**Los buzones gratuitos de mailinator son PÚBLICOS.** Cualquiera los lee adivinando el
+nombre; no hay contraseña que valga.
+
+**Tres de los emisores mandan credenciales vivas:**
+
+| Emisor | Qué manda |
+| :-- | :-- |
+| `OTPHandler` | Código de un solo uso **que autentica por sí solo** — ver T3: la condición de login es `password_verify(...) \|\| $otpIsValid` |
+| `RecoveryPasswordController` | Enlace de recuperación de contraseña |
+| `GenericTokenController` | Token genérico |
+
+Esos tres van a mailinator **SOLO con cuentas desechables y sin privilegios**. Nunca con una
+cuenta real, y nunca con una administrativa. Un código de un uso publicado en un buzón
+público no es una prueba: es una toma de cuenta esperando a que alguien pase por ahí.
+
+Las capas 1 y 2 **no tienen este problema** y por eso deben absorber todo lo que puedan: lo
+que se pueda afirmar sin salir de la máquina, no sale de la máquina.
+
+### Lastre detectado de paso
+
+`Core/Email/Mailgun.php` y `Core/MailjetHandler.php` tienen **cero consumidores** — verificado
+por búsqueda en todo `src/app`. Mismo patrón que `scssphp` y `mpdf`: integraciones que se
+dejaron a medias y nadie retiró. Pertenecen a `14-deuda-y-limpieza.md`; se anotan aquí porque
+salieron al inventariar los emisores, y porque **decidir su suerte antes de escribir las
+pruebas evita escribir pruebas para código que se va a borrar** — el mismo criterio de T6.
