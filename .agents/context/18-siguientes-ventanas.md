@@ -128,6 +128,90 @@ tiempo señalándolos.
 
 ---
 
+## 5bis. Triaje de la nulabilidad — 2026-08-21
+
+Estado tras la primera tanda: **514 errores con `null`** (eran 541; 27 resueltos).
+
+### Por origen
+
+| Origen | Errores | Qué son |
+| :-- | --: | :-- |
+| Buscador de mapper que no encuentra | **137** | `Mapper::getBy()` y hermanos usados sin comprobar |
+| Escalar opcional | **136** | `string\|null`, `int\|null`… de propiedades, parámetros o retornos |
+| Otro objeto nulable | 92 | Colaboradores opcionales |
+| Sesión: `getLoggedFrameworkUser()` | 87 | Lo que queda tras la primera tanda |
+| Fila cruda de consulta | 39 | `object\|null` / `stdClass\|null` |
+| `Database` no inicializada | 20 | **Todos del mismo defecto**, ver abajo |
+| Sin clasificar | 3 | |
+
+### Por respuesta del marco
+
+| Grupo | Errores | Criterio |
+| :-- | --: | :-- |
+| **1. No puede ser null por contrato** | **36** | Manejadores de ruta con login. **HECHOS**: pasan a `getLoggedFrameworkUserOrFail()` |
+| 2. Puede ser null, comportamiento definido | ~350 | Mayoría de B, D y F: hay que decidir caso a caso |
+| **3. Puede ser null y nadie lo pensó** | **ver abajo** | Defectos |
+
+**Cómo se clasificó el grupo 1, y es reutilizable**: el framework expone su listado
+resuelto de rutas en `/configurations/routes/`, con clase, método y roles. Las públicas
+dicen **«No requiere autenticación»**; cualquier otro valor implica login. Cruzar los
+errores contra ese listado da la respuesta sin adivinar. De los 123 de sesión: **36** en
+rutas con login, **0** en rutas públicas, 61 en métodos que no son ruta, 26 en vistas.
+
+---
+
+## 5ter. DEFECTOS ENCONTRADOS — grupo 3
+
+Son el motivo de la ventana. **Ninguno está arreglado**: hay que decidir qué debe hacer
+cada uno.
+
+### D1 · `ActiveRecordModel::getDatabase()` puede devolver null pese a prometer lo contrario
+
+`piecesphp/database`, `ActiveRecordModel.php:365-374`. **Explica los 20 errores de
+`Database|null`.**
+
+Su propio docblock dice: *«Sobreescribe getDatabase() para asegurar que la conexión no
+sea null por destroyDb»* — y declara `@return Database|null`.
+
+La garantía tiene un agujero. `checkDbConnectionFallback()` llama a
+`restoreInstancesDb()`, que solo actúa **`if (!isset(self::$db[$key]))`**. Si otra
+instancia ya recreó la entrada del pool, esa guarda es falsa, no se restaura nada y
+**esta** instancia se queda con `database = null` indefinidamente.
+
+Es decir: el fallback falla exactamente cuando la conexión ya existe.
+
+**Está en `piecesphp/database`**, así que se corrige en ese repo y sale en una v3.1.1.
+
+### D2 · `OTPHandler::toExpireOTP()` desreferencia sin comprobar, en el camino de login
+
+`Authentication/OTPHandler.php:68-71`:
+
+```php
+$otpData = OTPSecretsUsersMapper::getOTPData($userData->id, ...METHOD_ONE_USE_CODE);
+$otpData->maxDate = new \DateTime('2000-01-01');   // <- sin comprobar
+```
+
+La guarda `if ($userDataPackage !== null)` protege al **usuario**, no al resultado de
+`getOTPData()`, que declara `OTPSecretsUsersMapper|null` y devuelve null si su `save()`
+interno falla (`return $mapper->id !== null ? $mapper : null;`).
+
+**Dónde duele**: el único llamante es `UsersController.php:909`, dentro del login, justo
+**después** de validar el segundo factor y **antes** de emitir el token de sesión. Si
+ocurre, el usuario se autentica correctamente y la petición aborta con un
+«Attempt to read property on null».
+
+**Decisión pendiente**: `toExpireOTP()` es una rutina de invalidación. Si no hay nada que
+invalidar, lo razonable es no hacer nada y seguir, no tumbar un login válido. Pero eso
+hay que decidirlo, no asumirlo.
+
+### D3 · `UsersModel` desreferenciaba el usuario de sesión antes de comprobarlo — **CORREGIDO**
+
+Cuatro métodos aceptaban `?UserDataPackage = null` y caían a `getLoggedFrameworkUser()`,
+y tres leían `->organization` en la línea siguiente. Corregido con la forma que el propio
+`getBy()` ya usaba. Latente: ningún llamante llegaba al fallback. Ver commit.
+
+---
+
 ## 6. Las supresiones: el 74% está oculto
 
 **67 entradas**, no 55. Auditadas una a una quitándolas y midiendo: **48 vivas, 19
