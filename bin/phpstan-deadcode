@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# Mide las RAMAS MUERTAS que el bloque «Condiciones redundantes y código muerto» de
+# bin/phpstan.neon silencia. Existe porque una cifra que se publica tiene que poder decir
+# con qué se midió (T0, punto 5), y la de las ramas muertas no se saca del informe normal:
+# son justamente las que ese bloque oculta.
+#
+# No duplica la configuración: la deriva de bin/phpstan.neon en cada ejecución, así que no
+# puede quedarse atrás cuando alguien toque los ignores.
+#
+# Uso:  bin/phpstan-deadcode
+# Sale: instancias y tripletas (ruta, línea, mensaje) de rama muerta, y el reparto por
+#       identificador y por familia de archivos.
+
+set -e
+
+if command -v php8.4 >/dev/null 2>&1; then
+    PHP_BIN="php8.4"
+else
+    PHP_BIN="php"
+fi
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR/.."
+
+STRIPPED="bin/phpstan.deadcode.generated.neon"
+WITH_JSON=$(mktemp)
+WITHOUT_JSON=$(mktemp)
+trap 'rm -f "$STRIPPED" "$WITH_JSON" "$WITHOUT_JSON"' EXIT
+
+# 1. Configuración derivada, sin el bloque de ramas muertas.
+$PHP_BIN -r '
+$c = str_replace("\r\n", "\n", file_get_contents("bin/phpstan.neon"));
+$start = strpos($c, "        # ── Condiciones redundantes y código muerto ──────────");
+$end   = strpos($c, "        # ── PHPDoc ──────────");
+if ($start === false || $end === false || $end <= $start) {
+    fwrite(STDERR, "No se encontraron los delimitadores del bloque en bin/phpstan.neon.\n");
+    exit(1);
+}
+file_put_contents($argv[1], str_replace("\n", "\r\n", substr($c, 0, $start) . substr($c, $end)));
+' "$STRIPPED"
+
+ANALYSE="$PHP_BIN bin/tools/vendor/bin/phpstan analyse --autoload-file=src/vendor/autoload.php --memory-limit 2000M --error-format=json --no-progress"
+
+$ANALYSE -c bin/phpstan.neon  > "$WITH_JSON"    2>/dev/null || true
+$ANALYSE -c "$STRIPPED"       > "$WITHOUT_JSON" 2>/dev/null || true
+
+# 2. La resta: lo que aparece sin el bloque y no con él.
+$PHP_BIN -r '
+$load = function (string $file): array {
+    $json = json_decode((string) file_get_contents($file), true);
+    $out = [];
+    foreach ($json["files"] ?? [] as $path => $data) {
+        foreach ($data["messages"] as $message) {
+            $out[$path . "|" . $message["line"] . "|" . $message["message"]] = [
+                "path" => $path,
+                "identifier" => $message["identifier"] ?? "(sin identificador)",
+            ];
+        }
+    }
+    return $out;
+};
+
+$with = $load($argv[1]);
+$without = $load($argv[2]);
+if (count($without) === 0) {
+    fwrite(STDERR, "La corrida sin el bloque no devolvió nada: sospecha del instrumento antes que del dato (T20).\n");
+    exit(1);
+}
+
+$branches = array_diff_key($without, $with);
+
+$byIdentifier = [];
+$byFamily = ["vistas" => 0, "mappers" => 0, "suites" => 0, "resto" => 0];
+foreach ($branches as $data) {
+    $byIdentifier[$data["identifier"]] = ($byIdentifier[$data["identifier"]] ?? 0) + 1;
+    $path = $data["path"];
+    if (preg_match("#/(view|Views)/#", $path)) {
+        $byFamily["vistas"]++;
+    } elseif (preg_match("#Mapper\.php$#", $path)) {
+        $byFamily["mappers"]++;
+    } elseif (strpos($path, "local-tests/") !== false) {
+        $byFamily["suites"]++;
+    } else {
+        $byFamily["resto"]++;
+    }
+}
+arsort($byIdentifier);
+
+echo "Baseline visible : ", count($with), " tripletas\n";
+echo "Sin el bloque    : ", count($without), " tripletas\n";
+echo "RAMAS MUERTAS    : ", count($branches), " tripletas\n\n";
+
+echo "POR IDENTIFICADOR\n";
+foreach ($byIdentifier as $identifier => $count) {
+    printf("  %4d  %s\n", $count, $identifier);
+}
+echo "\nPOR FAMILIA DE ARCHIVO\n";
+foreach ($byFamily as $family => $count) {
+    printf("  %4d  %s\n", $count, $family);
+}
+' "$WITH_JSON" "$WITHOUT_JSON"

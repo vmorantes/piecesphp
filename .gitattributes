@@ -21,6 +21,7 @@
 *.sh            text eol=lf
 bin/cli         text eol=lf
 bin/phpstan     text eol=lf
+bin/phpstan-deadcode text eol=lf
 bin/rector      text eol=lf
 bin/package-css text eol=lf
 

@@ -1498,7 +1498,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
  ------ ------------------------------------------------------------------------------------ 
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
  ------ ------------------------------------------------------------------------------------ 
-  193    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  205    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 
@@ -2735,5 +2735,13 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 877 errors                                                                                               
+ -- -------------------------------------------------------------------------------------- 
+     Error                                                                                 
+ -- -------------------------------------------------------------------------------------- 
+     Ignored error pattern booleanOr.leftAlwaysTrue was not matched in reported errors.    
+     Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.  
+     Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.      
+ -- -------------------------------------------------------------------------------------- 
+
+ [ERROR] Found 880 errors                                                                                               
 

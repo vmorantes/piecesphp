@@ -22,6 +22,48 @@ parameters:
     excludePaths:
         - ../src/adminer
     treatPhpDocTypesAsCertain: false
+    # Los interruptores de módulo de `src/app/config/constants.php` (regla 8 de
+    # CLAUDE.md). CADA DESPLIEGUE los configura, así que su valor NO se conoce en
+    # análisis; PHPStan los resolvía al valor de ESTE árbol y daba por muerta toda rama
+    # que dependiera de ellos. Borrar esas ramas cablearía los módulos en ENCENDIDO para
+    # todos los despliegues, que es la definición de embarcar una trampa.
+    #
+    # Esto NO es una supresión: no oculta un error, le dice a PHPStan la verdad. Por eso
+    # no lleva condición de retirada — la única que la retiraría es que el framework
+    # dejase de ser una plantilla que se clona.
+    #
+    # PROPAGACIÓN COMPROBADA: basta con nombrar la constante global. Una constante de
+    # clase asignada desde ella —`const ENABLE = NEWSLETTER_MODULE;`, que es el patrón de
+    # todos los `<Modulo>Routes`— también deja de resolverse.
+    #
+    # Los cuatro paquetes `piecesphp/*` NO llevan este bloque: no ven `constants.php` y
+    # ninguno menciona estas constantes (comprobado, cero archivos).
+    dynamicConstantNames:
+        - ACTIVE_TIMER
+        - API_AI_TRANSLATIONS_ACTIVE
+        - API_CRONJOBS
+        - API_MODULE
+        - API_REPORTS
+        - API_TRANSLATION_MODULE
+        - API_USERS
+        - APP_CONFIGURATION_MODULE
+        - CONTENT_NAVIGATION_HUB_MODULE
+        - DOCUMENTS_MODULE_ENABLE
+        - EVENTS_LOG_MODULE
+        - FILE_MANAGER_MODULE
+        - FORMS_MODULE_CATEGORIES_ENABLE
+        - FORMS_MODULE_DOCUMENTS_TYPES_ENABLE
+        - FORMS_MODULE_ENABLE
+        - HOME_IMAGE_BANNER
+        - IMAGES_REPOSITORY
+        - IMPORTS_MODULE_ENABLED
+        - LOCATIONS_ENABLED
+        - NEWSLETTER_MODULE
+        - NEWS_MODULE
+        - ORGANIZATIONS_MODULE
+        - PIECES_PHP_DYNAMIC_IMAGES_ENABLE
+        - PUBLICATIONS_MODULE
+        - SYSTEM_APPROVALS_MODULE
     ignoreErrors:
         #──── Variables inyectadas en vistas (extract) y elementos difíciles de descrubrir
         -

@@ -48,6 +48,9 @@ Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticar
 | **877 errores** | `bin/phpstan`, leyendo `PHPStanResult.json`: `totals.file_errors`. Cuenta **instancias**, no tripletas distintas. |
 | **190 archivos** | El mismo JSON: número de claves de `files`. |
 
+El cambio de configuración del punto 3 —`dynamicConstantNames`— lo movió **cero**: ver T13,
+donde el delta va contado aparte con su método.
+
 Verificado con un segundo método independiente, como manda T20: `PHPStanResult.Summary.txt`
 lo obtiene parseando **la tabla** con otro código —`bin/phpstan-process-result.php`— y da
 los mismos **877 y 190**. Distinto formateador y distinto parser, así que el acuerdo no es
@@ -1181,6 +1184,92 @@ Archivos con más ramas de la clase magia: `ImagesRepositoryMapper` (4, **conden
 `BuiltInBannerMapper` (4), `ApplicationCallsMapper` (3, **condenado**), `CategoriesMapper` (3),
 `DocumentTypesMapper` (3), `NewsMapper` (3).
 
+### APLICADO · `dynamicConstantNames`, con el delta contado aparte
+
+**No son 27 constantes: son 25.** El «27» eran los **identificadores** de ignore del bloque
+de código muerto, que es otra cosa. Las constantes, con su comando:
+
+| Cifra | Comando |
+| --: | :-- |
+| **24** interruptores booleanos | `grep -oE "define\('([A-Z0-9_]+)',\s*(true\|false)\)" src/app/config/constants.php` |
+| **+1** `ORGANIZATIONS_MODULE` | Se define desde `CRITICAL_CONSTANTS`, no con un literal, así que el patrón anterior no la ve |
+| **27** identificadores de ignore | Las reglas del bloque son 28: 27 `identifier` y un `message` (`left side of ?? always exists`) |
+
+**Esto NO es una supresión.** No oculta un error: le dice a PHPStan la verdad, que el valor
+de esas constantes no se conoce en análisis porque **cada despliegue las configura**. Por eso
+no lleva condición de retirada — la única que la retiraría es que el framework dejase de ser
+una plantilla que se clona.
+
+**Los cuatro paquetes NO llevan el bloque.** No ven `constants.php` y **ninguno menciona
+estas constantes**: `grep -rlE "PUBLICATIONS_MODULE|NEWS_MODULE|…"` sobre los cuatro `src/`
+da **cero archivos**. Ponérselo sería escribir en un registro algo que allí no significa
+nada, que es justo lo que el punto 3 de T0 quiere evitar.
+
+#### El delta, contado aparte
+
+| Medición | Antes | Después | Delta |
+| :-- | --: | --: | --: |
+| **Baseline visible** (instancias / tripletas) | 877 / 868 | **877 / 868** | **0** |
+| Ramas muertas, instancias | 470 | **373** | **−97** |
+| Ramas muertas, tripletas | 465 | **373** | **−92** |
+
+**El baseline visible no se mueve, y tenía que no moverse**: esas ramas ya estaban
+silenciadas por el bloque de ignores, así que retirarles el veredicto falso no cambia nada
+de lo que se ve. **El movimiento entero vive en la medición que hoy está tapada.**
+
+Contraste con la estimación previa, que aguanta: la muestra decía **21,7 %** de la clase (a);
+la medición da **92 de 465 = 19,8 %** del conjunto entero. Dos instrumentos distintos y el
+mismo orden de magnitud.
+
+**Método, para que la cifra sea comparable la próxima vez:**
+
+```bash
+bin/phpstan-deadcode
+```
+
+Deriva la configuración sin el bloque a partir de `bin/phpstan.neon` en cada ejecución —no
+la duplica, así que no puede quedarse atrás— y resta las dos corridas. Cuenta **tripletas**
+(ruta, línea, mensaje).
+
+#### Un susto que era del instrumento, otra vez
+
+La primera lectura dio **877 → 878** y estuvo a un paso de escribirse como «destapar las
+constantes sacó a la luz un error nuevo». **No era eso.** El +1 era un error de mi propia
+suite recién añadida —`UnitTest-MetaPropertyHybrid.php:70`, un `ReflectionClass` sobre un
+`string` sin estrechar—, que entró en la medición por estar bajo `src/app`.
+
+El segundo método que lo destapó: correr con una copia de la configuración **sin** el bloque
+de constantes dinámicas. Dio **869 tripletas en las dos direcciones**, así que el cambio no
+podía ser el culpable. **T20, la quinta vez.**
+
+### El reparto cambió solo, como se sospechaba — el «235» queda derogado
+
+| Familia | Antes *(estimado por muestra)* | Ahora *(medido por ruta)* |
+| :-- | --: | --: |
+| **Total** | 465 | **373** |
+| Vistas y `extract()` | 105 | **22** |
+| Mappers | 59 | **43** |
+| Suites de caracterización | — | **3** |
+| Resto | ~300 | **305** |
+
+> **Cuidado con las columnas: no son el mismo instrumento.** La de la izquierda es una
+> estimación por muestreo; la de la derecha, un conteo por ruta de archivo. **Solo el total
+> es comparable.** El **235 «borrables sin tocar configuración» queda derogado**: nacía de
+> restar 65 a 300, y ninguna de las dos cifras sobrevive a la medición nueva.
+
+Las de arriba por identificador, que es por donde conviene atacarlas —**por familia entera,
+nunca sueltas** (T17):
+
+| Instancias | Identificador | Qué es |
+| --: | :-- | :-- |
+| **129** | `function.alreadyNarrowedType` | `is_array()` sobre un `array`, `is_string()` sobre un `string`. Resto defensivo puro |
+| **50** | `isset.variable` | `isset($x)` sobre una variable que PHPStan ya sabe definida |
+| **42** | `notIdentical.alwaysTrue` | `!==` que nunca puede ser falso |
+| **24** | `foreach.emptyArray` | Recorrer un array que la inferencia da por vacío |
+| **21 / 20** | `if.alwaysTrue` / `if.alwaysFalse` | La rama entera sobra |
+
+**Nada de esto se borra todavía.** El encargo era medir antes de tocar, y la medición dice
+que el mapa anterior ya no sirve.
 ## T14 · `scan-invalid-utf8` VIAJA CON EL FRAMEWORK
 
 `bin/cli scan-invalid-utf8` es **comprobación previa a actualizar**, no una herramienta de

@@ -62,13 +62,14 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     /**
      * Ruta del archivo donde vive realmente una clase, relativa a la raíz del repositorio.
+     *
      */
     $fileOf = function (string $className): string {
-        try {
-            $file = (new \ReflectionClass($className))->getFileName();
-        } catch (\ReflectionException $e) {
+        //`class_exists()` estrecha string a class-string; sin él la reflexión no está justificada.
+        if (!class_exists($className)) {
             return '';
         }
+        $file = (new \ReflectionClass($className))->getFileName();
         if (!is_string($file)) {
             return '';
         }

@@ -44,6 +44,7 @@ solo-admin y está marcado «por renovar»: no lo uses como referencia de estilo
 ```bash
 bin/cli <acción>        # CLI del framework (help lista las acciones)
 bin/phpstan             # análisis estático (nivel 8) -> PHPStanResult.Summary.txt
+bin/phpstan-deadcode    # mide las ramas muertas que phpstan.neon silencia
 bin/rector              # refactor automatizado, configurado en bin/tools/refactorization
 cd src && gulp init-project   # compilar SASS y TypeScript
 ```

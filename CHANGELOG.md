@@ -146,6 +146,18 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   horaria hereda la hora actual; `->format('Y-m-d')` la descartaba, así que el valor nunca
   cambió, pero el objeto intermedio era distinto en cada petición.
 
+## Herramientas
+
+- **`bin/phpstan.neon` declara los interruptores de módulo como `dynamicConstantNames`.**
+  Las 25 constantes de `config/constants.php` que **cada despliegue configura** ya no se
+  resuelven al valor de este árbol, así que PHPStan deja de dar por muertas las ramas que
+  dependen de ellas. **No es una supresión**: borrar esas ramas habría cableado todos los
+  módulos en ENCENDIDO para cualquier despliegue que los apague.
+- **`bin/phpstan-deadcode`**, nuevo. Mide las ramas muertas que el bloque de ignores de
+  `phpstan.neon` silencia, derivando la configuración de ese mismo archivo en cada
+  ejecución para que no pueda quedarse atrás. El baseline visible no se mueve (877); la
+  medición tapada baja de 465 a 373 tripletas.
+
 ## Dependencias
 
 - `piecesphp/database` sube a **v3.2.0**: `query()` y `prepare()` declaran `\PDOStatement`

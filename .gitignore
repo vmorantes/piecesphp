@@ -31,3 +31,4 @@ vendor/**
 IGNORE.md
 IGNORE/
 docs/*
+bin/phpstan.deadcode.generated.neon
