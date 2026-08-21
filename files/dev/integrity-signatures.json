@@ -1,0 +1,3816 @@
+{
+    "app/classes/API/APILang.php": [
+        "APILang::injectLang"
+    ],
+    "app/classes/API/APIRoutes.php": [
+        "APIRoutes::init",
+        "APIRoutes::routes"
+    ],
+    "app/classes/API/Adapters/APIExternalAdapterExample.php": [
+        "APIExternalAdapterExample::__construct",
+        "APIExternalAdapterExample::genericRequestSample",
+        "APIExternalAdapterExample::getAuthToken",
+        "APIExternalAdapterExample::httpClientWithTokenHeader",
+        "APIExternalAdapterExample::login",
+        "APIExternalAdapterExample::saveToken",
+        "APIExternalAdapterExample::verifyCurrentAuthToken"
+    ],
+    "app/classes/API/Adapters/APILabsMobileSMS.php": [
+        "APILabsMobileSMS::__construct",
+        "APILabsMobileSMS::httpClientWithApiKeyHeader",
+        "APILabsMobileSMS::sendSMS"
+    ],
+    "app/classes/API/Adapters/BlobStorageAzureAdapter.php": [
+        "BlobStorageAzureAdapter::__construct",
+        "BlobStorageAzureAdapter::getConnectionString",
+        "BlobStorageAzureAdapter::init",
+        "BlobStorageAzureAdapter::read"
+    ],
+    "app/classes/API/Adapters/FfmpegAudioAdapter.php": [
+        "FfmpegAudioAdapter::__construct",
+        "FfmpegAudioAdapter::convertToWav",
+        "FfmpegAudioAdapter::fixWebmDuration"
+    ],
+    "app/classes/API/Adapters/HubSpotAPIAdapter.php": [
+        "HubSpotAPIAdapter::__construct",
+        "HubSpotAPIAdapter::getAccessTokenFromJSONFile",
+        "HubSpotAPIAdapter::getClient",
+        "HubSpotAPIAdapter::getContacts",
+        "HubSpotAPIAdapter::setAccessTokenFromJSONFile"
+    ],
+    "app/classes/API/Adapters/MauticEmailAdapter.php": [
+        "MauticEmailAdapter::__construct",
+        "MauticEmailAdapter::addContactsToSegment",
+        "MauticEmailAdapter::createBatchContacts",
+        "MauticEmailAdapter::createContact",
+        "MauticEmailAdapter::createEmailTemplate",
+        "MauticEmailAdapter::createSegment",
+        "MauticEmailAdapter::getAccessToken",
+        "MauticEmailAdapter::httpClientWithApiKeyHeader",
+        "MauticEmailAdapter::invalidateToken",
+        "MauticEmailAdapter::makeRequest",
+        "MauticEmailAdapter::reponseResultToLog",
+        "MauticEmailAdapter::saveErrors",
+        "MauticEmailAdapter::sendEmail"
+    ],
+    "app/classes/API/Adapters/MistralHandlerAdapter.php": [
+        "MistralHandlerAdapter::__construct",
+        "MistralHandlerAdapter::addLastUsage",
+        "MistralHandlerAdapter::askToChat",
+        "MistralHandlerAdapter::buildTranslationPrompt",
+        "MistralHandlerAdapter::getLastAskToChatOriginalResponse",
+        "MistralHandlerAdapter::getTokensUsed",
+        "MistralHandlerAdapter::httpClientWithApiKeyHeader",
+        "MistralHandlerAdapter::lastUsage",
+        "MistralHandlerAdapter::translate"
+    ],
+    "app/classes/API/Adapters/OpenAIHandlerAdapter.php": [
+        "OpenAIHandlerAdapter::__construct",
+        "OpenAIHandlerAdapter::addLastUsage",
+        "OpenAIHandlerAdapter::askToAssistent",
+        "OpenAIHandlerAdapter::askToChat",
+        "OpenAIHandlerAdapter::buildTranslationPrompt",
+        "OpenAIHandlerAdapter::getLastAskToChatOriginalResponse",
+        "OpenAIHandlerAdapter::getTokensUsed",
+        "OpenAIHandlerAdapter::lastUsage",
+        "OpenAIHandlerAdapter::translate"
+    ],
+    "app/classes/API/Adapters/Packages/BlobStorageFileAzurePackage.php": [
+        "BlobStorageFileAzurePackage::__construct",
+        "BlobStorageFileAzurePackage::blob",
+        "BlobStorageFileAzurePackage::content",
+        "BlobStorageFileAzurePackage::contentType",
+        "BlobStorageFileAzurePackage::lastModified",
+        "BlobStorageFileAzurePackage::properties"
+    ],
+    "app/classes/API/Adapters/SpeechToTextAzureAdapter.php": [
+        "SpeechToTextAzureAdapter::__construct",
+        "SpeechToTextAzureAdapter::init",
+        "SpeechToTextAzureAdapter::transcribe"
+    ],
+    "app/classes/API/Adapters/SpeechToTextGroqAdapter.php": [
+        "SpeechToTextGroqAdapter::__construct",
+        "SpeechToTextGroqAdapter::init",
+        "SpeechToTextGroqAdapter::transcribe"
+    ],
+    "app/classes/API/Controllers/APIController.php": [
+        "APIController::__construct",
+        "APIController::_allowedRoute",
+        "APIController::allowedRoute",
+        "APIController::cronJobs",
+        "APIController::externalActions",
+        "APIController::news",
+        "APIController::publications",
+        "APIController::reports",
+        "APIController::routeName",
+        "APIController::routes",
+        "APIController::translations",
+        "APIController::usersActions"
+    ],
+    "app/classes/API/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::splitHtmlSafely",
+        "HelperController::tryParseTranslationResult"
+    ],
+    "app/classes/API/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/App/Locations/Controllers/City.php": [
+        "City::__construct",
+        "City::_all",
+        "City::action",
+        "City::addForm",
+        "City::all",
+        "City::cities",
+        "City::citiesDataTables",
+        "City::editForm",
+        "City::routeName",
+        "City::search"
+    ],
+    "app/classes/App/Locations/Controllers/Country.php": [
+        "Country::__construct",
+        "Country::action",
+        "Country::addForm",
+        "Country::all",
+        "Country::countries",
+        "Country::countriesDataTables",
+        "Country::editForm",
+        "Country::routeName",
+        "Country::search"
+    ],
+    "app/classes/App/Locations/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::localRender"
+    ],
+    "app/classes/App/Locations/Controllers/Locations.php": [
+        "Locations::__construct",
+        "Locations::generateLangFile",
+        "Locations::genericManageRoutes",
+        "Locations::genericManageRoutesRegions",
+        "Locations::indexView",
+        "Locations::routes"
+    ],
+    "app/classes/App/Locations/Controllers/Point.php": [
+        "Point::__construct",
+        "Point::_all",
+        "Point::action",
+        "Point::addForm",
+        "Point::all",
+        "Point::editForm",
+        "Point::points",
+        "Point::pointsDataTables",
+        "Point::routeName",
+        "Point::search"
+    ],
+    "app/classes/App/Locations/Controllers/Region.php": [
+        "Region::__construct",
+        "Region::all",
+        "Region::regions",
+        "Region::routeName",
+        "Region::search"
+    ],
+    "app/classes/App/Locations/Controllers/State.php": [
+        "State::__construct",
+        "State::_all",
+        "State::action",
+        "State::addForm",
+        "State::all",
+        "State::editForm",
+        "State::routeName",
+        "State::search",
+        "State::states",
+        "State::statesDataTables"
+    ],
+    "app/classes/App/Locations/LocationsLang.php": [
+        "LocationsLang::injectLang"
+    ],
+    "app/classes/App/Locations/Mappers/CityMapper.php": [
+        "CityMapper::__construct",
+        "CityMapper::all",
+        "CityMapper::allForSelect",
+        "CityMapper::fieldsToSelect",
+        "CityMapper::getBy",
+        "CityMapper::getByName",
+        "CityMapper::getByState",
+        "CityMapper::isDuplicateCode",
+        "CityMapper::isDuplicateName",
+        "CityMapper::model"
+    ],
+    "app/classes/App/Locations/Mappers/CountryMapper.php": [
+        "CountryMapper::__construct",
+        "CountryMapper::all",
+        "CountryMapper::allBy",
+        "CountryMapper::allByRegions",
+        "CountryMapper::allForSelect",
+        "CountryMapper::allRegions",
+        "CountryMapper::allRegionsForSelect",
+        "CountryMapper::fieldsToSelect",
+        "CountryMapper::getBy",
+        "CountryMapper::isDuplicateCode",
+        "CountryMapper::isDuplicateName",
+        "CountryMapper::model"
+    ],
+    "app/classes/App/Locations/Mappers/PointMapper.php": [
+        "PointMapper::__construct",
+        "PointMapper::all",
+        "PointMapper::allForSelect",
+        "PointMapper::fieldsToSelect",
+        "PointMapper::getBy",
+        "PointMapper::getByCity",
+        "PointMapper::getByID",
+        "PointMapper::getByName",
+        "PointMapper::isDuplicate",
+        "PointMapper::model"
+    ],
+    "app/classes/App/Locations/Mappers/StateMapper.php": [
+        "StateMapper::__construct",
+        "StateMapper::all",
+        "StateMapper::allForSelect",
+        "StateMapper::fieldsToSelect",
+        "StateMapper::getBy",
+        "StateMapper::getByCountry",
+        "StateMapper::getByName",
+        "StateMapper::isDuplicateCode",
+        "StateMapper::isDuplicateName",
+        "StateMapper::model"
+    ],
+    "app/classes/ApplicationCalls/ApplicationCallsLang.php": [
+        "ApplicationCallsLang::injectLang"
+    ],
+    "app/classes/ApplicationCalls/ApplicationCallsRoutes.php": [
+        "ApplicationCallsRoutes::init",
+        "ApplicationCallsRoutes::routes",
+        "ApplicationCallsRoutes::staticResolver",
+        "ApplicationCallsRoutes::staticRoute"
+    ],
+    "app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php": [
+        "ApplicationCallsController::__construct",
+        "ApplicationCallsController::_all",
+        "ApplicationCallsController::_allowedRoute",
+        "ApplicationCallsController::action",
+        "ApplicationCallsController::addForm",
+        "ApplicationCallsController::all",
+        "ApplicationCallsController::allowedRoute",
+        "ApplicationCallsController::dataTables",
+        "ApplicationCallsController::editForm",
+        "ApplicationCallsController::handlerUpload",
+        "ApplicationCallsController::listView",
+        "ApplicationCallsController::pathFrontApplicationCallAdapter",
+        "ApplicationCallsController::render",
+        "ApplicationCallsController::routeName",
+        "ApplicationCallsController::routes",
+        "ApplicationCallsController::toDelete"
+    ],
+    "app/classes/ApplicationCalls/Controllers/ApplicationCallsPublicController.php": [
+        "ApplicationCallsPublicController::__construct",
+        "ApplicationCallsPublicController::all",
+        "ApplicationCallsPublicController::allowedRoute",
+        "ApplicationCallsPublicController::init",
+        "ApplicationCallsPublicController::render",
+        "ApplicationCallsPublicController::routeName",
+        "ApplicationCallsPublicController::routes",
+        "ApplicationCallsPublicController::view"
+    ],
+    "app/classes/ApplicationCalls/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::getLangsForSelect"
+    ],
+    "app/classes/ApplicationCalls/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/ApplicationCalls/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php": [
+        "ApplicationCallsMapper::__construct",
+        "ApplicationCallsMapper::activesByDateIDs",
+        "ApplicationCallsMapper::addDataManyLangs",
+        "ApplicationCallsMapper::all",
+        "ApplicationCallsMapper::allBy",
+        "ApplicationCallsMapper::contentTypeBackgroundColor",
+        "ApplicationCallsMapper::contentTypeForFullDisplayText",
+        "ApplicationCallsMapper::contentTypeIcon",
+        "ApplicationCallsMapper::contentTypeIconColor",
+        "ApplicationCallsMapper::contentTypeText",
+        "ApplicationCallsMapper::contentTypes",
+        "ApplicationCallsMapper::contentTypesForFullDisplay",
+        "ApplicationCallsMapper::contentTypesForFullDisplayForSelect",
+        "ApplicationCallsMapper::contentTypesForSelect",
+        "ApplicationCallsMapper::createdAtFormat",
+        "ApplicationCallsMapper::createdByFullName",
+        "ApplicationCallsMapper::currencies",
+        "ApplicationCallsMapper::currenciesForSelect",
+        "ApplicationCallsMapper::currentLangData",
+        "ApplicationCallsMapper::elementFriendlySlug",
+        "ApplicationCallsMapper::endDateFormat",
+        "ApplicationCallsMapper::excerpt",
+        "ApplicationCallsMapper::existsByID",
+        "ApplicationCallsMapper::existsByTitle",
+        "ApplicationCallsMapper::extractIDFromSlug",
+        "ApplicationCallsMapper::fieldCurrentLangForSQL",
+        "ApplicationCallsMapper::fieldsToSelect",
+        "ApplicationCallsMapper::financingTypeText",
+        "ApplicationCallsMapper::financingTypes",
+        "ApplicationCallsMapper::financingTypesForSelect",
+        "ApplicationCallsMapper::getAttachments",
+        "ApplicationCallsMapper::getAttachmentsByLang",
+        "ApplicationCallsMapper::getBy",
+        "ApplicationCallsMapper::getEncryptIDForSlug",
+        "ApplicationCallsMapper::getLangData",
+        "ApplicationCallsMapper::getNoTranslatableProperties",
+        "ApplicationCallsMapper::getSlug",
+        "ApplicationCallsMapper::getTranslatableProperties",
+        "ApplicationCallsMapper::getURLAlternatives",
+        "ApplicationCallsMapper::hasLang",
+        "ApplicationCallsMapper::isActiveByDates",
+        "ApplicationCallsMapper::lastModifiedElement",
+        "ApplicationCallsMapper::model",
+        "ApplicationCallsMapper::modifiedByFullName",
+        "ApplicationCallsMapper::objectToMapper",
+        "ApplicationCallsMapper::save",
+        "ApplicationCallsMapper::setLangData",
+        "ApplicationCallsMapper::startDateFormat",
+        "ApplicationCallsMapper::statuses",
+        "ApplicationCallsMapper::update",
+        "ApplicationCallsMapper::updatedAtFormat"
+    ],
+    "app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMapper.php": [
+        "AttachmentApplicationCallsMapper::__construct",
+        "AttachmentApplicationCallsMapper::all",
+        "AttachmentApplicationCallsMapper::allBy",
+        "AttachmentApplicationCallsMapper::createdAtFormat",
+        "AttachmentApplicationCallsMapper::createdByFullName",
+        "AttachmentApplicationCallsMapper::existsByApplicationCall",
+        "AttachmentApplicationCallsMapper::existsByID",
+        "AttachmentApplicationCallsMapper::fieldsToSelect",
+        "AttachmentApplicationCallsMapper::fileExists",
+        "AttachmentApplicationCallsMapper::fileIsImage",
+        "AttachmentApplicationCallsMapper::getBy",
+        "AttachmentApplicationCallsMapper::getExactAttachment",
+        "AttachmentApplicationCallsMapper::getExtension",
+        "AttachmentApplicationCallsMapper::getMimeType",
+        "AttachmentApplicationCallsMapper::lastModifiedElement",
+        "AttachmentApplicationCallsMapper::model",
+        "AttachmentApplicationCallsMapper::modifiedByFullName",
+        "AttachmentApplicationCallsMapper::objectToMapper",
+        "AttachmentApplicationCallsMapper::save",
+        "AttachmentApplicationCallsMapper::update",
+        "AttachmentApplicationCallsMapper::updatedAtFormat"
+    ],
+    "app/classes/ApplicationCalls/Util/AttachmentPackage.php": [
+        "AttachmentPackage::__construct",
+        "AttachmentPackage::forceEvaluationMapper",
+        "AttachmentPackage::getApplicationCallID",
+        "AttachmentPackage::getDisplayName",
+        "AttachmentPackage::getLang",
+        "AttachmentPackage::getMapper",
+        "AttachmentPackage::hasAttachment",
+        "AttachmentPackage::isRequired",
+        "AttachmentPackage::setApplicationCallID",
+        "AttachmentPackage::setLang",
+        "AttachmentPackage::setRequired"
+    ],
+    "app/classes/ApplicationCalls/Util/FieldTranslationUtility.php": [
+        "FieldTranslationUtility::__construct",
+        "FieldTranslationUtility::baseLang",
+        "FieldTranslationUtility::currentLang",
+        "FieldTranslationUtility::fieldName",
+        "FieldTranslationUtility::isTranslatable",
+        "FieldTranslationUtility::mapper",
+        "FieldTranslationUtility::translatable"
+    ],
+    "app/classes/Components/ComponentProviderLang.php": [
+        "ComponentProviderLang::injectLang"
+    ],
+    "app/classes/Components/ComponentProviderRoutes.php": [
+        "ComponentProviderRoutes::init",
+        "ComponentProviderRoutes::routes",
+        "ComponentProviderRoutes::staticResolver",
+        "ComponentProviderRoutes::staticRoute"
+    ],
+    "app/classes/Components/Controllers/ComponentProvider.php": [
+        "ComponentProvider::__construct",
+        "ComponentProvider::_allowedRoute",
+        "ComponentProvider::allowedRoute",
+        "ComponentProvider::pathJSModule",
+        "ComponentProvider::provide",
+        "ComponentProvider::routeName",
+        "ComponentProvider::routes"
+    ],
+    "app/classes/Components/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/ContentNavigationHub/ContentNavigationHubLang.php": [
+        "ContentNavigationHubLang::injectLang"
+    ],
+    "app/classes/ContentNavigationHub/ContentNavigationHubRoutes.php": [
+        "ContentNavigationHubRoutes::init",
+        "ContentNavigationHubRoutes::routes",
+        "ContentNavigationHubRoutes::staticResolver",
+        "ContentNavigationHubRoutes::staticRoute"
+    ],
+    "app/classes/ContentNavigationHub/Controllers/ContentNavigationHubController.php": [
+        "ContentNavigationHubController::__construct",
+        "ContentNavigationHubController::_allowedRoute",
+        "ContentNavigationHubController::allowedRoute",
+        "ContentNavigationHubController::applicationCallDetailView",
+        "ContentNavigationHubController::applicationCallsListView",
+        "ContentNavigationHubController::contentsMapView",
+        "ContentNavigationHubController::profileListView",
+        "ContentNavigationHubController::render",
+        "ContentNavigationHubController::routeName",
+        "ContentNavigationHubController::routes",
+        "ContentNavigationHubController::view"
+    ],
+    "app/classes/ContentNavigationHub/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::getLangsForSelect"
+    ],
+    "app/classes/ContentNavigationHub/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/DataImportExportUtility/Controllers/DataImportExportUtilityController.php": [
+        "DataImportExportUtilityController::__construct",
+        "DataImportExportUtilityController::_allowedRoute",
+        "DataImportExportUtilityController::allowedRoute",
+        "DataImportExportUtilityController::getUsersImportGeneratedFiles",
+        "DataImportExportUtilityController::routeName",
+        "DataImportExportUtilityController::routes",
+        "DataImportExportUtilityController::showImportedGenerated",
+        "DataImportExportUtilityController::showRoutes",
+        "DataImportExportUtilityController::usersExport",
+        "DataImportExportUtilityController::usersImport",
+        "DataImportExportUtilityController::view"
+    ],
+    "app/classes/DataImportExportUtility/Controllers/ExportHandlers/BaseExportData.php": [
+        "BaseExportData::__construct",
+        "BaseExportData::cacheControl",
+        "BaseExportData::contentDisposition",
+        "BaseExportData::contentType",
+        "BaseExportData::fileData",
+        "BaseExportData::fileName"
+    ],
+    "app/classes/DataImportExportUtility/Controllers/ExportHandlers/UsersExporter.php": [
+        "UsersExporter::exportData"
+    ],
+    "app/classes/DataImportExportUtility/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/DataImportExportUtility/DataImportExportUtilityLang.php": [
+        "DataImportExportUtilityLang::injectLang"
+    ],
+    "app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php": [
+        "DataImportExportUtilityRoutes::init",
+        "DataImportExportUtilityRoutes::routes",
+        "DataImportExportUtilityRoutes::staticResolver",
+        "DataImportExportUtilityRoutes::staticRoute"
+    ],
+    "app/classes/Documents/Controllers/DocumentsController.php": [
+        "DocumentsController::__construct",
+        "DocumentsController::_all",
+        "DocumentsController::_allowedRoute",
+        "DocumentsController::action",
+        "DocumentsController::addForm",
+        "DocumentsController::all",
+        "DocumentsController::allowedLangsForSelect",
+        "DocumentsController::allowedRoute",
+        "DocumentsController::dataTables",
+        "DocumentsController::dataTablesExplorer",
+        "DocumentsController::editForm",
+        "DocumentsController::explorerView",
+        "DocumentsController::handlerUpload",
+        "DocumentsController::listView",
+        "DocumentsController::routeName",
+        "DocumentsController::routes",
+        "DocumentsController::searchDropdown",
+        "DocumentsController::toDelete",
+        "DocumentsController::view"
+    ],
+    "app/classes/Documents/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/Documents/DocumentsLang.php": [
+        "DocumentsLang::injectLang"
+    ],
+    "app/classes/Documents/DocumentsRoutes.php": [
+        "DocumentsRoutes::init",
+        "DocumentsRoutes::routes",
+        "DocumentsRoutes::staticResolver",
+        "DocumentsRoutes::staticRoute"
+    ],
+    "app/classes/Documents/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/Documents/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/Documents/Mappers/DocumentsMapper.php": [
+        "DocumentsMapper::__construct",
+        "DocumentsMapper::all",
+        "DocumentsMapper::allBy",
+        "DocumentsMapper::countAll",
+        "DocumentsMapper::createdAtFormat",
+        "DocumentsMapper::createdByFullName",
+        "DocumentsMapper::currentLangData",
+        "DocumentsMapper::elementFriendlySlug",
+        "DocumentsMapper::existsByDocumentName",
+        "DocumentsMapper::existsByID",
+        "DocumentsMapper::extractIDFromSlug",
+        "DocumentsMapper::fieldCurrentLangForSQL",
+        "DocumentsMapper::fieldsToSelect",
+        "DocumentsMapper::folderRemove",
+        "DocumentsMapper::getBy",
+        "DocumentsMapper::getByID",
+        "DocumentsMapper::getEncryptIDForSlug",
+        "DocumentsMapper::getLangData",
+        "DocumentsMapper::getNoTranslatableProperties",
+        "DocumentsMapper::getSlug",
+        "DocumentsMapper::getTranslatableProperties",
+        "DocumentsMapper::jsonExtractExistsMySQL",
+        "DocumentsMapper::model",
+        "DocumentsMapper::modifiedByFullName",
+        "DocumentsMapper::objectToMapper",
+        "DocumentsMapper::save",
+        "DocumentsMapper::setLangData",
+        "DocumentsMapper::translateEntityObject",
+        "DocumentsMapper::update",
+        "DocumentsMapper::updatedAtFormat"
+    ],
+    "app/classes/EventsLog/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/EventsLog/Controllers/LogsController.php": [
+        "LogsController::__construct",
+        "LogsController::_allowedRoute",
+        "LogsController::allowedRoute",
+        "LogsController::dataTables",
+        "LogsController::listView",
+        "LogsController::routeName",
+        "LogsController::routes",
+        "LogsController::view"
+    ],
+    "app/classes/EventsLog/LogsLang.php": [
+        "LogsLang::injectLang"
+    ],
+    "app/classes/EventsLog/LogsRoutes.php": [
+        "LogsRoutes::init",
+        "LogsRoutes::routes",
+        "LogsRoutes::staticResolver",
+        "LogsRoutes::staticRoute"
+    ],
+    "app/classes/EventsLog/Mappers/LogsMapper.php": [
+        "LogsMapper::__construct",
+        "LogsMapper::addLog",
+        "LogsMapper::all",
+        "LogsMapper::allBy",
+        "LogsMapper::allByReference",
+        "LogsMapper::createdAtFormat",
+        "LogsMapper::createdByFullname",
+        "LogsMapper::existsByID",
+        "LogsMapper::fieldsToSelect",
+        "LogsMapper::getBy",
+        "LogsMapper::getMessage",
+        "LogsMapper::getReadableMessage",
+        "LogsMapper::jsonExtractExistsMySQL",
+        "LogsMapper::model",
+        "LogsMapper::moduleNamesEquivalencesBySource",
+        "LogsMapper::objectToMapper",
+        "LogsMapper::save",
+        "LogsMapper::update"
+    ],
+    "app/classes/FileManager/Controllers/FileManagerController.php": [
+        "FileManagerController::__construct",
+        "FileManagerController::accessElFinderHandler",
+        "FileManagerController::allowedRoute",
+        "FileManagerController::fileManager",
+        "FileManagerController::fileManagerConfiguration",
+        "FileManagerController::fileManagerConfigurationRichEditor",
+        "FileManagerController::fileManagerRichEditor",
+        "FileManagerController::routeName",
+        "FileManagerController::routes",
+        "FileManagerController::structureOptions",
+        "FileManagerController::view"
+    ],
+    "app/classes/FileManager/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/FileManager/FileManagerLang.php": [
+        "FileManagerLang::injectLang"
+    ],
+    "app/classes/FileManager/FileManagerRoutes.php": [
+        "FileManagerRoutes::init",
+        "FileManagerRoutes::routes",
+        "FileManagerRoutes::staticResolver",
+        "FileManagerRoutes::staticRoute"
+    ],
+    "app/classes/Forms/Categories/CategoriesLang.php": [
+        "CategoriesLang::injectLang"
+    ],
+    "app/classes/Forms/Categories/CategoriesRoutes.php": [
+        "CategoriesRoutes::routes",
+        "CategoriesRoutes::staticResolver",
+        "CategoriesRoutes::staticRoute"
+    ],
+    "app/classes/Forms/Categories/Controllers/CategoriesController.php": [
+        "CategoriesController::__construct",
+        "CategoriesController::_all",
+        "CategoriesController::_allowedRoute",
+        "CategoriesController::action",
+        "CategoriesController::addForm",
+        "CategoriesController::all",
+        "CategoriesController::allowedLangsForSelect",
+        "CategoriesController::allowedRoute",
+        "CategoriesController::dataTables",
+        "CategoriesController::editForm",
+        "CategoriesController::handlerUpload",
+        "CategoriesController::listView",
+        "CategoriesController::routeName",
+        "CategoriesController::routes",
+        "CategoriesController::toDelete",
+        "CategoriesController::view"
+    ],
+    "app/classes/Forms/Categories/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/Forms/Categories/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/Forms/Categories/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/Forms/Categories/Mappers/CategoriesMapper.php": [
+        "CategoriesMapper::__construct",
+        "CategoriesMapper::all",
+        "CategoriesMapper::allBy",
+        "CategoriesMapper::allForSelect",
+        "CategoriesMapper::createdAtFormat",
+        "CategoriesMapper::createdByFullName",
+        "CategoriesMapper::currentLangData",
+        "CategoriesMapper::elementFriendlySlug",
+        "CategoriesMapper::existsByID",
+        "CategoriesMapper::existsByName",
+        "CategoriesMapper::extractIDFromSlug",
+        "CategoriesMapper::fieldCurrentLangForSQL",
+        "CategoriesMapper::fieldsToSelect",
+        "CategoriesMapper::folderRemove",
+        "CategoriesMapper::getBy",
+        "CategoriesMapper::getByID",
+        "CategoriesMapper::getEncryptIDForSlug",
+        "CategoriesMapper::getLangData",
+        "CategoriesMapper::getNoTranslatableProperties",
+        "CategoriesMapper::getSlug",
+        "CategoriesMapper::getTranslatableProperties",
+        "CategoriesMapper::jsonExtractExistsMySQL",
+        "CategoriesMapper::model",
+        "CategoriesMapper::modifiedByFullName",
+        "CategoriesMapper::objectToMapper",
+        "CategoriesMapper::save",
+        "CategoriesMapper::setLangData",
+        "CategoriesMapper::translateEntityObject",
+        "CategoriesMapper::update",
+        "CategoriesMapper::updatedAtFormat"
+    ],
+    "app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php": [
+        "DocumentTypesController::__construct",
+        "DocumentTypesController::_all",
+        "DocumentTypesController::_allowedRoute",
+        "DocumentTypesController::action",
+        "DocumentTypesController::addForm",
+        "DocumentTypesController::all",
+        "DocumentTypesController::allowedLangsForSelect",
+        "DocumentTypesController::allowedRoute",
+        "DocumentTypesController::dataTables",
+        "DocumentTypesController::editForm",
+        "DocumentTypesController::handlerUpload",
+        "DocumentTypesController::listView",
+        "DocumentTypesController::routeName",
+        "DocumentTypesController::routes",
+        "DocumentTypesController::toDelete",
+        "DocumentTypesController::view"
+    ],
+    "app/classes/Forms/DocumentTypes/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/Forms/DocumentTypes/DocumentTypesLang.php": [
+        "DocumentTypesLang::injectLang"
+    ],
+    "app/classes/Forms/DocumentTypes/DocumentTypesRoutes.php": [
+        "DocumentTypesRoutes::routes",
+        "DocumentTypesRoutes::staticResolver",
+        "DocumentTypesRoutes::staticRoute"
+    ],
+    "app/classes/Forms/DocumentTypes/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/Forms/DocumentTypes/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php": [
+        "DocumentTypesMapper::__construct",
+        "DocumentTypesMapper::all",
+        "DocumentTypesMapper::allBy",
+        "DocumentTypesMapper::allForSelect",
+        "DocumentTypesMapper::createdAtFormat",
+        "DocumentTypesMapper::createdByFullName",
+        "DocumentTypesMapper::currentLangData",
+        "DocumentTypesMapper::elementFriendlySlug",
+        "DocumentTypesMapper::existsByID",
+        "DocumentTypesMapper::existsByName",
+        "DocumentTypesMapper::extractIDFromSlug",
+        "DocumentTypesMapper::fieldCurrentLangForSQL",
+        "DocumentTypesMapper::fieldsToSelect",
+        "DocumentTypesMapper::folderRemove",
+        "DocumentTypesMapper::getBy",
+        "DocumentTypesMapper::getByID",
+        "DocumentTypesMapper::getEncryptIDForSlug",
+        "DocumentTypesMapper::getLangData",
+        "DocumentTypesMapper::getNoTranslatableProperties",
+        "DocumentTypesMapper::getSlug",
+        "DocumentTypesMapper::getTranslatableProperties",
+        "DocumentTypesMapper::jsonExtractExistsMySQL",
+        "DocumentTypesMapper::model",
+        "DocumentTypesMapper::modifiedByFullName",
+        "DocumentTypesMapper::objectToMapper",
+        "DocumentTypesMapper::save",
+        "DocumentTypesMapper::setLangData",
+        "DocumentTypesMapper::translateEntityObject",
+        "DocumentTypesMapper::update",
+        "DocumentTypesMapper::updatedAtFormat"
+    ],
+    "app/classes/Forms/FormsRoutes.php": [
+        "FormsRoutes::init",
+        "FormsRoutes::routes"
+    ],
+    "app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php": [
+        "GeoJsonManagerController::__construct",
+        "GeoJsonManagerController::_allowedRoute",
+        "GeoJsonManagerController::allowedRoute",
+        "GeoJsonManagerController::contentsGeoJsonFeatures",
+        "GeoJsonManagerController::handleRequestContentsGeoJsonFeaturesParam",
+        "GeoJsonManagerController::render",
+        "GeoJsonManagerController::routeName",
+        "GeoJsonManagerController::routes",
+        "GeoJsonManagerController::withApplicationCalls",
+        "GeoJsonManagerController::withOrganizationsProfiles",
+        "GeoJsonManagerController::withPersonsProfiles"
+    ],
+    "app/classes/GeoJSONManager/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::getLangsForSelect"
+    ],
+    "app/classes/GeoJSONManager/Enums/FeaturesTypes.php": [
+        "FeaturesTypes::humanValues",
+        "FeaturesTypes::values",
+        "FeaturesTypes::valuesForSelect"
+    ],
+    "app/classes/GeoJSONManager/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/GeoJSONManager/GeoJsonManagerLang.php": [
+        "GeoJsonManagerLang::injectLang"
+    ],
+    "app/classes/GeoJSONManager/GeoJsonManagerRoutes.php": [
+        "GeoJsonManagerRoutes::init",
+        "GeoJsonManagerRoutes::routes",
+        "GeoJsonManagerRoutes::staticResolver",
+        "GeoJsonManagerRoutes::staticRoute"
+    ],
+    "app/classes/GeoJSONManager/Util/FeaturesCollection.php": [
+        "FeaturesCollection::__construct"
+    ],
+    "app/classes/GeoJSONManager/Util/GeoJSONFactory.php": [
+        "GeoJSONFactory::getFeatureFromGeometry",
+        "GeoJSONFactory::getGeoJsonFromGeometries"
+    ],
+    "app/classes/GeoJSONManager/Util/GeometryPackage.php": [
+        "GeometryPackage::__construct"
+    ],
+    "app/classes/GoogleReCaptchaV3/Controllers/GoogleReCaptchaV3Controller.php": [
+        "GoogleReCaptchaV3Controller::__construct",
+        "GoogleReCaptchaV3Controller::action",
+        "GoogleReCaptchaV3Controller::allowedRoute",
+        "GoogleReCaptchaV3Controller::routeName",
+        "GoogleReCaptchaV3Controller::routes",
+        "GoogleReCaptchaV3Controller::verifyTokenCaptcha"
+    ],
+    "app/classes/GoogleReCaptchaV3/GoogleReCaptchaV3Lang.php": [
+        "GoogleReCaptchaV3Lang::injectLang"
+    ],
+    "app/classes/GoogleReCaptchaV3/GoogleReCaptchaV3Routes.php": [
+        "GoogleReCaptchaV3Routes::routes"
+    ],
+    "app/classes/ImagesRepository/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php": [
+        "ImagesRepositoryController::__construct",
+        "ImagesRepositoryController::_all",
+        "ImagesRepositoryController::_allowedRoute",
+        "ImagesRepositoryController::action",
+        "ImagesRepositoryController::addForm",
+        "ImagesRepositoryController::all",
+        "ImagesRepositoryController::allowedLangsForSelect",
+        "ImagesRepositoryController::allowedRoute",
+        "ImagesRepositoryController::dataTables",
+        "ImagesRepositoryController::dataTablesFilterView",
+        "ImagesRepositoryController::editForm",
+        "ImagesRepositoryController::filterView",
+        "ImagesRepositoryController::friendlyAuthorizationName",
+        "ImagesRepositoryController::friendlyImageName",
+        "ImagesRepositoryController::handlerUpload",
+        "ImagesRepositoryController::listView",
+        "ImagesRepositoryController::previewImage",
+        "ImagesRepositoryController::routeName",
+        "ImagesRepositoryController::routes",
+        "ImagesRepositoryController::singleView",
+        "ImagesRepositoryController::toDelete",
+        "ImagesRepositoryController::view"
+    ],
+    "app/classes/ImagesRepository/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/ImagesRepository/ImagesRepositoryLang.php": [
+        "ImagesRepositoryLang::injectLang"
+    ],
+    "app/classes/ImagesRepository/ImagesRepositoryRoutes.php": [
+        "ImagesRepositoryRoutes::init",
+        "ImagesRepositoryRoutes::routes",
+        "ImagesRepositoryRoutes::staticResolver",
+        "ImagesRepositoryRoutes::staticRoute"
+    ],
+    "app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php": [
+        "ImagesRepositoryMapper::__construct",
+        "ImagesRepositoryMapper::all",
+        "ImagesRepositoryMapper::allBy",
+        "ImagesRepositoryMapper::author",
+        "ImagesRepositoryMapper::authorizationExists",
+        "ImagesRepositoryMapper::authorizationExtension",
+        "ImagesRepositoryMapper::authorizationFullPath",
+        "ImagesRepositoryMapper::authorizationIconByExtension",
+        "ImagesRepositoryMapper::authorizationName",
+        "ImagesRepositoryMapper::authorizationRemove",
+        "ImagesRepositoryMapper::captureDateFormat",
+        "ImagesRepositoryMapper::countAll",
+        "ImagesRepositoryMapper::createdAtFormat",
+        "ImagesRepositoryMapper::createdByFullName",
+        "ImagesRepositoryMapper::currentLangData",
+        "ImagesRepositoryMapper::elementFriendlySlug",
+        "ImagesRepositoryMapper::existsByID",
+        "ImagesRepositoryMapper::extractIDFromSlug",
+        "ImagesRepositoryMapper::fieldCurrentLangForSQL",
+        "ImagesRepositoryMapper::fieldsToSelect",
+        "ImagesRepositoryMapper::folderRemove",
+        "ImagesRepositoryMapper::getAuthorizationPublicURL",
+        "ImagesRepositoryMapper::getBy",
+        "ImagesRepositoryMapper::getByID",
+        "ImagesRepositoryMapper::getCoordinates",
+        "ImagesRepositoryMapper::getEncryptIDForSlug",
+        "ImagesRepositoryMapper::getFriendlyAuthorizationName",
+        "ImagesRepositoryMapper::getFriendlyImageName",
+        "ImagesRepositoryMapper::getImagePublicURL",
+        "ImagesRepositoryMapper::getLangData",
+        "ImagesRepositoryMapper::getNoTranslatableProperties",
+        "ImagesRepositoryMapper::getPreviewImagePath",
+        "ImagesRepositoryMapper::getSlug",
+        "ImagesRepositoryMapper::getStates",
+        "ImagesRepositoryMapper::getTranslatableProperties",
+        "ImagesRepositoryMapper::getURLAlternatives",
+        "ImagesRepositoryMapper::getYears",
+        "ImagesRepositoryMapper::hasAuthorization",
+        "ImagesRepositoryMapper::imageExists",
+        "ImagesRepositoryMapper::imageExtension",
+        "ImagesRepositoryMapper::imageFullPath",
+        "ImagesRepositoryMapper::imageName",
+        "ImagesRepositoryMapper::imageRemove",
+        "ImagesRepositoryMapper::jsonExtractExistsMySQL",
+        "ImagesRepositoryMapper::model",
+        "ImagesRepositoryMapper::modifiedByFullName",
+        "ImagesRepositoryMapper::objectToMapper",
+        "ImagesRepositoryMapper::save",
+        "ImagesRepositoryMapper::setLangData",
+        "ImagesRepositoryMapper::translateEntityObject",
+        "ImagesRepositoryMapper::update",
+        "ImagesRepositoryMapper::updatedAtFormat"
+    ],
+    "app/classes/Importers/Controller/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/Importers/Controller/ImporterController.php": [
+        "ImporterController::__construct",
+        "ImporterController::existsImporter",
+        "ImporterController::getCss",
+        "ImporterController::getData",
+        "ImporterController::getImporter",
+        "ImporterController::getJs",
+        "ImporterController::getText",
+        "ImporterController::getTitle",
+        "ImporterController::getView",
+        "ImporterController::import",
+        "ImporterController::importForm",
+        "ImporterController::isValidImporter",
+        "ImporterController::processFile",
+        "ImporterController::readFile",
+        "ImporterController::routes",
+        "ImporterController::staticResolver",
+        "ImporterController::staticRoute",
+        "ImporterController::templates",
+        "ImporterController::verifyCustomPermissions"
+    ],
+    "app/classes/Importers/Managers/ImporterUsers.php": [
+        "ImporterUsers::__construct",
+        "ImporterUsers::css",
+        "ImporterUsers::data",
+        "ImporterUsers::importDefaultStyles",
+        "ImporterUsers::js",
+        "ImporterUsers::overwritePermissions",
+        "ImporterUsers::templateTitle",
+        "ImporterUsers::text",
+        "ImporterUsers::title",
+        "ImporterUsers::view"
+    ],
+    "app/classes/InterestResearchAreas/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::getLangsForSelect"
+    ],
+    "app/classes/InterestResearchAreas/Controllers/InterestResearchAreasController.php": [
+        "InterestResearchAreasController::__construct",
+        "InterestResearchAreasController::_all",
+        "InterestResearchAreasController::_allowedRoute",
+        "InterestResearchAreasController::action",
+        "InterestResearchAreasController::addForm",
+        "InterestResearchAreasController::all",
+        "InterestResearchAreasController::allowedRoute",
+        "InterestResearchAreasController::dataTables",
+        "InterestResearchAreasController::editForm",
+        "InterestResearchAreasController::listView",
+        "InterestResearchAreasController::pathFrontInterestResearchAreaAdapter",
+        "InterestResearchAreasController::render",
+        "InterestResearchAreasController::routeName",
+        "InterestResearchAreasController::routes",
+        "InterestResearchAreasController::toDelete"
+    ],
+    "app/classes/InterestResearchAreas/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/InterestResearchAreas/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/InterestResearchAreas/InterestResearchAreasLang.php": [
+        "InterestResearchAreasLang::injectLang"
+    ],
+    "app/classes/InterestResearchAreas/InterestResearchAreasRoutes.php": [
+        "InterestResearchAreasRoutes::init",
+        "InterestResearchAreasRoutes::routes",
+        "InterestResearchAreasRoutes::staticResolver",
+        "InterestResearchAreasRoutes::staticRoute"
+    ],
+    "app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php": [
+        "InterestResearchAreasMapper::__construct",
+        "InterestResearchAreasMapper::addDataManyLangs",
+        "InterestResearchAreasMapper::all",
+        "InterestResearchAreasMapper::allBy",
+        "InterestResearchAreasMapper::currentLangData",
+        "InterestResearchAreasMapper::existsByAreaName",
+        "InterestResearchAreasMapper::existsByID",
+        "InterestResearchAreasMapper::fieldCurrentLangForSQL",
+        "InterestResearchAreasMapper::fieldsToSelect",
+        "InterestResearchAreasMapper::getBy",
+        "InterestResearchAreasMapper::getEncryptIDForSlug",
+        "InterestResearchAreasMapper::getLangData",
+        "InterestResearchAreasMapper::getNoTranslatableProperties",
+        "InterestResearchAreasMapper::getTranslatableProperties",
+        "InterestResearchAreasMapper::hasLang",
+        "InterestResearchAreasMapper::model",
+        "InterestResearchAreasMapper::objectToMapper",
+        "InterestResearchAreasMapper::save",
+        "InterestResearchAreasMapper::setLangData",
+        "InterestResearchAreasMapper::statuses",
+        "InterestResearchAreasMapper::update"
+    ],
+    "app/classes/InterestResearchAreas/Util/FieldTranslationUtility.php": [
+        "FieldTranslationUtility::__construct",
+        "FieldTranslationUtility::baseLang",
+        "FieldTranslationUtility::currentLang",
+        "FieldTranslationUtility::fieldName",
+        "FieldTranslationUtility::isTranslatable",
+        "FieldTranslationUtility::mapper",
+        "FieldTranslationUtility::translatable"
+    ],
+    "app/classes/MySpace/Controllers/AllProfilesController.php": [
+        "AllProfilesController::__construct",
+        "AllProfilesController::_allowedRoute",
+        "AllProfilesController::allowedRoute",
+        "AllProfilesController::dataTables",
+        "AllProfilesController::render",
+        "AllProfilesController::routeName",
+        "AllProfilesController::routes"
+    ],
+    "app/classes/MySpace/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/MySpace/Controllers/MyOrganizationProfileController.php": [
+        "MyOrganizationProfileController::__construct",
+        "MyOrganizationProfileController::_allowedRoute",
+        "MyOrganizationProfileController::addExperienceAction",
+        "MyOrganizationProfileController::allowedRoute",
+        "MyOrganizationProfileController::changeOrganizationAdminAction",
+        "MyOrganizationProfileController::getOrganizationAdministratorID",
+        "MyOrganizationProfileController::getOrganizationFromParams",
+        "MyOrganizationProfileController::hasSuperPrivileges",
+        "MyOrganizationProfileController::myOrganizationProfileView",
+        "MyOrganizationProfileController::render",
+        "MyOrganizationProfileController::routeName",
+        "MyOrganizationProfileController::routes",
+        "MyOrganizationProfileController::saveProfileAction"
+    ],
+    "app/classes/MySpace/Controllers/MyProfileController.php": [
+        "MyProfileController::__construct",
+        "MyProfileController::_allowedRoute",
+        "MyProfileController::addExperienceAction",
+        "MyProfileController::allowedRoute",
+        "MyProfileController::myProfileView",
+        "MyProfileController::render",
+        "MyProfileController::routeName",
+        "MyProfileController::routes",
+        "MyProfileController::saveProfileAction"
+    ],
+    "app/classes/MySpace/Controllers/MySpaceController.php": [
+        "MySpaceController::__construct",
+        "MySpaceController::_allowedRoute",
+        "MySpaceController::allowedRoute",
+        "MySpaceController::exampleResources",
+        "MySpaceController::iframesSources",
+        "MySpaceController::mySpaceView",
+        "MySpaceController::render",
+        "MySpaceController::routeName",
+        "MySpaceController::routes",
+        "MySpaceController::userSecurity"
+    ],
+    "app/classes/MySpace/Controllers/OrganizationProfileController.php": [
+        "OrganizationProfileController::__construct",
+        "OrganizationProfileController::_allowedRoute",
+        "OrganizationProfileController::allowedRoute",
+        "OrganizationProfileController::profileView",
+        "OrganizationProfileController::render",
+        "OrganizationProfileController::routeName",
+        "OrganizationProfileController::routes"
+    ],
+    "app/classes/MySpace/Controllers/ProfileController.php": [
+        "ProfileController::__construct",
+        "ProfileController::_allowedRoute",
+        "ProfileController::allowedRoute",
+        "ProfileController::profileView",
+        "ProfileController::render",
+        "ProfileController::routeName",
+        "ProfileController::routes"
+    ],
+    "app/classes/MySpace/Controllers/Util/OrganizationPreviousExperiencesController.php": [
+        "OrganizationPreviousExperiencesController::__construct",
+        "OrganizationPreviousExperiencesController::dataTables",
+        "OrganizationPreviousExperiencesController::render",
+        "OrganizationPreviousExperiencesController::toDelete"
+    ],
+    "app/classes/MySpace/Controllers/Util/PreviousExperiencesController.php": [
+        "PreviousExperiencesController::__construct",
+        "PreviousExperiencesController::dataTables",
+        "PreviousExperiencesController::render",
+        "PreviousExperiencesController::toDelete"
+    ],
+    "app/classes/MySpace/Controllers/Util/ProfileTasksUtilities.php": [
+        "ProfileTasksUtilities::generateMissingProfiles",
+        "ProfileTasksUtilities::generateSQL"
+    ],
+    "app/classes/MySpace/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/MySpace/MySpaceLang.php": [
+        "MySpaceLang::injectLang"
+    ],
+    "app/classes/MySpace/MySpaceRoutes.php": [
+        "MySpaceRoutes::init",
+        "MySpaceRoutes::routes",
+        "MySpaceRoutes::staticResolver",
+        "MySpaceRoutes::staticRoute"
+    ],
+    "app/classes/News/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::getLangsForSelect"
+    ],
+    "app/classes/News/Controllers/NewsCategoryController.php": [
+        "NewsCategoryController::__construct",
+        "NewsCategoryController::_all",
+        "NewsCategoryController::_allowedRoute",
+        "NewsCategoryController::action",
+        "NewsCategoryController::addForm",
+        "NewsCategoryController::all",
+        "NewsCategoryController::allowedLangsForSelect",
+        "NewsCategoryController::allowedRoute",
+        "NewsCategoryController::dataTables",
+        "NewsCategoryController::editForm",
+        "NewsCategoryController::listView",
+        "NewsCategoryController::render",
+        "NewsCategoryController::routeName",
+        "NewsCategoryController::routes",
+        "NewsCategoryController::toDelete"
+    ],
+    "app/classes/News/Controllers/NewsController.php": [
+        "NewsController::__construct",
+        "NewsController::_all",
+        "NewsController::_allowedRoute",
+        "NewsController::action",
+        "NewsController::addForm",
+        "NewsController::all",
+        "NewsController::allowedRoute",
+        "NewsController::dataTables",
+        "NewsController::editForm",
+        "NewsController::listView",
+        "NewsController::markAsRead",
+        "NewsController::pathFrontNewsAdapter",
+        "NewsController::render",
+        "NewsController::routeName",
+        "NewsController::routes",
+        "NewsController::toDelete"
+    ],
+    "app/classes/News/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/News/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/News/Mappers/NewsCategoryMapper.php": [
+        "NewsCategoryMapper::__construct",
+        "NewsCategoryMapper::addDataManyLangs",
+        "NewsCategoryMapper::all",
+        "NewsCategoryMapper::allBy",
+        "NewsCategoryMapper::allForSelect",
+        "NewsCategoryMapper::currentLangData",
+        "NewsCategoryMapper::elementFriendlySlug",
+        "NewsCategoryMapper::existsByID",
+        "NewsCategoryMapper::existsByName",
+        "NewsCategoryMapper::extractIDFromSlug",
+        "NewsCategoryMapper::fieldCurrentLangForSQL",
+        "NewsCategoryMapper::fieldsToSelect",
+        "NewsCategoryMapper::getBy",
+        "NewsCategoryMapper::getEncryptIDForSlug",
+        "NewsCategoryMapper::getLangData",
+        "NewsCategoryMapper::getNoTranslatableProperties",
+        "NewsCategoryMapper::getSlug",
+        "NewsCategoryMapper::getTranslatableProperties",
+        "NewsCategoryMapper::hasLang",
+        "NewsCategoryMapper::model",
+        "NewsCategoryMapper::newOpportunitiesCategory",
+        "NewsCategoryMapper::objectToMapper",
+        "NewsCategoryMapper::save",
+        "NewsCategoryMapper::setLangData",
+        "NewsCategoryMapper::uncategorizedCategory",
+        "NewsCategoryMapper::update"
+    ],
+    "app/classes/News/Mappers/NewsMapper.php": [
+        "NewsMapper::__construct",
+        "NewsMapper::activesByDateIDs",
+        "NewsMapper::addDataManyLangs",
+        "NewsMapper::all",
+        "NewsMapper::allBy",
+        "NewsMapper::countByCategory",
+        "NewsMapper::createdAtFormat",
+        "NewsMapper::createdByFullName",
+        "NewsMapper::currentLangData",
+        "NewsMapper::elementFriendlySlug",
+        "NewsMapper::endDateFormat",
+        "NewsMapper::excerpt",
+        "NewsMapper::excerptTitle",
+        "NewsMapper::existsByID",
+        "NewsMapper::extractIDFromSlug",
+        "NewsMapper::fieldCurrentLangForSQL",
+        "NewsMapper::fieldsToSelect",
+        "NewsMapper::getBy",
+        "NewsMapper::getEncryptIDForSlug",
+        "NewsMapper::getLangData",
+        "NewsMapper::getNoTranslatableProperties",
+        "NewsMapper::getSlug",
+        "NewsMapper::getTranslatableProperties",
+        "NewsMapper::hasLang",
+        "NewsMapper::isActiveByDates",
+        "NewsMapper::lastModifiedElement",
+        "NewsMapper::model",
+        "NewsMapper::modifiedByFullName",
+        "NewsMapper::objectToMapper",
+        "NewsMapper::save",
+        "NewsMapper::setLangData",
+        "NewsMapper::startDateFormat",
+        "NewsMapper::statuses",
+        "NewsMapper::update",
+        "NewsMapper::updatedAtFormat"
+    ],
+    "app/classes/News/Mappers/NewsReadedMapper.php": [
+        "NewsReadedMapper::__construct",
+        "NewsReadedMapper::addRecord",
+        "NewsReadedMapper::all",
+        "NewsReadedMapper::allBy",
+        "NewsReadedMapper::exists",
+        "NewsReadedMapper::existsByID",
+        "NewsReadedMapper::fieldsToSelect",
+        "NewsReadedMapper::getBy",
+        "NewsReadedMapper::model",
+        "NewsReadedMapper::objectToMapper",
+        "NewsReadedMapper::save",
+        "NewsReadedMapper::update"
+    ],
+    "app/classes/News/NewsLang.php": [
+        "NewsLang::injectLang"
+    ],
+    "app/classes/News/NewsRoutes.php": [
+        "NewsRoutes::init",
+        "NewsRoutes::routes",
+        "NewsRoutes::staticResolver",
+        "NewsRoutes::staticRoute"
+    ],
+    "app/classes/Newsletter/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/Newsletter/Controllers/NewsletterController.php": [
+        "NewsletterController::__construct",
+        "NewsletterController::_all",
+        "NewsletterController::_allowedRoute",
+        "NewsletterController::action",
+        "NewsletterController::addForm",
+        "NewsletterController::addSuscriber",
+        "NewsletterController::all",
+        "NewsletterController::allowedLangsForSelect",
+        "NewsletterController::allowedRoute",
+        "NewsletterController::dataTables",
+        "NewsletterController::editForm",
+        "NewsletterController::listView",
+        "NewsletterController::routeName",
+        "NewsletterController::routes",
+        "NewsletterController::toDelete",
+        "NewsletterController::view"
+    ],
+    "app/classes/Newsletter/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/Newsletter/Mappers/NewsletterSuscriberMapper.php": [
+        "NewsletterSuscriberMapper::__construct",
+        "NewsletterSuscriberMapper::acceptUpdates",
+        "NewsletterSuscriberMapper::acceptUpdatesDisplay",
+        "NewsletterSuscriberMapper::all",
+        "NewsletterSuscriberMapper::allBy",
+        "NewsletterSuscriberMapper::createdAtDisplay",
+        "NewsletterSuscriberMapper::emailDisplay",
+        "NewsletterSuscriberMapper::existByEmail",
+        "NewsletterSuscriberMapper::existsByID",
+        "NewsletterSuscriberMapper::fieldsToSelect",
+        "NewsletterSuscriberMapper::getBy",
+        "NewsletterSuscriberMapper::model",
+        "NewsletterSuscriberMapper::nameDisplay",
+        "NewsletterSuscriberMapper::objectToMapper",
+        "NewsletterSuscriberMapper::save",
+        "NewsletterSuscriberMapper::update",
+        "NewsletterSuscriberMapper::updatedAtDisplay"
+    ],
+    "app/classes/Newsletter/NewsletterLang.php": [
+        "NewsletterLang::injectLang"
+    ],
+    "app/classes/Newsletter/NewsletterRoutes.php": [
+        "NewsletterRoutes::init",
+        "NewsletterRoutes::routes",
+        "NewsletterRoutes::staticResolver",
+        "NewsletterRoutes::staticRoute"
+    ],
+    "app/classes/Organizations/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/Organizations/Controllers/OrganizationsController.php": [
+        "OrganizationsController::__construct",
+        "OrganizationsController::_all",
+        "OrganizationsController::_allowedRoute",
+        "OrganizationsController::action",
+        "OrganizationsController::addForm",
+        "OrganizationsController::all",
+        "OrganizationsController::allowedLangsForSelect",
+        "OrganizationsController::allowedRoute",
+        "OrganizationsController::dataTables",
+        "OrganizationsController::editForm",
+        "OrganizationsController::handlerUpload",
+        "OrganizationsController::listView",
+        "OrganizationsController::render",
+        "OrganizationsController::routeName",
+        "OrganizationsController::routes",
+        "OrganizationsController::toDelete"
+    ],
+    "app/classes/Organizations/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/Organizations/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/Organizations/Mappers/OrganizationMapper.php": [
+        "OrganizationMapper::__construct",
+        "OrganizationMapper::actionLines",
+        "OrganizationMapper::actionLinesForSelect",
+        "OrganizationMapper::all",
+        "OrganizationMapper::allBy",
+        "OrganizationMapper::allForSelect",
+        "OrganizationMapper::canModifyAnyOrganization",
+        "OrganizationMapper::createdAtFormat",
+        "OrganizationMapper::createdByFullName",
+        "OrganizationMapper::currentLangData",
+        "OrganizationMapper::elementFriendlySlug",
+        "OrganizationMapper::esalOptions",
+        "OrganizationMapper::esalOptionsForSelect",
+        "OrganizationMapper::existsByID",
+        "OrganizationMapper::existsByNit",
+        "OrganizationMapper::extractIDFromSlug",
+        "OrganizationMapper::fieldCurrentLangForSQL",
+        "OrganizationMapper::fieldsToSelect",
+        "OrganizationMapper::getBy",
+        "OrganizationMapper::getEncryptIDForSlug",
+        "OrganizationMapper::getLangData",
+        "OrganizationMapper::getLogoURL",
+        "OrganizationMapper::getNoTranslatableProperties",
+        "OrganizationMapper::getSlug",
+        "OrganizationMapper::getTranslatableProperties",
+        "OrganizationMapper::jsonExtractExistsMySQL",
+        "OrganizationMapper::lastModifiedElement",
+        "OrganizationMapper::model",
+        "OrganizationMapper::modifiedByFullName",
+        "OrganizationMapper::objectToMapper",
+        "OrganizationMapper::profileIsComplete",
+        "OrganizationMapper::save",
+        "OrganizationMapper::setLangData",
+        "OrganizationMapper::sizes",
+        "OrganizationMapper::sizesForSelect",
+        "OrganizationMapper::statuses",
+        "OrganizationMapper::statusesForSelect",
+        "OrganizationMapper::translateEntityObject",
+        "OrganizationMapper::update",
+        "OrganizationMapper::updatedAtFormat"
+    ],
+    "app/classes/Organizations/OrganizationsLang.php": [
+        "OrganizationsLang::injectLang"
+    ],
+    "app/classes/Organizations/OrganizationsRoutes.php": [
+        "OrganizationsRoutes::init",
+        "OrganizationsRoutes::routes",
+        "OrganizationsRoutes::staticResolver",
+        "OrganizationsRoutes::staticRoute"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/BuiltInBannerLang.php": [
+        "BuiltInBannerLang::injectLang"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/BuiltInBannerRoutes.php": [
+        "BuiltInBannerRoutes::init",
+        "BuiltInBannerRoutes::routes",
+        "BuiltInBannerRoutes::staticResolver",
+        "BuiltInBannerRoutes::staticRoute"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php": [
+        "BuiltInBannerController::__construct",
+        "BuiltInBannerController::_all",
+        "BuiltInBannerController::_allowedRoute",
+        "BuiltInBannerController::action",
+        "BuiltInBannerController::addForm",
+        "BuiltInBannerController::all",
+        "BuiltInBannerController::allowedLangsForSelect",
+        "BuiltInBannerController::allowedRoute",
+        "BuiltInBannerController::dataTables",
+        "BuiltInBannerController::editForm",
+        "BuiltInBannerController::handlerUpload",
+        "BuiltInBannerController::listView",
+        "BuiltInBannerController::pathFrontBuiltInBannerAdapter",
+        "BuiltInBannerController::render",
+        "BuiltInBannerController::routeName",
+        "BuiltInBannerController::routes",
+        "BuiltInBannerController::toDelete"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerPublicController.php": [
+        "BuiltInBannerPublicController::__construct",
+        "BuiltInBannerPublicController::all",
+        "BuiltInBannerPublicController::allowedRoute",
+        "BuiltInBannerPublicController::init",
+        "BuiltInBannerPublicController::render",
+        "BuiltInBannerPublicController::routeName",
+        "BuiltInBannerPublicController::routes",
+        "BuiltInBannerPublicController::view"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php": [
+        "BuiltInBannerMapper::__construct",
+        "BuiltInBannerMapper::activesByDateIDs",
+        "BuiltInBannerMapper::all",
+        "BuiltInBannerMapper::allBy",
+        "BuiltInBannerMapper::createdAtFormat",
+        "BuiltInBannerMapper::createdByFullName",
+        "BuiltInBannerMapper::currentLangData",
+        "BuiltInBannerMapper::endDateFormat",
+        "BuiltInBannerMapper::excerpt",
+        "BuiltInBannerMapper::existsByID",
+        "BuiltInBannerMapper::extractIDFromSlug",
+        "BuiltInBannerMapper::fieldCurrentLangForSQL",
+        "BuiltInBannerMapper::fieldsToSelect",
+        "BuiltInBannerMapper::getBy",
+        "BuiltInBannerMapper::getLangData",
+        "BuiltInBannerMapper::getNoTranslatableProperties",
+        "BuiltInBannerMapper::getTranslatableProperties",
+        "BuiltInBannerMapper::isActiveByDates",
+        "BuiltInBannerMapper::lastModifiedElement",
+        "BuiltInBannerMapper::model",
+        "BuiltInBannerMapper::modifiedByFullName",
+        "BuiltInBannerMapper::objectToMapper",
+        "BuiltInBannerMapper::save",
+        "BuiltInBannerMapper::setLangData",
+        "BuiltInBannerMapper::startDateFormat",
+        "BuiltInBannerMapper::statuses",
+        "BuiltInBannerMapper::translateEntityObject",
+        "BuiltInBannerMapper::update",
+        "BuiltInBannerMapper::updatedAtFormat"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php": [
+        "GenericContentController::__construct",
+        "GenericContentController::_allowedRoute",
+        "GenericContentController::action",
+        "GenericContentController::allowedLangsForSelect",
+        "GenericContentController::allowedRoute",
+        "GenericContentController::handlerUpload",
+        "GenericContentController::homeImage",
+        "GenericContentController::mapboxKeysForm",
+        "GenericContentController::render",
+        "GenericContentController::routeName",
+        "GenericContentController::routes",
+        "GenericContentController::tokensLimitForm"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Helpers/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Helpers/HelpersSystemLang.php": [
+        "HelpersSystemLang::injectLang"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Helpers/HelpersSystemRoutes.php": [
+        "HelpersSystemRoutes::init",
+        "HelpersSystemRoutes::routes",
+        "HelpersSystemRoutes::staticResolver",
+        "HelpersSystemRoutes::staticRoute"
+    ],
+    "app/classes/PiecesPHP/BuiltIn/Helpers/Mappers/GenericContentPseudoMapper.php": [
+        "GenericContentPseudoMapper::__construct",
+        "GenericContentPseudoMapper::__get",
+        "GenericContentPseudoMapper::__set",
+        "GenericContentPseudoMapper::addDataManyLangs",
+        "GenericContentPseudoMapper::contentName",
+        "GenericContentPseudoMapper::currentLangData",
+        "GenericContentPseudoMapper::fromArray",
+        "GenericContentPseudoMapper::getContentData",
+        "GenericContentPseudoMapper::getLangData",
+        "GenericContentPseudoMapper::getTranslatableProperties",
+        "GenericContentPseudoMapper::hasLang",
+        "GenericContentPseudoMapper::isTranslatable",
+        "GenericContentPseudoMapper::parseData",
+        "GenericContentPseudoMapper::save",
+        "GenericContentPseudoMapper::setBaseLang",
+        "GenericContentPseudoMapper::setContentData",
+        "GenericContentPseudoMapper::setLangData",
+        "GenericContentPseudoMapper::toArray",
+        "GenericContentPseudoMapper::userSetContentName"
+    ],
+    "app/classes/PiecesPHP/LocalizationSystem/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/PiecesPHP/LocalizationSystem/Controllers/LocalizationSystemController.php": [
+        "LocalizationSystemController::__construct",
+        "LocalizationSystemController::_allowedRoute",
+        "LocalizationSystemController::allowedRoute",
+        "LocalizationSystemController::getLangMessagesByGroup",
+        "LocalizationSystemController::render",
+        "LocalizationSystemController::routeName",
+        "LocalizationSystemController::routes"
+    ],
+    "app/classes/PiecesPHP/LocalizationSystem/LocalizationSystemFeaturesLang.php": [
+        "LocalizationSystemFeaturesLang::injectLang"
+    ],
+    "app/classes/PiecesPHP/LocalizationSystem/LocalizationSystemFeaturesRoutes.php": [
+        "LocalizationSystemFeaturesRoutes::init",
+        "LocalizationSystemFeaturesRoutes::routes",
+        "LocalizationSystemFeaturesRoutes::staticResolver",
+        "LocalizationSystemFeaturesRoutes::staticRoute"
+    ],
+    "app/classes/PiecesPHP/LocalizationSystem/Packages/JSONTranslationsPackage.php": [
+        "JSONTranslationsPackage::__construct",
+        "JSONTranslationsPackage::createFromJSON",
+        "JSONTranslationsPackage::getData",
+        "JSONTranslationsPackage::getUpdated",
+        "JSONTranslationsPackage::jsonSerialize",
+        "JSONTranslationsPackage::setData"
+    ],
+    "app/classes/PiecesPHP/LocalizationSystem/Util/DynamicTranslationsHelper.php": [
+        "DynamicTranslationsHelper::getCurrentDynamicTranslationsJSON",
+        "DynamicTranslationsHelper::saveCurrentDynamicTranslationsJSON"
+    ],
+    "app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php": [
+        "DefaultAccessControlModules::__construct",
+        "DefaultAccessControlModules::getResponse"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php": [
+        "OTPHandler::checkValidityOTP",
+        "OTPHandler::checkValidityTOTP",
+        "OTPHandler::generateOTP",
+        "OTPHandler::getCurrentUserQRData",
+        "OTPHandler::getCurrentUserTOTP",
+        "OTPHandler::getUserDataByUsername",
+        "OTPHandler::isEnabled2FA",
+        "OTPHandler::toExpireOTP",
+        "OTPHandler::toggleCurrentUser2AF",
+        "OTPHandler::wasViewedCurrentUserQRData"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php": [
+        "TOTPStandard::__construct",
+        "TOTPStandard::generateSecret",
+        "TOTPStandard::generateTOTP",
+        "TOTPStandard::getQRCodeUrl",
+        "TOTPStandard::getSecret",
+        "TOTPStandard::verifyTOTP"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php": [
+        "UserSystemFeaturesController::__construct",
+        "UserSystemFeaturesController::_allowedRoute",
+        "UserSystemFeaturesController::allowedRoute",
+        "UserSystemFeaturesController::checkTOTP",
+        "UserSystemFeaturesController::checkTwoFactorAuthStatus",
+        "UserSystemFeaturesController::configureTOTP",
+        "UserSystemFeaturesController::generateOTP",
+        "UserSystemFeaturesController::getCurrentTOTP",
+        "UserSystemFeaturesController::getTOTPDataQR",
+        "UserSystemFeaturesController::markQRDataAsViewed",
+        "UserSystemFeaturesController::routeName",
+        "UserSystemFeaturesController::routes",
+        "UserSystemFeaturesController::view"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php": [
+        "OTPSecretsUsersMapper::__construct",
+        "OTPSecretsUsersMapper::allBy",
+        "OTPSecretsUsersMapper::createOTPAlternativesRecords",
+        "OTPSecretsUsersMapper::existsUserByMethod",
+        "OTPSecretsUsersMapper::getBy",
+        "OTPSecretsUsersMapper::getOTPData",
+        "OTPSecretsUsersMapper::getTOTPData",
+        "OTPSecretsUsersMapper::isEnabled2FA",
+        "OTPSecretsUsersMapper::model",
+        "OTPSecretsUsersMapper::save",
+        "OTPSecretsUsersMapper::setOTP",
+        "OTPSecretsUsersMapper::setOneUseCode",
+        "OTPSecretsUsersMapper::toggle2FA",
+        "OTPSecretsUsersMapper::update"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php": [
+        "OrganizationPreviousExperiencesMapper::__construct",
+        "OrganizationPreviousExperiencesMapper::all",
+        "OrganizationPreviousExperiencesMapper::allBy",
+        "OrganizationPreviousExperiencesMapper::currentLangData",
+        "OrganizationPreviousExperiencesMapper::endDateFormat",
+        "OrganizationPreviousExperiencesMapper::existsByID",
+        "OrganizationPreviousExperiencesMapper::experienceTypeDisplayText",
+        "OrganizationPreviousExperiencesMapper::experienceTypeIcon",
+        "OrganizationPreviousExperiencesMapper::experienceTypes",
+        "OrganizationPreviousExperiencesMapper::experienceTypesForSelect",
+        "OrganizationPreviousExperiencesMapper::fieldCurrentLangForSQL",
+        "OrganizationPreviousExperiencesMapper::fieldsToSelect",
+        "OrganizationPreviousExperiencesMapper::getBy",
+        "OrganizationPreviousExperiencesMapper::getEncryptIDForSlug",
+        "OrganizationPreviousExperiencesMapper::getLangData",
+        "OrganizationPreviousExperiencesMapper::getNoTranslatableProperties",
+        "OrganizationPreviousExperiencesMapper::getTranslatableProperties",
+        "OrganizationPreviousExperiencesMapper::hasLang",
+        "OrganizationPreviousExperiencesMapper::model",
+        "OrganizationPreviousExperiencesMapper::objectToMapper",
+        "OrganizationPreviousExperiencesMapper::save",
+        "OrganizationPreviousExperiencesMapper::setLangData",
+        "OrganizationPreviousExperiencesMapper::startDateFormat",
+        "OrganizationPreviousExperiencesMapper::statuses",
+        "OrganizationPreviousExperiencesMapper::update"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php": [
+        "PreviousExperiencesMapper::__construct",
+        "PreviousExperiencesMapper::all",
+        "PreviousExperiencesMapper::allBy",
+        "PreviousExperiencesMapper::currentLangData",
+        "PreviousExperiencesMapper::endDateFormat",
+        "PreviousExperiencesMapper::existsByID",
+        "PreviousExperiencesMapper::experienceTypeDisplayText",
+        "PreviousExperiencesMapper::experienceTypeIcon",
+        "PreviousExperiencesMapper::experienceTypes",
+        "PreviousExperiencesMapper::experienceTypesForSelect",
+        "PreviousExperiencesMapper::fieldCurrentLangForSQL",
+        "PreviousExperiencesMapper::fieldsToSelect",
+        "PreviousExperiencesMapper::getBy",
+        "PreviousExperiencesMapper::getEncryptIDForSlug",
+        "PreviousExperiencesMapper::getLangData",
+        "PreviousExperiencesMapper::getNoTranslatableProperties",
+        "PreviousExperiencesMapper::getTranslatableProperties",
+        "PreviousExperiencesMapper::hasLang",
+        "PreviousExperiencesMapper::model",
+        "PreviousExperiencesMapper::objectToMapper",
+        "PreviousExperiencesMapper::save",
+        "PreviousExperiencesMapper::setLangData",
+        "PreviousExperiencesMapper::startDateFormat",
+        "PreviousExperiencesMapper::statuses",
+        "PreviousExperiencesMapper::update"
+    ],
+    "app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php": [
+        "UserProfileMapper::__construct",
+        "UserProfileMapper::all",
+        "UserProfileMapper::allBy",
+        "UserProfileMapper::currentLangData",
+        "UserProfileMapper::existsByID",
+        "UserProfileMapper::existsByUser",
+        "UserProfileMapper::fieldCurrentLangForSQL",
+        "UserProfileMapper::fieldsToSelect",
+        "UserProfileMapper::getBy",
+        "UserProfileMapper::getEncryptIDForSlug",
+        "UserProfileMapper::getLangData",
+        "UserProfileMapper::getLinkedinLink",
+        "UserProfileMapper::getNoTranslatableProperties",
+        "UserProfileMapper::getPhone",
+        "UserProfileMapper::getProfile",
+        "UserProfileMapper::getTranslatableProperties",
+        "UserProfileMapper::getWebsiteLink",
+        "UserProfileMapper::hasLang",
+        "UserProfileMapper::isComplete",
+        "UserProfileMapper::model",
+        "UserProfileMapper::objectToMapper",
+        "UserProfileMapper::profileIsComplete",
+        "UserProfileMapper::save",
+        "UserProfileMapper::setLangData",
+        "UserProfileMapper::update"
+    ],
+    "app/classes/PiecesPHP/UserSystem/UserDataPackage.php": [
+        "UserDataPackage::__construct",
+        "UserDataPackage::__get",
+        "UserDataPackage::getAvatarURL",
+        "UserDataPackage::getConfigCurrentUser",
+        "UserDataPackage::getMapper",
+        "UserDataPackage::getTypeText",
+        "UserDataPackage::setUserID"
+    ],
+    "app/classes/PiecesPHP/UserSystem/UserSystemFeaturesLang.php": [
+        "UserSystemFeaturesLang::injectLang"
+    ],
+    "app/classes/PiecesPHP/UserSystem/UserSystemFeaturesRoutes.php": [
+        "UserSystemFeaturesRoutes::init",
+        "UserSystemFeaturesRoutes::routes",
+        "UserSystemFeaturesRoutes::staticResolver",
+        "UserSystemFeaturesRoutes::staticRoute"
+    ],
+    "app/classes/Publications/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::getLangsForSelect"
+    ],
+    "app/classes/Publications/Controllers/PublicationsCategoryController.php": [
+        "PublicationsCategoryController::__construct",
+        "PublicationsCategoryController::_all",
+        "PublicationsCategoryController::_allowedRoute",
+        "PublicationsCategoryController::action",
+        "PublicationsCategoryController::addForm",
+        "PublicationsCategoryController::all",
+        "PublicationsCategoryController::allowedRoute",
+        "PublicationsCategoryController::dataTables",
+        "PublicationsCategoryController::editForm",
+        "PublicationsCategoryController::listView",
+        "PublicationsCategoryController::render",
+        "PublicationsCategoryController::routeName",
+        "PublicationsCategoryController::routes",
+        "PublicationsCategoryController::toDelete"
+    ],
+    "app/classes/Publications/Controllers/PublicationsController.php": [
+        "PublicationsController::__construct",
+        "PublicationsController::_all",
+        "PublicationsController::_allowedRoute",
+        "PublicationsController::action",
+        "PublicationsController::addForm",
+        "PublicationsController::all",
+        "PublicationsController::allowedRoute",
+        "PublicationsController::dataTables",
+        "PublicationsController::editForm",
+        "PublicationsController::handlerUpload",
+        "PublicationsController::listView",
+        "PublicationsController::pathFrontPublicationsAdapter",
+        "PublicationsController::render",
+        "PublicationsController::routeName",
+        "PublicationsController::routes",
+        "PublicationsController::toDelete"
+    ],
+    "app/classes/Publications/Controllers/PublicationsPublicController.php": [
+        "PublicationsPublicController::__construct",
+        "PublicationsPublicController::all",
+        "PublicationsPublicController::allowedRoute",
+        "PublicationsPublicController::init",
+        "PublicationsPublicController::listView",
+        "PublicationsPublicController::render",
+        "PublicationsPublicController::routeName",
+        "PublicationsPublicController::routes",
+        "PublicationsPublicController::singleView",
+        "PublicationsPublicController::view"
+    ],
+    "app/classes/Publications/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/Publications/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/Publications/Mappers/AttachmentPublicationMapper.php": [
+        "AttachmentPublicationMapper::__construct",
+        "AttachmentPublicationMapper::all",
+        "AttachmentPublicationMapper::allBy",
+        "AttachmentPublicationMapper::createdAtFormat",
+        "AttachmentPublicationMapper::createdByFullName",
+        "AttachmentPublicationMapper::existsByID",
+        "AttachmentPublicationMapper::existsByPublication",
+        "AttachmentPublicationMapper::fieldsToSelect",
+        "AttachmentPublicationMapper::fileExists",
+        "AttachmentPublicationMapper::fileIsImage",
+        "AttachmentPublicationMapper::getBy",
+        "AttachmentPublicationMapper::getExactAttachment",
+        "AttachmentPublicationMapper::getExtension",
+        "AttachmentPublicationMapper::getMimeType",
+        "AttachmentPublicationMapper::lastModifiedElement",
+        "AttachmentPublicationMapper::model",
+        "AttachmentPublicationMapper::modifiedByFullName",
+        "AttachmentPublicationMapper::objectToMapper",
+        "AttachmentPublicationMapper::save",
+        "AttachmentPublicationMapper::update",
+        "AttachmentPublicationMapper::updatedAtFormat"
+    ],
+    "app/classes/Publications/Mappers/PublicationCategoryMapper.php": [
+        "PublicationCategoryMapper::__construct",
+        "PublicationCategoryMapper::all",
+        "PublicationCategoryMapper::allBy",
+        "PublicationCategoryMapper::allForSelect",
+        "PublicationCategoryMapper::currentLangData",
+        "PublicationCategoryMapper::elementFriendlySlug",
+        "PublicationCategoryMapper::existsByID",
+        "PublicationCategoryMapper::existsByName",
+        "PublicationCategoryMapper::extractIDFromSlug",
+        "PublicationCategoryMapper::fieldCurrentLangForSQL",
+        "PublicationCategoryMapper::fieldsToSelect",
+        "PublicationCategoryMapper::getBy",
+        "PublicationCategoryMapper::getEncryptIDForSlug",
+        "PublicationCategoryMapper::getLangData",
+        "PublicationCategoryMapper::getNoTranslatableProperties",
+        "PublicationCategoryMapper::getSlug",
+        "PublicationCategoryMapper::getTranslatableProperties",
+        "PublicationCategoryMapper::model",
+        "PublicationCategoryMapper::objectToMapper",
+        "PublicationCategoryMapper::save",
+        "PublicationCategoryMapper::setLangData",
+        "PublicationCategoryMapper::uncategorizedCategory",
+        "PublicationCategoryMapper::update"
+    ],
+    "app/classes/Publications/Mappers/PublicationMapper.php": [
+        "PublicationMapper::__construct",
+        "PublicationMapper::activesByDateIDs",
+        "PublicationMapper::addDataManyLangs",
+        "PublicationMapper::addVisit",
+        "PublicationMapper::all",
+        "PublicationMapper::allBy",
+        "PublicationMapper::authorFullName",
+        "PublicationMapper::countByCategory",
+        "PublicationMapper::createdAtFormat",
+        "PublicationMapper::createdByFullName",
+        "PublicationMapper::currentLangData",
+        "PublicationMapper::elementFriendlySlug",
+        "PublicationMapper::endDateFormat",
+        "PublicationMapper::excerpt",
+        "PublicationMapper::excerptTitle",
+        "PublicationMapper::existsByID",
+        "PublicationMapper::existsByTitle",
+        "PublicationMapper::extractIDFromSlug",
+        "PublicationMapper::fieldCurrentLangForSQL",
+        "PublicationMapper::fieldsToSelect",
+        "PublicationMapper::getAttachments",
+        "PublicationMapper::getAttachmentsByLang",
+        "PublicationMapper::getBy",
+        "PublicationMapper::getEncryptIDForSlug",
+        "PublicationMapper::getLangData",
+        "PublicationMapper::getNoTranslatableProperties",
+        "PublicationMapper::getSlug",
+        "PublicationMapper::getTranslatableProperties",
+        "PublicationMapper::getURLAlternatives",
+        "PublicationMapper::hasLang",
+        "PublicationMapper::isActiveByDates",
+        "PublicationMapper::isDraft",
+        "PublicationMapper::isFeatured",
+        "PublicationMapper::lastModifiedElement",
+        "PublicationMapper::model",
+        "PublicationMapper::modifiedByFullName",
+        "PublicationMapper::objectToMapper",
+        "PublicationMapper::publicDateFormat",
+        "PublicationMapper::save",
+        "PublicationMapper::setLangData",
+        "PublicationMapper::startDateFormat",
+        "PublicationMapper::statuses",
+        "PublicationMapper::update",
+        "PublicationMapper::updatedAtFormat",
+        "PublicationMapper::visibilities"
+    ],
+    "app/classes/Publications/PublicationsLang.php": [
+        "PublicationsLang::injectLang"
+    ],
+    "app/classes/Publications/PublicationsRoutes.php": [
+        "PublicationsRoutes::init",
+        "PublicationsRoutes::routes",
+        "PublicationsRoutes::staticResolver",
+        "PublicationsRoutes::staticRoute"
+    ],
+    "app/classes/Publications/Util/AttachmentPackage.php": [
+        "AttachmentPackage::__construct",
+        "AttachmentPackage::forceEvaluationMapper",
+        "AttachmentPackage::getDisplayName",
+        "AttachmentPackage::getLang",
+        "AttachmentPackage::getMapper",
+        "AttachmentPackage::getPublicationID",
+        "AttachmentPackage::hasAttachment",
+        "AttachmentPackage::isRequired",
+        "AttachmentPackage::setLang",
+        "AttachmentPackage::setPublicationID",
+        "AttachmentPackage::setRequired"
+    ],
+    "app/classes/Publications/Util/FieldTranslationUtility.php": [
+        "FieldTranslationUtility::__construct",
+        "FieldTranslationUtility::baseLang",
+        "FieldTranslationUtility::currentLang",
+        "FieldTranslationUtility::fieldName",
+        "FieldTranslationUtility::isTranslatable",
+        "FieldTranslationUtility::mapper",
+        "FieldTranslationUtility::translatable"
+    ],
+    "app/classes/ReportsManage/Controllers/HelperController.php": [
+        "HelperController::__construct"
+    ],
+    "app/classes/ReportsManage/Controllers/ReportsManageController.php": [
+        "ReportsManageController::__construct",
+        "ReportsManageController::_allowedRoute",
+        "ReportsManageController::allowedRoute",
+        "ReportsManageController::genericReportView",
+        "ReportsManageController::render",
+        "ReportsManageController::routeName",
+        "ReportsManageController::routes"
+    ],
+    "app/classes/ReportsManage/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/ReportsManage/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/ReportsManage/Queries/ReportsManageQueries.php": [
+        "ReportsManageQueries::__construct",
+        "ReportsManageQueries::genericReportData",
+        "ReportsManageQueries::getTotalApplicationsCallsByTypeQty",
+        "ReportsManageQueries::getTotalOrganizationsQty",
+        "ReportsManageQueries::getTotalPublicationsQty",
+        "ReportsManageQueries::getTotalResearchersQty"
+    ],
+    "app/classes/ReportsManage/ReportsManageLang.php": [
+        "ReportsManageLang::injectLang"
+    ],
+    "app/classes/ReportsManage/ReportsManageRoutes.php": [
+        "ReportsManageRoutes::init",
+        "ReportsManageRoutes::routes",
+        "ReportsManageRoutes::staticResolver",
+        "ReportsManageRoutes::staticRoute"
+    ],
+    "app/classes/SystemApprovals/Controllers/HelperController.php": [
+        "HelperController::__construct",
+        "HelperController::getLangsForSelect"
+    ],
+    "app/classes/SystemApprovals/Controllers/SystemApprovalsController.php": [
+        "SystemApprovalsController::__construct",
+        "SystemApprovalsController::_allowedRoute",
+        "SystemApprovalsController::allowedRoute",
+        "SystemApprovalsController::approvalAction",
+        "SystemApprovalsController::approvalForm",
+        "SystemApprovalsController::dataTables",
+        "SystemApprovalsController::handlerUpload",
+        "SystemApprovalsController::listView",
+        "SystemApprovalsController::render",
+        "SystemApprovalsController::routeName",
+        "SystemApprovalsController::routes"
+    ],
+    "app/classes/SystemApprovals/Exceptions/DuplicateException.php": [
+        "DuplicateException::__construct"
+    ],
+    "app/classes/SystemApprovals/Exceptions/SafeException.php": [
+        "SafeException::__construct"
+    ],
+    "app/classes/SystemApprovals/Mappers/SystemApprovalsMapper.php": [
+        "SystemApprovalsMapper::__construct",
+        "SystemApprovalsMapper::all",
+        "SystemApprovalsMapper::allBy",
+        "SystemApprovalsMapper::existsByID",
+        "SystemApprovalsMapper::fieldsToSelect",
+        "SystemApprovalsMapper::getBy",
+        "SystemApprovalsMapper::getByMultipleCriteries",
+        "SystemApprovalsMapper::getElapsepDaysExistents",
+        "SystemApprovalsMapper::getElapsepDaysExistentsForSelect",
+        "SystemApprovalsMapper::getExtendedElement",
+        "SystemApprovalsMapper::getReferencesAliases",
+        "SystemApprovalsMapper::getReferencesAliasesForSelect",
+        "SystemApprovalsMapper::getTimeTag",
+        "SystemApprovalsMapper::model",
+        "SystemApprovalsMapper::objectToMapper",
+        "SystemApprovalsMapper::referenceAliasLangSensitive",
+        "SystemApprovalsMapper::save",
+        "SystemApprovalsMapper::statuses",
+        "SystemApprovalsMapper::update"
+    ],
+    "app/classes/SystemApprovals/SystemApprovalsLang.php": [
+        "SystemApprovalsLang::injectLang"
+    ],
+    "app/classes/SystemApprovals/SystemApprovalsMiddleware.php": [
+        "SystemApprovalsMiddleware::handle"
+    ],
+    "app/classes/SystemApprovals/SystemApprovalsRoutes.php": [
+        "SystemApprovalsRoutes::init",
+        "SystemApprovalsRoutes::routes",
+        "SystemApprovalsRoutes::staticResolver",
+        "SystemApprovalsRoutes::staticRoute"
+    ],
+    "app/classes/SystemApprovals/Util/ApprovalElementHandlerInterface.php": [
+        "ApprovalElementHandlerInterface::getContactUser",
+        "ApprovalElementHandlerInterface::getContentType",
+        "ApprovalElementHandlerInterface::getCreationDateColumn",
+        "ApprovalElementHandlerInterface::getFields",
+        "ApprovalElementHandlerInterface::getMapperClass",
+        "ApprovalElementHandlerInterface::getReferenceColumn",
+        "ApprovalElementHandlerInterface::getReferenceTable",
+        "ApprovalElementHandlerInterface::isAutoApproval",
+        "ApprovalElementHandlerInterface::isEnabled",
+        "ApprovalElementHandlerInterface::onApproved",
+        "ApprovalElementHandlerInterface::onRejected",
+        "ApprovalElementHandlerInterface::onUpdatedRecord"
+    ],
+    "app/classes/SystemApprovals/Util/Packages/ApplicationCallsApprovalHandler.php": [
+        "ApplicationCallsApprovalHandler::getContentTypeSpecificMapper",
+        "ApplicationCallsApprovalHandler::isAutoApprovalSpecificMapper",
+        "ApplicationCallsApprovalHandler::onApprovedSpecificMapper",
+        "ApplicationCallsApprovalHandler::onRejectedSpecificMapper",
+        "ApplicationCallsApprovalHandler::onUpdatedRecordSpecificMapper"
+    ],
+    "app/classes/SystemApprovals/Util/Packages/BaseApprovalHandler.php": [
+        "BaseApprovalHandler::getContactUser",
+        "BaseApprovalHandler::getContentType",
+        "BaseApprovalHandler::getCreationDateColumn",
+        "BaseApprovalHandler::getFields",
+        "BaseApprovalHandler::getMapperClass",
+        "BaseApprovalHandler::getReferenceColumn",
+        "BaseApprovalHandler::getReferenceTable",
+        "BaseApprovalHandler::isAutoApproval",
+        "BaseApprovalHandler::isEnabled",
+        "BaseApprovalHandler::onApproved",
+        "BaseApprovalHandler::onRejected",
+        "BaseApprovalHandler::onUpdatedRecord"
+    ],
+    "app/classes/SystemApprovals/Util/Packages/OrganizationApprovalHandler.php": [
+        "OrganizationApprovalHandler::getContentTypeSpecificMapper",
+        "OrganizationApprovalHandler::isAutoApprovalSpecificMapper",
+        "OrganizationApprovalHandler::onApprovedSpecificMapper",
+        "OrganizationApprovalHandler::onRejectedSpecificMapper",
+        "OrganizationApprovalHandler::onUpdatedRecordSpecificMapper"
+    ],
+    "app/classes/SystemApprovals/Util/Packages/PublicationsApprovalHandler.php": [
+        "PublicationsApprovalHandler::getContentTypeSpecificMapper",
+        "PublicationsApprovalHandler::isAutoApprovalSpecificMapper",
+        "PublicationsApprovalHandler::onApprovedSpecificMapper",
+        "PublicationsApprovalHandler::onRejectedSpecificMapper",
+        "PublicationsApprovalHandler::onUpdatedRecordSpecificMapper"
+    ],
+    "app/classes/SystemApprovals/Util/Packages/UsersApprovalHandler.php": [
+        "UsersApprovalHandler::getContentTypeSpecificMapper",
+        "UsersApprovalHandler::isAutoApprovalSpecificMapper",
+        "UsersApprovalHandler::onApprovedSpecificMapper",
+        "UsersApprovalHandler::onRejectedSpecificMapper",
+        "UsersApprovalHandler::onUpdatedRecordSpecificMapper"
+    ],
+    "app/classes/SystemApprovals/Util/SystemApprovalManager.php": [
+        "SystemApprovalManager::__construct",
+        "SystemApprovalManager::generateCaptureDataFromReferenceForTableOnSQL",
+        "SystemApprovalManager::getContactUser",
+        "SystemApprovalManager::getHandler",
+        "SystemApprovalManager::getInstance",
+        "SystemApprovalManager::getMapperInstance",
+        "SystemApprovalManager::init",
+        "SystemApprovalManager::isApproved",
+        "SystemApprovalManager::updateStatus"
+    ],
+    "app/classes/Terminal/Controllers/TerminalController.php": [
+        "TerminalController::__construct",
+        "TerminalController::_allowedRoute",
+        "TerminalController::allowedRoute",
+        "TerminalController::routeID",
+        "TerminalController::routeName",
+        "TerminalController::routes"
+    ],
+    "app/classes/Terminal/Mappers/QueueJobMapper.php": [
+        "QueueJobMapper::__construct",
+        "QueueJobMapper::migrate",
+        "QueueJobMapper::model"
+    ],
+    "app/classes/Terminal/Tasks/BundleTask.php": [
+        "BundleTask::__construct",
+        "BundleTask::main",
+        "BundleTask::route"
+    ],
+    "app/classes/Terminal/Tasks/CleanAllTask.php": [
+        "CleanAllTask::__construct",
+        "CleanAllTask::main",
+        "CleanAllTask::route"
+    ],
+    "app/classes/Terminal/Tasks/CleanCacheTask.php": [
+        "CleanCacheTask::__construct",
+        "CleanCacheTask::main",
+        "CleanCacheTask::route"
+    ],
+    "app/classes/Terminal/Tasks/CleanLogsTask.php": [
+        "CleanLogsTask::__construct",
+        "CleanLogsTask::main",
+        "CleanLogsTask::route"
+    ],
+    "app/classes/Terminal/Tasks/DbBackupTask.php": [
+        "DbBackupTask::__construct",
+        "DbBackupTask::main",
+        "DbBackupTask::route"
+    ],
+    "app/classes/Terminal/Tasks/FixWebmDurationTask.php": [
+        "FixWebmDurationTask::__construct",
+        "FixWebmDurationTask::main",
+        "FixWebmDurationTask::route"
+    ],
+    "app/classes/Terminal/Tasks/HelpTask.php": [
+        "HelpTask::__construct",
+        "HelpTask::main",
+        "HelpTask::route"
+    ],
+    "app/classes/Terminal/Tasks/ProcessQueueTask.php": [
+        "ProcessQueueTask::__construct",
+        "ProcessQueueTask::main",
+        "ProcessQueueTask::route"
+    ],
+    "app/classes/Terminal/Tasks/RunCronjobsTask.php": [
+        "RunCronjobsTask::__construct",
+        "RunCronjobsTask::main",
+        "RunCronjobsTask::route"
+    ],
+    "app/classes/Terminal/Tasks/ScanMissingLangTask.php": [
+        "ScanMissingLangTask::__construct",
+        "ScanMissingLangTask::main",
+        "ScanMissingLangTask::route",
+        "ScanMissingLangTask::searchFunctionUsesWithParser"
+    ],
+    "app/classes/Terminal/Tasks/VerifyIntegrityTask.php": [
+        "VerifyIntegrityTask::__construct",
+        "VerifyIntegrityTask::checkDocblocks",
+        "VerifyIntegrityTask::collectFiles",
+        "VerifyIntegrityTask::collectSignatures",
+        "VerifyIntegrityTask::compareSignatures",
+        "VerifyIntegrityTask::main",
+        "VerifyIntegrityTask::nextName",
+        "VerifyIntegrityTask::route",
+        "VerifyIntegrityTask::snapshotPath",
+        "VerifyIntegrityTask::writeSnapshot"
+    ],
+    "app/config/final-configurations-includes/patches_composer_dependencies.php": [
+        "ffmpeg"
+    ],
+    "app/config/functions.php": [
+        "addElementInPosition",
+        "array_to_html_options",
+        "datatables_proccessing",
+        "datatables_proccessing_with_options",
+        "genericViewRoute",
+        "genericViewRouteExists",
+        "getAllUsers",
+        "getAllUsersForSelect",
+        "getInteresResearchAreas",
+        "getNationalities",
+        "getPhoneAreas",
+        "menu_sidebar_items"
+    ],
+    "app/controller/AdminPanelController.php": [
+        "AdminPanelController::__construct",
+        "AdminPanelController::aboutFramework",
+        "AdminPanelController::cropperAdapterTestingView",
+        "AdminPanelController::errorLog",
+        "AdminPanelController::indexView",
+        "AdminPanelController::init",
+        "AdminPanelController::routes",
+        "AdminPanelController::sendTicket",
+        "AdminPanelController::showPermissionsRoles",
+        "AdminPanelController::ticketsRoutes",
+        "AdminPanelController::usersRoutes"
+    ],
+    "app/controller/AppConfigController.php": [
+        "AppConfigController::__construct",
+        "AppConfigController::actionGeneric",
+        "AppConfigController::allowedRoute",
+        "AppConfigController::backgrounds",
+        "AppConfigController::configurationsView",
+        "AppConfigController::createSitemap",
+        "AppConfigController::email",
+        "AppConfigController::faviconsAndLogos",
+        "AppConfigController::getSEOConfigValues",
+        "AppConfigController::mapboxKey",
+        "AppConfigController::osTicket",
+        "AppConfigController::parseTo",
+        "AppConfigController::processGenericInputValues",
+        "AppConfigController::recreateStaticCacheStamp",
+        "AppConfigController::recursiveMergeArray",
+        "AppConfigController::routeName",
+        "AppConfigController::routes",
+        "AppConfigController::routesView",
+        "AppConfigController::securityAndIA",
+        "AppConfigController::seo"
+    ],
+    "app/controller/AvatarController.php": [
+        "AvatarController::__construct",
+        "AvatarController::avatar",
+        "AvatarController::listFiles",
+        "AvatarController::register"
+    ],
+    "app/controller/ContactFormsController.php": [
+        "ContactFormsController::contactMessage",
+        "ContactFormsController::routeName",
+        "ContactFormsController::routes"
+    ],
+    "app/controller/GenericTokenController.php": [
+        "GenericTokenController::__construct",
+        "GenericTokenController::commentary",
+        "GenericTokenController::createToken",
+        "GenericTokenController::createTokenURL",
+        "GenericTokenController::entryPoint",
+        "GenericTokenController::routes"
+    ],
+    "app/controller/LoginAttemptsController.php": [
+        "LoginAttemptsController::__construct",
+        "LoginAttemptsController::attemptsExport",
+        "LoginAttemptsController::exportExcelFile",
+        "LoginAttemptsController::loggedExport",
+        "LoginAttemptsController::notLoggedExport",
+        "LoginAttemptsController::reportsAccess",
+        "LoginAttemptsController::routes"
+    ],
+    "app/controller/PublicAreaController.php": [
+        "PublicAreaController::__construct",
+        "PublicAreaController::_allowedRoute",
+        "PublicAreaController::allowedRoute",
+        "PublicAreaController::contactView",
+        "PublicAreaController::genericViewExists",
+        "PublicAreaController::genericViews",
+        "PublicAreaController::genericViewsConfigurations",
+        "PublicAreaController::indexView",
+        "PublicAreaController::init",
+        "PublicAreaController::routeName",
+        "PublicAreaController::routes",
+        "PublicAreaController::unsubscribeView"
+    ],
+    "app/controller/RecoveryPasswordController.php": [
+        "RecoveryPasswordController::__construct",
+        "RecoveryPasswordController::mailNewPassword",
+        "RecoveryPasswordController::mailRecoveryPassword",
+        "RecoveryPasswordController::mailRecoveryPasswordCode",
+        "RecoveryPasswordController::newPasswordCreate",
+        "RecoveryPasswordController::newPasswordCreateCode",
+        "RecoveryPasswordController::recoveryPasswordForm",
+        "RecoveryPasswordController::recoveryPasswordRequest",
+        "RecoveryPasswordController::recoveryPasswordRequestCode",
+        "RecoveryPasswordController::verifyCode"
+    ],
+    "app/controller/TimerController.php": [
+        "TimerController::__construct",
+        "TimerController::routes",
+        "TimerController::timeOnPlatform"
+    ],
+    "app/controller/TokenController.php": [
+        "TokenController::__construct",
+        "TokenController::deleteToken",
+        "TokenController::deleteTokenByID",
+        "TokenController::newToken",
+        "TokenController::tokenExists",
+        "TokenController::tokenExistsByID",
+        "TokenController::tokenExistsByType"
+    ],
+    "app/controller/UserProblemsController.php": [
+        "UserProblemsController::__construct",
+        "UserProblemsController::generateCode",
+        "UserProblemsController::otherProblemsForm",
+        "UserProblemsController::resolveProblem",
+        "UserProblemsController::sendCode",
+        "UserProblemsController::sendMailOtherProblems",
+        "UserProblemsController::sendMessageOtherProblems",
+        "UserProblemsController::userBlockedForm",
+        "UserProblemsController::userForgetForm",
+        "UserProblemsController::userProblemsList"
+    ],
+    "app/controller/UsersController.php": [
+        "UsersController::__construct",
+        "UsersController::_all",
+        "UsersController::all",
+        "UsersController::dataTablesRequestUsers",
+        "UsersController::decodeURL",
+        "UsersController::deleteAccount",
+        "UsersController::edit",
+        "UsersController::encodeURL",
+        "UsersController::formCreateByType",
+        "UsersController::formEditByType",
+        "UsersController::formProfileByType",
+        "UsersController::getMessage",
+        "UsersController::login",
+        "UsersController::loginForm",
+        "UsersController::register",
+        "UsersController::routes",
+        "UsersController::searchDropdown",
+        "UsersController::selectionTypeToCreate",
+        "UsersController::usersList",
+        "UsersController::verifySession"
+    ],
+    "app/core/AppHelpers.php": [
+        "__",
+        "add_as_module_asset",
+        "add_as_module_assets",
+        "add_cache_stamp_to_url",
+        "add_global_asset",
+        "add_global_assets",
+        "add_global_required_asset",
+        "add_global_requireds_assets",
+        "add_to_front_configurations",
+        "app_basepath",
+        "appbase",
+        "base_url",
+        "basepath",
+        "baseurl",
+        "clear_assets_imports",
+        "clear_global_assets",
+        "convert_lang_url",
+        "cropperAdapterWorkSpace",
+        "echoTerminal",
+        "escapeString",
+        "friendly_url",
+        "getCookie",
+        "getCurrentProcessOwnerGroup",
+        "getCurrentProcessOwnerUser",
+        "getKeyFromSecureKeys",
+        "getLoggedFrameworkUser",
+        "getPreferredLanguageByHeader",
+        "get_breadcrumbs",
+        "get_config",
+        "get_current_langs_urls",
+        "get_default_format_date",
+        "get_error_middleware",
+        "get_flash_messages",
+        "get_front_configuration",
+        "get_front_configurations",
+        "get_lang_url",
+        "get_route",
+        "get_route_by_controller",
+        "get_route_info",
+        "get_route_roles_allowed",
+        "get_route_sample",
+        "get_router",
+        "get_routes",
+        "get_routes_by_controller",
+        "get_sidebar_menu",
+        "get_title",
+        "has_global_asset",
+        "imageUploaderForCropperAdminViews",
+        "import_apexcharts",
+        "import_app_front_libraries",
+        "import_app_libraries",
+        "import_cropper",
+        "import_datatables",
+        "import_default_rich_editor",
+        "import_dialog_pcs",
+        "import_elfinder",
+        "import_fancybox3",
+        "import_front_library",
+        "import_google_captcha_v3_adapter",
+        "import_indexeDB_adapter",
+        "import_izitoast",
+        "import_jquery",
+        "import_jquerymask",
+        "import_jqueryui",
+        "import_locations",
+        "import_mapbox",
+        "import_nprogress",
+        "import_openlayers",
+        "import_qrcodejs",
+        "import_quilljs",
+        "import_semantic",
+        "import_simple_upload_placeholder",
+        "import_spectrum",
+        "import_swal2",
+        "index_global_required_asset",
+        "is_global_required_asset",
+        "lang",
+        "lang2",
+        "load_css",
+        "load_font",
+        "load_js",
+        "log_exception",
+        "modalImageUploaderForCropperAdminViews",
+        "move_uploaded_file_to",
+        "num_month_to_text",
+        "register_route",
+        "register_routes",
+        "remove_global_asset",
+        "remove_global_required_asset",
+        "remove_imported_asset",
+        "requestIsSameDomain",
+        "setCookieByConfig",
+        "set_config",
+        "set_custom_assets",
+        "set_flash_message",
+        "set_global_assets",
+        "set_title",
+        "simpleCropperAdapterWorkSpace",
+        "simpleUploadPlaceholderWorkSpace",
+        "static_files_cache_stamp",
+        "strReplaceTemplate",
+        "systemOutFormatted",
+        "throw403",
+        "var_dump_pretty"
+    ],
+    "app/core/Config.php": [
+        "Config::__construct",
+        "Config::addLangMessage",
+        "Config::app_base",
+        "Config::app_basepath",
+        "Config::app_db",
+        "Config::app_key",
+        "Config::app_path",
+        "Config::app_title",
+        "Config::app_url",
+        "Config::basepath",
+        "Config::baseurl",
+        "Config::get_allowed_langs",
+        "Config::get_app_base",
+        "Config::get_config",
+        "Config::get_current_locale",
+        "Config::get_default_lang",
+        "Config::get_instance",
+        "Config::get_lang",
+        "Config::get_locale_langs",
+        "Config::get_translations",
+        "Config::i18n",
+        "Config::init",
+        "Config::initAppAllowedLangsConfig",
+        "Config::initAppBaseConfig",
+        "Config::initAppConfigs",
+        "Config::initAppCookiesConfig",
+        "Config::initAppDBConfig",
+        "Config::initAppKeyConfig",
+        "Config::initAppLangConfig",
+        "Config::initAppLocaleLangs",
+        "Config::initAppPathConfig",
+        "Config::initAppProtocolConfig",
+        "Config::initAppRolesConfig",
+        "Config::initAppTranslations",
+        "Config::initLangByBrowserConfig",
+        "Config::initLangByCookieConfig",
+        "Config::initLangByURLConfig",
+        "Config::initTitleAppConfig",
+        "Config::is_allowed_lang",
+        "Config::set_config",
+        "Config::set_lang",
+        "Config::set_lang_strategy",
+        "Config::set_locale_from_current_lang"
+    ],
+    "app/core/Utilities.php": [
+        "append_to_path_system",
+        "append_to_url",
+        "array_key_first",
+        "array_key_last",
+        "base64EncodeOrDefault",
+        "clean_string",
+        "compare_array_length",
+        "decimalCoordinatesToDMS",
+        "directory_mapper",
+        "directory_to_zip",
+        "excelColumnByIndex",
+        "generateCachingHeadersAndStatus",
+        "generate_code",
+        "generate_pass",
+        "getRelativePath",
+        "get_current_url",
+        "get_part_request",
+        "get_request",
+        "get_url_params",
+        "get_url_parts",
+        "get_youtube_id",
+        "imageDimensions",
+        "imageToThumbnail",
+        "indexByExcelColumn",
+        "is_local",
+        "is_uploaded_all_files",
+        "jsonEncodeFallbackNull",
+        "last_char",
+        "last_char_pos",
+        "localeDateFormat",
+        "make_directory",
+        "opacityToHex",
+        "remove_char",
+        "remove_directory",
+        "remove_emptys",
+        "remove_first_char",
+        "remove_last_char",
+        "remove_last_char_on",
+        "remove_url_params",
+        "replace_first_char",
+        "replace_last_char",
+        "require_keys",
+        "resizeAndCenterImage",
+        "seconds_to_duration",
+        "simulate_file_upload",
+        "string_compare",
+        "unsetKeys",
+        "url_safe_base64_decode",
+        "url_safe_base64_encode",
+        "verify_expected_file"
+    ],
+    "app/core/autoload.php": [
+        "loader_classes"
+    ],
+    "app/core/bootstrap.php": [
+        "global_custom_exception_handler"
+    ],
+    "app/core/custom-autoloads-config.php": [
+        "custom_autoloads_pcs"
+    ],
+    "app/core/psr4/PiecesPHP/CSSVariables.php": [
+        "CSSVariables::__construct",
+        "CSSVariables::__toString",
+        "CSSVariables::getVariable",
+        "CSSVariables::getVariables",
+        "CSSVariables::instance",
+        "CSSVariables::setVariable",
+        "CSSVariables::toResponse",
+        "CSSVariables::variableExists"
+    ],
+    "app/core/psr4/PiecesPHP/Cli.php": [
+        "Cli::__construct",
+        "Cli::argumentExists",
+        "Cli::getArgumentByPosition",
+        "Cli::getArgumentValue",
+        "Cli::getArguments",
+        "Cli::getCommand",
+        "Cli::parse",
+        "Cli::removeArgument",
+        "Cli::setCommand",
+        "Cli::systemOutFormatted",
+        "Cli::toArray"
+    ],
+    "app/core/psr4/PiecesPHP/Core/BaseController.php": [
+        "BaseController::__construct",
+        "BaseController::_render",
+        "BaseController::getGlobalVariables",
+        "BaseController::getInstanceViewDir",
+        "BaseController::getViewDir",
+        "BaseController::render",
+        "BaseController::setConfig",
+        "BaseController::setInstanceViewDir",
+        "BaseController::setVariables",
+        "BaseController::setViewDir"
+    ],
+    "app/core/psr4/PiecesPHP/Core/BaseEntityMapper.php": [
+        "BaseEntityMapper::__callStatic",
+        "BaseEntityMapper::__construct",
+        "BaseEntityMapper::model",
+        "BaseEntityMapper::save",
+        "BaseEntityMapper::update"
+    ],
+    "app/core/psr4/PiecesPHP/Core/BaseEventDispatcher.php": [
+        "BaseEventDispatcher::defaultDispatch",
+        "BaseEventDispatcher::defaultListen",
+        "BaseEventDispatcher::dispatch",
+        "BaseEventDispatcher::hasDefaultListeners",
+        "BaseEventDispatcher::hasListeners",
+        "BaseEventDispatcher::listen"
+    ],
+    "app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php": [
+        "BaseHashEncryption::decrypt",
+        "BaseHashEncryption::decryptBidirectionalHash",
+        "BaseHashEncryption::encrypt",
+        "BaseHashEncryption::encryptBidirectionalHash",
+        "BaseHashEncryption::getSecretKey",
+        "BaseHashEncryption::hash",
+        "BaseHashEncryption::hashVerify",
+        "BaseHashEncryption::safeStrlen",
+        "BaseHashEncryption::setSecretKey",
+        "BaseHashEncryption::urlSafeB64Decode",
+        "BaseHashEncryption::urlSafeB64Encode"
+    ],
+    "app/core/psr4/PiecesPHP/Core/BaseModel.php": [
+        "BaseModel::__construct",
+        "BaseModel::getDb"
+    ],
+    "app/core/psr4/PiecesPHP/Core/BaseMongoModel.php": [
+        "BaseMongoModel::__construct",
+        "BaseMongoModel::getAll",
+        "BaseMongoModel::getCollection",
+        "BaseMongoModel::getCon",
+        "BaseMongoModel::getDb",
+        "BaseMongoModel::getFields",
+        "BaseMongoModel::insert",
+        "BaseMongoModel::setCollection",
+        "BaseMongoModel::setCon",
+        "BaseMongoModel::setDb",
+        "BaseMongoModel::setFields"
+    ],
+    "app/core/psr4/PiecesPHP/Core/BaseToken.php": [
+        "BaseToken::aud",
+        "BaseToken::check",
+        "BaseToken::decode",
+        "BaseToken::encode",
+        "BaseToken::getCreated",
+        "BaseToken::getData",
+        "BaseToken::getExpired",
+        "BaseToken::getSecretKey",
+        "BaseToken::isExpire",
+        "BaseToken::jsonDecode",
+        "BaseToken::jsonEncode",
+        "BaseToken::safeStrlen",
+        "BaseToken::setSecretKey",
+        "BaseToken::setToken",
+        "BaseToken::sign",
+        "BaseToken::urlSafeB64Decode",
+        "BaseToken::urlSafeB64Encode",
+        "BaseToken::verify"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCriteries.php": [
+        "CacheControllersCriteries::__",
+        "CacheControllersCriteries::__construct",
+        "CacheControllersCriteries::__serialize",
+        "CacheControllersCriteries::__unserialize",
+        "CacheControllersCriteries::addCritery",
+        "CacheControllersCriteries::criteries",
+        "CacheControllersCriteries::jsonSerialize"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCritery.php": [
+        "CacheControllersCritery::__",
+        "CacheControllersCritery::__construct",
+        "CacheControllersCritery::jsonSerialize",
+        "CacheControllersCritery::name",
+        "CacheControllersCritery::setValueParsePostValidation",
+        "CacheControllersCritery::setValueValidation",
+        "CacheControllersCritery::validateValue",
+        "CacheControllersCritery::value"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php": [
+        "CacheControllersManager::__",
+        "CacheControllersManager::__construct",
+        "CacheControllersManager::getCachedData",
+        "CacheControllersManager::getCachedDataFileName",
+        "CacheControllersManager::getContentType",
+        "CacheControllersManager::getCriteries",
+        "CacheControllersManager::globalExists",
+        "CacheControllersManager::globalFolderName",
+        "CacheControllersManager::globalTouch",
+        "CacheControllersManager::hasCachedData",
+        "CacheControllersManager::init",
+        "CacheControllersManager::isExpired",
+        "CacheControllersManager::jsonSerialize",
+        "CacheControllersManager::jsonUnserialize",
+        "CacheControllersManager::process",
+        "CacheControllersManager::setCriteries",
+        "CacheControllersManager::setDataCache",
+        "CacheControllersManager::setGlobalConfigurationProperty",
+        "CacheControllersManager::setOwnConfigurationProperty"
+    ],
+    "app/core/psr4/PiecesPHP/Core/ConfigHelpers/MailConfig.php": [
+        "MailConfig::__construct",
+        "MailConfig::auth",
+        "MailConfig::autoTls",
+        "MailConfig::decrypt",
+        "MailConfig::encrypt",
+        "MailConfig::getValue",
+        "MailConfig::host",
+        "MailConfig::isSmtp",
+        "MailConfig::loadConfigutarion",
+        "MailConfig::name",
+        "MailConfig::password",
+        "MailConfig::port",
+        "MailConfig::protocol",
+        "MailConfig::smtpDebug",
+        "MailConfig::smtpOptions",
+        "MailConfig::toArray",
+        "MailConfig::toSave",
+        "MailConfig::user"
+    ],
+    "app/core/psr4/PiecesPHP/Core/ConfigHelpers/MailjetConfig.php": [
+        "MailjetConfig::__construct",
+        "MailjetConfig::apiKey",
+        "MailjetConfig::decrypt",
+        "MailjetConfig::email",
+        "MailjetConfig::encrypt",
+        "MailjetConfig::getValue",
+        "MailjetConfig::loadConfigutarion",
+        "MailjetConfig::name",
+        "MailjetConfig::secretKey",
+        "MailjetConfig::smtpHost",
+        "MailjetConfig::smtpPort",
+        "MailjetConfig::toArray",
+        "MailjetConfig::toSave"
+    ],
+    "app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/CustomSlimErrorHandler.php": [
+        "CustomSlimErrorHandler::__construct",
+        "CustomSlimErrorHandler::getBasePath",
+        "CustomSlimErrorHandler::getResponse",
+        "CustomSlimErrorHandler::isLocal"
+    ],
+    "app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php": [
+        "GenericHandler::__construct",
+        "GenericHandler::getException",
+        "GenericHandler::logging",
+        "GenericHandler::loggingUniqueMessage"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php": [
+        "EntityMapperExtensible::__construct",
+        "EntityMapperExtensible::__get",
+        "EntityMapperExtensible::__set",
+        "EntityMapperExtensible::addMetaProperty",
+        "EntityMapperExtensible::getInsertIDOnSave",
+        "EntityMapperExtensible::getMetaProperties",
+        "EntityMapperExtensible::getMetaProperty",
+        "EntityMapperExtensible::hasMetaProperty",
+        "EntityMapperExtensible::humanReadable",
+        "EntityMapperExtensible::metaValueToSave",
+        "EntityMapperExtensible::metaValueToUpdate",
+        "EntityMapperExtensible::model",
+        "EntityMapperExtensible::recursiveHumanization",
+        "EntityMapperExtensible::removeMetaProperty",
+        "EntityMapperExtensible::save",
+        "EntityMapperExtensible::update"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Exporter.php": [
+        "Exporter::__construct",
+        "Exporter::export",
+        "Exporter::getErrors",
+        "Exporter::getTables",
+        "Exporter::idf_escape",
+        "Exporter::setFormatPlugin",
+        "Exporter::setOutputPlugin"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Interfaces/ExporterInterface.php": [
+        "ExporterInterface::export",
+        "ExporterInterface::getErrors",
+        "ExporterInterface::getTables"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Interfaces/FormatPluginInterface.php": [
+        "FormatPluginInterface::getFooter",
+        "FormatPluginInterface::getFunctions",
+        "FormatPluginInterface::getHeader",
+        "FormatPluginInterface::getProcedures",
+        "FormatPluginInterface::getTableData",
+        "FormatPluginInterface::getTableFakeView",
+        "FormatPluginInterface::getTableStructure",
+        "FormatPluginInterface::getTableTriggers",
+        "FormatPluginInterface::isView"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Interfaces/OutputPluginInterface.php": [
+        "OutputPluginInterface::finalize",
+        "OutputPluginInterface::getFilename",
+        "OutputPluginInterface::init",
+        "OutputPluginInterface::write"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/Bz2FileOutput.php": [
+        "Bz2FileOutput::finalize",
+        "Bz2FileOutput::getFilename",
+        "Bz2FileOutput::init",
+        "Bz2FileOutput::write"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/CsvFormat.php": [
+        "CsvFormat::arrayToCsvLine",
+        "CsvFormat::getFooter",
+        "CsvFormat::getFunctions",
+        "CsvFormat::getHeader",
+        "CsvFormat::getProcedures",
+        "CsvFormat::getTableData",
+        "CsvFormat::getTableFakeView",
+        "CsvFormat::getTableStructure",
+        "CsvFormat::getTableTriggers",
+        "CsvFormat::isView"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/FileOutput.php": [
+        "FileOutput::finalize",
+        "FileOutput::getFilename",
+        "FileOutput::init",
+        "FileOutput::write"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/GzipFileOutput.php": [
+        "GzipFileOutput::finalize",
+        "GzipFileOutput::getFilename",
+        "GzipFileOutput::init",
+        "GzipFileOutput::write"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/JsonFormat.php": [
+        "JsonFormat::getFooter",
+        "JsonFormat::getFunctions",
+        "JsonFormat::getHeader",
+        "JsonFormat::getProcedures",
+        "JsonFormat::getTableData",
+        "JsonFormat::getTableFakeView",
+        "JsonFormat::getTableStructure",
+        "JsonFormat::getTableTriggers",
+        "JsonFormat::isView"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/MemoryOutput.php": [
+        "MemoryOutput::finalize",
+        "MemoryOutput::getFilename",
+        "MemoryOutput::init",
+        "MemoryOutput::write"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/PhpFormat.php": [
+        "PhpFormat::getFooter",
+        "PhpFormat::getFunctions",
+        "PhpFormat::getHeader",
+        "PhpFormat::getProcedures",
+        "PhpFormat::getTableData",
+        "PhpFormat::getTableFakeView",
+        "PhpFormat::getTableStructure",
+        "PhpFormat::getTableTriggers",
+        "PhpFormat::isView"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/SqlFormat.php": [
+        "SqlFormat::getFields",
+        "SqlFormat::getFooter",
+        "SqlFormat::getFunctions",
+        "SqlFormat::getHeader",
+        "SqlFormat::getProcedures",
+        "SqlFormat::getTableData",
+        "SqlFormat::getTableFakeView",
+        "SqlFormat::getTableStatus",
+        "SqlFormat::getTableStructure",
+        "SqlFormat::getTableTriggers",
+        "SqlFormat::idfEscape",
+        "SqlFormat::isBinaryType",
+        "SqlFormat::isNumericType",
+        "SqlFormat::isView",
+        "SqlFormat::wrapRoutineParameters"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/XmlFormat.php": [
+        "XmlFormat::getFooter",
+        "XmlFormat::getFunctions",
+        "XmlFormat::getHeader",
+        "XmlFormat::getProcedures",
+        "XmlFormat::getTableData",
+        "XmlFormat::getTableFakeView",
+        "XmlFormat::getTableStructure",
+        "XmlFormat::getTableTriggers",
+        "XmlFormat::isView"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/ZipFileOutput.php": [
+        "ZipFileOutput::finalize",
+        "ZipFileOutput::getFilename",
+        "ZipFileOutput::init",
+        "ZipFileOutput::write"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/Meta/MetaProperty.php": [
+        "MetaProperty::__construct",
+        "MetaProperty::getInternalName",
+        "MetaProperty::getType",
+        "MetaProperty::getValue",
+        "MetaProperty::getValueHuman",
+        "MetaProperty::getValueToSQL",
+        "MetaProperty::recursiveHumanization",
+        "MetaProperty::setCustomGetValueToSQL",
+        "MetaProperty::setCustomSetMapper",
+        "MetaProperty::setCustomValidMapper",
+        "MetaProperty::setInternalName",
+        "MetaProperty::setValue",
+        "MetaProperty::validateValue"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Email/Mailgun.php": [
+        "Mailgun::__construct",
+        "Mailgun::getResponse",
+        "Mailgun::getStatusCode",
+        "Mailgun::isSuccess",
+        "Mailgun::send",
+        "Mailgun::setFrom"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/BaseException.php": [
+        "BaseException::__construct",
+        "BaseException::extraData",
+        "BaseException::setExtraData",
+        "BaseException::setMessage"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/DataTablesHelperProcessException.php": [
+        "DataTablesHelperProcessException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/MalformedAttributeException.php": [
+        "MalformedAttributeException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/MalformedChildException.php": [
+        "MalformedChildException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/MissingQualifiedNameException.php": [
+        "MissingQualifiedNameException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/NotAllowedTypeException.php": [
+        "NotAllowedTypeException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/RoleDuplicateException.php": [
+        "RoleDuplicateException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/RoleMalformedException.php": [
+        "RoleMalformedException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/RoleNotExistsException.php": [
+        "RoleNotExistsException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/RouteDuplicateNameException.php": [
+        "RouteDuplicateNameException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Exceptions/RouteNotExistsException.php": [
+        "RouteNotExistsException::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/FlashMessages.php": [
+        "FlashMessages::addMessage",
+        "FlashMessages::getMessages",
+        "FlashMessages::hasMessages",
+        "FlashMessages::initSession",
+        "FlashMessages::sessionExists"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Forms/FileUpload.php": [
+        "FileUpload::__construct",
+        "FileUpload::copyFileTo",
+        "FileUpload::copyTo",
+        "FileUpload::getErrorMessages",
+        "FileUpload::getFileInformation",
+        "FileUpload::getName",
+        "FileUpload::getQuantity",
+        "FileUpload::hasInput",
+        "FileUpload::isMultiple",
+        "FileUpload::moveFileTo",
+        "FileUpload::moveTo",
+        "FileUpload::setDirectoryMove",
+        "FileUpload::setExtensionOnMove",
+        "FileUpload::setNameOnMove",
+        "FileUpload::validate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Forms/FileValidator.php": [
+        "FileValidator::__construct",
+        "FileValidator::getAcceptedTypes",
+        "FileValidator::getMessage",
+        "FileValidator::validate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php": [
+        "UploadedFileAdapter::__construct",
+        "UploadedFileAdapter::copyFileTo",
+        "UploadedFileAdapter::copyTo",
+        "UploadedFileAdapter::findAssociativePathsByName",
+        "UploadedFileAdapter::getErrorMessages",
+        "UploadedFileAdapter::getFileInformation",
+        "UploadedFileAdapter::getFilePathsOnUpload",
+        "UploadedFileAdapter::getUploadedFiles",
+        "UploadedFileAdapter::hasInput",
+        "UploadedFileAdapter::moveFileTo",
+        "UploadedFileAdapter::moveTo",
+        "UploadedFileAdapter::setDirectoryMove",
+        "UploadedFileAdapter::setExtensionOnMove",
+        "UploadedFileAdapter::setNameOnMove",
+        "UploadedFileAdapter::validate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Forms/UploadedFilesStructureMapper.php": [
+        "UploadedFilesStructureMapper::map",
+        "UploadedFilesStructureMapper::normalize",
+        "UploadedFilesStructureMapper::rebuild"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Helpers/Directories/DirectoryObject.php": [
+        "DirectoryObject::__construct",
+        "DirectoryObject::chmod",
+        "DirectoryObject::copyContentTo",
+        "DirectoryObject::copyTo",
+        "DirectoryObject::delete",
+        "DirectoryObject::directoryExists",
+        "DirectoryObject::fillZip",
+        "DirectoryObject::getBasename",
+        "DirectoryObject::getChildrenDirectoryByName",
+        "DirectoryObject::getChildrenFileByName",
+        "DirectoryObject::getDirectories",
+        "DirectoryObject::getFiles",
+        "DirectoryObject::getPath",
+        "DirectoryObject::jsonSerialize",
+        "DirectoryObject::normalizePath",
+        "DirectoryObject::orderDirectories",
+        "DirectoryObject::orderFiles",
+        "DirectoryObject::process"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Helpers/Directories/FileObject.php": [
+        "FileObject::__construct",
+        "FileObject::getBasename",
+        "FileObject::getExists",
+        "FileObject::getExtension",
+        "FileObject::getParent",
+        "FileObject::getPath",
+        "FileObject::getRawPath",
+        "FileObject::jsonSerialize",
+        "FileObject::normalizePath"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Helpers/Directories/FilesIgnore.php": [
+        "FilesIgnore::__construct",
+        "FilesIgnore::addRegExpr",
+        "FilesIgnore::addRegExprs",
+        "FilesIgnore::ignore",
+        "FilesIgnore::setRegExprs"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Helpers/Directories/ProtectFileMiddleware.php": [
+        "ProtectFileMiddleware::getProtectedDirectories",
+        "ProtectFileMiddleware::isProtected",
+        "ProtectFileMiddleware::protect",
+        "ProtectFileMiddleware::validateAccess"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Http/FreezeRequest.php": [
+        "FreezeRequest::__construct",
+        "FreezeRequest::__serialize",
+        "FreezeRequest::__unserialize",
+        "FreezeRequest::associativePathsAsArrays",
+        "FreezeRequest::capture",
+        "FreezeRequest::cleanupFiles",
+        "FreezeRequest::fromArray",
+        "FreezeRequest::getCookies",
+        "FreezeRequest::getCustomData",
+        "FreezeRequest::getFiles",
+        "FreezeRequest::getGet",
+        "FreezeRequest::getHeader",
+        "FreezeRequest::getHeaders",
+        "FreezeRequest::getMethod",
+        "FreezeRequest::getPost",
+        "FreezeRequest::getSession",
+        "FreezeRequest::inject",
+        "FreezeRequest::toArray"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Http/HttpClient.php": [
+        "HttpClient::__construct",
+        "HttpClient::cookiesToHeaderString",
+        "HttpClient::defaultConfigurations",
+        "HttpClient::getDefaultRequestHeaders",
+        "HttpClient::getRequestBody",
+        "HttpClient::getRequestHeaders",
+        "HttpClient::getRequestHeadersString",
+        "HttpClient::getRequestURI",
+        "HttpClient::getResponseBody",
+        "HttpClient::getResponseHeaders",
+        "HttpClient::getResponseParsedBody",
+        "HttpClient::getResponseStatus",
+        "HttpClient::headersArrayToString",
+        "HttpClient::parse",
+        "HttpClient::parseNameHeader",
+        "HttpClient::parseReponseHeaders",
+        "HttpClient::processHeaders",
+        "HttpClient::request",
+        "HttpClient::setDefaultRequestHeaders",
+        "HttpClient::setOption",
+        "HttpClient::timeout"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Importer/Collections/FieldCollection.php": [
+        "FieldCollection::__construct",
+        "FieldCollection::getByName",
+        "FieldCollection::getNames",
+        "FieldCollection::getPositionField"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Importer/Collections/ImporterCollection.php": [
+        "ImporterCollection::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Importer/Collections/ResponseCollection.php": [
+        "ResponseCollection::__construct",
+        "ResponseCollection::jsonSerialize"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Importer/Field.php": [
+        "Field::__construct",
+        "Field::getDefaultValue",
+        "Field::getHumanReadable",
+        "Field::getMetaProperties",
+        "Field::getMetaPropertiesNames",
+        "Field::getMetaPropertyByName",
+        "Field::getName",
+        "Field::getParentName",
+        "Field::getSampleValue",
+        "Field::getShowInTemplate",
+        "Field::getValue",
+        "Field::hasMetaProperties",
+        "Field::hasParent",
+        "Field::isOptional",
+        "Field::parse",
+        "Field::setCurrentErrorMessage",
+        "Field::setEncodeToJson",
+        "Field::setMetaProperties",
+        "Field::setMetaProperty",
+        "Field::setParentName",
+        "Field::setParser",
+        "Field::setSampleValue",
+        "Field::setValidator",
+        "Field::setValue",
+        "Field::setValueMetaProperty",
+        "Field::validate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Importer/Importer.php": [
+        "Importer::__construct",
+        "Importer::existsHasEntryAndProcess",
+        "Importer::getDescription",
+        "Importer::getResponses",
+        "Importer::getSchema",
+        "Importer::getTitle",
+        "Importer::getTotalImported",
+        "Importer::getTotalProcessed",
+        "Importer::import",
+        "Importer::processValueAndResponse",
+        "Importer::resetResponses",
+        "Importer::resetTotalImported",
+        "Importer::resetTotalProcessed",
+        "Importer::setDescription",
+        "Importer::setPreImport",
+        "Importer::setTitle",
+        "Importer::setUpdate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Importer/Response.php": [
+        "Response::__construct",
+        "Response::appendMessage",
+        "Response::getMessage",
+        "Response::getPosition",
+        "Response::getSuccess",
+        "Response::jsonSerialize",
+        "Response::setMessage",
+        "Response::setPosition",
+        "Response::setSuccess"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Importer/Schema.php": [
+        "Schema::__construct",
+        "Schema::getFieldByName",
+        "Schema::getFieldNames",
+        "Schema::getFields",
+        "Schema::getModel",
+        "Schema::getPrimaryKey",
+        "Schema::getPrimaryKeyValue",
+        "Schema::getRequiredNames",
+        "Schema::getSubFieldByName",
+        "Schema::getSubFieldsNames",
+        "Schema::getTemplateWithHumanReadable",
+        "Schema::hasSubFields",
+        "Schema::insert",
+        "Schema::isBefore",
+        "Schema::mode",
+        "Schema::runBefore",
+        "Schema::setAlternativeInsert",
+        "Schema::setAlternativeUpdate",
+        "Schema::setBeforeExecuteUpdate",
+        "Schema::setFieldValue",
+        "Schema::setPrimaryKey",
+        "Schema::setSubFieldValue",
+        "Schema::setTemplateWithHumanReadable",
+        "Schema::template",
+        "Schema::update"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Mailer.php": [
+        "Mailer::__construct",
+        "Mailer::asGoDaddy",
+        "Mailer::checkSMTP",
+        "Mailer::checkSettedSMTP",
+        "Mailer::log",
+        "Mailer::setFrom"
+    ],
+    "app/core/psr4/PiecesPHP/Core/MailjetHandler.php": [
+        "MailjetHandler::__construct",
+        "MailjetHandler::addAddress",
+        "MailjetHandler::addAtachment",
+        "MailjetHandler::addBCC",
+        "MailjetHandler::addCC",
+        "MailjetHandler::addInlineAtachment",
+        "MailjetHandler::decodeData",
+        "MailjetHandler::from",
+        "MailjetHandler::getClient",
+        "MailjetHandler::getLastSendedData",
+        "MailjetHandler::getMessageStructure",
+        "MailjetHandler::getResponse",
+        "MailjetHandler::removeAttachmentByUniqueID",
+        "MailjetHandler::removeInlineAttachmentByUniqueID",
+        "MailjetHandler::replyTo",
+        "MailjetHandler::send",
+        "MailjetHandler::sendFromData",
+        "MailjetHandler::setAddresses",
+        "MailjetHandler::setBCCs",
+        "MailjetHandler::setBodyHTML",
+        "MailjetHandler::setBodyPlain",
+        "MailjetHandler::setCCs",
+        "MailjetHandler::subject"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Menu/MenuGroup.php": [
+        "MenuGroup::__construct",
+        "MenuGroup::addGroup",
+        "MenuGroup::addItem",
+        "MenuGroup::asLink",
+        "MenuGroup::getAttributes",
+        "MenuGroup::getGroups",
+        "MenuGroup::getHref",
+        "MenuGroup::getHrefTarget",
+        "MenuGroup::getHtml",
+        "MenuGroup::getHtmlElement",
+        "MenuGroup::getIcon",
+        "MenuGroup::getItems",
+        "MenuGroup::getName",
+        "MenuGroup::getPosition",
+        "MenuGroup::getRouteName",
+        "MenuGroup::hasIcon",
+        "MenuGroup::isCurrent",
+        "MenuGroup::isVisible",
+        "MenuGroup::setPosition",
+        "MenuGroup::setVisible",
+        "MenuGroup::validateGroup",
+        "MenuGroup::validateItem"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Menu/MenuGroupCollection.php": [
+        "MenuGroupCollection::__construct",
+        "MenuGroupCollection::addItem",
+        "MenuGroupCollection::getHtml",
+        "MenuGroupCollection::getHtmlElements",
+        "MenuGroupCollection::getItems"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Menu/MenuItem.php": [
+        "MenuItem::__construct",
+        "MenuItem::getAttributes",
+        "MenuItem::getClass",
+        "MenuItem::getHref",
+        "MenuItem::getHtml",
+        "MenuItem::getHtmlElement",
+        "MenuItem::getPosition",
+        "MenuItem::getRouteName",
+        "MenuItem::getText",
+        "MenuItem::isCurrent",
+        "MenuItem::isVisible",
+        "MenuItem::setPosition",
+        "MenuItem::setVisible"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Menu/MenuItemCollection.php": [
+        "MenuItemCollection::__construct",
+        "MenuItemCollection::addItem",
+        "MenuItemCollection::getHtml",
+        "MenuItemCollection::getHtmlElements"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Menu/Validator.php": [
+        "Validator::parse",
+        "Validator::validate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/PDFManager.php": [
+        "PDFManager::__construct"
+    ],
+    "app/core/psr4/PiecesPHP/Core/PHPStan/Classes/Spatie/Url/Url/SpatieUrlUrlDynamicMethodReturnTypeExtension.php": [
+        "SpatieUrlUrlDynamicMethodReturnTypeExtension::getClass",
+        "SpatieUrlUrlDynamicMethodReturnTypeExtension::getTypeFromMethodCall",
+        "SpatieUrlUrlDynamicMethodReturnTypeExtension::isMethodSupported",
+        "SpatieUrlUrlDynamicMethodReturnTypeExtension::methodMap"
+    ],
+    "app/core/psr4/PiecesPHP/Core/PHPStan/Classes/Spatie/Url/Url/SpatieUrlUrlMethodReturnTypeExtension.php": [
+        "SpatieUrlUrlMethodReturnTypeExtension::getClass",
+        "SpatieUrlUrlMethodReturnTypeExtension::getTypeFromStaticMethodCall",
+        "SpatieUrlUrlMethodReturnTypeExtension::isStaticMethodSupported",
+        "SpatieUrlUrlMethodReturnTypeExtension::methodMap"
+    ],
+    "app/core/psr4/PiecesPHP/Core/PHPStan/SystemDynamicFunctionReturnTypeExtension.php": [
+        "SystemDynamicFunctionReturnTypeExtension::buildArray",
+        "SystemDynamicFunctionReturnTypeExtension::functionResolvers",
+        "SystemDynamicFunctionReturnTypeExtension::getTypeFromFunctionCall",
+        "SystemDynamicFunctionReturnTypeExtension::isFunctionSupported",
+        "SystemDynamicFunctionReturnTypeExtension::resolveGetConfig"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Pagination/PageQuery.php": [
+        "PageQuery::__construct",
+        "PageQuery::from",
+        "PageQuery::getLastTotal",
+        "PageQuery::getPage",
+        "PageQuery::getPageResult",
+        "PageQuery::getPagination",
+        "PageQuery::getPerPage",
+        "PageQuery::getResult",
+        "PageQuery::getTotal",
+        "PageQuery::setPage",
+        "PageQuery::setPerPage"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Pagination/PaginationResult.php": [
+        "PaginationResult::__construct",
+        "PaginationResult::elements",
+        "PaginationResult::isFinal",
+        "PaginationResult::jsonSerialize",
+        "PaginationResult::nextPage",
+        "PaginationResult::page",
+        "PaginationResult::parsedElements",
+        "PaginationResult::perPage",
+        "PaginationResult::prevPage",
+        "PaginationResult::totalElements",
+        "PaginationResult::totalPages"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Roles.php": [
+        "Roles::addPermission",
+        "Roles::addPermissions",
+        "Roles::getCurrentRole",
+        "Roles::getRole",
+        "Roles::getRoles",
+        "Roles::getRolesIdentifiers",
+        "Roles::getSilentMode",
+        "Roles::hasPermissions",
+        "Roles::hasRoles",
+        "Roles::registerRole",
+        "Roles::registerRoles",
+        "Roles::roleExists",
+        "Roles::setCurrentRole",
+        "Roles::setSilentMode"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/DependenciesInjector.php": [
+        "DependenciesInjector::__construct",
+        "DependenciesInjector::add",
+        "DependenciesInjector::get",
+        "DependenciesInjector::has",
+        "DependenciesInjector::remove"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/InvocationStrategy.php": [
+        "InvocationStrategy::__invoke",
+        "InvocationStrategy::appendAfterCallMethod",
+        "InvocationStrategy::appendBeforeCallMethod"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/RequestRoute.php": [
+        "RequestRoute::getAttribute",
+        "RequestRoute::getParsedBodyParam",
+        "RequestRoute::getQueryParam",
+        "RequestRoute::getRoute",
+        "RequestRoute::isXhr"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/RequestRouteFactory.php": [
+        "RequestRouteFactory::createFromGlobals",
+        "RequestRouteFactory::createServerRequest"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/ResponseRoute.php": [
+        "ResponseRoute::fastCgiFinishRequestFlush",
+        "ResponseRoute::getLastWriteBodyData",
+        "ResponseRoute::getRawJsonDataInserted",
+        "ResponseRoute::withJson",
+        "ResponseRoute::withRedirect",
+        "ResponseRoute::write"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/ResponseRouteFactory.php": [
+        "ResponseRouteFactory::createResponse",
+        "ResponseRouteFactory::notFoundResponse"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/RouteAdapter.php": [
+        "RouteAdapter::__construct",
+        "RouteAdapter::addMiddleware",
+        "RouteAdapter::alias",
+        "RouteAdapter::controller",
+        "RouteAdapter::getParameters",
+        "RouteAdapter::instanceFromArray",
+        "RouteAdapter::method",
+        "RouteAdapter::methodFromArray",
+        "RouteAdapter::middlewares",
+        "RouteAdapter::name",
+        "RouteAdapter::register",
+        "RouteAdapter::requireLogin",
+        "RouteAdapter::rolesAllowed",
+        "RouteAdapter::routeSegment",
+        "RouteAdapter::setParameterValue",
+        "RouteAdapter::setParametersValues",
+        "RouteAdapter::setRouter",
+        "RouteAdapter::toArray"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/RouteGroupAdapter.php": [
+        "RouteGroupAdapter::__construct",
+        "RouteGroupAdapter::active",
+        "RouteGroupAdapter::addMiddleware",
+        "RouteGroupAdapter::getGroupSegment",
+        "RouteGroupAdapter::initRoutes",
+        "RouteGroupAdapter::register",
+        "RouteGroupAdapter::setRouter",
+        "RouteGroupAdapter::withMiddleware"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/Router.php": [
+        "Router::createRouter",
+        "Router::defaultContainer",
+        "Router::getContainer",
+        "Router::getDI"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Collection.php": [
+        "Collection::__construct",
+        "Collection::all",
+        "Collection::clear",
+        "Collection::count",
+        "Collection::get",
+        "Collection::getIterator",
+        "Collection::has",
+        "Collection::keys",
+        "Collection::offsetExists",
+        "Collection::offsetGet",
+        "Collection::offsetSet",
+        "Collection::offsetUnset",
+        "Collection::remove",
+        "Collection::replace",
+        "Collection::set"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/NotFoundException.php": [
+        "NotFoundException::__construct",
+        "NotFoundException::getResponse"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Http/Environment.php": [
+        "Environment::mock"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Interfaces/CollectionInterface.php": [
+        "CollectionInterface::all",
+        "CollectionInterface::clear",
+        "CollectionInterface::get",
+        "CollectionInterface::has",
+        "CollectionInterface::remove",
+        "CollectionInterface::replace",
+        "CollectionInterface::set"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Interfaces/Http/EnvironmentInterface.php": [
+        "EnvironmentInterface::mock"
+    ],
+    "app/core/psr4/PiecesPHP/Core/ServerStatics.php": [
+        "ServerStatics::__construct",
+        "ServerStatics::allowCaching",
+        "ServerStatics::allowCompression",
+        "ServerStatics::allowConvertion",
+        "ServerStatics::buildBasicHeaders",
+        "ServerStatics::buildCacheHeaders",
+        "ServerStatics::buildFilePath",
+        "ServerStatics::checkIfModifiedSince",
+        "ServerStatics::checkIfNoneMatch",
+        "ServerStatics::compileScssServe",
+        "ServerStatics::compressData",
+        "ServerStatics::convertImageToWebP",
+        "ServerStatics::createDynamicSymlink",
+        "ServerStatics::delegateToWebServer",
+        "ServerStatics::getDataTypeByExtension",
+        "ServerStatics::getDelegatedExtensions",
+        "ServerStatics::getMimeTypeByExtension",
+        "ServerStatics::getStaticPath",
+        "ServerStatics::getSymbolicLink",
+        "ServerStatics::initializeExtensionIndex",
+        "ServerStatics::isDelegationEnabled",
+        "ServerStatics::isValidResourcePath",
+        "ServerStatics::processCache",
+        "ServerStatics::processCompression",
+        "ServerStatics::processFormatConversion",
+        "ServerStatics::readFile",
+        "ServerStatics::selectCompressionAlgorithm",
+        "ServerStatics::serve",
+        "ServerStatics::setStaticPath",
+        "ServerStatics::shouldDelegateToWebServer",
+        "ServerStatics::typeIsAllowed",
+        "ServerStatics::verifyFile"
+    ],
+    "app/core/psr4/PiecesPHP/Core/SessionDataHandler.php": [
+        "SessionDataHandler::__construct",
+        "SessionDataHandler::addData",
+        "SessionDataHandler::existsKeys",
+        "SessionDataHandler::getAllData",
+        "SessionDataHandler::getData",
+        "SessionDataHandler::hasData",
+        "SessionDataHandler::initSession",
+        "SessionDataHandler::removeAllData",
+        "SessionDataHandler::removeData",
+        "SessionDataHandler::sessionExists"
+    ],
+    "app/core/psr4/PiecesPHP/Core/SessionToken.php": [
+        "SessionToken::currentReceivedJWTHasActiveSession",
+        "SessionToken::generateToken",
+        "SessionToken::getJWTReceived",
+        "SessionToken::initSession",
+        "SessionToken::isActiveSession",
+        "SessionToken::setMinimumDateCreated"
+    ],
+    "app/core/psr4/PiecesPHP/Core/SessionTokenIsolated.php": [
+        "SessionTokenIsolated::__construct",
+        "SessionTokenIsolated::generateToken",
+        "SessionTokenIsolated::getJWTData",
+        "SessionTokenIsolated::getJWTReceived",
+        "SessionTokenIsolated::isActiveSession",
+        "SessionTokenIsolated::setMinimumDateCreated"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Sitemap/Sitemap.php": [
+        "Sitemap::__construct",
+        "Sitemap::addItem",
+        "Sitemap::addItems",
+        "Sitemap::getLocations",
+        "Sitemap::getXML",
+        "Sitemap::save"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Sitemap/SitemapItem.php": [
+        "SitemapItem::__construct",
+        "SitemapItem::getLocation",
+        "SitemapItem::getXML"
+    ],
+    "app/core/psr4/PiecesPHP/Core/StringManipulate.php": [
+        "StringManipulate::friendlyURLString",
+        "StringManipulate::generatePass",
+        "StringManipulate::jsonDecode",
+        "StringManipulate::jsonEncode",
+        "StringManipulate::urlSafeB64Decode",
+        "StringManipulate::urlSafeB64Encode"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php": [
+        "ExifHelper::__construct",
+        "ExifHelper::convertArrayToUTF8",
+        "ExifHelper::getDigitizedDate",
+        "ExifHelper::getExifData",
+        "ExifHelper::getFileDate",
+        "ExifHelper::getGPSCoordinates",
+        "ExifHelper::getGPSDataToNumber",
+        "ExifHelper::getGPSLatitude",
+        "ExifHelper::getGPSLongitude",
+        "ExifHelper::getGPSSign",
+        "ExifHelper::getOriginalDate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Utilities/Helpers/DataTablesHelper.php": [
+        "DataTablesHelper::generateHaving",
+        "DataTablesHelper::generateOrderBy",
+        "DataTablesHelper::generatePage",
+        "DataTablesHelper::process",
+        "DataTablesHelper::processFromQuery",
+        "DataTablesHelper::setTablePrefixOnOrder",
+        "DataTablesHelper::setTablePrefixOnSearch"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Utilities/Helpers/ExtraScripts.php": [
+        "ExtraScripts::getScripts",
+        "ExtraScripts::initialValues",
+        "ExtraScripts::setScripts"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Utilities/Helpers/MetaTags.php": [
+        "MetaTags::getMetaTagsGeneric",
+        "MetaTags::getMetaTagsOpenGraph",
+        "MetaTags::initialValues",
+        "MetaTags::setDescription",
+        "MetaTags::setImage",
+        "MetaTags::setKeywords",
+        "MetaTags::setLocale",
+        "MetaTags::setLocaleAlternate",
+        "MetaTags::setOwner",
+        "MetaTags::setSitename",
+        "MetaTags::setThemeColor",
+        "MetaTags::setTitle",
+        "MetaTags::setType",
+        "MetaTags::setURL"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Utilities/OsTicket/OsTicketAPI.php": [
+        "OsTicketAPI::__construct",
+        "OsTicketAPI::createTicket",
+        "OsTicketAPI::getHttpClient",
+        "OsTicketAPI::setBaseAPIKey",
+        "OsTicketAPI::setBaseURL"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Utilities/ReturnTypes/Operation.php": [
+        "Operation::__construct",
+        "Operation::getMessage",
+        "Operation::getName",
+        "Operation::getRequired",
+        "Operation::getSuccess",
+        "Operation::getTime",
+        "Operation::jsonSerialize",
+        "Operation::setMessage",
+        "Operation::setName",
+        "Operation::setRequired",
+        "Operation::setSuccess"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Utilities/ReturnTypes/ResultOperations.php": [
+        "ResultOperations::__construct",
+        "ResultOperations::addExtra",
+        "ResultOperations::addOperation",
+        "ResultOperations::fails",
+        "ResultOperations::getMessage",
+        "ResultOperations::getName",
+        "ResultOperations::getSingleOperation",
+        "ResultOperations::getValue",
+        "ResultOperations::getValues",
+        "ResultOperations::jsonSerialize",
+        "ResultOperations::operation",
+        "ResultOperations::result",
+        "ResultOperations::resultInstance",
+        "ResultOperations::setExtras",
+        "ResultOperations::setMessage",
+        "ResultOperations::setName",
+        "ResultOperations::setOperations",
+        "ResultOperations::setSingleOperation",
+        "ResultOperations::setSuccessOnSingleOperation",
+        "ResultOperations::setValue",
+        "ResultOperations::setValues",
+        "ResultOperations::success",
+        "ResultOperations::successOperations"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/InvalidParameterValueException.php": [
+        "InvalidParameterValueException::__construct",
+        "InvalidParameterValueException::setMessage"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/MissingRequiredParamaterException.php": [
+        "MissingRequiredParamaterException::__construct",
+        "MissingRequiredParamaterException::setMessage"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/ParamaterNotExistsException.php": [
+        "ParamaterNotExistsException::__construct",
+        "ParamaterNotExistsException::setMessage"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Exceptions/ParsedValueException.php": [
+        "ParsedValueException::__construct",
+        "ParsedValueException::setMessage"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Parameter.php": [
+        "Parameter::__construct",
+        "Parameter::getDefaultValue",
+        "Parameter::getName",
+        "Parameter::getValue",
+        "Parameter::isNullable",
+        "Parameter::isOptional",
+        "Parameter::isValid",
+        "Parameter::jsonSerialize",
+        "Parameter::nullable",
+        "Parameter::onError",
+        "Parameter::parse",
+        "Parameter::setDefaultValue",
+        "Parameter::setName",
+        "Parameter::setOptional",
+        "Parameter::setParser",
+        "Parameter::setValidator",
+        "Parameter::setValue",
+        "Parameter::validate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Validation/Parameters/Parameters.php": [
+        "Parameters::__construct",
+        "Parameters::addParamater",
+        "Parameters::addParameters",
+        "Parameters::getParameter",
+        "Parameters::getParameters",
+        "Parameters::getValue",
+        "Parameters::getValues",
+        "Parameters::jsonSerialize",
+        "Parameters::removeParamater",
+        "Parameters::setInputValues",
+        "Parameters::setParameters",
+        "Parameters::validate"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Validation/Validator.php": [
+        "Validator::isArray",
+        "Validator::isDate",
+        "Validator::isDouble",
+        "Validator::isEmail",
+        "Validator::isInteger",
+        "Validator::isString",
+        "Validator::validate"
+    ],
+    "app/core/psr4/PiecesPHP/LangInjector.php": [
+        "LangInjector::__construct",
+        "LangInjector::inject",
+        "LangInjector::injectGroup",
+        "LangInjector::loadLangFiles"
+    ],
+    "app/core/psr4/PiecesPHP/Terminal/CliActions.php": [
+        "CliActions::__construct",
+        "CliActions::execute",
+        "CliActions::exists",
+        "CliActions::get",
+        "CliActions::getActions",
+        "CliActions::getDescription",
+        "CliActions::getName",
+        "CliActions::listActionNames",
+        "CliActions::make",
+        "CliActions::register",
+        "CliActions::remove",
+        "CliActions::run",
+        "CliActions::setDescription"
+    ],
+    "app/core/psr4/PiecesPHP/Terminal/CronJobTask.php": [
+        "CronJobTask::__construct",
+        "CronJobTask::addCronJob",
+        "CronJobTask::addCronJobs",
+        "CronJobTask::dailyAt",
+        "CronJobTask::execute",
+        "CronJobTask::getCronJobs",
+        "CronJobTask::getEvalDate",
+        "CronJobTask::getName",
+        "CronJobTask::hourly",
+        "CronJobTask::make",
+        "CronJobTask::onMinute",
+        "CronJobTask::removeCronJob",
+        "CronJobTask::setEvalDate",
+        "CronJobTask::shouldExecute",
+        "CronJobTask::weeklyOn",
+        "CronJobTask::when"
+    ],
+    "app/core/psr4/PiecesPHP/Terminal/QueueHandlerResponse.php": [
+        "QueueHandlerResponse::__construct",
+        "QueueHandlerResponse::fail",
+        "QueueHandlerResponse::getData",
+        "QueueHandlerResponse::getDelay",
+        "QueueHandlerResponse::getMessage",
+        "QueueHandlerResponse::isFail",
+        "QueueHandlerResponse::isRetry",
+        "QueueHandlerResponse::isSuccess",
+        "QueueHandlerResponse::success",
+        "QueueHandlerResponse::toArray",
+        "QueueHandlerResponse::wait"
+    ],
+    "app/core/psr4/PiecesPHP/Terminal/QueueTask.php": [
+        "QueueTask::__construct",
+        "QueueTask::addQueueHandler",
+        "QueueTask::addQueueHandlers",
+        "QueueTask::dispatch",
+        "QueueTask::execute",
+        "QueueTask::getName",
+        "QueueTask::getQueueHandlers",
+        "QueueTask::make"
+    ],
+    "app/core/psr4/PiecesPHP/Terminal/Tasks/Abstracts/TerminalTaskAbstract.php": [
+        "TerminalTaskAbstract::getAlias",
+        "TerminalTaskAbstract::getController",
+        "TerminalTaskAbstract::getDefaultParamsValues",
+        "TerminalTaskAbstract::getDescription",
+        "TerminalTaskAbstract::getMethod",
+        "TerminalTaskAbstract::getMiddlewares",
+        "TerminalTaskAbstract::getName",
+        "TerminalTaskAbstract::getRequireLogin",
+        "TerminalTaskAbstract::getRolesAllowed",
+        "TerminalTaskAbstract::getRoute"
+    ],
+    "app/core/psr4/PiecesPHP/Terminal/Tasks/Interfaces/TerminalTaskInterface.php": [
+        "TerminalTaskInterface::main",
+        "TerminalTaskInterface::route"
+    ],
+    "app/core/psr4/PiecesPHP/TerminalData.php": [
+        "TerminalData::__construct",
+        "TerminalData::addArgument",
+        "TerminalData::addSharedData",
+        "TerminalData::arguments",
+        "TerminalData::basicServerVariables",
+        "TerminalData::cli",
+        "TerminalData::dataConfig",
+        "TerminalData::getAllSharedData",
+        "TerminalData::getArgument",
+        "TerminalData::getInstance",
+        "TerminalData::getServerVariable",
+        "TerminalData::getSharedData",
+        "TerminalData::instance",
+        "TerminalData::isTerminal",
+        "TerminalData::local",
+        "TerminalData::removeSharedData",
+        "TerminalData::route",
+        "TerminalData::setArgument",
+        "TerminalData::setData",
+        "TerminalData::setSharedData",
+        "TerminalData::syncWithGlobals"
+    ],
+    "app/core/system-controllers/Test.php": [
+        "Test::__construct",
+        "Test::calculateFontSize",
+        "Test::calculateTextPosition",
+        "Test::createPlaceholderImage",
+        "Test::generateErrorResponse",
+        "Test::generateImage",
+        "Test::getFontPath",
+        "Test::registerRoutes"
+    ],
+    "app/core/system-controllers/TestQueueRequest.php": [
+        "TestQueueRequest::__construct",
+        "TestQueueRequest::form",
+        "TestQueueRequest::handle",
+        "TestQueueRequest::process"
+    ],
+    "app/model/AppConfigModel.php": [
+        "AppConfigModel::__construct",
+        "AppConfigModel::cleanAll",
+        "AppConfigModel::getConfigValue",
+        "AppConfigModel::getConfigurations",
+        "AppConfigModel::initializateConfigurations",
+        "AppConfigModel::model",
+        "AppConfigModel::optionExists",
+        "AppConfigModel::save",
+        "AppConfigModel::setConfigValue"
+    ],
+    "app/model/AvatarModel.php": [
+        "AvatarModel::getAvatar",
+        "AvatarModel::getFolderUser",
+        "AvatarModel::getFolderUserURL",
+        "AvatarModel::getUserAvatarName",
+        "AvatarModel::getUserAvatarNameURL",
+        "AvatarModel::getUserAvatarNameURLOrDefault",
+        "AvatarModel::hasUserAvatar",
+        "AvatarModel::save"
+    ],
+    "app/model/LoginAttemptsModel.php": [
+        "LoginAttemptsModel::__construct",
+        "LoginAttemptsModel::addLogin",
+        "LoginAttemptsModel::all",
+        "LoginAttemptsModel::fieldsToSelect",
+        "LoginAttemptsModel::getAttempts",
+        "LoginAttemptsModel::getLoggedUsers",
+        "LoginAttemptsModel::getNotLoggedUsers",
+        "LoginAttemptsModel::lastLogin",
+        "LoginAttemptsModel::model"
+    ],
+    "app/model/RecoveryPasswordModel.php": [
+        "RecoveryPasswordModel::__construct",
+        "RecoveryPasswordModel::exist",
+        "RecoveryPasswordModel::getUserNameByCode",
+        "RecoveryPasswordModel::instanceByCode"
+    ],
+    "app/model/TicketsLogModel.php": [
+        "TicketsLogModel::__construct"
+    ],
+    "app/model/TimeOnPlatformModel.php": [
+        "TimeOnPlatformModel::__construct",
+        "TimeOnPlatformModel::addTime",
+        "TimeOnPlatformModel::existsUser",
+        "TimeOnPlatformModel::getAllHoursOnPlatform",
+        "TimeOnPlatformModel::getRecordByUser"
+    ],
+    "app/model/TokenModel.php": [
+        "TokenModel::__construct",
+        "TokenModel::add",
+        "TokenModel::addJWTWithCode",
+        "TokenModel::checkJWTWithCode",
+        "TokenModel::checkTokenIsExpired",
+        "TokenModel::deleteByID",
+        "TokenModel::deleteByToken",
+        "TokenModel::exists",
+        "TokenModel::existsByID",
+        "TokenModel::existsByType",
+        "TokenModel::generateJWT",
+        "TokenModel::getDataJWT",
+        "TokenModel::getRecord"
+    ],
+    "app/model/UserProblemsModel.php": [
+        "UserProblemsModel::__construct",
+        "UserProblemsModel::exist",
+        "UserProblemsModel::instanceByCode"
+    ],
+    "app/model/UsersModel.php": [
+        "UsersModel::__construct",
+        "UsersModel::all",
+        "UsersModel::allByMultipleCriteries",
+        "UsersModel::allOrganizationUsersCanBeAdminForSelect",
+        "UsersModel::changeEmail",
+        "UsersModel::changeFirstLastname",
+        "UsersModel::changeFirstName",
+        "UsersModel::changePassword",
+        "UsersModel::changeSecondLastname",
+        "UsersModel::changeSecondName",
+        "UsersModel::changeStatus",
+        "UsersModel::changeType",
+        "UsersModel::changeUsername",
+        "UsersModel::fieldsToSelect",
+        "UsersModel::getBy",
+        "UsersModel::getByEmail",
+        "UsersModel::getByID",
+        "UsersModel::getByMultipleCriteries",
+        "UsersModel::getByUsername",
+        "UsersModel::getFullName",
+        "UsersModel::getHigherPriorityTypes",
+        "UsersModel::getLastNames",
+        "UsersModel::getNames",
+        "UsersModel::getPublicData",
+        "UsersModel::getTypeUserName",
+        "UsersModel::getTypesUser",
+        "UsersModel::getUsersByIDs",
+        "UsersModel::getUsersByType",
+        "UsersModel::getUsersByTypes",
+        "UsersModel::getWhere",
+        "UsersModel::hasAuthorityOver",
+        "UsersModel::isDuplicate",
+        "UsersModel::isDuplicateEmail",
+        "UsersModel::isDuplicateUsername",
+        "UsersModel::model",
+        "UsersModel::resetAttempts",
+        "UsersModel::save",
+        "UsersModel::statuses",
+        "UsersModel::statusesForDisplayQuery",
+        "UsersModel::typesUserForSelect",
+        "UsersModel::update",
+        "UsersModel::updateAttempts",
+        "UsersModel::updateModifiedAt"
+    ],
+    "index.php": [
+        "__construct",
+        "getUserFromDatabase",
+        "hasID",
+        "hasType",
+        "isInteger",
+        "isObject",
+        "isValid",
+        "setUser",
+        "validType"
+    ]
+}

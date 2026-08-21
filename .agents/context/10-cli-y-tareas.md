@@ -185,6 +185,20 @@ bin/cli unit-tests:core/http-client
 bin/cli unit-tests:core/helpers-directories
 ```
 
+## Verificación de integridad
+
+```bash
+bin/cli verify-integrity
+```
+
+`Terminal\Tasks\VerifyIntegrityTask`. Detecta **docblocks sin cerrar** y **funciones o
+métodos que han desaparecido**, comparando contra `files/dev/integrity-signatures.json`.
+Sale con código 1 si algo falla, para CI.
+
+Cubre un hueco real: un docblock sin cerrar **no es un error de sintaxis**, así que
+`php -l` lo da por bueno mientras el comentario se traga el método siguiente. Ver
+`files/dev/tests.md`.
+
 ## Análisis estático
 
 ```bash
