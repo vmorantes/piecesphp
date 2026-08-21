@@ -119,10 +119,10 @@ tiempo señalándolos.
 
 | Qué | Errores | Cómo |
 | :-- | --: | :-- |
-| `getBy()` declarado `@return static\|object\|null` en 26 mappers | 56 | Tipo condicional: `@return ($as_mapper is true ? static : \stdClass)\|null`. Docblock, no extensión |
+| ~~`getBy()` declarado `@return static\|object\|null`~~ **HECHO** | −36 | Fueron **36 docblocks en 29 archivos**, no 26: el patrón también estaba en `lastModifiedElement` (7), `getByMultipleCriteries` (2) y `getExactAttachment` (1). El flag **no** se llama igual en todos —`$as_mapper` y `$asMapper`—, así que hubo que ajustarlo uno a uno |
 | `getLoggedFrameworkUser()` encadenado sin comprobar | 123 | **Contrato, no parches**: añadir `getLoggedFrameworkUserOrFail(): UserDataPackage` y usarla donde `requireLogin = true` garantiza sesión |
-| `@property` que mienten sobre lo asignado | 21 | Corregir el docblock, nunca la asignación |
-| Regex sin escapar en el ignore de `BaseEntityMapper` | 8 ocultos | El `\|` dentro de `#…#` es una alternancia y silencia todo lo que mencione `ActiveRecordModel` |
+| ~~`@property` que mienten sobre lo asignado~~ **HECHO** | −15 | Fueron **6**, no 21: el resto de `assign.propertyType` no son `@property` de mapper. Cada corrección se contrastó contra el `$fields` del mapper. **Cinco casos se dejaron sin tocar a propósito**: ahí el docblock no miente, es el código el que asigna algo que el esquema no admite; ensancharlos habría documentado el bug |
+| ~~Regex sin escapar en el ignore de `BaseEntityMapper`~~ **HECHO** | +2 | Escaparlo destapa **2**, no 8. El 8 salía de quitar la regla entera; los otros 6 son `undefined method` genuinos que la rama correcta sigue silenciando, que es para lo que la regla existe |
 | `BaseController::$model` con unión de tres tipos | 6 | Docblock o genérico. La escala era mucho menor de lo estimado |
 | El resto de los 541 `null` | ~500 | Triaje por categorías, con pruebas hechas |
 
@@ -132,6 +132,17 @@ tiempo señalándolos.
 
 **67 entradas**, no 55. Auditadas una a una quitándolas y midiendo: **48 vivas, 19
 muertas**. Silencian **3.083 errores** frente a los 1.078 visibles.
+
+> **Actualización del 2026-08-21 — las muertas ya están borradas.** 12 entradas
+> completamente muertas, más **5 rutas `**/*` redundantes** que no estaban muertas por
+> casualidad: en esta configuración `../src/app/*` ya casa de forma recursiva, así que su
+> hermana `**/*` nunca llega a ignorar nada. Comprobado dejando solo la `**/*`: silencia
+> igual. Se separó además la entrada de las vistas, porque los tres identificadores
+> compartían lista de rutas y en `BaseMongoModel.php` solo casa `class.notFound`.
+>
+> **Quedan 0 patrones muertos.** Nueva línea base: **1.011** errores.
+> Las 48 vivas siguen intactas; las 357 de la familia `alwaysTrue`/`alwaysFalse` son la
+> siguiente ventana.
 
 | Grupo | Errores | Entradas | Veredicto |
 | :-- | --: | --: | :-- |

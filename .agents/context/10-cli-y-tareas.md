@@ -194,4 +194,43 @@ bin/phpstan            # config en bin/phpstan.neon y bin/phpstan.services.neon
 Resultados en `PHPStanResult.txt` y `PHPStanResult.Summary.txt` (generado por
 `bin/phpstan-process-result.php`). Hay extensiones propias en
 `Core/PHPStan/` (p. ej. `SystemDynamicFunctionReturnTypeExtension`).
-También existe `bin/rector` para refactors automatizados.
+
+La configuración analiza el **rango** `{min: 80400, max: 80500}`, no una sola versión, y
+carga `phpstan/phpstan-deprecation-rules`. La línea base vive en
+`PHPStanResult.Summary.baseline.txt`: es **detector de regresión, no meta a cero**.
+
+> **La cifra visible no es el total.** Los `ignoreErrors` silencian unas tres veces más
+> errores de los que se ven. Antes de concluir que algo «está limpio», comprueba si no
+> está simplemente suprimido — la auditoría de las entradas está en
+> [18-siguientes-ventanas.md](./18-siguientes-ventanas.md).
+
+## Refactor automatizado
+
+```bash
+bin/rector             # config en bin/tools/refactorization/Rector.php
+```
+
+Emite al nivel del **piso** (`phpVersion(PhpVersion::PHP_84)`) aunque detecte hasta 8.5,
+para no introducir sintaxis que rompa en la versión mínima soportada.
+
+> ### ⚠️ Rector NO analiza las vistas, y no porque sea seguro hacerlo ahí
+>
+> `Rector.php` construye su lista de archivos leyendo las rutas `project://` de
+> **`PHPStanResult.txt`**: solo mira archivos que PHPStan reportó con errores.
+>
+> Y los errores de las vistas están silenciados por un `ignoreErrors` —el mayor de
+> todos, ~1.350 errores— porque las vistas reciben sus variables por `extract()` y
+> PHPStan no puede seguirlas. **Como no se reportan, no entran en `PHPStanResult.txt`, y
+> Rector nunca las ve.**
+>
+> El resultado hoy es que ninguna regla peligrosa toca vistas. Pero eso es una
+> coincidencia de la cadena de herramientas, **no una garantía**: si algún día se levanta
+> ese `ignoreErrors`, Rector empezará a ver exactamente los archivos donde `extract()`
+> hace inservible su análisis de alcanzabilidad, y reglas como
+> `RemoveUnusedVariableAssignRector` propondrán borrar variables que sí se usan.
+>
+> Si eso ocurre, hay que añadir `src/app/view` y `**/Views` al `skip()` de Rector
+> **antes** de volver a ejecutarlo.
+
+También conviene saber que `AppHelpers.php` y `Utilities.php` están en el `skip()` por
+diseño: son los dos archivos más grandes y su revisión es manual.
