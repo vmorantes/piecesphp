@@ -33,6 +33,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $passed = 0;
     $failed = 0;
+    $skipped = 0;
 
     try {
         // 1. Preparar Entorno
@@ -93,11 +94,18 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             ['name' => 'CSV', 'format' => new CsvFormat(), 'ext' => 'csv'],
         ];
 
+        /**
+         * `requires` declara la extensión de PHP sin la cual esa salida NO SE PUEDE PROBAR.
+         * Una prueba que no se puede ejecutar se SALTA con su razón; no falla. Si la suite
+         * se queda en rojo por algo que no es un defecto, en tres semanas todos habremos
+         * aprendido a ignorar el rojo, y ese día pasará un fallo de verdad sin que nadie
+         * lo mire.
+         */
         $outputCases = [
-            ['name' => 'Plano', 'plugin' => new FileOutput(), 'suffix' => ''],
-            ['name' => 'Gzip', 'plugin' => new GzipFileOutput(), 'suffix' => '.gz'],
-            ['name' => 'Bz2', 'plugin' => new Bz2FileOutput(), 'suffix' => '.bz2'],
-            ['name' => 'Zip', 'plugin' => new ZipFileOutput(), 'suffix' => '.zip'],
+            ['name' => 'Plano', 'plugin' => new FileOutput(), 'suffix' => '', 'requires' => null],
+            ['name' => 'Gzip', 'plugin' => new GzipFileOutput(), 'suffix' => '.gz', 'requires' => 'zlib'],
+            ['name' => 'Bz2', 'plugin' => new Bz2FileOutput(), 'suffix' => '.bz2', 'requires' => 'bz2'],
+            ['name' => 'Zip', 'plugin' => new ZipFileOutput(), 'suffix' => '.zip', 'requires' => 'zip'],
         ];
 
         $specialVariants = [
@@ -119,6 +127,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                     'filename' => "test_pro_{$fc['name']}_" . strtolower(str_replace(' ', '_', $oc['name'])) . ".{$fc['ext']}{$oc['suffix']}",
                     'options' => array_merge($baseOptions, $advancedOptions),
                     'validate' => ($oc['suffix'] === ''), // Solo validamos contenido en archivos planos
+                    'requires' => $oc['requires'],
                 ];
             }
         }
@@ -132,6 +141,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 'filename' => "test_variant{$sv['suffix']}.sql",
                 'options' => array_merge($baseOptions, $advancedOptions, $sv['opts']),
                 'validate' => true,
+                'requires' => null,
             ];
         }
 
@@ -141,6 +151,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         if (!is_dir($outputDir)) {
             mkdir($outputDir, 0755, true);
         }
+
+        $skipResult = function (string $name, string $reason) use (&$skipped) {
+            systemOutFormatted("      [SALTADO] $name", ['color' => '33']);
+            systemOutFormatted("         $reason", ['color' => '33']);
+            $skipped++;
+        };
 
         $checkResult = function (bool $condition, string $name) use (&$passed, &$failed) {
             $status = $condition ? '[PASÓ]' : '[FALLÓ]';
@@ -164,6 +180,16 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         foreach ($allTests as $index => $test) {
             $num = $index + 1;
             systemOutFormatted("[$num/$totalCount] Probando: {$test['label']}...");
+
+            $requiredExtension = $test['requires'] ?? null;
+            if ($requiredExtension !== null && !extension_loaded($requiredExtension)) {
+                $skipResult(
+                    "Resultado de {$test['label']}",
+                    "La extensión '{$requiredExtension}' no está cargada en este PHP: la salida no se puede generar."
+                );
+                systemOutFormatted('');
+                continue;
+            }
 
             $fullPath = append_to_path_system($outputDir, $test['filename']);
             $opts = $test['options'];
@@ -231,15 +257,30 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         systemOutFormatted('================================================================');
         systemOutFormatted('            BALANCE FINAL DE PRUEBAS UNITARIAS                  ');
         systemOutFormatted('================================================================');
-        systemOutFormatted("   TOTAL:   $totalCount");
-        systemOutFormatted("   PASADAS: $passed", ['color' => '32']);
+        systemOutFormatted("   TOTAL:    $totalCount");
+        systemOutFormatted("   PASADAS:  $passed", ['color' => '32']);
+        systemOutFormatted("   SALTADAS: $skipped", ['color' => $skipped > 0 ? '33' : '32']);
         systemOutFormatted("   FALLIDAS: $failed", ['color' => $failed > 0 ? '31' : '32']);
         systemOutFormatted('================================================================');
         systemOutFormatted('');
         systemOutFormatted('Los archivos generados se encuentran en: ' . $outputDir);
 
+        /**
+         * Un salto NO cuenta como fallo. La puerta la decide `$failed`, y solo `$failed`.
+         */
+        return [
+            'success' => $failed === 0,
+            'message' => $failed === 0
+                ? "Exportador correcto ({$passed} pasadas, {$skipped} saltadas)."
+                : "{$failed} pruebas del exportador fallaron.",
+        ];
+
     } catch (Exception $e) {
         systemOutFormatted("ERROR CRÍTICO: " . $e->getMessage(), ['color' => '31']);
+        return [
+            'success' => false,
+            'message' => 'Error crítico en la suite del exportador: ' . $e->getMessage(),
+        ];
     }
 
 })->setDescription($cliTaskDescription)->register();
