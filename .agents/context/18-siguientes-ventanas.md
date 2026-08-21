@@ -142,6 +142,28 @@ El remoto del framework tiene un **token de acceso personal de GitHub en texto p
 **Pendiente del propietario del repositorio, no de un agente.** No lo toques: rótalo en
 GitHub y guarda la credencial en un *credential helper*, no en la URL del remoto.
 
+## T5bis · Dos patrones del proyecto
+
+### `token_get_all()` es la respuesta estándar para distinguir código de prosa
+
+Cada vez que hay que preguntarle algo al código fuente —¿hay una llamada a X?, ¿este
+docblock está cerrado?— **se tokeniza, no se busca por texto**. Ya lo usan
+`verify-integrity` y `unit-tests:core/otp-write-separation`.
+
+Las dos veces que se hizo a ojo salió mal: la primera versión de `verify-integrity`
+contaba `/*` contra `*/` y daba 32 falsos positivos porque `'image/*'` aparece dentro de
+cadenas; la primera versión del test de OTP buscaba por subcadena y **casaba con el
+comentario** que documenta la llamada retirada.
+
+### Un test que confunde documentar con hacer obliga a no documentar
+
+Si un test castiga un comentario, **la herramienta está mal, no el comentario**. La salida
+correcta no es quitar el comentario para que el test pase: es enseñarle al test a
+distinguir. Descartar `T_COMMENT` y `T_DOC_COMMENT` cuesta seis líneas.
+
+Un test que empuja a documentar menos es peor que no tenerlo, porque su coste no se ve en
+la ejecución sino meses después, en lo que nadie escribió.
+
 ## T5 · Por qué las puertas son las que son
 
 `bin/cli verify-integrity`, las dos suites y `PHPStanResult.Summary.baseline.txt` no son
@@ -668,3 +690,74 @@ por búsqueda en todo `src/app`. Mismo patrón que `scssphp` y `mpdf`: integraci
 dejaron a medias y nadie retiró. Pertenecen a `14-deuda-y-limpieza.md`; se anotan aquí porque
 salieron al inventariar los emisores, y porque **decidir su suerte antes de escribir las
 pruebas evita escribir pruebas para código que se va a borrar** — el mismo criterio de T6.
+
+## T8 · CONTABILIDAD DE LOS ERRORES `false` — **fuente única, se actualiza, no se recalcula**
+
+Las cifras se han movido tres veces (148 → 144 → 157) y cada movimiento obligó a
+re-verificar. Esta tabla corta ese gasto: **es la única fuente**. Cuando se resuelva un
+grupo, se edita aquí; no se vuelve a contar desde cero.
+
+### Cómo mapea el 148 viejo al 157
+
+| | |
+| :-- | :-- |
+| **148** | Medido parseando `PHPStanResult.txt`, la tabla. **No es reproducible ni reconciliable exactamente**: las rutas venían recortadas a 73 caracteres, así que había errores mal atribuidos y errores descartados por apuntar a archivos inexistentes. |
+| **157** | Medido sobre `PHPStanResult.json` en la MISMA ejecución de 968 errores. Salida de máquina, sin recorte. |
+| **Diferencia** | +9. No se reconstruye la procedencia exacta de cada uno: la medición vieja se hizo sobre una salida corrupta y fabricar una reconciliación sería inventarla. **El 148 queda derogado.** |
+
+**La cifra de partida autorizada es 157.**
+
+### ¿Sigue siendo comparable el baseline?
+
+**Sí en lo que importa, no en todo.** El recorte afectaba a la cabecera de archivo, nunca
+a las filas de error: la misma ejecución da **968 leída como tabla y 968 leída como JSON**.
+Lo que sí venía mal era el conteo de ARCHIVOS —192 en vez de 195—, porque cuatro vistas de
+`ContentNavigationHub` comparten los primeros 73 caracteres de su ruta y colapsaban en una.
+
+`PHPStanResult.Summary.baseline.txt` lleva ahora una nota de medición con esto y el conteo
+de archivos corregido. **El total de errores no se regenera: 968 nunca fue otro número.**
+
+### Recorrido, medido commit a commit
+
+| Commit | Errores | Con `false` | Qué resolvió |
+| :-- | --: | --: | :-- |
+| `89030cb6` | 968 | **157** | *(punto de partida bajo el pipeline corregido)* |
+| `61a0a474` | 968 | 157 | D2 — nulabilidad, no `false` |
+| `14d0886a` | 950 | 157 | Migración fuera de `routes()` |
+| `6a33b77e` | 933 | **140** | Retipar `PDO` → `Database` (−17) |
+| `7f5f00a2` | 916 | **123** | `JSON_THROW_ON_ERROR` (−17) |
+| `7ac91445` | 907 | **114** | Familia `strpos` (−9) |
+| `d6924b39` | 900 | **107** | `realpath` y `createFromFormat` (−7) |
+
+**Resueltos: 50 de 157. Quedan 107.**
+
+### Los 107 que quedan, por grupo y destino
+
+| Grupo | Trato completo | Se reescribe | Se borra | Total |
+| :-- | --: | --: | --: | --: |
+| `file_get_contents` / `file` | 44 | 3 | 7 | **54** |
+| `DateTime` / `strtotime` | 11 | 0 | 3 | **14** |
+| Retorno propio declarado con `\|false` | 12 | 0 | 1 | **13** |
+| GD (`imagecreate*`, `imagecolor*`) | 11 | 0 | 1 | **12** |
+| Recursos (`fopen`, `opendir`) | 5 | 0 | 0 | **5** |
+| `readdir` | 2 | 0 | 0 | **2** |
+| `finfo_file` | 1 | 0 | 1 | **2** |
+| `fputcsv` | 1 | 0 | 0 | **1** |
+| `stream_get_contents` | 1 | 0 | 0 | **1** |
+| Otros | 1 | 0 | 2 | **3** |
+| **TOTAL** | **89** | **3** | **15** | **107** |
+
+**15 mueren con su módulo y no reciben nada** (ver T6). Los 3 de reescritura solo reciben
+atención si son defecto real, no si son un tipo mal declarado. **El trabajo real son 89.**
+
+### Dónde mirar primero
+
+- **Los 12 «retorno propio con `|false`»** son la apuesta principal. Un retorno propio que
+  declara `|false` es **una decisión nuestra, no una herencia de PHP**: lo probable es que
+  la firma sea lo que está mal, no el sitio de llamada.
+- **Los 11 de `DateTime`/`strtotime`** son los siguientes en probabilidad de esconder un
+  defecto: una fecha mal parseada no revienta, produce un valor equivocado.
+- **Los 44 de `file_get_contents`** son grupo A —el manejador de `bootstrap.php` promueve
+  el `E_WARNING` a excepción, así que abortan en vez de devolver `false`—, de modo que son
+  volumen mecánico, no caza.
+

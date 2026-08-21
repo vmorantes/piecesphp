@@ -1,7 +1,21 @@
+================[NOTA DE MEDICIÓN]================
+
+Este baseline se tomó con el pipeline ANTERIOR, que leía la tabla de PHPStan. Esa tabla
+recorta la ruta de cada archivo al ancho de terminal, así que el conteo de ARCHIVOS venía
+mal: decía 192 cuando eran 195. Cuatro vistas de ContentNavigationHub comparten los
+primeros 73 caracteres de su ruta y se contaban como una sola.
+
+EL CONTEO DE ERRORES NO ESTÁ AFECTADO Y SIGUE SIENDO COMPARABLE. El recorte tocaba la
+cabecera de archivo, nunca las filas de error: la misma ejecución da 968 leída como tabla
+y 968 leída como JSON. La cifra de archivos se corrige aquí a 195; la de errores se deja
+como estaba porque nunca fue otra.
+
+Referencia de la campaña: 968 errores. No dejarlo peor que esto.
+
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-192
+195
 
 [TOTAL DE ERRORES VISIBLES]
 968
