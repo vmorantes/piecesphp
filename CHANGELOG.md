@@ -57,6 +57,22 @@
   checksum** (`sha1(false)` = `sha1('')`) y el caché HTTP servía contenido equivocado.
   La excepción es `GenericHandler:192`, dentro del manejador de errores, donde lanzar
   rompería justo el registro que se intenta escribir: ahí la respuesta es manejo explícito.
+- **Una entrada de caché vacía ya no cuenta como caché.** `hasCachedData()` solo
+  comprobaba `file_exists()`, así que un archivo de **cero bytes se servía como contenido
+  válido indefinidamente** —no hay recaché hasta que algo marque `shouldBeRecached`—. Es
+  la vía por la que un `json_encode()` fallido llegaba a disco: `setDataCache(string $data)`
+  sin `strict_types` convierte `false` en `''` en silencio. Ahora un archivo vacío se trata
+  como ausencia de caché y **la entrada envenenada se cura sola en la siguiente petición**.
+    - **Al desplegar no hace falta purgar nada por este motivo.** Se comprobó el árbol de
+      `src/app/cache`: no hay ninguna entrada almacenada en este entorno. Si en producción
+      quedara alguna, la corrección la invalida automáticamente por tamaño. `bin/cli
+      clean-cache` sigue disponible si se prefiere forzarlo.
+    - **Matiz sobre el ETag**, que se describió de más en el análisis inicial: el checksum
+      de `PublicationsController:1152` no se almacena en servidor, va a una cabecera `ETag`
+      emitida junto a `Cache-Control: no-cache`. Eso obliga a revalidar, así que un ETag
+      viejo provoca un 200 con contenido fresco y también se cura solo. El defecto real era
+      que dos contenidos distintos podían compartir tag, no que se sirvieran cruzados: los
+      ETag se comparan por URL.
 - **El subsistema de exportación se retipa de `PDO` a `Database`.** Los 17 errores de
   `PDOStatement|false` vivían ahí porque el receptor estaba declarado como el padre, y por
   eso subir el paquete a v3.2.0 no movía el contador. Los dos únicos llamantes pasan

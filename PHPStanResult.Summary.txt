@@ -431,9 +431,9 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseToken.php
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersCriteries.php
 	🪪  argument.type (Líneas: 51, 52)
 project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
-	🪪  argument.type (Líneas: 162, 164, 166, 168, 169, 200, 219, 274, 344, 370)
-	🪪  assign.propertyType (Líneas: 315)
-	🪪  return.type (Líneas: 324)
+	🪪  argument.type (Líneas: 162, 164, 166, 168, 169, 200, 219, 274, 346, 372)
+	🪪  assign.propertyType (Líneas: 317)
+	🪪  return.type (Líneas: 326)
 project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php
 	🪪  argument.type (Líneas: 71, 125)
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
@@ -523,7 +523,7 @@ project://src/app/core/system-controllers/Test.php
 	🪪  argument.type (Líneas: 83, 94, 111)
 	🪪  return.type (Líneas: 126)
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
-	🪪  argument.type (Líneas: 53, 178, 179, 184)
+	🪪  argument.type (Líneas: 54, 204, 205, 210)
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 	🪪  argument.type (Líneas: 52, 53)
 	🪪  binaryOp.invalid (Líneas: 57)

@@ -2067,13 +2067,13 @@ project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
          🪪  argument.type                                                                                                                                          
   274    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
          🪪  argument.type                                                                                                                                          
-  315    Property PiecesPHP\Core\Cache\CacheControllersManager::$criteries (ArrayObject) does not accept PiecesPHP\Core\Cache\CacheControllersCriteries.            
+  317    Property PiecesPHP\Core\Cache\CacheControllersManager::$criteries (ArrayObject) does not accept PiecesPHP\Core\Cache\CacheControllersCriteries.            
          🪪  assign.propertyType                                                                                                                                    
-  324    Method PiecesPHP\Core\Cache\CacheControllersManager::getCriteries() should return PiecesPHP\Core\Cache\CacheControllersCriteries but returns ArrayObject.  
+  326    Method PiecesPHP\Core\Cache\CacheControllersManager::getCriteries() should return PiecesPHP\Core\Cache\CacheControllersCriteries but returns ArrayObject.  
          🪪  return.type                                                                                                                                            
-  344    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
+  346    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
          🪪  argument.type                                                                                                                                          
-  370    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
+  372    Parameter Nr.1 $json of function json_decode expects string, string|false given.                                                                             
          🪪  argument.type                                                                                                                                          
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2449,13 +2449,13 @@ project://src/app/core/system-controllers/Test.php
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  53     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PiecesPHP\Core\Database\Database, PiecesPHP\Core\Database\Database|null given.  
+  54     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PiecesPHP\Core\Database\Database, PiecesPHP\Core\Database\Database|null given.  
          🪪  argument.type                                                                                                                                                     
-  178    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
+  204    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
          🪪  argument.type                                                                                                                                                     
-  179    Parameter Nr.1 $filename of function filesize expects string, string|null given.                                                                                        
+  205    Parameter Nr.1 $filename of function filesize expects string, string|null given.                                                                                        
          🪪  argument.type                                                                                                                                                     
-  184    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                                               
+  210    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                                               
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 

@@ -284,7 +284,9 @@ class CacheControllersManager implements JsonSerializable
      */
     public function hasCachedData()
     {
-        return file_exists($this->getCachedDataFileName(true));
+        $filename = $this->getCachedDataFileName(true);
+        //Un archivo vacío NO es caché: ningún contenido legítimo pesa cero bytes.
+        return file_exists($filename) && filesize($filename) > 0;
     }
 
     /**
