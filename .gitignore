@@ -1,6 +1,8 @@
 src/vendor/*
 src/vendor-dev/*
 src/statics/uploads/*
+# Respaldos de base de datos: datos reales, nunca se versionan.
+src/dumps/
 src/statics/css/*
 src/statics/admin-area/css/*
 src/statics/core/css/*
