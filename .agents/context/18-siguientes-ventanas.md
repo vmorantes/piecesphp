@@ -1281,11 +1281,82 @@ detalle de estilo, es otra jerarquía. Antes de tocar nada hay que responder:
 1. ¿`ORM` y `EntityMapper` son el mismo concepto con dos nombres, o dos abstracciones vivas?
 2. `$internalName` (solo núcleo) y `TYPE_DATE` con `'now'` (solo paquete): ¿alguna es
    funcionalidad viva que se perdería al unificar?
-3. En piecesphp hay **28 mappers** usando `MetaProperty`; **todos** reciben la del núcleo.
+3. En piecesphp hay **17 archivos** con **39** llamadas a `addMetaProperty()`; **todos**
+   reciben la del núcleo. *(El «28» de la primera redacción queda derogado: ver más abajo.)*
 
 **Lo que NO se puede hacer**: borrar la del paquete «porque no se usa». Sí se usa —en el
 paquete, con sus propias pruebas— y borrarla lo rompe como librería independiente.
 
+### 2a · CUÁL ES EL CORRECTO **PARA CÓMO SE EJECUTA AQUÍ** — respondido
+
+**La del núcleo, y no por poco.** No porque esté mejor escrita: porque es la única
+compatible con el linaje que hay poblado en piecesphp.
+
+Si mañana ganara la del paquete —basta con que alguien borre el archivo del núcleo
+«porque está duplicado»— rompería por **cuatro** sitios distintos:
+
+| # | Qué rompe | Evidencia |
+| :-- | :-- | :-- |
+| 1 | **Fatal al arrancar cualquier mapper.** `EntityMapperExtensible::addMetaProperty()` llama a `getInternalName()` y `setInternalName()` | `EntityMapperExtensible.php:81-83`. Esos métodos **solo existen en la copia del núcleo** |
+| 2 | **Todo campo `TYPE_MAPPER` / `TYPE_ARRAY_MAPPER` dejaría de validar.** La copia del paquete comprueba `is_subclass_of($value, ORM::class)` | En `src/app`: **35** clases extienden el linaje `EntityMapper`, **0** extienden `ORM` |
+| 3 | **La conversión de un valor a mapper llamaría a un método inexistente.** La copia del paquete hace `call_user_func($mapper, 'getInstance', …)` | `ORM::getInstance()` existe (`ORM.php:123`). **`EntityMapper` no tiene `getInstance()`** |
+| 4 | **`null` en un campo mapper anulable.** El núcleo envuelve todo el bloque en `if ($value !== null)` y fuerza `$value = null; $existsOnMapper = true`. La copia del paquete no: el `null` entra en la conversión | Hay campos así declarados: `OrganizationMapper.php:332`, `UserProfileMapper.php:187` |
+
+**Y al revés, la del paquete es la correcta EN SU CASA**: `ORM` no tiene `validateType()`,
+así que su `MetaProperty` tuvo que traerse una propia; `EntityMapper` sí la tiene
+(`EntityMapper.php:1307`), así que la del núcleo delega. **Ninguna es «la buena versión»:
+cada una está adaptada a su clase base.** Por eso el diff es de 567 líneas y no de veinte.
+
+### Las tres preguntas abiertas de T16, ya con respuesta
+
+1. **¿`ORM` y `EntityMapper` son el mismo concepto con dos nombres?** **No: son dos
+   abstracciones vivas.** Dentro del paquete coexisten y **ninguna extiende a la otra**.
+   En piecesphp solo una está poblada (35 contra 0). `DataTablesHelper` es el único sitio
+   que acepta las dos, y lo hace con un `instanceof`, no con una jerarquía común.
+2. **¿`$internalName` y `TYPE_DATE` con `'now'` son funcionalidad viva?**
+   - `$internalName` **sí**: se añadió a propósito en `06a491e7` («Mejor debug de meta
+     properties»), lo consume `EntityMapperExtensible` y nombra el campo en **tres**
+     mensajes de excepción. Unificar sin él degrada el diagnóstico.
+   - `TYPE_DATE` con `'now'` **aquí no tiene consumidores**: `grep -rn
+     "MetaProperty::TYPE_DATE" src/app --include=*.php` da **0**. No puede tenerlos, porque
+     la copia que se ejecuta no ofrece esa semántica.
+3. **Cuántos mappers dependen de esto** — *cifra corregida bajo el punto 5 de T0.* El «28»
+   anotado antes **no es reproducible**: ninguna medición lo devuelve. Las cifras con su
+   comando:
+
+   | Cifra | Comando |
+   | --: | :-- |
+   | **17** archivos llaman a `addMetaProperty()` | `grep -rln "addMetaProperty" src/app --include=*.php \| wc -l` |
+   | **39** llamadas en total | `grep -rc "addMetaProperty" $(grep -rln …) ` sumando la segunda columna |
+   | **16** archivos construyen `new MetaProperty` | `grep -rln "new MetaProperty" src/app --include=*.php \| wc -l` |
+   | **19** declaraciones de tipo mapper | `grep -rn "TYPE_MAPPER\|TYPE_ARRAY_MAPPER" src/app --include=*.php \| wc -l` |
+
+   **El «28» queda derogado.** No se reconstruye: no consta con qué se midió.
+
+### Por qué el arreglo de 8.5 llegó de rebote — el rastro completo
+
+El commit del paquete `41a3e9d` («fix(php85): pasar null a `DateTime::__construct()`»)
+tocó **tres** archivos: `EntityMapper.php`, `Meta/MetaProperty.php` y
+`ORM/Fields/DataProcess.php`.
+
+De esos tres, en piecesphp solo tiene efecto el primero. Y la copia del núcleo **no
+construye ninguna fecha**: `grep -n "DateTime\|strtotime"` sobre ella da **cero**. Delega
+en `EntityMapper::validateType()`, que no está eclipsada. **Ese es el único hilo por el que
+llegó el arreglo, y nadie lo tendió a propósito.**
+
+### Nadie prueba lo que aquí se ejecuta — demostrado
+
+`unit-tests/UnitTest-MetaUtil.php` del paquete llama a
+`MetaProperty::validateType('TEXT', 'world')`. **Ese método estático no existe en la copia
+que corre en el framework** (verificado por reflexión: `hasMethod('validateType')` → `NO`).
+La suite pasa en el paquete y sería un fatal aquí. Eso es 2c.
+
+### Qué NO se decide aquí
+
+**Cuál se borra sigue sin decidirse**, y este análisis no lo empuja hacia ningún lado: la
+del paquete se usa en el paquete, con sus pruebas, y borrarla lo rompe como librería
+independiente. Lo que este análisis sí cierra es que **la del núcleo no puede irse sin
+reescribir el linaje entero**.
 ## T17 · REGLA — una regla mecánica se aplica a TODA la familia o a ninguna
 
 **La mejor lección del lote, y salió de un error propio.**
