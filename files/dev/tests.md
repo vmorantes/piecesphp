@@ -56,6 +56,40 @@ bin/cli unit-tests:core/helpers-directories
 ```bash
 bin/cli unit-tests:core/http-client
 ```
+- Buscadores de mapper (`getBy`, `lastModifiedElement`, `getByMultipleCriteries`)
+    - Congela el contrato de los buscadores estáticos antes de tocar la nulabilidad.
+    - Se probaron:
+        - `getBy()` con id inexistente devuelve `null`
+        - `getBy()` sin el flag devuelve `\stdClass`
+        - `getBy()` con el flag devuelve una instancia del propio mapper
+        - `lastModifiedElement()` respeta el mismo contrato, y sus dos ramas coinciden
+          en si hay resultado
+        - `getByMultipleCriteries()` sin coincidencia devuelve `null`
+    - **Es de solo lectura**: no inserta, no actualiza y no borra. Descubre un id
+      existente en ejecución y omite el caso «encontrado» si la tabla está vacía.
+    - **Recorre mappers reales a propósito.** `getBy` no se hereda: está copiado en 26
+      mappers concretos, así que una prueba contra un mapper de juguete sería una copia
+      más y no protegería ninguno.
+    - src/app/core/system-controllers/local-tests/UnitTest-MapperFinders.php
+```bash
+bin/cli unit-tests:core/mapper-finders
+```
+- Sesión y usuario (`getLoggedFrameworkUser`, `SessionToken`)
+    - **Pruebas de caracterización, no de aspiración**: describen el comportamiento
+      ACTUAL, incluido el defectuoso, para poder cambiarlo con red.
+    - Se probaron:
+        - `getLoggedFrameworkUser()` sin sesión devuelve `null`, y es estable
+        - Encadenar sobre ese resultado sin comprobar **falla** — la forma exacta de los
+          123 errores de nulabilidad
+        - `SessionToken::getJWTReceived()` devuelve **cadena vacía**, nunca `null`
+        - `isActiveSession()` con entradas inválidas devuelve `false` sin lanzar
+        - Sin sesión activa no hay usuario: las dos vías coinciden
+    - Cuando la ventana de nulabilidad cambie el contrato, varias fallarán. **Ese fallo
+      es la señal**, no un problema: cada prueba dice qué se espera que pase entonces.
+    - src/app/core/system-controllers/local-tests/UnitTest-SessionUser.php
+```bash
+bin/cli unit-tests:core/session-user
+```
 - Pruebas variadas sobre funciones
     - src/app/core/system-controllers/local-tests/UnitTest-Functions.php
 ```bash
