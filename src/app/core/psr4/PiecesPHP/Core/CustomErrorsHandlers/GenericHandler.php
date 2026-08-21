@@ -291,8 +291,13 @@ class GenericHandler
         $existsInFile = false;
         if (file_exists($this->fileLocationUniqueMessage)) {
             // Buscamos la firma completa de 5 líneas para evitar duplicados exactos de flujo
+            /**
+             * Si el archivo no se puede leer, la firma no está: `false` no es «cadena
+             * vacía», pero para esta pregunta el efecto correcto es el mismo —no hay
+             * duplicado que evitar— y el manejador no debe romperse por ello.
+             */
             $content = file_get_contents($this->fileLocationUniqueMessage);
-            if (mb_strpos($content, $fullSignature) !== false) {
+            if ($content !== false && str_contains($content, $fullSignature)) {
                 $existsInFile = true;
             }
         }

@@ -1385,7 +1385,14 @@ class PublicationsController extends AdminPanelController
 
         $table = PublicationMapper::TABLE;
         $fields = PublicationMapper::fieldsToSelect();
-        $validateSystemApprovals = SystemApprovalsRoutes::ENABLE && !empty(array_filter($fields, fn($e) => mb_strpos($e, 'systemApprovalStatus')));
+        /**
+         * DEFECTO REAL, no un tipo mal declarado. El callback devolvía el resultado de
+         * `mb_strpos()` y `array_filter` lo evalúa por veracidad: una coincidencia **en la
+         * posición 0** devuelve `0`, que es falso, así que un campo llamado exactamente
+         * `systemApprovalStatus` quedaba FUERA del filtro — justo el caso que la condición
+         * quiere detectar. `str_contains()` responde la pregunta que aquí se hace.
+         */
+        $validateSystemApprovals = SystemApprovalsRoutes::ENABLE && !empty(array_filter($fields, fn ($e) => str_contains((string) $e, 'systemApprovalStatus')));
 
         $whereString = null;
         $where = [];

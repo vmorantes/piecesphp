@@ -4,10 +4,10 @@
 190
 
 [TOTAL DE ERRORES VISIBLES]
-916
+907
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (352)
+🪪  argument.type (343)
 🪪  property.nonObject (214)
 🪪  method.nonObject (144)
 🪪  return.type (71)
@@ -265,11 +265,11 @@ project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	🪪  method.nonObject (Líneas: 565, 572, 577, 587)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	🪪  argument.type (Líneas: 138, 1155, 1189, 1388, 1503, 1677)
-	🪪  property.nonObject (Líneas: 234, 1328, 1599, 1601, 1624, 1626)
+	🪪  argument.type (Líneas: 138, 1155, 1189, 1510, 1684)
+	🪪  property.nonObject (Líneas: 234, 1328, 1606, 1608, 1631, 1633)
 	🪪  assign.propertyType (Líneas: 645)
 	🪪  clone.nonObject (Líneas: 701)
-	🪪  method.nonObject (Líneas: 1150, 1311, 1321, 1447, 1510, 1511, 1512)
+	🪪  method.nonObject (Líneas: 1150, 1311, 1321, 1454, 1517, 1518, 1519)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	🪪  argument.type (Líneas: 165, 227, 244)
 	🪪  return.type (Líneas: 228)
@@ -338,7 +338,6 @@ project://src/app/classes/Terminal/Tasks/DbBackupTask.php
 	🪪  argument.type (Líneas: 99, 164, 166, 169)
 project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
 	🪪  foreach.nonIterable (Líneas: 121)
-	🪪  argument.type (Líneas: 130)
 project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php
 	🪪  assign.propertyType (Líneas: 61)
 	🪪  argument.type (Líneas: 69, 94, 180)
@@ -439,7 +438,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Cache/CacheControllersManager.php
 	🪪  assign.propertyType (Líneas: 315)
 	🪪  return.type (Líneas: 324)
 project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.php
-	🪪  argument.type (Líneas: 71, 125, 295)
+	🪪  argument.type (Líneas: 71, 125)
 project://src/app/core/psr4/PiecesPHP/Core/Database/EntityMapperExtensible.php
 	🪪  argument.type (Líneas: 315, 339)
 project://src/app/core/psr4/PiecesPHP/Core/Database/Export/Exporter.php
@@ -527,7 +526,7 @@ project://src/app/core/system-controllers/Test.php
 	🪪  argument.type (Líneas: 83, 94, 111)
 	🪪  return.type (Líneas: 126)
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
-	🪪  argument.type (Líneas: 53, 178, 179, 183, 188, 196, 204, 213)
+	🪪  argument.type (Líneas: 53, 178, 179, 189)
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 	🪪  argument.type (Líneas: 52, 53)
 	🪪  binaryOp.invalid (Líneas: 57)

@@ -180,12 +180,23 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
             $contentValid = true;
             if ($test['validate'] && $exists) {
+                /**
+                 * MANEJO EXPLÍCITO. `file_get_contents()` devuelve false si el archivo no
+                 * se puede leer, y toda la validación de abajo lo trata como cadena. Un
+                 * archivo ilegible no es «contenido vacío»: es una prueba que no se puede
+                 * evaluar, y decirlo vale más que comparar contra false y pasar de largo.
+                 */
                 $content = file_get_contents($generatedFile);
-                $isSql = strpos($test['filename'], '.sql') !== false;
+                if ($content === false) {
+                    $contentValid = false;
+                    systemOutFormatted("      [X] Fallo: el archivo generado no se pudo leer.", ['color' => '31']);
+                    $content = '';
+                }
+                $isSql = str_contains($test['filename'], '.sql');
 
                 // Validación de Filtro WHERE
                 if (isset($opts['where'][$testTable]) && $opts['include_data']) {
-                    if (strpos($content, 'pedro') === false || strpos($content, 'juan') !== false) {
+                    if (!str_contains($content, 'pedro') || str_contains($content, 'juan')) {
                         $contentValid = false;
                         systemOutFormatted("      [X] Fallo: Datos filtrados incorrectamente.", ['color' => '31']);
                     }
@@ -193,7 +204,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
                 // Validación de Transformaciones (Email Masking)
                 if (isset($opts['transformations'][$testTable]) && $opts['include_data']) {
-                    if (strpos($content, 'HIDDEN_EMAIL') === false) {
+                    if (!str_contains($content, 'HIDDEN_EMAIL')) {
                         $contentValid = false;
                         systemOutFormatted("      [X] Fallo: Transformación GDPR no aplicada.", ['color' => '31']);
                     }
@@ -201,7 +212,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
                 // Validación de include_data = false (No debe haber datos de la tabla de prueba)
                 if ($opts['include_data'] === false && $isSql) {
-                    if (strpos($content, 'INSERT INTO `' . $testTable . '`') !== false || strpos($content, 'pedro') !== false) {
+                    if (str_contains($content, 'INSERT INTO `' . $testTable . '`') || str_contains($content, 'pedro')) {
                         $contentValid = false;
                         systemOutFormatted("      [X] Fallo: Se encontraron datos cuando include_data era false.", ['color' => '31']);
                     }

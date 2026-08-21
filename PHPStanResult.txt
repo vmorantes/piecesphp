@@ -1122,27 +1122,25 @@ project://src/app/classes/Publications/Controllers/PublicationsController.php
          🪪  method.nonObject                                                                                                                            
   1328   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
          🪪  property.nonObject                                                                                                                          
-  1388   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.               
+  1454   Cannot call method getTimestamp() on DateTime|false.                                                                                            
+         🪪  method.nonObject                                                                                                                            
+  1510   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1447   Cannot call method getTimestamp() on DateTime|false.                                                                                            
+  1517   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1503   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
-         🪪  argument.type                                                                                                                               
-  1510   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1518   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1511   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1519   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1512   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
-         🪪  method.nonObject                                                                                                                            
-  1599   Cannot access property $organization on stdClass|null.                                                                                          
+  1606   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1601   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1608   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1624   Cannot access property $organization on stdClass|null.                                                                                          
+  1631   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1626   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1633   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1677   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1684   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -1468,8 +1466,6 @@ project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
  ------ ---------------------------------------------------------------------------------------------------- 
   121    Argument of an invalid type list<string>|false supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                             
-  130    Parameter Nr.3 $length of function mb_substr expects int|null, int<0, max>|false given.               
-         🪪  argument.type                                                                                   
  ------ ---------------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -2102,8 +2098,6 @@ project://src/app/core/psr4/PiecesPHP/Core/CustomErrorsHandlers/GenericHandler.p
          🪪  argument.type                                                                                  
   125    Parameter Nr.1 $json of function json_decode expects string, string|false given.                     
          🪪  argument.type                                                                                  
-  295    Parameter Nr.1 $haystack of function mb_strpos expects string, string|false given.                   
-         🪪  argument.type                                                                                  
  ------ --------------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -2475,19 +2469,7 @@ project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.
          🪪  argument.type                                                                                                                                                     
   179    Parameter Nr.1 $filename of function filesize expects string, string|null given.                                                                                        
          🪪  argument.type                                                                                                                                                     
-  183    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                                               
-         🪪  argument.type                                                                                                                                                     
-  188    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
-         🪪  argument.type                                                                                                                                                     
-  188    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
-         🪪  argument.type                                                                                                                                                     
-  196    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
-         🪪  argument.type                                                                                                                                                     
-  204    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
-         🪪  argument.type                                                                                                                                                     
-  204    Parameter Nr.1 $haystack of function strpos expects string, string|false given.                                                                                         
-         🪪  argument.type                                                                                                                                                     
-  213    Parameter Nr.2 $subject of function preg_match expects string, string|false given.                                                                                      
+  189    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                                               
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2813,5 +2795,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 916 errors                                                                                               
+ [ERROR] Found 907 errors                                                                                               
 
