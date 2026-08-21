@@ -25,25 +25,38 @@ que redeclare `query(): PDOStatement|false` deja de ser legal por covarianza y *
 al declarar la clase**. Comprobado que ninguna clase de los cinco repos hereda de
 `Database` — `ActiveRecord` la compone.
 
-## T2 · PHPStan TRUNCA las rutas largas en su salida de tabla — **primer punto del lote siguiente**
+## T2 · PHPStan truncaba las rutas largas — **RESUELTO**
 
-**Esto es un defecto de herramienta, no una anécdota.** Al parsear `PHPStanResult.txt`,
-**18 de 148 errores apuntaban a archivos que no existen**: rutas cortadas a media palabra
-(`UsersE`, `ApplicationCallsController.p`). Produjeron 46 «errores fantasma» en un triaje.
+**Era un defecto de herramienta, y salió más caro de lo estimado.**
 
-**Por qué importa más de lo que parece:**
-`bin/tools/refactorization/Rector.php` construye su lista de archivos leyendo las rutas
-`project://` de ese mismo archivo. **Si las rutas vienen truncadas, Rector lleva tiempo
-saltándose archivos en silencio** — no falla, simplemente no los analiza.
+El formateador de tabla de PHPStan recorta la cabecera de cada archivo al ancho de
+terminal. Con la salida redirigida a un archivo ese ancho cae a 80, así que las rutas
+salían **cortadas a 73 caracteres** (`ApplicationCallsController.p`).
 
-**Sin investigar todavía. Empezar por aquí.** Lo que hay que responder:
-1. ¿Cuántas de las rutas de `PHPStanResult.txt` no resuelven a un archivo real?
-2. ¿Cuántos archivos deja de ver Rector por eso?
-3. ¿Se arregla con un formateador de salida distinto (`--error-format=json`) en vez de
-   parsear la tabla?
+`bin/tools/refactorization/Rector.php` armaba su lista de archivos con una expresión
+regular sobre ese `.txt` y **descartaba con `file_exists()` lo que no resolvía, sin decir
+nada**. Medido: **34 de 195 archivos —el 17 % de la superficie con errores— nunca entraron
+al análisis.** Rector no fallaba; simplemente no los veía. Eso explica por qué parecía
+proponer tan poco.
 
-La tercera es probablemente la respuesta, y cambiaría también
-`bin/phpstan-process-result.php`.
+**Coste comprobado:** al recuperar la superficie, Rector propone cambios en **los 34**.
+
+**Qué se hizo:**
+
+| Archivo | Cambio |
+| :-- | :-- |
+| `bin/phpstan` | `COLUMNS=400` para que la tabla deje de recortar, y una segunda pasada con `--error-format=json` que emite `PHPStanResult.json` |
+| `bin/tools/refactorization/Rector.php` | Lee el JSON como fuente de verdad; el `.txt` queda de respaldo con aviso. **Ya no descarta en silencio**: enumera lo que no resuelve y aborta si la lista queda vacía |
+| `bin/rector` | Fija `php8.4`; corría con el `php` por defecto, que es 8.1.34 y está por debajo del piso |
+
+La segunda pasada de PHPStan cuesta **menos de un segundo** con la caché de resultados
+caliente, así que no hay motivo para no tener siempre la salida de máquina.
+
+**Efecto lateral que confirma el alcance:** el resumen humano pasó de decir 192 archivos
+a decir **195**. El truncado también estaba corrompiendo el conteo que leíamos nosotros.
+
+**La regla que deja:** una herramienta que descarta entradas en silencio es peor que una
+que falla. «0 cambios propuestos» y «no miré nada» son indistinguibles desde fuera.
 
 ## T3 · D2 — escritura en base de datos desde una ruta NO autenticada
 

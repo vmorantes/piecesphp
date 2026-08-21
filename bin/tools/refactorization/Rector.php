@@ -10,16 +10,71 @@ use Rector\ValueObject\PhpVersion;
 return static function (RectorConfig $rectorConfig): void {
 
     $baseDir = realpath(dirname(__FILE__) . '/../../../');
-    $filePathsMatch = [];
     $filePaths = [];
-    preg_match_all('/^project:\/\/(.*)$/m', file_get_contents($baseDir . '/PHPStanResult.txt'), $filePathsMatch);
+    $descartadas = [];
 
-    foreach ($filePathsMatch[1] ?? [] as $filePath) {
-        $fullPath = $baseDir . '/' . $filePath;
-        if (file_exists($fullPath)) {
-            $filePaths[] = realpath($fullPath);
+    /**
+     * DE DÓNDE SALE LA LISTA DE ARCHIVOS.
+     *
+     * Antes se leía PHPStanResult.txt con una expresión regular. Eso tenía un defecto
+     * silencioso y caro: el formateador de tabla de PHPStan RECORTA la cabecera de cada
+     * archivo al ancho de terminal, que con la salida redirigida es 80. Las rutas largas
+     * llegaban cortadas a 73 caracteres, `file_exists()` fallaba, y el bucle las
+     * descartaba sin decir nada. Medido: 34 de 195 archivos —el 17% de la superficie con
+     * errores— nunca entraron al análisis. Rector no fallaba; simplemente no los veía,
+     * y por eso parecía proponer tan poco.
+     *
+     * Ahora la fuente de verdad es PHPStanResult.json, que es salida de máquina y no
+     * depende del ancho de terminal. El .txt queda solo como respaldo para cuando se
+     * ejecuta Rector sin haber regenerado el JSON.
+     */
+    $jsonPath = $baseDir . '/PHPStanResult.json';
+    $txtPath = $baseDir . '/PHPStanResult.txt';
+
+    if (is_file($jsonPath)) {
+        $reporte = json_decode((string) file_get_contents($jsonPath), true);
+        foreach (array_keys($reporte['files'] ?? []) as $rutaAbsoluta) {
+            $real = realpath((string) $rutaAbsoluta);
+            if ($real !== false) {
+                $filePaths[] = $real;
+            } else {
+                $descartadas[] = (string) $rutaAbsoluta;
+            }
+        }
+    } elseif (is_file($txtPath)) {
+        fwrite(STDERR, "[Rector] AVISO: no hay PHPStanResult.json; se usa la tabla, que puede traer rutas recortadas. Ejecuta bin/phpstan para regenerarlo.\n");
+        $filePathsMatch = [];
+        preg_match_all('/^project:\/\/(.*)$/m', (string) file_get_contents($txtPath), $filePathsMatch);
+        foreach ($filePathsMatch[1] ?? [] as $filePath) {
+            $real = realpath($baseDir . '/' . $filePath);
+            if ($real !== false) {
+                $filePaths[] = $real;
+            } else {
+                $descartadas[] = $filePath;
+            }
         }
     }
+
+    $filePaths = array_values(array_unique($filePaths));
+
+    /**
+     * Descartar en silencio es lo que ocultó el defecto durante meses. Si una ruta no
+     * resuelve, que se vea: sin lista de archivos Rector no analiza nada y devolvería
+     * «0 cambios», que es indistinguible de «todo está bien».
+     */
+    if ($descartadas !== []) {
+        fwrite(STDERR, '[Rector] AVISO: ' . count($descartadas) . " ruta(s) del reporte no resuelven a un archivo y quedan FUERA del análisis:\n");
+        foreach ($descartadas as $ruta) {
+            fwrite(STDERR, '  - ' . $ruta . "\n");
+        }
+    }
+
+    if ($filePaths === []) {
+        fwrite(STDERR, "[Rector] ERROR: la lista de archivos está vacía. Ejecuta bin/phpstan antes que bin/rector.\n");
+        exit(1);
+    }
+
+    fwrite(STDERR, '[Rector] ' . count($filePaths) . " archivo(s) entran al análisis.\n");
 
     // 1. Dónde tiene que buscar (las rutas de tu reporte)
     $rectorConfig->paths($filePaths);
