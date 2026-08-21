@@ -112,18 +112,16 @@ project://src/app/classes/App/Locations/Controllers/Country.php
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
 
- ------ ---------------------------------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------- 
 project://src/app/classes/App/Locations/Controllers/HelperController.php
- ------ ---------------------------------------------------------------------------------------------------------------- 
-  50     Property App\Locations\Controllers\HelperController::$viewLocalDir (string|null) does not accept string|false.  
-         🪪  assign.propertyType                                                                                         
-  63     Cannot call method setInstanceViewDir() on PiecesPHP\Core\BaseController|null.                                  
-         🪪  method.nonObject                                                                                            
-  64     Cannot call method setVariables() on PiecesPHP\Core\BaseController|null.                                        
-         🪪  method.nonObject                                                                                            
-  65     Cannot call method render() on PiecesPHP\Core\BaseController|null.                                              
-         🪪  method.nonObject                                                                                            
- ------ ---------------------------------------------------------------------------------------------------------------- 
+ ------ -------------------------------------------------------------------------------- 
+  68     Cannot call method setInstanceViewDir() on PiecesPHP\Core\BaseController|null.  
+         🪪  method.nonObject                                                            
+  69     Cannot call method setVariables() on PiecesPHP\Core\BaseController|null.        
+         🪪  method.nonObject                                                            
+  70     Cannot call method render() on PiecesPHP\Core\BaseController|null.              
+         🪪  method.nonObject                                                            
+ ------ -------------------------------------------------------------------------------- 
 
  ------ -------------------------------------------------------------------------------------------- 
 project://src/app/classes/App/Locations/Controllers/Point.php
@@ -1429,13 +1427,11 @@ project://src/app/classes/Terminal/Controllers/TerminalController.php
  ------ --------------------------------------------------------------------------------------------------------------------------- 
   89     Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, string|null given.  
          🪪  argument.type                                                                                                          
-  150    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|false given.                            
+  176    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string, 'route'} given.           
          🪪  argument.type                                                                                                          
-  169    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string, 'route'} given.           
-         🪪  argument.type                                                                                                          
-  172    Call to an undefined method object::getDescription().                                                                      
+  179    Call to an undefined method object::getDescription().                                                                      
          🪪  method.notFound                                                                                                        
-  177    Call to an undefined method object::getName().                                                                             
+  184    Call to an undefined method object::getName().                                                                             
          🪪  method.notFound                                                                                                        
  ------ --------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1533,8 +1529,6 @@ project://src/app/config/roles.php
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
   112    Offset 50 on array{0: 'Principal', 1: 'Administrador…', 12: 'Administrador de…', 2: 'Usuario general', 3: 'Institucional', 4: 'Comunicaciones'} on left side of ?? does not exist.  
          🪪  nullCoalesce.offset                                                                                                                                                             
-  135    Parameter Nr.1 $minimumDateCreated of static method PiecesPHP\Core\SessionToken::setMinimumDateCreated() expects DateTime, DateTime|false given.                                      
-         🪪  argument.type                                                                                                                                                                   
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
 
  ------ --------------------------------------------------------------------------------------------------------------------- 
@@ -1841,15 +1835,9 @@ project://src/app/core/Config.php
          🪪  argument.type                                                                                                            
   929    Static property PiecesPHP\Core\Config::$appLang (string) does not accept string|null.                                        
          🪪  assign.propertyType                                                                                                      
-  1018   Method PiecesPHP\Core\Config::app_path() should return string but returns string|false.                                      
-         🪪  return.type                                                                                                              
-  1090   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                                                       
+  1098   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                                                       
          🪪  argument.type                                                                                                            
-  1120   Method PiecesPHP\Core\Config::basepath() should return string but returns string|false.                                      
-         🪪  return.type                                                                                                              
-  1139   Method PiecesPHP\Core\Config::app_basepath() should return string but returns string|false.                                  
-         🪪  return.type                                                                                                              
-  1176   Method PiecesPHP\Core\Config::get_instance() should return static(PiecesPHP\Core\Config) but returns PiecesPHP\Core\Config.  
+  1194   Method PiecesPHP\Core\Config::get_instance() should return static(PiecesPHP\Core\Config) but returns PiecesPHP\Core\Config.  
          🪪  return.type                                                                                                              
  ------ ----------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1953,8 +1941,6 @@ project://src/app/core/bootstrap.php
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
   49     Offset 'PHP_SELF' does not exist on array{isTerminal: bool, arguments: array<string, mixed>, route: string, local: bool, cli: PiecesPHP\Cli}.  
          🪪  offsetAccess.notFound                                                                                                                      
-  272    Cannot call method format() on DateTime|false.                                                                                                 
-         🪪  method.nonObject                                                                                                                           
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------------------------------- 
@@ -2795,5 +2781,5 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 907 errors                                                                                               
+ [ERROR] Found 900 errors                                                                                               
 

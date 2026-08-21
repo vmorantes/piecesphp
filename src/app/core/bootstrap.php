@@ -269,7 +269,14 @@ if (!defined('APP_VERSION')) {
     /**
      * Fecha de la versión de la aplicación
      */
-    define('APP_VERSION_DATE', \DateTime::createFromFormat('d-m-Y', '20-08-2026')->format('Y-m-d'));
+    /**
+ * CONTRATO. Literal con formato fijo: no puede fallar, pero declara `DateTime|false` y
+ * encadenar `->format()` sobre eso es lo que PHPStan señala. De paso se quita una rareza:
+ * `createFromFormat('d-m-Y', ...)` sin parte horaria hereda la HORA DEL RELOJ ACTUAL, así
+ * que el objeto intermedio era distinto en cada petición. `->format('Y-m-d')` la
+ * descartaba, de modo que nunca se notó — pero el valor era el mismo desde el principio.
+ */
+define('APP_VERSION_DATE', (new \DateTime('2026-08-20'))->format('Y-m-d'));
 }
 
 require $directories['utilities'];

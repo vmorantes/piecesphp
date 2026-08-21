@@ -132,4 +132,13 @@ $config['admin_url']['relative'] = true;
 $config['admin_url']['url'] = '';
 
 //Definir fecha mínima del token de inicio de sesión
-SessionToken::setMinimumDateCreated(\DateTime::createFromFormat('d-m-Y h:i:s A', '02-03-2026 00:00:00 AM'));
+/**
+ * CONTRATO. La entrada es un literal y el formato es fijo, así que `createFromFormat()`
+ * no puede fallar aquí — pero declara `DateTime|false` y el método exige `DateTime`.
+ * El constructor devuelve `DateTime` sin condiciones y expresa la misma fecha.
+ *
+ * EL VALOR NO CAMBIA: comprobado que la expresión anterior producía exactamente
+ * `2026-03-02 00:00:00`. Importa porque esta fecha invalida todas las sesiones
+ * anteriores a ella; moverla un día tiraría a todo el mundo fuera.
+ */
+SessionToken::setMinimumDateCreated(new \DateTime('2026-03-02 00:00:00'));

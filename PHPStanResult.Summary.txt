@@ -4,14 +4,14 @@
 190
 
 [TOTAL DE ERRORES VISIBLES]
-907
+900
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (343)
+🪪  argument.type (341)
 🪪  property.nonObject (214)
-🪪  method.nonObject (144)
-🪪  return.type (71)
-🪪  assign.propertyType (39)
+🪪  method.nonObject (143)
+🪪  return.type (68)
+🪪  assign.propertyType (38)
 🪪  method.resultUnused (26)
 🪪  property.notFound (18)
 🪪  foreach.nonIterable (17)
@@ -54,8 +54,7 @@ project://src/app/classes/App/Locations/Controllers/Country.php
 	🪪  method.nonObject (Líneas: 385, 417)
 	🪪  foreach.nonIterable (Líneas: 503)
 project://src/app/classes/App/Locations/Controllers/HelperController.php
-	🪪  assign.propertyType (Líneas: 50)
-	🪪  method.nonObject (Líneas: 63, 64, 65)
+	🪪  method.nonObject (Líneas: 68, 69, 70)
 project://src/app/classes/App/Locations/Controllers/Point.php
 	🪪  method.nonObject (Líneas: 366, 397)
 	🪪  foreach.nonIterable (Líneas: 473)
@@ -329,8 +328,8 @@ project://src/app/classes/SystemApprovals/Views/forms/approval-publications.php
 	🪪  argument.type (Líneas: 75, 84, 88)
 	🪪  property.nonObject (Líneas: 151, 156)
 project://src/app/classes/Terminal/Controllers/TerminalController.php
-	🪪  argument.type (Líneas: 89, 150, 169)
-	🪪  method.notFound (Líneas: 172, 177)
+	🪪  argument.type (Líneas: 89, 176)
+	🪪  method.notFound (Líneas: 179, 184)
 project://src/app/classes/Terminal/Tasks/BundleTask.php
 	🪪  argument.type (Líneas: 125)
 project://src/app/classes/Terminal/Tasks/DbBackupTask.php
@@ -356,7 +355,6 @@ project://src/app/config/functions.php
 	🪪  return.type (Líneas: 248)
 project://src/app/config/roles.php
 	🪪  nullCoalesce.offset (Líneas: 112)
-	🪪  argument.type (Líneas: 135)
 project://src/app/controller/AdminPanelController.php
 	🪪  argument.type (Líneas: 132)
 	🪪  method.nonObject (Líneas: 219)
@@ -400,9 +398,9 @@ project://src/app/core/AppHelpers.php
 	🪪  offsetAccess.invalidOffset (Líneas: 2346)
 	🪪  offsetAccess.notFound (Líneas: 3139, 3140)
 project://src/app/core/Config.php
-	🪪  argument.type (Líneas: 813, 1090)
+	🪪  argument.type (Líneas: 813, 1098)
 	🪪  assign.propertyType (Líneas: 929)
-	🪪  return.type (Líneas: 1018, 1120, 1139, 1176)
+	🪪  return.type (Líneas: 1194)
 project://src/app/core/Utilities.php
 	🪪  return.type (Líneas: 328, 591)
 	🪪  foreach.nonIterable (Líneas: 867)
@@ -413,7 +411,6 @@ project://src/app/core/autoload.php
 	🪪  isset.offset (Líneas: 60)
 project://src/app/core/bootstrap.php
 	🪪  offsetAccess.notFound (Líneas: 49)
-	🪪  method.nonObject (Líneas: 272)
 project://src/app/core/psr4/PiecesPHP/CSSVariables.php
 	🪪  return.type (Líneas: 58)
 project://src/app/core/psr4/PiecesPHP/Cli.php
