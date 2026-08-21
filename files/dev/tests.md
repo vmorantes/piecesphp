@@ -32,6 +32,25 @@ positivos en las vistas.
 Cuando un cambio de firmas sea intencionado, regenera la instantánea y **commitéala con
 el mismo cambio**.
 
+## La línea base de PHPStan
+
+`PHPStanResult.Summary.baseline.txt` **no es una corrida viva**: es el punto de
+comparación congelado. `bin/phpstan` reescribe `PHPStanResult.txt` y
+`PHPStanResult.Summary.txt` en cada ejecución, pero el `.baseline.txt` solo cambia
+cuando **decidimos aceptar** un recuento nuevo.
+
+Se versiona a propósito, por lo mismo que la instantánea de integridad: un clon limpio o
+CI no tienen contra qué comparar sin él. Y `PHPStanResult.txt` también, porque
+`bin/tools/refactorization/Rector.php` lee de ahí la lista de archivos que analiza.
+
+```bash
+bin/phpstan                                                  # corrida viva
+cp PHPStanResult.Summary.txt PHPStanResult.Summary.baseline.txt   # aceptar base nueva
+```
+
+Regenerar la base es una decisión, no un paso rutinario: hazlo solo cuando el recuento
+nuevo esté justificado, y **commitéalo con el cambio que lo justifica**.
+
 ## Unitarias
 
 - PiecesPHP\Core\Helpers\Directories
