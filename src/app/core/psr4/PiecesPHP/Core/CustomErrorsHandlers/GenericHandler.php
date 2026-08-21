@@ -188,12 +188,7 @@ class GenericHandler
                 $this->date->format('d-m-Y h-i-s.u'),
                 $this->oldFileLocation
             );
-            /**
-             * MANEJO EXPLÍCITO, NO EXCEPCIÓN. Esto corre DENTRO del manejador de errores:
-             * lanzar aquí rompería justo el registro que estamos intentando escribir, y el
-             * fallo original se perdería con él. Si el respaldo no se puede escribir, se
-             * abandona en silencio y el log principal —que ya se guardó arriba— sobrevive.
-             */
+            //Esto corre DENTRO del manejador de errores: nada de JSON_THROW_ON_ERROR aquí.
             $oldLogJSON = json_encode($oldFileLogJSON);
             $fp = $oldLogJSON !== false ? fopen($file_old_output, 'w+') : false;
             if ($fp !== false) {
@@ -291,11 +286,6 @@ class GenericHandler
         $existsInFile = false;
         if (file_exists($this->fileLocationUniqueMessage)) {
             // Buscamos la firma completa de 5 líneas para evitar duplicados exactos de flujo
-            /**
-             * Si el archivo no se puede leer, la firma no está: `false` no es «cadena
-             * vacía», pero para esta pregunta el efecto correcto es el mismo —no hay
-             * duplicado que evitar— y el manejador no debe romperse por ello.
-             */
             $content = file_get_contents($this->fileLocationUniqueMessage);
             if ($content !== false && str_contains($content, $fullSignature)) {
                 $existsInFile = true;

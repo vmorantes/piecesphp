@@ -1015,13 +1015,7 @@ class Config
     public static function app_path()
     {
         $instance = self::get_instance();
-        /**
-         * MANEJO EXPLÍCITO. `realpath()` devuelve false si la ruta no existe o no se puede
-         * resolver, y de este valor cuelgan `basepath()` y `app_basepath()`: devolver false
-         * aquí propagaba el fallo a todo lo que construye rutas. Si no se puede resolver, la
-         * ruta configurada es la mejor respuesta disponible y además es la que el
-         * administrador escribió.
-         */
+        //De este valor cuelgan basepath() y app_basepath(): no puede devolver false.
         $resolved = realpath($instance->appPath);
         return $resolved !== false ? $resolved : $instance->appPath;
     }
@@ -1124,14 +1118,7 @@ class Config
 
         $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
-        /**
-         * MANEJO EXPLÍCITO, y de paso una carrera menos. Antes se comprobaba `file_exists()`
-         * y DESPUÉS se llamaba a `realpath()`: entre las dos llamadas el archivo puede
-         * desaparecer, y entonces se devolvía `false` desde un método que declara `string`.
-         * Una sola llamada responde las dos preguntas —existe y cuál es su ruta real— sin
-         * ventana entre ellas, y el camino sin resolver sigue siendo el respaldo, igual que
-         * antes.
-         */
+        //No anteponer file_exists(): abre una carrera con realpath() y este método declara string.
         $resolved = realpath($path);
         return $resolved !== false ? $resolved : $path;
     }
@@ -1148,14 +1135,6 @@ class Config
 
         $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
-        /**
-         * MANEJO EXPLÍCITO, y de paso una carrera menos. Antes se comprobaba `file_exists()`
-         * y DESPUÉS se llamaba a `realpath()`: entre las dos llamadas el archivo puede
-         * desaparecer, y entonces se devolvía `false` desde un método que declara `string`.
-         * Una sola llamada responde las dos preguntas —existe y cuál es su ruta real— sin
-         * ventana entre ellas, y el camino sin resolver sigue siendo el respaldo, igual que
-         * antes.
-         */
         $resolved = realpath($path);
         return $resolved !== false ? $resolved : $path;
     }

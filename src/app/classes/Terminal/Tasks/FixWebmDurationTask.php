@@ -127,13 +127,7 @@ class FixWebmDurationTask extends TerminalTaskAbstract
 
                 $fileDir = dirname($filePath);
                 $fileExtension = '.webm';
-                /**
-                 * DEFECTO REAL. Si la extensión no aparece, `mb_strpos()` devuelve `false`,
-                 * que como longitud se convierte en `0` y deja `$fileName` VACÍO: los tres
-                 * archivos derivados se llamarían `.tmp.wav`, `.bk` y `.fixed` a secas, y se
-                 * pisarían entre iteraciones. Un archivo sin la extensión esperada no es un
-                 * nombre vacío: es un archivo que no toca a esta tarea, y se salta.
-                 */
+                //Sin comprobar el false, $fileName queda vacío y los derivados se pisan.
                 $extensionPosition = mb_strpos(basename($filePath), $fileExtension);
                 if ($extensionPosition === false) {
                     continue;

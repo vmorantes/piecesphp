@@ -123,12 +123,6 @@ class UserSystemFeaturesController extends AdminPanelController
             $resultOperation->setValue('reload', false);
             $resultOperation->setSuccessOnSingleOperation(true);
 
-            /**
-             * `TOTPData` ya puede ser null: los buscadores del mapper dejaron de crear el
-             * registro al leerlo. Marcar el QR como visto solo tiene sentido si hay
-             * registro; si no lo hay, el usuario no ha llegado a configurar su 2FA y la
-             * operación no se puede dar por buena.
-             */
             if ($currentUser->TOTPData === null) {
                 $resultOperation->setSuccessOnSingleOperation(false);
                 $resultOperation->setMessage(__(self::LANG_GROUP, 'No hay una configuración de doble factor para este usuario.'));

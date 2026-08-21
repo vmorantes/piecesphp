@@ -36,6 +36,34 @@
   y ya no descarta en silencio. `bin/rector` pasa a usar `php8.4`, no el `php` por defecto.
 - **`toggle2FA()` devolvía siempre `false`**, incluso al guardar bien: inicializaba
   `$result = false` y no lo reasignaba nunca.
+- **Dos defectos que escondía la familia `strpos`.**
+    - `PublicationsController:1388` devolvía el resultado de `mb_strpos()` como predicado de
+      `array_filter`, y ese resultado se evalúa por veracidad: una coincidencia en la
+      **posición 0** vale `0`, que es falso. Un campo llamado exactamente
+      `systemApprovalStatus` quedaba fuera del filtro, que es justo el caso buscado.
+    - `FixWebmDurationTask:130` usaba `mb_strpos()` como longitud de `mb_substr()`: si la
+      extensión no aparecía, `false` valía `0` y `$fileName` quedaba **vacío**, de modo que
+      los tres archivos derivados se llamaban `.tmp.wav`, `.bk` y `.fixed` a secas y se
+      pisaban entre iteraciones.
+- **`Config::basepath()` y `app_basepath()` tenían una carrera.** Comprobaban
+  `file_exists($path)` y **después** llamaban a `realpath($path)`; entre las dos llamadas el
+  archivo puede desaparecer, y entonces devolvían `false` desde un método que declara
+  `string`. Una sola llamada responde ambas preguntas sin ventana entre ellas.
+  `Config::app_path()` no comprobaba nada, y de su valor cuelgan las otras dos.
+- **`json_encode()` declara sus fallos** en 15 sitios, con `JSON_THROW_ON_ERROR`. Con datos
+  válidos la salida es **byte a byte idéntica**; lo único que cambia es el camino de fallo,
+  y ese camino era peor de lo que parecía: en `PublicationsController:1152` el código era
+  `sha1(json_encode($checksumData))`, así que **todo dato no codificable compartía el mismo
+  checksum** (`sha1(false)` = `sha1('')`) y el caché HTTP servía contenido equivocado.
+  La excepción es `GenericHandler:192`, dentro del manejador de errores, donde lanzar
+  rompería justo el registro que se intenta escribir: ahí la respuesta es manejo explícito.
+- **El subsistema de exportación se retipa de `PDO` a `Database`.** Los 17 errores de
+  `PDOStatement|false` vivían ahí porque el receptor estaba declarado como el padre, y por
+  eso subir el paquete a v3.2.0 no movía el contador. Los dos únicos llamantes pasan
+  `getDatabase()`, y uno ya usaba `getDatabaseName()`, que solo existe en `Database`.
+- **`APP_VERSION_DATE` deja de depender del reloj.** `createFromFormat('d-m-Y', …)` sin parte
+  horaria hereda la hora actual; `->format('Y-m-d')` la descartaba, así que el valor nunca
+  cambió, pero el objeto intermedio era distinto en cada petición.
 
 ## Dependencias
 

@@ -6,11 +6,6 @@
  * Congela el contrato de los buscadores estáticos de mapper: getBy(),
  * lastModifiedElement() y getByMultipleCriteries().
  *
- * POR QUÉ EXISTE
- * La ventana siguiente toca los ~541 errores de nulabilidad, y buena parte de ellos son
- * llamadas encadenadas a estos buscadores sin comprobar el null. Antes de cambiar esas
- * llamadas hay que tener escrito qué devuelven hoy.
- *
  * POR QUÉ ES DE SOLO LECTURA
  * Estos métodos NO se heredan: están copiados en 26 mappers concretos. Una prueba contra
  * un mapper de juguete no protegería ninguno de los 26 —sería una copia más—, así que la

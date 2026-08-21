@@ -180,12 +180,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
             $contentValid = true;
             if ($test['validate'] && $exists) {
-                /**
-                 * MANEJO EXPLÍCITO. `file_get_contents()` devuelve false si el archivo no
-                 * se puede leer, y toda la validación de abajo lo trata como cadena. Un
-                 * archivo ilegible no es «contenido vacío»: es una prueba que no se puede
-                 * evaluar, y decirlo vale más que comparar contra false y pasar de largo.
-                 */
+                //Un archivo ilegible no es «contenido vacío»: es una prueba que no se puede evaluar.
                 $content = file_get_contents($generatedFile);
                 if ($content === false) {
                     $contentValid = false;

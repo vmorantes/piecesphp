@@ -63,17 +63,7 @@ class UserSystemFeaturesRoutes
                 self::init();
             });
 
-            /**
-             * Aquí vivía `OTPSecretsUsersMapper::createOTPAlternativesRecords()`.
-             *
-             * `routes()` corre EN CADA PETICIÓN, así que esa migración de datos se
-             * ejecutaba en bucle infinito: dos consultas con GROUP_CONCAT y LEFT JOIN
-             * sobre la tabla entera de usuarios por cada carga de página. Y el registro
-             * de rutas debe ser puro: describe el mapa, no lo modifica.
-             *
-             * Ahora se ejecuta a mano con `bin/cli sync-otp-records`, que informa antes
-             * de escribir nada.
-             */
+            //routes() corre en cada petición: aquí no va ninguna escritura ni consulta de datos.
 
         }
 

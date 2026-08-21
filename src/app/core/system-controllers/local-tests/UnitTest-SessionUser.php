@@ -5,12 +5,6 @@
  *
  * Congela el contrato ACTUAL de getLoggedFrameworkUser() y de SessionToken.
  *
- * POR QUÉ EXISTE
- * La ventana siguiente va a cambiar ese contrato: `getLoggedFrameworkUser()` devuelve
- * `UserDataPackage|null` y sus llamadas encadenadas sin comprobar explican 123 de los
- * errores de nulabilidad. La propuesta sobre la mesa es añadir una variante que garantice
- * un usuario o falle. Antes de tocarlo hay que tener escrito qué hace hoy.
- *
  * ESTAS PRUEBAS SON DE CARACTERIZACIÓN, NO DE ASPIRACIÓN.
  * Describen el comportamiento actual, incluido el que consideramos defectuoso. Cuando la
  * ventana de nulabilidad cambie el contrato, varias fallarán: **ese fallo es la señal**,

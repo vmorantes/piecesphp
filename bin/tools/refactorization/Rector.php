@@ -14,19 +14,8 @@ return static function (RectorConfig $rectorConfig): void {
     $droppedPaths = [];
 
     /**
-     * DE DÓNDE SALE LA LISTA DE ARCHIVOS.
-     *
-     * Antes se leía PHPStanResult.txt con una expresión regular. Eso tenía un defecto
-     * silencioso y caro: el formateador de tabla de PHPStan RECORTA la cabecera de cada
-     * archivo al ancho de terminal, que con la salida redirigida es 80. Las rutas largas
-     * llegaban cortadas a 73 caracteres, `file_exists()` fallaba, y el bucle las
-     * descartaba sin decir nada. Medido: 34 de 195 archivos —el 17% de la superficie con
-     * errores— nunca entraron al análisis. Rector no fallaba; simplemente no los veía,
-     * y por eso parecía proponer tan poco.
-     *
-     * Ahora la fuente de verdad es PHPStanResult.json, que es salida de máquina y no
-     * depende del ancho de terminal. El .txt queda solo como respaldo para cuando se
-     * ejecuta Rector sin haber regenerado el JSON.
+     * La fuente de verdad es el JSON, no la tabla: la tabla recorta las rutas al ancho de
+     * terminal y las largas dejan de resolver. El .txt es solo respaldo.
      */
     $jsonPath = $baseDir . '/PHPStanResult.json';
     $txtPath = $baseDir . '/PHPStanResult.txt';
@@ -57,11 +46,7 @@ return static function (RectorConfig $rectorConfig): void {
 
     $filePaths = array_values(array_unique($filePaths));
 
-    /**
-     * Descartar en silencio es lo que ocultó el defecto durante meses. Si una ruta no
-     * resuelve, que se vea: sin lista de archivos Rector no analiza nada y devolvería
-     * «0 cambios», que es indistinguible de «todo está bien».
-     */
+    //Nunca descartar en silencio: «0 cambios» y «no miré nada» son indistinguibles.
     if ($droppedPaths !== []) {
         fwrite(STDERR, '[Rector] AVISO: ' . count($droppedPaths) . " ruta(s) del reporte no resuelven a un archivo y quedan FUERA del análisis:\n");
         foreach ($droppedPaths as $path) {

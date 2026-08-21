@@ -17,18 +17,12 @@ REPORT_JSON=PHPStanResult.json
 # Nota: Pasamos el binario antes del script de PHPStan si este no es ejecutable por sí solo,
 # o simplemente usamos el binario para el proceso posterior.
 #
-# COLUMNS=400 NO ES COSMÉTICO. El formateador de tabla de PHPStan recorta la
-# cabecera de cada archivo al ancho de terminal, y con la salida redirigida a un
-# archivo ese ancho cae a 80. Las rutas quedaban cortadas en 73 caracteres, y como
-# bin/tools/refactorization/Rector.php arma su lista de archivos leyendo este .txt
-# y descarta con file_exists() lo que no resuelve, Rector llevaba tiempo saltándose
-# 34 de 195 archivos EN SILENCIO: sin fallar y sin avisar.
+# NO QUITAR COLUMNS: sin él la tabla recorta las rutas al ancho de terminal (80 al
+# redirigir) y las herramientas que leen este archivo pierden los archivos de ruta larga.
 COLUMNS=400 PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 $PHP_BIN bin/tools/vendor/bin/phpstan analyse --autoload-file="$SCRIPT_DIR/../src/vendor/autoload.php" --memory-limit "2000M" -c bin/phpstan.neon > "$REPORT_FILE"
 
-# 2b. Salida de máquina, fuente de verdad para cualquier herramienta que consuma
-# el análisis. La tabla es para leerla; el JSON es para programar contra él —nunca
-# se recorta ni depende del ancho de terminal—. Con la caché de resultados ya
-# caliente esta segunda pasada cuesta menos de un segundo.
+# 2b. Salida de máquina: la tabla es para leerla, el JSON para programar contra él.
+# Con la caché caliente esta segunda pasada cuesta menos de un segundo.
 $PHP_BIN bin/tools/vendor/bin/phpstan analyse --autoload-file="$SCRIPT_DIR/../src/vendor/autoload.php" --memory-limit "2000M" -c bin/phpstan.neon --error-format=json --no-progress > "$REPORT_JSON" 2>/dev/null
 
 # 3. Ejecutar el script de procesamiento con el mismo binario

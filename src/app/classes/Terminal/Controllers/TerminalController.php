@@ -147,12 +147,7 @@ class TerminalController extends AdminPanelController
 
             /* Buscar tareas */
             $classesDirectoryPath = str_replace('/', \DIRECTORY_SEPARATOR, basepath('app/classes'));
-            /**
-         * El directorio de tareas viaja con el código, así que `realpath()` no debería
-         * fallar nunca. Si falla, la ruta sin resolver sirve igual para recorrerlo, y es
-         * mejor que pasar `false` a `str_replace()`.
-         */
-        $tasksDirectory = realpath(dirname(__FILE__) . '/../Tasks/');
+            $tasksDirectory = realpath(dirname(__FILE__) . '/../Tasks/');
         $tasksDirectory = $tasksDirectory !== false ? $tasksDirectory : dirname(__FILE__) . '/../Tasks/';
         $tasksDirectoryPath = str_replace('/', \DIRECTORY_SEPARATOR, $tasksDirectory);
             $tasksDirectory = new DirectoryObject($tasksDirectoryPath);

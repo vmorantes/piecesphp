@@ -29,11 +29,9 @@ class Exporter implements ExporterInterface
     /**
      * Constructor de la clase Exporter.
      * 
-     * @param Database $db Conexión ya configurada. Se declara `Database` y no `PDO` porque
-     *                       los dos llamantes pasan el resultado de `getDatabase()` y uno de
-     *                       ellos ya usa `getDatabaseName()`, que solo existe en `Database`.
-     *                       El tipo laxo hacía que `query()` y `prepare()` se vieran como
-     *                       `PDOStatement|false` pese a que el paquete los estrechó en v3.2.0.
+     * @param Database $db Conexión ya configurada. NO lo relajes a `PDO`: con el tipo del
+     *                       padre, `query()` y `prepare()` vuelven a verse como
+     *                       `PDOStatement|false`.
      * @param string $database Nombre de la base de datos a exportar.
      * @param string $charset Juego de caracteres para el volcado (default: utf8mb4).
      */

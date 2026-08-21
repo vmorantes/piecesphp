@@ -251,12 +251,8 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * BUSCADOR PURO: devuelve el registro OTP del usuario, o null si no existe.
-     *
-     * Era un get-or-create. Como lo alcanza `UserDataPackage` —y a este, el camino de
-     * login ANTES de verificar la contraseña—, comprobar credenciales insertaba filas
-     * sin autenticación. Un buscador no escribe: quien necesite crear el registro llama
-     * a {@see self::createOTPData()}, y ese sitio es la configuración del 2FA.
+     * Buscador de SOLO LECTURA. No lo conviertas en get-or-create: lo alcanzan rutas de
+     * login sin autenticar. Para crear, {@see self::createOTPData()}.
      *
      * @param int $userID
      * @param string $method
@@ -282,8 +278,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * Mitad de ESCRITURA de {@see self::getOTPData()}: crea el registro si falta y lo
-     * devuelve. Solo debe llamarse desde un camino ya autenticado.
+     * Mitad de ESCRITURA de {@see self::getOTPData()}. Solo desde un camino autenticado.
      *
      * @param int $userID
      * @param string $method
@@ -310,12 +305,9 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * BUSCADOR PURO: devuelve el registro TOTP del usuario, o null si no existe.
-     *
-     * Este era el peor de los dos: lo llama sin condiciones el constructor de
-     * `UserDataPackage`, así que **construir un paquete de usuario escribía en base de
-     * datos**, generando de paso un secreto TOTP para una cuenta que nadie había pedido
-     * proteger. El constructor ahora acepta el null.
+     * Buscador de SOLO LECTURA. Lo llama el constructor de `UserDataPackage`: si vuelve a
+     * escribir, construir un paquete de usuario escribe. Para crear,
+     * {@see self::createTOTPData()}.
      *
      * @param int $userID
      * @return OTPSecretsUsersMapper|null null si el usuario no tiene registro TOTP
@@ -338,11 +330,8 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * Mitad de ESCRITURA de {@see self::getTOTPData()}: crea el registro TOTP si falta.
-     *
-     * El secreto se genera aquí, en un camino autenticado, y no al leer. Da igual que
-     * {@see self::toggle2FA()} lo regenere después: generar material criptográfico por
-     * cuenta de alguien que no lo ha pedido no es aceptable aunque nunca llegue a usarse.
+     * Mitad de ESCRITURA de {@see self::getTOTPData()}. El secreto se genera aquí, en un
+     * camino autenticado, nunca al leer.
      *
      * @param int $userID
      * @return OTPSecretsUsersMapper|null
@@ -365,11 +354,8 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * Activa o desactiva el 2FA del usuario.
-     *
-     * ESTE ES EL HOGAR LEGÍTIMO DE LA CREACIÓN. Al llegar aquí el usuario ya está
-     * autenticado y está pidiendo explícitamente configurar su segundo factor, así que
-     * es el único sitio donde tiene sentido crear el registro TOTP si aún no existe.
+     * Activa o desactiva el 2FA del usuario. Único sitio autorizado a crear el registro
+     * TOTP: aquí el usuario ya está autenticado y lo está pidiendo.
      *
      * @param int $userID
      * @param bool $enable
@@ -379,11 +365,6 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      */
     public static function toggle2FA(int $userID, bool $enable, string $securityCode, ?string $alias = null)
     {
-        /**
-         * `createTOTPData()` devuelve el registro existente si lo hay, y lo crea si no.
-         * Antes se dependía de que `getTOTPData()` creara por su cuenta al leer, que es
-         * justo lo que había que quitar.
-         */
         $totpElement = self::createTOTPData($userID);
         if ($totpElement === null) {
             return false;
@@ -398,12 +379,6 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
             $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
             $totpElement->twoAuthFactorSecurityCode = "";
         }
-        /**
-         * El retorno mentía: `$result` se inicializaba en false y no se reasignaba nunca,
-         * así que el método devolvía false incluso cuando el cambio se había guardado.
-         * Su único llamante ignoraba el valor, de modo que no rompía nada — pero era una
-         * trampa esperando al primero que se fiara del docblock.
-         */
         return $totpElement->update();
     }
 
@@ -446,11 +421,8 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * INVENTARIO DE SOLO LECTURA: qué usuarios carecen de registro, por método.
-     *
-     * Se separó de la creación para que la tarea de terminal pueda informar sin escribir.
-     * Un inventario que además crea lo que cuenta no se puede usar para decidir si hay
-     * que crear algo.
+     * Inventario de SOLO LECTURA. No debe crear nada: la tarea de terminal lo usa para
+     * informar antes de decidir si escribe.
      *
      * @return array<string,int[]> método => ids de usuario sin registro
      */
@@ -481,13 +453,10 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
     }
 
     /**
-     * Crea los registros para cada tipo de autenticación OTP disponible para los usuarios
-     * existentes.
+     * Crea los registros OTP que falten, uno por usuario y método.
      *
-     * NO SE LLAMA DESDE EL REGISTRO DE RUTAS. Vivía en `UserSystemFeaturesRoutes::routes()`,
-     * que corre en cada petición, así que esta migración se ejecutaba en bucle infinito con
-     * dos barridos sobre la tabla de usuarios por carga de página. Su sitio es la tarea de
-     * terminal `sync-otp-records`, que se ejecuta cuando hace falta y avisa antes de escribir.
+     * NO LA LLAMES DESDE EL REGISTRO DE RUTAS NI DE UNA PETICIÓN: recorre la tabla entera
+     * de usuarios. Su sitio es la tarea `bin/cli sync-otp-records`.
      *
      * @return int cuántos registros se crearon
      */

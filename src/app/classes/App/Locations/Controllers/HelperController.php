@@ -47,10 +47,6 @@ class HelperController extends BaseController
         set_config('lock_assets', false);
 
         $this->viewLocalRender = new BaseController(false);
-        /**
-         * La propiedad ya declara `string|null`, así que el null es el valor previsto para
-         * «no se pudo resolver». `false` no lo era.
-         */
         $resolvedViewsDir = realpath(__DIR__ . '/../Views/');
         $this->viewLocalDir = $resolvedViewsDir !== false ? $resolvedViewsDir : null;
 

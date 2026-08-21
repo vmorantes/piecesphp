@@ -9,10 +9,6 @@ use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
  * @var string $editLink
  */
 $currentUser = getLoggedFrameworkUser();
-/**
- * Vista de ejemplo: sin registro TOTP no hay secreto que mostrar. Se usa cadena vacía
- * en vez de generar uno, que es precisamente lo que hacía el buscador y había que quitar.
- */
 $totpData = $currentUser->TOTPData;
 $totpSecret = $totpData !== null ? $totpData->secret : '';
 $username = $currentUser->username;

@@ -21,21 +21,12 @@ use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
  *
  * Crea los registros OTP que falten, uno por usuario y método.
  *
- * POR QUÉ EXISTE ESTA TAREA
- * `OTPSecretsUsersMapper::createOTPAlternativesRecords()` se llamaba desde
- * `UserSystemFeaturesRoutes::routes()`. El registro de rutas corre **en cada petición**,
- * así que esta migración de datos se ejecutaba en bucle infinito: dos consultas con
- * `GROUP_CONCAT` y `LEFT JOIN` sobre la tabla entera de usuarios por cada carga de
- * página, autenticada o no. Con decenas de usuarios no se nota; con cien mil es un
- * incendio, y el coste crece justo cuando menos margen hay.
+ * NO LA LLAMES DESDE EL REGISTRO DE RUTAS NI DE UNA PETICIÓN: recorre la tabla entera de
+ * usuarios con `GROUP_CONCAT` y `LEFT JOIN`, y `routes()` corre en cada carga de página.
  *
- * Además el registro de rutas debe ser PURO: describe el mapa de la aplicación, no lo
- * modifica. Una escritura escondida ahí es invisible para quien lee el módulo.
- *
- * POR QUÉ NO APLICA NADA POR DEFECTO
- * Una tarea que escribe en base de datos en cuanto se teclea su nombre es una trampa.
- * Sin `apply=yes` solo informa de lo que haría, que es además la forma de comprobar que
- * el inventario cuadra antes de tocar nada.
+ * SIN `apply=yes` SOLO INFORMA. Una tarea que escribe en cuanto se teclea su nombre es una
+ * trampa, y el inventario en seco es además la forma de comprobar que cuadra antes de tocar
+ * nada.
  *
  * @package     Terminal\Tasks
  * @author      Vicsen Morantes <sir.vamb@gmail.com>

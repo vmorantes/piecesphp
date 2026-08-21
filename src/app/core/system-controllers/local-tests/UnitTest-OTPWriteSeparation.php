@@ -3,32 +3,21 @@
 /**
  * UnitTest-OTPWriteSeparation.php
  *
- * COMPROBAR NO DEBE ESCRIBIR, Y REGISTRAR RUTAS TAMPOCO.
+ * Fija dos reglas del sistema de autenticación:
  *
- * Esta suite fija dos reglas que el código violaba y que son la raíz del hallazgo D2:
+ *   1. Los buscadores de `OTPSecretsUsersMapper` son de SOLO LECTURA. Los alcanza el
+ *      constructor de `UserDataPackage`, y a este lo alcanzan rutas de login sin
+ *      autenticar: si vuelven a escribir, comprobar credenciales inserta filas.
+ *   2. El registro de rutas es PURO. `routes()` corre en cada petición, así que una
+ *      migración de datos ahí se ejecuta en bucle infinito.
  *
- * 1. Los buscadores de `OTPSecretsUsersMapper` son de LECTURA. `getOTPData()` y
- *    `getTOTPData()` eran get-or-create: si no encontraban registro, INSERTABAN uno con
- *    un secreto TOTP recién generado. Como `UserDataPackage::__construct()` llama al
- *    segundo sin condiciones, **construir un paquete de usuario escribía en base de
- *    datos** — y lo alcanzan sin autenticar `checkValidityOTP`, `checkValidityTOTP`,
- *    `toExpireOTP` y `generateOTP`, todos con `new UserDataPackage($id)` antes de
- *    verificar credencial alguna.
+ * LAS DOS PRIMERAS COMPROBACIONES SON ESTRUCTURALES A PROPÓSITO, no por comodidad: la
+ * versión de comportamiento exigiría crear un usuario sin registros —escribir datos de
+ * prueba en una base ajena— y además **no fallaría**, porque el relleno masivo de la
+ * regla 2 tapa el defecto de la regla 1. Por eso las dos se comprueban por separado y
+ * ninguna depende de que la otra siga rota.
  *
- * 2. El registro de rutas es PURO. `UserSystemFeaturesRoutes::routes()` llamaba a
- *    `createOTPAlternativesRecords()`, una migración de datos que recorre la tabla de
- *    usuarios con dos `GROUP_CONCAT` + `LEFT JOIN`. En cada petición. Para siempre.
- *
- * POR QUÉ LAS COMPROBACIONES 1 Y 2 SON ESTRUCTURALES Y NO DE COMPORTAMIENTO
- * La versión de comportamiento —«un usuario sin filas provoca un INSERT»— exige crear un
- * usuario sin filas, y eso es escribir datos de prueba en una base que no es nuestra.
- * Peor: hoy no fallaría, porque el relleno masivo del punto 2 ya creó las filas de todos
- * los usuarios y tapa el defecto del punto 1. **Esa es exactamente la trampa de orden**:
- * si se quitara el relleno sin arreglar los buscadores, el get-or-create volvería a
- * escribir en la ruta no autenticada. Por eso las dos reglas se comprueban por separado
- * y ninguna depende de que la otra siga rota.
- *
- * La comprobación 3 sí es de comportamiento, y es de SOLO LECTURA.
+ * La comprobación 3 es de comportamiento y de SOLO LECTURA.
  */
 
 use PiecesPHP\Terminal\CliActions;
@@ -64,9 +53,8 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     };
 
     /**
-     * Devuelve el código fuente de un método. Se lee por rango de líneas de la reflexión
-     * y con `file()`, que respeta la numeración de PHP tanto con LF como con CRLF —el
-     * repositorio mezcla los dos y partir por `\r\n` a mano desplaza los índices.
+     * Código fuente de un método, sin comentarios. Se lee con `file()`: el repositorio
+     * mezcla LF y CRLF, y partir por `\r\n` a mano desplaza los índices.
      */
     $methodSource = function (string $className, string $method): string {
         try {
@@ -86,13 +74,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $howMany = $r->getEndLine() - $r->getStartLine() + 1;
         $source = implode('', array_slice($lines, $from, $howMany));
 
-        /**
-         * SE QUITAN LOS COMENTARIOS. Buscar por texto plano no distingue una llamada de
-         * una mención, y este arreglo deja precisamente comentarios que NOMBRAN lo que se
-         * quitó, para que quien lea el módulo sepa por qué ya no está. Un test que
-         * confunde documentar con hacer obliga a no documentar, que es peor que el test.
-         * Es la misma lección que `verify-integrity`: se tokeniza, no se busca a ojo.
-         */
+        //Se quitan los comentarios: buscar por texto plano confunde una mención con una llamada.
         $tokens = @token_get_all('<?php ' . $source);
         $clean = '';
         foreach ($tokens as $token) {
@@ -162,10 +144,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     //──── 3. Un intento de login fallido no cambia el conteo de filas ───────────────────
     echoTerminal('[3/3] Un login fallido con usuario existente no debe insertar filas...');
 
-    /**
-     * Solo lectura: se descubre un usuario real en ejecución, se cuenta, se falla el
-     * login a propósito y se vuelve a contar. No se crea ni se borra nada.
-     */
+    /** Solo lectura: descubre un usuario real, cuenta, falla el login y vuelve a contar. */
     $countRows = function (): ?int {
         try {
             $model = OTPSecretsUsersMapper::model();
@@ -180,7 +159,6 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
 
     $user = null;
     try {
-        /** Mismo patrón de descubrimiento que UnitTest-MapperFinders: sin escribir nada. */
         $usersModel = \App\Model\UsersModel::model();
         $usersModel->select(['id', 'username']);
         $usersModel->execute();
@@ -201,14 +179,12 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             "Filas en " . OTPSecretsUsersMapper::TABLE . " antes: {$before}"
         );
 
-        /** Contraseña deliberadamente incorrecta: el camino no autenticado. */
         try {
             OTPHandler::checkValidityOTP('contraseña-que-no-es-la-suya-' . bin2hex(random_bytes(4)), (string) $user->username);
         } catch (\Throwable $e) {
             echoTerminal('      - checkValidityOTP lanzó: ' . mb_substr($e->getMessage(), 0, 60));
         }
 
-        /** Y el constructor, que es donde estaba de verdad la escritura. */
         try {
             new UserDataPackage((int) $user->id);
         } catch (\Throwable $e) {
