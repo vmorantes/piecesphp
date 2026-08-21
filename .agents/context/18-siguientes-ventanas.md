@@ -826,3 +826,86 @@ Cambia el comportamiento en tiempo de ejecución sin tocar ninguna línea de ló
 | `RemoveUnusedVariableAssignRector` | 35 | Borra según inferencia: si falla, borra código vivo. |
 | `RemoveAlwaysTrueIfConditionRector` | 25 | Igual, sobre condiciones. |
 
+## T10 · NO SE EDITA PHP POR LÍNEA, SE EDITA POR ESTRUCTURA
+
+**Tres incidentes de la misma familia, todos silenciosos, todos con `php -l` en verde:**
+
+| Incidente | Causa | Qué lo delató |
+| :-- | :-- | :-- |
+| `OrganizationMapper` con un docblock sin cerrar | Un script partió por `\r\n` un archivo con 1.342 CRLF **y un LF suelto**: todos los índices siguientes se desplazaron | Nada automático. Se encontró a mano |
+| 32 falsos positivos en `verify-integrity` | Contaba `/*` contra `*/` en texto plano, y `'image/*'` aparece dentro de cadenas | La propia revisión de los resultados |
+| `SyncOTPRecordsTask` sin `namespace` ni `use` | Un corte por posición casó con el docblock **de archivo** en vez del **de clase** y se llevó la cabecera | Ejecutar la tarea |
+
+**La regla: cuando haya que preguntarle algo al código fuente, se tokeniza.** `token_get_all()`
+lleva cuatro apariciones —`verify-integrity` en dos comprobaciones,
+`unit-tests:core/otp-write-separation`, y `declaredClass()`—. Es patrón del proyecto.
+
+Y su corolario, que vale igual: **cortar por índice de cadena es editar por posición**. El
+tercer incidente no partió por líneas, partió por `str.index()`, y falló por la misma razón:
+buscó una silueta —`/**\n * SyncOTPRecordsTask.`— que casaba dos veces.
+
+### La tercera comprobación de integridad
+
+`bin/cli verify-integrity` comprueba ahora, además de docblocks y firmas, que **toda clase
+bajo una raíz PSR-4 se llame como su ruta manda y se pueda cargar**:
+
+1. **Ruta contra namespace.** El FQCN esperado sale de la RUTA; el declarado, del archivo.
+   Es la única forma de detectar un `namespace` perdido — derivar el nombre del propio
+   archivo es circular y no detecta nada. *(Primer intento hecho así: no detectaba nada.)*
+2. **Carga real** con `class_exists($fqcn, true)`, que atrapa un padre, interfaz o trait
+   que no resuelve.
+
+**`composer dump-autoload --strict-psr` NO sirve para esto, y conviene saber por qué:** el
+`psr-4` de `src/composer.json` declara únicamente `PiecesPHP\Core\`. Todo `src/app/classes`
+—donde vive la mayoría del código propio— lo resuelve el autoloader del framework
+(`config/autoloads.php`), que registra esa carpeta como raíz **sin prefijo**. Composer no ve
+nada de ahí. Por eso la comprobación se implementa directamente, con las dos raíces en
+`VerifyIntegrityTask::PSR4_ROOTS`. **Si se añade una raíz nueva, va ahí o deja de
+comprobarse.**
+
+**Probada contra el fallo real**, no solo escrita: una clase con el namespace equivocado da
+`declara Espacio\Equivocado\Broken y su ruta exige ZzIntegrityProbe\Broken`, y un padre
+inexistente da `Class "…" not found`. Las dos con salida 1.
+
+### LO QUE ESTA PUERTA NO ATRAPA
+
+- **Un `use` que falta y solo se referencia dentro del cuerpo de un método.** La clase se
+  declara y se carga sin problema; el fallo aparece al ejecutar esa línea. Eso solo lo caza
+  una prueba que la ejecute.
+- **Clases que se cargan durante el arranque** —tareas de terminal, mappers referenciados
+  al registrar rutas—. Si una de esas se rompe, el CLI muere ANTES de que la puerta corra.
+  No es grave: el fallo es ruidoso e inmediato. Pero significa que la puerta protege sobre
+  todo el código de carga tardía, que es justo donde el fallo sí sería silencioso.
+
+## T11 · `declare(strict_types=1)` en CERO archivos — la raíz que explica la familia
+
+**Medido: 0 de 782 en `piecesphp`, 0 de 61 en los cuatro paquetes.**
+
+Ahí está el porqué estructural de toda la familia `false`. Sin `strict_types`, un `false` que
+entra donde se espera `string` se convierte en `''` **en silencio**:
+
+| Sitio | Qué producía |
+| :-- | :-- |
+| `sha1(json_encode($checksumData))` | `sha1('')` — todo dato corrupto con el MISMO ETag |
+| `setDataCache(json_encode($result), …)` | Un archivo de cero bytes servido como caché válido |
+| `base64_encode(json_encode(...))` | Una carga vacía con apariencia de dato |
+
+**No son tres accidentes: son el mismo mecanismo tres veces.**
+
+### NO SE HACE UN BARRIDO
+
+Activarlo en código existente cambia la coerción de **todas** las llamadas de ese archivo, y
+un `"5"` donde se espera `int` empieza a lanzar. Cambiaríamos 843 riesgos silenciosos por un
+número desconocido de fallos ruidosos, de golpe y sin red.
+
+### La regla, desde hoy
+
+**Todo archivo NUEVO lleva `declare(strict_types=1)`.** Cuesta cero en un archivo que se
+escribe con la regla puesta.
+
+### La ventana para el código existente
+
+De uno en uno, **empezando por los archivos que tengan cobertura de pruebas**, y nunca en
+lote. El orden natural es: primero lo que cubren las suites del framework y la del
+exportador; después el núcleo; los módulos, al final, y los condenados nunca.
+

@@ -1502,7 +1502,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
  ------ ------------------------------------------------------------------------------------ 
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
  ------ ------------------------------------------------------------------------------------ 
-  187    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  193    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 

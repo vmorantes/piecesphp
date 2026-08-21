@@ -132,14 +132,20 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         $signatureFailures = self::compareSignatures($snapshotPath, $signatures);
 
+        //──── 3. Las clases declaradas se pueden cargar ─────────────────────────────────
+        $loadFailures = self::checkClassesAreLoadable($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
-        $failures = count($docblockFailures) + count($signatureFailures);
+        $failures = count($docblockFailures) + count($signatureFailures) + count($loadFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
         }
         foreach ($signatureFailures as $line) {
             echoTerminal("\e[31mFIRMA:\e[39m {$line}");
+        }
+        foreach ($loadFailures as $line) {
+            echoTerminal("\e[31mCARGA:\e[39m {$line}");
         }
 
         if ($failures === 0) {
@@ -406,6 +412,160 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         return $failures;
+    }
+
+    /**
+     * Raíces PSR-4 del proyecto: prefijo de namespace => directorio relativo a `src/`.
+     *
+     * `src/app/classes` lo registra el autoloader PROPIO (`config/autoloads.php`) como raíz
+     * sin prefijo; `app/core/psr4/PiecesPHP/Core` lo registra Composer. Si se añade una
+     * raíz nueva en cualquiera de los dos sitios, va aquí también o deja de comprobarse.
+     *
+     * @var array<string,string>
+     */
+    const PSR4_ROOTS = [
+        '' => 'app/classes',
+        'PiecesPHP\\Core\\' => 'app/core/psr4/PiecesPHP/Core',
+    ];
+
+    /**
+     * Comprueba que toda clase declarada bajo una raíz PSR-4 se llame como su ruta manda y
+     * se pueda CARGAR de verdad.
+     *
+     * Dos comprobaciones, porque ninguna cubre a la otra:
+     *
+     *   1. RUTA CONTRA NAMESPACE. El FQCN esperado sale de la RUTA; el declarado, del
+     *      archivo. Es la única forma de detectar un `namespace` perdido o equivocado —
+     *      derivar el nombre del propio archivo es circular y no detecta nada.
+     *   2. CARGA REAL con `class_exists($fqcn, true)`, que atrapa un padre, interfaz o trait
+     *      que no resuelve.
+     *
+     * `composer dump-autoload --strict-psr` NO sirve aquí: el `psr-4` de `composer.json`
+     * solo declara `PiecesPHP\Core\`, así que no ve nada de `src/app/classes`, que es donde
+     * vive la mayoría del código propio.
+     *
+     * LO QUE NINGUNA ATRAPA, para que nadie confíe de más en esta puerta: un `use` que falta
+     * y solo se referencia DENTRO del cuerpo de un método. La clase se declara y se carga
+     * sin problema; el fallo aparece al ejecutar esa línea, y eso solo lo caza una prueba.
+     *
+     * @param string[] $files rutas relativas a `src/`
+     * @return string[]
+     */
+    protected static function checkClassesAreLoadable(array $files): array
+    {
+        $failures = [];
+        //`basepath('')` resuelve a la raíz del repositorio; el código vive un nivel dentro.
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $srcRoot = is_dir($repoRoot . '/src/app') ? $repoRoot . '/src' : $repoRoot;
+
+        $checked = 0;
+
+        foreach ($files as $relative) {
+            $relative = str_replace('\\', '/', $relative);
+
+            $prefix = null;
+            $rootDir = null;
+            foreach (self::PSR4_ROOTS as $namespacePrefix => $directory) {
+                if (mb_strpos($relative, $directory . '/') === 0) {
+                    $prefix = $namespacePrefix;
+                    $rootDir = $directory;
+                    break;
+                }
+            }
+            if ($rootDir === null) {
+                continue;
+            }
+
+            $code = @file_get_contents($srcRoot . '/' . $relative);
+            if ($code === false) {
+                continue;
+            }
+
+            $declared = self::declaredClass($code);
+            if ($declared === null) {
+                //Vistas y archivos de configuración no declaran clase: no es un fallo.
+                continue;
+            }
+
+            $withoutExtension = mb_substr($relative, mb_strlen($rootDir) + 1, -4);
+            $expected = $prefix . str_replace('/', '\\', $withoutExtension);
+            $checked++;
+
+            if ($declared !== $expected) {
+                $failures[] = $relative . ' — declara ' . $declared . ' y su ruta exige ' . $expected;
+                continue;
+            }
+
+            /**
+             * En proceso, no en subproceso: el framework registra su propio autoloader
+             * además del de Composer, y un subproceso que solo requiere `vendor/autoload.php`
+             * no resuelve nada del código propio. Un padre que no existe lanza `Error`, que
+             * es capturable, así que aislar no hace falta.
+             */
+            try {
+                $exists = class_exists($declared, true)
+                    || interface_exists($declared, true)
+                    || trait_exists($declared, true)
+                    || enum_exists($declared, true);
+                if (!$exists) {
+                    $failures[] = $relative . ' — ' . $declared . ' no se puede cargar';
+                }
+            } catch (\Throwable $e) {
+                $failures[] = $relative . ' — ' . mb_substr($e->getMessage(), 0, 90);
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$checked} clases comprobadas contra su ruta PSR-4.");
+
+        return $failures;
+    }
+
+    /**
+     * FQCN declarado en un archivo, o null si no declara ninguna clase con nombre.
+     *
+     * Se lee por ESTRUCTURA con `token_get_all()`, nunca por línea ni por expresión regular:
+     * es la tercera regla del proyecto y hay tres incidentes detrás.
+     *
+     * @param string $code
+     * @return string|null
+     */
+    protected static function declaredClass(string $code): ?string
+    {
+        $tokens = @token_get_all($code);
+        $total = count($tokens);
+        $namespace = '';
+
+        for ($i = 0; $i < $total; $i++) {
+            $token = $tokens[$i];
+            if (!is_array($token)) {
+                continue;
+            }
+            if ($token[0] === T_NAMESPACE) {
+                $namespace = '';
+                for ($j = $i + 1; $j < $total; $j++) {
+                    if ($tokens[$j] === ';' || $tokens[$j] === '{') {
+                        break;
+                    }
+                    if (is_array($tokens[$j]) && !in_array($tokens[$j][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                        $namespace .= $tokens[$j][1];
+                    }
+                }
+                continue;
+            }
+            if (in_array($token[0], [T_CLASS, T_INTERFACE, T_TRAIT, T_ENUM], true)) {
+                //`Foo::class` no declara nada, y una clase anónima no tiene nombre.
+                $previous = $tokens[$i - 1] ?? null;
+                if (is_array($previous) && $previous[0] === T_DOUBLE_COLON) {
+                    continue;
+                }
+                $name = self::nextName($tokens, $i + 1, $total);
+                if ($name !== null) {
+                    return ($namespace !== '' ? $namespace . '\\' : '') . $name;
+                }
+            }
+        }
+
+        return null;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
