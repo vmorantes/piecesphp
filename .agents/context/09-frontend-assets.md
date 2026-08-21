@@ -87,8 +87,20 @@ $server = new ServerStatics();
 return $server->compileScssServe($request, $response, $args, __DIR__ . '/Statics', [], self::staticRoute());
 ```
 
-`compileScssServe()` **compila SASS al vuelo** (vía `scssphp/scssphp`) — por eso
-`Statics/css/` de los módulos tiene un `.gitignore`.
+> ⚠️ **El nombre miente: `compileScssServe()` no compila SCSS.** Verificado el
+> 2026-08-20 en `ServerStatics.php:381`: `$enableSassCompilation = false;` está
+> escrito literal, con una nota que dice que se desactivó por problemas con el
+> reemplazo de variables, y donde iría la compilación hay un
+> `//TODO: Implementar la compilación de scss` (línea ~408). El bloque entero es
+> código muerto: el método solo sirve archivos ya compilados.
+>
+> Consecuencia: **`scssphp/scssphp` es peso muerto.** Es requisito directo en
+> `src/composer.json`, pero su única mención en todo el código es una línea de
+> créditos en `app/view/panel/pages/about-framework.php:106`. Ningún PHP lo
+> instancia.
+>
+> El CSS de los módulos lo genera **Gulp** (`gulp sass-modules`), con Dart Sass,
+> en tiempo de desarrollo. No hay compilación en servidor.
 
 `ServerStatics::protectFileMiddleware` aplica las restricciones registradas con
 `ProtectFileMiddleware::protect($dir, fn(Request $r, string $path) => bool)` desde

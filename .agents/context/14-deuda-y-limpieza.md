@@ -217,8 +217,42 @@ extienden. Es la limpieza de mejor relación esfuerzo/beneficio de todo el lista
 | **24 `HelperController.php` triviales** | ~1.000 | Copia y pega; reemplazables por una clase base |
 | **`Components`** | 489 | Stub: 2 vistas, una de ellas `sample/components.php` con *lorem ipsum*. Un solo consumidor (`PublicAreaController`). O se completa o se borra |
 | **Restos de Webflow** | — | `src/app/view/webflow/` (4 archivos, solo se referencian entre sí), `src/statics/wf/` (5 archivos), `files/Webflow/`. Ningún controlador los usa |
+| **`scssphp/scssphp`** | — | **Dependencia directa que nadie usa.** Ver abajo |
 
 **Subtotal inmediato: ~2.600 LOC sin tocar nada funcional.**
+
+#### `scssphp` y el compilador que no compila
+
+Descubierto el 2026-08-20 buscando cómo ejercitar `symfony/filesystem` tras el salto
+de Symfony a 8.1.
+
+`ServerStatics::compileScssServe()` **no compila SCSS pese al nombre**:
+
+```php
+// ServerStatics.php:381
+$enableSassCompilation = false;
+//NOTE: Por el momento, la funcionalidad está deshabilitada debido a problemas
+//      con el reemplazo de variables SCSS
+if ($enableSassCompilation) {
+    // ...
+    //TODO: Implementar la compilación de scss     <- línea ~408
+}
+```
+
+El bloque entero es inalcanzable. El método solo sirve archivos ya compilados, y el
+CSS de los módulos lo genera Gulp con Dart Sass en desarrollo.
+
+Consecuencia: **`scssphp/scssphp` es requisito directo en `src/composer.json` y su
+única mención en todo el código es una línea de créditos** en
+`app/view/panel/pages/about-framework.php:106`. Ningún PHP lo instancia.
+
+**Acción**: decidir entre implementar la compilación (hay un `//TODO` que dice que se
+quiso) o eliminar la dependencia y el bloque muerto. Mientras siga así, arrastra
+`scssphp` y su `symfony/filesystem` transitivo sin dar nada a cambio.
+
+> Este hallazgo corrigió una afirmación falsa en
+> [09-frontend-assets.md](./09-frontend-assets.md), que describía la compilación en
+> servidor como funcional.
 
 ### Riesgo medio — decisión de producto
 
