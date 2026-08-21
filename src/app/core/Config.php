@@ -1118,7 +1118,7 @@ class Config
 
         $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
-        //No anteponer file_exists(): abre una carrera con realpath() y este método declara string.
+        //No anteponer file_exists(): abre una carrera con realpath() y el @return dice string.
         $resolved = realpath($path);
         return $resolved !== false ? $resolved : $path;
     }
@@ -1135,6 +1135,7 @@ class Config
 
         $path = str_replace(["//", "\\\\"], ["/", "\\"], $path);
 
+        //Misma prohibición que basepath(): no anteponer file_exists().
         $resolved = realpath($path);
         return $resolved !== false ? $resolved : $path;
     }
@@ -1162,7 +1163,11 @@ class Config
 
     /**
      * Devuelve una instancia de Config
-     * @return static
+     *
+     * `self` y no `static`: la instancia vive en una propiedad estática ÚNICA y compartida,
+     * así que una subclase recibiría la del padre si ya estaba creada.
+     *
+     * @return self
      */
     private static function get_instance()
     {
