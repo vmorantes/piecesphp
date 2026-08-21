@@ -165,22 +165,30 @@ rutas con login, **0** en rutas públicas, 61 en métodos que no son ruta, 26 en
 Son el motivo de la ventana. **Ninguno está arreglado**: hay que decidir qué debe hacer
 cada uno.
 
-### D1 · `ActiveRecordModel::getDatabase()` puede devolver null pese a prometer lo contrario
+### D1 · ~~`getDatabase()` puede devolver null~~ — **REFUTADO el 2026-08-21**
 
-`piecesphp/database`, `ActiveRecordModel.php:365-374`. **Explica los 20 errores de
-`Database|null`.**
+> **La sospecha era falsa.** Se escribió una prueba para reproducirla y no se reprodujo:
+> `piecesphp/database`, suite `core/database/db-fallback`.
 
-Su propio docblock dice: *«Sobreescribe getDatabase() para asegurar que la conexión no
-sea null por destroyDb»* — y declara `@return Database|null`.
+Se sospechaba que `restoreInstancesDb()`, al actuar solo
+`if (!isset(self::$db[$key]))`, dejaría sin conexión a las instancias que pidieran
+`getDatabase()` **después** de que otra repoblara el pool.
 
-La garantía tiene un agujero. `checkDbConnectionFallback()` llama a
-`restoreInstancesDb()`, que solo actúa **`if (!isset(self::$db[$key]))`**. Si otra
-instancia ya recreó la entrada del pool, esa guarda es falsa, no se restaura nada y
-**esta** instancia se queda con `database = null` indefinidamente.
+El escenario montado —dos instancias, `destroyDb()`, A pide primero y B después— **no
+falla**: B se recupera con normalidad.
 
-Es decir: el fallback falla exactamente cuando la conexión ya existe.
+**Error de lectura**: `restoreInstancesDb()` no restaura a quien llama. Recorre
+`self::$instances` y reconfigura la **cohorte entera** con esa clave, así que la
+restauración que dispara A alcanza también a B. La guarda `if (!isset(...))` evita
+restaurar dos veces; no limita a quién se restaura.
 
-**Está en `piecesphp/database`**, así que se corrige en ese repo y sale en una v3.1.1.
+**Los 20 errores `Database|null` no son un defecto de ejecución**: vienen de que
+`ActiveRecord::$database` se declara `@var Database|null` en la clase base y el override
+hereda esa firma. Estrechar el docblock a `@return Database` sería la respuesta 1 del
+marco, pero **no se hizo**: no se puede demostrar que sea imposible en toda la jerarquía,
+y afirmarlo sin prueba es exactamente el «callar al analizador» que este trabajo evita.
+
+La suite se conservó: el comportamiento de cohorte no lo cubría nada y es fácil de romper.
 
 ### D2 · `OTPHandler::toExpireOTP()` desreferencia sin comprobar, en el camino de login
 
@@ -209,6 +217,48 @@ hay que decidirlo, no asumirlo.
 Cuatro métodos aceptaban `?UserDataPackage = null` y caían a `getLoggedFrameworkUser()`,
 y tres leían `->organization` en la línea siguiente. Corregido con la forma que el propio
 `getBy()` ya usaba. Latente: ningún llamante llegaba al fallback. Ver commit.
+
+---
+
+## 5quater. Triaje de los `false` de funciones nativas — 2026-08-21
+
+**148 errores**, no 144: el recuento anterior salía de una clasificación más gruesa.
+
+Aquí el marco del null aplica igual, y por la misma razón: `bootstrap.php` promueve
+`E_WARNING` a excepción, así que **un `false` usado como si fuera el valor bueno no
+avisa: aborta la petición**.
+
+### Por función de origen y respuesta que le toca
+
+| Función | Errores | Archivos | Respuesta | Por qué |
+| :-- | --: | --: | :-- | :-- |
+| *(sin identificar)* | 63 | 35 | — | La ventana de análisis no alcanzó la llamada. Hay que mirarlos |
+| `json_encode()` | 23 | 13 | **1 y 3, mezclados** | Solo falla con UTF-8 inválido o recursión. Sobre datos que construimos, es contrato; sobre datos de entrada, defecto |
+| **`DateTime::createFromFormat()`** | **12** | **10** | **3 · mayor cosecha esperada** | Devuelve `false` cuando la cadena no casa el formato. Fechas de BD o de formulario que no encajan revientan al desreferenciar |
+| `realpath()` | 10 | 6 | **2 o 3** | `false` si la ruta no existe. Depende de si está garantizada |
+| **`file_get_contents()`** | **10** | **5** | **3 · candidato fuerte** | `false` si el archivo no está o no se puede leer. Es justo el caso que «rara vez está pensado» |
+| **`query()` / `prepare()`** | **11** | **4** | **1 · resuelto de un golpe** | **No pueden devolver `false`**: `Database.php:188` fija `ERRMODE_EXCEPTION` en cada instancia, así que lanzan. Ver abajo |
+| `fopen()` / `opendir()` | 7 | 3 | **2 o 3** | `false` si no se puede abrir |
+| `imagecreatefromstring()` | 4 | 1 | **3** | `false` con datos que no son una imagen válida |
+| `gzencode()`, `base64_decode()`, `finfo_open()`, `array_search()`, `mb_strpos()` | 8 | 8 | caso a caso | Cola |
+
+### El hallazgo que decide 11 de golpe
+
+`query()` y `prepare()` declaran `PDOStatement|false` porque así lo declara PDO. Pero
+**esta base de datos nunca opera en ese modo**: `Database.php:188` hace
+`setAttribute(ATTR_ERRMODE, ERRMODE_EXCEPTION)` sobre cada instancia, así que un error
+lanza en vez de devolver `false`.
+
+Es la respuesta 1 del marco —no puede ser `false` por contrato— y el sitio correcto para
+expresarlo **no es cada llamada**, sino un override de `query()` y `prepare()` en la clase
+`Database` de `piecesphp/database` con el `@return` estrechado. Un cambio, once errores.
+
+### Nota de método
+
+`createFromFormat` y `file_get_contents` son los dos grupos donde más defectos reales
+espero, por la razón que motiva esta ventana: **un `false` de una función nativa casi
+siempre significa que algo del entorno falló** —un archivo que no está, una fecha con
+otro formato—, y ese caso rara vez está previsto. Empezar por ahí.
 
 ---
 
