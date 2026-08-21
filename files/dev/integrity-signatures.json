@@ -1565,11 +1565,14 @@
         "OTPSecretsUsersMapper::__construct",
         "OTPSecretsUsersMapper::allBy",
         "OTPSecretsUsersMapper::createOTPAlternativesRecords",
+        "OTPSecretsUsersMapper::createOTPData",
+        "OTPSecretsUsersMapper::createTOTPData",
         "OTPSecretsUsersMapper::existsUserByMethod",
         "OTPSecretsUsersMapper::getBy",
         "OTPSecretsUsersMapper::getOTPData",
         "OTPSecretsUsersMapper::getTOTPData",
         "OTPSecretsUsersMapper::isEnabled2FA",
+        "OTPSecretsUsersMapper::missingOTPRecords",
         "OTPSecretsUsersMapper::model",
         "OTPSecretsUsersMapper::save",
         "OTPSecretsUsersMapper::setOTP",
@@ -2074,18 +2077,31 @@
         "RunCronjobsTask::main",
         "RunCronjobsTask::route"
     ],
+    "app/classes/Terminal/Tasks/ScanInvalidUtf8Task.php": [
+        "ScanInvalidUtf8Task::__construct",
+        "ScanInvalidUtf8Task::main",
+        "ScanInvalidUtf8Task::route"
+    ],
     "app/classes/Terminal/Tasks/ScanMissingLangTask.php": [
         "ScanMissingLangTask::__construct",
         "ScanMissingLangTask::main",
         "ScanMissingLangTask::route",
         "ScanMissingLangTask::searchFunctionUsesWithParser"
     ],
+    "app/classes/Terminal/Tasks/SyncOTPRecordsTask.php": [
+        "SyncOTPRecordsTask::__construct",
+        "SyncOTPRecordsTask::main",
+        "SyncOTPRecordsTask::route"
+    ],
     "app/classes/Terminal/Tasks/VerifyIntegrityTask.php": [
         "VerifyIntegrityTask::__construct",
+        "VerifyIntegrityTask::checkClassesAreLoadable",
         "VerifyIntegrityTask::checkDocblocks",
+        "VerifyIntegrityTask::checkPackageEclipses",
         "VerifyIntegrityTask::collectFiles",
         "VerifyIntegrityTask::collectSignatures",
         "VerifyIntegrityTask::compareSignatures",
+        "VerifyIntegrityTask::declaredClass",
         "VerifyIntegrityTask::main",
         "VerifyIntegrityTask::nextName",
         "VerifyIntegrityTask::route",

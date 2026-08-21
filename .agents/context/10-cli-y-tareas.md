@@ -195,8 +195,16 @@ bin/cli verify-integrity
 métodos que han desaparecido**, comparando contra `files/dev/integrity-signatures.json`.
 Sale con código 1 si algo falla, para CI.
 
-Comprueba **tres** cosas: docblocks sin cerrar, firmas desaparecidas, y que **toda clase
-bajo una raíz PSR-4 se llame como su ruta manda y se pueda cargar**.
+Comprueba **cuatro** cosas: docblocks sin cerrar, firmas desaparecidas, que **toda clase
+bajo una raíz PSR-4 se llame como su ruta manda y se pueda cargar**, y que el núcleo **no
+ECLIPSE una clase de ningún paquete `piecesphp/*`**.
+
+El eclipse es el que menos se sospecha y el más difícil de ver: PSR-4 resuelve por prefijo
+más largo, los paquetes registran `PiecesPHP\` y el proyecto `PiecesPHP\Core\`, así que
+cualquier clase que el núcleo declare bajo ese namespace gana **siempre y en silencio**.
+Los eclipses aceptados viven en `VerifyIntegrityTask::KNOWN_ECLIPSES` con su razón y la
+condición que los retira; uno que no esté ahí hace fallar la tarea, y una entrada de ahí
+cuyo eclipse ya no exista, también.
 
 Cubre un hueco real: ni un docblock sin cerrar ni un `namespace` perdido son errores de
 sintaxis, así que `php -l` los da por buenos. Ver `files/dev/tests.md` y, para lo que la

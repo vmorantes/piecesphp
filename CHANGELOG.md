@@ -155,6 +155,14 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 - Suite nueva `bin/cli unit-tests:core/otp-write-separation`: comprobar credenciales y
   registrar rutas no deben escribir en base de datos.
+- **`bin/cli verify-integrity` gana una cuarta comprobación: ECLIPSES DE CLASES.** Falla si
+  el núcleo declara bajo `PiecesPHP\Core\` una clase que también existe en un paquete
+  `piecesphp/*`. PSR-4 resuelve por prefijo más largo, así que en ese caso el núcleo gana
+  **siempre y en silencio**. Ya pasó con `MetaProperty`, y el coste no fue el eclipse sino
+  que un arreglo aplicado al archivo del paquete no llegaba al framework **sin que nadie
+  pudiera notarlo**. Los eclipses aceptados se registran en `KNOWN_ECLIPSES` con su razón y
+  la condición que los retira; una entrada cuyo eclipse desaparezca también hace fallar la
+  tarea, porque una supresión que sobrevive a su motivo es una mentira que nadie relee.
 
 # 7.1.0 (20-08-2026)
 

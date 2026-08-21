@@ -25,10 +25,14 @@ use PiecesPHP\TerminalData;
  * de existir. `php -l` no lo detecta —un docblock sin cerrar NO es un error de
  * sintaxis— y las pruebas tampoco, porque no había ninguna que llamara a ese método.
  *
- * Comprueba dos cosas, que son las que habrían servido:
+ * Comprueba cuatro cosas. Las dos primeras son las que habrían servido en aquel
+ * incidente; las otras dos salieron de fallos posteriores del mismo tipo — estructurales,
+ * silenciosos y que ninguna prueba de comportamiento alcanza:
  *
  *   1. Docblocks sin cerrar.
  *   2. Desaparición de funciones y métodos, comparando contra una instantánea.
+ *   3. Que toda clase se llame como su ruta PSR-4 manda y se pueda cargar de verdad.
+ *   4. Que el núcleo no ECLIPSE una clase de un paquete declarando el mismo FQCN.
  *
  * Devuelve código de salida distinto de cero si algo falla, para poder usarse en CI.
  *
@@ -89,7 +93,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //Establecer propiedades
         $this->description = new StringArray([
             "Verifica la integridad estructural del código fuente.\r\n",
-            "\tComprueba docblocks sin cerrar y desaparición de funciones o métodos.\r\n",
+            "\tComprueba docblocks sin cerrar, desaparición de funciones o métodos,\r\n",
+            "\trutas PSR-4 y eclipses de clases de los paquetes.\r\n",
             "\tDevuelve código de salida 1 si algo falla, para uso en CI.\r\n",
             "\tParámetros:\r\n",
             "\t  update-snapshot (yes|no) regenera la instantánea de firmas en vez de comparar. Por defecto: no",
@@ -135,8 +140,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 3. Las clases declaradas se pueden cargar ─────────────────────────────────
         $loadFailures = self::checkClassesAreLoadable($files);
 
+        //──── 4. El núcleo no eclipsa clases de los paquetes ────────────────────────────
+        $eclipseFailures = self::checkPackageEclipses($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
-        $failures = count($docblockFailures) + count($signatureFailures) + count($loadFailures);
+        $failures = count($docblockFailures) + count($signatureFailures)
+            + count($loadFailures) + count($eclipseFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -147,9 +156,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($loadFailures as $line) {
             echoTerminal("\e[31mCARGA:\e[39m {$line}");
         }
+        foreach ($eclipseFailures as $line) {
+            echoTerminal("\e[31mECLIPSE:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m sin docblocks sin cerrar y sin firmas desaparecidas.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas PSR-4 y eclipses sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -169,33 +181,33 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function collectFiles(): array
     {
         $base = rtrim(str_replace('\\', '/', basepath('')), '/');
-        $resultado = [];
+        $result = [];
 
-        foreach (self::SCAN_PATHS as $relativo) {
-            $absoluto = $base . '/' . $relativo;
+        foreach (self::SCAN_PATHS as $relative) {
+            $absolute = $base . '/' . $relative;
 
-            if (is_file($absoluto)) {
-                $resultado[] = $relativo;
+            if (is_file($absolute)) {
+                $result[] = $relative;
                 continue;
             }
-            if (!is_dir($absoluto)) {
+            if (!is_dir($absolute)) {
                 continue;
             }
 
-            $iterador = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($absoluto, \RecursiveDirectoryIterator::SKIP_DOTS)
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($absolute, \RecursiveDirectoryIterator::SKIP_DOTS)
             );
-            foreach ($iterador as $file) {
+            foreach ($iterator as $file) {
                 if (!$file->isFile() || strtolower($file->getExtension()) !== 'php') {
                     continue;
                 }
-                $ruta = str_replace('\\', '/', $file->getPathname());
-                $resultado[] = ltrim(str_replace($base, '', $ruta), '/');
+                $path = str_replace('\\', '/', $file->getPathname());
+                $result[] = ltrim(str_replace($base, '', $path), '/');
             }
         }
 
-        sort($resultado);
-        return $resultado;
+        sort($result);
+        return $result;
     }
 
     /**
@@ -216,30 +228,30 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $failures = [];
         $base = rtrim(str_replace('\\', '/', basepath('')), '/');
 
-        foreach ($files as $relativo) {
-            $contenido = @file_get_contents($base . '/' . $relativo);
-            if (!is_string($contenido)) {
+        foreach ($files as $relative) {
+            $content = @file_get_contents($base . '/' . $relative);
+            if (!is_string($content)) {
                 continue;
             }
 
             //Se usa el analizador léxico, NO un recuento de texto: '/*' aparece dentro
             //de cadenas —'image/*' es el caso típico— y contarlo a pelo produce decenas
             //de falsos positivos en las vistas.
-            foreach (@token_get_all($contenido) ?: [] as $token) {
+            foreach (@token_get_all($content) ?: [] as $token) {
                 if (!is_array($token)) {
                     continue;
                 }
                 if (!in_array($token[0], [\T_COMMENT, \T_DOC_COMMENT], true)) {
                     continue;
                 }
-                $texto = $token[1];
-                if (!str_starts_with($texto, '/*')) {
+                $text = $token[1];
+                if (!str_starts_with($text, '/*')) {
                     continue; //comentario de línea
                 }
 
                 //(a) Comentario de bloque sin cerrar hasta el final del archivo.
-                if (substr(rtrim($texto), -2) !== '*/') {
-                    $failures[] = "{$relativo}:{$token[2]}: comentario de bloque sin cerrar";
+                if (substr(rtrim($text), -2) !== '*/') {
+                    $failures[] = "{$relative}:{$token[2]}: comentario de bloque sin cerrar";
                     continue;
                 }
 
@@ -247,8 +259,8 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 //    comentario se traga la declaración siguiente y llega hasta el '*/'
                 //    del docblock de más abajo. El método deja de existir sin que ni
                 //    'php -l' ni PHPStan digan nada.
-                if (preg_match('/\bfunction\s+\w+\s*\(/', $texto)) {
-                    $failures[] = "{$relativo}:{$token[2]}: un docblock se tragó una declaración de función; le falta el cierre";
+                if (preg_match('/\bfunction\s+\w+\s*\(/', $text)) {
+                    $failures[] = "{$relative}:{$token[2]}: un docblock se tragó una declaración de función; le falta el cierre";
                 }
             }
         }
@@ -268,21 +280,21 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
     protected static function collectSignatures(array $files): array
     {
         $base = rtrim(str_replace('\\', '/', basepath('')), '/');
-        $inventario = [];
+        $inventory = [];
 
-        foreach ($files as $relativo) {
-            $contenido = @file_get_contents($base . '/' . $relativo);
-            if (!is_string($contenido)) {
+        foreach ($files as $relative) {
+            $content = @file_get_contents($base . '/' . $relative);
+            if (!is_string($content)) {
                 continue;
             }
 
-            $tokens = @token_get_all($contenido);
+            $tokens = @token_get_all($content);
             if (!is_array($tokens)) {
                 continue;
             }
 
             $signatures = [];
-            $contexto = '';
+            $context = '';
             $total = count($tokens);
 
             for ($i = 0; $i < $total; $i++) {
@@ -295,7 +307,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 if (in_array($token[0], [\T_CLASS, \T_INTERFACE, \T_TRAIT, \T_ENUM], true)) {
                     $name = self::nextName($tokens, $i, $total);
                     if ($name !== null) {
-                        $contexto = $name;
+                        $context = $name;
                     }
                     continue;
                 }
@@ -309,39 +321,39 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue; //closure o función flecha: no tiene nombre que vigilar
                 }
 
-                $signatures[] = $contexto !== '' ? "{$contexto}::{$name}" : $name;
+                $signatures[] = $context !== '' ? "{$context}::{$name}" : $name;
             }
 
             if (count($signatures) > 0) {
                 sort($signatures);
-                $inventario[$relativo] = array_values(array_unique($signatures));
+                $inventory[$relative] = array_values(array_unique($signatures));
             }
         }
 
-        ksort($inventario);
-        return $inventario;
+        ksort($inventory);
+        return $inventory;
     }
 
     /**
      * Siguiente token con nombre a partir de una posición, saltando espacios.
      *
      * @param array<int,array{0:int,1:string,2:int}|string> $tokens
-     * @param int $desde
+     * @param int $from
      * @param int $total
      * @return string|null
      */
-    protected static function nextName(array $tokens, int $desde, int $total): ?string
+    protected static function nextName(array $tokens, int $from, int $total): ?string
     {
-        for ($j = $desde + 1; $j < $total; $j++) {
-            $siguiente = $tokens[$j];
-            if (is_array($siguiente) && in_array($siguiente[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)) {
+        for ($j = $from + 1; $j < $total; $j++) {
+            $next = $tokens[$j];
+            if (is_array($next) && in_array($next[0], [\T_WHITESPACE, \T_COMMENT, \T_DOC_COMMENT], true)) {
                 continue;
             }
-            if (is_array($siguiente) && $siguiente[0] === \T_STRING) {
-                return $siguiente[1];
+            if (is_array($next) && $next[0] === \T_STRING) {
+                return $next[1];
             }
             //`&` de retorno por referencia
-            if ($siguiente === '&') {
+            if ($next === '&') {
                 continue;
             }
             return null;
@@ -356,12 +368,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      */
     protected static function writeSnapshot(string $path, array $signatures): void
     {
-        $directorio = dirname($path);
-        if (!is_dir($directorio)) {
-            mkdir($directorio, 0775, true);
+        $directory = dirname($path);
+        if (!is_dir($directory)) {
+            mkdir($directory, 0775, true);
         }
-        $contenido = json_encode($signatures, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
-        file_put_contents($path, is_string($contenido) ? $contenido . "\n" : '{}');
+        $content = json_encode($signatures, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | \JSON_UNESCAPED_UNICODE);
+        file_put_contents($path, is_string($content) ? $content . "\n" : '{}');
     }
 
     /**
@@ -382,15 +394,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             ];
         }
 
-        $crudo = @file_get_contents($path);
-        $previo = is_string($crudo) ? json_decode($crudo, true) : null;
-        if (!is_array($previo)) {
+        $rawContent = @file_get_contents($path);
+        $previousInventory = is_string($rawContent) ? json_decode($rawContent, true) : null;
+        if (!is_array($previousInventory)) {
             return ["la instantánea " . self::SNAPSHOT_RELATIVE_PATH . " no es JSON válido"];
         }
 
         $failures = [];
 
-        foreach ($previo as $file => $before) {
+        foreach ($previousInventory as $file => $before) {
             if (!is_array($before)) {
                 continue;
             }
@@ -405,9 +417,9 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 continue;
             }
 
-            $perdidas = array_diff($before, $signatures[$file]);
-            foreach ($perdidas as $perdida) {
-                $failures[] = "{$file}: desapareció {$perdida}()";
+            $missingSignatures = array_diff($before, $signatures[$file]);
+            foreach ($missingSignatures as $missing) {
+                $failures[] = "{$file}: desapareció {$missing}()";
             }
         }
 
@@ -566,6 +578,154 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         return null;
+    }
+
+    /**
+     * Eclipses CONOCIDOS y aceptados, con su razón y la condición que los retira.
+     *
+     * Esta lista no es una lista de excepciones cómodas: es un registro. Un eclipse que
+     * no esté aquí hace fallar la comprobación, y una entrada de aquí cuyo eclipse ya no
+     * exista TAMBIÉN la hace fallar. Lo segundo importa tanto como lo primero: una
+     * supresión que sobrevive a su motivo es una mentira que nadie vuelve a leer.
+     *
+     * @var array<string,array{reason:string,retiredWhen:string}>
+     */
+    const KNOWN_ECLIPSES = [
+        'PiecesPHP\\Core\\Database\\Meta\\MetaProperty' => [
+            'reason' => 'Dos LINAJES distintos, no dos versiones: la del núcleo se apoya en '
+                . 'EntityMapper y la del paquete en ORM. Aquí solo está poblado el primero '
+                . '(35 clases contra 0), así que la del núcleo es la única que funciona. '
+                . 'Ver T16 en .agents/context/18-siguientes-ventanas.md.',
+            'retiredWhen' => 'Cuando EntityMapper y ORM se unifiquen, o cuando el núcleo '
+                . 'deje de declarar esta clase.',
+        ],
+    ];
+
+    /**
+     * Comprueba que el núcleo no ECLIPSE una clase de ningún paquete `piecesphp/*`.
+     *
+     * El mecanismo es estructural y no accidental: PSR-4 resuelve por PREFIJO MÁS LARGO.
+     * Los paquetes registran `PiecesPHP\` => `src/`; el proyecto registra
+     * `PiecesPHP\Core\` => `app/core/psr4/PiecesPHP/Core`. Como el segundo prefijo es más
+     * largo, CUALQUIER clase que el núcleo declare bajo `PiecesPHP\Core\` gana siempre, y
+     * lo hace EN SILENCIO: no hay aviso, no hay error, y las dos clases pueden no tener
+     * nada que ver entre sí.
+     *
+     * Ya pasó una vez —`MetaProperty`— y el coste no fue el eclipse en sí, sino que un
+     * arreglo aplicado al archivo del paquete no llegaba aquí y nadie tenía forma de
+     * saberlo. Esta puerta es lo único que impide que se repita.
+     *
+     * Los prefijos de cada paquete se LEEN de su `composer.json`, no se dan por sabidos:
+     * si un paquete cambia su `psr-4`, la comprobación se adapta en vez de dejar de mirar.
+     *
+     * @param string[] $files rutas relativas a `src/`
+     * @return string[]
+     */
+    protected static function checkPackageEclipses(array $files): array
+    {
+        $failures = [];
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $srcRoot = is_dir($repoRoot . '/src/app') ? $repoRoot . '/src' : $repoRoot;
+        $vendorDir = $srcRoot . '/vendor/piecesphp';
+
+        //Prefijo PSR-4 => directorio absoluto, por paquete.
+        $packages = [];
+        foreach (glob($vendorDir . '/*', \GLOB_ONLYDIR) ?: [] as $packageDir) {
+            $manifest = $packageDir . '/composer.json';
+            if (!is_file($manifest)) {
+                continue;
+            }
+            $raw = @file_get_contents($manifest);
+            $data = is_string($raw) ? json_decode($raw, true) : null;
+            if (!is_array($data)) {
+                continue;
+            }
+            $psr4 = $data['autoload']['psr-4'] ?? [];
+            if (!is_array($psr4) || count($psr4) === 0) {
+                continue;
+            }
+            $roots = [];
+            foreach ($psr4 as $prefix => $directories) {
+                foreach ((array) $directories as $directory) {
+                    $roots[(string) $prefix][] = rtrim($packageDir . '/' . trim((string) $directory, '/'), '/');
+                }
+            }
+            $packages[basename($packageDir)] = $roots;
+        }
+
+        /**
+         * Sin paquetes no hay nada que comparar, y eso NO es un aprobado: esta tarea corre
+         * dentro del framework arrancado, así que el vendor existe siempre que se ejecuta.
+         * Cero paquetes significa que la puerta no está mirando, y una puerta que no mira
+         * tiene que decirlo en voz alta.
+         */
+        if (count($packages) === 0) {
+            return ['no se encontró ningún paquete en ' . $vendorDir . ': la comprobación no pudo mirar nada'];
+        }
+
+        $eclipsed = [];
+
+        foreach ($files as $relative) {
+            $relative = str_replace('\\', '/', $relative);
+
+            $insideRoot = false;
+            foreach (self::PSR4_ROOTS as $directory) {
+                if (mb_strpos($relative, $directory . '/') === 0) {
+                    $insideRoot = true;
+                    break;
+                }
+            }
+            if (!$insideRoot) {
+                continue;
+            }
+
+            $code = @file_get_contents($srcRoot . '/' . $relative);
+            if ($code === false) {
+                continue;
+            }
+            $declared = self::declaredClass($code);
+            if ($declared === null) {
+                continue;
+            }
+
+            foreach ($packages as $packageName => $roots) {
+                foreach ($roots as $prefix => $directories) {
+                    if ($prefix !== '' && mb_strpos($declared, $prefix) !== 0) {
+                        continue;
+                    }
+                    $sub = mb_substr($declared, mb_strlen($prefix));
+                    foreach ($directories as $directory) {
+                        $candidate = $directory . '/' . str_replace('\\', '/', $sub) . '.php';
+                        if (is_file($candidate)) {
+                            $eclipsed[$declared][$packageName] = $relative;
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($eclipsed as $fqcn => $packagesByName) {
+            if (array_key_exists($fqcn, self::KNOWN_ECLIPSES)) {
+                continue;
+            }
+            $failures[] = $fqcn . ' — declarada en ' . reset($packagesByName)
+                . ' y también en el paquete ' . implode(', ', array_keys($packagesByName))
+                . '. El núcleo gana por prefijo más largo y la del paquete no se ejecuta jamás aquí.'
+                . ' Si es a propósito, va a KNOWN_ECLIPSES con su razón y su condición de retirada.';
+        }
+
+        foreach (self::KNOWN_ECLIPSES as $fqcn => $entry) {
+            if (!array_key_exists($fqcn, $eclipsed)) {
+                $failures[] = $fqcn . ' — figura en KNOWN_ECLIPSES pero ya no colisiona con ningún paquete.'
+                    . ' La entrada sobrevivió a su motivo: retírala.';
+            }
+        }
+
+        $total = count($eclipsed);
+        echoTerminal("\e[94mINFO:\e[39m " . count($packages) . " paquetes examinados, {$total} eclipses encontrados"
+            . ($total > 0 ? ' (' . count(self::KNOWN_ECLIPSES) . ' registrados).' : '.'));
+
+        return $failures;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
