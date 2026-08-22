@@ -16,6 +16,7 @@
  * encontrado», que es de donde sale la mitad de los null, se comprueba siempre.
  */
 
+use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
 
 $cliTaskName = 'unit-tests';
@@ -73,24 +74,143 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     ];
 
     /**
-     * Descubre un id existente sin escribir nada.
+     * SEMILLA PROPIA. Esta suite dependía de que las tablas tuvieran datos, y el día que el
+     * propietario vació tres de ellas revisando otra cosa, CUATRO COMPROBACIONES DEJARON DE
+     * MIRAR NADA sin que nadie se enterara: pasó de 2 omitidas a 6.
+     *
+     * Un salto permanente informa tan poco como un rojo permanente. Así que ahora la suite
+     * **crea su propio dato y lo borra pase lo que pase**, igual que `otp-fresh-user`.
+     *
+     * La fila se arma leyendo el ESQUEMA —columnas NOT NULL sin valor por defecto— en vez de
+     * conocer cada mapper: así vale para cualquiera y no envejece cuando cambien los campos.
+     * Si aun así no se puede insertar, esa comprobación se OMITE CON SU RAZÓN y diciendo qué
+     * haría falta, nunca en silencio.
+     *
+     * @var array<string,int|string> ids creados por la suite, por tabla, para borrarlos luego
+     */
+    $seeded = [];
+
+    $database = (new BaseModel())->getDatabase();
+
+    /**
+     * Inserta una fila mínima en la tabla de un mapper. Devuelve el id, o null con la razón.
+     *
+     * @param string $mapperClass
+     * @return array{0:int|string|null,1:string}
+     */
+    $seedRow = function (string $mapperClass) use ($database) {
+        try {
+            $table = constant($mapperClass . '::TABLE');
+        } catch (\Throwable $e) {
+            return [null, 'el mapper no declara TABLE'];
+        }
+
+        try {
+            //Claves ajenas de esta tabla: columna => [tabla referenciada, columna referenciada].
+            $foreignKeys = [];
+            $statement = $database->prepare(
+                'SELECT COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME'
+                . ' FROM information_schema.KEY_COLUMN_USAGE'
+                . ' WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL'
+            );
+            $statement->execute([$table]);
+            while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                $foreignKeys[$row['COLUMN_NAME']] = [$row['REFERENCED_TABLE_NAME'], $row['REFERENCED_COLUMN_NAME']];
+            }
+
+            $columns = [];
+            $statement = $database->query('SHOW COLUMNS FROM `' . $table . '`');
+            while ($row = $statement->fetch(\PDO::FETCH_ASSOC)) {
+                if ($row['Null'] === 'YES' || $row['Default'] !== null || mb_strpos((string) $row['Extra'], 'auto_increment') !== false) {
+                    continue;
+                }
+                $type = mb_strtolower((string) $row['Type']);
+                if (isset($foreignKeys[$row['Field']])) {
+                    /**
+                     * Columna con clave ajena: un 0 la viola. Se toma un id REAL de la tabla
+                     * referenciada — sin esto, sembrar falla en cualquier tabla con relaciones,
+                     * que son casi todas.
+                     */
+                    [$referencedTable, $referencedColumn] = $foreignKeys[$row['Field']];
+                    $referenced = $database->query(
+                        'SELECT `' . $referencedColumn . '` FROM `' . $referencedTable . '` LIMIT 1'
+                    )->fetchColumn();
+                    if ($referenced === false) {
+                        return [null, "la tabla referenciada `{$referencedTable}` está vacía: haría falta una fila ahí para poder sembrar aquí"];
+                    }
+                    $value = $referenced;
+                } elseif (preg_match('~int|decimal|float|double|bit~', $type) === 1) {
+                    $value = 0;
+                } elseif (preg_match('~datetime|timestamp~', $type) === 1) {
+                    $value = '2000-01-01 00:00:00';
+                } elseif (preg_match('~^date~', $type) === 1) {
+                    $value = '2000-01-01';
+                } else {
+                    $value = 'zz-mapper-finders';
+                }
+                $columns[$row['Field']] = $value;
+            }
+
+            if (count($columns) === 0) {
+                //Sin columnas obligatorias, un INSERT vacío sigue siendo válido.
+                $statement = $database->prepare('INSERT INTO `' . $table . '` () VALUES ()');
+                $statement->execute();
+            } else {
+                $names = '`' . implode('`, `', array_keys($columns)) . '`';
+                $marks = implode(', ', array_fill(0, count($columns), '?'));
+                $statement = $database->prepare('INSERT INTO `' . $table . '` (' . $names . ') VALUES (' . $marks . ')');
+                $statement->execute(array_values($columns));
+            }
+
+            return [$database->lastInsertId(), ''];
+        } catch (\Throwable $e) {
+            return [null, 'no se pudo insertar una fila de prueba: ' . mb_substr($e->getMessage(), 0, 90)];
+        }
+    };
+
+    /**
+     * Descubre un id existente, y si la tabla está vacía SIEMBRA uno.
      *
      * @param string $mapperClass
      * @return int|string|null
      */
-    $sampleID = function (string $mapperClass) {
+    $sampleID = function (string $mapperClass) use ($seedRow, &$seeded) {
         try {
             $model = $mapperClass::model();
             $model->select(['id']);
             $model->execute();
             $rows = $model->result();
-            if (!is_array($rows) || count($rows) === 0) {
-                return null;
+            if (is_array($rows) && count($rows) > 0) {
+                return $rows[0]->id ?? null;
             }
-            return $rows[0]->id ?? null;
         } catch (\Throwable $e) {
             return null;
         }
+
+        $table = defined($mapperClass . '::TABLE') ? constant($mapperClass . '::TABLE') : null;
+        if ($table === null || array_key_exists($table, $seeded)) {
+            return $seeded[$table] ?? null;
+        }
+
+        [$id, $reason] = $seedRow($mapperClass);
+        if ($id === null) {
+            echoTerminal("      \e[33m·\e[39m {$mapperClass}: {$reason}");
+            return null;
+        }
+        $seeded[$table] = $id;
+        return $id;
+    };
+
+    /**
+     * ¿El id de este mapper lo sembró la suite? Una fila sintética vale para comprobar el
+     * CONTRATO del buscador —null, \stdClass, instancia— pero no para hidratar el mapper.
+     *
+     * @param string $mapperClass
+     * @return bool
+     */
+    $isSeeded = function (string $mapperClass) use (&$seeded): bool {
+        $table = defined($mapperClass . '::TABLE') ? constant($mapperClass . '::TABLE') : null;
+        return $table !== null && array_key_exists($table, $seeded);
     };
 
     //──── 1. getBy: no encontrado devuelve null ─────────────────────────────────────────
@@ -138,6 +258,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             $skip('getBy mapper — ' . basename(str_replace('\\', '/', $mapperClass)), 'la tabla no tiene filas');
             continue;
         }
+        if ($isSeeded($mapperClass)) {
+            $skip('getBy mapper — ' . basename(str_replace('\\', '/', $mapperClass)), 'la fila es SINTÉTICA —sembrada desde el esquema— y no satisface al hidratador del mapper, que espera meta-propiedades y relaciones con forma. Para que corra hace falta un alta REAL por el módulo: se cubre en el ciclo CRUD de E2');
+            continue;
+        }
         try {
             $r = $mapperClass::getBy($id, 'id', true);
             $check($r instanceof $mapperClass, 'getBy(id, true) devuelve ' . basename(str_replace('\\', '/', $mapperClass)),
@@ -152,6 +276,10 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     echoTerminal('[4/5] lastModifiedElement() debe respetar el mismo contrato de flag...');
     foreach ($mappers as $mapperClass) {
         if (!class_exists($mapperClass) || !method_exists($mapperClass, 'lastModifiedElement')) {
+            continue;
+        }
+        if ($isSeeded($mapperClass)) {
+            $skip('lastModifiedElement — ' . basename(str_replace('\\', '/', $mapperClass)), 'la fila es SINTÉTICA —sembrada desde el esquema— y no satisface al hidratador del mapper, que espera meta-propiedades y relaciones con forma. Para que corra hace falta un alta REAL por el módulo: se cubre en el ciclo CRUD de E2');
             continue;
         }
         try {
@@ -245,6 +373,19 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     }
     echoTerminal(' ');
 
+    //──── Limpieza: lo que sembró la suite se va, pase lo que pase ──────────────────────
+    foreach ($seeded as $table => $id) {
+        try {
+            $statement = $database->prepare('DELETE FROM `' . $table . '` WHERE id = ?');
+            $statement->execute([$id]);
+            echoTerminal("   sembrado y borrado en {$table}: id={$id}");
+        } catch (\Throwable $e) {
+            echoTerminal("   \e[31mNO SE PUDO BORRAR\e[39m la fila sembrada en {$table} (id={$id}): " . mb_substr($e->getMessage(), 0, 80));
+        }
+    }
+    if (count($seeded) > 0) {
+        echoTerminal(' ');
+    }
     //──── Balance ───────────────────────────────────────────────────────────────────────
     echoTerminal(str_repeat('=', 80));
     echoTerminal(" BALANCE FINAL: {$passed}/" . ($passed + $failed) . " PASADAS, {$skipped} OMITIDAS ");

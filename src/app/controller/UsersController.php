@@ -31,6 +31,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\UserDataPackage;
+use PiecesPHP\UserSystem\Profile\UserProfileMapper;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
 
@@ -1322,6 +1323,17 @@ class UsersController extends AdminPanelController
                 $success = $userMapper->save();
 
                 if ($success) {
+
+                    /**
+                     * EL ALTA DE UN USUARIO ES EL SITIO LEGÍTIMO PARA CREAR SU PERFIL.
+                     * Antes lo creaba `UserProfileMapper::getProfile()` la primera vez que
+                     * alguien leía el perfil — incluido el constructor de `UserDataPackage`,
+                     * que se alcanza sin autenticar desde el login. Aquí es una escritura
+                     * dentro de otra escritura, autenticada, y es idempotente.
+                     */
+                    if ($userMapper->id !== null) {
+                        UserProfileMapper::createProfile((int) $userMapper->id);
+                    }
 
                     $result->setValue('reload', true);
 

@@ -369,7 +369,9 @@ class MyProfileController extends AdminPanelController
 
             try {
 
-                $mapper = UserProfileMapper::getProfile($id);
+                //Guardar el perfil propio ES el camino legítimo de creación: si aún no
+                //existe la fila, se materializa aquí y no en un constructor.
+                $mapper = UserProfileMapper::createProfile($id);
                 $lang = Config::get_default_lang();
 
                 $mapper->setLangData($lang, 'jobPosition', $jobPosition);

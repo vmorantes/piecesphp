@@ -1115,7 +1115,9 @@ class APIController extends AdminPanelController
             if ($creationSuccess) {
                 $userByUsername = UsersModel::getBy($username, 'username', [], new UserDataPackage(1), true);
                 if ($userByUsername !== null) {
-                    $profileUser = UserProfileMapper::getProfile($userByUsername->id);
+                    //Viene de registrar al usuario justo arriba: crear su perfil aquí es
+                    //legítimo, y es idempotente si el alta ya lo creó.
+                    $profileUser = UserProfileMapper::createProfile((int) $userByUsername->id);
                     if ($profileUser !== null) {
                         $profileUser->phoneCode = $phoneCode;
                         $profileUser->phoneNumber = $phoneNumber;

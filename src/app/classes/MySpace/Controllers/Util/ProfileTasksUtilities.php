@@ -92,7 +92,9 @@ class ProfileTasksUtilities extends AdminPanelController
             $result = $model->result();
 
             foreach ($result as $element) {
-                UserProfileMapper::getProfile($element->userID);
+                //Esta utilidad existe para MATERIALIZAR perfiles que falten: el creador es
+                //lo que quiere, no el buscador.
+                UserProfileMapper::createProfile($element->userID);
             }
 
         }

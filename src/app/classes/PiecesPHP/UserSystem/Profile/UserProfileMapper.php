@@ -627,34 +627,99 @@ class UserProfileMapper extends EntityMapperExtensible
     }
 
     /**
+     * Buscador de SOLO LECTURA. NO lo conviertas en get-or-create.
+     *
+     * Lo era, y ese fue el defecto D2 EN SU SEGUNDA LÍNEA: `UserDataPackage` llama a este
+     * método en el constructor, y ese constructor se alcanza SIN AUTENTICAR desde
+     * `OTPHandler::checkValidityOTP()`, la ruta del formulario de login. Comprobar
+     * credenciales creaba una fila de perfil por cada nombre de usuario válido: escritura no
+     * autenticada acotada, y un canal de enumeración de usuarios.
+     *
+     * El arreglo original de D2 tocó `UserDataPackage:243` —el OTP— y no vio la 244.
+     *
+     * Para crear, {@see self::createProfile()}.
+     *
      * @param int $userID
-     * @return UserProfileMapper|null
+     * @return UserProfileMapper|null null si el usuario no existe o aún no tiene perfil
      */
     public static function getProfile(int $userID)
     {
         $userRecord = UsersModel::getUsersByIDs([$userID]);
-        $userRecord = !empty($userRecord) ? $userRecord[0] : null;
-
-        if ($userRecord !== null) {
-            $model = self::model();
-            $where = [
-                "belongsTo" => $userID,
-            ];
-            $model->select()->where($where);
-            $model->execute();
-            $result = $model->result();
-            $result = !empty($result) ? $result[0]->id : null;
-            $mapper = new UserProfileMapper($result);
-            if ($mapper->id === null) {
-                $mapper = new UserProfileMapper();
-                $mapper->belongsTo = $userID;
-                $mapper->save();
-            }
-            return $mapper->id !== null ? $mapper : null;
-        } else {
+        if (empty($userRecord)) {
             return null;
         }
 
+        $model = self::model();
+        $model->select()->where(['belongsTo' => $userID]);
+        $model->execute();
+        $result = $model->result();
+
+        if (empty($result)) {
+            return null;
+        }
+
+        $mapper = new UserProfileMapper($result[0]->id);
+
+        return $mapper->id !== null ? $mapper : null;
+    }
+
+    /**
+     * Mitad de ESCRITURA de {@see self::getProfile()}: devuelve el perfil, y lo crea si no
+     * existe.
+     *
+     * SOLO desde caminos donde crear un perfil es legítimo —el alta de un usuario, o el
+     * primer guardado del perfil propio—, nunca desde un constructor y nunca desde una ruta
+     * alcanzable sin autenticar.
+     *
+     * Es idempotente: llamarlo dos veces no crea dos filas.
+     *
+     * @param int $userID
+     * @return UserProfileMapper|null null si el usuario no existe
+     */
+    public static function createProfile(int $userID)
+    {
+        $existing = self::getProfile($userID);
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        $userRecord = UsersModel::getUsersByIDs([$userID]);
+        if (empty($userRecord)) {
+            return null;
+        }
+
+        $mapper = new UserProfileMapper();
+        $mapper->belongsTo = $userID;
+        $mapper->save();
+
+        return $mapper->id !== null ? $mapper : null;
+    }
+
+    /**
+     * Perfil para MOSTRAR: el guardado si existe, y si no un objeto VACÍO SIN GUARDAR.
+     *
+     * Existe para que `UserDataPackage->profile` siga sin ser nulo y las treinta y tantas
+     * vistas y controladores que hacen `->profile->loQueSea` no tengan que cambiar. La
+     * diferencia con el get-or-create de antes es la única que importa: **este no escribe**.
+     *
+     * Un perfil que todavía no existe es un perfil vacío. Se materializa cuando alguien lo
+     * guarda de verdad, que es donde crear es legítimo.
+     *
+     * @param int $userID
+     * @return UserProfileMapper
+     */
+    public static function getProfileForDisplay(int $userID)
+    {
+        $profile = self::getProfile($userID);
+
+        if ($profile !== null) {
+            return $profile;
+        }
+
+        $empty = new UserProfileMapper();
+        $empty->belongsTo = $userID;
+
+        return $empty;
     }
 
     /**

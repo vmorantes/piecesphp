@@ -1,7 +1,7 @@
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-190
+191
 
 [TOTAL DE ERRORES VISIBLES]
 874
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 865
-Solo en 8.5: 9
+En las dos (8.4 y 8.5): 864
+Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (337)
+argument.type (336)
 property.nonObject (191)
 method.nonObject (143)
 return.type (55)
@@ -25,7 +25,7 @@ assign.propertyType (38)
 method.resultUnused (26)
 property.notFound (18)
 foreach.nonIterable (17)
-offsetAccess.invalidOffset (13)
+offsetAccess.invalidOffset (14)
 nullCoalesce.variable (7)
 clone.nonObject (5)
 binaryOp.invalid (3)
@@ -53,8 +53,8 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	argument.type (Líneas: 580, 703, 808, 849, 1099, 1118, 1139, 1139, 1203, 1230, 1296, 1388, 1388)
-	assign.propertyType (Líneas: 1147)
+	argument.type (Líneas: 580, 703, 808, 849, 1099, 1141, 1141, 1205, 1232, 1298, 1390, 1390)
+	assign.propertyType (Líneas: 1149)
 project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
@@ -183,9 +183,9 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
 	assign.propertyType (Líneas: 499)
 	method.nonObject (Líneas: 654)
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
-	method.nonObject (Líneas: 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 388)
-	property.nonObject (Líneas: 385, 386, 676, 782, 783)
-	assign.propertyType (Líneas: 676)
+	method.nonObject (Líneas: 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 390)
+	property.nonObject (Líneas: 387, 388, 678, 784, 785)
+	assign.propertyType (Líneas: 678)
 project://src/app/classes/MySpace/Controllers/OrganizationProfileController.php
 	property.nonObject (Líneas: 83)
 project://src/app/classes/MySpace/Controllers/ProfileController.php
@@ -279,7 +279,7 @@ project://src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php
 	argument.type (Líneas: 212)
 project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 	assign.propertyType (Líneas: 217)
-	return.type (Líneas: 298)
+	return.type (Líneas: 301)
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 567, 574, 579, 589)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
@@ -407,10 +407,10 @@ project://src/app/controller/RecoveryPasswordController.php
 project://src/app/controller/UserProblemsController.php
 	property.notFound (Líneas: 334, 335, 340, 341, 344)
 project://src/app/controller/UsersController.php
-	argument.type (Líneas: 487, 542, 888, 922, 1108, 1259, 1537, 1865)
-	method.resultUnused (Líneas: 1293, 1335, 1345, 1351, 1357, 1363, 1373, 1380, 1592, 1647, 1657, 1663, 1669, 1675, 1681, 1691, 1699, 1706)
-	method.nonObject (Líneas: 1331, 1643)
-	return.type (Líneas: 1885)
+	argument.type (Líneas: 488, 543, 889, 923, 1109, 1260, 1549, 1877)
+	method.resultUnused (Líneas: 1294, 1347, 1357, 1363, 1369, 1375, 1385, 1392, 1604, 1659, 1669, 1675, 1681, 1687, 1693, 1703, 1711, 1718)
+	method.nonObject (Líneas: 1343, 1655)
+	return.type (Líneas: 1897)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
 	argument.type (Líneas: 2247, 2305, 2322, 2322, 3244, 3245, 3246, 3346, 3347)
@@ -543,6 +543,8 @@ project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 	argument.type (Líneas: 52, 53)
 	binaryOp.invalid (Líneas: 57)
+project://src/app/core/system-controllers/local-tests/UnitTest-MapperFinders.php
+	offsetAccess.invalidOffset (Líneas: 192)
 project://src/app/model/AvatarModel.php
 	return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
