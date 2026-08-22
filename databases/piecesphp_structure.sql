@@ -79,10 +79,6 @@ CREATE TABLE `application_calls_elements` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
-DROP TABLE IF EXISTS `app_presentations`;
-
-DROP TABLE IF EXISTS `app_presentations_categories`;
-
 DROP TABLE IF EXISTS `built_in_banner_elements`;
 CREATE TABLE `built_in_banner_elements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -291,10 +287,6 @@ CREATE TABLE `login_attempts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
-DROP TABLE IF EXISTS `messages`;
-
-DROP TABLE IF EXISTS `messages_responses`;
-
 DROP TABLE IF EXISTS `newsletter_sucribers`;
 CREATE TABLE `newsletter_sucribers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -459,7 +451,7 @@ CREATE TABLE `pcsphp_jobs_queue` (
   `startedAt` datetime DEFAULT NULL,
   `finishedAt` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
 DROP TABLE IF EXISTS `pcsphp_recovery_password`;
@@ -548,7 +540,6 @@ CREATE TABLE `pcsphp_user_problems` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
-DROP TABLE IF EXISTS `persons`;
 
 DROP TABLE IF EXISTS `previous_experiences`;
 CREATE TABLE `previous_experiences` (
@@ -721,4 +712,4 @@ CREATE TABLE `user_system_profile` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 
--- 2026-07-30 21:46:30 UTC
+-- 2026-08-22 18:22:37 UTC
