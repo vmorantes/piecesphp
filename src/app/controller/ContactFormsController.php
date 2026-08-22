@@ -23,7 +23,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 
 /**
  * ContactFormsController.
@@ -35,7 +35,7 @@ use PiecesPHP\Core\Routing\RouteNamingTrait;
 class ContactFormsController extends PublicAreaController
 {
 
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string

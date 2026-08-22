@@ -33,6 +33,8 @@ use PiecesPHP\TerminalData;
  *   2. Desaparición de funciones y métodos, comparando contra una instantánea.
  *   3. Que toda clase se llame como su ruta PSR-4 manda y se pueda cargar de verdad.
  *   4. Que el núcleo no ECLIPSE una clase de un paquete declarando el mismo FQCN.
+ *   5. Que ningún controlador sobreescriba `routeName`, `allowedRoute` o `_allowedRoute`
+ *      sin estar en el registro, y que ninguna entrada del registro haya dejado de decidir.
  *
  * Devuelve código de salida distinto de cero si algo falla, para poder usarse en CI.
  *
@@ -94,7 +96,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $this->description = new StringArray([
             "Verifica la integridad estructural del código fuente.\r\n",
             "\tComprueba docblocks sin cerrar, desaparición de funciones o métodos,\r\n",
-            "\trutas PSR-4 y eclipses de clases de los paquetes.\r\n",
+            "\trutas PSR-4, eclipses de clases y sobreescrituras de rutas.\r\n",
             "\tDevuelve código de salida 1 si algo falla, para uso en CI.\r\n",
             "\tParámetros:\r\n",
             "\t  update-snapshot (yes|no) regenera la instantánea de firmas en vez de comparar. Por defecto: no",
@@ -143,9 +145,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 4. El núcleo no eclipsa clases de los paquetes ────────────────────────────
         $eclipseFailures = self::checkPackageEclipses($files);
 
+        //──── 5. Las sobreescrituras de rutas están registradas y siguen decidiendo ─────
+        $overrideFailures = self::checkRouteOverrides($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
-            + count($loadFailures) + count($eclipseFailures);
+            + count($loadFailures) + count($eclipseFailures) + count($overrideFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -159,9 +164,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($eclipseFailures as $line) {
             echoTerminal("\e[31mECLIPSE:\e[39m {$line}");
         }
+        foreach ($overrideFailures as $line) {
+            echoTerminal("\e[31mRUTA:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas PSR-4 y eclipses sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas PSR-4, eclipses y sobreescrituras sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -726,6 +734,287 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             . ($total > 0 ? ' (' . count(self::KNOWN_ECLIPSES) . ' registrados).' : '.'));
 
         return $failures;
+    }
+
+    /**
+     * Ruta del trait que aporta los tres métodos de ruta, relativa a `src/`.
+     *
+     * @var string
+     */
+    const ROUTING_TRAIT_PATH = 'app/core/psr4/PiecesPHP/Core/Routing/ControllerRoutingTrait.php';
+
+    /**
+     * Los tres métodos que el trait aporta y que un controlador puede sobreescribir.
+     *
+     * @var string[]
+     */
+    const ROUTE_METHODS = ['routeName', 'allowedRoute', '_allowedRoute'];
+
+    /**
+     * SOBREESCRITURAS DE RUTA AUTORIZADAS: `FQCN::método` => razón.
+     *
+     * Cada entrada es una respuesta escrita a una sola pregunta: **¿este método DECIDE algo
+     * que el trait no decide?** Si la respuesta es no, el método sobra y se borra; el
+     * criterio no es el parecido con el cuerpo canónico, que fue el criterio anterior y
+     * dejaba vivas dieciséis copias que no hacían nada.
+     *
+     * @var array<string,string>
+     */
+    const KNOWN_ROUTE_OVERRIDES = [
+        //──── Nombran la ruta de otra forma: el trait no puede servirles ────────────────
+        'App\\Locations\\Controllers\\City::routeName' => 'Prefijo de dos niveles ($prefixParentEntity + $prefixEntity). NO declara $baseRouteName, que es lo que usa el trait.',
+        'App\\Locations\\Controllers\\Country::routeName' => 'Ídem City.',
+        'App\\Locations\\Controllers\\Point::routeName' => 'Ídem City.',
+        'App\\Locations\\Controllers\\Region::routeName' => 'Ídem City.',
+        'App\\Locations\\Controllers\\State::routeName' => 'Ídem City.',
+        'App\\Controller\\ContactFormsController::routeName' => 'Usa self::$prefixNameRoutes. NO declara $baseRouteName.',
+        'App\\Controller\\PublicAreaController::routeName' => 'Usa self::$prefixNameRoutes. NO declara $baseRouteName.',
+        'Terminal\\Controllers\\TerminalController::routeName' => 'OTRA FIRMA: routeName(?string, bool), sin $params, y arma el nombre con self::routeID().',
+        'Terminal\\Controllers\\TerminalController::allowedRoute' => 'OTRA FIRMA: allowedRoute(string), coherente con su propio routeName de dos parámetros.',
+        'DataImportExportUtility\\Controllers\\DataImportExportUtilityController::routeName' => 'Toma el usuario de get_config(\'current_user\') en vez de getLoggedFrameworkUser(). NO se ha demostrado equivalente: si el constructor de UserDataPackage lanza, el trait trataría al usuario como anónimo y CONCEDERÍA, mientras esta copia sigue comprobando permisos. Es más restrictiva en ese borde. Módulo condenado (T6): se conserva hasta que muera con él.',
+
+        //──── Propiedad del recurso ────────────────────────────────────────────────────
+        'News\\Controllers\\NewsController::_allowedRoute' => 'actions-delete: solo el creador, o los tipos de NewsMapper::CAN_DELETE_ALL.',
+        'PiecesPHP\\BuiltIn\\Banner\\Controllers\\BuiltInBannerController::_allowedRoute' => 'actions-delete: solo el creador, o BuiltInBannerMapper::CAN_DELETE_ALL.',
+        'Documents\\Controllers\\DocumentsController::_allowedRoute' => 'Borrado y edición: solo el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
+        'Forms\\DocumentTypes\\Controllers\\DocumentTypesController::_allowedRoute' => 'Borrado y edición: solo el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
+        'Forms\\Categories\\Controllers\\CategoriesController::_allowedRoute' => 'Borrado y edición: solo el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
+        'ImagesRepository\\Controllers\\ImagesRepositoryController::_allowedRoute' => 'Borrado y edición: solo el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL. Módulo condenado (T6).',
+        'MySpace\\Controllers\\MyProfileController::_allowedRoute' => 'actions-delete-experience: solo experiencias del propio perfil, o CAN_DELETE_ALL.',
+
+        //──── Propiedad del recurso MÁS pertenencia a la organización ──────────────────
+        'Publications\\Controllers\\PublicationsController::_allowedRoute' => 'Borrado y edición: creador o autor, o administrador de la MISMA organización que el creador, o CAN_DELETE_ALL / CAN_EDIT_ALL.',
+        'ApplicationCalls\\Controllers\\ApplicationCallsController::_allowedRoute' => 'Borrado y edición: creador, o administrador de la misma organización, o CAN_*_ALL. Módulo condenado (T6). ES EL EJEMPLO CANÓNICO documentado en 13-recetas.md.',
+        'InterestResearchAreas\\Controllers\\InterestResearchAreasController::_allowedRoute' => 'Ídem ApplicationCalls. Módulo condenado (T6).',
+        'MySpace\\Controllers\\MyOrganizationProfileController::_allowedRoute' => 'Rutas del perfil de organización: solo el administrador de esa organización, o PROFILE_EDITOR_SUPER. Sin organización, deniega.',
+        'Organizations\\Controllers\\OrganizationsController::_allowedRoute' => 'Borrado y edición: protege la organización inicial (INITIAL_ID_GLOBAL), y permite al editor de su propia organización o a su administrador. Respeta DISABLE_NORMAL_EDIT_FORM.',
+
+        //──── Conflicto de interés ─────────────────────────────────────────────────────
+        'SystemApprovals\\Controllers\\SystemApprovalsController::_allowedRoute' => 'forms-approval y actions-approval: IMPIDE APROBARSE A UNO MISMO comparando el id del usuario con el del registro.',
+
+        //──── Registro protegido ───────────────────────────────────────────────────────
+        'News\\Controllers\\NewsCategoryController::_allowedRoute' => 'actions-delete: impide borrar la categoría UNCATEGORIZED_ID, a la que caen las noticias sin categoría.',
+        'Publications\\Controllers\\PublicationsCategoryController::_allowedRoute' => 'actions-delete: impide borrar la categoría UNCATEGORIZED_ID.',
+    ];
+
+    /**
+     * Comprueba las sobreescrituras de `routeName`, `allowedRoute` y `_allowedRoute`.
+     *
+     * DOS DIRECCIONES, y hacen falta las dos:
+     *
+     *   1. Un controlador declara uno de los tres y NO está en `KNOWN_ROUTE_OVERRIDES`.
+     *   2. Una entrada del registro **ha dejado de decidir algo**, o su declaración ya no
+     *      existe. Una sobreescritura que no decide es andamio, y el andamio vuelve solo:
+     *      así empezó esto, con dieciséis copias que no hacían nada.
+     *
+     * El veredicto lo da `routeMethodDecides()`, **el mismo clasificador con el que se
+     * construyó el registro**: la puerta no puede separarse del criterio.
+     *
+     * LO QUE NO ATRAPA, para que nadie confíe de más: el clasificador razona sobre el cuerpo
+     * del método, no sobre quién lo llama. Un `if ($name == 'SAMPLE') { $allow = false; }`
+     * cuenta como que decide, aunque ninguna ruta se llame así. Esa clase de hueco solo la
+     * cierra mirar los sitios de llamada, y eso no lo hace esta puerta.
+     *
+     * @param string[] $files rutas relativas a `src/`
+     * @return string[]
+     */
+    protected static function checkRouteOverrides(array $files): array
+    {
+        $failures = [];
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $srcRoot = is_dir($repoRoot . '/src/app') ? $repoRoot . '/src' : $repoRoot;
+
+        $traitCode = @file_get_contents($srcRoot . '/' . self::ROUTING_TRAIT_PATH);
+        if (!is_string($traitCode)) {
+            return ['no se encontró ' . self::ROUTING_TRAIT_PATH . ': la comprobación no pudo mirar nada'];
+        }
+        $canonical = self::routeMethodBody($traitCode, 'routeName');
+        if ($canonical === null) {
+            return [self::ROUTING_TRAIT_PATH . ' ya no declara routeName(): la comprobación no pudo mirar nada'];
+        }
+
+        $found = [];
+
+        foreach ($files as $relative) {
+            $relative = str_replace('\\', '/', $relative);
+            if ($relative === self::ROUTING_TRAIT_PATH) {
+                continue;
+            }
+            $code = @file_get_contents($srcRoot . '/' . $relative);
+            if ($code === false) {
+                continue;
+            }
+            $declared = null;
+            foreach (self::ROUTE_METHODS as $method) {
+                if (mb_strpos($code, 'function ' . $method) === false) {
+                    continue;
+                }
+                $body = self::routeMethodBody($code, $method);
+                if ($body === null) {
+                    continue;
+                }
+                $declared ??= self::declaredClass($code);
+                if ($declared === null) {
+                    continue;
+                }
+                $key = $declared . '::' . $method;
+                $found[$key] = true;
+
+                if (!array_key_exists($key, self::KNOWN_ROUTE_OVERRIDES)) {
+                    $failures[] = $key . ' — sobreescribe un método del trait sin estar registrado.'
+                        . ' Si decide algo, va a KNOWN_ROUTE_OVERRIDES con su razón; si no, se borra.';
+                    continue;
+                }
+                if (!self::routeMethodDecides($method, $body, $canonical)) {
+                    $failures[] = $key . ' — está registrado pero YA NO DECIDE NADA: su cuerpo se limita a'
+                        . ' devolver si la ruta vino vacía, que es lo que hace el trait. Bórralo.';
+                }
+            }
+        }
+
+        foreach (self::KNOWN_ROUTE_OVERRIDES as $key => $reason) {
+            if (!array_key_exists($key, $found)) {
+                $failures[] = $key . ' — figura en KNOWN_ROUTE_OVERRIDES pero ya no se declara. Retira la entrada.';
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($found) . " sobreescrituras de ruta comprobadas contra el registro.");
+
+        return $failures;
+    }
+
+    /**
+     * Firma y cuerpo normalizados de un método, sin comentarios. Por TOKENS.
+     *
+     * @param string $code
+     * @param string $method
+     * @return array{signature:string,body:string}|null
+     */
+    protected static function routeMethodBody(string $code, string $method): ?array
+    {
+        $tokens = @token_get_all($code);
+        $total = count($tokens);
+
+        for ($i = 0; $i < $total; $i++) {
+            if (!is_array($tokens[$i]) || $tokens[$i][0] !== T_FUNCTION) {
+                continue;
+            }
+            $name = null;
+            for ($j = $i + 1; $j < $total; $j++) {
+                if (is_array($tokens[$j]) && in_array($tokens[$j][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                if (is_array($tokens[$j]) && $tokens[$j][0] === T_STRING) {
+                    $name = $tokens[$j][1];
+                }
+                break;
+            }
+            if ($name !== $method) {
+                continue;
+            }
+
+            $signature = '';
+            $k = $j;
+            for (; $k < $total; $k++) {
+                $token = $tokens[$k];
+                if ($token === '{') {
+                    break;
+                }
+                if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                $signature .= is_array($token) ? $token[1] : $token;
+            }
+            if ($k >= $total) {
+                return null;
+            }
+
+            $body = '';
+            $depth = 0;
+            for (; $k < $total; $k++) {
+                $token = $tokens[$k];
+                $text = is_array($token) ? $token[1] : $token;
+                if ($text === '{') {
+                    $depth++;
+                    if ($depth === 1) {
+                        continue;
+                    }
+                }
+                if ($text === '}') {
+                    $depth--;
+                    if ($depth === 0) {
+                        break;
+                    }
+                }
+                if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                if (is_array($token) && $token[0] === T_WHITESPACE) {
+                    $text = ' ';
+                }
+                $body .= $text;
+            }
+
+            return [
+                'signature' => (string) preg_replace('/\s+/', ' ', trim($signature)),
+                'body' => trim((string) preg_replace('/\s+/', ' ', $body)),
+            ];
+        }
+
+        return null;
+    }
+
+    /**
+     * ¿Este método DECIDE algo que el trait no decida?
+     *
+     * CONSERVADOR A PROPÓSITO: solo devuelve `false` para un conjunto CERRADO de formas
+     * demostrablemente inertes. Todo lo que no puede probar cuenta como que decide, que es
+     * el lado seguro — un falso «decide» deja un método de más; un falso «no decide» borra
+     * una regla de autorización.
+     *
+     * @param string $method
+     * @param array{signature:string,body:string} $body
+     * @param array{signature:string,body:string} $canonical cuerpo de `routeName` en el trait
+     * @return bool
+     */
+    protected static function routeMethodDecides(string $method, array $body, array $canonical): bool
+    {
+        $text = $body['body'];
+
+        if ($method === 'routeName') {
+            //Inerte solo si es EXACTAMENTE el cuerpo canónico.
+            return $text !== $canonical['body'];
+        }
+
+        //Formas aceptadas de «la ruta no vino vacía».
+        $emptyChecks = [
+            '$route !== \'\'',
+            '(string) $route !== \'\'',
+            'strlen($route) > 0',
+            'mb_strlen($route) > 0',
+        ];
+
+        preg_match_all('/\$allow\s*=\s*([^;]+);/', $text, $assignments);
+        preg_match_all('/return\s+([^;]+);/', $text, $returns);
+
+        $assigned = array_map('trim', $assignments[1]);
+        //El closure `$getParam` trae su propio `return $paramValue;`: no es del método.
+        $returned = array_values(array_filter(
+            array_map('trim', $returns[1]),
+            fn (string $expression) => $expression !== '$paramValue'
+        ));
+
+        if (count($assigned) !== 1 || !in_array($assigned[0], $emptyChecks, true)) {
+            return true;
+        }
+        if (count($returned) !== 1 || $returned[0] !== '$allow') {
+            return true;
+        }
+        if ($method === 'allowedRoute' && !str_contains($text, 'self::routeName($name, $params, true)')) {
+            return true;
+        }
+
+        return false;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

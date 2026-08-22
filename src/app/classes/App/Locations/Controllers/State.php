@@ -21,7 +21,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 use PiecesPHP\Core\Validation\Validator;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 
 /**
  * State.
@@ -35,7 +35,7 @@ use PiecesPHP\Core\Routing\RouteNamingTrait;
 class State extends AdminPanelController
 {
 
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string

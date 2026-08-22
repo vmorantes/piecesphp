@@ -12,10 +12,9 @@ use MySpace\MySpaceLang;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteGuardTrait;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use ReportsManage\Queries\ReportsManageQueries;
 use ReportsManage\ReportsManageLang;
@@ -31,9 +30,7 @@ use ReportsManage\ReportsManageRoutes;
 class ReportsManageController extends AdminPanelController
 {
 
-    use RouteGuardTrait;
-
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -118,42 +115,6 @@ class ReportsManageController extends AdminPanelController
     public function render(string $name = "index", array $data = [], bool $mode = true, bool $format = false)
     {
         return parent::render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $getParam = function ($paramName) use ($params) {
-            $_POST = isset($_POST) && is_array($_POST) ? $_POST : [];
-            $_GET = isset($_GET) && is_array($_GET) ? $_GET : [];
-            $paramValue = $params[$paramName] ?? null;
-            $paramValue ??= $_GET[$paramName] ?? null;
-            $paramValue ??= $_POST[$paramName] ?? null;
-            return $paramValue;
-        };
-
-        $allow = $route !== '';
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-                $currentUserType = $currentUser->type;
-                $currentUserID = $currentUser->id;
-            }
-
-        }
-
-        return $allow;
     }
 
     /**

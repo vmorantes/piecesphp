@@ -13,10 +13,9 @@ use Components\ComponentProviderRoutes;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteGuardTrait;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
@@ -34,9 +33,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 class ComponentProvider extends AdminPanelController
 {
 
-    use RouteGuardTrait;
-
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -131,38 +128,6 @@ class ComponentProvider extends AdminPanelController
         }
 
         return $response;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $allow = (string) $route !== '';
-
-        if ($allow) {
-
-            $currentUser = getLoggedFrameworkUser();
-
-            if ($currentUser !== null) {
-                $currentUserType = (int) $currentUser->type;
-                $currentUserID = (int) $currentUser->id;
-
-                if ($name == 'SAMPLE') { //do something
-                    $allow = false;
-                }
-
-            }
-
-        }
-
-        return $allow;
     }
 
     /**

@@ -343,10 +343,10 @@ versión de lenguaje.
   estático. `Locations` merece ser un módulo de primer nivel
   (`src/app/classes/Locations/`) como los demás.
 - ~~**`routeName()` / `allowedRoute()` duplicadas en 44 controladores**~~ — **RESUELTO.**
-  `RouteNamingTrait` y `RouteGuardTrait` los aportan; se borraron **26** copias de
-  `routeName` y **28** de `allowedRoute`, solo las idénticas por tokens al cuerpo del
-  trait. **Quedan 18 y 10 variantes intencionales**, que conservan su método local a
-  propósito: ver [05-routing-y-permisos.md](./05-routing-y-permisos.md).
+  Los tres métodos los aporta `ControllerRoutingTrait`. Se borraron **89** copias en total
+  bajo un solo criterio: **¿este método decide algo?** Sobreviven **25**, todas registradas
+  con su razón en `VerifyIntegrityTask::KNOWN_ROUTE_OVERRIDES` y vigiladas por una puerta:
+  ver [05-routing-y-permisos.md](./05-routing-y-permisos.md).
 - **`src/statics/plugins/` pesa 40 MB** — el 85 % de los estáticos. Vale la pena
   auditar qué plugins se cargan realmente desde `config/assets.php`.
 - **`DataTablesHelper` revienta si faltan los parámetros de DataTables**:

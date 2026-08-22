@@ -143,8 +143,9 @@ class NewsController extends AdminPanelController
 ```
 
 `routeName()` y `allowedRoute()` **ya no se escriben en el controlador**: los aporta
-`RouteNamingTrait` y `RouteGuardTrait` (ver [05-routing-y-permisos.md](./05-routing-y-permisos.md)).
-Lo único que se escribe es `_allowedRoute()`, y solo si el módulo tiene reglas extra.
+`PiecesPHP\Core\Routing\ControllerRoutingTrait` junto con `_allowedRoute()`
+(ver [05-routing-y-permisos.md](./05-routing-y-permisos.md)). En el controlador solo se
+escribe `_allowedRoute()`, **y solo si el módulo tiene reglas de autorización propias**.
 
 Dentro de las vistas y métodos, los assets se cargan con `set_custom_assets()`,
 `add_global_asset()` e `import_*()` (ver [09-frontend-assets.md](./09-frontend-assets.md)).

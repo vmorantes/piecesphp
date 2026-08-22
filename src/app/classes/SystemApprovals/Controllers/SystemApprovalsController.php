@@ -19,10 +19,9 @@ use PiecesPHP\Core\Mailer;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteGuardTrait;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\Core\Routing\Slim3Compatibility\Exception\NotFoundException;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
@@ -51,9 +50,7 @@ use SystemApprovals\Util\SystemApprovalManager;
 class SystemApprovalsController extends AdminPanelController
 {
 
-    use RouteGuardTrait;
-
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string

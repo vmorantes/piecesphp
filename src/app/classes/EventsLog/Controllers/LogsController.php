@@ -14,10 +14,9 @@ use EventsLog\Mappers\LogsMapper;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteGuardTrait;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 
 /**
@@ -30,9 +29,7 @@ use PiecesPHP\Core\Utilities\Helpers\DataTablesHelper;
 class LogsController extends AdminPanelController
 {
 
-    use RouteGuardTrait;
-
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -183,29 +180,6 @@ class LogsController extends AdminPanelController
     public static function view(string $name, array $data = [], bool $mode = true, bool $format = true)
     {
         return (new LogsController)->render(self::BASE_VIEW_DIR . '/' . trim($name, '/'), $data, $mode, $format);
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @param array $params
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route, array $params = [])
-    {
-
-        $allow = (string) $route !== '';
-
-        if ($allow) {
-
-            if ($name == 'SAMPLE') { //do something
-            }
-
-        }
-
-        return $allow;
     }
 
     /**

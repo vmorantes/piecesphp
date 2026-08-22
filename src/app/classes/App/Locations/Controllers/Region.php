@@ -14,7 +14,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameter;
 use PiecesPHP\Core\Validation\Parameters\Parameters;
 use \PiecesPHP\Core\Routing\RequestRoute as Request;
 use \PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 
 /**
  * Region.
@@ -28,7 +28,7 @@ use PiecesPHP\Core\Routing\RouteNamingTrait;
 class Region extends AdminPanelController
 {
 
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string

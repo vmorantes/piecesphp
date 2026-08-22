@@ -13,10 +13,9 @@ use PiecesPHP\Core\Http\HttpClient;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\Core\Routing\RequestRoute as Request;
 use PiecesPHP\Core\Routing\ResponseRoute as Response;
-use PiecesPHP\Core\Routing\RouteGuardTrait;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\InvalidParameterValueException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\MissingRequiredParamaterException;
 use PiecesPHP\Core\Validation\Parameters\Exceptions\ParsedValueException;
@@ -33,9 +32,7 @@ use PiecesPHP\Core\Validation\Parameters\Parameters;
 class GoogleReCaptchaV3Controller extends AdminPanelController
 {
 
-    use RouteGuardTrait;
-
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -215,63 +212,6 @@ class GoogleReCaptchaV3Controller extends AdminPanelController
             $configElement->update();
         }
         return $existsToken;
-    }
-
-    /**
-     * @param string $name
-     * @param array $params
-     * @return bool
-     */
-    public static function allowedRoute(string $name, array $params = [])
-    {
-
-        $route = self::routeName($name, $params, true);
-        $allow = (string) $route !== '';
-
-        if ($allow) {
-
-            if ($name == 'SAMPLE') { //do something
-            }
-
-        }
-
-        return $allow;
-    }
-
-    /**
-     * @param string $name
-     * @param array $params
-     * @param bool $silentOnNotExists
-     * @return string
-     */
-    public static function routeName(?string $name = null, array $params = [], bool $silentOnNotExists = false)
-    {
-        if (!is_null($name)) {
-            $name = trim($name);
-            $name = $name !== '' ? "-{$name}" : '';
-        }
-
-        $name = !is_null($name) ? self::$baseRouteName . $name : self::$baseRouteName;
-
-        $allowed = false;
-        $current_user = getLoggedFrameworkUser();
-
-        if ($current_user !== null) {
-            $allowed = Roles::hasPermissions($name, $current_user->type);
-        } else {
-            $allowed = true;
-        }
-
-        if ($allowed) {
-            $routeResult = get_route(
-                $name,
-                $params,
-                $silentOnNotExists
-            );
-            return is_string($routeResult) ? $routeResult : '';
-        } else {
-            return '';
-        }
     }
 
     /**

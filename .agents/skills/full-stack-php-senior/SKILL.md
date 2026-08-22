@@ -145,27 +145,50 @@ en `kebab-case`.
 Sufijos de ruta estándar: `-list`, `-forms-add`, `-forms-edit`, `-datatables`,
 `-ajax-all`, `-actions-add`, `-actions-edit`, `-actions-delete`.
 
-### Sobre `routeName()` y `allowedRoute()`
+### Sobre `routeName()`, `allowedRoute()` y `_allowedRoute()`
 
-**Ya no se escriben en el controlador.** Las aportan dos traits de
-`PiecesPHP\Core\Routing`: `RouteNamingTrait` (`routeName()` más el hook `_allowedRoute()`
-con `return true;` por defecto) y `RouteGuardTrait` (`allowedRoute()`).
+**No se escriben en el controlador.** Los aporta un solo trait:
 
-Son **traits y no una clase base** porque los controladores no comparten padre: los de zona
+```php
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+
+class MiModuloController extends AdminPanelController
+{
+    use ControllerRoutingTrait;
+```
+
+Es **trait y no clase base** porque los controladores no comparten padre: los de zona
 pública extienden `BaseController` y los de panel `AdminPanelController`. Dentro del trait
-`self::` sigue resolviendo a la clase que lo usa, así que `self::$baseRouteName` sigue
-siendo la del módulo.
+`self::` sigue resolviendo a la clase que lo usa, así que `self::$baseRouteName` sigue siendo
+la del módulo.
 
-Al crear un controlador: `use RouteNamingTrait;`, `use RouteGuardTrait;` si expone guardián,
-y **escribe `_allowedRoute()` solo si el módulo tiene reglas de negocio extra** — ese es el
-único punto de variación real (26 cuerpos distintos en 32 módulos).
+**Lo único que se escribe es `_allowedRoute()`, y solo si el módulo tiene reglas de
+autorización propias.** `routeName()` ya comprueba los roles; `_allowedRoute()` es para lo
+que los roles no pueden saber: si ESTE usuario puede tocar ESTE registro.
 
-Quedan **18 controladores con `routeName()` propio y 10 con `allowedRoute()` propio**: son
-variantes intencionales (públicos sin hook, `App\Locations` con prefijo de dos niveles,
-`TerminalController` con otra firma). **No las unifiques**: el método declarado en la clase
-gana al del trait, y esa diferencia está ahí a propósito. Ver
-`.agents/context/05-routing-y-permisos.md`.
+Hay **tres patrones** en el proyecto, con ejemplo completo en la receta 9 de
+`.agents/context/13-recetas.md`:
 
+| Patrón | Qué decide | De dónde sale |
+| :-- | :-- | :-- |
+| **Propiedad del recurso** | Solo el creador, o su organización, o un tipo con permiso global | `ApplicationCallsController` |
+| **Conflicto de interés** | Nadie decide sobre sí mismo | `SystemApprovalsController` |
+| **Registro protegido** | Hay una fila que no se borra nunca | `NewsCategoryController` |
+
+**REGLA, y hay una puerta que la hace cumplir:** toda sobreescritura de esos tres métodos
+tiene que estar registrada en `Terminal\Tasks\VerifyIntegrityTask::KNOWN_ROUTE_OVERRIDES` con
+su razón escrita. `bin/cli verify-integrity` falla si declaras uno sin registrarlo, **y
+también si una entrada del registro deja de decidir algo**.
+
+**No escribas un `_allowedRoute()` de relleno.** Un cuerpo que solo devuelve si la ruta vino
+vacía es lo que hace el trait, así que sobra — y hace fallar la puerta. De ese andamio
+salieron **89 copias muertas** repartidas en 26 controladores: closures `$getParam` que nadie
+llamaba, `$currentUserType` asignado y no leído, e `if ($name == 'SAMPLE')` comparando contra
+una ruta que no existe.
+
+Sobreviven **25** sobreescrituras: 15 que deciden de verdad y 10 estructurales —`App\Locations`
+usa un prefijo de dos niveles, `TerminalController` tiene otra firma—. **No las unifiques**:
+el método declarado en la clase gana al del trait, y esa diferencia está a propósito.
 ## Cómo abordar las tareas más comunes
 
 **Módulo nuevo.** Si se parece a `Publications`, clonarlo y renombrar sale más rápido que

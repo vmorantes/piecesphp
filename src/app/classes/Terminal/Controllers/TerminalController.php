@@ -12,8 +12,7 @@ use PiecesPHP\Core\Helpers\Directories\DirectoryObject;
 use PiecesPHP\Core\Roles;
 use PiecesPHP\Core\Route;
 use PiecesPHP\Core\RouteGroup;
-use PiecesPHP\Core\Routing\RouteGuardTrait;
-use PiecesPHP\Core\Routing\RouteNamingTrait;
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
 use PiecesPHP\TerminalData;
 
 /**
@@ -27,9 +26,7 @@ use PiecesPHP\TerminalData;
 class TerminalController extends AdminPanelController
 {
 
-    use RouteGuardTrait;
-
-    use RouteNamingTrait;
+    use ControllerRoutingTrait;
 
     /**
      * @var string
@@ -56,28 +53,6 @@ class TerminalController extends AdminPanelController
     {
         $route = self::routeName($name, true);
         $allow = (string) $route !== '';
-        return $allow;
-    }
-
-    /**
-     * Verificar si una ruta es permitida y determinar pasos para permitirla o no
-     *
-     * @param string $name
-     * @param string $route
-     * @return bool
-     */
-    private static function _allowedRoute(string $name, string $route)
-    {
-
-        $allow = $route !== '';
-
-        if ($allow) {
-
-            if ($name == 'sample') { //do something
-            }
-
-        }
-
         return $allow;
     }
 

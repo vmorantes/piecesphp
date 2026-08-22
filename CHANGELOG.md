@@ -188,19 +188,26 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Cambios internos
 
-- **`routeName()` y `allowedRoute()` dejan de estar copiadas en cada controlador.** Las
-  aportan dos traits nuevos de `PiecesPHP\Core\Routing`: `RouteNamingTrait` —con el hook
-  `_allowedRoute()` y su `return true;` por defecto— en los **44** controladores que nombran
-  rutas, y `RouteGuardTrait` en los **38** que exponen guardián. Se borraron **26** copias de
-  `routeName` y **28** de `allowedRoute`.
-    - **Sin cambio de comportamiento.** El criterio de borrado fue identidad **por tokens**
-      contra el cuerpo del trait, comprobada archivo a archivo: las **18** y **10** copias
-      que no coincidían **se conservan intactas**, y el método declarado en la clase gana
-      siempre al del trait.
-    - PHPStan queda en **877** antes y después, con los **606** sitios de llamada
-      resolviendo en nivel 8.
-    - **Al crear un módulo ya no se copian esos métodos**: se añaden los dos `use` y se
-      escribe `_allowedRoute()` solo si hay reglas de negocio extra.
+- **`routeName()`, `allowedRoute()` y `_allowedRoute()` dejan de estar copiados en cada
+  controlador.** Los aporta **un solo trait**, `PiecesPHP\Core\Routing\ControllerRoutingTrait`,
+  con el hook y su `return true;` por defecto. **Se borraron 89 copias** repartidas en 26
+  controladores.
+    - **El criterio es una sola pregunta: ¿este método DECIDE algo?** No el parecido con el
+      cuerpo canónico — ese criterio, el de la primera pasada, dejaba vivas dieciséis copias
+      que solo devolvían si la ruta vino vacía, con closures que nadie llamaba, variables
+      asignadas y no leídas y un `if` comparando contra una ruta llamada `'SAMPLE'` que no
+      existe.
+    - **Sobreviven 25**, todas con su razón escrita: 15 que deciden de verdad —propiedad del
+      recurso, conflicto de interés, registro protegido— y 10 estructurales, que nombran la
+      ruta de otra forma o tienen otra firma.
+    - **Sin cambio de comportamiento.** PHPStan queda en **877** en cada paso, con los
+      **606** sitios de llamada resolviendo en nivel 8, y las suites sin moverse.
+    - **`bin/cli verify-integrity` gana una quinta comprobación**: falla si un controlador
+      sobreescribe uno de los tres sin estar en `KNOWN_ROUTE_OVERRIDES`, si una entrada del
+      registro **deja de decidir algo**, o si apunta a una declaración que ya no existe.
+    - **Al crear un módulo ya no se copian esos métodos**: se añade `use ControllerRoutingTrait;`
+      y se escribe `_allowedRoute()` solo si hay reglas de autorización propias. Los tres
+      patrones están documentados en la receta 9 de `.agents/context/13-recetas.md`.
 
 ## Herramientas
 

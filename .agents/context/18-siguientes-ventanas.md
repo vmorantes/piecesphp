@@ -1252,6 +1252,77 @@ funcionando.
   descendientes se tipan EN EL MISMO COMMIT.** Si se tipa la base y un hijo redeclara sin
   tipo, el hijo ensancha y **PHP falla al declarar la clase**, no al llamarla.
 
+### SEGUNDA PASADA — el criterio de la primera era el equivocado
+
+**«Idéntico por tokens al cuerpo del trait» dejó vivas dieciséis copias que no hacían nada.**
+Era un criterio de FORMA, y el andamio no se distingue por la forma: se distingue por si
+decide algo.
+
+**El criterio nuevo es una sola pregunta: ¿ESTE MÉTODO DECIDE ALGO?**
+
+| Método | Copias borradas · 1.ª pasada | Copias borradas · 2.ª pasada | Sobreviven |
+| :-- | --: | --: | --: |
+| `routeName` | 26 | **9** | **9** |
+| `allowedRoute` | 28 | **9** | **1** |
+| `_allowedRoute` | 0 | **17** | **15** |
+| **TOTAL** | 54 | **35** | **25** |
+
+**89 copias borradas entre las dos pasadas.**
+
+Lo que las diecisiete de `_allowedRoute` tenían dentro: `$allow = $route !== ''` con
+variaciones de forma —`strlen($route) > 0`, `(string) $route !== ''`—, un closure `$getParam`
+que nadie llamaba, `$currentUserType` y `$currentUserID` asignados y **jamás leídos**, y un
+`if` de relleno comparando contra `'SAMPLE'`, `'sample'` o `'NOMBRE_RUTA'`.
+
+> **No eran variantes de un comportamiento. Eran estratos de una plantilla y huecos que nadie
+> rellenó.**
+
+#### El susto de `'SAMPLE'`, que casi conserva cuatro cuerpos muertos
+
+Hay literales `'SAMPLE'` **vivos** en `view/webflow/layout/menu.php`, llamando a
+`genericViewRoute('SAMPLE')`. Parecía que la rama sí se alcanzaba.
+
+**No se alcanza:** esa función pasa `'SAMPLE'` dentro de `$params['name']` y llama a
+`PublicAreaController::routeName('generic', …)`, así que `$name` vale `'generic'`. Y
+comprobado además que **ninguna llamada del proyecto pasa `'SAMPLE'`, `'sample'` ni
+`'NOMBRE_RUTA'` como primer argumento** de `routeName()` o `allowedRoute()`.
+
+Sin esa comprobación se habrían conservado cuatro cuerpos muertos por miedo. **T20 en la
+dirección contraria: una medición que asusta también hay que verificarla.**
+
+#### Los tres traits pasan a ser UNO
+
+`ControllerRoutingTrait`, con los tres métodos. La separación entre nombrado y guarda **era
+una frontera inventada**: `routeName()` llama SIEMPRE a `_allowedRoute()`, y `allowedRoute()`
+no hace más que preguntarle a `routeName()` si devolvió cadena.
+
+#### La puerta: `KNOWN_ROUTE_OVERRIDES`
+
+Quinta comprobación de `verify-integrity`. **Tres direcciones, las tres probadas
+provocándolas:**
+
+| Dirección | Mutación | Resultado |
+| :-- | :-- | :-- |
+| Declaración sin registrar | Añadir un `allowedRoute()` a `NewsController` | Salida **1**, nombrando `News\Controllers\NewsController::allowedRoute` |
+| Entrada que deja de decidir | Vaciar el `_allowedRoute` de `SystemApprovals` | Salida **1**: *«está registrado pero YA NO DECIDE NADA»* |
+| Entrada cuya declaración no existe | Meter `Zz\Sonda::routeName` en el registro | Salida **1**: *«ya no se declara»* |
+
+El veredicto lo da **el mismo clasificador con el que se construyó el registro**, de modo que
+la puerta no puede separarse del criterio. Y es **conservador a propósito**: solo dice «no
+decide» para un conjunto cerrado de formas: un falso «decide» deja un método de más, un falso
+«no decide» **borra una regla de autorización**.
+
+**Lo que la puerta NO atrapa**, escrito en su propio docblock: el clasificador razona sobre
+el cuerpo, no sobre quién llama. Un `if ($name == 'SAMPLE') { $allow = false; }` cuenta como
+que decide aunque ninguna ruta se llame así.
+
+#### Efecto medido sobre las ramas muertas
+
+**373 → 325 tripletas, −48.** *Menos de las 89 que se habían anunciado*, y la razón es que
+**89 contaba el andamio de los 32 `_allowedRoute`, y quince sobreviven** porque deciden. De
+los que quedan dentro de los métodos supervivientes: **41 tripletas**, casi todas el
+`isset($_POST)` / `isset($_GET)` del closure `$getParam` — que **9 de los 10 que lo declaran
+sí usan**, así que ahí lo que sobra es el `isset`, no el closure.
 ## T13 · Ramas muertas — TRIAJE HECHO y VUELTO A MEDIR; supresión NO autorizada
 
 **Son 464, no ~357.** Medidas destapando los 27 identificadores silenciados en `phpstan.neon`:
@@ -1653,6 +1724,8 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 | Contar `/*` contra `*/` en texto plano | Contaba las apariciones dentro de cadenas — `'image/*'` | **32 falsos positivos** en la primera `verify-integrity` |
 | La tabla de PHPStan | Recorta la ruta al ancho de terminal | «192 archivos con errores». Son **195**, y Rector no veía 34 |
 | `git diff --name-only --ignore-cr-at-eol` | **Lista el archivo aunque el filtro no encuentre diferencias**; el filtro lo aplica `--stat`, no `--name-only` | «58 de 59 archivos del paquete cambian de contenido». Cambian **cero** |
+| Una extracción PARCIAL presentada como censo | Trece cuerpos de `_allowedRoute` sacados a mano, de treinta y dos | «doce de trece no deciden nada, solo una decide». **Son quince de treinta y dos** |
+| La memoria, sobre lo que hay en git | Nadie miró el historial | «el directorio queda en la historia». **Nunca estuvo en git**: `git log` sobre él no devuelve nada |
 
 ### La regla
 
@@ -1663,6 +1736,15 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 «Independiente» significa que no comparta mecanismo con el primero: `--stat` contra
 `--name-only` sirve porque aplican el filtro en sitios distintos; repetir el mismo comando
 con otra bandera cosmética, no.
+
+**Los dos últimos casos son de otra clase y por eso están en la tabla:** no falló una
+herramienta, falló **dar por buena una medición ajena**. Una extracción parcial se presentó
+como censo y una afirmación sobre el historial de git se escribió sin mirar el historial.
+
+> **Que la medición la haya hecho otro no la exime de verificación.** Al contrario: la
+> propia no se sabe de dónde salió, la ajena tampoco — y encima no se puede reconstruir de
+> memoria. En los dos casos bastó un comando: contar los treinta y dos cuerpos por tokens, y
+> `git log --diff-filter=A` sobre el directorio.
 
 ### Por qué importa aquí más que en otro sitio
 
@@ -1716,6 +1798,17 @@ Revisar comprueba **la afirmación que uno hace**. Demostrar obliga a fabricar e
 **el artefacto trae consigo todo lo que la afirmación omitía** — incluido lo que uno no sabía
 que estaba omitiendo. Por eso pedir la demostración detecta una clase de fallo que ninguna
 revisión alcanza: **la de los errores que uno no sabe que cometió.**
+
+### El corolario que salió de aplicarla hacia atrás
+
+> **PROVOCAR EL FALLO DE UNA PUERTA NO VALIDA LA PUERTA: VALIDA LO QUE HAY DETRÁS.**
+
+El defecto del `encoding="utf8mb4"` —XML exportado que **ningún parser podía leer**— no lo
+encontró nadie mirando el exportador. Lo encontró **la comprobación que se añadió para
+probar que la puerta no fallaba**: al descubrir que la suite daba 23/23 con un JSON corrupto,
+se le añadió validación de sintaxis, y esa validación destapó el XML.
+
+La puerta era el pretexto. **El hallazgo estaba detrás de ella, y llevaba ahí desde siempre.**
 
 **Relación con T20**: T20 dice de qué desconfiar cuando un número sorprende. T21 dice qué
 hacer cuando **nada** sorprende, que es el caso peligroso.
@@ -2086,3 +2179,72 @@ escapa** — que es exactamente este caso.
 Borrar `ApplicationCalls`, `ImagesRepository` e `InterestResearchAreas` se lleva unas cuantas
 copias **y no cura nada**: el próximo módulo clonado desde `Publications` las trae otra vez.
 **La enfermedad es la plantilla, no las copias.**
+
+## T26 · DOS PREGUNTAS DE SEGURIDAD ABIERTAS SOBRE EL ENRUTADO
+
+**Las dos son PREEXISTENTES y las dos viven ahora en `ControllerRoutingTrait`, o sea en los
+44 controladores a la vez.** No se tocan sin decisión explícita: **cambiar cualquiera de las
+dos cambia quién ve qué en toda la aplicación**.
+
+Que estén escritas aquí es el punto. Antes estaban repartidas en 44 copias y nadie las había
+mirado juntas.
+
+### 1 · Generar una URL EJECUTA la comprobación de permiso
+
+`routeName()` llama a `Roles::hasPermissions()` y a `_allowedRoute()` **cada vez que se
+construye una cadena**. Hay **606 sitios de llamada** en el código.
+
+Es lo que hace que `allowedRoute()` funcione —una ruta no permitida devuelve cadena vacía, y
+de ahí sale la visibilidad de menús y botones—, así que **no es un accidente**. Pero merece
+revisarse algún día: `_allowedRoute()` de los módulos con reglas de propiedad **consulta la
+base de datos** (`getBy($id)`, y en varios además `UsersModel::getBy` y
+`OrganizationMapper::getBy`). Pintar un listado con veinte botones de editar puede disparar
+sesenta consultas para decidir si se pintan.
+
+### 2 · SIN USUARIO, CONCEDE
+
+El cuerpo canónico dice:
+
+```php
+$current_user = getLoggedFrameworkUser();
+
+if ($current_user !== null) {
+    $allowed = Roles::hasPermissions($name, $current_user->type);
+} else {
+    $allowed = true;          // <-- aquí
+}
+```
+
+**Anónimo ⇒ permitido.** Para la zona pública tiene sentido: sus rutas no tienen restricción
+de rol y el control real está en el middleware de sesión, no aquí.
+
+**Lo que lo vuelve una pregunta y no una nota** es cómo se obtiene ese `null`:
+
+> `getLoggedFrameworkUser()` devuelve `null` **también cuando el constructor de
+> `UserDataPackage` lanza** —`AppHelpers.php:3047-3053`: el `catch` deja `$currentUser` en
+> `null` y registra la excepción con `log_exception()`, así que **queda rastro en el log,
+> pero quien llama no distingue ese caso de «no hay sesión»**—. Es decir: un fallo al
+> construir al usuario se trata como «no hay usuario», y **«no hay usuario» concede**.
+
+No es una vulnerabilidad demostrada: para explotarla habría que provocar ese fallo, y aun
+concediendo el nombre de la ruta queda el control de acceso de la petición real. Pero **la
+dirección del fallo es la equivocada**: ante un error, un sistema de permisos debería cerrar,
+no abrir.
+
+**Lo que habría que decidir**, cuando se decida: distinguir «no hay sesión» de «hubo un error
+construyendo al usuario», y que el segundo caso **deniegue**.
+
+Relacionado: `DataImportExportUtility` conserva su `routeName()` propio precisamente porque
+toma el usuario por otra vía y **no cae en este borde** — es más restrictivo. Está en
+`KNOWN_ROUTE_OVERRIDES` con esa razón.
+
+### Opción futura, NO implementar: una interfaz que haga obligatorio el contrato
+
+**Sola no sirve.** Una interfaz no lleva implementación por defecto, así que obligaría a cada
+controlador a escribir su copia de los tres métodos y **volveríamos al andamio, ahora
+obligatorio**. Además `_allowedRoute()` es `private static` y las interfaces solo declaran
+miembros públicos, y `BaseController` lo extienden también controladores que no son de rutas.
+
+**La forma correcta es interfaz MÁS trait**: la interfaz declara el contrato público
+—`routeName()` y `allowedRoute()`—, el trait lo implementa, y el controlador declara las dos
+cosas. Se añade encima de lo que hay **sin conflicto y sin tocar ningún cuerpo**.

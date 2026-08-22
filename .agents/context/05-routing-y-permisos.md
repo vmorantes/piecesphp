@@ -158,41 +158,67 @@ la convención y ahorra reescritura al clonar—, **las diferencias no**.
 > funciona en las dos jerarquías. Dentro del trait `self::` sigue resolviendo a la clase que
 > lo usa, de modo que `self::$baseRouteName` sigue siendo la del módulo.
 
-### Los dos traits, y a quién se aplica cada uno
+### Un solo trait: `PiecesPHP\Core\Routing\ControllerRoutingTrait`
 
-| Trait | Aporta | Lo usan |
-| :-- | :-- | --: |
-| `PiecesPHP\Core\Routing\RouteNamingTrait` | `routeName()` y el hook `_allowedRoute()` con `return true;` por defecto | **44** |
-| `PiecesPHP\Core\Routing\RouteGuardTrait` | `allowedRoute()` | **38** |
+Aporta los **tres** métodos: `routeName()`, `allowedRoute()` y `_allowedRoute()` con
+`return true;` por defecto. **Lo usan los 44 controladores.**
 
-Son dos y no uno porque **seis de los cuarenta y cuatro nombran rutas y no exponen
-guardián**: los cinco de `App\Locations` y `ContactFormsController`.
+Empezó siendo dos —uno de nombrado y uno de guarda— y **la frontera era inventada**: los
+tres métodos no se pueden separar. `routeName()` llama SIEMPRE a `_allowedRoute()`, y
+`allowedRoute()` no hace más que preguntarle a `routeName()` si devolvió cadena.
 
-`_allowedRoute()` vive en el trait de nombrado, no en el de guarda, por una razón de
-funcionamiento: **`routeName()` lo llama siempre**, así que quien usara el trait sin
-declararlo tendría un fatal. Con el valor por defecto, quien no quiera reglas extra no
-escribe nada.
+### Qué queda escrito en un controlador
 
-### Qué se borró y qué se conserva
+**Nada, salvo que tenga reglas de negocio propias.** Y entonces se escribe **solo**
+`_allowedRoute()`.
 
-| Método | Copias borradas | Copias conservadas | Por qué se conservan |
+| Método | Copias borradas | Sobreviven | Registradas en |
 | :-- | --: | --: | :-- |
-| `routeName` | **26** | **18** | No son idénticas al cuerpo del trait |
-| `allowedRoute` | **28** | **10** | Ídem |
-| `_allowedRoute` | **0** | 32 | Es el punto de variación: 26 cuerpos distintos |
+| `routeName` | 35 | **9** | `VerifyIntegrityTask::KNOWN_ROUTE_OVERRIDES` |
+| `allowedRoute` | 37 | **1** | ídem |
+| `_allowedRoute` | 17 | **15** | ídem |
 
-**El criterio de borrado fue la identidad por TOKENS, no el parecido.** Cada copia se
-comparó con el cuerpo del trait —firma incluida, comentarios fuera— y solo se borró si
-coincidía exactamente. Las variantes intencionales de T12 —controladores públicos sin hook,
-`App\Locations` con prefijo de dos niveles, `TerminalController` con otra firma— **quedan
-intactas**, y su `use` del trait no las cambia: **el método declarado en la clase gana
-siempre al del trait**.
+### EL CRITERIO ES UNO: ¿este método DECIDE algo?
 
-> **Al crear un módulo nuevo ya no se copian esos métodos.** Se añade
-> `use RouteNamingTrait;` y `use RouteGuardTrait;`, y se escribe `_allowedRoute()` solo si
-> hay reglas de negocio extra. La referencia sigue siendo
-> `Publications\Controllers\PublicationsController`.
+No es el parecido con el cuerpo canónico. Ese fue el criterio de la primera pasada y **dejó
+vivas dieciséis copias que no hacían nada**: cuerpos que solo devuelven si la ruta vino
+vacía —lo mismo que el trait—, con diferencias de forma (`strlen($route) > 0` contra
+`$route !== ''`), un closure `$getParam` que nadie llama, variables `$currentUserType` que
+se asignan y no se leen, y un `if` de relleno comparando contra `'SAMPLE'`, `'sample'` o
+`'NOMBRE_RUTA'`.
 
+> **No eran variantes de un comportamiento: eran estratos de una plantilla y huecos que
+> nadie rellenó.**
+
+Las que sobreviven lo hacen por una de dos razones, y **cada una está escrita en el
+registro**:
+
+| Razón | Cuántas |
+| :-- | --: |
+| **Estructural**: nombran la ruta de otra forma o tienen otra firma, así que el trait no puede servirles | 10 |
+| **Decide de verdad**: reglas de autorización propias | 15 |
+
+Las estructurales son `App\Locations` (prefijo de dos niveles), `ContactForms` y
+`PublicArea` (usan `$prefixNameRoutes` y no declaran `$baseRouteName`), `Terminal` (otra
+firma) y `DataImportExportUtility` (toma el usuario de otra fuente).
+
+### La puerta
+
+`bin/cli verify-integrity` falla si **un controlador declara uno de los tres sin estar
+registrado**, si **una entrada del registro ha dejado de decidir algo**, o si **una entrada
+apunta a una declaración que ya no existe**. El veredicto lo da el **mismo clasificador con
+el que se construyó el registro**, para que la puerta no pueda separarse del criterio.
+
+### Los tres patrones de sobreescritura, para copiar
+
+Ver [13-recetas.md](./13-recetas.md), con un ejemplo de cada uno:
+
+1. **Propiedad del recurso** — solo el creador, o un tipo con permiso global.
+2. **Conflicto de interés** — nadie se aprueba a sí mismo.
+3. **Registro protegido** — hay una fila que no se borra nunca.
+
+> **Al crear un módulo nuevo:** `use ControllerRoutingTrait;` y nada más. La referencia
+> sigue siendo `Publications\Controllers\PublicationsController`.
 ## Roles
 
 Definidos en `src/app/config/roles.php` y gestionados por `PiecesPHP\Core\Roles`.

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * RouteNamingTrait.php
+ * ControllerRoutingTrait.php
  */
 
 namespace PiecesPHP\Core\Routing;
@@ -9,24 +9,36 @@ namespace PiecesPHP\Core\Routing;
 use PiecesPHP\Core\Roles;
 
 /**
- * RouteNamingTrait - Nombre y URL de las rutas de un controlador.
+ * ControllerRoutingTrait - Nombre, URL y visibilidad de las rutas de un controlador.
  *
  * Es TRAIT y no clase base porque los controladores no comparten padre: los de zona
  * pública extienden `BaseController` y los de panel `AdminPanelController`. Un trait
  * compone en cualquier jerarquía, y dentro de él `self::` sigue resolviendo a la clase
  * que lo usa, así que `self::$baseRouteName` sigue siendo la del módulo.
  *
- * `_allowedRoute()` vive aquí con implementación permisiva por defecto, y no en
- * `RouteGuardTrait`, por una razón de funcionamiento: `routeName()` lo llama SIEMPRE, así
- * que quien use este trait sin declararlo tendría un fatal. Con el valor por defecto,
- * quien no quiera reglas extra no escribe nada — y quien sí las quiera escribe SOLO ese
- * método, que es exactamente la parte que hay que pensar al clonar un módulo.
+ * Los tres métodos van juntos porque **no se pueden separar**: `routeName()` llama SIEMPRE
+ * a `_allowedRoute()`, y `allowedRoute()` no hace más que preguntarle a `routeName()` si
+ * devolvió cadena. Repartirlos en dos traits era una frontera inventada.
+ *
+ * `_allowedRoute()` trae implementación permisiva por defecto para que quien no tenga reglas
+ * extra no escriba nada, y quien sí las tenga escriba SOLO ese método — que es exactamente
+ * la parte que hay que pensar al clonar un módulo.
+ *
+ * DOS PREGUNTAS DE SEGURIDAD ABIERTAS, preexistentes, que ahora viven aquí y por tanto en
+ * todas partes. NO se tocan sin decisión explícita; están escritas en T26 del documento
+ * `.agents/context/18-siguientes-ventanas.md`:
+ *
+ *   1. `routeName()` **autoriza para construir una cadena**: llama a
+ *      `Roles::hasPermissions()` en los 606 sitios que generan una URL.
+ *   2. **Sin usuario, CONCEDE.** El `else` de abajo pone `$allowed = true`, y
+ *      `getLoggedFrameworkUser()` devuelve `null` también cuando el constructor de
+ *      `UserDataPackage` lanza. Un fallo al construir al usuario se trata como anónimo.
  *
  * @package     PiecesPHP\Core\Routing
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2026
  */
-trait RouteNamingTrait
+trait ControllerRoutingTrait
 {
 
     /**
@@ -72,6 +84,24 @@ trait RouteNamingTrait
         $allow = self::_allowedRoute($simpleName, $route, $params);
 
         return $allow ? $route : '';
+    }
+
+    /**
+     * Verificar si una ruta es permitida
+     *
+     * Es lo que decide la visibilidad de un menú o un botón. **Descansa por completo en
+     * `routeName()`**, que devuelve cadena vacía cuando el usuario no tiene permiso — por eso
+     * una URL escrita a mano se salta el control de acceso: no pasa por aquí.
+     *
+     * @param string $name
+     * @param array $params
+     * @return bool
+     */
+    public static function allowedRoute(string $name, array $params = [])
+    {
+        $route = self::routeName($name, $params, true);
+        $allow = (string) $route !== '';
+        return $allow;
     }
 
     /**

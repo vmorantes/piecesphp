@@ -169,9 +169,20 @@ class MiModuloRoutes
 Extiende `App\Controller\AdminPanelController`, define `$URLDirectory`,
 `$baseRouteName`, `$title`, las constantes `BASE_VIEW_DIR` / `BASE_JS_DIR` /
 `BASE_CSS_DIR` / `LANG_GROUP`, el constructor (modelo, título, `setInstanceViewDir`,
-assets globales), los métodos de acción, `routes()` y — **copiándolas de
-`Publications\Controllers\PublicationsController`** — `routeName()`,
-`allowedRoute()` y `_allowedRoute()`.
+assets globales), los métodos de acción y `routes()`.
+
+**`routeName()`, `allowedRoute()` y `_allowedRoute()` NO se copian.** Los aporta el trait:
+
+```php
+use PiecesPHP\Core\Routing\ControllerRoutingTrait;
+
+class MiModuloController extends AdminPanelController
+{
+    use ControllerRoutingTrait;
+```
+
+Con eso el módulo ya nombra rutas y decide visibilidad de menús. **Solo se escribe
+`_allowedRoute()` si el módulo tiene reglas de autorización propias** — ver la receta 9.
 
 Si el módulo necesita zona pública, añade un
 `MiModuloPublicController extends BaseController` siguiendo
@@ -308,3 +319,134 @@ ProtectFileMiddleware::protect(append_to_path_system($uploadsDir, 'ruta/al/direc
     }
 );
 ```
+
+## Receta 9 — Reglas de autorización propias con `_allowedRoute()`
+
+`routeName()` ya comprueba los roles. **`_allowedRoute()` es para lo que los roles no pueden
+saber**: si este usuario concreto puede tocar este registro concreto. Devuelve `bool`; el
+trait trae `return true;` por defecto, así que **si el módulo no tiene reglas extra no se
+escribe nada**.
+
+Toda sobreescritura tiene que estar registrada en
+`Terminal\Tasks\VerifyIntegrityTask::KNOWN_ROUTE_OVERRIDES` con su razón, y
+`bin/cli verify-integrity` falla si no lo está — **o si deja de decidir algo**.
+
+En el proyecto hay **tres patrones**, y conviene reconocer cuál se necesita antes de
+escribir.
+
+### Patrón 1 · Propiedad del recurso
+
+El más común: **solo el creador toca lo suyo**, salvo un tipo de usuario con permiso global.
+La variante completa añade la organización. Extraído de `ApplicationCallsController`.
+
+```php
+private static function _allowedRoute(string $name, string $route, array $params = [])
+{
+    $allow = $route !== '';
+
+    if (!$allow) {
+        return false;
+    }
+
+    $currentUser = getLoggedFrameworkUser();
+
+    if ($currentUser === null) {
+        return $allow;
+    }
+
+    //Borrar y editar se comprueban IGUAL: cambia solo la constante de permiso global.
+    $globalPermissionByRoute = [
+        'actions-delete' => MiModuloMapper::CAN_DELETE_ALL,
+        'forms-edit' => MiModuloMapper::CAN_EDIT_ALL,
+    ];
+
+    if (!array_key_exists($name, $globalPermissionByRoute)) {
+        return $allow;
+    }
+
+    $element = MiModuloMapper::getBy($params['id'] ?? null, 'id');
+
+    if ($element === null) {
+        return false;
+    }
+
+    //Es suyo.
+    $allow = (int) $element->createdBy === (int) $currentUser->id;
+
+    //O es el administrador de la MISMA organización que su creador.
+    $creator = UsersModel::getBy($element->createdBy, 'id');
+    $creatorOrganizationID = (int) $creator->organization;
+    $creatorOrganization = OrganizationMapper::getBy($creatorOrganizationID, 'id', true);
+    $sameOrganization = $currentUser->organizationMapper !== null
+        && $creatorOrganizationID === (int) $currentUser->organizationMapper->id;
+    $isOrganizationAdmin = $creatorOrganization !== null
+        && (int) $creatorOrganization->administrator->id === (int) $currentUser->id;
+
+    //O tiene el permiso global de ese tipo de ruta.
+    if (in_array($currentUser->type, $globalPermissionByRoute[$name]) || ($sameOrganization && $isOrganizationAdmin)) {
+        $allow = true;
+    }
+
+    return $allow;
+}
+```
+
+> **La tabla `$globalPermissionByRoute` es el aporte de esta versión limpia.** En el original
+> las ramas de borrado y edición son copia-pega **salvo la constante**, unas cuarenta líneas
+> repetidas. Si tu módulo tiene más rutas con el mismo patrón, se añaden a la tabla y el
+> cuerpo no crece.
+
+### Patrón 2 · Conflicto de interés
+
+**Nadie decide sobre sí mismo.** Extraído de `SystemApprovalsController`, donde impide que un
+usuario apruebe su propia solicitud.
+
+```php
+private static function _allowedRoute(string $name, string $route, array $params = [])
+{
+    $allow = $route !== '';
+
+    if (!$allow) {
+        return false;
+    }
+
+    $currentUser = getLoggedFrameworkUser();
+    $decisionRoutes = ['forms-approval', 'actions-approval'];
+
+    if ($currentUser !== null && in_array($name, $decisionRoutes)) {
+        $allow = (int) $currentUser->id !== (int) ($params['id'] ?? 0);
+    }
+
+    return $allow;
+}
+```
+
+### Patrón 3 · Registro protegido
+
+**Hay una fila que no se borra nunca**, porque el sistema depende de que exista. Extraído de
+`NewsCategoryController` y `PublicationsCategoryController`: la categoría «sin categoría»
+recoge los elementos huérfanos, así que borrarla dejaría datos colgando.
+
+```php
+private static function _allowedRoute(string $name, string $route, array $params = [])
+{
+    $allow = $route !== '';
+
+    if ($allow && $name === 'actions-delete' && array_key_exists('id', $params)) {
+        $id = $params['id'];
+        $protectedID = MiModuloCategoryMapper::UNCATEGORIZED_ID;
+        //El id llega como cadena desde la URL y como int desde el código: se comparan los dos.
+        $allow = !(is_scalar($id) && ($id === $protectedID || $id === (string) $protectedID));
+    }
+
+    return $allow;
+}
+```
+
+### Lo que NO va aquí
+
+- **Comprobar roles.** Eso ya lo hizo `routeName()` con `Roles::hasPermissions()`.
+- **Un `if` de relleno**, del tipo `if ($name == 'SAMPLE') { }`. Un método que no decide nada
+  hace fallar `verify-integrity` y hay que borrarlo. **De ahí salieron 89 copias muertas.**
+- **Variables por si acaso.** Cargar el usuario para asignar `$currentUserType` y no leerlo
+  nunca es exactamente el andamio que se acaba de quitar.
