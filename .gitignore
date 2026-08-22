@@ -33,3 +33,5 @@ IGNORE/
 docs/*
 bin/phpstan.deadcode.generated.neon
 files/dev/route-inventory.json
+PHPStanResult.8.4.json
+PHPStanResult.8.5.json

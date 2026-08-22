@@ -22,10 +22,13 @@ parameters:
     # deprecadas eran invisibles para los dos detectores a la vez: para el estático por este
     # rango, y para el de ejecución porque en 8.4 esas funciones no avisan.
     #
-    # NO SE CAMBIA AQUÍ: subir el piso a 8.5 mueve el baseline +23 y eso es decisión del
-    # propietario (T0, trinquete). Lo correcto sería DOS PASADAS —una por versión— y la
-    # UNIÓN de sus errores. Mientras tanto, la sexta comprobación de `verify-integrity`
-    # —el registro de `files/dev/deprecated-functions.json`— es la defensa determinista.
+    # RESUELTO: `bin/phpstan` YA NO USA ESTE BLOQUE COMO RANGO. Corre DOS PASADAS —una con
+    # `phpVersion` fijado en 80400 y otra en 80500, derivadas de este mismo archivo— y el
+    # baseline es la UNIÓN de las dos. Reconciliación exacta: 875 instancias en 8.4, menos 9
+    # duplicados que la unión deduplica, más 22 tripletas que SOLO existen en 8.5 = 888.
+    #
+    # Este bloque se conserva porque las dos pasadas lo SUSTITUYEN por su valor fijo: si
+    # desaparece, `bin/phpstan` aborta en vez de analizar una sola versión en silencio.
     phpVersion:
         min: 80400 # PHP 8.4 — piso declarado en src/composer.json
         max: 80500 # PHP 8.5 — la versión que sirve Apache

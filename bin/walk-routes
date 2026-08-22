@@ -53,7 +53,15 @@ if (!is_array($inventory)) {
  * Nombres y trozos de URL que NUNCA se piden. Sobra con uno de los dos: se comprueban los
  * dos a propósito, porque un nombre puede no seguir la convención y una URL sí, o al revés.
  */
-$forbidden = ['-actions-', '-forms-add', '-forms-edit', '-add', '-edit', '-delete', 'delete', 'destroy', 'remove', 'logout', 'sign-out'];
+$forbidden = [
+    //Por nombre de ruta, que es la convención del proyecto.
+    '-actions-', '-forms-add', '-forms-edit', '-add', '-edit', '-delete',
+    //Y por FORMA DE URL, porque un enlace real no sigue la convención de nombres: en la
+    //primera corrida se coló `/forms/add/` por no llevar guion. Era inofensivo —una vista
+    //de formulario, no una acción— pero la regla es que no se piden, no que no rompan.
+    '/add', '/edit', '/delete', '/actions', '/remove', '/destroy',
+    'delete', 'destroy', 'remove', 'logout', 'sign-out',
+];
 
 $isForbidden = static function (string $name, string $url) use ($forbidden): ?string {
     $haystack = mb_strtolower($name . ' ' . $url);
@@ -156,29 +164,85 @@ foreach ($inventory as $route) {
     }
 }
 
-//──── Recorrido de assets ───────────────────────────────────────────────────────────────
+/**
+ * Normaliza un candidato sacado del HTML. Devuelve null si no es una URL NUESTRA.
+ *
+ * Descarta esquemas que no son http/https —`tel:`, `mailto:`, `data:`…— y los hosts
+ * externos escritos a pelo, como un `google.com` suelto: sin barra y con punto es un
+ * dominio, no una ruta relativa. Los dos casos daban 404 falsos en la primera corrida.
+ */
+$normalise = static function (string $candidate) use ($base): ?string {
+    $candidate = trim(html_entity_decode($candidate, ENT_QUOTES | ENT_HTML5));
+    if ($candidate === '' || $candidate[0] === '#') {
+        return null;
+    }
+    if (preg_match('~^[a-z][a-z0-9+.\-]*:~i', $candidate) === 1) {
+        return mb_strpos($candidate, $base) === 0 ? $candidate : null;
+    }
+    if (mb_strpos($candidate, '//') === 0) {
+        return null; //protocolo relativo: externo
+    }
+    if (mb_strpos($candidate, '/') === false && mb_strpos($candidate, '.') !== false && preg_match('~\.(css|js|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot|pdf|json|map)$~i', $candidate) !== 1) {
+        return null; //`google.com`: dominio suelto, no ruta
+    }
+    return $base . '/' . ltrim($candidate, '/');
+};
+
+$looksLikeAsset = static fn (string $url): bool => preg_match('~\.(css|js|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot|pdf|mp4|webm|json|map|xml|txt|zip)(\?|$)~i', $url) === 1;
+
+//──── Recorrido de enlaces: assets Y páginas con parámetros ─────────────────────────────
+/**
+ * LOS PARÁMETROS NO SE INVENTAN: SE COSECHAN. Las rutas con `{id}` no se piden con un valor
+ * fabricado — se piden **por los enlaces reales que las páginas ya visitadas contienen**, que
+ * es exactamente lo que alcanzaría alguien haciendo clic. Sin base de datos y sin adivinar.
+ */
 $assets = [];
+$derived = [];
 if (!isset($options['no-assets'])) {
     $seen = [];
-    foreach ($pages as $pageUrl => $html) {
-        if (preg_match_all('/(?:src|href)\s*=\s*"([^"]+)"/i', $html, $matches) !== false) {
+    $frontier = $pages;
+    $depth = 0;
+    $maxDepth = (int) ($options['depth'] ?? 2);
+
+    while (count($frontier) > 0 && $depth < $maxDepth) {
+        $depth++;
+        $nextFrontier = [];
+
+        foreach ($frontier as $pageUrl => $html) {
+            if (preg_match_all('/(?:src|href)\s*=\s*"([^"]+)"/i', $html, $matches) === false) {
+                continue;
+            }
             foreach ($matches[1] as $candidate) {
-                $candidate = html_entity_decode($candidate, ENT_QUOTES | ENT_HTML5);
-                if ($candidate === '' || $candidate[0] === '#' || mb_strpos($candidate, 'data:') === 0 || mb_strpos($candidate, 'javascript:') === 0) {
+                $url = $normalise($candidate);
+                if ($url === null || isset($seen[$url])) {
                     continue;
                 }
-                if (mb_strpos($candidate, 'http') === 0 && mb_strpos($candidate, $base) !== 0) {
-                    continue; //externo: no es nuestro
+                $seen[$url] = true;
+
+                $isAsset = $looksLikeAsset($url);
+                if (!$isAsset) {
+                    $reason = $isForbidden('', $url);
+                    if ($reason !== null) {
+                        $skipped[] = [$url, 'enlace de escritura: «' . $reason . '»'];
+                        continue;
+                    }
                 }
-                $assetUrl = mb_strpos($candidate, 'http') === 0 ? $candidate : $base . '/' . ltrim($candidate, '/');
-                if (isset($seen[$assetUrl])) {
-                    continue;
+
+                $response = $request($url, $headers);
+                $row = ['from' => $pageUrl, 'url' => $url] + array_diff_key($response, ['body' => true]);
+
+                if ($isAsset) {
+                    $assets[] = $row;
+                } else {
+                    $derived[] = $row;
+                    if (mb_strpos($response['type'], 'text/html') !== false && $depth < $maxDepth) {
+                        $nextFrontier[$url] = $response['body'];
+                    }
                 }
-                $seen[$assetUrl] = true;
-                $response = $request($assetUrl, $headers);
-                $assets[] = ['from' => $pageUrl, 'url' => $assetUrl] + array_diff_key($response, ['body' => true]);
             }
         }
+
+        $frontier = $nextFrontier;
     }
 }
 
@@ -193,10 +257,19 @@ $summarise = static function (array $rows): array {
 
 [$routesOk, $routesBad] = $summarise($results);
 [$assetsOk, $assetsBad] = $summarise($assets);
+[$derivedOk, $derivedBad] = $summarise($derived);
 
 echo "\n";
-echo "RUTAS   : " . count($results) . " pedidas, {$routesOk} en 2xx, " . count($routesBad) . " no-2xx, " . count($skipped) . " omitidas\n";
-echo "ASSETS  : " . count($assets) . " pedidos, {$assetsOk} en 2xx, " . count($assetsBad) . " no-2xx\n";
+echo "RUTAS    : " . count($results) . " pedidas, {$routesOk} en 2xx, " . count($routesBad) . " no-2xx, " . count($skipped) . " omitidas\n";
+echo "DERIVADAS: " . count($derived) . " pedidas desde enlaces reales, {$derivedOk} en 2xx, " . count($derivedBad) . " no-2xx\n";
+echo "ASSETS   : " . count($assets) . " pedidos, {$assetsOk} en 2xx, " . count($assetsBad) . " no-2xx\n";
+
+if (count($derivedBad) > 0) {
+    echo "\n── PÁGINAS DERIVADAS NO-2xx ──\n";
+    foreach ($derivedBad as $row) {
+        printf("  %-3d %-6dms  %s\n     desde %s\n", $row['status'], $row['ms'], $row['url'], $row['from']);
+    }
+}
 
 if (count($routesBad) > 0) {
     echo "\n── RUTAS NO-2xx ──\n";
@@ -220,9 +293,9 @@ foreach ($reasons as $reason => $names) {
 
 if (isset($options['json']) && is_string($options['json'])) {
     file_put_contents($options['json'], json_encode([
-        'routes' => $results, 'assets' => $assets, 'skipped' => $skipped,
+        'routes' => $results, 'derived' => $derived, 'assets' => $assets, 'skipped' => $skipped,
     ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
     echo "\nJSON: " . $options['json'] . "\n";
 }
 
-exit(count($routesBad) + count($assetsBad) > 0 ? 1 : 0);
+exit(count($routesBad) + count($assetsBad) + count($derivedBad) > 0 ? 1 : 0);

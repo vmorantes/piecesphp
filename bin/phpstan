@@ -1,29 +1,106 @@
 #!/bin/bash
 
-# 1. Determinar el binario de PHP a usar
-if command -v php8.4 >/dev/null 2>&1; then
+# Análisis estático, EN LAS DOS VERSIONES DE PHP QUE EL PROYECTO DECLARA SOPORTAR.
+#
+# `src/composer.json` declara `>=8.4.1 <8.6`, así que el código tiene que estar limpio en
+# 8.4 **y** en 8.5. Antes esto se resolvía con `phpVersion` como RANGO, y un rango hace lo
+# contrario de lo que parece: reporta solo lo que es error en TODAS las versiones —la
+# INTERSECCIÓN—, así que toda deprecación exclusiva de 8.5 se descartaba en silencio. Ese
+# fue el agujero por el que pasaron nueve llamadas deprecadas durante la campaña entera.
+#
+# Ahora son DOS PASADAS y el baseline es LA UNIÓN.
+
+set -o pipefail
+
+# QUÉ PHP SE USA. Por defecto, EL QUE SIRVE EL NAVEGADOR: durante toda la campaña estas
+# herramientas corrieron con php8.4 mientras Apache servía 8.5.9, así que las suites NUNCA
+# pisaron la versión de producción y las deprecaciones de 8.5 eran invisibles.
+#
+# Se puede fijar otra con PCSPHP_PHP_BIN, que es lo que permite correrlas en las dos:
+#   PCSPHP_PHP_BIN=php8.4 bin/cli unit-tests:core/mapper-finders
+if [ -n "$PCSPHP_PHP_BIN" ]; then
+    PHP_BIN="$PCSPHP_PHP_BIN"
+elif command -v php8.5 >/dev/null 2>&1; then
+    PHP_BIN="php8.5"
+elif command -v php8.4 >/dev/null 2>&1; then
     PHP_BIN="php8.4"
 else
     PHP_BIN="php"
 fi
 
-SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 cd "$SCRIPT_DIR/.."
 
 REPORT_FILE=PHPStanResult.txt
 REPORT_JSON=PHPStanResult.json
+ANALYSE="bin/tools/vendor/bin/phpstan analyse --autoload-file=$SCRIPT_DIR/../src/vendor/autoload.php --memory-limit 2000M"
 
-# 2. Ejecutar PHPStan usando el binario detectado
-# Nota: Pasamos el binario antes del script de PHPStan si este no es ejecutable por sí solo,
-# o simplemente usamos el binario para el proceso posterior.
-#
-# NO QUITAR COLUMNS: sin él la tabla recorta las rutas al ancho de terminal (80 al
-# redirigir) y las herramientas que leen este archivo pierden los archivos de ruta larga.
-COLUMNS=400 PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 $PHP_BIN bin/tools/vendor/bin/phpstan analyse --autoload-file="$SCRIPT_DIR/../src/vendor/autoload.php" --memory-limit "2000M" -c bin/phpstan.neon > "$REPORT_FILE"
+# 1. Dos configuraciones derivadas de bin/phpstan.neon, una por versión. Derivadas y no
+#    duplicadas: así no pueden quedarse atrás cuando alguien toque los ignores.
+for VERSION in 80400 80500; do
+    $PHP_BIN -r '
+        $c = str_replace("\r\n", "\n", (string) file_get_contents("bin/phpstan.neon"));
+        if (preg_match("/^    phpVersion:\n(?:        .*\n)+/m", $c, $m) !== 1) {
+            fwrite(STDERR, "No se encontró el bloque phpVersion en bin/phpstan.neon.\n");
+            exit(1);
+        }
+        $replacement = "    phpVersion:\n        min: " . $argv[1] . "\n        max: " . $argv[1] . "\n";
+        file_put_contents($argv[2], str_replace("\n", "\r\n", str_replace($m[0], $replacement, $c)));
+    ' "$VERSION" "bin/phpstan.$VERSION.generated.neon" || exit 1
+done
 
-# 2b. Salida de máquina: la tabla es para leerla, el JSON para programar contra él.
-# Con la caché caliente esta segunda pasada cuesta menos de un segundo.
-$PHP_BIN bin/tools/vendor/bin/phpstan analyse --autoload-file="$SCRIPT_DIR/../src/vendor/autoload.php" --memory-limit "2000M" -c bin/phpstan.neon --error-format=json --no-progress > "$REPORT_JSON" 2>/dev/null
+# 2. La tabla legible sale de la pasada del PISO. Es para leerla; el dato manda en el JSON.
+#    NO QUITAR COLUMNS: sin él la tabla recorta las rutas al ancho de terminal.
+COLUMNS=400 PHPSTAN_TABLE_ERROR_FORMATTER_FORCE_SHOW_ALL_ERRORS=1 \
+    $PHP_BIN $ANALYSE -c bin/phpstan.80400.generated.neon > "$REPORT_FILE"
 
-# 3. Ejecutar el script de procesamiento con el mismo binario
+# 3. Las dos pasadas de máquina.
+$PHP_BIN $ANALYSE -c bin/phpstan.80400.generated.neon --error-format=json --no-progress > PHPStanResult.8.4.json 2>/dev/null
+$PHP_BIN $ANALYSE -c bin/phpstan.80500.generated.neon --error-format=json --no-progress > PHPStanResult.8.5.json 2>/dev/null
+
+# 4. La UNIÓN. Cada error queda anotado con las versiones en que aparece.
+$PHP_BIN -r '
+    $load = function (string $file): array {
+        $json = json_decode((string) @file_get_contents($file), true);
+        return is_array($json) && isset($json["files"]) && is_array($json["files"]) ? $json["files"] : [];
+    };
+    $sources = ["8.4" => $load("PHPStanResult.8.4.json"), "8.5" => $load("PHPStanResult.8.5.json")];
+    if (count($sources["8.4"]) === 0 && count($sources["8.5"]) === 0) {
+        fwrite(STDERR, "Las dos pasadas devolvieron cero archivos: la medición NO se hizo.\n");
+        exit(1);
+    }
+    $union = [];
+    foreach ($sources as $version => $files) {
+        foreach ($files as $path => $data) {
+            foreach ($data["messages"] as $message) {
+                $key = $path . "|" . $message["line"] . "|" . $message["message"];
+                if (!isset($union[$key])) {
+                    $union[$key] = ["path" => $path, "message" => $message, "versions" => []];
+                }
+                $union[$key]["versions"][] = $version;
+            }
+        }
+    }
+    $files = [];
+    $total = 0;
+    foreach ($union as $entry) {
+        $message = $entry["message"];
+        $message["phpVersions"] = $entry["versions"];
+        $files[$entry["path"]]["messages"][] = $message;
+        $total++;
+    }
+    foreach ($files as $path => $data) {
+        $files[$path]["errors"] = count($data["messages"]);
+    }
+    ksort($files);
+    file_put_contents("PHPStanResult.json", json_encode([
+        "totals" => ["errors" => 0, "file_errors" => $total],
+        "files" => $files,
+        "errors" => [],
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+' || exit 1
+
+rm -f bin/phpstan.80400.generated.neon bin/phpstan.80500.generated.neon
+
+# 5. Resumen y trinquete, a partir del JSON de la unión.
 $PHP_BIN "$SCRIPT_DIR/phpstan-process-result.php" "$@"

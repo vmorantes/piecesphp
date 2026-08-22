@@ -2,5 +2,19 @@
 SCRIPT_DIR=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)
 # Rector debe correr con el MISMO binario que el resto del utillaje: el `php` por
 # defecto de esta máquina es 8.1.34, por debajo del piso declarado (>=8.4.1).
-if command -v php8.4 >/dev/null 2>&1; then PHP_BIN=php8.4; else PHP_BIN=php; fi
+# QUÉ PHP SE USA. Por defecto, EL QUE SIRVE EL NAVEGADOR: durante toda la campaña estas
+# herramientas corrieron con php8.4 mientras Apache servía 8.5.9, así que las suites NUNCA
+# pisaron la versión de producción y las deprecaciones de 8.5 eran invisibles.
+#
+# Se puede fijar otra con PCSPHP_PHP_BIN, que es lo que permite correrlas en las dos:
+#   PCSPHP_PHP_BIN=php8.4 bin/cli unit-tests:core/mapper-finders
+if [ -n "$PCSPHP_PHP_BIN" ]; then
+    PHP_BIN="$PCSPHP_PHP_BIN"
+elif command -v php8.5 >/dev/null 2>&1; then
+    PHP_BIN="php8.5"
+elif command -v php8.4 >/dev/null 2>&1; then
+    PHP_BIN="php8.4"
+else
+    PHP_BIN="php"
+fi
 $PHP_BIN $SCRIPT_DIR/tools/vendor/bin/rector process --config=$SCRIPT_DIR/tools/refactorization/Rector.php $@

@@ -377,7 +377,11 @@ class ServerStatics
             $defaultReplacement[$toReplace] = $valueReplacement;
         }
         $replacement = $defaultReplacement;
-        $resource = $args['params'];
+        //`{params:.*}` es OPCIONAL en la ruta: pedir `/statics/` a secas NO trae la clave.
+        //Tratarla como obligatoria emitía un E_WARNING que el manejador convierte en
+        //excepción, y eso daba 500 en las 23 rutas de estáticos a la vez. Ausente = recurso
+        //vacío, que las validaciones de abajo rechazan con un 404, que es la respuesta justa.
+        $resource = $args['params'] ?? '';
         $enableSassCompilation = false;
 
         //NOTE: Por el momento, la funcionalidad está deshabilitada debido a problemas con el reemplazo de variables SCSS
@@ -433,7 +437,11 @@ class ServerStatics
      */
     public function serve(Request $request, Response $response, array $args, ?string $path = null, bool $mustValidate = true)
     {
-        $resource = $args['params'];
+        //`{params:.*}` es OPCIONAL en la ruta: pedir `/statics/` a secas NO trae la clave.
+        //Tratarla como obligatoria emitía un E_WARNING que el manejador convierte en
+        //excepción, y eso daba 500 en las 23 rutas de estáticos a la vez. Ausente = recurso
+        //vacío, que las validaciones de abajo rechazan con un 404, que es la respuesta justa.
+        $resource = $args['params'] ?? '';
         //Verificar si se puede delegar al servidor web
         if (self::shouldDelegateToWebServer($resource)) {
             return self::delegateToWebServer($request, $response, $resource, $path);
@@ -451,7 +459,11 @@ class ServerStatics
      */
     public static function getSymbolicLink(array $args, ?string $path = null): ?string
     {
-        $resource = $args['params'];
+        //`{params:.*}` es OPCIONAL en la ruta: pedir `/statics/` a secas NO trae la clave.
+        //Tratarla como obligatoria emitía un E_WARNING que el manejador convierte en
+        //excepción, y eso daba 500 en las 23 rutas de estáticos a la vez. Ausente = recurso
+        //vacío, que las validaciones de abajo rechazan con un 404, que es la respuesta justa.
+        $resource = $args['params'] ?? '';
         $filePath = self::buildFilePath($resource, $path);
         if (file_exists($filePath)) {
             if (self::shouldDelegateToWebServer($resource)) {

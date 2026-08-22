@@ -1787,6 +1787,7 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 | La memoria, sobre lo que hay en git | Nadie miró el historial | «el directorio queda en la historia». **Nunca estuvo en git**: `git log` sobre él no devuelve nada |
 | Tres `grep` distintos en el mismo mensaje | Uno solo miraba `core/`; otro no anclaba a inicio de línea y **volvió a contar las funciones globales como métodos**; el tercero no cubría propiedades tipadas | «117 funciones, 143 métodos, 14 propiedades». Por tokens: **145, 1 y 90** |
 | El histórico de un log que se limpia de rutina | Se dedujo de una AUSENCIA sin comprobar si el instrumento podía contener el dato | «Apache quizá sirve 8.4». Sirve **8.5.9**, y eso era justo la causa del fallo |
+| **`phpVersion: {min: 80400, max: 80500}`** en `phpstan.neon` | **UN RANGO REPORTA LA INTERSECCIÓN, NO LA UNIÓN**: solo lo que es error en TODAS las versiones del rango | «cubre las dos versiones». Cegó la pata estática a **toda** deprecación exclusiva de 8.5 durante la campaña entera |
 
 ### La regla
 
@@ -1798,7 +1799,16 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 `--name-only` sirve porque aplican el filtro en sitios distintos; repetir el mismo comando
 con otra bandera cosmética, no.
 
-**Los dos últimos casos son de otra clase y por eso están en la tabla:** no falló una
+**El caso del `phpVersion` es de una TERCERA clase, y es el más caro de todos**: no fue una
+medición mal hecha ni una medición ajena dada por buena. Fue un **INSTRUMENTO MAL
+CONFIGURADO que devolvía menos de lo que parecía**, y encima con un nombre que sugería lo
+contrario — un rango suena a «cubre más» y cubre menos.
+
+> **No faltaban stubs: se le había dicho a PHPStan que no mirara.** Y la configuración estaba
+> comentada, con una explicación razonada de por qué el rango era mejor que un escalar. La
+> explicación decía justo lo contrario de lo que hace la opción, y nadie la probó.
+
+**Los dos casos anteriores son de otra clase y por eso están en la tabla:** no falló una
 herramienta, falló **dar por buena una medición ajena**. Una extracción parcial se presentó
 como censo y una afirmación sobre el historial de git se escribió sin mirar el historial.
 
@@ -2752,3 +2762,124 @@ propietario. Lo correcto sería **dos pasadas y la unión**, no la intersección
 `-add`, `-edit`, `-delete`, `delete`, `destroy`, `remove`, `logout`. **No escribe nada.**
 Recorre además **todos los assets** de las páginas visitadas, que es donde un paseo humano no
 mira: un asset que revienta no rompe la página.
+
+## T31 · CERRANDO 8.5: dos pasadas, el `chr()` del cifrado, y el recorrido con sesión
+
+### 1 · El baseline pasa a ser LA UNIÓN de 8.4 y 8.5
+
+`bin/phpstan` corre ahora **dos pasadas** —`phpVersion` fijado en 80400 y en 80500, con
+configuraciones **derivadas** de `bin/phpstan.neon`, no duplicadas— y el baseline es la unión.
+
+| | |
+| --: | :-- |
+| **875** | instancias en la pasada de 8.4 |
+| **−9** | duplicados exactos, que la unión deduplica |
+| **866** | tripletas comunes a las dos versiones |
+| **+22** | tripletas que **solo existen en 8.5** |
+| **888** | **tripletas. El baseline nuevo** |
+
+**Solo en 8.4: cero.** Y las 22 son todas `offsetAccess.invalidOffset` — la familia de
+*«Using null as an array offset»*, que **el recorrido encontró también en ejecución**
+(`CountryMapper.php:276`). El análisis estático y el dinámico apuntan al mismo sitio.
+
+**CAMBIO DE UNIDAD, y hay que decirlo**: 888 son **tripletas**; 875 y las anteriores eran
+**instancias**. El resumen lo lleva escrito en un bloque `[UNIDAD]` propio.
+
+Y de paso, `phpstan-process-result.php` **deja de parsear la tabla**: construye el resumen
+leyendo el JSON de la unión. Parsear la tabla fue lo que hizo perder 34 archivos a Rector.
+
+### 2 · Las herramientas corrían en la versión equivocada
+
+`bin/cli`, `bin/phpstan`, `bin/rector` y `bin/phpstan-deadcode` usaban `php8.4` mientras
+Apache sirve **8.5.9**: **las suites nunca habían pisado la versión de producción.**
+
+Ahora el binario es explícito y configurable —`PCSPHP_PHP_BIN`— y **por defecto es la que
+sirve el navegador**. Corridas en las dos:
+
+| | 8.5 | 8.4 |
+| :-- | :-- | :-- |
+| `verify-integrity` | OK | OK |
+| `mapper-finders` | 20/20 | 20/20 |
+| `session-user` | 13/13 | 13/13 |
+| `otp-write-separation` | 6/6 | 6/6 |
+| `meta-property-hybrid` | 12/12 | 12/12 |
+| `database-exporter` | 23/23 | — |
+
+**Nada se cayó.** Lo que faltaba no era arreglar las suites: era ejecutarlas donde importa.
+
+### 3 · `chr()` en `BaseHashEncryption` — no era una deprecación, era el cifrado
+
+`encrypt()` y `decrypt()` suman y restan bytes y **dependen de que `chr()` dé la vuelta en
+256**. Desde 8.5 eso avisa, y en local —donde el manejador promueve la deprecación a
+excepción— **lanza**. Por eso dejó de descifrarse la configuración de correo.
+
+> **El riesgo no era la deprecación: era que alguien lo «mejorara».** Cualquier cambio en esa
+> aritmética vuelve **indescifrable** todo lo ya cifrado en cada despliegue congelado.
+
+El arreglo es `& 0xFF` y **nada más**. Comprobado valor a valor entre −600 y 600 contra el
+`chr()` de 8.4: **cero diferencias**. `% 256` NO sirve: en PHP el módulo de un negativo es
+negativo.
+
+**Ida y vuelta demostrada**, con el valor a la vista:
+
+```
+cifrado por el código VIEJO : nNLax9_MotbGkNk1KNOCxZLj9Jyr1dHQsIXw9cab1DUv
+descifrado por el NUEVO     : configuración de correo: Ñandú
+```
+
+Cinco casos —texto, acentos, bytes altos, clave larga—: **cifrado byte a byte idéntico**, el
+nuevo descifra lo viejo y el viejo descifra lo nuevo. El archivo lleva una nota que prohíbe
+tocar esa aritmética.
+
+**Y esto explica los cinco 500 públicos**: `users/recovery/`, `user-blocked`, `user-forget`,
+`problems` y `other-problems` leen la configuración de correo. Demostrado poniendo el código
+viejo de vuelta: **500 con él, 200 con el arreglo.**
+
+**Corrección propia**: dije que «no dejaron log». Sí lo dejaron — eran las 12 entradas de
+`chr()` que había contado como un hallazgo aparte. Eran el mismo.
+
+Y un aviso de instrumento: la primera comparación A/B dio 200 con el código viejo, porque
+**opcache seguía sirviendo la versión compilada anterior**. Hubo que tocar el archivo y
+esperar antes de medir. **T20: el instrumento era la caché del servidor web.**
+
+### 4 · Los 23 quinientos de `*/statics/` eran UN defecto
+
+`{params:.*}` es **opcional** en la ruta y `ServerStatics` lo leía como obligatorio en tres
+sitios. Pedir `/statics/` a secas → `E_WARNING` → excepción → 500, en los 23 módulos a la
+vez. Con `?? ''` responden **404**, que es lo correcto, y los estáticos reales siguen
+sirviéndose.
+
+### 5 · El recorrido con sesión
+
+| | Sin sesión | Con sesión de root |
+| :-- | --: | --: |
+| Rutas pedidas | 184 | 184 |
+| **2xx** | 51 | **114** |
+| 302 | 93 | 1 |
+| 500 | 1 | 27 |
+| **Páginas derivadas de enlaces reales** | — | **122**, 118 en 2xx |
+| **Assets** | 46, 2 no-2xx | **38, todos 2xx** |
+
+**Los parámetros no se inventan: se cosechan.** Las rutas con `{id}` se piden por los enlaces
+reales que las páginas ya visitadas contienen — lo que alcanzaría alguien haciendo clic. Sin
+base de datos y sin adivinar. Eso añadió **122 páginas** que antes no se miraban.
+
+**De los 27 quinientos con sesión, 24 son endpoints `-datatables` o `-ajax-all`** llamados
+sin los parámetros que DataTables genera: defecto de robustez ya documentado
+(`DataTablesHelper.php:230` y `:1090`), preexistente y ajeno a la versión de PHP.
+
+**Los que no son de esa familia, y son los que hay que mirar:**
+
+| Qué | Dónde |
+| :-- | :-- |
+| `Unknown column 'interest_research_area.startDate' in 'WHERE'` | `PageQuery.php:147` — SQL contra una columna que no existe |
+| `TOTPStandard::getQRCodeUrl(): Argument #2 ($issuer) must be of type string, null given` | `OTPHandler.php:175` |
+| `ImagesRepositoryController::_all(): Argument #1 ($description) must be of type…` | módulo condenado |
+| **`Using null as an array offset is deprecated`** | `CountryMapper.php:276` — **deprecación de 8.5 EN EJECUCIÓN** |
+| `404` en `admin/reports-access/`, `locations/points/datatables/`, `/elements/`, `/tabs-sample/` | enlaces o rutas que no resuelven |
+
+### Corrección: son 3 `strftime()`, no 6
+
+Las otras tres menciones son el docblock del conversor de formatos. Las tres llamadas viven
+en `Utilities.php`, van con `@`, y ahora **PHPStan sí las reporta en las dos pasadas** — con
+el rango no las reportaba.

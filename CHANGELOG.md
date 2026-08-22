@@ -146,6 +146,28 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   horaria hereda la hora actual; `->format('Y-m-d')` la descartaba, así que el valor nunca
   cambió, pero el objeto intermedio era distinto en cada petición.
 
+## Seguridad — cifrado
+
+- **`BaseHashEncryption::encrypt()` y `decrypt()` dejaron de descifrar en PHP 8.5.** Las dos
+  suman y restan bytes y **dependen de que `chr()` dé la vuelta en 256**; desde 8.5 eso emite
+  una deprecación y, con el manejador de errores del framework, **lanza**. Efecto visible: la
+  configuración de correo dejaba de descifrarse y **cinco páginas públicas devolvían 500** —
+  recuperación de contraseña, desbloqueo de usuario, «no recuerdo mi usuario», problemas de
+  ingreso y solicitud de soporte.
+    - El arreglo es `& 0xFF`, que **reproduce ese desbordamiento exactamente**. Comprobado
+      valor a valor entre −600 y 600 contra el `chr()` de 8.4: cero diferencias.
+    - **Compatible con lo ya cifrado**, demostrado en las dos direcciones: el código nuevo
+      descifra lo cifrado por el viejo y el viejo descifra lo del nuevo, con cifrado byte a
+      byte idéntico.
+    - **NO SE TOCA ESA ARITMÉTICA.** Cualquier otro cambio vuelve indescifrable todo lo ya
+      guardado en cada despliegue. El archivo lleva la prohibición escrita.
+
+## Corregido — el servidor de estáticos
+
+- **23 rutas `*/statics/` devolvían 500 a la vez.** El patrón `{params:.*}` es **opcional** y
+  `ServerStatics` lo leía como obligatorio en tres sitios: pedir `/statics/` sin recurso daba
+  `E_WARNING` → excepción → 500, una por módulo. Ahora responden **404**, que es lo correcto,
+  y los estáticos reales siguen sirviéndose.
 ## PHP 8.5 — la migración no estaba terminada
 
 - **Se borran nueve llamadas a funciones deprecadas en PHP 8.5**: `imagedestroy()` ×4,
@@ -166,7 +188,21 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 - **Nuevo: `bin/cli route-inventory` y `bin/walk-routes`.** Recorren por HTTP todas las
   rutas GET que el framework declara —347, sacadas del propio framework— y después todos
   los assets de las páginas visitadas. Solo lectura. Ver el README.
-
+- **`bin/phpstan` pasa a DOS PASADAS y el baseline es la UNIÓN de 8.4 y 8.5.** El
+  `phpVersion` como rango reportaba la **intersección**, no la unión: solo lo que es error en
+  todas las versiones del rango, así que **toda deprecación exclusiva de 8.5 se descartaba en
+  silencio**. El baseline pasa de 875 instancias a **888 tripletas**, que se reconcilia
+  exacto: −9 duplicados que la unión deduplica, +22 que solo existen en 8.5.
+    - **No es una regresión: es un destape por configuración más un cambio de unidad.** El
+      resumen lleva ahora un bloque `[UNIDAD]` y otro `[REPARTO POR VERSIÓN DE PHP]`.
+    - `phpstan-process-result.php` **deja de parsear la tabla** y construye el resumen desde
+      el JSON de la unión.
+- **Las herramientas de `bin/` usaban `php8.4` mientras Apache sirve 8.5.9**, así que las
+  suites nunca habían corrido en la versión de producción. Ahora el binario es explícito y
+  configurable con `PCSPHP_PHP_BIN`, **y por defecto es el que sirve el navegador**. Las seis
+  suites y `verify-integrity` pasan en **las dos** versiones.
+- **El recorredor pide también las rutas con parámetros**, cosechando los enlaces reales de
+  las páginas ya visitadas en vez de inventar valores: 122 páginas más por recorrido.
 ## Seguridad y corrección de datos
 
 - **El XML exportado declaraba `encoding="utf8mb4"` y NINGÚN parser podía leerlo.**
