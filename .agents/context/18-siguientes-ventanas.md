@@ -2119,7 +2119,11 @@ Y el orden importa: **H5 no lo encontró nadie mirando el exportador. Lo encontr
 comprobación que se añadió al probar que la puerta no fallaba.** Provocar el fallo de una
 puerta no valida la puerta: valida lo que hay detrás.
 
-## T24 · MAPA NUEVO DE LAS 373 RAMAS — por familia, y NO SE BORRA NADA TODAVÍA
+## T24 · MAPA DE LAS 373 RAMAS — **DEROGADO por T29**
+
+> Se hizo sobre 373 y antes de cerrar el punto del trait. **El mapa vigente es T29**, sobre
+> las 309 que quedan. Esto se conserva por la parte que sigue valiendo: el dato de que 89
+> ramas vivían dentro de los tres métodos de ruta, que fue lo que decidió el orden.
 
 **El «235 borrables» está derogado** (ver T13). Este es el mapa sobre la medición nueva.
 
@@ -2574,3 +2578,95 @@ date` — **no hay `blob` ni `binary`**. Y **cero mappers** declaran un campo bi
 **Ninguna es obvia y las tres son del propietario.** Lo que sí está cerrado es el
 diagnóstico: **el daño ocurre al escribir, la causa es la emulación de preparados sobre una
 conexión cuyo charset PDO desconoce, y el alcance real es cero por la vía del ORM.**
+
+## T29 · MAPA DE LAS 309 RAMAS — el de T24 queda derogado, y NO SE BORRA NADA
+
+T24 se hizo sobre 373 y **antes** de cerrar el punto del trait. Este es sobre las **309** que
+quedan. Sigue sin borrarse nada.
+
+### El instrumento, columna por columna
+
+| Columna | Con qué se midió |
+| :-- | :-- |
+| **Ramas** | `bin/phpstan-deadcode`. **Unidad: tripletas** (ruta, línea, mensaje) |
+| **Zona** | La RUTA del archivo: `/view/` o `/Views/` → vistas; `*Mapper.php` → mappers; `local-tests/` → suites; `src/app/config/` → config; `src/app/core/` → núcleo; `*Controller.php` → controladores; el resto, otros |
+| **Veredicto** | **Lectura a mano** de una muestra de cada familia. Donde no la hay, dice «sin verificar» |
+
+### Por qué bajó de 373 a 309
+
+| | |
+| :-- | --: |
+| Punto del trait: 35 métodos borrados | **−48** |
+| `catch.neverThrown`: 3 borrados y 2 reclasificados | **−5** |
+| `if.alwaysFalse`: 11 interruptores reclasificados | **−11** |
+
+**De las 64, solo 38 eran borrado real. Las otras 26 nunca fueron ramas muertas.**
+
+### El mapa
+
+| Ramas | Identificador | Zona dominante | Veredicto de la muestra verificada |
+| --: | :-- | :-- | :-- |
+| **105** | `function.alreadyNarrowedType` | núcleo 36, controladores 34 | `is_array()` sobre un `array`. **Resto defensivo puro**, borrable por familia |
+| **42** | `notIdentical.alwaysTrue` | controladores 35 | `$userMapper !== null` sobre un valor ya estrechado. Borrable **con cuidado**: es una condición viva, no un hueco |
+| **26** | `isset.variable` | controladores 21 | `isset($_POST)` dentro del closure `$getParam` de los `_allowedRoute` **que sobreviven**. Sobra el `isset`, **no el closure**: 9 de los 10 que lo declaran lo usan |
+| **24** | `foreach.emptyArray` | mappers 24 | **Hueco de plantilla puro**: `$defaultPropertiesValues = []` seguido de su `foreach`. Se borran el array y el bucle |
+| **21** | `if.alwaysTrue` | otros 9, controladores 6 | Sin verificar |
+| **13** | `function.impossibleType` | núcleo 8 | `is_scalar($x) && !is_null($x)` — guarda redundante. Resto defensivo |
+| **12** | `ternary.alwaysTrue` | **vistas 10** | **NO SE TOCA. Ver abajo** |
+| **11** | `nullCoalesce.offset` | config 9 | `$array['clave'] ?? null` sobre un array literal donde la clave existe. Defensivo, borrable |
+| **10** | `booleanNot.alwaysTrue` | controladores 7 | **6 de 10 son un INTERRUPTOR. Ver abajo** |
+| **9** | `if.alwaysFalse` | controladores 7 | Los que quedaron fuera de los `<Modulo>Routes`. Sin verificar |
+| **7** | `booleanAnd.leftAlwaysTrue` | mappers 4 | Sin verificar |
+| **5** | `booleanAnd.rightAlwaysFalse` | vistas 2 | Sin verificar |
+| **4** | `deadCode.unreachable` | `SystemApprovalManager` 3 | `break;` detrás de un `return` dentro de un `switch`. Inofensivo y real |
+| **30** | *(las 12 familias restantes, ≤3 cada una)* | — | Sin verificar |
+
+### DOS FAMILIAS MÁS QUE PARECEN MECÁNICAS Y NO LO SON
+
+Van ya tres, contando el `$showSQL` de T27. **El patrón se repite y conviene reconocerlo: un
+interruptor de desarrollo tiene esta forma exacta** —una variable local puesta a un literal,
+con su comentario al lado, y un `if` que la lee—.
+
+**`booleanNot.alwaysTrue` — `$showAlways`, 6 de 10.**
+
+```php
+$showAlways = false; //Define si se muestra siempre aunque no tenga traducción
+…
+if (!$showAlways) {
+    // añade el criterio que filtra por idioma
+}
+```
+
+Borrar ese `if` **cablearía «mostrar solo lo traducido»** y quitaría el interruptor. Es
+exactamente `$showSQL` con otro nombre.
+
+**`ternary.alwaysTrue` — constantes de módulo, 10 de 12 en vistas.**
+
+```php
+$withAttachments = PublicationMapper::WITH_ATTACHMENTS;   // en la vista
+…
+style="<?= $withAttachments ? '' : 'display:none;' ?>"
+```
+
+**Corrección de una lectura propia**: la primera hipótesis fue que eran variables inyectadas
+por `extract()` y que PHPStan no las ve. **Falso, y bastó un `grep` para saberlo**: se asignan
+en la propia vista desde una **constante de clase**. Es la misma trampa que los interruptores
+de módulo de T13, pero con constantes que **no están en `config/constants.php`**, así que
+`dynamicConstantNames` no las cubre hoy.
+
+> **Opción a evaluar, NO implementar**: `dynamicConstantNames` admite constantes de clase
+> (`PublicationMapper::WITH_ATTACHMENTS`). Habría que inventariar qué constantes de mapper son
+> configuración por despliegue y cuáles no — y esa distinción no se deduce del código.
+
+### Regla de trabajo
+
+1. **Empezar por `foreach.emptyArray`** (24, todas en mappers, todas la misma forma): es la
+   única familia con veredicto homogéneo verificado y sin sorpresas.
+2. Después `function.alreadyNarrowedType` (105) y `function.impossibleType` (13).
+3. **`ternary.alwaysTrue` y `booleanNot.alwaysTrue` NO se tocan** hasta decidir lo de las
+   constantes de módulo.
+4. **Cada familia, con su muestra verificada a mano ANTES de tocarla** — nunca por parecerse a
+   otra que sí era andamio.
+5. Y antes de suprimir una familia entera, **comprobar que sus miembros están ahí por la misma
+   razón** (T27). Tres familias de este mapa ya han demostrado que no basta con compartir
+   identificador.
