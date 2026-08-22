@@ -208,7 +208,16 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
             header('Access-Control-Allow-Headers: Content-Type, Authorization, isWebApp, isExternalLogin, JWTAuth');
             header('Vary: Origin');
         }
-        die($content);
+        /**
+         * `die($string)` IMPRIME Y SALE CON CÓDIGO CERO. En CLI eso hace que un proceso que
+         * murió informe de que todo fue bien, y entonces cualquier puerta lanzada por
+         * `bin/cli` deja de distinguir «pasé» de «no llegué a ejecutarme». Estuvo así toda
+         * la campaña: `verify-integrity` con un archivo sin compilar daba salida 0.
+         *
+         * En HTTP el código de salida no lo lee nadie: quien manda es el 500 que ya se envió.
+         */
+        echo $content;
+        exit(PHP_SAPI === 'cli' ? 1 : 0);
     };
 
     //Manejo de errores lanzados por throw

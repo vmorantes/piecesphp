@@ -1830,12 +1830,40 @@ mutación exacta anotada para que se pueda repetir.
 
 ### Los cinco hallazgos
 
-**H1 · `bin/cli` devuelve 0 aunque la aplicación muera al arrancar.** Con un `ParseError` en
-un archivo de `src/app`, la primera sonda de docblock hizo que la CLI escupiera el JSON del
-manejador de excepciones **y saliera con código 0**. `verify-integrity` no llegó a
-ejecutarse. **Cualquier puerta invocada por `bin/cli` es inútil en CI mientras el árbol no
-arranque**, porque el código de salida dice que todo fue bien. *No corregido: toca a la CLI
-entera y es decisión del propietario.*
+**H1 · `bin/cli` devolvía 0 aunque la aplicación muriera al arrancar — CORREGIDO, y era lo
+más grave del lote.**
+
+Con un `ParseError` en un archivo de `src/app`, la CLI escupía el JSON del manejador de
+excepciones **y salía con código 0**; `verify-integrity` no llegaba a ejecutarse. **Cada vez
+que en esta campaña se dijo «verify-integrity en verde» se apoyaba en un código de salida que
+no distinguía «pasé» de «no me ejecuté».**
+
+**No hacía falta rediseñar la CLI: era UNA LÍNEA.** `global_custom_exception_handler()`
+terminaba en `die($content)`, y **`die()` con un argumento de tipo cadena imprime y sale con
+código CERO**. Comprobado antes de tocar nada:
+
+```bash
+php -r 'die("hola\n");' ; echo $?     # -> 0
+php -r 'echo "hola\n"; exit(1);'; echo $?   # -> 1
+```
+
+Ahora imprime y hace `exit(PHP_SAPI === 'cli' ? 1 : 0)`. **En HTTP no cambia nada**: ahí el
+código de salida no lo lee nadie y quien manda es el 500 que ya se envió.
+
+**Provocado y demostrado**, inyectando un error de sintaxis real en un archivo que la
+aplicación carga al arrancar:
+
+| Comando | Antes | Ahora |
+| :-- | --: | --: |
+| `bin/cli verify-integrity` con el árbol roto | **0** | **1** |
+| `bin/cli unit-tests:core/session-user` con el árbol roto | **0** | **1** |
+| Los mismos con el árbol sano | 0 | **0** |
+
+**Lo que NO cubre, para que nadie confíe de más**: un fatal incatchable de verdad —agotar la
+memoria, por ejemplo— no pasa por este manejador. Ahí PHP sale con su propio código, que
+tampoco es cero, así que la puerta tampoco miente. **No hay `register_shutdown_function` en
+todo el proyecto**: si algún día quiere cubrirse ese hueco con un mensaje propio, ese es el
+sitio.
 
 **H2 · `unit-tests:functions/systemOutFormatted` fallaba 7 de 10 y decía que todo iba bien.**
 No hizo falta mutarla: **ya estaba roja**. `systemOutFormatted()` tiene **dos contratos** —con

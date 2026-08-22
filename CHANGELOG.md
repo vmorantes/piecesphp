@@ -178,9 +178,13 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   Afirmaba códigos ANSI que la función suprime a propósito sin terminal, así que fallaba
   7 de 10 en cuanto la salida se redirigía — y como no contaba nada, devolvía éxito. Ahora
   omite con su razón lo que exige terminal, y tiene balance y resultado real.
-- **AVISO, sin corregir**: `bin/cli` devuelve **código 0 aunque la aplicación muera al
-  arrancar**. Cualquier puerta lanzada por la CLI es inútil en CI mientras el árbol no
-  arranque.
+- **`bin/cli` devolvía código 0 aunque la aplicación muriera al arrancar.** El manejador
+  global de excepciones terminaba en `die($content)`, y `die()` con una cadena **sale con
+  código cero**. Cualquier puerta lanzada por la CLI —`verify-integrity`, las suites, los
+  cronjobs— informaba de éxito **sin haberse llegado a ejecutar**. Ahora sale con **1** en
+  CLI; en HTTP no cambia nada, porque ahí manda el 500 que ya se envió.
+    - **Afecta a cualquier despliegue que lance tareas por CLI y mire el código de salida**:
+      hasta esta versión, un árbol que no compila pasaba por bueno.
 
 ## Cambios internos
 
