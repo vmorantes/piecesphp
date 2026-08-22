@@ -2735,13 +2735,14 @@ project://src/index.php
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- -- -------------------------------------------------------------------------------------- 
-     Error                                                                                 
- -- -------------------------------------------------------------------------------------- 
-     Ignored error pattern booleanOr.leftAlwaysTrue was not matched in reported errors.    
-     Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.  
-     Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.      
- -- -------------------------------------------------------------------------------------- 
+ -- ---------------------------------------------------------------------------------------------------------------------------------------- 
+     Error                                                                                                                                   
+ -- ---------------------------------------------------------------------------------------------------------------------------------------- 
+     Ignored error pattern booleanOr.leftAlwaysTrue was not matched in reported errors.                                                      
+     Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.                                                    
+     Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.                                                        
+     Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/**/*Routes.php was not matched in reported errors.  
+ -- ---------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 880 errors                                                                                               
+ [ERROR] Found 881 errors                                                                                               
 

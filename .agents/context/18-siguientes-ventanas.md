@@ -2281,3 +2281,96 @@ miembros públicos, y `BaseController` lo extienden también controladores que n
 **La forma correcta es interfaz MÁS trait**: la interfaz declara el contrato público
 —`routeName()` y `allowedRoute()`—, el trait lo implementa, y el controlador declara las dos
 cosas. Se añade encima de lo que hay **sin conflicto y sin tocar ningún cuerpo**.
+
+## T27 · `catch.neverThrown` y `if.alwaysFalse` — dos familias que NO eran familias
+
+**El encargo era buscar la expresión, no arreglar cinco casos.** La conclusión fue mejor y
+peor que eso: en configuración **no se puede expresar**, pero **tampoco hacía falta**, porque
+los cinco no eran el mismo caso.
+
+### La configuración: probada y descartada, con el comando
+
+PHPStan 2.2.8 ofrece, bajo `parameters.exceptions`:
+
+```
+implicitThrows: true
+reportUncheckedExceptionDeadCatch: true
+uncheckedExceptionClasses / uncheckedExceptionRegexes
+checkedExceptionClasses / checkedExceptionRegexes
+```
+
+Se probó `reportUncheckedExceptionDeadCatch: false` y **no mueve ni uno de los cinco**.
+
+> **Y la razón explica por qué ninguna opción va a servir:** el desajuste no es entre
+> excepciones comprobadas y no comprobadas. Es que **PHPStan modela el LENGUAJE**, y aquí
+> manda además el **manejador de errores**. Ninguna opción de un analizador estático puede
+> saber que `bootstrap.php` convierte un `E_WARNING` en excepción.
+
+### Los cinco, mirados uno a uno: TRES eran muertos de verdad
+
+| Caso | Qué había en el `try` | Veredicto |
+| :-- | :-- | :-- |
+| `BundleTask.php:205` | Una asignación de cadena | **Muerto. Borrado** |
+| `api-keys.php:32` | El cuerpo **entero comentado** | **Muerto. Borrado** |
+| `CustomSlimErrorHandler.php:79` | `$exception->getCode()` | **Muerto. Borrado** |
+| `LoginAttemptsModel.php:122` | `$mapper->extra_data = …` | **VIVO** |
+| `AppHelpers.php:2600` | `return $roles[$e];` | **VIVO** |
+
+**Y los dos vivos lo son por razones DISTINTAS**, lo cual es el hallazgo:
+
+1. **`LoginAttemptsModel`** — la asignación pasa por **`__set()`**, que lanza
+   `DatabaseClassesExceptions` (`EntityMapper.php:529-534`). PHPStan no ve a través de los
+   métodos mágicos. **No tiene nada que ver con el manejador de errores.**
+2. **`AppHelpers`** — `$roles[$e]` sobre una clave inexistente emite un **`E_WARNING`**, y el
+   manejador lo **promueve a excepción**. Este sí es el desajuste del manejador.
+
+> **«Los cinco casos de una familia» eran tres muertos y dos vivos por dos motivos que no se
+> parecen.** Suprimir la familia entera —que es lo que había— tapaba las tres oportunidades
+> de limpieza reales **y** los dos avisos genuinos, con el mismo silencio.
+
+**Resultado**: el `- identifier: catch.neverThrown` de familia entera desaparece del bloque
+de código muerto y se convierte en **una supresión por ruta, para dos archivos, con las dos
+razones escritas**. La próxima que aparezca tendrá que mirarse en vez de heredar el silencio.
+
+### `if.alwaysFalse`: 11 son interruptores y 9 son candidatos
+
+Medido **por ruta**, no por contexto de texto —la primera cuenta dijo «10 de 20» con un grep
+de tres líneas; el conteo por ruta da **11 de 20**—:
+
+| Cuántos | Dónde | Qué son |
+| --: | :-- | :-- |
+| **10** | `*Routes.php` | El bloque `$showSQL = false; … if ($showSQL)` que **la regla 7 de `CLAUDE.md` manda usar** para sacar el DDL |
+| **1** | `DataImportExportUtilityRoutes.php:42` | `const ENABLE = false;` **literal**: el módulo está apagado en árbol |
+| **9** | Controladores y núcleo | Candidatos de verdad, quedan en el mapa de T24 |
+
+**Los 11 pasan a supresión PERMANENTE por ruta, sin condición de retirada.** No es deuda:
+borrarlos quitaría la forma sancionada de generar el SQL de las tablas.
+
+**Los 9 quedan en supresión TEMPORAL**, dentro del bloque de código muerto y por tanto
+todavía contados como ramas muertas, con su condición de retirada escrita: cuando se hayan
+mirado uno a uno.
+
+### EL TRINQUETE SE DISPARÓ, Y ERA CONTRA MÍ
+
+Al sacar `if.alwaysFalse` del bloque de familia, los 9 de fuera de `*Routes.php` quedaron sin
+silenciar y el total subió:
+
+```
+TRINQUETE ROTO: 886 errores contra un baseline de 877 (+9).
+```
+
+**La puerta que se construyó hace unas horas atrapó una regresión propia el mismo día**, y en
+el paso siguiente al que la creó. Es la mejor demostración de por qué H3 —que no existiera—
+era grave: sin ella, esos nueve errores se habrían colado en el baseline sin que nadie los
+notase.
+
+### Efecto medido
+
+| | Antes | Después |
+| :-- | --: | --: |
+| Baseline visible (instancias) | 877 | **877** |
+| Ramas muertas (tripletas) | 325 | **309** |
+
+De las 16 que salen: **3 borradas** de verdad y **13 reclasificadas** —2 `catch.neverThrown`
+y 11 `if.alwaysFalse`— que **nunca fueron ramas muertas** y ahora están donde debían, en el
+registro documentado.

@@ -151,6 +151,16 @@ parameters:
 
         # ── Condiciones redundantes y código muerto ──────────
         - message: '#.*left side of \?\? always exists and is not nullable.*#'
+        # `if.alwaysFalse` fuera de los <Modulo>Routes: NUEVE casos, supresión TEMPORAL.
+        # Siguen siendo candidatos a rama muerta y están en el mapa por familias (T24 del
+        # doc 18). SE RETIRA cuando esos nueve se hayan mirado uno a uno; hasta entonces se
+        # quedan aquí para que el bloque de arriba pueda ser una supresión por RUTA y no de
+        # familia entera. Ver la lista en T24.
+        -
+            identifier: if.alwaysFalse
+            paths:
+                - ../src/app/classes/*
+                - ../src/app/core/*
         - identifier: if.alwaysTrue
         - identifier: notIdentical.alwaysTrue
         - identifier: ternary.alwaysTrue
@@ -164,7 +174,6 @@ parameters:
         - identifier: equal.alwaysTrue
         - identifier: isset.variable
         - identifier: function.alreadyNarrowedType
-        - identifier: if.alwaysFalse
         - identifier: notIdentical.alwaysFalse
         - identifier: ternary.alwaysFalse
         - identifier: booleanAnd.rightAlwaysFalse
@@ -177,10 +186,53 @@ parameters:
         - identifier: function.impossibleType
         - identifier: foreach.emptyArray
         - identifier: deadCode.unreachable
-        - identifier: catch.neverThrown
 
         # ── PHPDoc ──────────
         - '#.*PHPDoc tag @.*#'
+
+        # ── `if.alwaysFalse` en los <Modulo>Routes: INTERRUPTORES, no deuda ──────────
+        # SUPRESIÓN PERMANENTE. No lleva condición de retirada a propósito.
+        #
+        # Son 11 de los 20 `if.alwaysFalse` del proyecto, y ninguno es código muerto:
+        #
+        #   - DIEZ son el bloque `$showSQL = false; ... if ($showSQL)` que la REGLA 7 de
+        #     CLAUDE.md manda usar para sacar el DDL de un módulo. Borrarlo no limpiaría
+        #     nada: quitaría la forma sancionada de generar el SQL de las tablas.
+        #   - UNO es `DataImportExportUtilityRoutes`, que declara `const ENABLE = false;`
+        #     literal: el módulo está apagado en árbol, no es un descuido.
+        #
+        # Los otros 9, repartidos por controladores, NO están aquí: siguen contando como
+        # ramas muertas y se miran uno a uno.
+        -
+            identifier: if.alwaysFalse
+            paths:
+                - ../src/app/**/*Routes.php
+        # ── Dead catch: DOS casos reales, y el desajuste que los explica ──────────
+        # `catch.neverThrown` era una supresión de familia entera. Se miraron los cinco:
+        # TRES eran muertos de verdad y se han borrado —un try alrededor de una asignación
+        # de cadena, otro con el cuerpo entero comentado, y un `$exception->getCode()`—.
+        # Los dos que quedan son ALCANZABLES EN EJECUCIÓN, cada uno por una razón distinta,
+        # y en las dos PHPStan tiene razón mirando solo el lenguaje:
+        #
+        #   1. LoginAttemptsModel: `$mapper->extra_data = ...` pasa por `__set()`, que
+        #      lanza `DatabaseClassesExceptions`. PHPStan no ve a través de los métodos
+        #      mágicos.
+        #   2. AppHelpers: `$roles[$e]` sobre una clave inexistente emite un E_WARNING, no
+        #      una excepción — pero el manejador de `bootstrap.php` PROMUEVE E_WARNING A
+        #      EXCEPCIÓN, así que ese catch sí se alcanza.
+        #
+        # NO se puede expresar en configuración: se probó
+        # `exceptions.reportUncheckedExceptionDeadCatch: false` y no mueve ninguno, porque
+        # el desajuste no es de excepciones comprobadas, es que PHPStan modela el LENGUAJE
+        # y aquí manda además el manejador de errores.
+        #
+        # Por eso son dos supresiones por ruta y no una de familia: la próxima que aparezca
+        # tiene que mirarse, no heredar el silencio.
+        -
+            identifier: catch.neverThrown
+            paths:
+                - ../src/app/model/LoginAttemptsModel.php
+                - ../src/app/core/AppHelpers.php
 
         # ── Diseño estricto ──────────
         - identifier: return.void

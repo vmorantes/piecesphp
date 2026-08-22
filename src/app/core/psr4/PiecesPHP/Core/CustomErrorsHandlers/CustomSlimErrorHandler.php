@@ -73,10 +73,7 @@ class CustomSlimErrorHandler
             }
         }
 
-        $codeException = '-';
-        try {
-            $codeException = $exception->getCode();
-        } catch (\Throwable $e) {}
+        $codeException = $exception->getCode();
 
         $jsonData = [
             'success' => false,

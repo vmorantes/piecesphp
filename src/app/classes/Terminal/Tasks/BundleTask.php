@@ -198,14 +198,7 @@ class BundleTask extends TerminalTaskAbstract
                 echoTerminal('No se procesó ninguna información');
             }
 
-            try {
-
-                $responseText = "\r\nOperación finalizada\r\n";
-
-            } catch (\Exception $e) {
-                $responseText = "Ha ocurrido un error: {$e->getMessage()}\r\n";
-                log_exception($e);
-            }
+            $responseText = "\r\nOperación finalizada\r\n";
 
         } catch (MissingRequiredParamaterException $e) {
 

@@ -221,6 +221,22 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
       y se escribe `_allowedRoute()` solo si hay reglas de autorización propias. Los tres
       patrones están documentados en la receta 9 de `.agents/context/13-recetas.md`.
 
+## Análisis estático — el .neon deja de ser cajón de sastre
+
+- **`catch.neverThrown` pasa de supresión de familia a dos supresiones por ruta.** Se
+  miraron los cinco: **tres eran muertos de verdad y se han borrado** —un `try` alrededor
+  de una asignación de cadena, otro con el cuerpo entero comentado, y un
+  `$exception->getCode()`—. Los dos que quedan son **alcanzables en ejecución**, cada uno
+  por una razón distinta: uno pasa por `__set()`, que sí lanza, y el otro por un
+  `E_WARNING` que el manejador de `bootstrap.php` promueve a excepción.
+    - No se puede expresar en configuración: se probó
+      `exceptions.reportUncheckedExceptionDeadCatch: false` y no mueve ninguno. PHPStan
+      modela el lenguaje; aquí manda además el manejador de errores.
+- **`if.alwaysFalse` en los `<Modulo>Routes` pasa a supresión PERMANENTE**, sin condición
+  de retirada. Son el bloque `$showSQL` que la regla 7 de `CLAUDE.md` manda usar para sacar
+  el DDL, más un módulo apagado en árbol con `const ENABLE = false`. **No es deuda: es un
+  interruptor.** Los otros 9, en controladores, siguen contados como candidatos.
+
 ## Herramientas
 
 - **`bin/phpstan.neon` declara los interruptores de módulo como `dynamicConstantNames`.**
