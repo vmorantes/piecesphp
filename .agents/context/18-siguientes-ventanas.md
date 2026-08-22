@@ -1998,18 +1998,51 @@ lo puede leer ningún parser.** Dos defectos encadenados:
   `utf8mb4` **no es un encoding XML**, así que un parser estándar rechaza el documento
   **entero** por la primera línea. Confirmado por dos parsers independientes —`libxml` y
   `xmllint`—. **Corregido**: `XmlFormat` traduce los nombres de MySQL a los nombres IANA.
-- **H5b — bytes de control crudos. ABIERTO.** Con la cabecera ya arreglada, el XML sigue
-  siendo inválido: *«PCDATA invalid Char value 26»*, *«Char 0x0 out of allowed range»*. Vienen
-  de una columna BLOB —un PNG— escrita tal cual. La causa es que el plugin decide si un
-  valor es binario con `!mb_check_encoding($val, 'UTF-8')`, y **los bytes de un PNG son
-  UTF-8 válido**, así que la rama de hex nunca se activa. Además, XML 1.0 prohíbe los
-  controles `0x00–0x08`, `0x0B`, `0x0C` y `0x0E–0x1F` **aunque sean UTF-8 válido**.
+- **H5b — bytes de control crudos. CORREGIDO.** Con la cabecera ya arreglada, el XML seguía
+  siendo inválido: *«PCDATA invalid Char value 26»*, *«Char 0x0 out of allowed range»*, por
+  una columna BLOB escrita tal cual.
 
-> **H5b no se corrige aquí porque cambia el DATO exportado**, y eso es decisión del
-> propietario. La opción coherente con lo que ya hay es hexadecimal —`0x…`, la misma
-> convención que `hex_blob`— cuando el valor contenga un carácter ilegal en XML. Mientras
-> tanto **la suite queda en 22/23, en rojo y a propósito**: el rojo es el defecto, no la
-> prueba.
+**La detección era incorrecta de raíz.** El plugin preguntaba
+`!mb_check_encoding($val, 'UTF-8')` para decidir si un valor era binario, y eso **no responde
+esa pregunta**: los bytes de un PNG son UTF-8 perfectamente válido, así que la rama de
+hexadecimal no se activaba nunca.
+
+> **Lo que decide que una columna es binaria es SU TIPO, y está en los metadatos del
+> esquema.** `SqlFormat` ya lo hacía —`SHOW COLUMNS` más un `preg_match` sobre
+> `binary|blob|varbinary`—; `XmlFormat` no. Ahora sí, con el mismo criterio.
+
+Y por debajo, **una red que no depende de `hex_blob`**: si un valor conserva algún carácter
+que XML 1.0 prohíbe —los controles `0x00–0x08`, `0x0B`, `0x0C`, `0x0E–0x1F`, que
+`htmlspecialchars()` no toca porque no son caracteres *especiales* sino *prohibidos*—, ese
+valor también sale en hexadecimal. Una columna de texto con basura dentro no puede tumbar el
+documento entero.
+
+**Verificado con dos parsers independientes**: `xmllint --noout` y `simplexml_load_file()`
+dan válido, y el BLOB aparece como `0x3f504e47…`. La suite vuelve a **23/23**.
+
+**No se dejó en rojo a propósito, y la razón para no tocarlo no se sostenía**: el dato
+exportado hoy **no se puede leer**. No se rompía algo que funcionaba; se arreglaba algo roto.
+
+### HALLAZGO NUEVO, ABIERTO: se pierde un byte entre escribir y leer el BLOB
+
+Al comprobar el hexadecimal apareció otra cosa. La semilla inserta un PNG real:
+
+```php
+$binaryData = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01";
+```
+
+y **las dos** exportaciones —SQL y XML, que leen con el mismo `SELECT *`— devuelven
+`0x3f504e470d0a1a0a…`. El primer byte es **`3f`, que es `?`**: el `\x89` no sobrevivió al
+viaje.
+
+**No es un defecto del exportador**: los dos formatos coinciden, así que el byte ya venía
+perdido. Apunta a la capa de base de datos —el `charset` de la conexión aplicándose a un
+parámetro que debería viajar como binario—.
+
+> **Ventana propia.** Afecta a cualquier dato binario del framework, no solo al exportador, y
+> comprobarlo bien exige leer de vuelta lo insertado y comparar byte a byte. **No se toca sin
+> decidirlo**: si el defecto está en la escritura, los datos ya guardados en los despliegues
+> están dañados y eso cambia por completo qué significa «arreglarlo».
 
 ### Lo que enseña el ejercicio
 

@@ -42,6 +42,49 @@ class XmlFormat implements FormatPluginInterface
     }
 
     /**
+     * Tipo SQL de cada columna de una tabla: nombre => tipo.
+     *
+     * @param Database $db
+     * @param string $table
+     * @return array<string,string>
+     */
+    protected function getColumnTypes(Database $db, string $table): array
+    {
+        $types = [];
+        $statement = $db->query("SHOW COLUMNS FROM `" . str_replace("`", "``", $table) . "`");
+        while ($row = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $types[$row['Field']] = $row['Type'];
+        }
+        return $types;
+    }
+
+    /**
+     * ¿El tipo SQL de esta columna guarda binario?
+     *
+     * @param string $type
+     * @return bool
+     */
+    protected function isBinaryType(string $type): bool
+    {
+        return (bool) preg_match('~binary|blob|varbinary~i', $type);
+    }
+
+    /**
+     * ¿Contiene algún carácter que XML 1.0 no admite ni escapado?
+     *
+     * Son los controles `0x00-0x08`, `0x0B`, `0x0C` y `0x0E-0x1F`. `htmlspecialchars()` NO
+     * los toca —no son caracteres especiales de XML, son caracteres prohibidos—, así que
+     * pasan crudos y rompen el documento en el primero.
+     *
+     * @param string $value
+     * @return bool
+     */
+    protected static function hasCharactersIllegalInXml(string $value): bool
+    {
+        return preg_match('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', $value) === 1;
+    }
+
+    /**
      * @inheritDoc
      */
     public function getFooter(): string
@@ -72,6 +115,7 @@ class XmlFormat implements FormatPluginInterface
         $outputBuffer = "";
         $transforms = $options['transformations'][$table] ?? [];
         $useHexBlob = $options['hex_blob'] ?? true;
+        $columnTypes = $this->getColumnTypes($db, $table);
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             
@@ -82,14 +126,35 @@ class XmlFormat implements FormatPluginInterface
                 }
             }
 
-            // Manejo de Binarios
-            if ($useHexBlob) {
-                foreach ($row as $col => &$val) {
-                    if (is_string($val) && !mb_check_encoding($val, 'UTF-8')) {
-                        $val = "0x" . bin2hex($val);
-                    }
+            /**
+             * Manejo de binarios. QUIÉN DECIDE QUE ALGO ES BINARIO ES EL TIPO DE LA COLUMNA,
+             * no el contenido: la versión anterior preguntaba `!mb_check_encoding($val,'UTF-8')`
+             * y **los bytes de un PNG son UTF-8 válido**, así que la rama no saltaba nunca y el
+             * BLOB acababa crudo dentro del XML.
+             */
+            foreach ($row as $col => &$val) {
+                if (!is_string($val)) {
+                    continue;
+                }
+
+                $type = $columnTypes[$col] ?? '';
+
+                if ($useHexBlob && $this->isBinaryType($type)) {
+                    $val = "0x" . bin2hex($val);
+                    continue;
+                }
+
+                /**
+                 * Y una red por debajo, que NO depende de `hex_blob`: XML 1.0 prohíbe los
+                 * caracteres de control aunque sean UTF-8 perfectamente válido. Si uno se cuela
+                 * —una columna de texto con basura, un tipo que no reconocemos— el documento
+                 * entero deja de ser legible, así que ese valor también sale en hexadecimal.
+                 */
+                if (self::hasCharactersIllegalInXml($val)) {
+                    $val = "0x" . bin2hex($val);
                 }
             }
+            unset($val);
 
             $line = "    <row>\n";
             foreach ($row as $key => $val) {

@@ -153,12 +153,24 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   rechaza el documento **entero** por la primera línea, por bien formado que esté el resto.
   Confirmado con dos parsers independientes (`libxml` y `xmllint`). `XmlFormat` traduce
   ahora los nombres de MySQL a los nombres IANA.
-    - **DEFECTO ABIERTO en la misma salida**: una columna BLOB se escribe con sus bytes
-      crudos, y XML 1.0 prohíbe los caracteres de control aunque sean UTF-8 válido. El
-      plugin decide si un valor es binario con `mb_check_encoding($v, UTF-8)`, y los
-      bytes de un PNG **son** UTF-8 válido, así que la rama hexadecimal no se activa. **Un
-      export XML de una tabla con binarios sigue siendo ilegible.** No se corrige todavía
-      porque cambia el dato exportado.
+- **CAMBIO DE FORMATO EN LA SALIDA XML, y cambia porque antes era ilegible.** Las columnas
+  binarias se exportan ahora en hexadecimal (`0x…`), igual que ya hacía la salida SQL. Antes
+  se escribían con sus bytes crudos, y **XML 1.0 prohíbe los caracteres de control**, así que
+  un export de cualquier tabla con un BLOB producía un documento que ningún parser aceptaba.
+    - La detección era incorrecta de raíz: se preguntaba si el valor era UTF-8 válido, y eso
+      **no responde «¿esto es binario?»** — los bytes de un PNG son UTF-8 válido. Ahora lo
+      decide **el tipo de la columna**, leído del esquema, como en `SqlFormat`.
+    - Además, cualquier valor que conserve un carácter prohibido en XML sale también en
+      hexadecimal, **independientemente de la opción `hex_blob`**: un dato suelto no puede
+      tumbar el documento entero.
+    - **Si algo consume ese XML, tiene que contar con el `0x…`.** A cambio, por primera vez
+      puede leerlo.
+- **AVISO, defecto abierto y de otra capa**: la semilla de pruebas inserta un PNG que empieza
+  por el byte `0x89`, y **las dos** exportaciones lo devuelven como `0x3f` —el signo `?`—.
+  Los dos formatos leen con el mismo `SELECT *`, así que **el byte se pierde antes**, en la
+  capa de base de datos. Afecta a cualquier dato binario, no solo al exportador. **No se
+  toca aún**: si el fallo está en la escritura, los datos ya guardados están dañados y eso
+  cambia qué significa arreglarlo.
 
 ## Pruebas — puertas verificadas en las dos direcciones
 
