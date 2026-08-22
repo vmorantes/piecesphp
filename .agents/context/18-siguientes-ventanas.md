@@ -1887,3 +1887,75 @@ producción** (H4 → H5). **Una de cada cuatro.**
 Y el orden importa: **H5 no lo encontró nadie mirando el exportador. Lo encontró la
 comprobación que se añadió al probar que la puerta no fallaba.** Provocar el fallo de una
 puerta no valida la puerta: valida lo que hay detrás.
+
+## T24 · MAPA NUEVO DE LAS 373 RAMAS — por familia, y NO SE BORRA NADA TODAVÍA
+
+**El «235 borrables» está derogado** (ver T13). Este es el mapa sobre la medición nueva.
+
+### El instrumento, columna por columna
+
+| Columna | Con qué se midió |
+| :-- | :-- |
+| **Ramas** | `bin/phpstan-deadcode`: resta de la corrida con el bloque de ignores y sin él. **Unidad: tripletas** (ruta, línea, mensaje) |
+| **Zona** | La RUTA del archivo: `/view/` o `/Views/` → vistas; `*Mapper.php` → mappers; `local-tests/` → suites; `src/app/config/` → config; `src/app/core/` → núcleo; `*Controller.php` → controladores; el resto, otros |
+| **Dentro del andamio** | Rango de líneas de `routeName`, `allowedRoute` y `_allowedRoute` calculado **por tokens**, no por sangría |
+
+### EL DATO QUE MANDA EN EL ORDEN
+
+> **89 de las 373 ramas —el 24 %— viven DENTRO de `routeName`, `allowedRoute` o
+> `_allowedRoute`.** Es decir, **dentro del andamio que el punto 2 va a borrar**.
+
+| Identificador | Ramas dentro del andamio |
+| :-- | --: |
+| `function.alreadyNarrowedType` | 44 |
+| `isset.variable` | 44 |
+| `if.alwaysTrue` | 1 |
+
+De los 50 `isset.variable`, **44 son el `isset($_POST)` / `isset($_GET)` del closure
+`$getParam`** que casi todos los `_allowedRoute` copian y que casi ninguno usa.
+
+**Conclusión de orden: el mapa se rehace DESPUÉS del punto 2, no antes.** Un cuarto del
+trabajo desaparece solo, y medirlo ahora es medir algo que va a dejar de existir.
+
+### Reparto por familia — el mapa, para cuando toque
+
+| Ramas | Identificador | Zona dominante | Veredicto de la muestra verificada a mano |
+| --: | :-- | :-- | :-- |
+| **129** | `function.alreadyNarrowedType` | controladores 58, núcleo 36 | 44 mueren con el andamio. Del resto, `is_array()` sobre `array`: resto defensivo puro |
+| **50** | `isset.variable` | controladores 45 | **44 mueren con el andamio.** Quedan 6 |
+| **42** | `notIdentical.alwaysTrue` | controladores 35 | `$userMapper !== null` sobre un valor ya estrechado. Borrable **con cuidado**: es una condición viva, no un hueco |
+| **24** | `foreach.emptyArray` | mappers 24 | **Hueco de plantilla puro.** `$defaultPropertiesValues = []` seguido de su `foreach`. Se borran el array y el bucle |
+| **21** | `if.alwaysTrue` | otros 9, controladores 6 | Mezclado. Sin veredicto de familia |
+| **20** | `if.alwaysFalse` | otros 12, controladores 7 | **10 de 20 son el `$showSQL` de los `<Modulo>Routes`: NO SE TOCAN** |
+| **13** | `function.impossibleType` | — | Sin verificar |
+| **12** | `ternary.alwaysTrue` | — | Sin verificar |
+| **11** | `nullCoalesce.offset` | — | Sin verificar |
+| **10** | `booleanNot.alwaysTrue` | — | Sin verificar |
+| **5** | `catch.neverThrown` | — | **NO SE BORRAN sin comprobar el manejador de errores.** Ver abajo |
+| **4** | `deadCode.unreachable` | `SystemApprovalManager` (3) | Sin verificar |
+| **32** | *(las 14 familias restantes, ≤3 cada una)* | — | Sin verificar |
+
+### Las dos familias que parecen mecánicas y NO lo son
+
+**`if.alwaysFalse` — la mitad es una herramienta documentada.** `$showSQL = false;` seguido
+de `if ($showSQL)` es el bloque que la **regla 7 de `CLAUDE.md`** manda usar para sacar el
+DDL de un módulo. Borrarlo no limpia: **quita la forma sancionada de generar el SQL de las
+tablas**. Diez de las veinte.
+
+**`catch.neverThrown` — «nunca se lanza» según PHPStan NO es «nunca se lanza» aquí.**
+`AppHelpers.php:2600` envuelve un `return $roles[$e];` en un `try/catch (\Throwable)`. Un
+índice inexistente emite un **`E_WARNING`, no una excepción**, así que PHPStan tiene razón
+mirando solo el lenguaje. Pero **el manejador de `bootstrap.php` promueve `E_WARNING` a
+excepción**, así que en ejecución ese `catch` **sí es alcanzable**.
+
+> **Es el caso más peligroso de todo el lote**: un análisis correcto y una conclusión falsa,
+> porque la herramienta no ve la configuración del manejador de errores. Los cinco se miran
+> uno a uno, y ninguno se borra sin comprobar qué puede emitir el bloque `try`.
+
+### Regla de trabajo para esta ventana
+
+1. **Primero el punto 2.** Se lleva 89 ramas por delante.
+2. **Volver a medir** con `bin/phpstan-deadcode`.
+3. **Familia por familia**, y cada una con su muestra verificada a mano **antes** de tocarla —
+   nunca la familia entera de golpe por parecerse a otra que sí era andamio.
+4. Y sigue valiendo T17: **una regla mecánica se aplica a toda la familia o a ninguna.**
