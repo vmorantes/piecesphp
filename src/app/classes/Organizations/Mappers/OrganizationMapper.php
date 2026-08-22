@@ -874,9 +874,9 @@ class OrganizationMapper extends EntityMapperExtensible
             if (!$ignore) {
                 $value = $e->currentLangData('name');
                 if ($isGlobalElement) {
-                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $nameForInitial ?? $value;
+                    $options[(string) ($encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id)] = $nameForInitial ?? $value;
                 } else {
-                    $options[$encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id] = $value;
+                    $options[(string) ($encryptValue ? BaseHashEncryption::encryptBidirectionalHash($e->id) : $e->id)] = $value;
                 }
             }
 

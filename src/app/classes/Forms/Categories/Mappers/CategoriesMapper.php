@@ -607,7 +607,7 @@ class CategoriesMapper extends EntityMapperExtensible
         array_map(function ($e) use (&$options) {
 
             $value = $e->currentLangData('categoryName');
-            $options[$e->id] = $value;
+            $options[(string) $e->id] = $value;
 
         }, self::all(true));
 

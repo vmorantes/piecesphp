@@ -347,9 +347,9 @@ function getInteresResearchAreas(bool $withEmptyOption = false, ?string $emptyOp
     foreach ($areas as $area) {
         if (!in_array($area->id, $ignoreIDs)) {
             if (!$returnObjects) {
-                $options[$area->id] = $area->currentLangData('areaName');
+                $options[(string) $area->id] = $area->currentLangData('areaName');
             } else {
-                $options[$area->id] = [
+                $options[(string) $area->id] = [
                     'areaName' => $area->currentLangData('areaName'),
                     'color' => $area->color,
                     'id' => $area->id,

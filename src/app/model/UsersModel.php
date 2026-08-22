@@ -822,7 +822,7 @@ class UsersModel extends EntityMapperExtensible
 
         foreach ($users as $user) {
             $userMapper = new UsersModel($user->id);
-            $options[$userMapper->id] = $userMapper->getFullName() . " ({$userMapper->username})";
+            $options[(string) $userMapper->id] = $userMapper->getFullName() . " ({$userMapper->username})";
         }
 
         return $options;

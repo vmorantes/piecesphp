@@ -270,7 +270,7 @@ class CityMapper extends BaseEntityMapper
         $options[$defaultValue] = $defaultLabel;
 
         array_map(function ($e) use (&$options) {
-            $options[$e->id] = $e->name;
+            $options[(string) $e->id] = $e->name;
         }, self::all(false, true, $stateID));
 
         return $options;

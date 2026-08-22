@@ -437,7 +437,7 @@ class PublicationCategoryMapper extends EntityMapperExtensible
         array_map(function ($e) use (&$options) {
 
             $value = $e->currentLangData('name');
-            $options[$e->id] = $value;
+            $options[(string) $e->id] = $value;
 
         }, self::all(true));
 

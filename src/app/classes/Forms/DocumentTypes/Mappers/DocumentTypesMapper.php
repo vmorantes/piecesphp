@@ -619,7 +619,7 @@ class DocumentTypesMapper extends EntityMapperExtensible
 
             if ($allow) {
                 $value = $e->currentLangData('documentTypeName');
-                $options[$e->id] = $value;
+                $options[(string) $e->id] = $value;
             }
 
         }, self::all(true));

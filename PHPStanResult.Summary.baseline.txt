@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia de la campaña: 887 tripletas. NO DEJARLO PEOR QUE ESTO.
+Referencia de la campaña: 874 tripletas. NO DEJARLO PEOR QUE ESTO.
 
 CÓMO SE MIDIÓ, que es lo que hace comparable esta cifra (T0, punto 5):
 
@@ -53,6 +53,13 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+874 (2026-08-21) — 13 menos. Las claves de array del constructor de listas desplegables
+    pasan a `(string)`, que es la migración que prescribe la deprecación de PHP 8.5: «use
+    an empty string instead». SIN CAMBIO DE COMPORTAMIENTO: PHP ya convertía null a '' y
+    renormaliza las cadenas numéricas a entero. Quedan 13 del mismo identificador que NO
+    son la misma familia — 9 son `$_FILES[$clave]`, donde el arreglo es una guarda y no
+    un cast, y 4 son anteriores.
+
 887 (2026-08-21) — 1 menos. El emisor por defecto del QR de segundo factor deja de
     pasar un alias nulo a un parámetro string: cae en get_config('owner'), el nombre del
     sitio, que es lo que ya hacían las vistas user-security.php y example-resources.php.
@@ -62,10 +69,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-194
+190
 
 [TOTAL DE ERRORES VISIBLES]
-887
+874
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -74,7 +81,7 @@ sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
 En las dos (8.4 y 8.5): 865
-Solo en 8.5: 22
+Solo en 8.5: 9
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
@@ -83,10 +90,10 @@ property.nonObject (191)
 method.nonObject (143)
 return.type (55)
 assign.propertyType (38)
-offsetAccess.invalidOffset (26)
 method.resultUnused (26)
 property.notFound (18)
 foreach.nonIterable (17)
+offsetAccess.invalidOffset (13)
 nullCoalesce.variable (7)
 clone.nonObject (5)
 binaryOp.invalid (3)
@@ -133,14 +140,6 @@ project://src/app/classes/App/Locations/Controllers/Point.php
 project://src/app/classes/App/Locations/Controllers/State.php
 	method.nonObject (Líneas: 358, 384)
 	foreach.nonIterable (Líneas: 461)
-project://src/app/classes/App/Locations/Mappers/CityMapper.php
-	offsetAccess.invalidOffset (Líneas: 273)
-project://src/app/classes/App/Locations/Mappers/CountryMapper.php
-	offsetAccess.invalidOffset (Líneas: 258)
-project://src/app/classes/App/Locations/Mappers/PointMapper.php
-	offsetAccess.invalidOffset (Líneas: 224)
-project://src/app/classes/App/Locations/Mappers/StateMapper.php
-	offsetAccess.invalidOffset (Líneas: 266)
 project://src/app/classes/App/Locations/Views/locations/main.php
 	property.nonObject (Líneas: 4)
 project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsController.php
@@ -216,7 +215,6 @@ project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
 	argument.type (Líneas: 222)
 	property.nonObject (Líneas: 259, 286)
-	offsetAccess.invalidOffset (Líneas: 610)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
 	property.nonObject (Líneas: 715)
 	argument.type (Líneas: 955)
@@ -224,7 +222,6 @@ project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesControlle
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	argument.type (Líneas: 222)
 	property.nonObject (Líneas: 259, 286)
-	offsetAccess.invalidOffset (Líneas: 622)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 193, 313, 482)
 	method.nonObject (Líneas: 451)
@@ -290,7 +287,6 @@ project://src/app/classes/News/Controllers/NewsController.php
 	method.nonObject (Líneas: 1228)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
 	argument.type (Líneas: 438)
-	offsetAccess.invalidOffset (Líneas: 483)
 project://src/app/classes/News/Mappers/NewsMapper.php
 	return.type (Líneas: 275)
 	argument.type (Líneas: 286)
@@ -309,7 +305,7 @@ project://src/app/classes/Organizations/Controllers/OrganizationsController.php
 	offsetAccess.invalidOffset (Líneas: 1607)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	argument.type (Líneas: 434, 877, 879, 995)
-	offsetAccess.invalidOffset (Líneas: 996, 877, 879)
+	offsetAccess.invalidOffset (Líneas: 996)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
 	property.nonObject (Líneas: 122, 125)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
@@ -366,7 +362,6 @@ project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	property.nonObject (Líneas: 263, 283)
 project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
 	argument.type (Líneas: 395)
-	offsetAccess.invalidOffset (Líneas: 440)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
 	return.type (Líneas: 396)
 	argument.type (Líneas: 423, 435)
@@ -446,7 +441,6 @@ project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
 	return.type (Líneas: 248)
-	offsetAccess.invalidOffset (Líneas: 350, 352)
 project://src/app/config/roles.php
 	nullCoalesce.offset (Líneas: 112)
 project://src/app/controller/AdminPanelController.php
@@ -636,7 +630,6 @@ project://src/app/model/UsersModel.php
 	return.type (Líneas: 390, 448, 465, 471, 487, 502, 517, 532, 547, 562, 577, 611, 617, 631)
 	property.notFound (Líneas: 593, 596)
 	foreach.nonIterable (Líneas: 823, 1050)
-	offsetAccess.invalidOffset (Líneas: 825)
 project://src/app/view/layout/menu.php
 	property.nonObject (Líneas: 65)
 	method.nonObject (Líneas: 68, 70)
