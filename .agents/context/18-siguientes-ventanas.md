@@ -1395,6 +1395,12 @@ registrar la carpeta creara colisiones nuevas, la puerta las nombra en vez de de
 
 ## T16 · COLISIÓN DE CLASE `MetaProperty` — verificada, viva y silenciosa
 
+> **RESUELTA EN EL PLAN POR T22, y con una corrección de diagnóstico.** Lo que sigue
+> describe bien la colisión y su mecanismo, pero la palabra «HÍBRIDO» que se usa más abajo
+> **es imprecisa**: `EntityMapper` del paquete no usa `MetaProperty` —cero menciones—, la
+> usa `ExtensibleORM`. Los dos repositorios están internamente bien y el único defecto es
+> el FQCN compartido. **Lee T22 antes que esto.**
+
 **No es una «resolución ambigua». Son dos clases distintas con el mismo FQCN.**
 
 `PiecesPHP\Core\Database\Meta\MetaProperty` está declarada en dos sitios y **los archivos
@@ -1702,3 +1708,90 @@ revisión alcanza: **la de los errores que uno no sabe que cometió.**
 **Relación con T20**: T20 dice de qué desconfiar cuando un número sorprende. T21 dice qué
 hacer cuando **nada** sorprende, que es el caso peligroso.
 
+## T22 · `MetaProperty` — DECIDIDO: el defecto es el FQCN compartido, y se arregla mudando
+
+**Decisión del propietario. Es plan, no está ejecutado.** Nada de código todavía.
+
+### Primero, una corrección: el diagnóstico anterior era impreciso
+
+Se dijo que el paquete emparejaba `EntityMapper` con un `MetaProperty` de sabor `ORM`.
+**Es falso, y se comprobó:** `EntityMapper.php` del paquete **no menciona `MetaProperty`
+ni una vez** (`grep -c` → 0). Quien la usa es **`ExtensibleORM`**, que `extends ORM`.
+
+Así que **los dos repositorios están internamente bien**:
+
+| Repositorio | Quién usa `MetaProperty` | Contra qué linaje está escrita |
+| :-- | :-- | :-- |
+| piecesphp | `EntityMapperExtensible` (linaje `EntityMapper`) | `EntityMapper` — delega en `EntityMapper::validateType()` |
+| `piecesphp/database` | `ExtensibleORM` (linaje `ORM`) | `ORM` — trae su propia `validateType()` porque `ORM` no ofrece ninguna |
+
+Cada copia está escrita para su base, y su base es la que la usa. **El único defecto es que
+las dos ocupan el mismo FQCN.** La palabra «híbrido» sobraba: no hay un Frankenstein de dos
+linajes, hay **dos casas correctas discutiéndose un nombre**.
+
+### La decisión
+
+1. **`ORM` se queda: tiene futuro.** `EntityMapperExtensible` **no** va al paquete y **nadie
+   migra ningún mapper**.
+2. **La copia del framework se queda** ocupando `PiecesPHP\Core\Database\Meta\MetaProperty`.
+3. **La del paquete se muda a `PiecesPHP\Core\Database\ORM\Meta\MetaProperty`.** Mismo
+   nombre de clase: **lo que estaba mal era la ubicación, no el nombre.** Se actualizan los
+   `use` de `ExtensibleORM.php`, `unit-tests/UnitTest-MetaUtil.php` y
+   `unit-tests/UnitTest-ActiveRecord.php`.
+4. **Desaparecen** la entrada de `KNOWN_ECLIPSES` y la suite `core/meta-property-hybrid`:
+   sin colisión, no tienen nada que vigilar ni que probar. La puerta seguirá ahí para la
+   siguiente.
+
+### Por qué esto DESBLOQUEA a `ORM` en vez de enterrarlo — demostrado, no supuesto
+
+Hoy `Meta\MetaProperty` resuelve **siempre** a la copia del núcleo. Un mapper nuevo montado
+sobre `ExtensibleORM` **dentro de piecesphp** recibiría esa copia. Y no falla de forma
+evidente:
+
+```
+validateValue(instancia de ExtensibleORM) -> false
+setValue LANZÓ: ExtensibleORM::__construct(): Argument #1 ($findValue) must be of type
+                ?int, ExtensibleORM given, llamado en .../Meta/MetaProperty.php:207
+```
+
+Dos cosas a la vez. La validación de tipo mapper **rechaza el linaje `ORM`** —comprueba
+`is_subclass_of($value, EntityMapper::class)` y `ExtensibleORM` no lo es—; y al rechazarlo
+entra en la conversión de estilo `EntityMapper`, `new $mapper($value)`, que **revienta con
+un `TypeError`** porque la copia del paquete habría hecho ahí
+`call_user_func($mapper, 'getInstance', …)`.
+
+> **Mientras compartan nombre, `ORM` no se puede usar dentro de piecesphp.** Mudar el
+> archivo no es higiene: es lo único que devuelve `ORM` al terreno de juego.
+
+### Las validaciones NO se homologan
+
+**Descartada la base abstracta que se había sugerido.** Cada una se completa con lo que le
+falta y le sirve de la otra, **sin mezclarlas**:
+
+| | Le falta | De dónde sale |
+| :-- | :-- | :-- |
+| La de `ORM` | `internalName` y `getType()` | De la del framework |
+| La del framework | `TYPE_DATE` con `'now'` | De la de `ORM` |
+
+**La validación se queda distinta a propósito**: la del framework delega en
+`EntityMapper::validateType()`; la de `ORM` carga la suya **porque `ORM` no ofrece
+ninguna**. Homologarlas sería inventar un acoplamiento que hoy no existe.
+
+**Cada archivo lleva una línea diciendo que son paralelos a propósito**, para que el
+siguiente que las vea no crea que descubrió una duplicación.
+
+### Pregunta aparcada
+
+**La viabilidad de migrar de `EntityMapper` a `ORM`.** No se responde aquí y no bloquea nada
+de lo anterior.
+
+### El principio, que vale para las dos mitades de esta ventana
+
+`routeName()` eran **copias de LA MISMA COSA escrita distinto**: se unifican.
+`MetaProperty` son **COSAS DISTINTAS que se parecen**: se separan.
+
+> **SE UNIFICA LO QUE ES LO MISMO; SE SEPARA LO QUE SOLO LO PARECE.**
+
+Y las dos veces **lo distinguió la medición, no la intuición**: en `routeName`, comparar
+cuerpos por tokens; en `MetaProperty`, mirar quién usa a quién y contra qué clase base está
+escrito cada archivo. La intuición decía «duplicado» en los dos casos y acertó en uno.

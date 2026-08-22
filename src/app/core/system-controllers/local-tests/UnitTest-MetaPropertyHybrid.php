@@ -10,9 +10,9 @@
  * del núcleo — y no son dos versiones de lo mismo, son dos linajes: la del núcleo se apoya
  * en `EntityMapper` y la del paquete en `ORM`.
  *
- * Lo que se ejecuta aquí es un HÍBRIDO: `MetaProperty` del núcleo llamando a
- * `EntityMapper::validateType()` del paquete. **Esa combinación no la prueba ninguno de los
- * dos repositorios.** La suite del paquete (`UnitTest-MetaUtil`) llama a
+ * Lo que se ejecuta aquí es la copia del núcleo llamando a `EntityMapper::validateType()`
+ * del paquete — que es contra quien está escrita, no una mezcla accidental. **Aun así, esa
+ * combinación no la prueba ninguno de los dos repositorios.** La suite del paquete (`UnitTest-MetaUtil`) llama a
  * `MetaProperty::validateType()`, un método estático que en la copia que corre aquí NO
  * EXISTE: pasa allí y sería un fatal aquí.
  *
@@ -25,7 +25,10 @@
  * Todas las comprobaciones son de SOLO LECTURA: ninguna escribe en base de datos, y la de
  * tipo mapper usa `null` a propósito, que es el camino que no llega a instanciar nada.
  *
- * Ver T16 en `.agents/context/18-siguientes-ventanas.md`.
+ * Esta suite es TEMPORAL: desaparece cuando se ejecute T22 y la copia del paquete se mude
+ * a `ORM\Meta\MetaProperty`, porque entonces no habrá colisión que probar.
+ *
+ * Ver T22 —y T16 para el mecanismo— en `.agents/context/18-siguientes-ventanas.md`.
  */
 
 use App\Model\UsersModel;
