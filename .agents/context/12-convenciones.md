@@ -40,7 +40,7 @@ tiene que estar escrita **con su razón**, no solo la regla.
 | Elemento | Convención | Estado |
 | :-- | :-- | :-- |
 | **Funciones globales** | **`snake_case`** | **CORRECTO. NO SE TOCA** |
-| **Columnas de base de datos** | `snake_case` | Correcto y fuera del asunto |
+| **Columnas de base de datos** | **`camelCase`** | **Decisión cerrada.** Ocho excepciones, y la lista no crece |
 | Clases, interfaces, traits, enums | `PascalCase` | Ya está bien |
 | Constantes | `UPPER_SNAKE` | Ya está bien |
 | Métodos | `camelCase` | 1 pendiente |
@@ -54,9 +54,38 @@ y estas funciones **viven al lado de `array_map` y `file_get_contents`** en el m
 global. **PSR-1 exige `camelCase` para MÉTODOS y no dice nada de funciones.** Normalizarlas
 rompería la API pública que cada despliegue usa en sus vistas.
 
-**Columnas de base de datos en `snake_case`: correcto y, además, intocable.** Renombrarlas es
-una migración contra cada despliegue congelado. *(Ojo: las PROPIEDADES de los mappers sí son
-`camelCase` — ver la tabla de nomenclatura de arriba. Son cosas distintas.)*
+**Columnas de base de datos: `camelCase`. DECISIÓN CERRADA, sin condición de retirada.**
+
+Las ocho con guion bajo son estas, y **la lista está cerrada**:
+
+```
+created_at        modified_at       extra_data        failed_attempts
+first_lastname    second_lastname   user_id           username_attempt
+```
+
+**Medido así**, para que la cifra sea reproducible:
+
+```sql
+SELECT DISTINCT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE()
+```
+
+Da **151 columnas distintas y 10 con guion bajo**. Las dos que sobran —`avatar_blob` y
+`secret_key`— son de `pcs_unit_tests_core_database_exporter_v1`, **la tabla que crea la suite
+del exportador**, no del esquema real. Descontadas, quedan las ocho de arriba.
+
+**Por qué se quedan como están**: renombrar una columna es una **migración contra cada
+despliegue congelado**, y el framework es una plantilla que se clona. El precio de la
+coherencia no compensa el de una migración que hay que ejecutar en sitios que no controlamos.
+
+**Y la mitad que mira adelante, que es la que importa**: **toda columna NUEVA se escribe en
+`camelCase`.** La lista de ocho **no crece**.
+
+> Esto está escrito porque es lo único que impide que dentro de seis meses alguien vea ocho
+> columnas con guion bajo, las tome por un rezago y las «arregle» — rompiendo todos los
+> despliegues a la vez. **No es deuda: es una excepción cerrada con su razón.**
+
+*(Ojo, son cosas distintas: las PROPIEDADES de los mappers también son `camelCase`, y ahí no
+hay excepciones.)*
 
 ### CÓMO SE APLICA: al pasar, nunca en barrido
 

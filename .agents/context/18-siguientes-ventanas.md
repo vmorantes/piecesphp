@@ -1790,8 +1790,14 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 | **`phpVersion: {min: 80400, max: 80500}`** en `phpstan.neon` | **UN RANGO REPORTA LA INTERSECCIÓN, NO LA UNIÓN**: solo lo que es error en TODAS las versiones del rango | «cubre las dos versiones». Cegó la pata estática a **toda** deprecación exclusiva de 8.5 durante la campaña entera |
 | **La caché de opcodes del servidor web** | Apache seguía sirviendo la versión COMPILADA anterior del archivo | «el `chr()` viejo también da 200, así que no era eso». Sí era: con la caché invalidada da **500** |
 | **Un PRINCIPIO DE ARQUITECTURA que no está escrito** | Sin él, cada patrón que lo aplica parece un defecto | «la inicialización del SEO es un defecto, conviértela en tarea de CLI» — era **exactamente lo contrario** del diseño. Tres diagnósticos equivocados por la misma causa |
+| **No preguntar a la persona que tiene el contexto** | Se construyó una hipótesis sobre un cambio de estado que no habíamos hecho nosotros | «tres tablas vacías, sin explicar». Las había vaciado el propietario a mano, y estaba delante |
 
 ### La regla
+
+> **EL INSTRUMENTO MÁS BARATO SUELE SER LA PERSONA QUE TIENE EL CONTEXTO.** Antes de
+> inferir sobre un cambio de estado que no hiciste tú, pregunta quién lo hizo. Una consulta
+> cuesta una frase; reconstruirlo por deducción cuesta media sesión y puede acabar en una
+> hipótesis elegante y falsa.
 
 > **Antes de reportar un hallazgo inesperado, verifícalo con un SEGUNDO MÉTODO
 > INDEPENDIENTE.** Una cifra que sorprende es, con más frecuencia de la que parece, una
@@ -2534,6 +2540,23 @@ Es la otra cara de T17. T17 dice que una regla mecánica se aplica a toda la fam
 ninguna; esta dice **qué es una familia**: no los que comparten identificador, sino los que
 comparten motivo.
 
+#### Un tercer caso, y este es el que más enseña: lo incumplió QUIEN LA APROBÓ
+
+Las **22 `offsetAccess.invalidOffset`** se aprobaron como «una familia, las 22 o ninguna»
+**la misma semana en que se escribió esta regla**. Al mirarlas de cerca eran **dos**:
+
+- **13** son `$options[$id]` — el constructor de listas desplegables, donde la clave vacía es
+  la opción de marcador. `(string)` es la migración prescrita.
+- **9** son `$_FILES[$nameOnFiles]['name']` — leer `$_FILES` con una clave nulable. Ahí
+  `(string)` daría `$_FILES['']`, que **no es la intención**: falta una guarda.
+
+> **No fue un fallo de medición: fue de criterio.** La medición estaba bien y decía
+> «`offsetAccess.invalidOffset`, 22». Lo que falló fue tratar el identificador como si fuera
+> el motivo — que es exactamente lo que esta regla prohíbe.
+
+**Escribir una regla no inmuniza contra ella.** Hay que aplicarla en el momento de decidir, y
+ese momento no se anuncia.
+
 ### Efecto medido
 
 | | Antes | Después |
@@ -3174,3 +3197,84 @@ elige credenciales, usuario y nombre de base según ese valor. Una línea así e
 
 Corregido en `10-cli-y-tareas.md` y en `source-docs/…/cronjobs.md`, con el aviso al lado. Y lo
 mismo para el worker de colas. `bin/cli` sí lo añade solo, y está bien: es el atajo local.
+
+## T34 · LA ESCALERA — el plan acordado, y la regla que lo sostiene
+
+| | Etapa | Cierra cuando |
+| :-- | :-- | :-- |
+| **E0** | Cierre de la migración a 8.5 y del instrumental | **Al empujar.** Hecho |
+| **E1** | Cierre de calidad | Ver abajo |
+| **E2** | **LA FOTO** — recorrido completo **más ciclo CRUD por módulo**, contra base restaurable | La foto existe y es reproducible |
+| **E3** | Limpieza en **seis lotes**, cada uno con foto antes y después | Los seis lotes aplicados |
+| **E4** | Pruebas unitarias de lo pruebaunitariable, más la ventana de correo | — |
+| **E5** | Las refactorizaciones del propietario | — |
+| **E6** | Reestructurar `source-docs/` y el `system-tasks` de T33 | — |
+
+### LA REGLA QUE SOSTIENE LA ESCALERA
+
+> **EL ALCANCE QUEDA CONGELADO.** Un hallazgo nuevo **se anota y espera turno**.
+
+Solo se salta la fila:
+
+1. Algo que **el propietario ve roto hoy**.
+2. Una **regresión que causamos nosotros**.
+
+**Cualquier otra excepción se justifica POR ESCRITO.** Ya hay una: la gemela de D2 se adelantó
+**por ADYACENCIA, no por gravedad** —mismo defecto, mismo archivo, línea siguiente, análisis
+fresco y una prueba que ya fallaba apuntándole—. Aplazarla obligaba a reconstruir todo el
+contexto dentro de tres sesiones para un cambio de treinta líneas. Es el mismo argumento con
+el que se adelantó D2.
+
+### E2 · EL DISEÑO, escrito ahora y construido cuando toque
+
+**Todo lo verificado hasta hoy es de SOLO LECTURA.** El recorrido omitió **118 rutas de
+escritura** —87 no-GET, 13 `GET|POST`, 18 por nombre—, y ahí viven los mappers, los
+validadores, las subidas y el charset de T28.
+
+**Tres cosas solo aparecen escribiendo**: los 9 de `$_FILES`, el emoji y el `0x89` de T28, y
+`SchemeCreator` con las meta-propiedades en JSON.
+
+> **Y el motivo de peso para que vaya en E2 y no después: LA RED DE SEGURIDAD DE LA LIMPIEZA
+> ES LA FOTO, Y UNA FOTO DE SOLO LECTURA TIENE UN AGUJERO JUSTO DONDE VIVEN LOS MAPPERS.** Si
+> E3 rompe el guardado de una publicación, un recorrido GET no se entera.
+
+Lo que lo vuelve tratable es **la convención de sufijos**: `-forms-add`, `-actions-add`,
+`-forms-edit`, `-actions-edit`, `-actions-delete`. **Un ciclo CRUD genérico se DERIVA de los
+nombres de ruta**, sin escribir un guion por módulo — el mismo patrón que ya funcionó con el
+inventario de rutas y con `shared-toolchain`.
+
+**CUATRO CONDICIONES INNEGOCIABLES, porque esto sí escribe:**
+
+1. **Base de datos desechable**, restaurada antes y después. `db-backup` ya existe. **Nunca
+   contra la base que usa el propietario**: la manipula por su cuenta, como acaba de
+   demostrar vaciando tres tablas.
+2. **Salidas cortadas.** Correo y APIs externas neutralizados: hay rutas que mandan correo de
+   verdad y otras que llaman a HubSpot, Mailjet o los traductores de IA. Un barrido a ciegas
+   quema créditos o le escribe a alguien.
+3. **Ciclo completo por módulo**: crear, leer, editar, borrar. **Se limpia solo si el borrado
+   funciona**; si no funciona, eso es un hallazgo **y** un residuo, y las dos cosas hay que
+   verlas.
+4. **Prefijo reconocible** en todo lo que cree, para que cualquier resto sea identificable.
+
+### E1 · CIERRE DE CALIDAD — lo que queda
+
+- **(a)** Bloque B: la URL del cropper construida a mano sin `baseurl()` —y buscar si hay más
+  así en las vistas del panel, porque si la regla 3 se saltó una vez se saltó más— y el iframe
+  de SurveyJS, que **se diagnostica abriéndolo y leyendo la consola**, no leyendo el código.
+- **(b)** La medición del emoji. **Solo medir**: escribir un emoji por el ORM en una columna
+  `text` y leerlo con `HEX()`. Decide el alcance de T28. **No arreglarlo.**
+- **(c)** `foreach.emptyArray`: las 24, familia homogénea verificada, muestra a mano y
+  adelante.
+- **(d)** **Y el resto SE CIERRA, NO SE TRIA.** Todo lo que quede de las 309 ramas y del grupo
+  B va a **supresión documentada con su razón escrita, agrupada POR MOTIVO**. T0 nunca exigió
+  cero errores: exige **cero defectos reales y el resto justificado**. Si al escribir una razón
+  se descubre que no la hay porque es un defecto, ese sale de la supresión y se arregla —
+  pero **no se abre un triaje por familia**.
+
+### Anotado para E2: los 9 de `$_FILES`
+
+`$name = $_FILES[$nameOnFiles]['name'];` con clave nulable significa que **el camino de subida
+puede indexar por `null`**. No son cosméticos y **no se arreglan con un cast**: necesitan una
+guarda, y probablemente destapen qué pasa hoy cuando el formulario no manda ese campo.
+
+**Se ejercitan en el ciclo CRUD de E2**, que es donde de verdad se van a manifestar.
