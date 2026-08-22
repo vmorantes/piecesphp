@@ -88,6 +88,39 @@ honesta.
 > fallo imposible en un fallo RUIDOSO. No sustituye al contrato: es el contrato escrito de
 > la única forma disponible.**
 
+## T0bis · LA PRE-AUTORIZACIÓN CUBRE LA SEGURIDAD MECÁNICA, NO LA ESCALA
+
+**Regla escrita a raíz de un fallo concreto, y el fallo fue de proceso, no de técnica.**
+
+C.2 —unificar `routeName`/`allowedRoute` en un trait— estaba autorizado con una frontera
+técnica correcta: **solo copias demostrablemente idénticas**. La frontera se respetó: la
+identidad se comprobó por tokens archivo a archivo y las 28 que no coincidían quedaron
+intactas. Y aun así **54 métodos borrados en 44 controladores aterrizaron sin que el
+propietario los hubiera visto**.
+
+Que el commit tuviera que ser único —borrar los métodos sin el `use` puesto deja el árbol
+roto— **era cierto y no eximía de nada**: obliga a que el commit sea atómico, no a que el
+plan sea invisible.
+
+### La regla
+
+> **Cualquier cambio que borre o mueva declaraciones en más de DIEZ archivos se enseña
+> ANTES de commitear** —el plan y la evidencia—, **aunque esté pre-autorizado y aunque cada
+> cambio individual sea trivial.**
+
+Lo que se enseña son las dos cosas, no una:
+
+- **El plan**: qué se toca, con qué criterio, y qué queda fuera y por qué.
+- **La evidencia**: la medición que sostiene el criterio, y el diff de una muestra.
+
+### Por qué diez y no «los grandes»
+
+Porque «grande» lo juzga quien hace el cambio, y ahí está el sesgo. **Un umbral contable no
+se puede racionalizar.** Y la escala es justo lo que vuelve irrevisable un lote de cambios
+individualmente triviales: nadie revisa 44 archivos para comprobar que sobran — es el mismo
+mecanismo que escondió el desastre de los CRLF (T21).
+
+**La pre-autorización responde «¿es seguro?». No responde «¿es esto lo que quería?».**
 ## T1 · La garantía de `ERRMODE_EXCEPTION`, con su razón real
 
 `Database::query()` y `Database::prepare()` declaran `\PDOStatement` con **tipo nativo**
@@ -219,8 +252,12 @@ de nada.
 
 ## T4 · El token de GitHub sigue sin rotar
 
-El remoto del framework tiene un **token de acceso personal de GitHub en texto plano en
-`.git/config`**. Avisado el 2026-08-20 y **sigue ahí**.
+El framework tiene **credenciales en texto plano dentro de las URL de sus remotos**, en
+`.git/config`. Avisado el 2026-08-20 y **sigue ahí**.
+
+**No es un remoto: son TRES.** `origin` (GitHub), `origin2` (GitLab) y `origin3`
+(Bitbucket) llevan cada uno su token incrustado en la URL. Rotar solo el de GitHub deja dos
+fuera.
 
 **Pendiente del propietario del repositorio, no de un agente.** No lo toques: rótalo en
 GitHub y guarda la credencial en un *credential helper*, no en la URL del remoto.
