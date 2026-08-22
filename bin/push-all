@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Empuja la rama actual a TODOS los remotos configurados.
+#
+# Existe por un incidente concreto: este repositorio tiene TRES remotos —GitHub, GitLab y
+# Bitbucket—, `git push` a secas solo alcanza a uno, y encima `dev` estuvo sin upstream, así
+# que ni siquiera avisaba de estar por delante. Se dio por empujado un trabajo que no lo
+# estaba, y ocho commits se quedaron atrás sin que nada lo dijera.
+#
+# No recorre una lista fija: pregunta a `git remote`, así que un remoto nuevo entra solo.
+# Y no guarda credenciales en ningún sitio: usa las que ya tenga configuradas cada remoto.
+#
+# Uso:
+#   bin/push-all              # la rama actual, a todos los remotos
+#   bin/push-all --dry-run    # enseña qué haría, sin empujar
+#   bin/push-all --tags       # cualquier bandera extra se pasa tal cual a git push
+
+set -e
+
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+cd "$SCRIPT_DIR/.."
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+REMOTES=$(git remote)
+
+if [ -z "$REMOTES" ]; then
+    echo "No hay ningún remoto configurado." >&2
+    exit 1
+fi
+
+echo "Rama: ${BRANCH}"
+echo "Remotos: $(echo "$REMOTES" | tr '\n' ' ')"
+echo
+
+FAILED=""
+
+for REMOTE in $REMOTES; do
+    echo "──── ${REMOTE} ────"
+    if git push "$REMOTE" "$BRANCH" "$@"; then
+        :
+    else
+        # No se corta en el primero: un remoto caído no debe impedir que los otros reciban.
+        FAILED="${FAILED} ${REMOTE}"
+    fi
+    echo
+done
+
+if [ -n "$FAILED" ]; then
+    echo "FALLARON:${FAILED}" >&2
+    exit 1
+fi
+
+echo "Empujado a todos los remotos."

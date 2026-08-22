@@ -259,8 +259,9 @@ El framework tiene **credenciales en texto plano dentro de las URL de sus remoto
 (Bitbucket) llevan cada uno su token incrustado en la URL. Rotar solo el de GitHub deja dos
 fuera.
 
-**Pendiente del propietario del repositorio, no de un agente.** No lo toques: rótalo en
-GitHub y guarda la credencial en un *credential helper*, no en la URL del remoto.
+**DECIDIDO POR EL PROPIETARIO Y CERRADO**: las URL solo existen en su máquina local, a la
+que nadie más accede, y ese razonamiento vale igual para tres que para uno. **No se vuelve a
+levantar.** Queda anotado que son tres, no uno, por si alguna vez cambia el contexto.
 
 ## T5bis · Dos patrones del proyecto
 
@@ -820,6 +821,51 @@ parecerá un caso único en vez de un patrón.
 Lo mismo, en menor grado, con `AttachmentPackage`: dos copias, una en `ApplicationCalls`.
 
 Ver T25 para la medición completa.
+### REQUISITOS de la centralización de utilidades clonadas — no son notas
+
+Medición completa en T25. Lo que sigue **condiciona el diseño** y hay que cumplirlo, no
+tenerlo en cuenta.
+
+#### 1 · La clase centralizada usa `static::CODES`, y hay una prueba que lo demuestra
+
+El constructor de `SafeException` y `DuplicateException` valida
+`in_array($code, self::CODES)` y **degrada a `UNDEFINED_CODE`** lo que no esté en la lista.
+Hoy funciona porque cada módulo tiene su propia clase con su propia lista.
+
+> **Con una clase centralizada y subclases por módulo, `self::` seguiría resolviendo a la
+> lista del PADRE, y el código específico del módulo se degradaría A SILENCIO.** Sin error,
+> sin aviso: la excepción se lanza igual y llega con el código equivocado.
+
+**Requisito**: `static::CODES` —enlace estático tardío—, y **una prueba con una subclase que
+añade un código propio** y comprueba que sobrevive al constructor. Sin esa prueba el
+requisito es una intención.
+
+Los dos módulos que hoy añaden códigos son los que la prueba tiene que reproducir:
+`PiecesPHP\UserSystem` (`USER_NOT_EXISTS`) y `Publications` (`PUBLICATION_CODE`,
+`CATEGORY_CODE`).
+
+#### 2 · Antes de centralizar hace falta la SEXTA comprobación de integridad
+
+**Toda clase nombrada en un `catch` debe resolver a una clase existente.**
+
+Sin ella la centralización **no se puede hacer con seguridad**, porque el modo de fallo es
+mudo: cada módulo captura su clase por el nombre corto que resuelve su `use` de cabecera, y
+si uno se queda sin actualizar, **PHP no falla — el `catch` simplemente deja de capturar** y
+la excepción sube hasta el manejador global. Un 500 en vez de un mensaje de validación, y
+nada que lo explique.
+
+La superficie, medida:
+
+| | |
+| :-- | --: |
+| Sitios que capturan `SafeException` | **35** |
+| Sitios que capturan `DuplicateException` | **12** |
+| `throw new` de las dos | **48** |
+| Archivos que las importan con `use` | **25** |
+
+**No la cubre ninguna comprobación actual.** La tercera valida que las clases DECLARADAS se
+carguen, y su propio docblock ya avisa del hueco: *«un `use` que falta y solo se referencia
+dentro del cuerpo de un método se le escapa»* — que es exactamente este caso.
 ### La fusión `DataImportExportUtility` + `Importers` es una REFACTORIZACIÓN PLANIFICADA
 
 **No borres ninguno de los dos.** El reparto de piezas:

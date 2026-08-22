@@ -128,6 +128,29 @@ git merge -X renormalize <rama>
 **Comprobado en una fusión de prueba**: un despliegue con cambios propios sobre archivos
 afectados da **2 conflictos sin la opción y 0 con ella**, conservando sus cambios locales.
 
+## Cómo se empuja en este repositorio
+
+**Hay TRES remotos** —`origin` en GitHub, `origin2` en GitLab y `origin3` en Bitbucket—, y
+`git push` a secas solo alcanza a uno. Para que no diverjan:
+
+```bash
+bin/push-all              # la rama actual, a los tres
+bin/push-all --dry-run    # enseña qué haría, sin empujar
+```
+
+No lleva la lista escrita dentro: pregunta a `git remote`, así que un remoto nuevo entra
+solo. Y si uno falla, sigue con los demás y avisa al final de cuáles quedaron fuera.
+
+Además, **`dev` tiene que rastrear a `origin/dev`**. Sin eso `git status` no dice «adelante
+N» y es fácil dar por empujado lo que no lo está:
+
+```bash
+git branch --set-upstream-to=origin/dev dev
+```
+
+> Las dos cosas salen del mismo incidente: se dio por empujado un trabajo que no lo estaba, y
+> ocho commits se quedaron atrás **sin que nada lo dijera** — ni el `status`, porque no había
+> upstream, ni el push, porque solo había ido a un remoto.
 ## Documentación
 
 | Recurso | Contenido |
