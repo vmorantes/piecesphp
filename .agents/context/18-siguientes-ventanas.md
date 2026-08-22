@@ -808,6 +808,18 @@ Los archivos entran **ya** en el cubo «se borra»: el grupo B no los trabaja y 
 Se llevan **17 errores de PHPStan** que nadie tiene que arreglar — **ninguno** de la familia
 `false`, así que la contabilidad de T8 no se mueve.
 
+### URGENCIA DE ORDEN — lo único de esta ventana que tiene fecha
+
+**`FieldTranslationUtility` tiene HOY tres copias, y dos están en módulos condenados**
+(`ApplicationCalls` e `InterestResearchAreas`). Después de las eliminaciones queda **una**, y
+parecerá un caso único en vez de un patrón.
+
+> **La evidencia de que es un patrón se va con los módulos.** Si se va a abstraer, se **mide
+> y se extrae ANTES** de las eliminaciones, no después.
+
+Lo mismo, en menor grado, con `AttachmentPackage`: dos copias, una en `ApplicationCalls`.
+
+Ver T25 para la medición completa.
 ### La fusión `DataImportExportUtility` + `Importers` es una REFACTORIZACIÓN PLANIFICADA
 
 **No borres ninguno de los dos.** El reparto de piezas:
@@ -1959,3 +1971,90 @@ excepción**, así que en ejecución ese `catch` **sí es alcanzable**.
 3. **Familia por familia**, y cada una con su muestra verificada a mano **antes** de tocarla —
    nunca la familia entera de golpe por parecerse a otra que sí era andamio.
 4. Y sigue valiendo T17: **una regla mecánica se aplica a toda la familia o a ninguna.**
+
+## T25 · UTILIDADES CLONADAS — medido, NO ejecutado
+
+**La misma enfermedad que `routeName`, a mayor escala.** Solo medición: la ejecución va en su
+propia ventana.
+
+### Identidad POR CONTENIDO, no por número de líneas
+
+Que coincida el conteo de líneas no es que coincida el archivo (T20). Se comparan **tokens**,
+descartando comentarios y espacios, y **neutralizando el `namespace`** —que es lo único que
+TIENE que diferir—:
+
+| Utilidad | Archivos | Contenidos DISTINTOS | Reparto |
+| :-- | --: | --: | :-- |
+| `SafeException` | **17** | **2** | 16 idénticas + 1 distinta (`PiecesPHP\UserSystem`) |
+| `DuplicateException` | **13** | **2** | 12 idénticas + 1 distinta (`Publications`) |
+| `FieldTranslationUtility` | **3** | **3** | las tres distintas |
+| `AttachmentPackage` | **2** | **2** | las dos distintas |
+| **TOTAL** | **35** | | ~1.750 líneas |
+
+Comando: `token_get_all()` por archivo, fuera `T_COMMENT`/`T_DOC_COMMENT`/`T_WHITESPACE`, el
+`namespace` sustituido por un marcador, y `md5` del resultado.
+
+### Las dos raras SÍ añaden algo real, y deciden el diseño
+
+| Archivo | Qué añade |
+| :-- | :-- |
+| `PiecesPHP\UserSystem\Exceptions\SafeException` | `const USER_NOT_EXISTS = 1;` y su entrada en `CODES` |
+| `Publications\Exceptions\DuplicateException` | `const PUBLICATION_CODE = 1;`, `const CATEGORY_CODE = 2;` y sus entradas en `CODES` |
+
+**Lo que hacen esos códigos**: el constructor valida `in_array($code, self::CODES)` y, si no
+está, lo degrada a `UNDEFINED_CODE`. Es decir, **la lista de códigos es el contrato de la
+excepción**, no decoración.
+
+> **TRAMPA DE DISEÑO, y es silenciosa.** El constructor usa **`self::CODES`**. Hoy funciona
+> porque cada módulo tiene su propia clase. En una clase centralizada con subclases por
+> módulo, `self::` seguiría resolviendo a la lista del PADRE, así que **el código específico
+> del módulo se degradaría a `UNDEFINED_CODE` sin un solo error**. La clase centralizada
+> **tiene que usar `static::CODES`** —enlace estático tardío—, y eso tiene que ir probado.
+
+### `FieldTranslationUtility`: el tipo del mapper ES la única variación — comprobado
+
+Los tres archivos difieren **solo** en: `namespace`, el `use` del mapper, la línea `@package`
+del docblock, y el tipo del mapper en **tres** sitios (`@var`, el constructor y `mapper()`).
+Nada más.
+
+Y **los tres mappers extienden `EntityMapperExtensible`**:
+
+| Mapper | Padre |
+| :-- | :-- |
+| `PublicationMapper` | `EntityMapperExtensible` |
+| `ApplicationCallsMapper` | `EntityMapperExtensible` |
+| `InterestResearchAreasMapper` | `EntityMapperExtensible` |
+
+> **La abstracción es tipar por ahí y la clase se vuelve UNA.** Sin genéricos, sin
+> configuración: cambiar tres firmas de `XMapper` a `EntityMapperExtensible`.
+
+`AttachmentPackage` es el mismo caso con un grado más de trabajo: además del tipo del mapper
+de adjuntos, **renombra una propiedad** (`$publicationID` contra `$applicationCallID`).
+
+### EL RIESGO QUE HACE ESTO DELICADO PESE A PARECER TRIVIAL
+
+**Cada módulo captura SU clase por FQCN**, resuelto por el `use` de cabecera. Medido:
+
+| | |
+| :-- | --: |
+| Sitios que **capturan** `SafeException` | **35** (22 sueltos, 12 en `SafeException \| DuplicateException`, 1 con otro nombre de variable) |
+| Sitios que **capturan** `DuplicateException` | **12** (todos dentro de esa unión) |
+| `throw new SafeException` | **33** |
+| `throw new DuplicateException` | **15** |
+| Archivos que las importan con `use` | **25** |
+
+> **Si se unifican y queda un `use` viejo sin actualizar, PHP NO FALLA.** El `catch`
+> simplemente deja de capturar y la excepción sigue subiendo, en silencio, hasta el
+> manejador global. Un 500 en vez de un mensaje de validación, y ni un aviso que lo explique.
+
+**La puerta que cualquier plan tiene que incluir**: *toda clase nombrada en un `catch` debe
+resolver a una clase existente*. Y **no la cubre nada de lo que hay hoy**: la tercera
+comprobación de `verify-integrity` valida que las clases DECLARADAS se carguen, y su propio
+docblock ya avisa de que **un `use` que falta y solo se usa dentro de un método se le
+escapa** — que es exactamente este caso.
+
+### Lo que NO cura borrar los módulos condenados
+
+Borrar `ApplicationCalls`, `ImagesRepository` e `InterestResearchAreas` se lleva unas cuantas
+copias **y no cura nada**: el próximo módulo clonado desde `Publications` las trae otra vez.
+**La enfermedad es la plantilla, no las copias.**
