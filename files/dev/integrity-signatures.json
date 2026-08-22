@@ -2021,6 +2021,7 @@
         "VerifyIntegrityTask::checkDocblocks",
         "VerifyIntegrityTask::checkPackageEclipses",
         "VerifyIntegrityTask::checkRouteOverrides",
+        "VerifyIntegrityTask::checkSharedToolchain",
         "VerifyIntegrityTask::collectFiles",
         "VerifyIntegrityTask::collectSignatures",
         "VerifyIntegrityTask::compareSignatures",

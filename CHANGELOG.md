@@ -168,6 +168,20 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   `ServerStatics` lo leía como obligatorio en tres sitios: pedir `/statics/` sin recurso daba
   `E_WARNING` → excepción → 500, una por módulo. Ahora responden **404**, que es lo correcto,
   y los estáticos reales siguen sirviéndose.
+## Herramientas — los cinco repositorios al mismo instrumental
+
+- **Los cuatro paquetes `piecesphp/*` tenían la misma configuración que había cegado al
+  framework**: `phpVersion` como rango, que reporta la intersección y no la unión. Se les
+  propagan las **dos pasadas**, `PCSPHP_PHP_BIN`, el trinquete leyendo JSON y su baseline
+  con nota de método. **Delta por configuración: cero en los cuatro** — pero ahora medido,
+  no supuesto.
+- **Séptima comprobación de `verify-integrity`: instrumental común.** `files/dev/shared-toolchain.json`
+  lista qué debe estar presente en cada paquete, y la tarea falla si uno se desvía o si le
+  falta un archivo. Si no están clonados al lado, lo dice y no aprueba en silencio.
+- **Repuesto el prefijo `project://` del informe de PHPStan**, que se perdió al cambiar el
+  resumen de la tabla al JSON. Lo consume un plugin del editor para saltar al archivo; el
+  formato es idéntico al anterior. Ahora sale del JSON, sin expresión regular.
+
 ## PHP 8.5 — la migración no estaba terminada
 
 - **Se borran nueve llamadas a funciones deprecadas en PHP 8.5**: `imagedestroy()` ×4,

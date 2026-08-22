@@ -43,6 +43,14 @@ $totalErrors = 0;
 foreach ($union['files'] as $path => $data) {
     $relative = str_replace('\\', '/', (string) $path);
     $relative = str_replace(str_replace('\\', '/', $basePath) . '/', '', $relative);
+    /**
+     * `project://` NO ES DECORACIÓN: es lo que consume el plugin del editor para saltar al
+     * archivo desde el informe. Vivía aquí desde 2022 aplicado con una expresión regular
+     * sobre la cabecera de la TABLA; al pasar el resumen al JSON, esa expresión dejó de
+     * encajar y el prefijo desapareció SIN QUE NADA FALLARA. El formato es el de siempre:
+     * `project://` + la ruta relativa a la raíz del repositorio, que ya empieza por `src/`.
+     */
+    $labelled = 'project://' . $relative;
 
     foreach ($data['messages'] as $message) {
         $identifier = $message['identifier'] ?? '(sin identificador)';
@@ -53,7 +61,7 @@ foreach ($union['files'] as $path => $data) {
 
         $totalErrors++;
         $errorTypesCounter[$identifier] = ($errorTypesCounter[$identifier] ?? 0) + 1;
-        $errorsByFile[$relative][$identifier][] = $message['line'];
+        $errorsByFile[$labelled][$identifier][] = $message['line'];
 
         $versions = (array) ($message['phpVersions'] ?? []);
         if (count($versions) > 1) {
@@ -99,6 +107,21 @@ $content .= mb_strtoupper("\n\n[Errores por archivo]\n") . implode("\n", $errorB
 
 file_put_contents($summaryPath, $content);
 
+//──── La TABLA legible, con el mismo tratamiento que tenía antes ────────────────────────
+/**
+ * Se conserva tal cual estaba: el prefijo `project://` para el plugin del editor, y
+ * `Parameter Nr.` para que el `#1` no se lea como una almohadilla de Markdown.
+ */
+$tablePath = $basePath . '/PHPStanResult.txt';
+if (is_file($tablePath)) {
+    $table = (string) file_get_contents($tablePath);
+    if (mb_strpos($table, 'project://') === false) {
+        $table = (string) preg_replace('/(  )Line   (.*)/im', '$1project://src/$2', $table);
+        $table = (string) preg_replace('/Parameter #(\d)/im', 'Parameter Nr.$1', $table);
+        file_put_contents($tablePath, mb_strtoupper("\n================[PHPSTAN]================\n\n") . $table);
+    }
+}
+
 //──── Vista rápida de las líneas con error ──────────────────────────────────────────────
 $copyPathDir = dirname(__FILE__) . '/Preview';
 if (!is_dir($copyPathDir)) {
@@ -110,7 +133,8 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($copyPathD
         unlink($file->getPathname());
     }
 }
-foreach ($errorsByFile as $relative => $identifiers) {
+foreach ($errorsByFile as $labelled => $identifiers) {
+    $relative = str_replace('project://', '', $labelled);
     $originalPath = $basePath . '/' . $relative;
     if (!file_exists($originalPath)) {
         continue;
@@ -120,7 +144,7 @@ foreach ($errorsByFile as $relative => $identifiers) {
         continue;
     }
     $copyPath = $copyPathDir . '/' . str_replace('.php', '.md', $relative);
-    $copyContent = ['Ver: ' . $relative, '```php'];
+    $copyContent = ['Ver: ' . $labelled, '```php'];
     $allLines = [];
     foreach ($identifiers as $lineNumbers) {
         $allLines = array_merge($allLines, $lineNumbers);

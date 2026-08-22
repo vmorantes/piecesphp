@@ -1,0 +1,34 @@
+{
+    "_comentario": [
+        "INSTRUMENTAL COMÚN A LOS CINCO REPOSITORIOS. Cada entrada es un archivo que los",
+        "cuatro paquetes `piecesphp/*` deben tener, con las MARCAS que deben aparecer dentro.",
+        "",
+        "No se comparan los archivos byte a byte porque legítimamente difieren —rutas, nombres",
+        "de vendor—: se comprueba que la PROPIEDAD esté presente. Una marca es un trozo de",
+        "texto que solo existe si la propiedad está implementada.",
+        "",
+        "Existe porque los cuatro paquetes se declararon verdes sobre EXACTAMENTE la misma",
+        "configuración que había cegado a piecesphp —`phpVersion` como rango— y nadie lo",
+        "comprobó. La pregunta no puede depender de que alguien se acuerde."
+    ],
+    "packagesRoot": "../..",
+    "packages": ["database", "datastructures", "html", "geojson"],
+    "files": {
+        "bin/phpstan": {
+            "why": "Dos pasadas y la unión, y el binario de PHP explícito.",
+            "markers": ["PCSPHP_PHP_BIN", "80400.generated.neon", "80500.generated.neon", "PHPStanResult.json"]
+        },
+        "bin/phpstan-process-result.php": {
+            "why": "Resumen desde el JSON de la unión, trinquete, y el prefijo del editor.",
+            "markers": ["TRINQUETE", "phpVersions", "project://"]
+        },
+        "bin/phpstan.neon": {
+            "why": "El bloque phpVersion tiene que existir: bin/phpstan lo sustituye por cada versión.",
+            "markers": ["phpVersion:"]
+        },
+        "PHPStanResult.Summary.baseline.txt": {
+            "why": "Sin baseline el trinquete no puede comparar, y una puerta que no mide no aprueba.",
+            "markers": ["[TOTAL DE ERRORES VISIBLES]", "DOS PASADAS Y LA UNIÓN"]
+        }
+    }
+}

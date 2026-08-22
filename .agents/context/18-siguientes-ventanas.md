@@ -1788,6 +1788,7 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 | Tres `grep` distintos en el mismo mensaje | Uno solo miraba `core/`; otro no anclaba a inicio de línea y **volvió a contar las funciones globales como métodos**; el tercero no cubría propiedades tipadas | «117 funciones, 143 métodos, 14 propiedades». Por tokens: **145, 1 y 90** |
 | El histórico de un log que se limpia de rutina | Se dedujo de una AUSENCIA sin comprobar si el instrumento podía contener el dato | «Apache quizá sirve 8.4». Sirve **8.5.9**, y eso era justo la causa del fallo |
 | **`phpVersion: {min: 80400, max: 80500}`** en `phpstan.neon` | **UN RANGO REPORTA LA INTERSECCIÓN, NO LA UNIÓN**: solo lo que es error en TODAS las versiones del rango | «cubre las dos versiones». Cegó la pata estática a **toda** deprecación exclusiva de 8.5 durante la campaña entera |
+| **La caché de opcodes del servidor web** | Apache seguía sirviendo la versión COMPILADA anterior del archivo | «el `chr()` viejo también da 200, así que no era eso». Sí era: con la caché invalidada da **500** |
 
 ### La regla
 
@@ -1798,6 +1799,24 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 «Independiente» significa que no comparta mecanismo con el primero: `--stat` contra
 `--name-only` sirve porque aplican el filtro en sitios distintos; repetir el mismo comando
 con otra bandera cosmética, no.
+
+### REGLA: una comparación A/B contra la aplicación web viva es MENTIRA hasta invalidar el opcache
+
+`opcache.enable => On` en el SAPI de Apache. Cambiar un archivo y pedir la página **no
+compara lo que crees**: puede seguir ejecutándose el bytecode anterior.
+
+**Cómo se invalidó aquí**, que es lo que hay que repetir:
+
+```bash
+cp version-vieja.php ruta/del/archivo.php
+touch ruta/del/archivo.php          # que cambie la marca de tiempo
+sleep 3                              # esperar a opcache.revalidate_freq
+curl -sk … && echo $?
+```
+
+Sin el `touch` y la espera, el primer A/B del `chr()` dio **200 con el código viejo** y
+estuvo a punto de descartar la causa correcta. Con la caché invalidada: **500 con el viejo,
+200 con el arreglo.**
 
 **El caso del `phpVersion` es de una TERCERA clase, y es el más caro de todos**: no fue una
 medición mal hecha ni una medición ajena dada por buena. Fue un **INSTRUMENTO MAL
@@ -1869,6 +1888,26 @@ Revisar comprueba **la afirmación que uno hace**. Demostrar obliga a fabricar e
 **el artefacto trae consigo todo lo que la afirmación omitía** — incluido lo que uno no sabía
 que estaba omitiendo. Por eso pedir la demostración detecta una clase de fallo que ninguna
 revisión alcanza: **la de los errores que uno no sabe que cometió.**
+
+### Y el reverso: UN CAMBIO DE TUBERÍA SE LLEVA POR DELANTE LO QUE NADIE DECLARÓ COMO REQUISITO
+
+Al pasar el resumen de PHPStan de **parsear la tabla** a **leer el JSON**, desapareció el
+prefijo **`project://`** que llevaba en el informe desde 2022. Lo aplicaba una expresión
+regular sobre la cabecera `Line   <ruta>` del formato de tabla; con el formato nuevo esa
+expresión **dejó de encajar y calló**. El propietario lo usa con un plugin para saltar al
+archivo desde el informe: una función real, sin una sola prueba y sin figurar en ningún
+requisito.
+
+> **El regex no falló: dejó de encajar.** Un detector que no encuentra nada y uno que no
+> tiene nada que encontrar producen exactamente la misma salida.
+
+**La regla**: cuando cambies el FORMATO DE ENTRADA de algo, **enumera qué leía el formato
+viejo** antes de tocarlo — no qué escribía, qué *leía*. Aquí eran tres cosas y solo se
+migraron dos: el conteo, el reparto por archivo… y el prefijo del editor, que no era ninguna
+de las dos.
+
+*(Repuesto sobre el JSON, que trae la ruta como dato y no necesita expresión regular. Formato
+idéntico al anterior, comprobado contra el resumen de antes del cambio.)*
 
 ### El corolario que salió de aplicarla hacia atrás
 
@@ -2883,3 +2922,132 @@ sin los parámetros que DataTables genera: defecto de robustez ya documentado
 Las otras tres menciones son el docblock del conversor de formatos. Las tres llamadas viven
 en `Utilities.php`, van con `@`, y ahora **PHPStan sí las reporta en las dos pasadas** — con
 el rango no las reportaba.
+
+## T32 · UN GET QUE ESCRIBE, EL INSTRUMENTAL COMÚN, Y LOS HALLAZGOS DEL RECORRIDO
+
+### 1 · `GET /configurations/seo/` escribe en disco Y en base de datos
+
+**Bisecado, no leído.** Se repitieron las 272 URL del recorrido una a una vigilando la fecha
+de `src/statics/images/`, y la culpable salió sola:
+
+```
+!!! https://…/configurations/seo/
+    CREA: open_graph_de.jpg, open_graph_fr.jpg, open_graph_it.jpg, open_graph_pt.jpg
+```
+
+**NO ES PÚBLICA**, y esa es la diferencia con D2: `requireLogin: true`, roles `[0, 1]`, y sin
+sesión responde **302**. No hay escritura no autenticada.
+
+Pero **sí es el mismo patrón**: renderizar una página materializa datos.
+`AppConfigController`, al pintar la configuración SEO, recorre los idiomas y para cada uno
+que no tenga fila:
+
+```php
+$newConfig = new AppConfigModel();
+$newConfig->name = $nameLang;
+…
+if (@copy(basepath($defaultValue), basepath($relativePath))) {
+    $newConfig->save();          // <-- escritura en base de datos, en un GET
+}
+```
+
+Comprobado en la base: existen `open_graph_image_de`, `_fr`, `_it` y `_pt`, **creadas por el
+recorrido**. Los cuatro archivos se devolvieron a su sitio porque esas filas les apuntan.
+
+> **No se arregla aquí**: el propietario pidió saber primero si era pública. No lo es, así
+> que decide él. Lo que sí queda escrito es que **el recorredor tiene un efecto lateral
+> conocido**: pide GET, pero la aplicación escribe.
+
+### 2 · El instrumental común a los cinco repositorios
+
+Los cuatro paquetes tenían **exactamente** la configuración que había cegado a piecesphp
+—`phpVersion: {min: 80400, max: 80500}`— y se declararon verdes sobre ella. `database` está
+publicado en Packagist y lo consume el framework.
+
+**Propagado a los cuatro**: las dos pasadas y la unión, `PCSPHP_PHP_BIN`, el trinquete
+leyendo JSON, y el baseline con su nota de método.
+
+| Paquete | 8.4 | 8.5 | Unión | **Solo en 8.5** |
+| :-- | --: | --: | --: | --: |
+| `database` | 21 | 21 | **21** | **0** |
+| `datastructures` | 0 | 0 | **0** | **0** |
+| `html` | 3 | 3 | **3** | **0** |
+| `geojson` | 0 | 0 | **0** | **0** |
+
+**Delta por configuración: cero en los cuatro.** El rango no ocultaba nada aquí — pero ahora
+eso está **medido, no supuesto**, que era justo el problema.
+
+*(Un detalle que corrobora lo de la tabla: el resumen anterior de `database` decía **20** y el
+JSON dice **21**. El parser de la tabla contaba de menos, igual que en T2.)*
+
+`dynamicConstantNames` **no se propaga**: allí no hay constantes de módulo y declararlo sería
+escribir en un registro algo que no significa nada.
+
+#### La séptima comprobación: `files/dev/shared-toolchain.json`
+
+Lista, por archivo, las **marcas** que los cuatro paquetes deben contener — no se comparan
+byte a byte porque legítimamente difieren en rutas. `verify-integrity` falla si un paquete se
+desvía o si le falta un archivo. **Probada en las dos direcciones**: quitando `PCSPHP_PHP_BIN`
+de `html/bin/phpstan` y quitando el baseline de `geojson`, las dos salen con 1.
+
+Si los paquetes no están clonados al lado, **lo dice y no aprueba en silencio**.
+
+### 3 · Los hallazgos del recorrido con sesión
+
+#### a) `offsetAccess.invalidOffset` — 22 sitios, UNA sola forma
+
+El estático y la ejecución coinciden, que es la mejor pista que había. Todas son
+`$options[<expresión que puede ser null>] = …`, el constructor de listas desplegables copiado
+por todo el proyecto:
+
+| Forma | Cuántas |
+| :-- | --: |
+| `Possibly invalid array key type int\|null` | 11 |
+| `Possibly invalid array key type string\|null` | 9 |
+| `Possibly invalid array key type int\|string\|null` | 2 |
+
+**21 archivos**, de `App\Locations` a `UsersModel`, pasando por `config/functions.php`.
+
+**El arreglo es un `(string)` en la clave y nada más** — que es literalmente lo que dice la
+deprecación de 8.5: *«use an empty string instead»*. PHP ya convertía `null` a `''` y
+renormaliza las cadenas numéricas a entero, así que **no hay cambio de comportamiento**.
+
+> **NO APLICADO: son 21 archivos y la regla T0bis exige enseñar el plan antes.** Y por T17,
+> o se aplica a las 22 o a ninguna.
+
+#### b) `getQRCodeUrl(): Argument #2 ($issuer) must be of type string, null given`
+
+`OTPHandler.php:175` pasa `$userDataPackage->TOTPData->twoAuthFactorAlias` a un parámetro
+`string`. **El null viene del DATO, no de configuración ausente**: es el alias que el usuario
+pone a su segundo factor, y está vacío mientras no lo nombre — que es el estado normal de
+cualquier fila recién creada.
+
+Efecto: `users/user-system-features/get-current-totp-qr-data/` da **500 para todo usuario que
+no haya bautizado su 2FA**. Toca el módulo de D2, pero no lo causó D2: la columna siempre fue
+nulable.
+
+**Qué decidir**: qué emisor mostrar cuando no hay alias. Aparece en la aplicación de
+autenticación del usuario, así que no es una elección técnica.
+
+#### c) `Unknown column 'interest_research_area.startDate'` — muere con el módulo
+
+`InterestResearchAreasController` filtra por `startDate` y **el mapper no declara esa
+columna**: el controlador se clonó de `ApplicationCalls`, que sí tiene fechas, y el campo no
+se quitó. Las únicas referencias a `startDate` en todo el proyecto están dentro de
+`InterestResearchAreas`, que está **condenado** (T6).
+
+**Confirmado: el error muere con el módulo. No se arregla.**
+
+#### d) Los 24 quinientos de `-datatables` / `-ajax-all`
+
+Llamados sin los parámetros que genera DataTables. `DataTablesHelper.php:230` toma `columns`
+con defecto `null` y `:1090` lo exige `array`. **Defecto de robustez conocido, preexistente y
+ajeno a la versión de PHP.** No es de esta ventana.
+
+#### e) Los 404: dos clases distintas
+
+| Qué | Clase |
+| :-- | :-- |
+| `/elements/`, `/tabs-sample/` | **Enlaces muertos en vistas.** Salen de `view/layout/menu.php`, que pinta vistas genéricas cuyo archivo no existe. No hay ruta que perder: nunca la hubo |
+| `admin/reports-access/` | Enlace de menú a un módulo que no responde ahí |
+| `locations/points/datatables/` | **Ruta registrada que responde 404 desde el controlador**, no un fallo de enrutado: sin sesión da 302, con sesión da 404 |

@@ -36,6 +36,7 @@ use PiecesPHP\TerminalData;
  *   5. Que ningún controlador sobreescriba `routeName`, `allowedRoute` o `_allowedRoute`
  *      sin estar en el registro, y que ninguna entrada del registro haya dejado de decidir.
  *   6. Que no aparezca ninguna FUNCIÓN DEPRECADA de las registradas.
+ *   7. Que los cuatro paquetes `piecesphp/*` no se hayan desviado del instrumental común.
  *
  * Devuelve código de salida distinto de cero si algo falla, para poder usarse en CI.
  *
@@ -97,7 +98,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $this->description = new StringArray([
             "Verifica la integridad estructural del código fuente.\r\n",
             "\tComprueba docblocks sin cerrar, desaparición de funciones o métodos,\r\n",
-            "\trutas PSR-4, eclipses, sobreescrituras de rutas y funciones deprecadas.\r\n",
+            "\trutas PSR-4, eclipses, sobreescrituras, deprecadas e instrumental común.\r\n",
             "\tDevuelve código de salida 1 si algo falla, para uso en CI.\r\n",
             "\tParámetros:\r\n",
             "\t  update-snapshot (yes|no) regenera la instantánea de firmas en vez de comparar. Por defecto: no",
@@ -152,10 +153,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 6. No hay llamadas a funciones deprecadas ─────────────────────────────────
         $deprecatedFailures = self::checkDeprecatedFunctions($files);
 
+        //──── 7. Los paquetes no se han desviado del instrumental común ─────────────────
+        $toolchainFailures = self::checkSharedToolchain();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
-            + count($deprecatedFailures);
+            + count($deprecatedFailures) + count($toolchainFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -175,9 +179,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($deprecatedFailures as $line) {
             echoTerminal("\e[31mDEPRECADA:\e[39m {$line}");
         }
+        foreach ($toolchainFailures as $line) {
+            echoTerminal("\e[31mINSTRUMENTAL:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas PSR-4, eclipses, sobreescrituras y deprecadas sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas, eclipses, sobreescrituras, deprecadas e instrumental sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1199,6 +1206,84 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         return $found;
+    }
+
+    /**
+     * Registro del instrumental común a los cinco repositorios, relativo a la RAÍZ.
+     *
+     * @var string
+     */
+    const TOOLCHAIN_RELATIVE_PATH = 'files/dev/shared-toolchain.json';
+
+    /**
+     * Comprueba que los cuatro paquetes `piecesphp/*` no se hayan desviado del instrumental.
+     *
+     * **Existe porque ya pasó.** Los cuatro paquetes se declararon verdes sobre EXACTAMENTE
+     * la misma configuración que había cegado a piecesphp —`phpVersion` como rango, que
+     * reporta la intersección y no la unión— y nadie lo comprobó. La pregunta «¿están los
+     * cinco al día?» no puede depender de que alguien se acuerde de hacerla.
+     *
+     * No compara los archivos byte a byte: legítimamente difieren en rutas y nombres. Busca
+     * MARCAS —trozos de texto que solo existen si la propiedad está implementada—.
+     *
+     * Si los paquetes no están clonados al lado, la comprobación lo DICE y no aprueba en
+     * silencio; pero tampoco falla, porque un despliegue no tiene por qué tenerlos.
+     *
+     * @return string[]
+     */
+    protected static function checkSharedToolchain(): array
+    {
+        $failures = [];
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $registryPath = dirname($repoRoot) . '/' . self::TOOLCHAIN_RELATIVE_PATH;
+        if (!is_file($registryPath)) {
+            $registryPath = $repoRoot . '/' . self::TOOLCHAIN_RELATIVE_PATH;
+        }
+
+        $raw = @file_get_contents($registryPath);
+        $registry = is_string($raw) ? json_decode($raw, true) : null;
+        if (!is_array($registry) || !isset($registry['files']) || !is_array($registry['files'])) {
+            return ['no se pudo leer ' . self::TOOLCHAIN_RELATIVE_PATH . ': la comprobación no pudo mirar nada'];
+        }
+
+        $packagesRoot = dirname(dirname($repoRoot));
+        $present = 0;
+
+        foreach ((array) ($registry['packages'] ?? []) as $package) {
+            $packageRoot = $packagesRoot . '/' . $package;
+            if (!is_dir($packageRoot)) {
+                continue; //No está clonado al lado: no es un fallo de este repositorio.
+            }
+            $present++;
+
+            foreach ($registry['files'] as $relative => $entry) {
+                $file = $packageRoot . '/' . $relative;
+                if (!is_file($file)) {
+                    $failures[] = $package . ' — le falta ' . $relative . '. ' . ($entry['why'] ?? '');
+                    continue;
+                }
+                $content = (string) @file_get_contents($file);
+                $missing = [];
+                foreach ((array) ($entry['markers'] ?? []) as $marker) {
+                    if (mb_strpos($content, (string) $marker) === false) {
+                        $missing[] = $marker;
+                    }
+                }
+                if (count($missing) > 0) {
+                    $failures[] = $package . '/' . $relative . ' — se ha desviado: no contiene «'
+                        . implode('», «', $missing) . '». ' . ($entry['why'] ?? '');
+                }
+            }
+        }
+
+        if ($present === 0) {
+            echoTerminal("\e[33mAVISO:\e[39m ningún paquete clonado junto al repositorio: el instrumental común NO se comprobó.");
+            return $failures;
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$present} paquetes comprobados contra el instrumental común.");
+
+        return $failures;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
