@@ -128,6 +128,21 @@ git merge -X renormalize <rama>
 **Comprobado en una fusión de prueba**: un despliegue con cambios propios sobre archivos
 afectados da **2 conflictos sin la opción y 0 con ella**, conservando sus cambios locales.
 
+## Comprobar que la aplicación responde entera
+
+```bash
+bin/cli route-inventory
+bin/walk-routes --base=https://tu-host/ruta/src
+```
+
+Pide **todas las rutas GET** que el framework declara y después **todos los assets** de las
+páginas visitadas. No escribe nada: descarta por nombre y por URL cualquier ruta de
+escritura. Con `PCSPHP_WALK_USER` y `PCSPHP_WALK_PASS` en el entorno, recorre también la zona
+administrativa.
+
+Los assets son la mitad que importa: **un asset que revienta no rompe la página**, así que
+un paseo a mano no lo ve.
+
 ## Cómo se empuja en este repositorio
 
 **Hay TRES remotos** —`origin` en GitHub, `origin2` en GitLab y `origin3` en Bitbucket—, y

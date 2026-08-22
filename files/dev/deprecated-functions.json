@@ -1,0 +1,72 @@
+{
+    "_comentario": [
+        "Funciones deprecadas que NO pueden aparecer en el código. La comprobación las busca",
+        "POR TOKENS, así que no le afecta que el nombre salga dentro de una cadena o de un",
+        "comentario. Está en un archivo y no en el código para poder ampliarla sin tocar la",
+        "tarea: cuando PHP deprecue algo nuevo, se añade aquí y ya.",
+        "",
+        "'since' es la versión de PHP en que se deprecó. 'allowedPaths' son las rutas —",
+        "relativas a src/ — donde esa función SÍ puede aparecer, con su razón escrita; una",
+        "entrada de allowedPaths que ya no case hace fallar la comprobación, igual que una",
+        "entrada muerta de KNOWN_ECLIPSES."
+    ],
+    "deprecated": {
+        "imagedestroy": {
+            "since": "8.5",
+            "note": "MEDIDO en PHP 8.5.9: «Function imagedestroy() is deprecated since 8.5, as it has no effect since PHP 8.0». En 8.4 NO avisa. Y en este proyecto NO es inofensiva: bootstrap.php promueve E_DEPRECATED a excepción, así que la llamada ABORTA la petición.",
+            "allowedPaths": []
+        },
+        "finfo_close": {
+            "since": "8.5",
+            "note": "MEDIDO en 8.5.9: «deprecated since 8.5, as finfo objects are freed automatically». En 8.4 no avisa.",
+            "allowedPaths": []
+        },
+        "curl_close": {
+            "since": "8.5",
+            "note": "MEDIDO en 8.5.9: «deprecated since 8.5, as it has no effect since PHP 8.0». En 8.4 no avisa.",
+            "allowedPaths": []
+        },
+        "xml_parser_free": {
+            "since": "8.5",
+            "note": "Misma familia de recursos-que-pasaron-a-objeto. Deprecada en 8.5.",
+            "allowedPaths": []
+        },
+        "shmop_close": {
+            "since": "8.5",
+            "note": "Misma familia de recursos-que-pasaron-a-objeto. Deprecada en 8.5.",
+            "allowedPaths": []
+        },
+        "enchant_broker_free": {
+            "since": "8.5",
+            "note": "Misma familia de recursos-que-pasaron-a-objeto. Deprecada en 8.5.",
+            "allowedPaths": []
+        },
+        "enchant_dict_free": {
+            "since": "8.5",
+            "note": "Misma familia de recursos-que-pasaron-a-objeto. Deprecada en 8.5.",
+            "allowedPaths": []
+        },
+        "pspell_free": {
+            "since": "8.5",
+            "note": "Misma familia de recursos-que-pasaron-a-objeto. Deprecada en 8.5.",
+            "allowedPaths": []
+        },
+        "strftime": {
+            "since": "8.1",
+            "note": "Se elimina en PHP 9. Las tres llamadas que quedan viven en el conversor de formatos de Utilities.php, van con @ y el manejador respeta la supresión. Se sustituyen antes de subir a 9, no ahora.",
+            "allowedPaths": [
+                "app/core/Utilities.php"
+            ]
+        },
+        "utf8_encode": {
+            "since": "8.2",
+            "note": "Eliminada en PHP 9. Usa mb_convert_encoding().",
+            "allowedPaths": []
+        },
+        "utf8_decode": {
+            "since": "8.2",
+            "note": "Eliminada en PHP 9. Usa mb_convert_encoding().",
+            "allowedPaths": []
+        }
+    }
+}

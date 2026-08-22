@@ -427,7 +427,6 @@ class FileValidator
         if ($file_info !== false) {
             $mime_type = finfo_file($file_info, $file);
             $mime_type = is_string($mime_type) ? $mime_type : '';
-            finfo_close($file_info);
         }
 
         $extension = @mb_strtolower(pathinfo($basename, \PATHINFO_EXTENSION));

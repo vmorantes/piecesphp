@@ -25,6 +25,17 @@ Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticar
    el formato de referencia. **Los cinco repositorios al mismo estándar.**
 4. **TRINQUETE: el baseline solo baja.** Un error nuevo se arregla o se justifica por
    escrito. El que no cumpla ninguna de las dos cosas, no entra.
+6. **UNA FASE NO SE CIERRA POR CONSENSO NI POR CHECKLIST.** Se cierra cuando existe una
+   comprobación que falla si deja de ser cierta, **Y ESA COMPROBACIÓN SE HA VISTO FALLAR.**
+
+   **Escrita porque la migración a 8.5 se dio por terminada y no lo estaba.** Había DOS
+   detectores —PHPStan y la promoción de `E_DEPRECATED` a excepción— y **no se probó
+   ninguno**. Los dos fallaban a la vez, cada uno por su motivo, y quedaron nueve llamadas
+   deprecadas en el árbol; una tumbaba la generación de imágenes con un 400.
+
+   Plantar un `imagedestroy()` el primer día y correr los dos habría costado **cinco
+   minutos** y habría enseñado que el estático no lo veía con el rango de versiones puesto,
+   y que el de ejecución solo dispara si alguien pisa la línea.
 
 5. **TODA CIFRA QUE SOBREVIVE A LA SESIÓN LLEVA SU MÉTODO ESCRITO.** No es un paralelismo
    con la regla 2: **es lo que hace funcionar el trinquete.** Comparar dos baselines solo
@@ -1774,6 +1785,8 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 | `git diff --name-only --ignore-cr-at-eol` | **Lista el archivo aunque el filtro no encuentre diferencias**; el filtro lo aplica `--stat`, no `--name-only` | «58 de 59 archivos del paquete cambian de contenido». Cambian **cero** |
 | Una extracción PARCIAL presentada como censo | Trece cuerpos de `_allowedRoute` sacados a mano, de treinta y dos | «doce de trece no deciden nada, solo una decide». **Son quince de treinta y dos** |
 | La memoria, sobre lo que hay en git | Nadie miró el historial | «el directorio queda en la historia». **Nunca estuvo en git**: `git log` sobre él no devuelve nada |
+| Tres `grep` distintos en el mismo mensaje | Uno solo miraba `core/`; otro no anclaba a inicio de línea y **volvió a contar las funciones globales como métodos**; el tercero no cubría propiedades tipadas | «117 funciones, 143 métodos, 14 propiedades». Por tokens: **145, 1 y 90** |
+| El histórico de un log que se limpia de rutina | Se dedujo de una AUSENCIA sin comprobar si el instrumento podía contener el dato | «Apache quizá sirve 8.4». Sirve **8.5.9**, y eso era justo la causa del fallo |
 
 ### La regla
 
@@ -2670,3 +2683,72 @@ de módulo de T13, pero con constantes que **no están en `config/constants.php`
 5. Y antes de suprimir una familia entera, **comprobar que sus miembros están ahí por la misma
    razón** (T27). Tres familias de este mapa ya han demostrado que no basta con compartir
    identificador.
+
+## T30 · LA MIGRACIÓN A 8.5 NO ESTABA TERMINADA — por qué, y qué se hizo
+
+### La causa raíz: TODAS las puertas corren en un PHP que producción no usa
+
+| | |
+| :-- | :-- |
+| Apache sirve | **PHP 8.5.9** |
+| `bin/cli`, `bin/phpstan`, `bin/rector`, `bin/phpstan-deadcode` | **php8.4** |
+
+Y las funciones que quedaban **se deprecan EN 8.5, no en 8.0**. Medido llamándolas:
+
+```
+PHP 8.5.9: Function imagedestroy() is deprecated since 8.5, as it has no effect since PHP 8.0
+PHP 8.5.9: Function finfo_close() is deprecated since 8.5, as finfo objects are freed automatically
+PHP 8.5.9: Function curl_close()  is deprecated since 8.5, as it has no effect since PHP 8.0
+PHP 8.4  : (nada)
+```
+
+**El detector de ejecución no podía verlas** porque las pruebas se corrían en 8.4.
+
+### El segundo motivo: `phpVersion` como RANGO reporta la INTERSECCIÓN
+
+El comentario del `.neon` decía que un escalar dejaría pasar las deprecaciones de la otra
+versión. **Es exactamente al revés**, y está medido: con `min: 80500, max: 80500` sobre este
+mismo árbol aparecen **38 errores que hoy no se ven** —el total pasa de **875 a 900**—, entre
+ellos las 3 llamadas a `strftime()` y el `imagedestroy()` de sonda.
+
+> **Un rango solo reporta lo que es error en TODAS las versiones del rango.** Una deprecación
+> introducida en 8.5 no lo es en 8.4, así que se descarta en silencio.
+
+**PHPStan SÍ ve `imagedestroy()`** cuando se le fija 8.5 — `Call to deprecated function
+imagedestroy()`—, así que **no hay punto ciego de stubs**: hay una configuración que mira a
+la versión equivocada. La versión instalada, 2.2.8, **es la última**; `composer outdated` solo
+señala `rector/rector`.
+
+**No se cambia el rango aquí**: subir el piso mueve el baseline +23 y eso es decisión del
+propietario. Lo correcto sería **dos pasadas y la unión**, no la intersección.
+
+### Lo que se hizo
+
+- **Las nueve llamadas, borradas.** `imagedestroy` ×4, `finfo_close` ×4, `curl_close` ×1.
+  Barrido también `xml_parser_free`, `shmop_close`, `enchant_broker_free`,
+  `enchant_dict_free` y `pspell_free`: **cero en todo el árbol**.
+- **`img-gen` arreglado, y la causa demostrada** poniendo la llamada de vuelta:
+
+  | | |
+  | :-- | :-- |
+  | Con `imagedestroy()` | **HTTP 400**, `text/html` |
+  | Sin ella | **HTTP 200**, `image/jpeg`, 6.553 bytes, JPEG 400×300 real |
+
+  *(La sospecha del `.ttf` queda descartada: la fuente estaba bien.)*
+- **Sexta comprobación de `verify-integrity`**: registro de funciones deprecadas en
+  `files/dev/deprecated-functions.json`, con la versión en que cada una se deprecó y rutas
+  permitidas con su razón. **Determinista: mira el código, no la ejecución.** Probada en
+  tres direcciones —llamada nueva, entrada muerta de `allowedPaths`, registro ilegible—.
+- **Y esa puerta destapó un falso positivo del detector de docblocks**: marcaba como
+  «tragada» cualquier declaración que un docblock solo MENCIONARA. Ahora exige que la línea
+  no empiece por `*`, que es lo que distingue una declaración tragada de una mención.
+
+### El recorredor de rutas
+
+`bin/cli route-inventory` + `bin/walk-routes`. El inventario sale **del propio framework**
+—`get_routes()`, 347 rutas—, no de una lista escrita a mano.
+
+**Solo GET**, y descarta por nombre **y** por URL `-actions-`, `-forms-add`, `-forms-edit`,
+`-add`, `-edit`, `-delete`, `delete`, `destroy`, `remove`, `logout`. **No escribe nada.**
+Recorre además **todos los assets** de las páginas visitadas, que es donde un paseo humano no
+mira: un asset que revienta no rompe la página.

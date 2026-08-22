@@ -1987,6 +1987,11 @@
         "ProcessQueueTask::main",
         "ProcessQueueTask::route"
     ],
+    "app/classes/Terminal/Tasks/RouteInventoryTask.php": [
+        "RouteInventoryTask::__construct",
+        "RouteInventoryTask::main",
+        "RouteInventoryTask::route"
+    ],
     "app/classes/Terminal/Tasks/RunCronjobsTask.php": [
         "RunCronjobsTask::__construct",
         "RunCronjobsTask::main",
@@ -2010,7 +2015,9 @@
     ],
     "app/classes/Terminal/Tasks/VerifyIntegrityTask.php": [
         "VerifyIntegrityTask::__construct",
+        "VerifyIntegrityTask::calledFunctions",
         "VerifyIntegrityTask::checkClassesAreLoadable",
+        "VerifyIntegrityTask::checkDeprecatedFunctions",
         "VerifyIntegrityTask::checkDocblocks",
         "VerifyIntegrityTask::checkPackageEclipses",
         "VerifyIntegrityTask::checkRouteOverrides",
@@ -2018,6 +2025,7 @@
         "VerifyIntegrityTask::collectSignatures",
         "VerifyIntegrityTask::compareSignatures",
         "VerifyIntegrityTask::declaredClass",
+        "VerifyIntegrityTask::hasSwallowedDeclaration",
         "VerifyIntegrityTask::main",
         "VerifyIntegrityTask::nextName",
         "VerifyIntegrityTask::route",
@@ -2701,6 +2709,7 @@
         "SqlFormat::wrapRoutineParameters"
     ],
     "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/XmlFormat.php": [
+        "XmlFormat::getColumnTypes",
         "XmlFormat::getFooter",
         "XmlFormat::getFunctions",
         "XmlFormat::getHeader",
@@ -2709,6 +2718,8 @@
         "XmlFormat::getTableFakeView",
         "XmlFormat::getTableStructure",
         "XmlFormat::getTableTriggers",
+        "XmlFormat::hasCharactersIllegalInXml",
+        "XmlFormat::isBinaryType",
         "XmlFormat::isView"
     ],
     "app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/ZipFileOutput.php": [

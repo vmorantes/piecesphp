@@ -4,10 +4,10 @@
 190
 
 [TOTAL DE ERRORES VISIBLES]
-877
+875
 
 [TIPOS DE ERRORES Y CANTIDAD]
-🪪  argument.type (340)
+🪪  argument.type (338)
 🪪  property.nonObject (200)
 🪪  method.nonObject (143)
 🪪  return.type (55)
@@ -349,7 +349,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	🪪  binaryOp.invalid (Líneas: 366)
 	🪪  method.deprecated (Líneas: 377)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	🪪  argument.type (Líneas: 213)
+	🪪  argument.type (Líneas: 221)
 project://src/app/config/containers.php
 	🪪  argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
@@ -404,8 +404,8 @@ project://src/app/core/Utilities.php
 	🪪  return.type (Líneas: 328, 591)
 	🪪  foreach.nonIterable (Líneas: 867)
 	🪪  method.nonObject (Líneas: 995, 1008)
-	🪪  argument.type (Líneas: 1057, 1363, 1441, 1442, 1443, 1476, 1477, 1478, 1507, 1511, 1522, 1547, 1566, 1571, 1611, 1612, 1614, 1633, 1682, 1687, 1698, 1702, 1706, 1739, 1759)
-	🪪  function.deprecated (Líneas: 1681, 1686, 1694)
+	🪪  argument.type (Líneas: 1057, 1363, 1441, 1442, 1443, 1476, 1477, 1478, 1507, 1511, 1522, 1547, 1566, 1571, 1611, 1612, 1614, 1679, 1684, 1695, 1699, 1703, 1736, 1756)
+	🪪  function.deprecated (Líneas: 1678, 1683, 1691)
 project://src/app/core/autoload.php
 	🪪  isset.offset (Líneas: 60)
 project://src/app/core/bootstrap.php
@@ -498,7 +498,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/
 	🪪  argument.type (Líneas: 41)
 	🪪  assign.propertyType (Líneas: 51)
 project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
-	🪪  argument.type (Líneas: 618, 998, 1002)
+	🪪  argument.type (Líneas: 615, 995)
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 	🪪  argument.type (Líneas: 111, 162, 163, 179)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
@@ -518,7 +518,7 @@ project://src/app/core/psr4/PiecesPHP/TerminalData.php
 	🪪  return.type (Líneas: 213)
 project://src/app/core/system-controllers/Test.php
 	🪪  argument.type (Líneas: 83, 94, 111)
-	🪪  return.type (Líneas: 126)
+	🪪  return.type (Líneas: 124)
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
 	🪪  argument.type (Líneas: 54, 204, 205, 210)
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php

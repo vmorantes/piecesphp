@@ -1,0 +1,228 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Recorredor de rutas. Pide por HTTP TODAS las rutas GET que el framework declara, y
+ * después TODOS los assets que aparecen en las páginas visitadas.
+ *
+ * Existe porque el propietario no debe encontrar fallos haciendo clic, y porque un paseo
+ * humano NO MIRA LOS ASSETS: una imagen que revienta no rompe la página, solo deja un hueco.
+ * Ahí es donde vivían las nueve llamadas deprecadas que tumbaban `img-gen` con un 400.
+ *
+ * NO ESCRIBE NADA. Solo GET, y además descarta por nombre y por URL cualquier ruta de
+ * escritura —`-actions-`, `-add`, `-edit`, `-delete`— aunque esté declarada como GET.
+ *
+ * Uso:
+ *   bin/cli route-inventory                    # primero, el inventario
+ *   bin/walk-routes --base=https://85.localhost/vicsen/piecesphp/src
+ *   bin/walk-routes --base=… --no-assets       # solo rutas
+ *   bin/walk-routes --base=… --json=salida.json
+ *
+ * Sesión: si existen las variables de entorno PCSPHP_WALK_USER y PCSPHP_WALK_PASS, hace
+ * login y manda el JWT en la cabecera `JWTAuth` en todas las peticiones. **Las credenciales
+ * NO se escriben en ningún archivo, ni se imprimen, ni entran en el repositorio.**
+ */
+
+$options = [];
+foreach (array_slice($argv, 1) as $argument) {
+    if (preg_match('/^--([a-z-]+)(?:=(.*))?$/', $argument, $matches) === 1) {
+        $options[$matches[1]] = $matches[2] ?? true;
+    }
+}
+
+$base = rtrim((string) ($options['base'] ?? ''), '/');
+if ($base === '') {
+    fwrite(STDERR, "Falta --base=<url>. Ejemplo: --base=https://85.localhost/vicsen/piecesphp/src\n");
+    exit(1);
+}
+
+$root = dirname(__DIR__);
+$inventoryPath = $root . '/files/dev/route-inventory.json';
+if (!is_file($inventoryPath)) {
+    fwrite(STDERR, "No existe {$inventoryPath}. Genera el inventario con: bin/cli route-inventory\n");
+    exit(1);
+}
+
+$inventory = json_decode((string) file_get_contents($inventoryPath), true);
+if (!is_array($inventory)) {
+    fwrite(STDERR, "El inventario no es JSON válido.\n");
+    exit(1);
+}
+
+/**
+ * Nombres y trozos de URL que NUNCA se piden. Sobra con uno de los dos: se comprueban los
+ * dos a propósito, porque un nombre puede no seguir la convención y una URL sí, o al revés.
+ */
+$forbidden = ['-actions-', '-forms-add', '-forms-edit', '-add', '-edit', '-delete', 'delete', 'destroy', 'remove', 'logout', 'sign-out'];
+
+$isForbidden = static function (string $name, string $url) use ($forbidden): ?string {
+    $haystack = mb_strtolower($name . ' ' . $url);
+    foreach ($forbidden as $needle) {
+        if (mb_strpos($haystack, $needle) !== false) {
+            return $needle;
+        }
+    }
+    return null;
+};
+
+//──── Sesión opcional ───────────────────────────────────────────────────────────────────
+$token = null;
+$user = getenv('PCSPHP_WALK_USER');
+$password = getenv('PCSPHP_WALK_PASS');
+
+$request = static function (string $url, array $headers = [], ?array $post = null): array {
+    $handle = curl_init();
+    curl_setopt_array($handle, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTPHEADER => $headers,
+    ]);
+    if ($post !== null) {
+        curl_setopt($handle, CURLOPT_POST, true);
+        curl_setopt($handle, CURLOPT_POSTFIELDS, http_build_query($post));
+    }
+    $started = microtime(true);
+    $body = curl_exec($handle);
+    $elapsed = microtime(true) - $started;
+    $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+    $type = (string) curl_getinfo($handle, CURLINFO_CONTENT_TYPE);
+    $size = (int) curl_getinfo($handle, CURLINFO_SIZE_DOWNLOAD);
+    curl_close($handle);
+    return [
+        'status' => $status,
+        'type' => $type,
+        'size' => $size,
+        'ms' => (int) round($elapsed * 1000),
+        'body' => is_string($body) ? $body : '',
+    ];
+};
+
+if (is_string($user) && $user !== '' && is_string($password) && $password !== '') {
+    $login = $request($base . '/users/login/', ['Referer: ' . $base . '/'], ['username' => $user, 'password' => $password]);
+    $decoded = json_decode($login['body'], true);
+    $token = is_array($decoded) ? ($decoded['token'] ?? ($decoded['data']['token'] ?? null)) : null;
+    if (!is_string($token) || $token === '') {
+        $token = null;
+        fwrite(STDERR, "AVISO: el login no devolvió token. Se recorre SIN sesión.\n");
+    } else {
+        echo "Sesión iniciada.\n";
+    }
+} else {
+    echo "AVISO: sin PCSPHP_WALK_USER/PCSPHP_WALK_PASS. Se recorre SIN sesión: todo /admin/* dará 302.\n";
+}
+
+$headers = ['Referer: ' . $base . '/'];
+if ($token !== null) {
+    $headers[] = 'JWTAuth: ' . $token;
+}
+
+//──── Recorrido de rutas ────────────────────────────────────────────────────────────────
+$results = [];
+$skipped = [];
+$pages = [];
+
+foreach ($inventory as $route) {
+    $name = (string) $route['name'];
+    $method = mb_strtoupper((string) $route['method']);
+    $url = (string) $route['url'];
+
+    if ($method !== 'GET') {
+        $skipped[] = [$name, 'no es GET (' . $method . ')'];
+        continue;
+    }
+    if ($url === '') {
+        $skipped[] = [$name, 'exige parámetros: no se inventan valores'];
+        continue;
+    }
+    $reason = $isForbidden($name, $url);
+    if ($reason !== null) {
+        $skipped[] = [$name, 'nombre o URL de escritura: «' . $reason . '»'];
+        continue;
+    }
+
+    //El inventario se genera desde la CLI, que no tiene host: se reescribe la base.
+    $path = (string) parse_url($url, PHP_URL_PATH);
+    $target = $base . $path;
+
+    $response = $request($target, $headers);
+    $results[] = ['name' => $name, 'url' => $target] + array_diff_key($response, ['body' => true]);
+
+    if (mb_strpos($response['type'], 'text/html') !== false) {
+        $pages[$target] = $response['body'];
+    }
+}
+
+//──── Recorrido de assets ───────────────────────────────────────────────────────────────
+$assets = [];
+if (!isset($options['no-assets'])) {
+    $seen = [];
+    foreach ($pages as $pageUrl => $html) {
+        if (preg_match_all('/(?:src|href)\s*=\s*"([^"]+)"/i', $html, $matches) !== false) {
+            foreach ($matches[1] as $candidate) {
+                $candidate = html_entity_decode($candidate, ENT_QUOTES | ENT_HTML5);
+                if ($candidate === '' || $candidate[0] === '#' || mb_strpos($candidate, 'data:') === 0 || mb_strpos($candidate, 'javascript:') === 0) {
+                    continue;
+                }
+                if (mb_strpos($candidate, 'http') === 0 && mb_strpos($candidate, $base) !== 0) {
+                    continue; //externo: no es nuestro
+                }
+                $assetUrl = mb_strpos($candidate, 'http') === 0 ? $candidate : $base . '/' . ltrim($candidate, '/');
+                if (isset($seen[$assetUrl])) {
+                    continue;
+                }
+                $seen[$assetUrl] = true;
+                $response = $request($assetUrl, $headers);
+                $assets[] = ['from' => $pageUrl, 'url' => $assetUrl] + array_diff_key($response, ['body' => true]);
+            }
+        }
+    }
+}
+
+//──── Informe ───────────────────────────────────────────────────────────────────────────
+$summarise = static function (array $rows): array {
+    $ok = 0; $bad = [];
+    foreach ($rows as $row) {
+        if ($row['status'] >= 200 && $row['status'] < 300) { $ok++; } else { $bad[] = $row; }
+    }
+    return [$ok, $bad];
+};
+
+[$routesOk, $routesBad] = $summarise($results);
+[$assetsOk, $assetsBad] = $summarise($assets);
+
+echo "\n";
+echo "RUTAS   : " . count($results) . " pedidas, {$routesOk} en 2xx, " . count($routesBad) . " no-2xx, " . count($skipped) . " omitidas\n";
+echo "ASSETS  : " . count($assets) . " pedidos, {$assetsOk} en 2xx, " . count($assetsBad) . " no-2xx\n";
+
+if (count($routesBad) > 0) {
+    echo "\n── RUTAS NO-2xx ──\n";
+    foreach ($routesBad as $row) {
+        printf("  %-3d %-6dms  %-52s %s\n", $row['status'], $row['ms'], mb_substr($row['name'], 0, 52), $row['url']);
+    }
+}
+if (count($assetsBad) > 0) {
+    echo "\n── ASSETS NO-2xx ──\n";
+    foreach ($assetsBad as $row) {
+        printf("  %-3d %-6dms  %s\n     desde %s\n", $row['status'], $row['ms'], $row['url'], $row['from']);
+    }
+}
+
+echo "\n── OMITIDAS, con su razón (NO se filtra por «parece irrelevante») ──\n";
+$reasons = [];
+foreach ($skipped as [$name, $reason]) { $reasons[$reason][] = $name; }
+foreach ($reasons as $reason => $names) {
+    printf("  %-46s %d\n", $reason, count($names));
+}
+
+if (isset($options['json']) && is_string($options['json'])) {
+    file_put_contents($options['json'], json_encode([
+        'routes' => $results, 'assets' => $assets, 'skipped' => $skipped,
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    echo "\nJSON: " . $options['json'] . "\n";
+}
+
+exit(count($routesBad) + count($assetsBad) > 0 ? 1 : 0);

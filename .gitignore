@@ -32,3 +32,4 @@ IGNORE.md
 IGNORE/
 docs/*
 bin/phpstan.deadcode.generated.neon
+files/dev/route-inventory.json

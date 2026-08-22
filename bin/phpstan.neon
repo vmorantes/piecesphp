@@ -4,12 +4,31 @@ includes:
     - tools/vendor/phpstan/phpstan-deprecation-rules/rules.neon
 parameters:
     level: 8
-    # Rango completo soportado, no una sola versión: el código debe correr
-    # igual en el piso (8.4) y en el techo (8.5). Con un escalar, PHPStan
-    # analiza una sola y las deprecaciones de la otra pasan desapercibidas.
+    # ATENCIÓN: ESTE RANGO NO HACE LO QUE DECÍA ESTE COMENTARIO.
+    #
+    # Decía: «con un escalar, PHPStan analiza una sola versión y las deprecaciones de la
+    # otra pasan desapercibidas». Es al revés. Con un RANGO, PHPStan reporta solo lo que es
+    # error en TODAS las versiones del rango — la INTERSECCIÓN, no la unión. Una deprecación
+    # introducida en 8.5 no lo es en 8.4, así que **se descarta en silencio**.
+    #
+    # MEDIDO, no deducido. Fijando `min: 80500, max: 80500` sobre este mismo árbol:
+    #
+    #   - aparecen 38 errores que hoy no se ven, y el total pasa de 877 a 900;
+    #   - entre ellos, las 3 llamadas a strftime() y el imagedestroy() de sonda, que con el
+    #     rango NO se reportan.
+    #
+    # Y esto explica el fallo entero de la migración: Apache sirve **PHP 8.5.9**, mientras
+    # que `bin/phpstan`, `bin/cli` y `bin/rector` corren con **php8.4**. Las nueve llamadas
+    # deprecadas eran invisibles para los dos detectores a la vez: para el estático por este
+    # rango, y para el de ejecución porque en 8.4 esas funciones no avisan.
+    #
+    # NO SE CAMBIA AQUÍ: subir el piso a 8.5 mueve el baseline +23 y eso es decisión del
+    # propietario (T0, trinquete). Lo correcto sería DOS PASADAS —una por versión— y la
+    # UNIÓN de sus errores. Mientras tanto, la sexta comprobación de `verify-integrity`
+    # —el registro de `files/dev/deprecated-functions.json`— es la defensa determinista.
     phpVersion:
         min: 80400 # PHP 8.4 — piso declarado en src/composer.json
-        max: 80500 # PHP 8.5 — techo objetivo de la migración
+        max: 80500 # PHP 8.5 — la versión que sirve Apache
     paths:
         - ../src/app
         - ../src/index.php

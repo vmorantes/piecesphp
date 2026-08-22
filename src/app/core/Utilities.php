@@ -1628,9 +1628,6 @@ function resizeAndCenterImage(string $inputPath, string $outputPath, int $target
             break;
     }
 
-    // Liberar memoria
-    imagedestroy($canvas);
-    imagedestroy($originalImage);
 }
 
 /**

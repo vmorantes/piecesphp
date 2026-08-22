@@ -210,6 +210,36 @@ Cubre un hueco real: ni un docblock sin cerrar ni un `namespace` perdido son err
 sintaxis, así que `php -l` los da por buenos. Ver `files/dev/tests.md` y, para lo que la
 puerta **no** atrapa, `.agents/context/18-siguientes-ventanas.md` (T10).
 
+## Recorrido de rutas — la puerta que sustituye al paseo humano
+
+```bash
+bin/cli route-inventory                                       # inventario, del propio framework
+bin/walk-routes --base=https://85.localhost/vicsen/piecesphp/src
+bin/walk-routes --base=… --no-assets                          # solo rutas
+bin/walk-routes --base=… --json=salida.json
+```
+
+**Existe porque el propietario no debe encontrar fallos haciendo clic**, y porque un paseo
+humano **no mira los assets**: una imagen que revienta no rompe la página, solo deja un
+hueco. Ahí vivían las nueve llamadas deprecadas que tumbaban `img-gen`.
+
+- El inventario sale de `get_routes()`, **no de una lista escrita a mano**: una lista a mano
+  envejece en silencio y deja de cubrir justo lo que se acaba de añadir.
+- **SOLO GET**, y descarta por nombre **y** por URL cualquier cosa con `-actions-`,
+  `-forms-add`, `-forms-edit`, `-add`, `-edit`, `-delete`, `delete`, `destroy`, `remove` o
+  `logout`, **aunque esté declarada como GET**. No escribe nada.
+- Recorre después **todos los assets** que aparecen en las páginas visitadas.
+- **Con sesión**: exporta `PCSPHP_WALK_USER` y `PCSPHP_WALK_PASS` antes de llamarlo. Hace
+  `POST /users/login/` y manda el JWT en la cabecera `JWTAuth`. **Las credenciales no se
+  escriben en ningún archivo ni entran en el repositorio.** Sin ellas, todo `/admin/*`
+  responde 302 y el recorrido sigue siendo útil para la zona pública y los assets.
+- **Antes de correrlo, vacía el log** para que las entradas que aparezcan sean suyas.
+- Sale con código 1 si alguna ruta o asset no dio 2xx.
+
+**Lo que NO cubre, y hay que decirlo**: las rutas que exigen parámetros no se piden, porque
+habría que inventar valores. Son 45 de 347. El recorredor las lista como omitidas con esa
+razón, nunca en silencio.
+
 ## Comprobación previa a actualizar
 
 ```bash

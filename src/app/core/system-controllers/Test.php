@@ -116,8 +116,6 @@ class Test
         // Generar imagen JPEG
         imagejpeg($image, null, 90); // Calidad 90%
 
-        // Limpiar memoria
-        imagedestroy($image);
 
         // Obtener datos de la imagen
         $imageData = ob_get_contents();

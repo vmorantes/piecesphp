@@ -35,6 +35,7 @@ use PiecesPHP\TerminalData;
  *   4. Que el núcleo no ECLIPSE una clase de un paquete declarando el mismo FQCN.
  *   5. Que ningún controlador sobreescriba `routeName`, `allowedRoute` o `_allowedRoute`
  *      sin estar en el registro, y que ninguna entrada del registro haya dejado de decidir.
+ *   6. Que no aparezca ninguna FUNCIÓN DEPRECADA de las registradas.
  *
  * Devuelve código de salida distinto de cero si algo falla, para poder usarse en CI.
  *
@@ -96,7 +97,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         $this->description = new StringArray([
             "Verifica la integridad estructural del código fuente.\r\n",
             "\tComprueba docblocks sin cerrar, desaparición de funciones o métodos,\r\n",
-            "\trutas PSR-4, eclipses de clases y sobreescrituras de rutas.\r\n",
+            "\trutas PSR-4, eclipses, sobreescrituras de rutas y funciones deprecadas.\r\n",
             "\tDevuelve código de salida 1 si algo falla, para uso en CI.\r\n",
             "\tParámetros:\r\n",
             "\t  update-snapshot (yes|no) regenera la instantánea de firmas en vez de comparar. Por defecto: no",
@@ -148,9 +149,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 5. Las sobreescrituras de rutas están registradas y siguen decidiendo ─────
         $overrideFailures = self::checkRouteOverrides($files);
 
+        //──── 6. No hay llamadas a funciones deprecadas ─────────────────────────────────
+        $deprecatedFailures = self::checkDeprecatedFunctions($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
-            + count($loadFailures) + count($eclipseFailures) + count($overrideFailures);
+            + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
+            + count($deprecatedFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -167,9 +172,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($overrideFailures as $line) {
             echoTerminal("\e[31mRUTA:\e[39m {$line}");
         }
+        foreach ($deprecatedFailures as $line) {
+            echoTerminal("\e[31mDEPRECADA:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas PSR-4, eclipses y sobreescrituras sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas PSR-4, eclipses, sobreescrituras y deprecadas sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -263,11 +271,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue;
                 }
 
-                //(b) El caso que motivó esta tarea: al docblock le falta el cierre, el
-                //    comentario se traga la declaración siguiente y llega hasta el '*/'
-                //    del docblock de más abajo. El método deja de existir sin que ni
-                //    'php -l' ni PHPStan digan nada.
-                if (preg_match('/\bfunction\s+\w+\s*\(/', $text)) {
+                /**
+                 * (b) El caso que motivó esta tarea: al docblock le falta el cierre, el
+                 *     comentario se traga la declaración siguiente y llega hasta el '*&#47;'
+                 *     del docblock de más abajo. El método deja de existir sin que ni
+                 *     'php -l' ni PHPStan digan nada.
+                 *
+                 *     SE EXIGE QUE LA LÍNEA NO EMPIECE POR '*'. En un docblock bien formado
+                 *     TODAS las líneas empiezan así; una declaración tragada, no. Sin esa
+                 *     condición, un docblock que solo MENCIONE una firma se reporta como
+                 *     tragado — falso positivo comprobado contra este mismo archivo.
+                 */
+                if (self::hasSwallowedDeclaration($text)) {
                     $failures[] = "{$relative}:{$token[2]}: un docblock se tragó una declaración de función; le falta el cierre";
                 }
             }
@@ -1015,6 +1030,175 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         }
 
         return false;
+    }
+
+    /**
+     * Registro de funciones deprecadas, relativo a la RAÍZ DEL REPOSITORIO.
+     *
+     * @var string
+     */
+    const DEPRECATED_RELATIVE_PATH = 'files/dev/deprecated-functions.json';
+
+    /**
+     * Comprueba que no se llame a ninguna función deprecada de las registradas.
+     *
+     * **Existe porque los dos detectores que teníamos fallaron a la vez y nadie lo notó.**
+     * PHPStan no reportaba las nueve llamadas a `imagedestroy()`, `finfo_close()` y
+     * `curl_close()` que había, y el detector de ejecución —`bootstrap.php` promueve
+     * `E_DEPRECATED` a excepción— **solo dispara si alguien pisa la línea**. Una de esas
+     * nueve tumbaba la generación de imágenes con un 400, y para verlo había que pedir esa
+     * imagen concreta.
+     *
+     * Esta es determinista: mira el código, no la ejecución. **Por TOKENS**, así que no le
+     * afecta que el nombre aparezca dentro de una cadena o de un comentario — que fue el
+     * error que dio 32 falsos positivos en la primera `verify-integrity`.
+     *
+     * La lista vive en un ARCHIVO editable con la versión en que cada función se deprecó,
+     * para ampliarla sin tocar esta tarea.
+     *
+     * @param string[] $files rutas relativas a `src/`
+     * @return string[]
+     */
+    protected static function checkDeprecatedFunctions(array $files): array
+    {
+        $failures = [];
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $srcRoot = is_dir($repoRoot . '/src/app') ? $repoRoot . '/src' : $repoRoot;
+        $registryPath = dirname($repoRoot) . '/' . self::DEPRECATED_RELATIVE_PATH;
+
+        if (!is_file($registryPath)) {
+            $registryPath = $repoRoot . '/' . self::DEPRECATED_RELATIVE_PATH;
+        }
+
+        $raw = @file_get_contents($registryPath);
+        $registry = is_string($raw) ? json_decode($raw, true) : null;
+
+        if (!is_array($registry) || !isset($registry['deprecated']) || !is_array($registry['deprecated'])) {
+            return ['no se pudo leer ' . self::DEPRECATED_RELATIVE_PATH . ': la comprobación no pudo mirar nada'];
+        }
+
+        $deprecated = $registry['deprecated'];
+        $usedAllowance = [];
+
+        foreach ($files as $relative) {
+            $relative = str_replace('\\', '/', $relative);
+            $code = @file_get_contents($srcRoot . '/' . $relative);
+            if ($code === false) {
+                continue;
+            }
+            //Filtro barato antes de tokenizar: la mayoría de archivos no menciona ninguna.
+            $mentions = false;
+            foreach ($deprecated as $name => $entry) {
+                if (mb_strpos($code, $name) !== false) {
+                    $mentions = true;
+                    break;
+                }
+            }
+            if (!$mentions) {
+                continue;
+            }
+
+            foreach (self::calledFunctions($code) as $name => $lines) {
+                if (!array_key_exists($name, $deprecated)) {
+                    continue;
+                }
+                $allowed = $deprecated[$name]['allowedPaths'] ?? [];
+                if (in_array($relative, (array) $allowed, true)) {
+                    $usedAllowance[$name . '|' . $relative] = true;
+                    continue;
+                }
+                $since = $deprecated[$name]['since'] ?? '?';
+                $failures[] = $relative . ':' . implode(',', $lines) . ' — llama a ' . $name . '()'
+                    . ', deprecada en PHP ' . $since . '. ' . ($deprecated[$name]['note'] ?? '');
+            }
+        }
+
+        foreach ($deprecated as $name => $entry) {
+            foreach ((array) ($entry['allowedPaths'] ?? []) as $allowedPath) {
+                if (!array_key_exists($name . '|' . $allowedPath, $usedAllowance)) {
+                    $failures[] = $name . '() ya no aparece en ' . $allowedPath
+                        . ', pero sigue permitida ahí. Retira la ruta de allowedPaths.';
+                }
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($deprecated) . " funciones deprecadas vigiladas.");
+
+        return $failures;
+    }
+
+    /**
+     * ¿Este comentario de bloque se ha tragado una declaración de función?
+     *
+     * @param string $text
+     * @return bool
+     */
+    protected static function hasSwallowedDeclaration(string $text): bool
+    {
+        foreach (explode("\n", $text) as $line) {
+            $trimmed = ltrim($line);
+            if ($trimmed === '' || $trimmed[0] === '*' || mb_strpos($trimmed, '/*') === 0) {
+                continue;
+            }
+            if (preg_match('/\bfunction\s+\w+\s*\(/', $line) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    /**
+     * Funciones LLAMADAS en un código, con las líneas donde se llaman.
+     *
+     * Descarta lo que no es una llamada a función global: métodos (`->x()`, `::x()`),
+     * declaraciones (`function x()`), y nombres dentro de cadenas o comentarios — que los
+     * tokens ya separan solos.
+     *
+     * @param string $code
+     * @return array<string,int[]>
+     */
+    protected static function calledFunctions(string $code): array
+    {
+        $tokens = @token_get_all($code);
+        $total = count($tokens);
+        $found = [];
+
+        for ($i = 0; $i < $total; $i++) {
+            $token = $tokens[$i];
+            if (!is_array($token) || $token[0] !== T_STRING) {
+                continue;
+            }
+
+            //Lo siguiente que no sea espacio tiene que ser un paréntesis de apertura.
+            $next = null;
+            for ($j = $i + 1; $j < $total; $j++) {
+                if (is_array($tokens[$j]) && in_array($tokens[$j][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                $next = $tokens[$j];
+                break;
+            }
+            if ($next !== '(') {
+                continue;
+            }
+
+            //Lo anterior no puede ser `->`, `::`, `function`, `new` ni `?->`.
+            $previous = null;
+            for ($k = $i - 1; $k >= 0; $k--) {
+                if (is_array($tokens[$k]) && in_array($tokens[$k][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                $previous = $tokens[$k];
+                break;
+            }
+            if (is_array($previous) && in_array($previous[0], [T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW, T_NULLSAFE_OBJECT_OPERATOR], true)) {
+                continue;
+            }
+
+            $found[$token[1]][] = $token[2];
+        }
+
+        return $found;
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

@@ -146,6 +146,27 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   horaria hereda la hora actual; `->format('Y-m-d')` la descartaba, así que el valor nunca
   cambió, pero el objeto intermedio era distinto en cada petición.
 
+## PHP 8.5 — la migración no estaba terminada
+
+- **Se borran nueve llamadas a funciones deprecadas en PHP 8.5**: `imagedestroy()` ×4,
+  `finfo_close()` ×4 y `curl_close()` ×1. Desde 8.0 no hacen nada, y **en 8.5 avisan**;
+  como el manejador de `bootstrap.php` promueve `E_DEPRECATED` a excepción, cada una era
+  una petición abortada esperando a que alguien pisara esa línea.
+    - **`img-gen` devolvía 400 por esto.** Demostrado poniendo la llamada de vuelta: con
+      ella HTTP 400, sin ella HTTP 200 y un JPEG de 400×300.
+    - **Por qué no se detectó**: Apache sirve **8.5.9** y todas las herramientas
+      (`bin/cli`, `bin/phpstan`, `bin/rector`) corren con **php8.4**, donde esas funciones
+      no avisan. Y `phpVersion` en `phpstan.neon` es un RANGO 8.4–8.5, que reporta solo lo
+      que es error en TODAS las versiones del rango. **Los dos detectores miraban a la
+      versión equivocada.**
+- **`bin/cli verify-integrity` gana una sexta comprobación: FUNCIONES DEPRECADAS.** Busca
+  por tokens las funciones de `files/dev/deprecated-functions.json` y falla si aparece
+  alguna. La lista es un archivo editable, con la versión en que cada una se deprecó y las
+  rutas donde se permite con su razón. **Es determinista: mira el código, no la ejecución.**
+- **Nuevo: `bin/cli route-inventory` y `bin/walk-routes`.** Recorren por HTTP todas las
+  rutas GET que el framework declara —347, sacadas del propio framework— y después todos
+  los assets de las páginas visitadas. Solo lectura. Ver el README.
+
 ## Seguridad y corrección de datos
 
 - **El XML exportado declaraba `encoding="utf8mb4"` y NINGÚN parser podía leerlo.**

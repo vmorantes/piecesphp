@@ -22,6 +22,7 @@
 bin/cli         text eol=lf
 bin/phpstan     text eol=lf
 bin/phpstan-deadcode text eol=lf
+bin/walk-routes text eol=lf
 bin/push-all    text eol=lf
 bin/rector      text eol=lf
 bin/package-css text eol=lf

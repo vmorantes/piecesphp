@@ -599,20 +599,17 @@ class ServerStatics
         $filePath = self::buildFilePath($resource, $path);
 
         if (!file_exists($filePath) || !is_string($resource) || !self::isValidResourcePath($resource)) {
-            finfo_close($fileInformation);
             return $response->withStatus(404)->write('<h1>404 El recurso no existe.</h1>');
         }
 
         //Validación de acceso mediante ProtectFileMiddleware
         $access = ProtectFileMiddleware::validateAccess($filePath, $request);
         if ($access === false) {
-            finfo_close($fileInformation);
             return $response->withStatus(403)->write('<h1>403 Prohibido. El acceso a este recurso no está permitido.</h1>');
         }
 
         $extension = mb_strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
         $mimeType = finfo_file($fileInformation, $filePath);
-        finfo_close($fileInformation);
 
         //Configurar headers básicos
         $headers = self::buildBasicHeaders($mimeType, $extension);
@@ -998,8 +995,6 @@ class ServerStatics
         imagewebp($resourceImage);
         $fileData = ob_get_contents();
         ob_end_clean();
-
-        imagedestroy($resourceImage);
 
         return $fileData;
     }
