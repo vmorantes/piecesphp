@@ -1789,6 +1789,7 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 | El histórico de un log que se limpia de rutina | Se dedujo de una AUSENCIA sin comprobar si el instrumento podía contener el dato | «Apache quizá sirve 8.4». Sirve **8.5.9**, y eso era justo la causa del fallo |
 | **`phpVersion: {min: 80400, max: 80500}`** en `phpstan.neon` | **UN RANGO REPORTA LA INTERSECCIÓN, NO LA UNIÓN**: solo lo que es error en TODAS las versiones del rango | «cubre las dos versiones». Cegó la pata estática a **toda** deprecación exclusiva de 8.5 durante la campaña entera |
 | **La caché de opcodes del servidor web** | Apache seguía sirviendo la versión COMPILADA anterior del archivo | «el `chr()` viejo también da 200, así que no era eso». Sí era: con la caché invalidada da **500** |
+| **Un PRINCIPIO DE ARQUITECTURA que no está escrito** | Sin él, cada patrón que lo aplica parece un defecto | «la inicialización del SEO es un defecto, conviértela en tarea de CLI» — era **exactamente lo contrario** del diseño. Tres diagnósticos equivocados por la misma causa |
 
 ### La regla
 
@@ -3051,3 +3052,125 @@ ajeno a la versión de PHP.** No es de esta ventana.
 | `/elements/`, `/tabs-sample/` | **Enlaces muertos en vistas.** Salen de `view/layout/menu.php`, que pinta vistas genéricas cuyo archivo no existe. No hay ruta que perder: nunca la hubo |
 | `admin/reports-access/` | Enlace de menú a un módulo que no responde ahí |
 | `locations/points/datatables/` | **Ruta registrada que responde 404 desde el controlador**, no un fallo de enrutado: sin sesión da 302, con sesión da 404 |
+
+## T33 · LA GEMELA DE D2, EL ORDEN DE LA DOCUMENTACIÓN, Y UNA FAMILIA QUE NO LO ERA
+
+### 1 · El arreglo de D2 NO dejó a nadie fuera — pero destapó su gemela
+
+**La exposición era más ancha de lo planteado**: no son los importados, son **todos los
+usuarios nuevos**. `getTOTPData()` era get-or-create y nunca devolvía `null`; ahora la
+creación vive en `toggle2FA()`, así que cualquiera que no haya activado su 2FA no tiene fila
+— y `UserDataPackage` se construye en casi cada petición autenticada.
+
+**Censo de consumidores: TODOS aguantan `null`.**
+
+| Consumidor | Aguanta |
+| :-- | :-- |
+| `OTPHandler` ×6 (`:91`, `:159`, `:173`, `:193`, `:232`, y `:43`/`:68` para el de un uso) | Sí, todos con `!== null` |
+| `UserSystemFeaturesController:129` | Sí, y devuelve un mensaje propio |
+| `MySpace/Views/user-security.php` y `example-resources.php` | Sí, y **caen en `get_config('owner')`** |
+
+**Y `setOTP()` SÍ crea la fila que falta** (`setOneUseCode()`, rama `if (!$exists)`), así que
+**un usuario importado a mano puede pedir su código y entrar**. No hay bloqueo de acceso.
+
+Comprobado con una suite permanente que **inserta un usuario de verdad** sin filas OTP:
+`bin/cli unit-tests:core/otp-fresh-user`. Recorre lectores, `UserDataPackage`, `OTPHandler`,
+el código de un solo uso de punta a punta y el `toggle2FA` en los dos sentidos. Crea el
+usuario con un nombre irrepetible y **lo borra siempre**, también si algo falla.
+
+#### LA GEMELA, y está una línea más abajo
+
+```php
+UserDataPackage.php:243   $this->TOTPData = OTPSecretsUsersMapper::getTOTPData($this->id);   // arreglado
+UserDataPackage.php:244   $this->profile  = UserProfileMapper::getProfile($this->id);        // ← get-or-create
+```
+
+`UserProfileMapper::getProfile()` **crea y guarda** cuando no encuentra
+(`UserProfileMapper.php:649-651`). Y el constructor de `UserDataPackage` se alcanza **sin
+autenticar** desde `OTPHandler::checkValidityOTP()`, que es la ruta del formulario de login.
+
+> **Mismo camino, misma primitiva de escritura acotada, misma enumeración débil de usuarios.
+> Es D2 otra vez, en la línea siguiente.**
+
+Medido: el usuario de prueba terminó con **una fila en `user_system_profile`** que nadie pidió
+— y la delató la clave ajena al intentar borrarlo. La suite lo comprueba y **falla a
+propósito**: 19/20. El rojo es el defecto, no la prueba.
+
+**No se arregla aquí**: el arreglo es el mismo que se le hizo al OTP —partir el buscador en
+lector y creador— pero toca el subsistema de perfiles y merece su decisión.
+
+### 2 · El SEO: retirada la sospecha, y lo que sí se arregló
+
+**No es «refrescar escribe»**: materializa la configuración de los idiomas **activos** y
+converge. Está autenticada, con roles `[0, 1]`, y es el camino de activación de idiomas —
+añadir un idioma simplemente funciona. **Es el principio de autoinicialización, no un
+defecto.** Los cuatro archivos y sus filas se quedan.
+
+Lo que sí era un defecto y se arregla: **los dos `@copy()` tragaban el fallo**. Sin fila y sin
+registro, el siguiente render reintenta en silencio para siempre. Ahora **registran qué
+archivo y a dónde**. La lógica no se toca.
+
+Y la vista lleva escrito su propósito en una línea que frena: *«esta vista materializa la
+configuración por idioma al pintarse, a propósito — es el camino de activación de idiomas, no
+un efecto lateral. No lo muevas a una tarea de CLI»*.
+
+### 3 · Las 22 `offsetAccess` NO son una familia: son DOS
+
+**Y esto es T27 aplicándose contra mí.** Dije «una sola forma» y son dos motivos distintos:
+
+| Cuántas | Forma | Qué es | Trato |
+| --: | :-- | :-- | :-- |
+| **13** | `$options[$e->id] = …` | Constructor de listas desplegables. **La clave vacía ES la opción de marcador**: `$options[$defaultValue]` con `$defaultValue = ''` por defecto, y su etiqueta es el «Ciudades» / «Regiones» de cabecera | `(string)` — la migración prescrita |
+| **9** | `$name = $_FILES[$nameOnFiles]['name'];` | **No es una lista de opciones.** Es leer `$_FILES` con una clave que puede ser `null` | **NO se castea.** `$_FILES['']` no es la intención: ahí falta una guarda, no un `(string)` |
+
+**Las 13 quedan aprobadas y listas; las 9 son otra pregunta y no entran.** Aplicar el cast a
+las nueve habría sido callar al analizador, que es justo lo que el propietario quería evitar.
+
+### 4 · Los 404, resueltos: ninguno es una ruta perdida
+
+| Qué | Veredicto |
+| :-- | :-- |
+| `admin/reports-access/` | **404 deliberado por falta de parámetro.** Con `?attempts=yes` responde **200**. El nombre del menú es correcto y root sí tiene permiso. **Va con los 24** |
+| `locations/points/datatables/` | Mismo caso. **Va con los 24** |
+| `/elements/`, `/tabs-sample/` | **CORRECCIÓN a lo que reporté**: no son enlaces muertos que se rendericen. Las entradas de `view/layout/menu.php` **ya se guardan** con `genericViewRouteExists()`, así que no aparecen cuando la vista no existe. Son andamio de plantilla, de la misma clase que `Components/Views/sample`. **No los quito sin decisión**: el test de «esto no resuelve» ya nos engañó una vez con Webflow |
+
+### 5 · El orden de la documentación — decidido
+
+- **`source-docs/` se reestructura AL FINAL DE TODO**, después de la limpieza y del estado
+  final. Aterrizar las guías a una realidad que todavía se mueve es escribirlas dos veces, y
+  la limpieza va a borrar módulos, tareas y rutas.
+- **`.agents/context/` NO entra en ese aplazamiento**: es el estado de trabajo y se mantiene
+  al día siempre.
+- **Y la regla de que ningún documento mienta NO SE SUSPENDE para ninguno de los dos.**
+  Distinguir: **reestructurar espera; corregir una mentira va en el mismo commit que la
+  produce.** Si se aplaza, se llega al final con veinte documentos falsos y nadie sabrá
+  cuáles.
+
+### 6 · Aparcado para el final: una puerta única `system-tasks`
+
+**No hacer todavía.** Una sola línea que un despliegue pueda poner en su crontab —colas,
+cronjobs—, **no obligatoria**, bien documentada y lo más perezosa posible. Hoy ya existen
+`run-cronjobs` y `process-queue`, hay 14 tareas, y la documentación está repartida entre
+`cronjobs.md:52`, `terminal.md:226` y `10-cli-y-tareas.md:71` diciendo cosas distintas.
+
+**Va después de la limpieza**: construir un agregador sobre una lista que está a punto de
+encoger es prematuro.
+
+Diseño cuando toque: **agregador, no trabajador** —despacha a las tareas existentes y cada
+una decide si tiene algo que hacer— y **las tareas se declaran periódicas ellas mismas** en
+vez de que el agregador lleve la lista escrita. Es el patrón que ya funcionó con el inventario
+de rutas y con `shared-toolchain`: **la lista escrita a mano siempre se queda atrás.**
+
+### 7 · La línea de crontab documentada apuntaba a la base equivocada
+
+```
+* * * * * php …/src/index.php cli --local run-cronjobs run     ← MAL
+```
+
+**`--local` decide a qué base de datos se conecta la aplicación.** En terminal, `is_local()`
+devuelve literalmente lo que diga el flag (`Utilities.php:607-610`), y `config/database.php`
+elige credenciales, usuario y nombre de base según ese valor. Una línea así en un servidor
+**apunta los cronjobs a la base de desarrollo**.
+
+Corregido en `10-cli-y-tareas.md` y en `source-docs/…/cronjobs.md`, con el aviso al lado. Y lo
+mismo para el worker de colas. `bin/cli` sí lo añade solo, y está bien: es el atajo local.

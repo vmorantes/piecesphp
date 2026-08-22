@@ -49,8 +49,17 @@ La interfaz fluida permite definir la frecuencia de ejecución fácilmente:
 Para que las tareas se ejecuten, se debe configurar una única entrada en el `crontab` del servidor que llame al comando del framework cada minuto:
 
 ```bash
-* * * * * php /ruta/al/proyecto/src/index.php cli --local run-cronjobs run
+* * * * * php /ruta/al/proyecto/src/index.php cli run-cronjobs run
 ```
+
+> **SIN `--local`. NUNCA con `--local` en un servidor.**
+>
+> Ese flag **decide a qué BASE DE DATOS se conecta la aplicación**: en terminal,
+> `is_local()` devuelve exactamente lo que diga `--local` (`Utilities.php:607-610`), y
+> `config/database.php` elige credenciales y nombre de base según ese valor. Una línea de
+> crontab con `--local` en producción **apunta los cronjobs a la base de desarrollo**.
+>
+> `bin/cli` sí lo añade solo, y está bien: es el atajo para trabajar en local.
 
 Este comando revisará todos los `CronJobTask` registrados y ejecutará solo aquellos que cumplan con su condición horaria en ese momento exacto.
 

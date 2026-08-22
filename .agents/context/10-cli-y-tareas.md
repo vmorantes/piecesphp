@@ -68,8 +68,17 @@ Métodos de programación: `onMinute(int)`, `hourly()`, `dailyAt(string)`,
 Un solo crontab del sistema dispara todo:
 
 ```cron
-* * * * * php /ruta/al/proyecto/src/index.php cli --local run-cronjobs run
+* * * * * php /ruta/al/proyecto/src/index.php cli run-cronjobs run
 ```
+
+> **SIN `--local`. NUNCA con `--local` en un servidor.**
+>
+> Ese flag **decide a qué BASE DE DATOS se conecta la aplicación**: en terminal,
+> `is_local()` devuelve exactamente lo que diga `--local` (`Utilities.php:607-610`), y
+> `config/database.php` elige credenciales y nombre de base según ese valor. Una línea de
+> crontab con `--local` en producción **apunta los cronjobs a la base de desarrollo**.
+>
+> `bin/cli` sí lo añade solo, y está bien: es el atajo para trabajar en local.
 
 Para tareas largas, cuida la conexión:
 
@@ -107,7 +116,8 @@ $queueHandlers[] = QueueTask::make('nombre-de-la-cola', function ($data) {
 QueueTask::dispatch('nombre-de-la-cola', ['user_id' => 123], $retries = 3, $scheduledAt = "2026-03-24 10:00:00");
 ```
 
-**Worker**: `php index.php cli --local process-queue` (programar en crontab).
+**Worker**: `php index.php cli process-queue` (programar en crontab). **Sin `--local`**, por
+la misma razón que los cronjobs: ese flag elige la base de datos.
 Estados: `pending`, `processing`, `completed`, `failed`. Se registran el último
 error y el número de intentos. Hay locks para evitar ejecuciones paralelas.
 

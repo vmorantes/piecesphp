@@ -17,6 +17,25 @@ montado encima de Slim 4**.
 - Versión en código: `APP_VERSION = v7.0.6` (`src/app/core/bootstrap.php`),
   fecha `2026-04-05`.
 
+## El principio que hay que saber antes de tocar nada: EL FRAMEWORK SE AUTOINICIALIZA
+
+**PiecesPHP es una plantilla que se clona**, y de ahí sale una decisión de arquitectura que
+explica media base de código:
+
+> **La CLI es una caja de herramientas, NO un desplegador obligatorio.** Un despliegue
+> clonado tiene que arrancar solo, sin que nadie ejecute una lista de tareas.
+
+Por eso hay funcionalidades que **materializan sus datos de arranque al usarse**: la
+configuración SEO de cada idioma activo se crea al pintar su vista, las filas del segundo
+factor se crean al activarlo, y así. **No son efectos laterales ni descuidos: son el camino
+de activación.** Escriben una vez y convergen.
+
+El límite está en la dirección: **materializar va en los caminos de ESCRITURA, nunca en los
+de LECTURA**, y nunca en una ruta alcanzable sin autenticar — eso último fue un defecto real
+(T3 del documento 18) y se corrigió.
+
+Detalle y consecuencias prácticas en [12-convenciones.md](./12-convenciones.md).
+
 ## Stack
 
 | Capa | Tecnología |

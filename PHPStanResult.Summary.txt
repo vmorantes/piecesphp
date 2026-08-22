@@ -4,7 +4,7 @@
 194
 
 [TOTAL DE ERRORES VISIBLES]
-888
+887
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -12,12 +12,12 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 866
+En las dos (8.4 y 8.5): 865
 Solo en 8.5: 22
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (338)
+argument.type (337)
 property.nonObject (191)
 method.nonObject (143)
 return.type (55)
@@ -274,7 +274,7 @@ project://src/app/classes/PiecesPHP/RoutingUtils/DefaultAccessControlModules.php
 	argument.type (Líneas: 49, 49, 51)
 	return.type (Líneas: 61)
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
-	argument.type (Líneas: 125, 130, 175)
+	argument.type (Líneas: 125, 130)
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
 	return.type (Líneas: 65)
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php
@@ -394,11 +394,11 @@ project://src/app/controller/AdminPanelController.php
 	method.resultUnused (Líneas: 221, 226)
 project://src/app/controller/AppConfigController.php
 	foreach.nonIterable (Líneas: 215)
-	argument.type (Líneas: 391, 392, 1512, 2060)
-	method.nonObject (Líneas: 1559, 1658, 1663, 1674, 1678)
-	method.resultUnused (Líneas: 1563, 1571, 1578)
-	property.nonObject (Líneas: 1675)
-	return.type (Líneas: 2106)
+	argument.type (Líneas: 391, 392, 1516, 2077)
+	method.nonObject (Líneas: 1563, 1662, 1667, 1678, 1682)
+	method.resultUnused (Líneas: 1567, 1575, 1582)
+	property.nonObject (Líneas: 1679)
+	return.type (Líneas: 2123)
 project://src/app/controller/AvatarController.php
 	argument.type (Líneas: 241, 248, 257)
 project://src/app/controller/ContactFormsController.php

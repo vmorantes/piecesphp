@@ -146,6 +146,34 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   horaria hereda la hora actual; `->format('Y-m-d')` la descartaba, así que el valor nunca
   cambió, pero el objeto intermedio era distinto en cada petición.
 
+## Seguridad
+
+- **AVISO, defecto abierto y de la misma familia que el del login**: `UserDataPackage`
+  llama a `UserProfileMapper::getProfile()`, que es **get-or-create**, en la línea
+  siguiente a la que se corrigió para el OTP. Ese constructor se alcanza **sin autenticar**
+  desde el formulario de login, así que **comprobar credenciales sigue creando una fila de
+  perfil**. Acotado —una por usuario— pero es escritura no autenticada. No se corrige aún.
+- **`get-current-totp-qr-data/` devolvía 500 para todo usuario que no hubiera nombrado su
+  segundo factor**, que es el estado normal de una cuenta nueva: se pasaba un alias nulo a
+  un parámetro `string`. Ahora el emisor por defecto es **el nombre del sitio**, que es lo
+  que ya hacían las vistas y lo que el usuario reconoce en su aplicación de autenticación.
+- **Suite nueva `bin/cli unit-tests:core/otp-fresh-user`.** Inserta un usuario real sin
+  filas OTP y recorre toda la superficie de autenticación. Confirma que **el arreglo del
+  login no dejó a nadie sin poder entrar**: `setOTP()` crea la fila que falta. Es la única
+  suite que escribe, y borra lo que crea pase lo que pase.
+
+## Corregido — arranque de un despliegue
+
+- **La línea de crontab documentada llevaba `--local`, y ese flag DECIDE LA BASE DE DATOS.**
+  En terminal `is_local()` devuelve lo que diga el flag, y `config/database.php` elige
+  credenciales y nombre de base según ese valor: una línea así en un servidor apunta los
+  cronjobs **a la base de desarrollo**. Corregida en los dos sitios donde estaba escrita.
+- **La activación de idiomas dejaba de copiar en silencio.** Los dos `@copy()` de la
+  configuración SEO tragaban el fallo: sin fila y sin registro, cada render lo reintentaba
+  para siempre sin que nadie se enterara. Ahora registran qué archivo y a dónde. **La
+  lógica no cambia**: materializar la configuración por idioma al pintar la vista es el
+  camino de activación, no un efecto lateral.
+
 ## Seguridad — cifrado
 
 - **`BaseHashEncryption::encrypt()` y `decrypt()` dejaron de descifrar en PHP 8.5.** Las dos

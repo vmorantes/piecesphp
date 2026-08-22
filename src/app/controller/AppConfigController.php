@@ -422,6 +422,10 @@ class AppConfigController extends AdminPanelController
      */
     public function seo(Request $req, Response $res)
     {
+        //Esta vista MATERIALIZA la configuración por idioma al pintarse, a propósito: es el
+        //camino de activación de idiomas, no un efecto lateral. No lo muevas a una tarea de
+        //CLI — un despliegue clonado tiene que arrancar solo.
+
         $langGroup = self::LANG_GROUP;
 
         $requestMethod = mb_strtoupper($req->getMethod());
@@ -1839,6 +1843,14 @@ class AppConfigController extends AdminPanelController
 
                                 if (@copy(basepath($defaultValue), basepath($relativePath))) {
                                     $newConfig->save();
+                                } else {
+                                    //Un fallo mudo AQUÍ es el peor: sin fila, el siguiente render
+                                    //reintenta la copia para siempre y nadie se entera nunca.
+                                    log_exception(new \Exception(
+                                        'Activación de idiomas: no se pudo copiar la imagen Open Graph de '
+                                        . basepath($defaultValue) . ' a ' . basepath($relativePath)
+                                        . '. La configuración de ese idioma queda sin materializar.'
+                                    ), false);
                                 }
 
                             }
@@ -1855,7 +1867,12 @@ class AppConfigController extends AdminPanelController
                     if ($nameOnConfig == self::SEO_OPTION_OPEN_GRAPH_IMAGE) {
 
                         if (file_exists(basepath($defaultValue)) && !file_exists(basepath($valueLang))) {
-                            @copy(basepath($defaultValue), basepath($valueLang));
+                            if (!@copy(basepath($defaultValue), basepath($valueLang))) {
+                                log_exception(new \Exception(
+                                    'Activación de idiomas: no se pudo reponer la imagen Open Graph en '
+                                    . basepath($valueLang) . '. La fila apunta a un archivo que no existe.'
+                                ), false);
+                            }
                         }
 
                     }

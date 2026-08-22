@@ -1021,8 +1021,6 @@
          🪪  argument.type                                                                                                                       
   130    Parameter Nr.1 $address of method PiecesPHP\Core\Mailer::setFrom() expects string, PiecesPHP\Core\ConfigHelpers\MailConfig|string given.  
          🪪  argument.type                                                                                                                       
-  175    Parameter Nr.2 $issuer of method PiecesPHP\UserSystem\Authentication\TOTPStandard::getQRCodeUrl() expects string, string|null given.      
-         🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------------------- 
@@ -1547,29 +1545,29 @@
          🪪  argument.type                                                                                                                              
   392    Parameter Nr.1 $resource of function basepath expects string, array|stdClass|string given.                                                       
          🪪  argument.type                                                                                                                              
-  1512   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1516   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1559   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1563   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1563   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1567   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1571   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1575   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1578   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1582   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1658   Cannot call method getSlug() on Publications\Mappers\PublicationCategoryMapper|null.                                                           
+  1662   Cannot call method getSlug() on Publications\Mappers\PublicationCategoryMapper|null.                                                           
          🪪  method.nonObject                                                                                                                           
-  1663   Cannot call method getLangData() on Publications\Mappers\PublicationCategoryMapper|null.                                                       
+  1667   Cannot call method getLangData() on Publications\Mappers\PublicationCategoryMapper|null.                                                       
          🪪  method.nonObject                                                                                                                           
-  1674   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                   
+  1678   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                   
          🪪  method.nonObject                                                                                                                           
-  1675   Cannot access property $createdAt on Publications\Mappers\PublicationMapper|null.                                                              
+  1679   Cannot access property $createdAt on Publications\Mappers\PublicationMapper|null.                                                              
          🪪  property.nonObject                                                                                                                         
-  1678   Cannot call method getURLAlternatives() on Publications\Mappers\PublicationMapper|null.                                                        
+  1682   Cannot call method getURLAlternatives() on Publications\Mappers\PublicationMapper|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  2060   Parameter Nr.2 $array of function array_key_exists expects array, array|stdClass given.                                                          
+  2077   Parameter Nr.2 $array of function array_key_exists expects array, array|stdClass given.                                                          
          🪪  argument.type                                                                                                                              
-  2106   Method App\Controller\AppConfigController::recursiveMergeArray() should return array but returns array|stdClass.                               
+  2123   Method App\Controller\AppConfigController::recursiveMergeArray() should return array but returns array|stdClass.                               
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2740,5 +2738,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/**/*Routes.php was not matched in reported errors.  
  -- ---------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 879 errors                                                                                               
+ [ERROR] Found 878 errors                                                                                               
 

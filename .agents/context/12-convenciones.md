@@ -98,6 +98,33 @@ excluyen.
 
 **Estas cifras corrigen las que circulaban** («~143 métodos», «14 propiedades»), que no son
 reproducibles con ningún criterio que se haya podido escribir. El método de arriba sí lo es.
+## EL FRAMEWORK SE AUTOINICIALIZA
+
+**Principio de arquitectura, decidido por el propietario. Gobierna medio framework y no
+estaba escrito en ninguna parte.**
+
+> **La CLI es una caja de herramientas, NO un desplegador obligatorio.** Un despliegue
+> clonado tiene que arrancar solo.
+
+Consecuencia práctica, que es la que hay que aplicar al escribir código:
+
+- Una funcionalidad que necesite datos de arranque **los materializa ella misma**, en un
+  camino de escritura, **de forma idempotente**: escribe una vez y converge.
+- Una tarea de CLI puede ofrecerse como **atajo o para lotes**, nunca como requisito para que
+  un despliegue funcione.
+
+Ejemplos vivos, para reconocer el patrón y no confundirlo con un defecto:
+
+| Dónde | Qué materializa |
+| :-- | :-- |
+| `AppConfigController::seo()` | La configuración SEO de cada idioma **activo** al pintar la vista: es el camino de activación de idiomas |
+| `OTPSecretsUsersMapper::setOTP()` | La fila del código de un solo uso, si falta |
+| `OTPSecretsUsersMapper::toggle2FA()` | La fila TOTP y su secreto, al activar el segundo factor |
+
+**Y el límite, que es lo que separa esto del defecto D2:** materializar va en los caminos de
+**ESCRITURA**, nunca en los de **LECTURA**, y nunca en una ruta alcanzable sin autenticar. Un
+buscador devuelve `null` cuando no encuentra; quien lee lo aguanta. Ver
+`.agents/context/18-siguientes-ventanas.md`, T3.
 ## Reglas duras (romperlas rompe el framework)
 
 1. **Rutas**: siempre `PiecesPHP\Core\Route` / `RouteGroup`. Nunca `$app->get(...)`
