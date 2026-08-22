@@ -15,11 +15,30 @@ use PDO;
 class XmlFormat implements FormatPluginInterface
 {
     /**
+     * Nombres de charset de MySQL traducidos al nombre IANA que exige XML.
+     *
+     * `utf8mb4` NO es un encoding XML: un parser estándar rechaza el documento ENTERO por
+     * la primera línea, por muy bien formado que esté el resto. Lo que no esté aquí pasa
+     * tal cual, porque inventar una traducción sería peor que no traducir.
+     *
+     * @var array<string,string>
+     */
+    private const XML_ENCODINGS = [
+        'utf8' => 'UTF-8',
+        'utf8mb3' => 'UTF-8',
+        'utf8mb4' => 'UTF-8',
+        'latin1' => 'ISO-8859-1',
+        'ascii' => 'US-ASCII',
+    ];
+
+    /**
      * @inheritDoc
      */
     public function getHeader(Database $db, string $database, string $charset): string
     {
-        return "<?xml version=\"1.0\" encoding=\"$charset\"?>\n<database name=\"" . htmlspecialchars($database) . "\">\n";
+        $encoding = self::XML_ENCODINGS[mb_strtolower($charset)] ?? $charset;
+
+        return "<?xml version=\"1.0\" encoding=\"$encoding\"?>\n<database name=\"" . htmlspecialchars($database) . "\">\n";
     }
 
     /**

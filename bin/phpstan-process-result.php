@@ -181,3 +181,49 @@ if (file_exists($resultPath)) {
         }
     }
 }
+
+/**
+ * TRINQUETE. Sin esto, «el baseline solo baja» (T0, punto 4) es una frase en un documento:
+ * CLAUDE.md mandaba comparar contra el baseline y NADA lo comparaba, así que la puerta no
+ * podía fallar porque no existía. Comprobado al aplicar T21 hacia atrás.
+ *
+ * Compara INSTANCIAS contra INSTANCIAS —la misma unidad en los dos lados— y sale con 1 si
+ * el total sube. Bajar no es un fallo: es la señal de que toca actualizar el baseline, con
+ * su nota de medición.
+ */
+$baselinePath = __DIR__ . '/../PHPStanResult.Summary.baseline.txt';
+$currentPath = __DIR__ . '/../PHPStanResult.Summary.txt';
+
+$readTotal = function (string $file): ?int {
+    if (!is_file($file)) {
+        return null;
+    }
+    $text = (string) file_get_contents($file);
+    //La cabecera se escribe en mayúsculas; el número va en la línea siguiente. Se toma la
+    //ÚLTIMA coincidencia: el baseline lleva la cabecera citada dentro de su nota de método,
+    //y una nota no puede ganarle al dato.
+    if (preg_match_all('/\[TOTAL DE ERRORES VISIBLES\]\s*\R\s*(\d+)/u', $text, $matches) < 1) {
+        return null;
+    }
+    return (int) end($matches[1]);
+};
+
+$baselineTotal = $readTotal($baselinePath);
+$currentTotal = $readTotal($currentPath);
+
+if ($baselineTotal === null || $currentTotal === null) {
+    fwrite(STDERR, "TRINQUETE: no se pudo leer el total de una de las dos medidas. La comparación NO se hizo.\n");
+    exit(1);
+}
+
+if ($currentTotal > $baselineTotal) {
+    $delta = $currentTotal - $baselineTotal;
+    fwrite(STDERR, "\nTRINQUETE ROTO: {$currentTotal} errores contra un baseline de {$baselineTotal} (+{$delta}).\n");
+    fwrite(STDERR, "Se arregla, o se justifica por escrito y se actualiza el baseline con su nota de medición.\n");
+    exit(1);
+}
+
+$verdict = $currentTotal < $baselineTotal
+    ? "TRINQUETE: {$currentTotal} contra un baseline de {$baselineTotal} (-" . ($baselineTotal - $currentTotal) . "). Actualiza el baseline con su nota de medición."
+    : "TRINQUETE: {$currentTotal}, igual que el baseline.";
+echo $verdict . "\n";

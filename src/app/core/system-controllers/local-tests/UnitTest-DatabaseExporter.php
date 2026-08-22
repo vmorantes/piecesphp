@@ -239,6 +239,33 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                     }
                 }
 
+                /**
+                 * BIEN FORMADO PARA SU FORMATO. Hasta que esto existió, la suite comprobaba
+                 * el CONTENIDO —filtros, enmascarado, hex-blob— y jamás la SINTAXIS: un JSON
+                 * al que se le añadía basura en cada fila pasaba 23/23. Comprobado
+                 * provocándolo.
+                 */
+                if (str_contains($test["filename"], ".json")) {
+                    json_decode($content);
+                    if (json_last_error() !== JSON_ERROR_NONE) {
+                        $contentValid = false;
+                        systemOutFormatted("      [X] Fallo: el JSON generado no es válido: " . json_last_error_msg(), ["color" => "31"]);
+                    }
+                }
+                if (str_contains($test["filename"], ".xml")) {
+                    $previousUseErrors = libxml_use_internal_errors(true);
+                    libxml_clear_errors();
+                    $parsed = simplexml_load_string($content);
+                    $xmlErrors = libxml_get_errors();
+                    libxml_clear_errors();
+                    libxml_use_internal_errors($previousUseErrors);
+                    if ($parsed === false) {
+                        $contentValid = false;
+                        $firstError = count($xmlErrors) > 0 ? trim($xmlErrors[0]->message) : "sin detalle";
+                        systemOutFormatted("      [X] Fallo: el XML generado no es válido: " . $firstError, ["color" => "31"]);
+                    }
+                }
+
                 // Validación de Hex-Blob (Solo SQL y con datos)
                 if ($isSql && $opts['hex_blob'] && $opts['include_data']) {
                     // Buscamos 0x seguido de caracteres hexadecimales (al menos 8 para seguridad)

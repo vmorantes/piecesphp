@@ -18,7 +18,30 @@ $unitTests = [
             echoTerminal('[TEST:systemOutFormatted] Iniciando suite de pruebas unitarias...', true, "\r\n", '33');
             echoTerminal('');
 
-            $checkResult = function ($condition, $name, $details = null) {
+            $passed = 0;
+            $failed = 0;
+            $skipped = 0;
+
+            /**
+             * `systemOutFormatted()` TIENE DOS CONTRATOS, no uno: con terminal emite códigos
+             * ANSI y sin terminal los suprime a propósito (`Cli.php`, rama `$isTty`). Esta
+             * suite afirmaba el primero SIEMPRE, así que fallaba 7 de 10 en cuanto la salida
+             * se redirigía —CI, tubería, `>` a un archivo— y **devolvía éxito igualmente**,
+             * porque no contaba nada. Descubierto al provocarle un fallo a propósito.
+             *
+             * Ahora: las comprobaciones que exigen ANSI se SALTAN sin terminal, con su razón,
+             * y hay balance. Una prueba que no se puede ejecutar se salta; no falla, ni miente.
+             */
+            $isTty = defined('STDOUT') && function_exists('stream_isatty') && stream_isatty(STDOUT);
+
+            $checkResult = function ($condition, $name, $details = null, bool $requiresTty = false) use (&$passed, &$failed, &$skipped, $isTty) {
+                if ($requiresTty && !$isTty) {
+                    $skipped++;
+                    echoTerminal("   \e[33m[OMITIDA]\e[33m $name");
+                    echoTerminal("      - Exige terminal: sin TTY la función suprime los códigos ANSI a propósito.");
+                    return null;
+                }
+                $condition ? $passed++ : $failed++;
                 $status = $condition ? "\e[32m[PASÓ]\e[33m" : "\e[31m[FALLÓ]\e[33m";
                 echoTerminal("   $status $name");
                 if ($details !== null) {
@@ -41,14 +64,14 @@ $unitTests = [
             $outNum = systemOutFormatted('Rojo', ['color' => 31, 'newLine' => false]);
             $same = $outName === $outNum;
             $contains31 = strpos($outName, '31') !== false;
-            $checkResult($same && $contains31, "Nombre 'red' == Código 31", "Obtenido: " . str_replace("\033", "\\e", $outName));
+            $checkResult($same && $contains31, "Nombre 'red' == Código 31", "Obtenido: " . str_replace("\033", "\\e", $outName), true);
             echoTerminal(' ');
 
             // --- PRUEBA 3: Fondo por nombre vs numérico ---
             echoTerminal('[3/9] Probando fondo por nombre vs numérico...');
             $outBgName = systemOutFormatted('Fondo Azul', ['background' => 'blue', 'newLine' => false]);
             $outBgNum = systemOutFormatted('Fondo Azul', ['background' => 44, 'newLine' => false]);
-            $checkResult($outBgName === $outBgNum && strpos($outBgName, '44') !== false, "Nombre 'blue' == Código 44", "Obtenido: " . str_replace("\033", "\\e", $outBgName));
+            $checkResult($outBgName === $outBgNum && strpos($outBgName, '44') !== false, "Nombre 'blue' == Código 44", "Obtenido: " . str_replace("\033", "\\e", $outBgName), true);
             echoTerminal(' ');
 
             // --- PRUEBA 4: Opciones de estilo (Negrita, Itálica, etc.) ---
@@ -57,7 +80,7 @@ $unitTests = [
             $hasBold = strpos($outStyles, '1') !== false;
             $hasItalic = strpos($outStyles, '3') !== false;
             $hasUnderline = strpos($outStyles, '4') !== false;
-            $checkResult($hasBold && $hasItalic && $hasUnderline, "Detección de 1 (bold), 3 (italic) y 4 (underline)", "Obtenido: " . str_replace("\033", "\\e", $outStyles));
+            $checkResult($hasBold && $hasItalic && $hasUnderline, "Detección de 1 (bold), 3 (italic) y 4 (underline)", "Obtenido: " . str_replace("\033", "\\e", $outStyles), true);
             echoTerminal(' ');
 
             // --- PRUEBA 5: Formato en lista (Simplificado) ---
@@ -66,7 +89,7 @@ $unitTests = [
             $has31 = strpos($outList, '31') !== false;
             $has1 = strpos($outList, '1') !== false;
             $has3 = strpos($outList, '3') !== false;
-            $checkResult($has31 && $has1 && $has3, "Lista ['red', 'bold', 'italic']", "Obtenido: " . str_replace("\033", "\\e", $outList));
+            $checkResult($has31 && $has1 && $has3, "Lista ['red', 'bold', 'italic']", "Obtenido: " . str_replace("\033", "\\e", $outList), true);
             echoTerminal(' ');
 
             // --- PRUEBA 6: Formato mixto ---
@@ -79,7 +102,7 @@ $unitTests = [
                     $allPresent = false;
                 }
             }
-            $checkResult($allPresent, "Mixto: Yellow (33), BgRed (41), Underline (4), Bold (1)", "Obtenido: " . str_replace("\033", "\\e", $outMixed));
+            $checkResult($allPresent, "Mixto: Yellow (33), BgRed (41), Underline (4), Bold (1)", "Obtenido: " . str_replace("\033", "\\e", $outMixed), true);
             echoTerminal(' ');
 
             // --- PRUEBA 7: Configuraciones Globales (terminal_color) ---
@@ -87,7 +110,7 @@ $unitTests = [
             set_config('terminal_color', 'magenta');
             $outGlobal = systemOutFormatted('Global', ['newLine' => false]);
             $has35 = strpos($outGlobal, '35') !== false;
-            $checkResult($has35, "Hereda 'magenta' (35) de get_config", "Obtenido: " . str_replace("\033", "\\e", $outGlobal));
+            $checkResult($has35, "Hereda 'magenta' (35) de get_config", "Obtenido: " . str_replace("\033", "\\e", $outGlobal), true);
             set_config('terminal_color', null);
             echoTerminal(' ');
 
@@ -97,7 +120,7 @@ $unitTests = [
             $outGlobalOpt = systemOutFormatted('GlobalOpts', ['newLine' => false]);
             $has1 = strpos($outGlobalOpt, '1') !== false;
             $has4 = strpos($outGlobalOpt, '4') !== false;
-            $checkResult($has1 && $has4, "Hereda negrita (1) y subrayado (4)", "Obtenido: " . str_replace("\033", "\\e", $outGlobalOpt));
+            $checkResult($has1 && $has4, "Hereda negrita (1) y subrayado (4)", "Obtenido: " . str_replace("\033", "\\e", $outGlobalOpt), true);
 
             // Probar sobreescritura de global con local
             $outOverride = systemOutFormatted('Override', ['bold' => false, 'newLine' => false]);
@@ -114,7 +137,12 @@ $unitTests = [
             $checkResult(strpos($outNL, 'Línea') !== false, "Ejecución sin errores de NewLine", "Obtenido: " . str_replace("\033", "\\e", $outNL));
             echoTerminal(' ');
 
-            echoTerminal('[TEST:systemOutFormatted] Suite finalizada.', true, "\r\n", '32');
+            $total = $passed + $failed;
+            echoTerminal(' ');
+            echoTerminal(str_repeat('=', 80));
+            echoTerminal(" BALANCE FINAL: {$passed}/{$total} PASADAS" . ($skipped > 0 ? ", {$skipped} OMITIDAS" : '') . ' ');
+            echoTerminal(str_repeat('=', 80));
+            echoTerminal('[TEST:systemOutFormatted] Suite finalizada.', true, "\r\n", $failed === 0 ? '32' : '31');
             echoTerminal('');
 
             return [

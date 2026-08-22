@@ -146,6 +146,42 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   horaria hereda la hora actual; `->format('Y-m-d')` la descartaba, así que el valor nunca
   cambió, pero el objeto intermedio era distinto en cada petición.
 
+## Seguridad y corrección de datos
+
+- **El XML exportado declaraba `encoding="utf8mb4"` y NINGÚN parser podía leerlo.**
+  `utf8mb4` es un nombre de charset de MySQL, no un encoding XML: un lector estándar
+  rechaza el documento **entero** por la primera línea, por bien formado que esté el resto.
+  Confirmado con dos parsers independientes (`libxml` y `xmllint`). `XmlFormat` traduce
+  ahora los nombres de MySQL a los nombres IANA.
+    - **DEFECTO ABIERTO en la misma salida**: una columna BLOB se escribe con sus bytes
+      crudos, y XML 1.0 prohíbe los caracteres de control aunque sean UTF-8 válido. El
+      plugin decide si un valor es binario con `mb_check_encoding($v, UTF-8)`, y los
+      bytes de un PNG **son** UTF-8 válido, así que la rama hexadecimal no se activa. **Un
+      export XML de una tabla con binarios sigue siendo ilegible.** No se corrige todavía
+      porque cambia el dato exportado.
+
+## Pruebas — puertas verificadas en las dos direcciones
+
+- **Se provocó el fallo de todas las puertas**, no solo de las nuevas. De doce, nueve
+  funcionaban; los tres hallazgos van abajo. Las mutaciones exactas quedan anotadas en
+  `.agents/context/18-siguientes-ventanas.md` (T23) para poder repetirlas.
+- **`bin/phpstan` gana el trinquete, que hasta ahora no existía.** `CLAUDE.md` mandaba
+  comparar contra `PHPStanResult.Summary.baseline.txt` y **nada lo comparaba**. Ahora
+  `bin/phpstan-process-result.php` compara instancias contra instancias y **sale con 1 si
+  el total sube** — y también si no consigue leer una de las dos medidas, porque una puerta
+  que no puede medir no puede aprobar. El baseline pasa de **968 a 877**, con su nota de
+  método dentro del archivo.
+- **`unit-tests:core/database-exporter` valida ahora que la salida esté BIEN FORMADA**
+  (JSON y XML), no solo que contenga lo esperado. Antes, un JSON corrupto en cada fila daba
+  23/23. Esa comprobación es la que destapó el defecto del XML.
+- **`unit-tests:functions/systemOutFormatted` llevaba meses roja diciendo que iba bien.**
+  Afirmaba códigos ANSI que la función suprime a propósito sin terminal, así que fallaba
+  7 de 10 en cuanto la salida se redirigía — y como no contaba nada, devolvía éxito. Ahora
+  omite con su razón lo que exige terminal, y tiene balance y resultado real.
+- **AVISO, sin corregir**: `bin/cli` devuelve **código 0 aunque la aplicación muera al
+  arrancar**. Cualquier puerta lanzada por la CLI es inútil en CI mientras el árbol no
+  arranque.
+
 ## Cambios internos
 
 - **`routeName()` y `allowedRoute()` dejan de estar copiadas en cada controlador.** Las

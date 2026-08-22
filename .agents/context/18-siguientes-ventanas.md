@@ -1795,3 +1795,95 @@ de lo anterior.
 Y las dos veces **lo distinguió la medición, no la intuición**: en `routeName`, comparar
 cuerpos por tokens; en `MetaProperty`, mirar quién usa a quién y contra qué clase base está
 escrito cada archivo. La intuición decía «duplicado» en los dos casos y acertó en uno.
+
+## T23 · T21 APLICADO HACIA ATRÁS — todas las puertas con su fallo provocado
+
+**Encargo: «una puerta que solo se ha visto en verde no se ha visto funcionar» no vale solo
+para las nuevas.** Se provocó el fallo de cada puerta que llevaba meses en verde, con la
+mutación exacta anotada para que se pueda repetir.
+
+### Las puertas que sí gritan
+
+| Puerta | Mutación exacta | Qué hizo |
+| :-- | :-- | :-- |
+| `verify-integrity` · docblocks **y** firmas | Quitar el `*/` del docblock de `ExifHelper::__construct` | **Reproduce el incidente original**: `php -l` dice *No syntax errors*, `method_exists()` dice **false** —el método desapareció— y la tarea sale **1** avisando por partida doble, `DOCBLOCK` y `FIRMA` |
+| `verify-integrity` · rutas PSR-4 | Dos sondas en `src/app/classes/ZzProbe/`: una con `namespace Espacio\Equivocado`, otra `extends \No\Existe\Padre` | Salida **1**: *«declara `Espacio\Equivocado\Broken` y su ruta exige `ZzProbe\Broken`»* y *«Class "No\Existe\Padre" not found»* |
+| `verify-integrity` · eclipses, ida | Crear `Core/HTML/Exceptions/MalformedChildException.php`, que ya existe en el paquete `html` | Salida **1**, nombrando el paquete |
+| `verify-integrity` · eclipses, vuelta | Añadir a `KNOWN_ECLIPSES` una entrada que no colisiona con nada | Salida **1**: *«la entrada sobrevivió a su motivo»* |
+| `bin/phpstan-deadcode` | Cambiar el texto del delimitador del bloque en `bin/phpstan.neon` | Salida **1**: *«No se encontraron los delimitadores»*. **No mide de menos: se niega a medir** |
+| `unit-tests:core/mapper-finders` | `NewsMapper::getBy()` devuelve `false` en vez de `null` cuando no encuentra | **19/20**, señalando el mapper |
+| `unit-tests:core/session-user` | `SessionToken::getJWTReceived()` devuelve `null` antes de nada | **2 fallos**, los dos del contrato de cadena vacía |
+| `unit-tests:core/otp-write-separation` | Meter `if (false) { $probe->save(); }` dentro de `getOTPData()` | **5/6**. Caza una escritura **inalcanzable**, que es lo correcto: ahí no puede haber una escritura ni escrita |
+| `unit-tests:core/meta-property-hybrid` | Quitar el bautizo de `EntityMapperExtensible::addMetaProperty()` | **10/12** |
+
+### Los cinco hallazgos
+
+**H1 · `bin/cli` devuelve 0 aunque la aplicación muera al arrancar.** Con un `ParseError` en
+un archivo de `src/app`, la primera sonda de docblock hizo que la CLI escupiera el JSON del
+manejador de excepciones **y saliera con código 0**. `verify-integrity` no llegó a
+ejecutarse. **Cualquier puerta invocada por `bin/cli` es inútil en CI mientras el árbol no
+arranque**, porque el código de salida dice que todo fue bien. *No corregido: toca a la CLI
+entera y es decisión del propietario.*
+
+**H2 · `unit-tests:functions/systemOutFormatted` fallaba 7 de 10 y decía que todo iba bien.**
+No hizo falta mutarla: **ya estaba roja**. `systemOutFormatted()` tiene **dos contratos** —con
+terminal emite ANSI, sin terminal los suprime a propósito (`Cli.php`, rama `$isTty`)— y la
+suite afirmaba el primero siempre, así que fallaba en cuanto la salida se redirigía. Y como
+no contaba nada, **devolvía éxito igual**.
+
+Comprobado con un segundo método, como manda T20: bajo pseudo-terminal
+(`script -qec … /dev/null`) pasa **10/10**; redirigida, **7 fallos**. *Corregido*: las siete
+comprobaciones que exigen ANSI se **omiten con su razón** sin terminal, y la suite tiene
+balance y resultado real. Probada después: mutar `'red' => 32` en `Cli.php` la deja en
+**8/10**.
+
+**H3 · El trinquete del baseline NO EXISTÍA.** `CLAUDE.md` mandaba comparar contra
+`PHPStanResult.Summary.baseline.txt` y **nada lo comparaba**: era una instrucción para un
+humano, no una puerta. No podía fallar porque no se ejecutaba nunca.
+
+*Corregido*: `bin/phpstan-process-result.php` compara al final, **instancias contra
+instancias**, y sale con **1** si el total sube. Probado en las dos direcciones —bajar el
+baseline a 800 da *TRINQUETE ROTO (+77)*; romper su cabecera da *«la comparación NO se
+hizo»*—. Esa segunda dirección es la que importa: **una puerta que no puede medir no puede
+aprobar.**
+
+El baseline pasa de **968 a 877**, con su nota de método dentro del propio archivo.
+
+**H4 · `unit-tests:core/database-exporter` no miraba la sintaxis.** Comprobaba el
+**contenido** —filtro `WHERE`, enmascarado GDPR, `include_data`, hex-blob— y **jamás si el
+archivo estaba bien formado**. Añadiendo `"ROTO"` a cada fila de `JsonFormat`, el JSON
+generado quedó ilegible —799 marcas, `json_decode` → *Syntax error*— y la suite dio
+**23/23**.
+
+*Corregido*: valida JSON con `json_decode()` y XML con `simplexml_load_string()`. Probado:
+con la mutación puesta, **21/23**.
+
+**H5 · Y esa comprobación nueva destapó un defecto real de producción: el XML exportado no
+lo puede leer ningún parser.** Dos defectos encadenados:
+
+- **H5a — `encoding="utf8mb4"`.** El plugin metía el charset de MySQL en la declaración XML.
+  `utf8mb4` **no es un encoding XML**, así que un parser estándar rechaza el documento
+  **entero** por la primera línea. Confirmado por dos parsers independientes —`libxml` y
+  `xmllint`—. **Corregido**: `XmlFormat` traduce los nombres de MySQL a los nombres IANA.
+- **H5b — bytes de control crudos. ABIERTO.** Con la cabecera ya arreglada, el XML sigue
+  siendo inválido: *«PCDATA invalid Char value 26»*, *«Char 0x0 out of allowed range»*. Vienen
+  de una columna BLOB —un PNG— escrita tal cual. La causa es que el plugin decide si un
+  valor es binario con `!mb_check_encoding($val, 'UTF-8')`, y **los bytes de un PNG son
+  UTF-8 válido**, así que la rama de hex nunca se activa. Además, XML 1.0 prohíbe los
+  controles `0x00–0x08`, `0x0B`, `0x0C` y `0x0E–0x1F` **aunque sean UTF-8 válido**.
+
+> **H5b no se corrige aquí porque cambia el DATO exportado**, y eso es decisión del
+> propietario. La opción coherente con lo que ya hay es hexadecimal —`0x…`, la misma
+> convención que `hex_blob`— cuando el valor contenga un carácter ilegal en XML. Mientras
+> tanto **la suite queda en 22/23, en rojo y a propósito**: el rojo es el defecto, no la
+> prueba.
+
+### Lo que enseña el ejercicio
+
+De doce puertas, **nueve funcionaban**, **una no existía** (H3), **una llevaba meses roja
+diciendo que iba bien** (H2) y **una tenía un agujero por el que se coló un defecto de
+producción** (H4 → H5). **Una de cada cuatro.**
+
+Y el orden importa: **H5 no lo encontró nadie mirando el exportador. Lo encontró la
+comprobación que se añadió al probar que la puerta no fallaba.** Provocar el fallo de una
+puerta no valida la puerta: valida lo que hay detrás.
