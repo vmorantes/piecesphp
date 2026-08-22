@@ -207,6 +207,52 @@ extienden. Es la limpieza de mejor relación esfuerzo/beneficio de todo el lista
 
 ---
 
+## ANTES DE BORRAR NADA: código muerto no es lo mismo que material vivo
+
+**Este documento estuvo a punto de mandar borrar algo que se usa a diario.** Los archivos de
+Webflow figuraban en «riesgo bajo — borrar ya» con la razón *«ningún controlador los usa»*, y
+son **el kit con el que el propietario porta diseños de Webflow a PHP**.
+
+### Por qué falló el juicio, que es lo que importa
+
+El veredicto se dictó con un solo test: **«¿quién lo llama desde PHP?»**. Ese test es correcto
+para código y **ciego para todo lo demás**, porque
+
+> **el material no tiene llamantes: tiene LECTORES.** Una plantilla, un andamio, un ejemplo o
+> un juego de instrucciones no se referencia desde ningún `use` — se abre, se copia y se
+> adapta. Que ningún código lo mencione **es su estado normal, no un síntoma**.
+
+Es el mismo error que ya se cometió con `compileScssServe` —dado por muerto por no tener
+llamantes, cuando lo que tenía era una funcionalidad desactivada a propósito— y con
+`IGNORE.md` —notas del autor, sin un solo consumidor de código—. **Tres veces el mismo test
+ciego.**
+
+### Las dos columnas, separadas
+
+| CÓDIGO que ningún código llama → candidato real | MATERIAL que ningún código llama porque NO ES CÓDIGO → se conserva |
+| :-- | :-- |
+| `Importers` — duplicado de `DataImportExportUtility` | **`src/app/view/webflow/`** (28 KB) — esqueleto de layout del kit de Webflow |
+| 24 `HelperController.php` triviales — copia y pega | **`src/statics/wf/`** (20 KB) — css, js, fuentes e imágenes del kit |
+| `scssphp/scssphp` — dependencia sin uso real | **`files/Webflow/`** (32 KB) — export base, «Pedazos» reutilizables y su `Intrucciones.md` |
+| `PDFManager` + `mpdf/mpdf` | **`Components/Views/sample/components.php`** (16 líneas) — **no es *lorem ipsum* de relleno: es la referencia del formato `<components>`/`<component>`** que `ComponentProvider` consume |
+| El módulo `Components` en sí — decisión aparte | `files/API/` — documentación mkdocs y una colección de Postman |
+| | `files/CliScripts/` — dos guiones sueltos que se lanzan a mano |
+| | `files/dev/roadmap`, `TODO.md`, `IGNORE.md` — notas del autor |
+| | `source-docs/` (320 KB) — documentación de producto |
+
+**Los tres directorios de Webflow suman 80 KB.** No son código de ejecución, y por eso ningún
+controlador los referencia.
+
+### La regla, para que no haya una cuarta vez
+
+> **Antes de escribir «nadie lo usa» en un veredicto de borrado, responde a otra pregunta:
+> ¿esto es código, o es material que alguien lee?** Si es material, el test de los llamantes
+> no aplica y hay que preguntar al propietario. **No hay forma de deducirlo del código: por
+> definición, no deja rastro en él.**
+
+Señales de que estás ante material y no ante código: vive fuera de `src/app/classes`, trae su
+propio archivo de instrucciones, es HTML o assets en vez de PHP con lógica, o su nombre dice
+`sample`, `demo`, `base`, `plantilla`, `pedazos`.
 ## Candidatos concretos, por orden de riesgo
 
 ### Riesgo bajo — borrar ya
@@ -215,8 +261,7 @@ extienden. Es la limpieza de mejor relación esfuerzo/beneficio de todo el lista
 | :-- | --: | :-- |
 | **`Importers`** | 1.129 | Duplicado de `DataImportExportUtility`. 0 acoplamiento |
 | **24 `HelperController.php` triviales** | ~1.000 | Copia y pega; reemplazables por una clase base |
-| **`Components`** | 489 | Stub: 2 vistas, una de ellas `sample/components.php` con *lorem ipsum*. Un solo consumidor (`PublicAreaController`). O se completa o se borra |
-| **Restos de Webflow** | — | `src/app/view/webflow/` (4 archivos, solo se referencian entre sí), `src/statics/wf/` (5 archivos), `files/Webflow/`. Ningún controlador los usa |
+| **`Components`** | 489 | Stub con un solo consumidor (`PublicAreaController`). O se completa o se borra. **`Views/sample/` NO cuenta**: ver la tabla de abajo |
 | **`scssphp/scssphp`** | — | **Dependencia directa que nadie usa.** Ver abajo |
 | **`PDFManager` + `mpdf/mpdf`** | 67 | **Mismo patrón que `scssphp`.** Ver abajo |
 
@@ -371,7 +416,7 @@ versión de lenguaje.
 ## Orden sugerido
 
 1. `HelperController` → clase base *(bajo riesgo, ~1.000 LOC, mejora todos los módulos)*
-2. Borrar `Importers` y restos de Webflow *(bajo riesgo, ~1.200 LOC)*
+2. Borrar `Importers` *(bajo riesgo, ~1.129 LOC)*
 3. Decidir sobre `Components` *(completar o borrar)*
 4. Invertir la dependencia `BaseEntityMapper` → `SystemApprovals` *(desbloquea todo lo demás)*
 5. Decidir el destino de `ImagesRepository` / `FileManager` / `Banner` — **una sola**

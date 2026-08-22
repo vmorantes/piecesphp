@@ -673,7 +673,9 @@ Desconfiar de aplicar a ciegas: `RemoveNullPropertyInitializationRector` (53 arc
 Todo [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md). Por orden de riesgo:
 
 - **Bajo**: `Importers` (duplicado), 24 `HelperController` triviales, `Components`,
-  restos de Webflow, `scssphp`, `PDFManager` + `mpdf`
+  `scssphp`, `PDFManager` + `mpdf`.
+  **Webflow SALE de esta lista y se conserva**: ver la tabla de código contra material en
+  [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md).
 - **Medio**: `ImagesRepository` / `FileManager` / `Banner` — tres formas de gestionar
   imágenes; `Newsletter`; `EventsLog`; el temporizador
 - **Alto**: invertir la dependencia `BaseEntityMapper` → `SystemApprovals`, y separar la
@@ -1856,6 +1858,23 @@ se le añadió validación de sintaxis, y esa validación destapó el XML.
 
 La puerta era el pretexto. **El hallazgo estaba detrás de ella, y llevaba ahí desde siempre.**
 
+### «TOCA TODO» ES UNA HIPÓTESIS, NO UNA MEDICIÓN
+
+H1 —que `bin/cli` devolviera 0 con la aplicación muerta— se reportó como *«no corregido: toca
+a la CLI entera»*. **Era una línea**: `die($content)` sale con código cero.
+
+La estimación de coste se dio por buena sin medirla, y una estimación es una afirmación como
+cualquier otra.
+
+> **Antes de descartar un arreglo por caro, mide su coste igual que medirías cualquier otra
+> cosa que fueras a escribir.** Abrir el archivo y buscar dónde sale el proceso costaba dos
+> minutos; el precio de no hacerlo fue dejar en pie un día más la puerta que decía «todo
+> bien» sin haber mirado.
+
+Y el patrón se repite: `dynamicConstantNames` iba a ser «una ventana propia» y fue un bloque
+de config; el trinquete del baseline iba a ser «infraestructura» y fueron cuarenta líneas.
+**Las tres veces el coste real estaba un orden de magnitud por debajo del estimado.**
+
 **Relación con T20**: T20 dice de qué desconfiar cuando un número sorprende. T21 dice qué
 hacer cuando **nada** sorprende, que es el caso peligroso.
 
@@ -2310,8 +2329,27 @@ concediendo el nombre de la ruta queda el control de acceso de la petición real
 dirección del fallo es la equivocada**: ante un error, un sistema de permisos debería cerrar,
 no abrir.
 
-**Lo que habría que decidir**, cuando se decida: distinguir «no hay sesión» de «hubo un error
-construyendo al usuario», y que el segundo caso **deniegue**.
+**Una buena noticia primero, que conviene decir**: **antes del trait esto estaba en 44 sitios
+y ahora está en uno.** El trait no creó el problema — lo volvió **arreglable**. Corregirlo era
+antes una campaña de 44 archivos; hoy es una línea en un sitio.
+
+#### PRECONDICIÓN: no se arregla cambiando el `else` a `false`
+
+**Hoy `getLoggedFrameworkUser()` NO PUEDE distinguir los dos casos.** Devuelve `null` tanto
+si no hay sesión como si el constructor lanzó, así que cerrar sin distinguir **negaría el
+acceso a los anónimos en las rutas públicas** — y eso hoy es correcto: la zona pública no
+tiene restricción de rol y su control real está en el middleware de sesión.
+
+> **Primero hay que hacer los dos casos DISTINGUIBLES**, y solo entonces se puede cerrar el
+> borde sin romper lo público. Dos formas, las dos aceptables:
+>
+> - **Un accesor aparte** que diga si hubo fallo de construcción —o que devuelva el estado en
+>   vez de solo el usuario—.
+> - **Que el fallo de construcción se propague** en vez de convertirse en `null`, y que quien
+>   quiera tolerarlo lo capture explícitamente.
+>
+> **Sin esa precondición, la pregunta no se puede responder**: cualquier respuesta rompe uno
+> de los dos casos.
 
 Relacionado: `DataImportExportUtility` conserva su `routeName()` propio precisamente porque
 toma el usuario por otra vía y **no cae en este borde** — es más restrictivo. Está en
@@ -2409,6 +2447,25 @@ TRINQUETE ROTO: 886 errores contra un baseline de 877 (+9).
 el paso siguiente al que la creó. Es la mejor demostración de por qué H3 —que no existiera—
 era grave: sin ella, esos nueve errores se habrían colado en el baseline sin que nadie los
 notase.
+
+### LA REGLA QUE FALTABA: comprobar la HOMOGENEIDAD antes de suprimir una familia
+
+Es tentador leer esto como «prefiere mirar caso a caso antes que configurar». **No es eso**,
+y la prueba está a dos secciones de distancia:
+
+| Familia | ¿Homogénea? | Qué funcionó |
+| :-- | :-- | :-- |
+| Los 25 interruptores de módulo (T13) | **SÍ**: todos constantes de `config/constants.php`, todos por la misma razón | Un bloque de configuración, `dynamicConstantNames` |
+| Los 5 `catch.neverThrown` | **NO**: tres muertos, uno por `__set()`, uno por el manejador de errores | Mirarlos uno a uno |
+| Los 20 `if.alwaysFalse` | **NO**: 11 interruptores documentados, 9 candidatos | Partirla en dos |
+
+> **Antes de suprimir una familia entera, comprueba que sus miembros están ahí POR LA MISMA
+> RAZÓN.** Si las razones difieren, la supresión de familia no simplifica: **tapa con el
+> mismo silencio los casos que había que arreglar y los que había que respetar.**
+
+Es la otra cara de T17. T17 dice que una regla mecánica se aplica a toda la familia o a
+ninguna; esta dice **qué es una familia**: no los que comparten identificador, sino los que
+comparten motivo.
 
 ### Efecto medido
 

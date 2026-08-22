@@ -30,6 +30,74 @@
 > `BaseController` asocia automáticamente `XController` ↔ `App\Model\XModel`.
 > En los módulos esto se sobreescribe asignando `$this->model` en el constructor.
 
+## Mayúsculas y minúsculas — decidido por el propietario
+
+**Este documento decía «el código va en inglés» y no decía nada de esto, y eso era
+peligroso**: cualquiera que vea 145 funciones globales en `snake_case` puede pensar «rezago»,
+lanzarse a normalizarlas y **romper la plantilla para todos los despliegues**. La excepción
+tiene que estar escrita **con su razón**, no solo la regla.
+
+| Elemento | Convención | Estado |
+| :-- | :-- | :-- |
+| **Funciones globales** | **`snake_case`** | **CORRECTO. NO SE TOCA** |
+| **Columnas de base de datos** | `snake_case` | Correcto y fuera del asunto |
+| Clases, interfaces, traits, enums | `PascalCase` | Ya está bien |
+| Constantes | `UPPER_SNAKE` | Ya está bien |
+| Métodos | `camelCase` | 1 pendiente |
+| Propiedades | `camelCase` | 90 pendientes |
+| Variables y parámetros | `camelCase` | El grueso |
+
+### Las dos excepciones, con su razón
+
+**Funciones globales en `snake_case`: es lo correcto, no un rezago.** Es la tradición de PHP,
+y estas funciones **viven al lado de `array_map` y `file_get_contents`** en el mismo espacio
+global. **PSR-1 exige `camelCase` para MÉTODOS y no dice nada de funciones.** Normalizarlas
+rompería la API pública que cada despliegue usa en sus vistas.
+
+**Columnas de base de datos en `snake_case`: correcto y, además, intocable.** Renombrarlas es
+una migración contra cada despliegue congelado. *(Ojo: las PROPIEDADES de los mappers sí son
+`camelCase` — ver la tabla de nomenclatura de arriba. Son cosas distintas.)*
+
+### CÓMO SE APLICA: al pasar, nunca en barrido
+
+> **NADA DE BARRIDOS.** Un lote dedicado de renombrado produciría el mismo desastre de
+> revisión que los CRLF: diffs enormes donde se esconde lo que sí importa. **Cuando un
+> archivo se toca por otro motivo, sus identificadores internos se normalizan en un COMMIT
+> APARTE pegado a ese trabajo.** Mismo archivo, misma sesión, distinto commit: sin barrido y
+> un eje por commit.
+
+Y dentro de un archivo, **todas o ninguna**. Es T17: la aplicación parcial fabrica
+divergencia — es exactamente lo que pasó cuando Rector convirtió 25 de 39
+`strlen($route) > 0` y dejó 14.
+
+### CUIDADO CON LOS PARÁMETROS: no son variables locales aunque lo parezcan
+
+Renombrar un parámetro **no es un cambio interno**:
+
+1. **Rompe los argumentos con nombre de PHP 8.** `f(as_mapper: true)` deja de compilar.
+2. **Desincroniza los phpdoc que PHPStan lee**, y esto ya nos afecta: `as_mapper` aparece
+   **142 veces** en `src/app` —`grep -rc "as_mapper" src/app --include=*.php`—, y **25 de
+   esas apariciones están DENTRO de docblocks**, incluidas las anotaciones de tipo de retorno
+   condicional que escribimos nosotros.
+
+> **Si renombras un parámetro, la anotación cambia EN EL MISMO COMMIT** o el tipo condicional
+> deja de funcionar **en silencio** — PHPStan no avisa de que una anotación menciona un
+> parámetro que ya no existe: simplemente deja de estrecharse.
+
+### Las cifras, con su método
+
+Medidas por **tokens**, no por `grep`. Criterio de «no es `camelCase`»: contiene `_` fuera de
+un prefijo `_` inicial, **o** empieza por mayúscula. Los métodos mágicos (`__construct`…) se
+excluyen.
+
+| Cifra | Qué es |
+| --: | :-- |
+| **145** | Funciones globales en `snake_case` — 81 en `AppHelpers.php`, 37 en `Utilities.php`, 21 en `Config.php`. **Se quedan.** |
+| **1** | Método fuera de `camelCase` en todo el proyecto: `Core\Database\Export\Exporter::idf_escape`. **Cero en los cuatro paquetes.** |
+| **90** | Propiedades fuera de `camelCase`: **38** son `UPPER_SNAKE` —constantes disfrazadas de propiedad estática, otra discusión— y **52** `snake_case` o `PascalCase`. |
+
+**Estas cifras corrigen las que circulaban** («~143 métodos», «14 propiedades»), que no son
+reproducibles con ningún criterio que se haya podido escribir. El método de arriba sí lo es.
 ## Reglas duras (romperlas rompe el framework)
 
 1. **Rutas**: siempre `PiecesPHP\Core\Route` / `RouteGroup`. Nunca `$app->get(...)`
