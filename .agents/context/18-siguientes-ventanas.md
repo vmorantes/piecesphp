@@ -2420,3 +2420,100 @@ notase.
 De las 16 que salen: **3 borradas** de verdad y **13 reclasificadas** —2 `catch.neverThrown`
 y 11 `if.alwaysFalse`— que **nunca fueron ramas muertas** y ahora están donde debían, en el
 registro documentado.
+
+## T28 · EL BYTE DEL PNG — respondido: **el daño está en la ESCRITURA**
+
+**Todo lo de aquí es de SOLO LECTURA.** Ninguna consulta tocó una tabla para escribir, y la
+segunda sonda no tocó ninguna tabla en absoluto.
+
+### La prueba que separaba los dos escenarios
+
+`HEX()` se resuelve en el servidor y no pasa por la conversión del cliente:
+
+```sql
+SELECT HEX(avatar_blob) AS serverHex, avatar_blob AS clientValue
+FROM pcs_unit_tests_core_database_exporter_v1 LIMIT 1
+```
+
+| | |
+| :-- | :-- |
+| **Servidor** (`HEX()`) | `3f504e470d0a1a0a…` |
+| **Cliente** (`bin2hex()` en PHP) | `3f504e470d0a1a0a…` |
+| Longitud | **20 bytes en los dos**, igual que el original |
+
+> **El dato guardado YA ESTÁ DAÑADO.** No es un defecto del camino de lectura: el `0x89` no
+> llegó nunca a la tabla. La longitud se conserva y solo cambia un byte — la firma clásica
+> de una conversión de juego de caracteres, no de un truncado.
+
+Y la columna está bien declarada: `avatar_blob` es **`blob`**, tipo binario.
+
+### El mecanismo, demostrado SIN TOCAR NINGUNA TABLA
+
+Una ida y vuelta del literal, con `SELECT HEX(?)` sobre ninguna tabla:
+
+| Cómo se envía el parámetro | Qué vuelve |
+| :-- | :-- |
+| Original en PHP | `89504e470d0a1a0a0000000d4948445200000001` |
+| **`PARAM_STR`** *(el de por defecto)* | **`3f`**`504e470d0a1a0a0000000d4948445200000001` |
+| `PARAM_LOB` | `89504e47…` **intacto** |
+| `SET NAMES binary` | `89504e47…` **intacto** |
+
+**`PDO::ATTR_EMULATE_PREPARES` está en `true`.** Con emulación, PDO **interpola el parámetro
+en la cadena SQL dentro de PHP** y lo entrecomilla según el juego de caracteres que PDO cree
+que tiene la conexión.
+
+### La causa raíz, y está en el PAQUETE
+
+`Database::instance()` acepta un `$charset` y **NUNCA lo pone en el DSN**:
+
+```php
+$dsn = "{$driver}:dbname={$database};host={$host}";   // <-- sin charset
+…
+$instance->prepare("SET character set {$charset}; …");
+```
+
+Dos consecuencias, las dos medidas:
+
+1. **PDO no se entera.** El `charset` del DSN es lo único que fija cómo entrecomilla PDO al
+   emular. Ejecutar `SET character set` después cambia el servidor, **no a PDO**.
+2. **`SET character set` deja la conexión descuadrada.** Pone `character_set_client` y
+   `character_set_results` al valor pedido, pero `character_set_connection` **al de la base
+   de datos**. Medido en esta instalación:
+
+   ```
+   character_set_client     = utf8mb4
+   character_set_connection = utf8mb3   <-- el de la base, no el pedido
+   character_set_results    = utf8mb4
+   ```
+
+### CUÁNTO ALCANZA — la parte que decide qué contarle a los despliegues
+
+**El ORM del framework NO PUEDE crear una columna binaria.** Los tipos que `SchemeCreator`
+admite son `varchar, text, mediumtext, longtext, int, bigint, float, double, json, datetime,
+date` — **no hay `blob` ni `binary`**. Y **cero mappers** declaran un campo binario:
+`grep -rlniE "'(blob|longblob|mediumblob|varbinary)'" src/app/classes src/app/model` da **0**.
+
+| | |
+| :-- | :-- |
+| Datos del framework en riesgo | **Ninguno por la vía del ORM**: no existe el tipo |
+| Quién sí está en riesgo | Un despliegue que haya añadido una columna binaria **a mano** y escriba en ella con `prepare()/execute()` |
+| El dato dañado que se encontró | La semilla de la suite del exportador, **tabla de pruebas que se regenera en cada corrida** |
+
+> **No se corrige aquí, y no por prudencia sino porque la decisión tiene dos ramas.** Poner
+> `charset=` en el DSN cambia el entrecomillado de TODAS las escrituras de TODOS los
+> despliegues, y es un paquete que consumen cinco repositorios. La alternativa acotada
+> —`bindValue(..., PARAM_LOB)` donde haya binario— **no tiene sitio donde aplicarse hoy**,
+> porque el framework no escribe binario.
+
+### Lo que hay que decidir
+
+1. **¿Se pone `charset=` en el DSN de `Database::instance()`?** Es la corrección de fondo y
+   deja la conexión coherente. Riesgo: cambia el entrecomillado en todos los despliegues.
+2. **¿Se desactiva `ATTR_EMULATE_PREPARES`?** Corrige la clase entera de problema —los
+   preparados de verdad no interpolan— pero cambia el comportamiento de todas las consultas.
+3. **¿O solo se documenta**, dado que el ORM no ofrece columnas binarias, y se añade el tipo
+   `blob` a `SchemeCreator` el día que alguien lo necesite, ya con el binding correcto?
+
+**Ninguna es obvia y las tres son del propietario.** Lo que sí está cerrado es el
+diagnóstico: **el daño ocurre al escribir, la causa es la emulación de preparados sobre una
+conexión cuyo charset PDO desconoce, y el alcance real es cero por la vía del ORM.**
