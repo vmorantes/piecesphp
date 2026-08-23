@@ -407,9 +407,13 @@ $app->add(function (RequestRoute $request, RequestHandlerInterface $handler) use
             $milisecond = $timeSegments[3];
             $dateString = "{$day}-{$month}-{$year} {$hour}:{$minute}:{$second} {$amPm}";
 
+            //El nombre del archivo es la fecha: uno que no encaje devolvía false y reventaba aquí.
             $date = \DateTime::createFromFormat('d-m-Y h:i:s A', $dateString);
-            $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
             $date30Days = \DateTime::createFromFormat('d-m-Y h:i:s A', $dateString);
+            if ($date === false || $date30Days === false) {
+                return;
+            }
+            $date->setTimezone(new \DateTimeZone(date_default_timezone_get()));
             $date30Days->setTimezone(new \DateTimeZone(date_default_timezone_get()));
             $date30Days->modify('+30 days');
 

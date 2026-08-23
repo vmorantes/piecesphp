@@ -171,42 +171,106 @@ parameters:
         - identifier: missingType.parameter
         - identifier: missingType.generics
 
-        # ── Condiciones redundantes y código muerto ──────────
-        - message: '#.*left side of \?\? always exists and is not nullable.*#'
-        # `if.alwaysFalse` fuera de los <Modulo>Routes: NUEVE casos, supresión TEMPORAL.
-        # Siguen siendo candidatos a rama muerta y están en el mapa por familias (T24 del
-        # doc 18). SE RETIRA cuando esos nueve se hayan mirado uno a uno; hasta entonces se
-        # quedan aquí para que el bloque de arriba pueda ser una supresión por RUTA y no de
-        # familia entera. Ver la lista en T24.
+        # ── `false` de funciones nativas: lo que SÍ tiene razón ─────────────────────────
+        #
+        # De los 99 errores visibles que mencionan `false` (el «grupo B»), 14 eran los graves:
+        # llamar a un método sobre un `false` es un fatal en ejecución, no un aviso de tipos.
+        # Leídos los 14, se parten en dos y NO en una familia:
+        #
+        #   12 SEGUROS — `DateTime::createFromFormat()` cuyo sujeto es un LITERAL o lo produce
+        #   `date()` con un formato compatible: `createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'))`.
+        #   El `false` es inalcanzable porque el productor y el formato están los dos en el
+        #   mismo sitio y bajo nuestro control. Se suprimen: exigir una rama aquí es pedir un
+        #   `if` que nunca se cumple.
+        #
+        #    3 DEFECTOS — `src/index.php`, donde el sujeto sale del NOMBRE DE UN ARCHIVO del
+        #   directorio de sesiones expiradas. Un archivo que no encajara con el patrón devolvía
+        #   `false` y reventaba la petición. NO se suprimieron: se arreglaron con su guarda.
+        #
+        # Los 85 restantes del grupo B NO entran aquí y NO se suprimen: son `false` que llegan
+        # como argumento o como retorno, y decidir cuáles son defectos exige leerlos uno a uno
+        # sobre datos reales. Van a E2. Ver T41.
         -
-            identifier: if.alwaysFalse
+            message: '#^Cannot call method [a-zA-Z]+\(\) on DateTime\|false\.$#'
             paths:
                 - ../src/app/classes/*
-                - ../src/app/core/*
+
+        # ── Condiciones redundantes y código muerto ─────────────────────────────────────
+        #
+        # 285 tripletas, medidas con `bin/phpstan-deadcode`. NO son un cajón de sastre: cada
+        # grupo de abajo lleva su MOTIVO escrito, y el motivo es lo que decide si algún día se
+        # retira. El mapa por familias, con la muestra verificada a mano de cada una, está en
+        # T29 del doc 18; el reparto por motivo, en T41.
+        #
+        # La regla que las sostiene (T0): esto NO exige cero errores. Exige cero defectos
+        # reales y el resto justificado. Si al leer una de estas ramas se descubre que no hay
+        # razón porque es un defecto, ESA SALE DE AQUÍ Y SE ARREGLA.
+
+        # MOTIVO 1 — PROGRAMACIÓN DEFENSIVA SOBRE DATOS QUE EL TIPO NO DESCRIBE (129).
+        # `is_array()` sobre algo declarado `array`, `is_scalar($x) && !is_null($x)`,
+        # `$array['clave'] ?? null` sobre un literal donde la clave existe. La comprobación es
+        # redundante PARA EL TIPO DECLARADO, no para el valor que llega: peticiones, filas de
+        # base de datos y JSON entran aquí con el tipo que les dé la gana. Borrarlas por
+        # familia es cambiar una guarda real por la confianza en un docblock.
+        - identifier: function.alreadyNarrowedType
+        - identifier: function.impossibleType
+        # `nullCoalesce.offset` se suprime SOLO por el mensaje del `??`, no por identificador:
+        # el identificador entero se lleva además un caso que el mensaje no cubre, y bajar el
+        # baseline ensanchando una supresión es justo lo que el trinquete no puede premiar.
+        - message: '#.*left side of \?\? always exists and is not nullable.*#'
+
+        # MOTIVO 2 — INTERRUPTORES DE MÓDULO Y CONFIGURACIÓN POR DESPLIEGUE (65 medidas).
+        # La condición lee una constante de `config/constants.php`, y PHPStan la resuelve al
+        # valor DE ESTE ÁRBOL. Cada despliegue configura las suyas. BORRAR ESTAS RAMAS
+        # CABLEARÍA TODOS LOS MÓDULOS EN ENCENDIDO, y un despliegue que apague NEWSLETTER_MODULE
+        # se rompería sin que nadie pueda ver por qué. Es «embarcar una trampa» en su forma más
+        # literal, y por eso este motivo NO tiene condición de retirada.
         - identifier: if.alwaysTrue
-        - identifier: notIdentical.alwaysTrue
-        - identifier: ternary.alwaysTrue
+        - identifier: booleanNot.alwaysTrue
         - identifier: booleanAnd.rightAlwaysTrue
         - identifier: booleanAnd.leftAlwaysTrue
-        - identifier: booleanNot.alwaysTrue
         - identifier: booleanOr.rightAlwaysTrue
         - identifier: booleanOr.leftAlwaysTrue
         - identifier: booleanAnd.alwaysTrue
         - identifier: identical.alwaysTrue
         - identifier: equal.alwaysTrue
-        - identifier: isset.variable
-        - identifier: function.alreadyNarrowedType
-        - identifier: notIdentical.alwaysFalse
-        - identifier: ternary.alwaysFalse
         - identifier: booleanAnd.rightAlwaysFalse
         - identifier: booleanAnd.leftAlwaysFalse
         - identifier: booleanNot.alwaysFalse
         - identifier: booleanOr.rightAlwaysFalse
         - identifier: booleanAnd.alwaysFalse
+        #
+        # `if.alwaysFalse` sigue acotada por RUTA y no por familia: las de los `<Modulo>Routes`
+        # son interruptores, y estas nueve quedaron fuera de esa carpeta. Se retira cuando se
+        # hayan mirado las nueve. Ver T24.
+        -
+            identifier: if.alwaysFalse
+            paths:
+                - ../src/app/classes/*
+                - ../src/app/core/*
+
+        # MOTIVO 3 — VARIABLES QUE INYECTA EL RENDERIZADOR DE VISTAS (38).
+        # Una vista recibe sus variables por `extract()` desde el controlador, así que PHPStan
+        # analiza el archivo sin saber que existen. El `isset` y el ternario NO sobran: son lo
+        # único que separa una vista incluida con datos de una incluida sin ellos.
+        - identifier: isset.variable
+        - identifier: ternary.alwaysTrue
+        - identifier: ternary.alwaysFalse
+
+        # MOTIVO 4 — ESTRECHAMIENTOS QUE PHPSTAN DA POR HECHOS Y EN EJECUCIÓN NO LO ESTÁN (46).
+        # `$userMapper !== null` sobre un valor que la inferencia ya estrechó unas líneas antes.
+        # Es una condición VIVA, no un hueco: el estrechamiento viene de un docblock o de un
+        # `@var`, y esos mienten con más facilidad que el código. Borrables una a una leyendo de
+        # dónde sale el tipo; NO por familia.
+        - identifier: notIdentical.alwaysTrue
+        - identifier: notIdentical.alwaysFalse
         - identifier: instanceof.alwaysFalse
         - identifier: identical.alwaysFalse
-        - identifier: function.impossibleType
-        - identifier: foreach.emptyArray
+
+        # MOTIVO 5 — INOFENSIVO Y REAL (4).
+        # `break;` detrás de un `return` dentro de un `switch`, casi todo en
+        # `SystemApprovalManager`. Es código inalcanzable de verdad y quitarlo no cambia nada,
+        # ni para bien ni para mal. Se queda suprimido porque el ruido cuesta más que la rama.
         - identifier: deadCode.unreachable
 
         # ── PHPDoc ──────────

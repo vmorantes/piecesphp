@@ -110,6 +110,16 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Seguridad
 
+- **Dos `false` que eran un fatal en ejecución, no un aviso de tipos.**
+    - `src/index.php`: al recorrer el directorio de sesiones expiradas, la fecha se sacaba del
+      **nombre del archivo**. Un archivo que no encajara con el patrón hacía que
+      `DateTime::createFromFormat()` devolviera `false`, y la llamada siguiente reventaba la
+      petición entera. Ahora ese archivo se descarta.
+    - `PublicationsController`: el sello de última modificación podía llegar sin hidratar desde
+      el mapper, y `getTimestamp()` sobre una cadena es un fatal. Guarda con `instanceof`, y el
+      valor por defecto pasa a `new DateTime()`, que no puede devolver `false`.
+    - Con esto quedan **cero** errores de la forma «llamar a un método sobre un `false`».
+
 - **Ver el QR del doble factor dejaba el flujo sin salida: PREPARAR NO ES ACTIVAR.**
   `OTPSecretsUsersMapper::toggle2FA()` escribía `twoAuthFactor = ENABLED` al pulsar
   «Activar», antes de que el usuario confirmase nada. A partir de ahí, volver a pulsar
@@ -431,6 +441,18 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
       patrones están documentados en la receta 9 de `.agents/context/13-recetas.md`.
 
 ## Análisis estático — el .neon deja de ser cajón de sastre
+
+- **Las 285 ramas muertas pasan a supresión documentada agrupada por MOTIVO**, no por
+  identificador. Eran veintiséis identificadores silenciados sin una sola razón escrita; ahora
+  son cinco motivos, cada uno con lo que lo sostiene y su condición de retirada: defensa sobre
+  datos que el tipo no describe (129), interruptores de módulo (65, sin condición de retirada
+  porque borrarlos cablearía todos los módulos en encendido), variables que inyecta el
+  renderizador de vistas (38), estrechamientos que en ejecución no lo están (46) e inofensivo y
+  real (4).
+    - Se retira la supresión de `foreach.emptyArray`, que ya no silencia nada.
+    - Baseline **874 → 859**, y el reparto va escrito: **4 arreglos y 11 supresiones**. Una
+      cifra que baja por supresión no significa lo mismo que una que baja por arreglo, y el
+      trinquete no distingue solo.
 
 - **`catch.neverThrown` pasa de supresión de familia a dos supresiones por ruta.** Se
   miraron los cinco: **tres eran muertos de verdad y se han borrado** —un `try` alrededor

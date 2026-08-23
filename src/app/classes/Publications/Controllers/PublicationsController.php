@@ -1138,9 +1138,14 @@ class PublicationsController extends AdminPanelController
             $currentLang = Config::get_lang();
             $activesByDateIDs = PublicationMapper::activesByDateIDs();
             $lastModifiedElement = PublicationMapper::lastModifiedElement(true);
-            $lastModification = \DateTime::createFromFormat('d-m-Y H:i:s', '01-01-1990 00:00:00');
+            //El sello del mapper puede no venir hidratado: sin la guarda, getTimestamp() sobre
+            //una cadena es un fatal. El constructor no devuelve false; createFromFormat sí.
+            $lastModification = new \DateTime('1990-01-01 00:00:00');
             if ($lastModifiedElement !== null) {
-                $lastModification = $lastModifiedElement->updatedAt ?? $lastModifiedElement->createdAt;
+                $lastModified = $lastModifiedElement->updatedAt ?? $lastModifiedElement->createdAt;
+                if ($lastModified instanceof \DateTime) {
+                    $lastModification = $lastModified;
+                }
             }
             $checksumData = [
                 $currentLang,

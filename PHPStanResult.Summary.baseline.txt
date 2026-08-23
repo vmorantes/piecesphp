@@ -1,6 +1,6 @@
 ================[NOTA DE MEDICIÓN]================
 
-Referencia de la campaña: 874 tripletas. NO DEJARLO PEOR QUE ESTO.
+Referencia de la campaña: 859 tripletas. NO DEJARLO PEOR QUE ESTO.
 
 CÓMO SE MIDIÓ, que es lo que hace comparable esta cifra (T0, punto 5):
 
@@ -52,6 +52,26 @@ HISTORIA DE ESTE BASELINE
     sirve 8.5.9.
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
+
+859 (2026-08-23) — 15 menos, Y NO SON QUINCE ARREGLOS: 4 arreglos y 11 supresiones
+    documentadas. La distinción importa porque el trinquete premia que la cifra baje, y una
+    cifra que baja por supresión no significa lo mismo que una que baja por arreglo.
+
+    LOS 4 ARREGLOS son los `false` que sí eran defectos, de los 14 casos en que llamar a un
+    método sobre un `false` sería un fatal en ejecución:
+      - 3 en `src/index.php`: el sujeto de `createFromFormat()` salía del NOMBRE DE UN ARCHIVO
+        del directorio de sesiones expiradas, así que un archivo que no encajara con el patrón
+        reventaba la petición. Ahora se descarta con su guarda.
+      - 1 en `PublicationsController`: el sello del mapper podía llegar sin hidratar y
+        `getTimestamp()` sobre una cadena es un fatal. Guarda con `instanceof`, y el valor por
+        defecto pasa a `new DateTime()`, que no puede devolver `false`.
+
+    LAS 11 SUPRESIONES son el resto de esos 14: `createFromFormat()` cuyo sujeto es un literal
+    o lo produce `date()` con un formato compatible. El `false` es inalcanzable porque el
+    productor y el formato están en la misma línea. Exigir una rama ahí es pedir un `if` que
+    nunca se cumple. Van con su razón escrita en `bin/phpstan.neon`.
+
+    Quedan 0 errores visibles de la forma «llamar a un método sobre un false».
 
 874 (2026-08-21) — 13 menos. Las claves de array del constructor de listas desplegables
     pasan a `(string)`, que es la migración que prescribe la deprecación de PHP 8.5: «use

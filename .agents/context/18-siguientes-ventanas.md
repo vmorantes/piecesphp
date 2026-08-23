@@ -4216,3 +4216,81 @@ La comprobación nueva subió PHPStan de **874 a 875**: un `str_replace` cuyo ti
 PHPStan ve como `array<string>|string`. Arreglado en la raíz —castear el argumento, no el
 resultado— y de vuelta a **874**. Segunda vez en la campaña que el trinquete atrapa una
 regresión mía el mismo día que la introduzco.
+
+## T41 · E1 SE CIERRA — las 285 por supresión con motivo, y el grupo B que NO se pudo cerrar
+
+### 1. Las 285 ramas: cerradas, y el `.neon` deja de ser una lista
+
+El bloque existía y **silenciaba veintiséis identificadores sin una sola razón escrita**, que
+es exactamente el «cajón de sastre» que T0 · 3 prohíbe. Ahora son **cinco motivos**, cada uno
+con lo que lo sostiene y su condición de retirada:
+
+| Motivo | Ramas | Por qué se queda |
+| :-- | --: | :-- |
+| **1 · Defensa sobre datos que el tipo no describe** | 129 | La comprobación es redundante **para el tipo declarado**, no para el valor que llega. Peticiones, filas y JSON entran con el tipo que les da la gana |
+| **2 · Interruptores de módulo** | 65 | PHPStan resuelve la constante al valor **de este árbol**. Borrarlas cablearía todos los módulos en ENCENDIDO. **Sin condición de retirada** |
+| **3 · Variables que inyecta el renderizador** | 38 | La vista las recibe por `extract()`; PHPStan analiza el archivo sin saber que existen |
+| **4 · Estrechamientos que en ejecución no lo están** | 46 | El tipo viene de un docblock, y esos mienten con más facilidad que el código |
+| **5 · Inofensivo y real** | 4 | `break;` detrás de un `return`. Quitarlo no cambia nada; el ruido cuesta más |
+
+Y **se retira una supresión muerta**: `foreach.emptyArray` ya no silencia nada porque las 24 se
+arreglaron. Una supresión que no suprime es la misma deuda que un `ignoreErrors` de más.
+
+> **Una trampa evitada por poco, y merece quedar escrita.** Al agrupar, añadí
+> `identifier: nullCoalesce.offset` junto al mensaje del `??` que ya estaba. El baseline bajó
+> a 873 — **y no había arreglado nada**: el identificador entero se llevaba un caso que el
+> mensaje no cubría. **Bajar el baseline ensanchando una supresión es exactamente lo que el
+> trinquete no puede premiar**, porque lo lee igual que un arreglo. Revertido; vuelta a 874.
+
+### 2. El grupo B: se cerró la parte que tenía razón, y NO la que no la tenía
+
+**99 errores visibles mencionan `false`.** El encargo era cerrarlos por supresión agrupada por
+motivo. **No se pudo, y decirlo es parte del trabajo.**
+
+Al separar por gravedad —no por identificador— aparecen dos poblaciones distintas:
+
+**Los 14 graves: llamar a un método sobre un `false` es un FATAL, no un aviso de tipos.**
+Leídos los 14, se parten en dos y **no eran una familia**:
+
+- **12 seguros.** `createFromFormat()` cuyo sujeto es un literal o lo produce `date()` con un
+  formato compatible: `createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:00'))`. El productor y
+  el formato están **en la misma línea y bajo nuestro control**; el `false` es inalcanzable.
+  Suprimidos con su razón. *Pedir una rama aquí es pedir un `if` que nunca se cumple.*
+- **2 defectos, que salen de la supresión y se arreglan**, tal como manda la regla:
+  - **`src/index.php`** (3 errores): el sujeto salía del **NOMBRE DE UN ARCHIVO** del
+    directorio de sesiones expiradas. Un archivo que no encajara con el patrón devolvía
+    `false` y **reventaba la petición**. Guarda añadida.
+  - **`PublicationsController`**: el sello del mapper podía llegar **sin hidratar**, y
+    `getTimestamp()` sobre una cadena es un fatal. Guarda `instanceof`, y el valor por defecto
+    pasa a `new DateTime()`, que no puede devolver `false`.
+
+**Quedan 0 errores visibles de la forma «llamar a un método sobre un `false`».**
+
+**Los 85 restantes NO se suprimen, y este es el punto que hay que defender:**
+
+> El encargo decía «supresión con razón escrita, y si al escribir la razón descubres que es un
+> defecto, ese sale y se arregla». **Aplicada literalmente a estos 85, la regla se muerde la
+> cola**: son `false` que llegan como argumento o como retorno, y **no se puede saber cuál es
+> defecto sin leerlos uno a uno** — que es el triaje que el mismo encargo prohíbe.
+>
+> Los 14 graves se pudieron cerrar porque **la gravedad era mecánicamente separable**: «llamar
+> a un método sobre `false`» es un patrón de mensaje, no un juicio. Para los 85 no existe ese
+> corte, **y no lo hay porque la respuesta no está en el código: está en los datos.** Si
+> `realpath()` devuelve `false` en producción o nunca, esta base de 89 filas no lo sabe (T39).
+>
+> **Van a E2 con nombre y apellidos**, no a una cola indefinida: el ciclo CRUD es donde una
+> fecha mal formada, una ruta que no existe o un `json_encode` que falla llegan de verdad.
+
+### 3. Estado de cierre de E1
+
+| | |
+| :-- | --: |
+| **Baseline PHPStan** | **859** (era 874: −4 arreglos, −11 supresión documentada) |
+| **Ramas muertas** | **285**, todas con motivo escrito |
+| **Fatales-si-`false`** | **0** |
+| **Bloques narrativos** | **91** (eran 132), registro cerrado y puerta |
+| **Comprobaciones de `verify-integrity`** | **8** |
+| **Suites** | 25/25, 13/13+5, 13/13, 6/6, 12/12, 23/23 |
+
+**Y la cifra del baseline lleva su reparto escrito en `PHPStanResult.Summary.baseline.txt`**,
+porque «bajó 15» y «arreglamos 15» no son lo mismo, y el trinquete no distingue solo.

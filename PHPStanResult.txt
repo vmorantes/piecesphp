@@ -177,8 +177,6 @@
          🪪  property.nonObject                                                                                                                                                
   1480   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                                     
          🪪  argument.type                                                                                                                                                     
-  1593   Cannot call method getTimestamp() on DateTime|false.                                                                                                                  
-         🪪  method.nonObject                                                                                                                                                  
   1651   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                                         
          🪪  argument.type                                                                                                                                                     
   1659   Cannot call method excerpt() on ApplicationCalls\Mappers\ApplicationCallsMapper|null.                                                                                 
@@ -214,8 +212,6 @@
          🪪  argument.type                                                                                                 
   779    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
          🪪  argument.type                                                                                                 
-  1156   Cannot call method getTimestamp() on DateTime|false.                                                              
-         🪪  method.nonObject                                                                                              
  ------ ------------------------------------------------------------------------------------------------------------------ 
 
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
@@ -486,8 +482,6 @@
          🪪  foreach.nonIterable                                                                     
   313    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
-  451    Cannot call method getTimestamp() on DateTime|false.                                        
-         🪪  method.nonObject                                                                        
   482    Argument of an invalid type array|null supplied for foreach, only iterables are supported.  
          🪪  foreach.nonIterable                                                                     
  ------ -------------------------------------------------------------------------------------------- 
@@ -584,8 +578,6 @@
          🪪  property.nonObject                                                                                                                                      
   1045   Parameter Nr.2 $callback of function array_filter expects (callable(string): bool)|null, Closure(mixed): (int<0, max>|false) given.                           
          🪪  argument.type                                                                                                                                           
-  1148   Cannot call method getTimestamp() on DateTime|false.                                                                                                        
-         🪪  method.nonObject                                                                                                                                        
   1275   Cannot access property $organization on stdClass|null.                                                                                                      
          🪪  property.nonObject                                                                                                                                      
   1277   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                                
@@ -840,8 +832,6 @@
          🪪  argument.type                                                                                                                      
   1114   Cannot access property $id on News\Mappers\NewsMapper|null.                                                                            
          🪪  property.nonObject                                                                                                                 
-  1228   Cannot call method getTimestamp() on DateTime|false.                                                                                   
-         🪪  method.nonObject                                                                                                                   
   1290   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                          
          🪪  argument.type                                                                                                                      
   1298   Cannot access property $category on News\Mappers\NewsMapper|null.                                                                      
@@ -872,8 +862,6 @@
          🪪  argument.type                                                                              
   372    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  844    Cannot call method getTimestamp() on DateTime|false.                                           
-         🪪  method.nonObject                                                                           
  ------ ----------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------------ 
@@ -958,8 +946,6 @@
  ------ ------------------------------------------------------------------------------------------------------------ 
   919    Cannot access property $id on PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper|null.                    
          🪪  property.nonObject                                                                                      
-  999    Cannot call method getTimestamp() on DateTime|false.                                                        
-         🪪  method.nonObject                                                                                        
   1177   Parameter Nr.1 $name of class PiecesPHP\Core\Forms\FileUpload constructor expects string, string|null given.  
          🪪  argument.type                                                                                           
  ------ ------------------------------------------------------------------------------------------------------------ 
@@ -975,8 +961,6 @@
          🪪  property.nonObject                                                                                                 
   327    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                               
          🪪  property.nonObject                                                                                                 
-  719    Cannot call method getTimestamp() on DateTime|false.                                                                   
-         🪪  method.nonObject                                                                                                   
  ------ ----------------------------------------------------------------------------------------------------------------------- 
 
  ------ ------------------------------------------------------------------------------------------------------------ 
@@ -1040,7 +1024,7 @@
  ------ --------------------------------------------------------------------------------------------------------------- 
   374    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
          🪪  assign.propertyType                                                                                        
-  414    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
+  401    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
          🪪  assign.propertyType                                                                                        
  ------ --------------------------------------------------------------------------------------------------------------- 
 
@@ -1074,7 +1058,7 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
   217    Property PiecesPHP\UserSystem\UserDataPackage::$organizationMapper (Organizations\Mappers\OrganizationMapper) does not accept Organizations\Mappers\OrganizationMapper|null.  
          🪪  assign.propertyType                                                                                                                                                       
-  301    Method PiecesPHP\UserSystem\UserDataPackage::getConfigCurrentUser() should return stdClass|null but returns App\Model\UsersModel|stdClass.                                    
+  299    Method PiecesPHP\UserSystem\UserDataPackage::getConfigCurrentUser() should return stdClass|null but returns App\Model\UsersModel|stdClass.                                    
          🪪  return.type                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -1102,37 +1086,31 @@
          🪪  assign.propertyType                                                                                                                         
   704    Cannot clone stdClass|null.                                                                                                                     
          🪪  clone.nonObject                                                                                                                             
-  1153   Cannot call method getTimestamp() on DateTime|string|false.                                                                                     
-         🪪  method.nonObject                                                                                                                            
-  1158   Parameter Nr.2 $lastModification of function generateCachingHeadersAndStatus expects DateTime, DateTime|string|false given.                       
+  1197   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
          🪪  argument.type                                                                                                                               
-  1192   Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, array|stdClass|string given.                         
+  1319   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+         🪪  method.nonObject                                                                                                                            
+  1329   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+         🪪  method.nonObject                                                                                                                            
+  1336   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
+         🪪  property.nonObject                                                                                                                          
+  1512   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
          🪪  argument.type                                                                                                                               
-  1314   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1519   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1324   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
+  1520   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
          🪪  method.nonObject                                                                                                                            
-  1331   Cannot access property $id on Publications\Mappers\PublicationMapper|null.                                                                      
+  1521   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
+         🪪  method.nonObject                                                                                                                            
+  1594   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1451   Cannot call method getTimestamp() on DateTime|false.                                                                                            
-         🪪  method.nonObject                                                                                                                            
-  1507   Parameter Nr.1 $string of function mb_convert_encoding expects array|string, string|null given.                                                   
-         🪪  argument.type                                                                                                                               
-  1514   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                    
-         🪪  method.nonObject                                                                                                                            
-  1515   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
-         🪪  method.nonObject                                                                                                                            
-  1516   Cannot call method excerpt() on Publications\Mappers\PublicationMapper|null.                                                                    
-         🪪  method.nonObject                                                                                                                            
-  1589   Cannot access property $organization on stdClass|null.                                                                                          
+  1596   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1591   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
+  1619   Cannot access property $organization on stdClass|null.                                                                                          
          🪪  property.nonObject                                                                                                                          
-  1614   Cannot access property $organization on stdClass|null.                                                                                          
+  1621   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
          🪪  property.nonObject                                                                                                                          
-  1616   Cannot access property $id on App\Model\UsersModel|int|null.                                                                                    
-         🪪  property.nonObject                                                                                                                          
-  1667   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
+  1672   Parameter Nr.1 $name of static method PiecesPHP\Core\Forms\UploadedFileAdapter::findAssociativePathsByName() expects string, string|null given.   
          🪪  argument.type                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -1169,8 +1147,6 @@
          🪪  property.nonObject                                                                                   
   557    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
-  1071   Cannot call method getTimestamp() on DateTime|false.                                                     
-         🪪  method.nonObject                                                                                     
  ------ --------------------------------------------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
@@ -1494,7 +1470,7 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php                                  
  ------ ------------------------------------------------------------------------------------ 
-  228    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
+  245    Parameter Nr.1 $string of function ltrim expects string, array<string>|string given.  
          🪪  argument.type                                                                   
  ------ ------------------------------------------------------------------------------------ 
 
@@ -1543,29 +1519,29 @@
          🪪  argument.type                                                                                                                              
   392    Parameter Nr.1 $resource of function basepath expects string, array|stdClass|string given.                                                       
          🪪  argument.type                                                                                                                              
-  1516   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1514   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1563   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1561   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1567   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1565   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1575   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1573   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1582   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1580   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1662   Cannot call method getSlug() on Publications\Mappers\PublicationCategoryMapper|null.                                                           
+  1660   Cannot call method getSlug() on Publications\Mappers\PublicationCategoryMapper|null.                                                           
          🪪  method.nonObject                                                                                                                           
-  1667   Cannot call method getLangData() on Publications\Mappers\PublicationCategoryMapper|null.                                                       
+  1665   Cannot call method getLangData() on Publications\Mappers\PublicationCategoryMapper|null.                                                       
          🪪  method.nonObject                                                                                                                           
-  1678   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                   
+  1676   Cannot call method getSlug() on Publications\Mappers\PublicationMapper|null.                                                                   
          🪪  method.nonObject                                                                                                                           
-  1679   Cannot access property $createdAt on Publications\Mappers\PublicationMapper|null.                                                              
+  1677   Cannot access property $createdAt on Publications\Mappers\PublicationMapper|null.                                                              
          🪪  property.nonObject                                                                                                                         
-  1682   Cannot call method getURLAlternatives() on Publications\Mappers\PublicationMapper|null.                                                        
+  1680   Cannot call method getURLAlternatives() on Publications\Mappers\PublicationMapper|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  2077   Parameter Nr.2 $array of function array_key_exists expects array, array|stdClass given.                                                          
+  2075   Parameter Nr.2 $array of function array_key_exists expects array, array|stdClass given.                                                          
          🪪  argument.type                                                                                                                              
-  2123   Method App\Controller\AppConfigController::recursiveMergeArray() should return array but returns array|stdClass.                               
+  2121   Method App\Controller\AppConfigController::recursiveMergeArray() should return array but returns array|stdClass.                               
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1627,7 +1603,7 @@
          🪪  method.nonObject                                                                                                            
   246    Parameter Nr.3 $data of static method App\Controller\LoginAttemptsController::exportExcelFile() expects array, array|null given.  
          🪪  argument.type                                                                                                               
-  335    Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, string|false given.                  
+  333    Parameter Nr.1 $data of method PiecesPHP\Core\Routing\ResponseRoute::write() expects string, string|false given.                  
          🪪  argument.type                                                                                                               
  ------ -------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1725,9 +1701,11 @@
          🪪  argument.type                                                                                                                              
   1294   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1343   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1337   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1347   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1341   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1351   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
   1357   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
@@ -1735,19 +1713,19 @@
          🪪  method.resultUnused                                                                                                                        
   1369   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1375   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1379   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1385   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1386   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1392   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1549   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
+  1543   Parameter Nr.1 $inputValues of method PiecesPHP\Core\Validation\Parameters\Parameters::setInputValues() expects array, array|object|null given.  
          🪪  argument.type                                                                                                                              
-  1604   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1598   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1655   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
+  1649   Cannot call method setSuccess() on PiecesPHP\Core\Utilities\ReturnTypes\Operation|null.                                                        
          🪪  method.nonObject                                                                                                                           
-  1659   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1653   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+         🪪  method.resultUnused                                                                                                                        
+  1663   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
   1669   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
@@ -1757,17 +1735,15 @@
          🪪  method.resultUnused                                                                                                                        
   1687   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1693   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1697   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1703   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1705   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1711   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
+  1712   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
          🪪  method.resultUnused                                                                                                                        
-  1718   Call to method PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations::operation() on a separate line has no effect.                            
-         🪪  method.resultUnused                                                                                                                        
-  1877   Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encrypt() expects string, int|string given.                           
+  1871   Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encrypt() expects string, int|string given.                           
          🪪  argument.type                                                                                                                              
-  1897   Method App\Controller\UsersController::getMessage() should return string but returns array<string, string>|string.                             
+  1891   Method App\Controller\UsersController::getMessage() should return string but returns array<string, string>|string.                             
          🪪  return.type                                                                                                                                
  ------ ----------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1944,15 +1920,15 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
   project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php                                                                                       
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
-  56     Parameter Nr.1 $data of function openssl_encrypt expects string, string|false given.                                                        
+  38     Parameter Nr.1 $data of function openssl_encrypt expects string, string|false given.                                                        
          🪪  argument.type                                                                                                                         
-  151    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  133    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
-  154    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
+  136    Parameter Nr.3 $private_key of function openssl_sign expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.   
          🪪  argument.type                                                                                                                         
-  185    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
+  167    Parameter Nr.3 $public_key of function openssl_verify expects array|OpenSSLAsymmetricKey|OpenSSLCertificate|string, resource|string given.  
          🪪  argument.type                                                                                                                         
-  197    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
+  179    Parameter Nr.3 $key of function hash_hmac expects string, resource|string given.                                                            
          🪪  argument.type                                                                                                                         
  ------ ------------------------------------------------------------------------------------------------------------------------------------------ 
 
@@ -2173,7 +2149,7 @@
  ------ -------------------------------------------------- 
   project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php  
  ------ -------------------------------------------------- 
-  279    Cannot assign new offset to list<string>|string.  
+  276    Cannot assign new offset to list<string>|string.  
          🪪  offsetAssign.dimType                          
  ------ -------------------------------------------------- 
 
@@ -2299,9 +2275,9 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
   project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php                                                                                 
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
-  627    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
+  618    Parameter Nr.1 $mimeType of static method PiecesPHP\Core\ServerStatics::buildBasicHeaders() expects string, string|false given.  
          🪪  argument.type                                                                                                              
-  1007   Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
+  998    Parameter Nr.1 $image of function imagewebp expects GdImage, GdImage|null given.                                                 
          🪪  argument.type                                                                                                              
  ------ ------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2417,11 +2393,11 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
   54     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PiecesPHP\Core\Database\Database, PiecesPHP\Core\Database\Database|null given.  
          🪪  argument.type                                                                                                                                                     
-  204    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
+  198    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
          🪪  argument.type                                                                                                                                                     
-  205    Parameter Nr.1 $filename of function filesize expects string, string|null given.                                                                                        
+  199    Parameter Nr.1 $filename of function filesize expects string, string|null given.                                                                                        
          🪪  argument.type                                                                                                                                                     
-  210    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                                               
+  204    Parameter Nr.1 $filename of function file_get_contents expects string, string|null given.                                                                               
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2699,31 +2675,25 @@
   384    Access to an undefined property object::$iat.                                                                                                                                        
          🪪  property.notFound                                                                                                                                                                
          💡  Learn more: https://phpstan.org/blog/solving-phpstan-access-to-undefined-property                                                                                                
-  411    Cannot call method setTimezone() on DateTime|false.                                                                                                                                  
-         🪪  method.nonObject                                                                                                                                                                 
-  413    Cannot call method setTimezone() on DateTime|false.                                                                                                                                  
-         🪪  method.nonObject                                                                                                                                                                 
-  414    Cannot call method modify() on DateTime|false.                                                                                                                                       
-         🪪  method.nonObject                                                                                                                                                                 
-  607    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
+  611    Parameter Nr.2 $value of function setCookieByConfig expects string|null, int<1, max> given.                                                                                            
          🪪  argument.type                                                                                                                                                                    
-  626    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
+  630    Parameter Nr.1 $element of static method Organizations\Mappers\OrganizationMapper::objectToMapper() expects stdClass, stdClass|null given.                                             
          🪪  argument.type                                                                                                                                                                    
-  634    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
+  638    Cannot access property $id on App\Model\UsersModel|int.                                                                                                                              
          🪪  property.nonObject                                                                                                                                                               
-  662    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
+  666    Parameter Nr.1 $name of function get_route_info expects string, string|null given.                                                                                                     
          🪪  argument.type                                                                                                                                                                    
-  674    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
+  678    Parameter Nr.2 $string of function remove_last_char_on expects string, string|null given.                                                                                              
          🪪  argument.type                                                                                                                                                                    
-  751    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
+  755    Parameter Nr.2 $response of static method SystemApprovals\SystemApprovalsMiddleware::handle() expects PiecesPHP\Core\Routing\ResponseRoute, Psr\Http\Message\ResponseInterface given.  
          🪪  argument.type                                                                                                                                                                    
-  762    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
+  766    Parameter Nr.1 $request_route of static method PiecesPHP\Core\Roles::hasPermissions() expects PiecesPHP\Core\Routing\RequestRoute|string, string|null given.                           
          🪪  argument.type                                                                                                                                                                    
-  876    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
+  880    Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, PiecesPHP\TerminalData|string given.                                          
          🪪  argument.type                                                                                                                                                                    
-  887    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
+  891    Parameter Nr.3 $subject of function str_replace expects array<string>|string, string|null given.                                                                                       
          🪪  argument.type                                                                                                                                                                    
-  902    Variable $actionName might not be defined.                                                                                                                                           
+  906    Variable $actionName might not be defined.                                                                                                                                           
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -2736,5 +2706,5 @@
      Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/**/*Routes.php was not matched in reported errors.  
  -- ---------------------------------------------------------------------------------------------------------------------------------------- 
 
- [ERROR] Found 877 errors                                                                                               
+ [ERROR] Found 862 errors                                                                                               
 
