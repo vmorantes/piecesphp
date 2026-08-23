@@ -1324,13 +1324,7 @@ class UsersController extends AdminPanelController
 
                 if ($success) {
 
-                    /**
-                     * EL ALTA DE UN USUARIO ES EL SITIO LEGÍTIMO PARA CREAR SU PERFIL.
-                     * Antes lo creaba `UserProfileMapper::getProfile()` la primera vez que
-                     * alguien leía el perfil — incluido el constructor de `UserDataPackage`,
-                     * que se alcanza sin autenticar desde el login. Aquí es una escritura
-                     * dentro de otra escritura, autenticada, y es idempotente.
-                     */
+                    //El perfil se crea aquí, no al leerlo: la creación vive en los caminos de escritura.
                     if ($userMapper->id !== null) {
                         UserProfileMapper::createProfile((int) $userMapper->id);
                     }

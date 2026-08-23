@@ -1,0 +1,488 @@
+{
+  "why": "Registro CERRADO de comentarios narrativos heredados. Un bloque narrativo es el que tiene más de dos líneas de prosa y ninguna anotación (@param, @return, @var, @package, @author, @throws). Ver T0 punto 7, T38 y T40 en .agents/context/18-siguientes-ventanas.md.",
+  "rules": [
+    "LA LISTA SOLO PUEDE ENCOGER. Un archivo que no esté aquí y tenga bloques narrativos hace fallar bin/cli verify-integrity.",
+    "Se guardan las LÍNEAS DE PROSA de cada entrada, no solo el número de bloques: si un bloque crece de 4 a 30 líneas, el conteo de entradas no se entera y el archivo empeora. La puerta falla si la prosa de un archivo CRECE.",
+    "Estas entradas se recortan AL PASAR, cuando se toque el archivo por otro motivo. NADA DE BARRIDOS.",
+    "Un archivo que ya no tenga bloques narrativos hace fallar la puerta hasta que se quite su entrada: encoger incluye vaciarse.",
+    "El registro se ancla por ARCHIVO y no por línea: anclar por línea lo volvería un generador de ruido en cuanto se editara algo encima."
+  ],
+  "measured": {
+    "when": "2026-08-23",
+    "method": "bin/cli verify-integrity list-narrative=yes; autoría por git blame --ignore-revs-file (con los dos commits de renormalización), campaña = commits desde 2026-08-20",
+    "before": {
+      "blocks": 132,
+      "prose": 729,
+      "ours": 46,
+      "inherited": 86
+    },
+    "after": {
+      "blocks": 91,
+      "prose": 486
+    }
+  },
+  "entries": [
+    {
+      "file": "src/app/classes/API/Controllers/APIController.php",
+      "blocks": 5,
+      "prose": 32,
+      "motive": "nota-de-dominio",
+      "why": "Nota de dominio heredada: describe una regla de negocio —qué puede hacer cada tipo de usuario, por ejemplo—, no una decisión técnica. Se recorta al pasar, y solo quien conozca la regla puede comprimirla sin perderla."
+    },
+    {
+      "file": "src/app/classes/App/Locations/Views/locations/main.php",
+      "blocks": 1,
+      "prose": 4,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ApplicationCalls/ApplicationCallsRoutes.php",
+      "blocks": 1,
+      "prose": 8,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ApplicationCalls/Statics/js/ApplicationCallAdapter.js",
+      "blocks": 1,
+      "prose": 9,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ApplicationCalls/Statics/js/application-calls/add-form.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ApplicationCalls/Statics/js/application-calls/edit-form.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ApplicationCalls/Statics/js/application-calls/translation-config.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ContentNavigationHub/Statics/js/application-calls/list.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ContentNavigationHub/Statics/js/contents/map.js",
+      "blocks": 2,
+      "prose": 10,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/DataImportExportUtility/Controllers/ExportHandlers/UsersExporter.php",
+      "blocks": 1,
+      "prose": 11,
+      "motive": "nota-de-dominio",
+      "why": "Nota de dominio heredada: describe una regla de negocio —qué puede hacer cada tipo de usuario, por ejemplo—, no una decisión técnica. Se recorta al pasar, y solo quien conozca la regla puede comprimirla sin perderla."
+    },
+    {
+      "file": "src/app/classes/Documents/Statics/js/documents/utils.js",
+      "blocks": 1,
+      "prose": 4,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/ImagesRepository/Statics/js/images-repository/utils.js",
+      "blocks": 1,
+      "prose": 4,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Importers/Statics/js/users.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/InterestResearchAreas/InterestResearchAreasRoutes.php",
+      "blocks": 1,
+      "prose": 8,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/InterestResearchAreas/Statics/js/InterestResearchAreaAdapter.js",
+      "blocks": 1,
+      "prose": 9,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/MySpace/Statics/js/my-organization-profile.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/MySpace/Statics/js/my-profile.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/MySpace/Statics/js/my-space.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/MySpace/Statics/js/profile-organization.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/MySpace/Statics/js/profile.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/MySpace/Statics/js/profiles-translation-config.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/News/Statics/js/NewsAdapter.js",
+      "blocks": 1,
+      "prose": 8,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/News/Statics/js/categories/utils.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/News/Statics/js/news/add-form.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/News/Statics/js/news/edit-form.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Organizations/Mappers/OrganizationMapper.php",
+      "blocks": 2,
+      "prose": 8,
+      "motive": "nota-de-dominio",
+      "why": "Nota de dominio heredada: describe una regla de negocio —qué puede hacer cada tipo de usuario, por ejemplo—, no una decisión técnica. Se recorta al pasar, y solo quien conozca la regla puede comprimirla sin perderla."
+    },
+    {
+      "file": "src/app/classes/Organizations/Statics/js/organizations/forms.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/PiecesPHP/BuiltIn/Banner/Statics/js/BuiltInBannerAdapter.js",
+      "blocks": 1,
+      "prose": 9,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/PiecesPHP/BuiltIn/Banner/Statics/js/forms.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/PiecesPHP/BuiltIn/Banner/Statics/js/public/home.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/PiecesPHP/BuiltIn/Helpers/Statics/js/generic/forms.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/PiecesPHP/BuiltIn/Helpers/Statics/js/generic/home-image.js",
+      "blocks": 1,
+      "prose": 4,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Publications/Statics/js/PublicationsAdapter.js",
+      "blocks": 1,
+      "prose": 9,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Publications/Statics/js/publications/add-form.js",
+      "blocks": 1,
+      "prose": 5,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Publications/Statics/js/publications/edit-form.js",
+      "blocks": 1,
+      "prose": 6,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Publications/Statics/js/publications/public/detail.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Publications/Statics/js/publications/public/listing.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/Publications/Statics/js/publications/translation-config.js",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-adaptador",
+      "why": "Cabecera de un adaptador de módulo, generada al clonar Publications. Recortarlas en bloque tocaría decenas de archivos sin arreglar nada; se recortan al pasar, cuando se toque el módulo por otro motivo."
+    },
+    {
+      "file": "src/app/classes/SystemApprovals/Util/SystemApprovalManager.php",
+      "blocks": 2,
+      "prose": 8,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/config/assets.php",
+      "blocks": 9,
+      "prose": 32,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/autoloads.php",
+      "blocks": 1,
+      "prose": 18,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/config.php",
+      "blocks": 1,
+      "prose": 12,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/constants.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/cookies.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/database.php",
+      "blocks": 1,
+      "prose": 11,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/final-configurations-includes/patches_composer_dependencies.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/final-configurations-includes/queues.php",
+      "blocks": 1,
+      "prose": 4,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/functions.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/lang.php",
+      "blocks": 6,
+      "prose": 24,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/roles.php",
+      "blocks": 1,
+      "prose": 23,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/config/routes.php",
+      "blocks": 1,
+      "prose": 22,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/core/Config.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "formato-de-configuracion",
+      "why": "Documenta el FORMATO del propio archivo de configuración con su ejemplo de uso. Es documentación de API sin anotaciones, que es justo el falso positivo de la firma mecánica: un @param no cabe porque no hay función. Se recorta al pasar solo si el formato deja de ser el que describe."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/BaseToken.php",
+      "blocks": 2,
+      "prose": 6,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Exporter.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Interfaces/ExporterInterface.php",
+      "blocks": 1,
+      "prose": 20,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/CsvFormat.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/JsonFormat.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/PhpFormat.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/SqlFormat.php",
+      "blocks": 1,
+      "prose": 10,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/XmlFormat.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Database/Export/Plugins/ZipFileOutput.php",
+      "blocks": 1,
+      "prose": 4,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/PHPStan/SystemDynamicFunctionReturnTypeExtension.php",
+      "blocks": 4,
+      "prose": 15,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Collection.php",
+      "blocks": 1,
+      "prose": 4,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Http/Environment.php",
+      "blocks": 1,
+      "prose": 3,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/ServerStatics.php",
+      "blocks": 1,
+      "prose": 7,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    },
+    {
+      "file": "src/app/core/psr4/PiecesPHP/Core/StringManipulate.php",
+      "blocks": 2,
+      "prose": 6,
+      "motive": "cabecera-de-archivo",
+      "why": "Cabecera que enumera lo que hace el archivo. Heredada. Se recorta al pasar, cuando se toque el archivo por otro motivo."
+    }
+  ]
+}

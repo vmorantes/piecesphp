@@ -1,24 +1,6 @@
 <?php
 
-/**
- * UnitTest-OTPWriteSeparation.php
- *
- * Fija dos reglas del sistema de autenticación:
- *
- *   1. Los buscadores de `OTPSecretsUsersMapper` son de SOLO LECTURA. Los alcanza el
- *      constructor de `UserDataPackage`, y a este lo alcanzan rutas de login sin
- *      autenticar: si vuelven a escribir, comprobar credenciales inserta filas.
- *   2. El registro de rutas es PURO. `routes()` corre en cada petición, así que una
- *      migración de datos ahí se ejecuta en bucle infinito.
- *
- * LAS DOS PRIMERAS COMPROBACIONES SON ESTRUCTURALES A PROPÓSITO, no por comodidad: la
- * versión de comportamiento exigiría crear un usuario sin registros —escribir datos de
- * prueba en una base ajena— y además **no fallaría**, porque el relleno masivo de la
- * regla 2 tapa el defecto de la regla 1. Por eso las dos se comprueban por separado y
- * ninguna depende de que la otra siga rota.
- *
- * La comprobación 3 es de comportamiento y de SOLO LECTURA.
- */
+//Fija que ningún buscador de OTP escriba: era el defecto D2. Ver T33.
 
 use PiecesPHP\Terminal\CliActions;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;

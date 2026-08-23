@@ -241,9 +241,7 @@ class UserDataPackage
         $this->avatar = $avatar;
         $this->hasAvatar = mb_strlen($avatar) > 0;
         $this->TOTPData = OTPSecretsUsersMapper::getTOTPData($this->id);
-        //NO usar getProfile() a secas aquí: este constructor se alcanza SIN AUTENTICAR
-        //desde el formulario de login, y el buscador era get-or-create. Era la segunda
-        //línea del defecto D2, y el arreglo original solo tocó la de arriba.
+        //Este constructor se alcanza SIN AUTENTICAR: aquí no puede haber un buscador que cree.
         $this->profile = UserProfileMapper::getProfileForDisplay($this->id);
 
         $fromInstanceToStdClass = [

@@ -283,9 +283,7 @@ class LoginAttemptsController extends AdminPanelController
                 } elseif (key_exists('dataKey', $columnInfo)) {
                     $activeSheet->setCellValueExplicit(excelColumnByIndex($indexColumn) . $indexRow, $e->{$columnInfo['dataKey']}, \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING2);
                 } else {
-                    //Guarda contra un $columns malformado. Lanza y no devuelve false:
-                    //este método declara Response, y un false se propagaría como respuesta
-                    //de ruta y reventaría lejos de la causa.
+                    //Lanza y no devuelve false: este método declara Response y el false reventaría lejos.
                     throw new \InvalidArgumentException(
                         'Cada columna debe traer \'format\' o \'dataKey\'; falta en la posición ' . $indexColumn . '.'
                     );

@@ -422,9 +422,7 @@ class AppConfigController extends AdminPanelController
      */
     public function seo(Request $req, Response $res)
     {
-        //Esta vista MATERIALIZA la configuración por idioma al pintarse, a propósito: es el
-        //camino de activación de idiomas, no un efecto lateral. No lo muevas a una tarea de
-        //CLI — un despliegue clonado tiene que arrancar solo.
+        //Esta vista materializa la configuración por idioma a propósito: no lo muevas a la CLI.
 
         $langGroup = self::LANG_GROUP;
 

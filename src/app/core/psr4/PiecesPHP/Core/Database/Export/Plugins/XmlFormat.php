@@ -126,12 +126,7 @@ class XmlFormat implements FormatPluginInterface
                 }
             }
 
-            /**
-             * Manejo de binarios. QUIÉN DECIDE QUE ALGO ES BINARIO ES EL TIPO DE LA COLUMNA,
-             * no el contenido: la versión anterior preguntaba `!mb_check_encoding($val,'UTF-8')`
-             * y **los bytes de un PNG son UTF-8 válido**, así que la rama no saltaba nunca y el
-             * BLOB acababa crudo dentro del XML.
-             */
+            //Quien decide que algo es binario es el TIPO de la columna: los bytes de un PNG son UTF-8 válido.
             foreach ($row as $col => &$val) {
                 if (!is_string($val)) {
                     continue;
@@ -144,12 +139,7 @@ class XmlFormat implements FormatPluginInterface
                     continue;
                 }
 
-                /**
-                 * Y una red por debajo, que NO depende de `hex_blob`: XML 1.0 prohíbe los
-                 * caracteres de control aunque sean UTF-8 perfectamente válido. Si uno se cuela
-                 * —una columna de texto con basura, un tipo que no reconocemos— el documento
-                 * entero deja de ser legible, así que ese valor también sale en hexadecimal.
-                 */
+                //XML 1.0 prohíbe los caracteres de control aunque sean UTF-8 válido: esta red no depende de hex_blob.
                 if (self::hasCharactersIllegalInXml($val)) {
                     $val = "0x" . bin2hex($val);
                 }

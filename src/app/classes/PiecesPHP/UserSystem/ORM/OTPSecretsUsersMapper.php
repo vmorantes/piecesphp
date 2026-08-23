@@ -373,20 +373,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         $totpElement->twoAuthFactorAlias = $alias;
         $totpElement->twoAuthFactorQRViewed = 0;
 
-        /**
-         * PREPARAR NO ES ACTIVAR.
-         *
-         * Con `$enable = true` esto ARMABA la cuenta: dejaba `twoAuthFactor` en ENABLED
-         * antes de que nadie hubiera escaneado ni confirmado nada. Entre ese momento y la
-         * confirmación, **el login exigía un código que nadie tenía** — y no se podía
-         * deshacer, porque para llegar a la página que lo deshacía hay que iniciar sesión, y
-         * la sesión ya pedía el código. La única salida era el código de un solo uso por
-         * correo, que además estuvo roto por lo del `chr()`.
-         *
-         * Ahora el secreto, el alias y el código de seguridad se GUARDAN —la tabla tiene
-         * columnas separadas para cada cosa— y `twoAuthFactor` NO se toca. Lo pone en ENABLED
-         * {@see self::confirm2FA()}, que es lo que llama el botón de confirmar.
-         */
+        //No pongas twoAuthFactor en ENABLED aquí: preparar no es activar. Lo activa confirm2FA().
         $totpElement->twoAuthFactorSecurityCode = $enable ? password_hash($securityCode, \PASSWORD_DEFAULT) : "";
         $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
 

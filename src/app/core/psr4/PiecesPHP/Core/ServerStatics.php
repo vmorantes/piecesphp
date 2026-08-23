@@ -377,10 +377,7 @@ class ServerStatics
             $defaultReplacement[$toReplace] = $valueReplacement;
         }
         $replacement = $defaultReplacement;
-        //`{params:.*}` es OPCIONAL en la ruta: pedir `/statics/` a secas NO trae la clave.
-        //Tratarla como obligatoria emitía un E_WARNING que el manejador convierte en
-        //excepción, y eso daba 500 en las 23 rutas de estáticos a la vez. Ausente = recurso
-        //vacío, que las validaciones de abajo rechazan con un 404, que es la respuesta justa.
+        //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
         $resource = $args['params'] ?? '';
         $enableSassCompilation = false;
 
@@ -437,10 +434,7 @@ class ServerStatics
      */
     public function serve(Request $request, Response $response, array $args, ?string $path = null, bool $mustValidate = true)
     {
-        //`{params:.*}` es OPCIONAL en la ruta: pedir `/statics/` a secas NO trae la clave.
-        //Tratarla como obligatoria emitía un E_WARNING que el manejador convierte en
-        //excepción, y eso daba 500 en las 23 rutas de estáticos a la vez. Ausente = recurso
-        //vacío, que las validaciones de abajo rechazan con un 404, que es la respuesta justa.
+        //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
         $resource = $args['params'] ?? '';
         //Verificar si se puede delegar al servidor web
         if (self::shouldDelegateToWebServer($resource)) {
@@ -459,10 +453,7 @@ class ServerStatics
      */
     public static function getSymbolicLink(array $args, ?string $path = null): ?string
     {
-        //`{params:.*}` es OPCIONAL en la ruta: pedir `/statics/` a secas NO trae la clave.
-        //Tratarla como obligatoria emitía un E_WARNING que el manejador convierte en
-        //excepción, y eso daba 500 en las 23 rutas de estáticos a la vez. Ausente = recurso
-        //vacío, que las validaciones de abajo rechazan con un 404, que es la respuesta justa.
+        //`{params:.*}` es OPCIONAL: tratarla como obligatoria daba 500 en las 23 rutas de estáticos a la vez.
         $resource = $args['params'] ?? '';
         $filePath = self::buildFilePath($resource, $path);
         if (file_exists($filePath)) {

@@ -16,25 +16,7 @@ namespace PiecesPHP\Core;
  */
 class BaseHashEncryption
 {
-    /**
-     * PROHIBIDO TOCAR LA ARITMÉTICA DE encrypt() Y decrypt().
-     *
-     * Esas dos funciones cifran sumando y restando bytes, y **dependen de que el resultado
-     * DÉ LA VUELTA en 256**. Hasta PHP 8.4 lo hacía `chr()` por su cuenta; desde 8.5 avisa
-     * —«the value used will be constrained using % 256»— y en local, donde el manejador
-     * promueve la deprecación a excepción, directamente LANZA: por eso dejó de descifrarse
-     * la configuración de correo.
-     *
-     * El arreglo es `& 0xFF`, que reproduce ese desbordamiento EXACTAMENTE. Comprobado
-     * valor a valor entre -600 y 600 contra el `chr()` de 8.4: cero diferencias. Y `% 256`
-     * NO sirve, porque en PHP el módulo de un negativo es negativo.
-     *
-     * **CUALQUIER OTRO CAMBIO EN ESTA ARITMÉTICA VUELVE INDESCIFRABLE TODO LO YA CIFRADO**
-     * en cada despliegue congelado: claves de correo, tokens guardados, lo que haya. No se
-     * moderniza, no se le añade sal, no se cambia el algoritmo. Si algún día hay que
-     * sustituirlo, se hace con una migración que descifre con el viejo y recifre con el
-     * nuevo, no editando estas líneas.
-     */
+    //PROHIBIDO TOCAR LA ARITMÉTICA: & 0xFF reproduce el desbordamiento de chr(); cambiarlo vuelve indescifrable lo ya cifrado.
 
     /**
      * Encripta un string y lo devuelve en base64 seguro para url

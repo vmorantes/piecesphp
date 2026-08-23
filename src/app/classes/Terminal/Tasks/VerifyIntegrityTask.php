@@ -102,6 +102,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             "\tDevuelve código de salida 1 si algo falla, para uso en CI.\r\n",
             "\tParámetros:\r\n",
             "\t  update-snapshot (yes|no) regenera la instantánea de firmas en vez de comparar. Por defecto: no",
+            "\t  list-narrative (yes|no) lista los bloques narrativos con su archivo, línea y prosa. Por defecto: no",
         ]);
         $this->route = "{$startRoute}/verify-integrity[/]";
         $this->controller = self::class . '::main';
@@ -120,6 +121,16 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         echoTerminal("\e[32m*** {$titleTask} ***\e[39m");
 
         $updateSnapshot = TerminalData::instance()->getArgument('update-snapshot', 'no') === 'yes';
+
+        //Sin esto no se puede recortar: la puerta agrega por archivo y hacen falta las líneas.
+        if (TerminalData::instance()->getArgument('list-narrative', 'no') === 'yes') {
+            [$bloques, $prosa] = self::collectNarrativeBlocks();
+            foreach ($bloques as $b) {
+                echoTerminal($b['file'] . ':' . $b['line'] . ':' . $b['prose']);
+            }
+            echoTerminal('TOTAL ' . count($bloques) . ' bloques, ' . $prosa . ' líneas de prosa');
+            exit(0);
+        }
 
         $files = self::collectFiles();
         echoTerminal("\e[94mINFO:\e[39m " . count($files) . " archivos PHP analizados.");
@@ -156,10 +167,13 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 7. Los paquetes no se han desviado del instrumental común ─────────────────
         $toolchainFailures = self::checkSharedToolchain();
 
+        //──── 8. No hay comentarios narrativos fuera del registro ───────────────────────
+        $narrativeFailures = self::checkNarrativeComments();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
-            + count($deprecatedFailures) + count($toolchainFailures);
+            + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -182,9 +196,12 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($toolchainFailures as $line) {
             echoTerminal("\e[31mINSTRUMENTAL:\e[39m {$line}");
         }
+        foreach ($narrativeFailures as $line) {
+            echoTerminal("\e[31mCOMENTARIO:\e[39m {$line}");
+        }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas, eclipses, sobreescrituras, deprecadas e instrumental sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, rutas, eclipses, sobreescrituras, deprecadas, instrumental y comentarios sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -257,9 +274,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 continue;
             }
 
-            //Se usa el analizador léxico, NO un recuento de texto: '/*' aparece dentro
-            //de cadenas —'image/*' es el caso típico— y contarlo a pelo produce decenas
-            //de falsos positivos en las vistas.
+            //Se tokeniza y no se cuenta texto: «image/*» dentro de una cadena produce decenas de falsos positivos.
             foreach (@token_get_all($content) ?: [] as $token) {
                 if (!is_array($token)) {
                     continue;
@@ -278,17 +293,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                     continue;
                 }
 
-                /**
-                 * (b) El caso que motivó esta tarea: al docblock le falta el cierre, el
-                 *     comentario se traga la declaración siguiente y llega hasta el '*&#47;'
-                 *     del docblock de más abajo. El método deja de existir sin que ni
-                 *     'php -l' ni PHPStan digan nada.
-                 *
-                 *     SE EXIGE QUE LA LÍNEA NO EMPIECE POR '*'. En un docblock bien formado
-                 *     TODAS las líneas empiezan así; una declaración tragada, no. Sin esa
-                 *     condición, un docblock que solo MENCIONE una firma se reporta como
-                 *     tragado — falso positivo comprobado contra este mismo archivo.
-                 */
+                //Se exige que la línea no empiece por «*»: sin esa condición, un docblock que MENCIONE una firma da falso positivo.
                 if (self::hasSwallowedDeclaration($text)) {
                     $failures[] = "{$relative}:{$token[2]}: un docblock se tragó una declaración de función; le falta el cierre";
                 }
@@ -538,12 +543,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 continue;
             }
 
-            /**
-             * En proceso, no en subproceso: el framework registra su propio autoloader
-             * además del de Composer, y un subproceso que solo requiere `vendor/autoload.php`
-             * no resuelve nada del código propio. Un padre que no existe lanza `Error`, que
-             * es capturable, así que aislar no hace falta.
-             */
+            //En proceso y no en subproceso: el framework registra su propio autoloader además del de Composer.
             try {
                 $exists = class_exists($declared, true)
                     || interface_exists($declared, true)
@@ -683,12 +683,7 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             $packages[basename($packageDir)] = $roots;
         }
 
-        /**
-         * Sin paquetes no hay nada que comparar, y eso NO es un aprobado: esta tarea corre
-         * dentro del framework arrancado, así que el vendor existe siempre que se ejecuta.
-         * Cero paquetes significa que la puerta no está mirando, y una puerta que no mira
-         * tiene que decirlo en voz alta.
-         */
+        //Cero paquetes NO es un aprobado: la puerta no está mirando, y tiene que decirlo en voz alta.
         if (count($packages) === 0) {
             return ['no se encontró ningún paquete en ' . $vendorDir . ': la comprobación no pudo mirar nada'];
         }
@@ -1286,6 +1281,160 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         return $failures;
     }
 
+    const NARRATIVE_RELATIVE_PATH = 'files/dev/narrative-comments.json';
+
+    /**
+     * Un comentario que frena algo cabe en una línea (T0, punto 7).
+     *
+     * La regla anterior —«¿impide romper algo?»— no frenaba la deriva porque no hablaba del
+     * TAMAÑO: un relato de doce líneas siempre encuentra una frase suya que sí impide romper
+     * algo, y con esa se justifica entero.
+     *
+     * @return array{0: list<array{file: string, line: int, prose: int}>, 1: int}
+     */
+    protected static function collectNarrativeBlocks(): array
+    {
+        $anotaciones = ['@param', '@return', '@var', '@package', '@author', '@throws'];
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $roots = [$repoRoot . '/app', dirname($repoRoot) . '/bin'];
+        $excluir = ['/vendor/', '/node_modules/', '/bin/tools/', '.min.', '/statics/core/', '/statics/plugins/'];
+
+        $bloques = [];
+        $prosaTotal = 0;
+        foreach ($roots as $root) {
+            if (!is_dir($root)) {
+                continue;
+            }
+            $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS));
+            foreach ($it as $file) {
+                if (!$file->isFile()) {
+                    continue;
+                }
+                $p = str_replace('\\', '/', (string) $file->getPathname());
+                if (!preg_match('/\.(php|js|ts)$/', $p)) {
+                    continue;
+                }
+                foreach ($excluir as $skip) {
+                    if (mb_strpos($p, $skip) !== false) {
+                        continue 2;
+                    }
+                }
+                $lines = preg_split('/\R/', (string) file_get_contents($p)) ?: [];
+                $n = count($lines);
+                for ($i = 0; $i < $n; $i++) {
+                    $l = trim((string) $lines[$i]);
+                    $inicio = null;
+                    $fin = null;
+                    if (str_starts_with($l, '/*')) {
+                        $inicio = $i;
+                        while ($i < $n && mb_strpos((string) $lines[$i], '*/') === false) {
+                            $i++;
+                        }
+                        $fin = min($i, $n - 1);
+                    } elseif (str_starts_with($l, '//')) {
+                        $inicio = $i;
+                        while ($i + 1 < $n && preg_match('#^\s*//#', (string) $lines[$i + 1]) === 1) {
+                            $i++;
+                        }
+                        $fin = $i;
+                    }
+                    if ($inicio === null || $fin === null) {
+                        continue;
+                    }
+                    $cuerpo = array_slice($lines, $inicio, $fin - $inicio + 1);
+                    $texto = implode("\n", $cuerpo);
+                    foreach ($anotaciones as $a) {
+                        if (mb_strpos($texto, $a) !== false) {
+                            continue 2;
+                        }
+                    }
+                    $prosa = 0;
+                    foreach ($cuerpo as $linea) {
+                        $t = trim((string) preg_replace('#^\s*(/\*\*?|\*/|\*|//)\s?#', '', (string) $linea));
+                        $t = trim(str_replace('*/', '', $t));
+                        if ($t === '' || str_starts_with($t, '<reference') || str_starts_with($t, '@ts-')) {
+                            continue;
+                        }
+                        $prosa++;
+                    }
+                    if ($prosa > 2) {
+                        $relativo = ltrim(str_replace(dirname($repoRoot), '', $p), '/');
+                        $bloques[] = ['file' => $relativo, 'line' => $inicio + 1, 'prose' => $prosa];
+                        $prosaTotal += $prosa;
+                    }
+                }
+            }
+        }
+        usort($bloques, static fn (array $a, array $b): int => [$a['file'], $a['line']] <=> [$b['file'], $b['line']]);
+
+        return [$bloques, $prosaTotal];
+    }
+
+    /**
+     * Falla ante cualquier bloque narrativo que no esté en el registro.
+     *
+     * Misma forma que `KNOWN_ECLIPSES`: la lista SOLO PUEDE ENCOGER. Y guarda las líneas de
+     * prosa de cada entrada para que «encoger» sea medible en líneas y no solo en entradas —
+     * un bloque que crece de 4 a 30 líneas mantiene el conteo de entradas y empeora el
+     * archivo.
+     *
+     * El registro se ancla por ARCHIVO, no por línea: cualquier edición encima desplazaría
+     * los números y volvería la puerta un generador de ruido.
+     *
+     * @return string[]
+     */
+    protected static function checkNarrativeComments(): array
+    {
+        $repoRoot = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $registryPath = dirname($repoRoot) . '/' . self::NARRATIVE_RELATIVE_PATH;
+        $raw = @file_get_contents($registryPath);
+        $registry = is_string($raw) ? json_decode($raw, true) : null;
+        if (!is_array($registry) || !isset($registry['entries']) || !is_array($registry['entries'])) {
+            return ['no se pudo leer ' . self::NARRATIVE_RELATIVE_PATH . ': la comprobación no pudo mirar nada'];
+        }
+
+        [$bloques, $prosaTotal] = self::collectNarrativeBlocks();
+
+        $permitidos = [];
+        foreach ($registry['entries'] as $entry) {
+            $permitidos[(string) ($entry['file'] ?? '')] = [
+                'blocks' => (int) ($entry['blocks'] ?? 0),
+                'prose' => (int) ($entry['prose'] ?? 0),
+            ];
+        }
+
+        $porArchivo = [];
+        foreach ($bloques as $b) {
+            $porArchivo[$b['file']]['blocks'] = ($porArchivo[$b['file']]['blocks'] ?? 0) + 1;
+            $porArchivo[$b['file']]['prose'] = ($porArchivo[$b['file']]['prose'] ?? 0) + $b['prose'];
+        }
+
+        $failures = [];
+        foreach ($porArchivo as $file => $datos) {
+            if (!array_key_exists($file, $permitidos)) {
+                $failures[] = $file . ' — ' . $datos['blocks'] . ' bloque(s) narrativo(s), '
+                    . $datos['prose'] . ' líneas de prosa, y el archivo NO está en el registro.'
+                    . ' La guarda cabe en una línea (T0, punto 7); el relato va al CHANGELOG.';
+                continue;
+            }
+            if ($datos['prose'] > $permitidos[$file]['prose']) {
+                $failures[] = $file . ' — la prosa narrativa CRECIÓ de '
+                    . $permitidos[$file]['prose'] . ' a ' . $datos['prose'] . ' líneas.'
+                    . ' El registro solo puede encoger.';
+            }
+        }
+        foreach ($permitidos as $file => $datos) {
+            if (!array_key_exists($file, $porArchivo)) {
+                $failures[] = $file . ' — figura en el registro y ya no tiene comentarios narrativos.'
+                    . ' Quita la entrada: la lista solo puede encoger, y encoger incluye vaciarse.';
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($bloques) . ' bloque(s) narrativo(s) en '
+            . count($porArchivo) . ' archivo(s), ' . $prosaTotal . ' líneas de prosa registradas.');
+
+        return $failures;
+    }
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
     {
         $instance = new VerifyIntegrityTask($startRoute, $namePrefix);

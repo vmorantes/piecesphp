@@ -1,29 +1,6 @@
 <?php
 
-/**
- * UnitTest-OTPFreshUser.php
- *
- * EL USUARIO RECIÉN CREADO, que después del arreglo de D2 es el caso nuevo.
- *
- * Antes, `getTOTPData()` era get-or-create y NUNCA devolvía null: cualquiera que construyera
- * un `UserDataPackage` recibía un objeto garantizado. Al separar lectura de escritura, la
- * creación pasó a vivir solo en `toggle2FA()`, así que **todo usuario que no haya activado su
- * 2FA no tiene fila** — y `UserDataPackage` se construye en casi cada petición autenticada.
- *
- * La pregunta que esta suite contesta es la del propietario: si alguien importa usuarios
- * directamente en la tabla, ¿revienta algo? La respuesta tiene que ser comprobada, no
- * razonada, así que aquí se INSERTA un usuario de verdad sin ninguna fila OTP y se recorre
- * toda la superficie de autenticación.
- *
- * ESTA SUITE ESCRIBE, y es la única que lo hace. Crea un usuario con un nombre irrepetible,
- * lo usa, y lo borra junto con sus filas OTP al terminar — también si algo falla por el
- * camino. No toca ningún usuario que no haya creado ella.
- *
- * LA REGLA QUE FIJA, y es la que evita volver a D2:
- * **la creación vive en los caminos de ESCRITURA, nunca en los de LECTURA, y ninguna exige
- * pasar por la CLI.** `toggle2FA()` crea el TOTP, `setOTP()` crea el de un uso, los lectores
- * devuelven `null` y quien lee lo aguanta.
- */
+//Única suite que escribe: crea un usuario real y lo borra siempre en el finally. Ver T35.
 
 use App\Model\UsersModel;
 use PiecesPHP\Core\BaseModel;
@@ -112,17 +89,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         $check($package !== null && $package->TOTPData === null, 'TOTPData es null, y eso es legal ahora');
         $check($rows() === 0, 'construir el paquete NO escribe FILAS OTP', 'filas = ' . $rows());
 
-        /**
-         * ESTA ES LA GEMELA DE D2, Y SIGUE VIVA. `UserDataPackage:244` llama a
-         * `UserProfileMapper::getProfile()`, que es GET-OR-CREATE —crea y guarda si no
-         * encuentra—, justo la línea siguiente a la que se arregló para el OTP.
-         *
-         * Y el constructor de `UserDataPackage` se alcanza SIN AUTENTICAR desde
-         * `OTPHandler::checkValidityOTP()`, que es la ruta del formulario de login. Mismo
-         * camino, misma primitiva de escritura acotada, misma enumeración débil de usuarios.
-         *
-         * Se deja FALLANDO a propósito: el rojo es el defecto, no la prueba.
-         */
+        //La gemela de D2: construir un UserDataPackage no puede crear filas de OTP.
         $check(
             $profileRows() === 0,
             'construir el paquete NO escribe FILAS DE PERFIL',
@@ -177,14 +144,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             'toggle2FA(true) crea el TOTP y devuelve true'
         );
 
-        /**
-         * PREPARAR NO ES ACTIVAR, y esto es lo que lo fija.
-         *
-         * Antes, llegar al QR dejaba la cuenta en ENABLED: entre ese momento y la
-         * confirmación **el login exigía un código que nadie tenía**, y no había forma de
-         * deshacerlo porque para llegar a la página que lo deshacía hacía falta iniciar
-         * sesión. La única salida era el código por correo, que además estuvo roto.
-         */
+        //Preparar no activa: si esto falla, la cuenta queda pidiendo un código que nadie tiene.
         $totpPrepared = OTPSecretsUsersMapper::getTOTPData($userID);
         $secretOnScan = $totpPrepared !== null ? (string) $totpPrepared->secret : '';
 

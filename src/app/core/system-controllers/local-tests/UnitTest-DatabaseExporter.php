@@ -94,13 +94,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             ['name' => 'CSV', 'format' => new CsvFormat(), 'ext' => 'csv'],
         ];
 
-        /**
-         * `requires` declara la extensión de PHP sin la cual esa salida NO SE PUEDE PROBAR.
-         * Una prueba que no se puede ejecutar se SALTA con su razón; no falla. Si la suite
-         * se queda en rojo por algo que no es un defecto, en tres semanas todos habremos
-         * aprendido a ignorar el rojo, y ese día pasará un fallo de verdad sin que nadie
-         * lo mire.
-         */
+        //`requires` es la extensión sin la cual esa salida no se puede probar: se salta con su razón, no falla.
         $outputCases = [
             ['name' => 'Plano', 'plugin' => new FileOutput(), 'suffix' => '', 'requires' => null],
             ['name' => 'Gzip', 'plugin' => new GzipFileOutput(), 'suffix' => '.gz', 'requires' => 'zlib'],
@@ -239,12 +233,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                     }
                 }
 
-                /**
-                 * BIEN FORMADO PARA SU FORMATO. Hasta que esto existió, la suite comprobaba
-                 * el CONTENIDO —filtros, enmascarado, hex-blob— y jamás la SINTAXIS: un JSON
-                 * al que se le añadía basura en cada fila pasaba 23/23. Comprobado
-                 * provocándolo.
-                 */
+                //Comprueba la SINTAXIS, no solo el contenido: un JSON con basura añadida pasaba 23/23.
                 if (str_contains($test["filename"], ".json")) {
                     json_decode($content);
                     if (json_last_error() !== JSON_ERROR_NONE) {

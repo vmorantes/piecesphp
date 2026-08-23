@@ -89,11 +89,7 @@ class RouteInventoryTask extends TerminalTaskAbstract
 
             $parametersOfRoute = (array) ($route['parameters'] ?? []);
 
-            /**
-             * `get_route()` es el resolutor del propio framework: respeta el prefijo de
-             * idioma y los grupos. Se le pide en modo silencioso para que una ruta que no
-             * resuelva devuelva cadena vacía en vez de lanzar.
-             */
+            //En modo silencioso: una ruta que no resuelva devuelve cadena vacía en vez de lanzar.
             $url = '';
             if (count($parametersOfRoute) === 0) {
                 $resolved = get_route($name, [], true);

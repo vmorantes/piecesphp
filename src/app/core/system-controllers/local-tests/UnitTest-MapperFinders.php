@@ -1,20 +1,6 @@
 <?php
 
-/**
- * UnitTest-MapperFinders.php
- *
- * Congela el contrato de los buscadores estáticos de mapper: getBy(),
- * lastModifiedElement() y getByMultipleCriteries().
- *
- * POR QUÉ ES DE SOLO LECTURA
- * Estos métodos NO se heredan: están copiados en 26 mappers concretos. Una prueba contra
- * un mapper de juguete no protegería ninguno de los 26 —sería una copia más—, así que la
- * suite recorre mappers REALES y descubre en ejecución un id existente. No inserta, no
- * actualiza y no borra nada.
- *
- * Si una tabla está vacía, el caso «encontrado» se omite y se dice; el caso «no
- * encontrado», que es de donde sale la mitad de los null, se comprueba siempre.
- */
+//Fija que ningún buscador de mapper escriba al no encontrar. Ver T33.
 
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
@@ -57,15 +43,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
      */
     $missingID = -987654321;
 
-    /**
-     * Mappers a recorrer. Se eligen por cubrir las formas del buscador que hay en el
-     * código, no por ser especiales:
-     *
-     *   - CountryMapper convierte con `new CountryMapper($result->id)` (segunda consulta)
-     *   - PublicationMapper convierte con `objectToMapper($result)` (hidrata en sitio)
-     *
-     * Las dos formas deben devolver lo mismo; si divergen, esta suite lo dice.
-     */
+    //Los mappers se eligen por cubrir las formas de buscador que hay, no por módulo.
     $mappers = [
         'App\Locations\Mappers\CountryMapper',
         'Publications\Mappers\PublicationMapper',
@@ -126,11 +104,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
                 }
                 $type = mb_strtolower((string) $row['Type']);
                 if (isset($foreignKeys[$row['Field']])) {
-                    /**
-                     * Columna con clave ajena: un 0 la viola. Se toma un id REAL de la tabla
-                     * referenciada — sin esto, sembrar falla en cualquier tabla con relaciones,
-                     * que son casi todas.
-                     */
+                    //Columna con clave ajena: un 0 la viola, así que se toma un id real de la tabla referida.
                     [$referencedTable, $referencedColumn] = $foreignKeys[$row['Field']];
                     $referenced = $database->query(
                         'SELECT `' . $referencedColumn . '` FROM `' . $referencedTable . '` LIMIT 1'
@@ -325,16 +299,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         }
     }
 
-    /**
-     * UsersModel y sus hermanos aceptan `?UserDataPackage $currentUser = null` y caen a
-     * `getLoggedFrameworkUser()`, así que DEBEN funcionar sin sesión.
-     *
-     * Hasta 2026-08-21 no lo hacían: desreferenciaban `->organization` antes de la guarda
-     * `if ($currentUser !== null)` que ya existía unas líneas más abajo. Esta prueba
-     * afirmaba ese fallo como caracterización; ahora afirma el comportamiento corregido.
-     *
-     * Sin sesión, el filtro por organización se omite y la consulta se ejecuta igual.
-     */
+    //Estos aceptan $currentUser nulo y caen a la sesión: sin sesión no prueban lo que dicen probar.
     foreach ([
         'App\\Model\\UsersModel',
     ] as $mapperClass) {

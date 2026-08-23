@@ -89,10 +89,7 @@ class CleanLogsTask extends TerminalTaskAbstract
                 file_put_contents($errorLogPlanFile, '');
                 chmod($errorLogPlanFile, 0664);
                 $message[] = "\e[34merror.plain.log vaciado.\e[39m";
-                //Log de deprecaciones de PHP. Lo escribe el manejador de errores de
-                //bootstrap.php cuando NO estamos en local: allí las deprecaciones
-                //abortan, aquí solo se registran. Sin esta limpieza crecería sin
-                //límite en producción.
+                //Sin esta limpieza el log de deprecaciones crece sin límite en producción.
                 file_put_contents($deprecationsLogFile, '');
                 chmod($deprecationsLogFile, 0664);
                 $message[] = "\e[34mdeprecations.log vaciado.\e[39m";

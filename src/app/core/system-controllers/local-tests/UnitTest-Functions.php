@@ -22,16 +22,7 @@ $unitTests = [
             $failed = 0;
             $skipped = 0;
 
-            /**
-             * `systemOutFormatted()` TIENE DOS CONTRATOS, no uno: con terminal emite códigos
-             * ANSI y sin terminal los suprime a propósito (`Cli.php`, rama `$isTty`). Esta
-             * suite afirmaba el primero SIEMPRE, así que fallaba 7 de 10 en cuanto la salida
-             * se redirigía —CI, tubería, `>` a un archivo— y **devolvía éxito igualmente**,
-             * porque no contaba nada. Descubierto al provocarle un fallo a propósito.
-             *
-             * Ahora: las comprobaciones que exigen ANSI se SALTAN sin terminal, con su razón,
-             * y hay balance. Una prueba que no se puede ejecutar se salta; no falla, ni miente.
-             */
+            //Sin terminal, systemOutFormatted() suprime el ANSI a propósito: esas comprobaciones se saltan, no fallan.
             $isTty = defined('STDOUT') && function_exists('stream_isatty') && stream_isatty(STDOUT);
 
             $checkResult = function ($condition, $name, $details = null, bool $requiresTty = false) use (&$passed, &$failed, &$skipped, $isTty) {

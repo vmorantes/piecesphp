@@ -396,6 +396,15 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Cambios internos
 
+- **Recorte de comentarios narrativos: de 132 bloques y 729 líneas de prosa a 91 y 486.** Los
+  41 bloques recortados eran todos de esta campaña, y pasan al reparto que fija la regla: la
+  guarda que impide romper algo se queda **en una línea**, y el relato —qué pasaba antes, qué
+  se midió, por qué se decidió así— vive en este `CHANGELOG` y en
+  `.agents/context/18-siguientes-ventanas.md`. Un comentario largo envejece mal: el día que el
+  arreglo que narra sea irrelevante, el comentario miente y nadie va a ir a buscarlo.
+    - Los 91 que quedan son heredados y **se recortan al pasar**, cuando se toque el archivo
+      por otro motivo. Nada de barridos.
+
 - **Se retira el hueco de plantilla `$defaultPropertiesValues = []` y su `foreach`**, 24
   apariciones en 19 mappers. El array se declaraba vacío y su bucle no podía hacer nada. Con
   esto, `foreach.emptyArray` desaparece del análisis y las ramas muertas bajan de **309 a 285**.
@@ -438,6 +447,19 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   interruptor.** Los otros 9, en controladores, siguen contados como candidatos.
 
 ## Herramientas
+
+- **`bin/cli verify-integrity` gana su octava comprobación: comentarios narrativos.** Un
+  bloque con **más de dos líneas de prosa y ninguna anotación** (`@param`, `@return`, `@var`,
+  `@package`, `@author`, `@throws`) es la firma mecánica del relato: los docblocks de API
+  siempre traen anotaciones, las historias no. El registro cerrado vive en
+  `files/dev/narrative-comments.json` y **solo puede encoger**.
+    - Guarda las **líneas de prosa** de cada entrada, no solo el número de bloques: un bloque
+      que crece de 4 a 30 líneas no cambia el conteo de entradas y sí empeora el archivo.
+    - Se ancla por **archivo**, no por línea, para que editar algo encima no genere ruido.
+    - `bin/cli verify-integrity list-narrative=yes` lista los bloques con archivo, línea y
+      prosa, que es lo que hace falta para recortarlos.
+    - Falla en las tres direcciones posibles —bloque nuevo sin registrar, prosa que crece,
+      entrada que ya no tiene bloques— y las tres se probaron provocándolas.
 
 - **`bin/phpstan.neon` declara los interruptores de módulo como `dynamicConstantNames`.**
   Las 25 constantes de `config/constants.php` que **cada despliegue configura** ya no se

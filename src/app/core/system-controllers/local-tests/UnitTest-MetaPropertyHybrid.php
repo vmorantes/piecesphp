@@ -1,35 +1,6 @@
 <?php
 
-/**
- * UnitTest-MetaPropertyHybrid.php
- *
- * Prueba `MetaProperty` TAL COMO CORRE EN EL FRAMEWORK, que no es como la prueba nadie.
- *
- * `PiecesPHP\Core\Database\Meta\MetaProperty` está declarada dos veces: en el núcleo y en
- * `piecesphp/database`. PSR-4 resuelve por prefijo más largo, así que aquí gana siempre la
- * del núcleo — y no son dos versiones de lo mismo, son dos linajes: la del núcleo se apoya
- * en `EntityMapper` y la del paquete en `ORM`.
- *
- * Lo que se ejecuta aquí es la copia del núcleo llamando a `EntityMapper::validateType()`
- * del paquete — que es contra quien está escrita, no una mezcla accidental. **Aun así, esa
- * combinación no la prueba ninguno de los dos repositorios.** La suite del paquete (`UnitTest-MetaUtil`) llama a
- * `MetaProperty::validateType()`, un método estático que en la copia que corre aquí NO
- * EXISTE: pasa allí y sería un fatal aquí.
- *
- * Ya costó una vez. El arreglo de la deprecación de PHP 8.5 —pasar `null` a
- * `DateTime::__construct()`— se aplicó a los dos archivos del paquete, y a este código llegó
- * **de rebote**, por el único hilo que quedaba: la copia del núcleo no construye ninguna
- * fecha, delega en `EntityMapper::validateType()`, y esa clase no está eclipsada. Nadie
- * tendió ese hilo a propósito. La próxima vez puede no haberlo.
- *
- * Todas las comprobaciones son de SOLO LECTURA: ninguna escribe en base de datos, y la de
- * tipo mapper usa `null` a propósito, que es el camino que no llega a instanciar nada.
- *
- * Esta suite es TEMPORAL: desaparece cuando se ejecute T22 y la copia del paquete se mude
- * a `ORM\Meta\MetaProperty`, porque entonces no habrá colisión que probar.
- *
- * Ver T22 —y T16 para el mecanismo— en `.agents/context/18-siguientes-ventanas.md`.
- */
+//Fija que las dos MetaProperty se comporten igual mientras convivan. Ver T22.
 
 use App\Model\UsersModel;
 use PiecesPHP\Core\Database\EntityMapper;
@@ -81,11 +52,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
         return ltrim(str_replace($root, '', $file), '/');
     };
 
-    /**
-     * Vigilante de deprecaciones. Hoy corremos por debajo de 8.5 y no salta ninguna; el
-     * valor de esto es que empieza a morder EL DÍA que se suba el piso, sin que nadie
-     * tenga que acordarse de volver aquí.
-     */
+    //Vigilante de deprecaciones: si alguna salta aquí, la suite lo dice en vez de tragárselo.
     $deprecations = [];
     set_error_handler(function (int $number, string $message) use (&$deprecations) {
         if ($number === \E_DEPRECATED || $number === \E_USER_DEPRECATED) {

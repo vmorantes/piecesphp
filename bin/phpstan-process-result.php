@@ -1,12 +1,6 @@
 <?php
 
-/**
- * Resumen y TRINQUETE, a partir de la UNIÓN de las dos pasadas de PHPStan.
- *
- * Antes esto PARSEABA LA TABLA, y esa decisión costó cara: el formateador recorta las rutas
- * al ancho de terminal, así que Rector perdió 34 archivos sin que nadie lo notara (T2). El
- * dato manda en `PHPStanResult.json`; la tabla queda solo para leerla.
- */
+//El dato manda en PHPStanResult.json, no en la tabla: la tabla recorta las rutas al ancho de terminal.
 
 //CLI
 $cliArguments = [];
@@ -43,13 +37,7 @@ $totalErrors = 0;
 foreach ($union['files'] as $path => $data) {
     $relative = str_replace('\\', '/', (string) $path);
     $relative = str_replace(str_replace('\\', '/', $basePath) . '/', '', $relative);
-    /**
-     * `project://` NO ES DECORACIÓN: es lo que consume el plugin del editor para saltar al
-     * archivo desde el informe. Vivía aquí desde 2022 aplicado con una expresión regular
-     * sobre la cabecera de la TABLA; al pasar el resumen al JSON, esa expresión dejó de
-     * encajar y el prefijo desapareció SIN QUE NADA FALLARA. El formato es el de siempre:
-     * `project://` + la ruta relativa a la raíz del repositorio, que ya empieza por `src/`.
-     */
+    //project:// no es decoración: es lo que el plugin del editor usa para saltar al archivo.
     $labelled = 'project://' . $relative;
 
     foreach ($data['messages'] as $message) {
@@ -167,13 +155,7 @@ foreach ($errorsByFile as $labelled => $identifiers) {
 }
 
 //──── TRINQUETE ─────────────────────────────────────────────────────────────────────────
-/**
- * Sin esto, «el baseline solo baja» (T0, punto 4) es una frase en un documento: `CLAUDE.md`
- * mandaba comparar contra el baseline y NADA lo comparaba.
- *
- * Compara INSTANCIAS contra INSTANCIAS, y las dos cifras son ahora la UNIÓN de las dos
- * versiones de PHP: comparar la unión con una intersección sería comparar peras y manzanas.
- */
+//Sin este trinquete, «el baseline solo baja» es una frase en un documento y nada lo comprueba.
 $readTotal = static function (string $file): ?int {
     if (!is_file($file)) {
         return null;

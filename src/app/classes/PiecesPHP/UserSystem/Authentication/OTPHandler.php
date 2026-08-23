@@ -172,16 +172,7 @@ class OTPHandler
         $userDataPackage = getLoggedFrameworkUser();
         if ($userDataPackage !== null && $userDataPackage->TOTPData !== null) {
             $totpManager = new TOTPStandard($userDataPackage->TOTPData->secret);
-            /**
-             * `twoAuthFactorAlias` es el nombre que el usuario le pone a su segundo factor, y
-             * está VACÍO mientras no lo bautice — el estado normal de una cuenta recién
-             * creada. Pasarlo tal cual a un parámetro `string` reventaba con un TypeError,
-             * así que esta ruta daba 500 para todo usuario que no hubiera nombrado su 2FA.
-             *
-             * El emisor por defecto es el NOMBRE DEL SITIO, que es lo que el usuario
-             * reconoce en su aplicación de autenticación. No se inventa aquí: es lo que ya
-             * hacen `user-security.php` y `example-resources.php`.
-             */
+            //twoAuthFactorAlias está vacío hasta que el usuario lo bautice: sin este respaldo, TypeError.
             $issuer = $userDataPackage->TOTPData->twoAuthFactorAlias;
             $issuer = is_string($issuer) && $issuer !== '' ? $issuer : (string) get_config('owner');
             $qrData = $totpManager->getQRCodeUrl($userDataPackage->username, $issuer);

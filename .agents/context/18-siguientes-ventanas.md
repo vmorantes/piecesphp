@@ -4122,3 +4122,97 @@ pasa de no contestables a contestables:
 > **Anotado como orden, no como observación: las preguntas de la lista de arriba NO se intentan
 > responder antes de E2.** Intentarlo produce exactamente el resultado de `scan-invalid-utf8`:
 > una respuesta limpia que no significa nada, y que además **parece** que significa algo.
+
+## T40 · EL RECORTE Y LA PUERTA — hecho, con dos errores míos por el camino
+
+### Lo que se hizo
+
+| | Antes | Después |
+| :-- | --: | --: |
+| Bloques narrativos | **132** | **91** |
+| Líneas de prosa | **729** | **486** |
+| De ellos, nuestros | 46 (284 líneas) | **5 (45 líneas)** |
+
+*Método (T0 · 5): `bin/cli verify-integrity list-narrative=yes` para los bloques; autoría por
+`git blame --ignore-revs-file` con los dos commits de renormalización, campaña = commits desde
+2026-08-20.*
+
+**Se recortaron 41 bloques y 243 líneas**, todos nuestros, al reparto de T0 · 7: la guarda en
+una línea, el relato al `CHANGELOG` o a este documento. Ejemplo del reparto, sobre el 2FA:
+
+```php
+//No pongas twoAuthFactor en ENABLED aquí: preparar no es activar. Lo activa confirm2FA().
+```
+
+Doce líneas pasaron a una, y **la única que impedía romper algo es la que se quedó**.
+
+### La puerta
+
+`bin/cli verify-integrity` gana su **octava** comprobación, y el registro es
+`files/dev/narrative-comments.json` — **66 archivos, 91 bloques, 486 líneas**.
+
+Dos decisiones de diseño que valen más que el código:
+
+1. **Guarda las LÍNEAS DE PROSA, no solo el número de bloques.** Sin eso, un bloque que crece
+   de 4 a 30 líneas **mantiene el conteo de entradas** y el archivo empeora sin que la puerta
+   se entere. «La lista solo puede encoger» tiene que ser medible en la unidad que importa.
+2. **Se ancla por ARCHIVO, no por línea.** Anclar por línea convertiría la puerta en un
+   generador de ruido en cuanto alguien edite algo encima.
+
+Probada en las **tres** direcciones en las que puede fallar, y en verde después (T21):
+
+```
+(1) bloque nuevo en archivo no registrado  -> FALLOS: 1
+(2) la prosa de un archivo registrado CRECE -> «CRECIÓ de 3 a 6 líneas» -> FALLOS: 1
+(3) entrada registrada que ya no tiene bloques -> «quita la entrada» -> FALLOS: 1
+(4) sin tocar nada -> OK
+```
+
+La tercera no es celo: sin ella el registro se queda con entradas fantasma y **deja de poder
+encoger de verdad**, porque nadie limpia lo que no falla.
+
+### Los 5 nuestros que NO se recortaron, y por qué son un hallazgo
+
+La firma mecánica tiene **falsos positivos, y son de un tipo concreto**: documentación de API
+en un sitio donde no cabe una anotación.
+
+`config/roles.php` documenta el formato de `$config['roles']` con su ejemplo de uso —23 líneas
+de prosa, cero anotaciones—. **No es un relato: es la referencia del archivo**, y un `@param`
+no cabe porque no hay función que anotar. Igual `config/lang.php`, `database.php`, `Config.php`
+y las notas de dominio de `OrganizationMapper` sobre qué puede hacer cada tipo de usuario.
+
+> **Que la firma tenga falsos positivos no la invalida: los mete en el registro con su razón,
+> que es exactamente lo que hay que hacer con ellos.** Una puerta que solo acierta no necesita
+> registro; el registro existe **porque** la firma es mecánica y a veces se equivoca. Lo que no
+> vale es afinar la firma hasta que deje de dar falsos positivos: eso la vuelve tan específica
+> que deja de atrapar lo que se buscaba.
+
+### Y los dos errores míos, que son el mismo error dos veces
+
+**(a) Recorté por número de línea contra un mapa ya desplazado.** La lista de bloques se sacó
+ANTES del primer lote; el primer lote movió líneas; el segundo lote usó las líneas viejas. Ocho
+comentarios acabaron **describiendo un código que no era el suyo**. Uno decía «comprueba el
+desbordamiento de `chr()`» encima de una detección de TTY.
+
+**Es T10 otra vez**, y esta vez ni siquiera por regex: por índice contra una foto caducada. La
+corrección fue rehacerlo **anclando por el CONTENIDO de la primera línea del bloque**.
+
+**(b) Lo grave no es el error, es que casi lo doy por bueno.** Los 29 recortes compilaban, las
+suites pasaban en verde y la puerta contaba menos bloques. **Todas las señales decían que había
+salido bien**, porque ninguna de ellas mira si un comentario dice la verdad.
+
+> **NINGUNA PUERTA AUTOMÁTICA DETECTA UN COMENTARIO QUE MIENTE.** `php -l` no, PHPStan no, las
+> suites no, y la puerta nueva tampoco — cuenta líneas, no verdades. Lo que lo detectó fue
+> **imprimir el ANTES y el DESPUÉS de cada bloque uno al lado del otro** y leerlos.
+>
+> Y de ahí la regla operativa: **todo recorte de comentarios se audita enseñando el par
+> ANTES/AHORA, entero, sin muestrear.** Es la única comprobación posible, cuesta un minuto, y
+> sin ella este trabajo habría metido ocho mentiras en el código **con todas las puertas en
+> verde** — que es la definición exacta de embarcar una trampa.
+
+### El trinquete también hizo su trabajo
+
+La comprobación nueva subió PHPStan de **874 a 875**: un `str_replace` cuyo tipo de retorno
+PHPStan ve como `array<string>|string`. Arreglado en la raíz —castear el argumento, no el
+resultado— y de vuelta a **874**. Segunda vez en la campaña que el trinquete atrapa una
+regresión mía el mismo día que la introduzco.

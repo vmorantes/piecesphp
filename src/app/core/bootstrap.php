@@ -112,9 +112,7 @@ set_error_handler(function ($int_error_type, $string_error_message, $string_erro
         E_PARSE => 'Compile-time',
         E_NOTICE => 'Notice -possible false positive-',
         E_DEPRECATED => 'Deprecated',
-        //Niveles que la tabla anterior no cubría y que por tanto se descartaban
-        //en silencio, incluido E_USER_ERROR: todo trigger_error() de una librería
-        //—entre ellos el platform_check de Composer— se perdía sin dejar rastro.
+        //Sin estos niveles, todo trigger_error() de una librería se descarta en silencio.
         E_RECOVERABLE_ERROR => 'Recoverable error',
         E_USER_ERROR => 'Fatal error (trigger_error)',
         E_USER_WARNING => 'Warning (trigger_error)',
@@ -132,19 +130,13 @@ set_error_handler(function ($int_error_type, $string_error_message, $string_erro
         E_USER_ERROR,
     ];
 
-    //Las deprecaciones solo abortan en local, donde queremos enterarnos de
-    //inmediato. En producción se registran y la petición continúa: una
-    //deprecación es un aviso sobre una versión futura de PHP, no un fallo de
-    //la petición en curso, y tumbar producción por ella es desproporcionado.
-    //OJO: un cronjob lanzado sin --local cae en la rama de producción.
+    //Las deprecaciones solo abortan en local. Ojo: un cronjob sin --local cae en producción.
     if ($isLocalBootstrap) {
         $stopExcutionErrors[] = E_DEPRECATED;
         $stopExcutionErrors[] = E_USER_DEPRECATED;
     }
 
-    //Silenciado con @ o fuera de error_reporting: se respeta la supresión.
-    //Importa: bootstrap.php carga el autoload de bin/tools con @require_once
-    //precisamente para que sea opcional.
+    //Se respeta la supresión con @: el autoload de bin/tools se carga así a propósito.
     if (!(error_reporting() & $int_error_type)) {
         return true;
     }
@@ -208,14 +200,7 @@ function global_custom_exception_handler($exception, string $context = 'set_exce
             header('Access-Control-Allow-Headers: Content-Type, Authorization, isWebApp, isExternalLogin, JWTAuth');
             header('Vary: Origin');
         }
-        /**
-         * `die($string)` IMPRIME Y SALE CON CÓDIGO CERO. En CLI eso hace que un proceso que
-         * murió informe de que todo fue bien, y entonces cualquier puerta lanzada por
-         * `bin/cli` deja de distinguir «pasé» de «no llegué a ejecutarme». Estuvo así toda
-         * la campaña: `verify-integrity` con un archivo sin compilar daba salida 0.
-         *
-         * En HTTP el código de salida no lo lee nadie: quien manda es el 500 que ya se envió.
-         */
+        //No vuelvas a die($string): sale con código 0 y toda puerta de bin/cli daría por buena una muerte.
         echo $content;
         exit(PHP_SAPI === 'cli' ? 1 : 0);
     };

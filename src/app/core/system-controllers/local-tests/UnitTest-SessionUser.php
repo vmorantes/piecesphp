@@ -1,20 +1,6 @@
 <?php
 
-/**
- * UnitTest-SessionUser.php
- *
- * Congela el contrato ACTUAL de getLoggedFrameworkUser() y de SessionToken.
- *
- * ESTAS PRUEBAS SON DE CARACTERIZACIÓN, NO DE ASPIRACIÓN.
- * Describen el comportamiento actual, incluido el que consideramos defectuoso. Cuando la
- * ventana de nulabilidad cambie el contrato, varias fallarán: **ese fallo es la señal**,
- * no un problema. Cada una dice qué se espera que pase entonces.
- *
- * AISLAMIENTO
- * Se ejecutan desde el CLI, donde NO hay sesión HTTP. Eso no es una limitación: es
- * exactamente el escenario que hoy nadie prueba y en el que estas funciones devuelven
- * null. Un cronjob corre así.
- */
+//Fija el contrato de sesión: qué devuelve cada buscador cuando no hay usuario. Ver T33.
 
 use PiecesPHP\Core\SessionToken;
 use PiecesPHP\Terminal\CliActions;
@@ -108,11 +94,7 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     $check($threw, 'sin sesión LANZA en vez de devolver null',
         'Excepción: ' . $className . ' — ' . substr($msg, 0, 60));
 
-    /**
-     * La razón por la que sustituir es seguro: el código de HOY ya aborta en esos
-     * sitios. Se comprueba que los dos caminos fallan, para que quede escrito que el
-     * cambio afecta al MENSAJE, no a si la petición sobrevive.
-     */
+    //Sustituir es seguro porque el código de hoy ya aborta en esos caminos: esto lo fija.
     $failsOnChain = false;
     try {
         $x = getLoggedFrameworkUser()->type;
