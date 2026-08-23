@@ -1167,13 +1167,25 @@ Cambia el comportamiento en tiempo de ejecución sin tocar ninguna línea de ló
 
 ## T10 · NO SE EDITA PHP POR LÍNEA, SE EDITA POR ESTRUCTURA
 
-**Tres incidentes de la misma familia, todos silenciosos, todos con `php -l` en verde:**
+> **PRECISIÓN QUE A ESTA REGLA LE FALTABA, Y ES LA QUE LA VUELVE ÚTIL: ES LA PRIMERA OPCIÓN,
+> NO EL PLAN B.** Los cuatro incidentes de abajo comparten algo peor que la causa técnica:
+> **en los cuatro se empezó por el atajo y se llegó a la estructura DESPUÉS de romper algo.**
+> La regla escrita como diagnóstico —«esto pasó por editar por posición»— no impide el quinto;
+> escrita como orden de preferencia, sí.
+>
+> **Si la herramienta estructural cuesta veinte minutos más, cuesta menos que revertir
+> dieciocho archivos.** Y ese no es un cálculo optimista: es exactamente lo que pasó en el
+> cuarto incidente, y el tiempo de escribir el contador de llaves fue menor que el de
+> diagnosticar el estropicio.
+
+**Cuatro incidentes de la misma familia, todos silenciosos:**
 
 | Incidente | Causa | Qué lo delató |
 | :-- | :-- | :-- |
 | `OrganizationMapper` con un docblock sin cerrar | Un script partió por `\r\n` un archivo con 1.342 CRLF **y un LF suelto**: todos los índices siguientes se desplazaron | Nada automático. Se encontró a mano |
 | 32 falsos positivos en `verify-integrity` | Contaba `/*` contra `*/` en texto plano, y `'image/*'` aparece dentro de cadenas | La propia revisión de los resultados |
 | `SyncOTPRecordsTask` sin `namespace` ni `use` | Un corte por posición casó con el docblock **de archivo** en vez del **de clase** y se llevó la cabecera | Ejecutar la tarea |
+| **18 mappers rotos** al borrar el hueco de plantilla `foreach.emptyArray` | Un `preg_replace` con `(.*?)` y `/s` para casar el cuerpo de un bloque: **la expresión regular no sabe dónde cierra una llave** y se llevó el `}` equivocado | **`php -l`, esta vez sí** — se comprobó archivo a archivo antes de commitear, y salió en rojo |
 
 **La regla: cuando haya que preguntarle algo al código fuente, se tokeniza.** `token_get_all()`
 lleva cuatro apariciones —`verify-integrity` en dos comprobaciones,
@@ -1183,6 +1195,16 @@ Y su corolario, que vale igual: **cortar por índice de cadena es editar por pos
 tercer incidente no partió por líneas, partió por `str.index()`, y falló por la misma razón:
 buscó una silueta —`/**\n * SyncOTPRecordsTask.`— que casaba dos veces.
 
+**El cuarto añade el caso de la expresión regular, que es el más tentador de todos** porque
+parece estructura y no lo es: `foreach \(…\) \{(.*?)\}` *parece* que casa un bloque. No casa un
+bloque — casa **hasta la primera llave de cierre que le cuadre al motor**, que en código
+anidado no es la del bloque. Reescrito contando llaves, los 20 archivos salieron bien a la
+primera.
+
+> **La diferencia entre las dos herramientas no es la elegancia, es qué saben:** un contador de
+> llaves —o `token_get_all()`— sabe qué es un bloque; una expresión regular sabe qué es una
+> silueta de texto. **Cuando la pregunta es «¿dónde termina esto?», la silueta no puede
+> responder**, y responderá igualmente con algo que parece razonable.
 ### La tercera comprobación de integridad
 
 `bin/cli verify-integrity` comprueba ahora, además de docblocks y firmas, que **toda clase
@@ -1821,7 +1843,76 @@ Eso refuerza el diseño de dos traits: nombrar una ruta es universal, guardarla 
 | Tres `grep` distintos en el mismo mensaje | Uno solo miraba `core/`; otro no anclaba a inicio de línea y **volvió a contar las funciones globales como métodos**; el tercero no cubría propiedades tipadas | «117 funciones, 143 métodos, 14 propiedades». Por tokens: **145, 1 y 90** |
 | El histórico de un log que se limpia de rutina | Se dedujo de una AUSENCIA sin comprobar si el instrumento podía contener el dato | «Apache quizá sirve 8.4». Sirve **8.5.9**, y eso era justo la causa del fallo |
 | **`phpVersion: {min: 80400, max: 80500}`** en `phpstan.neon` | **UN RANGO REPORTA LA INTERSECCIÓN, NO LA UNIÓN**: solo lo que es error en TODAS las versiones del rango | «cubre las dos versiones». Cegó la pata estática a **toda** deprecación exclusiva de 8.5 durante la campaña entera |
-| **La caché de opcodes del servidor web** | Apache seguía sirviendo la versión COMPILADA anterior del archivo | «el `chr()` viejo también da 200, así que no era eso». Sí era: con la caché invalidada da **500** |
+| Resolver una URL relativa a mano en un probe | El navegador la resuelve contra el `<base href>`; mi probe la resolvía contra el directorio de la página | «el marcador del cropper resuelve a `…/agregar/img-gen/…`». Resuelve a la raíz, y funcionaba |
+| `curl` sin `Referer` ni `Origin` | `requestIsSameDomain()` **exige esas cabeceras**; sin ellas la ruta no se registra | «`img-gen` da 404 siempre». Con ellas da **200** |
+| Una regex de `src="…"` con comillas dobles | El framework emite **comillas simples** | «el iframe de SurveyJS no carga ningún recurso». Carga **tres**, y los tres a 200 |
+| `head` sobre la salida de un `grep` | Cortó la lista antes de las líneas que importaban | «el layout del panel no tiene `<base>`». Lo tiene, en `header.php:13` |
+| `grep -c 'Preview' .gitignore` | Miraba el `.gitignore` de la RAÍZ; la entrada vive en `bin/.gitignore` | «los cuatro paquetes no lo tienen». `database` **sí** lo tenía |
+| Un shim de navegador escrito en Node | No es un navegador: falló con `HTMLElement is not defined` porque el bundle define un *custom element* | Nada, porque **esta vez se paró a tiempo**: el límite se escribió en vez de rellenarlo |
+| **`git blame` sin `--ignore-revs-file`** | Un commit de renormalización tocó la última línea de **1.126 archivos**: para `blame`, la campaña escribió casi todo | «**114 bloques de comentario nuestros contra 18 viejos**». Son **44 contra 88** |
+
+### LA FORMA MÁS AFILADA DE ESTA REGLA, y es el último caso de la tabla
+
+**UN ERROR DE MEDICIÓN QUE COINCIDE CON TU HIPÓTESIS ES EL ÚNICO QUE NO VAS A ATRAPAR.**
+
+Mira la diferencia con el resto de la tabla. Todos los demás instrumentos fallaron dando un
+número **raro** —«cero archivos cambian», «6 variantes cuando se ven 10»—, y la rareza fue lo
+que disparó la comprobación. El `git blame` falló dando un número **esperado**.
+
+El encargo del censo nació de una sospecha: *«los comentarios están volviendo a crecer y son
+nuestros»*. El instrumento respondió **114 nuestros contra 18 viejos** — el 87 %. Eso no es
+una respuesta: **es un eco.** Confirmaba la sospecha del propietario, confirmaba la mía, y
+encajaba con lo que los dos habíamos visto en el docblock del 2FA.
+
+Lo real es **44 contra 88**: un tercio nuestro, dos tercios heredados. **La conclusión
+operativa cambia entera** —de «recortamos lo nuestro y listo» a «hay una lista cerrada que
+mantener»— y el número falso habría pasado sin que nadie lo mirara, porque **nadie audita lo
+que ya creía**.
+
+> **LA CONSECUENCIA PRÁCTICA, que es lo que hay que recordar de esta entrada:**
+>
+> **EL SEGUNDO MÉTODO INDEPENDIENTE SE EXIGE SOBRE TODO CUANDO EL PRIMERO CONFIRMA LO QUE
+> CREÍAS.** La sorpresa ya dispara la sospecha sola —es lo que dice el título de T20 y funciona
+> —. **La confirmación no dispara nada**, y por eso es más peligrosa. La regla no es «duda de
+> lo que te sorprende»: es **«duda de lo que te da la razón»**, que cuesta mucho más.
+
+Y hay una ironía que conviene no perder: **lo que impidió la conclusión falsa fue
+`.git-blame-ignore-revs`**, un archivo que se creó por **legibilidad** —para que `blame` no
+señalara al commit de finales de línea al leer historia—. No se hizo pensando en mediciones.
+**Una decisión de higiene tomada por otro motivo fue la que salvó el dato**, y solo porque
+alguien se acordó de que existía.
+
+**Corolario para el resto de la campaña**: toda cifra que confirme una hipótesis previa lleva
+**dos métodos**, no uno. Es más caro y es exactamente donde hay que gastarlo.
+
+### Y un caso del propietario, que cierra la simetría de esta entrada
+
+T20 lleva nueve instrumentos míos y dos mediciones suyas. **Falta el tercero, y es de la misma
+familia que el `git blame`: un arreglo pedido para un problema que no existía.**
+
+El encargo decía: *«`getLangGroupData` ante un grupo desconocido devuelve algo que rompe un
+`Object.assign` — arregla la función, no la página»*. **El razonamiento es impecable** —un
+grupo inexistente es un estado normal, cualquier módulo nuevo lo tiene antes de traducirse, y
+una función que lance ahí es una mina para todo consumidor futuro—. Tan impecable que invita a
+implementarlo sin mirar.
+
+`configurations.js:1335`, definición única en todo el proyecto, **ya empieza en `{}`** y solo
+lo sustituye si el grupo existe **y** es un objeto. Ejecutada con el mismo `Proxy` que usa el
+código real:
+
+```
+  grupo inexistente -> {} | typeof: object
+  Object.assign con él -> {"pageNextText":"Siguiente"}    (no-op)
+```
+
+**Lo que se comparte con el caso del `git blame` es la forma, no el error:** una hipótesis bien
+construida, coherente con todo lo observable, que **no se comprobó porque no hacía falta
+comprobarla**. La diferencia es que aquí se comprobó, y costó treinta segundos.
+
+> **Y por eso «arregla la función, no la página» sigue siendo la instrucción correcta aunque el
+> arreglo sobrara.** Lo que se pedía era el comportamiento; el comportamiento ya estaba. La
+> lección no es «no propongas arreglos», es: **antes de arreglar el hueco, mira si está
+> tapado.**| **La caché de opcodes del servidor web** | Apache seguía sirviendo la versión COMPILADA anterior del archivo | «el `chr()` viejo también da 200, así que no era eso». Sí era: con la caché invalidada da **500** |
 | **Un PRINCIPIO DE ARQUITECTURA que no está escrito** | Sin él, cada patrón que lo aplica parece un defecto | «la inicialización del SEO es un defecto, conviértela en tarea de CLI» — era **exactamente lo contrario** del diseño. Tres diagnósticos equivocados por la misma causa |
 | **No preguntar a la persona que tiene el contexto** | Se construyó una hipótesis sobre un cambio de estado que no habíamos hecho nosotros | «tres tablas vacías, sin explicar». Las había vaciado el propietario a mano, y estaba delante |
 
@@ -3327,6 +3418,14 @@ resultado.
 2. **Salidas cortadas.** Correo y APIs externas neutralizados: hay rutas que mandan correo de
    verdad y otras que llaman a HubSpot, Mailjet o los traductores de IA. Un barrido a ciegas
    quema créditos o le escribe a alguien.
+0. **Y una ganancia que no es una condición sino un efecto, y conviene tenerla escrita porque
+   cambia qué se puede preguntar después: EL CICLO CRUD POBLA LA BASE.** Hoy hay **89 filas en
+   36 tablas, 22 de ellas vacías**, y eso convierte en no concluyente toda medición que dependa
+   de datos (T39). Después de E2 hay filas reales escritas por los caminos reales, y un grupo
+   concreto de preguntas pasa a ser contestable: qué columnas reciben binario, qué pasa con
+   `$_FILES[$key]` nulo, si el emoji sobrevive un formulario entero. **Ninguna se intenta
+   antes.**
+
 3. **Ciclo completo por módulo**: crear, leer, editar, borrar. **Se limpia solo si el borrado
    funciona**; si no funciona, eso es un hallazgo **y** un residuo, y las dos cosas hay que
    verlas.
@@ -3965,3 +4064,61 @@ más se explicó por qué algo está como está — y es exactamente el sitio do
 haber ido al documento.
 
 **PENDIENTE DE DECISIÓN DEL PROPIETARIO**: se midió y no se tocó nada, que era el encargo.
+
+## T39 · LIMITACIÓN PERMANENTE DEL ENTORNO — esta base no puede responder preguntas sobre datos
+
+**Ya nos ha pasado dos veces, así que deja de ser una anécdota y pasa a ser una propiedad
+conocida del entorno que hay que consultar ANTES de diseñar una medición.**
+
+### La medición
+
+```
+tablas base: 36 | vacías: 22 | con filas: 14
+filas totales en el esquema: 89
+```
+
+Las cinco tablas más pobladas: `locations_cities` (24), `pcsphp_app_config` (22),
+`login_attempts` (14), `system_approvals_elements` (8), `pcsphp_users` (6).
+
+*Método: `SELECT COUNT(*)` sobre cada `BASE TABLE` de `information_schema.TABLES`.*
+
+### La regla
+
+> **CUALQUIER MEDICIÓN QUE DEPENDA DEL CONTENIDO DE LA BASE ES NO CONCLUYENTE EN ESTE ENTORNO,
+> Y HAY QUE MARCARLA COMO TAL EN EL SITIO DONDE SE ESCRIBA LA CIFRA.**
+
+No es que dé un resultado equivocado: **da el resultado correcto de una pregunta distinta.**
+`scan-invalid-utf8` no mintió — analizó las 88 filas que hay y todas son UTF-8 válido. Lo que
+no puede decir es nada sobre un despliegue con datos. **«Limpio» y «vacío» se leen igual en la
+salida**, y esa es toda la trampa.
+
+### Los dos casos que la establecieron
+
+| Caso | Qué se preguntó | Por qué no se pudo responder |
+| :-- | :-- | :-- |
+| Las tres tablas vacías (T33) | «¿por qué están vacías?» | No había rastro porque no había datos. **Las había vaciado el propietario a mano** |
+| `scan-invalid-utf8` (T28bis) | «¿quién escribe binario en columnas de texto?» | 88 filas. Un resultado limpio sobre una base vacía **no dice que no haya riesgo: dice que no hay datos** |
+
+**Lo que sí se puede responder aquí son preguntas sobre CÓDIGO y sobre ESQUEMA**, y de hecho
+las dos veces la respuesta útil salió de ahí: el censo de columnas contra
+`information_schema`, y la limitación de `SchemeCreator` leída de su tabla de tipos. **La
+pregunta se reformula de «qué datos hay» a «qué puede escribir el código», que es la que este
+entorno sí sabe contestar.**
+
+### Y la consecuencia buena, que va al diseño de E2
+
+**El ciclo CRUD de E2 va a POBLAR la base.** Crear, leer, editar y borrar por cada módulo deja
+filas reales escritas por los caminos reales — que es justo el material que hoy falta.
+
+Así que esta limitación **se reduce después de E2**, y con ella un grupo concreto de preguntas
+pasa de no contestables a contestables:
+
+- **Qué columnas de texto reciben binario** — la que bloquea la publicación tranquila de
+  `database` v3.2.1.
+- **Qué pasa cuando `$_FILES[$key]` es nulo** — los 9 anotados para E2.
+- **Si el emoji sobrevive el viaje entero** por un formulario real, no solo por el ORM.
+- **Si `SchemeCreator` y las meta-propiedades en JSON hacen lo que dice su documentación.**
+
+> **Anotado como orden, no como observación: las preguntas de la lista de arriba NO se intentan
+> responder antes de E2.** Intentarlo produce exactamente el resultado de `scan-invalid-utf8`:
+> una respuesta limpia que no significa nada, y que además **parece** que significa algo.
