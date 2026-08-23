@@ -145,6 +145,19 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Rendimiento
 
+- **Un `foreach` duplicado y anidado sobre sí mismo, en el mapper del que se clonan los
+  módulos.** `objectToMapper()` recorría `$defaultMetaPropertiesValues` dentro de un bucle
+  idéntico sobre el mismo array: **cada meta-propiedad por defecto se comprobaba una vez por
+  cada meta-propiedad por defecto.** El resultado es correcto —la asignación es idempotente—
+  pero el trabajo es cuadrático, y `objectToMapper()` corre por cada fila que se hidrata.
+    - **16 sitios, y en 10 el array NO está vacío**, así que el bucle interno se ejecutaba de
+      verdad. Entre ellos `PublicationMapper` y `PublicationCategoryMapper`, **el módulo
+      canónico**: cualquier módulo clonado desde ahí lo heredaba.
+    - No es limpieza de código muerto: **es un defecto de rendimiento en la plantilla**, y por
+      eso se cuenta aquí y no en «Cambios internos».
+    - Barrido de comprobación tras el arreglo: **cero `foreach` anidados sobre sí mismos en
+      todo `src/app`** y cero en los cuatro paquetes. Ningún módulo se quedó fuera.
+
 - **`createOTPAlternativesRecords()` sale del registro de rutas.** Se llamaba desde
   `UserSystemFeaturesRoutes::routes()`, que corre **en cada petición**: dos consultas con
   `GROUP_CONCAT` y `LEFT JOIN` sobre la tabla entera de usuarios por cada carga de página.
@@ -382,6 +395,10 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
       hasta esta versión, un árbol que no compila pasaba por bueno.
 
 ## Cambios internos
+
+- **Se retira el hueco de plantilla `$defaultPropertiesValues = []` y su `foreach`**, 24
+  apariciones en 19 mappers. El array se declaraba vacío y su bucle no podía hacer nada. Con
+  esto, `foreach.emptyArray` desaparece del análisis y las ramas muertas bajan de **309 a 285**.
 
 - **`routeName()`, `allowedRoute()` y `_allowedRoute()` dejan de estar copiados en cada
   controlador.** Los aporta **un solo trait**, `PiecesPHP\Core\Routing\ControllerRoutingTrait`,
