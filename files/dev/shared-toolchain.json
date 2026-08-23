@@ -1,34 +1,78 @@
 {
-    "_comentario": [
-        "INSTRUMENTAL COMÚN A LOS CINCO REPOSITORIOS. Cada entrada es un archivo que los",
-        "cuatro paquetes `piecesphp/*` deben tener, con las MARCAS que deben aparecer dentro.",
-        "",
-        "No se comparan los archivos byte a byte porque legítimamente difieren —rutas, nombres",
-        "de vendor—: se comprueba que la PROPIEDAD esté presente. Una marca es un trozo de",
-        "texto que solo existe si la propiedad está implementada.",
-        "",
-        "Existe porque los cuatro paquetes se declararon verdes sobre EXACTAMENTE la misma",
-        "configuración que había cegado a piecesphp —`phpVersion` como rango— y nadie lo",
-        "comprobó. La pregunta no puede depender de que alguien se acuerde."
-    ],
-    "packagesRoot": "../..",
-    "packages": ["database", "datastructures", "html", "geojson"],
-    "files": {
-        "bin/phpstan": {
-            "why": "Dos pasadas y la unión, y el binario de PHP explícito.",
-            "markers": ["PCSPHP_PHP_BIN", "80400.generated.neon", "80500.generated.neon", "PHPStanResult.json"]
-        },
-        "bin/phpstan-process-result.php": {
-            "why": "Resumen desde el JSON de la unión, trinquete, y el prefijo del editor.",
-            "markers": ["TRINQUETE", "phpVersions", "project://"]
-        },
-        "bin/phpstan.neon": {
-            "why": "El bloque phpVersion tiene que existir: bin/phpstan lo sustituye por cada versión.",
-            "markers": ["phpVersion:"]
-        },
-        "PHPStanResult.Summary.baseline.txt": {
-            "why": "Sin baseline el trinquete no puede comparar, y una puerta que no mide no aprueba.",
-            "markers": ["[TOTAL DE ERRORES VISIBLES]", "DOS PASADAS Y LA UNIÓN"]
-        }
+  "_comentario": [
+    "INSTRUMENTAL COMÚN A LOS CINCO REPOSITORIOS. Cada entrada es un archivo que los",
+    "cuatro paquetes `piecesphp/*` deben tener, con las MARCAS que deben aparecer dentro.",
+    "",
+    "No se comparan los archivos byte a byte porque legítimamente difieren —rutas, nombres",
+    "de vendor—: se comprueba que la PROPIEDAD esté presente. Una marca es un trozo de",
+    "texto que solo existe si la propiedad está implementada.",
+    "",
+    "Existe porque los cuatro paquetes se declararon verdes sobre EXACTAMENTE la misma",
+    "configuración que había cegado a piecesphp —`phpVersion` como rango— y nadie lo",
+    "comprobó. La pregunta no puede depender de que alguien se acuerde."
+  ],
+  "packagesRoot": "../..",
+  "packages": [
+    "database",
+    "datastructures",
+    "html",
+    "geojson"
+  ],
+  "files": {
+    "bin/phpstan": {
+      "why": "Dos pasadas y la unión, y el binario de PHP explícito.",
+      "markers": [
+        "PCSPHP_PHP_BIN",
+        "80400.generated.neon",
+        "80500.generated.neon",
+        "PHPStanResult.json"
+      ]
+    },
+    "bin/phpstan-process-result.php": {
+      "why": "Resumen desde el JSON de la unión, trinquete, y el prefijo del editor.",
+      "markers": [
+        "TRINQUETE",
+        "phpVersions",
+        "project://",
+        "TRINQUETE SIN REPARTO"
+      ]
+    },
+    "bin/phpstan.neon": {
+      "why": "El bloque phpVersion tiene que existir: bin/phpstan lo sustituye por cada versión.",
+      "markers": [
+        "phpVersion:"
+      ]
+    },
+    "PHPStanResult.Summary.baseline.txt": {
+      "why": "Sin baseline el trinquete no puede comparar, y una puerta que no mide no aprueba.",
+      "markers": [
+        "[TOTAL DE ERRORES VISIBLES]",
+        "DOS PASADAS Y LA UNIÓN",
+        "[REPARTO]"
+      ]
+    },
+    "bin/cli": {
+      "why": "Si `bin/cli` no honra PCSPHP_PHP_BIN, las suites del paquete corren con el PHP que a ese archivo le parezca, y no con el que sirve el navegador. Es el defecto que cegó a piecesphp durante la campaña entera: php8.4 mientras Apache servía 8.5.9. Opcional: solo se comprueba en los paquetes que tengan bin/cli.",
+      "optional": true,
+      "markers": [
+        "PCSPHP_PHP_BIN",
+        "php8.5"
+      ]
     }
+  },
+  "tracking": {
+    "why": "LO QUE LAS HERRAMIENTAS PRODUCEN también es instrumental compartido, y hasta ahora la puerta no lo miraba: comprobaba que los archivos contuvieran las marcas y aprobaba en verde sobre cuatro repositorios cuyo estado de seguimiento divergía. El defecto no era la divergencia, era el ALCANCE de la puerta.",
+    "tracked": {
+      "PHPStanResult.json": "Es de donde el resumen saca el dato —no de la tabla, que recorta las rutas—. Sin él versionado, el método escrito en el baseline no es reproducible desde el repositorio, y eso es la regla de T0 punto 5."
+    },
+    "ignored": {
+      "PHPStanResult.8.4.json": "Intermedio de la pasada de 8.4. Se regenera; versionarlo es ruido.",
+      "PHPStanResult.8.5.json": "Intermedio de la pasada de 8.5. Se regenera; versionarlo es ruido.",
+      "bin/Preview": "Salida generada por phpstan-process-result.php. Ya se coló en html."
+    },
+    "executable": {
+      "bin/phpstan": "Un script del instrumental sin el bit de ejecución NO SE PUEDE CORRER, y el fallo es «Permiso denegado», que nadie relaciona con una divergencia de repositorio. Ya pasó en database y geojson: estaban en 100644 mientras los otros dos estaban en 100755.",
+      "bin/cli": "Ídem. Opcional: solo se comprueba en los paquetes que lo tengan."
+    }
+  }
 }

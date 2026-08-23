@@ -53,6 +53,8 @@ HISTORIA DE ESTE BASELINE
 
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
+[REPARTO] 859 <- 874 = 4 arreglos + 11 supresiones
+
 859 (2026-08-23) — 15 menos, Y NO SON QUINCE ARREGLOS: 4 arreglos y 11 supresiones
     documentadas. La distinción importa porque el trinquete premia que la cifra baje, y una
     cifra que baja por supresión no significa lo mismo que una que baja por arreglo.
@@ -73,6 +75,8 @@ HISTORIA DE ESTE BASELINE
 
     Quedan 0 errores visibles de la forma «llamar a un método sobre un false».
 
+[REPARTO] 874 <- 887 = 13 arreglos + 0 supresiones
+
 874 (2026-08-21) — 13 menos. Las claves de array del constructor de listas desplegables
     pasan a `(string)`, que es la migración que prescribe la deprecación de PHP 8.5: «use
     an empty string instead». SIN CAMBIO DE COMPORTAMIENTO: PHP ya convertía null a '' y
@@ -89,10 +93,10 @@ HISTORIA DE ESTE BASELINE
 ================[RESUMEN]================
 
 [TOTAL DE ARCHIVOS CON ERRORES]
-190
+191
 
 [TOTAL DE ERRORES VISIBLES]
-874
+859
 
 [UNIDAD]
 TRIPLETAS (ruta, línea, mensaje) DISTINTAS, no instancias: la unión de las dos
@@ -100,20 +104,20 @@ pasadas se deduplica por esa clave, así que un error idéntico repetido en el m
 sitio cuenta UNA vez. Las cifras anteriores a la unión estaban en instancias.
 
 [REPARTO POR VERSIÓN DE PHP]
-En las dos (8.4 y 8.5): 865
-Solo en 8.5: 9
+En las dos (8.4 y 8.5): 849
+Solo en 8.5: 10
 Solo en 8.4: 0
 
 [TIPOS DE ERRORES Y CANTIDAD]
-argument.type (337)
+argument.type (335)
 property.nonObject (191)
-method.nonObject (143)
+method.nonObject (129)
 return.type (55)
 assign.propertyType (38)
 method.resultUnused (26)
 property.notFound (18)
 foreach.nonIterable (17)
-offsetAccess.invalidOffset (13)
+offsetAccess.invalidOffset (14)
 nullCoalesce.variable (7)
 clone.nonObject (5)
 binaryOp.invalid (3)
@@ -141,8 +145,8 @@ project://src/app/classes/API/Adapters/OpenAIHandlerAdapter.php
 project://src/app/classes/API/Adapters/SpeechToTextGroqAdapter.php
 	method.nonObject (Líneas: 106)
 project://src/app/classes/API/Controllers/APIController.php
-	argument.type (Líneas: 580, 703, 808, 849, 1099, 1118, 1139, 1139, 1203, 1230, 1296, 1388, 1388)
-	assign.propertyType (Líneas: 1147)
+	argument.type (Líneas: 580, 703, 808, 849, 1099, 1141, 1141, 1205, 1232, 1298, 1390, 1390)
+	assign.propertyType (Líneas: 1149)
 project://src/app/classes/API/Controllers/HelperController.php
 	property.nonObject (Líneas: 146)
 	argument.type (Líneas: 148)
@@ -167,13 +171,12 @@ project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsControlle
 	argument.type (Líneas: 725, 735, 800, 810, 1480, 1651, 1801)
 	assign.propertyType (Líneas: 755)
 	clone.nonObject (Líneas: 796)
-	method.nonObject (Líneas: 1593, 1659, 1660)
+	method.nonObject (Líneas: 1659, 1660)
 	offsetAccess.invalidOffset (Líneas: 1820)
 project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php
 	return.type (Líneas: 443)
 	argument.type (Líneas: 454, 777, 778, 779)
 	property.nonObject (Líneas: 542, 565)
-	method.nonObject (Líneas: 1156)
 project://src/app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMapper.php
 	argument.type (Líneas: 165, 227, 244)
 	return.type (Líneas: 228, 247)
@@ -244,7 +247,6 @@ project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
 	property.nonObject (Líneas: 259, 286)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 193, 313, 482)
-	method.nonObject (Líneas: 451)
 project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php
 	argument.type (Líneas: 172, 248, 250, 251, 253, 270)
 project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php
@@ -262,7 +264,6 @@ project://src/app/classes/Importers/Managers/ImporterUsers.php
 project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchAreasController.php
 	argument.type (Líneas: 419, 444, 1045)
 	property.nonObject (Líneas: 877, 878, 879, 968, 980, 1275, 1277, 1299, 1301)
-	method.nonObject (Líneas: 1148)
 project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php
 	argument.type (Líneas: 170, 196, 400)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
@@ -271,9 +272,9 @@ project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.ph
 	assign.propertyType (Líneas: 499)
 	method.nonObject (Líneas: 654)
 project://src/app/classes/MySpace/Controllers/MyProfileController.php
-	method.nonObject (Líneas: 375, 376, 377, 378, 379, 380, 381, 382, 383, 384, 388)
-	property.nonObject (Líneas: 385, 386, 676, 782, 783)
-	assign.propertyType (Líneas: 676)
+	method.nonObject (Líneas: 377, 378, 379, 380, 381, 382, 383, 384, 385, 386, 390)
+	property.nonObject (Líneas: 387, 388, 678, 784, 785)
+	assign.propertyType (Líneas: 678)
 project://src/app/classes/MySpace/Controllers/OrganizationProfileController.php
 	property.nonObject (Líneas: 83)
 project://src/app/classes/MySpace/Controllers/ProfileController.php
@@ -304,14 +305,12 @@ project://src/app/classes/News/Controllers/NewsCategoryController.php
 project://src/app/classes/News/Controllers/NewsController.php
 	property.nonObject (Líneas: 188, 1114, 1298, 1299, 1300, 1301)
 	argument.type (Líneas: 566, 567, 597, 598, 1290, 1298)
-	method.nonObject (Líneas: 1228)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
 	argument.type (Líneas: 438)
 project://src/app/classes/News/Mappers/NewsMapper.php
 	return.type (Líneas: 275)
 	argument.type (Líneas: 286)
 	property.nonObject (Líneas: 372)
-	method.nonObject (Líneas: 844)
 project://src/app/classes/News/Mappers/NewsReadedMapper.php
 	argument.type (Líneas: 89, 89)
 project://src/app/classes/Newsletter/Controllers/NewsletterController.php
@@ -332,14 +331,12 @@ project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	property.nonObject (Líneas: 11)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php
 	property.nonObject (Líneas: 919)
-	method.nonObject (Líneas: 999)
 	argument.type (Líneas: 1177)
 	offsetAccess.invalidOffset (Líneas: 1196)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Mappers/BuiltInBannerMapper.php
 	return.type (Líneas: 247)
 	argument.type (Líneas: 258)
 	property.nonObject (Líneas: 305, 327)
-	method.nonObject (Líneas: 719)
 project://src/app/classes/PiecesPHP/BuiltIn/Helpers/Controllers/GenericContentController.php
 	property.nonObject (Líneas: 407)
 	argument.type (Líneas: 561)
@@ -355,10 +352,9 @@ project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
 	return.type (Líneas: 65)
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php
-	assign.propertyType (Líneas: 133)
-	argument.type (Líneas: 296)
+	argument.type (Líneas: 301)
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
-	assign.propertyType (Líneas: 374)
+	assign.propertyType (Líneas: 374, 401)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
 	property.nonObject (Líneas: 271, 294)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php
@@ -367,16 +363,16 @@ project://src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php
 	argument.type (Líneas: 212)
 project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 	assign.propertyType (Líneas: 217)
-	return.type (Líneas: 298)
+	return.type (Líneas: 299)
 project://src/app/classes/Publications/Controllers/PublicationsCategoryController.php
 	method.nonObject (Líneas: 567, 574, 579, 589)
 project://src/app/classes/Publications/Controllers/PublicationsController.php
-	argument.type (Líneas: 141, 1158, 1192, 1507, 1667)
-	property.nonObject (Líneas: 237, 1331, 1589, 1591, 1614, 1616)
+	argument.type (Líneas: 141, 1197, 1512, 1672)
+	property.nonObject (Líneas: 237, 1336, 1594, 1596, 1619, 1621)
 	assign.propertyType (Líneas: 648)
 	clone.nonObject (Líneas: 704)
-	method.nonObject (Líneas: 1153, 1314, 1324, 1451, 1514, 1515, 1516)
-	offsetAccess.invalidOffset (Líneas: 1684)
+	method.nonObject (Líneas: 1319, 1329, 1519, 1520, 1521)
+	offsetAccess.invalidOffset (Líneas: 1689)
 project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
@@ -386,7 +382,6 @@ project://src/app/classes/Publications/Mappers/PublicationMapper.php
 	return.type (Líneas: 396)
 	argument.type (Líneas: 423, 435)
 	property.nonObject (Líneas: 529, 557)
-	method.nonObject (Líneas: 1071)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	assign.propertyType (Líneas: 62, 63, 171)
 	return.type (Líneas: 174)
@@ -456,7 +451,7 @@ project://src/app/classes/Terminal/Tasks/ScanMissingLangTask.php
 	binaryOp.invalid (Líneas: 366)
 	method.deprecated (Líneas: 377)
 project://src/app/classes/Terminal/Tasks/VerifyIntegrityTask.php
-	argument.type (Líneas: 228)
+	argument.type (Líneas: 245)
 project://src/app/config/containers.php
 	argument.type (Líneas: 73, 196)
 project://src/app/config/functions.php
@@ -469,11 +464,11 @@ project://src/app/controller/AdminPanelController.php
 	method.resultUnused (Líneas: 221, 226)
 project://src/app/controller/AppConfigController.php
 	foreach.nonIterable (Líneas: 215)
-	argument.type (Líneas: 391, 392, 1516, 2077)
-	method.nonObject (Líneas: 1563, 1662, 1667, 1678, 1682)
-	method.resultUnused (Líneas: 1567, 1575, 1582)
-	property.nonObject (Líneas: 1679)
-	return.type (Líneas: 2123)
+	argument.type (Líneas: 391, 392, 1514, 2075)
+	method.nonObject (Líneas: 1561, 1660, 1665, 1676, 1680)
+	method.resultUnused (Líneas: 1565, 1573, 1580)
+	property.nonObject (Líneas: 1677)
+	return.type (Líneas: 2121)
 project://src/app/controller/AvatarController.php
 	argument.type (Líneas: 241, 248, 257)
 project://src/app/controller/ContactFormsController.php
@@ -485,7 +480,7 @@ project://src/app/controller/GenericTokenController.php
 	method.resultUnused (Líneas: 363, 371, 378)
 	return.type (Líneas: 416)
 project://src/app/controller/LoginAttemptsController.php
-	argument.type (Líneas: 198, 246, 335)
+	argument.type (Líneas: 198, 246, 333)
 	method.nonObject (Líneas: 235)
 project://src/app/controller/RecoveryPasswordController.php
 	argument.type (Líneas: 100, 100, 185, 185, 318, 341, 372, 372, 466, 466, 516, 516, 521, 565, 565, 570, 600, 600, 605)
@@ -495,10 +490,10 @@ project://src/app/controller/RecoveryPasswordController.php
 project://src/app/controller/UserProblemsController.php
 	property.notFound (Líneas: 334, 335, 340, 341, 344)
 project://src/app/controller/UsersController.php
-	argument.type (Líneas: 487, 542, 888, 922, 1108, 1259, 1537, 1865)
-	method.resultUnused (Líneas: 1293, 1335, 1345, 1351, 1357, 1363, 1373, 1380, 1592, 1647, 1657, 1663, 1669, 1675, 1681, 1691, 1699, 1706)
-	method.nonObject (Líneas: 1331, 1643)
-	return.type (Líneas: 1885)
+	argument.type (Líneas: 488, 543, 889, 923, 1109, 1260, 1543, 1871)
+	method.resultUnused (Líneas: 1294, 1341, 1351, 1357, 1363, 1369, 1379, 1386, 1598, 1653, 1663, 1669, 1675, 1681, 1687, 1697, 1705, 1712)
+	method.nonObject (Líneas: 1337, 1649)
+	return.type (Líneas: 1891)
 project://src/app/core/AppHelpers.php
 	return.type (Líneas: 1309, 1401)
 	argument.type (Líneas: 2247, 2305, 2322, 2322, 3244, 3245, 3246, 3346, 3347)
@@ -526,7 +521,7 @@ project://src/app/core/psr4/PiecesPHP/Core/BaseController.php
 	assign.propertyType (Líneas: 78)
 	nullCoalesce.property (Líneas: 333)
 project://src/app/core/psr4/PiecesPHP/Core/BaseHashEncryption.php
-	argument.type (Líneas: 56, 151, 154, 185, 197)
+	argument.type (Líneas: 38, 133, 136, 167, 179)
 project://src/app/core/psr4/PiecesPHP/Core/BaseMongoModel.php
 	argument.type (Líneas: 43, 72, 73)
 	return.type (Líneas: 74, 76, 129, 166)
@@ -569,7 +564,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Forms/UploadedFileAdapter.php
 	return.type (Líneas: 340)
 	nullCoalesce.variable (Líneas: 377, 421)
 project://src/app/core/psr4/PiecesPHP/Core/Http/HttpClient.php
-	offsetAssign.dimType (Líneas: 279)
+	offsetAssign.dimType (Líneas: 276)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Field.php
 	method.nonObject (Líneas: 139)
 project://src/app/core/psr4/PiecesPHP/Core/Importer/Importer.php
@@ -605,7 +600,7 @@ project://src/app/core/psr4/PiecesPHP/Core/Routing/Slim3Compatibility/Exception/
 	argument.type (Líneas: 41)
 	assign.propertyType (Líneas: 51)
 project://src/app/core/psr4/PiecesPHP/Core/ServerStatics.php
-	argument.type (Líneas: 627, 1007)
+	argument.type (Líneas: 618, 998)
 project://src/app/core/psr4/PiecesPHP/Core/StringManipulate.php
 	argument.type (Líneas: 111, 162, 163, 179)
 project://src/app/core/psr4/PiecesPHP/Core/Utilities/ExifHelper.php
@@ -627,10 +622,12 @@ project://src/app/core/system-controllers/Test.php
 	argument.type (Líneas: 83, 83, 94, 111)
 	return.type (Líneas: 124)
 project://src/app/core/system-controllers/local-tests/UnitTest-DatabaseExporter.php
-	argument.type (Líneas: 54, 204, 205, 210)
+	argument.type (Líneas: 54, 198, 199, 204)
 project://src/app/core/system-controllers/local-tests/UnitTest-HttpClient.php
 	argument.type (Líneas: 52, 53)
 	binaryOp.invalid (Líneas: 57)
+project://src/app/core/system-controllers/local-tests/UnitTest-MapperFinders.php
+	offsetAccess.invalidOffset (Líneas: 166)
 project://src/app/model/AvatarModel.php
 	return.type (Líneas: 117)
 project://src/app/model/LoginAttemptsModel.php
@@ -687,7 +684,6 @@ project://src/app/view/usuarios/utils/user-card.php
 	argument.type (Líneas: 13)
 project://src/index.php
 	property.notFound (Líneas: 384)
-	method.nonObject (Líneas: 411, 413, 414)
-	argument.type (Líneas: 607, 626, 662, 674, 751, 762, 876, 887)
-	property.nonObject (Líneas: 634)
-	variable.undefined (Líneas: 902)
+	argument.type (Líneas: 611, 630, 666, 678, 755, 766, 880, 891)
+	property.nonObject (Líneas: 638)
+	variable.undefined (Líneas: 906)

@@ -20,6 +20,18 @@ Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticar
 1. **Cero errores que señalen un defecto real.**
 2. **Todo lo demás arreglado, o suprimido CON RAZÓN ESCRITA** y, si la supresión es
    temporal, **con la condición que la retira**.
+   > **PRECISIÓN, y viene de intentar aplicar esta regla a los 85 del grupo B: EL CIERRE POR
+   > SUPRESIÓN DOCUMENTADA EXIGE QUE LA RAZÓN EXISTA.** No que esté escrita: que exista.
+   >
+   > Cuando la respuesta **no está en el código sino en datos que no tenemos**, no se suprime:
+   > **se aplaza con el motivo escrito**. Escribir «no se puede saber si es un defecto» ochenta
+   > y cinco veces no son ochenta y cinco supresiones justificadas — son ochenta y cinco
+   > justificaciones falsas, y eso es peor que dejar el error a la vista, porque un error
+   > visible al menos se ve.
+   >
+   > La diferencia práctica entre suprimir y aplazar: **una supresión se cierra y no se vuelve
+   > a mirar; un aplazamiento lleva escrito QUÉ lo desbloquea.** Los 85 llevan «E2, cuando el
+   > ciclo CRUD haya poblado la base», que es una condición comprobable y con fecha.
 3. **Los `.neon` dejan de ser cajón de sastre y pasan a ser registro documentado.** La
    auditoría de los 67 `ignoreErrors` —48 vivos silenciando 3.083 errores, 19 muertos— es
    el formato de referencia. **Los cinco repositorios al mismo estándar.**
@@ -2011,6 +2023,52 @@ Los scripts que normalizaron los cuerpos de `routeName` convirtieron de paso CRL
 irrevisable, y por eso mismo invisible en una revisión: nadie lee cuatro mil líneas para
 comprobar que sobran. Salió cuando el propietario dijo **«enséñame el Paso B»** y hubo que
 producir el diff.
+
+### REGLA MAYOR — NUESTRAS PUERTAS NO PUEDEN VERIFICAR PROSA. NINGUNA. NUNCA
+
+**Todas nuestras puertas verifican PROPIEDADES EJECUTABLES**: que un archivo compile, que una
+clase cargue, que una firma no cambie, que un contador no suba, que una suite pase.
+
+**Un comentario, un documento, un nombre de variable, una entrada del `CHANGELOG` — su verdad
+es SEMÁNTICA**, y está fuera del alcance de las ocho comprobaciones de `verify-integrity`, del
+trinquete y de las suites. No es que hoy no lo detecten: es que **no pueden**.
+
+El caso que lo demostró (T40): ocho comentarios acabaron describiendo un código que no era el
+suyo, y **todo estaba en verde** — compilaban, las suites pasaban, y la puerta nueva contaba
+menos bloques, que era justo lo que se buscaba. Ninguna señal miraba si lo que quedaba era
+cierto, porque ninguna sabe hacerlo.
+
+> **PROCEDIMIENTO, no anécdota: TODO CAMBIO SOBRE PROSA —comentarios, documentos, `CHANGELOG`—
+> SE ENTREGA COMO PARES ANTES/DESPUÉS, no como conteo.** «De 132 bloques a 91» no dice
+> absolutamente nada sobre si los 91 son ciertos. El par impreso al lado sí, y cuesta un minuto.
+
+**Y es la contraparte exacta de la foto de E2**, que conviene ver junta porque es la misma idea
+aplicada a las dos mitades del repositorio:
+
+| | Qué se compara | Cómo |
+| :-- | :-- | :-- |
+| **Código** | el antes y el después de un cambio | un recorrido de rutas reproducible |
+| **Prosa** | el antes y el después de un cambio | el par impreso, leído por una persona |
+
+En los dos casos la red es **un antes reproducible**. La diferencia es quién lo compara: en uno
+una herramienta, en el otro **necesariamente** alguien leyendo.
+
+### CUANDO UNA PUERTA APRUEBA ALGO QUE LUEGO RESULTA DIVERGENTE, EL DEFECTO ES SU ALCANCE
+
+**Y se amplía en el MISMO commit en que se arregla lo que se le escapó**, o la próxima
+divergencia vuelve a pasar por delante de ella.
+
+Van dos veces:
+
+| Puerta | Qué aprobó | Qué no miraba |
+| :-- | :-- | :-- |
+| `verify-integrity`, primera versión | Un archivo al que un corte por posición le había arrancado el `namespace` | Comprobaba docblocks y firmas, **no que la clase declarada correspondiera a su ruta** |
+| `shared-toolchain` | Cuatro repositorios cuyo estado de seguimiento divergía | Comprobaba que los archivos contuvieran las MARCAS, **no el estado de lo que las herramientas PRODUCEN** |
+
+El segundo caso, detallado, está en T42. Lo que importa aquí es la forma: **una puerta verde
+sobre algo divergente no es una puerta que falló, es una puerta que no estaba mirando ahí** — y
+la reacción correcta no es arreglar la divergencia y seguir, sino preguntarse **qué más cae
+fuera del alcance** y meterlo dentro antes de cerrar.
 
 ### No fue una casualidad. Pasa cada vez
 
@@ -4294,3 +4352,156 @@ Leídos los 14, se parten en dos y **no eran una familia**:
 
 **Y la cifra del baseline lleva su reparto escrito en `PHPStanResult.Summary.baseline.txt`**,
 porque «bajó 15» y «arreglamos 15» no son lo mismo, y el trinquete no distingue solo.
+
+## T42 · LA PUERTA QUE APROBÓ CUATRO REPOSITORIOS DIVERGENTES
+
+`shared-toolchain` comprobaba que los archivos del instrumental **contuvieran sus marcas**, y
+aprobaba en verde sobre cuatro repositorios que **no estaban sincronizados**. El defecto no era
+la divergencia: era el alcance. Ampliada en el mismo commit, como manda T21.
+
+### Lo que se le escapaba, medido
+
+| Divergencia | Estado antes | Por qué la puerta no la veía |
+| :-- | :-- | :-- |
+| **`PHPStanResult.json`** | versionado en `piecesphp`, **ni versionado ni ignorado** en los cuatro | Miraba el CONTENIDO de los archivos, no el estado de seguimiento de lo que las herramientas PRODUCEN |
+| **`bin/Preview/`** | ignorado en `piecesphp`, **generado y suelto** en `html` (dos `.md` dentro) | Ídem |
+| **`bin/cli` de `database`** | fijaba `php8.4` a mano, **sin `PCSPHP_PHP_BIN`** | `bin/cli` no estaba en el registro: solo se vigilaban `phpstan`, `process-result`, el `.neon` y el baseline |
+| **El bit de ejecución de `bin/phpstan`** | `100755` en dos paquetes, **`100644` en `database` y `geojson`** | El modo del archivo no es contenido, y nadie lo miraba |
+
+**El último es el más ilustrativo, y salió solo al ir a usar la herramienta**: `./bin/phpstan`
+respondía **«Permiso denegado»** en dos de los cuatro. Un fallo que nadie relaciona con una
+divergencia de repositorio — se lee como un problema de la máquina, se arregla con un `chmod`
+local, y **vuelve en el siguiente clon**.
+
+> **Y el patrón detrás de las cuatro es el mismo, que es lo que hay que llevarse:** las líneas
+> de `.gitignore` de los archivos intermedios SÍ se habían propagado a los cuatro. **La
+> decisión sobre el archivo de la unión, no.** Se propagó lo que se escribió en un archivo
+> compartido, y no se propagó lo que se decidió sin escribirlo en ninguno. **Una política que
+> vive en la cabeza de alguien se propaga a exactamente un repositorio.**
+
+### Lo que vigila ahora
+
+Tres capas, y las tres se probaron **provocándoles el fallo**:
+
+1. **Marcas** (lo que ya hacía) — más `bin/cli`, marcada como opcional: solo se le exige a los
+   paquetes que lo tengan.
+2. **Seguimiento**: qué debe estar versionado (`PHPStanResult.json`, porque el resumen se
+   construye leyéndolo y sin él el método escrito en el baseline no es reproducible desde el
+   repositorio) y qué debe estar ignorado (los dos intermedios y `bin/Preview`). **Distingue
+   los tres estados**: versionado, ignorado, y *ni una cosa ni la otra* — que era justamente el
+   estado en el que estaban.
+3. **Bit de ejecución** de `bin/phpstan` y `bin/cli`.
+
+```
+(1) PHPStanResult.json sin versionar en geojson  -> «NO está versionado y debería estarlo»
+(2) un intermedio versionado en html             -> «está VERSIONADO y debería estar ignorado»
+(3) sin la regla de Preview en datastructures    -> «no está ignorado ni versionado»
+(4) bin/cli sin PCSPHP_PHP_BIN                   -> «se ha desviado: no contiene PCSPHP_PHP_BIN»
+(5) bin/phpstan en 100644                        -> «está en git sin el bit de ejecución»
+(6) sin tocar nada                               -> OK
+```
+
+### La política, escrita de una vez para los cinco
+
+| Archivo | Estado | Por qué |
+| :-- | :-- | :-- |
+| `PHPStanResult.json` | **versionado** | Es de donde sale el dato del resumen. Sin él, el método del baseline no es reproducible |
+| `PHPStanResult.8.4.json`, `.8.5.json` | **ignorados** | Intermedios de cada pasada. Se regeneran |
+| `bin/Preview/` | **ignorado** | Salida generada por `phpstan-process-result.php` |
+| `bin/phpstan`, `bin/cli` | **`100755`** | Un script que no se puede ejecutar no es una herramienta |
+
+## T43 · v3.2.1 VERIFICADA CONTRA EL VENDOR REAL, Y LO QUE SE DESCARGA UN CONSUMIDOR
+
+### 1. La re-verificación, que era lo urgente
+
+Lo medido hasta ayer se midió parcheando `src/vendor/` a mano, **sobre un entorno que ya no
+existe**. Con la versión publicada y `composer update piecesphp/database`:
+
+```
+  instalado: v3.2.1 ref d18c5b6b        (el commit exacto, desde el remoto)
+  character_set_connection = utf8mb4
+  character_set_database   = utf8mb3     <-- la base SIGUE en utf8mb3
+  bytes en PHP : 50525545424120F09F988020E29DA4EFB88F20C3B1
+  HEX() tabla  : 50525545424120F09F988020E29DA4EFB88F20C3B1
+  ¿idénticos?  : SÍ
+```
+
+**Y el dato que lo cierra es la tercera línea**: la base sigue en `utf8mb3` y la conexión ya es
+`utf8mb4`. Eso es exactamente lo que se afirmó y no se había demostrado sobre el paquete
+publicado — que `SET NAMES` **manda sobre el valor por defecto de la base**, así que el arreglo
+funciona sin tocar ninguna instalación existente.
+
+### 2. La prueba que le faltaba, y por qué la primera versión no valía
+
+Añadida a `unit-tests/UnitTest-Database.php` del paquete. **La primera versión que escribí
+pasaba sin demostrar nada, y lo dijo ella misma**:
+
+```
+INFO: Pedido: utf8mb4 | conexión: utf8mb4 | por defecto de la base: utf8mb4
+[OK] character_set_connection es el juego PEDIDO.
+INFO: La base por defecto coincide con lo pedido: la comprobación de arriba NO discrimina en este servidor.
+```
+
+**La base de pruebas del paquete ya es `utf8mb4`, así que `SET CHARACTER SET` habría dado el
+mismo resultado.** Una comprobación que pasa igual con el defecto puesto no es una
+comprobación.
+
+**El arreglo es cambiar la pregunta**: no «¿la conexión es `utf8mb4`?» sino **«¿la conexión
+sigue lo PEDIDO?»**, pidiendo a propósito un juego **distinto del de la base**:
+
+```
+INFO: Por defecto de la base: utf8mb4 | pedido a propósito distinto: latin1 | conexión: latin1
+[OK] character_set_connection sigue lo PEDIDO y no lo de la base.
+```
+
+Y con el defecto puesto de vuelta —`SET CHARACTER SET`— cae:
+
+```
+INFO: ... pedido: latin1 | conexión: utf8mb4
+[FALLÓ] character_set_connection es 'utf8mb4' y se pidió 'latin1': la conexión está heredando
+        el juego de la base.
+```
+
+> **La lección, que no es sobre charsets: UNA COMPROBACIÓN QUE DEPENDE DE UNA COINCIDENCIA DEL
+> ENTORNO NO COMPRUEBA NADA, Y NO SE NOTA PORQUE SALE EN VERDE.** Aquí se notó solo porque la
+> propia comprobación imprime en qué condiciones está midiendo. **Que una puerta declare cuándo
+> NO discrimina es tan importante como que falle cuando debe.**
+
+La ida y vuelta del emoji se conserva además de la anterior, y tiene el mismo matiz al revés:
+**en este servidor no discrimina** —la base es `utf8mb4`— pero sí lo hace en una base `utf8mb3`
+como la de la aplicación. Las dos juntas cubren los dos escenarios.
+
+### 3. Lo que un consumidor se descarga hoy — medido sobre el vendor real
+
+**El paquete instalado son 1,1 MB en 132 archivos, y ~304 KB de eso es instrumental de
+desarrollo. Un 28 %.**
+
+| Qué | Tamaño |
+| :-- | --: |
+| `bin/` (nuestro PHPStan, Rector y su configuración) | 80 KB |
+| `unit-tests/` | 76 KB |
+| `demos/` | 120 KB |
+| Los cuatro `PHPStanResult*` | 28 KB |
+
+Los otros tres paquetes están más limpios **solo porque sus versiones publicadas son
+anteriores** a los commits de esta campaña: hoy llevan `bin/` (16 KB) y nada más, pero en
+cuanto se publiquen arrastrarán lo mismo.
+
+**`export-ignore` SÍ aplica aquí, y esto había que comprobarlo antes de proponerlo:** solo
+surte efecto en instalaciones por **dist**, porque es `git archive` quien lo respeta; en una
+instalación por *source* (un clon) no hace nada. Medido:
+
+```
+  database         .git presente: no   -> instalación dist (zip)
+  lock: piecesphp/database v3.2.1  dist:zip  source:git
+```
+
+Los cuatro entran por `dist:zip`, y Bitbucket sirve ese zip con `git archive`. **Así que
+funcionaría.**
+
+**NO SE HA TOCADO**, a la espera de decisión, y con dos cosas que conviene decidir con ello:
+
+- **`demos/` son 120 KB y puede que se quieran distribuir**: es documentación ejecutable, no
+  instrumental. Es la única de las cuatro que no es obviamente descartable.
+- **`export-ignore` no es retroactivo**: las versiones ya publicadas seguirán trayéndolo todo.
+  Solo limpia de la próxima etiqueta en adelante.

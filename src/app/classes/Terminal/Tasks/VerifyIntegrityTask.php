@@ -1251,9 +1251,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             }
             $present++;
 
+            $failures = array_merge($failures, self::checkToolchainTracking($package, $packageRoot, $registry));
+
             foreach ($registry['files'] as $relative => $entry) {
                 $file = $packageRoot . '/' . $relative;
                 if (!is_file($file)) {
+                    if (($entry['optional'] ?? false) === true) {
+                        continue; //Solo se exige a los paquetes que lo tengan.
+                    }
                     $failures[] = $package . ' — le falta ' . $relative . '. ' . ($entry['why'] ?? '');
                     continue;
                 }
@@ -1432,6 +1437,63 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
 
         echoTerminal("\e[94mINFO:\e[39m " . count($bloques) . ' bloque(s) narrativo(s) en '
             . count($porArchivo) . ' archivo(s), ' . $prosaTotal . ' líneas de prosa registradas.');
+
+        return $failures;
+    }
+    /**
+     * Lo que las herramientas PRODUCEN también es instrumental compartido.
+     *
+     * Esta comprobación existe porque la de las marcas aprobó en verde cuatro repositorios
+     * cuyo estado de seguimiento divergía: `PHPStanResult.json` versionado aquí y ni versionado
+     * ni ignorado en los paquetes, y un `bin/Preview/` generado colándose en `html`. Las líneas
+     * de `.gitignore` de los intermedios sí se habían propagado; la decisión sobre el archivo
+     * de la unión, no. **El defecto no era la divergencia: era el alcance de la puerta.**
+     *
+     * @param array<string, mixed> $registry
+     * @return string[]
+     */
+    protected static function checkToolchainTracking(string $package, string $packageRoot, array $registry): array
+    {
+        $tracking = $registry['tracking'] ?? null;
+        if (!is_array($tracking)) {
+            return [];
+        }
+        if (!is_dir($packageRoot . '/.git')) {
+            return []; //Sin repositorio no hay estado de seguimiento que comprobar.
+        }
+
+        $failures = [];
+        $git = 'git -C ' . escapeshellarg($packageRoot) . ' ';
+
+        foreach ((array) ($tracking['tracked'] ?? []) as $relative => $why) {
+            $out = trim((string) @shell_exec($git . 'ls-files -- ' . escapeshellarg((string) $relative) . ' 2>/dev/null'));
+            if ($out === '') {
+                $failures[] = $package . ' — ' . $relative . ' NO está versionado y debería estarlo. ' . (string) $why;
+            }
+        }
+
+        foreach ((array) ($tracking['executable'] ?? []) as $relative => $why) {
+            if (!is_file($packageRoot . '/' . $relative)) {
+                continue; //Solo se exige a los paquetes que lo tengan.
+            }
+            $modo = trim((string) @shell_exec($git . 'ls-files -s -- ' . escapeshellarg((string) $relative) . ' 2>/dev/null'));
+            if ($modo !== '' && !str_starts_with($modo, '100755')) {
+                $failures[] = $package . ' — ' . $relative . ' está en git sin el bit de ejecución. ' . (string) $why;
+            }
+        }
+
+        foreach ((array) ($tracking['ignored'] ?? []) as $relative => $why) {
+            $seguido = trim((string) @shell_exec($git . 'ls-files -- ' . escapeshellarg((string) $relative) . ' 2>/dev/null'));
+            if ($seguido !== '') {
+                $failures[] = $package . ' — ' . $relative . ' está VERSIONADO y debería estar ignorado. ' . (string) $why;
+                continue;
+            }
+            //`check-ignore` devuelve 1 cuando NO está ignorado: se mira la salida, no el código.
+            $ignorado = trim((string) @shell_exec($git . 'check-ignore -- ' . escapeshellarg((string) $relative) . ' 2>/dev/null'));
+            if ($ignorado === '') {
+                $failures[] = $package . ' — ' . $relative . ' no está ignorado ni versionado: la política no se ha propagado. ' . (string) $why;
+            }
+        }
 
         return $failures;
     }

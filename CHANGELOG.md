@@ -470,6 +470,22 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Herramientas
 
+- **El trinquete exige el REPARTO de cada movimiento del baseline.** Premiaba igual arreglar
+  que callar: una bajada por supresión se lee exactamente igual que una por arreglo. Ahora cada
+  cifra del baseline declara `[REPARTO] n <- anterior = x arreglos + y supresiones`, las
+  cuentas tienen que cuadrar, y sin esa línea `bin/phpstan` no pasa. No es para prohibir
+  suprimir: es para que suprimir no pueda disfrazarse de progreso.
+
+- **`shared-toolchain` deja de mirar solo el contenido y pasa a mirar el estado.** Aprobaba en
+  verde sobre cuatro repositorios que no estaban sincronizados. Ahora comprueba tres capas: las
+  marcas de siempre (más `bin/cli`), el **estado de seguimiento de lo que las herramientas
+  producen** —qué debe estar versionado, qué ignorado, y distinguiendo el caso de *ni una cosa
+  ni la otra*— y el **bit de ejecución** de `bin/phpstan` y `bin/cli`, que estaba en `100644`
+  en dos paquetes y hacía que `./bin/phpstan` respondiera «Permiso denegado».
+    - Se alinean los cinco repositorios: `PHPStanResult.json` versionado, los dos intermedios y
+      `bin/Preview/` ignorados, y `database/bin/cli` pasa a honrar `PCSPHP_PHP_BIN` en vez de
+      fijar `php8.4` a mano.
+
 - **`bin/cli verify-integrity` gana su octava comprobación: comentarios narrativos.** Un
   bloque con **más de dos líneas de prosa y ninguna anotación** (`@param`, `@return`, `@var`,
   `@package`, `@author`, `@throws`) es la firma mecánica del relato: los docblocks de API

@@ -187,6 +187,42 @@ if ($currentTotal > $baselineTotal) {
     exit(1);
 }
 
+//Cada cifra del baseline declara «[REPARTO] n <- anterior = x arreglos + y supresiones», o esto no pasa.
+$baselineText = (string) @file_get_contents($baselinePath);
+if (preg_match_all('/\[REPARTO\]\s*(\d+)\s*<-\s*(\d+)\s*=\s*(\d+)\s+arreglos?\s*\+\s*(\d+)\s+supresi/u', $baselineText, $splits, \PREG_SET_ORDER) > 0) {
+    $splitsByTotal = [];
+    foreach ($splits as $s) {
+        $splitsByTotal[(int) $s[1]] = ['from' => (int) $s[2], 'fixed' => (int) $s[3], 'muted' => (int) $s[4]];
+    }
+} else {
+    $splitsByTotal = [];
+}
+
+$firstTotal = null;
+if (preg_match_all('/\[REPARTO\]\s*(\d+)\s*<-\s*(\d+)/u', $baselineText, $all, \PREG_SET_ORDER) > 0) {
+    $firstTotal = (int) $all[count($all) - 1][2]; //La cifra más antigua citada.
+}
+
+if (!array_key_exists($baselineTotal, $splitsByTotal) && $baselineTotal !== $firstTotal) {
+    fwrite(STDERR, "\nTRINQUETE SIN REPARTO: el baseline declara {$baselineTotal} y no dice cuántos son arreglo y cuántos supresión.\n");
+    fwrite(STDERR, "Añade a " . basename($baselinePath) . " una línea con la forma:\n");
+    fwrite(STDERR, "  [REPARTO] {$baselineTotal} <- <anterior> = <n> arreglos + <n> supresiones\n");
+    fwrite(STDERR, "No es para prohibir suprimir: es para que una bajada por supresión no se lea como progreso.\n");
+    exit(1);
+}
+
+if (array_key_exists($baselineTotal, $splitsByTotal)) {
+    $s = $splitsByTotal[$baselineTotal];
+    $declared = $s['fixed'] + $s['muted'];
+    $real = $s['from'] - $baselineTotal;
+    if ($declared !== $real) {
+        fwrite(STDERR, "\nTRINQUETE: EL REPARTO NO CUADRA. De {$s['from']} a {$baselineTotal} van {$real}, y se declaran "
+            . "{$s['fixed']} arreglos + {$s['muted']} supresiones = {$declared}.\n");
+        exit(1);
+    }
+    echo "TRINQUETE: reparto declarado y cuadrado — {$s['from']} -> {$baselineTotal}: {$s['fixed']} por arreglo, {$s['muted']} por supresión.\n";
+}
+
 echo $currentTotal < $baselineTotal
-    ? "TRINQUETE: {$currentTotal} contra un baseline de {$baselineTotal} (-" . ($baselineTotal - $currentTotal) . "). Actualiza el baseline con su nota de medición.\n"
+    ? "TRINQUETE: {$currentTotal} contra un baseline de {$baselineTotal} (-" . ($baselineTotal - $currentTotal) . "). Actualiza el baseline con su nota de medición Y su [REPARTO].\n"
     : "TRINQUETE: {$currentTotal}, igual que el baseline.\n";
