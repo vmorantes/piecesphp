@@ -3560,3 +3560,111 @@ La hipótesis del grupo de idioma cae dentro de la misma causa: `getLangGroupDat
 entero, cinco `set_config` seguidos— y deshacerlo por mi cuenta es tirar una intención que no
 conozco. **Es la regla de T27 aplicada antes de romper nada: si alguien lo dejó así a
 propósito, primero se pregunta por el propósito.**
+
+## T37 · E1(c) · EL EMOJI — medido, y resuelve el alcance de T28 partiéndolo en dos
+
+**Encontrada la causa raíz, y no está en este repositorio: está en `piecesphp/database`, en una
+palabra.**
+
+### 1. La medición que se pidió
+
+Escrito un emoji **por el ORM** en una columna `text` y releído con `HEX()`:
+
+```
+  cadena en PHP  : PRUEBA 😀 ❤️ ñ
+  bytes en PHP   : 50525545424120 F09F9880 20E29DA4EFB88F 20C3B1
+  guardado por el ORM: sí            <-- save() devuelve true
+  valor en tabla : PRUEBA ? ❤️ ñ
+  HEX()          : 50525545424120   3F     20E29DA4EFB88F 20C3B1
+  ¿bytes idénticos? NO  <-- SE PIERDE
+```
+
+`F09F9880` (😀, cuatro bytes) entra y sale como `3F`, que es un **interrogante literal**. El
+corazón `❤️` y la `ñ` sobreviven: son de tres y dos bytes. **Se pierde exactamente lo de cuatro
+bytes**, y `save()` devuelve `true` mientras lo hace.
+
+### 2. La causa: `SET CHARACTER SET` no es `SET NAMES`
+
+El censo del servidor deja el mecanismo a la vista:
+
+| Variable | Valor |
+| :-- | :-- |
+| `character_set_client` | `utf8mb4` |
+| **`character_set_connection`** | **`utf8mb3`** |
+| `character_set_results` | `utf8mb4` |
+| `character_set_database` | `utf8mb3` |
+
+Y las columnas **no son el problema**: **189 de 193** columnas de texto ya son `utf8mb4`. La
+tabla puede guardar el emoji; **la conexión no lo deja llegar**.
+
+`database/src/Core/Database/Database.php:240`:
+
+```php
+$prepareStatement = $instance->prepare("SET character set {$charset}; SET time_zone='{$timezone}';");
+```
+
+**`SET CHARACTER SET` fija `client` y `results`, pero pone `connection` al juego de la BASE DE
+DATOS**, no al que se le pasa. `SET NAMES` es el que fija los tres. Por eso el
+`$config['database']['default']['charset'] = 'utf8mb4'` de este repositorio es correcto **y da
+igual**: el paquete lo degrada a `utf8mb3` en la línea siguiente. El DSN tampoco lleva
+`charset=`, así que no hay una segunda vía que lo salve.
+
+Demostrado en las dos direcciones sobre la misma conexión, sin tocar el paquete:
+
+```
+sin tocar nada         HEX() = …203F20…              ¿idénticos? NO
+SET NAMES utf8mb4      HEX() = …20F09F988020…        ¿idénticos? SÍ
+```
+
+Una sentencia. **No se arregla aquí**: el propietario pidió medir, y además vive en otro
+repositorio, con su commit pendiente de la credencial.
+
+### 3. Y ESTO RESUELVE EL ALCANCE DE T28 — pero no como esperaba: son DOS defectos
+
+T28 decía que el `0x89` inicial del PNG se pierde **en la escritura**. Escrita la firma PNG por
+el mismo camino:
+
+```
+conexión tal cual      bytes: 89504E470D0A1A0A   ->   HEX(): 3F504E470D0A1A0A
+```
+
+**Mismo síntoma, mismo `3F`.** Pero con la conexión arreglada el resultado NO es que funcione:
+
+```
+SET NAMES utf8mb4      SQLSTATE[22007] 1366: Incorrect string value: '\x89PNG\x0D\x0A…'
+```
+
+Y ahí está el reparto, que es lo que había que decidir:
+
+| | Hoy (`utf8mb3`) | Con la conexión arreglada |
+| :-- | :-- | :-- |
+| **Emoji** (UTF-8 válido de 4 bytes) | se pierde en silencio | **funciona** |
+| **PNG** (bytes que no son UTF-8) | se corrompe en silencio | **falla con error 1366** |
+
+- **El emoji es un defecto de la CONEXIÓN.** Se arregla con `SET NAMES`, y queda arreglado.
+- **El PNG es un defecto de MODELADO**: son bytes binarios en una columna de texto, y eso no lo
+  arregla ningún juego de caracteres. Necesita `BLOB` o base64.
+
+**El arreglo de la conexión no arregla el PNG: lo vuelve ruidoso.** Y eso es mejor —un error
+1366 se ve, un `3F` no— **pero hay que decirlo antes de aplicarlo**, porque el día que se
+cambie esa palabra, todo camino que hoy mete binario en una columna de texto **empieza a
+lanzar**. Es justo la clase de cosa que convierte un arreglo correcto en una llamada del
+cliente: **no hay que embarcar la trampa, pero tampoco desactivarla a ciegas un viernes.**
+
+**Orden propuesto, y va con E2**, que es donde se ejercitan las escrituras: primero encontrar
+qué columnas reciben binario hoy —solo aparece escribiendo—, luego arreglar la conexión.
+
+### 4. Y una lección de método que salió de mi propia sonda
+
+La sonda dejó **una fila viva** en `newsletter_sucribers`. Su `finally` borraba por `$id`, y
+`$id` se calculaba **dentro del `try`**: en la ejecución que falló antes de calcularlo, el
+`finally` corrió y no borró nada.
+
+> **Un `finally` que limpia usando un valor calculado dentro del `try` no es una limpieza: es
+> una limpieza condicional a que no falle lo de antes.** Lo que hay que capturar para poder
+> borrar se calcula **antes** de entrar, o se borra por un criterio que no dependa del `try`
+> —aquí, el prefijo `zz_emoji_`—.
+
+Y solo se descubrió porque **se comprobó que no quedaban restos**, en vez de darlo por hecho.
+Esa comprobación es la que se le exige a E2 en su condición 4; queda demostrada aquí de que
+hace falta.

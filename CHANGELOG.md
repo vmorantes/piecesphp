@@ -38,6 +38,24 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
+## AVISO PARA DESPLIEGUES EXISTENTES — los emoji NO se están guardando
+
+**Medido, no supuesto**: un emoji escrito por el ORM en una columna de texto se guarda como
+`?`. `HEX()` sobre lo guardado devuelve `3F` donde PHP mandó `F09F9880`, y `save()` devuelve
+`true` mientras ocurre.
+
+La causa no está en las tablas —**189 de 193 columnas de texto ya son `utf8mb4`**— sino en la
+conexión: `piecesphp/database` ejecuta `SET CHARACTER SET`, que fija `character_set_client` y
+`character_set_results` pero deja `character_set_connection` en el juego **de la base de
+datos** (`utf8mb3`). `SET NAMES` es el que fija los tres. El `charset = 'utf8mb4'` de
+`config/database.php` es correcto y queda anulado ahí.
+
+**Todavía no está arreglado**, y el arreglo tiene un efecto que hay que conocer antes: con la
+conexión en `utf8mb4`, todo camino que hoy escriba **bytes que no son UTF-8** en una columna de
+texto —imágenes crudas, por ejemplo— pasa de corromperse en silencio a **fallar con el error
+1366**. Es mejor comportamiento, pero es un cambio de comportamiento. Ver T37 en
+`.agents/context/18-siguientes-ventanas.md`.
+
 ## AVISO PARA DESPLIEGUES EXISTENTES
 
 **Versiones afectadas: todas hasta la `v7.1.0` incluida.** El framework es una plantilla que
