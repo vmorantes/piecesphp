@@ -470,6 +470,16 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Herramientas
 
+- **`bin/cli snapshot`: fotografía la base entera y el árbol servido, y compara dos fotos.**
+  Por tabla guarda el conteo, un hash agregado y **un hash por fila indexado por su clave
+  primaria**, sacada de `information_schema`; del árbol, tamaño, `mtime` y hash de cada
+  archivo. Comparar dos fotos atribuye cada diferencia a lo que corrió entre ellas.
+    - Existe porque «solo GET» resultó no ser una propiedad de seguridad en este código: hay
+      caminos de lectura que escriben, y se descubrieron de uno en uno y por accidente.
+    - Por encima de 20.000 filas no guarda hashes por fila, **y lo dice nombrando las tablas**:
+      un recorte que no se declara se lee como cobertura completa.
+    - Las fotos no se versionan; la herramienta sí.
+
 - **El trinquete exige el REPARTO de cada movimiento del baseline.** Premiaba igual arreglar
   que callar: una bajada por supresión se lee exactamente igual que una por arreglo. Ahora cada
   cifra del baseline declara `[REPARTO] n <- anterior = x arreglos + y supresiones`, las

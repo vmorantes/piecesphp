@@ -4505,3 +4505,85 @@ funcionaría.**
   instrumental. Es la única de las cuatro que no es obviamente descartable.
 - **`export-ignore` no es retroactivo**: las versiones ya publicadas seguirán trayéndolo todo.
   Solo limpia de la próxima etiqueta en adelante.
+
+## T44 · E2 — LA FOTO: primera pieza construida, `bin/cli snapshot`
+
+**El propósito, que no se puede perder de vista**: E3 borra trece mil quinientas líneas y edita
+módulos que se quedan. **La única red es poder comparar contra un antes reproducible**, y todo
+lo que E2 construya se usa seis veces en E3, una por lote.
+
+### Lo que hace
+
+Fotografía **la base entera y el árbol servido**, y compara dos fotos atribuyendo cada
+diferencia a lo que corrió entre ellas.
+
+```bash
+bin/cli snapshot label=antes
+… lo que sea que se quiera medir …
+bin/cli snapshot label=despues
+bin/cli snapshot compare=antes,despues
+```
+
+**Base de datos**: por tabla, el conteo, un hash agregado y **un hash por fila indexado por su
+clave primaria** —sacada de `information_schema`, no adivinada—. Sin la clave el diff sabría
+que algo cambió pero no **qué**, y para atribuir escrituras a rutas eso es justo lo que hace
+falta.
+
+**Árbol de archivos**: tamaño, `mtime` y hash de cada archivo bajo `src/`, fuera `vendor`,
+`node_modules`, `dumps`, `tmp`, `logs` y las propias fotos.
+
+Salida, comprobada provocando las dos cosas:
+
+```
+── BASE DE DATOS ──
+  ~ newsletter_sucribers — 0 -> 1 (+1)
+      + fila 8
+── ÁRBOL DE ARCHIVOS ──
+  + src/statics/zz-foto-prueba.txt
+
+DIFERENCIAS: 2 — cada una hay que justificarla o arreglarla.
+```
+
+### Tres decisiones, y las tres vienen de errores anteriores
+
+1. **Nada de recortes silenciosos.** Por encima de 20.000 filas no guarda hashes por fila —el
+   diff dejaría de caber en pantalla—, pero **lo dice, y nombra las tablas**. Un recorte que no
+   se declara se lee como cobertura completa, que es media docena de casos de T20.
+2. **El censo tiene que aguantar un árbol que se mueve.** Falló a la primera con
+   `sha1_file(): Failed to open stream`: la aplicación **escribe y borra archivos temporales
+   mientras se la mide** —`missing-lang-messages` lo hace en cada petición—. Un archivo que
+   desaparece entre el listado y la lectura no es un fallo del censo, y tratarlo como tal
+   convierte la herramienta en un generador de falsos positivos.
+3. **Las fotos NO se versionan** (`files/dev/snapshots/.gitignore`). Son de una máquina y de un
+   momento. Lo que se versiona es la herramienta y el informe que sale de compararlas.
+
+### Y ya encontró algo, sin ir a buscarlo
+
+Entre dos invocaciones de `bin/cli` sin nada en medio:
+
+```
+~ time_on_platform — 1 -> 1 (mismas filas, contenido distinto)
+    ~ fila 1
+```
+
+**Una tabla que cambia sola en cada arranque de la CLI.** No es un defecto —parece
+contabilidad de tiempo— pero **es exactamente el tipo de escritura que hay que declarar antes
+de medir**, o aparecerá en las 184 comparaciones del recorrido y las ensuciará todas.
+
+> De ahí la condición que ya estaba escrita en el diseño de E2 y que esto confirma: **las
+> escrituras legítimas de los caminos de lectura se declaran ANTES de medir, con su motivo.
+> Declararlas después de ver el diff es adaptar la regla al resultado.**
+
+Una petición pública a la portada, medida entera: **cero diferencias**. La primera línea de la
+tabla que E2 tiene que entregar.
+
+### Lo que falta de E2
+
+| | Estado |
+| :-- | :-- |
+| **(a)** Base restaurable | **Pendiente.** `db-backup` existe **pero cifra `password` al exportar**: un restaurado volvería a cifrar lo ya cifrado. Hay que resolver eso antes de usarlo como red |
+| **(b)** Recorrido con la salida nueva | **La herramienta está**; falta engancharla al recorredor ruta a ruta para poder ATRIBUIR |
+| **(c)** Ciclo CRUD por módulo | Pendiente |
+| **(d)** Salidas cortadas | Pendiente |
+| **(e)** Prefijo reconocible | Convención ya en uso (`zz_`, `pcs_unit_tests_`) |
+| **(f)** Árbol limpio y etiqueta | Al final |
