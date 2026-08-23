@@ -3603,8 +3603,45 @@ tabla puede guardar el emoji; **la conexión no lo deja llegar**.
 $prepareStatement = $instance->prepare("SET character set {$charset}; SET time_zone='{$timezone}';");
 ```
 
+**Y aquí hay que ser justo con quién hizo qué, porque el propietario lo señaló y tenía razón:
+TODO LO QUE ÉL CONTROLA ESTÁ BIEN.** La cadena entera, comprobada eslabón a eslabón:
+
+| Eslabón | Qué hace | ¿Correcto? |
+| :-- | :-- | :-- |
+| `config/database.php:31,38` | declara `charset = 'utf8mb4'` | **sí** |
+| `BaseEntityMapper.php:70` | lee ese valor y lo pasa hacia abajo | **sí** |
+| `ActiveRecordModel.php:175` | se lo entrega a `Database::instance()` | **sí** |
+| Las tablas | **35 de 35 tablas reales en `utf8mb4`** (las otras 6 son 5 vistas y la tabla de una suite) | **sí** |
+| `Database.php:240` | ejecuta `SET CHARACTER SET` con ese valor | **NO** |
+
+El valor `utf8mb4` llega **intacto** hasta la última línea, y ahí se pierde el efecto. No es una
+configuración mal puesta: es una configuración correcta aplicada con la sentencia equivocada.
+
 **`SET CHARACTER SET` fija `client` y `results`, pero pone `connection` al juego de la BASE DE
-DATOS**, no al que se le pasa. `SET NAMES` es el que fija los tres. Por eso el
+DATOS**, no al que se le pasa.
+
+Demostrado sobre la misma conexión, ejecutando las dos y mirando las tres variables:
+
+```
+  charset que pide config/database.php : utf8mb4
+  tal cual llega hoy              client=utf8mb4  connection=utf8mb3  results=utf8mb4
+  tras SET CHARACTER SET utf8mb4  client=utf8mb4  connection=utf8mb3  results=utf8mb4   <-- no cambia
+  tras SET NAMES utf8mb4          client=utf8mb4  connection=utf8mb4  results=utf8mb4   <-- cambia
+  juego por defecto de la BASE DE DATOS: utf8mb3
+```
+
+**La segunda mitad de la causa es esa última línea**: la base de datos se creó sin juego
+explícito, así que quedó en el del servidor (`utf8mb3`), y `SET CHARACTER SET` hereda
+justamente de ahí. Las tablas sí lo declaran, porque `SchemeCreator` lo emite por tabla; el
+`CREATE DATABASE` no pasa por ahí. **Dos arreglos posibles, y son independientes**: cambiar la
+sentencia en el paquete, o `ALTER DATABASE … CHARACTER SET utf8mb4`. Cualquiera de los dos
+basta; los dos juntos dejan de depender de cómo se cree la base en el próximo despliegue —y eso
+importa, porque **este framework se clona**.
+
+> **Corroborante de la regla del prefijo (doc 12):** la ÚNICA tabla real que no está en
+> `utf8mb4` es `pcs_unit_tests_core_database_exporter_v1`, la de una suite. La misma que hubo
+> que descontar a mano en el censo de columnas. Una tabla de prueba en la base de la aplicación
+> no falsea una medición: falsea todas las que la toquen. `SET NAMES` es el que fija los tres. Por eso el
 `$config['database']['default']['charset'] = 'utf8mb4'` de este repositorio es correcto **y da
 igual**: el paquete lo degrada a `utf8mb3` en la línea siguiente. El DSN tampoco lleva
 `charset=`, así que no hay una segunda vía que lo salve.
