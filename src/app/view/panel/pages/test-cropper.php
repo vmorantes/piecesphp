@@ -35,7 +35,7 @@ $withImage = true;
             'selectorAttr' => 'simple-cropper-modal',
             'referenceW' => '400',
             'referenceH' => '300',
-            'image' => $withImage ? 'img-gen/1920/1080' : '',
+            'image' => $withImage ? baseurl('img-gen/1920/1080') : '',
         ]);?>
     </div>
 </div>

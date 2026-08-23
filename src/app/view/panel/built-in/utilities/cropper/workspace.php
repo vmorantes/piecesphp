@@ -29,7 +29,7 @@ $workspaceWidth = $referenceW >= 450 ? $referenceW : 450;
 ?>
 
 <div class="preview" w="<?=$referenceW;?>">
-    <img src="<?="img-gen/$referenceW/$referenceH";?>">
+    <img src="<?= baseurl("img-gen/{$referenceW}/{$referenceH}"); ?>">
     <button <?= $hideStartButton ? "style='display:none;'" : ''; ?> class="ui button blue" type="button" start></button>
 </div>
 

@@ -115,6 +115,18 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Corregido
 
+- **La URL del generador de imágenes del cropper deja de ser relativa.**
+  `view/panel/built-in/utilities/cropper/workspace.php` y
+  `view/panel/pages/test-cropper.php` construían `img-gen/{w}/{h}` a mano, saltándose la
+  regla de que las URLs se generan con los helpers. Funcionaba **solo** porque
+  `view/panel/layout/header.php` emite `<base href>`, que normaliza cualquier relativa: sin
+  esa etiqueta, las tres pantallas que usan el cropper —`Documents` add y edit, y
+  `usuarios/form.php`— quedaban con el marcador de imagen roto. Ahora las dos usan
+  `baseurl()`, que es la forma que ya usaban las otras ocho apariciones de `img-gen`.
+    - Barrido completo de las vistas: eran **las dos únicas** de su especie. Los otros 200
+      atributos de URL delegan en una variable construida con `routeName()`, y los 18
+      literales `statics/…` están en páginas que llevan su propio `<base href>`.
+
 - **Rector dejaba fuera 34 de 195 archivos.** El formateador de tabla de PHPStan recorta las
   rutas al ancho de terminal (80 al redirigir), y `Rector.php` descartaba con `file_exists()`
   lo que no resolvía **sin avisar**: el 17 % de la superficie con errores no entraba al

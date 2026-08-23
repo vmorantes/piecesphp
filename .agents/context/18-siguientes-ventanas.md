@@ -3446,3 +3446,117 @@ Diseño en T34 · E2.
 —la mía y la del propietario— eran coherentes con todo lo observable. Ninguna sobrevivió a
 poner el estado en la tabla y preguntarle al código. **Coherente con los síntomas no es lo
 mismo que cierto**, y la diferencia solo la da el instrumento.
+
+## T36 · E1(b) · LA URL DEL CROPPER Y EL IFRAME DE SURVEYJS — los dos, medidos en el navegador
+
+### 1. Primero, una corrección de método que se repitió TRES veces en este apartado
+
+Las tres veces el fallo fue el mismo: **medir con un instrumento que no reproduce lo que hace
+el navegador**, y creerme el resultado.
+
+| Instrumento | Qué dijo | Por qué mentía |
+| :-- | :-- | :-- |
+| `grep '<base '` con `head` | «el panel no tiene `<base>`» | Lo tenía; **`head` cortó la salida** justo antes |
+| Resolución de URL a mano en el probe | «resuelve a `…/agregar/img-gen/…`» | El navegador usa el `<base href>`, mi probe no |
+| `curl` sin `Referer` | «`img-gen` da 404 siempre» | `requestIsSameDomain()` **exige `Referer`/`Origin`**; con ellos da 200 |
+| Regex `src="…"` con comillas dobles | «la página no carga ningún recurso» | El framework emite **comillas simples** |
+
+**Ninguno era un fallo del código: los cuatro eran fallos míos de medición.** T20 otra vez, y
+esta vez cuatro seguidos en la misma hora. La regla operativa que queda: **cuando se mide algo
+que un navegador interpreta, el instrumento tiene que interpretar lo mismo que el navegador**
+—`<base>`, `Referer`, comillas— o no está midiendo eso.
+
+### 2. La URL del cropper: era la ÚNICA de su especie, y estaba viva de milagro
+
+`view/panel/built-in/utilities/cropper/workspace.php:32` construía
+`src="<?="img-gen/$referenceW/$referenceH";?>"` — relativa, sin `baseurl()`, saltándose la
+regla 3.
+
+**Funcionaba**, y ahí está lo interesante: funcionaba solo porque
+`view/panel/layout/header.php:13` emite `<base href="<?= baseurl(); ?>">`, que normaliza
+cualquier relativa a la raíz. **Es decir: la regla 3 no se estaba saltando impunemente, se
+estaba saltando a cuenta de una etiqueta que otra vista pone.** Quitar ese `<base>` —o incluir
+el cropper desde una vista que no lo tenga— rompe las tres pantallas que lo usan
+(`Documents` add y edit, y `usuarios/form.php`) sin que nadie relacione una cosa con la otra.
+
+**Eso es exactamente una trampa embarcada**: no falla hoy, falla en el clon de dentro de un año.
+
+El barrido buscó más de lo mismo en **todas** las vistas (`src/app/view` y
+`src/app/classes/**/Views`), y hay que contarlo en dos mitades porque el primer barrido estaba
+mal calibrado:
+
+- **200 atributos** de URL delegan en una variable (`<?= $action; ?>`, `<?= $addLink; ?>`…).
+  **Esos NO son hallazgos**: la variable se construye con `routeName()` en el controlador, que
+  es justo lo que manda la regla 3.
+- **18 literales relativos** del tipo `statics/images/…` en páginas de error, correo y algún
+  parcial. **Todas esas páginas llevan su propio `<base href>`**, comprobado uno a uno. Quedan
+  anotadas, no tocadas: son la misma dependencia que el cropper, pero en vistas que sí
+  controlan su propia cabecera.
+- **1 sola** construía la URL con una cadena dentro de PHP: la del cropper. Con la hermana de
+  `view/panel/pages/test-cropper.php:38`, que pasa `'img-gen/1920/1080'` como valor, son **dos
+  sitios de la misma familia** — y por T17 se arreglan los dos o ninguno.
+
+Arregladas las dos con `baseurl()`, que es **la forma que ya usaban las otras ocho apariciones
+de `img-gen`** en el proyecto. Se eligió `baseurl()` y no `get_route('img-gen', …)`, que sería
+más canónico, precisamente por T27: la familia se define por el motivo, y aquí el motivo es
+«así se construye la URL del generador de imágenes». Dejar una de nueve distinta es sembrar la
+próxima duda. Medido antes de decidir: **las dos formas devuelven la misma URL.**
+
+Comprobado en el navegador, con sesión, antes y después:
+
+```
+antes:  src=img-gen/300/300                    (relativa, dependiente del <base>)
+ahora:  src=https://…/src/img-gen/300/300  ->  HTTP 200
+        src=https://…/src/img-gen/400/400  ->  HTTP 200
+```
+
+**Dos anotados, no arreglados**, porque no son de esta familia y merecen su propia decisión:
+`MySpace/…/my-organization-profile-assign-administrator.php:36` tiene `action="."` y
+`view/layout/menu.php:119` tiene `href="./"`. Los dos resuelven a la raíz **gracias al
+`<base>`**, o sea que hoy hacen lo que parece que quieren hacer. Con `<base>` distinto, no.
+
+### 3. El iframe de SurveyJS: la causa es una sola, y las dos hipótesis eran la misma
+
+El propietario propuso dos: que faltara registrar el grupo de idioma `'SurveyJS'`, o que el
+borrado de assets se llevara `configurations.js`. **Son la misma, y la segunda es la causa.**
+
+`MySpace/Views/resources/survey-js-form.php` empieza vaciando **toda** la configuración de
+assets —`global_assets`, `custom_assets`, `default_assets`, `global_requireds_assets`,
+`imported_assets`— y luego añade solo los dos JS y el CSS de SurveyJS. Abierta la página con
+sesión, eso es exactamente lo que sirve, y los tres cargan bien:
+
+```
+=== survey-js-form -> HTTP 200
+  200  statics/plugins/surveyjs/survey-core/defaultV2.min.css
+  200  statics/plugins/surveyjs/survey-core/survey.core.min.js
+  200  statics/plugins/surveyjs/survey-js-ui/survey-js-ui.min.js
+```
+
+**Y ahí está el problema: eso es TODO lo que carga.** El arranque de la propia página es
+
+```js
+window.addEventListener('PiecesPHP-Configurations-And-Window-Load', function() { surveyJSTest() })
+```
+
+y ese evento lo dispara **un único archivo en todo el proyecto**:
+`statics/core/js/configurations.js`, que vive en `$assets['app_libraries']['js']`
+(`config/assets.php:442`) — **una de las claves que la vista acaba de vaciar**.
+
+Sin él, el evento no se dispara nunca y `surveyJSTest()` no llega a ejecutarse. El iframe se
+queda en blanco, y **no hay error en consola que lo delate**: no falla nada, simplemente no
+ocurre nada. Por eso costaba verlo.
+
+La hipótesis del grupo de idioma cae dentro de la misma causa: `getLangGroupData('SurveyJS')`
+—línea 97— también se define en ese archivo. Con el borrado, ni siquiera se llega ahí.
+
+**Queda para decisión del propietario, porque las dos salidas cambian cosas distintas:**
+
+| Salida | Qué cuesta |
+| :-- | :-- |
+| **(a)** No vaciar `default_assets`: que el iframe cargue el núcleo | El iframe engorda con jQuery, Fomantic y el resto. Funciona todo, incluido el grupo de idioma |
+| **(b)** Que la página deje de depender del framework: `window.addEventListener('load', …)` y las cadenas de idioma escritas ahí | El iframe se queda ligero y aislado, que es lo que parecía buscar el borrado. Hay que resolver `getLangGroupData` a mano |
+
+**No se arregla sin esa decisión**: el borrado de assets es deliberado —alguien lo escribió
+entero, cinco `set_config` seguidos— y deshacerlo por mi cuenta es tirar una intención que no
+conozco. **Es la regla de T27 aplicada antes de romper nada: si alguien lo dejó así a
+propósito, primero se pregunta por el propósito.**
