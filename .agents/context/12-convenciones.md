@@ -73,6 +73,17 @@ Da **151 columnas distintas y 10 con guion bajo**. Las dos que sobran —`avatar
 `secret_key`— son de `pcs_unit_tests_core_database_exporter_v1`, **la tabla que crea la suite
 del exportador**, no del esquema real. Descontadas, quedan las ocho de arriba.
 
+> **Y de ahí sale una regla, porque tener que descontar a mano una tabla de prueba es un
+> aviso: UNA TABLA DE UNA SUITE VIVIENDO EN LA BASE DE LA APLICACIÓN FALSEA CUALQUIER
+> MEDICIÓN DE ESQUEMA.** Dos mitades, las dos obligatorias:
+>
+> 1. **Toda suite que cree tablas las nombra con un prefijo reconocible** — el mismo criterio
+>    que ya se exige para las filas que crea.
+> 2. **Toda medición de esquema las descuenta explícitamente**, y dice cuántas descontó.
+>
+> La segunda no es opcional. Sin ella, la primera solo vuelve el ruido más fácil de reconocer;
+> no lo saca de la cifra, y la cifra es lo que se publica.
+
 **Por qué se quedan como están**: renombrar una columna es una **migración contra cada
 despliegue congelado**, y el framework es una plantilla que se clona. El precio de la
 coherencia no compensa el de una migración que hay que ejecutar en sitios que no controlamos.

@@ -1031,9 +1031,7 @@
  ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php                                                               
  ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
-  133    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.                               
-         🪪  assign.propertyType                                                                                                                     
-  296    Parameter Nr.1 $totp of static method PiecesPHP\UserSystem\Authentication\OTPHandler::checkValidityTOTP() expects string, string|null given.  
+  301    Parameter Nr.1 $totp of static method PiecesPHP\UserSystem\Authentication\OTPHandler::checkValidityTOTP() expects string, string|null given.  
          🪪  argument.type                                                                                                                           
  ------ -------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1041,6 +1039,8 @@
   project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php                                                 
  ------ --------------------------------------------------------------------------------------------------------------- 
   374    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
+         🪪  assign.propertyType                                                                                        
+  414    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
          🪪  assign.propertyType                                                                                        
  ------ --------------------------------------------------------------------------------------------------------------- 
 

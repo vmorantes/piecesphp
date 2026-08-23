@@ -372,13 +372,48 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         $totpElement->secret = TOTPStandard::generateSecret();
         $totpElement->twoAuthFactorAlias = $alias;
         $totpElement->twoAuthFactorQRViewed = 0;
-        if ($enable) {
-            $totpElement->twoAuthFactor = self::TWOAF_STATUS_ENABLED;
-            $totpElement->twoAuthFactorSecurityCode = password_hash($securityCode, \PASSWORD_DEFAULT);
-        } else {
-            $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
-            $totpElement->twoAuthFactorSecurityCode = "";
+
+        /**
+         * PREPARAR NO ES ACTIVAR.
+         *
+         * Con `$enable = true` esto ARMABA la cuenta: dejaba `twoAuthFactor` en ENABLED
+         * antes de que nadie hubiera escaneado ni confirmado nada. Entre ese momento y la
+         * confirmación, **el login exigía un código que nadie tenía** — y no se podía
+         * deshacer, porque para llegar a la página que lo deshacía hay que iniciar sesión, y
+         * la sesión ya pedía el código. La única salida era el código de un solo uso por
+         * correo, que además estuvo roto por lo del `chr()`.
+         *
+         * Ahora el secreto, el alias y el código de seguridad se GUARDAN —la tabla tiene
+         * columnas separadas para cada cosa— y `twoAuthFactor` NO se toca. Lo pone en ENABLED
+         * {@see self::confirm2FA()}, que es lo que llama el botón de confirmar.
+         */
+        $totpElement->twoAuthFactorSecurityCode = $enable ? password_hash($securityCode, \PASSWORD_DEFAULT) : "";
+        $totpElement->twoAuthFactor = self::TWOAF_STATUS_DISABLED;
+
+        return $totpElement->update();
+    }
+
+    /**
+     * CONFIRMAR: es aquí, y solo aquí, donde el segundo factor pasa a ENABLED.
+     *
+     * Lo llama el botón de confirmar del flujo del QR, después de que el usuario haya
+     * escaneado. Antes de esto la cuenta NO pide código, así que abandonar el flujo a medias
+     * no deja a nadie fuera.
+     *
+     * @param int $userID
+     * @return bool false si no hay registro TOTP o si no se pudo guardar
+     */
+    public static function confirm2FA(int $userID)
+    {
+        $totpElement = self::getTOTPData($userID);
+
+        if ($totpElement === null) {
+            return false;
         }
+
+        $totpElement->twoAuthFactorQRViewed = 1;
+        $totpElement->twoAuthFactor = self::TWOAF_STATUS_ENABLED;
+
         return $totpElement->update();
     }
 

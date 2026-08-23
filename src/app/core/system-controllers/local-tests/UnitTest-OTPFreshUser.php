@@ -176,6 +176,43 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             OTPSecretsUsersMapper::toggle2FA($userID, true, 'zz-codigo', 'ZZ Prueba') === true,
             'toggle2FA(true) crea el TOTP y devuelve true'
         );
+
+        /**
+         * PREPARAR NO ES ACTIVAR, y esto es lo que lo fija.
+         *
+         * Antes, llegar al QR dejaba la cuenta en ENABLED: entre ese momento y la
+         * confirmación **el login exigía un código que nadie tenía**, y no había forma de
+         * deshacerlo porque para llegar a la página que lo deshacía hacía falta iniciar
+         * sesión. La única salida era el código por correo, que además estuvo roto.
+         */
+        $totpPrepared = OTPSecretsUsersMapper::getTOTPData($userID);
+        $secretOnScan = $totpPrepared !== null ? (string) $totpPrepared->secret : '';
+
+        $check(
+            OTPSecretsUsersMapper::isEnabled2FA($userID) === false,
+            'PREPARAR NO ACTIVA: tras ver el QR, la cuenta NO pide código',
+            'Es la ventana de bloqueo que había: abandonar el flujo dejaba al usuario fuera.'
+        );
+        $check(
+            $secretOnScan !== '' && $totpPrepared !== null && (string) $totpPrepared->twoAuthFactorAlias === 'ZZ Prueba',
+            'pero el secreto y el alias SÍ quedan guardados',
+            'La tabla tiene columnas separadas: preparar puede guardarlo todo sin armar la cuenta.'
+        );
+
+        $check(
+            OTPSecretsUsersMapper::confirm2FA($userID) === true,
+            'confirm2FA() es lo que activa'
+        );
+        $check(
+            OTPSecretsUsersMapper::isEnabled2FA($userID) === true,
+            'y AHORA sí pide código'
+        );
+        $totpConfirmed = OTPSecretsUsersMapper::getTOTPData($userID);
+        $check(
+            $totpConfirmed !== null && (string) $totpConfirmed->secret === $secretOnScan,
+            'el secreto NO se regenera al confirmar: es el que se escaneó',
+            'La reversión antigua lo cambiaba, y dejaba el autenticador apuntando a un secreto muerto.'
+        );
         $totp = OTPSecretsUsersMapper::getTOTPData($userID);
         $check($totp !== null, 'ahora getTOTPData() sí devuelve el registro');
         $check(

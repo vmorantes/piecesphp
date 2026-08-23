@@ -72,6 +72,27 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Seguridad
 
+- **Ver el QR del doble factor dejaba el flujo sin salida: PREPARAR NO ES ACTIVAR.**
+  `OTPSecretsUsersMapper::toggle2FA()` escribía `twoAuthFactor = ENABLED` al pulsar
+  «Activar», antes de que el usuario confirmase nada. A partir de ahí, volver a pulsar
+  «Activar» entraba por la rama `if (!$isCurrentlyEnabled)` de
+  `UserSystemFeaturesController::configureTOTP()`, que **no regeneraba el código de
+  seguridad y lo devolvía vacío** aunque respondiera «Activado.»; y `user-security.js` solo
+  muestra el QR si ese código no viene vacío. Al recargar, la vista revertía el estado y
+  **regeneraba el secreto**, invalidando en silencio cualquier QR ya escaneado.
+    - `toggle2FA()` solo **prepara**: guarda secreto, alias y hash del código de seguridad, y
+      deja el estado en `DISABLED`.
+    - El nuevo `confirm2FA()` es lo único que escribe `ENABLED`, junto con
+      `twoAuthFactorQRViewed = 1`, y **no toca el secreto**: el QR escaneado sigue siendo
+      válido. `markQRDataAsViewed()` lo llama y **propaga su fallo** en vez de responder éxito.
+    - **No había bloqueo de acceso**: la puerta de login exige `isEnabled2FA` **y**
+      `wasViewedQRData`, y esta última seguía en `0`. Comprobado reproduciendo el estado
+      antiguo, no deducido.
+    - La rama de reversión de `MySpace/Views/user-security.php` **se mantiene**: es el camino
+      de salida de las filas que quedaran armadas antes de este cambio.
+    - Queda abierto y anotado: confirmar **no exige demostrar un TOTP válido**, así que
+      confirmar sin haber escaneado bien sí deja fuera de verdad.
+
 - **Comprobar credenciales dejaba de escribir en base de datos.**
   `OTPSecretsUsersMapper::getOTPData()` y `getTOTPData()` eran get-or-create: si no
   encontraban registro, lo insertaban generando un secreto TOTP. Como
@@ -272,6 +293,10 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   cambia qué significa arreglarlo.
 
 ## Pruebas — puertas verificadas en las dos direcciones
+
+- **`UnitTest-OTPFreshUser` sube a 25 comprobaciones**: tres nuevas fijan que preparar el
+  doble factor no lo activa, que confirmarlo sí, y que el secreto **no** se regenera al
+  confirmar.
 
 - **Se provocó el fallo de todas las puertas**, no solo de las nuevas. De doce, nueve
   funcionaban; los tres hallazgos van abajo. Las mutaciones exactas quedan anotadas en

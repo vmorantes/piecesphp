@@ -22,6 +22,7 @@ use PiecesPHP\Core\Utilities\ReturnTypes\ResultOperations;
 use PiecesPHP\RoutingUtils\DefaultAccessControlModules;
 use PiecesPHP\UserSystem\Authentication\OTPHandler;
 use PiecesPHP\UserSystem\Exceptions\SafeException;
+use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 
 /**
  * UserSystemFeaturesController.
@@ -130,9 +131,13 @@ class UserSystemFeaturesController extends AdminPanelController
                 $resultOperation->setSuccessOnSingleOperation(false);
                 $resultOperation->setMessage(__(self::LANG_GROUP, 'No hay una configuración de doble factor para este usuario.'));
             } else {
-                $currentUser->TOTPData->twoAuthFactorQRViewed = 1;
-                $currentUser->TOTPData->update();
-                $resultOperation->setSuccessOnSingleOperation(true);
+                //Este es el punto de CONFIRMACIÓN: aquí, y no antes, el segundo factor pasa
+                //a ENABLED. Preparar no es activar.
+                $confirmed = OTPSecretsUsersMapper::confirm2FA((int) $currentUser->id);
+                $resultOperation->setSuccessOnSingleOperation($confirmed);
+                if (!$confirmed) {
+                    $resultOperation->setMessage(__(self::LANG_GROUP, 'No se pudo confirmar el doble factor.'));
+                }
             }
 
             $response = $response->withJson($resultOperation);

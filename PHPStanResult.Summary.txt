@@ -267,10 +267,9 @@ project://src/app/classes/PiecesPHP/UserSystem/Authentication/OTPHandler.php
 project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
 	return.type (Líneas: 65)
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php
-	assign.propertyType (Líneas: 133)
-	argument.type (Líneas: 296)
+	argument.type (Líneas: 301)
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
-	assign.propertyType (Líneas: 374)
+	assign.propertyType (Líneas: 374, 414)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
 	property.nonObject (Líneas: 271, 294)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php

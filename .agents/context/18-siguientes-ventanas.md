@@ -1861,6 +1861,12 @@ comparar dos baselines solo significa algo si se midieron igual.
 
 **El peor defecto de esta campaña no apareció revisando. Apareció al intentar ENSEÑAR.**
 
+> **Caso añadido, y es el más caro de los tres: T35.** Dos hipótesis sobre el 2FA —una mía y
+> una del propietario—, las dos coherentes con **todos** los síntomas observables, las dos
+> falsas. Ninguna sobrevivió a poner el estado en la tabla y preguntarle a la puerta. Y de ahí
+> sale la lección que gobierna el diseño de E2: **«solo GET» no es una propiedad de seguridad
+> en este código** — es una convención de HTTP, no algo que aquí alguien haga cumplir.
+
 Los scripts que normalizaron los cuerpos de `routeName` convirtieron de paso CRLF a LF en
 **20 archivos**. El commit declaraba **4.185 inserciones para 41 líneas reales** —
 irrevisable, y por eso mismo invisible en una revisión: nadie lee cuatro mil líneas para
@@ -3243,7 +3249,29 @@ Lo que lo vuelve tratable es **la convención de sufijos**: `-forms-add`, `-acti
 nombres de ruta**, sin escribir un guion por módulo — el mismo patrón que ya funcionó con el
 inventario de rutas y con `shared-toolchain`.
 
-**CUATRO CONDICIONES INNEGOCIABLES, porque esto sí escribe:**
+**LA BASE RESTAURABLE HACE FALTA TAMBIÉN PARA LA PASADA DE LECTURA.** Se dijo aquí que E2 la
+necesitaba «porque esto sí escribe», y **eso ya no se sostiene**: el propietario lo corrigió
+después de que aparecieran caminos de solo-lectura que escriben. Un recorrido GET **también**
+puede dejar rastro, así que la base desechable deja de ser una condición de la pasada de
+escritura y pasa a ser condición de **las dos**.
+
+**Y DE AHÍ SALE UNA SALIDA NUEVA DEL RECORREDOR, que es lo que convierte la lección en
+instrumento:** comparar **la base entera y el árbol de archivos** antes y después de cada
+pasada, y **entregar la lista de qué rutas de lectura escriben**. No es un extra del informe:
+es la única forma de que «solo GET» deje de ser una creencia y pase a ser un dato.
+
+- Antes de la pasada: volcado de todas las tablas y censo del árbol de archivos servido.
+- Ruta a ruta, o al menos por lotes pequeños, para poder **atribuir** cada diferencia.
+- Después: mismo volcado, mismo censo, y **el diff atribuido a la ruta que lo causó**.
+- Salida: una tabla `ruta → tabla/fila/archivo tocado`. Vacía es el resultado esperado;
+  cualquier fila es un hallazgo que hay que justificar o arreglar.
+
+**Ojo con el ruido**: hay escrituras legítimas en caminos de lectura —sesiones, caché, logs,
+contadores de visita—. Se declaran **antes** de medir, con su motivo escrito, y todo lo que no
+esté en esa lista es un hallazgo. Declarar después de ver el diff es adaptar la regla al
+resultado.
+
+**CONDICIONES INNEGOCIABLES, porque esto sí escribe:**
 
 1. **Base de datos desechable**, restaurada antes y después. `db-backup` ya existe. **Nunca
    contra la base que usa el propietario**: la manipula por su cuenta, como acaba de
@@ -3255,6 +3283,12 @@ inventario de rutas y con `shared-toolchain`.
    funciona**; si no funciona, eso es un hallazgo **y** un residuo, y las dos cosas hay que
    verlas.
 4. **Prefijo reconocible** en todo lo que cree, para que cualquier resto sea identificable.
+   **Y esto aplica también a las tablas que crea una suite**, no solo a las filas: una tabla de
+   prueba viviendo en la base de la aplicación **falsea cualquier medición de esquema**. Ya
+   pasó: el censo de columnas de C2 tuvo que descontar a mano una tabla del exportador. La
+   regla queda en dos mitades — **quien cree tablas las nombra con prefijo reconocible, y toda
+   medición de esquema las descuenta explícitamente**. La segunda mitad no es opcional: sin
+   ella la primera solo hace el ruido más fácil de reconocer, no lo quita de la cifra.
 
 ### E1 · CIERRE DE CALIDAD — lo que queda
 
@@ -3278,3 +3312,137 @@ puede indexar por `null`**. No son cosméticos y **no se arreglan con un cast**:
 guarda, y probablemente destapen qué pasa hoy cuando el formulario no manda ese campo.
 
 **Se ejercitan en el ciclo CRUD de E2**, que es donde de verdad se van a manifestar.
+
+## T35 · EL 2FA AL VER EL QR — dos diagnósticos falsados, y el defecto que sí había
+
+**El propietario trajo evidencia nueva que contradecía mi informe, y tenía razón en dudar. Al
+medirla, resultó que *ninguno* de los dos diagnósticos —ni el mío ni el suyo— era el correcto,
+y que el defecto real era un tercero.** Esto se cuenta en ese orden a propósito: la parte
+valiosa no es el arreglo, es cómo se cayeron las dos hipótesis.
+
+### 1. El dato que lo destrabó todo: `twoAuthFactorQRViewed` NO es una columna muerta
+
+El propietario preguntó si esa columna sirve para algo, porque en sus dos capturas está en `0`
+mientras yo había reportado que el controlador la escribe a `1`. **Sirve, y es exactamente la
+pieza que faltaba.** Censo, no impresión:
+
+| Dónde | Qué decide |
+| :-- | :-- |
+| `UsersController.php:903` | **La puerta de login**: `$require2FA = isEnabled2FA && wasViewedQRData` |
+| `UserSystemFeaturesController.php:247` | La respuesta de `2fa-required` al formulario de acceso |
+| `UserSystemFeaturesController.php:173` | Si se entrega el QR o se responde «El QR ya caducó» |
+| `MySpace/Views/user-security.php:16` | La reversión al recargar |
+
+Y las capturas del propietario estaban en `0` porque **la escritura a `1` no es del GET**: es
+del POST `mark-current-totp-qr-as-viewed`, el botón de confirmar. Nunca lo había pulsado.
+
+### 2. CORRECCIÓN MÍA: mi recorrido NO activó el 2FA de root, y los GET que escriben son DOS
+
+Reporté que un GET escribía aquí. **Es falso, y la comprobación es de treinta segundos**: los
+métodos HTTP están en el propio `routes()`.
+
+- `get-current-totp-qr-data` → **GET**, y solo lee: llama a `getCurrentUserQRData()`.
+- `configure-totp` → **POST**. Es lo que armaba la cuenta.
+- `mark-current-totp-qr-as-viewed` → **POST**. Es lo que escribía `qrViewed = 1`.
+
+Mi recorrido fue solo-GET, así que **no pudo ser él**. Fue el propietario usando la pantalla.
+**La cuenta de caminos de lectura que escriben baja de tres a dos**: el SEO, y el
+*get-or-create* de perfil que se alcanza en toda petición autenticada (D2, ya arreglado).
+
+**Que la cifra baje no rescata la creencia.** Dos siguen sin ser cero, y siguen siendo los dos
+que nadie habría buscado. La lección aguanta entera.
+
+### 3. CORRECCIÓN DEL PROPIETARIO: el estado transitorio NO pedía código
+
+La hipótesis era que entre «ver el QR» y «confirmar» la cuenta exigía un código que nadie
+tenía. **Es razonable, y es falsa.** Reproducido el estado antiguo exacto en un usuario
+desechable y evaluada la misma expresión que usa el login:
+
+```
+  estado antiguo reproducido: 2FA=ENABLED qrViewed=0
+  la puerta de login exige código: NO
+  con qrViewed=1 exige código: SÍ
+```
+
+La puerta pide **las dos** columnas. Con `qrViewed = 0` no había bloqueo de acceso.
+
+**Y esto es T20 otra vez, aplicado a una hipótesis en vez de a una medición**: la explicación
+encajaba con todos los síntomas visibles, así que costaba nada creerla. Lo que la tumbó no fue
+leer más código, fue **poner el estado y preguntarle a la puerta**.
+
+### 4. Entonces, ¿qué era? Un bucle sin salida, por una condición que se saltaba a sí misma
+
+`UserSystemFeaturesController.php:283` — `if (!$isCurrentlyEnabled) { …genera securityCode… }`.
+Con el código antiguo, en cuanto se pulsaba «Activar» la cuenta ya estaba `ENABLED`, y a partir
+de ahí:
+
+1. Volver a pulsar «Activar» entraba por el `else` implícito: **no regeneraba nada y devolvía
+   `securityCode` vacío**, pero respondía «Activado.» igual.
+2. `user-security.js` solo muestra el QR `if (enable && … && securityCode.length > 0)`. Vacío
+   el código, **no hay QR**.
+3. Y al recargar, la vista revertía y **regeneraba el secreto**, matando en silencio cualquier
+   QR ya escaneado.
+
+Resultado: «Activado», sin QR, sin código de seguridad, y el secreto cambiando debajo. No era
+un bloqueo de acceso — **era un flujo que no se podía terminar**. Peor de contar y menos grave
+de sufrir que la hipótesis, que es justo por qué había que medirlo.
+
+### 5. EL ARREGLO — **PREPARAR NO ES ACTIVAR**
+
+`OTPSecretsUsersMapper::toggle2FA()` deja de escribir `ENABLED`. Guarda el secreto, el alias y
+el hash del código de seguridad, y **deja el estado en `DISABLED`**. Se añade
+`confirm2FA()`, que es lo único que escribe `ENABLED` —junto con `qrViewed = 1`— y que **no
+toca el secreto**, para que el QR que se escaneó siga siendo el bueno.
+`markQRDataAsViewed()` es quien la llama, y **propaga su fallo** en vez de responder éxito.
+
+Comprobado **en las dos direcciones, con el estado de la tabla a la vista**:
+
+```
+DIRECCIÓN 1 — llegar al QR y ABANDONAR:
+  tras preparar (ver QR)   2FA=DISABLED  alias=Mi Alias  qrViewed=0  secreto=D2CPL6ABMG  codigo=60
+  ¿la cuenta pide código ahora? NO  <-- correcto
+
+DIRECCIÓN 2 — completar el flujo:
+  tras confirmar           2FA=ENABLED   alias=Mi Alias  qrViewed=1  secreto=D2CPL6ABMG  codigo=60
+  ¿la cuenta pide código ahora? SÍ  <-- correcto
+  ¿el secreto es el mismo que se escaneó? SÍ
+```
+
+Las tres comprobaciones quedan **permanentes** en `UnitTest-OTPFreshUser` (25/25), no en un
+guion de usar y tirar: una puerta que solo se vio una vez no es una puerta.
+
+De regalo, el bucle del punto 4 se cierra solo: como `$isCurrentlyEnabled` ya no se pone a
+`true` antes de tiempo, volver a pulsar «Activar» **sí** genera código y **sí** muestra el QR.
+
+**La rama de reversión de `user-security.php:16` se deja en su sitio a propósito.** Con el
+código nuevo ya no puede dispararse —`confirm2FA()` escribe las dos columnas juntas—, pero
+**las filas que quedaron armadas antes del arreglo siguen existiendo** y esa rama es su camino
+de salida. Se quita cuando no queden.
+
+### 6. LO QUE QUEDA ABIERTO, y va a E2 — confirmar no exige demostrar el código
+
+`mark-current-totp-qr-as-viewed` **no comprueba ningún TOTP**: gira la columna y ya. El
+formulario de `check-totp` existe y está en la misma pantalla, pero es **independiente** — nada
+obliga a pasar por él. Es decir: **quien confirme sin haber escaneado bien se deja fuera de
+verdad**, y ese sí es el bloqueo que buscábamos, solo que por la puerta de al lado.
+
+No se arregla ahora porque cambia el contrato de la pantalla y toca el JS. **Va a E2**, que es
+donde se ejercitan los caminos de escritura.
+
+### 7. LA LECCIÓN, que es de método y por eso sube a T21
+
+> **«SOLO GET» NO ES UNA PROPIEDAD DE SEGURIDAD EN ESTE CÓDIGO.**
+
+Se diseñó el recorrido solo-GET creyendo que era inocuo, y aparecieron caminos de lectura que
+escriben. La creencia venía de la semántica de HTTP, que es una **convención**, no una garantía
+que alguien haga cumplir aquí.
+
+Lo que se hace con eso no es desconfiar más, es **medir**: la base restaurable pasa a hacer
+falta también en la pasada de lectura, y el recorredor gana una salida que compara la base y el
+árbol de archivos antes y después y **entrega la lista de qué rutas de lectura escriben**.
+Diseño en T34 · E2.
+
+**Y el corolario incómodo, que es el que hay que recordar:** las dos hipótesis de este apartado
+—la mía y la del propietario— eran coherentes con todo lo observable. Ninguna sobrevivió a
+poner el estado en la tabla y preguntarle al código. **Coherente con los síntomas no es lo
+mismo que cierto**, y la diferencia solo la da el instrumento.
