@@ -38,7 +38,7 @@ Sin eso, `OrganizationMapper.php` y `PublicationsController.php` atribuyen **tod
 líneas al commit de renormalización — comprobado: de 1 commit distinto en 600 líneas se pasa
 a la historia real al activarlo.
 
-## AVISO PARA DESPLIEGUES EXISTENTES — los emoji NO se están guardando
+## AVISO PARA DESPLIEGUES EXISTENTES — los emoji NO se están guardando (arreglado en el paquete)
 
 **Medido, no supuesto**: un emoji escrito por el ORM en una columna de texto se guarda como
 `?`. `HEX()` sobre lo guardado devuelve `3F` donde PHP mandó `F09F9880`, y `save()` devuelve
@@ -50,10 +50,30 @@ conexión: `piecesphp/database` ejecuta `SET CHARACTER SET`, que fija `character
 datos** (`utf8mb3`). `SET NAMES` es el que fija los tres. El `charset = 'utf8mb4'` de
 `config/database.php` es correcto y queda anulado ahí.
 
-**Todavía no está arreglado**, y el arreglo tiene un efecto que hay que conocer antes: con la
-conexión en `utf8mb4`, todo camino que hoy escriba **bytes que no son UTF-8** en una columna de
-texto —imágenes crudas, por ejemplo— pasa de corromperse en silencio a **fallar con el error
-1366**. Es mejor comportamiento, pero es un cambio de comportamiento. Ver T37 en
+**Arreglado en `piecesphp/database` v3.2.1**, que cambia esa sentencia por `SET NAMES`.
+Comprobado de punta a punta escribiendo por el ORM: los bytes vuelven idénticos.
+
+**Antes de actualizar el paquete, mide tu propia base.** Con la conexión en `utf8mb4`, todo
+camino que hoy escriba **bytes que no son UTF-8** en una columna de texto —imágenes crudas, por
+ejemplo— pasa de corromperse en silencio a **fallar con el error 1366**. Es mejor
+comportamiento, pero es un cambio de comportamiento.
+
+```bash
+bin/cli scan-invalid-utf8     # qué columnas de texto tienen hoy valores no-UTF-8
+```
+
+Si sale vacío, actualiza sin más. **En la base de desarrollo de este repositorio sale vacío,
+pero eso no dice nada de la tuya: son 89 filas en total y 22 de las 36 tablas están vacías.**
+
+**Y recomendado aparte, para instalaciones existentes**, porque la base se creó sin juego
+explícito y quedó en `utf8mb3`:
+
+```sql
+ALTER DATABASE `tu_base` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+```
+
+Con v3.2.1 puesto no hace falta —`SET NAMES` manda sobre el valor por defecto—, pero sin él
+cualquier cosa que lea ese valor por defecto sigue heredando `utf8mb3`. Ver T28bis y T37 en
 `.agents/context/18-siguientes-ventanas.md`.
 
 ## AVISO PARA DESPLIEGUES EXISTENTES
@@ -132,6 +152,15 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   `apply=yes`.
 
 ## Corregido
+
+- **El iframe de SurveyJS se quedaba en blanco.** La vista vacía toda la configuración de
+  assets —a propósito, para que el CSS y el JS del panel no se cuelen— y con ello se llevaba
+  `statics/core/js/configurations.min.js`, **único emisor en todo el proyecto** del evento
+  `PiecesPHP-Configurations-And-Window-Load` del que depende su propio arranque. Sin él no
+  fallaba nada: simplemente no ocurría nada. Se restaura **ese archivo y solo ese**; el borrado
+  sigue siendo grueso a propósito.
+    - `survey-js-creator.php` no lo necesita —arranca con `load`, no con el evento— y se deja
+      como estaba.
 
 - **La URL del generador de imágenes del cropper deja de ser relativa.**
   `view/panel/built-in/utilities/cropper/workspace.php` y

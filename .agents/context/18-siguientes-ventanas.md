@@ -52,6 +52,39 @@ Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticar
      nombrada, no una frase. «Medido sobre la salida de PHPStan» no sirve; «`bin/phpstan`,
      contando instancias en `PHPStanResult.json`» sí.
 
+7. **UN COMENTARIO QUE FRENA ALGO CABE EN UNA LÍNEA. SI NECESITA UN PÁRRAFO, EL PÁRRAFO NO ES
+   EL COMENTARIO.** La regla anterior —«¿impide romper algo?»— era correcta y **no frenaba la
+   deriva**, porque no decía nada del TAMAÑO: un relato de doce líneas siempre encuentra una
+   frase suya que sí impide romper algo, y con esa se justifica entero.
+
+   El reparto, y no hay cuarto sitio:
+
+   | Dónde | Qué va | Tamaño |
+   | :-- | :-- | :-- |
+   | **El código** | la guarda: qué no se puede hacer aquí y qué pasa si se hace | **una línea** |
+   | **El `CHANGELOG`** | el relato: qué se cambió, por qué, qué se midió | lo que haga falta |
+   | **La instrucción / el documento** | el razonamiento que llevó a la decisión | lo que haga falta |
+
+   Ejemplo del reparto bien hecho, sobre el 2FA:
+
+   ```php
+   //No pongas twoAuthFactor en ENABLED aquí: preparar no es activar. Lo activa confirm2FA().
+   ```
+
+   Eso frena el borrado. **Todo lo demás —la ventana de bloqueo, el código de seguridad vacío,
+   el secreto que se regeneraba— es historia, y la historia va al `CHANGELOG` y a T35.**
+
+   **Y hay un motivo que no es estético: un comentario largo ENVEJECE MAL.** El del `chr()`
+   explica un arreglo de compatibilidad; el día que ese arreglo sea irrelevante, el comentario
+   **miente**, y nadie va a ir a buscarlo. Un documento fechado puede envejecer sin mentir
+   porque se lee como historia; un comentario en el código se lee como el presente.
+
+   > **Causa reconocida por el propietario, y anotarla es parte de la regla:** escribir el
+   > razonamiento en MAYÚSCULAS en la instrucción hace que acabe de encabezado en un docblock.
+   > **EL RAZONAMIENTO VA EN LA INSTRUCCIÓN, LA LÍNEA VA EN EL CÓDIGO, EL RELATO VA EN EL
+   > CHANGELOG.**
+
+   La regla se vigila con una puerta, no a ojo: ver T38.
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -1863,9 +1896,24 @@ comparar dos baselines solo significa algo si se midieron igual.
 
 > **Caso añadido, y es el más caro de los tres: T35.** Dos hipótesis sobre el 2FA —una mía y
 > una del propietario—, las dos coherentes con **todos** los síntomas observables, las dos
-> falsas. Ninguna sobrevivió a poner el estado en la tabla y preguntarle a la puerta. Y de ahí
-> sale la lección que gobierna el diseño de E2: **«solo GET» no es una propiedad de seguridad
-> en este código** — es una convención de HTTP, no algo que aquí alguien haga cumplir.
+> falsas. Ninguna sobrevivió a poner el estado en la tabla y preguntarle a la puerta.
+>
+> **Y las dos cifras quedan corregidas aquí, con la medición y no con la hipótesis:**
+>
+> 1. **Los caminos de lectura que escriben son DOS, no tres.** El «tercero» que reporté no
+>    existe: `get-current-totp-qr-data` es GET y **solo lee**; los que escribían son
+>    `configure-totp` y `mark-current-totp-qr-as-viewed`, **los dos POST**. Mi recorrido fue
+>    solo-GET, así que no pudo activar el 2FA de root: **lo activó el propietario revisando**,
+>    igual que había vaciado las tres tablas a mano. Segunda vez que el instrumento más barato
+>    era preguntarle a la persona con el contexto.
+> 2. **El estado transitorio NO pedía código.** Reproducido el estado antiguo exacto, la puerta
+>    de login exige `isEnabled2FA` **y** `wasViewedQRData`, y la segunda seguía en `0`. El
+>    defecto real era otro —un flujo que no se podía terminar—, y está en T35 §4.
+>
+> **La conclusión aguanta entera pese a las dos correcciones**, y por eso gobierna el diseño de
+> E2: **«solo GET» no es una propiedad de seguridad en este código.** Es una convención de
+> HTTP, no algo que aquí alguien haga cumplir. Dos no es cero, y son dos que nadie habría
+> buscado.
 
 Los scripts que normalizaron los cuerpos de `routeName` convirtieron de paso CRLF a LF en
 **20 archivos**. El commit declaraba **4.185 inserciones para 41 líneas reales** —
@@ -3561,6 +3609,75 @@ entero, cinco `set_config` seguidos— y deshacerlo por mi cuenta es tirar una i
 conozco. **Es la regla de T27 aplicada antes de romper nada: si alguien lo dejó así a
 propósito, primero se pregunta por el propósito.**
 
+### 4. SurveyJS, resuelto — con una corrección al tercer punto del propietario
+
+**Decisión aplicada: opción (a) pero estrecha.** No se restaura el conjunto global de assets;
+se restaura **un solo archivo**, con su línea de razón en la propia vista:
+
+```php
+//El borrado de arriba se lleva configurations.js, que dispara el evento de abajo.
+baseurl("statics/core/js/configurations.min.js"),
+```
+
+Y resulta que un archivo basta, porque `configurations.min.js` **no es `configurations.js`
+minificado: es un bundle**. `gulpfile.js:97-103` concatena `helpers-lib/*.js`,
+`translations/*.js`, `configurations.js` y `helpers.js`. Trae dentro los
+`PCSPHP_TRANSLATIONS_*` de los que depende, así que no arrastra una cadena de dependencias.
+jQuery no entra, y no hace falta: el bloque que la necesita está guardado con
+`"undefined" != typeof $`, mientras que el `dispatchEvent` del evento está fuera de esa guarda.
+
+Servido y comprobado, en orden:
+
+```
+  200  statics/plugins/surveyjs/survey-core/defaultV2.min.css
+  200  statics/core/js/configurations.min.js
+  200  statics/plugins/surveyjs/survey-core/survey.core.min.js
+  200  statics/plugins/surveyjs/survey-js-ui/survey-js-ui.min.js
+```
+
+> **Hasta aquí llega lo comprobado, y el límite se dice en vez de disimularse:** está
+> verificado que el bundle **se entrega, en el orden correcto y con 200**, y leído que es el
+> único emisor del evento. **NO está verificado ejecutándolo**: no hay navegador aquí, e
+> intentar emularlo en Node falló con `HTMLElement is not defined` porque el bundle define un
+> *custom element*. Un emulador que no es el navegador ya me mintió cuatro veces en T36 · 1.
+> **La confirmación final es abrir el iframe y mirar.**
+
+**`survey-js-creator.php` NO se toca, y esto se midió antes de decidirlo**: arranca con
+`window.addEventListener('load', …)`, no con el evento del framework, y no llama a
+`getLangGroupData`. No depende de `configurations.js`, así que añadírselo sería peso sin
+motivo. Se le aplicó el cambio y se revirtió al comprobarlo.
+
+#### Y el tercer punto: `getLangGroupData` YA hace lo que se pedía
+
+El propietario pidió arreglar la función para que un grupo desconocido devuelva un objeto
+vacío en vez de lanzar o romper un `Object.assign`. **El razonamiento es correcto —un grupo
+inexistente es un estado normal, cualquier módulo nuevo lo tiene antes de traducirse— pero la
+función ya se comporta así.** `configurations.js:1335`, definición única en todo el proyecto:
+
+```js
+let groupData = {}
+if (typeof pcsphpGlobals.messages[selectedLang] == 'object') {
+    if (typeof pcsphpGlobals.messages[selectedLang][langGroup] == 'object') {
+        groupData = pcsphpGlobals.messages[selectedLang][langGroup]
+    }
+}
+return groupData
+```
+
+Empieza en `{}` y solo lo sustituye si el grupo existe **y** es un objeto. Ejecutado —esto sí
+se puede ejecutar, es una función pura— con el mismo `Proxy` que usa el código real:
+
+```
+  grupo inexistente -> {} | typeof: object
+  Object.assign con él -> {"pageNextText":"Siguiente"}    (no-op, no rompe)
+  grupo existente -> {"a":"A"}
+```
+
+**No hay mina que desactivar aquí.** Que el grupo `'SurveyJS'` no esté registrado es cierto y
+no es un defecto: la vista funcionará con las cadenas por defecto de SurveyJS, y la
+localización aparecerá el día que alguien cree el grupo. **Que era justo el resultado que se
+buscaba**, solo que ya estaba.
+
 ## T37 · E1(c) · EL EMOJI — medido, y resuelve el alcance de T28 partiéndolo en dos
 
 **Encontrada la causa raíz, y no está en este repositorio: está en `piecesphp/database`, en una
@@ -3705,3 +3822,146 @@ La sonda dejó **una fila viva** en `newsletter_sucribers`. Su `finally` borraba
 Y solo se descubrió porque **se comprobó que no quedaban restos**, en vez de darlo por hecho.
 Esa comprobación es la que se le exige a E2 en su condición 4; queda demostrada aquí de que
 hace falta.
+
+## T28bis · EL ALCANCE, RESUELTO — son DOS arreglos y una limitación de fondo
+
+**T28 preguntaba dónde se pierde el byte del PNG. La respuesta completa reparte el problema en
+tres piezas que hay que tratar por separado**, porque tienen causas, arreglos y dueños
+distintos. Ver la medición en T37.
+
+### (a) LA CONEXIÓN — arreglo de paquete, va como `piecesphp/database` v3.2.1
+
+`Database.php:240` pasa de `SET CHARACTER SET` a `SET NAMES`. **Una palabra.**
+
+Arregla la conexión **para todos, incluidas las bases ya creadas en `utf8mb3`**, porque
+`SET NAMES` manda sobre el valor por defecto de la base en vez de heredarlo. Comprobado de
+punta a punta escribiendo un emoji **por el ORM real** con el paquete parcheado:
+
+```
+  character_set_connection = utf8mb4
+  bytes en PHP : 50525545424120F09F988020C3B1
+  HEX() tabla  : 50525545424120F09F988020C3B1
+  ¿idénticos?  : SÍ
+```
+
+**Es parche, no minor**: no cambia ninguna firma, los datos ya mal escritos siguen igual, y
+ninguna lectura de datos sanos cambia de resultado.
+
+> **`src/vendor/` quedó devuelto a 3.2.0 a propósito.** El parche se probó copiándolo ahí y se
+> revirtió en cuanto se midió: la regla 8 dice que `src/vendor/` no se edita, y un parche a
+> mano que `composer install` borrará deja este entorno comportándose distinto a todos los
+> demás **sin que se vea**. El arreglo vive en el repositorio del paquete.
+
+### (b) LA BASE SE CREÓ SIN JUEGO EXPLÍCITO — es de despliegue, no del paquete
+
+`character_set_database` es `utf8mb3`. **No es un descuido de los mappers**: `SchemeCreator`
+emite el juego por tabla —y por eso las 35 tablas reales están en `utf8mb4`— pero el
+`CREATE DATABASE` no pasa por `SchemeCreator`.
+
+Con (a) puesto esto es cinturón y tirantes. **Sin (b), cualquier cosa que lea el valor por
+defecto de la base sigue mintiendo**: un `CREATE TABLE` a mano, una herramienta externa, un
+volcado. Y este framework **se clona**, así que la próxima instalación nace igual salvo que se
+arregle donde se crea.
+
+- **Instalaciones existentes**: `ALTER DATABASE … CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;`
+  documentado en el `CHANGELOG` del paquete.
+- **Instalaciones nuevas**: corregir el script o la guía de instalación para que nazcan en
+  `utf8mb4`.
+
+### (c) LA CAUSA DE FONDO — `SchemeCreator` NO ADMITE TIPOS BINARIOS
+
+Y esto es lo que explica por qué el problema del PNG existe siquiera. Los tipos que acepta,
+leídos de `SchemeCreator::$typeEquivalences`, son **doce y ninguno es binario**:
+
+```
+varchar  text  mediumtext  longtext  int  bigint
+float    double  json  datetime  date  serialized_object
+```
+
+Ni `blob`, ni `binary`, ni `varbinary`. **Quien necesite guardar binario no tiene más remedio
+que usar una columna de texto**, porque el generador no le ofrece otra cosa y la regla 7 dice
+que el SQL no se escribe a mano.
+
+**No es descuido de nadie: es una limitación del generador.** Queda como **candidato futuro**
+—añadir tipos binarios a `SchemeCreator`—, **no se hace ahora**.
+
+### Lo que hay que saber antes de publicar v3.2.1
+
+Con la conexión arreglada, **lo que hoy se corrompe en silencio pasa a fallar**: escribir bytes
+que no son UTF-8 en una columna de texto devuelve `SQLSTATE[22007]`, error 1366.
+
+`bin/cli scan-invalid-utf8` responde quién está en riesgo, y **se corrió**:
+
+```
+  INFO: esquema 'piecesphp': 36 tabla(s) con columnas de texto.
+  Filas leídas: 88
+  OK: todo el texto analizado es UTF-8 válido.
+```
+
+> **Y aquí la cifra lleva su método, y el método incluye su límite: 88 filas es TODA la base
+> de desarrollo.** 22 de las 36 tablas están vacías; el esquema entero tiene 89 filas. **Un
+> resultado limpio sobre una base vacía no dice que no haya riesgo: dice que no hay datos.**
+>
+> Así que el escaneo no es la respuesta, es **la puerta**: se corre **en la base de cada
+> despliegue** antes de subir el paquete, y va escrito como tal en el `CHANGELOG` de v3.2.1.
+> Aquí no puede decidir nada, y decir lo contrario sería justo el error de T20.
+
+## T38 · EL CENSO DE COMENTARIOS — medido antes de tocar nada, y el instrumento mintió dos veces
+
+**Criterio mecánico, el que pidió el propietario**: bloque de comentario con **más de dos
+líneas de prosa** y **ninguna anotación** (`@param`, `@return`, `@var`, `@package`, `@author`,
+`@throws`). Los docblocks de API siempre traen anotaciones; los relatos no.
+
+**Método reproducible** (T0 · 5): recorrido de `src/app` y `bin` —880 archivos `.php`, `.js`,
+`.ts`; fuera `vendor`, `node_modules`, `bin/tools`, `.min.` y los estáticos del núcleo—,
+agrupando líneas de comentario consecutivas y contando las que tienen texto tras quitar
+`/**`, `*`, `//`. Clasificación por `git blame --ignore-revs-file`, campaña = commits desde
+**2026-08-20**.
+
+### Los números
+
+| | Bloques | Líneas de prosa |
+| :-- | --: | --: |
+| **De esta campaña** (desde 2026-08-20) | **44** | **276** |
+| **Ya estaban** | **88** | **453** |
+| **TOTAL** | **132** | **729** |
+
+### Y antes de leerlos, dos correcciones del instrumento, porque sin ellas el veredicto era otro
+
+1. **`bin/tools/phpstan-src/` se coló entero.** La lista de exclusión decía `/bin/tools/` con
+   barra inicial y la ruta real es `bin/tools/…`, así que no casaba. Metía **438 bloques de
+   código de terceros** —un `constantToFunctionParameterMap.php` con 38 él solo— en un censo
+   que pretendía medir código propio.
+2. **`git blame` atribuía TODO a la campaña.** El commit `0ac751b9` renormalizó los finales de
+   línea de **1.126 archivos**: para `blame`, la campaña tocó la última línea de casi todo.
+   Sin `--ignore-revs-file`, el censo decía **114 bloques nuestros y 18 viejos**. Con él dice
+   **44 y 88**.
+
+> **La segunda es la grave, y merece quedarse escrita: el número equivocado no era ruidoso,
+> era COHERENTE.** «El 87% de los comentarios narrativos son de esta campaña» encajaba
+> perfectamente con la sospecha que originó el encargo, y por eso habría pasado sin que nadie
+> lo cuestionara. **Un dato que confirma lo que ya se sospechaba es el que menos se audita**, y
+> es justo el que más hay que auditar. T20, otra vez, y esta vez el instrumento era mío y el
+> resultado me daba la razón.
+
+### Qué dicen los números buenos
+
+**No es una deriva nuestra: es un tercio nuestro y dos tercios heredados.** 44 contra 88.
+
+Eso descarta la lectura fácil —«recortamos lo nuestro y ya»— y también la contraria —«esto
+venía así»—. Aplicando la regla de decisión del propietario, 132 no son pocos, así que:
+
+- **Los 44 nuestros se recortan**, uno a uno, al reparto de T0 · 7: la guarda en una línea, el
+  relato al `CHANGELOG`.
+- **Los 88 viejos van a una lista cerrada** con su razón escrita, misma forma que
+  `KNOWN_ECLIPSES`.
+- **La puerta falla ante cualquiera nuevo que no esté en la lista**, y se prueba en las dos
+  direcciones antes de darla por buena (T21).
+
+**Los nuestros se concentran donde era previsible**, que es la parte tranquilizadora: cuatro
+en `bootstrap.php`, cuatro en `ServerStatics.php`, cuatro en `VerifyIntegrityTask.php`, cuatro
+en `UnitTest-MapperFinders.php`, tres en `UnitTest-OTPFreshUser.php`. Son los archivos donde
+más se explicó por qué algo está como está — y es exactamente el sitio donde el relato debía
+haber ido al documento.
+
+**PENDIENTE DE DECISIÓN DEL PROPIETARIO**: se midió y no se tocó nada, que era el encargo.
