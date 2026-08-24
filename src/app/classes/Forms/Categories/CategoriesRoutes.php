@@ -35,10 +35,7 @@ class CategoriesRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new \Forms\Categories\Mappers\CategoriesMapper()))->getSQL(),
-            ];
-            //header('Content-Type: text/sql');echo implode("\r\n", $sqlCreate);exit;
+            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Forms\Categories\Mappers\CategoriesMapper()))->getSQL();exit;
 
             $groupAdministration = CategoriesController::routes($groupAdministration);
 

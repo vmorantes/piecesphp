@@ -44,10 +44,7 @@ class DocumentsRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new \Documents\Mappers\DocumentsMapper()))->getSQL(),
-            ];
-            //header('Content-Type: text/sql');echo implode("\r\n", $sqlCreate);exit;
+            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Documents\Mappers\DocumentsMapper()))->getSQL();exit;
 
             $groupAdministration = DocumentsController::routes($groupAdministration);
 

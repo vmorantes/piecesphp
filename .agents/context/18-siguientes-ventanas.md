@@ -6155,3 +6155,46 @@ y esta tabla es la corrección.
 
 **No se ha corregido ninguno**, según lo pedido.
 
+
+## T62 · TRES MÓDULOS GENERABAN SU `CREATE TABLE` EN CADA PETICIÓN — y lo tiraban
+
+`DocumentsRoutes`, `DocumentTypesRoutes` y `CategoriesRoutes` tenían el volcado comentado, sí,
+**pero el `$sqlCreate` de encima NO**. Dentro de `routes()`, o sea en **cada petición**:
+instanciaban el mapper, construían un `SchemeCreator` y generaban el DDL completo. El único
+consumidor era el `//header(…)` de la línea siguiente.
+
+Otros tres módulos —`Newsletter:45`, `ImagesRepository:46`, `EventsLog:43`— ya lo tenían en una
+sola línea comentada. Ahora los seis dicen lo mismo.
+
+### Lo que cuesta, medido
+
+*Método: el contador `Questions` de la propia sesión de MariaDB, descontando el ruido de la
+medición, y `microtime` alrededor de cada paso.*
+
+| Módulo | `new Mapper()` | `SchemeCreator + getSQL()` | SQL generado y tirado |
+| :-- | --: | --: | --: |
+| `Documents` | 0 consultas · 0,132 ms | 0 consultas · 0,166 ms | 726 caracteres |
+| `Forms\DocumentTypes` | 0 consultas · 0,145 ms | 0 consultas · 0,390 ms | 534 caracteres |
+| `Forms\Categories` | 0 consultas · 0,137 ms | 0 consultas · 0,258 ms | 526 caracteres |
+| **Total por petición** | | **0 consultas · 1,228 ms** | |
+
+**CERO consultas. Es desperdicio, no defecto vivo**, así que no cambia de sitio en la escalera.
+
+> **Con un matiz que hay que decir**: `ActiveRecordModel::configDb()` llama a
+> `Database::instance()` si no hay conexión para esa clave, así que en una petición fría estas
+> líneas **podrían ser las que abren la conexión**. Aquí no se ve porque la medición se hizo con
+> el pool ya caliente.
+
+### Y el A/B contra la aplicación viva, con su honestidad
+
+| | Mediana de 30 peticiones |
+| :-- | --: |
+| **A** · con las tres líneas | 68,8 ms |
+| **B** · sin ellas | **60,8 ms** |
+| **A'** · con ellas otra vez | 65,7 ms |
+
+**A y A' difieren en 3,1 ms entre sí**, así que la diferencia real está en el mismo orden que el
+ruido de esta máquina. **La cifra sólida es la otra: 0 consultas y 1,228 ms de trabajo puro.**
+Se deja escrito el A/B con su repetición precisamente porque, de haber medido solo A y B una vez,
+la media decía 15,5 ms y habría sido una cifra inventada.
+

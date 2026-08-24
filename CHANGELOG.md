@@ -145,6 +145,16 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Rendimiento — tres módulos generaban su `CREATE TABLE` en cada petición
+
+`Documents`, `Forms\DocumentTypes` y `Forms\Categories` tenían el volcado comentado pero **el
+`$sqlCreate` de encima no**: dentro de `routes()` instanciaban el mapper y generaban el DDL
+completo en cada petición, para tirarlo. Ahora quedan como los otros tres módulos que ya lo
+tenían bien —`Newsletter`, `ImagesRepository`, `EventsLog`—: una sola línea comentada, que
+conserva la utilidad como ayudante de desarrollo y deja de costar.
+
+Medido: **0 consultas** y **1,228 ms** por petición de trabajo puro tirado.
+
 ## Añadido — dos interruptores para el área pública
 
 Dos constantes booleanas en `config/constants.php`, **las dos en `true` por defecto**, así que
