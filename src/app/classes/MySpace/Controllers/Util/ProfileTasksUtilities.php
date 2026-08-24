@@ -38,11 +38,7 @@ class ProfileTasksUtilities extends AdminPanelController
             (new \PiecesPHP\Core\Database\SchemeCreator(new PreviousExperiencesMapper()))->getSQL(),
             (new \PiecesPHP\Core\Database\SchemeCreator(new OrganizationPreviousExperiencesMapper()))->getSQL(),
         ];
-        $sql = strReplaceTemplate(implode("\r\n", $sqlCreate), [
-            'belongsTo` int' => 'belongsTo` bigint',
-            'createdBy` int' => 'createdBy` bigint',
-            'modifiedBy` int' => 'modifiedBy` bigint',
-        ]);
+        $sql = implode("\r\n", $sqlCreate);
         if ($echo) {
             header('Content-Type: text/sql');
             echo $sql;
