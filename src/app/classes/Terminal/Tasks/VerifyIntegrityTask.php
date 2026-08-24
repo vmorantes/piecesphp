@@ -1571,12 +1571,18 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
             if ($handle === false) {
                 continue;
             }
-            $firstBytes = (string) fread($handle, 2);
+            $firstLine = (string) fgets($handle, 512);
             fclose($handle);
-            if ($firstBytes !== '#!') {
+            if (mb_substr($firstLine, 0, 2) !== '#!') {
                 continue;
             }
             $checked++;
+            //Un guion con CRLF NO ARRANCA: `env` busca un intérprete llamado «php\r». Pasó con
+            //bin/live-cache, que quedó inservible sin que nada lo dijera.
+            if (mb_strpos($firstLine, "\r") !== false) {
+                $failures[] = $relative . ' — su primera línea termina en CRLF, así que NO ARRANCA:'
+                    . ' `env` busca un intérprete con un retorno de carro en el nombre.';
+            }
             if ($mode !== '100755') {
                 $failures[] = $relative . ' — empieza por «#!» pero git lo tiene como ' . $mode
                     . '. Este repositorio ignora el chmod del disco: «git update-index --chmod=+x ' . $relative . '».';

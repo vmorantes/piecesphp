@@ -19,13 +19,7 @@
 
 #──── Excepciones en LF, tal como las declara .editorconfig ──────────────────────────────
 *.sh            text eol=lf
-bin/cli         text eol=lf
-bin/phpstan     text eol=lf
-bin/phpstan-deadcode text eol=lf
-bin/walk-routes text eol=lf
-bin/push-all    text eol=lf
-bin/rector      text eol=lf
-bin/package-css text eol=lf
+bin/*           text eol=lf
 
 # Archivos generados por herramientas que siempre escriben LF. Forzar CRLF aquí sería
 # pelearse con la herramienta en cada ejecución.

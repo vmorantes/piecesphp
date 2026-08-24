@@ -145,6 +145,17 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Corregido — tres guiones de `bin/` no arrancaban por sus finales de línea
+
+`.gitattributes` pone todo el repositorio en CRLF y luego exceptúa **guion por guion** los de
+`bin/`. Los que se añadieron después no estaban en esa lista, así que git les daba CRLF y **`env`
+buscaba un intérprete llamado «php\r»**: `bin/live-cache`, `bin/walk-attribute` y
+`bin/pieces-completion.bash` estaban inservibles.
+
+La lista de excepciones se sustituye por **un patrón**, `bin/* text eol=lf`, para que no vuelva a
+quedarse corta. Y la comprobación de `verify-integrity` sobre los guiones de `bin/` pasa a mirar
+también el final de la primera línea, no solo el bit de ejecución.
+
 ## Corregido — dos peticiones simultáneas podían acuñar dos slugs y matar una URL
 
 Los 14 mappers con `preferSlug` rellenan el slug de las filas que no lo tienen —las que entran por
