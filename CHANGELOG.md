@@ -139,6 +139,87 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## AVISO PARA DESPLIEGUES EXISTENTES — el `CREATE TABLE` que el framework genera NO SE APLICA
+
+**Versiones afectadas: todas.** La regla del proyecto dice que el SQL de las tablas se genera
+con `SchemeCreator` y no se escribe a mano. **Hoy esa regla no se puede cumplir**: de las 33
+tablas del proyecto, **20 son rechazadas por MariaDB** al aplicar el script generado.
+
+| Causa | Cuántas |
+| :-- | --: |
+| `errno 150` — la clave ajena declara `int` y la columna referenciada es `bigint` | 19 |
+| `Unknown data type: 'test'` — `'text'` mal escrito en `SystemApprovalsMapper` | 1 |
+
+**Causa raíz: 38 claves ajenas declaran un tipo distinto del de la columna que referencian**,
+en 19 archivos de mappers. Casi todas son `createdBy` / `modifiedBy` apuntando a
+`pcsphp_users.id`, que es `bigint`.
+
+**Por qué nadie lo había visto.** Once módulos tapan el síntoma con un reemplazo de cadenas
+sobre el SQL ya generado, dentro de su bloque `$showSQL`:
+
+```php
+'createdBy` int' => 'createdBy` bigint',
+```
+
+Los módulos que no tienen ese bloque —`Documents`, `Forms`, `ImagesRepository`, `EventsLog`—
+no tapan nada. Y el parche arregla la salida **dejando el mapper mintiendo**, que es justo lo
+que la regla existe para evitar.
+
+**Qué hacer al actualizar:** nada urgente — las tablas ya creadas funcionan. Pero **si vas a
+regenerar una tabla desde su mapper, revisa el tipo de sus claves ajenas antes de aplicar el
+script**. La comprobación está en `bin/cli unit-tests:core/scheme-sql-round-trip`, que hoy
+**sale en rojo a propósito**: 5 de 8, y las tres que fallan son las que describen este defecto.
+
+**Y el DDL generado es `CHARSET=utf8 COLLATE=utf8_bin`** —`utf8mb3`— escrito a fuego en
+`piecesphp/database`. La conexión va en `utf8mb4`; las tablas recién generadas, no.
+
+## Herramientas — el SQL del esquema, de ida y de vuelta
+
+- **`bin/cli scheme-create module=<Nombre>|all`**, el gemelo de `scheme-drop`. Las dos
+  **descubren** los mappers (`Mappers/`, `SubMappers/`, `ORM/` y `app/model`), sacan el orden
+  del grafo que los propios `$fields` declaran en `reference_table`, y **emiten: no ejecutan**.
+
+  Hasta ahora la única forma de sacar el `CREATE` de un módulo era **editar el código fuente**
+  y poner un literal `$showSQL` en `true`. Eso no es una herramienta: es un interruptor
+  escondido, y solo existía en once de los módulos.
+
+  Necesita `piecesphp/database` **v3.4.0**; con una versión anterior avisa y sale con 1.
+
+- **`Terminal\Tasks\SchemeSqlTask`**: el descubrimiento, compartido por las dos tareas. Dos
+  listas serían dos verdades.
+
+- **Corregido: una clase abstracta en `Tasks/` tumbaba la CLI entera.** `TerminalController`
+  instancia por reflexión todo lo que encuentre allí con un método `route()`, y una abstracta
+  cumple `method_exists()` pero revienta `call_user_func`. Ahora se comprueba `isAbstract()`.
+
+- **Corregido: la tarea contaba mappers y decía «tablas».** Dos mappers pueden compartir tabla
+  y el resolvedor los funde: decía «34 tablas» con 33 sentencias en el script. Ahora cuenta las
+  sentencias y avisa de la diferencia.
+
+## Herramientas — la caché de la aplicación viva deja de depender de la memoria
+
+- **`bin/live-cache`** y **`bin/tools/live-cache.php`**. Cualquier medición A/B contra la web
+  tiene que invalidar la caché de código antes de medir; esa regla estaba escrita y **falló tres
+  veces**. Ahora vive en el arnés: `bin/walk-routes` la llama al arrancar, y si no puede
+  invalidar **aborta con código 1**.
+
+  La espera no es folclore: sale de `php-fpm<version> -i` —**al binario, no a los `.ini`**, que
+  no mencionan OPcache porque viene compilado— y es
+  `max(revalidate_freq, file_update_protection) + 1`. En el entorno de referencia, 3 segundos.
+
+  **`bin/live-cache --self-test` provoca la trampa y después la desactiva**: exige ver el código
+  viejo sin invalidar y el nuevo invalidando. Una puerta vista solo en verde no se ha visto
+  funcionar.
+
+## Pruebas
+
+- **`bin/cli unit-tests:core/scheme-sql-round-trip`**: descubre todos los mappers, emite el
+  `CREATE` y el `DROP`, y **se los da a MariaDB** en una base de usar y tirar. **El juez es la
+  base, no el generador.**
+- `files/dev/tests.md` marca ahora, suite por suite, **quién la juzga**: un oráculo externo
+  —base de datos, sistema de archivos, servidor HTTP— o ella misma. Las que se juzgan solas son
+  las que hay que mirar con más cuidado: dos de ellas ya dejaron pasar un defecto.
+
 ## Seguridad
 
 - **`db-backup` cifraba las contraseñas y NADIE las descifraba: una restauración dejaba a todos

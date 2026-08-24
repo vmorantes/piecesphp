@@ -1,7 +1,7 @@
 <?php
 
 /**
- * SchemeDropTask.php
+ * SchemeCreateTask.php
  */
 
 namespace Terminal\Tasks;
@@ -15,19 +15,23 @@ use PiecesPHP\Core\Routing\RequestRoute;
 use PiecesPHP\Core\Routing\ResponseRoute;
 
 /**
- * SchemeDropTask.
+ * SchemeCreateTask.
  *
- * EMITE el SQL de borrado de las tablas de un módulo. No lo ejecuta.
+ * EMITE el SQL de creación de las tablas de un módulo. No lo ejecuta.
  *
- * La regla 7 dice que el SQL de las tablas se genera y no se escribe a mano — pero solo
- * existía hacia adelante. Deshacer un módulo obligaba a escribir a mano justo lo que la
- * regla prohíbe, y cada despliegue que actualice necesita ese SQL.
+ * La regla 7 dice que el SQL de las tablas se genera y no se escribe a mano, pero la única
+ * forma de invocarla era editar el código fuente de cada `<Modulo>Routes` y poner un
+ * literal `$showSQL` en true. Eso no es una herramienta: es un interruptor escondido, y
+ * además solo existía en once de los módulos.
+ *
+ * Comparte descubrimiento con `scheme-drop` y orden con `SchemeCreator`: mismo grafo,
+ * recorrido al revés.
  *
  * @package     Terminal\Tasks
  * @author      Vicsen Morantes <sir.vamb@gmail.com>
  * @copyright   Copyright (c) 2026
  */
-class SchemeDropTask extends SchemeSqlTask
+class SchemeCreateTask extends SchemeSqlTask
 {
 
     public function __construct(string $startRoute = '', ?string $namePrefix = null)
@@ -40,14 +44,14 @@ class SchemeDropTask extends SchemeSqlTask
         }
 
         $this->description = new StringArray([
-            "EMITE el SQL de borrado de las tablas de un módulo. NO lo ejecuta.\r\n",
+            "EMITE el SQL de creación de las tablas de un módulo. NO lo ejecuta.\r\n",
             "\tParámetros:\r\n",
             "\t  module=<Nombre>  módulo bajo src/app/classes, o `all`. Obligatorio\r\n",
             "\t  output=<ruta>    archivo de salida. Por defecto: se imprime",
         ]);
-        $this->route = "{$startRoute}/scheme-drop[/]";
+        $this->route = "{$startRoute}/scheme-create[/]";
         $this->controller = self::class . '::main';
-        $this->name = ($namePrefix !== null ? $namePrefix . '-' : '') . 'scheme-drop';
+        $this->name = ($namePrefix !== null ? $namePrefix . '-' : '') . 'scheme-create';
         $this->alias = null;
         $this->method = 'GET';
         $this->requireLogin = true;
@@ -58,14 +62,14 @@ class SchemeDropTask extends SchemeSqlTask
 
     public static function main(?RequestRoute $requestRoute = null, ?ResponseRoute $responseRoute = null, ?array $parameters = []): void
     {
-        $titleTask = 'SQL de borrado';
+        $titleTask = 'SQL de creación';
         echoTerminal("\e[32m*** {$titleTask} ***\e[39m");
 
         $module = self::requestedModule();
 
-        //`dropScript()` llega en piecesphp/database v3.3.0: sin ella esto no puede emitir nada.
-        if (!method_exists(SchemeCreator::class, 'dropScript')) {
-            echoTerminal("\e[31mERROR:\e[39m esta tarea necesita piecesphp/database >= 3.3.0. Corre: composer update piecesphp/database");
+        //`createScript()` llega en piecesphp/database v3.3.0: sin ella esto no puede emitir nada.
+        if (!method_exists(SchemeCreator::class, 'createScript')) {
+            echoTerminal("\e[31mERROR:\e[39m esta tarea necesita piecesphp/database >= 3.4.0. Corre: composer update piecesphp/database");
             exit(1);
         }
 
@@ -78,14 +82,14 @@ class SchemeDropTask extends SchemeSqlTask
             exit(1);
         }
 
-        self::emit(SchemeCreator::dropScript($found['creators']), count($found['creators']), $found['skipped']);
+        self::emit(SchemeCreator::createScript($found['creators']), count($found['creators']), $found['skipped']);
         echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
         exit(0);
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route
     {
-        $instance = new SchemeDropTask($startRoute, $namePrefix);
+        $instance = new SchemeCreateTask($startRoute, $namePrefix);
         return new Route(
             $instance->route,
             $instance->controller,

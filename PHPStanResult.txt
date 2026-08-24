@@ -1393,11 +1393,11 @@
  ------ --------------------------------------------------------------------------------------------------------------------------- 
   70     Parameter Nr.1 $name of static method Terminal\Controllers\TerminalController::routeID() expects string, string|null given.  
          🪪  argument.type                                                                                                          
-  152    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string, 'route'} given.           
+  155    Parameter Nr.1 $callback of function call_user_func expects callable(): mixed, array{class-string, 'route'} given.           
          🪪  argument.type                                                                                                          
-  155    Call to an undefined method object::getDescription().                                                                      
+  158    Call to an undefined method object::getDescription().                                                                      
          🪪  method.notFound                                                                                                        
-  160    Call to an undefined method object::getName().                                                                             
+  163    Call to an undefined method object::getName().                                                                             
          🪪  method.notFound                                                                                                        
  ------ --------------------------------------------------------------------------------------------------------------------------- 
 

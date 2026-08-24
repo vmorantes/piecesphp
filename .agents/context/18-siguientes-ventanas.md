@@ -177,6 +177,34 @@ transforma**. Cada uno hace una de estas tres cosas, que son las tres correctas:
 
 **Cualquier cuarta cosa es sospechosa por defecto.**
 
+### LEY 11 — CUANDO UNA REGLA FALLA TRES VECES, EL ARREGLO NO ES REPETIRLA: ES CONVERTIRLA EN MECANISMO
+
+**Es la contraparte de la LEY 8.** Aquella dice que una decisión que no vive en un archivo no se
+propaga. Esta dice lo que faltaba: **una que sí vive en un archivo tampoco se aplica sola.**
+
+Con dos veces es descuido. Con tres, el problema ya no es la memoria: **es que sigue siendo
+posible olvidarlo.** Mientras cumplir la regla dependa de que alguien se acuerde, la regla es
+una intención, no una garantía.
+
+**El caso que la funda: invalidar la caché antes de medir contra la aplicación viva** (T51). La
+regla estaba escrita —la escribí yo— y falló tres veces, la última en la medición de apagar un
+módulo. Ahora vive en `bin/tools/live-cache.php`, la llama `bin/walk-routes` al arrancar, y si
+no puede invalidar **aborta con código 1**. Ya no hace falta acordarse.
+
+**Cómo se aplica.** Cuando una regla falle por tercera vez, no se reescribe más grande: se
+busca dónde ponerla para que no se pueda saltar. Y después se repasa **qué otras reglas nuestras
+dependen de que alguien se acuerde**, porque esas son las siguientes candidatas:
+
+| Regla que hoy depende de la memoria | Cómo sería mecanismo |
+| :-- | :-- |
+| «Corre `bin/phpstan` antes de cerrar un cambio» | Gancho de pre-commit, o una comprobación dentro de `verify-integrity` |
+| «Toda cifra lleva su método escrito» (T0) | Ya es mecanismo a medias: el trinquete exige el `[REPARTO]`, pero solo para el baseline |
+| «`git add` con rutas explícitas, y cuadrar el conteo» | Comprobación que compare lo preparado contra lo modificado antes de commitear |
+| «No editar PHP por línea ni por expresión regular» (T10) | **Sin mecanismo.** Hoy solo hay la regla escrita |
+| «Los comentarios de prosa se recortan al pasar» | `verify-integrity` ya lo mide y ordena; falta que el registro no pueda crecer |
+
+**Las dos últimas filas son las que más me preocupan**, porque las dos ya han fallado una vez.
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -2265,6 +2293,45 @@ de config; el trinquete del baseline iba a ser «infraestructura» y fueron cuar
 
 **Relación con T20**: T20 dice de qué desconfiar cuando un número sorprende. T21 dice qué
 hacer cuando **nada** sorprende, que es el caso peligroso.
+
+### REGLA MAYOR — UNA PRUEBA VALE MÁS CUANDO QUIEN JUZGA NO ES QUIEN PRODUJO EL RESULTADO
+
+**Donde exista un juez externo —la base de datos, el compilador, el navegador, el propio PHP—
+se le pregunta a él antes que a nuestra lógica.** Una comprobación que confronta lo que produjo
+el generador contra lo que el generador debería producir solo demuestra que sabemos repetir
+nuestro propio razonamiento.
+
+**El caso que la funda**: la prueba de `dropScript()` no validó el orden contra nuestro grafo.
+Lo invirtió y dejó que **MariaDB** dijera `Cannot delete or update a parent row`. Y la de
+`createScript()` hace lo mismo del otro lado: aplica el script al revés y **exige el errno
+150**. Si la base lo aceptara, el orden no demostraría nada.
+
+**Esa misma prueba encontró después lo que ninguna lectura había visto**: 20 de las 33 tablas
+del proyecto **no se pueden crear desde sus propios mappers** (T52). Nadie lo había notado en
+años de leer el código.
+
+#### Registro de suites: quién juzga cada una
+
+*Método: por archivo, se cuentan las llamadas que salen del proceso —conexión a base, HTTP,
+sistema de archivos— frente a las que solo leen código con reflexión o expresiones regulares.*
+
+| Suite | Quién juzga | Cuidado |
+| :-- | :-- | :-- |
+| `core/scheme-sql-round-trip` | **MariaDB** — aplica los dos scripts de verdad | — |
+| `core/db-backup-round-trip` | **MariaDB** + `password_verify()` | — |
+| `core/mapper-finders` | **MariaDB** | — |
+| `core/otp-fresh-user` | **MariaDB** — cuenta filas y estados reales | — |
+| `core/helpers-directories` | **El sistema de archivos** | — |
+| `core/http-client` | **Un servidor HTTP real** | **Depende de un `webhook.site` ajeno que caducará.** Backlog |
+| `core/database-exporter` | Mixto: base + archivo | — |
+| `core/otp-write-separation` | **Mixto** — tres comprobaciones leen el cuerpo del método | Las que leen ya pasaron en verde con el defecto puesto (T46). La que discrimina es la que cuenta filas |
+| `core/meta-property-hybrid` | **Se juzga sola** — reflexión sobre dos copias | Responde «¿contiene X?», no «¿hace X?» |
+| `core/session-user` | **Se juzga sola** — compara valores devueltos | Es la forma en que se coló el inverso del 2FA sin efecto (T50) |
+| `functions/systemOutFormatted` | **Se juzga sola** | — |
+| `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP | Emite ÓRDENES: por eso se le exige más que a las demás |
+
+**Las cinco últimas filas son las que hay que mirar con más cuidado**, y las dos con nota
+propia ya han dejado pasar un defecto cada una.
 
 ## T22 · `MetaProperty` — DECIDIDO: el defecto es el FQCN compartido, y se arregla mudando
 
@@ -4974,16 +5041,21 @@ completo?**
 (`encrypt`/`decrypt` por clave con un analizador de argumentos, exportador contra importador,
 `toggle2FA` en las dos direcciones, `SchemeCreator`).*
 
+**La tabla tiene TRES estados, no dos.** Lo pidió el propietario después de la retractación de
+T50, y distingue dos cosas muy distintas: un inverso que nadie ha probado, y **una pareja que
+nunca existió**. Un inverso sin estrenar es deuda; una pareja inventada es un error de
+diagnóstico nuestro, y merece decirse con otro nombre.
+
 | Operación | Su inverso | ¿Documentado? | ¿Viaje completo probado? |
 | :-- | :-- | :-- | :-- |
 | **`db-backup`** | Restaurar (`mysql < archivo.sql`) | **Sí, desde hoy** — antes NO, y ahí estuvo el defecto | **Sí** — `db-backup-round-trip`, 5/5, validada rompiéndola |
 | **`encrypt`** | `decrypt` | Parcial | **Sí, auditado por clave**: `$key`, `$this->password`, `self::TABLE`, `self::class` y la de por defecto **tienen todas su inverso**. La que no lo tenía era `'ENCRYPTION_KEY'`, y ya no existe |
 | **`snapshot`** | `snapshot compare` | Sí | Sí |
-| **Activar 2FA** (`toggle2FA(true)` + `confirm2FA`) | `toggle2FA(false)` | Parcial | **NO. Se comprueba que devuelve `true`, no que la cuenta DEJE de pedir código** |
-| **Exportar usuarios** (`UsersExporter`) | Importar (`ImporterUsers`) | No | **NO, y hay un desajuste visible**: el importador aplica `password_hash()` al valor de la columna, así que **importar lo exportado hashearía un hash** |
+| **Activar 2FA** (`toggle2FA(true)` + `confirm2FA`) | `toggle2FA(false)` | Parcial | **Sí, desde hoy** — la suite comprueba el EFECTO: que la cuenta deja de pedir código. Validada rompiéndola: con un inverso que devuelve `true` sin desactivar, fallan 2 de 27 (T50 · 4) |
+| **Exportar usuarios** (`UsersExporter`) | — | — | **NO SON INVERSOS** (medido, T50 · 3). El exportador emite un informe para personas —ID, nombres, correo, colegio, grado, grupo— y **no incluye la columna `password`**. El importador tiene su propia plantilla. No hay viaje que romper |
 | **`bundle`** | Desempaquetar / desplegar | No | **NO** |
-| **Crear tablas** (`SchemeCreator`) | Borrarlas | No | **NO** — `SchemeCreator` **no emite un solo `DROP`**: 0 apariciones |
-| **Activar módulo** (constante en `constants.php`) | Apagarlo | Sí (doc 04) | **NO** — ningún recorrido corre nunca con módulos apagados, y es justo lo que protegen las 65 ramas del motivo 2 |
+| **Crear tablas** (`SchemeCreator`) | Borrarlas | **Sí, desde hoy** | **Sí** — `core/database/scheme-sql`, 9/9, con MariaDB de juez en las dos direcciones. **Pero la ida no se puede aplicar hoy en este proyecto**: 20 de 33 tablas la rechazan (T52) |
+| **Activar módulo** (constante en `constants.php`) | Apagarlo | Sí (doc 04) | **Sí, desde hoy** — medido en las dos direcciones con la invalidación de caché dentro del arnés: 349 → 330 → 349 rutas, y `/admin/news/list/` 200 → 404 → 200 (T50 · 2, remedido en T51) |
 | **Encolar** | `process-queue` | Parcial | **NO** |
 | **`scan-missing-lang`** | Aplicar las traducciones | No | **NO** |
 | **Emitir token** (`SessionToken::generateToken`) | Expirar / invalidar | No | **NO** — no hay método de invalidación explícita; la salida es `setMinimumDateCreated`, que invalida **todas** las sesiones a la vez |
@@ -4991,22 +5063,30 @@ completo?**
 
 ### Lo que enseña el recuento
 
-**De once operaciones con inverso real, TRES tienen el viaje probado y OCHO no.** Y las tres
-probadas lo están porque las hemos tocado esta campaña, no porque el proyecto las cuidara.
+**De DIEZ operaciones con inverso real —una de las once resultó no ser pareja—, SEIS tienen
+el viaje probado y CUATRO no.** Las seis lo están porque las hemos tocado esta campaña, no
+porque el proyecto las cuidara.
 
-**Los tres que más me preocupan, por este orden:**
+> **Y una fila más para el backlog, sin tocarla**: `UsersExporter` emite las columnas
+> **Colegio, Grado y Grupo**. Son campos de un proyecto concreto dentro de un framework que se
+> clona: un despliegue que no sea un colegio recibe cabeceras sin sentido. No es un defecto de
+> inversos, pero es de la misma familia que todo esto.
 
-1. **`SchemeCreator` sin `DROP`.** La regla 7 dice que el SQL de las tablas se genera y no se
-   escribe a mano — pero **solo hacia adelante**. Deshacer un módulo obliga a escribir SQL a
-   mano, que es exactamente lo que la regla prohíbe. **Y E3 va a borrar módulos.**
-2. **Exportar/importar usuarios.** No es «sin estrenar»: es que la ida y la vuelta **no encajan**
-   —una exporta hashes, la otra hashea lo que recibe—. Misma familia que el defecto del
-   respaldo, y detectado por leer, no por medir: **hay que medirlo antes de afirmarlo**.
-3. **Desactivar el 2FA.** La suite comprueba el valor devuelto y no el efecto. Es la forma
-   «documentada en una dirección» aplicada a una prueba: la ida se verifica, la vuelta se
-   supone.
+*(Recuento original, antes de las correcciones de hoy: de once operaciones, tres probadas y
+ocho no. Se deja escrito porque la mejora se mide contra él.)*
 
-**No se ha arreglado nada de esto**, que era el encargo. La tabla está para decidir por dónde.
+**Los tres que más me preocupaban, y en qué quedaron:**
+
+1. **`SchemeCreator` sin `DROP`.** **Cerrado** (T50 · 1), y la ida centralizada después
+   (T52) — que además destapó por qué la regla 7 no se puede cumplir hoy.
+2. **Exportar/importar usuarios.** **Retractado**: no son pareja. Detectado por leer y
+   desmentido por medir, que es justo lo que decía la nota.
+3. **Desactivar el 2FA.** **Cerrado** (T50 · 4): la suite comprueba el efecto y está validada
+   rompiéndola.
+
+**Los cuatro que quedan sin estrenar** —`bundle`, encolar, `scan-missing-lang` y la
+invalidación de un token de sesión— **se quedan en backlog por decisión del propietario.** No
+se tocan.
 
 ## T50 · LOS DOS INVERSOS QUE E3 NECESITA — construidos y medidos
 
@@ -5106,3 +5186,259 @@ la `unset()` antes de exponer el usuario. La única que transformaba era `db-bac
 **Así que la regla que proponía el propietario se queda, pero con el conteo honesto: fue UNA
 herramienta, no dos.** Y sigue valiendo la pena escribirla, porque es exactamente la que la
 habría evitado.
+
+
+## T51 · EL OPCACHE DEJA DE SER REGLA Y PASA A SER CÓDIGO
+
+**La ley está en T0 · LEY 11.** Aquí está el mecanismo, y de paso la lección de método, porque
+por poco escribo una retractación falsa.
+
+### El instrumento que casi me hace retractarme de algo cierto
+
+Al ir a construir el mecanismo, lo primero fue comprobar si opcache estaba encendido. Miré los
+archivos de configuración:
+
+```
+ls /etc/php/8.5/fpm/conf.d/ | grep -i opcache   -> nada
+grep -rn opcache /etc/php/8.5/                  -> solo la sección [opcache] comentada
+```
+
+**Conclusión aparente: opcache no está cargado, luego mis tres «me mordió el opcache» eran
+falsos.** Estuve a un paso de escribirlo así. Lo que lo evitó fue preguntarle al binario que
+sirve de verdad, en vez de a los archivos que describen lo que debería servir:
+
+```
+php-fpm8.5 -m | grep -i opcache   -> Zend OPcache
+```
+
+**Está compilado dentro del binario.** Los `.ini` no lo mencionan porque no hace falta cargarlo.
+Leerlos daba la respuesta contraria — y **la contraria era la cómoda**: «no era opcache, era
+otra cosa». Es T20 otra vez, y de la variante peor: el instrumento equivocado confirmaba lo que
+me convenía creer.
+
+### La ventana medida, con su número
+
+| Ajuste (de `php-fpm8.5 -i`) | Valor |
+| :-- | :-- |
+| `opcache.enable` | On |
+| `opcache.validate_timestamps` | On |
+| `opcache.revalidate_freq` | **2 s** |
+| `opcache.file_update_protection` | **2 s** |
+
+De ahí sale la espera: **`max(revalidate_freq, file_update_protection) + 1` = 3 segundos desde
+la última edición.** opcache no vuelve a mirar un archivo ya cacheado hasta que pasan
+`revalidate_freq` segundos desde la última comprobación, y no cachea uno cuya `mtime` sea más
+joven que `file_update_protection`. Tres segundos cubren las dos.
+
+**No es folclore: es el número que declara el propio binario.** Y la trampa se reprodujo
+**3 de 3**: petición → editar → petición inmediata devuelve el código VIEJO; sin la petición
+previa dentro de la ventana, devuelve el nuevo. Eso explica exactamente por qué la primera
+medición de apagar un módulo dijo que la ruta seguía ahí.
+
+### El mecanismo
+
+| Pieza | Qué hace |
+| :-- | :-- |
+| `bin/tools/live-cache.php` | Averigua qué PHP sirve una URL base —del `ServerName` de Apache, o de `PCSPHP_WEB_PHP`—, le pregunta los ajustes **al binario**, y espera lo que toca. **Aborta con código 1** si no puede averiguarlo, si `validate_timestamps` está en `Off` (ninguna espera invalida nada: hay que recargar FPM), o si se declara como editado un archivo que no existe |
+| `bin/live-cache --report` | Enseña el SAPI, los ajustes y la ventana |
+| `bin/live-cache --invalidate` | Invalida, diciendo cuánto espera y por qué |
+| `bin/live-cache --self-test` | **Provoca la trampa y después la desactiva** |
+| `bin/walk-routes` | Llama a la invalidación **al arrancar**. Nadie puede recorrer sin invalidar |
+
+**La autoprueba es la pieza que importa**, porque una puerta vista solo en verde no se ha visto
+funcionar. Comprueba las dos direcciones:
+
+```
+[PASÓ] la sonda responde y muestra lo que se acaba de escribir  (escrito ALFA, visto ALFA)
+[PASÓ] SIN invalidar, la aplicación sirve el código VIEJO       (escrito BETA, visto ALFA)
+[PASÓ] INVALIDANDO, la misma edición se ve                      (escrito BETA, visto BETA)
+[PASÓ] la vista de sonda queda como estaba
+```
+
+**Y los tres caminos de aborto se provocaron uno a uno**: host que no resuelve a ningún vhost,
+`PCSPHP_WEB_PHP=9.9` (binario inexistente) y `--file=/no/existe.php`. Los tres salen con 1 y
+con el mismo mensaje: *«una comparación contra la web sin invalidar la caché MIENTE, y miente
+en la dirección tranquilizadora»*.
+
+### La medición de apagar un módulo, rehecha por el mecanismo
+
+Las cifras de T50 · 2 se obtuvieron con un procedimiento a mano. Rehechas pasando por
+`bin/live-cache --invalidate` entre la edición y la medición:
+
+| | Encendido | Apagado | De vuelta |
+| :-- | --: | --: | --: |
+| Rutas en el inventario | 349 | **330** | 349 |
+| `/admin/news/list/` (con sesión) | 200 | **404** | 200 |
+
+**19 rutas, las mismas que antes.** El número aguanta; lo que cambia es que ahora no depende de
+que alguien se acuerde.
+
+> *(El inventario trae hoy 349 y no los 347 de la semana pasada: son las dos tareas nuevas,
+> `snapshot` y `scheme-drop`, que registran su propia ruta. Cuadrado, no supuesto.)*
+
+### Lo que NO cubre, dicho aquí para que no se dé por cubierto
+
+El recorredor de E2 invalida **una vez, al arrancar**. Es suficiente porque durante el
+recorrido **no se edita código**: lo que cambia es la base de datos y el árbol de archivos, que
+opcache no toca. Si algún día un recorrido edita código a mitad, tendrá que invalidar en cada
+edición, y eso todavía no está.
+
+
+## T52 · LA IDA, POR EL MISMO CAMINO QUE LA VUELTA — y lo que apareció debajo
+
+El propietario lo señaló y tenía razón: con el `DROP` centralizado y por descubrimiento, y el
+`CREATE` repartido en once literales `$showSQL`, **habíamos invertido la asimetría en vez de
+cerrarla**. La regla 7 decía «el SQL sale de `SchemeCreator` y no se escribe a mano» cuando la
+única forma de invocarla era **editar el código fuente** para poner un literal en `true`. Eso no
+es una herramienta: es un interruptor escondido.
+
+### La familia
+
+| Pieza | Dónde | Qué |
+| :-- | :-- | :-- |
+| `SchemeCreator::resolveOrder()` | paquete, v3.4.0 | **Un solo resolvedor** del grafo de `reference_table`. Dos listas serían dos verdades |
+| `SchemeCreator::createScript()` | paquete, v3.4.0 | Padres antes que hijas. **Emite, no ejecuta** |
+| `SchemeCreator::dropScript()` | paquete, v3.3.0 | Hijas antes que padres. El mismo recorrido del revés |
+| `Terminal\Tasks\SchemeSqlTask` | app | **El descubrimiento**, compartido. Lee `Mappers/`, `SubMappers/` y `ORM/` de todos los módulos, más `app/model` |
+| `bin/cli scheme-create module=X\|all` | app | Emite el `CREATE` |
+| `bin/cli scheme-drop module=X\|all` | app | Emite el `DROP` |
+
+**Por descubrimiento las dos**, que es el patrón que ya funcionó cuatro veces: una lista escrita
+a mano siempre se queda atrás. Y de hecho lo estaba: de los módulos con mappers, **solo once
+tenían bloque `$showSQL`**.
+
+> **Un defecto del framework encontrado por el camino, y arreglado**: `TerminalController`
+> instancia por reflexión todo lo que encuentre en `Tasks/` con un método `route()`. Una clase
+> **abstracta** cumple `method_exists()` y revienta `call_user_func`. Compartir código entre dos
+> tareas **tumbaba la CLI entera**. Ahora se comprueba `isAbstract()`.
+
+> **Y una cifra que mentía**: la tarea decía «34 tabla(s) en el script» contando *mappers*
+> cuando el script traía 33 sentencias — dos mappers comparten tabla y el resolvedor los funde.
+> Ahora cuenta las sentencias y **avisa** de la diferencia en vez de callarla.
+
+### Lo que apareció debajo: la regla 7 NO SE PUEDE CUMPLIR HOY
+
+Con la herramienta hecha, la primera pregunta era la obvia: ¿el esquema generado se aplica? Se
+montó `unit-tests:core/scheme-sql-round-trip`, que crea una base de usar y tirar y **le pide a
+MariaDB que aplique el script entero**.
+
+**No se aplica. 20 de las 33 tablas son rechazadas.**
+
+| Causa | Cuántas | Qué es |
+| :-- | --: | :-- |
+| `errno 150` — clave ajena incompatible | **19** | La columna declara `int` y la que referencia es `bigint` |
+| `Unknown data type: 'test'` | **1** | `SystemApprovalsMapper` línea 56 declara `'type' => 'test'`. Es **'text' mal escrito** |
+
+**Y la causa raíz, medida leyendo los mappers —segundo método independiente—: 38 claves ajenas
+declaran un tipo distinto del de la columna que referencian**, repartidas en 19 archivos. Casi
+todas son `createdBy` / `modifiedBy` apuntando a `pcsphp_users.id`, que es `bigint`.
+
+**Los once `$showSQL` eran justo el parche de eso.** Todos hacen lo mismo:
+
+```php
+echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
+    'createdBy` int' => 'createdBy` bigint',
+    'modifiedBy` int' => 'modifiedBy` bigint',
+]);
+```
+
+Un reemplazo de cadenas sobre el SQL ya generado, módulo a módulo, que **arregla la salida y
+deja el mapper mintiendo**. Y solo en once módulos: los demás —`Documents`, `Forms`,
+`ImagesRepository`, `EventsLog`— no tienen parche ninguno.
+
+### Por qué NO se han quitado los once `$showSQL`
+
+Era el premio del encargo, y **está bloqueado, no olvidado**. Hoy los once bloques producen SQL
+**que sí se aplica** (por el parche) y la tarea central produce SQL **que no**. Quitarlos ahora
+sería un retroceso.
+
+**El orden correcto es al revés: primero arreglar las 38 declaraciones, después quitar los
+bloques.** Y eso son 19 archivos, así que se enseña antes de tocarlo — es la regla de escala del
+propietario.
+
+**La comprobación previa que pedía el propietario, hecha**: nadie depende de que el volcado
+salga por la página web. `$showSQL` no se lee de configuración, ni de la petición, ni de una
+variable de entorno: **son once literales en `false`**, y los únicos consumidores son tres
+documentos (`11-base-de-datos.md`, `07-modulos.md`, `13-recetas.md`) que describen el
+procedimiento manual. Cuando los bloques se vayan, esos tres se corrigen en el mismo commit.
+
+### Dos cosas más que salieron del mismo tirón, sin tocar
+
+1. **`SchemeCreator` genera `CHARSET=utf8 COLLATE=utf8_bin`, escrito a fuego** (línea 198 del
+   paquete). Es `utf8mb3`. **Esto matiza lo que dijimos en T37**: la configuración pone la
+   *conexión* en `utf8mb4`, pero **el DDL que el framework genera crea tablas `utf8mb3`**, así
+   que una tabla recién generada no admite emojis por mucho que la conexión sí. No se toca:
+   cambiarlo afecta al DDL de todos los despliegues.
+2. **`login_attempts` y `time_on_platform` usan `snake_case`** (`user_id`, `username_attempt`)
+   contra la convención `camelCase` del proyecto. Backlog.
+
+### La suite queda EN ROJO, y es a propósito
+
+`unit-tests:core/scheme-sql-round-trip` marca **5 de 8**. Las tres que fallan son las tres que
+describen el defecto real. **No se declara como ruido**: la regla del registro de volatilidad
+dice que si al escribir la razón resulta que no la hay, es un defecto y va arreglado, no
+declarado. Se queda roja hasta que el propietario decida sobre las 38 declaraciones.
+
+
+## T53 · LAS DOS RUTAS CON NOMBRE `uniqid()` — NO ES RUIDO, ES UN DEFECTO
+
+El propietario pidió declararlas en el registro de volatilidad **y mirar si tienen arreglo**.
+Miradas: **tienen arreglo, así que no se declaran.** La regla 2 de `files/dev/volatile-state.json`
+lo dice: *«una entrada legítima describe algo que el sistema hace A PROPÓSITO; si al escribir la
+razón resulta que no la hay, es un defecto y va arreglado, no declarado»*. **No se ha tocado
+nada**, según lo pedido.
+
+### Qué son
+
+`src/app/core/system-controllers/Test.php`, líneas 238-239:
+
+```php
+new PiecesRoute('queue-request[/]',        TestQueueRequest::class . ':form',   uniqid(TestQueueRequest::class), 'GET',  false),
+new PiecesRoute('queue-request/handle[/]', TestQueueRequest::class . ':handle', uniqid(TestQueueRequest::class), 'POST', false),
+```
+
+El nombre cambia en cada arranque: `…TestQueueRequest6a8a731201624`.
+
+### Por qué es un defecto y no una curiosidad
+
+En este framework **el nombre de la ruta *es* el identificador de permiso** (regla 2) y **es la
+forma de generar su URL** (regla 3). Un nombre que cambia en cada arranque no sirve para ninguna
+de las dos cosas:
+
+1. **No se puede referenciar.** `get_route()` y `Controller::routeName()` buscan por nombre.
+2. **No se le puede asignar un rol**, porque `config/roles.php` autoriza por nombre. Hoy está
+   tapado porque las dos van con `requireLogin = false`.
+3. **Y ya obligó a saltarse la regla 3, dos líneas más allá.** La vista escribe la URL a mano:
+
+   ```php
+   <form action="./pcsphp-testing/queue-request/handle" method="POST" …>
+   ```
+
+   Esa concatenación no es descuido: **es la consecuencia forzosa** de que el nombre no se pueda
+   usar. Es la prueba de que el defecto ya costó algo.
+
+### Y hay una tercera cosa, más grande, que sale de mirar esto
+
+`RouteAdapter::__construct()`, línea 90:
+
+```php
+$this->name($name == null ? uniqid() : $name);
+```
+
+**El framework asigna `uniqid()` a cualquier ruta registrada sin nombre.** El valor por defecto
+de una ruta es *ser inalcanzable por nombre*, en un framework donde el nombre es el permiso.
+Medido en el inventario de hoy: **solo esas dos** lo padecen, así que el daño actual está
+acotado — pero el mecanismo que lo produce está en el núcleo, no en el módulo de pruebas.
+
+### Además, y no es de nombres
+
+Las dos rutas se registran **también en producción**. `config/routes.php` línea 125 solo las
+guarda tras `requestIsSameDomain()`, no tras `is_local()`. Son públicas y sin login. Se dice
+aquí porque salió de la misma lectura; **no se ha tocado**.
+
+### Consecuencia práctica mientras no se arregle
+
+El ruido **no** contamina `bin/cli snapshot` —esa foto mira la base y `src/`, no el inventario—
+pero **sí** cualquier comparación de inventarios de rutas, que es lo que E3 va a hacer seis
+veces. Dos diferencias falsas por lote enseñan a ignorar las verdaderas.
+

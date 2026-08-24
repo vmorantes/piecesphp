@@ -339,8 +339,8 @@ project://src/app/classes/SystemApprovals/Views/forms/approval-publications.php
 	argument.type (Líneas: 75, 84, 88)
 	property.nonObject (Líneas: 151, 156)
 project://src/app/classes/Terminal/Controllers/TerminalController.php
-	argument.type (Líneas: 70, 152)
-	method.notFound (Líneas: 155, 160)
+	argument.type (Líneas: 70, 155)
+	method.notFound (Líneas: 158, 163)
 project://src/app/classes/Terminal/Tasks/BundleTask.php
 	argument.type (Líneas: 125)
 project://src/app/classes/Terminal/Tasks/DbBackupTask.php

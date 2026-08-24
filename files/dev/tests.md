@@ -53,6 +53,28 @@ nuevo esté justificado, y **commitéalo con el cambio que lo justifica**.
 
 ## Unitarias
 
+### Quién juzga cada suite
+
+**Una prueba vale más cuando quien juzga no es quien produjo el resultado** (T21). Esta tabla
+está para saber, de un vistazo, cuáles se apoyan en un juez externo y cuáles se creen a sí
+mismas — las segundas son las que hay que mirar con más cuidado.
+
+| Suite | Quién juzga |
+| :-- | :-- |
+| `core/scheme-sql-round-trip` | **MariaDB** — aplica los dos scripts de verdad |
+| `core/db-backup-round-trip` | **MariaDB** + `password_verify()` |
+| `core/mapper-finders` | **MariaDB** |
+| `core/otp-fresh-user` | **MariaDB** |
+| `core/helpers-directories` | **El sistema de archivos** |
+| `core/http-client` | **Un servidor HTTP real** (ojo: `webhook.site` ajeno, caducará) |
+| `core/database-exporter` | Base de datos y archivo |
+| `core/otp-write-separation` | **Mixta** — tres comprobaciones leen el cuerpo del método |
+| `core/meta-property-hybrid` | **Se juzga sola** (reflexión) |
+| `core/session-user` | **Se juzga sola** (valores devueltos) |
+| `functions/systemOutFormatted` | **Se juzga sola** |
+| `verify-integrity` | **Se juzga sola**, salvo el analizador léxico de PHP |
+
+
 - PiecesPHP\Core\Helpers\Directories
     - Se probaron las siguientes funcionalidades:
         - Normalización de rutas
@@ -146,6 +168,15 @@ bin/cli unit-tests:core/otp-write-separation
 ```bash
 bin/cli unit-tests:core/meta-property-hybrid
 ```
+- El SQL del esquema, de ida y de vuelta
+    - Descubre TODOS los mappers, emite el `CREATE` y el `DROP`, y **se los da a MariaDB** en
+      una base de usar y tirar.
+    - **Hoy sale en rojo a propósito**: 20 de las 33 tablas no se pueden crear desde sus
+      propios mappers. Ver T52. No es un fallo de la suite.
+    - src/app/core/system-controllers/local-tests/UnitTest-SchemeSqlRoundTrip.php
+```bash
+bin/cli unit-tests:core/scheme-sql-round-trip
+```
 - Pruebas variadas sobre funciones
     - src/app/core/system-controllers/local-tests/UnitTest-Functions.php
 ```bash
@@ -166,3 +197,20 @@ bin/cli unit-tests:functions/systemOutFormatted
 ```bash
 bin/cli tests:mautic-batch-send
 ```
+
+## La caché de la aplicación viva
+
+Cualquier medición A/B contra la web **tiene que invalidar la caché de código antes de medir**,
+y desde T51 eso no depende de acordarse: vive en el arnés y aborta si no puede hacerlo.
+
+```bash
+bin/live-cache --base=https://85.localhost/vicsen/piecesphp/src --report      # qué SAPI, qué ventana
+bin/live-cache --base=… --invalidate --file=<archivo editado>                 # invalida y explica la espera
+bin/live-cache --base=… --self-test                                           # provoca la trampa y la desactiva
+```
+
+`bin/walk-routes` la llama al arrancar. **Nadie puede recorrer sin invalidar.**
+
+**La ventana medida en esta máquina son 3 segundos** —`max(revalidate_freq,
+file_update_protection) + 1`, con los dos en 2— y sale de `php-fpm8.5 -i`, no de los `.ini`:
+OPcache viene compilado en el binario y los archivos de configuración no lo mencionan.

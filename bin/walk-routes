@@ -37,6 +37,15 @@ if ($base === '') {
 }
 
 $root = dirname(__DIR__);
+
+/**
+ * NADIE DEBERÍA PODER EJECUTAR UNA COMPARACIÓN SIN INVALIDAR. La misma regla falló tres
+ * veces estando escrita, así que deja de ser regla y pasa a ser esto: si no se puede
+ * invalidar la caché de la aplicación viva, el recorrido NO EMPIEZA. Ver T51.
+ */
+require_once __DIR__ . '/tools/live-cache.php';
+pcsphp_live_invalidate($base);
+
 $inventoryPath = $root . '/files/dev/route-inventory.json';
 if (!is_file($inventoryPath)) {
     fwrite(STDERR, "No existe {$inventoryPath}. Genera el inventario con: bin/cli route-inventory\n");

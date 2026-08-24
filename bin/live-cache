@@ -1,0 +1,167 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Caché de código de la aplicación viva: informar, invalidar y —lo que importa—
+ * DEMOSTRAR que la trampa existe y que la invalidación la desactiva.
+ *
+ * Uso:
+ *   bin/live-cache --base=https://85.localhost/vicsen/piecesphp/src --report
+ *   bin/live-cache --base=… --invalidate [--file=ruta ...]
+ *   bin/live-cache --base=… --self-test
+ *
+ * `--self-test` provoca el fallo a propósito: edita, pide sin esperar y EXIGE ver el
+ * código viejo; después espera lo que toca y EXIGE ver el nuevo. Una puerta vista solo
+ * en verde no se ha visto funcionar.
+ */
+
+require_once __DIR__ . '/tools/live-cache.php';
+
+$options = [];
+$files = [];
+foreach (array_slice($argv, 1) as $argument) {
+    if (preg_match('/^--([a-z-]+)(?:=(.*))?$/', $argument, $matches) === 1) {
+        if ($matches[1] === 'file') {
+            $files[] = $matches[2] ?? '';
+        } else {
+            $options[$matches[1]] = $matches[2] ?? true;
+        }
+    }
+}
+
+$base = rtrim((string) ($options['base'] ?? ''), '/');
+if ($base === '') {
+    fwrite(STDERR, "Falta --base=<url>.\n");
+    exit(1);
+}
+
+$root = dirname(__DIR__);
+
+$get = static function (string $url) use ($base): array {
+    $handle = curl_init();
+    curl_setopt_array($handle, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTPHEADER => ['Referer: ' . $base . '/'],
+    ]);
+    $body = curl_exec($handle);
+    $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+    curl_close($handle);
+    return ['status' => $status, 'body' => is_string($body) ? $body : ''];
+};
+
+//──── Informe ───────────────────────────────────────────────────────────────────────────
+if (isset($options['report']) || isset($options['self-test'])) {
+    try {
+        $version = pcsphp_live_php_version($base);
+        $opcache = pcsphp_live_opcache($version);
+    } catch (\RuntimeException $e) {
+        fwrite(STDERR, "ABORTADO: " . $e->getMessage() . "\n");
+        exit(1);
+    }
+    $wait = pcsphp_live_wait_seconds($opcache);
+    echo "SAPI que sirve {$base}\n";
+    echo "  binario           : {$opcache['binary']}\n";
+    echo "  opcache.enable    : " . ($opcache['enabled'] ? 'On' : 'Off') . "\n";
+    echo "  validate_timestamps: " . ($opcache['validate'] ? 'On' : 'Off') . "\n";
+    echo "  revalidate_freq   : {$opcache['freq']}s\n";
+    echo "  file_update_protection: {$opcache['protection']}s\n";
+    echo "  VENTANA DE RANCIO : {$wait}s desde la última edición\n";
+}
+
+if (isset($options['report']) && !isset($options['self-test'])) {
+    exit(0);
+}
+
+//──── Invalidar ─────────────────────────────────────────────────────────────────────────
+if (isset($options['invalidate'])) {
+    pcsphp_live_invalidate($base, $files);
+    exit(0);
+}
+
+//──── Autoprueba: provocar el fallo, y después desactivarlo ─────────────────────────────
+if (!isset($options['self-test'])) {
+    fwrite(STDERR, "Nada que hacer: pasa --report, --invalidate o --self-test.\n");
+    exit(1);
+}
+
+$view = $root . '/src/app/core/system-views/queue-request.php';
+$probe = $base . '/pcsphp-testing/queue-request/';
+
+if (!is_file($view)) {
+    fwrite(STDERR, "ABORTADO: no existe la vista de sonda «{$view}».\n");
+    exit(1);
+}
+
+$original = (string) file_get_contents($view);
+$restore = static function () use ($view, $original): void {
+    if ((string) @file_get_contents($view) !== $original) {
+        file_put_contents($view, $original);
+    }
+};
+register_shutdown_function($restore);
+
+$mark = static function (string $tag) use ($view, $original): void {
+    file_put_contents($view, str_replace('<base href', "<!--LIVECACHE:{$tag}--><base href", $original));
+};
+$seen = static function () use ($get, $probe): string {
+    $response = $get($probe);
+    if ($response['status'] !== 200) {
+        fwrite(STDERR, "ABORTADO: la ruta de sonda {$probe} devolvió {$response['status']}, no 200.\n");
+        fwrite(STDERR, "Sin sonda alcanzable NO se puede demostrar nada, y una autoprueba que no demuestra es peor que ninguna.\n");
+        exit(1);
+    }
+    return preg_match('/LIVECACHE:([A-Z]+)/', $response['body'], $m) === 1 ? $m[1] : 'NADA';
+};
+
+try {
+    $opcache = pcsphp_live_opcache(pcsphp_live_php_version($base));
+} catch (\RuntimeException $e) {
+    fwrite(STDERR, "ABORTADO: " . $e->getMessage() . "\n");
+    exit(1);
+}
+
+$failures = 0;
+$check = static function (bool $ok, string $name, string $detail) use (&$failures): void {
+    echo($ok ? "  \e[32m[PASÓ]\e[39m " : "  \e[31m[FALLÓ]\e[39m ") . $name . "\n";
+    echo "     - {$detail}\n";
+    if (!$ok) {
+        $failures++;
+    }
+};
+
+echo "\n── AUTOPRUEBA ──\n";
+
+//Punto de partida: que la sonda responda y no arrastre marcas de una corrida anterior.
+$mark('ALFA');
+pcsphp_live_invalidate($base, [$view], true);
+$check($seen() === 'ALFA', 'la sonda responde y muestra lo que se acaba de escribir', 'escrito ALFA, visto ' . $seen());
+
+if ($opcache['enabled']) {
+    //DIRECCIÓN 1: sin esperar, la aplicación tiene que devolver el código VIEJO.
+    //Si esto no se reproduce, la trampa no se ha provocado y la autoprueba no vale.
+    $mark('BETA');
+    $immediate = $seen();
+    $check(
+        $immediate === 'ALFA',
+        'SIN invalidar, la aplicación sirve el código VIEJO (la trampa existe)',
+        "escrito BETA, visto {$immediate}; ventana de " . pcsphp_live_wait_seconds($opcache) . 's'
+    );
+
+    //DIRECCIÓN 2: invalidando, la misma edición se ve.
+    pcsphp_live_invalidate($base, [$view], true);
+    $after = $seen();
+    $check($after === 'BETA', 'INVALIDANDO, la misma edición se ve', "escrito BETA, visto {$after}");
+} else {
+    echo "  opcache apagado: no hay trampa que provocar. Nada más que comprobar.\n";
+}
+
+$restore();
+$check((string) file_get_contents($view) === $original, 'la vista de sonda queda como estaba', 'comparado el contenido completo, no la longitud');
+
+echo "\n" . ($failures === 0 ? "\e[32mAUTOPRUEBA EN VERDE\e[39m\n" : "\e[31m{$failures} FALLO(S)\e[39m\n");
+exit($failures === 0 ? 0 : 1);

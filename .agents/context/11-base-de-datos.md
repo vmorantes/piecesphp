@@ -76,14 +76,32 @@ Configuración en `src/app/config/database.php` (multi-grupo, grupo `default`).
 **No escribas el `CREATE TABLE` a mano.** Define `$fields` en el mapper y genera el
 SQL:
 
+```bash
+bin/cli scheme-create module=MiModulo              # el CREATE, ordenado: padres antes que hijas
+bin/cli scheme-create module=all output=todo.sql   # el esquema entero
+bin/cli scheme-drop   module=MiModulo              # el DROP, ordenado: hijas antes que padres
+```
+
+Las dos **descubren los mappers** (`Mappers/`, `SubMappers/`, `ORM/` y `app/model`), sacan el
+orden del grafo que los propios `$fields` declaran en `reference_table`, y **emiten: no
+ejecutan**. El script se revisa y se aplica a mano.
+
+Para una sola tabla sigue valiendo:
+
 ```php
 echo (new \PiecesPHP\Core\Database\SchemeCreator(new MiMapper()))->getSQL();
 ```
 
-Los módulos incluyen ese bloque tras un `$showSQL = false;` en su
-`<Modulo>Routes::routes()`; se pone en `true` temporalmente para volcarlo.
-Ojo con los ajustes manuales posteriores (p. ej. `News` reemplaza
-`createdBy int` → `createdBy bigint` con `strReplaceTemplate`).
+> **Ojo, y es importante: hoy el esquema generado NO se aplica entero.** 20 de las 33 tablas
+> las rechaza MariaDB, casi todas por `errno 150`: **38 claves ajenas declaran `int` cuando la
+> columna que referencian es `bigint`**. Once módulos lo tapan con un `strReplaceTemplate` en
+> su bloque `$showSQL` (`'createdBy` int' => 'createdBy` bigint'`); el resto no lo tapa. La
+> comprobación está en `bin/cli unit-tests:core/scheme-sql-round-trip` y el análisis en T52 de
+> `18-siguientes-ventanas.md`.
+
+> **Y el DDL que genera `SchemeCreator` es `CHARSET=utf8 COLLATE=utf8_bin`, o sea `utf8mb3`**,
+> escrito a fuego en el paquete. La *conexión* va en `utf8mb4`; las tablas recién generadas,
+> no.
 
 ## Backups
 

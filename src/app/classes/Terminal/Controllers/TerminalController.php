@@ -148,7 +148,10 @@ class TerminalController extends AdminPanelController
                     ],
                     $file->getPath()
                 );
-                if (class_exists($qualifyName) && method_exists($qualifyName, 'route')) {
+                //Una clase abstracta cumple method_exists() y revienta call_user_func: tumba la CLI.
+                if (class_exists($qualifyName)
+                    && method_exists($qualifyName, 'route')
+                    && !(new \ReflectionClass($qualifyName))->isAbstract()) {
                     $routes[] = call_user_func([$qualifyName, 'route'], $startRoute, self::$baseRouteName);
                     try {
                         $taskInstance = new $qualifyName();

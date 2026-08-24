@@ -80,6 +80,7 @@ class NewsRoutes
     {
         if (self::ENABLE) {
             // 1. (opcional) volcado del CREATE TABLE con SchemeCreator, tras $showSQL
+            //    Sustituido por `bin/cli scheme-create module=<Nombre>`, que descubre los mappers
             // 2. delegar en los controladores
             $groupAdministration = NewsController::routes($groupAdministration);
             $groupAdministration = NewsCategoryController::routes($groupAdministration);

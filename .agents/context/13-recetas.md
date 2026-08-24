@@ -83,9 +83,20 @@ Ver [06-orm-mappers.md](./06-orm-mappers.md). Define `const TABLE`, `$table`,
 `$fields`, constantes de `status` y meta-propiedades en el constructor.
 
 ### 5. Generar la tabla
-En `MiModuloRoutes::routes()`, pon `$showSQL = true;` temporalmente, abre cualquier
-ruta del panel, copia el `CREATE TABLE`, ejecútalo, y vuelve a `false`.
-Añade el SQL a `databases/piecesphp_structure.sql`.
+```bash
+bin/cli scheme-create module=MiModulo
+```
+Emite el `CREATE TABLE` ordenado —padres antes que hijas— y **no lo ejecuta**: se revisa, se
+aplica a mano, y se añade a `databases/piecesphp_structure.sql`. El inverso es
+`bin/cli scheme-drop module=MiModulo`.
+
+**Comprueba el tipo de las claves ajenas antes de aplicarlo.** Si tu mapper declara
+`'createdBy' => ['type' => 'int', 'reference_table' => UsersModel::TABLE …]`, MariaDB lo va a
+rechazar con `errno 150`: `pcsphp_users.id` es `bigint`. Es el defecto de T52, y afecta hoy a
+38 columnas.
+
+*(El bloque `$showSQL` del paso 6 sigue existiendo en los módulos antiguos y hace lo mismo para
+uno solo. Es lo que la tarea vino a sustituir.)*
 
 ### 6. `MiModuloRoutes.php`
 ```php
