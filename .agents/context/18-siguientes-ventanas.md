@@ -6611,3 +6611,171 @@ Los dos constructores son `GenericContentPseudoMapper` —el de arriba— y
 > que escriben», hay que buscar también las llamadas a métodos que escriben, no solo las
 > escrituras literales.
 
+## PENDIENTE MEDIDO POR ARQUITECTO — 2026-08-24
+
+*Entradas bajadas a archivo desde la conversación, donde llevaban vivas varias vueltas sin
+existir en ningún sitio. **Autor: ARQUITECTO, no CODER.** Todo lo de aquí es LECTURA de código,
+sin ejecutar nada: donde hay una afirmación fuerte lleva su `archivo:línea`, y donde hay una
+hipótesis lo dice.*
+
+> **Por qué esta sección existe.** Se contaron once acuerdos de una sola sesión que solo vivían
+> en la conversación. La causa no era el olvido: era que bajar a archivo dependía de que un
+> acuerdo viajara ARQUITECTO → PROPIETARIO → CODER, y ese recorrido tiene un punto donde se recorta.
+> Desde ahora se escribe primero y se instruye después: si algo se pierde, que sea la
+> instrucción, que se rehace, y no el acuerdo, que no.
+
+### A · Las estrategias de serialización — seis hallazgos, ninguno tocado
+
+**A1 · `addslashes`/`stripslashes` sobre valores que PDO ya liga.**
+`ActiveRecord::insert()` arma marcadores `:INSERT<uniqid>_CAMPO` y `ActiveRecord.php:1109` hace
+`$this->prepareStatement->execute($this->replacePrepareValues)`. `ActiveRecordModel extends
+ActiveRecord`, así que **las escrituras de `EntityMapper` también ligan**. No queda interpolación
+en el camino de ejecución — lo de `ActiveRecord.php:841` es el volcado de SQL para depurar.
+Pese a eso, `EntityMapper::castPHPToSQLTypes()` (rama de texto) y `DataProcess::stringParse()`
+aplican `stripslashes()` y después `addslashes()`. Consecuencias:
+
+- Capa de escape duplicada sobre un valor que PDO va a escapar otra vez.
+- **El `stripslashes` corre ANTES**, así que una barra invertida legítima se destruye al escribir:
+  `Ruta C:\temp` se almacena como `Ruta C:temp`. El `stripslashes` de lectura hace que el
+  ida-y-vuelta parezca correcto, y por eso lleva años invisible.
+
+*Demostrado sobre una reproducción de las ramas citadas, no sobre la clase viva.* **Falta
+comprobarlo contra una fila real**: insertar `C:\temp` y mirar la fila.
+
+**A2 · `humanReadable()` aplica la conversión de ida y no la deshace.**
+`EntityMapper.php:1192` llama a `castPHPToSQLTypes($type, $data[$field])` con `$revert = false`.
+Se usa en la API pública (`APIController.php:220` y `:401`), en `UsersController.php:921` y en
+`DataTablesHelper.php:443`. Un método llamado «legible por humanos» devuelve texto escapado para
+SQL. `ORM::humanReadable()` (`ORM.php:479`) tiene el mismo origen: usa `getSQLValue()`.
+
+**A3 · La lectura de `json` del ORM pierde datos, y la de `EntityMapper` no.**
+`DataProcess::isValidJsonToCast()` contesta «¿esto se puede *codificar*?» y se usa para decidir si
+*decodificar*. Para cualquier cadena dice que sí. Resultado en una columna `json`:
+
+| Valor almacenado | `EntityMapper` devuelve | ORM devuelve |
+| :-- | :-- | :-- |
+| `'hola'` | `'hola'` | **`NULL`** |
+| `''` | `''` | **`NULL`** |
+| `'{"a":1}'` | objeto | objeto |
+
+`EntityMapper` comprueba `json_last_error()` después de decodificar y devuelve el original si
+falla; `DataProcess::jsonParse()` no. **Hay 35 columnas `json` declaradas en mappers reales de
+`src/app`.** Si alguna guarda una cadena plana o vacía, migrarla al ORM la convierte en `NULL` en
+silencio. El arreglo es una línea: el mismo guard que ya existe. **Esto tiene que decidirse ANTES
+de que alguien migre una columna `json` al ORM.**
+
+**A4 · `serialized_object` es incompatible en una dirección entre las dos implementaciones.**
+`EntityMapper` escribe `{classname, serialized, isJsonSerialized}` y sabe usar la variante JSON
+cuando la clase es `JsonSerializable` y tiene `instanceFromArray()` estático.
+`DataProcess::serializedObjectParse()` escribe solo `{classname, serialized}` y al leer llama
+`unserialize()` sin condición: no conoce la tercera clave. Una fila escrita por `EntityMapper` con
+`isJsonSerialized = true` y leída por el ORM va a `unserialize()` sobre un JSON.
+Hoy es inofensivo: **`serialized_object` tiene cero usuarios** en `src/app` — solo aparece en los
+dos demos del paquete. Y `instanceFromArray` está definido una sola vez en todo el framework
+(`RouteAdapter`), que nunca va a una columna. Decidir su suerte ahora es lo más barato que va a
+ser nunca.
+
+**A5 · `EntityMapper::jsonSerialize()` publica el esquema.** (`EntityMapper.php:1103`)
+Devuelve los datos **más** `table`, `primaryKey`, `foreingsKeys` y la configuración completa de
+`fields`. No se encontró ninguna llamada en `src/app` que lo mande a una respuesta: es latente, no
+está sangrando. `ORM::jsonSerialize()` (`ORM.php:459`) es bastante mejor.
+
+**A6 · `ORM::jsonSerialize()` devuelve valores PHP** (`getPHPValue()`), así que un `datetime` sale
+como `{"date":"…","timezone_type":3,…}`, mientras `humanReadable()` devuelve la cadena. Dos formas
+de salida para el mismo campo, y `json_encode()` elige automáticamente la incómoda.
+
+**Lo que está bien, y conviene que también esté escrito**: la separación validar / convertir /
+presentar; que `DataProcess` sea una clase con un solo trabajo y sin base de datos, frente a la
+escalera de 200 líneas dentro de `EntityMapper`; que `serialized_object` guarde el `classname`
+junto al dato; que `MetaProperty` guarde la clave foránea y no el objeto; y sobre todo que
+`SQLTypesEnum::getType()` **lance** ante un tipo desconocido mientras `EntityMapper` devuelve el
+valor sin tocarlo — el ORM ya había arreglado la clase de fallo por la que sobrevivió `'test'`.
+
+### B · El paquete `database` no sabe evolucionar un esquema
+
+Sabe **crear** (`createScript()`, v3.4.0) y ahora **destruir** (`dropScript()`, v3.3.0). No hay
+`ALTER` ni migraciones de ningún tipo. Es exactamente lo que E3 y las correcciones de tipos
+necesitaban, y por eso la única salida fue que la declaración siguiera a la realidad y no al
+revés. Mientras no exista, **cualquier corrección de esquema en un despliegue ya desplegado es
+manual**.
+
+### C · Huecos de `database` como paquete público
+
+Verificado: `require` no trae **ningún** paquete —solo PHP ≥8.4 y extensiones—, no usa un solo
+ayudante del framework, y solo referencia espacios de nombres de SPL y del núcleo. **Ya es
+autónomo.** Lo que le falta para ser un paquete en toda regla:
+
+| Hueco | Estado |
+| :-- | :-- |
+| El prefijo `PiecesPHP\` es demasiado ancho para lo que ocupa | Y es la causa de que el núcleo lo eclipse por prefijo más largo |
+| Ninguna superficie pública declarada, ningún `@internal` | Todo es público de hecho |
+| Sin README | — |
+| Sin CI | — |
+| `phpunit` en `require-dev` pero las suites corren por su propio ejecutor | **Sin verificar** si hace falta |
+| `ext-zip`, `ext-sqlite3`, `ext-mysqli` | **Sin verificar** si hacen falta |
+
+### D · Sucesión del ORM — el camino, y por qué ese
+
+El dato que ordena todo: **convertir un mapper no es un cambio al mapper, es un cambio a todos sus
+llamantes.** Así que la pregunta decisiva no es si el ORM está listo, sino si `ExtensibleORM`
+ofrece la misma superficie pública que `EntityMapperExtensible` — `getBy()`, `allBy()`,
+`getByMultipleCriteries()`. **Esa medición no se ha hecho** (ver E).
+
+Camino propuesto, y nada se rompe mientras tanto porque **hoy nada usa el ORM**:
+
+1. **T22 primero** — mudar `MetaProperty` del paquete a `…\ORM\Meta\`. Hasta que eso pase, el ORM
+   literalmente no se puede usar desde `piecesphp`.
+2. **Construir UN mapper real nuevo sobre ORM**, no migrar uno existente. Sirve para aprender y
+   para que salgan los huecos con un caso delante.
+3. **Solo entonces** decidir sobre los 35 que tienen datos.
+
+Y el riesgo de la migración no está en la superficie de llamada: está en el **ida-y-vuelta del
+valor** (ver A1 y A3). Dos mappers con los mismos campos pueden devolver cosas distintas bajo
+`EntityMapper` y bajo ORM. Eso se mide **sin base de datos**, que es lo mejor que tiene.
+
+### E · Medición acordada y no hecha
+
+Superficie pública de `ExtensibleORM` contra la de `EntityMapperExtensible`, método a método. Es
+el dato que decide si la sucesión es un cambio de una palabra o un refactor de cada llamante.
+
+### F · Los 19 `dafault` son el requisito previo de endurecer `$fields`
+
+19 apariciones de `'dafault' => null` en 19 mappers. Efecto **cero**: el valor por defecto de
+`'default'` ya es `null` (`EntityMapper.php:63`). La causa es que la validación recorre el
+**catálogo** de opciones conocidas y pregunta `array_key_exists($name, $config)`, así que una clave
+desconocida **no se examina jamás**. Misma familia que `'test'`.
+
+**No es deuda cosmética aparcada**: el arreglo bueno —que una clave desconocida deje de ignorarse—
+**no se puede hacer mientras existan los 19**, porque al endurecer la validación esos 19 mappers
+empezarían a lanzar. Los dos van en el mismo lote, y por eso esta entrada existe: suelta, la
+corrección de los 19 se aplaza para siempre; atada a lo que desbloquea, tiene una razón.
+
+### G · `BaseEventDispatcher` no está documentado, y acaba de perder su ejemplo visible
+
+El despachador tiene **dos APIs**, no una:
+
+- `defaultListen`/`defaultDispatch` para tres eventos del framework: `EVENT_INIT_ROUTES`,
+  `EVENT_ADD_DYNAMIC_TRANSLATIONS`, `EVENT_CLI_ROUTE_NOT_FOUND`.
+- `listen`/`dispatch` con contexto, para eventos por clase. **`BaseEntityMapper` emite `saving`,
+  `saved`, `updating` y `updated`** (`BaseEntityMapper.php:123, 126, 139, 142`) con la clase del
+  mapper como contexto.
+
+O sea que **los mappers ya emiten eventos de ciclo de vida**, y eso tiene un solo usuario en todo
+el proyecto: `SystemApprovalManager.php:55`. Una capacidad real, a una supresión de quedarse
+invisible, y sin documentar en ninguna parte.
+
+Con el borrado de `QueueJobMapper::migrate()`, el único oyente que queda de `EVENT_INIT_ROUTES` es
+el de `config.php:131`, que es un `//Do something` vacío. **El evento se queda sin ningún ejemplo
+vivo.**
+
+> **La regla que sale de aquí** (propuesta por el propietario): cuando una supresión se lleva el
+> último ejemplo —o el más visible— de un mecanismo del framework, **el mecanismo se documenta en
+> el MISMO commit**. La documentación por ejemplo es documentación, y borrarla es una pérdida
+> aunque el código que se va sobre. Destino: `03-ciclo-de-vida.md`.
+
+### H · `general.md` manda al operador a archivos que no existen
+
+`source-docs/project/docs/piecesphp/content/general.md` dice `src/app/database.php` y
+`src/app/constants.php` en tres sitios. Los archivos están en **`src/app/config/`**. Comprobado.
+Y la lista del `rm -Rf` de ese mismo documento nombra `guides`, que **no existe** en el
+repositorio: la lista ya se pudrió.
