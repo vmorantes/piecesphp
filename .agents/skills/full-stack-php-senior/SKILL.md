@@ -44,8 +44,7 @@ para esto exactamente. No reconstruyas por exploración lo que ya está descrito
 | Crear módulo/ruta/mapper paso a paso | `13-recetas.md` |
 | Qué es lastre y qué no | `14-deuda-y-limpieza.md` |
 | Clonar `Publications` a un módulo nuevo | `15-plantilla-clonar-publications.md` |
-| Plan de versiones de PHP *(ejecutado)* | `16-plan-php85.md` |
-| Ruta de esa migración *(ejecutada)* | `17-ruta-de-ejecucion.md` |
+| La migración de PHP, ya ejecutada | `historico/` |
 | **Qué queda por hacer y en qué orden** | `18-siguientes-ventanas.md` |
 
 Empieza por `README.md` de esa carpeta. Si algo del contexto contradice al código, **gana

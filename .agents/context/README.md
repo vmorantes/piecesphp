@@ -27,9 +27,8 @@ framework, qué convenciones son obligatorias y dónde vive cada cosa.
 | [13-recetas.md](./13-recetas.md) | Paso a paso: crear un módulo, una ruta, un mapper, un cronjob |
 | [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md) | Análisis de módulos: duplicados, acoplamiento, candidatos a eliminar |
 | [15-plantilla-clonar-publications.md](./15-plantilla-clonar-publications.md) | Búsqueda y reemplazo paso a paso para derivar un módulo desde `Publications` |
-| [16-plan-php85.md](./16-plan-php85.md) | *(ejecutado)* Plan de la migración de PHP: elección de piso, bloqueantes, fases y riesgos |
-| [17-ruta-de-ejecucion.md](./17-ruta-de-ejecucion.md) | *(ejecutado)* Ejecución de esa migración por fases, con sus puertas |
 | [18-siguientes-ventanas.md](./18-siguientes-ventanas.md) | **Backlog actual**: qué queda, en qué orden y qué desbloquea cada cosa |
+| [historico/](./historico/) | Documentos **ejecutados y cerrados**. Nada de ahí es trabajo pendiente |
 
 ## Reglas rápidas (el TL;DR que casi siempre aplica)
 

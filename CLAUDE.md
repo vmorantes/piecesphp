@@ -1,8 +1,9 @@
 # PiecesPHP — instrucciones de proyecto
 
 Framework PHP modular propio sobre Slim 4. Antes de tocar código, lee
-**[`.agents/context/README.md`](./.agents/context/README.md)**: es el índice de 17
-documentos que cubren arquitectura, convenciones y recetas.
+**[`.agents/context/README.md`](./.agents/context/README.md)**: es el índice de los
+documentos que cubren arquitectura, convenciones y recetas. Lo ya ejecutado y cerrado
+vive en `.agents/context/historico/`, y no es trabajo pendiente.
 
 ## Ruta rápida según la tarea
 
@@ -12,7 +13,7 @@ documentos que cubren arquitectura, convenciones y recetas.
 | Tocar rutas o permisos | `.agents/context/05-routing-y-permisos.md` |
 | Tocar mappers o base de datos | `.agents/context/06-orm-mappers.md` y `11-base-de-datos.md` |
 | Clonar un módulo desde Publications | `.agents/context/15-plantilla-clonar-publications.md` |
-| Trabajar en la migración de PHP | `.agents/context/16-plan-php85.md` y `17-ruta-de-ejecucion.md` |
+| Entender la migración de PHP, ya ejecutada | `.agents/context/historico/` |
 | Entender por qué algo está como está | `.agents/context/14-deuda-y-limpieza.md` |
 
 ## Reglas que no se negocian

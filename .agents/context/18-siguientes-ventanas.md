@@ -5,6 +5,28 @@
 > Escrito para que alguien que llega en frío ejecute sin preguntar. Lo de aquí no está en
 > el código y se pierde si no se lee.
 
+## DÓNDE VA CADA COSA — la regla, y se aplica DESDE AHORA
+
+`.agents/context/` **no es la historia de esta campaña**: es documentación paralela para agentes,
+y **viaja con el framework**. Tiene dos propósitos que conviene no mezclar — decir qué falta, y
+decir cómo funciona esto. Muchos de sus archivos deben **desaparecer** cuando queden satisfechos.
+
+**Toda entrada nueva nace en su sitio. Tres destinos:**
+
+| Si es… | Va a… | Y ahí |
+| :-- | :-- | :-- |
+| **LEY DURABLE** — cómo se trabaja, una convención, cómo funciona el framework | El documento numerado que corresponda (`06`, `10`, `11`, `12`…) | **se queda**: no caduca |
+| **PENDIENTE** — una ventana, un peldaño de la escalera, backlog | **Este documento** | **mengua** conforme se cierra |
+| **LO HECHO** — una medición, un hallazgo, un error y su corrección | [`historico/`](./historico/) | queda como explicación de por qué el proyecto es como es |
+
+**Escrita aquí a propósito**, al principio del documento que más crece, para que se aplique sola:
+antes de añadir una sección nueva, la pregunta es **a cuál de los tres pertenece**.
+
+> **Lo que NO se hace todavía**: extraer de este documento las leyes que ya están escritas dentro
+> —T0, T10, T17, T20, T21, LEY 8 a LEY 11— y llevarlas a documentos permanentes. Es la pieza
+> difícil, porque hay que separar la ley de la anécdota que la funda sin perder ninguna de las
+> dos. **Va en E6.**
+
 ## T0 · CRITERIO DE CIERRE DE LA FASE — decidido por el propietario
 
 **El framework es una PLANTILLA QUE SE CLONA.** Hay muchos despliegues, cada uno congelado
@@ -487,7 +509,7 @@ información, no el plazo.
 
 Estado de partida: migración cerrada en `v7.1.0`, rango `>=8.4.1 <8.6`, integrada en la
 tríada salvo `last-stable`, congelada a propósito. Ver
-[16-plan-php85.md](./16-plan-php85.md) y [17-ruta-de-ejecucion.md](./17-ruta-de-ejecucion.md),
+[16-plan-php85.md](./historico/16-plan-php85.md) y [17-ruta-de-ejecucion.md](./historico/17-ruta-de-ejecucion.md),
 ambos ejecutados.
 
 ---
@@ -544,7 +566,7 @@ Esta ventana **bloquea las ventanas 5 y 6**: no se refactoriza sin red.
 `azure-oss/storage-blob`, reescribir `BlobStorageAzureAdapter::read()` como un `getBlob`
 directo en vez de listar el contenedor entero, y arreglar la recursión infinita de
 `BlobStorageFileAzurePackage::blob()`. Detalle en
-[16-plan-php85.md](./16-plan-php85.md).
+[16-plan-php85.md](./historico/16-plan-php85.md).
 
 Independiente de todo lo demás.
 
@@ -862,7 +884,7 @@ Con la ventana 2 hecha, el riesgo alto deja de serlo tanto.
 | Qué | Dónde |
 | :-- | :-- |
 | Trait para `routeName()` / `allowedRoute()` — 44 controladores lo reimplementan | [05-routing-y-permisos.md](./05-routing-y-permisos.md) |
-| Guzzle 8 — topado por `hubspot/api-client`; se aborda cuando dé errores | [16-plan-php85.md](./16-plan-php85.md) |
+| Guzzle 8 — topado por `hubspot/api-client`; se aborda cuando dé errores | [16-plan-php85.md](./historico/16-plan-php85.md) |
 | `DataTablesHelper.php:230/1090` — `columns` con defecto `null` y exigido `array` | [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md) |
 | `/admin/reports-access/` da 404 pese a estar registrada | [14-deuda-y-limpieza.md](./14-deuda-y-limpieza.md) |
 | `E_WARNING` y `E_NOTICE` siguen abortando en producción | [03-ciclo-de-vida.md](./03-ciclo-de-vida.md) |

@@ -357,7 +357,7 @@ $value = @strftime($value, $time->getTimestamp());
 
 Hoy no molesta por una casualidad: están escritas con **`@`**, y el manejador de errores
 de `bootstrap.php` respeta la supresión, así que ni siquiera en local abortan. Ver
-[16-plan-php85.md](./16-plan-php85.md).
+[16-plan-php85.md](./historico/16-plan-php85.md).
 
 **Pero el `@` no salva de la eliminación.** Cuando la función desaparezca, la llamada
 será `Call to undefined function strftime()`, que es un `Error` —no un diagnóstico— y no
