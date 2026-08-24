@@ -8,7 +8,6 @@ namespace PiecesPHP\BuiltIn\Banner;
 
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerController;
 use PiecesPHP\BuiltIn\Banner\Controllers\BuiltInBannerPublicController;
-use PiecesPHP\BuiltIn\Banner\Mappers\BuiltInBannerMapper;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
@@ -43,20 +42,6 @@ class BuiltInBannerRoutes
     public static function routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)
     {
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new BuiltInBannerMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = BuiltInBannerController::routes($groupAdministration);
             $groupPublic = BuiltInBannerPublicController::routes($groupPublic);

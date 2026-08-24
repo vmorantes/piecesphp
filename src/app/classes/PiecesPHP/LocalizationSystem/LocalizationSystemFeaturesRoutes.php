@@ -39,18 +39,6 @@ class LocalizationSystemFeaturesRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'user` int' => 'user` bigint',
-                ]);
-                exit;
-            }
-
             $groupAdministration = LocalizationSystemController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);

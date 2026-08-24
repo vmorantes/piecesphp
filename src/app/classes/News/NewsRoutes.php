@@ -8,9 +8,6 @@ namespace News;
 
 use News\Controllers\NewsCategoryController;
 use News\Controllers\NewsController;
-use News\Mappers\NewsCategoryMapper;
-use News\Mappers\NewsMapper;
-use News\Mappers\NewsReadedMapper;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
@@ -44,23 +41,6 @@ class NewsRoutes
     public static function routes(RouteGroup $groupAdministration)
     {
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new NewsCategoryMapper()))->getSQL(),
-                (new \PiecesPHP\Core\Database\SchemeCreator(new NewsMapper()))->getSQL(),
-                (new \PiecesPHP\Core\Database\SchemeCreator(new NewsReadedMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                    'readerUser` int' => 'readerUser` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = NewsController::routes($groupAdministration);
             $groupAdministration = NewsCategoryController::routes($groupAdministration);

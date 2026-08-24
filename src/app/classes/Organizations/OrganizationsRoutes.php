@@ -8,7 +8,6 @@ namespace Organizations;
 
 use App\Model\UsersModel;
 use Organizations\Controllers\OrganizationsController;
-use Organizations\Mappers\OrganizationMapper;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Menu\MenuItem;
@@ -45,20 +44,6 @@ class OrganizationsRoutes
     public static function routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)
     {
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new OrganizationMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = OrganizationsController::routes($groupAdministration);
 

@@ -928,9 +928,9 @@
  ------ ------------------------------------------------------------------------------------ 
   project://src/app/classes/Organizations/OrganizationsRoutes.php                                   
  ------ ------------------------------------------------------------------------------------ 
-  122    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
+  107    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
          🪪  property.nonObject                                                              
-  125    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
+  110    Cannot access property $organization on PiecesPHP\UserSystem\UserDataPackage|null.  
          🪪  property.nonObject                                                              
  ------ ------------------------------------------------------------------------------------ 
 
@@ -2697,14 +2697,14 @@
          🪪  variable.undefined                                                                                                                                                               
  ------ ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
- -- ---------------------------------------------------------------------------------------------------------------------------------------- 
-     Error                                                                                                                                   
- -- ---------------------------------------------------------------------------------------------------------------------------------------- 
-     Ignored error pattern booleanOr.leftAlwaysTrue was not matched in reported errors.                                                      
-     Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.                                                    
-     Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.                                                        
-     Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/**/*Routes.php was not matched in reported errors.  
- -- ---------------------------------------------------------------------------------------------------------------------------------------- 
+ -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+     Error                                                                                                                                                                                      
+ -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+     Ignored error pattern booleanOr.leftAlwaysTrue was not matched in reported errors.                                                                                                         
+     Ignored error pattern booleanAnd.leftAlwaysFalse was not matched in reported errors.                                                                                                       
+     Ignored error pattern booleanAnd.alwaysFalse was not matched in reported errors.                                                                                                           
+     Ignored error pattern if.alwaysFalse in path /var/www/html/vicsen/piecesphp/src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php was not matched in reported errors.  
+ -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
  [ERROR] Found 862 errors                                                                                               
 

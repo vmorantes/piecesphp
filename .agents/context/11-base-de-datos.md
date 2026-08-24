@@ -92,12 +92,10 @@ Para una sola tabla sigue valiendo:
 echo (new \PiecesPHP\Core\Database\SchemeCreator(new MiMapper()))->getSQL();
 ```
 
-> **Ojo, y es importante: hoy el esquema generado NO se aplica entero.** 20 de las 33 tablas
-> las rechaza MariaDB, casi todas por `errno 150`: **38 claves ajenas declaran `int` cuando la
-> columna que referencian es `bigint`**. Once módulos lo tapan con un `strReplaceTemplate` en
-> su bloque `$showSQL` (`'createdBy` int' => 'createdBy` bigint'`); el resto no lo tapa. La
-> comprobación está en `bin/cli unit-tests:core/scheme-sql-round-trip` y el análisis en T52 de
-> `18-siguientes-ventanas.md`.
+El bloque `$showSQL` que había en diez `<Modulo>Routes` **ya no existe**: era un literal en
+`false` que había que editar en el código fuente para sacar el DDL de un módulo, y solo estaba
+en diez de ellos. La comprobación de que el esquema entero se genera y se deshace está en
+`bin/cli unit-tests:core/scheme-sql-round-trip`.
 
 > **Y el DDL que genera `SchemeCreator` es `CHARSET=utf8 COLLATE=utf8_bin`, o sea `utf8mb3`**,
 > escrito a fuego en el paquete. La *conexión* va en `utf8mb4`; las tablas recién generadas,

@@ -90,13 +90,9 @@ Emite el `CREATE TABLE` ordenado —padres antes que hijas— y **no lo ejecuta*
 aplica a mano, y se añade a `databases/piecesphp_structure.sql`. El inverso es
 `bin/cli scheme-drop module=MiModulo`.
 
-**Comprueba el tipo de las claves ajenas antes de aplicarlo.** Si tu mapper declara
-`'createdBy' => ['type' => 'int', 'reference_table' => UsersModel::TABLE …]`, MariaDB lo va a
-rechazar con `errno 150`: `pcsphp_users.id` es `bigint`. Es el defecto de T52, y afecta hoy a
-38 columnas.
-
-*(El bloque `$showSQL` del paso 6 sigue existiendo en los módulos antiguos y hace lo mismo para
-uno solo. Es lo que la tarea vino a sustituir.)*
+**Declara `bigint` en las claves ajenas que apunten a `pcsphp_users.id`**, que es `bigint`.
+Con `int` MariaDB rechaza la tabla con `errno 150`. Lo vigila
+`bin/cli unit-tests:core/scheme-sql-round-trip`.
 
 ### 6. `MiModuloRoutes.php`
 ```php
@@ -121,13 +117,6 @@ class MiModuloRoutes
     public static function routes(RouteGroup $groupAdministration)
     {
         if (self::ENABLE) {
-            $showSQL = false;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo (new \PiecesPHP\Core\Database\SchemeCreator(new MiModuloMapper()))->getSQL();
-                exit;
-            }
-
             $groupAdministration = MiModuloController::routes($groupAdministration);
             self::staticResolver($groupAdministration);
             MiModuloLang::injectLang();

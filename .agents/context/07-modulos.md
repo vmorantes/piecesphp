@@ -79,8 +79,8 @@ class NewsRoutes
     public static function routes(RouteGroup $groupAdministration /*, RouteGroup $groupPublic */)
     {
         if (self::ENABLE) {
-            // 1. (opcional) volcado del CREATE TABLE con SchemeCreator, tras $showSQL
-            //    Sustituido por `bin/cli scheme-create module=<Nombre>`, que descubre los mappers
+            // 1. rutas, estáticos, lang y menú. El DDL ya NO se vuelca desde aquí:
+            //    se saca con `bin/cli scheme-create module=<Nombre>`
             // 2. delegar en los controladores
             $groupAdministration = NewsController::routes($groupAdministration);
             $groupAdministration = NewsCategoryController::routes($groupAdministration);

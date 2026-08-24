@@ -5438,7 +5438,7 @@ Un reemplazo de cadenas sobre el SQL ya generado, módulo a módulo, que **arreg
 deja el mapper mintiendo**. Y solo en once módulos: los demás —`Documents`, `Forms`,
 `ImagesRepository`, `EventsLog`— no tienen parche ninguno.
 
-### Por qué NO se han quitado los once `$showSQL`
+### Por qué NO se han quitado los once `$showSQL` — RESUELTO en T58, y eran DIEZ
 
 Era el premio del encargo, y **está bloqueado, no olvidado**. Hoy los once bloques producen SQL
 **que sí se aplica** (por el parche) y la tarea central produce SQL **que no**. Quitarlos ahora
@@ -5913,4 +5913,67 @@ elegir tres que salieran bien.
 > `ZzTempInercia.php`, el archivo temporal con el que estaba **midiendo la inercia**: entraba en
 > el barrido. Retirado el instrumento, 859 exactas. La regla funcionó: paré, miré, y no era el
 > cambio.
+
+
+## T58 · LOS `$showSQL` FUERA — y eran diez, y nunca contaron como deuda
+
+Con las 39 declaraciones corregidas, el interruptor escondido sobra. Quitados **los diez
+bloques** —13 archivos de imports huérfanos incluidos— y corregidos **cinco documentos**, la
+regla 7 de `CLAUDE.md` y la skill.
+
+### Dos correcciones de contabilidad, las dos mías
+
+**Eran DIEZ, no once.** Lo dije mal desde T52 y lo repetí cinco veces. Medido con
+`grep -c '\$showSQL = false;'`: **10 bloques en 10 archivos**. El «once» venía de contar mal una
+tabla del propio documento, que ya decía diez.
+
+**Y la corrección que importa: los diez NUNCA contaron como ramas muertas.** Esto es lo que
+esperaba y lo que salió:
+
+| Medición | Antes de quitarlos | Después |
+| :-- | --: | --: |
+| PHPStan (instancias) | 859 | **859** |
+| Ramas muertas (tripletas) | 285 | **285** |
+| `if.alwaysFalse` en el informe de ramas muertas | 9 | **9** |
+| `if.alwaysFalse` en cualquier `*Routes.php` del baseline | **0** | 0 |
+
+**Comprobado en las dos direcciones**: restaurados los diez bloques desde `HEAD` y medido otra
+vez, salen los mismos 285 y los mismos 9. Y en el `PHPStanResult.json` de `HEAD` **no hay ni un
+solo `if.alwaysFalse` en ningún `*Routes.php`**.
+
+**La causa**: hay **DOS** entradas `if.alwaysFalse` en `bin/phpstan.neon`, y la que cubría los
+diez está **FUERA del bloque de ramas muertas** —después del delimitador `── PHPDoc ──`—, así que
+`bin/phpstan-deadcode` **no la retira** al medir. Los diez estaban silenciados en las dos
+pasadas: ni aparecían en el baseline ni contaban como deuda.
+
+> **Lo que esto invalida**: la fila del documento que decía *«10 de 20 son el `$showSQL`: NO SE
+> TOCAN»* daba a entender que eran diez ramas muertas conocidas y toleradas. **No lo eran: eran
+> diez ramas invisibles.** Una supresión colocada fuera del rango que mide la deuda no reduce la
+> deuda: **la esconde del instrumento que la cuenta.**
+>
+> Y de ahí sale la comprobación que falta: **ninguna supresión debería poder vivir fuera del
+> rango que mide `bin/phpstan-deadcode`.** Hoy nada lo impide. Queda anotado, sin arreglar.
+
+### Lo que sí cambia
+
+La entrada del `.neon` cubría **11** casos y ahora cubre **UNO**: `DataImportExportUtilityRoutes`,
+que declara `const ENABLE = false;` literal. **Se estrecha del comodín `**/*Routes.php` a ese
+archivo**, porque un comodín taparía cualquier rama muerta que apareciera mañana en otro módulo.
+
+El baseline no se mueve —los diez nunca estuvieron en él— y **el trinquete lo confirmó**: al
+intentar borrar la entrada entera saltó con *«se declaran 11 supresiones y el bloque de
+ignoreErrors NO creció»*. La puerta hizo su trabajo.
+
+### Lo adyacente que NO se ha tocado
+
+Del mismo barrido salieron cuatro sitios más con la misma forma, y **no entran** porque el
+encargo era los `$showSQL`:
+
+| Dónde | Qué es |
+| :-- | :-- |
+| `Documents/DocumentsRoutes.php:50`, `Forms/DocumentTypes/DocumentTypesRoutes.php:40`, `Forms/Categories/CategoriesRoutes.php:41` | Un volcado de una línea **comentado**, con su `$sqlCreate` encima |
+| `MySpace/Controllers/Util/ProfileTasksUtilities::generateSQL()` | **Es un método de verdad**, con parámetro `$echo` y valor de retorno. No es un interruptor escondido |
+
+Los cuatro llevan un `strReplaceTemplate` de `int`→`bigint` que **ya no sustituye nada**, porque
+los mappers declaran `bigint`. Es código inerte, no dañino. Anotado.
 

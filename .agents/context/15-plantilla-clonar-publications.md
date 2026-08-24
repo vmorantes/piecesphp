@@ -309,9 +309,8 @@ El renombrado no basta: el módulo no existe hasta que se registra.
    (`$list`, `$creation`, `$edition`, `$deletion`, `$queries`).
 4. Entrada de sidebar en `MiModuloRoutes::init()`, con `position` que no choque con
    las existentes.
-5. Generar la tabla: `$showSQL = true` en `MiModuloRoutes::routes()`, copiar el
-   `CREATE TABLE` que emite `SchemeCreator`, ejecutarlo, volver a `false`, y añadir
-   el SQL a `databases/piecesphp_structure.sql`.
+5. Generar la tabla: `bin/cli scheme-create module=MiModulo`, revisar el `CREATE TABLE`
+   que emite, ejecutarlo, y añadir el SQL a `databases/piecesphp_structure.sql`.
 6. Compilar estáticos: `cd src && gulp sass-modules`.
 
 ---

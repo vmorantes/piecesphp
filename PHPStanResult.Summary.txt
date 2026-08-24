@@ -234,7 +234,7 @@ project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
 	argument.type (Líneas: 434, 877, 879, 995)
 	offsetAccess.invalidOffset (Líneas: 996)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
-	property.nonObject (Líneas: 122, 125)
+	property.nonObject (Líneas: 107, 110)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
 	property.nonObject (Líneas: 11)
 project://src/app/classes/PiecesPHP/BuiltIn/Banner/Controllers/BuiltInBannerController.php

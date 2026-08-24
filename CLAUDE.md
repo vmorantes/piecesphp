@@ -27,8 +27,9 @@ documentos que cubren arquitectura, convenciones y recetas.
 5. **Todo método de ruta devuelve un `Response`.**
 6. **Assets**: `add_global_asset` / `set_custom_assets` / `import_*`. Nunca `<script src>`
    suelto en la vista.
-7. **Tablas**: se definen en `$fields` del mapper y el SQL sale de `SchemeCreator`.
-   No se escribe `CREATE TABLE` a mano.
+7. **Tablas**: se definen en `$fields` del mapper y el SQL sale de
+   `bin/cli scheme-create module=<Nombre>` (su inverso, `scheme-drop`). No se escribe
+   `CREATE TABLE` a mano.
 8. **No se edita `src/vendor/`** ni los paquetes `piecesphp/*` desde aquí: son repos
    aparte.
 

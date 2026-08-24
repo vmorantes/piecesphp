@@ -104,8 +104,9 @@ enrutado o las traducciones, y el fallo casi nunca es evidente.
    de dependencias dependen de ellos.
 
 7. **El SQL de las tablas se genera, no se escribe.** Define `$fields` en el mapper y
-   saca el DDL con `SchemeCreator`; el bloque `$showSQL` de cada `<Modulo>Routes` está
-   ahí para eso. Escribir el `CREATE TABLE` a mano desincroniza el mapper y la tabla.
+   saca el DDL con `bin/cli scheme-create module=<Nombre>`, que descubre los mappers y
+   emite el SQL ordenado. Su inverso es `bin/cli scheme-drop`. Escribir el `CREATE TABLE`
+   a mano desincroniza el mapper y la tabla.
 
 8. **Los módulos se activan con una constante** en `config/constants.php`, leída como
    `const ENABLE = X_MODULE;` en su clase `Routes`. Un módulo sin bandera no se puede

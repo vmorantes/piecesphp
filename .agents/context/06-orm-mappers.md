@@ -185,9 +185,15 @@ no lo declaren.
 (new \PiecesPHP\Core\Database\SchemeCreator(new NewsMapper()))->getSQL();
 ```
 
-Los módulos incluyen un bloque `$showSQL = true;` comentado en su `<Modulo>Routes`
-para volcar el `CREATE TABLE` de todos sus mappers. Ese es el método canónico para
-crear tablas nuevas: **define `$fields` primero, luego genera el SQL**.
+Para el módulo entero, y ordenado por sus claves ajenas:
+
+```bash
+bin/cli scheme-create module=MiModulo    # el CREATE
+bin/cli scheme-drop   module=MiModulo    # y su inverso
+```
+
+Ese es el método canónico: **define `$fields` primero, luego genera el SQL**. Las dos
+tareas descubren los mappers solas y **emiten, no ejecutan**.
 
 ## Múltiples conexiones
 

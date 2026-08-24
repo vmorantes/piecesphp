@@ -8,8 +8,6 @@ namespace ApplicationCalls;
 
 use ApplicationCalls\Controllers\ApplicationCallsController;
 use ApplicationCalls\Controllers\ApplicationCallsPublicController;
-use ApplicationCalls\Mappers\ApplicationCallsMapper;
-use ApplicationCalls\Mappers\AttachmentApplicationCallsMapper;
 use PiecesPHP\Core\Menu\MenuGroup;
 use PiecesPHP\Core\Menu\MenuGroupCollection;
 use PiecesPHP\Core\Route;
@@ -44,21 +42,6 @@ class ApplicationCallsRoutes
     public static function routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)
     {
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new ApplicationCallsMapper()))->getSQL(),
-                (new \PiecesPHP\Core\Database\SchemeCreator(new AttachmentApplicationCallsMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = ApplicationCallsController::routes($groupAdministration);
             $groupPublic = ApplicationCallsPublicController::routes($groupPublic);

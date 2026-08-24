@@ -145,6 +145,28 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Cambios que rompen compatibilidad — el bloque `$showSQL` ya no existe
+
+Diez `<Modulo>Routes` traían un bloque `$sqlCreate = […]; $showSQL = false; if ($showSQL) {…}`
+que había que **editar en el código fuente** para volcar el `CREATE TABLE` de ese módulo. Se
+retira entero, junto con 13 `use` que quedaban huérfanos.
+
+**En su lugar**, y para todos los módulos, no solo para diez:
+
+```bash
+bin/cli scheme-create module=MiModulo    # el CREATE, ordenado por claves ajenas
+bin/cli scheme-drop   module=MiModulo    # su inverso
+```
+
+**Si tu despliegue usaba el bloque**, el procedimiento cambia; el resultado, no. La regla 7 de
+`CLAUDE.md` y cinco documentos de `.agents/context/` quedan corregidos en este mismo cambio.
+
+> **Y una corrección de contabilidad nuestra**: estos diez `if ($showSQL)` **nunca contaron como
+> ramas muertas**. Su supresión en `bin/phpstan.neon` estaba colocada **fuera del rango que mide
+> `bin/phpstan-deadcode`**, así que no aparecían ni en el baseline ni en la deuda. Medido en las
+> dos direcciones: con y sin los bloques, 285 ramas y 859 errores. Una supresión fuera del rango
+> que mide la deuda no la reduce: **la esconde del instrumento que la cuenta.**
+
 ## Corregido — los mappers declaraban `int` en 39 claves ajenas que apuntan a un `bigint`
 
 **Ahora el esquema entero se puede generar desde los mappers.** `bin/cli scheme-create module=all`

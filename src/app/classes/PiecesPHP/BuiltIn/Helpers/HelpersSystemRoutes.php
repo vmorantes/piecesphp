@@ -42,18 +42,6 @@ class HelpersSystemRoutes
     {
         if (self::ENABLE) {
 
-            $sqlCreate = [];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
-
             $groupAdministration = GenericContentController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);

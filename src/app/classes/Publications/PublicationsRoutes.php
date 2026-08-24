@@ -18,9 +18,6 @@ use PiecesPHP\CSSVariables;
 use Publications\Controllers\PublicationsCategoryController;
 use Publications\Controllers\PublicationsController;
 use Publications\Controllers\PublicationsPublicController;
-use Publications\Mappers\AttachmentPublicationMapper;
-use Publications\Mappers\PublicationCategoryMapper;
-use Publications\Mappers\PublicationMapper;
 
 /**
  * PublicationsRoutes.
@@ -47,22 +44,6 @@ class PublicationsRoutes
     public static function routes(RouteGroup $groupAdministration, RouteGroup $groupPublic)
     {
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new PublicationCategoryMapper()))->getSQL(),
-                (new \PiecesPHP\Core\Database\SchemeCreator(new PublicationMapper()))->getSQL(),
-                (new \PiecesPHP\Core\Database\SchemeCreator(new AttachmentPublicationMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'modifiedBy` int' => 'modifiedBy` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = PublicationsController::routes($groupAdministration);
             $groupAdministration = PublicationsCategoryController::routes($groupAdministration);

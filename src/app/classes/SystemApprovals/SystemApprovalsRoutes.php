@@ -15,7 +15,6 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
 use SystemApprovals\Controllers\SystemApprovalsController;
-use SystemApprovals\Mappers\SystemApprovalsMapper;
 use SystemApprovals\Util\SystemApprovalManager;
 
 /**
@@ -45,20 +44,6 @@ class SystemApprovalsRoutes
         SystemApprovalManager::init();
 
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new SystemApprovalsMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'createdBy` int' => 'createdBy` bigint',
-                    'approvalBy` int' => 'approvalBy` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = SystemApprovalsController::routes($groupAdministration);
 

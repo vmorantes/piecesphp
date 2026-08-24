@@ -13,7 +13,6 @@ use PiecesPHP\Core\Routing\ResponseRoute as Response;
 use PiecesPHP\Core\ServerStatics;
 use PiecesPHP\CSSVariables;
 use PiecesPHP\UserSystem\Controllers\UserSystemFeaturesController;
-use PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper;
 
 /**
  * UserSystemFeaturesRoutes.
@@ -39,19 +38,6 @@ class UserSystemFeaturesRoutes
     public static function routes(RouteGroup $groupAdministration)
     {
         if (self::ENABLE) {
-
-            $sqlCreate = [
-                (new \PiecesPHP\Core\Database\SchemeCreator(new OTPSecretsUsersMapper()))->getSQL(),
-            ];
-            $showSQL = false;
-            //$showSQL = true;
-            if ($showSQL) {
-                header('Content-Type: text/sql');
-                echo strReplaceTemplate(implode("\r\n", $sqlCreate), [
-                    'user` int' => 'user` bigint',
-                ]);
-                exit;
-            }
 
             $groupAdministration = UserSystemFeaturesController::routes($groupAdministration);
 

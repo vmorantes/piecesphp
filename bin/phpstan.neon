@@ -240,9 +240,10 @@ parameters:
         - identifier: booleanOr.rightAlwaysFalse
         - identifier: booleanAnd.alwaysFalse
         #
-        # `if.alwaysFalse` sigue acotada por RUTA y no por familia: las de los `<Modulo>Routes`
-        # son interruptores, y estas nueve quedaron fuera de esa carpeta. Se retira cuando se
-        # hayan mirado las nueve. Ver T24.
+        # `if.alwaysFalse` sigue acotada por RUTA y no por familia. Las diez de los
+        # `<Modulo>Routes` YA NO EXISTEN: eran el interruptor `$showSQL`, y se retiraron al
+        # centralizar el DDL en `bin/cli scheme-create`. Medido sin esta supresión: quedan
+        # NUEVE, todas fuera de esa carpeta. Se retira cuando se hayan mirado. Ver T24 y T58.
         -
             identifier: if.alwaysFalse
             paths:
@@ -276,23 +277,21 @@ parameters:
         # ── PHPDoc ──────────
         - '#.*PHPDoc tag @.*#'
 
-        # ── `if.alwaysFalse` en los <Modulo>Routes: INTERRUPTORES, no deuda ──────────
+        # ── `if.alwaysFalse` en UN <Modulo>Routes: un módulo apagado, no deuda ──────────
         # SUPRESIÓN PERMANENTE. No lleva condición de retirada a propósito.
         #
-        # Son 11 de los 20 `if.alwaysFalse` del proyecto, y ninguno es código muerto:
+        # ANTES cubría 11 casos y AHORA cubre UNO. Los otros diez eran el bloque
+        # `$showSQL = false; ... if ($showSQL)`, y ya no existen: el DDL se saca con
+        # `bin/cli scheme-create`, así que el interruptor escondido sobra. Ver T58.
         #
-        #   - DIEZ son el bloque `$showSQL = false; ... if ($showSQL)` que la REGLA 7 de
-        #     CLAUDE.md manda usar para sacar el DDL de un módulo. Borrarlo no limpiaría
-        #     nada: quitaría la forma sancionada de generar el SQL de las tablas.
-        #   - UNO es `DataImportExportUtilityRoutes`, que declara `const ENABLE = false;`
-        #     literal: el módulo está apagado en árbol, no es un descuido.
-        #
-        # Los otros 9, repartidos por controladores, NO están aquí: siguen contando como
-        # ramas muertas y se miran uno a uno.
+        # El que queda es `DataImportExportUtilityRoutes`, que declara `const ENABLE = false;`
+        # literal: el módulo está apagado en árbol, no es un descuido. Por eso la ruta se
+        # ESTRECHA a ese archivo: dejarla en `**/*Routes.php` taparía cualquier rama muerta
+        # que apareciera mañana en cualquier otro módulo.
         -
             identifier: if.alwaysFalse
             paths:
-                - ../src/app/**/*Routes.php
+                - ../src/app/classes/DataImportExportUtility/DataImportExportUtilityRoutes.php
         # ── Dead catch: DOS casos reales, y el desajuste que los explica ──────────
         # `catch.neverThrown` era una supresión de familia entera. Se miraron los cinco:
         # TRES eran muertos de verdad y se han borrado —un try alrededor de una asignación
