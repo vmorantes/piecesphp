@@ -145,6 +145,11 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Corregido — el enlace de baja de los correos llevaba un apóstrofo de más
+
+`UNSUSCRIBE_TEXT` emitía `<a href='{{url}}'' target='_blank'>` en los **seis idiomas**. Sale
+hacia el usuario en cada correo que manda el sistema. Un carácter por archivo.
+
 ## Cambios que rompen compatibilidad — el bloque `$showSQL` ya no existe
 
 Diez `<Modulo>Routes` traían un bloque `$sqlCreate = […]; $showSQL = false; if ($showSQL) {…}`

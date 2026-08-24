@@ -5977,3 +5977,26 @@ encargo era los `$showSQL`:
 Los cuatro llevan un `strReplaceTemplate` de `int`→`bigint` que **ya no sustituye nada**, porque
 los mappers declaran `bigint`. Es código inerte, no dañino. Anotado.
 
+
+## T59 · EL APÓSTROFO SUELTO DE `UNSUSCRIBE_TEXT` — entra por ADYACENCIA, no por gravedad
+
+**La justificación por escrito que exige T34**, y se escribe entera porque no se da por supuesta:
+
+> **Entra por ADYACENCIA, no por gravedad.** No es grave: un `href` con un apóstrofo de más sigue
+> funcionando en todo cliente de correo conocido. Entra porque **estaba delante**: apareció al
+> renderizar la plantilla para medir la trampa de `public-unsubscribe` (C.2), en el mismo
+> fragmento que había que mirar de todos modos, y el arreglo es **un carácter por archivo**. Si
+> hubiera exigido abrir un archivo que no tocaba, o entender algo que no estaba ya entendido, no
+> entraría.
+
+**Y una corrección de mi propio informe**: dije «mismo archivo, un carácter». Son **seis
+archivos** —los seis idiomas de `mailingGeneral`— con un carácter cada uno. La adyacencia se
+mantiene; el conteo estaba mal.
+
+```
+ANTES : <a href='{{url}}'' target='_blank'>haga clic aquí</a>
+AHORA : <a href='{{url}}' target='_blank'>haga clic aquí</a>
+```
+
+Sale hacia el usuario **en cada correo que manda el sistema**, en los seis idiomas.
+
