@@ -6,6 +6,7 @@
 
 namespace Forms\DocumentTypes\Mappers;
 
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Model\UsersModel;
 use Forms\DocumentTypes\Controllers\DocumentTypesController;
 use Forms\DocumentTypes\DocumentTypesLang;
@@ -37,6 +38,12 @@ use PiecesPHP\Core\Validation\Validator;
  */
 class DocumentTypesMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'documentTypeName';
 
     protected $fields = [
         'id' => [
@@ -777,6 +784,9 @@ class DocumentTypesMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return DocumentTypesMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
@@ -820,10 +830,9 @@ class DocumentTypesMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

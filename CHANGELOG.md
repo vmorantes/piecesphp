@@ -145,6 +145,29 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Corregido — dos peticiones simultáneas podían acuñar dos slugs y matar una URL
+
+Los 14 mappers con `preferSlug` rellenan el slug de las filas que no lo tienen —las que entran por
+importación o alta directa en base—. Esa escritura **no estaba condicionada**: dos peticiones
+simultáneas generaban dos slugs distintos y ganaba la última, así que **si el primero ya había
+salido en una URL, esa URL moría**. Ahora el `UPDATE` va condicionado a que el slug siga nulo, y
+quien pierde la carrera relee el del ganador.
+
+- La escritura sale del cuerpo de `objectToMapper()` a `mintPreferSlugIfMissing()`, en el trait
+  `PreferSlugMinter`, y el docblock del convertidor **declara que escribe**.
+- Los dos mappers que no comprobaban el nombre antes de acuñar pasan a hacerlo, como los otros
+  doce. Comprobado contra `information_schema` que sus columnas de nombre son `NOT NULL`, así que
+  el comportamiento de esos módulos no cambia.
+- Las 14 tablas quedan declaradas en `files/dev/volatile-state.json` como escritura legítima en
+  camino de lectura.
+
+## Añadido — tarea para rellenar los slugs de golpe
+
+`Terminal\Jobs\PreferSlugsFiller`, registrada como cronjob «Rellenar slugs pendientes», rellena
+los `preferSlug` que falten sin esperar a que alguien navegue — pensada para después de una
+importación. **No sustituye al relleno perezoso: lo complementa**, y usa exactamente el mismo
+método, así que no hay dos versiones del mismo acuñado.
+
 ## Rendimiento — tres módulos generaban su `CREATE TABLE` en cada petición
 
 `Documents`, `Forms\DocumentTypes` y `Forms\Categories` tenían el volcado comentado pero **el

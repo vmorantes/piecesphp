@@ -6,6 +6,7 @@
 
 namespace Organizations\Mappers;
 
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Locations\Mappers\CityMapper;
 use App\Locations\Mappers\CountryMapper;
 use App\Model\UsersModel;
@@ -61,6 +62,12 @@ use PiecesPHP\UserSystem\Profile\SubMappers\InterestResearchAreasMapper;
  */
 class OrganizationMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'name';
 
     protected $fields = [
         'id' => [
@@ -1224,6 +1231,9 @@ class OrganizationMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return OrganizationMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
@@ -1282,10 +1292,9 @@ class OrganizationMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->name !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

@@ -198,19 +198,19 @@
  ------ ------------------------------------------------------------------------------------------------------------------ 
   project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php                                                   
  ------ ------------------------------------------------------------------------------------------------------------------ 
-  443    Method ApplicationCalls\Mappers\ApplicationCallsMapper::isActiveByDates() should return string but returns bool.  
+  450    Method ApplicationCalls\Mappers\ApplicationCallsMapper::isActiveByDates() should return string but returns bool.  
          🪪  return.type                                                                                                   
-  454    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                     
+  461    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                     
          🪪  argument.type                                                                                                 
-  542    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                          
+  549    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                          
          🪪  property.nonObject                                                                                            
-  565    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                          
+  572    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                          
          🪪  property.nonObject                                                                                            
-  777    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
+  784    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
          🪪  argument.type                                                                                                 
-  778    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
+  785    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
          🪪  argument.type                                                                                                 
-  779    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
+  786    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                    
          🪪  argument.type                                                                                                 
  ------ ------------------------------------------------------------------------------------------------------------------ 
 
@@ -413,11 +413,11 @@
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/app/classes/Documents/Mappers/DocumentsMapper.php                                              
  ------ ----------------------------------------------------------------------------------------------- 
-  241    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  248    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  278    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  285    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  304    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  311    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -447,11 +447,11 @@
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php                                      
  ------ ----------------------------------------------------------------------------------------------- 
-  222    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  229    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  259    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  266    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  286    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  293    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -467,11 +467,11 @@
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php                                
  ------ ----------------------------------------------------------------------------------------------- 
-  222    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  229    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  259    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  266    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  286    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  293    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -506,9 +506,9 @@
  ------ -------------------------------------------------------------------------- 
   project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php           
  ------ -------------------------------------------------------------------------- 
-  393    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.  
+  400    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.  
          🪪  property.nonObject                                                    
-  416    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.  
+  423    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.  
          🪪  property.nonObject                                                    
  ------ -------------------------------------------------------------------------- 
 
@@ -591,11 +591,11 @@
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php                                                                                 
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
-  170    Parameter Nr.1 $areaName of static method InterestResearchAreas\Mappers\InterestResearchAreasMapper::existsByAreaName() expects string, string|null given.  
+  177    Parameter Nr.1 $areaName of static method InterestResearchAreas\Mappers\InterestResearchAreasMapper::existsByAreaName() expects string, string|null given.  
          🪪  argument.type                                                                                                                                         
-  196    Parameter Nr.1 $areaName of static method InterestResearchAreas\Mappers\InterestResearchAreasMapper::existsByAreaName() expects string, string|null given.  
+  203    Parameter Nr.1 $areaName of static method InterestResearchAreas\Mappers\InterestResearchAreasMapper::existsByAreaName() expects string, string|null given.  
          🪪  argument.type                                                                                                                                         
-  400    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                                                            
+  407    Parameter Nr.1 $str of function escapeString expects string, string|false given.                                                                            
          🪪  argument.type                                                                                                                                         
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -849,18 +849,18 @@
  ------ ----------------------------------------------------------------------- 
   project://src/app/classes/News/Mappers/NewsCategoryMapper.php                        
  ------ ----------------------------------------------------------------------- 
-  438    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
+  445    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
          🪪  argument.type                                                      
  ------ ----------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/app/classes/News/Mappers/NewsMapper.php                                                        
  ------ ----------------------------------------------------------------------------------------------- 
-  275    Method News\Mappers\NewsMapper::isActiveByDates() should return string but returns bool.       
+  282    Method News\Mappers\NewsMapper::isActiveByDates() should return string but returns bool.       
          🪪  return.type                                                                                
-  286    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
+  293    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.  
          🪪  argument.type                                                                              
-  372    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  379    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
@@ -913,15 +913,15 @@
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/app/classes/Organizations/Mappers/OrganizationMapper.php                                                                             
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
-  434    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                                        
+  441    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.                                        
          🪪  argument.type                                                                                                                    
-  877    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
+  884    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
          🪪  argument.type                                                                                                                    
-  879    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
+  886    Parameter Nr.1 $string of static method PiecesPHP\Core\BaseHashEncryption::encryptBidirectionalHash() expects string, int|null given.  
          🪪  argument.type                                                                                                                    
-  995    Parameter Nr.1 $key of function array_key_exists expects int|string, bool|float|int|string given.                                      
+  1002   Parameter Nr.1 $key of function array_key_exists expects int|string, bool|float|int|string given.                                      
          🪪  argument.type                                                                                                                    
-  996    Possibly invalid array key type bool|float|int|string.                                                                               
+  1003   Possibly invalid array key type bool|float|int|string.                                                                               
          🪪  offsetAccess.invalidOffset                                                                                                       
  ------ ------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1031,25 +1031,25 @@
  ------ ----------------------------------------------------------------------------------------------- 
   project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php  
  ------ ----------------------------------------------------------------------------------------------- 
-  271    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  278    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
-  294    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
+  301    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                       
          🪪  property.nonObject                                                                         
  ------ ----------------------------------------------------------------------------------------------- 
 
  ------ ----------------------------------------------------------------------------------- 
   project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php  
  ------ ----------------------------------------------------------------------------------- 
-  271    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.           
+  278    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.           
          🪪  property.nonObject                                                             
-  294    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.           
+  301    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.           
          🪪  property.nonObject                                                             
  ------ ----------------------------------------------------------------------------------- 
 
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
   project://src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php                                                                          
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
-  212    Parameter Nr.1 $userID of static method PiecesPHP\UserSystem\Profile\UserProfileMapper::profileIsComplete() expects int, int|null given.  
+  219    Parameter Nr.1 $userID of static method PiecesPHP\UserSystem\Profile\UserProfileMapper::profileIsComplete() expects int, int|null given.  
          🪪  argument.type                                                                                                                       
  ------ ---------------------------------------------------------------------------------------------------------------------------------------- 
 
@@ -1130,22 +1130,22 @@
  ------ ----------------------------------------------------------------------- 
   project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php         
  ------ ----------------------------------------------------------------------- 
-  395    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
+  402    Parameter Nr.1 $string of function mb_strlen expects string, int given.  
          🪪  argument.type                                                      
  ------ ----------------------------------------------------------------------- 
 
  ------ --------------------------------------------------------------------------------------------------------- 
   project://src/app/classes/Publications/Mappers/PublicationMapper.php                                                   
  ------ --------------------------------------------------------------------------------------------------------- 
-  396    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
+  403    Method Publications\Mappers\PublicationMapper::isActiveByDates() should return string but returns bool.  
          🪪  return.type                                                                                          
-  423    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  430    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  435    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
+  442    Parameter Nr.2 $time of function localeDateFormat expects DateTime|null, DateTime|string given.            
          🪪  argument.type                                                                                        
-  529    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  536    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
-  557    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
+  564    Cannot access property $id on PiecesPHP\UserSystem\UserDataPackage|null.                                 
          🪪  property.nonObject                                                                                   
  ------ --------------------------------------------------------------------------------------------------------- 
 

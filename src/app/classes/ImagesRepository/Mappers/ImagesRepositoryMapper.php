@@ -6,6 +6,7 @@
 
 namespace ImagesRepository\Mappers;
 
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use App\Locations\Mappers\CityMapper;
 use App\Model\UsersModel;
 use ImagesRepository\Controllers\ImagesRepositoryController;
@@ -45,6 +46,12 @@ use Spatie\Url\Url as URLManager;
  */
 class ImagesRepositoryMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'id';
 
     protected $fields = [
         'id' => [
@@ -1115,6 +1122,9 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return ImagesRepositoryMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
@@ -1158,10 +1168,9 @@ class ImagesRepositoryMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->id !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

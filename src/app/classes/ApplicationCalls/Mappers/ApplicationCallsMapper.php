@@ -6,6 +6,7 @@
 
 namespace ApplicationCalls\Mappers;
 
+use PiecesPHP\Core\Database\PreferSlugMinter;
 use ApplicationCalls\ApplicationCallsLang;
 use ApplicationCalls\Controllers\ApplicationCallsPublicController;
 use App\Locations\Mappers\CountryMapper;
@@ -54,6 +55,12 @@ use Spatie\Url\Url as URLManager;
  */
 class ApplicationCallsMapper extends EntityMapperExtensible
 {
+
+    use PreferSlugMinter;
+
+
+    /** @var string|null Campo que da nombre: sin él no se acuña slug. */
+    const SLUG_NAME_FIELD = 'title';
 
     protected $fields = [
         'id' => [
@@ -1279,6 +1286,9 @@ class ApplicationCallsMapper extends EntityMapperExtensible
      *
      * @param \stdClass $element
      * @return ApplicationCallsMapper|null
+     *
+     * ATENCIÓN: ESTE CONVERTIDOR ESCRIBE. Acuña el `preferSlug` de las filas que no lo
+     * tienen —importadas o dadas de alta directamente en base—. Ver T61.
      */
     public static function objectToMapper(\stdClass $element)
     {
@@ -1338,10 +1348,9 @@ class ApplicationCallsMapper extends EntityMapperExtensible
         if ($allFilled) {
 
             if ($mapper->id !== null) {
-                if ($mapper->preferSlug === null && $mapper->title !== null) {
-                    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
-                    $mapper->update();
-                }
+                //Acuña el slug si falta. ES UNA ESCRITURA, declarada en el docblock y en
+                //files/dev/volatile-state.json.
+                self::mintPreferSlugIfMissing($mapper);
             }
 
         }

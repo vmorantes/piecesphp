@@ -6259,3 +6259,92 @@ Pinchado cada hora, una tarea con `dailyAt("03:00")` no se ejecuta casi nunca. Y
 > **Las cuatro se quedan sin arreglar**, según lo pedido. La 4.3 es la pieza que comparten las
 > dos ideas del registro: arreglada una vez, sirve a las dos.
 
+
+## T64 · EL ACUÑADO DEL SLUG: atómico, visible y declarado
+
+Queda establecido, y por eso el relleno **no se elimina**: existe para las filas que entran por
+**IMPORTACIÓN** o por **ALTA DIRECTA EN BASE**, que no pasan por el alta de la aplicación y por
+tanto nadie les pone slug. Y `getEncryptIDForSlug()` mete un `uniqid()`, así que el valor **no es
+derivable del id**: hay que persistirlo.
+
+### Los 21 no eran uniformes: dos formas
+
+*Método: se extrae el cuerpo de `objectToMapper()` por conteo de llaves, se normalizan los nombres
+de campo y se comparan las formas resultantes.*
+
+| Forma | Cuántos | Condición |
+| :-- | --: | :-- |
+| **1** | **12** | `preferSlug === null && <nombre> !== null` |
+| **2** | **2** | `preferSlug === null` — **sin la guarda del nombre** |
+
+Se unifican en la 1. **La condición que puso el propietario, comprobada antes de tocar**:
+
+```sql
+SELECT TABLE_NAME, COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME IN ('forms_categories','forms_document_types')
+  AND COLUMN_NAME IN ('categoryName','documentTypeName')
+```
+```
+forms_categories       categoryName      text   IS_NULLABLE=NO
+forms_document_types   documentTypeName  text   IS_NULLABLE=NO
+```
+
+**Las dos son NOT NULL, así que unificar no cambia el comportamiento de esos dos módulos.**
+
+### Los cuatro cambios
+
+**3.1 · ATÓMICO.** El `UPDATE` va condicionado a que el slug siga nulo:
+
+```php
+$model->update(['preferSlug' => $slug])->where("id = {$id} AND preferSlug IS NULL")->execute();
+```
+
+> **Y un defecto que apareció al probarlo**: `execute()` devuelve lo que devuelve
+> `PDO::execute()`, que es **`true` aunque no cambie ninguna fila**. La primera versión creía
+> haber ganado siempre. **Quién ganó no lo dice el `UPDATE`: lo dice releer**, y eso es lo que
+> hace ahora. La suite lo cazó en la primera corrida.
+
+**3.2 · NO ESCONDIDO.** La escritura sale del cuerpo del convertidor a
+`mintPreferSlugIfMissing()`, y el docblock de `objectToMapper()` lo declara con
+*«ATENCIÓN: ESTE CONVERTIDOR ESCRIBE»*.
+
+> **Vive en un TRAIT, no en `EntityMapperExtensible`.** En la clase base habría que anotar
+> `@property $preferSlug`, que la mayoría de los mappers **no tiene** — escribir una mentira para
+> callar al analizador. El trait solo lo usan los 14 que sí lo tienen, así que ahí la anotación es
+> cierta. Lo dijo PHPStan: `Access to an undefined property EntityMapperExtensible::$preferSlug`.
+
+**Y el campo de nombre lo declara cada mapper UNA vez**, en `SLUG_NAME_FIELD`, que leen los dos
+caminos —el perezoso y el masivo—. Si cada uno lo supiera por su cuenta, serían dos verdades.
+
+**3.3 · DECLARADO ANTES DE MEDIR.** Las 14 tablas entran en `files/dev/volatile-state.json` con su
+motivo, **antes** de la próxima pasada del recorredor.
+
+> **Y el hecho que lo hizo evidente**: `news_categories` sale hoy con **cero** slugs nulos. Los
+> tenía. **Los rellenó nuestro propio recorrido de T56**, que fue quien cazó el caso. **El
+> instrumento completó la migración que medía.**
+
+> **Una segunda verdad, y queda dicha**: la lista de las 14 tablas del registro **no se escribió a
+> mano** —sale de `PreferSlugsFiller::mappersWithSlug()`— pero **una vez copiada ahí, nada
+> detecta si diverge**. Si alguien añade un módulo con `preferSlug`, la lista se queda corta en
+> silencio. No hay puerta para eso.
+
+**3.4 · LA TAREA EXPLÍCITA.** `Terminal\Jobs\PreferSlugsFiller`, registrada como `CronJobTask`
+(«Rellenar slugs pendientes»). **No sustituye al perezoso: lo complementa** — el perezoso cubre la
+fila suelta, la tarea cubre la importación entera. Y **usa exactamente el mismo método**, guarda
+de nombre incluida: dos implementaciones del mismo acuñado serían dos verdades.
+
+### La suite, y las dos direcciones provocadas
+
+`bin/cli unit-tests:core/prefer-slug`, **12/12**. Validada rompiéndola por partida doble:
+
+| Qué se rompe | Qué falla |
+| :-- | :-- |
+| Se quita `AND preferSlug IS NULL` | **2 de 12**: los dos acuñan (`A=true B=true`) y el del ganador ya no coincide con la base — **la URL repartida muere** |
+| Se anula la guarda del nombre | **2 de 12**: una fila sin nombre recibe URL permanente |
+
+> **Y una corrección de mi propia suite**: la primera versión daba **10/10 con la guarda del
+> nombre rota**. No la cubría. Una comprobación que pasa con el defecto puesto no es una
+> comprobación (T46), así que se añadió — con una subclase de solo-pruebas, porque `name` es
+> NOT NULL y el mapper no deja ponerlo a null.
+

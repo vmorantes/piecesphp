@@ -82,9 +82,9 @@ project://src/app/classes/ApplicationCalls/Controllers/ApplicationCallsControlle
 	method.nonObject (Líneas: 1659, 1660)
 	offsetAccess.invalidOffset (Líneas: 1820)
 project://src/app/classes/ApplicationCalls/Mappers/ApplicationCallsMapper.php
-	return.type (Líneas: 443)
-	argument.type (Líneas: 454, 777, 778, 779)
-	property.nonObject (Líneas: 542, 565)
+	return.type (Líneas: 450)
+	argument.type (Líneas: 461, 784, 785, 786)
+	property.nonObject (Líneas: 549, 572)
 project://src/app/classes/ApplicationCalls/Mappers/AttachmentApplicationCallsMapper.php
 	argument.type (Líneas: 165, 227, 244)
 	return.type (Líneas: 228, 247)
@@ -133,8 +133,8 @@ project://src/app/classes/Documents/Controllers/DocumentsController.php
 	argument.type (Líneas: 942, 1240)
 	offsetAccess.invalidOffset (Líneas: 1259)
 project://src/app/classes/Documents/Mappers/DocumentsMapper.php
-	argument.type (Líneas: 241)
-	property.nonObject (Líneas: 278, 304)
+	argument.type (Líneas: 248)
+	property.nonObject (Líneas: 285, 311)
 project://src/app/classes/EventsLog/Views/log/list.php
 	property.nonObject (Líneas: 10)
 project://src/app/classes/FileManager/Controllers/FileManagerController.php
@@ -144,21 +144,21 @@ project://src/app/classes/Forms/Categories/Controllers/CategoriesController.php
 	argument.type (Líneas: 954)
 	offsetAccess.invalidOffset (Líneas: 973)
 project://src/app/classes/Forms/Categories/Mappers/CategoriesMapper.php
-	argument.type (Líneas: 222)
-	property.nonObject (Líneas: 259, 286)
+	argument.type (Líneas: 229)
+	property.nonObject (Líneas: 266, 293)
 project://src/app/classes/Forms/DocumentTypes/Controllers/DocumentTypesController.php
 	property.nonObject (Líneas: 715)
 	argument.type (Líneas: 955)
 	offsetAccess.invalidOffset (Líneas: 974)
 project://src/app/classes/Forms/DocumentTypes/Mappers/DocumentTypesMapper.php
-	argument.type (Líneas: 222)
-	property.nonObject (Líneas: 259, 286)
+	argument.type (Líneas: 229)
+	property.nonObject (Líneas: 266, 293)
 project://src/app/classes/GeoJSONManager/Controllers/GeoJsonManagerController.php
 	foreach.nonIterable (Líneas: 193, 313, 482)
 project://src/app/classes/ImagesRepository/Controllers/ImagesRepositoryController.php
 	argument.type (Líneas: 172, 248, 250, 251, 253, 270)
 project://src/app/classes/ImagesRepository/Mappers/ImagesRepositoryMapper.php
-	property.nonObject (Líneas: 393, 416)
+	property.nonObject (Líneas: 400, 423)
 project://src/app/classes/ImagesRepository/Views/images-repository/filter-view.php
 	argument.type (Líneas: 23)
 project://src/app/classes/Importers/Controller/ImporterController.php
@@ -173,7 +173,7 @@ project://src/app/classes/InterestResearchAreas/Controllers/InterestResearchArea
 	argument.type (Líneas: 419, 444, 1045)
 	property.nonObject (Líneas: 877, 878, 879, 968, 980, 1275, 1277, 1299, 1301)
 project://src/app/classes/InterestResearchAreas/Mappers/InterestResearchAreasMapper.php
-	argument.type (Líneas: 170, 196, 400)
+	argument.type (Líneas: 177, 203, 407)
 project://src/app/classes/MySpace/Controllers/MyOrganizationProfileController.php
 	property.nonObject (Líneas: 100, 100, 126, 134, 134, 134, 218, 218, 223, 223, 226, 482, 482, 488, 488, 489, 633, 633, 634, 653, 807, 807, 813)
 	argument.type (Líneas: 134)
@@ -214,11 +214,11 @@ project://src/app/classes/News/Controllers/NewsController.php
 	property.nonObject (Líneas: 188, 1114, 1298, 1299, 1300, 1301)
 	argument.type (Líneas: 566, 567, 597, 598, 1290, 1298)
 project://src/app/classes/News/Mappers/NewsCategoryMapper.php
-	argument.type (Líneas: 438)
+	argument.type (Líneas: 445)
 project://src/app/classes/News/Mappers/NewsMapper.php
-	return.type (Líneas: 275)
-	argument.type (Líneas: 286)
-	property.nonObject (Líneas: 372)
+	return.type (Líneas: 282)
+	argument.type (Líneas: 293)
+	property.nonObject (Líneas: 379)
 project://src/app/classes/News/Mappers/NewsReadedMapper.php
 	argument.type (Líneas: 89, 89)
 project://src/app/classes/Newsletter/Controllers/NewsletterController.php
@@ -231,8 +231,8 @@ project://src/app/classes/Organizations/Controllers/OrganizationsController.php
 	argument.type (Líneas: 855, 1327, 1588)
 	offsetAccess.invalidOffset (Líneas: 1607)
 project://src/app/classes/Organizations/Mappers/OrganizationMapper.php
-	argument.type (Líneas: 434, 877, 879, 995)
-	offsetAccess.invalidOffset (Líneas: 996)
+	argument.type (Líneas: 441, 884, 886, 1002)
+	offsetAccess.invalidOffset (Líneas: 1003)
 project://src/app/classes/Organizations/OrganizationsRoutes.php
 	property.nonObject (Líneas: 107, 110)
 project://src/app/classes/Organizations/Views/organizations/forms/edit.php
@@ -264,11 +264,11 @@ project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesCon
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
 	assign.propertyType (Líneas: 376, 403)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
-	property.nonObject (Líneas: 271, 294)
+	property.nonObject (Líneas: 278, 301)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php
-	property.nonObject (Líneas: 271, 294)
+	property.nonObject (Líneas: 278, 301)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/UserProfileMapper.php
-	argument.type (Líneas: 212)
+	argument.type (Líneas: 219)
 project://src/app/classes/PiecesPHP/UserSystem/UserDataPackage.php
 	assign.propertyType (Líneas: 217)
 	return.type (Líneas: 299)
@@ -285,11 +285,11 @@ project://src/app/classes/Publications/Mappers/AttachmentPublicationMapper.php
 	argument.type (Líneas: 165, 248)
 	property.nonObject (Líneas: 263, 283)
 project://src/app/classes/Publications/Mappers/PublicationCategoryMapper.php
-	argument.type (Líneas: 395)
+	argument.type (Líneas: 402)
 project://src/app/classes/Publications/Mappers/PublicationMapper.php
-	return.type (Líneas: 396)
-	argument.type (Líneas: 423, 435)
-	property.nonObject (Líneas: 529, 557)
+	return.type (Líneas: 403)
+	argument.type (Líneas: 430, 442)
+	property.nonObject (Líneas: 536, 564)
 project://src/app/classes/Publications/Util/AttachmentPackage.php
 	assign.propertyType (Líneas: 62, 63, 171)
 	return.type (Líneas: 174)
