@@ -209,6 +209,23 @@ script**. La comprobación está en `bin/cli unit-tests:core/scheme-sql-round-tr
   y el resolvedor los funde: decía «34 tablas» con 33 sentencias en el script. Ahora cuenta las
   sentencias y avisa de la diferencia.
 
+## Herramientas — `bin/walk-attribute`: qué ruta de lectura escribe, y dónde
+
+Toma una foto de la base de datos y del árbol de archivos **después de cada petición** y le
+atribuye la diferencia a la ruta que la provocó. Hasta ahora los caminos de lectura que escriben
+aparecían de uno en uno y por accidente.
+
+En su primera corrida, sobre 184 rutas GET, encontró **dos escrituras no declaradas** y sus
+causas, que son la misma de siempre —crear al leer—:
+
+- **`NewsCategoryMapper::objectToMapper()` llama a `update()`**: un convertidor que escribe.
+  Listar categorías actualiza filas. **Y no es un caso aislado: 14 de los 21 mappers que
+  implementan `objectToMapper()` llaman a `update()` dentro.**
+- **`GenericContentPseudoMapper::__construct()` llama a `save()`**: construir el objeto crea la
+  fila. Es la misma forma del defecto de `UserDataPackage` en el login.
+
+**No se ha corregido ninguno**: se documentan con su medición para decidir sobre ellos.
+
 ## Herramientas — la caché de la aplicación viva deja de depender de la memoria
 
 - **`bin/live-cache`** y **`bin/tools/live-cache.php`**. Cualquier medición A/B contra la web

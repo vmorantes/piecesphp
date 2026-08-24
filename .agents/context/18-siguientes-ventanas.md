@@ -5709,3 +5709,93 @@ mismo dominio, también en producción. Registran acciones de CLI, así que en w
 pero se leen y se compilan en cada petición. Se dice aquí; **no se ha cambiado**, porque las
 suites de `bin/cli` dependen de ese include y la decisión es tuya.
 
+
+## T56 · E2(b) · LA TABLA DE QUÉ RUTAS DE LECTURA ESCRIBEN — ya no es una serie de accidentes
+
+`bin/walk-routes` responde «¿revienta algo?». **`bin/walk-attribute` responde la otra pregunta**,
+que es la que E3 necesita antes de borrar nada: **qué ruta de lectura escribe, y dónde.**
+
+Los dos casos que conocíamos —el registro de intentos de acceso y los mensajes sin traducir—
+aparecieron **por accidente, uno cada vez**. Esto los busca.
+
+**Cómo**: foto de la base y del árbol antes, y otra después de **cada** petición. La diferencia se
+le atribuye a la ruta que la provocó, no al recorrido entero. Una foto cuesta **0,39 s** con 36
+tablas y 3.669 archivos, así que 184 rutas salen por poco más de un minuto de fotos.
+
+**La invalidación de caché va dentro** y aborta si no puede: es una comparación contra la
+aplicación viva, y es exactamente el caso que la LEY 11 vino a cubrir.
+
+### El resultado
+
+*Método: `bin/walk-attribute --base=… ` con sesión de root, 184 rutas GET pedidas, 166 omitidas
+por exigir parámetros o por ser de escritura. Cada omisión se cuenta y se dice su razón.*
+
+| Ruta | Qué toca | ¿Declarado? |
+| :-- | :-- | :-- |
+| `user-system-features-generate-otp` | `login_attempts` **+1 fila** | **Sí**, es el registro de auditoría |
+| `news-category-admin-ajax-all` | `news_categories` **2 filas MODIFICADAS** | **NO** |
+| `helpers-system-generic-content-admin-forms-home-image` | `pcsphp_app_config` **+1 fila** | **NO** |
+
+**Las dos no declaradas escriben UNA SOLA VEZ**: repetida cada petición tres veces más, no vuelve
+a haber diferencia. Es la misma forma que `missing-lang`: rellenan algo que faltaba.
+
+### Y las causas, que son las de siempre
+
+**1 · `NewsCategoryMapper::objectToMapper()` llama a `update()`.** Un **convertidor** —de objeto a
+mapper— que escribe en la base para rellenar `preferSlug` si está vacío. Listar categorías
+actualiza filas.
+
+```php
+if ($mapper->preferSlug === null && $mapper->name !== null) {
+    $mapper->preferSlug = self::getEncryptIDForSlug($mapper->id);
+    $mapper->update();     // <-- dentro de objectToMapper()
+}
+```
+
+> **Y NO es un caso aislado: `objectToMapper()` llama a `update()` en 14 de los 21 mappers que
+> lo implementan.** El recorrido solo cazó el de News porque en las demás tablas el campo ya
+> estaba relleno **o la tabla está vacía**. Con datos de verdad, hasta catorce listados
+> escribirían. Es la limitación de T39 mordiendo otra vez: **esta base no puede responder
+> preguntas sobre datos**, y aquí eso significa que el recorrido SUBESTIMA.
+
+**2 · `GenericContentPseudoMapper::__construct()` llama a `save()`.** Construir el objeto crea la
+fila si no existe. **Es exactamente la forma del defecto D2 del 2FA**: `UserDataPackage` también
+escribía al construirse.
+
+```php
+$this->orm = new AppConfigModel($this->contentName);
+if ($this->orm->id === null) {
+    $defaultDataSaved = false;
+    $this->orm->name = $this->contentName;
+    if ($setDefaultData) {
+        //Do something          <-- rama vacía
+    }
+    if (!$defaultDataSaved) {   <-- $defaultDataSaved SIEMPRE es false
+        $this->save();
+    }
+}
+```
+
+De paso, dos ramas muertas: `$setDefaultData` no hace nada y `$defaultDataSaved` nunca cambia.
+
+### Lo que esto confirma y lo que no
+
+**Confirma la regla que ya escribimos**: *la creación vive en los caminos de escritura, nunca en
+los de lectura*. Los tres defectos encontrados hasta hoy —`UserDataPackage`, `getOTPData`, y estos
+dos— **son el mismo**: un constructor o un convertidor que escribe.
+
+**No lo declara nada de esto como volátil.** La regla 2 del registro dice que si al escribir la
+razón resulta que no la hay, es un defecto y va arreglado, no declarado. **No se ha tocado
+ninguno**: son material de E3.
+
+**Y el aviso honesto que el propio informe imprime**: la atribución supone que nada más toca la
+base durante el recorrido. Un cronjob o una petición ajena en paralelo se le colgarían a la ruta
+equivocada. En esta máquina no había nada más corriendo; en otra habría que asegurarlo.
+
+### Lo que salió de refilón y no es de este apartado
+
+Del mismo recorrido: **`*-datatables` devuelve 500 en 18 rutas** y tres `ajax-all` también. Es
+esperable —un endpoint de DataTables pedido sin sus parámetros no tiene por qué funcionar— pero
+**no está comprobado que sea solo eso**, y `walk-routes` ya los venía listando. Queda anotado, sin
+investigar.
+

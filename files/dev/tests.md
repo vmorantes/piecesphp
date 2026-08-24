@@ -215,6 +215,29 @@ bin/cli unit-tests:functions/systemOutFormatted
 bin/cli tests:mautic-batch-send
 ```
 
+## Recorrer las rutas
+
+```bash
+bin/cli route-inventory                                   # primero, el inventario
+bin/walk-routes    --base=https://85.localhost/…/src       # ¿revienta algo?
+bin/walk-attribute --base=https://85.localhost/…/src       # ¿qué ruta de lectura ESCRIBE?
+```
+
+Las dos **invalidan la caché de código al arrancar** y abortan si no pueden.
+
+`walk-attribute` toma una foto de la base y del árbol **después de cada petición** y le atribuye
+la diferencia a la ruta que la provocó. Separa lo declarado en `files/dev/volatile-state.json` de
+lo que no, y **sale con código 1** si aparece algo no declarado.
+
+Con sesión, que es donde está lo interesante:
+
+```bash
+PCSPHP_WALK_USER=… PCSPHP_WALK_PASS=… bin/walk-attribute --base=… --json=salida.json
+```
+
+**Ojo con lo que NO puede ver**: 22 de las 36 tablas están vacías, así que un camino que solo
+escribe cuando encuentra una fila incompleta no se dispara. El recorrido **subestima**.
+
 ## La caché de la aplicación viva
 
 Cualquier medición A/B contra la web **tiene que invalidar la caché de código antes de medir**,

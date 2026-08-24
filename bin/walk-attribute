@@ -1,0 +1,318 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Recorredor con ATRIBUCIÓN: pide cada ruta de lectura y dice QUÉ TOCÓ.
+ *
+ * `bin/walk-routes` responde «¿revienta algo?». Esto responde otra pregunta, que es la que
+ * E3 necesita antes de borrar nada: **¿qué ruta de lectura escribe, y dónde?** Hasta ahora
+ * los dos casos conocidos —el registro de intentos de acceso y los mensajes sin traducir—
+ * aparecieron por accidente, uno cada vez. Esto deja de ser una serie de accidentes.
+ *
+ * Cómo: una foto de la base y del árbol ANTES, y otra después de CADA petición. La
+ * diferencia se le atribuye a la ruta que la provocó, no al recorrido entero.
+ *
+ * Uso:
+ *   bin/cli route-inventory
+ *   bin/walk-attribute --base=https://85.localhost/vicsen/piecesphp/src
+ *   bin/walk-attribute --base=… --json=salida.json --limit=40
+ *
+ * Sesión: PCSPHP_WALK_USER y PCSPHP_WALK_PASS, igual que `walk-routes`. Las credenciales
+ * NO se escriben en ningún archivo ni se imprimen.
+ *
+ * SOLO GET, y descarta por nombre y por URL cualquier ruta de escritura.
+ */
+
+$options = [];
+foreach (array_slice($argv, 1) as $argument) {
+    if (preg_match('/^--([a-z-]+)(?:=(.*))?$/', $argument, $matches) === 1) {
+        $options[$matches[1]] = $matches[2] ?? true;
+    }
+}
+
+$base = rtrim((string) ($options['base'] ?? ''), '/');
+if ($base === '') {
+    fwrite(STDERR, "Falta --base=<url>.\n");
+    exit(1);
+}
+
+$root = dirname(__DIR__);
+
+//NADIE PUEDE COMPARAR SIN INVALIDAR. Ver T51.
+require_once __DIR__ . '/tools/live-cache.php';
+pcsphp_live_invalidate($base);
+
+$inventoryPath = $root . '/files/dev/route-inventory.json';
+if (!is_file($inventoryPath)) {
+    fwrite(STDERR, "No existe {$inventoryPath}. Genera el inventario con: bin/cli route-inventory\n");
+    exit(1);
+}
+$inventory = json_decode((string) file_get_contents($inventoryPath), true);
+if (!is_array($inventory)) {
+    fwrite(STDERR, "El inventario no es JSON válido.\n");
+    exit(1);
+}
+
+$volatilePath = $root . '/files/dev/volatile-state.json';
+$volatile = is_file($volatilePath) ? json_decode((string) file_get_contents($volatilePath), true) : [];
+$volatileTables = array_keys((array) ($volatile['tables'] ?? []));
+$volatileFiles = array_keys((array) ($volatile['files'] ?? []));
+
+$isVolatileTable = static fn (string $table): bool => in_array($table, $volatileTables, true);
+$isVolatileFile = static function (string $path) use ($volatileFiles): bool {
+    foreach ($volatileFiles as $prefix) {
+        if (mb_strpos($path, rtrim($prefix, '/')) !== false) {
+            return true;
+        }
+    }
+    return false;
+};
+
+//──── Rutas que NO se piden ─────────────────────────────────────────────────────────────
+$forbidden = [
+    '-actions-', '-forms-add', '-forms-edit', '-add', '-edit', '-delete',
+    '/add', '/edit', '/delete', '/actions', '/remove', '/destroy',
+    'delete', 'destroy', 'remove', 'logout', 'sign-out',
+];
+$isForbidden = static function (string $name, string $url) use ($forbidden): ?string {
+    $haystack = mb_strtolower($name . ' ' . $url);
+    foreach ($forbidden as $needle) {
+        if (mb_strpos($haystack, $needle) !== false) {
+            return $needle;
+        }
+    }
+    return null;
+};
+
+//──── Sesión ────────────────────────────────────────────────────────────────────────────
+$request = static function (string $url, array $headers = [], ?array $post = null): array {
+    $handle = curl_init();
+    curl_setopt_array($handle, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTPHEADER => $headers,
+    ]);
+    if ($post !== null) {
+        curl_setopt($handle, CURLOPT_POST, true);
+        curl_setopt($handle, CURLOPT_POSTFIELDS, http_build_query($post));
+    }
+    $body = curl_exec($handle);
+    $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
+    curl_close($handle);
+    return ['status' => $status, 'body' => is_string($body) ? $body : ''];
+};
+
+$token = null;
+$user = getenv('PCSPHP_WALK_USER');
+$password = getenv('PCSPHP_WALK_PASS');
+if (is_string($user) && $user !== '' && is_string($password) && $password !== '') {
+    $login = $request($base . '/users/login/', ['Referer: ' . $base . '/'], ['username' => $user, 'password' => $password]);
+    $decoded = json_decode($login['body'], true);
+    $token = is_array($decoded) ? ($decoded['token'] ?? ($decoded['data']['token'] ?? null)) : null;
+    if (!is_string($token) || $token === '') {
+        $token = null;
+        fwrite(STDERR, "AVISO: el login no devolvió token. Se recorre SIN sesión.\n");
+    } else {
+        echo "Sesión iniciada.\n";
+    }
+} else {
+    echo "AVISO: sin PCSPHP_WALK_USER/PCSPHP_WALK_PASS. Todo /admin/* dará 302 y no se podrá atribuir nada de ahí.\n";
+}
+$headers = ['Referer: ' . $base . '/'];
+if ($token !== null) {
+    $headers[] = 'JWTAuth: ' . $token;
+}
+
+//──── Fotos ─────────────────────────────────────────────────────────────────────────────
+$snapshotDirectory = $root . '/files/dev/snapshots/attribution';
+if (!is_dir($snapshotDirectory)) {
+    mkdir($snapshotDirectory, 0775, true);
+}
+$cli = $root . '/bin/cli';
+
+$snapshot = static function (string $label) use ($cli, $snapshotDirectory): ?array {
+    $command = escapeshellcmd($cli) . ' snapshot label=' . escapeshellarg($label)
+        . ' dir=' . escapeshellarg($snapshotDirectory) . ' 2>/dev/null';
+    exec($command, $output, $status);
+    $file = $snapshotDirectory . '/' . $label . '.json';
+    if ($status !== 0 || !is_file($file)) {
+        return null;
+    }
+    $decoded = json_decode((string) file_get_contents($file), true);
+    return is_array($decoded) ? $decoded : null;
+};
+
+/**
+ * Diferencias entre dos fotos, separadas por origen. Se comparan las filas por su clave
+ * primaria: así se distingue una fila NUEVA de una fila CAMBIADA, que es la diferencia
+ * entre «esta ruta creó algo» y «esta ruta tocó algo que ya existía».
+ */
+$diff = static function (array $before, array $after): array {
+    $changes = [];
+
+    foreach (($after['tables'] ?? []) as $table => $now) {
+        $then = $before['tables'][$table] ?? ['count' => 0, 'rows' => []];
+        if (($then['hash'] ?? '') === ($now['hash'] ?? '')) {
+            continue;
+        }
+        $rowsBefore = (array) ($then['rows'] ?? []);
+        $rowsAfter = (array) ($now['rows'] ?? []);
+        $added = array_values(array_diff(array_keys($rowsAfter), array_keys($rowsBefore)));
+        $removed = array_values(array_diff(array_keys($rowsBefore), array_keys($rowsAfter)));
+        $modified = [];
+        foreach ($rowsAfter as $key => $hash) {
+            if (isset($rowsBefore[$key]) && $rowsBefore[$key] !== $hash) {
+                $modified[] = (string) $key;
+            }
+        }
+        $changes[] = [
+            'kind' => 'tabla',
+            'target' => $table,
+            'added' => $added,
+            'removed' => $removed,
+            'modified' => $modified,
+        ];
+    }
+
+    $filesBefore = (array) ($before['files'] ?? []);
+    $filesAfter = (array) ($after['files'] ?? []);
+    foreach ($filesAfter as $path => $signature) {
+        if (!array_key_exists($path, $filesBefore)) {
+            $changes[] = ['kind' => 'archivo', 'target' => $path, 'added' => [$path], 'removed' => [], 'modified' => []];
+        } elseif ($filesBefore[$path] !== $signature) {
+            $changes[] = ['kind' => 'archivo', 'target' => $path, 'added' => [], 'removed' => [], 'modified' => [$path]];
+        }
+    }
+    foreach ($filesBefore as $path => $signature) {
+        if (!array_key_exists($path, $filesAfter)) {
+            $changes[] = ['kind' => 'archivo', 'target' => $path, 'added' => [], 'removed' => [$path], 'modified' => []];
+        }
+    }
+
+    return $changes;
+};
+
+//──── Recorrido ─────────────────────────────────────────────────────────────────────────
+$limit = isset($options['limit']) ? (int) $options['limit'] : 0;
+
+$targets = [];
+$skipped = [];
+foreach ($inventory as $route) {
+    $name = (string) $route['name'];
+    $method = mb_strtoupper((string) $route['method']);
+    $url = (string) $route['url'];
+    if ($method !== 'GET') {
+        $skipped[] = [$name, 'no es GET (' . $method . ')'];
+        continue;
+    }
+    if ($url === '') {
+        $skipped[] = [$name, 'exige parámetros: no se inventan valores'];
+        continue;
+    }
+    $reason = $isForbidden($name, $url);
+    if ($reason !== null) {
+        $skipped[] = [$name, 'nombre o URL de escritura: «' . $reason . '»'];
+        continue;
+    }
+    $targets[] = ['name' => $name, 'url' => $base . (string) parse_url($url, PHP_URL_PATH)];
+}
+
+if ($limit > 0) {
+    $dropped = count($targets) - $limit;
+    if ($dropped > 0) {
+        //UN RECORTE NUNCA SE CALLA: verse en verde por no haber mirado es peor que un rojo.
+        echo "AVISO: --limit={$limit} deja FUERA {$dropped} rutas. El resultado NO es la cobertura completa.\n";
+    }
+    $targets = array_slice($targets, 0, $limit);
+}
+
+echo 'Rutas a atribuir: ' . count($targets) . ' (omitidas ' . count($skipped) . ")\n\n";
+
+$previous = $snapshot('base');
+if ($previous === null) {
+    fwrite(STDERR, "No se pudo tomar la foto inicial. Sin foto no hay atribución.\n");
+    exit(1);
+}
+
+$attribution = [];
+$index = 0;
+foreach ($targets as $target) {
+    $index++;
+    $response = $request($target['url'], $headers);
+    $current = $snapshot('paso');
+    if ($current === null) {
+        fwrite(STDERR, "Fallo al fotografiar después de {$target['name']}. Se aborta: una foto perdida rompe la cadena.\n");
+        exit(1);
+    }
+    $changes = $diff($previous, $current);
+    $previous = $current;
+
+    if (count($changes) > 0) {
+        $attribution[] = [
+            'name' => $target['name'],
+            'url' => $target['url'],
+            'status' => $response['status'],
+            'changes' => $changes,
+        ];
+        printf("  %3d/%d  \e[33mESCRIBE\e[39m  %-52s %d\n", $index, count($targets), mb_substr($target['name'], 0, 52), $response['status']);
+    } else {
+        printf("  %3d/%d           %-52s %d\r", $index, count($targets), mb_substr($target['name'], 0, 52), $response['status']);
+    }
+}
+echo str_repeat(' ', 90) . "\r";
+
+//──── Informe ───────────────────────────────────────────────────────────────────────────
+echo "\n── QUÉ RUTAS DE LECTURA ESCRIBEN ──\n\n";
+
+if (count($attribution) === 0) {
+    echo "Ninguna. " . count($targets) . " rutas pedidas y la base y el árbol quedaron igual.\n";
+} else {
+    foreach ($attribution as $row) {
+        printf("\e[1m%s\e[0m  (%d)\n", $row['name'], $row['status']);
+        echo "   {$row['url']}\n";
+        foreach ($row['changes'] as $change) {
+            $declared = $change['kind'] === 'tabla' ? $isVolatileTable($change['target']) : $isVolatileFile($change['target']);
+            $mark = $declared ? "\e[32mDECLARADO\e[39m" : "\e[31mNO DECLARADO\e[39m";
+            $detail = [];
+            if (count($change['added']) > 0) {
+                $detail[] = '+' . count($change['added']);
+            }
+            if (count($change['modified']) > 0) {
+                $detail[] = '~' . count($change['modified']);
+            }
+            if (count($change['removed']) > 0) {
+                $detail[] = '-' . count($change['removed']);
+            }
+            printf("   %-13s %-8s %-46s %s\n", $mark, $change['kind'], mb_substr($change['target'], 0, 46), implode(' ', $detail));
+        }
+        echo "\n";
+    }
+}
+
+$undeclared = 0;
+foreach ($attribution as $row) {
+    foreach ($row['changes'] as $change) {
+        $declared = $change['kind'] === 'tabla' ? $isVolatileTable($change['target']) : $isVolatileFile($change['target']);
+        if (!$declared) {
+            $undeclared++;
+        }
+    }
+}
+
+echo "RESUMEN: " . count($targets) . ' rutas pedidas, ' . count($attribution) . ' escriben, '
+    . $undeclared . " diferencia(s) NO declarada(s).\n";
+echo "AVISO: la atribución supone que nada más toca la base durante el recorrido. Un cronjob o\n";
+echo "       una petición ajena en paralelo se le colgarían a la ruta equivocada.\n";
+
+if (isset($options['json']) && is_string($options['json'])) {
+    file_put_contents($options['json'], json_encode([
+        'attribution' => $attribution, 'skipped' => $skipped, 'undeclared' => $undeclared,
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    echo "\nJSON: " . $options['json'] . "\n";
+}
+
+exit($undeclared > 0 ? 1 : 0);
