@@ -176,11 +176,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 10. Los tipos declarados en los mappers existen ───────────────────────────
         $typeFailures = self::checkDeclaredTypes($files);
 
+        //──── 11. La lista de tablas volátiles coincide con la que se deriva del código ─
+        $volatileFailures = self::checkVolatileTablesMatchCode();
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
-            + count($executableFailures) + count($typeFailures);
+            + count($executableFailures) + count($typeFailures) + count($volatileFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -209,12 +212,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($typeFailures as $line) {
             echoTerminal("\e[31mTIPO:\e[39m {$line}");
         }
+        foreach ($volatileFailures as $line) {
+            echoTerminal("\e[31mVOLÁTIL:\e[39m {$line}");
+        }
         foreach ($narrativeFailures as $line) {
             echoTerminal("\e[31mCOMENTARIO:\e[39m {$line}");
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución y tipos sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución, tipos y volátiles sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1485,6 +1491,59 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @param array<string, mixed> $registry
      * @return string[]
      */
+    /**
+     * Las tablas del acuñado de slug declaradas en `volatile-state.json` tienen que coincidir
+     * con las que el código descubre.
+     *
+     * Existe porque la lista está COPIADA: sale de `PreferSlugsFiller::mappersWithSlug()`, pero
+     * una vez escrita nada detectaba que divergiera. Añadir un módulo con `preferSlug` la dejaba
+     * corta en silencio, y el recorredor reportaría un hallazgo falso. Ver T64.
+     *
+     * @return string[]
+     */
+    protected static function checkVolatileTablesMatchCode(): array
+    {
+        $path = dirname(rtrim(str_replace('\\', '/', basepath('')), '/')) . '/files/dev/volatile-state.json';
+        if (!is_file($path)) {
+            return ['no existe files/dev/volatile-state.json: la comprobación de volátiles NO se hizo.'];
+        }
+        $declared = json_decode((string) file_get_contents($path), true);
+        if (!is_array($declared)) {
+            return ['files/dev/volatile-state.json no es JSON válido.'];
+        }
+
+        $derived = array_keys(\Terminal\Jobs\PreferSlugsFiller::mappersWithSlug());
+        $declaredTables = array_keys((array) ($declared['tables'] ?? []));
+
+        sort($derived);
+        $missing = array_values(array_diff($derived, $declaredTables));
+        //Solo se exige que estén las derivadas: `volatile-state.json` tiene además entradas de
+        //otra naturaleza, como `login_attempts`, que no salen de este descubrimiento.
+        $extra = [];
+        foreach ($declaredTables as $table) {
+            if (in_array($table, $derived, true)) {
+                continue;
+            }
+            //Se reconoce por la razón escrita: si dice que es acuñado de slug, tiene que estar.
+            $reason = (string) ($declared['tables'][$table] ?? '');
+            if (mb_strpos($reason, 'ACUÑADO PEREZOSO DEL SLUG') !== false) {
+                $extra[] = $table;
+            }
+        }
+
+        $failures = [];
+        foreach ($missing as $table) {
+            $failures[] = "«{$table}» tiene `preferSlug` y NO está declarada en volatile-state.json.";
+        }
+        foreach ($extra as $table) {
+            $failures[] = "«{$table}» está declarada como acuñado de slug y el código YA NO la descubre.";
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m " . count($derived) . ' tabla(s) con acuñado de slug comprobadas contra el registro de volátiles.');
+
+        return $failures;
+    }
+
     /**
      * Todo tipo declarado en un `$fields` tiene que existir en el vocabulario de EntityMapper.
      *

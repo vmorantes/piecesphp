@@ -11,7 +11,7 @@ bin/cli verify-integrity update-snapshot=yes  # regenera la instantánea
 
 Devuelve **código de salida 1** si algo falla, así que sirve tal cual en CI.
 
-Comprueba **diez** cosas. Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
+Comprueba **once** cosas. Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
 
 1. **Docblocks sin cerrar.** Un comentario de bloque que no cierra, y —lo importante— un
    docblock que se ha tragado una declaración de función.
@@ -29,20 +29,27 @@ Usa el analizador léxico de PHP, no expresiones regulares sobre el texto: `/*` 
 dentro de cadenas —`'image/*'` es el caso típico— y contarlo a pelo daba 32 falsos
 positivos en las vistas.
 
-Las otras ocho: que las clases declaradas se pueden cargar, que el núcleo no eclipsa clases
+Las otras nueve: que las clases declaradas se pueden cargar, que el núcleo no eclipsa clases
 de los paquetes, que las sobreescrituras de ruta siguen decidiendo algo, que no hay llamadas a
 funciones deprecadas, que los cuatro paquetes no se han desviado del instrumental común, que no
 crecen los comentarios narrativos, y —desde T51— **que los guiones de `bin/` están marcados como
 ejecutables en el índice de git**, y que **todo tipo declarado en un `$fields` existe en el
-vocabulario de `EntityMapper`**.
+vocabulario de `EntityMapper`**, y que **la lista de tablas con acuñado de slug declarada en
+`files/dev/volatile-state.json` coincida con la que el código descubre**.
 
 > La de los tipos existe porque `'type' => 'test'` —«text» mal escrito— sobrevivió años en
 > `SystemApprovalsMapper`: con un tipo desconocido, `validateType()` devuelve **`true` para
 > todo**, o sea que el campo **deja de validarse**. Ver T54. Comprueba 370 tipos declarados.
 
+> La de los volátiles existe porque esa lista está **copiada**: sale de
+> `PreferSlugsFiller::mappersWithSlug()`, y una vez escrita nada detectaba que divergiera. Añadir
+> un módulo con `preferSlug` la dejaba corta en silencio y el recorredor reportaría un hallazgo
+> falso.
+
 > Esa última existe porque el repositorio tiene `core.fileMode = false`: `chmod +x` funciona en
 > el disco y **git no lo registra**, así que el guion corre aquí y llega sin permisos a quien
-> clone. En su primera corrida encontró cuatro, y uno era **`bin/rector`**, que está documentado
+> clone. **Mira también el final de la primera línea**: un guion con CRLF no arranca, porque
+> `env` busca un intérprete llamado «php\r» — pasó con tres. En su primera corrida encontró cuatro, y uno era **`bin/rector`**, que está documentado
 > en `CLAUDE.md` y devolvía «Permiso denegado» (salida 126).
 
 Cuando un cambio de firmas sea intencionado, regenera la instantánea y **commitéala con

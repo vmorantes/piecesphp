@@ -145,6 +145,13 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Herramientas — `verify-integrity` gana una undécima comprobación
+
+La lista de tablas con acuñado de slug de `files/dev/volatile-state.json` está **copiada** de lo
+que descubre el código, y una vez escrita nada detectaba que divergiera: añadir un módulo con
+`preferSlug` la dejaba corta **en silencio**, y el recorrido de atribución reportaría un hallazgo
+falso. Ahora se comparan las dos y falla si no coinciden.
+
 ## Cambios que rompen compatibilidad — `QueueJobMapper::migrate()` se retira
 
 Era un experimento de migraciones anterior a este sistema y está superado por
