@@ -173,11 +173,14 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         //──── 9. Los guiones de bin/ están marcados como ejecutables EN EL ÍNDICE ───────
         $executableFailures = self::checkExecutableBits();
 
+        //──── 10. Los tipos declarados en los mappers existen ───────────────────────────
+        $typeFailures = self::checkDeclaredTypes($files);
+
         //──── Resultado ─────────────────────────────────────────────────────────────────
         $failures = count($docblockFailures) + count($signatureFailures)
             + count($loadFailures) + count($eclipseFailures) + count($overrideFailures)
             + count($deprecatedFailures) + count($toolchainFailures) + count($narrativeFailures)
-            + count($executableFailures);
+            + count($executableFailures) + count($typeFailures);
 
         foreach ($docblockFailures as $line) {
             echoTerminal("\e[31mDOCBLOCK:\e[39m {$line}");
@@ -203,12 +206,15 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
         foreach ($executableFailures as $line) {
             echoTerminal("\e[31mEJECUTABLE:\e[39m {$line}");
         }
+        foreach ($typeFailures as $line) {
+            echoTerminal("\e[31mTIPO:\e[39m {$line}");
+        }
         foreach ($narrativeFailures as $line) {
             echoTerminal("\e[31mCOMENTARIO:\e[39m {$line}");
         }
 
         if ($failures === 0) {
-            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios y bits de ejecución sin novedad.");
+            echoTerminal("\e[32mOK:\e[39m docblocks, firmas, carga, eclipses, rutas, deprecadas, instrumental, comentarios, bits de ejecución y tipos sin novedad.");
             echoTerminal("\e[32m*** {$titleTask}, tarea finalizada ***\e[39m");
             exit(0);
         }
@@ -1479,6 +1485,54 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
      * @param array<string, mixed> $registry
      * @return string[]
      */
+    /**
+     * Todo tipo declarado en un `$fields` tiene que existir en el vocabulario de EntityMapper.
+     *
+     * Existe porque `'type' => 'test'` —«text» mal escrito— sobrevivió años en
+     * `SystemApprovalsMapper`. Medido: con un tipo desconocido, `validateType()` devuelve
+     * TRUE PARA TODO, `castPHPToSQLTypes()` no convierte, y `SchemeCreator` lo copia al DDL.
+     * O sea: el campo no se valida y la tabla no se puede crear. Ver T54.
+     *
+     * Se lee del código, sin instanciar nada: instanciar un mapper abre conexión.
+     *
+     * @param string[] $files
+     * @return string[]
+     */
+    protected static function checkDeclaredTypes(array $files): array
+    {
+        $vocabulary = (new \ReflectionClass(\PiecesPHP\Core\Database\EntityMapper::class))
+            ->getDefaultProperties()['supportedTypes'] ?? [];
+        if (!is_array($vocabulary) || count($vocabulary) === 0) {
+            return ['no se pudo leer EntityMapper::$supportedTypes: la comprobación de tipos NO se hizo.'];
+        }
+
+        $base = rtrim(str_replace('\\', '/', basepath('')), '/');
+        $failures = [];
+        $checked = 0;
+        foreach ($files as $file) {
+            $contents = (string) @file_get_contents($base . '/' . $file);
+            if (mb_strpos($contents, '$fields') === false) {
+                continue;
+            }
+            //Solo dentro del bloque `$fields = [ … ];`, para no confundirlo con otros arrays.
+            if (preg_match('/\$fields\s*=\s*\[(.*?)\n\s*\];/s', $contents, $block) !== 1) {
+                continue;
+            }
+            preg_match_all("/'type'\s*=>\s*'([^']*)'/", $block[1], $declared, \PREG_SET_ORDER);
+            foreach ($declared as $match) {
+                $checked++;
+                if (!in_array(mb_strtolower($match[1]), $vocabulary, true)) {
+                    $failures[] = $file . " declara «{$match[1]}», que no está en el vocabulario de EntityMapper ("
+                        . implode('|', $vocabulary) . ').';
+                }
+            }
+        }
+
+        echoTerminal("\e[94mINFO:\e[39m {$checked} tipo(s) declarados comprobados contra el vocabulario.");
+
+        return $failures;
+    }
+
     /**
      * Un guion con almohadilla-admiración tiene que estar marcado como ejecutable EN EL ÍNDICE.
      *

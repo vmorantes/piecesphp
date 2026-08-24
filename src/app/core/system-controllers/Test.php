@@ -234,10 +234,13 @@ class Test
         $generateImageGroup->register([
             new PiecesRoute('{w}/{h}[/]', Test::class . ':generateImage', 'img-gen'),
         ]);
-        $testingGroup->register([
-            new PiecesRoute('queue-request[/]', TestQueueRequest::class . ':form', uniqid(TestQueueRequest::class), 'GET', false),
-            new PiecesRoute('queue-request/handle[/]', TestQueueRequest::class . ':handle', uniqid(TestQueueRequest::class), 'POST', false),
-        ]);
+        //Solo en local: sin esto se registran también en producción, públicas y sin login.
+        if (is_local()) {
+            $testingGroup->register([
+                new PiecesRoute('queue-request[/]', TestQueueRequest::class . ':form', 'pcsphp-testing-queue-request', 'GET', false),
+                new PiecesRoute('queue-request/handle[/]', TestQueueRequest::class . ':handle', 'pcsphp-testing-queue-request-handle', 'POST', false),
+            ]);
+        }
 
         //Incluye archivos que sirven para pruebas locales
         $localTestsDirectory = new DirectoryObject(append_to_path_system(dirname(__FILE__), 'local-tests'));

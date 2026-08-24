@@ -53,7 +53,7 @@ class SystemApprovalsMapper extends EntityMapperExtensible
             'type' => 'text',
         ],
         'reason' => [
-            'type' => 'test',
+            'type' => 'text',
             'null' => true,
         ],
         'createdAt' => [

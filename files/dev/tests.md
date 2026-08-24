@@ -11,7 +11,7 @@ bin/cli verify-integrity update-snapshot=yes  # regenera la instantánea
 
 Devuelve **código de salida 1** si algo falla, así que sirve tal cual en CI.
 
-Comprueba **nueve** cosas. Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
+Comprueba **diez** cosas. Las dos primeras, sobre los archivos PHP de `src/app` e `index.php`:
 
 1. **Docblocks sin cerrar.** Un comentario de bloque que no cierra, y —lo importante— un
    docblock que se ha tragado una declaración de función.
@@ -29,11 +29,16 @@ Usa el analizador léxico de PHP, no expresiones regulares sobre el texto: `/*` 
 dentro de cadenas —`'image/*'` es el caso típico— y contarlo a pelo daba 32 falsos
 positivos en las vistas.
 
-Las otras siete: que las clases declaradas se pueden cargar, que el núcleo no eclipsa clases
+Las otras ocho: que las clases declaradas se pueden cargar, que el núcleo no eclipsa clases
 de los paquetes, que las sobreescrituras de ruta siguen decidiendo algo, que no hay llamadas a
 funciones deprecadas, que los cuatro paquetes no se han desviado del instrumental común, que no
 crecen los comentarios narrativos, y —desde T51— **que los guiones de `bin/` están marcados como
-ejecutables en el índice de git**.
+ejecutables en el índice de git**, y que **todo tipo declarado en un `$fields` existe en el
+vocabulario de `EntityMapper`**.
+
+> La de los tipos existe porque `'type' => 'test'` —«text» mal escrito— sobrevivió años en
+> `SystemApprovalsMapper`: con un tipo desconocido, `validateType()` devuelve **`true` para
+> todo**, o sea que el campo **deja de validarse**. Ver T54. Comprueba 370 tipos declarados.
 
 > Esa última existe porque el repositorio tiene `core.fileMode = false`: `chmod +x` funciona en
 > el disco y **git no lo registra**, así que el guion corre aquí y llega sin permisos a quien
@@ -73,6 +78,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | Suite | Quién juzga |
 | :-- | :-- |
 | `core/scheme-sql-round-trip` | **MariaDB** — aplica los dos scripts de verdad |
+| `core/database/type-vocabulary` (paquete) | **Se juzga sola**, pero compara seis fuentes entre sí: la deriva de una la delatan las otras cinco |
 | `core/db-backup-round-trip` | **MariaDB** + `password_verify()` |
 | `core/mapper-finders` | **MariaDB** |
 | `core/otp-fresh-user` | **MariaDB** |

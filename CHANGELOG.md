@@ -107,6 +107,12 @@ Con v3.2.1 puesto no hace falta —`SET NAMES` manda sobre el valor por defecto�
 cualquier cosa que lea ese valor por defecto sigue heredando `utf8mb3`. Ver T28bis y T37 en
 `.agents/context/18-siguientes-ventanas.md`.
 
+> **TERCERA PATA, cerrada en v3.5.0.** Faltaba una: `SchemeCreator` emitía
+> `DEFAULT CHARSET=utf8` **escrito a fuego**, así que **una tabla recién generada nacía en
+> `utf8mb3`** por mucho que la conexión fuera `utf8mb4`. Las tres patas —conexión, valor por
+> defecto de la base y DDL generado— eran **independientes**, y arreglar una no arreglaba las
+> otras. Las tablas ya creadas no cambian.
+
 ## AVISO PARA DESPLIEGUES EXISTENTES
 
 **Versiones afectadas: todas hasta la `v7.1.0` incluida.** El framework es una plantilla que
@@ -173,6 +179,13 @@ script**. La comprobación está en `bin/cli unit-tests:core/scheme-sql-round-tr
 **Y el DDL generado es `CHARSET=utf8 COLLATE=utf8_bin`** —`utf8mb3`— escrito a fuego en
 `piecesphp/database`. La conexión va en `utf8mb4`; las tablas recién generadas, no.
 
+## Dependencias
+
+- **`piecesphp/database` v3.5.0**: el DDL generado pasa de `utf8mb3` a `utf8mb4` y el juego de
+  caracteres se vuelve configurable. Era la **tercera pata** del problema de los emojis —conexión
+  (v3.2.1), valor por defecto de la base (documentado) y DDL generado—, y las tres eran
+  independientes: arreglar una no arreglaba las otras. **Las tablas ya creadas no cambian.**
+
 ## Herramientas — el SQL del esquema, de ida y de vuelta
 
 - **`bin/cli scheme-create module=<Nombre>|all`**, el gemelo de `scheme-drop`. Las dos
@@ -210,6 +223,45 @@ script**. La comprobación está en `bin/cli unit-tests:core/scheme-sql-round-tr
   **`bin/live-cache --self-test` provoca la trampa y después la desactiva**: exige ver el código
   viejo sin invalidar y el nuevo invalidando. Una puerta vista solo en verde no se ha visto
   funcionar.
+
+## AVISO PARA DESPLIEGUES EXISTENTES — un tipo mal escrito deja el campo SIN VALIDAR
+
+**Versiones afectadas: todas.** `SystemApprovalsMapper` declaraba `'type' => 'test'` —«text» mal
+escrito— en el campo `reason`. **No es un error de escritura suelto: es la sonda de un problema
+de fondo**, porque ninguna capa lo rechazaba.
+
+**Qué hace cada capa con un tipo que no existe, medido:**
+
+| Capa | Qué hace |
+| :-- | :-- |
+| `EntityMapper::validateType()` | **Devuelve `true` para TODO** — cadenas, arrays, objetos, `null`. El campo **deja de validarse** |
+| `EntityMapper::castPHPToSQLTypes()` | **No convierte**: el valor sale tal como entró |
+| `SchemeCreator` | **Lo copia tal cual al DDL** |
+| `MetaProperty` | **Lanza.** La única que lo rechaza |
+
+La guarda que el ORM ya trae —`$onlySupportedTypes`— **no la activa ningún mapper**, y además
+solo salta al asignar un valor, no al construir el mapper.
+
+**Corregido** (`'test'` → `'text'`; la columna real ya era `text NULL`, así que no hay migración)
+**y con puerta**: `verify-integrity` gana una décima comprobación que exige que todo
+`'type' => '…'` declarado en un `$fields` esté en el vocabulario de `EntityMapper`. **370 tipos
+comprobados, uno cazado.**
+
+**Revisa tus mappers propios.** Si algún despliegue añadió campos con un tipo inventado, ese
+campo lleva sin validarse desde que se escribió. `bin/cli verify-integrity` los lista.
+
+## Corregido — las rutas de prueba de colas solo existen en local
+
+`/pcsphp-testing/queue-request/` y su `handle` se registraban **también en producción**, públicas
+y sin login, guardadas solo por `requestIsSameDomain()`. Ahora van dentro de `is_local()`.
+
+Y con eso **dejan de necesitar la ocultación por `uniqid()`**: tenían el nombre de ruta generado
+al azar en cada arranque, lo que impedía usar `get_route()` y obligaba a la vista a escribir la
+URL a mano —rompiendo la regla 3 del proyecto como consecuencia forzosa—. Ahora tienen nombre
+normal y la vista genera su URL.
+
+**`img-gen` no cambia**: es otro grupo del mismo archivo, lo usan la portada, el cropper y las
+tarjetas de subida, y conserva su guarda de `requestIsSameDomain()` contra el hotlinking.
 
 ## Corregido — cuatro guiones de `bin/` llegaban sin permiso de ejecución
 

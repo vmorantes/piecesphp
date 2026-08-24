@@ -148,6 +148,13 @@ se supone.
 **La auditoría completa de inversos del framework está en T49**: de once operaciones con
 inverso real, **tres tienen el viaje probado y ocho no**.
 
+> **Y una forma más barata de la misma ley, que costó dos años**: `bin/rector` está documentado
+> en `CLAUDE.md` como una de las cuatro herramientas del proyecto y **devolvía «Permiso denegado»,
+> salida 126**. Nadie lo había corrido. Una herramienta documentada que nadie ejecuta es un
+> inverso sin estrenar con otro nombre: **lo documentado no es lo probado**, y la distancia entre
+> las dos cosas solo la mide ejecutarlo. La encontró la comprobación 9 de `verify-integrity` en
+> su primera corrida.
+
 ### LEY 10 — `password` ES OPACO PARA TODA HERRAMIENTA QUE MUEVA FILAS DE USUARIO
 
 **No se cifra, no se vuelve a hashear, no se transforma: SE COPIA.**
@@ -2101,6 +2108,35 @@ midió. Ver T8 y T18, donde la unidad y el método están escritos junto al núm
 Ese corolario **subió al criterio de cierre**: es el punto 5 de T0. La razón no es la
 simetría con la regla de las supresiones, es que **el trinquete no funciona sin él**:
 comparar dos baselines solo significa algo si se midieron igual.
+
+### LA VARIANTE MÁS PELIGROSA: CUANDO UNA MEDICIÓN TE AHORRA TRABAJO, VERIFÍCALA CON MÁS GANAS, NO CON MENOS
+
+Ya estaba escrito que el segundo método independiente se exige sobre todo cuando el primero
+**confirma** lo que creías (el caso del `git blame`). **Esta es la hermana, y es peor**: cuando el
+primer método te dice que **no hay nada que hacer**.
+
+**El caso**: fui a construir el mecanismo del opcache y miré los archivos de configuración.
+
+```
+ls /etc/php/8.5/fpm/conf.d/ | grep -i opcache   -> nada
+```
+
+Conclusión aparente: **opcache no está cargado, luego mis tres «me mordió el opcache» eran
+falsos y no hay mecanismo que construir.** Estuve a punto de escribir esa retractación. Lo que lo
+evitó fue preguntarle al binario que sirve de verdad en vez de a los archivos que lo describen:
+
+```
+php-fpm8.5 -m | grep -i opcache   -> Zend OPcache
+```
+
+**Viene compilado dentro del binario**, así que los `.ini` no lo mencionan. El instrumento
+equivocado daba la respuesta **cómoda**, y una respuesta cómoda no despierta las mismas ganas de
+comprobar que una incómoda. **Ahí está el sesgo, y no es de conocimiento: es de esfuerzo.**
+
+> **El patrón, dicho en general**: preguntarle a la *descripción* de un sistema en vez de al
+> sistema. Los `.ini` describen lo que se carga; el binario **es** lo que se carga. Igual que
+> `information_schema` es la base y el mapper solo dice lo que cree — y ahí, la discrepancia eran
+> 38 columnas.
 
 ## T21 · PEDIR LA DEMOSTRACIÓN NO ES CEREMONIA, ES UN DETECTOR
 
@@ -5382,6 +5418,10 @@ sería un retroceso.
 bloques.** Y eso son 19 archivos, así que se enseña antes de tocarlo — es la regla de escala del
 propietario.
 
+> **AUDITADO (T54 · 3): las 38 son arreglo de papel. CERO migraciones.** El propietario
+> sospechaba que el esquema real estuviera inconsistente entre tablas, porque once módulos
+> parcheaban y cuatro no. **No lo está**: las 38 columnas ya son `bigint(20)` en la base.
+
 **La comprobación previa que pedía el propietario, hecha**: nadie depende de que el volcado
 salga por la página web. `$showSQL` no se lee de configuración, ni de la petición, ni de una
 variable de entorno: **son once literales en `false`**, y los únicos consumidores son tres
@@ -5443,7 +5483,10 @@ de las dos cosas:
    Esa concatenación no es descuido: **es la consecuencia forzosa** de que el nombre no se pueda
    usar. Es la prueba de que el defecto ya costó algo.
 
-### Y hay una tercera cosa, más grande, que sale de mirar esto
+### Y hay una segunda cosa, PERO NO ES LA MISMA — corregido
+
+> **CORRECCIÓN, señalada por el propietario.** Escribí esto mezclando dos cosas, y mezclarlas
+> infla el problema: **confundir un defecto activo con uno dormido.**
 
 `RouteAdapter::__construct()`, línea 90:
 
@@ -5451,10 +5494,12 @@ de las dos cosas:
 $this->name($name == null ? uniqid() : $name);
 ```
 
-**El framework asigna `uniqid()` a cualquier ruta registrada sin nombre.** El valor por defecto
-de una ruta es *ser inalcanzable por nombre*, en un framework donde el nombre es el permiso.
-Medido en el inventario de hoy: **solo esas dos** lo padecen, así que el daño actual está
-acotado — pero el mecanismo que lo produce está en el núcleo, no en el módulo de pruebas.
+El framework asigna `uniqid()` a cualquier ruta registrada **sin nombre**. Pero el `uniqid()` de
+`Test.php:238-239` **estaba escrito a mano** como tercer argumento: no era esta línea
+disparándose. Son dos cosas distintas.
+
+**Medido: NINGUNA ruta del proyecto deja el nombre en `null`.** Este valor por defecto es una
+**trampa latente con cero usuarios**. Se anota y **no se toca**, por decisión del propietario.
 
 ### Además, y no es de nombres
 
@@ -5467,4 +5512,200 @@ aquí porque salió de la misma lectura; **no se ha tocado**.
 El ruido **no** contamina `bin/cli snapshot` —esa foto mira la base y `src/`, no el inventario—
 pero **sí** cualquier comparación de inventarios de rutas, que es lo que E3 va a hacer seis
 veces. Dos diferencias falsas por lote enseñan a ignorar las verdaderas.
+
+> **RESUELTO en T55.** El propietario decidió: son sus vistas para probar colas y `FreezeRequest`,
+> así que **solo en local**. Y entonces la ocultación por `uniqid()` sobra.
+
+
+## T54 · EL VOCABULARIO DE TIPOS VIVÍA EN SEIS SITIOS — ASÍ SOBREVIVIÓ `'test'`
+
+Lo señaló el propietario antes de dejarme tocar las 38 declaraciones: *no basta con corregir el
+mapper, el ORM tiene que soportarlo*. La respuesta a eso era buena — `bigint` está en las dos
+listas que hacen falta— **pero al medirlo apareció lo de debajo**.
+
+### 1 · La tabla de las seis listas
+
+*Método: `$supportedTypes`, `$supportedTypesComments` y `$typeEquivalences` por reflexión sobre
+las propiedades; `MetaProperty::TYPES` por constante. Las de `validateType()` y
+`castPHPToSQLTypes()` **son variables locales dentro del método**, así que no hay más remedio que
+sacarlas del código fuente — es el punto flojo de la puerta y queda dicho.*
+
+| Tipo | A · `$supportedTypes` | B · `$supportedTypesComments` | C · `validateType()` | D · `castPHPToSQLTypes()` | E · `SchemeCreator` | F · `MetaProperty` |
+| :-- | :-: | :-: | :-: | :-: | :-: | :-: |
+| `varchar` | X | X | X | X | X | · |
+| `text` | X | X | X | X | X | X |
+| `mediumtext` | X | · | X | X | X | · |
+| `longtext` | X | · | X | X | X | · |
+| `int` | X | X | X | X | X | X |
+| `bigint` | X | X | X | X | X | · |
+| `float` | X | X | X | X | X | · |
+| `double` | X | X | X | X | X | X |
+| `json` | X | X | X | X | X | X |
+| `datetime` | X | X | X | X | X | · |
+| `date` | X | X | X | X | X | X |
+| `serialized_object` | X | · | X | X | X | · |
+| `string` `number` `array` `mixed` `bool` `null` | · | · | **X** | · | · | parcial |
+| `mapper` `array_mapper` | · | · | · | · | · | **X** |
+| | **12** | **9** | **18** | **12** | **12** | **9** |
+
+### 2 · Qué diferencia es legítima y cuál es deriva
+
+| Comparación | Veredicto | Por qué |
+| :-- | :-- | :-- |
+| **A = D = E** | **Ninguna diferencia — y ese es el problema** | Tres listas, dos repositorios, **diciendo exactamente lo mismo**. No divergen hoy; nada impide que diverjan mañana |
+| **B ⊂ A**, faltan `mediumtext`, `longtext`, `serialized_object` | **DERIVA** | La documentación del campo `type` remite explícitamente a `supportedTypesComments`: quien la lea **no se entera de que esos tres existen** |
+| **C ⊃ A**, sobran `string number array mixed bool null` | **LEGÍTIMA, pero no estaba dicha** | `validateType()` valida también la **estructura de `$fields`**, cuyos valores se declaran con tipos de PHP (`'mapper' => ['string','null']`). Es otro dominio dentro del mismo método |
+| **F aparte** | **LEGÍTIMA** | `MetaProperty` vive **dentro de una columna JSON**: no necesita anchuras de SQL —no hay `bigint` en JSON— y sí necesita `mapper` y `array_mapper`, que SQL no tiene |
+
+**La puerta**: `core/database/type-vocabulary`, 8 comprobaciones. Exige que A, D y E digan lo
+mismo; que el hueco de B **no crezca** más allá de los tres conocidos; que los extras de C sean
+**exactamente** los seis de configuración; y que el dominio de F no cambie. **Validada
+rompiéndola**: añadido `tinyint` a una sola lista, fallan 3 de 8.
+
+### 3 · Qué hace cada capa con un tipo desconocido — MEDIDO, y es peor que «lo ignora»
+
+| Capa | Qué hace |
+| :-- | :-- |
+| `EntityMapper::validateType()` | **Devuelve `true` PARA TODO** — cadenas, enteros, arrays, objetos, `null`, booleanos. El control (`'int'` con «no soy un número») sí devuelve `false` |
+| `EntityMapper::castPHPToSQLTypes()` | **No convierte**: el valor sale tal como entró. Un array sigue siendo un array |
+| `SchemeCreator` | **Lo copia tal cual al DDL**: emitía `` `reason` test `` |
+| `MetaProperty` | **LANZA.** La única capa que lo rechaza |
+
+**No es que se ignore en silencio: es que el campo deja de validarse.** `reason` de
+`SystemApprovalsMapper` llevaba años aceptando cualquier cosa.
+
+> Y la guarda que el ORM ya tiene, `$onlySupportedTypes`, **no la activa ningún mapper del
+> proyecto** —cero apariciones fuera del núcleo—, y además **solo salta al ASIGNAR un valor**,
+> no al construir el mapper. Medido en las dos direcciones.
+
+**La letra, corregida**: `'test'` → `'text'`. Comprobado antes de tocarla que la columna real es
+`text NULL`, así que el mapper pasa a decir la verdad y no hace falta migrar nada.
+
+**La puerta que impide el siguiente**: comprobación **10** de `verify-integrity`. Todo
+`'type' => '…'` declarado en un `$fields` tiene que estar en el vocabulario. **370 tipos
+comprobados**, uno cazado. Se lee del código, sin instanciar: instanciar un mapper abre conexión.
+
+> **Lo que NO se ha hecho, y es decisión del propietario**: que un tipo desconocido sea un
+> **error duro** en el ORM. La medición apoya que lo sea —hoy el efecto es «no se valida nada»—
+> pero cambiaría el comportamiento de cualquier despliegue que use un tipo propio a sabiendas.
+> La puerta estática cubre el caso real sin romper a nadie.
+
+### 4 · La auditoría de las 38: TODAS son arreglo de papel
+
+*Método: `information_schema.COLUMNS` de la base de desarrollo contra el `$fields` de cada
+mapper, columna a columna, comparando también contra la columna referenciada.*
+
+| Reparto | Cuántas |
+| :-- | --: |
+| La columna real **YA es `bigint(20)`** → el mapper miente, arreglo de papel | **38** |
+| La columna real es `int` → exigiría `ALTER TABLE` | **0** |
+| La tabla no existe en esta base | **0** |
+
+**El propietario sospechaba inconsistencia entre tablas. No la hay.** El esquema real es
+uniformemente `bigint(20)`; son los mappers los que están uniformemente mal.
+
+**Segundo método independiente, y coincide exactamente**: `databases/piecesphp_structure.sql`
+—el archivo que se aplica en cada despliegue nuevo— declara `bigint(20)` en las 38:
+17 `createdBy` + 15 `modifiedBy` + 2 `user_id` + `user` + `readerUser` + `author` + `approvalBy`
+= **38**.
+
+**Y hay un tercer argumento, este por construcción**: una tabla con la clave ajena en `int`
+apuntando a un `bigint` **no se puede crear** —es el `errno 150`—, así que ningún despliegue
+puede tener esas columnas en `int` *con la clave ajena puesta*. La rama de migración no está
+vacía por suerte: está vacía porque no puede llenarse.
+
+**Plan para los 19 archivos, pendiente de tu visto bueno:** cambiar `'type' => 'int'` por
+`'type' => 'bigint'` en las 38 declaraciones marcadas, sin tocar nada más; correr
+`scheme-sql-round-trip`, que debe pasar de 5/8 a 8/8; y **solo entonces** quitar los once
+`$showSQL` y corregir los tres documentos que describen el procedimiento manual.
+
+### 5 · Y la tercera pata de T37, cerrada
+
+`SchemeCreator` emitía `CHARSET=utf8 COLLATE=utf8_bin` **escrito a fuego**. Arreglado en
+**v3.5.0**, con el juego configurable por constructor o por defecto global.
+
+**Las tres patas eran independientes y arreglar una no arreglaba las otras** —conexión (v3.2.1),
+valor por defecto de la base (documentado), DDL generado (v3.5.0)—. **Es la LEY 8 en su forma
+más cara**: la decisión «esto va en utf8mb4» vivía en tres archivos distintos y ninguno sabía de
+los otros dos.
+
+> Y al tocarlo salieron **dos defectos acoplados**: `typesCollations` es una LISTA consultada con
+> `array_key_exists()`, que compara contra los índices `0..3` — o sea, **siempre `false`**, código
+> muerto. Y al revivir esa rama aparecía que la variante para columnas **nulables** emitía
+> `COLLATE … NOT NULL`. El segundo defecto solo era inofensivo porque el primero lo tapaba.
+
+
+## T55 · LAS RUTAS DE PRUEBA, SOLO EN LOCAL — y la regla 3 deja de estar rota
+
+Decidido por el propietario: son sus vistas para probar colas y `FreezeRequest`, conoce la URL, y
+la aplicación no necesita llegar a ellas. **`is_local()` vale de sobra**: ya elige las
+credenciales de base de datos en `config/database.php:25`, que es el uso de más peso que tiene.
+
+**Y entonces la ocultación por `uniqid()` sobra.** Las dos rutas pasan a tener nombre normal
+—`pcsphp-testing-queue-request` y `pcsphp-testing-queue-request-handle`— y la vista deja de
+escribir la URL a mano:
+
+```php
+<form action="<?= get_route('pcsphp-testing-queue-request-handle'); ?>" …>
+```
+
+### Medido en las dos direcciones
+
+| | Guarda normal (local) | Guarda invertida (simula NO-local) |
+| :-- | --: | --: |
+| Rutas en el inventario | **350** | **348** |
+| `/pcsphp-testing/queue-request/` | **200** | **404** |
+| `/img-gen/40/40/` | **200** | **200** |
+| Nombres con ruido hexadecimal | **0** | 0 |
+
+**`img-gen` no se toca, y se comprobó**: son dos grupos distintos en el mismo archivo, y el
+generador de imágenes se queda con su guarda de `requestIsSameDomain()`, que evita hotlinking.
+
+**El inventario de rutas queda estable**: cero nombres que cambien entre arranques. Era la
+condición para que las seis comparaciones de E3 no arrastren dos diferencias falsas cada una.
+
+### Dos bordes de `is_local()`, anotados y NO arreglados
+
+`src/app/core/Utilities.php:599`:
+
+```php
+$host = $_SERVER['HTTP_HOST'];
+$isLocal = $host === 'localhost' || mb_substr($host, -10) === '.localhost';
+```
+
+1. **`HTTP_HOST` incluye el puerto.** `85.localhost:8080` **no** termina en `.localhost`, así que
+   `is_local()` devolvería `false` — y como `config/database.php:25` elige las credenciales con
+   esta función, **la aplicación pediría las de producción**. No es hipotético: cualquier
+   despliegue local en un puerto no estándar lo tiene.
+2. **El dato lo manda el cliente.** `HTTP_HOST` es una cabecera. Para decidir «estoy en
+   desarrollo» es aceptable; queda escrito qué se está apoyando en qué.
+
+### Lo que se propone y no se hace: apagar el área pública con una constante
+
+`PublicAreaController:443` tiene esto comentado:
+
+```php
+//self::$startSegmentRoutes = uniqid(); //Para ocultar este controlador
+```
+
+El motivo del propietario es legítimo —el home cambia por proyecto, algún despliegue no tendrá
+área pública, y no quiere borrar código base— y **el código se queda**. Pero ese idioma
+**desactiva algo como efecto secundario de ocultarlo**: quien lo lee no distingue «esto está
+apagado» de «esto no tiene nombre». Y las rutas siguen existiendo y respondiendo: no está
+apagado, está escondido.
+
+**El framework ya tiene el mecanismo que lo dice bien, y es su propio patrón** (regla 8): una
+constante de módulo en `config/constants.php`, leída como `const ENABLE = …` y envolviendo
+`routes()`. Apaga de verdad, se ve en `constants.php` junto a las demás, y conserva todo el
+código.
+
+**Si prefieres el idioma actual**, que la línea lleve su guarda diciendo qué significa — hoy dice
+«para ocultar este controlador» y lo que hace es dejarlo servido en una URL impronunciable.
+
+### Anotado también, sin tocar
+
+`Test::registerRoutes()` incluye **todos los archivos de `local-tests/`** en cada petición del
+mismo dominio, también en producción. Registran acciones de CLI, así que en web no hacen nada —
+pero se leen y se compilan en cada petición. Se dice aquí; **no se ha cambiado**, porque las
+suites de `bin/cli` dependen de ese include y la decisión es tuya.
 
