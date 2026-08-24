@@ -6093,3 +6093,65 @@ clase dueña**. No se puede añadir hoy: `grep -rn "new Field("` sobre el paquet
 > **Disparo**: cuando exista el primer mapper real sobre `ORM`, ahí habrá por fin un sitio donde
 > se construyen campos, y ahí se añade la clase al mensaje. **No antes.**
 
+
+## T61 · LOS 14 DE 21 — el inventario completo, sin corregir nada
+
+La tabla de T56 era una **muestra**, no un inventario: el recorrido solo cazó `News`. Aquí está
+la lista entera, y **no se ha tocado ningún mapper**.
+
+*Método: por cada uno de los 21 mappers que implementan `objectToMapper()`, se extrae el cuerpo
+del método por conteo de llaves y se busca `->update()` o `->save()` dentro. La condición se lee
+del propio `if`.*
+
+### Quién escribe, qué y cuándo
+
+**Los 14 escriben LO MISMO**: `preferSlug`, cuando está a null y el campo que da nombre no lo
+está. Uno solo cambia la condición.
+
+| Mapper | Condición del `update()` |
+| :-- | :-- |
+| `ApplicationCallsMapper` | `preferSlug === null && title !== null` |
+| `DocumentsMapper` | `preferSlug === null && documentName !== null` |
+| `CategoriesMapper` (Forms) | `preferSlug === null` |
+| `DocumentTypesMapper` (Forms) | `preferSlug === null` |
+| `ImagesRepositoryMapper` | `preferSlug === null && id !== null` |
+| `InterestResearchAreasMapper` | `preferSlug === null && areaName !== null` |
+| `NewsCategoryMapper` | `preferSlug === null && name !== null` |
+| `NewsMapper` | `preferSlug === null && newsTitle !== null` |
+| `OrganizationMapper` | `preferSlug === null && name !== null` |
+| `OrganizationPreviousExperiencesMapper` | `preferSlug === null && experienceName !== null` |
+| `PreviousExperiencesMapper` | `preferSlug === null && experienceName !== null` |
+| `UserProfileMapper` | `preferSlug === null && belongsTo !== null` |
+| `PublicationCategoryMapper` | `preferSlug === null && name !== null` |
+| `PublicationMapper` | `preferSlug === null && title !== null` |
+
+**Los 7 que NO escriben**: `AttachmentApplicationCallsMapper`, `LogsMapper`, `NewsReadedMapper`,
+`NewsletterSuscriberMapper`, `BuiltInBannerMapper`, `AttachmentPublicationMapper`,
+`SystemApprovalsMapper`. Ninguno tiene columna de slug que rellenar.
+
+### Cuáles se pueden comprobar hoy, y cuáles NO
+
+*Método: filas de la tabla y filas con `preferSlug IS NULL`.*
+
+| Veredicto | Cuántos | Cuáles |
+| :-- | --: | :-- |
+| **NO COMPROBABLE — la tabla está vacía** | **9** | `application_calls_elements`, `documents_elements`, `forms_categories`, `forms_document_types`, `image_repository_images`, `interest_research_area`, `news_elements`, `organization_previous_experiences`, `previous_experiences`, `publications_elements` |
+| **No escribiría hoy** — ninguna fila con slug nulo | **5** | `news_categories` (2 filas), `organizations_elements` (1), `user_system_profile` (3), `publications_categories` (1) |
+
+> **Los nueve vacíos NO se dan por limpios.** Es T39 en su forma más directa: esta base no puede
+> responder preguntas sobre datos, y aquí eso significa que **nueve de los catorce caminos no se
+> han ejercitado nunca**. Se dicen como no comprobados, no como correctos.
+
+> **Y una vuelta que cierra el círculo**: `news_categories` sale hoy con **cero** slugs nulos. Los
+> tenía. **Los rellenó nuestro propio recorrido de T56**, que fue quien cazó el caso. La prueba de
+> que el camino escribe es que ya no hay nada que escribir.
+
+### Lo que esto significa para E3
+
+**Hoy, ninguno de los catorce escribiría** —nueve por tablas vacías, cinco porque el campo ya está
+relleno—. En un despliegue con datos de verdad y filas antiguas sin slug, **listar cualquiera de
+esas catorce entidades escribe en la base**. El recorrido de E2(b) **subestima por construcción**,
+y esta tabla es la corrección.
+
+**No se ha corregido ninguno**, según lo pedido.
+
