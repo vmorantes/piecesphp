@@ -53,6 +53,27 @@ if (!is_array($inventory)) {
     exit(1);
 }
 
+/**
+ * LEY 12: una pasada solo es válida sobre una base recién restaurada. Aquí se AVISA, no se
+ * aborta: el operador puede tener razones —una foto de control, una repetición a propósito—.
+ */
+$restorePath = $root . '/files/dev/last-restore.json';
+$lastWalkPath = $root . '/files/dev/snapshots/attribution/.last-walk';
+$restoredAt = null;
+if (is_file($restorePath)) {
+    $trace = json_decode((string) file_get_contents($restorePath), true);
+    $restoredAt = is_array($trace) ? (int) ($trace['timestamp'] ?? 0) : null;
+}
+$lastWalk = is_file($lastWalkPath) ? (int) trim((string) file_get_contents($lastWalkPath)) : 0;
+
+if ($restoredAt === null) {
+    fwrite(STDERR, "AVISO: no hay rastro de restauración (files/dev/last-restore.json). Esta pasada NO es una primera pasada,\n"
+        . "       así que los rellenos perezosos que el propio recorrido ya disparó no volverán a verse. Ver LEY 12.\n");
+} elseif ($lastWalk > 0 && $restoredAt < $lastWalk) {
+    fwrite(STDERR, "AVISO: la última restauración es ANTERIOR a la última pasada. Lo que esta encuentre estará incompleto\n"
+        . "       por construcción: restaura con `bin/cli db-restore` antes de fotografiar. Ver LEY 12.\n");
+}
+
 $volatilePath = $root . '/files/dev/volatile-state.json';
 $volatile = is_file($volatilePath) ? json_decode((string) file_get_contents($volatilePath), true) : [];
 $volatileTables = array_keys((array) ($volatile['tables'] ?? []));
@@ -307,6 +328,10 @@ echo "RESUMEN: " . count($targets) . ' rutas pedidas, ' . count($attribution) . 
     . $undeclared . " diferencia(s) NO declarada(s).\n";
 echo "AVISO: la atribución supone que nada más toca la base durante el recorrido. Un cronjob o\n";
 echo "       una petición ajena en paralelo se le colgarían a la ruta equivocada.\n";
+
+//Se anota cuándo corrió esta pasada, para que la siguiente pueda compararse con la restauración.
+@mkdir(dirname($lastWalkPath), 0775, true);
+file_put_contents($lastWalkPath, (string) time());
 
 if (isset($options['json']) && is_string($options['json'])) {
     file_put_contents($options['json'], json_encode([

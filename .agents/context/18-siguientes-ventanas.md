@@ -6921,3 +6921,46 @@ pulsa guardar **sin tocar nada**. `update()` devuelve `true` porque la sentencia
 **Es ese y solo ese.** Los cuatro eventos existen, se emiten en cada `save()` y cada `update()` de
 cualquier mapper, y **tres de los cuatro no los escucha nadie**.
 
+
+## T71 · `bin/cli db-restore` — el inverso que faltaba, y el mecanismo de la LEY 12
+
+`db-backup` existía como tarea; restaurar era `mysql < archivo.sql`: **a mano y sin registro**. Era
+un inverso sin pareja de los de T49, y era lo que bloqueaba el mecanismo de la LEY 12.
+
+```bash
+bin/cli db-restore file=dumps/x.sql confirm=yes [database=<nombre>]
+```
+
+| Salvaguarda | Qué hace |
+| :-- | :-- |
+| `confirm=yes` **obligatorio** | Sin él no toca nada y sale con 1. **Destruye datos**: la confirmación no es ceremonia |
+| Rol `TYPE_USER_ROOT` | El mismo que `db-backup` |
+| El archivo tiene que existir | Y contener al menos una sentencia |
+| Cada fallo se nombra | No se cuenta en silencio: sale la sentencia que falló |
+
+**El rastro** queda en `files/dev/last-restore.json` —fecha, marca de tiempo, archivo de origen,
+base destino y cuántas sentencias se aplicaron—. **No se versiona**: es de una máquina y un
+momento.
+
+### El recorredor lo exige — AVISO, no aborto
+
+`bin/walk-attribute` compara ese rastro con la marca de su última pasada:
+
+```
+AVISO: no hay rastro de restauración (files/dev/last-restore.json). Esta pasada NO es una primera
+       pasada, así que los rellenos perezosos que el propio recorrido ya disparó no volverán a
+       verse. Ver LEY 12.
+```
+
+Y si la restauración es **anterior** a la última pasada, lo dice también. **Avisa y sigue**: el
+operador puede tener razones —una foto de control, una repetición a propósito—, y aquí abortar
+sería quitarle una herramienta por una regla que él conoce mejor que el guion.
+
+### El viaje probado de verdad
+
+`bin/cli unit-tests:core/db-restore`, **9/9**: se parte de un valor conocido, se cambia, se
+restaura, y **se comprueba que volvió**. Más el rastro, con su archivo y su base.
+
+**Validada rompiéndola dos veces**: quitada la guarda de confirmación falla 1 de 9 —restaura sin
+que nadie lo confirme—; quitado el rastro fallan 3 de 9.
+

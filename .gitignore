@@ -35,3 +35,5 @@ bin/phpstan.deadcode.generated.neon
 files/dev/route-inventory.json
 PHPStanResult.8.4.json
 PHPStanResult.8.5.json
+#El rastro de la última restauración es de una máquina y un momento: no se versiona.
+files/dev/last-restore.json

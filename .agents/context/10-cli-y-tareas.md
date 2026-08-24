@@ -33,6 +33,7 @@ Implementadas en `src/app/classes/Terminal/Tasks/`:
 | Acción | Clase | Parámetros | Qué hace |
 | :-- | :-- | :-- | :-- |
 | `db-backup` | `DbBackupTask` | `gz`, `data`, `routines`, `views`, `definer` (yes/no) | Respalda la BD por defecto en `dumps/`. Usa `Database\Export\Exporter`, ya no `mysqldump` |
+| `db-restore` | `DbRestoreTask` | `file=`, `confirm=yes`, `database=` | **Restaura** desde un volcado. DESTRUYE datos: exige `confirm=yes`. Deja rastro en `files/dev/last-restore.json` |
 | `bundle` | `BundleTask` | `app`, `statics`, `all`, `zip` (yes/no) | Empaqueta la app y/o estáticos en `bundle/` |
 | `clean-cache` | `CleanCacheTask` | — | Renueva el token de caché de estáticos |
 | `clean-logs` | `CleanLogsTask` | — | Limpia logs de errores y sesiones expiradas |

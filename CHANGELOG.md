@@ -165,6 +165,19 @@ crea **35 tablas**, `pcsphp_jobs_queue` entre ellas. El camino normal ya la crea
 Con esto **la aplicación no ejecuta DDL en ningún sitio: solo lo emite.** Los únicos que lo
 ejecutan son las suites y las tareas de terminal, que son herramientas.
 
+## Añadido — `bin/cli db-restore`, el inverso de `db-backup`
+
+Restaurar era `mysql < archivo.sql`: a mano y sin registro. Ahora es una tarea, con las mismas
+salvaguardas que el respaldo y **con confirmación explícita**, porque destruye datos:
+
+```bash
+bin/cli db-restore file=dumps/x.sql confirm=yes
+```
+
+Deja rastro en `files/dev/last-restore.json` —fecha, archivo de origen y base destino—, y
+`bin/walk-attribute` lo lee para avisar cuando una pasada de atribución **no** se hace sobre una
+base recién restaurada. Probado de verdad: respaldar, cambiar, restaurar y comprobar que volvió.
+
 ## Corregido — abrir un formulario de contenido genérico creaba una fila
 
 `GenericContentPseudoMapper::__construct()` insertaba la fila de configuración si no existía, así

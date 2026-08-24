@@ -87,6 +87,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | `core/scheme-sql-round-trip` | **MariaDB** — aplica los dos scripts de verdad |
 | `core/prefer-slug` | **MariaDB** — crea filas reales y comprueba lo que queda escrito |
 | `core/generic-content` | **MariaDB** — cuenta filas antes y después |
+| `core/db-restore` | **MariaDB** — restaura de verdad sobre una base de usar y tirar |
 | `core/database/type-vocabulary` (paquete) | **Se juzga sola**, pero compara seis fuentes entre sí: la deriva de una la delatan las otras cinco |
 | `core/db-backup-round-trip` | **MariaDB** + `password_verify()` |
 | `core/mapper-finders` | **MariaDB** |
@@ -193,6 +194,12 @@ bin/cli unit-tests:core/otp-write-separation
     - src/app/core/system-controllers/local-tests/UnitTest-MetaPropertyHybrid.php
 ```bash
 bin/cli unit-tests:core/meta-property-hybrid
+```
+- `db-restore`, el viaje de ida y vuelta
+    - Respaldar, cambiar, restaurar y comprobar que volvió. Más el rastro que la LEY 12 necesita.
+    - src/app/core/system-controllers/local-tests/UnitTest-DbRestore.php
+```bash
+bin/cli unit-tests:core/db-restore
 ```
 - Contenido genérico: leer no crea, guardar sí
     - Construir el pseudo-mapper —abrir el formulario— y leerlo **no** deja fila; guardarlo sí, y
