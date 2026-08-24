@@ -111,11 +111,17 @@ class GenericContentPseudoMapper
     protected AppConfigModel $orm;
 
     /**
+     * NO ESCRIBE. La fila se crea al guardar, que es cuando alguien decide que existe.
+     *
+     * Antes el constructor la creaba si no estaba, así que abrir un formulario y no enviarlo
+     * dejaba rastro — una creación en un camino de lectura. Nada dependía de que existiera: los
+     * valores por defecto viven en las propiedades de esta clase, y `save()` ya inserta cuando
+     * no hay fila. Ver T69.
+     *
      * @param string $contentName
-     * @param bool $setDefaultData
      * @return static
      */
-    public function __construct(string $contentName = 'default', bool $setDefaultData = true)
+    public function __construct(string $contentName = 'default')
     {
         $this->userSetContentName = $contentName;
         $this->contentName = sha1(GenericContentPseudoMapper::class) . "|{$this->userSetContentName}";
@@ -126,15 +132,8 @@ class GenericContentPseudoMapper
         $this->langData = new \stdClass;
         $this->orm = new AppConfigModel($this->contentName);
         if ($this->orm->id === null) {
-            $defaultDataSaved = false;
+            //Solo se prepara el nombre: quien guarde encontrará la fila lista para insertarse.
             $this->orm->name = $this->contentName;
-            //Valores por defecto
-            if ($setDefaultData) {
-                //Do something
-            }
-            if (!$defaultDataSaved) {
-                $this->save();
-            }
         } else {
             $this->fromArray((array) $this->orm->value, true);
         }
@@ -462,7 +461,7 @@ class GenericContentPseudoMapper
      */
     public static function getContentData(string $contentName, $defaultValue = null, ?string $lang = null)
     {
-        $contentHandler = new GenericContentPseudoMapper($contentName, true);
+        $contentHandler = new GenericContentPseudoMapper($contentName);
         if ($lang !== null) {
             return $contentHandler->getLangData($lang, $contentName, false, $defaultValue);
         } else {
@@ -479,7 +478,7 @@ class GenericContentPseudoMapper
      */
     public static function setContentData(string $contentName, $data, ?string $lang = null)
     {
-        $contentHandler = new GenericContentPseudoMapper($contentName, true);
+        $contentHandler = new GenericContentPseudoMapper($contentName);
         if ($lang !== null) {
             $contentHandler->setLangData($lang, $contentName, $data);
         } else {

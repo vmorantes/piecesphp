@@ -165,6 +165,18 @@ crea **35 tablas**, `pcsphp_jobs_queue` entre ellas. El camino normal ya la crea
 Con esto **la aplicación no ejecuta DDL en ningún sitio: solo lo emite.** Los únicos que lo
 ejecutan son las suites y las tareas de terminal, que son herramientas.
 
+## Corregido — abrir un formulario de contenido genérico creaba una fila
+
+`GenericContentPseudoMapper::__construct()` insertaba la fila de configuración si no existía, así
+que **abrir el formulario y no enviarlo dejaba rastro**. Ahora la fila se crea al guardar, que es
+cuando alguien decide que existe.
+
+Comprobado antes de tocarlo que **nada dependía de que existiera**: el valor por defecto vive en
+las propiedades de la clase —apartando la fila, la lectura sigue devolviéndolo— y `save()` ya
+inserta cuando no hay fila.
+
+Se van con ello dos ramas muertas y el parámetro `$setDefaultData`, que no hacía nada.
+
 ## Corregido — tres guiones de `bin/` no arrancaban por sus finales de línea
 
 `.gitattributes` pone todo el repositorio en CRLF y luego exceptúa **guion por guion** los de

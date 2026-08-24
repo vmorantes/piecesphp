@@ -6610,6 +6610,11 @@ Los dos constructores son `GenericContentPseudoMapper` —el de arriba— y
 > El propio arreglo volvió ciego al instrumento que lo encontró. Si mañana se busca «convertidores
 > que escriben», hay que buscar también las llamadas a métodos que escriben, no solo las
 > escrituras literales.
+>
+> **Cómo se repite bien esa búsqueda**, para que no haya que redescubrirlo: primero se localizan
+> los métodos que escriben —los que contienen `->save()`, `->update()` o `->insert()`—, y después
+> se buscan **las llamadas a esos métodos** dentro de constructores y convertidores. Dos pasadas,
+> no una. Con una sola pasada el censo dice cero y el cero es falso.
 
 ## PENDIENTE MEDIDO POR ARQUITECTO — 2026-08-24
 
@@ -6779,3 +6784,48 @@ vivo.**
 `src/app/constants.php` en tres sitios. Los archivos están en **`src/app/config/`**. Comprobado.
 Y la lista del `rm -Rf` de ese mismo documento nombra `guides`, que **no existe** en el
 repositorio: la lista ya se pudrió.
+
+
+## T69 · `GenericContentPseudoMapper` — arreglado: leer ya no crea
+
+**Decidido por el PROPIETARIO** sobre la lectura de T68: no era una migración perezosa con
+motivo, era una creación en un camino de lectura.
+
+### La medición que faltaba: qué dependía de que la fila existiera
+
+**Nada.** Medido apartando la fila de un contenido real —`tokensUsed`— y devolviéndola idéntica
+después:
+
+```
+apartada la fila de tokensUsed (id=22)
+getContentData('tokensUsed') SIN fila devolvió: ['OpenAI' => 0, 'Mistral' => 0]
+filas: antes=23  después=24   <-- LA LECTURA ESCRIBIÓ
+restaurada: IDÉNTICA
+```
+
+**El valor por defecto vive en las propiedades de la clase, no en la fila.** Y `save()` ya
+distingue los dos casos: inserta si `$this->orm->id === null`, actualiza si no. La fila no hacía
+falta para leer, y para escribir se crea sola.
+
+> **Un borde que apareció midiendo**: `getContentData()` con un nombre de contenido **que la clase
+> no declara como propiedad** lanza `SafeException`, con fila o sin ella. La dependencia real del
+> camino de lectura es la **declaración**, no el registro.
+
+### Lo que se fue
+
+| Qué | Por qué |
+| :-- | :-- |
+| `$this->save()` del constructor | Abrir un formulario y no enviarlo dejaba rastro |
+| La rama `if ($setDefaultData) { //Do something }` | Vacía |
+| `$defaultDataSaved`, siempre `false` | Una condición que nunca decide nada |
+| **El parámetro `$setDefaultData` entero**, y sus 5 llamadas | Lo dejé «por compatibilidad de firma» y PHPStan lo cazó: `constructor.unusedParameter`. Un parámetro que no hace nada es exactamente lo que llevamos toda la campaña quitando |
+
+### La suite, provocada en las dos direcciones
+
+`bin/cli unit-tests:core/generic-content`, **6/6**. Repuesta la escritura en el constructor —de
+forma fiel, después de asignar el nombre— **fallan 3 de 6**: construir deja fila, leer deja fila, y
+guardar ya no la crea porque estaba.
+
+**Y el panel comprobado**: las tres vistas de contenido genérico —`home-image`, `mapbox-keys`,
+`tokens-limit`— responden **200** con sesión.
+

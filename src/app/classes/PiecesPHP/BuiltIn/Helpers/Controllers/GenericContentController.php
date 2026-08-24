@@ -429,11 +429,11 @@ class GenericContentController extends AdminPanelController
                 //Asignar datos según el tipo de configuración
                 $updated = true;
                 if ($configName == GenericContentPseudoMapper::CONTENT_TOKENS_LIMIT) {
-                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper = new GenericContentPseudoMapper($configName);
                     $mapper->addDataManyLangs($configName, $tokensLimit, array_keys($tokensLimit));
                     $updated = $mapper->save();
                 } else if ($configName == GenericContentPseudoMapper::CONTENT_MAPBOX_KEYS) {
-                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper = new GenericContentPseudoMapper($configName);
                     $mapper->addDataManyLangs($configName, $mapboxKeys, array_keys($mapboxKeys));
                     $updated = $mapper->save();
                 } else if ($configName == GenericContentPseudoMapper::CONTENT_HOME_IMAGE) {
@@ -453,7 +453,7 @@ class GenericContentController extends AdminPanelController
                             }
                         }
                     }
-                    $mapper = new GenericContentPseudoMapper($configName, false);
+                    $mapper = new GenericContentPseudoMapper($configName);
                     $mapper->addDataManyLangs($configName, $homeImagePathByLang, array_keys($homeImagePathByLang));
                     $updated = $mapper->save();
                 }
