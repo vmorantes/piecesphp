@@ -235,6 +235,42 @@ dependen de que alguien se acuerde**, porque esas son las siguientes candidatas:
 
 **Las dos últimas filas son las que más me preocupan**, porque las dos ya han fallado una vez.
 
+### LEY 12 — UNA PASADA DE ATRIBUCIÓN SOLO ES VÁLIDA SOBRE UNA BASE RECIÉN RESTAURADA
+
+**La segunda pasada sobre la misma base no confirma la primera: mide un mundo que la primera ya
+cambió.** Un verde en la segunda no significa que no haya nada; significa que **ya no queda nada
+QUE HACER**, que es distinto.
+
+**Las dos veces que pasó, y las dos en el mismo apartado:**
+
+| Qué | Qué hizo el recorredor |
+| :-- | :-- |
+| `news_categories` | La pasada de T56 **rellenó los `preferSlug` nulos** que venía a detectar |
+| `pcsphp_app_config` | La misma pasada **creó la fila** de `GenericContentPseudoMapper`, y en la segunda ya no había nada que crear |
+
+**Un recorrido de solo-lectura que dispara rellenos perezosos se agota a sí mismo.** No es un
+fallo del recorredor: es lo que pasa cuando el objeto medido reacciona a la medición.
+
+**Consecuencia operativa para E3 —escrita también en la escalera—: cada lote necesita su
+restauración ANTES de la foto.** Una base reutilizada entre lotes invalida todas las fotos
+siguientes, y lo hace en la dirección tranquilizadora.
+
+#### El mecanismo que pide la LEY 11, y lo que falta para tenerlo
+
+**No lo hay, y no invento una heurística**: una heurística equivocada aquí es peor que nada,
+porque daría por buena una pasada que no lo es.
+
+Lo que haría falta, dicho para que se pueda construir:
+
+1. **Que restaurar deje rastro.** Hoy restaurar es `mysql < archivo.sql` a mano — una operación
+   sin registro. Haría falta una tarea (`bin/cli db-restore`) que, además de aplicar el volcado,
+   **anote cuándo lo hizo**: una fila, un archivo en `files/dev/`, cualquier marca con fecha.
+2. **Que el recorredor la exija.** `bin/walk-attribute` compararía esa marca con la fecha de su
+   propia última corrida y **abortaría** si la base no se ha restaurado desde entonces.
+
+Sin el paso 1 el paso 2 es imposible: **no hay ningún dato en el sistema del que se pueda deducir
+con certeza si esta base viene de una restauración o de la pasada anterior.**
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -3680,10 +3716,18 @@ mismo para el worker de colas. `bin/cli` sí lo añade solo, y está bien: es el
 | **E0** | Cierre de la migración a 8.5 y del instrumental | **Al empujar.** Hecho |
 | **E1** | Cierre de calidad | Ver abajo |
 | **E2** | **LA FOTO** — recorrido completo **más ciclo CRUD por módulo**, contra base restaurable | La foto existe y es reproducible |
-| **E3** | Limpieza en **seis lotes**, cada uno con foto antes y después | Los seis lotes aplicados |
+| **E3** | Limpieza en **seis lotes**, cada uno con **restauración de la base + foto** antes y después | Los seis lotes aplicados |
 | **E4** | Pruebas unitarias de lo pruebaunitariable, más la ventana de correo | — |
 | **E5** | Las refactorizaciones del propietario | — |
 | **E6** | Reestructurar `source-docs/` y el `system-tasks` de T33 | — |
+
+> **E3, condición innegociable por la LEY 12: CADA LOTE RESTAURA LA BASE ANTES DE SU FOTO.**
+> Una base reutilizada entre lotes invalida las fotos siguientes, porque el propio recorrido
+> dispara los rellenos perezosos que venía a medir. Ya pasó dos veces en E2.
+
+> **E6 hereda además**: extraer del documento 18 las leyes que hoy viven dentro —T0, T10, T17,
+> T20, T21 y las LEY 8 a 12— y llevarlas a documentos permanentes, separando la ley de la
+> anécdota que la funda sin perder ninguna de las dos.
 
 ### LA REGLA QUE SOSTIENE LA ESCALERA
 
@@ -6449,4 +6493,121 @@ del informe porque **su fila ya existe**: lo comprobé por su clave exacta —
 Del mismo recorrido, sin investigar: **18 rutas `*-datatables` devuelven 500** y tres `ajax-all`
 también. Es esperable —un endpoint de DataTables pedido sin sus parámetros no tiene por qué
 funcionar— pero **no está comprobado que sea solo eso**.
+
+
+## T67 · QUÉ SIGNIFICA EL RETORNO DE `update()` — el censo, y el grupo defectuoso está VACÍO
+
+**La semántica durable está en [`06-orm-mappers.md`](./06-orm-mappers.md)**, que es donde vive lo
+que no caduca. Aquí queda el censo, que sí es de esta campaña.
+
+### El conteo, y por qué difiere del tuyo
+
+*Método: `grep` sobre `src/app` por `->save()`, `->update()` y `->delete()`, separando los que
+descartan el retorno —la llamada es la sentencia entera— de los que lo usan.*
+
+| Método | Llamadas | Descartan el retorno | **Lo usan** |
+| :-- | --: | --: | --: |
+| `save()` | 63 | 21 | **42** |
+| `update()` | 66 | 22 | **44** |
+| `delete()` | 2 | 2 | **0** |
+| | **131** | **45** | **86** |
+
+**Tu conteo era 58; el mío da 86 sobre los tres métodos, y 44 si se cuenta solo `update()` y
+`delete()`, que son los únicos con la semántica engañosa.** `save()` sobre una fila nueva no
+engaña: un `INSERT` que se ejecuta siempre inserta.
+
+### La clasificación de los 44
+
+| Grupo | Cuántos | Veredicto |
+| :-- | --: | :-- |
+| `$updated = $mapper->update();` + `setSuccessOnSingleOperation($updated)` — formularios de edición del panel | **21** | **Legítimo** |
+| `$success = $success && …->update()` | **3** | **Legítimo** |
+| Ternario `id !== null ? update() : save()` | **6** | **Legítimo** |
+| El resto, leídos **uno a uno** | **14** | **Legítimos los 14** |
+
+**El grupo defectuoso está vacío.** Ninguno de los 44 necesita saber «¿cambió una fila?»: todos
+preguntan «¿se guardó lo que se pidió?», y a esa pregunta `true` es la respuesta correcta aunque
+el usuario no cambiara nada — la fila contiene lo pedido.
+
+**El único sitio del proyecto que sí necesitaba la otra semántica era el acuñado del slug**, y ahí
+lo descubrimos y lo arreglamos releyendo (T64). **No hay familia que tratar.**
+
+### La consecuencia que sí queda escrita
+
+`BaseEntityMapper::update()` dispara `updated` cuando el retorno es `true` — o sea **también
+cuando no cambió nada**. Y `SystemApprovalManager` **escucha ese evento**, así que **un guardado
+sin cambios reevalúa la aprobación del elemento**. No es un defecto que se arregle aquí; es un
+efecto que conviene conocer antes de tocar aprobaciones.
+
+## T68 · `GenericContentPseudoMapper` — leído, no medido, y **no es lo mismo** que el slug
+
+Ya no lo caza el recorrido: **su fila existe y la creó nuestra propia pasada** (LEY 12). Así que
+esto sale de leer el código, no de medir.
+
+### Qué escribe, y cuándo
+
+`GenericContentPseudoMapper::__construct()`, líneas 119-141:
+
+```php
+$this->contentName = sha1(GenericContentPseudoMapper::class) . "|{$this->userSetContentName}";
+$this->orm = new AppConfigModel($this->contentName);
+if ($this->orm->id === null) {
+    $defaultDataSaved = false;
+    $this->orm->name = $this->contentName;
+    if ($setDefaultData) {
+        //Do something                 <-- rama VACÍA
+    }
+    if (!$defaultDataSaved) {          <-- SIEMPRE false
+        $this->save();
+    }
+}
+```
+
+**Condición: que no exista la fila con esa clave.** La clave del caso que cazamos es
+`sha1(GenericContentPseudoMapper::class) . '|homeImage'`, y en esta base es la fila **id 24 de 24**
+de `pcsphp_app_config`.
+
+**En una base vacía**, cada `new GenericContentPseudoMapper($nombre)` crearía su fila — tantas como
+contenidos genéricos distintos se construyan, y **desde una petición GET**, porque el constructor
+lo llama la vista del formulario.
+
+### ¿Es la misma forma que el relleno de slugs? NO
+
+| | Relleno de slugs | `GenericContentPseudoMapper` |
+| :-- | :-- | :-- |
+| Qué hace | **Completa** una fila que ya existe | **Crea** una fila que no existía |
+| Por qué | El valor no es derivable: lleva `uniqid()` y hay que persistirlo | El valor **es** derivable: la clave sale de `sha1(clase) . '|' . nombre` |
+| Si no se hiciera | La fila importada se queda sin URL pública | **Nada**: la fila se podría crear al guardar, que es cuando hay algo que guardar |
+| Motivo escrito | Sí: importación y alta directa en base | **Ninguno que yo pueda leer** |
+
+**Mi lectura: no es una migración perezosa con motivo, es una creación en un camino de lectura.**
+Un formulario que se abre y no se envía deja una fila. La alternativa —crear al guardar— no pierde
+nada, porque el objeto puede vivir en memoria hasta que haya algo que guardar.
+
+**Y dos ramas muertas de propina**: `$setDefaultData` no hace nada y `$defaultDataSaved` nunca
+cambia de valor.
+
+**No lo he tocado.** De tu lectura depende si se declara o se arregla, y yo veo lo segundo.
+
+### La tercera puerta: buscada, y no está
+
+*Método: se extraen por conteo de llaves los cuerpos de todos los `__construct()` y de los
+convertidores (`objectToMapper`, `arrayToMapper`, `fromArray`, `toMapper`) de `src/app`, y se
+busca `->save()`, `->update()` o `->insert()` dentro.*
+
+| | Encontrados |
+| :-- | --: |
+| Constructores que escriben | **2** |
+| Convertidores que escriben | **0** (tras el arreglo de T64) |
+
+Los dos constructores son `GenericContentPseudoMapper` —el de arriba— y
+`SystemApprovalManager::__construct()`, que **no escribe**: registra escuchadores del evento
+`updated` que escriben cuando el evento salta. Es un falso positivo del censo, y es el mismo
+`updated` de T67.
+
+> **Y una limitación del censo, dicha**: ahora que el acuñado del slug vive en
+> `mintPreferSlugIfMissing()`, un `grep` por `->update()` dentro del convertidor **ya no lo ve**.
+> El propio arreglo volvió ciego al instrumento que lo encontró. Si mañana se busca «convertidores
+> que escriben», hay que buscar también las llamadas a métodos que escriben, no solo las
+> escrituras literales.
 

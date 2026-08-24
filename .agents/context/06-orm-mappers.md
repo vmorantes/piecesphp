@@ -161,6 +161,30 @@ innerJoin, where, having, groupBy, orderBy, row, getAll, get, setTypeResult,
 setSelectClass, execute, result, rowCount, lastInsertId, getCompiledSQL,
 getLastSQLExecuted, resetWhere/resetJoins/resetAll`.
 
+### Qué significa —y qué NO— el valor que devuelven
+
+**`update()` y `delete()` devuelven «la sentencia se ejecutó», NO «cambió una fila».** Es
+`PDOStatement::execute()` tal cual, y ese devuelve `true` aunque el `WHERE` no encuentre nada o
+los valores sean idénticos a los que ya había.
+
+| Método | Qué devuelve | Qué NO significa |
+| :-- | :-- | :-- |
+| `save()` sobre una fila nueva | `true` si el `INSERT` se ejecutó | — (un `INSERT` que se ejecuta siempre inserta) |
+| `save()` sobre una fila existente | Delega en `update()`, con su misma semántica | — |
+| `update()` | `true` si el `UPDATE` se ejecutó | **NO** que se modificara ninguna fila |
+| `delete()` | `true` si el `DELETE` se ejecutó | **NO** que se borrara ninguna fila |
+
+**Para casi todo, esa es la respuesta correcta.** «¿Se guardó lo que el usuario pidió?» se
+responde con `true` aunque el usuario no cambiara nada: la fila contiene lo pedido.
+
+**Es incorrecta cuando lo que se necesita saber es si CAMBIÓ algo**: quién ganó una carrera, si
+una fila existía, o si una operación fue idempotente. Ahí hay que **releer**, o mirar
+`rowCount()` en el `ActiveRecord` antes de que se resetee.
+
+> **Consecuencia práctica**: `BaseEntityMapper::update()` dispara el evento `updated` cuando el
+> retorno es `true` — es decir, **también cuando no cambió nada**. `SystemApprovalManager` escucha
+> ese evento, así que un guardado sin cambios reevalúa la aprobación del elemento.
+
 ## Eventos automáticos
 
 `BaseEntityMapper` (y por herencia los mappers) dispara vía `BaseEventDispatcher`:
