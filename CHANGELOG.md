@@ -434,6 +434,16 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Pruebas — puertas verificadas en las dos direcciones
 
+- **Desactivar el 2FA se comprueba por su EFECTO, no por su valor devuelto.** La suite
+  verificaba que `toggle2FA(false)` devolviera `true`; ahora comprueba que la cuenta **deje de
+  pedir código** y que el código de seguridad quede vacío. Validada rompiéndola: con un inverso
+  que devuelve `true` sin desactivar, falla 2 de 27.
+
+- **Apagar un módulo, medido por primera vez.** `NEWS_MODULE` en `false` retira sus 19 rutas del
+  inventario, `/admin/news/list/` pasa de 200 a 404, el panel sigue en 200 y el menú deja de
+  mencionarlo. Reencendido, **vuelve el mismo conjunto de rutas nombre por nombre**. No quedan
+  restos.
+
 - **`UnitTest-DbBackupRoundTrip` comprueba el viaje ENTERO**: exporta, restaura en una base de
   usar y tirar y **entra**. Leer el archivo no basta: un volcado puede tener el hash bien y no
   restaurar. Validada rompiéndola — con la transformación reintroducida falla 3 de 5.
@@ -553,6 +563,17 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   interruptor.** Los otros 9, en controladores, siguen contados como candidatos.
 
 ## Herramientas
+
+- **`bin/cli scheme-drop module=<Nombre>` EMITE el SQL de borrado de un módulo. No lo ejecuta.**
+  La regla de que el SQL de las tablas se genera y no se escribe a mano solo existía hacia
+  adelante: deshacer un módulo obligaba a escribir a mano justo lo que la regla prohíbe, y cada
+  despliegue que actualice necesita ese SQL.
+    - El orden —hijas antes que padres— **sale del grafo que los mappers ya declaran** en
+      `reference_table`. No hay lista aparte que mantener.
+    - Emite y no ejecuta a propósito: esto viaja a despliegues ajenos, lo revisa una persona y
+      se aplica deliberadamente.
+    - Necesita **`piecesphp/database` >= 3.3.0**; con una versión anterior avisa y sale, en vez
+      de reventar.
 
 - **`bin/cli snapshot compare` exige que la volatilidad esté DECLARADA.** Un comparador con
   ruido enseña a ignorar los diffs, igual que un rojo permanente enseña a ignorar el rojo. El

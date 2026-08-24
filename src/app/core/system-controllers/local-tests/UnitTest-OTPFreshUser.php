@@ -184,6 +184,19 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
             'toggle2FA(false) también devuelve true'
         );
 
+        //Comprobar el VALOR DEVUELTO del inverso no es comprobar su EFECTO (T0, LEY 9): que
+        //devuelva true no dice que la cuenta haya dejado de pedir código.
+        $check(
+            OTPSecretsUsersMapper::isEnabled2FA($userID) === false,
+            'y DESPUÉS de desactivar, la cuenta ya NO pide código',
+            'el inverso devolvía true sin surtir efecto: el usuario seguiría sin poder entrar'
+        );
+        $totpTrasDesactivar = OTPSecretsUsersMapper::getTOTPData($userID);
+        $check(
+            $totpTrasDesactivar !== null && (string) $totpTrasDesactivar->twoAuthFactorSecurityCode === '',
+            'y el código de seguridad queda vacío, no colgando de una cuenta sin 2FA'
+        );
+
         //Y la ruta que daba 500: el emisor cae en el nombre del sitio si no hay alias.
         $totp = OTPSecretsUsersMapper::getTOTPData($userID);
         if ($totp !== null) {

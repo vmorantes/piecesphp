@@ -148,6 +148,35 @@ se supone.
 **La auditoría completa de inversos del framework está en T49**: de once operaciones con
 inverso real, **tres tienen el viaje probado y ocho no**.
 
+### LEY 10 — `password` ES OPACO PARA TODA HERRAMIENTA QUE MUEVA FILAS DE USUARIO
+
+**No se cifra, no se vuelve a hashear, no se transforma: SE COPIA.**
+
+La columna ya contiene el resultado de una transformación irreversible. Aplicarle una segunda
+—cifrarla, volver a hashearla— rompe el viaje de vuelta **sin dar ningún error**: la escritura
+funciona, el archivo se genera, y `password_verify()` devuelve `false` el día que alguien
+intenta entrar.
+
+**El caso que la funda: `db-backup`** (T45). Cifraba la columna al exportar y nada la
+descifraba al restaurar.
+
+> **Y el conteo honesto, porque importa: fue UNA herramienta, no dos.** Sospeché que
+> exportar/importar usuarios tenía el mismo defecto y **al medirlo resultó falso**: el
+> exportador no emite la columna `password` en absoluto (T50 · 3). La regla se escribe igual,
+> porque es exactamente la que habría evitado el caso real — pero se escribe con un caso, no
+> con dos.
+
+**Censo hecho**: revisados todos los sitios que tocan la columna fuera del login, **ninguno la
+transforma**. Cada uno hace una de estas tres cosas, que son las tres correctas:
+
+| Qué hace | Dónde |
+| :-- | :-- |
+| La **hashea** al fijar una contraseña nueva | alta de usuario, recuperación, importador |
+| La **verifica** al entrar | login, API |
+| La **`unset()`** antes de exponer el usuario | controladores públicos, API |
+
+**Cualquier cuarta cosa es sospechosa por defecto.**
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -4978,3 +5007,102 @@ probadas lo están porque las hemos tocado esta campaña, no porque el proyecto 
    supone.
 
 **No se ha arreglado nada de esto**, que era el encargo. La tabla está para decidir por dónde.
+
+## T50 · LOS DOS INVERSOS QUE E3 NECESITA — construidos y medidos
+
+De la tabla de T49, los dos que eran **requisito de E3** y no ampliación de alcance.
+
+### 1. `SchemeCreator::dropScript()` — `piecesphp/database` v3.3.0
+
+**El generador de esquemas solo existía hacia adelante.** La regla 7 dice que el SQL de las
+tablas se genera y no se escribe a mano; deshacer un módulo obligaba a escribir a mano justo
+eso. Y no solo aquí: **cada despliegue que actualice necesita ese SQL**, así que E3 tenía que
+embarcar un script de migración que nadie podía generar.
+
+**El orden sale del grafo que los mappers ya declaran**: `reference_table` en `$fields`. No hay
+lista que mantener aparte — el dato ya estaba, solo que nadie lo leía en esa dirección.
+
+**Y la propiedad que define la herramienta: EMITE, NO EJECUTA.** Va a despliegues ajenos; una
+herramienta que borra tablas por su cuenta es lo contrario de lo que se está construyendo. El
+script se genera, lo revisa una persona, y se aplica deliberadamente.
+
+Probado con un esquema de juguete de tres niveles —nieta → hija → padre—, pasando los mappers
+**desordenados a propósito**:
+
+```
+[OK] Cada mapper declara de quién depende, y se lee del propio $fields.
+[OK] Orden correcto: nieta, hija, padre.
+[OK] Generar el script NO borró nada: las tres siguen ahí.
+[OK] El script se aplicó entero sin violar ninguna clave ajena.
+[OK] No queda ninguna de las tres.
+```
+
+**Validado rompiéndolo** (T21): invertido el orden, **falla 3 de 6**, y una de las tres es
+MariaDB devolviendo `Cannot delete or update a parent row`. La comprobación no cree al
+generador: le pregunta a la base de datos.
+
+Si hay un **ciclo** de claves ajenas no se inventa un orden: se emite igual y **se declara en
+el propio script**, porque quien lo revise tiene que saber que ahí hay que decidir.
+
+Del lado de la aplicación, `bin/cli scheme-drop module=<Nombre>` reúne los mappers del módulo y
+emite el script. **Espera a que se publique v3.3.0**: hasta entonces avisa y sale con 1, en vez
+de reventar.
+
+### 2. Apagar un módulo — el viaje entero, y NO deja restos
+
+Nunca se había probado, y E3 lo va a hacer varias veces con los módulos parciales. Medido con
+`NEWS_MODULE`, que se queda:
+
+| | Encendido | Apagado |
+| :-- | --: | --: |
+| Rutas del módulo en el inventario | **19** | **0** |
+| `/admin/news/list/` | **200** | **404** |
+| `/admin/` (el panel) | 200 | **200** |
+| El menú menciona `news` | sí | **no** |
+
+**Y la vuelta es exacta**: reencendido, el inventario devuelve **el mismo conjunto de rutas,
+nombre por nombre** —346 contra 346, comparados como conjuntos y no como cifras—, y
+`/admin/news/list/` vuelve a 200.
+
+**No quedan restos**: ni ruta viva, ni entrada de menú, ni 500 en ninguna de las rutas
+probadas. **Apagar un módulo es seguro**, y ahora está medido en vez de supuesto.
+
+> **Dos avisos para quien repita esto, que me costaron a mí:**
+>
+> 1. **El inventario tiene ruido propio.** Dos rutas de prueba se nombran con `uniqid()`, así
+>    que **cambian de nombre en cada ejecución** y aparecen como «desaparece una, aparece otra»
+>    en cualquier comparación. Hay que descontarlas o el diff nunca sale limpio.
+> 2. **OPCACHE, POR TERCERA VEZ.** La primera medición dijo que apagar el módulo **no retiraba
+>    la ruta** —`/admin/news/list/` seguía dando 200—, y era la constante vieja en caché. Con
+>    `touch` sobre `constants.php` y `routes.php` más una espera, el resultado se invirtió.
+>    **Sabía la regla —la escribí yo en T20— y no la apliqué.** Una regla escrita no es una
+>    regla aplicada, y esta ya va por la tercera vez.
+
+### 3. Y una retractación: exportar/importar usuarios NO está roto
+
+En T49 puse que el importador aplicaría `password_hash()` a un hash exportado. **Lo detecté
+leyendo, y medido resulta falso en la parte que importa:**
+
+**`UsersExporter` no exporta la columna `password`.** Cero apariciones en todo el archivo. Sus
+columnas son ID, Documento, Nombre 1 y 2, Apellido 1 y 2, Usuario, Email, Colegio, Grado y
+Grupo — **es un informe para personas, no un formato de intercambio**. El importador tiene su
+propia plantilla y pide una contraseña **en claro**, que es coherente.
+
+**No son un par inverso, así que no hay viaje que romper.** Lo que sí es cierto, medido, es lo
+que pasaría si alguien metiera un hash en esa columna:
+
+```
+password_verify(clave, hash original)   = TRUE
+password_verify(clave, hash rehasheado) = FALSE  <- no se entra
+```
+
+Pero eso es un error de quien rellena la hoja, no un defecto de la pareja de herramientas.
+
+**Y el censo que pedía el propietario —¿hay una tercera herramienta que transforme `password`?—
+sale limpio**: revisados todos los sitios que tocan la columna fuera del login, cada uno hace
+una de tres cosas correctas: la hashea al fijar una contraseña nueva, la verifica al entrar, o
+la `unset()` antes de exponer el usuario. La única que transformaba era `db-backup`, y ya no.
+
+**Así que la regla que proponía el propietario se queda, pero con el conteo honesto: fue UNA
+herramienta, no dos.** Y sigue valiendo la pena escribirla, porque es exactamente la que la
+habría evitado.
