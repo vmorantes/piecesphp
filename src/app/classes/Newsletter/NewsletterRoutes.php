@@ -42,8 +42,6 @@ class NewsletterRoutes
     {
         if (self::ENABLE) {
 
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Newsletter\Mappers\NewsletterSuscriberMapper()))->getSQL();exit;
-
             $groupAdministration = NewsletterController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);

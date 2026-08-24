@@ -44,8 +44,6 @@ class DocumentsRoutes
     {
         if (self::ENABLE) {
 
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Documents\Mappers\DocumentsMapper()))->getSQL();exit;
-
             $groupAdministration = DocumentsController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);

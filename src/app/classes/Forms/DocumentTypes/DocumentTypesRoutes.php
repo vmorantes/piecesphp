@@ -34,8 +34,6 @@ class DocumentTypesRoutes
     {
         if (self::ENABLE) {
 
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Forms\DocumentTypes\Mappers\DocumentTypesMapper()))->getSQL();exit;
-
             $groupAdministration = DocumentTypesController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);

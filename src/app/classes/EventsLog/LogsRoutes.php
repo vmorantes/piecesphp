@@ -40,8 +40,6 @@ class LogsRoutes
     {
         if (self::ENABLE) {
 
-            //header('Content-Type: text/sql');echo (new \PiecesPHP\Core\Database\SchemeCreator(new \EventsLog\Mappers\LogsMapper()))->getSQL();exit;
-
             $group = LogsController::routes($group);
 
             self::staticResolver($group);

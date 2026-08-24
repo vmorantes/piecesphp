@@ -6164,7 +6164,17 @@ instanciaban el mapper, construían un `SchemeCreator` y generaban el DDL comple
 consumidor era el `//header(…)` de la línea siguiente.
 
 Otros tres módulos —`Newsletter:45`, `ImagesRepository:46`, `EventsLog:43`— ya lo tenían en una
-sola línea comentada. Ahora los seis dicen lo mismo.
+sola línea comentada.
+
+> **CORREGIDO: los seis se BORRAN, no se comentan.** Aquí escribí que quedaban comentados y ese
+> estado ya no existe. El propietario lo corrigió con una razón mejor que la mía:
+> **`bin/cli scheme-create` ya genera el DDL recorriendo los mappers del módulo, y no se calla si
+> uno no se puede instanciar.** El `$sqlCreate` en línea es una versión peor de una herramienta
+> que ya existe, y código comentado que duplica una herramienta que funciona es residuo.
+>
+> Y salen **los seis**, no solo los tres que estaban vivos: es T17, la regla se aplica a toda la
+> familia o a ninguna. Tratar distinto a los tres que ya estaban comentados habría sido conservar
+> el mismo residuo por haber llegado antes.
 
 ### Lo que cuesta, medido
 

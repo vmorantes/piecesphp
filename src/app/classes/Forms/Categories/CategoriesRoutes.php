@@ -35,8 +35,6 @@ class CategoriesRoutes
     {
         if (self::ENABLE) {
 
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \Forms\Categories\Mappers\CategoriesMapper()))->getSQL();exit;
-
             $groupAdministration = CategoriesController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);

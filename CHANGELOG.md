@@ -149,9 +149,10 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 `Documents`, `Forms\DocumentTypes` y `Forms\Categories` tenían el volcado comentado pero **el
 `$sqlCreate` de encima no**: dentro de `routes()` instanciaban el mapper y generaban el DDL
-completo en cada petición, para tirarlo. Ahora quedan como los otros tres módulos que ya lo
-tenían bien —`Newsletter`, `ImagesRepository`, `EventsLog`—: una sola línea comentada, que
-conserva la utilidad como ayudante de desarrollo y deja de costar.
+completo en cada petición, para tirarlo. **Los seis sitios que tenían ese idiom se han borrado** —`Documents`,
+`Forms\DocumentTypes`, `Forms\Categories`, `Newsletter`, `ImagesRepository` y `EventsLog`—,
+tanto los vivos como los que ya estaban comentados: `bin/cli scheme-create module=<Nombre>` hace
+lo mismo mejor, para cualquier módulo, y avisa si un mapper no se puede instanciar.
 
 Medido: **0 consultas** y **1,228 ms** por petición de trabajo puro tirado.
 

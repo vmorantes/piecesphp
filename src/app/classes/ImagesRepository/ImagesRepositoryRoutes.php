@@ -43,8 +43,6 @@ class ImagesRepositoryRoutes
     {
         if (self::ENABLE) {
 
-            //echo (new \PiecesPHP\Core\Database\SchemeCreator(new \ImagesRepository\Mappers\ImagesRepositoryMapper()))->getSQL();exit;
-
             $groupAdministration = ImagesRepositoryController::routes($groupAdministration);
 
             self::staticResolver($groupAdministration);
