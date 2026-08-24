@@ -97,6 +97,34 @@ Más exigente, porque el daño llega tarde y sin nadie delante para diagnosticar
    > CHANGELOG.**
 
    La regla se vigila con una puerta, no a ojo: ver T38.
+### LEY 8 — UNA DECISIÓN QUE NO VIVE EN UN ARCHIVO NO SE PROPAGA
+
+**Se propagó lo escrito en un archivo compartido; lo decidido sin escribirlo en ninguno llegó a
+exactamente un repositorio.** No es una observación: explica media campaña.
+
+| Decisión | ¿Dónde vivía? | Qué costó |
+| :-- | :-- | :-- |
+| **La CLI es una caja de herramientas, no un desplegador obligatorio** | En la cabeza de nadie | **Tres diagnósticos míos equivocados**: propuse mover a la CLI cosas que el framework tiene que hacer solo al arrancar |
+| **Las columnas van en `camelCase`** | En la costumbre | Diez columnas con guion bajo, y un censo a mano para saber cuáles eran excepción |
+| **Webflow se conserva** | En la memoria del propietario | Propuesto para borrar |
+| **`phpVersion` como rango** | En un comentario que decía **lo contrario** de lo que hacía la opción | **Cegó el análisis estático a toda deprecación de 8.5 durante la campaña entera** |
+| **`PHPStanResult.json` se versiona** | En una decisión tomada aquí y no escrita | Cuatro paquetes divergentes, aprobados en verde por una puerta (T42) |
+| **`bin/cli` honra `PCSPHP_PHP_BIN`** | Arreglado aquí, no escrito en ningún sitio común | **El defecto exacto que cegó la campaña, todavía vivo en `database`** después de haberlo arreglado |
+| **`bin/phpstan` es ejecutable** | En el bit de un archivo | «Permiso denegado» en dos paquetes, que se lee como problema de la máquina |
+
+**Los dos últimos son el mismo error en su forma más pura: arreglamos el síntoma donde nos
+dolió y no lo escribimos en ningún sitio que alcanzara a los otros cuatro.**
+
+> **CONSECUENCIA PRÁCTICA, y es una obligación, no un consejo: CUANDO TOMEMOS UNA DECISIÓN QUE
+> APLICA A MÁS DE UN REPOSITORIO, EL MISMO COMMIT LA ESCRIBE EN UN ARCHIVO QUE LOS CINCO LEEN.**
+>
+> Hoy esos archivos son `files/dev/shared-toolchain.json` —para el instrumental— y este
+> documento, para lo demás. **Si una decisión no cabe en ninguno, no es una decisión: es una
+> intención**, y las intenciones no sobreviven a un `git clone`.
+
+Y el corolario que la hace verificable: **una decisión escrita en un archivo compartido puede
+tener una puerta detrás**. Las siete de la tabla que no la tenían, no la tuvieron.
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -4587,3 +4615,163 @@ tabla que E2 tiene que entregar.
 | **(d)** Salidas cortadas | Pendiente |
 | **(e)** Prefijo reconocible | Convención ya en uso (`zz_`, `pcs_unit_tests_`) |
 | **(f)** Árbol limpio y etiqueta | Al final |
+
+## T45 · `db-backup` CIFRABA LAS CONTRASEÑAS Y NADIE LAS DESCIFRABA — severidad alta
+
+**Una restauración dejaba a TODOS los usuarios sin poder entrar.** Está embarcado en todos los
+despliegues, y el peor momento para descubrirlo es el día que hace falta el respaldo.
+
+### El viaje de ida y vuelta, medido y no deducido
+
+`DbBackupTask` aplicaba una transformación al exportar:
+
+```php
+'password' => function ($val) { return BaseHashEncryption::encrypt($val, 'ENCRYPTION_KEY'); }
+```
+
+Volcado, restaurado en una base de usar y tirar, e intentado el login:
+
+```
+  password de root VIVO      : $2y$10$5KEzolPgoFt/ZwykXvzJ9usmCzFgcY8H5UiyJV5rmHPJkrZoHl20u
+  password de root EN VOLCADO: fXfHZ4OJdImUlMjOt5XAtJS3gbPHzbSnxNmVfs64u4bMn7e3ooeWlKCu0o-…
+  password_verify("123456", VIVO)    : TRUE   <- se entra
+  password_verify("123456", VOLCADO) : false  <- NO SE ENTRA
+
+  password de root RESTAURADO: fXfHZ4OJdImUlMjOt5XAtJS3gbPHzbSnxNmVfs64u4bM…
+  INTENTO DE LOGIN password_verify("123456", …) -> FALSE — NO SE PUEDE ENTRAR
+```
+
+### Por qué cifraba, que era la pregunta correcta
+
+**La intención se entiende**: un volcado es un archivo que puede acabar en un correo o en un
+disco compartido, y proteger los hashes ahí parece razonable. **La asimetría es el defecto, no
+el cifrado.**
+
+Pero al mirarlo de cerca, el cifrado tampoco protegía nada:
+
+- **La clave es la cadena literal `'ENCRYPTION_KEY'`**, escrita en el propio archivo. No es una
+  constante, no sale de la configuración: es texto en el repositorio.
+- **Aparece UNA sola vez en todo el código** — en la llamada que cifra. **No hay ni un
+  `decrypt` con esa clave en ninguna parte**, ni en los importadores ni en el módulo de
+  importación de datos.
+
+Es decir: cualquiera con el código descifra el volcado en una línea, y nadie con el código
+puede restaurarlo. **Protección cero, restauración rota.**
+
+Comprobado además que es perfectamente reversible:
+
+```
+  decrypt(VOLCADO, "ENCRYPTION_KEY")  : $2y$10$5KEzolPgoFt/ZwykXvzJ9usmCzFgcY8H5UiyJV5rmHPJkrZoHl20u
+  ¿coincide con el hash vivo?         : SÍ
+```
+
+**Y esa es la vía de recuperación para quien tenga volcados viejos**: no están perdidos.
+
+### El arreglo, y la prueba que lo sostiene
+
+La transformación se retira. Un volcado nuevo lleva el hash tal cual, que es lo que hace
+`mysqldump` y lo que permite restaurar.
+
+`UnitTest-DbBackupRoundTrip` fija el viaje: crea un usuario propio con contraseña conocida,
+lanza `db-backup`, busca su fila en el archivo y comprueba que **`password_verify` contra lo
+que hay EN EL VOLCADO devuelve true**. Borra el usuario y el volcado siempre.
+
+**Y se validó rompiéndola** (T21 aplicado a una prueba): reintroducida la transformación,
+
+```
+   [FALLÓ] el hash viaja INTACTO al volcado — en el volcado hay «fXfHZ4OLdMabwMTDfq66l5R7…»
+   [FALLÓ] password_verify contra lo que hay EN EL VOLCADO devuelve true
+   BALANCE FINAL: 2/4 PASADAS, 2 FALLIDAS
+```
+
+### Lo que esto desbloquea
+
+Era la condición (a) de E2 —la base restaurable como red de la limpieza— y estaba rota antes de
+empezar. **Y no era trabajo de E2**: era un defecto embarcado que E2 se encontró de paso.
+
+## T46 · UNA PRUEBA QUE PASARÍA CON EL DEFECTO PUESTO NO ES UNA PRUEBA
+
+**Corolario de T21, aplicado a las pruebas en vez de a las puertas. Y ya tiene dos casos, uno
+de ellos grave.**
+
+### Caso 1 — la prueba del `SET NAMES` (T43)
+
+Preguntaba «¿la conexión es `utf8mb4`?». La base de pruebas ya lo es por defecto, **así que
+`SET CHARACTER SET` habría dado el mismo resultado**. Se detectó solo porque la propia
+comprobación imprime en qué condiciones mide.
+
+Arreglo: cambiar la pregunta a **«¿la conexión sigue lo PEDIDO?»**, pidiendo un juego distinto
+del de la base. Probada rompiéndola.
+
+### Caso 2 — `otp-write-separation` no habría cazado a D2. GRAVE
+
+**La suite que existe para fijar el defecto D2 pasa en verde con D2 reintroducido.**
+
+Sus cuatro comprobaciones eran **textuales**: `grep` de `->save(`, `->update(` y `->delete(`
+sobre el cuerpo del método. Reintroducido el defecto **delegando la escritura a otro método**
+—que es EXACTAMENTE la forma que tenía D2, donde el buscador llamaba a un creador—:
+
+```
+   [PASÓ] getOTPData() no contiene ninguna escritura del ORM
+   [PASÓ] getTOTPData() no contiene ninguna escritura del ORM
+```
+
+**Un grep sobre el cuerpo no ve una escritura que ocurre una llamada más abajo.**
+
+> **La lección general: una comprobación sobre el TEXTO del código verifica una propiedad del
+> texto, no del comportamiento.** Sirve para lo que sirve —es barata y no necesita datos— pero
+> **no se puede presentar como prueba de que algo no ocurre**. Lo que no ocurre solo se
+> demuestra ejecutándolo.
+
+**Arreglo**: la suite gana una comprobación de comportamiento. Crea un usuario propio sin filas
+de OTP, llama a los dos buscadores **de verdad**, y cuenta filas antes y después. Sube a 7/7.
+
+### La regla
+
+> **TODA PRUEBA NUEVA SE VALIDA ROMPIENDO LO QUE DICE PROTEGER**, igual que las puertas. Si al
+> reintroducir el defecto la prueba sigue verde, la prueba no existe — existe la sensación de
+> que existe, que es peor, porque ocupa su sitio.
+
+Y el corolario para elegir la forma:
+
+| Forma de comprobar | Qué verifica | Cuándo NO basta |
+| :-- | :-- | :-- |
+| `grep` sobre el código | una propiedad del **texto** | cuando el defecto puede delegarse una llamada más abajo |
+| Ejecutar y medir el estado | una propiedad del **comportamiento** | cuando el entorno hace cierta la afirmación por otro motivo (caso 1) |
+
+**Las dos formas fallan de maneras distintas, así que la respuesta no es «usa siempre la
+segunda»: es validar cada una rompiendo lo que protege.**
+
+### Y una retractación: `time_on_platform` NO es volátil
+
+Reporté que cambiaba sola entre dos invocaciones de `bin/cli`. **No se reproduce**: dos fotos
+seguidas sin nada en medio salen idénticas, y con una petición web de por medio también.
+
+```
+=== dos fotos seguidas, NADA en medio ===
+── BASE DE DATOS ──
+(sin diferencias)
+```
+
+Leído el código, `TimeOnPlatformModel::addTime()` solo se alcanza desde `TimerController`, que
+**exige `seconds` y `user_id` por POST**: una invocación de la CLI no puede dispararlo.
+
+**La observación original estaba contaminada** —había un login por medio— y la di por buena con
+una sola medición **porque encajaba con lo que ya esperaba encontrar**: que los caminos de
+lectura escriben. Es el patrón de T20 en su forma afilada, esta vez cometido por mí en el mismo
+día en que lo escribí.
+
+### La volatilidad que SÍ está medida
+
+`files/dev/volatile-state.json`, con dos entradas y las dos comprobadas:
+
+| Qué | Por qué es legítimo |
+| :-- | :-- |
+| `login_attempts` | Cada intento de acceso escribe su fila. Es el registro de auditoría para el que existe el módulo |
+| `src/app/lang/missing-lang-messages/` | El framework anota cada cadena sin traducir para que `scan-missing-lang` la encuentre. **Es una escritura en un camino de lectura, y es deliberada**: pedir `/en/` crea archivos aquí |
+
+La segunda es el **tercer camino de lectura que escribe** confirmado, y esta vez no salió por
+accidente: salió porque había una herramienta mirando.
+
+`bin/cli snapshot compare` los separa del resto y **falla con salida 1 ante cualquier cambio no
+declarado**. Probado en las dos direcciones.

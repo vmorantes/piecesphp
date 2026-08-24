@@ -103,6 +103,42 @@ CliActions::make("{$cliTaskName}:{$cliTaskFlag}", function ($args) {
     }
     echoTerminal(' ');
 
+    //El grep de arriba no ve una escritura delegada una llamada más abajo, que era la forma de D2.
+    echoTerminal('[1bis] Y llamándolos de verdad, que es lo que el texto no puede ver...');
+
+    $db = (new \PiecesPHP\Core\BaseModel())->getDatabase();
+    if ($db === null) {
+        $check(false, 'hay conexión para la comprobación de comportamiento');
+    } else {
+        $usuario = 'zz_sep_' . bin2hex(random_bytes(4));
+        $insert = $db->prepare('INSERT INTO pcsphp_users (username, password, firstname, first_lastname, email, type, status) VALUES (?,?,?,?,?,1,1)');
+        $insert->execute([$usuario, password_hash('x', \PASSWORD_DEFAULT), 'ZZ', 'Sep', $usuario . '@example.invalid']);
+        $usuarioID = (int) $db->lastInsertId();
+
+        $contar = static function () use ($db, $usuarioID): int {
+            $statement = $db->prepare('SELECT COUNT(*) FROM pcsphp_users_otp_secrets WHERE user = ?');
+            $statement->execute([$usuarioID]);
+            return (int) $statement->fetchColumn();
+        };
+
+        try {
+            $antes = $contar();
+            OTPSecretsUsersMapper::getTOTPData($usuarioID);
+            OTPSecretsUsersMapper::getOTPData($usuarioID, OTPSecretsUsersMapper::METHOD_ONE_USE_CODE);
+            $despues = $contar();
+            $check(
+                $antes === 0 && $despues === 0,
+                'llamar a los dos buscadores sobre un usuario SIN filas no crea ninguna',
+                "antes {$antes}, después {$despues} — un buscador que crea es el defecto D2"
+            );
+        } finally {
+            $db->prepare('DELETE FROM pcsphp_users_otp_secrets WHERE user = ?')->execute([$usuarioID]);
+            $db->prepare('DELETE FROM user_system_profile WHERE belongsTo = ?')->execute([$usuarioID]);
+            $db->prepare('DELETE FROM pcsphp_users WHERE id = ?')->execute([$usuarioID]);
+        }
+    }
+    echoTerminal(' ');
+
     //──── 2. El registro de rutas es puro ───────────────────────────────────────────────
     echoTerminal('[2/3] Registrar rutas no debe disparar una migración de datos...');
 

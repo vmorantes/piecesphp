@@ -110,6 +110,18 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Seguridad
 
+- **`db-backup` cifraba las contraseñas y NADIE las descifraba: una restauración dejaba a todos
+  los usuarios sin poder entrar.** Severidad alta, y está embarcado en todos los despliegues.
+  Medido de punta a punta —volcado, restaurado en una base de usar y tirar, intento de login—:
+  `password_verify` contra lo restaurado devuelve **false**.
+    - El cifrado tampoco protegía nada: la clave era la **cadena literal `'ENCRYPTION_KEY'`**
+      escrita en el propio archivo, y aparecía **una sola vez en todo el código** —en la llamada
+      que cifra—. No hay ni un `decrypt` con esa clave en ninguna parte.
+    - **Si tienes volcados viejos, no están perdidos**: la columna `password` se recupera con
+      `BaseHashEncryption::decrypt($valor, 'ENCRYPTION_KEY')`, comprobado.
+    - `bin/cli unit-tests:core/db-backup-round-trip` fija el viaje de ida y vuelta, y se validó
+      rompiéndola: con la transformación puesta, falla 2 de 4.
+
 - **Dos `false` que eran un fatal en ejecución, no un aviso de tipos.**
     - `src/index.php`: al recorrer el directorio de sesiones expiradas, la fecha se sacaba del
       **nombre del archivo**. Un archivo que no encajara con el patrón hacía que
@@ -469,6 +481,19 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
   interruptor.** Los otros 9, en controladores, siguen contados como candidatos.
 
 ## Herramientas
+
+- **`bin/cli snapshot compare` exige que la volatilidad esté DECLARADA.** Un comparador con
+  ruido enseña a ignorar los diffs, igual que un rojo permanente enseña a ignorar el rojo. El
+  registro cerrado vive en `files/dev/volatile-state.json`, cada entrada con su razón medida, y
+  la comparación **falla con salida 1 ante cualquier cambio no declarado**.
+    - Dos entradas, las dos comprobadas: `login_attempts`, que escribe una fila por intento de
+      acceso, y `src/app/lang/missing-lang-messages/`, donde el framework anota cada cadena sin
+      traducir — **una escritura en un camino de lectura, y deliberada**.
+
+- **El trinquete acota la declaración del reparto contra el `.neon`.** Una supresión cambia el
+  `.neon` y un arreglo cambia el código: si se declaran cero supresiones y el bloque de
+  `ignoreErrors` creció, la declaración es imposible y la puerta lo dice. **No verifica la
+  atribución —se puede seguir mintiendo dentro de la cota— pero descarta lo imposible.**
 
 - **`bin/cli snapshot`: fotografía la base entera y el árbol servido, y compara dos fotos.**
   Por tabla guarda el conteo, un hash agregado y **un hash por fila indexado por su clave

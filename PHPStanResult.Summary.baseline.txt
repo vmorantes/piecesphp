@@ -54,6 +54,11 @@ HISTORIA DE ESTE BASELINE
     Solo en 8.4: CERO. El piso no aporta ningún error propio.
 
 [REPARTO] 859 <- 874 = 4 arreglos + 11 supresiones
+[ENTRADAS-NEON] 51
+    Entradas de ignoreErrors cuando se midió 874. Es la COTA a la declaración de arriba:
+    una supresión cambia el .neon y un arreglo cambia el código, así que declarar cero
+    supresiones con el .neon creciendo es imposible. No verifica la atribución —se puede
+    seguir mintiendo dentro de la cota— pero descarta la declaración imposible.
 
 859 (2026-08-23) — 15 menos, Y NO SON QUINCE ARREGLOS: 4 arreglos y 11 supresiones
     documentadas. La distinción importa porque el trinquete premia que la cifra baje, y una

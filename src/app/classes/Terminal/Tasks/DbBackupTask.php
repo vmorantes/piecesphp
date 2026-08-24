@@ -151,13 +151,9 @@ class DbBackupTask extends TerminalTaskAbstract
                     'where' => [
                         "TABLE_NAME" => 'WHERE COMPLETAMENTE FORMADO SIN LA PALABRA WHERE',
                     ],
-                    'transformations' => [
-                        UsersModel::TABLE => [
-                            'password' => function ($val) {
-                                return BaseHashEncryption::encrypt($val, 'ENCRYPTION_KEY');
-                            },
-                        ],
-                    ],
+                    //No cifres el password al exportar: se cifraba y NADIE lo descifraba al
+                    //restaurar, asi que la restauracion dejaba a todos sin poder entrar.
+                    'transformations' => [],
                 ]);
                 $outputPath = $outputPlugin->getFilename();
 

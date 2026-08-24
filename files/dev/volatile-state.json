@@ -1,0 +1,17 @@
+{
+  "why": "Estado que se ESPERA que cambie solo. Un comparador con ruido enseña a ignorar los diffs, igual que un rojo permanente enseña a ignorar el rojo. Cada entrada se declara ANTES de medir y con su razón: declararla después de ver el diff es adaptar la regla al resultado. `bin/cli snapshot compare` los separa del resto y FALLA ante cualquier cambio no declarado.",
+  "rules": [
+    "Una entrada solo entra si se ha MEDIDO que cambia, no si se sospecha. Ver T46.",
+    "Una entrada legítima describe algo que el sistema hace A PROPÓSITO. Si al escribir la razón resulta que no la hay, es un defecto y va arreglado, no declarado.",
+    "LA LISTA SOLO PUEDE ENCOGER."
+  ],
+  "tables": {
+    "login_attempts": "Cada intento de acceso —acertado o fallido— escribe su fila. Es el registro de auditoría para el que existe el módulo, así que crece en cualquier recorrido que toque el login. Medido: una petición a /users/login/ añade una fila."
+  },
+  "files": {
+    "src/app/lang/missing-lang-messages/": "El framework anota cada cadena sin traducir para que `bin/cli scan-missing-lang` pueda encontrarla. Es una ESCRITURA EN UN CAMINO DE LECTURA, y es deliberada: pedir una página pública en otro idioma crea archivos aquí. Medido: dos peticiones a /en/ y /fr/ crearon dos archivos .to-translate."
+  },
+  "retired": {
+    "time_on_platform": "RETIRADA. Se declaró por una observación única que NO se pudo reproducir: dos fotos seguidas sin nada en medio salen idénticas. Ver la retractación en T46. Queda la entrada vacía a propósito, para que quede constancia de que se comprobó."
+  }
+}

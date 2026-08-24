@@ -345,7 +345,7 @@ project://src/app/classes/Terminal/Tasks/BundleTask.php
 	argument.type (Líneas: 125)
 project://src/app/classes/Terminal/Tasks/DbBackupTask.php
 	method.nonObject (Líneas: 96)
-	argument.type (Líneas: 99, 164, 166, 169)
+	argument.type (Líneas: 99, 160, 162, 165)
 project://src/app/classes/Terminal/Tasks/FixWebmDurationTask.php
 	foreach.nonIterable (Líneas: 121)
 project://src/app/classes/Terminal/Tasks/ProcessQueueTask.php

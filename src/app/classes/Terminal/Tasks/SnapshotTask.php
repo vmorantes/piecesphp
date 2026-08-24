@@ -33,6 +33,8 @@ use PiecesPHP\TerminalData;
 class SnapshotTask extends TerminalTaskAbstract
 {
 
+    const VOLATILE_RELATIVE_PATH = 'files/dev/volatile-state.json';
+
     //Por encima de esto no hay hash por fila: se guarda el conteo, un hash agregado, y SE DICE.
     const MAX_ROWS_PER_TABLE = 20000;
 
@@ -230,6 +232,19 @@ class SnapshotTask extends TerminalTaskAbstract
         $before = $load($parts[0]);
         $after = $load($parts[1]);
 
+        //Un comparador con ruido ensena a ignorar los diffs. Lo declarado se separa; lo no
+        //declarado hace fallar la comparacion.
+        $repoRoot = dirname(rtrim(str_replace('\\', '/', basepath('')), '/'));
+        $volatileRaw = @file_get_contents($repoRoot . '/' . self::VOLATILE_RELATIVE_PATH);
+        $volatile = is_string($volatileRaw) ? json_decode($volatileRaw, true) : null;
+        if (!is_array($volatile)) {
+            echoTerminal("\e[31mERROR:\e[39m no se pudo leer " . self::VOLATILE_RELATIVE_PATH . ': sin el registro de volatilidad la comparación no significa nada.');
+            exit(1);
+        }
+        $volatileTables = array_keys((array) ($volatile['tables'] ?? []));
+        $volatileFiles = array_keys((array) ($volatile['files'] ?? []));
+        $declared = [];
+
         $findings = 0;
 
         echoTerminal("\e[32m── BASE DE DATOS ──\e[39m");
@@ -243,6 +258,10 @@ class SnapshotTask extends TerminalTaskAbstract
                 continue;
             }
             if ($dataBefore['hash'] === $dataAfter['hash']) {
+                continue;
+            }
+            if (in_array($table, $volatileTables, true)) {
+                $declared[] = 'tabla ' . $table;
                 continue;
             }
             $delta = (int) $dataAfter['count'] - (int) $dataBefore['count'];
@@ -278,27 +297,55 @@ class SnapshotTask extends TerminalTaskAbstract
         if (count($filesBefore) === 0 && count($filesAfter) === 0) {
             echoTerminal("  (no se censaron archivos en alguna de las dos fotos)");
         }
-        foreach ($filesAfter as $path => $stamp) {
-            if (!array_key_exists($path, $filesBefore)) {
-                echoTerminal("  \e[31m+ {$path}\e[39m");
-                $findings++;
-            } elseif ($filesBefore[$path] !== $stamp) {
-                echoTerminal("  \e[33m~ {$path}\e[39m");
-                $findings++;
+        $esVolatil = static function (string $path) use ($volatileFiles): bool {
+            foreach ($volatileFiles as $prefix) {
+                if (str_starts_with($path, (string) $prefix)) {
+                    return true;
+                }
             }
+            return false;
+        };
+        foreach ($filesAfter as $path => $stamp) {
+            $cambio = !array_key_exists($path, $filesBefore) ? '+' : ($filesBefore[$path] !== $stamp ? '~' : null);
+            if ($cambio === null) {
+                continue;
+            }
+            if ($esVolatil($path)) {
+                $declared[] = 'archivo ' . $path;
+                continue;
+            }
+            echoTerminal("  \e[31m{$cambio} {$path}\e[39m");
+            $findings++;
         }
         foreach ($filesBefore as $path => $stamp) {
-            if (!array_key_exists($path, $filesAfter)) {
-                echoTerminal("  \e[31m- {$path}\e[39m");
-                $findings++;
+            if (array_key_exists($path, $filesAfter)) {
+                continue;
+            }
+            if ($esVolatil($path)) {
+                $declared[] = 'archivo ' . $path;
+                continue;
+            }
+            echoTerminal("  \e[31m- {$path}\e[39m");
+            $findings++;
+        }
+
+        if (count($declared) > 0) {
+            echoTerminal("\e[32m── VOLATILIDAD DECLARADA (no cuenta) ──\e[39m");
+            foreach (array_unique($declared) as $line) {
+                echoTerminal("  \e[90m· {$line}\e[39m");
             }
         }
 
         echoTerminal('');
-        echoTerminal($findings === 0
-            ? "\e[32mSIN DIFERENCIAS:\e[39m la base y el árbol están igual que antes."
-            : "\e[33mDIFERENCIAS: {$findings}\e[39m — cada una hay que justificarla o arreglarla.");
-        echoTerminal("\e[32m*** Comparación de fotos, tarea finalizada ***\e[39m");
+        if ($findings === 0) {
+            echoTerminal("\e[32mSIN DIFERENCIAS NO DECLARADAS:\e[39m " . count(array_unique($declared)) . ' cambio(s) declarado(s) en el registro.');
+            echoTerminal("\e[32m*** Comparación de fotos, tarea finalizada ***\e[39m");
+            exit(0);
+        }
+        echoTerminal("\e[31mDIFERENCIAS NO DECLARADAS: {$findings}\e[39m");
+        echoTerminal("\e[33mCada una se justifica —y entra en " . self::VOLATILE_RELATIVE_PATH . "— o se arregla.\e[39m");
+        echoTerminal("\e[31m*** Comparación de fotos, tarea finalizada CON DIFERENCIAS ***\e[39m");
+        exit(1);
     }
 
     public static function route(string $startRoute = '', ?string $namePrefix = null): Route

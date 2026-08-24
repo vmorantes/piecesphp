@@ -211,6 +211,32 @@ if (!array_key_exists($baselineTotal, $splitsByTotal) && $baselineTotal !== $fir
     exit(1);
 }
 
+//COTA A LA MENTIRA, que no es verificacion: una supresion cambia el .neon, un arreglo cambia
+//el codigo. No demuestra que la atribucion sea cierta, pero descarta la declaracion imposible.
+$countIgnores = static function (string $file): int {
+    $text = (string) @file_get_contents($file);
+    return preg_match_all('/^\s*-\s*(identifier:|message:|$)/mu', $text, $ignored);
+};
+$neonPath = dirname($baselinePath) . '/bin/phpstan.neon';
+$neonPath = is_file($neonPath) ? $neonPath : dirname(__FILE__) . '/phpstan.neon';
+$ignoresNow = $countIgnores($neonPath);
+if (preg_match('/\[ENTRADAS-NEON\]\s*(\d+)/u', $baselineText, $entradas) === 1) {
+    $ignoresBefore = (int) $entradas[1];
+    $muted = $splitsByTotal[$baselineTotal]['muted'] ?? 0;
+    $grew = $ignoresNow - $ignoresBefore;
+    if ($muted === 0 && $grew > 0) {
+        fwrite(STDERR, "\nTRINQUETE: LA DECLARACION NO CUADRA CON EL .NEON. Se declaran 0 supresiones y el bloque de "
+            . "ignoreErrors creció en {$grew} entrada(s).\n");
+        exit(1);
+    }
+    if ($muted > 0 && $grew <= 0) {
+        fwrite(STDERR, "\nTRINQUETE: LA DECLARACION NO CUADRA CON EL .NEON. Se declaran {$muted} supresiones y el bloque "
+            . "de ignoreErrors NO creció.\n");
+        exit(1);
+    }
+    echo "TRINQUETE: cota del .neon — {$ignoresBefore} -> {$ignoresNow} entradas de ignoreErrors, coherente con lo declarado.\n";
+}
+
 if (array_key_exists($baselineTotal, $splitsByTotal)) {
     $s = $splitsByTotal[$baselineTotal];
     $declared = $s['fixed'] + $s['muted'];

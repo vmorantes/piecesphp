@@ -1415,11 +1415,11 @@
          🪪  method.nonObject                                                                                                                                                  
   99     Parameter Nr.1 $db of class PiecesPHP\Core\Database\Export\Exporter constructor expects PiecesPHP\Core\Database\Database, PiecesPHP\Core\Database\Database|null given.  
          🪪  argument.type                                                                                                                                                     
-  164    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
+  160    Parameter Nr.1 $filename of function file_exists expects string, string|null given.                                                                                     
          🪪  argument.type                                                                                                                                                     
-  166    Parameter Nr.1 $filename of function chmod expects string, string|null given.                                                                                           
+  162    Parameter Nr.1 $filename of function chmod expects string, string|null given.                                                                                           
          🪪  argument.type                                                                                                                                                     
-  169    Parameter Nr.1 $path of function basename expects string, string|null given.                                                                                            
+  165    Parameter Nr.1 $path of function basename expects string, string|null given.                                                                                            
          🪪  argument.type                                                                                                                                                     
  ------ ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
 
