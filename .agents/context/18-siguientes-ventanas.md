@@ -6198,3 +6198,54 @@ ruido de esta máquina. **La cifra sólida es la otra: 0 consultas y 1,228 ms de
 Se deja escrito el A/B con su repetición precisamente porque, de haber medido solo A y B una vez,
 la media decía 15,5 ms y habría sido una cifra inventada.
 
+
+## T63 · EL ENDPOINT DE CRONJOBS — cuatro observaciones, verificadas y SIN ARREGLAR
+
+Las señaló el propietario y **se comprueban antes de anotarlas**, no se copian.
+
+### 4.1 · La llave se acepta también por parámetro GET
+
+`APIController:1506-1508`:
+
+```php
+$cronJobKeyOnRequest = $request->getHeaderLine('Cron-Job-Key');
+$cronJobKeyOnGet = $request->getQueryParam('Cron-Job-Key');
+$cronJobKeyIsValid = $cronJobKeyOnRequest === $CronJobKey || $cronJobKeyOnGet === $CronJobKey;
+```
+
+Los parámetros de URL quedan en registros de acceso, en el historial del navegador y en el
+`Referer`. **Hoy nadie enlaza esa URL: es latente.** Deja de serlo el día que un botón del panel
+la enlace — que es justo lo que propone la IDEA 2 del registro de ideas.
+
+### 4.2 · Dos variables que se calculan y no se usan
+
+`APIController:1517-1518` calcula `$currentUser` y `$isLogged`. **Comprobado: no vuelven a
+aparecer en el resto del método.**
+
+### 4.3 · NO hay libro de ejecución
+
+`CronJobTask::shouldExecute()` es esto entero:
+
+```php
+return (bool) call_user_func($this->executionCondition);
+```
+
+**Cero coincidencias** de `lock`, `lastRun`, `hasRun` o equivalente en todo el archivo. Sin
+cerrojo y sin registro de «esto ya corrió», **dos disparadores en el mismo minuto ejecutan la
+tarea DOS VECES**.
+
+### 4.4 · El disparador HTTP solo equivale al CLI si se llama CADA MINUTO
+
+`dailyAt()` compara la hora **exacta**:
+
+```php
+return $this->getEvalDate()->format('H:i') === $time;
+```
+
+Pinchado cada hora, una tarea con `dailyAt("03:00")` no se ejecuta casi nunca. Y no falla:
+`execute()` devuelve `['success' => false, 'message' => 'Omitida…', 'skipped' => true]`.
+**Silencio, no error.**
+
+> **Las cuatro se quedan sin arreglar**, según lo pedido. La 4.3 es la pieza que comparten las
+> dos ideas del registro: arreglada una vez, sirve a las dos.
+
