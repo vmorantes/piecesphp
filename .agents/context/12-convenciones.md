@@ -1,5 +1,22 @@
 # 12 — Convenciones y reglas de trabajo
 
+## Los tres roles — decidido por el PROPIETARIO
+
+Se usan **desde ahora** en todo lo que se escriba aquí: documentos, mensajes de commit y notas.
+
+| Rol | Qué hace |
+| :-- | :-- |
+| **PROPIETARIO** | Decide y aprueba |
+| **ARQUITECTO** | Diseña, mide, verifica y redacta las instrucciones |
+| **CODER** | Implementa y mide |
+
+**Existen para que un documento pueda decir quién hizo algo y quién lo aprobó sin depender de
+nombres de herramienta.** Una decisión atribuida a una marca envejece con la marca; atribuida a un
+rol, sigue leyéndose dentro de diez años.
+
+> **`CLAUDE.md` no se renombra**: es un nombre de archivo que una herramienta concreta busca, no un
+> rol.
+
 ## Idioma: la regla de oro
 
 | Qué | Idioma |
