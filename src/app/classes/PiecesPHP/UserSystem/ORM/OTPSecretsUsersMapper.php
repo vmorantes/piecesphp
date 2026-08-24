@@ -289,6 +289,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
         if ($method !== self::METHOD_ONE_USE_CODE) {
             return null;
         }
+        //Llama a getOTPData(): si el buscador vuelve a crear, esto se cuelga.
         $existing = self::getOTPData($userID, $method);
         if ($existing !== null) {
             return $existing;
@@ -338,6 +339,7 @@ class OTPSecretsUsersMapper extends BaseEntityMapper
      */
     public static function createTOTPData(int $userID)
     {
+        //Llama a getTOTPData(): si el buscador vuelve a crear, esto se cuelga.
         $existing = self::getTOTPData($userID);
         if ($existing !== null) {
             return $existing;

@@ -125,6 +125,29 @@ dolió y no lo escribimos en ningún sitio que alcanzara a los otros cuatro.**
 Y el corolario que la hace verificable: **una decisión escrita en un archivo compartido puede
 tener una puerta detrás**. Las siete de la tabla que no la tenían, no la tuvieron.
 
+### LEY 9 — UNA OPERACIÓN DOCUMENTADA EN UNA SOLA DIRECCIÓN TIENE UN INVERSO SIN ESTRENAR
+
+**No está roto: está SIN ESTRENAR, que es peor, porque nadie sabe que lo está.** Un inverso roto
+se descubre al usarlo; un inverso sin estrenar se descubre **el día que hace falta**, que por
+definición es el peor día.
+
+El caso que la funda: **ninguna de las dos guías que documentaban `db-backup` decía cómo
+restaurar**. No es un descuido de redacción — es la razón de que el defecto sobreviviera. Nadie
+escribió el procedimiento de vuelta, así que nadie lo ejecutó, así que nadie descubrió que
+dejaba a todos fuera.
+
+> **La regla operativa: documentar una operación incluye documentar su inverso, y el par se
+> prueba entero, no cada mitad por su lado.** «Exporta bien» y «restaura bien» son dos
+> afirmaciones que pueden ser las dos ciertas mientras el viaje completo no funciona.
+
+Y su forma más traicionera, porque parece cobertura: **una prueba que verifica el VALOR
+DEVUELTO del inverso y no su EFECTO**. La suite del 2FA comprueba que `toggle2FA(false)`
+devuelve `true`; no comprueba que la cuenta deje de pedir código. La ida se verifica, la vuelta
+se supone.
+
+**La auditoría completa de inversos del framework está en T49**: de once operaciones con
+inverso real, **tres tienen el viaje probado y ocho no**.
+
 ### El baseline vigente y su método
 
 | Cifra | Con qué se midió |
@@ -2091,12 +2114,31 @@ EJECUTAR, no leer.** Dos casos, y el primero es el más serio de la campaña:
 - **`checkRouteOverrides` pide borrar una sobreescritura viva** si su decisión se muda a un
   método que ella llama (T47). El veredicto no era una duda: era «Bórralo».
 
-El matiz que la hace utilizable, porque no toda comprobación de texto sobra:
+El afinado, que es la forma corta de recordarlo:
+
+> **«¿CONTIENE X?» SE PUEDE LEER; «¿HACE X?» HAY QUE EJECUTARLO.**
 
 | Lo que se pregunta | ¿Basta leer el cuerpo? |
 | :-- | :-- |
 | «¿contiene X?» — una llamada deprecada, un `die($string)` | **Sí.** Está en el texto o no está |
 | «¿HACE X?» — escribe, decide, valida | **No.** Hacer se delega; contener no |
+
+**Y la evidencia que la sostiene, que es lo que la hace creíble:** de las ocho comprobaciones
+de `verify-integrity`, **las que preguntan lo primero están sanas** —deprecadas, docblocks sin
+cerrar, PSR-4, eclipses, marcas del instrumental, comentarios narrativos— y **las dos que
+preguntaban lo segundo son exactamente las dos que fallaron**: la separación de escrituras del
+OTP y el clasificador de sobreescrituras de rutas.
+
+#### Y el matiz del veredicto, que también enseña
+
+`«YA NO DECIDE NADA: Bórralo»` **no es una duda: es un imperativo.**
+
+> **UNA COMPROBACIÓN QUE EMITE ÓRDENES TIENE QUE SER MÁS FIABLE QUE UNA QUE EMITE AVISOS**,
+> porque **nadie verifica una orden antes de obedecerla**. Un aviso invita a mirar; una orden
+> invita a ejecutar.
+>
+> Donde no se pueda garantizar ese nivel —y una comprobación que lee el cuerpo no puede—, **el
+> veredicto tiene que ser una pregunta y no un mandato**.
 
 ### CUANDO UNA PUERTA APRUEBA ALGO QUE LUEGO RESULTA DIVERGENTE, EL DEFECTO ES SU ALCANCE
 
@@ -4892,3 +4934,47 @@ módulo como el resto, o dejarlo y añadir la limpieza a `clean-all`.
 
 > **Y lo que sí cambia hoy: entra en el registro de volatilidad declarada** con esta razón
 > escrita, para que las 184 comparaciones del recorrido de E2 no se ensucien con él.
+
+## T49 · AUDITORÍA DE INVERSOS — qué operaciones tienen vuelta y cuáles están sin estrenar
+
+**La ley que la motiva está en T0 · LEY 9.** Aquí está la tabla que pidió el propietario, con
+las dos preguntas por operación: **¿está documentado el inverso?** y **¿está probado el viaje
+completo?**
+
+*Método: inventario de las 15 tareas de `bin/cli help`, más las parejas del código
+(`encrypt`/`decrypt` por clave con un analizador de argumentos, exportador contra importador,
+`toggle2FA` en las dos direcciones, `SchemeCreator`).*
+
+| Operación | Su inverso | ¿Documentado? | ¿Viaje completo probado? |
+| :-- | :-- | :-- | :-- |
+| **`db-backup`** | Restaurar (`mysql < archivo.sql`) | **Sí, desde hoy** — antes NO, y ahí estuvo el defecto | **Sí** — `db-backup-round-trip`, 5/5, validada rompiéndola |
+| **`encrypt`** | `decrypt` | Parcial | **Sí, auditado por clave**: `$key`, `$this->password`, `self::TABLE`, `self::class` y la de por defecto **tienen todas su inverso**. La que no lo tenía era `'ENCRYPTION_KEY'`, y ya no existe |
+| **`snapshot`** | `snapshot compare` | Sí | Sí |
+| **Activar 2FA** (`toggle2FA(true)` + `confirm2FA`) | `toggle2FA(false)` | Parcial | **NO. Se comprueba que devuelve `true`, no que la cuenta DEJE de pedir código** |
+| **Exportar usuarios** (`UsersExporter`) | Importar (`ImporterUsers`) | No | **NO, y hay un desajuste visible**: el importador aplica `password_hash()` al valor de la columna, así que **importar lo exportado hashearía un hash** |
+| **`bundle`** | Desempaquetar / desplegar | No | **NO** |
+| **Crear tablas** (`SchemeCreator`) | Borrarlas | No | **NO** — `SchemeCreator` **no emite un solo `DROP`**: 0 apariciones |
+| **Activar módulo** (constante en `constants.php`) | Apagarlo | Sí (doc 04) | **NO** — ningún recorrido corre nunca con módulos apagados, y es justo lo que protegen las 65 ramas del motivo 2 |
+| **Encolar** | `process-queue` | Parcial | **NO** |
+| **`scan-missing-lang`** | Aplicar las traducciones | No | **NO** |
+| **Emitir token** (`SessionToken::generateToken`) | Expirar / invalidar | No | **NO** — no hay método de invalidación explícita; la salida es `setMinimumDateCreated`, que invalida **todas** las sesiones a la vez |
+| **`clean-*`** | — | — | Sin inverso por naturaleza |
+
+### Lo que enseña el recuento
+
+**De once operaciones con inverso real, TRES tienen el viaje probado y OCHO no.** Y las tres
+probadas lo están porque las hemos tocado esta campaña, no porque el proyecto las cuidara.
+
+**Los tres que más me preocupan, por este orden:**
+
+1. **`SchemeCreator` sin `DROP`.** La regla 7 dice que el SQL de las tablas se genera y no se
+   escribe a mano — pero **solo hacia adelante**. Deshacer un módulo obliga a escribir SQL a
+   mano, que es exactamente lo que la regla prohíbe. **Y E3 va a borrar módulos.**
+2. **Exportar/importar usuarios.** No es «sin estrenar»: es que la ida y la vuelta **no encajan**
+   —una exporta hashes, la otra hashea lo que recibe—. Misma familia que el defecto del
+   respaldo, y detectado por leer, no por medir: **hay que medirlo antes de afirmarlo**.
+3. **Desactivar el 2FA.** La suite comprueba el valor devuelto y no el efecto. Es la forma
+   «documentada en una dirección» aplicada a una prueba: la ida se verifica, la vuelta se
+   supone.
+
+**No se ha arreglado nada de esto**, que era el encargo. La tabla está para decidir por dónde.

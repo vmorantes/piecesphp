@@ -94,6 +94,26 @@ class CleanLogsTask extends TerminalTaskAbstract
                 chmod($deprecationsLogFile, 0664);
                 $message[] = "\e[34mdeprecations.log vaciado.\e[39m";
 
+                //Anotaciones de traducciones faltantes. Su consumidor es `scan-missing-lang`,
+                //y sin limpieza el directorio crece sin fin: llegó a 1.586 archivos.
+                $missingLangDirectory = app_basepath('lang/missing-lang-messages');
+                if (is_dir($missingLangDirectory)) {
+                    $borrados = 0;
+                    foreach (glob($missingLangDirectory . '/*/*/*.to-translate') ?: [] as $missingFile) {
+                        if (@unlink($missingFile)) {
+                            $borrados++;
+                        }
+                    }
+                    //Los directorios de grupo e idioma quedan vacíos: se retiran de dentro afuera.
+                    foreach (glob($missingLangDirectory . '/*/*', \GLOB_ONLYDIR) ?: [] as $langDirectory) {
+                        @rmdir($langDirectory);
+                    }
+                    foreach (glob($missingLangDirectory . '/*', \GLOB_ONLYDIR) ?: [] as $groupDirectory) {
+                        @rmdir($groupDirectory);
+                    }
+                    $message[] = "\e[34mmissing-lang-messages vaciado ({$borrados} anotaciones).\e[39m";
+                }
+
                 //Histórico de logs de errores
                 $oldsErrorLogsHandler = new DirectoryObject($oldsErrorLogsDirectory);
                 if ($oldsErrorLogsHandler->directoryExists()) {

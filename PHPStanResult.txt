@@ -1022,9 +1022,9 @@
  ------ --------------------------------------------------------------------------------------------------------------- 
   project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php                                                 
  ------ --------------------------------------------------------------------------------------------------------------- 
-  374    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
+  376    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
          🪪  assign.propertyType                                                                                        
-  401    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
+  403    Property PiecesPHP\UserSystem\ORM\OTPSecretsUsersMapper::$twoAuthFactorQRViewed (string) does not accept int.  
          🪪  assign.propertyType                                                                                        
  ------ --------------------------------------------------------------------------------------------------------------- 
 
@@ -1783,11 +1783,11 @@
  ------ --------------------------------------------------------------------------------------- 
   project://src/app/core/Config.php                                                                    
  ------ --------------------------------------------------------------------------------------- 
-  813    Parameter Nr.1 $category of function setlocale expects int, int|string|null given.       
+  815    Parameter Nr.1 $category of function setlocale expects int, int|string|null given.       
          🪪  argument.type                                                                      
-  929    Static property PiecesPHP\Core\Config::$appLang (string) does not accept string|null.  
+  931    Static property PiecesPHP\Core\Config::$appLang (string) does not accept string|null.  
          🪪  assign.propertyType                                                                
-  1092   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                 
+  1094   Parameter Nr.1 $string of function mb_strlen expects string, bool given.                 
          🪪  argument.type                                                                      
  ------ --------------------------------------------------------------------------------------- 
 

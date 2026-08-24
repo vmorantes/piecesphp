@@ -262,7 +262,7 @@ project://src/app/classes/PiecesPHP/UserSystem/Authentication/TOTPStandard.php
 project://src/app/classes/PiecesPHP/UserSystem/Controllers/UserSystemFeaturesController.php
 	argument.type (Líneas: 301)
 project://src/app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php
-	assign.propertyType (Líneas: 374, 401)
+	assign.propertyType (Líneas: 376, 403)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/OrganizationPreviousExperiencesMapper.php
 	property.nonObject (Líneas: 271, 294)
 project://src/app/classes/PiecesPHP/UserSystem/Profile/SubMappers/PreviousExperiencesMapper.php
@@ -408,8 +408,8 @@ project://src/app/core/AppHelpers.php
 	offsetAccess.invalidOffset (Líneas: 2346)
 	offsetAccess.notFound (Líneas: 3139, 3140)
 project://src/app/core/Config.php
-	argument.type (Líneas: 813, 1092)
-	assign.propertyType (Líneas: 929)
+	argument.type (Líneas: 815, 1094)
+	assign.propertyType (Líneas: 931)
 project://src/app/core/Utilities.php
 	return.type (Líneas: 328, 591)
 	foreach.nonIterable (Líneas: 867)

@@ -647,7 +647,9 @@ class Config
                 $noScanLangs = is_array($noScanLangs) ? $noScanLangs : [];
                 $noScanLangGroups = get_config('no_scan_lang_groups');
                 $noScanLangGroups = is_array($noScanLangGroups) ? $noScanLangGroups : [];
-                if (!in_array($reviewLang, $noScanLangs) && !in_array($groupName, $noScanLangGroups)) {
+                //Solo en LOCAL: su consumidor es `bin/cli scan-missing-lang`, una herramienta de
+                //desarrollo, y en producción esto era un file_exists() por cada llamada a __().
+                if (is_local() && !in_array($reviewLang, $noScanLangs) && !in_array($groupName, $noScanLangGroups)) {
                     if ($isMissingMessage && !$messageIsEmpty) {
                         $missingMessagesFoldersPaths = [
                             $missingMessagesBaseFolderPath,

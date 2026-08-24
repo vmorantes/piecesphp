@@ -900,8 +900,11 @@ class VerifyIntegrityTask extends TerminalTaskAbstract
                 }
 
                 if (!$delega && !self::routeMethodDecides($method, $body, $canonical)) {
-                    $failures[] = $key . ' — está registrado pero YA NO DECIDE NADA: su cuerpo se limita a'
-                        . ' devolver si la ruta vino vacía, que es lo que hace el trait. Bórralo.';
+                    //Aviso, no orden: esta comprobación LEE el cuerpo, y nadie verifica una orden
+                    //antes de obedecerla. Ver T21.
+                    $failures[] = $key . ' — está registrado y su cuerpo se limita a devolver si la ruta'
+                        . ' vino vacía, que es lo que hace el trait. ¿SIGUE DECIDIENDO ALGO? Compruébalo'
+                        . ' antes de borrarlo: esta comprobación lee el cuerpo y no ve lo que se delega.';
                 }
             }
         }

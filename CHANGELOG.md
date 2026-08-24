@@ -198,6 +198,21 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
 
 ## Rendimiento
 
+- **El registro de traducciones faltantes deja de escribir en producción.** `Config::i18n()`
+  anotaba cada cadena sin traducir sin ninguna guarda de entorno, así que **cada página servida
+  hacía un `file_exists()` por llamada a `__()`** también en producción — y una página del panel
+  hace decenas. Su consumidor es `bin/cli scan-missing-lang`, una herramienta de desarrollo, y
+  nadie lee ese directorio en producción.
+    - Ahora solo anota en local, **coherente con la decisión ya tomada para las deprecaciones**:
+      abortan en local, se registran en producción. No se inventa criterio nuevo.
+    - Comprobado en las dos direcciones: con `is_local()` verdadero escribe, con falso no.
+    - **Salida disponible y no implementada**: una constante de módulo permitiría recolectar
+      contra tráfico real en un despliegue. Se descarta por ahora porque sería un interruptor
+      más que configurar por una necesidad hipotética.
+
+- **`clean-logs` vacía `missing-lang-messages`.** También crece en local: había **1.586
+  anotaciones en 61 grupos** y nada las retiraba.
+
 - **Un `foreach` duplicado y anidado sobre sí mismo, en el mapper del que se clonan los
   módulos.** `objectToMapper()` recorría `$defaultMetaPropertiesValues` dentro de un bucle
   idéntico sobre el mismo array: **cada meta-propiedad por defecto se comprobaba una vez por
@@ -463,6 +478,17 @@ UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar
       hasta esta versión, un árbol que no compila pasaba por bueno.
 
 ## Cambios internos
+
+- **Una guarda de una línea contra un cuelgue**: `createOTPData()` y `createTOTPData()` llaman a
+  su buscador para ser idempotentes, así que el día que alguien vuelva a hacer que el buscador
+  cree, no habrá un defecto: habrá una **recursión infinita**, y se descubrirá por tiempo de
+  espera agotado, que es la peor forma de descubrirlo. Ya nos costó dos ejecuciones al intentar
+  reintroducir el defecto para validar una prueba.
+
+- **`verify-integrity` cambia una orden por una pregunta.** Su clasificador de sobreescrituras
+  decía «YA NO DECIDE NADA: Bórralo», y **nadie verifica una orden antes de obedecerla**. Como
+  la comprobación lee el cuerpo y no ve lo que se delega, ahora pregunta si sigue decidiendo y
+  pide comprobarlo antes de borrar.
 
 - **Recorte de comentarios narrativos: de 132 bloques y 729 líneas de prosa a 91 y 486.** Los
   41 bloques recortados eran todos de esta campaña, y pasan al reparto que fija la regla: la
