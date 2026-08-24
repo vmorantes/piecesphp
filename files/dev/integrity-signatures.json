@@ -1491,6 +1491,7 @@
     "app/classes/PiecesPHP/UserSystem/ORM/OTPSecretsUsersMapper.php": [
         "OTPSecretsUsersMapper::__construct",
         "OTPSecretsUsersMapper::allBy",
+        "OTPSecretsUsersMapper::confirm2FA",
         "OTPSecretsUsersMapper::createOTPAlternativesRecords",
         "OTPSecretsUsersMapper::createOTPData",
         "OTPSecretsUsersMapper::createTOTPData",
@@ -1944,9 +1945,12 @@
         "TerminalController::routeName",
         "TerminalController::routes"
     ],
+    "app/classes/Terminal/Jobs/PreferSlugsFiller.php": [
+        "PreferSlugsFiller::mappersWithSlug",
+        "PreferSlugsFiller::run"
+    ],
     "app/classes/Terminal/Mappers/QueueJobMapper.php": [
         "QueueJobMapper::__construct",
-        "QueueJobMapper::migrate",
         "QueueJobMapper::model"
     ],
     "app/classes/Terminal/Tasks/BundleTask.php": [
@@ -2010,6 +2014,31 @@
         "ScanMissingLangTask::route",
         "ScanMissingLangTask::searchFunctionUsesWithParser"
     ],
+    "app/classes/Terminal/Tasks/SchemeCreateTask.php": [
+        "SchemeCreateTask::__construct",
+        "SchemeCreateTask::main",
+        "SchemeCreateTask::route"
+    ],
+    "app/classes/Terminal/Tasks/SchemeDropTask.php": [
+        "SchemeDropTask::__construct",
+        "SchemeDropTask::main",
+        "SchemeDropTask::route"
+    ],
+    "app/classes/Terminal/Tasks/SchemeSqlTask.php": [
+        "SchemeSqlTask::declaredClassOf",
+        "SchemeSqlTask::discover",
+        "SchemeSqlTask::emit",
+        "SchemeSqlTask::mapperDirectoriesUnder",
+        "SchemeSqlTask::requestedModule"
+    ],
+    "app/classes/Terminal/Tasks/SnapshotTask.php": [
+        "SnapshotTask::__construct",
+        "SnapshotTask::compare",
+        "SnapshotTask::main",
+        "SnapshotTask::route",
+        "SnapshotTask::snapshotFiles",
+        "SnapshotTask::snapshotTables"
+    ],
     "app/classes/Terminal/Tasks/SyncOTPRecordsTask.php": [
         "SyncOTPRecordsTask::__construct",
         "SyncOTPRecordsTask::main",
@@ -2019,12 +2048,17 @@
         "VerifyIntegrityTask::__construct",
         "VerifyIntegrityTask::calledFunctions",
         "VerifyIntegrityTask::checkClassesAreLoadable",
+        "VerifyIntegrityTask::checkDeclaredTypes",
         "VerifyIntegrityTask::checkDeprecatedFunctions",
         "VerifyIntegrityTask::checkDocblocks",
+        "VerifyIntegrityTask::checkExecutableBits",
+        "VerifyIntegrityTask::checkNarrativeComments",
         "VerifyIntegrityTask::checkPackageEclipses",
         "VerifyIntegrityTask::checkRouteOverrides",
         "VerifyIntegrityTask::checkSharedToolchain",
+        "VerifyIntegrityTask::checkToolchainTracking",
         "VerifyIntegrityTask::collectFiles",
+        "VerifyIntegrityTask::collectNarrativeBlocks",
         "VerifyIntegrityTask::collectSignatures",
         "VerifyIntegrityTask::compareSignatures",
         "VerifyIntegrityTask::declaredClass",
@@ -2745,6 +2779,9 @@
         "MetaProperty::setInternalName",
         "MetaProperty::setValue",
         "MetaProperty::validateValue"
+    ],
+    "app/core/psr4/PiecesPHP/Core/Database/PreferSlugMinter.php": [
+        "PreferSlugMinter::mintPreferSlugIfMissing"
     ],
     "app/core/psr4/PiecesPHP/Core/Email/Mailgun.php": [
         "Mailgun::__construct",

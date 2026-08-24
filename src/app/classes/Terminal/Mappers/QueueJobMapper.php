@@ -99,21 +99,6 @@ class QueueJobMapper extends BaseEntityMapper
     }
 
     /**
-     * Migra la tabla a la base de datos
-     * @return bool
-     */
-    public static function migrate()
-    {
-        if (is_local()) {
-            $model = self::model();
-            $sql = (new \PiecesPHP\Core\Database\SchemeCreator(new QueueJobMapper()))->getSQL();
-            $pdo = $model->prepare($sql);
-            return $pdo->execute();
-        }
-        return false;
-    }
-
-    /**
      * @return ActiveRecordModel
      */
     public static function model()

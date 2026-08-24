@@ -145,6 +145,19 @@ mirar `maxDate` antes de nada.
 desde esta versión `json_encode()` lanza en vez de devolver `false`, así que un texto con
 UTF-8 inválido en base de datos pasa de servir un dato ligeramente mal a cortar la petición.
 
+## Cambios que rompen compatibilidad — `QueueJobMapper::migrate()` se retira
+
+Era un experimento de migraciones anterior a este sistema y está superado por
+`bin/cli scheme-create`. **No estaba dormido**: colgaba de `EVENT_INIT_ROUTES_NAME` en
+`config/final-configurations-includes/event-listeners.php`, así que **ejecutaba DDL en cada
+petición local**.
+
+Comprobado antes de retirarlo: `databases/piecesphp_structure.sql` aplicado sobre una base vacía
+crea **35 tablas**, `pcsphp_jobs_queue` entre ellas. El camino normal ya la creaba.
+
+Con esto **la aplicación no ejecuta DDL en ningún sitio: solo lo emite.** Los únicos que lo
+ejecutan son las suites y las tareas de terminal, que son herramientas.
+
 ## Corregido — tres guiones de `bin/` no arrancaban por sus finales de línea
 
 `.gitattributes` pone todo el repositorio en CRLF y luego exceptúa **guion por guion** los de

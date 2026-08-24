@@ -1,11 +1,4 @@
 <?php
 
-use PiecesPHP\Core\BaseEventDispatcher;
-use Terminal\Mappers\QueueJobMapper;
-
-BaseEventDispatcher::defaultListen(BaseEventDispatcher::EVENT_INIT_ROUTES_NAME, function () {
-    //──── Migraciones ───────────────────────────────────────────────────────────────────────
-    if (is_local()) {
-        QueueJobMapper::migrate();
-    }
-});
+//Escuchadores de eventos del framework. Ver 10-cli-y-tareas.md.
+//Vacío a propósito: el único que había ejecutaba DDL en cada petición local y se retiró.
