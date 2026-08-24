@@ -6394,3 +6394,37 @@ que comparten no es el daño: es que nadie lo mira.**
 `fieldOptionsStructure`. Es exactamente la misma forma que la comprobación 10 —los tipos contra el
 vocabulario—, cambiando el eje. **Pero es trabajo de E3**, no de ahora.
 
+
+## T66 · E2(b), SEGUNDA PASADA — la tabla sale limpia, y hay que leerla con cuidado
+
+*Método: `bin/walk-attribute` con sesión de root, 184 rutas GET pedidas, 166 omitidas por exigir
+parámetros o por ser de escritura. Foto de la base y del árbol después de CADA petición.*
+
+| Ruta | Qué toca | ¿Declarado? |
+| :-- | :-- | :-- |
+| `user-system-features-generate-otp` | `login_attempts` **+1 fila** | **Sí** |
+
+**184 rutas pedidas, 1 escribe, 0 diferencias NO declaradas.**
+
+### Lo que la tabla limpia NO significa
+
+**`GenericContentPseudoMapper` sigue escribiendo al construirse. No se ha tocado.** Desapareció
+del informe porque **su fila ya existe**: lo comprobé por su clave exacta —
+`sha1(GenericContentPseudoMapper::class) . '|homeImage'`— y está ahí, id 24 de 24 filas de
+`pcsphp_app_config`. **La creó nuestra propia pasada anterior.**
+
+> **Segunda vez en el mismo apartado, y ahora con nombre**: el instrumento completa la migración
+> que mide. Pasó con `news_categories` —los slugs nulos los rellenó el recorrido de T56— y ha
+> vuelto a pasar con `pcsphp_app_config`. **Un recorrido de solo-lectura que dispara rellenos
+> perezosos se agota a sí mismo: la segunda pasada siempre sale más limpia que la primera, y no
+> porque se haya arreglado nada.**
+>
+> Consecuencia práctica para E3: **la primera pasada sobre una base recién restaurada es la única
+> que ve estos casos.** Repetir el recorrido sobre la misma base no los encuentra.
+
+### Lo que queda, y no es de este apartado
+
+Del mismo recorrido, sin investigar: **18 rutas `*-datatables` devuelven 500** y tres `ajax-all`
+también. Es esperable —un endpoint de DataTables pedido sin sus parámetros no tiene por qué
+funcionar— pero **no está comprobado que sea solo eso**.
+
