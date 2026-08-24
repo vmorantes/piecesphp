@@ -78,6 +78,7 @@ mismas — las segundas son las que hay que mirar con más cuidado.
 | Suite | Quién juzga |
 | :-- | :-- |
 | `core/scheme-sql-round-trip` | **MariaDB** — aplica los dos scripts de verdad |
+| `core/prefer-slug` | **MariaDB** — crea filas reales y comprueba lo que queda escrito |
 | `core/database/type-vocabulary` (paquete) | **Se juzga sola**, pero compara seis fuentes entre sí: la deriva de una la delatan las otras cinco |
 | `core/db-backup-round-trip` | **MariaDB** + `password_verify()` |
 | `core/mapper-finders` | **MariaDB** |
@@ -184,6 +185,14 @@ bin/cli unit-tests:core/otp-write-separation
     - src/app/core/system-controllers/local-tests/UnitTest-MetaPropertyHybrid.php
 ```bash
 bin/cli unit-tests:core/meta-property-hybrid
+```
+- El acuñado del `preferSlug`
+    - Que dos peticiones simultáneas **no** acuñen dos slugs distintos, que una fila sin nombre
+      no reciba URL permanente, y que la tarea de relleno masivo rellene lo nulo **sin tocar** lo
+      que ya tiene valor.
+    - src/app/core/system-controllers/local-tests/UnitTest-PreferSlug.php
+```bash
+bin/cli unit-tests:core/prefer-slug
 ```
 - El SQL del esquema, de ida y de vuelta
     - Descubre TODOS los mappers, emite el `CREATE` y el `DROP`, y **se los da a MariaDB** en

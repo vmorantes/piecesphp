@@ -62,5 +62,17 @@ $cronjobs[] = CronJobTask::make('Ejemplo', function () {
     return $response;
 })->dailyAt("00:00");
 
+//Rellenar los slugs que falten tras una importación o un alta directa en base
+$cronjobs[] = CronJobTask::make('Rellenar slugs pendientes', function () {
+
+    $summary = \Terminal\Jobs\PreferSlugsFiller::run();
+
+    return [
+        'success' => true,
+        'message' => "Rellenados {$summary['filled']} slug(s) en {$summary['tables']} tabla(s).",
+        'extra_data' => $summary['detail'],
+    ];
+})->dailyAt("00:10");
+
 //Asignación global
 CronJobTask::addCronJobs($cronjobs);

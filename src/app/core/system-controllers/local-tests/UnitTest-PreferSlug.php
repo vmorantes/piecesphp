@@ -5,6 +5,7 @@
 use News\Mappers\NewsCategoryMapper;
 use PiecesPHP\Core\BaseModel;
 use PiecesPHP\Terminal\CliActions;
+use Terminal\Jobs\PreferSlugsFiller;
 
 /** Subclase de SOLO PRUEBAS: mueve la guarda a una columna que admite nulos. */
 class ZzSlugGuardMapper extends NewsCategoryMapper
@@ -99,6 +100,23 @@ CliActions::make('unit-tests:core/prefer-slug', function ($args) {
         $conNombre = new ZzSlugGuardMapper($idSinNombre);
         $check(ZzSlugGuardMapper::mintPreferSlugIfMissing($conNombre) === true && $slugEnBase($idSinNombre) !== null,
             'y con el campo puesto, la misma fila SÍ lo recibe');
+
+        //──── LA TAREA DE RELLENO MASIVO ────────────────────────────────────────────────
+        $idNulo = $crearFila($marca . '-masivo');
+        $idConValor = $crearFila($marca . '-intacto');
+        $db->prepare("UPDATE `{$tabla}` SET `preferSlug` = ? WHERE id = ?")->execute(['zz-valor-puesto-a-mano', $idConValor]);
+
+        $antesIntacto = $slugEnBase($idConValor);
+        $resumen = PreferSlugsFiller::run($tabla);
+
+        $check($slugEnBase($idNulo) !== null, 'la tarea RELLENA lo que estaba nulo');
+        $check($slugEnBase($idConValor) === $antesIntacto, 'y NO TOCA lo que ya tenía valor',
+            'antes=' . (string) json_encode($antesIntacto) . ' después=' . (string) json_encode($slugEnBase($idConValor)));
+        $check(($resumen['detail'][$tabla] ?? -1) >= 1, 'el resumen cuenta lo que rellenó', (string) json_encode($resumen['detail']));
+
+        //Y los mappers con slug se DESCUBREN, no se enumeran.
+        $conSlug = PreferSlugsFiller::mappersWithSlug();
+        $check(count($conSlug) >= 14, 'los mappers con preferSlug se descubren solos', count($conSlug) . ' encontrados');
 
     } catch (\Throwable $exception) {
         $check(false, 'la suite corre sin excepciones', $exception->getMessage());
